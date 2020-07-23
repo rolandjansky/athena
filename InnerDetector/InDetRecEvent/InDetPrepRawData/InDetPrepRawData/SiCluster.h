@@ -15,10 +15,10 @@
 #define TRKPREPRAWDATA_SICLUSTER_H
 
 // Base class
-#include "TrkPrepRawData/PrepRawData.h"
 #include "Identifier/Identifier.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h" // cant be forward declared
+#include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/Surface.h"
 
 #include <memory>
@@ -53,15 +53,16 @@ class SiCluster : public Trk::PrepRawData
   //@}
 
 public:
+  // Used by TPCnv converters
   SiCluster() = default;
   /// Copy constructor
-  SiCluster(const SiCluster&);
+  SiCluster(const SiCluster&) = default;
   /// Move constructor
-  SiCluster(SiCluster&&);
+  SiCluster(SiCluster&&) = default;
   /// Assignment operator
-  SiCluster& operator=(const SiCluster&);
+  SiCluster& operator=(const SiCluster&) = default;
   /// Move assignment operator
-  SiCluster& operator=(SiCluster&&);
+  SiCluster& operator=(SiCluster&&) = default;
 
   /**
    * Constructor with parameters using pointer of Amg::MatrixX.
@@ -116,10 +117,15 @@ public:
   virtual std::ostream& dump(std::ostream& stream) const;
   //@}
 
+  /// Set the m_detEl and calculate globalPostion
+  //used by TPCnv converters
+  void setDetectorElement(const InDetDD::SiDetectorElement* detEl);
+
 private:
-  /// col, row, and width in mm
   Amg::Vector3D m_globalPosition = Amg::Vector3D::Zero();
+  /// col, row, and width in mm
   InDet::SiWidth m_width{};
+  ///Not owning points (ownned by the store
   const InDetDD::SiDetectorElement* m_detEl = nullptr;
   bool m_gangedPixel = false;
 };
@@ -163,6 +169,14 @@ SiCluster::detectorElement() const
   return m_detEl;
 }
 
+inline void
+SiCluster::setDetectorElement(const InDetDD::SiDetectorElement* detEl)
+{
+  m_detEl = detEl;
+  if (m_detEl) {
+    m_globalPosition =
+      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+  }
 }
-
+}
 #endif // TRKPREPRAWDATA_SICLUSTER_H

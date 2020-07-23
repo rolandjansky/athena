@@ -29,9 +29,10 @@ SiCluster::SiCluster(const Identifier& RDOId,
   , m_detEl(detEl)
   , m_gangedPixel(false)
 {
-
-  m_globalPosition =
-    m_detEl->surface(identify()).localToGlobalPos(localPosition());
+  if (m_detEl) {
+    m_globalPosition =
+      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+  }
 }
 
 SiCluster::SiCluster(const Identifier& RDOId,
@@ -46,8 +47,10 @@ SiCluster::SiCluster(const Identifier& RDOId,
   , m_detEl(detEl)
   , m_gangedPixel(false)
 {
-  m_globalPosition =
-    m_detEl->surface(identify()).localToGlobalPos(localPosition());
+  if (m_detEl) {
+    m_globalPosition =
+      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+  }
 }
 
 // Destructor:
@@ -56,50 +59,6 @@ SiCluster::~SiCluster()
   // do not delete m_detEl since owned by DetectorStore
 }
 
-
-// copy constructor:
-SiCluster::SiCluster(const SiCluster& RIO)
-   
-
-= default;
-
-// move constructor:
-SiCluster::SiCluster(SiCluster&& RIO)
-  : PrepRawData(std::move(RIO))
-  , m_globalPosition(std::move(RIO.m_globalPosition))
-  , m_width(RIO.m_width)
-  , m_detEl(RIO.m_detEl)
-  , m_gangedPixel(RIO.m_gangedPixel)
-
-{}
-
-// assignment operator
-SiCluster&
-SiCluster::operator=(const SiCluster& RIO)
-{
-  if (&RIO != this) {
-    Trk::PrepRawData::operator=(RIO);
-    m_globalPosition = RIO.m_globalPosition;
-    m_width = RIO.m_width;
-    m_detEl = RIO.m_detEl;
-    m_gangedPixel = RIO.m_gangedPixel;
-  }
-  return *this;
-}
-
-// move operator
-SiCluster&
-SiCluster::operator=(SiCluster&& RIO)
-{
-  if (&RIO != this) {
-    Trk::PrepRawData::operator=(std::move(RIO));
-    m_globalPosition = std::move(RIO.m_globalPosition);
-    m_width = RIO.m_width;
-    m_detEl = RIO.m_detEl;
-    m_gangedPixel = RIO.m_gangedPixel;
-  }
-  return *this;
-}
 
 MsgStream&
 SiCluster::dump(MsgStream& stream) const
