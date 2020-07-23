@@ -1,4 +1,6 @@
-include.block("TriggerTier0/TriggerConfigCheckHLTpsk.py")
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from AthenaCommon.Include import include, printfunc
+include.block("TriggerJobOpts/TriggerConfigCheckHLTpsk.py")
 
 from AthenaCommon.Logging import logging
 mlog = logging.getLogger( 'TriggerConfigCheckHLTpsk' ) ## get the logger
@@ -20,7 +22,6 @@ if len(runNumbers)>0:
     ### If so, turn off the trigger.
     from PyCool import cool
     from CoolConvUtilities.AtlCoolLib import indirectOpen
-    import PyUtils.AthFile as AthFile
 
     # get connection to COOL and find the HLT ps key
 
@@ -44,7 +45,7 @@ if len(runNumbers)>0:
             ch = obj.channelId()
             hltpsk = int(obj.payloadValue("HltPrescaleKey")) # By default is a string
             allHltpsks += [hltpsk]
-        mlog.info("HLT prescale keys for run %d are %r " % (RunNumber,allHltpsks))
+        mlog.info("HLT prescale keys for run %d are %r ", RunNumber, allHltpsks)
         if len(allHltpsks) == 0:
             needToTurnOffHLT = True
 
@@ -56,20 +57,21 @@ if len(runNumbers)>0:
             ch = obj.channelId()
             lvl1psk = int(obj.payloadValue("Lvl1PrescaleConfigurationKey"))
             allLvl1psks += [lvl1psk]
-        mlog.info("LVL1 prescale keys for run %d are %r " % (RunNumber,allLvl1psks))
+        mlog.info("LVL1 prescale keys for run %d are %r ", RunNumber, allLvl1psks)
         if len(allLvl1psks) == 0:
             needToTurnOffLVL1 = True
           
     if needToTurnOffHLT and needToTurnOffLVL1:
-        mlog.warning("ERROR At least one run (%r) does not contain any trigger information in cool" % runNumbers)
-        mlog.warning("turning off trigger [rec.doTrigger=False, and TriggerFlags.dataTakingConditions='NoTrigger']")
+        mlog.error("At least one run (%r) does not contain any trigger information in cool. "
+                   "Turning off trigger [rec.doTrigger=False, and TriggerFlags.dataTakingConditions='NoTrigger']",
+                   runNumbers)
         TriggerFlags.dataTakingConditions='NoTrigger'
         from RecExConfig.RecFlags import rec
         from RecExConfig.RecAlgsFlags import recAlgs
         rec.doTrigger=False
         recAlgs.doTrigger=False
-        if not 'DQMonFlags' in dir():
-            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
+        if 'DQMonFlags' not in dir():
+            printfunc ("TriggerJobOpts/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
         DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)
@@ -77,21 +79,21 @@ if len(runNumbers)>0:
         DQMonFlags.doCTPMon.set_Value_and_Lock(False)
 
     elif needToTurnOffHLT:
-        mlog.warning("ERROR At least one run (%r) does not contain HLT information" % runNumbers)
+        mlog.warning("ERROR At least one run (%r) does not contain HLT information", runNumbers)
         mlog.warning("turning off hlt [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='Lvl1Only'].")
         TriggerFlags.dataTakingConditions='Lvl1Only'
-        if not 'DQMonFlags' in dir():
-            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
+        if 'DQMonFlags' not in dir():
+            printfunc ("TriggerJobOpts/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
         DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)
 
     elif needToTurnOffLVL1:
-        mlog.warning("ERROR At least one run (%r) does not contain LVL1 information" % runNumbers)
+        mlog.warning("ERROR At least one run (%r) does not contain LVL1 information", runNumbers)
         mlog.warning("turning off lvl1 [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='HltOnly'].")
         TriggerFlags.dataTakingConditions='HltOnly'
-        if not 'DQMonFlags' in dir():
-            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
+        if 'DQMonFlags' not in dir():
+            printfunc ("TriggerJobOpts/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
 #        DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)

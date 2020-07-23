@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##############################################################
 # BStoESD_Tier0_HLTConfig_jobOptions.py
 # For DATA reconstruction
@@ -8,11 +9,15 @@
 #   HLToffline       : HLT is ran offline, configuration is read from XML/JSON files
 #   HLTonline        : Normal running, everything is taken from COOL
 
+from RecExConfig.RecAlgsFlags import recAlgs
+from RecExConfig.RecFlags import rec
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
+from AthenaCommon.Include import include
 
 # First check is HLT psk is ok, if not, turn trigger off.
 if tf.configForStartup() != 'HLToffline':
-    include( "TrigTier0/TriggerConfigCheckHLTpsk.py" )
+    include( "TriggerJobOpts/TriggerConfigCheckHLTpsk.py" )
 
 if rec.doTrigger():
     
@@ -32,6 +37,7 @@ if rec.doTrigger():
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
         cfg=TriggerConfigGetter()
     except Exception:
+        from AthenaCommon.Resilience import treatException
         treatException("Could not run TriggerConfigGetter()")
 
 
@@ -40,7 +46,6 @@ if rec.doTrigger():
 
         # Want to use LVL1ConfigSvc for LVL1 thresholds only
         from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-        from AthenaCommon.AppMgr import ServiceMgr
         l1 = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
         l1.XMLFile = "LVL1config_SingleBeam_v1_7-bit_trigger_types.xml"
         l1.CreateLegacyObjects=True
@@ -117,7 +122,7 @@ if rec.doTrigger():
             ToolSvc += LVL1__L1JEPHitsTools("L1JEPHitsTools")
         ToolSvc.L1JEPHitsTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
-        import TrigT1CaloTools.TrigT1CaloToolsConf as calotools
+        import TrigT1CaloTools.TrigT1CaloToolsConf as calotools  # noqa: F401
 
         for toolName in ['L1JetCMXTools', 'L1EnergyCMXTools', 'L1TriggerTowerTool', 'L1CPMTools',
                          'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools', 'L1JetTools']:
@@ -131,6 +136,7 @@ if rec.doTrigger():
             from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
             triggerGetter = T0TriggerGetter()
         except Exception:
+            from AthenaCommon.Resilience import treatException
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
             recAlgs.doTrigger=False
     elif rec.doWriteBS():
