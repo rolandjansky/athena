@@ -63,7 +63,7 @@ def main():
                      help = "use axis comparison instead of bin-by-bin")
 
    parser.add_option("-l", "--sortLabels",
-                     action = "store_true",
+                     action = "store_true", default=False,
                      help = "sort/deflate alphanumeric axis before comparing")
 
    parser.add_option("-t", "--threshold",
