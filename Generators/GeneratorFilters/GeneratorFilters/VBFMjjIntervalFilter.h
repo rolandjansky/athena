@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERSVBFMJJINTERVALFILTER_H
@@ -48,9 +48,9 @@ private:
   bool m_taujetoverlap;
   double m_alpha;
 
-  bool checkOverlap(double, double, std::vector<HepMC::GenParticlePtr>);
-  bool checkOverlap(double, double, std::vector<CLHEP::HepLorentzVector*>);
-  CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::GenParticlePtr );
+  bool checkOverlap(double, double, std::vector<HepMC::ConstGenParticlePtr>);
+  bool checkOverlap(double, double, std::vector<CLHEP::HepLorentzVector>);
+  CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::ConstGenParticlePtr );
 
 public:
 
