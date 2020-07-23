@@ -108,6 +108,18 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
     
     thisFE->setCharge(0);
 
+    this->addMoment(xAOD::CaloCluster::CENTER_MAG,"eflowRec_CENTER_MAG",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::SECOND_R,"eflowRec_SECOND_R",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::CENTER_LAMBDA,"eflowRec_CENTER_LAMBDA",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::ENG_BAD_CELLS,"eflowRec_ENG_BAD_CELLS",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::N_BAD_CELLS,"eflowRec_N_BAD_CELLS",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::BADLARQ_FRAC,"eflowRec_BADLARQ_FRAC",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::ENG_POS,"eflowRec_ENG_POS",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::AVG_LAR_Q,"eflowRec_AVG_LAR_Q",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,"eflowRec_AVG_TILE_Q",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::ISOLATION,"eflowRec_ISOLATION",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::SECOND_LAMBDA,"eflowRec_SECOND_LAMBDA",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::EM_PROBABILITY,"eflowRec_EM_PROBABILITY",*cluster,*thisFE);
   
   }//cluster loop
   return StatusCode::SUCCESS;
