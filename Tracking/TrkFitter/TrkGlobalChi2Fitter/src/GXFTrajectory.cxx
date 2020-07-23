@@ -437,7 +437,7 @@ namespace Trk {
 
   void GXFTrajectory::reset() {
     m_res.clear();
-    m_weightresderiv.clear();
+    m_weightresderiv.resize(0, 0);
     m_errors.clear();
     m_scatteringangles.clear();
     m_scatteringsigmas.clear();
@@ -634,19 +634,12 @@ namespace Trk {
     return m_errors;
   }
 
-  std::vector < std::vector < double >>&
-    GXFTrajectory::weightedResidualDerivatives() {
-    if (m_weightresderiv.empty()) {
-      m_weightresderiv.resize(numberOfBrems() + m_ndof + m_nperpars +
-                              m_nmeasoutl);
-      // std::cout << "nmeas: " << 2*m_nscatterers+m_nbrems+m_ndof+m_nperpars+m_nmeasoutl << " capacity: " <<
-      // m_resderiv.capacity() << " numberOfFitParameters: " << numberOfFitParameters() << std::endl;
-      int nfitpar = numberOfFitParameters();
-      // std::cout << "capacity: " << m_resderiv.capacity() << " nbrems: " << numberOfBrems() << " ndof: " << m_ndof <<
-      // " perpars: " << m_nperpars << " noutl: " << m_nmeasoutl << std::endl;
-      for (auto & i : m_weightresderiv) {
-        i.resize(nfitpar);
-      }
+  Amg::MatrixX & GXFTrajectory::weightedResidualDerivatives() {
+    if (m_weightresderiv.size() == 0) {
+      m_weightresderiv.setZero(
+        numberOfBrems() + m_ndof + m_nperpars + m_nmeasoutl,
+        numberOfFitParameters()
+      );
     }
     return m_weightresderiv;
   }

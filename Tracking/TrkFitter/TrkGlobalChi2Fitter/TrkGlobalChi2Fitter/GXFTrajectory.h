@@ -78,7 +78,7 @@ namespace Trk {
   
     std::vector < double >&residuals();
     std::vector < double >&errors();
-    std::vector < std::vector < double >>&weightedResidualDerivatives();
+    Amg::MatrixX & weightedResidualDerivatives();
 
     double totalX0();
     double totalEnergyLoss();
@@ -118,7 +118,7 @@ namespace Trk {
     std::vector < double >m_brems;
     std::vector < double >m_res;
     std::vector < double >m_errors;
-    std::vector < std::vector < double >>m_weightresderiv;
+    Amg::MatrixX m_weightresderiv;
     double m_totx0;
     double m_toteloss;
     double m_mass;

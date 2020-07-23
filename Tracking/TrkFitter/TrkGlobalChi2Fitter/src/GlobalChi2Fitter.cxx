@@ -5552,8 +5552,9 @@ namespace Trk {
     int nbrem = trajectory.numberOfBrems();
     int nperpars = trajectory.numberOfPerigeeParameters();
     int nfitpars = trajectory.numberOfFitParameters();
+
     std::vector < double >&res = trajectory.residuals();
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
+    Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
     int nidhits = trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits();
     int nsihits = trajectory.numberOfSiliconHits();
     int ntrthits = trajectory.numberOfTRTHits();
@@ -5825,7 +5826,7 @@ namespace Trk {
       }
 
       for (int i = 0; i < nfitpars; i++) {
-        if (weightderiv[nmeas - nbrem + bremno_maxbrempull][i] == 0) {
+        if (weightderiv(nmeas - nbrem + bremno_maxbrempull, i) == 0) {
           continue;
         }
 
@@ -5833,14 +5834,13 @@ namespace Trk {
           a.fillSymmetric(
             i, j,
             a(i, j) - (
-              weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *
-              weightderiv[nmeas - nbrem + bremno_maxbrempull][j] * 
+              weightderiv(nmeas - nbrem + bremno_maxbrempull, i) *
+              weightderiv(nmeas - nbrem + bremno_maxbrempull, j) * 
               (1 - olderror * olderror / (newerror * newerror))
             )
           );
         }
-        
-        weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *= olderror / newerror;
+        weightderiv(nmeas - nbrem + bremno_maxbrempull, i) *= olderror / newerror;
       }
       lu_m = a;
       trajectory.setChi2(1e15);
@@ -5864,10 +5864,10 @@ namespace Trk {
     int nbrem = trajectory.numberOfBrems();
     int nperparams = trajectory.numberOfPerigeeParameters();
 
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
+    Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
     std::vector < double >&error = trajectory.errors();
 
-    int nmeas = (int) weightderiv.size();
+    int nmeas = (int) weightderiv.rows();
 
     ParamDefsAccessor paraccessor;
     
@@ -5907,24 +5907,12 @@ namespace Trk {
           }
           
           if (trajectory.numberOfPerigeeParameters() > 0) {
-            if (i == 0 && sinstereo != 0) {
-              weightderiv[measno][0] = (derivatives(0, 0) * cosstereo + sinstereo * derivatives(1, 0)) / error[measno];
-              weightderiv[measno][1] = (derivatives(0, 1) * cosstereo + sinstereo * derivatives(1, 1)) / error[measno];
-              weightderiv[measno][2] = (derivatives(0, 2) * cosstereo + sinstereo * derivatives(1, 2)) / error[measno];
-              weightderiv[measno][3] = (derivatives(0, 3) * cosstereo + sinstereo * derivatives(1, 3)) / error[measno];
-              
-              if (!trajectory.m_straightline) {
-                weightderiv[measno][4] = (derivatives(0, 4) * cosstereo + sinstereo * derivatives(1, 4)) / error[measno];
-              }
+            int cols = trajectory.m_straightline ? 4 : 5;
+
+            if (i == 0) {
+              weightderiv.row(measno).head(cols) = (derivatives.row(0).head(cols) * cosstereo + sinstereo * derivatives.row(1).head(cols)) / error[measno];
             } else {
-              weightderiv[measno][0] = derivatives(i, 0) / error[measno];
-              weightderiv[measno][1] = derivatives(i, 1) / error[measno];
-              weightderiv[measno][2] = derivatives(i, 2) / error[measno];
-              weightderiv[measno][3] = derivatives(i, 3) / error[measno];
-              
-              if (!trajectory.m_straightline) {
-                weightderiv[measno][4] = derivatives(i, 4) / error[measno];
-              }
+              weightderiv.row(measno).head(cols) = derivatives.row(i).head(cols) / error[measno];
             }
           }
           
@@ -5940,7 +5928,7 @@ namespace Trk {
               thisderiv = sign * derivatives(i, index);
             }
             
-            weightderiv[measno][index] = thisderiv / error[measno];
+            weightderiv(measno, index) = thisderiv / error[measno];
             
             if (trajectory.prefit() != 1) {
               index++;
@@ -5951,7 +5939,7 @@ namespace Trk {
                 thisderiv = sign * derivatives(i, index);
               }
               
-              weightderiv[measno][index] = thisderiv / error[measno];
+              weightderiv(measno, index) = thisderiv / error[measno];
             }
           }
           
@@ -5965,7 +5953,7 @@ namespace Trk {
               thisderiv = derivatives(i, index);
             }
             
-            weightderiv[measno][index] = thisderiv / error[measno];
+            weightderiv(measno, index) = thisderiv / error[measno];
           }
           
           measno++;
@@ -5995,7 +5983,7 @@ namespace Trk {
         double mass = .001 * trajectory.mass();
         
         if (trajectory.numberOfPerigeeParameters() > 0) {
-          weightderiv[nmeas - nbrem + bremno][4] = (
+          weightderiv(nmeas - nbrem + bremno, 4) = (
             (
               -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) + 
               sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
@@ -6004,13 +5992,13 @@ namespace Trk {
         }
         
         if (bremno < nbremupstream) {
-          weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno] = (
+          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
             (sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp))) /
             error[nmeas - nbrem + bremno]
           );
           
           for (int bremno2 = bremno + 1; bremno2 < nbremupstream; bremno2++) {
-            weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno2] = (
+            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
               -(
                 -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) +
                 sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
@@ -6018,13 +6006,13 @@ namespace Trk {
             );
           }
         } else {
-          weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno] = (
+          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
             (sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))) / 
             error[nmeas - nbrem + bremno]
           );
           
           for (int bremno2 = nbremupstream; bremno2 < bremno; bremno2++) {
-            weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno2] = (
+            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
               (
                 -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) +
                 sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
@@ -6089,7 +6077,7 @@ namespace Trk {
 
     int nmeas = (int) res.size();
 
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
+    const Amg::MatrixX & weight_deriv = trajectory.weightedResidualDerivatives();
 
     if (doderiv) {
       calculateDerivatives(trajectory);
@@ -6157,13 +6145,13 @@ namespace Trk {
 
       for (measno = minmeas; measno < maxmeas; measno++) {
         double tmp =
-          res[measno] * (1. / error[measno]) * weightderiv[measno][k];
+          res[measno] * (1. / error[measno]) * weight_deriv(measno, k);
         b[k] += tmp;
       }
 
       if (k == 4 || k >= nperpars + scatpars) {
         for (measno = nmeas - nbrem; measno < nmeas; measno++) {
-          b[k] += res[measno] * (1. / error[measno]) * weightderiv[measno][k];
+          b[k] += res[measno] * (1. / error[measno]) * weight_deriv(measno, k);
         }
       }
       
@@ -6176,7 +6164,7 @@ namespace Trk {
                      cache.m_firstmeasurement[l]);
           double tmp = 0;
           for (measno = minmeas; measno < maxmeas; measno++) {
-            tmp += weightderiv[measno][k] * weightderiv[measno][l];
+            tmp += weight_deriv(measno, k) * weight_deriv(measno, l);
           }
           a.fillSymmetric(l, k, tmp);
         }
@@ -6202,7 +6190,7 @@ namespace Trk {
             if (l == 5) {
               l = nperpars + scatpars;
             }
-            double tmp = a(l, k) + weightderiv[measno][k] * weightderiv[measno][l];
+            double tmp = a(l, k) + weight_deriv(measno, k) * weight_deriv(measno, l);
             a.fillSymmetric(l, k, tmp);
           }
         }
@@ -6297,7 +6285,7 @@ namespace Trk {
       for (measno = 0; measno < nmeas; measno++) {
         for (int k = 0; k < nfitpars; k++) {
           ATH_MSG_VERBOSE(
-            "deriv[" << measno << "][" << k << "]=" << weightderiv[measno][k] * error[measno] << 
+            "deriv[" << measno << "][" << k << "]=" << weight_deriv(measno, k) * error[measno] << 
             " error: " << error[measno]
           );
         }
@@ -6435,7 +6423,7 @@ namespace Trk {
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
     std::vector < double >&res = trajectory.residuals();
     std::vector < double >&err = trajectory.errors();
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
+    Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
     int nfitpars = trajectory.numberOfFitParameters();
     
     if (a.cols() != nfitpars) {
@@ -6470,16 +6458,19 @@ namespace Trk {
             double olderror = errors[0];
             
             for (int i = 0; i < nfitpars; i++) {
-              if (weightderiv[measno][i] == 0) {
+              if (weightderiv(measno, i) == 0) {
                 continue;
               }
               
-              b[i] -= res[measno] * weightderiv[measno][i] / olderror;
+              b[i] -= res[measno] * weightderiv(measno, i) / olderror;
               
               for (int j = i; j < nfitpars; j++) {
-                a.fillSymmetric(i, j, a(i, j) - weightderiv[measno][i] * weightderiv[measno][j]);
+                a.fillSymmetric(
+                  i, j,
+                  a(i, j) - weightderiv(measno, i) * weightderiv(measno, j)
+                );
               }
-              weightderiv[measno][i] = 0;
+              weightderiv(measno, i) = 0;
             }
             
             res[measno] = 0;
@@ -6528,13 +6519,11 @@ namespace Trk {
                 state->setMeasurement(newrot);
 
                 for (int i = 0; i < nfitpars; i++) {
-                  if (weightderiv[measno][i] == 0) {
+                  if (weightderiv(measno, i) == 0) {
                     continue;
                   }
 
-                  b[i] -= weightderiv[measno][i] * (
-                    oldres / olderror - (newres * olderror) / (newerror * newerror)
-                  );
+                  b[i] -= weightderiv(measno, i) * (oldres / olderror - (newres * olderror) / (newerror * newerror));
                   
                   for (int j = i; j < nfitpars; j++) {
                     double weight = 1;
@@ -6551,11 +6540,10 @@ namespace Trk {
                     
                     a.fillSymmetric(
                       i, j,
-                      a(i, j) + weightderiv[measno][i] * weightderiv[measno][j] * ((olderror * olderror) / (newerror * newerror) - 1) * weight
+                      a(i, j) + weightderiv(measno, i) * weightderiv(measno, j) * ((olderror * olderror) / (newerror * newerror) - 1) * weight
                     );
                   }
-                  
-                  weightderiv[measno][i] *= olderror / newerror;
+                  weightderiv(measno, i) *= olderror / newerror;
                 }
                 
                 res[measno] = newres;
@@ -6612,7 +6600,7 @@ namespace Trk {
       std::vector < GXFTrackState * >&states = oldtrajectory->trackStates();
       std::vector < double >&res = oldtrajectory->residuals();
       std::vector < double >&err = oldtrajectory->errors();
-      std::vector < std::vector < double >>&weightderiv = oldtrajectory->weightedResidualDerivatives();
+      Amg::MatrixX & weightderiv = oldtrajectory->weightedResidualDerivatives();
       int nfitpars = oldtrajectory->numberOfFitParameters();
       int nhits = oldtrajectory->numberOfHits();
       int nsihits = oldtrajectory->numberOfSiliconHits();
@@ -6822,21 +6810,23 @@ namespace Trk {
           err[measno_maxsipull] = newerror[0];
           
           for (int i = 0; i < nfitpars; i++) {
-            if (weightderiv[measno_maxsipull][i] == 0) {
+            if (weightderiv(measno_maxsipull, i) == 0) {
               continue;
             }
             
-            b[i] -= weightderiv[measno_maxsipull][i] * (oldres1 / olderror[0] - (newres1 * olderror[0]) / (newerror[0] * newerror[0]));
+            b[i] -= weightderiv(measno_maxsipull, i) * (oldres1 / olderror[0] - (newres1 * olderror[0]) / (newerror[0] * newerror[0]));
             
             for (int j = i; j < nfitpars; j++) {
               a.fillSymmetric(
                 i, j,
-                a(i, j) + weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j] *
-                ((olderror[0] * olderror[0]) / (newerror[0] * newerror[0]) - 1)
+                a(i, j) + (
+                  weightderiv(measno_maxsipull, i) *
+                  weightderiv(measno_maxsipull, j) *
+                  ((olderror[0] * olderror[0]) / (newerror[0] * newerror[0]) - 1)
+                )
               );
             }
-            
-            weightderiv[measno_maxsipull][i] *= olderror[0] / newerror[0];
+            weightderiv(measno_maxsipull, i) *= olderror[0] / newerror[0];
           }
           
           if (hittype_maxsipull == TrackState::Pixel) {
@@ -6845,21 +6835,24 @@ namespace Trk {
             err[measno_maxsipull + 1] = newerror[1];
             
             for (int i = 0; i < nfitpars; i++) {
-              if (weightderiv[measno_maxsipull + 1][i] == 0) {
+              if (weightderiv(measno_maxsipull + 1, i) == 0) {
                 continue;
               }
               
-              b[i] -= weightderiv[measno_maxsipull + 1][i] * (oldres2 / olderror[1] - (newres2 * olderror[1]) / (newerror[1] * newerror[1]));
+              b[i] -= weightderiv(measno_maxsipull + 1, i) * (oldres2 / olderror[1] - (newres2 * olderror[1]) / (newerror[1] * newerror[1]));
               
               for (int j = i; j < nfitpars; j++) {
                 a.fillSymmetric(
                   i, j,
-                  a(i, j) + weightderiv[measno_maxsipull + 1][i] * weightderiv[measno_maxsipull + 1][j] * 
-                  ((olderror[1] * olderror[1]) / (newerror[1] * newerror[1]) - 1)
+                  a(i, j) + (
+                    weightderiv(measno_maxsipull + 1, i) *
+                    weightderiv(measno_maxsipull + 1, j) * 
+                    ((olderror[1] * olderror[1]) / (newerror[1] * newerror[1]) - 1)
+                  )
                 );
               }
               
-              weightderiv[measno_maxsipull + 1][i] *= olderror[1] / newerror[1];
+              weightderiv(measno_maxsipull + 1, i) *= olderror[1] / newerror[1];
             }
           }
           
@@ -6902,8 +6895,7 @@ namespace Trk {
           }
 
           std::vector < double >&newres = newtrajectory->residuals();
-          std::vector < std::vector < double >>&newweightderiv = newtrajectory->weightedResidualDerivatives();
-          
+          Amg::MatrixX & newweightderiv = newtrajectory->weightedResidualDerivatives();
           if ((measno_maxsipull < 0) or(measno_maxsipull >= (int) res.size())) {
             throw std::runtime_error(
               "'res' array index out of range in TrkGlobalChi2Fitter/src/GlobalChi2Fitter.cxx:" + std::to_string(__LINE__)
@@ -6914,20 +6906,22 @@ namespace Trk {
           newres[measno_maxsipull] = 0;
           
           for (int i = 0; i < nfitpars; i++) {
-            if (weightderiv[measno_maxsipull][i] == 0) {
+            if (weightderiv(measno_maxsipull, i) == 0) {
               continue;
             }
             
-            newb[i] -= weightderiv[measno_maxsipull][i] * oldres1 / olderror[0];
+            newb[i] -= weightderiv(measno_maxsipull, i) * oldres1 / olderror[0];
             
             for (int j = i; j < nfitpars; j++) {
               newa.fillSymmetric(
                 i, j,
-                newa(i, j) - weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j]
+                newa(i, j) - (
+                  weightderiv(measno_maxsipull, i) *
+                  weightderiv(measno_maxsipull, j)
+                )
               );
             }
-            
-            newweightderiv[measno_maxsipull][i] = 0;
+            newweightderiv(measno_maxsipull, i) = 0;
           }
           
           if (hittype_maxsipull == TrackState::Pixel) {
@@ -6935,24 +6929,26 @@ namespace Trk {
             newres[measno_maxsipull + 1] = 0;
             
             for (int i = 0; i < nfitpars; i++) {
-              if (weightderiv[measno_maxsipull + 1][i] == 0) {
+              if (weightderiv(measno_maxsipull + 1, i) == 0) {
                 continue;
               }
               
-              newb[i] -= weightderiv[measno_maxsipull + 1][i] * oldres2 / olderror[1];
+              newb[i] -= weightderiv(measno_maxsipull + 1, i) * oldres2 / olderror[1];
               
               for (int j = i; j < nfitpars; j++) {
-                if (weightderiv[measno_maxsipull + 1][j] == 0) {
+                if (weightderiv(measno_maxsipull + 1, j) == 0) {
                   continue;
                 }
                 
                 newa.fillSymmetric(
                   i, j,
-                  newa(i, j) - weightderiv[measno_maxsipull + 1][i] * weightderiv[measno_maxsipull + 1][j]
+                  newa(i, j) - (
+                    weightderiv(measno_maxsipull + 1, i) *
+                    weightderiv(measno_maxsipull + 1, j)
+                  )
                 );
               }
-              
-              newweightderiv[measno_maxsipull + 1][i] = 0;
+              newweightderiv(measno_maxsipull + 1, i) = 0;
             }
           }
           
@@ -7148,7 +7144,7 @@ namespace Trk {
     std::vector<GXFTrackState *> & states = oldtrajectory.trackStates();
     
     if (m_fillderivmatrix) {
-      std::vector < std::vector < double >>&derivs = oldtrajectory.weightedResidualDerivatives();
+      Amg::MatrixX & derivs = oldtrajectory.weightedResidualDerivatives();
       std::vector < double >&errors = oldtrajectory.errors();
       int nrealmeas = 0;
      
@@ -7180,7 +7176,7 @@ namespace Trk {
         ) {
           for (int i = measindex; i < measindex + hit->numberOfMeasuredParameters(); i++) {
             for (int j = 0; j < oldtrajectory.numberOfFitParameters(); j++) {
-              cache.m_derivmat(i, j) = derivs[measindex2][j] * errors[measindex2];
+              cache.m_derivmat(i, j) = derivs(measindex2, j) * errors[measindex2];
               if ((j == 4 && !oldtrajectory.m_straightline) || j >= nperpars + 2 * nscat) {
                 cache.m_derivmat(i, j) *= 1000;
               }
