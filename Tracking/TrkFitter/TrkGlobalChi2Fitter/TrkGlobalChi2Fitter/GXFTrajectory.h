@@ -44,8 +44,6 @@ namespace Trk {
     void setOutlier(int, bool isoutlier = true);
     void setPrevChi2(double);
     void setChi2(double);
-    void setResiduals(std::vector < double >&);
-    void setResidualDerivatives(std::vector < std::vector < double > >&);
     void setMass(double);
 
     int numberOfScatterers();
