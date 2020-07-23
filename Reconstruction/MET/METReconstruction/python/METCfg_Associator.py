@@ -61,13 +61,12 @@ def METAssociator_Cfg(configFlags):
                                 modClusColls=modClusColls
                                 )
     components_akt4em= getAssocCA(cfg_akt4em,sequencename='METAssoc_AntiKt4EMTopo',METName='AntiKt4EMTopo')
-    components.merge(components_akt4em)                            
+    components.merge(components_akt4em)
 
     ############################################################################
     # PFlow
     if configFlags.MET.DoPFlow and configFlags.MET.UseTracks:
         JetType = 'PFlowJet'
-    
         associators = [AssocConfig(JetType),
                        AssocConfig('Muon'),
                        AssocConfig('Ele'),
@@ -79,7 +78,7 @@ def METAssociator_Cfg(configFlags):
                                     associators,
                                     doPFlow=True
                                     )
-        components_akt4pf= getAssocCA(cfg_akt4pf,sequencename='METAssoc_AntiKt4EMPFlow',METName='AntiKt4EMPFlow')         
+        components_akt4pf= getAssocCA(cfg_akt4pf,sequencename='METAssoc_AntiKt4EMPFlow',METName='AntiKt4EMPFlow')
         components.merge(components_akt4pf)
     return components
     
@@ -89,7 +88,6 @@ def getAssocCA(config,sequencename='METAssociation',METName=''):
     from AthenaConfiguration.ComponentFactory import CompFactory
     AthSequencer=CompFactory.AthSequencer
     components.addSequence( AthSequencer(sequencename) )
-    #assoctool = getMETAssocTool(config)
     assocAlg = getMETAssocAlg(algName='METAssociation_'+METName,configs={config.suffix:config})
     components.addEventAlgo(assocAlg,sequencename)
     if not METName=='':
