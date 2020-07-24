@@ -130,7 +130,6 @@ private:
   
   
   /// profile plots with eta < 0.5 cuts
-  
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
   Prof_t m_phiVsNstrips_eta0p5[4];
   /// dividing for two eta index
@@ -153,6 +152,7 @@ private:
   Prof_t m_phiVsNstrips_eta0p5_100_pT_eta[4][8][2];
   Prof_t m_phiVsNstrips_eta0p5_111_pT_eta[4][8][2];
 
+
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer/side)
   Prof_t m_phiVsNstrips_eta0p5_Side[4][2];
   Prof_t m_phiVsNstrips_eta0p5_Side_100[4][2];
@@ -169,6 +169,7 @@ private:
   Prof_t m_phiVsNstrips_eta0p5_Side_pT_eta[4][2][8][2];
   Prof_t m_phiVsNstrips_eta0p5_Side_100_pT_eta[4][2][8][2];
   Prof_t m_phiVsNstrips_eta0p5_Side_111_pT_eta[4][2][8][2];
+  
   
 
   ToolHandle < Trk::ITrackHoleSearchTool >  m_holeSearchTool;
