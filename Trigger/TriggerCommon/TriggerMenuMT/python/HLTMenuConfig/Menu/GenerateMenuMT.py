@@ -14,9 +14,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuUtil import applyHLTPrescale
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -372,5 +371,8 @@ class GenerateMenuMT(object):
 
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
         generateJSON()
+
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+        generatePrescaleJSON()
 
         return finalListOfChainConfigs
