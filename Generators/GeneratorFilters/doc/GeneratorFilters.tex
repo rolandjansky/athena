@@ -75,7 +75,7 @@ and rapidity are available.
         pitr!=genEvt->particles_end(); ++pitr ){
       if( ((*pitr)->pdg_id() == 11) || ((*pitr)->pdg_id() == -11) ){
         if( ((*pitr)->momentum().perp() >=m_Ptmin) && 
-            fabs((*pitr)->momentum().pseudoRapidity()) <=m_EtaRange){
+            std::abs((*pitr)->momentum().pseudoRapidity()) <=m_EtaRange){
           return StatusCode::SUCCESS;
         }
 \end{verbatim}

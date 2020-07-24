@@ -16,13 +16,11 @@ May 2009
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon {
   class CscPrepData;
-}
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
@@ -79,9 +77,11 @@ private:
   /** threshold multiplier  for cluster peak finding */
   double m_multi;
 
-  const MuonGM::MuonDetectorManager* m_detMgr;
-
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  /** retrieve MuonDetectorManager from the conditions store */     
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 	
+      "MuonDetectorManager", 	"Key of input MuonDetectorManager condition data"};    
 
 };
 #endif

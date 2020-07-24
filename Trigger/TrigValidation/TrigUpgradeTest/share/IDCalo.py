@@ -16,19 +16,24 @@ from AthenaCommon.AlgSequence import AthSequencer
 viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
 topSequence += viewSeq
 
-from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 roiCollectionName =  mapThresholdToL1RoICollection("EM")
 
 # View maker alg
-from AthenaCommon import CfgMgr
 viewNodeName = "allViewAlgorithms"
-viewMaker = CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
-viewMaker.ViewBaseName = "testView"
-viewMaker.InputRoICollection = roiCollectionName
-viewMaker.ViewNodeName = viewNodeName
-viewMaker.OutputRoICollection = "EMViewRoIs"
-viewMaker.ViewFallThrough = True
-viewSeq += viewMaker
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+
+inputMakerAlg = EventViewCreatorAlgorithm("viewMaker")
+inputMakerAlg.ViewFallThrough = True
+inputMakerAlg.RoIsLink = roiCollectionName
+inputMakerAlg.InViewRoIs = "EMViewRoIs"
+inputMakerAlg.Views = "testView"
+inputMakerAlg.RoITool = ViewCreatorInitialROITool()
+inputMakerAlg.InputMakerInputDecisions = [ mapThresholdToL1DecisionCollection("EM") ]
+inputMakerAlg.ViewNodeName = viewNodeName
+inputMakerAlg.InputMakerOutputDecisions =  'DUMMYOUTDEC'
+viewSeq += inputMakerAlg
 
 # Set of view algs
 allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, StopOverride=False)

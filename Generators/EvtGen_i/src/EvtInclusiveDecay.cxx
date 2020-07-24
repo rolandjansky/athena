@@ -648,10 +648,10 @@ bool EvtInclusiveDecay::passesUserSelection(HepMC::GenEvent* hepMC) {
     for (auto muItr2 = muItr1+1; muItr2 != muons->end(); ++muItr2) {
       if( m_userSelRequireOppositeSignedMu && (*muItr1)->pdg_id() * (*muItr2)->pdg_id() > 0)
         continue;
-      if( !( (*muItr1)->momentum().perp() > m_userSelMu1MinPt && fabs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
-             (*muItr2)->momentum().perp() > m_userSelMu2MinPt && fabs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) &&
-          !( (*muItr2)->momentum().perp() > m_userSelMu1MinPt && fabs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
-             (*muItr1)->momentum().perp() > m_userSelMu2MinPt && fabs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) )
+      if( !( (*muItr1)->momentum().perp() > m_userSelMu1MinPt && std::abs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
+             (*muItr2)->momentum().perp() > m_userSelMu2MinPt && std::abs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) &&
+          !( (*muItr2)->momentum().perp() > m_userSelMu1MinPt && std::abs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
+             (*muItr1)->momentum().perp() > m_userSelMu2MinPt && std::abs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) )
         continue;
       double dimuMass = invMass((*muItr1),(*muItr2));
       if( !( dimuMass > m_userSelMinDimuMass && (dimuMass < m_userSelMaxDimuMass || m_userSelMaxDimuMass < 0.) ) )

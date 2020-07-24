@@ -83,7 +83,7 @@ for option in defaultOptions:
     if option in globals():
         setattr(opt, option, globals()[option])
         print(' %20s = %s' % (option, getattr(opt, option)))
-    else:        
+    else:
         print(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
 
@@ -196,7 +196,7 @@ ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 
 # To turn off HLT for athena running
 TriggerFlags.doHLT = bool(opt.doHLT)
-    
+
 # To extract the Trigger configuration
 TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
 if opt.trigBase is not None:
@@ -249,7 +249,7 @@ TriggerFlags.doCalo = opt.doCalo
 modifierList=[]
 from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
 meta = TrigConfMetaData()
-    
+
 for mod in dir(TriggerJobOpts.Modifiers):
     if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'):
         continue
@@ -363,7 +363,7 @@ else:
     topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
 
 # ----------------------------------------------------------------
-# Detector geometry 
+# Detector geometry
 # ----------------------------------------------------------------
 # Always enable AtlasFieldSvc
 from AthenaCommon.DetFlags import DetFlags
@@ -409,12 +409,12 @@ if globalflags.InputFormat.is_pool():
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
-    # enable transient BS 
+    # enable transient BS
     if TriggerFlags.doTransientByteStream():
         log.info("setting up transient BS")
         include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-        
-     
+
+
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
@@ -426,6 +426,17 @@ elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.
     # Set up ByteStream reading services
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
+
+# Set up a temporary workaround for ROOT-10940 / ATR-21753.
+from xAODCoreCnv.xAODCoreCnvConf import xAODMaker__ROOTHeaderLoaderSvc
+svcMgr += xAODMaker__ROOTHeaderLoaderSvc( 'ROOTHeaderLoaderSvc',
+            HeaderNames = [ 'xAODEgamma/PhotonContainer.h',
+                            'xAODTrigEgamma/TrigPhotonContainer.h',
+                            'xAODMuon/MuonContainer.h',
+                            'xAODTrigMuon/L2StandAloneMuonContainer.h',
+                            'xAODJet/JetContainer.h',
+                            'xAODTau/TauJetContainer.h' ] )
+theApp.CreateSvc += [ 'xAODMaker::ROOTHeaderLoaderSvc/ROOTHeaderLoaderSvc' ]
 
 # ---------------------------------------------------------------
 # Trigger config
@@ -490,7 +501,7 @@ if not opt.createHLTMenuExternally:
     if (opt.selectChains):
         menu.selectChainsForTesting = opt.selectChains
 
-    # generating the HLT structure requires 
+    # generating the HLT structure requires
     # the L1Decoder to be defined in the topSequence
     menu.generateMT()
 
@@ -531,7 +542,7 @@ if hasattr(svcMgr.THistSvc, "Output"):
 
 #-------------------------------------------------------------
 # Conditions overrides
-#-------------------------------------------------------------    
+#-------------------------------------------------------------
 if len(opt.condOverride)>0:
     for folder,tag in opt.condOverride.iteritems():
         log.warning('Overriding folder %s with tag %s', folder, tag)

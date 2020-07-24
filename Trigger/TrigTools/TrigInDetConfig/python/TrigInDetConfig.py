@@ -190,6 +190,20 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
   RegSelTool_SCT = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
 
+  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
+                                                    DataObjects= [('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
+                                                                  ('PixelRDO_Cache', 'PixRDOCache'),
+                                                                  ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
+                                                                  ('SCT_RDO_Cache', 'SctRDOCache'),
+                                                                  ('SpacePointCache', 'PixelSpacePointCache'),
+                                                                  ('SpacePointCache', 'SctSpacePointCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
+                                                                  ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
+                                                                      # ('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_L2CaloEMClusters'),
+                                                                  ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
+                                                                  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
+
+  acc.addEventAlgo(verifier)
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
   if not isMC:
@@ -350,6 +364,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDet__SiSpacePointMakerTool=CompFactory.InDet.SiSpacePointMakerTool
   InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
   acc.addPublicTool(InDetSiSpacePointMakerTool)
+
+  acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") )
 
   from AthenaCommon.DetFlags import DetFlags
   InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
