@@ -109,10 +109,7 @@ inline
 typename ReadHandle<T>::const_pointer_type
 ReadHandle<T>::cptr()
 {
-  const T *result = nullptr;
-  if (!xAOD::TActiveEvent::event()->retrieve (result, key(), true))
-    throw std::runtime_error ("failed to retrieve " + key());
-  return result;
+  return getCPtr();
 }
 
 
@@ -161,7 +158,7 @@ inline
 typename ReadHandle<T>::const_pointer_type
 ReadHandle<T>::get() const
 {
-  return cptr();
+  return getCPtr();
 }
 
 
@@ -192,6 +189,21 @@ ReadHandle<T>::checkedCPtr()
     throw std::runtime_error ("failed to read object: " + key());
     // throwExcNullReadHandle (clid(), key(), store());
   return p;
+}
+
+
+/**
+ * @brief Helper: dereference the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::getCPtr() const
+{
+  const T *result = nullptr;
+  (void) xAOD::TActiveEvent::event()->retrieve (result, key(), true);
+  return result;
 }
 
 
