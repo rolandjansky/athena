@@ -1,15 +1,19 @@
-include.block("TrigTier0/TriggerConfigCheckMetadata.py")
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon.Include import include, printfunc
+include.block("TriggerJobOpts/TriggerConfigCheckMetadata.py")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.Logging import logging
+from RecExConfig.RecFlags import rec
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 log = logging.getLogger( "TriggerConfigCheckMetadata.py" )
 
 if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput())>0 :
     from PyUtils.MetaReaderPeekerFull import metadata
-    if not 'DQMonFlags' in dir():
+    if 'DQMonFlags' not in dir():
         printfunc ("DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now")
         from AthenaMonitoring.DQMonFlags import DQMonFlags
 
@@ -40,6 +44,7 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                     MuonDQADetFlags.doTGCMon.set_Value_and_Lock(False)                    
                     log.warning("Turning off TgcLv1RawMonitoring because lvl1 info is missing")
                 except Exception:
+                    from AthenaCommon.Resilience import treatException
                     treatException("Could not import MuonDQADetFlags")
 
             if not hasHLT and not hasLVL1:
@@ -58,6 +63,7 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                     MuonDQADetFlags.doTGCMon.set_Value_and_Lock(False)                    
                     log.warning("Turning off TgcLv1RawMonitoring  because all trigger info is missing")
                 except Exception:
+                    from AthenaCommon.Resilience import treatException
                     treatException("Could not import MuonDQADetFlags")
 
         else:
