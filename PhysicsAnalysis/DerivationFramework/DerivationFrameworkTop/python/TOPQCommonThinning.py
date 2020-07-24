@@ -231,6 +231,31 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
         thinningTools.append(TOPQTrkJetJetFitterThinningTool)
         print TOPQname+".py", TOPQname+"TrkJetJetFitterThinningTool: ", TOPQTrkJetJetFitterThinningTool
 
+    if TOPQname == 'TOPQ1':
+
+        # Keep tracks of the exkt2 jets
+
+        largeR_pt = "AntiKt8EMPFlowJets.pt > 15*GeV"
+        largeR_eta = "abs(AntiKt8EMPFlowJets.eta) < 2.5"
+        largeRsel = "count(({0}) && ({1})) >= 1".format(largeR_pt, largeR_eta)
+        track_particle_thinning_trackjetpt_cut = "AntiKt8EMPFlowExKt2GASubJets.pt >= 5*GeV"
+        
+        TOPQTrkJetThinningToolExkt = DerivationFramework__TrkJetTrackThinning(
+            name                    = TOPQname + "TrkJetTrackThinning",
+            ThinningService         = TOPQThinningSvc,
+            TrkJetKey               = "AntiKt8EMPFlowExKt2GASubJets",
+            InDetTrackParticlesKey  = "InDetTrackParticles",
+            TrkJetSelectionString   = track_particle_thinning_trackjetpt_cut,
+            EventSelectionString    = largeRsel,
+            ThinConstituents        = True,
+            ThinJetFitterTracks     = False,
+            ThinSV1Tracks           = False,
+            ApplyAnd                = False
+        )
+        ToolSvc += TOPQTrkJetThinningToolExkt
+        thinningTools.append(TOPQTrkJetThinningToolExkt)
+        print TOPQname+".py", TOPQname+"TrkJetThinningTool: ", TOPQTrkJetThinningToolExkt
+
     #============================
     # JetCaloCluster Thinning (AntiKt4EMTopoJets)
     #============================
