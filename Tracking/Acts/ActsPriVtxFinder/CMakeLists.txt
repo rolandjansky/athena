@@ -95,9 +95,3 @@ atlas_add_component( ActsPriVtxFinder
                      TrkVertexFitterInterfaces 
                      AthenaMonitoringKernelLib
                      InDetRecToolInterfaces )
-
-# Install files from the package:
-atlas_install_headers( ActsPriVtxFinder )
-atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/*.py )
-

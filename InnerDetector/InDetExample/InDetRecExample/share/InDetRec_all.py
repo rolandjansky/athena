@@ -79,7 +79,7 @@ if InDetFlags.doTruth():
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
-print alg
+print (alg)
 topSequence += alg
 
 #------------------------------------------------------------
@@ -91,7 +91,7 @@ if doEdmMonitor:
   InDetEdmMonitor = Trk__EventDataModelMonitor (name = 'InDetEdmMonitor')
   topSequence += InDetEdmMonitor
   if (InDetFlags.doPrintConfigurables()):
-    print          InDetEdmMonitor
+    print          (InDetEdmMonitor)
 ## DBM TruthLinks
 if (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()) and InDetFlags.doTruth():
   from AthenaCommon.Resilience import protectedInclude
@@ -187,7 +187,7 @@ if InDetFlags.doSplitReco() :
   )
   builder.DoFiltering = False
   topSequence += builder
-  print builder
+  print (builder)
 
 # ------------------------------------------------------------
 # write BS 

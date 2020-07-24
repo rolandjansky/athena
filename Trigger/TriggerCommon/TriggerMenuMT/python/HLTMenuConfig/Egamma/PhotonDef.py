@@ -87,7 +87,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg])
         
     def getFastPhoton(self):
-        stepName = "L2Photon"
+        stepName = "FastPhoton"
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
 
     def getPrecisionCaloPhoton(self):

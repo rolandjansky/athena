@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from JetRec.JetRecFlags import jetFlags
@@ -10,10 +10,7 @@ import AthenaCommon.SystemOfUnits as Units
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 from JetRec.JetRecConf import PseudoJetAlgorithm
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
-from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool
-from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool
 
 #select the tracks
 #if jetFlags.Enabled() : HIJetFlags.UseHITracks.set_Value_and_Lock(False)
@@ -170,11 +167,11 @@ if HIJetFlags.ApplyEtaJESCalibration() :
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     for R in HIJetFlags.AntiKtRValues() :
         #non existing calibration for R=1.0 jets, R=0.4 jet calibration to be used (GetHIModifierList)
-        if int(10*R) is 10 : continue
+        if int(10*R) == 10 : continue
         calib_seq='EtaJES'
         JES_is_data=True
         if jetFlags.useTruth(): JES_is_data=False
-        elif R is 0.4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
+        elif R == 0.4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
         #elif R is 1.0 : R = 0.4
         calib_tool=JetCalibrationTool('HICalibToolR%d' % int(10*R),JetCollection='AntiKt%dHI' % int(10*R),
                                       ConfigFile='JES_MC15c_HI_Nov2016.config',CalibSequence=calib_seq,IsData=JES_is_data)

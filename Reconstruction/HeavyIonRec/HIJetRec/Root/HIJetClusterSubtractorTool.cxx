@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetClusterSubtractorTool.h"
+#include "HIJetClusterSubtractorTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "HIEventUtils/HIEventShapeIndex.h"

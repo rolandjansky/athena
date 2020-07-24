@@ -107,7 +107,7 @@ private:
   const IMaker* m_maker;
 
   typedef std::mutex mutex_t;
-  typedef std::lock_guard<mutex_t> lock_t;
+  typedef std::scoped_lock<mutex_t> lock_t;
   typedef std::unique_lock<mutex_t> uniqueLock;
   mutex_t m_mutex;
   ///Pool of mutexes used for waiting on completion if in a concurrent environment

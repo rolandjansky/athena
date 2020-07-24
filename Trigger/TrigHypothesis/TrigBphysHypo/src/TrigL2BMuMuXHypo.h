@@ -19,7 +19,6 @@
 #ifndef TrigL2BMuMuXHypo_h
 #define TrigL2BMuMuXHypo_h
 
-#include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/HypoAlgo.h"
 
 #include "Constants.h"

@@ -105,7 +105,7 @@ float ReadLumiBlock::getLumiBlockLength(const uint32_t lb, MsgStream& msg) const
 
 	if (m_lbLength.count(lb) != 1) {
  		msg << MSG::INFO << "Unknown lumiblock number " << lb << endmsg;
- 		return 0; 
+ 		return 60.0; // Sensible default
 	}
 	return m_lbLength.at(lb) * 1e-9; // Convert from ns
 }

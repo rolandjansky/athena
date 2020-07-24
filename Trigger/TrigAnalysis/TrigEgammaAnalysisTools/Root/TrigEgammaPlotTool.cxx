@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Plot Tool -- for all your plotting needs
@@ -193,7 +193,7 @@ StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
 
     setBinning();
     bool badconfig=false;
-    for(const auto info:trigInfo){
+    for(const auto& info:trigInfo){
         // Check for existing trigger in list
         if(m_trigInfo.count(info.first) != 0) {
             ATH_MSG_ERROR("Trigger booked! Check list of triggers in tools");
@@ -209,7 +209,7 @@ StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
             std::vector<std::string> dirnames;
             dirnames.push_back(basePath + "/Distributions/Offline");
             dirnames.push_back(basePath + "/Distributions/HLT");
-            for (const auto dir:dirnames){
+            for (const auto& dir:dirnames){
                 ATH_MSG_VERBOSE(dir);
                 addDirectory(dir);
                 bookDistributionHistos(dir);
@@ -236,7 +236,7 @@ void TrigEgammaPlotTool::bookShifterHistos(){
     std::vector<std::string>::iterator dirItr;
     std::map<std::string, TH1 *>::iterator histItr; 
     // Book histograms from existing expert plots
-    for(const auto info:m_trigInfo){
+    for(const auto& info:m_trigInfo){
         ATH_MSG_INFO(info.first << " ");
         if(getCategoryFromTrigger(info.first,category)){
             dirtrig=m_baseDir+"/Expert/"+info.first;
@@ -247,7 +247,7 @@ void TrigEgammaPlotTool::bookShifterHistos(){
                 addDirectory(dirmam);
                 //Add contents of the histograms
                 if(m_tp){
-                    for(const auto plot:m_distplots){
+                    for(const auto& plot:m_distplots){
                         fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
                         histItr = m_hist1.find(fullPath);
                         if (histItr == m_hist1.end())
@@ -257,7 +257,7 @@ void TrigEgammaPlotTool::bookShifterHistos(){
                     }
                 }
                 else {
-                    for(const auto plot:m_effplots){
+                    for(const auto& plot:m_effplots){
                         fullPath = getPath(plot, dirtrig+"/Efficiency/HLT");
                         histItr = m_hist1.find(fullPath);
                         if (histItr == m_hist1.end())
@@ -265,7 +265,7 @@ void TrigEgammaPlotTool::bookShifterHistos(){
                         else
                         addHistogram((TH1*)hist1(plot,dirtrig+"/Efficiency/HLT")->Clone());
                     }
-                    for(const auto plot:m_distplots){
+                    for(const auto& plot:m_distplots){
                         fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
                         histItr = m_hist1.find(fullPath);
                         if (histItr == m_hist1.end())
@@ -273,7 +273,7 @@ void TrigEgammaPlotTool::bookShifterHistos(){
                         else
                             addHistogram((TH1*)hist1(plot,dirtrig+"/Distributions/HLT")->Clone());
                     }
-                    for(const auto plot:m_resplots){
+                    for(const auto& plot:m_resplots){
                         fullPath = getPath(plot, dirtrig+"/Resolutions/HLT");
                         histItr = m_hist1.find(fullPath);
                         if (histItr == m_hist1.end())
@@ -292,7 +292,7 @@ StatusCode TrigEgammaPlotTool::execute(){
 }
 
 bool TrigEgammaPlotTool::getCategoryFromTrigger(const std::string trigger,std::string &category){
-    for(const auto mam:m_mam){
+    for(const auto& mam:m_mam){
         if(mam.second == trigger){
             category=mam.first;
             return true;
@@ -309,13 +309,13 @@ StatusCode TrigEgammaPlotTool::finalizeShifterHistos(std::map<std::string,TrigIn
     std::string category="";
     std::string fullPath;
     std::map<std::string, TH1 *>::iterator histItr; 
-    for(const auto info:trigInfo){
+    for(const auto& info:trigInfo){
         if(getCategoryFromTrigger(info.first,category)){
             dirtrig=m_baseDir+"/Expert/"+info.first;
             dirmam=m_baseDir+"/Shifter/"+category;
             if(m_tp){
                 ATH_MSG_INFO("Finalize " << name() << " " << info.first << " " << m_tp );
-                for(const auto plot:m_distplots){
+                for(const auto& plot:m_distplots){
                     fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
                     histItr = m_hist1.find(fullPath);
                     if (histItr == m_hist1.end())
@@ -327,7 +327,7 @@ StatusCode TrigEgammaPlotTool::finalizeShifterHistos(std::map<std::string,TrigIn
             }
             else {
                 ATH_MSG_INFO("Finalize " << name() << " " << info.first << " " << m_tp );
-                for(const auto plot:m_effplots){
+                for(const auto& plot:m_effplots){
                     fullPath = getPath(plot, dirtrig+"/Efficiency/HLT");
                     histItr = m_hist1.find(fullPath);
                     if (histItr == m_hist1.end())
@@ -335,7 +335,7 @@ StatusCode TrigEgammaPlotTool::finalizeShifterHistos(std::map<std::string,TrigIn
                     else
                         hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Efficiency/HLT"));
                 }
-                for(const auto plot:m_distplots){
+                for(const auto& plot:m_distplots){
                     fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
                     histItr = m_hist1.find(fullPath);
                     if (histItr == m_hist1.end())
@@ -343,7 +343,7 @@ StatusCode TrigEgammaPlotTool::finalizeShifterHistos(std::map<std::string,TrigIn
                     else
                         hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Distributions/HLT"));
                 }
-                for(const auto plot:m_resplots){
+                for(const auto& plot:m_resplots){
                     fullPath = getPath(plot, dirtrig+"/Resolutions/HLT");
                     histItr = m_hist1.find(fullPath);
                     if (histItr == m_hist1.end())
@@ -1192,7 +1192,7 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
       dirnames.push_back(basePath + "/"+algname+"/L2");
       dirnames.push_back(basePath + "/"+algname+"/EFCalo");
 
-      for (const auto dir:dirnames) {
+      for (const auto& dir:dirnames) {
           addDirectory(dir);
           bookEfficiencyHistos(dir);
           if ( m_detailedHists ) 
@@ -1270,7 +1270,7 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
           effdirs.push_back(basePath + "/"+algname+"/HLT/LHLooseIso");
           effdirs.push_back(basePath + "/"+algname+"/HLT/LHMediumIso");
           effdirs.push_back(basePath + "/"+algname+"/HLT/LHTightIso");
-          for (const auto effdir:effdirs) {
+          for (const auto& effdir:effdirs) {
               addDirectory(effdir);
               bookEfficiencyHistos(effdir);
               bookEfficiency2DHistos(effdir);
@@ -1283,7 +1283,7 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
 
     dirnames.push_back(basePath + "/Distributions/Offline");
     dirnames.push_back(basePath + "/Distributions/HLT");
-    for (const auto dir:dirnames){
+    for (const auto& dir:dirnames){
         ATH_MSG_VERBOSE(dir);
         addDirectory(dir);
         bookEgammaDistributionHistos(dir);
@@ -1323,7 +1323,7 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     addDirectory(dirname);
 
     //Book the kinematic plots for each trigger level
-    for(const auto dir:dirnames) 
+    for(const auto& dir:dirnames) 
         bookDistributionHistos(dir);
 
     // Resolution

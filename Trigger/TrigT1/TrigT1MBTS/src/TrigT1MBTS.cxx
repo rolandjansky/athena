@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1MBTS/TrigT1MBTS.h"
+#include "TrigT1MBTS.h"
 #include "TrigT1Interfaces/MbtsCTP.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"

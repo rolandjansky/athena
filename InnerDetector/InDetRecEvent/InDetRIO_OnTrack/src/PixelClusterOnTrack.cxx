@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,44 +15,49 @@
 
 // Constructor with parameters - no global position specified
 InDet::PixelClusterOnTrack::PixelClusterOnTrack(
-  const InDet::PixelCluster* RIO, 
-  const Trk::LocalParameters& locpars, 
-  const Amg::MatrixX& locerr, 
+  const InDet::PixelCluster* RIO,
+  const Trk::LocalParameters& locpars,
+  const Amg::MatrixX& locerr,
   const IdentifierHash& idDE,
   bool,
-  bool isbroad 
-  ) 
-  : 
-  InDet::SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(),isbroad), //call base class constructor
-  m_hasClusterAmbiguity(RIO->isAmbiguous()),
-  m_isFake(RIO->isFake()),
-  m_energyLoss(RIO->energyLoss()),
-  m_detEl( RIO->detectorElement() )
+  bool isbroad)
+  : // call base class constructor
+  InDet::SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(), isbroad)
+  , m_hasClusterAmbiguity(RIO->isAmbiguous())
+  , m_isFake(RIO->isFake())
+  , m_energyLoss(RIO->energyLoss())
+  , m_detEl(RIO->detectorElement())
 {
   m_rio.setElement(RIO);
+  // Set global position
+  m_globalPosition = associatedSurface().localToGlobalPos(localParameters());
 }
 
 // Constructor with parameters
 InDet::PixelClusterOnTrack::PixelClusterOnTrack(
-    const InDet::PixelCluster* RIO, 
-    const Trk::LocalParameters& locpars, 
-    const Amg::MatrixX& locerr, 
-    const IdentifierHash& idDE,
-    const Amg::Vector3D& globalPosition,
-    bool,
-    bool isbroad
-    ) 
-    : 
-    InDet::SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(), globalPosition, isbroad), //call base class constructor
-    m_hasClusterAmbiguity(RIO->isAmbiguous()),
-    m_isFake(RIO->isFake()),
-    m_energyLoss(RIO->energyLoss()),
-    m_detEl( RIO->detectorElement() )
+  const InDet::PixelCluster* RIO,
+  const Trk::LocalParameters& locpars,
+  const Amg::MatrixX& locerr,
+  const IdentifierHash& idDE,
+  const Amg::Vector3D& globalPosition,
+  bool,
+  bool isbroad)
+  : // call base class constructor
+  InDet::SiClusterOnTrack(locpars,
+                          locerr,
+                          idDE,
+                          RIO->identify(),
+                          globalPosition,
+                          isbroad)
+  , m_hasClusterAmbiguity(RIO->isAmbiguous())
+  , m_isFake(RIO->isFake())
+  , m_energyLoss(RIO->energyLoss())
+  , m_detEl(RIO->detectorElement())
 {
   m_rio.setElement(RIO);
 }
 
-
+//P->T constructor
 InDet::PixelClusterOnTrack::PixelClusterOnTrack
   ( const ElementLinkToIDCPixelClusterContainer& RIO,
     const Trk::LocalParameters& locpars, 
@@ -70,6 +75,8 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack
   m_energyLoss (energyLoss),
   m_detEl (nullptr)
 {
+  // The setting of the global position
+  // happens via the setValues method
 }
     
 
@@ -98,7 +105,12 @@ const Trk::Surface& InDet::PixelClusterOnTrack::associatedSurface() const
               
 void InDet::PixelClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* /*prd*/)
 {
+    //set detector element
     m_detEl = dynamic_cast< const InDetDD::SiDetectorElement* >(detEl);
+    if(m_detEl){
+      //Then set global potition based on it
+      m_globalPosition = associatedSurface().localToGlobalPos(localParameters());
+    }
 }
 
   

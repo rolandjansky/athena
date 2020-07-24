@@ -70,7 +70,7 @@ class  ConfiguredNewTrackingTRTExtension:
       #
       if InDetFlags.doExtensionProcessor() and InDetFlags.doTRTExtensionNew():
             
-         if InDetFlags.trtExtensionType() is 'DAF' :
+         if InDetFlags.trtExtensionType() == 'DAF' :
             #
             # --- DAF Fitter setup
             #
@@ -128,7 +128,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                     tryBremFit         = InDetFlags.doBremRecovery(),
                                                                     caloSeededBrem     = InDetFlags.doCaloSeededBrem(),
                                                                     pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                                    RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() is 'DAF')))
+                                                                    RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() == 'DAF')))
          #InDetExtensionProcessor.OutputLevel = VERBOSE
           if InDetFlags.materialInteractions():
              InDetExtensionProcessorPhase.matEffects = InDetFlags.materialInteractionsType()
@@ -154,7 +154,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                     tryBremFit         = InDetFlags.doBremRecovery(),
                                                                     caloSeededBrem     = InDetFlags.doCaloSeededBrem(),
                                                                     pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                                    RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() is 'DAF')))
+                                                                    RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() == 'DAF')))
           #InDetExtensionProcessor.OutputLevel = VERBOSE
           if InDetFlags.materialInteractions():
              InDetExtensionProcessor.matEffects = InDetFlags.materialInteractionsType()

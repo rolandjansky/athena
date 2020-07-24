@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/test/getThinningCache_test.cxx
@@ -29,6 +29,8 @@ void test1()
 
   assert (SG::getThinningCache() == nullptr);
   assert (SG::getThinningCache(ctx) == nullptr);
+  assert (SG::getThinningInfo("foo") == nullptr);
+  assert (SG::getThinningInfo(ctx, "foo") == nullptr);
   assert (SG::getThinningDecision("foo") == nullptr);
   assert (SG::getThinningDecision(ctx, "foo") == nullptr);
   assert (SG::getThinningDecision(101) == nullptr);
@@ -42,6 +44,8 @@ void test1()
   ctx.getExtension<Atlas::ExtendedEventContext>().setThinningCache (&cache);
   assert (SG::getThinningCache() == nullptr);
   assert (SG::getThinningCache(ctx) == &cache);
+  assert (SG::getThinningInfo("foo") == nullptr);
+  assert (SG::getThinningInfo(ctx, "foo") == nullptr);
   assert (SG::getThinningDecision("foo") == nullptr);
   assert (SG::getThinningDecision(ctx, "foo") == nullptr);
   assert (SG::getThinningDecision(101) == nullptr);
@@ -52,6 +56,8 @@ void test1()
 
   assert (SG::getThinningCache() == nullptr);
   assert (SG::getThinningCache(ctx) == &cache);
+  assert (SG::getThinningInfo("foo") == nullptr);
+  assert (SG::getThinningInfo(ctx, "foo")->m_decision == &dec);
   assert (SG::getThinningDecision("foo") == nullptr);
   assert (SG::getThinningDecision(ctx, "foo") == &dec);
   assert (SG::getThinningDecision(101) == nullptr);
@@ -61,6 +67,8 @@ void test1()
 
   assert (SG::getThinningCache() == &cache);
   assert (SG::getThinningCache(ctx) == &cache);
+  assert (SG::getThinningInfo("foo")->m_decision == &dec);
+  assert (SG::getThinningInfo(ctx, "foo")->m_decision == &dec);
   assert (SG::getThinningDecision("foo") == &dec);
   assert (SG::getThinningDecision(ctx, "foo") == &dec);
   assert (SG::getThinningDecision(101) == &dec);

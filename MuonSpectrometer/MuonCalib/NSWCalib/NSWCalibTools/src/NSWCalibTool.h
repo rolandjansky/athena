@@ -16,6 +16,7 @@
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonRDO/MM_RawData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "TRandom3.h"
@@ -31,7 +32,9 @@ namespace Muon {
 
     virtual ~NSWCalibTool() = default;
     
-    virtual StatusCode calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const override;
+    virtual StatusCode calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const override;
+    virtual StatusCode calibrateStrip(const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const override;
+    virtual StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const override;
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
@@ -41,6 +44,8 @@ namespace Muon {
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
+
     StatusCode initializeGasProperties();
 
     TF1* m_lorentzAngleFunction;

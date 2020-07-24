@@ -21,8 +21,13 @@ def thresholdToChains( chains ):
 ###########################################################################    
 def generateL1DecoderAndChainsManually(topSequence):
     generateEmuEvents()
+    from AthenaCommon.CFElements import seqOR,parOR
+    hltTop = seqOR("HLTTop")
+    hltBeginSeq = parOR("HLTBeginSeq")
+    hltTop += hltBeginSeq
+    topSequence += hltTop
     l1Decoder = generateL1Decoder()
-    topSequence += l1Decoder
+    hltBeginSeq += l1Decoder
     generateChainsManually()
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
@@ -32,8 +37,14 @@ def generateL1DecoderAndChainsManually(topSequence):
 ###########################################################################    
 def generateL1DecoderAndChainsByMenu(topSequence):
     generateEmuEvents()
+    from AthenaCommon.CFElements import seqOR,parOR
+    hltTop = seqOR("HLTTop")
+    hltBeginSeq = parOR("HLTBeginSeq")
+    hltTop += hltBeginSeq
+    topSequence += hltTop
     l1Decoder = generateL1Decoder()
-    topSequence += l1Decoder
+    hltBeginSeq += l1Decoder
+    l1Decoder = generateL1Decoder()
     generateEmuMenu()
 
 

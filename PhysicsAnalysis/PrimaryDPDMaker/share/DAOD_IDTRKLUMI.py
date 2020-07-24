@@ -54,8 +54,8 @@ if dumpPixInfo:
     PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
     topSequence += PixelChargeToTConversionSetter 
     if (printIdTrkDxAODConf):
-        print PixelChargeToTConversionSetter
-        print PixelChargeToTConversionSetter.properties()
+        print(PixelChargeToTConversionSetter)
+        print(PixelChargeToTConversionSetter.properties())
 
 #Setup SCT extension efficiency algorithm if running pixel tracklets
 #if InDetFlags.doTrackSegmentsPixel():
@@ -78,8 +78,8 @@ if dumpSctInfo:
 
     topSequence += xAOD_SCT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_SCT_PrepDataToxAOD
-        print xAOD_SCT_PrepDataToxAOD.properties()
+        print(xAOD_SCT_PrepDataToxAOD)
+        print(xAOD_SCT_PrepDataToxAOD.properties())
 
 if dumpPixInfo:
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
@@ -95,8 +95,8 @@ if dumpPixInfo:
 
     topSequence += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_PixelPrepDataToxAOD
-        print xAOD_PixelPrepDataToxAOD.properties()
+        print(xAOD_PixelPrepDataToxAOD)
+        print(xAOD_PixelPrepDataToxAOD.properties())
 
 
 #################
@@ -130,8 +130,8 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
 ToolSvc += DFTSOS
 augmentationTools+=[DFTSOS]
 if (printIdTrkDxAODConf):
-    print DFTSOS
-    print DFTSOS.properties()
+    print(DFTSOS)
+    print(DFTSOS.properties())
 
 
 # Add BS error augmentation tool
@@ -144,8 +144,8 @@ if dumpBytestreamErrors:
     ToolSvc += DFEI
     augmentationTools+=[DFEI]
     if (printIdTrkDxAODConf):
-        print DFEI
-        print DFEI.properties()
+        print(DFEI)
+        print(DFEI.properties())
 
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
@@ -157,8 +157,8 @@ if dumpUnassociatedHits:
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
     ToolSvc += unassociatedHitsGetterTool
     if (printIdTrkDxAODConf):
-        print unassociatedHitsGetterTool
-        print unassociatedHitsGetterTool.properties()
+        print(unassociatedHitsGetterTool)
+        print(unassociatedHitsGetterTool.properties())
 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsDecorator
     unassociatedHitsDecorator = DerivationFramework__UnassociatedHitsDecorator (name ='unassociatedHitsDecorator',
@@ -169,8 +169,8 @@ if dumpUnassociatedHits:
     ToolSvc += unassociatedHitsDecorator
     augmentationTools+=[unassociatedHitsDecorator]
     if (printIdTrkDxAODConf):
-        print unassociatedHitsDecorator
-        print unassociatedHitsDecorator.properties()
+        print(unassociatedHitsDecorator)
+        print(unassociatedHitsDecorator.properties())
 
 # Add LArCollisionTime augmentation tool
 if dumpLArCollisionTime:
@@ -188,8 +188,8 @@ if dumpLArCollisionTime:
         ToolSvc += lArCollisionTimeDecorator
         augmentationTools+=[lArCollisionTimeDecorator]
         if (printIdTrkDxAODConf):
-            print lArCollisionTimeDecorator
-            print lArCollisionTimeDecorator.properties()
+            print(lArCollisionTimeDecorator)
+            print(lArCollisionTimeDecorator.properties())
 
 
 
@@ -201,8 +201,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFTSOS
 
 topSequence += DerivationFrameworkJob
 if (printIdTrkDxAODConf):
-    print DerivationFrameworkJob
-    print DerivationFrameworkJob.properties()
+    print(DerivationFrameworkJob)
+    print(DerivationFrameworkJob.properties())
 
 #################
 ### Steer output file content
@@ -263,4 +263,4 @@ if dumpTriggerInfo:
     IDTRKLUMIStream.AddItem("xAOD::TrigT2MbtsBitsAuxContainer#HLT_xAOD__TrigT2MbtsBitsContainer_T2MbtsAux.")
 
 if (printIdTrkDxAODConf):
-    print IDTRKLUMIStream
+    print(IDTRKLUMIStream)

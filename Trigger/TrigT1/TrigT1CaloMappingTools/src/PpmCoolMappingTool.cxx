@@ -13,7 +13,6 @@
 #include "CaloIdentifier/CaloID_Exception.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloIdentifier/TTOnlineID.h"
-#include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
 
@@ -23,22 +22,6 @@ namespace LVL1 {
 
 const int PpmCoolMappingTool::s_maxTableEntries;
 
-
-PpmCoolMappingTool::PpmCoolMappingTool(const std::string& type,
-            const std::string& name, const IInterface*  parent)
-          : AthAlgTool(type, name, parent),
-            m_ttSvc("CaloTriggerTowerService"),
-            m_lvl1Helper(0), m_l1ttonlineHelper(0)
-{
-  declareInterface<IL1CaloMappingTool>(this);
-
-  declareProperty("CaloTriggerTowerService", m_ttSvc);
-
-}
-
-PpmCoolMappingTool::~PpmCoolMappingTool()
-{
-}
 
 // Initialise the mappings
 
@@ -108,12 +91,55 @@ StatusCode PpmCoolMappingTool::finalize()
 
 void PpmCoolMappingTool::handle(const Incident& inc)
 {
+  // FIXME: not thread safe --- won't work if there's more than one run
+  // in the input.
   if (inc.type()=="BeginRun") {
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Resetting mapping table at start of run" << endmsg;
     }
 
-    m_idTable.clear();
+    bool verbose = msgLvl(MSG::VERBOSE);
+    m_idTable.resize (s_maxTableEntries);
+    for (int index = 0; index < s_maxTableEntries; ++index) {
+      const int channel = index & 0x3f;
+      const int module = (index >> 6) & 0x0f;
+      const int crate = index >> 10;
+      const int slot = module + 5;
+      const int pin  = channel % 16;
+      const int asic = channel / 16;
+
+      Identifier ttId(0);
+      Identifier invalidId(0);
+      try {
+        if (verbose) {
+          msg(MSG::VERBOSE) << "crate/module/channel " << crate << "/"
+                            << module << "/" << channel
+                            << "  maps to crate/slot/pin/asic " << crate << "/"
+                            << slot << "/" << pin << "/" << asic << endmsg;
+        }
+        const HWIdentifier id = m_l1ttonlineHelper->channelId(crate, slot, pin,
+                                                              asic);
+        if (verbose) {
+          msg(MSG::VERBOSE) << "hardware_id: " << id << endmsg;
+        }
+        ttId = m_ttSvc->cnvToIdentifier(id, true);
+        if (verbose) {
+          msg(MSG::VERBOSE) << "tower_id: " << ttId << endmsg;
+        }
+      }
+      catch (const CaloID_Exception&) { ttId = invalidId; }
+      if (ttId == invalidId) {
+        m_idTable[index] = 0;
+      }
+      else {
+        const int side   = (m_lvl1Helper->pos_neg_z(ttId) == 1) ? 1 : 2;
+        const int sample = m_lvl1Helper->sampling(ttId);
+        const int region = m_lvl1Helper->region(ttId);
+        const int ieta   = m_lvl1Helper->eta(ttId);
+        const int iphi   = m_lvl1Helper->phi(ttId);
+        m_idTable[index] = (side<<14)+(sample<<13)+(region<<11)+(ieta<<6)+iphi;
+      }
+    }
   }
   return;
 } 
@@ -121,7 +147,7 @@ void PpmCoolMappingTool::handle(const Incident& inc)
 // Return eta, phi and layer mapping for given crate/module/channel
 
 bool PpmCoolMappingTool::mapping(const int crate, const int module,
-         const int channel, double& eta, double& phi, int& layer)
+         const int channel, double& eta, double& phi, int& layer) const
 {
   if (crate < 0 || crate >= 8 || module < 0 || module >= 16 ||
       channel < 0 || channel >= 64) return false;
@@ -131,43 +157,8 @@ bool PpmCoolMappingTool::mapping(const int crate, const int module,
   
   bool verbose = msgLvl(MSG::VERBOSE);
 
-  if (m_idTable.empty()) {
-    m_idTable.reserve(s_maxTableEntries);
-    m_idTable.assign(s_maxTableEntries, 0);
-  }
-  if (m_idTable[index] == 0) {
-    const int slot = module + 5;
-    const int pin  = channel % 16;
-    const int asic = channel / 16;
-
-    Identifier ttId(0);
-    Identifier invalidId(0);
-    try {
-      if (verbose) {
-        msg(MSG::VERBOSE) << "crate/module/channel " << crate << "/"
-                          << module << "/" << channel
-  			  << "  maps to crate/slot/pin/asic " << crate << "/"
-			  << slot << "/" << pin << "/" << asic << endmsg;
-      }
-      const HWIdentifier id = m_l1ttonlineHelper->channelId(crate, slot, pin,
-                                                                        asic);
-      if (verbose) {
-        msg(MSG::VERBOSE) << "hardware_id: " << id << endmsg;
-      }
-      ttId = m_ttSvc->cnvToIdentifier(id, true);
-      if (verbose) {
-        msg(MSG::VERBOSE) << "tower_id: " << ttId << endmsg;
-      }
-    }
-    catch (const CaloID_Exception&) { ttId = invalidId; }
-    if (ttId == invalidId) return false;
-
-    const int side   = (m_lvl1Helper->pos_neg_z(ttId) == 1) ? 1 : 2;
-    const int sample = m_lvl1Helper->sampling(ttId);
-    const int region = m_lvl1Helper->region(ttId);
-    const int ieta   = m_lvl1Helper->eta(ttId);
-    const int iphi   = m_lvl1Helper->phi(ttId);
-    m_idTable[index] = (side<<14)+(sample<<13)+(region<<11)+(ieta<<6)+iphi;
+  if (index >= static_cast<int>(m_idTable.size()) || m_idTable[index] == 0) {
+    return false;
   }
   const unsigned int entry = m_idTable[index];
   const int side   = ((entry>>14) == 1) ? 1 : -1;
@@ -194,7 +185,7 @@ bool PpmCoolMappingTool::mapping(const int crate, const int module,
 // Return crate, module and channel mapping for given eta/phi/layer
 
 bool PpmCoolMappingTool::mapping(const double eta, const double phi,
-                    const int layer, int& crate, int& module, int& channel)
+                    const int layer, int& crate, int& module, int& channel) const
 {
   if (eta <= -4.9 || eta >= 4.9 || phi <= 0. || phi >= 2.*M_PI) return false;
 

@@ -105,6 +105,8 @@ if TriggerFlags.doMT():
 #========================================================
 # Central topOptions (this is one is a string not a list)
 #========================================================
+if TriggerFlags.doMT():
+    TriggerFlags.MuonSlice.doTrigMuonConfig=True
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 

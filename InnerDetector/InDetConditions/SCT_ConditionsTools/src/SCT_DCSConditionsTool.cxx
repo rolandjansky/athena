@@ -29,11 +29,10 @@ StatusCode SCT_DCSConditionsTool::initialize() {
   }
   
   // Read Cond Handle Keys
-  bool useHVTemp = (m_readAllDBFolders and m_returnHVTemp) or m_returnHVTemp;
-  ATH_CHECK(m_condKeyHV.initialize (useHVTemp));
-  ATH_CHECK(m_condKeyTemp0.initialize (useHVTemp));
+  ATH_CHECK(m_condKeyHV.initialize(m_returnHVTemp));
+  ATH_CHECK(m_condKeyTemp0.initialize(m_returnHVTemp));
 
-  bool useState = (m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp);
+  const bool useState = (m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp);
   ATH_CHECK(m_condKeyState.initialize(useState));
 
   return StatusCode::SUCCESS;
@@ -72,7 +71,7 @@ bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, const EventConte
 
   if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
     const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
-    if (!condDataState) return false; // no cond data
+    if (condDataState==nullptr) return false; // no cond data
     else if (condDataState->output(castId(moduleId))==0) return true; //No params are listed as bad
     else return false;
   } else {
@@ -106,7 +105,7 @@ float SCT_DCSConditionsTool::modHV(const Identifier& elementId, const EventConte
   if (not moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
 
   const SCT_DCSFloatCondData* condDataHV{getCondDataHV(ctx)};
-  if (!condDataHV) return s_defaultHV; // no cond data
+  if (condDataHV==nullptr) return s_defaultHV; // no cond data
 
   float hvval{s_defaultHV};
   if (condDataHV->getValue(castId(moduleId), hvval) and isGood(elementId, h)) {
@@ -138,7 +137,7 @@ float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, cons
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
   const SCT_DCSFloatCondData* condDataTemp0{getCondDataTemp0(ctx)};
-  if (!condDataTemp0) return s_defaultTemperature; // no cond data
+  if (condDataTemp0==nullptr) return s_defaultTemperature; // no cond data
 
   float temperature{s_defaultTemperature};
   if (condDataTemp0->getValue(castId(moduleId), temperature) and isGood(elementId, h)) {
@@ -170,7 +169,7 @@ float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, cons
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
   const SCT_DCSFloatCondData* condDataTemp0{getCondDataTemp0(ctx)};
-  if (!condDataTemp0) return s_defaultTemperature; // no cond data
+  if (condDataTemp0==nullptr) return s_defaultTemperature; // no cond data
 
   float temperature{s_defaultTemperature};
   if (condDataTemp0->getValue(castId(moduleId), temperature) and isGood(elementId, h)) {

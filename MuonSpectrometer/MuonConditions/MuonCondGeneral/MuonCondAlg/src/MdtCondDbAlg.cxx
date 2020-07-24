@@ -29,17 +29,19 @@ MdtCondDbAlg::initialize(){
     ATH_CHECK(m_condSvc .retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
-    ATH_CHECK(m_readKey_folder_da_pshv.initialize(!m_readKey_folder_da_pshv.empty() && m_isData));
-    ATH_CHECK(m_readKey_folder_da_psv0.initialize(!m_readKey_folder_da_psv0.empty() && m_isData));
-    ATH_CHECK(m_readKey_folder_da_psv1.initialize(!m_readKey_folder_da_psv1.empty() && m_isData));
-    ATH_CHECK(m_readKey_folder_da_pslv.initialize(!m_readKey_folder_da_pslv.empty() && m_isData));
-    ATH_CHECK(m_readKey_folder_da_hv  .initialize(!m_readKey_folder_da_hv.empty() && m_isData));
-    ATH_CHECK(m_readKey_folder_da_lv  .initialize(!m_readKey_folder_da_lv.empty() && m_isData));
-    ATH_CHECK(m_readKey_folder_da_droppedChambers.initialize(!m_readKey_folder_da_droppedChambers.empty() && m_isData));
+    ATH_CHECK(m_readKey_folder_da_pshv.initialize(!m_readKey_folder_da_pshv.empty() && m_isData && m_isRun1));
+    ATH_CHECK(m_readKey_folder_da_psv0.initialize(!m_readKey_folder_da_psv0.empty() && m_isData && m_isRun1 && m_checkOnSetPoint));
+    ATH_CHECK(m_readKey_folder_da_psv1.initialize(!m_readKey_folder_da_psv1.empty() && m_isData && m_isRun1 && m_checkOnSetPoint));
+    ATH_CHECK(m_readKey_folder_da_pslv.initialize(!m_readKey_folder_da_pslv.empty() && m_isData && m_isRun1));
+    ATH_CHECK(m_readKey_folder_da_hv  .initialize(!m_readKey_folder_da_hv.empty() && m_isData && !m_isRun1));
+    ATH_CHECK(m_readKey_folder_da_lv  .initialize(!m_readKey_folder_da_lv.empty() && m_isData && !m_isRun1));
+    ATH_CHECK(m_readKey_folder_da_droppedChambers.initialize(!m_readKey_folder_da_droppedChambers.empty() && m_isData && m_isRun1));
     ATH_CHECK(m_readKey_folder_mc_droppedChambers.initialize(!m_readKey_folder_mc_droppedChambers.empty() && !m_isData));
-    ATH_CHECK(m_readKey_folder_mc_deadElements   .initialize(!m_readKey_folder_mc_deadElements.empty() && !m_isData));
-    ATH_CHECK(m_readKey_folder_mc_deadTubes      .initialize(!m_readKey_folder_mc_deadTubes.empty() && !m_isData));
     ATH_CHECK(m_readKey_folder_mc_noisyChannels  .initialize(!m_readKey_folder_mc_noisyChannels.empty() && !m_isData));
+    // The calls to the functions that use these two are commented out,
+    // so don't declare a dependencies on them.
+    ATH_CHECK(m_readKey_folder_mc_deadElements   .initialize(false/*!m_readKey_folder_mc_deadElements.empty() && !m_isData*/));
+    ATH_CHECK(m_readKey_folder_mc_deadTubes      .initialize(false/*!m_readKey_folder_mc_deadTubes.empty() && !m_isData*/));
 
     if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
       ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");

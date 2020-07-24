@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetMetExAlg.cxx 770492 2016-08-28 16:52:40Z rwhite $
@@ -74,7 +74,7 @@ StatusCode JetMetExAlg::initialize() {
    CHECK( m_histSvc->regHist( "/Trigger/JetMet/EmulationAccepts", m_h_emulationAccepts ) );
    CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerAcceptsRaw", m_h_triggerAcceptsRaw ) );
    CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerPrescaled", m_h_triggerPrescaled ) );
-   for(const std::string chain:m_hltchainList){
+   for(const std::string& chain:m_hltchainList){
        ATH_MSG_INFO( chain );
        m_numSelectedEvents[chain]=0;
        m_numL1PassedEvents[chain]=0;
@@ -139,7 +139,7 @@ StatusCode JetMetExAlg::finalize() {
    ATH_MSG_INFO( "Selection cuts: " );
    ATH_MSG_INFO( "jet pT > " << m_ptCut << " GeV" );
    ATH_MSG_INFO( "lepton |eta| < " << m_etaMax );
-   for(const std::string chain:m_hltchainList){
+   for(const std::string& chain:m_hltchainList){
        ATH_MSG_INFO( " Chain " << chain);
        ATH_MSG_INFO( "Number of selected events: " << m_numSelectedEvents[chain] );
        ATH_MSG_INFO( "Number of events with a L1 passed probe muon: " << m_numL1PassedEvents[chain] );
@@ -185,7 +185,7 @@ StatusCode JetMetExAlg::finalize() {
 StatusCode JetMetExAlg::collectTriggerStatistics() {
 
    // Now we'd like to collect some trigger statistics for the chains specified 
-    for(const auto chain : m_hltchainList){
+    for(const auto& chain : m_hltchainList){
         // Get the bits, this tell us more 
         const unsigned int bits = m_trigDec->isPassedBits(chain);
         bool efprescale=bits & TrigDefs::EF_prescaled;
@@ -218,7 +218,7 @@ StatusCode JetMetExAlg::collectTriggerStatistics() {
  * *******************************************************************************************/
 StatusCode JetMetExAlg::TriggerAnalysis (const xAOD::IParticleContainer *cont){
     bool isTriggered=false; 
-    for(const auto chain : m_hltchainList)
+    for(const auto& chain : m_hltchainList)
         if( m_trigDec->isPassed( chain ) ) isTriggered=true;
 
 
@@ -231,7 +231,7 @@ StatusCode JetMetExAlg::TriggerAnalysis (const xAOD::IParticleContainer *cont){
         probeEta=obj->eta();
         probeEt=(obj->e()/obj->eta())*0.001; //GeV
         ATH_MSG_INFO(" Probe et: " << probeEt << " eta: " << probeEta);
-        for(const std::string chain:m_hltchainList){
+        for(const std::string& chain:m_hltchainList){
             ATH_MSG_INFO("Matching to chain " << chain);
             m_numSelectedEvents[chain]+=1;
             if(!passHLT(*obj,chain)){

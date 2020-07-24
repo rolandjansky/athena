@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/TtHtoVVDecayFilter.h"
@@ -64,13 +64,42 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto pitr: *genEvt) {
+      for (size_t iParent=0; iParent < m_PDGParent.size(); iParent++) {
+        if ( std::abs(pitr->pdg_id()) == m_PDGParent[iParent] && pitr->status() == m_StatusParent[iParent]) { // if find a parent here
+          bool isGrandParentOK = false;
+          for (auto thisMother: pitr->production_vertex()->particles_in()) { // Loop over all grandparent of this founded parent
+            ATH_MSG_DEBUG("Parent " << pitr->pdg_id() << " barcode = "   << HepMC::barcode(pitr) << " status = "  << pitr->status());
+            ATH_MSG_DEBUG("A parent mother "  << thisMother->pdg_id()<< " barcode = " << HepMC::barcode(thisMother));
+            for (size_t iGrandParent = 0; iGrandParent < m_PDGGrandParent.size(); iGrandParent++) { // Loop over all Grandparents we want to check
+              if ( thisMother->pdg_id() == m_PDGGrandParent[iGrandParent] ) isGrandParentOK = true;
+            }
+          }
+          ATH_MSG_DEBUG(" Grandparent is OK? " << isGrandParentOK);
+          if (!isGrandParentOK) continue;
+
+          ++nGoodParent;  // good parent from the indicated GrandParents
+          const bool okPDGChild = findAncestor(pitr->end_vertex(), m_PDGParent[iParent]);
+          ATH_MSG_DEBUG("Result " << nGoodParent << " " << okPDGChild );
+          if (!(okPDGChild)) continue;
+
+          ++nGoodDecayedParent;  // good parent has the indicated child and child2
+          if (nGoodDecayedParent == 1) {
+            if ( pitr->pdg_id() < 0) charge = -1;
+            else if ( pitr->pdg_id() > 0) charge = 1;
+          } else {
+            if (charge == -1 && pitr->pdg_id() > 0) sameCharge = false;
+            if (charge ==  1 && pitr->pdg_id() < 0) sameCharge = false;
+          }
+        }
+      } // End loop over all Parents we want to check
+    } // End loop over all particles in the event
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
 
       for (size_t iParent=0; iParent < m_PDGParent.size(); iParent++) {
-        //ATH_MSG_INFO(" Parent to match?  pdg = " << m_PDGParent[iParent] << " status = " << m_StatusParent[iParent] );
-        //if ( abs((*pitr)->pdg_id()) == m_PDGParent[iParent] ) ATH_MSG_INFO(" particle to check  pdg = " << abs((*pitr)->pdg_id()) << " status = " << (*pitr)->status() );
-
-        if ( abs((*pitr)->pdg_id()) == m_PDGParent[iParent] && (*pitr)->status() == m_StatusParent[iParent]) { // if find a parent here
+        if ( std::abs((*pitr)->pdg_id()) == m_PDGParent[iParent] && (*pitr)->status() == m_StatusParent[iParent]) { // if find a parent here
           HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
           HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
           HepMC::GenVertex::particle_iterator thisMother = firstMother;
@@ -103,6 +132,7 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
       } // End loop over all Parents we want to check
 
     } // End loop over all particles in the event
+#endif
   }
 
   ATH_MSG_DEBUG("Selected # good parents = " << nGoodParent << "; # good decayed parents = " << nGoodDecayedParent);
@@ -126,18 +156,16 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
 }
 
 
-bool TtHtoVVDecayFilter::findAncestor(const HepMC::GenVertexPtr searchvertex,
+bool TtHtoVVDecayFilter::findAncestor(HepMC::ConstGenVertexPtr searchvertex,
                                       int targetPDGID) {
   if (!searchvertex) return false;
-  const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
-  const HepMC::GenVertex::particles_out_const_iterator endAncestor = searchvertex->particles_out_const_end();
-  for (auto anc = firstAncestor; anc != endAncestor; ++anc) {
-    if (abs((*anc)->pdg_id()) == targetPDGID) { // same particle as parent
-      return findAncestor((*anc)->end_vertex(),
+  for (HepMC::ConstGenParticlePtr anc:  *searchvertex) {
+    if (std::abs(anc->pdg_id()) == targetPDGID) { // same particle as parent
+      return findAncestor(anc->end_vertex(),
                           targetPDGID);
     } else {
       for (size_t i = 0; i < m_PDGChild.size(); ++i) {
-        if (abs((*anc)->pdg_id()) == m_PDGChild[i]) return true;
+        if (std::abs(anc->pdg_id()) == m_PDGChild[i]) return true;
       }
     }
   }

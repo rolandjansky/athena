@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa  (legacy trigger)
 
 ##############################
 # EF Calo Calib Fex Algorithm Configuration:
-# Ryan Mackenzie White <ryan.white@cern.ch> 
+# Ryan Mackenzie White <ryan.white@cern.ch>
 ##############################
 
 #from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFCaloCalibFex
@@ -18,7 +18,7 @@ from egammaRec.Factories import Factory, ToolFactory
 from egammaMVACalib.TrigEgammaMVACalibFactories import TrigEgammaMVASvc
 
 def configureTrigEFCaloCalibFexMonitoring(tool):
-    
+
     from TrigEgammaHypo.TrigEFCaloHypoMonitoring import TrigEFCaloCalibFexValidationMonitoring, TrigEFCaloCalibFexOnlineMonitoring
     validation = TrigEFCaloCalibFexValidationMonitoring()
     online     = TrigEFCaloCalibFexOnlineMonitoring()
@@ -27,11 +27,9 @@ def configureTrigEFCaloCalibFexMonitoring(tool):
 
     tool.AthenaMonTools = [ time, validation, online ]
 
-import cppyy
-cppyy.loadDictionary('xAODEgammaDict')
-from ROOT import xAOD
+from xAODEgamma.xAODEgammaParameters import xAOD
 
-TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Electron", doAdd=False, 
+TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Electron", doAdd=False,
         AcceptAll = True,
         ApplyMVACalib = True,
         MVACalibSvc = TrigEgammaMVASvc,
@@ -40,7 +38,7 @@ TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, nam
         postInit = [configureTrigEFCaloCalibFexMonitoring],
         )
 
-TrigEFCaloCalibFex_Photon = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Photon", doAdd=False, 
+TrigEFCaloCalibFex_Photon = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Photon", doAdd=False,
         AcceptAll = True,
         ApplyMVACalib = True,
         MVACalibSvc = TrigEgammaMVASvc,

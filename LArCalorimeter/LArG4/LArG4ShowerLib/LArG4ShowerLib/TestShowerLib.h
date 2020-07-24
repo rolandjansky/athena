@@ -52,7 +52,7 @@ namespace ShowerLib {
     //! get average lateral spread of the showers for the given energy
     virtual double getContainmentR(const G4Track* track) const;
     //! store shower in the library
-    virtual bool storeShower(const HepMC::GenParticle* genParticle,const Shower* shower);
+    virtual bool storeShower(HepMC::ConstGenParticlePtr genParticle,const Shower* shower);
     //! write library to ROOT file
     virtual bool writeToROOT(TFile* dest);
 

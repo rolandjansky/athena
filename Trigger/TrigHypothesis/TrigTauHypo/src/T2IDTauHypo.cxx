@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------
@@ -8,6 +8,8 @@
 //
 //----------------------------------------
 #include <math.h>
+
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
@@ -47,7 +49,7 @@ T2IDTauHypo::T2IDTauHypo(const std::string& name, ISvcLocator* pSvcLocator):
   declareProperty("SumPtRatioMaxMP", m_prop_sumPtRatio_MPCut = 9999.9 );//disabled by default
 
   /** leading track pt, used by HadCalib chains in 2011 */
-  declareProperty("LdTrkPtMin",      m_ldTrkPt_Cut      = -9999.9 *CLHEP::GeV ); //disabled by default
+  declareProperty("LdTrkPtMin",      m_ldTrkPt_Cut      = -9999.9 *Gaudi::Units::GeV ); //disabled by default
 
   /** Cut counter */
   declareMonitoredVariable("CutCounter", m_cutCounter);

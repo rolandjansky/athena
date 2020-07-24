@@ -46,5 +46,3 @@ atlas_add_component( TrackD3PDMaker
 # Install files from the package:
 atlas_install_headers( TrackD3PDMaker )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-

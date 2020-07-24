@@ -41,7 +41,7 @@ namespace Trk
 
     Amg::Vector3D getSingleVtxPositionWithSignFlip(const Amg::VectorX & myPosition,
 					           int numVertex,
-					           bool signfliptreatment) {
+					           bool signFlipTreatment) {
 
       int numbRow=numRow(numVertex);
       double xv=myPosition[Trk::jet_xv];
@@ -56,7 +56,7 @@ namespace Trk
 	  dist=dist/fabs(dist)*300./sin(theta);
 	}
 	if (dist<0) {
-	  if (signfliptreatment==true) {
+	  if (signFlipTreatment) {
 	    dist=-dist;
 	  } else {
 	    dist=0.;
@@ -87,7 +87,7 @@ namespace Trk
 
 
     
-  JetFitterInitializationHelper::~JetFitterInitializationHelper() {}
+  JetFitterInitializationHelper::~JetFitterInitializationHelper() = default;
 
 
   StatusCode JetFitterInitializationHelper::initialize() {
@@ -190,7 +190,7 @@ namespace Trk
     //now create a new m_fittedPositions for the VxJetCandidate
     //start from position...
     
-    if (primaryVertex==0) {
+    if (primaryVertex==nullptr) {
       std::cout << "ERROR. No valid primary vertex pointer provided to the JetFitterInitializationHelper." << std::endl;
       throw;
     }
@@ -199,7 +199,7 @@ namespace Trk
     startPosition[Trk::jet_yv]=primaryVertex->position().y();
     startPosition[Trk::jet_zv]=primaryVertex->position().z();
     
-    if (jetdirection!=0) {
+    if (jetdirection!=nullptr) {
       startPosition[Trk::jet_theta]=jetdirection->theta();
       startPosition[Trk::jet_phi]=jetdirection->phi();
     } else {
@@ -240,7 +240,7 @@ namespace Trk
     myJetCandidate->setConstraintVertexPositions(startRecVertexPositions);
 
     VertexPositions linVertexPositions;
-    if (linearizationjetdirection!=0) {
+    if (linearizationjetdirection!=nullptr) {
       Amg::VectorX linPosition=startPosition;
       linPosition[Trk::jet_theta]=linearizationjetdirection->theta();
       linPosition[Trk::jet_phi]=linearizationjetdirection->phi();
@@ -257,7 +257,7 @@ namespace Trk
     
     const VxVertexOnJetAxis* primaryVertexJC(myJetCandidate->getPrimaryVertex());
 
-    if (primaryVertexJC==0) {
+    if (primaryVertexJC==nullptr) {
       
       //      VxVertexOnJetAxis* newPrimaryVertex=new VxVertexOnJetAxis();
       VxVertexOnJetAxis newPrimaryVertex; 
@@ -285,10 +285,10 @@ namespace Trk
     int numTrack(0);//start from 0 in counting the vertex "clusters"
     //Horrible but a map is not suited here
 
-    if (associatedVertices.size()!=0) {//Was that your intention? to be checked... 15.03.2007
+    if (!associatedVertices.empty()) {//Was that your intention? to be checked... 15.03.2007
       for (std::vector<VxVertexOnJetAxis*>::const_iterator VtxIter=VtxBegin;VtxIter!=VtxEnd;++VtxIter) {
 	VxVertexOnJetAxis* myVertex=(*VtxIter);
-	if (myVertex!=0) {
+	if (myVertex!=nullptr) {
 	  myVertex->setNumVertex(numTrack);
 	  numTrack+=1;
 	} else {
@@ -341,7 +341,7 @@ namespace Trk
   }
 
   void JetFitterInitializationHelper::linearizeAllTracks(VxJetCandidate* myJetCandidate,
-							 bool signfliptreatment,
+							 bool signFlipTreatment,
 							 double maxdistance) const {
 
     const VertexPositions & myLinVertexPosition=myJetCandidate->getLinearizationVertexPositions();
@@ -351,7 +351,7 @@ namespace Trk
     const std::vector<VxTrackAtVertex*> & primaryVectorTracks=myPrimary->getTracksAtVertex();
     
     Amg::Vector3D primary3Pos = myPosition.segment(0,3);
-    Amg::Vector3D primaryVertexPos(primary3Pos);
+    const Amg::Vector3D& primaryVertexPos(primary3Pos);
 
     const std::vector<VxTrackAtVertex*>::const_iterator primaryVectorTracksBegin=primaryVectorTracks.begin();
     const std::vector<VxTrackAtVertex*>::const_iterator primaryVectorTracksEnd=primaryVectorTracks.end();
@@ -363,7 +363,7 @@ namespace Trk
 
       const Trk::LinearizedTrack* linTrack=(*primaryVectorIter)->linState();
       
-      if (linTrack!=0) {
+      if (linTrack!=nullptr) {
 	//	std::cout << "distance is: " << (linTrack->linearizationPoint()-primary3Pos).mag() << std::endl;
 	if ((linTrack->linearizationPoint()-primary3Pos).mag()>maxdistance) {
 	  //	  std::cout << " redoing linearization" << std::endl;
@@ -385,7 +385,7 @@ namespace Trk
     for (std::vector<VxVertexOnJetAxis*>::const_iterator VtxIter=VtxBegin;VtxIter!=VtxEnd;++VtxIter) {
 
       int numVertex=(*VtxIter)->getNumVertex();
-      Amg::Vector3D secondaryVertexPos(getSingleVtxPositionWithSignFlip(myPosition,numVertex,signfliptreatment));      
+      Amg::Vector3D secondaryVertexPos(getSingleVtxPositionWithSignFlip(myPosition,numVertex,signFlipTreatment));      
 
 //      std::cout << " Considering linearization at n. vertex " << numVertex << " pos " << secondaryVertexPos << std::endl;
       
@@ -399,7 +399,7 @@ namespace Trk
 
 	const Trk::LinearizedTrack* linTrack=(*TrackVectorIter)->linState();
 
-	if (linTrack!=0) {
+	if (linTrack!=nullptr) {
 	  //	  std::cout << "distance not primary is: " << (linTrack->linearizationPoint()-secondaryVertexPos.position()).mag() << std::endl;
 	  if ((linTrack->linearizationPoint()-secondaryVertexPos).mag()>maxdistance) {
 	    //	    std::cout << " redoing linearization" << std::endl;

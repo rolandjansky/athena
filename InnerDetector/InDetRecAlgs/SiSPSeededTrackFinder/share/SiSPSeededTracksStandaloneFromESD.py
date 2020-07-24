@@ -265,15 +265,6 @@ if doPixel:
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
         condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
 
-    if athenaCommonFlags.isOnline():
-        if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):
-            conddb.addFolder("TDAQ_ONL", "/TDAQ/Resources/ATLAS/PIXEL/Modules", className="CondAttrListCollection")
-
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg",
-                                    ReadKey = '')
-
     #####################
     # Calibration Setup #
     #####################

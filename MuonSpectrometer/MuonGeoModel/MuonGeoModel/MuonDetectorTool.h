@@ -14,7 +14,7 @@ namespace MuonGM
 }
 
 
-class MuonDetectorTool : public GeoModelTool {
+class MuonDetectorTool final : public GeoModelTool {
 
 public:
 

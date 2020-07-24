@@ -1,4 +1,4 @@
-from past.builtins import basestring
+import six
 
 from builtins import zip
 from builtins import range
@@ -44,7 +44,7 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
     AthFile.server.flush_cache()
     AthFile.server.disable_pers_cache()
 
-    if isinstance(fileNames, basestring):
+    if isinstance(fileNames, six.string_types):
         fileNames = [fileNames,]
 
     metaDict = {}

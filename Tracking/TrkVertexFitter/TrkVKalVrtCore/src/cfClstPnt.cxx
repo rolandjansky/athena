@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
+#include <cmath>
 
 namespace Trk {
 
@@ -30,9 +30,6 @@ void cfClstPnt( double *par, double *Vrt, double *ClstPnt)
   ClstPnt[0]=Per[0] + u*e[0];
   ClstPnt[1]=Per[1] + u*e[1];
   ClstPnt[2]=Per[2] + u*e[2];
-  
-
-  return;
 }
 
 

@@ -56,9 +56,9 @@ class TopoAlgo(object):
         confObj["algId"] = self.algoId
         return confObj
 
-    def getEnergyScaleEM(self):
+    def getScaleToCountsEM(self):
         tw = self.menuThr.typeWideThresholdConfig(ThrType["EM"])
-        return tw["emscale"]
+        return 1000 / tw["resolutionMeV"]
     
 class Variable(object):
     def __init__(self, name, selection, value):
@@ -108,7 +108,7 @@ class SortingAlgo(TopoAlgo):
             confObj["fixedParameters"]["generics"][genParm.name] = odict([("value", genParm.value), ("position", pos)]) 
 
         confObj["variableParameters"] = list()
-        _emscale_for_decision = self.getEnergyScaleEM()
+        _emscale_for_decision = self.getScaleToCountsEM()
         _mu_for_decision=1 # MU4->3GeV, MU6->5GeV, MU10->9GeV
         for (pos, variable) in enumerate(self.variables): 
             # adjust MinET if outputs match with EM or TAU or MU  ==> this is a terrible hack that won't fly in Run 3
@@ -185,7 +185,7 @@ class DecisionAlgo(TopoAlgo):
 
         # variable parameters
         confObj["variableParameters"] = list()
-        _emscale_for_decision = self.getEnergyScaleEM()
+        _emscale_for_decision = self.getScaleToCountsEM()
         _mu_for_decision = 1 # MU4->3GeV, MU6->5GeV, MU10->9GeV
         for (pos, variable) in enumerate(self.variables):
             # scale MinET if inputs match with EM or TAU
@@ -276,6 +276,7 @@ class MultiplicityAlgo(TopoAlgo):
     def json(self):
         from collections import OrderedDict as odict
         confObj = odict()
+        confObj["type"] = self.classtype
         confObj["threshold"] = self.threshold
         confObj["input"] = self.input
         confObj["output"] = self.outputs
@@ -284,7 +285,7 @@ class MultiplicityAlgo(TopoAlgo):
 
 
 class EMMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "EMMultiplicity" ):
         super(EMMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                  algoId=algoId, 
                                                  threshold = threshold, 
@@ -295,7 +296,7 @@ class EMMultiplicityAlgo(MultiplicityAlgo):
 
 
 class TauMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "TauMultiplicity" ):
         super(TauMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
@@ -303,7 +304,7 @@ class TauMultiplicityAlgo(MultiplicityAlgo):
                                                   nbits=nbits)
 
 class JetMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "JetMultiplicity" ):
         super(JetMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
@@ -311,7 +312,7 @@ class JetMultiplicityAlgo(MultiplicityAlgo):
                                                   nbits=nbits)
 
 class XEMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "EnergyThreshold"):
         super(XEMultiplicityAlgo, self).__init__( classtype = classtype, name=name, 
                                                   algoId = algoId, 
                                                   threshold = threshold, 

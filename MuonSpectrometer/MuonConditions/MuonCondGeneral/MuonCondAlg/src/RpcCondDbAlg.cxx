@@ -25,8 +25,8 @@ RpcCondDbAlg::initialize(){
     ATH_CHECK(m_condSvc .retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
-    ATH_CHECK(m_readKey_folder_da_deadPanels  .initialize(!m_readKey_folder_da_deadPanels.empty()));
-    ATH_CHECK(m_readKey_folder_da_offPanels   .initialize(!m_readKey_folder_da_offPanels.empty()));
+    ATH_CHECK(m_readKey_folder_da_deadPanels  .initialize(!m_readKey_folder_da_deadPanels.empty() && m_isData));
+    ATH_CHECK(m_readKey_folder_da_offPanels   .initialize(!m_readKey_folder_da_offPanels.empty() && m_isData));
     ATH_CHECK(m_readKey_folder_mc_deadElements.initialize(!m_readKey_folder_mc_deadElements.empty()));
 
     if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {

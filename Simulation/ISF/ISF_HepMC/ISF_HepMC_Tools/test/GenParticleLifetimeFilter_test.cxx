@@ -127,7 +127,7 @@ TEST_F(GenParticleLifetimeFilter_test, addProdVtx_expectPass) {
 
   const HepMC::FourVector prodPos(0., 0., 0., 0.);
   HepMC::GenVertex prodVtx(prodPos);
-  auto* part = new HepMC::GenParticle(); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(); // need dynamic allocation as GenVertex takes ownership
   prodVtx.add_particle_out(part);
   ASSERT_TRUE( m_filterTool->pass(*part) ); // will pass as no end vertex
 }
@@ -139,7 +139,7 @@ TEST_F(GenParticleLifetimeFilter_test, minLifetimeGreaterThanParticleLifetime_ex
 
   const HepMC::FourVector prodPos(0., 0., 0., 0.);
   HepMC::GenVertex prodVtx(prodPos);
-  auto* part = new HepMC::GenParticle(); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(); // need dynamic allocation as GenVertex takes ownership
   prodVtx.add_particle_out(part);
   const HepMC::FourVector endPos(0., 0., 0., 1.);
   HepMC::GenVertex endVtx(endPos);
@@ -154,7 +154,7 @@ TEST_F(GenParticleLifetimeFilter_test, minLifetimeLessThanParticleLifetime_expec
 
   const HepMC::FourVector prodPos(0., 0., 0., 0.);
   HepMC::GenVertex prodVtx(prodPos);
-  auto* part = new HepMC::GenParticle(); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(); // need dynamic allocation as GenVertex takes ownership
   prodVtx.add_particle_out(part);
   const HepMC::FourVector endPos(0., 0., 0., 2.);
   HepMC::GenVertex endVtx(endPos);
@@ -167,7 +167,7 @@ TEST_F(GenParticleLifetimeFilter_test, endVtxButNoProdVtx_expectNoPass) {
   EXPECT_TRUE( m_filterTool->setProperty("MinimumLifetime", "1.3").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  auto* part = new HepMC::GenParticle(); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(); // need dynamic allocation as GenVertex takes ownership
   const HepMC::FourVector endPos(0., 0., 0., 2.);
   HepMC::GenVertex endVtx(endPos);
   endVtx.add_particle_in(part);

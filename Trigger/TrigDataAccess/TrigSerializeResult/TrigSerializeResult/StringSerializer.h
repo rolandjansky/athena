@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERIALIZERESULT_STRINGSERIALIZER_H
@@ -76,6 +76,6 @@ private:
 
   std::ostringstream m_ostream;  //!< sstream used in serialization
   std::istringstream m_istream;  //!< sstream used in de-serialization
-  static const char* s_delimiter; //!< default delimeter which is put between strings from the input vector while serialization happens
+  static const char* const s_delimiter; //!< default delimeter which is put between strings from the input vector while serialization happens
 };
 #endif // TRIGSERIALIZERESULT_STRINGSERIALIZER_H

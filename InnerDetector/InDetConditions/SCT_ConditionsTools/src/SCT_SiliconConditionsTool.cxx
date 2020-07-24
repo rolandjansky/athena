@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SiliconConditionsTool.h"
@@ -33,13 +33,15 @@ StatusCode SCT_SiliconConditionsTool::initialize() {
       ATH_MSG_INFO("GeoModel requests to use Conditions DB.");
     }
   } 
+
+  ATH_CHECK(m_condKeyHV.initialize((not m_useGeoModel) and m_useDB));
+  ATH_CHECK(m_condKeyTemp.initialize((not m_useGeoModel) and m_useDB));
+
   if (not m_useGeoModel) {
     ATH_MSG_INFO("Will use temperature and voltages from this service (not from GeoModel).");
    
     // Get from Conditions database. Register callback, etc.
     if (m_useDB) {
-      ATH_CHECK(m_condKeyHV.initialize());
-      ATH_CHECK(m_condKeyTemp.initialize());
       ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
 
       ATH_MSG_INFO("SCTDCSSvc retrieved");

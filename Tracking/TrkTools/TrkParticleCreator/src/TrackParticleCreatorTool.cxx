@@ -287,17 +287,14 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     // the default way; I left it as it was because it is working fine!!
     if ( m_perigeeExpression == "Origin")
       {
-        if ( (castPerigeeAndCheck(track, aPer) ) )
-          {
-            // aMeasPer clone will be created later if all perigee option selected
-            if (m_keepAllPerigee)
-              {
-                aPer  = nullptr;
-              }
-            else
-              {
-                aPer  = aPer->clone();
-              }
+      aPer = track->perigeeParameters();
+      if (aPer) {
+        // aMeasPer clone will be created later if all perigee option selected
+        if (m_keepAllPerigee) {
+          aPer = nullptr;
+        } else {
+          aPer = aPer->clone();
+        }
           } else
           {
             const Amg::Vector3D persf(0,0,0);
@@ -336,8 +333,8 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
             return nullptr;
           }
         } else {
-        if ( (castPerigeeAndCheck(track, aPer) ) )
-          {
+          aPer = track->perigeeParameters();
+          if (aPer) {
             aPer = aPer->clone();
           } else
           {
@@ -448,12 +445,14 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
             continue;
           }
           if (!tsos->type(TrackStateOnSurface::Perigee) ||
-              !dynamic_cast<const Perigee*>(tsos->trackParameters())) {
+              !(tsos->trackParameters()->surfaceType() ==
+                Trk::Surface::Perigee) ||
+              !(tsos->trackParameters()->type() == Trk::AtaSurface)) {
             continue;
           }
           if (!aPer) {
             aPer =
-              dynamic_cast<const Perigee*>(tsos->trackParameters()->clone());
+              static_cast<const Perigee*>(tsos->trackParameters()->clone());
           } else {
             parameters.push_back(tsos->trackParameters()->clone());
           }
@@ -484,10 +483,13 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     const Trk::TrackParameters* parsToBeDeleted = nullptr;
     // the default way; I left it as it was because it is working fine!!
     if ( m_perigeeExpression == "Origin") {
-      if ( (castPerigeeAndCheck(&track, aPer) ) )  {
+      aPer = track.perigeeParameters();
+      if (aPer) {
         // aMeasPer clone will be created later if all perigee option selected
-        if (m_keepAllPerigee) aPer = nullptr;
-      }else{
+        if (m_keepAllPerigee) {
+          aPer = nullptr;
+        }
+      } else {
         const Amg::Vector3D persf(0,0,0);
         const Trk::Perigee* result = m_trackToVertex->perigeeAtVertex(track, persf);
         if (result != nullptr) {
@@ -761,10 +763,14 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
           parameterPositions.push_back(xAOD::FirstMeasurement);
           continue;
         }
-        if (! tsos->type(TrackStateOnSurface::Perigee)
-            || ! dynamic_cast<const Perigee*>(tsos->trackParameters()))  continue;
+        if (!tsos->type(TrackStateOnSurface::Perigee) ||
+            !(tsos->trackParameters()->surfaceType() ==
+              Trk::Surface::Perigee) ||
+            !(tsos->trackParameters()->type() == Trk::AtaSurface)) {
+          continue;
+        }
         if (! aPer) {
-          aPer = dynamic_cast<const Perigee*>(tsos->trackParameters());
+          aPer = static_cast<const Perigee*>(tsos->trackParameters());
         } else {
           parameters.push_back(tsos->trackParameters());
         }
@@ -934,20 +940,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     setParameters(*trackparticle,parameters, positions);
 
     return trackparticle;
-  }
-
-  //W.L. 2013-10-29: Since no dcast is needed any more the whole function could be removed
-  bool TrackParticleCreatorTool::castPerigeeAndCheck(
-                                                     const Trk::Track* track,
-                                                     const Trk::Perigee* &aPer) const
-  {
-    aPer = track->perigeeParameters();
-    if (aPer==nullptr)
-      {
-        ATH_MSG_VERBOSE ("Track has no perigee parameters.");
-        return false;
-      }
-    return true;
   }
 
   void TrackParticleCreatorTool::compare( const TrackParameters& tp1, const TrackParameters& tp2 ) const {

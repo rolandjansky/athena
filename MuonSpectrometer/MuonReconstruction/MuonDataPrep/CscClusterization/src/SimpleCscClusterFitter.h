@@ -15,15 +15,13 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "CscClusterization/ICscAlignmentTool.h"
 
 namespace Muon {
   class CscPrepData;
-}
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 class SimpleCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
@@ -53,6 +51,10 @@ private:
   const MuonGM::MuonDetectorManager* m_detMgr;
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  /** retrieve MuonDetectorManager from the conditions store */     
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 	
+      "MuonDetectorManager", 	"Key of input MuonDetectorManager condition data"};    
 
   ToolHandle<ICscAlignmentTool> m_alignmentTool;
 };

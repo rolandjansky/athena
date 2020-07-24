@@ -26,6 +26,3 @@ atlas_add_library( InDetByteStreamErrors
                    PUBLIC_HEADERS InDetByteStreamErrors
                    LINK_LIBRARIES AthenaKernel )
 
-# Install files from the package:
-atlas_install_headers( InDetByteStreamErrors )
-

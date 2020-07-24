@@ -117,7 +117,7 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
 
 
   // Tagged analysis
-  if( fabs(tagprob - 0.5) > 1e-6 ){   
+  if( std::abs(tagprob - 0.5) > 1e-6 ){   
 
 
     ExpGSSinMT = exp(-time * GammaS) * sin(DeltaM * time);
@@ -380,7 +380,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 		for (int i = 0; i < eventSize; i++) {
 
 			int pID = event[i].id();
-			if (abs(pID) == 531) { //NOTE THIS WILL FIND BS AND ANTIBS
+			if (std::abs(pID) == 531) { //NOTE THIS WILL FIND BS AND ANTIBS
 				i_Bs = i;
 				std::vector<int> daughterlist = event.daughterList(i);
 
@@ -564,7 +564,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 		for (int i = 0; i < eventSize; i++) {
 
 			const int pID = event[i].id();
-			if (abs(pID) == 511) { //NOTE THIS FIND BD and Anti-Bd
+			if (std::abs(pID) == 511) { //NOTE THIS FIND BD and Anti-Bd
 				i_Bd = i;
 				std::vector<int> daughterlist = event.daughterList(i);
 
@@ -580,11 +580,11 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 					isjpsi = true;
 					i_Jpsi = daughterlist[1];
 				}
-				if (abs(event[daughterlist[0]].id()) == 313) { //This will find kstar or KstarBar
+				if (std::abs(event[daughterlist[0]].id()) == 313) { //This will find kstar or KstarBar
 					iskstar = true;
 					i_Kstar = daughterlist[0];
 				}
-				if (abs(event[daughterlist[1]].id()) == 313) { //This will find kstar or KstarBar
+				if (std::abs(event[daughterlist[1]].id()) == 313) { //This will find kstar or KstarBar
 					iskstar = true;
 					i_Kstar = daughterlist[1];
 				}
@@ -610,9 +610,9 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 				else
 					i_Muplus = 0;
 
-				if (abs(event[daughterlistKstar[0]].id()) == 321)
+				if (std::abs(event[daughterlistKstar[0]].id()) == 321)
 					i_Kplus = daughterlistKstar[0];
-				else if (abs(event[daughterlistKstar[1]].id()) == 321)
+				else if (std::abs(event[daughterlistKstar[1]].id()) == 321)
 					i_Kplus = daughterlistKstar[1];
 				else
 					i_Kplus = 0;

@@ -41,7 +41,7 @@ const std::vector<std::unique_ptr<Muon::MdtIntersectGeometry> > MuonStationInter
   std::vector<std::unique_ptr<Muon::MdtIntersectGeometry> > stations;
 
   // loop over bins, retrieve geometry
-  for( const auto chId : chambers){
+  for( const auto& chId : chambers){
     if(dbData){
       if(!dbData->isGoodStation(chId)){
 	ATH_MSG_VERBOSE ("chamber "<<m_idHelperSvc->toString(chId)<<" is dead");

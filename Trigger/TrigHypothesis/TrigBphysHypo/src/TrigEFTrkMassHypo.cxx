@@ -24,8 +24,6 @@
 
 
 #include <math.h>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 //#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
 
@@ -90,26 +88,16 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_mon_cutCounter = -1;
 
     // Retrieve event info
-    int IdRun   = 0;
+//    int IdRun   = 0;
     int IdEvent = 0;
     
     // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
-        // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            ATH_MSG_DEBUG("Failed to get EventInfo " );
-            //m_mon_Errors.push_back( ERROR_No_EventInfo );
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent );
-        }// found old event info
+        ATH_MSG_WARNING("Failed to get xAOD::EventInfo " );
     }else { // found the xAOD event info
         ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() );
-        IdRun   = evtInfo->runNumber();
+//        IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event ifo
 

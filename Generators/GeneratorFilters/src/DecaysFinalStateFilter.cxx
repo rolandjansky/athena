@@ -56,23 +56,19 @@ StatusCode DecaysFinalStateFilter::filterEvent() {
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
 
-    // Loop over all particles in event
-    HepMC::GenEvent::particle_const_iterator pitr;
-    for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
 
+  for (auto part: *genEvt){
       // look only at the allowed parents (e.g. W, Z)
       bool allowedParent = false;
       for (size_t i=0; i<m_PDGAllowedParents.size(); ++i) {
-        if ( (*pitr)->pdg_id() == m_PDGAllowedParents[i]) allowedParent = true;
+        if ( part->pdg_id() == m_PDGAllowedParents[i]) allowedParent = true;
       }
       if (!allowedParent) continue;
 
-     auto vtx = (*pitr)->end_vertex();
-      if (!vtx) continue;
+      if (!part->end_vertex()) continue;
 
-      for (HepMC::GenVertex::particles_out_const_iterator opitr = vtx->particles_out_const_begin();
-           opitr != vtx->particles_out_const_end(); ++opitr) {
-        int apid = abs((*opitr)->pdg_id());
+      for (auto opitr: *(part->end_vertex())) {
+        int apid = std::abs(opitr->pdg_id());
         if (apid == 1 || apid == 2 || apid == 3 || apid == 4 || apid ==5) nQuarks++;
         if (apid == 11 || apid == 13 || apid == 15) nChargedLeptons++;
         if (apid == 12 || apid == 14 || apid == 16) nNeutrinos++;

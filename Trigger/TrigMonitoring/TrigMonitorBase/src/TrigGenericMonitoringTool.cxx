@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -379,7 +379,7 @@ StatusCode TrigGenericMonitoringTool<M,P>::fillHists() {
 template <class M, class P>
 StatusCode TrigGenericMonitoringTool<M,P>::finalHists() {
 
-  for ( const auto i : m_histogramCategory ) {
+  for ( const auto& i : m_histogramCategory ) {
     delete i.second;
   }
   m_histogramCategory.clear();

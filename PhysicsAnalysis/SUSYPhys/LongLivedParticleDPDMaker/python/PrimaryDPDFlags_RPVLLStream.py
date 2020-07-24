@@ -32,18 +32,18 @@ jobproperties.add_Container(PrimaryDPDFlags_RPVLLStream)
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
-import DiLepFlags
-import DVFlags
-import KinkedTrackFlags
-import EmergingFlags
-import StoppedFlags
-import VH_DVFlags
-import QuirksFlags
-import HipsFlags
-import HNLFlags
-import HVFlags
-import SmpCaloIdFlags
-import SmpMsFlags
+from LongLivedParticleDPDMaker import DiLepFlags
+from LongLivedParticleDPDMaker import DVFlags
+from LongLivedParticleDPDMaker import KinkedTrackFlags
+from LongLivedParticleDPDMaker import EmergingFlags
+from LongLivedParticleDPDMaker import StoppedFlags
+from LongLivedParticleDPDMaker import VH_DVFlags
+from LongLivedParticleDPDMaker import QuirksFlags
+from LongLivedParticleDPDMaker import HipsFlags
+from LongLivedParticleDPDMaker import HNLFlags
+from LongLivedParticleDPDMaker import HVFlags
+from LongLivedParticleDPDMaker import SmpCaloIdFlags
+from LongLivedParticleDPDMaker import SmpMsFlags
 
 #===============================================================
 # Set specific properties for each of the analysis selections

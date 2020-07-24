@@ -83,7 +83,7 @@ for option in defaultOptions:
     if option in globals():
         setattr(opt, option, globals()[option])
         print(' %20s = %s' % (option, getattr(opt, option)))
-    else:        
+    else:
         print(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
 
@@ -131,6 +131,7 @@ if len(athenaCommonFlags.FilesInput())>0:
     af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
     globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
     globalflags.DataSource = 'data' if af.fileinfos['evt_type'][0]=='IS_DATA' else 'geant4'
+    ConfigFlags.Input.isMC = False if globalflags.DataSource=='data' else True
     # Set isOnline=False for MC inputs unless specified in the options
     if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
         log.info("Setting isOnline = False for MC input")
@@ -146,6 +147,7 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
+    ConfigFlags.Input.isMC = False
     if '_run_number' not in dir():
         import PyUtils.AthFile as athFile
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -161,12 +163,16 @@ else:   # athenaHLT
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
+ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
 globalflags.ConditionsTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
+ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = jobproperties.Beam.beamType()
 jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')
@@ -188,7 +194,7 @@ ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 
 # To turn off HLT for athena running
 TriggerFlags.doHLT = bool(opt.doHLT)
-    
+
 # To extract the Trigger configuration
 TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
 if opt.trigBase is not None:
@@ -241,7 +247,7 @@ TriggerFlags.doCalo = opt.doCalo
 modifierList=[]
 from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
 meta = TrigConfMetaData()
-    
+
 for mod in dir(TriggerJobOpts.Modifiers):
     if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'):
         continue
@@ -355,7 +361,7 @@ else:
     topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
 
 # ----------------------------------------------------------------
-# Detector geometry 
+# Detector geometry
 # ----------------------------------------------------------------
 # Always enable AtlasFieldSvc
 from AthenaCommon.DetFlags import DetFlags
@@ -401,12 +407,12 @@ if globalflags.InputFormat.is_pool():
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
-    # enable transient BS 
+    # enable transient BS
     if TriggerFlags.doTransientByteStream():
         log.info("setting up transient BS")
         include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-        
-     
+
+
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
@@ -418,6 +424,17 @@ elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.
     # Set up ByteStream reading services
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
+
+# Set up a temporary workaround for ROOT-10940 / ATR-21753.
+from xAODCoreCnv.xAODCoreCnvConf import xAODMaker__ROOTHeaderLoaderSvc
+svcMgr += xAODMaker__ROOTHeaderLoaderSvc( 'ROOTHeaderLoaderSvc',
+            HeaderNames = [ 'xAODEgamma/PhotonContainer.h',
+                            'xAODTrigEgamma/TrigPhotonContainer.h',
+                            'xAODMuon/MuonContainer.h',
+                            'xAODTrigMuon/L2StandAloneMuonContainer.h',
+                            'xAODJet/JetContainer.h',
+                            'xAODTau/TauJetContainer.h' ] )
+theApp.CreateSvc += [ 'xAODMaker::ROOTHeaderLoaderSvc/ROOTHeaderLoaderSvc' ]
 
 # ---------------------------------------------------------------
 # Trigger config
@@ -434,15 +451,15 @@ from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,None)
 
 # ---------------------------------------------------------------
-# Level 1 simulation
-# ---------------------------------------------------------------
-if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    topSequence += Lvl1SimulationSequence(ConfigFlags)
-
-# ---------------------------------------------------------------
 # HLT prep: RoIBResult and L1Decoder
 # ---------------------------------------------------------------
+
+# main HLT top sequence
+from AthenaCommon.CFElements import seqOR,parOR
+hltTop = seqOR("HLTTop")
+hltBeginSeq = parOR("HLTBeginSeq")
+hltTop += hltBeginSeq
+
 l1decoder = None
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
@@ -458,15 +475,25 @@ if opt.doL1Unpacking:
         l1decoder.L1TriggerResult = "L1TriggerResult" if opt.enableL1Phase1 else ""
         if opt.enableL1Phase1:
             from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
-            topSequence += conf2toConfigurable(getL1TriggerResultMaker())
+            hltBeginSeq += conf2toConfigurable(getL1TriggerResultMaker())
         if TriggerFlags.doTransientByteStream():
             transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
             l1decoder.ExtraInputs += [transTypeKey]
 
-        topSequence += conf2toConfigurable(l1decoder)
+        hltBeginSeq += conf2toConfigurable(l1decoder)
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
-        topSequence += L1EmulationTest()
+        hltBeginSeq += L1EmulationTest()
+
+topSequence += hltTop
+
+# ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
+if opt.doL1Sim:
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+
 
 # ---------------------------------------------------------------
 # HLT generation
@@ -487,7 +514,7 @@ if not opt.createHLTMenuExternally:
     if (opt.selectChains):
         menu.selectChainsForTesting = opt.selectChains
 
-    # generating the HLT structure requires 
+    # generating the HLT structure requires
     # the L1Decoder to be defined in the topSequence
     menu.generateMT()
 
@@ -528,7 +555,7 @@ if hasattr(svcMgr.THistSvc, "Output"):
 
 #-------------------------------------------------------------
 # Conditions overrides
-#-------------------------------------------------------------    
+#-------------------------------------------------------------
 if len(opt.condOverride)>0:
     for folder,tag in opt.condOverride.iteritems():
         log.warning('Overriding folder %s with tag %s', folder, tag)
@@ -560,7 +587,14 @@ if opt.doWriteBS:
 #-------------------------------------------------------------
 ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
+CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq")
+
+
+# B-jet output
+if opt.doBjetSlice or opt.forceEnableAllChains:
+    from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
+    alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
+    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, NewChannel = alias)
 
 #-------------------------------------------------------------
 # Output configuration

@@ -8,6 +8,7 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "xAODMuon/MuonContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "MuonMatchingTool.h"
 
 
 /**
@@ -90,6 +91,8 @@ class TrigMuonMonitorAlgorithm : public AthMonitorAlgorithm {
    */
   virtual StatusCode fillVariablesPerOfflineMuonPerChain(const EventContext &ctx, const xAOD::Muon* mu, const std::string &chain) const;
 
+  // ToolHandle
+  ToolHandle<MuonMatchingTool> m_matchTool {this, "MuonMatchingTool", "MuonMatchingTool", "Tool for matching offline and online objects"};
 
   // ReadHandles
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey {this, "MuonContainerName", "Muons", "Offline muon container"};
@@ -99,6 +102,8 @@ class TrigMuonMonitorAlgorithm : public AthMonitorAlgorithm {
   Gaudi::Property<std::vector<std::string> > m_monitored_chains {this, "MonitoredChains", {}, "Trigger chains that are monitored"};
   /// Requirement for the offline muon type considered in analyses
   Gaudi::Property<int> m_muontype {this, "MuonType", xAOD::Muon::MuonType::Combined, "MuonType used for monitoring"};
+  /// Name of monitored group
+  Gaudi::Property<std::string> m_group {this, "Group", "", "Histogram group"};
 
 
 };
