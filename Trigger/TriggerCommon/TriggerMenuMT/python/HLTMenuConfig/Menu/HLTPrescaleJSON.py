@@ -26,19 +26,21 @@ def __generateJSON( chainDicts, chainConfigs, menuName, fileName ):
             # Add stream to the chain
             chainStreamTags.append(streamName)
 
-        # Now have all information to write the chain to the menu dictionary
+        # Enabled flag is what determines disabling (here is based on prescale list from MenuPrescaleConfig)
+        chainEnabled = True
+        if (int(chain["prescale"]) <= 0):
+            chainEnabled = False
+
+        # Now have all information to write the chain to the prescale dictionary
         chainName = chain["chainName"]
         prescaleDict["prescales"][chainName] = odict([
             ("name", chainName),
             ("counter", chain["chainCounter"]),
             ("hash", chain["chainNameHash"]),
-            ("prescale", 1),
-            ("enabled", 1)
+            ("prescale", chain["prescale"]),
+            ("enabled", chainEnabled)
             #("streams", chainStreamTags)
         ])
-
-        #Prescale testing
-        __log.info( "Chain %s prescale %s", chainName, chain["prescale"] )
 
     # Prescale dictionary now completed, write to JSON
     __log.info( "Writing HLT Prescale JSON to %s", fileName )
