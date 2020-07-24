@@ -526,7 +526,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc = L1DecoderCfg( flags, sequenceName =  "HLTBeginSeq")
+    l1DecoderAcc = L1DecoderCfg( flags, seqName =  "HLTBeginSeq")
     # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
     acc.merge( l1DecoderAcc )
 
