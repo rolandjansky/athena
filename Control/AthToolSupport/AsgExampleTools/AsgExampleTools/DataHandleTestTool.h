@@ -6,8 +6,8 @@
 
 
 
-#ifndef ASG_TOOLS__UNIT_TEST_TOOL1_H
-#define ASG_TOOLS__UNIT_TEST_TOOL1_H
+#ifndef ASG_TOOLS__DATA_HANDLES_TEST_TOOL_H
+#define ASG_TOOLS__DATA_HANDLES_TEST_TOOL_H
 
 #include <AsgTools/AsgTool.h>
 #include <AsgExampleTools/IDataHandleTestTool.h>
