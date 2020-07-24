@@ -42,7 +42,9 @@ namespace asg
   StatusCode DataHandleTestTool ::
   initialize ()
   {
+#ifndef SIMULATIONBASE
     ANA_CHECK (m_readKey.initialize ());
+#endif
     return StatusCode::SUCCESS;
   }
 
@@ -51,6 +53,7 @@ namespace asg
   void DataHandleTestTool ::
   runTest ()
   {
+#ifndef SIMULATIONBASE
     const xAOD::MuonContainer *muonsStore {nullptr};
     ASSERT_SUCCESS (evtStore()->retrieve (muonsStore, "Muons"));
 
@@ -59,5 +62,6 @@ namespace asg
       EXPECT_EQ (muonsStore, readHandle.get());
     else
       EXPECT_EQ (nullptr, readHandle.get());
+#endif
   }
 }

@@ -12,7 +12,13 @@
 #include <AsgTools/AsgTool.h>
 #include <AsgExampleTools/IDataHandleTestTool.h>
 #include <AsgDataHandles/ReadHandleKey.h>
+
+// AthSimulation doesn't contain the muon-container, so we can't
+// really build the tool, but it is simpler to build an empty tool
+// than to exclude the tool completely from the AthSimulation build.
+#ifndef SIMULATIONBASE
 #include <xAODMuon/MuonContainer.h>
+#endif
 
 namespace asg
 {
@@ -41,7 +47,9 @@ namespace asg
     void runTest () override;
 
   public:
+#ifndef SIMULATIONBASE
     SG::ReadHandleKey<xAOD::MuonContainer> m_readKey {this, "readKey", "Muons", "regular read key"};
+#endif
     bool m_readFailure {false};
   };
 }
