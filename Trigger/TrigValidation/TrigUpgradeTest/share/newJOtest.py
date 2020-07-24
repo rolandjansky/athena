@@ -3,6 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm, findOwningSequence
@@ -53,6 +54,12 @@ flags.lock()
 
 from AthenaCommon.Constants import INFO,DEBUG,WARNING
 acc = MainServicesCfg( flags )
+acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
+
+# this delcares to the scheduer that EventInfo object is produced
+acc.addEventAlgo( CompFactory.SGInputLoader( Load = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )] ),
+                      "AthAlgSeq" )
+
 
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 acc.merge(ByteStreamReadCfg( flags ))
@@ -86,12 +93,16 @@ acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
-
-acc.printConfig()
+acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
+acc.foreach_component("*FastEMCaloAlgo*").OutputLevel = DEBUG
+acc.foreach_component("VDVFastEgammaCalo").OutputLevel =DEBUG
 
 fname = "newJOtest.pkl"
 print( "Storing config in the file {}".format( fname ) )
 with open(fname, "wb") as p:
     acc.store( p )
     p.close()
-acc.run()
+status = acc.run()
+if status.isFailure():
+    import sys
+    sys.exit(1)

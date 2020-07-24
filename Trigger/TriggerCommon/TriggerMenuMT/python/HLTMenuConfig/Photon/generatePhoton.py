@@ -25,6 +25,10 @@ def generateChains(flags, chainDict):
     l2CaloReco = l2CaloRecoCfg(flags)
     accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
 
+    # this alg needs EventInfo decorated with the  pileup info
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    accCalo.merge( LumiBlockMuWriterCfg(flags) )
+
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
                                 CaloClusters = recordable('HLT_L2CaloEMClusters') )
