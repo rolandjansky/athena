@@ -10,6 +10,7 @@
 // includes
 //
 
+#include <AsgTools/AsgComponent.h>
 #include <AsgTools/MessageCheckAsgTools.h>
 
 #ifdef XAOD_STANDALONE
