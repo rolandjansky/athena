@@ -685,7 +685,7 @@ class TrigMuonEFTrackIsolationHypoConfig(object) :
 def TrigMuonEFInvMassHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
     #The invariant mass is specified at end of chain, so only shows up in the last chainPart
-    thresholds = cparts[len(cparts)-1]['invMassInfo']
+    thresholds = cparts[-1]['invMassInfo']
     config = TrigMuonEFInvMassHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     addMonitoring( tool, TrigMuonEFInvMassHypoMonitoring, "TrigMuonEFInvMassHypoTool", chainDict['chainName'] )
