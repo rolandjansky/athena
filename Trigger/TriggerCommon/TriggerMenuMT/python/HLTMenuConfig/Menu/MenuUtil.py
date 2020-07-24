@@ -2,9 +2,7 @@
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
-
 log = logging.getLogger(__name__)
-
 
 # Commenting as not currently used (likely can be removed)
 #

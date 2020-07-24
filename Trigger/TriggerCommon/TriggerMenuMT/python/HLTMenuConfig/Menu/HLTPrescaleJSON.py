@@ -39,6 +39,7 @@ def __generateJSON( chainDicts, chainConfigs, menuName, fileName ):
             ("hash", chain["chainNameHash"]),
             ("prescale", chain["prescale"]),
             ("enabled", chainEnabled)
+            # stream information to be added with other changes (ATR-21324)
             #("streams", chainStreamTags)
         ])
 

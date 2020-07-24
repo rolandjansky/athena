@@ -40,7 +40,7 @@ def MenuPrescaleConfig(triggerConfigHLT):
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
-        
+
     elif menu_name.startswith('Physics_pp_run3_v1'):
         log.info('Physics_pp_run3_v1 menu setup')
         from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import setupMenu, Prescales
