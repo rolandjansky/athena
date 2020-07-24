@@ -72,12 +72,12 @@ def _getHIJetBuildTool(merge_param,
     if not name:
         name = 'TrigAntiKt%dHIJets' % int_merge_param
 
-    EventShapeKey = "HLT_xAOD__HIEventShapeContainer_TrigHIEventShape" #jobproperties.HIGlobalFlags.EventShapeKey() 
-    #EventShapeKey = "HIEventShapeContainer_HIUE" 
-    #EventShapeKey = "TrigHIEventShape" 
+    EventShapeKey = "HLT_xAOD__HIEventShapeContainer_TrigHIEventShape" #jobproperties.HIGlobalFlags.EventShapeKey()
+    #EventShapeKey = "HIEventShapeContainer_HIUE"
+    #EventShapeKey = "TrigHIEventShape"
     ClusterKey = hicluster_name
 
-    # Plug in directly tools from HIJetTools.py e.g. to avoid PseudoJetGetter which is different at HLT and for other reasons 
+    # Plug in directly tools from HIJetTools.py e.g. to avoid PseudoJetGetter which is different at HLT and for other reasons
     # -------------------------------------------------------------------------------------------------------------------------
 
     #jet filters
@@ -99,14 +99,14 @@ def _getHIJetBuildTool(merge_param,
 #    assoc.AssociationName="HLT_a"+str(int_merge_param)+"HIClDR%dAssoc" % (int(10*DR))
 #    #assoc.AssociationName="GhostTrack"
 #    jtm.add(assoc)
-#    
+#
 #    assoc_name=assoc.AssociationName
 
     #calculate discriminants as moments
     from HIJetRec.HIJetRecConf import HIJetMaxOverMeanTool
     max_over_mean=HIJetMaxOverMeanTool("HLT_a"+str(int_merge_param)+"HIJetMaxOverMean")
     jtm.add(max_over_mean)
-    
+
     #discriminants for jet filtering
     from HIJetRec.HIJetRecConf import HIJetDiscriminatorTool
     discrim=HIJetDiscriminatorTool("HLT_a"+str(int_merge_param)+"HIJetDiscriminator")
@@ -123,7 +123,7 @@ def _getHIJetBuildTool(merge_param,
     mod_tool.EventShapeKey='NULL'
     for n in [2,3,4] : setattr(mod_tool,'DoV%d' % n,False)
     jtm.add(mod_tool)
-    
+
     # subtraction
     from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
     cell_subtr=HIJetCellSubtractorTool("HLT_a"+str(int_merge_param)+"HIJetSubtractor")
@@ -144,25 +144,25 @@ def _getHIJetBuildTool(merge_param,
     # -------------------------------------------------------------------------------------------------
 
     a2_unsubtracted_name = "TrigAntiKt2HIJets_Unsubtracted_a"+str(int_merge_param)
-    seed_finder = jtm.addJetFinder(a2_unsubtracted_name,  
-                                  "AntiKt", 
-                                  0.2, 
-                                  #gettersin=[_getTriggerHIPseudoJetGetter(hicluster_name)], 
-                                  gettersin=[_getTriggerPseudoJetGetter(cluster_calib)], 
+    seed_finder = jtm.addJetFinder(a2_unsubtracted_name,
+                                  "AntiKt",
+                                  0.2,
+                                  #gettersin=[_getTriggerHIPseudoJetGetter(hicluster_name)],
+                                  gettersin=[_getTriggerPseudoJetGetter(cluster_calib)],
                                   #modifiersin=[assoc,max_over_mean,jetfil5], # jtm.modifiersMap['HI_Unsubtr'],	# may think about TrigHI_Unsubtracted with just max_over_mean
                                   modifiersin=[max_over_mean,jetfil5], # jtm.modifiersMap['HI_Unsubtr'],	# may think about TrigHI_Unsubtracted with just max_over_mean
                                   #modifiersin=[assoc,max_over_mean,jetfil5,discrim], # jtm.modifiersMap['HI_Unsubtr'],	# may think about TrigHI_Unsubtracted with just max_over_mean
                                   #consumers=None, ivtxin=None,
-                                  ghostArea=0.0, 
+                                  ghostArea=0.0,
                                   isTrigger=True,
-                                  ptmin = 5000, 
+                                  ptmin = 5000,
                                   ptminFilter= 5000)
 
     seeds0_name = "TrigAntiKt2HIJets_seeds0_a"+str(int_merge_param)
     seeds0=jtm.addJetCopier(seeds0_name,a2_unsubtracted_name,[discrim],isTrigger=True,shallow=False)
     #seeds0 = seed_finder
 
-    
+
 
     #from HIJetRec.HIJetRecConf import HIEventShapeJetIterationHLT
     from TrigHIRec.TrigHIRecConf import TrigHIEventShapeJetIteration
@@ -180,6 +180,8 @@ def _getHIJetBuildTool(merge_param,
     #    jtm.add(cell_subtr)
     #iter0.Subtractor=jtm.HIJetSubtractor
     iter0.Subtractor=cell_subtr
+    from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+    iter0.EventShapeMapTool=HIEventShapeMapTool()
     jtm.add(iter0)
     jtm.jetrecs += [iter0]
 
@@ -228,9 +230,9 @@ def _getHIJetBuildTool(merge_param,
 
     finder=jtm.addJetFinder(name+"_finder",
                             "AntiKt",
-                            merge_param, 
-                            #gettersin=[_getTriggerHIPseudoJetGetter(hicluster_name)], 
-                            gettersin=[_getTriggerPseudoJetGetter(cluster_calib)], 
+                            merge_param,
+                            #gettersin=[_getTriggerHIPseudoJetGetter(hicluster_name)],
+                            gettersin=[_getTriggerPseudoJetGetter(cluster_calib)],
                             modifiersin=[subtr2,calib_tool],
                             #consumers=None, ivtxin=None,
                             ghostArea=0.0,
@@ -283,7 +285,7 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
 
        #TrigHLTJetRecConf.
        TrigHLTJetRecFromCluster.__init__(self, name=name)
- 
+
        hicluster_name = "TrigHIClusterMaker_hijet_ionlcwFS"
 
        doSubtraction = True
@@ -291,7 +293,7 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
 
        from  TrigHLTJetRec.TrigHLTJetRecConfig import _getTriggerPseudoJetGetter
 
-       if (doHIClusters) : 
+       if (doHIClusters) :
          #self.pseudoJetGetter = _getTriggerPseudoJetGetter(hicluster_name)
          self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
        else :
@@ -301,14 +303,14 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
             hicluster_name = "TrigCaloClusterMaker_topo_ionemFS"
 
        from  TrigHLTJetRec.TrigHLTJetRecConfig import _getPseudoJetSelectorAll		#_getIParticleSelectorAll
-       
+
        #self.iParticleSelector = _getIParticleSelectorAll(
        #    'iParticleSelectorAll')
-       
-       self.iPseudoJetSelector = _getPseudoJetSelectorAll(				
+
+       self.iPseudoJetSelector = _getPseudoJetSelectorAll(
            'iPseudoJetSelectorAll')
 
-       if (doSubtraction) : 
+       if (doSubtraction) :
           jetBuildTool = _getHIJetBuildTool(
              float(int(merge_param))/10.,
              ptmin=ptmin,
@@ -317,9 +319,9 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
              hicluster_name=hicluster_name,
              name=name
              )
-          #self.inputTool = inputTool 
+          #self.inputTool = inputTool
           #self.doInputs = False
-          self.jetBuildTool = jetBuildTool 
+          self.jetBuildTool = jetBuildTool
           print (jetBuildTool)
        else :
           from  TrigHLTJetRec.TrigHLTJetRecConfig import _getJetBuildTool
