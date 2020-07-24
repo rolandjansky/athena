@@ -381,7 +381,7 @@ SCTLorentzMonTool::fillHistograms() {
                 int etaIndex(-1);
                 if(eta == -1 )
                     etaIndex = 0;
-                else
+                else if(eta == 1)
                     etaIndex = 1;
                 
                 if(eta==-1 || eta==1){
@@ -495,8 +495,9 @@ SCTLorentzMonTool::fillHistograms() {
         int etaIndex(-1);
         if(eta == -1 )
             etaIndex = 0;
-        else
+        else if(eta == 1)
             etaIndex = 1;
+        
         if(eta==-1 || eta==1){
             m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
