@@ -51,7 +51,7 @@ StatusCode TauPi0ClusterScaler::finalize()
 }
 
 
-StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer)
+StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer) const
 {
     // Clear vector of cell-based charged PFO Links. 
     // Required when rerunning on xAOD level.
@@ -82,7 +82,7 @@ StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD
     return StatusCode::SUCCESS;
 }
 
-void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer)
+void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     // Set neutral PFO kinematics to vertex corrected cluster
     ATH_MSG_DEBUG("Resetting neutral PFO kinematics");
@@ -109,7 +109,7 @@ void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContaine
 
 
 
-void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& cPFOContainer)
+void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& cPFOContainer) const
 {
     ATH_MSG_DEBUG("Creating charged PFOs");
     for(auto tauTrackLink : pTau.tauTrackLinks(xAOD::TauJetParameters::classifiedCharged)){
@@ -137,7 +137,7 @@ void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContain
     }
 }
 
-void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& chargedPFOContainer)
+void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& chargedPFOContainer) const
 {
     ATH_MSG_DEBUG("Associating hadronic PFOs to charged PFOs");
 
@@ -209,13 +209,13 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAO
     }
 
     // finally set hadronic PFO links (note: we use existing TauShot enum)
-    for( auto kv : linkMap ){
-        if(not kv.first->setAssociatedParticleLinks(xAOD::PFODetails::TauShot,kv.second))
+    for( auto [k,v] : linkMap ){
+        if(not k->setAssociatedParticleLinks(xAOD::PFODetails::TauShot, v))
             ATH_MSG_WARNING("Couldn't add hadronic PFO links to charged PFO!");
     }
 }
 
-void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer)
+void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     ATH_MSG_DEBUG("Associating charged PFOs to neutral PFOs");
     // Will: I'm ashamed of this link-map, but its necessary until the 
@@ -287,14 +287,14 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD
     }
 
     // finally set charged PFO links
-    for( auto kv : linkMap ){
-        if(not kv.first->setAssociatedParticleLinks(xAOD::PFODetails::Track,kv.second))
+    for( auto [k,v] : linkMap ){
+        if(not k->setAssociatedParticleLinks(xAOD::PFODetails::Track,v))
             ATH_MSG_WARNING("Couldn't add charged PFO links to neutral PFO!");
     }
 }
 
 
-void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& neutralPFOContainer)
+void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& neutralPFOContainer) const
 {
     ATH_MSG_DEBUG("Subtracting charged energy from neutral PFOs");
     for( auto neutralPFO : neutralPFOContainer )
