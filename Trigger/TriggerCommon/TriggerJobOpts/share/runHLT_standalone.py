@@ -160,7 +160,7 @@ else:   # athenaHLT
     rec.RunNumber =_run_number
     del _run_number
 
-ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'RDO'
+ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
 
 # Set final Cond/Geo tag based on input file, command line or default
