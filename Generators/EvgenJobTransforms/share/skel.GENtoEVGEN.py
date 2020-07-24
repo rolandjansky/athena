@@ -467,8 +467,9 @@ if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"
     StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
     ## Used for pile-up (remove dynamic variables except flavour labels)
     if evgenConfig.saveJets:
-        StreamEVGEN.ItemList += ["xAOD::JetContainer#*"]
-        StreamEVGEN.ItemList += ["xAOD::JetAuxContainer#*.TruthLabelID.PartonTruthLabelID"]
+       for jetradius in [4,6]:
+          StreamEVGEN.ItemList += ["xAOD::JetContainer#AntiKt{}TruthJets".format(jetradius)]
+          StreamEVGEN.ItemList += ["xAOD::JetAuxContainer#AntiKt{}TruthJetsAux.TruthLabelID.PartonTruthLabelID".format(jetradius)]
 
     # Remove any requested items from the ItemList so as not to write out
     for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
