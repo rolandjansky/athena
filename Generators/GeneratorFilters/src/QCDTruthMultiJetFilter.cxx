@@ -83,7 +83,7 @@ StatusCode QCDTruthMultiJetFilter::filterEvent() {
   double pt_lead = -1;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
-    if (fabs( (*it_truth)->eta() ) > m_MaxEta) continue;
+    if (std::abs( (*it_truth)->eta() ) > m_MaxEta) continue;
     if ((*it_truth)->pt() > m_NjetMinPt*Gaudi::Units::GeV) Njet++;
     if (pt_lead < (*it_truth)->pt()) pt_lead = (*it_truth)->pt();
   }

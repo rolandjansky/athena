@@ -44,7 +44,7 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
   int    pdgID   = particleDefinition.GetPDGEncoding();
 
   auto* genParticle = (truth) ? truth->getTruthParticle(): nullptr;
-  Barcode::ParticleBarcode barcode = (genParticle) ? genParticle->barcode() : Barcode::fUndefinedBarcode;
+  Barcode::ParticleBarcode barcode = (genParticle) ? HepMC::barcode(genParticle) : Barcode::fUndefinedBarcode;
 
   ISF::ISFParticle *isp = new ISF::ISFParticle( position,
                                                 momentum,

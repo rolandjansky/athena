@@ -25,7 +25,7 @@ topSequence=AlgSequence()
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import RPVLLTestRates
 topSequence += RPVLLTestRates() 
 
-print topSequence.RPVLLTestRates
+print(topSequence.RPVLLTestRates)
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()

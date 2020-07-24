@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -35,7 +35,7 @@ class TriggerAPI:
         cls.pickleread = True
         if cls.centralPickleFile:
             try:
-                with open(cls.centralPickleFile, 'r') as f:
+                with open(cls.centralPickleFile, 'rb') as f:
                     cls.log.info("Reading cached information from: "+cls.centralPickleFile)
                     cls.dbQueries = pickle.load(f)
             except (pickle.PickleError, ValueError):
@@ -44,7 +44,7 @@ class TriggerAPI:
         else:
             cls.dbQueries = {}
         try:
-            with open(cls.privatePickleFile, 'r') as f:
+            with open(cls.privatePickleFile, 'rb') as f:
                 cls.privatedbQueries = pickle.load(f)
                 cls.dbQueries.update(cls.privatedbQueries)
         except (pickle.PickleError, ValueError):

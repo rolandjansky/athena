@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,6 +19,9 @@
 #include <boost/optional.hpp>
 #include <array>
 #include <climits>
+#include <iomanip>
+#include <set>
+#include <sstream>
 #include <unistd.h>
 
 using std::string;
@@ -204,14 +207,14 @@ std::string psc::Config::dumpOptions() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-std::string psc::Config::getOption(const std::string& key) const 
+std::string psc::Config::getOption(const std::string& key) const
 {
-  std::map<std::string, std::string>::const_iterator it = optmap.find(key); 
+  std::map<std::string, std::string>::const_iterator it = optmap.find(key);
   if (it == optmap.end()) {
     ERS_PSC_WARNING("Could not find requested option = " << key) ;
     ERS_DEBUG(1, " " << dumpOptions() ) ;
     return "";
-  } 
+  }
   return it->second;
 }
 
@@ -227,7 +230,7 @@ std::string psc::Config::toPython(const std::string& dictName) const
       oss << ",";
     }
     oss << "'" << it->first << "':'" << it->second << "'";
-    first = false;         
+    first = false;
   }
   oss << "}" << std::endl;
   return oss.str();

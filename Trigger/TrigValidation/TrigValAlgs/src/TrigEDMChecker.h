@@ -188,6 +188,7 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
 
    bool m_doDumpNavigation;
    StatusCode dumpNavigation();
+   Gaudi::Property<std::string> m_dumpNavForChain {this, "DumpNavigationForChain", "", "Optional chain to restrict navigation dump info."};
 
    /**
     * @brief Dump information on TrigComposite collections

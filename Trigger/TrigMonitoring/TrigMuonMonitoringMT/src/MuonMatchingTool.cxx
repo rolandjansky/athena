@@ -51,16 +51,16 @@ const xAOD::Muon* MuonMatchingTool :: matchEFSA(  const xAOD::Muon *mu, std::str
 }
 
 
-const xAOD::Muon* MuonMatchingTool :: matchEF(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
-  ATH_MSG_DEBUG("MuonMonitoring::matchEF()");
+const xAOD::Muon* MuonMatchingTool :: matchEFCB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchEFCB()");
   float reqdR = 0.03;
   return match<xAOD::Muon>( mu, trig, reqdR, pass);
 }
 
 
-const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchSA(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
-  ATH_MSG_DEBUG("MuonMonitoring::matchSA()");
-  float reqdR = 0.25;
+const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchL2SA(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchL2SA()");
+  float reqdR = m_L2SAreqdR;
   if(m_use_extrapolator){
     reqdR = reqdRL1byPt(mu->pt());
     const Amg::Vector3D extPos = offlineMuonAtPivot(mu);
@@ -71,17 +71,22 @@ const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchSA(  const xAOD::Muon *mu
   return match<xAOD::L2StandAloneMuon>( mu, trig, reqdR, pass);
 }
 
-const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchSA(  const xAOD::Muon *mu, std::string trig, float &dR) const {
-  ATH_MSG_DEBUG("MuonMonitoring::matchSA()");
+const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> MuonMatchingTool :: searchL2SALinkInfo(  const xAOD::Muon *mu, std::string trig) const {
+  ATH_MSG_DEBUG("MuonMonitoring::searchL2SALinkInfo()");
   bool pass = false;
-  return match<xAOD::L2StandAloneMuon>( mu, trig, dR, pass);
+  return searchLinkInfo<xAOD::L2StandAloneMuon>( mu, trig, 1000., pass);
 }
 
 
-const xAOD::L2CombinedMuon* MuonMatchingTool :: matchCB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
-  ATH_MSG_DEBUG("MuonMonitoring::matchCB()");
-  float reqdR = 0.03;
-  return match<xAOD::L2CombinedMuon>( mu, trig, reqdR, pass);
+const xAOD::L2CombinedMuon* MuonMatchingTool :: matchL2CB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchL2CB()");
+  return match<xAOD::L2CombinedMuon>( mu, trig, m_L2CBreqdR, pass);
+}
+
+const TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> MuonMatchingTool :: searchL2CBLinkInfo(  const xAOD::Muon *mu, std::string trig) const {
+  ATH_MSG_DEBUG("MuonMonitoring::searchL2CBLinkInfo()");
+  bool pass = false;
+  return searchLinkInfo<xAOD::L2CombinedMuon>( mu, trig,  1000., pass);
 }
 
 
@@ -132,6 +137,14 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const E
 }
 
 
+const xAOD::Muon* MuonMatchingTool :: matchL2SAtoOff( const EventContext& ctx, float trigEta, float trigPhi) const {
+  return matchOff(ctx, trigEta, trigPhi, m_L2SAreqdR);
+}
+
+const xAOD::Muon* MuonMatchingTool :: matchL2CBtoOff( const EventContext& ctx, float trigEta, float trigPhi) const {
+  return matchOff(ctx, trigEta, trigPhi, m_L2CBreqdR);
+}
+
 const xAOD::Muon* MuonMatchingTool :: matchOff( const EventContext& ctx, float trigEta, float trigPhi, float DR_cut) const {
 
   const xAOD::Muon *muon = nullptr;
@@ -158,6 +171,24 @@ const xAOD::Muon* MuonMatchingTool :: matchOff( const EventContext& ctx, float t
   }  
 
   return muon;
+}
+
+
+bool MuonMatchingTool :: isMatchedL2SA(const xAOD::L2StandAloneMuon* samu, const xAOD::Muon* mu) const{
+  float offlEta = mu->eta();
+  float offlPhi = mu->phi();
+  float trigEta = samu->roiEta();
+  float trigPhi = samu->roiPhi();
+
+  float deta = offlEta - trigEta;
+  float dphi = xAOD::P4Helpers::deltaPhi(offlPhi, trigPhi);
+  float dR = sqrt(deta*deta + dphi*dphi);
+  return (dR < m_L2SAreqdR) ? true : false;
+}
+
+bool MuonMatchingTool :: isMatchedL2CB(const xAOD::L2CombinedMuon* cbmu, const xAOD::Muon* mu) const{
+  float dR = xAOD::P4Helpers::deltaR(cbmu, mu, false);
+  return (dR < m_L2CBreqdR) ? true : false;
 }
 
 

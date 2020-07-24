@@ -43,12 +43,9 @@ atlas_add_component( TrkVertexSeedFinderTools
                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} TrkVertexSeedFinderToolsLib GeoPrimitives EventPrimitives  TruthHelper  TrkEventPrimitives TrkParameters TrkTrack VxVertex  )
 
 # Install files from the package:
-atlas_install_headers( TrkVertexSeedFinderTools )
-
-
 atlas_install_joboptions( share/*.py )
 
-
+# Tests in the package:
 function( run_seed_test testName )
   cmake_parse_arguments( ARG "" "COMMAND;ARG" "" ${ARGN} )
 

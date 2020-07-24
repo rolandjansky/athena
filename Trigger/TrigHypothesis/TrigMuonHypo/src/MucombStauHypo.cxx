@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -218,7 +218,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
       m_id_Z0  = (track)? track->param()->z0()/10. : -9999;
       
       //Get the Pt cut for that eta bin
-      float threshold = (m_id_eta!=-9999)? 0 : 99999999;
+      float threshold = (m_id_eta!=-9999)? 0 : 999999;
       float absEta = fabs(m_id_eta);
       for (std::vector<float>::size_type i=0; i<m_bins; ++i)
       if ( absEta > m_ptBins[i] && absEta < m_ptBins[i+1] ) threshold = m_ptThresholds[i]; 

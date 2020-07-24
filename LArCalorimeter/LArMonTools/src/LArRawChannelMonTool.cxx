@@ -1926,7 +1926,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_quality )        per_feb_hists_to_scale.push_back(&m_per_feb_hists[quality_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr : per_feb_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th1_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th1_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_event_counter ) );
 
@@ -1938,7 +1938,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_quality )        per_ft_hists_to_scale.push_back(&m_per_feedthrough_hists[quality_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr : per_ft_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th2_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th2_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_event_counter ) );
       }
@@ -1959,7 +1959,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_negative_noise ) per_feb_hists_to_scale.push_back(&m_per_feb_hists[neg_noise_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr : per_feb_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th1_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th1_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_noise_stream_event_counter ) );
 
@@ -1972,7 +1972,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_negative_noise ) per_ft_hists_to_scale.push_back(&m_per_feedthrough_hists[neg_noise_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr : per_ft_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th2_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th2_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_noise_stream_event_counter ) );
       }

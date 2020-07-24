@@ -40,8 +40,8 @@ etcone10 = 0
 nucone10 = 8
 
 # Without these, cling gets confused by forward declarations.
-ROOT.xAOD.TrackParticleContainer_v1
-ROOT.xAOD.Jet_v1
+getattr (ROOT.xAOD, 'TrackParticleContainer_v1', None)
+getattr (ROOT.xAOD, 'Jet_v1', None)
 
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):

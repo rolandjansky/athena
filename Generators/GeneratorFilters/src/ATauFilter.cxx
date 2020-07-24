@@ -169,7 +169,7 @@ StatusCode ATauFilter::filterEvent() {
          && ( std::abs( ataulep->momentum().pseudoRapidity() ) <= m_EtaRange ) ) {
       CLHEP::HepLorentzVector mom_taulep(taulep->momentum().px(), taulep->momentum().py(), taulep->momentum().pz(), taulep->momentum().e());
       CLHEP::HepLorentzVector mom_ataulep(ataulep->momentum().px(), ataulep->momentum().py(), ataulep->momentum().pz(), ataulep->momentum().e());
-      if ( fabs(mom_taulep.vect().deltaPhi(mom_ataulep.vect())) < m_maxdphi ) {
+      if ( std::abs(mom_taulep.vect().deltaPhi(mom_ataulep.vect())) < m_maxdphi ) {
         m_eventsllacc++;
         return StatusCode::SUCCESS;
       }
@@ -183,10 +183,10 @@ StatusCode ATauFilter::filterEvent() {
     if ( ( ( ( taulep->momentum().perp() >= m_lhPtmine ) && ( taulep->pdg_id() == 11 ) )
            || ( ( taulep->momentum().perp() >= m_lhPtminmu ) && ( taulep->pdg_id() == 13 ) ) )
          && ( mom_atauprod.perp() >= m_lhPtminh )
-         && ( fabs( taulep->momentum().pseudoRapidity() ) <= m_EtaRange )
-         && ( fabs( mom_atauprod.pseudoRapidity() ) <= m_EtaRange ) ) {
+         && ( std::abs( taulep->momentum().pseudoRapidity() ) <= m_EtaRange )
+         && ( std::abs( mom_atauprod.pseudoRapidity() ) <= m_EtaRange ) ) {
       CLHEP::HepLorentzVector mom_taulep(taulep->momentum().px(), taulep->momentum().py(), taulep->momentum().pz(), taulep->momentum().e());
-      if ( fabs(mom_taulep.vect().deltaPhi(mom_atauprod.vect())) < m_maxdphi ) {
+      if ( std::abs(mom_taulep.vect().deltaPhi(mom_atauprod.vect())) < m_maxdphi ) {
         m_eventslhacc++;
         return StatusCode::SUCCESS;
       }
@@ -220,7 +220,7 @@ StatusCode ATauFilter::filterEvent() {
          && ( mom_atauprod.perp() >= m_hhPtmin )
          && ( std::abs( mom_tauprod.pseudoRapidity() ) <= m_EtaRange )            // check eta-range
          && ( std::abs( mom_atauprod.pseudoRapidity() ) <= m_EtaRange ) ) {
-      if ( fabs(mom_atauprod.vect().deltaPhi(mom_tauprod.vect())) < m_maxdphi ) {
+      if ( std::abs(mom_atauprod.vect().deltaPhi(mom_tauprod.vect())) < m_maxdphi ) {
         m_eventshhacc++;
         m_nPass++;
         return StatusCode::SUCCESS;

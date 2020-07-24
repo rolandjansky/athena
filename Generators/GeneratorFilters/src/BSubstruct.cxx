@@ -49,7 +49,7 @@ inline bool BSubstruct::hasCBQuark(int pdgID) const {
 
 
 inline double BSubstruct::deltaPhi(double phi1, double phi2) const {
-  double dPhi = fabs(fmod(phi1 - phi2, 2*M_PI));
+  double dPhi = std::abs(fmod(phi1 - phi2, 2*M_PI));
   if (dPhi > M_PI) {
     dPhi = 2*M_PI - dPhi;
   }

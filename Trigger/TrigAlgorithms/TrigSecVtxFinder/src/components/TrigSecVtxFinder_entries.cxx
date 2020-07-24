@@ -1,3 +1,3 @@
-#include "TrigSecVtxFinder/TrigSecVtxFinder.h"
+#include "../TrigSecVtxFinder.h"
 
 DECLARE_COMPONENT( TrigSecVtxFinder )

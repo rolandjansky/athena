@@ -49,6 +49,12 @@ namespace TrigConf {
       uint16_t m_isolationMask;
    };
 
+   class L1Threshold_JET final : public L1Threshold_Calo {
+   public:
+      L1Threshold_JET( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, m_extraInfo, data) {};
+      virtual ~L1Threshold_JET() = default;
+   };
 
    class L1Threshold_XE final : public L1Threshold_Calo {
    public:

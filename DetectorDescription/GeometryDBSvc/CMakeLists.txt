@@ -28,6 +28,3 @@ atlas_add_component( GeometryDBSvc
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps GeometryDBSvcLib )
 
-# Install files from the package:
-atlas_install_headers( GeometryDBSvc )
-

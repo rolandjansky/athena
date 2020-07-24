@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence, tauFTFTrackTwoSequence, tauEFSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence, tauFTFTrackTwoSequence, tauEFSequence, tauFTFCoreMVASequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -124,9 +124,28 @@ def tauIdTrackSeq():
 #                                                                                                                                           
 # ===============================================================================================
 
+def tauTwoStepTrackSeqCoreMVA():
+
+    (sequence, ftfCoreMVAViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreMVASequence,ConfigFlags)    
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
+    fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_RejectEmptyMVA")
+    fastTrkHypo.trackcollection = sequenceOut
+
+    from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfCoreMVAViewsMaker,
+                          Hypo        = fastTrkHypo,
+                          HypoToolGen = TrigTauTrackHypoToolFromDict )
+
+# ===============================================================================================                                                                               
+#                                                                                                                                                                               
+# ===============================================================================================                                                                              
+
 def tauTwoStepTrackSeqCore():
 
-    (sequence, ftfCoreViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreSequence,ConfigFlags)    
+    (sequence, ftfCoreViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreSequence,ConfigFlags)
 
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
     fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_RejectEmpty")
@@ -160,7 +179,9 @@ def tauTwoStepTrackSeqIso():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 
-# ===============================================================================================                                             #                                                                                                                                             # ===============================================================================================                                                                                 
+# ===============================================================================================                                             
+#                                                                                                                                             
+# ===============================================================================================                                                                                
 
 
 def tauTrackTwoEFSeq():

@@ -261,11 +261,11 @@ GapJetFilter::filterEvent()
     }
   
           float rapgap_cl=-100.; 
-       if (fabs(cl_maxeta)<fabs(cl_mineta) && Clustag==1) {
+       if (std::abs(cl_maxeta)<std::abs(cl_mineta) && Clustag==1) {
          rapgap_cl = 4.9 - cl_maxeta;
        }
 
-       else if (fabs(cl_maxeta)>fabs(cl_mineta) && Clustag==1) {
+       else if (std::abs(cl_maxeta)>std::abs(cl_mineta) && Clustag==1) {
          rapgap_cl = 4.9 + cl_mineta;
        }
 

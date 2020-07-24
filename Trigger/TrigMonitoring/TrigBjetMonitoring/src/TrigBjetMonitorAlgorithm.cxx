@@ -348,7 +348,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	  auto nJet = Monitored::Scalar<int>(nJetH,0.0);
 	  nJet = onlinejets.size();
 	  fill("TrigBjetMonitor",nJet);
-	  for(const auto jetLinkInfo : onlinejets) {
+	  for(const auto& jetLinkInfo : onlinejets) {
 	    // jetPt
 	    const xAOD::Jet* jet = *(jetLinkInfo.link);
 	    std::string NameH = "jetPt_"+trigName;

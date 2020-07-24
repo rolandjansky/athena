@@ -37,7 +37,7 @@ namespace Pythia8 {
       
       double sHat = phaseSpacePtr->sHat();
       double flatEta= 1.;
-      double rH = sqrt(sHat);
+      double rH = std::sqrt(sHat);
 
       if(rH <= 160.){
         double c = -5.55578e+01;

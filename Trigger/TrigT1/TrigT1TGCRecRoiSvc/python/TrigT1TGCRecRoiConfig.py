@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigT1TGCRecRoiConfig.py 301207 2010-05-26 12:16:53Z krasznaa $
 #
 # To use the LVL1TGC::TGCRecRoiSvc, one has to import this module simply
 # like:
@@ -8,8 +7,9 @@
 #   import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
 #
 
-from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiSvcConf import *
+from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiSvcConf import LVL1TGC__TGCRecRoiSvc
 from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.Configurable import Configurable
 
 # Create a logger:
 from AthenaCommon.Logging import logging
@@ -22,7 +22,7 @@ class TGCRecRoiConfig( LVL1TGC__TGCRecRoiSvc ):
 
 # Configure the cabling. Let the cabling configurable set up the services based
 # on the conditions.
-import MuonCnvExample.MuonCablingConfig
+import MuonCnvExample.MuonCablingConfig  # noqa: F401
 logger.debug( "Configured the cabling services" )
 
 # Add the TGCRecRoiSvc to the service manager:
