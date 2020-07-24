@@ -14,7 +14,6 @@
 #include "TrkEventUtils/PRDtoTrackMap.h"
 // normal includes
 #include "Identifier/Identifier.h"
-#include "InDetPrepRawData/PixelCluster.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -59,37 +58,12 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
   }
 
   ATH_CHECK( m_assoTool.retrieve( DisableTool{!m_doSharedHits || m_assoTool.empty()} ));
+  ATH_CHECK( m_pixeldedxtool.retrieve( DisableTool{m_pixeldedxtool.empty() }));
+  ATH_CHECK( m_holeSearchTool.retrieve( DisableTool{m_holeSearchTool.empty() }));
+  ATH_CHECK( m_testBLayerTool.retrieve( DisableTool{m_testBLayerTool.empty() }));
+  ATH_CHECK( m_TRTStrawSummaryTool.retrieve( DisableTool{not m_useTRT or m_TRTStrawSummaryTool.empty() }));
 
-  if ( not m_pixeldedxtool.empty() and m_pixeldedxtool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve pixel dEdx tool " << m_pixeldedxtool);
-    ATH_MSG_ERROR("configure as 'None' to avoid its loading.");
-    return StatusCode::FAILURE;
-  } else {
-    if (not m_pixeldedxtool.empty()) ATH_MSG_INFO("Retrieved tool " << m_pixeldedxtool);
-  }
-
-  if ( not m_holeSearchTool.empty() && m_holeSearchTool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_holeSearchTool);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_holeSearchTool);
-  }
-
-  if (not m_testBLayerTool.empty() and m_testBLayerTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve Test B Layer tool " << m_testBLayerTool);
-    ATH_MSG_ERROR("configure as 'None' to avoid its loading.");
-    return StatusCode::FAILURE;
-  } else {
-    if (not m_testBLayerTool.empty()) ATH_MSG_INFO("Retrieved tool " << m_testBLayerTool);
-  }
-
-  if (m_useTRT and not m_TRTStrawSummaryTool.empty() and m_TRTStrawSummaryTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
-    ATH_MSG_ERROR("configure as 'None' to avoid its loading.");
-    return StatusCode::FAILURE;
-  } else {
-    if (not m_TRTStrawSummaryTool.empty()) ATH_MSG_INFO("Retrieved tool " << m_TRTStrawSummaryTool);
-  }
+  ATH_CHECK(m_clusterSplitProbContainer.initialize( !m_clusterSplitProbContainer.key().empty()));
 
   ATH_MSG_INFO("initialize() successful in " << name());
 
@@ -158,12 +132,13 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
           ATH_MSG_ERROR("Could not cast pixel RoT to PixelClusterOnTrack!");
         } else {
           const InDet::PixelCluster* pixPrd = pix->prepRawData();
-          if ( pixPrd and pixPrd->isSplit() ) { information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
+          const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixPrd);
+          if ( pixPrd and splitProb.isSplit() ) { information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
           if (pixPrd and m_pixelId->is_barrel(id) and
-              m_pixelId->layer_disk(id) == 0 and pixPrd->isSplit())
+              m_pixelId->layer_disk(id) == 0 and splitProb.isSplit())
             information[Trk::numberOfInnermostLayerSplitHits]++;
           if (pixPrd and m_pixelId->is_barrel(id) and
-              m_pixelId->layer_disk(id) == 1 and pixPrd->isSplit())
+              m_pixelId->layer_disk(id) == 1 and splitProb.isSplit())
             information[Trk::numberOfNextToInnermostLayerSplitHits]++;
           if ( pix->isBroadCluster() ) information[Trk::numberOfPixelSpoiltHits]++;
           if ( pix->hasClusterAmbiguity() ) {
@@ -402,7 +377,8 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
             }
             if (pix) {
               const InDet::PixelCluster* pixPrd = pix->prepRawData();
-              if (pixPrd and pixPrd->isSplit()) {
+              const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixPrd);
+              if (pixPrd and splitProb.isSplit()) {
                 summary.m_information[Trk::numberOfPixelSplitHits]++;
                 hitIsSplit=true;
                 if ( m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id)==0) summary.m_information[Trk::numberOfInnermostLayerSplitHits]++;

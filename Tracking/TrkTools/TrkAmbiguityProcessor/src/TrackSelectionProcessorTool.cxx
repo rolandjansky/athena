@@ -42,6 +42,10 @@ Trk::TrackSelectionProcessorTool::initialize(){
   ATH_CHECK( m_assoTool.retrieve() );
   ATH_CHECK( m_scoringTool.retrieve());
   ATH_CHECK(m_selectionTool.retrieve());
+
+  ATH_CHECK(m_clusterSplitProbContainerIn.initialize(!m_clusterSplitProbContainerIn.key().empty()));
+  ATH_CHECK(m_clusterSplitProbContainerOut.initialize(!m_clusterSplitProbContainerOut.key().empty()));
+
   if (m_disableSorting) ATH_MSG_INFO( "Internal sorting disabled, using external ordering!" );    
   return sc;
 }
@@ -141,10 +145,37 @@ Trk::TrackSelectionProcessorTool::addNewTracks(TrackScoreMap &trackScoreTrackMap
   ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap.size());
 }
 
-void 
+void
 Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
-                                                   Trk::PRDtoTrackMap &prdToTrackMap,
-                                                   TrackCollection &result) const{
+                                              Trk::PRDtoTrackMap &prdToTrackMap,
+                                              TrackCollection &result) const
+{
+  using namespace std;
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerIn;
+  if (!m_clusterSplitProbContainerIn.key().empty()) {
+     splitProbContainerIn = SG::ReadHandle( m_clusterSplitProbContainerIn, ctx);
+     if (!splitProbContainerIn.isValid()) {
+        ATH_MSG_ERROR( "Failed to get input cluster split probability container "  << m_clusterSplitProbContainerIn.key());
+     }
+  }
+  std::unique_ptr<Trk::ClusterSplitProbabilityContainer> splitProbContainerCleanup(!m_clusterSplitProbContainerIn.key().empty()
+                                                                                      ? std::make_unique<ClusterSplitProbabilityContainer>(*splitProbContainerIn)
+                                                                                      : std::make_unique<ClusterSplitProbabilityContainer>());
+  SG::WriteHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerHandle;
+  Trk::ClusterSplitProbabilityContainer *splitProbContainer;
+  if (!m_clusterSplitProbContainerOut.key().empty()) {
+     splitProbContainerHandle = SG::WriteHandle<Trk::ClusterSplitProbabilityContainer>( m_clusterSplitProbContainerOut, ctx);
+     if (splitProbContainerHandle.record(std::move(splitProbContainerCleanup)).isFailure()) {
+        ATH_MSG_FATAL( "Failed to record output cluster split probability container "  << m_clusterSplitProbContainerOut.key());
+     }
+     splitProbContainer=splitProbContainerHandle.ptr();
+  }
+  else {
+     splitProbContainer=splitProbContainerCleanup.get();
+  }
+
   ATH_MSG_VERBOSE ("Starting to solve tracks");
   // now loop as long as map is not empty
   while ( !trackScoreTrackMap.empty() ) {
@@ -154,7 +185,7 @@ Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
     trackScoreTrackMap.erase(itnext);
     ATH_MSG_VERBOSE ("--- Trying next track "<<atrack.track()<<"\t with score "<<-ascore);
     std::unique_ptr<Trk::Track> cleanedTrack;
-    const auto &[cleanedTrack_tmp, keepOriginal]  = m_selectionTool->getCleanedOutTrack( atrack.track() , -(ascore), prdToTrackMap);
+    const auto &[cleanedTrack_tmp, keepOriginal]  = m_selectionTool->getCleanedOutTrack( atrack.track() , -(ascore), *splitProbContainer, prdToTrackMap);
     cleanedTrack.reset(cleanedTrack_tmp);
     if (keepOriginal ){
       // track can be kept as identical to the input track

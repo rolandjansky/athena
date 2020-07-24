@@ -28,7 +28,6 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::DenseEnvironmentsAmbiguitySco
   :
   AthAlgTool(t,n,p),
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
-  m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
   m_splitProbTool("InDet::NnPixelClusterSplitProbTool/NnPixelClusterSplitProbTool"),
   m_etaBounds{0.8, 1.6, 2.5,4.0},
   m_stat(m_etaBounds)
@@ -36,7 +35,6 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::DenseEnvironmentsAmbiguitySco
 
   declareInterface<ITrackAmbiguityScoreProcessorTool>(this);
   declareProperty("ScoringTool"          , m_scoringTool);
-  declareProperty("SelectionTool"        , m_selectionTool);
   declareProperty("SplitProbTool"        , m_splitProbTool);
   declareProperty("SplitClusterMap_old"  , m_splitClusterMapKey_last);
   declareProperty("SplitClusterMap_new"  , m_splitClusterMapKey);
@@ -59,9 +57,9 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize(){
   ATH_CHECK( m_assoToolNotGanged.retrieve( DisableTool{m_assoToolNotGanged.empty()} )) ;
   ATH_CHECK( m_assoMapName.initialize(!m_assoMapName.key().empty()) );
 
-  ATH_CHECK( m_selectionTool.retrieve());
-
   ATH_CHECK(m_splitProbTool.retrieve( DisableTool{m_splitProbTool.empty()} ));
+  ATH_CHECK(m_clusterSplitProbContainerIn.initialize(!m_clusterSplitProbContainerIn.key().empty()) );
+  ATH_CHECK(m_clusterSplitProbContainerOut.initialize(!m_clusterSplitProbContainerOut.key().empty()) );
 
   ATH_CHECK( m_splitClusterMapKey_last.initialize(!m_splitClusterMapKey_last.key().empty()) );
   ATH_CHECK( m_splitClusterMapKey.initialize(!m_splitClusterMapKey.key().empty()) );
@@ -101,10 +99,11 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
 void 
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(const TrackCollection & tracks,
                                                     Trk::TracksScores* trackScoreTrackMap) const{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   InDet::PixelGangedClusterAmbiguities *splitClusterMap = nullptr;
   if(!m_splitClusterMapKey.key().empty()){
     if(!m_splitClusterMapKey_last.key().empty()){
-      SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMapHandle_last(m_splitClusterMapKey_last);
+      SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMapHandle_last(m_splitClusterMapKey_last,ctx);
       if ( !splitClusterMapHandle_last.isValid() ){
         ATH_MSG_ERROR("Could not read last splitClusterMap.");
       }
@@ -114,13 +113,39 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(const TrackCollection
       splitClusterMap =  new InDet::PixelGangedClusterAmbiguities();
     }
   }
+
+  SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerIn;
+  if (!m_clusterSplitProbContainerIn.key().empty()) {
+     splitProbContainerIn = SG::ReadHandle( m_clusterSplitProbContainerIn, ctx);
+     if (!splitProbContainerIn.isValid()) {
+        ATH_MSG_ERROR( "Failed to get input cluster split probability container "  << m_clusterSplitProbContainerIn.key());
+     }
+  }
+  std::unique_ptr<Trk::ClusterSplitProbabilityContainer> splitProbContainerCleanup(!m_clusterSplitProbContainerIn.key().empty()
+                                                                                      ? std::make_unique<ClusterSplitProbabilityContainer>(*splitProbContainerIn)
+                                                                                      : std::make_unique<ClusterSplitProbabilityContainer>());
+  SG::WriteHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerHandle;
+  Trk::ClusterSplitProbabilityContainer *splitProbContainer;
+
+  // Have to write the ClusterSplitProbabilityContainer first, to allow child tools to already use this new container.
+  if (!m_clusterSplitProbContainerOut.key().empty()) {
+     splitProbContainerHandle = SG::WriteHandle<Trk::ClusterSplitProbabilityContainer>( m_clusterSplitProbContainerOut, ctx);
+     if (splitProbContainerHandle.record(std::move(splitProbContainerCleanup)).isFailure()) {
+        ATH_MSG_FATAL( "Failed to record output cluster split probability container "  << m_clusterSplitProbContainerOut.key());
+     }
+     splitProbContainer=splitProbContainerHandle.ptr();
+  }
+  else {
+     splitProbContainer=splitProbContainerCleanup.get();
+  }
+
   addNewTracks(tracks, trackScoreTrackMap);
   std::unique_ptr<Trk::PRDtoTrackMap> prdToTrackMap( m_assoToolNotGanged.isEnabled()
                                                         ? m_assoToolNotGanged->createPRDtoTrackMap()
                                                         : m_assoTool->createPRDtoTrackMap() );
-  overlappingTracks(trackScoreTrackMap, splitClusterMap, *prdToTrackMap);
+  overlappingTracks(trackScoreTrackMap, splitClusterMap, *splitProbContainer, *prdToTrackMap);
   if (!m_assoMapName.key().empty()) {
-     if (SG::WriteHandle<Trk::PRDtoTrackMap>(m_assoMapName).record(
+     if (SG::WriteHandle<Trk::PRDtoTrackMap>(m_assoMapName,ctx).record(
                 (m_assoToolNotGanged.isEnabled()
                  ? m_assoToolNotGanged->reduceToStorableMap(std::move(prdToTrackMap))
                  : m_assoTool->reduceToStorableMap(std::move(prdToTrackMap)) )).isFailure()) {
@@ -128,7 +153,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(const TrackCollection
      }
   }
   if(!m_splitClusterMapKey.key().empty()){
-    SG::WriteHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMapHandle(m_splitClusterMapKey);
+    SG::WriteHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMapHandle(m_splitClusterMapKey,ctx);
     splitClusterMapHandle = std::unique_ptr<InDet::PixelGangedClusterAmbiguities>(splitClusterMap);
     if( !splitClusterMapHandle.isValid() ){
       ATH_MSG_ERROR("Could not record splitClusterMap.");
@@ -167,38 +192,39 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(const TrackColle
 }
 
 //==================================================================================================
-void 
+void
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
-                                                                                             const Trk::TrackParameters*> & clusterTrkPara,
-                                                                                              InDet::PixelGangedClusterAmbiguities *splitClusterMap) const{
+                                                                                         const Trk::TrackParameters*> & clusterTrkPara,
+                                                                                         InDet::PixelGangedClusterAmbiguities *splitClusterMap,
+                                                                                         Trk::ClusterSplitProbabilityContainer &splitProbContainer) const
+{
 
   // Recalculate the split prob with the use of the track parameters
   InDet::PixelClusterSplitProb splitProb = m_splitProbTool->splitProbability( *clusterTrkPara.first, *clusterTrkPara.second );
-  // update the split prob information on the cluster --  the use of the split flag is now questionable -- possible it will now indicate if the cluster is shared between multiple tracks
-  InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*> ( clusterTrkPara.first );    
+  // update the split prob information on the cluster --  the use of the split flag is now questionable -- possible itP will now indicate if the cluster is shared between multiple tracks
+  const InDet::PixelCluster* pixelCluster = clusterTrkPara.first;
   //TODO: const_cast?
+  if (msgLvl(MSG::DEBUG)) {
+     const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProbCurrent = (pixelCluster
+                                                                                      ? splitProbContainer.splitProbability(pixelCluster)
+                                                                                      : Trk::ClusterSplitProbabilityContainer::getNoSplitProbability());
 
-  ATH_MSG_DEBUG (  "---- "<< pixelCluster->globalPosition().perp() 
-                             <<" Updating split probs 1:  Old " << pixelCluster->splitProbability1() << "  New " << splitProb.splitProbability(2) 
-                             <<" Probs 2:  Old " << pixelCluster->splitProbability2() << "  New " << splitProb.splitProbability(3) 
-                             << "\n"
-                             << " --- pixelCluster: " <<  *pixelCluster
-                             << "\n"
-                             << " --- trk params: " << *clusterTrkPara.second  );
-
-  if ( splitProb.splitProbability(2)  < 0 ){
-    pixelCluster->packSplitInformation( false, 0.0, 0.0 );    
-    pixelCluster->setTooBigToBeSplit( true );    
-  } else {  
-    pixelCluster->packSplitInformation( false, splitProb.splitProbability(2), splitProb.splitProbability(3) ) ;
-    pixelCluster->setTooBigToBeSplit( false );    
+     ATH_MSG_DEBUG (  "---- "<< pixelCluster->globalPosition().perp()
+                      <<" Updating split probs 1: " << pixelCluster->identify() << ": Old " <<  splitProbCurrent.splitProbability1() << "  New " << splitProb.splitProbability(2)
+                      <<" Probs 2:  Old " << splitProbCurrent.splitProbability2() << "  New " << splitProb.splitProbability(3)
+                      << "\n"
+                      << " --- pixelCluster: " <<  *pixelCluster
+                      << "\n"
+                      << " --- trk params: " << *clusterTrkPara.second  );
   }
-  
+  const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &
+     splitProbNew = splitProbContainer.setSplitInformation(pixelCluster, splitProb.splitProbability(2), splitProb.splitProbability(3));
+
   if(splitClusterMap){
-    if(  pixelCluster->splitProbability2()  >=  m_sharedProbCut2){
+    if(  splitProbNew.splitProbability2()  >=  m_sharedProbCut2){
       splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
       splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
-    } else if ( pixelCluster->splitProbability1()  >=  m_sharedProbCut ){  
+    } else if ( splitProbNew.splitProbability1()  >=  m_sharedProbCut ){
       splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
     }
   }
@@ -206,10 +232,12 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformationFo
 }
 
 //==================================================================================================
-void 
+void
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const TracksScores* scoredTracks,
-                                                                          InDet::PixelGangedClusterAmbiguities *splitClusterMap,
-                                                                          Trk::PRDtoTrackMap &prdToTrackMap) const{
+                                                                     InDet::PixelGangedClusterAmbiguities *splitClusterMap,
+                                                                     Trk::ClusterSplitProbabilityContainer &splitProbContainer,
+                                                                     Trk::PRDtoTrackMap &prdToTrackMap) const
+{
   const Trk::IPRDtoTrackMapTool *the_asso_tool = (m_assoToolNotGanged.isEnabled() ? &(*m_assoToolNotGanged) : &(*m_assoTool));
   // Function currnetly does nothing useful expect for printout debug information
   ATH_MSG_DEBUG ("Starting to resolve overlapping tracks");
@@ -255,7 +283,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
          //Update the pixel split information if the element is unique (The second element of the pair indiciates if the element was inserted into the map)
          auto ret =  setOfPixelClustersOnTrack.insert(std::make_pair( pixel, (*tsos)->trackParameters() ));
          if (ret.second && m_splitProbTool.isEnabled()) {
-            updatePixelSplitInformationForCluster( *(ret.first), splitClusterMap);
+            updatePixelSplitInformationForCluster( *(ret.first), splitClusterMap, splitProbContainer);
          }
          setOfPixelClustersToTrackAssoc.insert( std::make_pair( pixel, scoredTracksItem.first ) );
       }

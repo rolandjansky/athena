@@ -71,8 +71,9 @@ ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   HoleSearch      = ToolSvc.CombinedMuonIDHoleSearch,
   usePixel        = DetFlags.haveRIO.pixel_on(),
   useSCT          = DetFlags.haveRIO.SCT_on(),
-  useTRT          = DetFlags.haveRIO.TRT_on() )
- 
+  useTRT          = DetFlags.haveRIO.TRT_on(),
+  ClusterSplitProbabilityName = TrackingCommon.combinedClusterSplitProbName())
+
 # default CombinedMuonTrackSummary
 # @TODO doHolesMuon = False correct ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool

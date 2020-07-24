@@ -111,6 +111,7 @@ InDet::PixelClusterOnTrackTool::initialize() {
   m_applyNNcorrection = m_applyNNcorrectionProperty;
 
   ATH_CHECK(m_clusterErrorKey.initialize());
+  ATH_CHECK(m_clusterSplitProbContainer.initialize( !m_clusterSplitProbContainer.key().empty()));
 
   // get the error scaling tool
   if (!m_pixelErrorScalingKey.key().empty()) {
@@ -184,7 +185,8 @@ InDet::PixelClusterOnTrackTool::correct
       if (!pix) {
         return 0;
       }
-      if (pix->isSplit()) {
+      const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pix);
+      if (splitProb.isSplit()) {
         return correctNN(rio, trackPar);
       } else {
         return correctDefault(rio, trackPar);
@@ -578,7 +580,8 @@ InDet::PixelClusterOnTrackTool::correct
 // GP: NEW correct() method in case of NN based calibration  */
 const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correctNN
-  (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
+  (const Trk::PrepRawData &rio,
+   const Trk::TrackParameters &trackPar) const {
   const InDet::PixelCluster *pixelPrepCluster = dynamic_cast<const InDet::PixelCluster *>(&rio);
 
   if (pixelPrepCluster == 0) {
@@ -837,16 +840,17 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
                                                    const Trk::TrackParameters &trackPar,
                                                    Amg::Vector2D &finalposition,
                                                    Amg::MatrixX &finalerrormatrix) const {
+  const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixelPrepCluster);
   std::vector<Amg::Vector2D> vectorOfPositions;
   int numberOfSubclusters = 1;
   if(m_applyNNcorrection){
     SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterMapKey);
     numberOfSubclusters = 1 + splitClusterMap->count(pixelPrepCluster);
  
-    if (splitClusterMap->count(pixelPrepCluster) == 0 && pixelPrepCluster->isSplit()) {
+    if (splitClusterMap->count(pixelPrepCluster) == 0 && splitProb.isSplit()) {
       numberOfSubclusters = 2;
     }
-    if (splitClusterMap->count(pixelPrepCluster) != 0 && !pixelPrepCluster->isSplit()) {
+    if (splitClusterMap->count(pixelPrepCluster) != 0 && !splitProb.isSplit()) {
       numberOfSubclusters = 1;
     }
   }
@@ -871,7 +875,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
   if (allLocalPositions.empty()) {
     ATH_MSG_DEBUG(
       " Cluster cannot be treated by NN. Giving back to default clusterization, too big: " <<
-    pixelPrepCluster->tooBigToBeSplit());
+      splitProb.isTooBigToBeSplit());
     return false;
   }
 

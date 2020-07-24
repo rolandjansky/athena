@@ -17,7 +17,8 @@ namespace Trk
   class Track;
   class PrepRawData;
   class PRDtoTrackMap;
-  
+  class ClusterSplitProbabilityContainer;
+
   /** @class Trk::IAmbiTrackSelectionTool
       @brief Interface for building new tracks using information about shared and already associated hits.
 
@@ -30,8 +31,9 @@ namespace Trk
 
     /** Performs cleaning of a track from already used hits.
         @param track the input track to be checked and cleaned.
-        @param prd_to_track_map a map to identify shared hits.
         @param score the score tha twas given to the input track
+        @param prd_to_track_map a map to identify shared hits.
+        @param clusterSplitProbMap map which associates pixel cluster to cluster splitting probabilities.
         @return tuple where the first element is a potiner to a new track or a nullptr and the second element is a flag which is set to false if the input track is to be rejected.
         The second element of the returned tuple is false if the input input track is to be rejected.
         The input track is rejected if it does not fulfil quality criteria or if a new cleaned track is created
@@ -40,6 +42,7 @@ namespace Trk
     */
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
+                                                            Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                             Trk::PRDtoTrackMap &prd_to_track_map) const =0;
   };
 
