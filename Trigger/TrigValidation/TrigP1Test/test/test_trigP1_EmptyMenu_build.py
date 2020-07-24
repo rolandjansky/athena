@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Same as empty_menu test from TrigUpgradeTest, but with athenaHLT
 # art-type: build                                                                  
