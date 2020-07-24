@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -180,19 +180,19 @@ int PixelCalibSvc::PixelType(const Identifier wafer_id, int row, int col) const 
   // local row and col of ith circuit(0-15) 
   // each circuit contains 160 rows and 18 columns 
   if(isITK){ 
-    /*if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-      if (p_design->numberOfCircuits()==2) {     // IBL planar
-        if(col==0||col==(static_cast<int>(columnsPerFEI50)-1))return 1; // long pixel
-      }
-      return 0;
+        
+    int ncirc = p_design->numberOfCircuits();
+    int ncpc = p_design->columnsPerCircuit();
+    int nrpc = p_design->rowsPerCircuit();
+
+    if(ncirc == 4){
+      // long pixel row and columns 
+      if( (row > nrpc-3 && row < nrpc+2) && (col < ncpc-2 || col > ncpc+1)) return 1;
+      if( (col > ncpc-3 && col < ncpc+2) && (row < nrpc-2 || row > nrpc+1)) return 1;
+      // corner big pixels 
+      if(  row > nrpc-3 && row < nrpc+2 && col > ncpc-3 && col < ncpc+2) return 2;
     }
-    else{
-      int iec = m_pixid->barrel_ec(wafer_id);
-      int il = m_pixid->layer_disk(wafer_id); 
-      if(iec==0&&il==1)return gangedType(row, col, columnsPerFEI52,rowsFGangedFEI52,rowsLGangedFEI52);
-      else return gangedType(row, col, columnsPerFEI51,rowsFGangedFEI51,rowsLGangedFEI51);
-    }*/
-    //Pixel module design not yet final. Comment out ganged/long for now until any decision is made
+
     return 0;
   }
   else {
@@ -229,43 +229,17 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
   circ = -1;
 
   if (isITK) {
-
-/*  So far comment them until the module specification is established.
-
-    if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-      int columnsPerFE =columnsPerFEI50;
-      col =  (columnsPerFE-1) -eta_index%columnsPerFE; // check the col order in FEI4 ?
-      int rowsPerFE =rowsPerFEI50;
-      row = (rowsPerFE-1)-phi_index; // check this ?
-      circ = getNFE(wafer_id)==1 ? 0: 1-eta_index/columnsPerFE;
-    }
-    else{ // FEI51, FEI52
-      int rowsPerFE =rowsPerFEI51; // check ?
-      int columnsPerFE =columnsPerFEI51;
-      if (barrel_ec == 2 || barrel_ec == -2) {
-        if (phi_module%2 == 0) {
-          phi_index = 2*rowsPerFE-phi_index-1;
-        }
-      }
-      if(barrel_ec==0&&layer_disk==1){
-        rowsPerFE = rowsPerFEI52;
-        columnsPerFE = columnsPerFEI52;
-      } 
-      if (phi_index >= rowsPerFE) {
-        circ = (int)((FEIXsPerHalfModule-1)-(eta_index/columnsPerFE));
-        col=(columnsPerFE-1)-(eta_index%columnsPerFE);
-        row = ((2*rowsPerFE)-1)-phi_index;
-      } else {
-        circ = (int)(eta_index/columnsPerFE)+FEIXsPerHalfModule;
-        col=eta_index%columnsPerFE;
-        row=phi_index;
-      }
-    }
-*/
-
-    col  = p_design->columnsPerCircuit();
-    row  = 0;
-    circ = (int)eta_index/p_design->columnsPerCircuit();
+    
+    col = (int)eta_index/p_design->columnsPerCircuit();
+    row = (int)phi_index/p_design->rowsPerCircuit();
+    circ = 2*row+col;
+ 
+    if( (row != 0 && row != 1) ||  (col != 0 && col != 1) ){ 
+      ATH_MSG_WARNING("FE row is "<<row<<" col is " <<col);
+      circ = 0;
+      return 0;
+    }  
+    return PixelType(wafer_id, phi_index, eta_index);
   }
   else {
     int columnsPerFE = p_design->columnsPerCircuit();
@@ -313,33 +287,14 @@ int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_i
   int circ(-1);
   if (isITK) {
 
-/*  So far comment them until the module specification is established.
-
-    if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-      int columnsPerFE = columnsPerFEI50;
-      circ = getNFE(wafer_id)==1 ? 0: 1-eta_index/columnsPerFE;
-    }
-    else{ // FEI51, FEI52
-      int rowsPerFE = rowsPerFEI51; // check ?
-      int columnsPerFE = columnsPerFEI51;
-      if (barrel_ec == 2 || barrel_ec == -2) {
-        if (phi_module%2 == 0) {
-          phi_index = 2*rowsPerFE-phi_index-1;
-        }
-      }
-      if (barrel_ec==0 && layer_disk==1){
-        rowsPerFE = rowsPerFEI52;
-        columnsPerFE = columnsPerFEI52;
-      } 
-      if (phi_index >= rowsPerFE) {
-        circ = (int)((FEIXsPerHalfModule-1)-(eta_index/columnsPerFE));
-      } else {
-        circ = (int)(eta_index/columnsPerFE)+FEIXsPerHalfModule;
-      }
-    }
-*/
-
-    circ = (int)eta_index/p_design->columnsPerCircuit();
+    int col = (int)eta_index/p_design->columnsPerCircuit();
+    int row = (int)phi_index/p_design->rowsPerCircuit();
+    circ = 2*row+col;
+ 
+    if( (row != 0 && row != 1) ||  (col != 0 && col != 1) ){ 
+      ATH_MSG_WARNING("FE row is "<<row<<" col is " <<col);
+      circ = 0;
+    }  
   }
   else {
     int columnsPerFE = p_design->columnsPerCircuit();
