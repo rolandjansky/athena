@@ -1,7 +1,7 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,7 +23,7 @@ int windows(float distance,float eta_pivot,int thr,int sector)
     
   int sector_type=((sector + 1)/2)%2;
 
-  float (*window)[NBINS][BOUND] = 0;
+  const float (*window)[NBINS][BOUND] = 0;
 
 
   if (sector_type == 0)
@@ -62,7 +62,7 @@ int windows(float distance,float eta_pivot,int thr,int sector)
    return s;
 }
 
-int give_nearest_bin(float (*window)[NBINS][BOUND],int thr,int bin,int bound,
+int give_nearest_bin(const float (*window)[NBINS][BOUND],int thr,int bin,int bound,
                      int step)
 {
     int previous = (bin <= NBINS/2)? bin + step : bin - step;

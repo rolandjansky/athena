@@ -100,9 +100,9 @@ void test1 (InDet::IInDetTrkInJetType& tool)
 
   std::vector<float> out = tool.trkTypeWgts (&tp, pv, j);
   assert( out.size() == 3 );
-  assert( Athena_test::isEqual (out[0], 0.0946472, 1e-5) );
-  assert( Athena_test::isEqual (out[1], 0.479743, 1e-5) );
-  assert( Athena_test::isEqual (out[2], 0.42561, 1e-5) );
+  assert( Athena_test::isEqual (out[0], 0.107339, 1e-5) );
+  assert( Athena_test::isEqual (out[1], 0.851263, 1e-5) );
+  assert( Athena_test::isEqual (out[2], 0.0413975, 1e-5) );
 
   std::cout << "test1 is OK\n";
 }

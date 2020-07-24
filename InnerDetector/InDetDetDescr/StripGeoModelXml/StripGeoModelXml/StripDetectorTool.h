@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef StripGeoModelXml_STRIPDETECTORTOOL_H
@@ -34,7 +34,7 @@ public:
     StatusCode create() override final;
     StatusCode clear() override final;
     StatusCode registerCallback() override final;
-    virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys));
+    virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys)) override;
 
 private:
     std::string m_detectorName;

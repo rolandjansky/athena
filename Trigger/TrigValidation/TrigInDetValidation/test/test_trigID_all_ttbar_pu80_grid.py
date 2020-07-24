@@ -3,7 +3,6 @@
 # art-description: art job for all_ttbar_pu80_grid
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195
 # art-input-nfiles: 3
 # art-athena-mt: 4
 # art-output: *.txt
@@ -16,10 +15,8 @@
 # art-output: *.json
 # art-output: *.root
 # art-output: *.check*
-# art-output: HLTEF-plots
-# art-output: HLTL2-plots
-# art-output: times
-# art-output: times-FTF
+# art-output: HLT*
+# art-output: times*
 # art-output: cost-perCall
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
@@ -28,7 +25,7 @@
 
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
 import sys,getopt
@@ -105,11 +102,7 @@ rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
-if local:
-    rdo2aod.input = 'ttbar_pu80'   ## This isn't the same sample as the grid test but for not lets use it.
-else:
-    rdo2aod.input = ''
-    rdo2aod.args += '--inputRDOFile=$ArtInFile '
+rdo2aod.input = 'ttbar_pu80'   
 
 rdo2aod.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
     preexec_trig, preexec_all, preexec_reco, preexec_aod)
@@ -149,6 +142,20 @@ comp4=TrigInDetCompStep('CompareStep4')
 comp4.chains='HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
 comp4.output_dir = 'HLT-plots-el-IDTrig'
 test.check_steps.append(comp4)
+
+comp5=TrigInDetCompStep('CompareStep5')
+comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
+comp4.output_dir = 'HLT-plots-tau-IDTrig'
+test.check_steps.append(comp5)
+
+
+cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+test.check_steps.append(cpucost)
+
+cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
+cpucost2.args += '  -p FastTrack'
+cpucost2.output_dir = 'times-FTF' 
+test.check_steps.append(cpucost2)
 
 
 import sys

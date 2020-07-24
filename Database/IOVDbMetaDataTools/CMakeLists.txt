@@ -26,6 +26,5 @@ atlas_add_component( IOVDbMetaDataTools
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps StoreGateLib SGtests IOVDbDataModel )
 
 # Install files from the package:
-atlas_install_headers( IOVDbMetaDataTools )
 atlas_install_python_modules( python/*.py )
 

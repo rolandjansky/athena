@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 def getCharginosPhysicsTool(name="CharginosPhysicsTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
+    from AthenaCommon.SystemOfUnits import MeV,ns
     C1Mass = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1Mass", None))
     N1Mass = eval(simFlags.specialConfiguration.get_Value().get("AMSBN1Mass", None))
     C1Lifetime = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1Lifetime", "-1.0"))

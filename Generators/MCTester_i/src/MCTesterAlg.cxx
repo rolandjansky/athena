@@ -231,10 +231,10 @@ StatusCode MCTesterAlg::MC_Validate_check4MomentumSum(HepMCEvent * e)
 {
   std::vector<double> * sum = e->Sum4Momentum();
 
-  if(fabs(sum->at(0)-m_collision_px)>m_collision_check_sum_margin || 
-     fabs(sum->at(1)-m_collision_py)>m_collision_check_sum_margin ||
-     fabs(sum->at(2)-m_collision_pz)>m_collision_check_sum_margin ||
-     fabs(sum->at(3)-m_collision_E)>m_collision_check_sum_margin) {
+  if(std::abs(sum->at(0)-m_collision_px)>m_collision_check_sum_margin || 
+     std::abs(sum->at(1)-m_collision_py)>m_collision_check_sum_margin ||
+     std::abs(sum->at(2)-m_collision_pz)>m_collision_check_sum_margin ||
+     std::abs(sum->at(3)-m_collision_E)>m_collision_check_sum_margin) {
 
     m_deviation_from_centre_of_mass++;
     ATH_MSG_WARNING("Event " << e->GetEventNumber() << 

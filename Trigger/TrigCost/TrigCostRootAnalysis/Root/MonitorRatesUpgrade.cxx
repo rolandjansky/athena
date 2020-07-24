@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -305,9 +305,9 @@ namespace TrigCostRootAnalysis {
     }
 
 
-    for (const auto chainItem : m_chainItemsL1) chainItem.second->classifyLumiAndRandom();
+    for (const auto& chainItem : m_chainItemsL1) chainItem.second->classifyLumiAndRandom();
     //Should not be needed, do different lumi scaling here
-    for (const auto chainItem : m_chainItemsL2) chainItem.second->classifyLumiAndRandom();
+    for (const auto& chainItem : m_chainItemsL2) chainItem.second->classifyLumiAndRandom();
   }
 
   /**
@@ -389,7 +389,7 @@ namespace TrigCostRootAnalysis {
     // }
 
 
-    for (const auto item : m_upgradeChains) {
+    for (const auto& item : m_upgradeChains) {
       if (item.m_level != 1) continue; // not doing HLT here
 
       const std::string chainName = item.m_name;
@@ -450,7 +450,7 @@ namespace TrigCostRootAnalysis {
    * L2 are like L1, but with another hardware layer added
    */
   void MonitorRatesUpgrade::createL2Counters(CounterMap_t* counterMap) {
-    for (const auto item : m_upgradeChains) {
+    for (const auto& item : m_upgradeChains) {
       if (item.m_level != 1) continue; // Note should be 1, L2 stored in L1 info
 
       std::string chainName = item.m_l2name;
@@ -738,8 +738,8 @@ namespace TrigCostRootAnalysis {
     // m_eventsToMix -= (Int_t)m_eventsToMix; // Remove whole integer events mixed. Leave fractional part to accumulate
     // for next event.
 
-    for (const auto chainItem : m_chainItemsL1) chainItem.second->beginEvent(m_thisEventPtr);
-    for (const auto chainItem : m_chainItemsL2) chainItem.second->beginEvent(m_thisEventPtr);
+    for (const auto& chainItem : m_chainItemsL1) chainItem.second->beginEvent(m_thisEventPtr);
+    for (const auto& chainItem : m_chainItemsL2) chainItem.second->beginEvent(m_thisEventPtr);
 
     //Now loop over the counter collections;
     for (CounterMapSetIt_t cmsIt = m_collectionsToProcess.begin(); cmsIt != m_collectionsToProcess.end(); ++cmsIt) {
@@ -759,8 +759,8 @@ namespace TrigCostRootAnalysis {
       endEvent(0);
     }
 
-    for (const auto chainItem : m_chainItemsL1) chainItem.second->endEvent();
-    for (const auto chainItem : m_chainItemsL2) chainItem.second->endEvent();
+    for (const auto& chainItem : m_chainItemsL1) chainItem.second->endEvent();
+    for (const auto& chainItem : m_chainItemsL2) chainItem.second->endEvent();
 
     delete thisEventPtr;
     thisEventPtr = nullptr;

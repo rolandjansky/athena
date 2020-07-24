@@ -90,6 +90,17 @@ def l2PhotonAlgCfg( flags ):
 
     return acc, photonFex
 
+
+def photonViewDataVerifierCfg():
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    moveClusters = CompFactory.AthViews.ViewDataVerifier("VDVFastPhoton")
+    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_L2CaloEMClusters'),
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2PhotonRecoRoIs' )]
+
+    result = ComponentAccumulator()
+    result.addEventAlgo(moveClusters)
+    return result
+
 def l2PhotonRecoCfg( flags ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
 
@@ -97,14 +108,15 @@ def l2PhotonRecoCfg( flags ):
     reco.inputMaker().RequireParentView = True
     reco.inputMaker().RoIsLink="initialRoI"
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    moveClusters = CompFactory.getComp("AthViews::ViewDataVerifier")("photonViewDataVerifier")
-    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_L2CaloEMClusters') ]
-
-    reco.addRecoAlg( moveClusters )
+    moveClustersCfg = photonViewDataVerifierCfg()
+    reco.mergeReco( moveClustersCfg )
 
     algAcc, alg = l2PhotonAlgCfg( flags )
-    reco.addRecoAlg( alg )
+
+    l2PhotonAlgAcc = ComponentAccumulator()
+    l2PhotonAlgAcc.addEventAlgo(alg)
+    
+    reco.mergeReco( l2PhotonAlgAcc )
     reco.merge( algAcc )
 
     return reco

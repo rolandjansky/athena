@@ -2,10 +2,25 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
+
+def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
+    result = ComponentAccumulator()
+    verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVFSCaloJet',
+                                                    DataObjects = [('TrigRoiDescriptorCollection', 'StoreGateSvc+FSJETRoI'),
+                                                                  ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage') ])
+    result.addEventAlgo( verifier )
+    cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
+    cellmaker.RoIs = "FSJETRoI"
+    cellmaker.TrigDataAccessMT = cdaSvc
+    cellmaker.CellsName = cellsname
+
+
+    result.addEventAlgo(cellmaker)
+    return result
 
 def generateChains( flags, chainDict ):
 
@@ -27,14 +42,10 @@ def generateChains( flags, chainDict ):
 
     cellsname = "CaloCellsFS"
     clustersname = "HLT_CaloTopoClustersFS"
+    
+    cellmakerCfg = HLTCaloCellMakerCfg(cellsname, cdaSvc)
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
-    cellmaker.RoIs = "FSJETRoI"
-    cellmaker.TrigDataAccessMT = cdaSvc
-    cellmaker.CellsName = cellsname
-
-    inEventReco.addRecoAlg(cellmaker)
+    inEventReco.mergeReco( cellmakerCfg )
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     inEventReco.mergeReco( CaloTopoClusterCfg( flags,
@@ -77,7 +88,7 @@ def generateChains( flags, chainDict ):
                                 HypoToolGen = trigJetHypoToolFromDict,
                                 CA = acc)
 
-    jetStep = ChainStep(stepName, [jetSequence])
+    jetStep = ChainStep(name=stepName, Sequences=[jetSequence], chainDicts=[chainDict])
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:
@@ -87,6 +98,6 @@ def generateChains( flags, chainDict ):
 
     acc.printConfig()
 
-    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ jetStep ] )
+    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[jetStep] )
 
     return chain

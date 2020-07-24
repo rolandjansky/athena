@@ -25,6 +25,10 @@ def generateChains(flags, chainDict):
     l2CaloReco = l2CaloRecoCfg(flags)
     accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
 
+    # this alg needs EventInfo decorated with the  pileup info
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    accCalo.merge( LumiBlockMuWriterCfg(flags) )
+
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
                                 CaloClusters = recordable('HLT_L2CaloEMClusters') )
@@ -36,8 +40,6 @@ def generateChains(flags, chainDict):
                                      Hypo = l2CaloHypo,
                                      HypoToolGen = TrigEgammaFastCaloHypoToolFromDict,
                                      CA = accCalo )
-
-    fastCaloSequence.createHypoTools(chainDict)
 
     fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
 
@@ -62,8 +64,6 @@ def generateChains(flags, chainDict):
                                      Hypo = l2PhotonHypo,
                                      HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict,
                                      CA = accPhoton )
-
-    l2PhotonSequence.createHypoTools(chainDict)
 
     l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 

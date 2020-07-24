@@ -34,6 +34,3 @@ atlas_add_component( AFP_ByteStream2RawCnv
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CORAL_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv AFP_ByteStream2RawCnvLib )
 
-# Install files from the package:
-atlas_install_headers( AFP_ByteStream2RawCnv )
-

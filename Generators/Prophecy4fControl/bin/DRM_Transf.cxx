@@ -88,7 +88,7 @@ double DRM::alupcm(double em0, double em1, double em2){
     ret_val = 0.f;
   }
   else{
-    ret_val = sqrt((em0 + emd) * (em0 - emd) * (em0 + ems) * (em0 - ems)) * .5f / em0;
+    ret_val = std::sqrt((em0 + emd) * (em0 - emd) * (em0 + ems) * (em0 - ems)) * .5f / em0;
   }
   return ret_val;
   
@@ -123,8 +123,8 @@ int DRM::rescms(double *p, double *p1, double *p2, double m1, double m2){
     po2[il] = pcm / pcmo * po2[il];
   }
   
-  po1[3] = sqrt(pcm*pcm + m1*m1);
-  po2[3] = sqrt(pcm*pcm + m2*m2);
+  po1[3] = std::sqrt(pcm*pcm + m1*m1);
+  po2[3] = std::sqrt(pcm*pcm + m2*m2);
   po1[4] = m1;
   po2[4] = m2;
   

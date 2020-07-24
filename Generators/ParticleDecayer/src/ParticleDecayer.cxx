@@ -157,7 +157,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticlePtr genpart, Hep
                double distanceToEdge = -999.;
                if ( theta < m_thetaEndCapBarrel || theta > ( CLHEP::pi - m_thetaEndCapBarrel) ) // Particle escapes through endcap
                   {
-                     distanceToEdge = fabs(m_endCapDistance/cos(theta));
+                     distanceToEdge = std::abs(m_endCapDistance/cos(theta));
                   }
                else // Particle escapes through barrel
                   {
@@ -189,12 +189,12 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticlePtr genpart, Hep
          double decayRadius = -999.;
          if ( theta < m_thetaEndCapBarrel || theta > ( CLHEP::pi - m_thetaEndCapBarrel) ) // Particle escapes through endcap
             {
-               double outerLength = fabs(m_endCapDistance/cos(theta));
+               double outerLength = std::abs(m_endCapDistance/cos(theta));
                double outerRadius = outerLength*sin(theta);
-               decayRadius        = rnd_DoubleRange(0., std::min(outerRadius, fabs(m_barrelRadius)) );
+               decayRadius        = rnd_DoubleRange(0., std::min(outerRadius, std::abs(m_barrelRadius)) );
             }else // Particle escapes through barrel
             {
-               decayRadius = rnd_DoubleRange(0., fabs(m_barrelRadius));
+               decayRadius = rnd_DoubleRange(0., std::abs(m_barrelRadius));
             }
 
          double decayLength = decayRadius/sin(theta);

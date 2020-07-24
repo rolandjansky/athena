@@ -34,11 +34,8 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    if( thrTypeName == "jJ" )
       return std::make_unique<L1ThrExtraInfo_jJ>(thrTypeName, data);      
 
-   L1ThrExtraInfoBase x(thrTypeName, data);
-   if( x.hasExtraInfo() )
-      return std::make_unique<L1ThrExtraInfoBase>(std::move(x));
-   
-   return extraInfo;
+   // if no special extra information is supplied for the threshold type return base class
+   return std::make_unique<L1ThrExtraInfoBase>(thrTypeName, data);
 }
 
 std::weak_ptr<TrigConf::L1ThrExtraInfoBase>

@@ -107,7 +107,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     if (charge>threshold) {
       int bunchSim = 0;
       if (diode.totalCharge().fromTrack()) {
-        if      (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2015) { bunchSim = relativeBunch2015(diode.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
+        if      (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2018) { bunchSim = relativeBunch2018(diode.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
+        else if (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2015) { bunchSim = relativeBunch2015(diode.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
         else if (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2009) { bunchSim = relativeBunch2009(threshold,intimethreshold,diode.totalCharge(), rndmEngine); }
       } 
       else {

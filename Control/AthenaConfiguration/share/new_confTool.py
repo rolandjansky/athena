@@ -20,6 +20,19 @@ def main(args):
             conf = _loadSingleFile(fileName)
             conf.printConfig(withDetails=True)
 
+    if args.toJSON:
+        if len(args.file) != 1:
+            sys.exit("ERROR, can convert single file at a time, got: %s" % args.file)
+        conf = _loadSingleFile(args.file[0])
+        with open(args.toJSON, "w") as oFile:
+            props = conf.gatherProps()
+            jos_props = props[2] # to make json compatible with old configuration
+            to_json = {}
+            for comp, name, value in jos_props: 
+                to_json.setdefault(comp, {})[name] = value
+                to_json[comp][name] = value
+            json.dump([[], to_json], oFile)
+
     if args.toPickle:
         if len(args.file) != 1:
             sys.exit("ERROR, can convert single file at a time, got: %s" % args.file)

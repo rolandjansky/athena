@@ -353,15 +353,6 @@ def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs
   result.setPrivateTools(tool)
   return result
 
-#<<<<<<< HEAD
-#def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", **kwargs):
-#  acc = ComponentAccumulator()
-#  folder="/SCT/Derived/Monitoring"
-
-#  acc.merge(addFolders(flags,folder, "SCT_OFL", className="CondAttrListCollection"))
-
-#  acc.addCondAlgo(CompFactory.SCT_MonitorCondAlg( "SCT_MonitorCondAlg",ReadKey = folder))
-#=======
 
 def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", cond_kwargs={}, **kwargs):
   cond_kwargs.setdefault("Folder", "/SCT/Derived/Monitoring")
@@ -376,7 +367,6 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", c
 
   result.addCondAlgo( CompFactory.SCT_MonitorCondAlg(name    = cond_kwargs["MonitorCondAlgName"],
                                                      ReadKey = cond_kwargs["Folder"] ))
-#>>>>>>> robert/inDetRecToolsConfig
 
   tool = CompFactory.SCT_MonitorConditionsTool(name, **kwargs)
   result.setPrivateTools(tool)

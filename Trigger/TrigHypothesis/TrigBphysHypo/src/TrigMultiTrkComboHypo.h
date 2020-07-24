@@ -17,9 +17,7 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 
-#include "GaudiKernel/Property.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigger/TrigComposite.h"

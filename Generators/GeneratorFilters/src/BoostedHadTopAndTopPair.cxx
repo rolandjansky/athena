@@ -78,8 +78,8 @@ StatusCode BoostedHadTopAndTopPair::filterEvent() {
     } // particle loop
   } // event loop
 
-  double pTPairList = sqrt( pow( topListMomentum.px() + topbListMomentum.px() , 2 ) + pow( topListMomentum.py() + topbListMomentum.py() , 2 )); 
-  double pTPairChildren = sqrt( pow( topChildrenMomentum.px() + topbChildrenMomentum.px() , 2 ) + pow( topChildrenMomentum.py() + topbChildrenMomentum.py() , 2 )); 
+  double pTPairList = std::sqrt( std::pow( topListMomentum.px() + topbListMomentum.px() , 2 ) + std::pow( topListMomentum.py() + topbListMomentum.py() , 2 )); 
+  double pTPairChildren = std::sqrt( std::pow( topChildrenMomentum.px() + topbChildrenMomentum.px() , 2 ) + std::pow( topChildrenMomentum.py() + topbChildrenMomentum.py() , 2 )); 
 
   if (m_cutPtOf == 0){ // cut on the pT of top on the truth list
     if (pTHadTopList   >= m_tHadPtMin    &&   pTHadTopList   < m_tHadPtMax  )  passTopHad  = true;

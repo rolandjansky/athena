@@ -81,15 +81,15 @@
 #include <sstream>
 #include <limits>
 
-typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+typedef std::vector<HepMC::ConstGenParticlePtr >  MCparticleCollection ;
 
 //This is a copy of the previous isGenSimulStable which depended on TruthHelper
-bool FastCaloSimIsGenSimulStable(const HepMC::GenParticle* p) {
+bool FastCaloSimIsGenSimulStable(HepMC::ConstGenParticlePtr  p) {
   int status=p->status();
   auto vertex = p->end_vertex();
   // we want to keep primary particle with status==2 but without vertex in HepMC
   int vertex_barcode=-999999;
-  if (vertex) vertex_barcode=vertex->barcode();
+  if (vertex) vertex_barcode=HepMC::barcode(vertex);
 
   return (
           (status%1000 == 1) ||
@@ -1467,7 +1467,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
         // a relatively small weight.
         ERatioThresh = 4;
       }
-      if(p.E>=ERatioThresh && p.E*Ein>2000) {
+      if(p.E>=ERatioThresh && p.E*Ein>2500) {
         ATH_MSG_WARNING("particle energy/truth="<<p.E);
         ATH_MSG_WARNING(" - "<<particle_info_str.str());
         ATH_MSG_WARNING(" parametrization  : "<< Epara->GetTitle());
@@ -1974,7 +1974,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
 }
 
 
-bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::GenVertex* ver) const
+bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::ConstGenVertexPtr ver) const
 {
   if(ver) {
     double inr=ver->position().perp();
@@ -1989,17 +1989,20 @@ bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::GenVertex* ver) const
   }
 }
 
-bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::GenVertex* ver) const
+bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::ConstGenVertexPtr ver) const
 {
   if(ver) {
+#ifdef HEPMC3
+    for(auto par:ver->particles_in()) {
+#else
     for(HepMC::GenVertex::particles_in_const_iterator pin=ver->particles_in_const_begin();pin!=ver->particles_in_const_end();++pin) {
       const HepMC::GenParticle* par=*pin;
+#endif
       int absid=abs(par->pdg_id());
       if(!(absid==11 || absid==22)) return false;
     }
-    for(HepMC::GenVertex::particles_out_const_iterator pout=ver->particles_out_const_begin();pout!=ver->particles_out_const_end();++pout) {
-      const HepMC::GenParticle* par=*pout;
-      int absid=abs(par->pdg_id());
+    for(auto par_out: *ver) {
+      int absid=std::abs(par_out->pdg_id());
       if(!(absid==11 || absid==22)) return false;
     }
   } else {
@@ -2008,14 +2011,18 @@ bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::GenVertex* ver) const
   return true;
 }
 
-FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver) const
+FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v14_truth_cuts_Vertex(HepMC::ConstGenVertexPtr ver) const
 {
   if(ver) {
     int nin=0;
     int id_in=0;
+#ifdef HEPMC3
+    for(auto par_in:ver->particles_in()) {
+#else
     const HepMC::GenParticle* par_in=0;
     for(HepMC::GenVertex::particles_in_const_iterator pin=ver->particles_in_const_begin();pin!=ver->particles_in_const_end();++pin) {
       par_in=*pin;
+#endif
       id_in=par_in->pdg_id();
       ++nin;
     }
@@ -2024,9 +2031,8 @@ FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v
     int nele=0;
     int ngamma=0;
     int nother=0;
-    for(HepMC::GenVertex::particles_out_const_iterator pout=ver->particles_out_const_begin();pout!=ver->particles_out_const_end();++pout) {
-      const HepMC::GenParticle* par=*pout;
-      int absid=std::abs(par->pdg_id());
+    for( auto par_out: *ver) {
+      int absid=std::abs(par_out->pdg_id());
       if(absid==22) {
         ++ngamma;
       } else {
@@ -2035,7 +2041,7 @@ FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v
       }
       ++nout;
     }
-    if(abs(id_in)==11 && nout<=2 && nele==1 && nother==0) {
+    if(std::abs(id_in)==11 && nout<=2 && nele==1 && nother==0) {
       //Bremsstrahlung, but bremsphoton might not be stored
       if(par_in->momentum().e()<500) return v14_truth_brems;
     }
@@ -2051,51 +2057,52 @@ FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v
 
 typedef FastShowerCellBuilderTool::MCdo_simul_state MCdo_simul_state;
 typedef FastShowerCellBuilderTool::MCparticleCollection MCparticleCollection ;
-typedef FastShowerCellBuilderTool::MCparticleCollectionCIter MCparticleCollectionCIter ;
 
 void MC_init_particle_simul_state(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles)
 {
-  MCparticleCollectionCIter ip;
-  for(ip=particles.begin();ip<particles.end();++ip){
-    const HepMC::GenParticle* par=*ip;
+  for(auto par: particles){
     if(par) {
-      do_simul_state[par->barcode()]=1;
+      do_simul_state[HepMC::barcode(par)]=1;
       auto outver=par->end_vertex();
       auto inver =par->production_vertex();
       if(outver) {
-        do_simul_state[outver->barcode()]=1;
+        do_simul_state[HepMC::barcode(outver)]=1;
       }
       if(inver) {
-        do_simul_state[inver->barcode()]=1;
+        do_simul_state[HepMC::barcode(inver)]=1;
       }
     }
   }
 }
 
-void MC_recursive_remove_out_particles(MCdo_simul_state& do_simul_state,HepMC::GenVertex* ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
+void MC_recursive_remove_out_particles(MCdo_simul_state& do_simul_state,HepMC::ConstGenVertexPtr ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
 {
   if(ver) {
-    do_simul_state[ver->barcode()]=simul_state;
-    for(HepMC::GenVertex::particles_out_const_iterator pout=ver->particles_out_const_begin();pout!=ver->particles_out_const_end();++pout) {
-      const HepMC::GenParticle* par=*pout;
-      do_simul_state[par->barcode()]=simul_state;
-      HepMC::GenVertex* outver=par->end_vertex();
+    do_simul_state[HepMC::barcode(ver)]=simul_state;
+    for(auto par_out: *ver) {
+      do_simul_state[HepMC::barcode(par_out)]=simul_state;
+      auto outver=par_out->end_vertex();
       if(outver) MC_recursive_remove_out_particles(do_simul_state,outver,simul_state);
     }
   }
 }
 
-void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::GenVertex* ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
+void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::ConstGenVertexPtr ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
 {
   if(ver) {
-    if(do_simul_state[ver->barcode()]==simul_state) {
+    if(do_simul_state[HepMC::barcode(ver)]==simul_state) {
       return;
     }
-    do_simul_state[ver->barcode()]=simul_state;
+    do_simul_state[HepMC::barcode(ver)]=simul_state;
+#ifdef HEPMC3
+    for(auto par:ver->particles_in()) {
+#else
+
     for(HepMC::GenVertex::particles_in_const_iterator pin=ver->particles_in_const_begin();pin!=ver->particles_in_const_end();++pin) {
       const HepMC::GenParticle* par=*pin;
-      do_simul_state[par->barcode()]=simul_state;
-      HepMC::GenVertex* inver=par->production_vertex();
+#endif
+      do_simul_state[HepMC::barcode(par)]=simul_state;
+      auto inver=par->production_vertex();
       if(inver) MC_recursive_remove_in_particles(do_simul_state,inver,simul_state);
     }
   }
@@ -2104,20 +2111,22 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Ge
 
 void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
-  MCparticleCollectionCIter ip;
-  for(ip=particles.begin();ip<particles.end();++ip){
-    const HepMC::GenParticle* par=*ip;
+  for(auto par: particles){
     if(par) {
-      if(do_simul_state[par->barcode()]<=0) continue;
+      if(do_simul_state[HepMC::barcode(par)]<=0) continue;
 
       auto inver =par->production_vertex();
       if(inver) {
         if(!Is_ID_Vertex(inver)) {
           int nin=0;
+#ifdef HEPMC3
+    for(auto invpar:inver->particles_in()) {
+#else
           for(HepMC::GenVertex::particles_in_const_iterator pin=inver->particles_in_const_begin();pin!=inver->particles_in_const_end();++pin) {
             const HepMC::GenParticle* invpar=*pin;
+#endif
             if(invpar) {
-              if(do_simul_state[invpar->barcode()]>0) {
+              if(do_simul_state[HepMC::barcode(invpar)]>0) {
                 ++nin;
                 break;
               }
@@ -2135,15 +2144,13 @@ void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_s
 
 void FastShowerCellBuilderTool::MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
-  MCparticleCollectionCIter ip;
-  for(ip=particles.begin();ip<particles.end();++ip){
-    const HepMC::GenParticle* par=*ip;
-    if(par) {
-      if(do_simul_state[par->barcode()]<=0) continue;
+  for(auto par_out: particles){
+    if(par_out) {
+      if(do_simul_state[HepMC::barcode(par_out)]<=0) continue;
 
-      HepMC::GenVertex* outver =par->end_vertex();
+      auto outver =par_out->end_vertex();
       if(outver) {
-        if(outver->barcode()>=-200000) continue;
+        if(HepMC::barcode(outver)>=-200000) continue;
 
         if(!Is_EM_Vertex(outver)) {
           MC_recursive_remove_out_particles(do_simul_state,outver,non_EM_vertex);
@@ -2155,15 +2162,13 @@ void FastShowerCellBuilderTool::MC_remove_out_of_EM(MCdo_simul_state& do_simul_s
 
 void FastShowerCellBuilderTool::MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
-  MCparticleCollectionCIter ip;
-  for(ip=particles.begin();ip<particles.end();++ip){
-    const HepMC::GenParticle* par=*ip;
-    if(par) {
-      if(do_simul_state[par->barcode()]<=0) continue;
+  for(auto par_out: particles){
+    if(par_out) {
+      if(do_simul_state[HepMC::barcode(par_out)]<=0) continue;
 
-      auto outver =par->end_vertex();
+      auto outver =par_out->end_vertex();
       if(outver) {
-        if(outver->barcode()>=-200000) continue;
+        if(HepMC::barcode(outver)>=-200000) continue;
 
         flag_simul_sate reason=Is_below_v14_truth_cuts_Vertex(outver);
         if(reason<0) {
@@ -2176,13 +2181,11 @@ void FastShowerCellBuilderTool::MC_remove_below_v14_truth_cuts(MCdo_simul_state&
 
 void MC_remove_decay_to_simul(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles)
 {
-  MCparticleCollectionCIter ip;
-  for(ip=particles.begin();ip<particles.end();++ip){
-    const HepMC::GenParticle* par=*ip;
-    if(par) {
-      if(do_simul_state[par->barcode()]<=0) continue;
+  for(auto par_out: particles){
+    if(par_out) {
+      if(do_simul_state[HepMC::barcode(par_out)]<=0) continue;
 
-      auto inver =par->production_vertex();
+      auto inver =par_out->production_vertex();
       if(inver) {
         MC_recursive_remove_in_particles(do_simul_state,inver,FastShowerCellBuilderTool::mother_particle);
       }
@@ -2254,8 +2257,13 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
 
   if (mcCollptr->size() >0)
     {
+#ifdef HEPMC3
+      auto istart = mcCollptr->at(0)->particles().begin();
+      auto iend   = mcCollptr->at(0)->particles().end();
+#else
       HepMC::GenEvent::particle_const_iterator istart = mcCollptr->at(0)->particles_begin();
       HepMC::GenEvent::particle_const_iterator iend   = mcCollptr->at(0)->particles_end();
+#endif
       for ( ; istart!= iend; ++istart)
         {
           particles.push_back(*istart);
@@ -2284,40 +2292,38 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
   if(m_simul_EM_geant_only) MC_remove_out_of_EM(do_simul_state,particles);
   MC_remove_decay_to_simul(do_simul_state,particles);
 
-  MCparticleCollectionCIter ip;
   int indpar=0;
   ATH_MSG_DEBUG("start finding partilces n="<<particles.size());
 
-  for(ip=particles.begin();ip<particles.end();++ip){
-    const HepMC::GenParticle* par=*ip;
-    if(par->pdg_id()==0) do_simul_state[par->barcode()]=pdg_id_unkown;
+  for(auto par: particles){
+    if(par->pdg_id()==0) do_simul_state[HepMC::barcode(par)]=pdg_id_unkown;
     // Do not treat nuclei
-    if((!m_simul_heavy_ions) && par->pdg_id() > 1000000000) do_simul_state[par->barcode()]=heavy_ion;
+    if((!m_simul_heavy_ions) && par->pdg_id() > 1000000000) do_simul_state[HepMC::barcode(par)]=heavy_ion;
 
     for(unsigned int i=0;i<m_invisibles.size();++i) {
       if(abs(par->pdg_id())==m_invisibles[i]) {
-        do_simul_state[par->barcode()]=invisibleArray;
+        do_simul_state[HepMC::barcode(par)]=invisibleArray;
         break;
       }
       if(m_invisibles[i]==0) {
         if(MC::isNonInteracting(par)) {
-          do_simul_state[par->barcode()]=invisibleTruthHelper;
+          do_simul_state[HepMC::barcode(par)]=invisibleTruthHelper;
           break;
         }
       }
     }
 
     if(abs(par->pdg_id())==13 && MuonEnergyMap) {
-      std::pair<BarcodeEnergyDepositMap::const_iterator,BarcodeEnergyDepositMap::const_iterator> range=MuonEnergyMap->equal_range(par->barcode());
+      std::pair<BarcodeEnergyDepositMap::const_iterator,BarcodeEnergyDepositMap::const_iterator> range=MuonEnergyMap->equal_range(HepMC::barcode(par));
       if(range.first==range.second) {
-        do_simul_state[par->barcode()]=0;
-        ATH_MSG_DEBUG("#="<<indpar<<": id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()
+        do_simul_state[HepMC::barcode(par)]=0;
+        ATH_MSG_DEBUG("#="<<indpar<<": id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<HepMC::barcode(par)
                       <<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()
                       << " : no calo energy deposit");
       } else {
         if(msgLvl(MSG::DEBUG)) {
           for(BarcodeEnergyDepositMap::const_iterator i=range.first;i!=range.second;++i) {
-            msg(MSG::DEBUG)<<"#="<<indpar<<": id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()
+            msg(MSG::DEBUG)<<"#="<<indpar<<": id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<HepMC::barcode(par)
                            <<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()
                            <<" : layer="<<i->second.sample<<" eta="<<i->second.position.eta()<<" phi="<<i->second.position.phi()
                            <<" d="<<i->second.position.mag();
@@ -2330,16 +2336,16 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
 
     if(msgLvl(MSG::DEBUG)) {
       std::string reason="---";
-      if(do_simul_state[par->barcode()]<=0) {
-        if(do_simul_state[par->barcode()]==out_of_ID) reason="-ID";
-        if(do_simul_state[par->barcode()]==non_EM_vertex) reason="-EM";
-        if(do_simul_state[par->barcode()]==heavy_ion) reason="-HI";
-        if(do_simul_state[par->barcode()]==pdg_id_unkown) reason="-PI";
-        if(do_simul_state[par->barcode()]==invisibleArray) reason="-IA";
-        if(do_simul_state[par->barcode()]==invisibleTruthHelper) reason="-IT";
-        if(do_simul_state[par->barcode()]==mother_particle) reason="-MO";
-        if(do_simul_state[par->barcode()]==v14_truth_brems) reason="-BR";
-        if(do_simul_state[par->barcode()]==v14_truth_conv) reason="-CO";
+      if(do_simul_state[HepMC::barcode(par)]<=0) {
+        if(do_simul_state[HepMC::barcode(par)]==out_of_ID) reason="-ID";
+        if(do_simul_state[HepMC::barcode(par)]==non_EM_vertex) reason="-EM";
+        if(do_simul_state[HepMC::barcode(par)]==heavy_ion) reason="-HI";
+        if(do_simul_state[HepMC::barcode(par)]==pdg_id_unkown) reason="-PI";
+        if(do_simul_state[HepMC::barcode(par)]==invisibleArray) reason="-IA";
+        if(do_simul_state[HepMC::barcode(par)]==invisibleTruthHelper) reason="-IT";
+        if(do_simul_state[HepMC::barcode(par)]==mother_particle) reason="-MO";
+        if(do_simul_state[HepMC::barcode(par)]==v14_truth_brems) reason="-BR";
+        if(do_simul_state[HepMC::barcode(par)]==v14_truth_conv) reason="-CO";
       } else {
         reason="+OK";
       }
@@ -2351,26 +2357,29 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
       if(inver) {
         double inr=inver->position().perp();
         double inz=inver->position().z();
-        msg()<<" ; bc="<<inver->barcode()<<" r="<<inr<<" z="<<inz<<" phi="<<inver->position().phi()<<" ; ";
+        msg()<<" ; bc="<<HepMC::barcode(inver)<<" r="<<inr<<" z="<<inz<<" phi="<<inver->position().phi()<<" ; ";
         bool sep=false;
+#ifdef HEPMC3
+    for(auto invpar:inver->particles_in()) {
+#else
         for(HepMC::GenVertex::particles_in_const_iterator pin=inver->particles_in_const_begin();pin!=inver->particles_in_const_end();++pin) {
           const HepMC::GenParticle* invpar=*pin;
+#endif
           if(invpar) {
             if(sep) msg()<<",";
-            msg()<<invpar->barcode();
+            msg()<<HepMC::barcode(invpar);
             sep=true;
           }
         }
       }
-      msg()<<"->"<<par->barcode();
+      msg()<<"->"<<HepMC::barcode(par);
       if(outver) {
         msg()<<"->";
         bool sep=false;
-        for(HepMC::GenVertex::particles_out_const_iterator pout=outver->particles_out_const_begin();pout!=outver->particles_out_const_end();++pout) {
-          const HepMC::GenParticle* outpar=*pout;
+        for(auto outpar: *outver) {
           if(outpar) {
             if(sep) msg()<<",";
-            msg()<<outpar->barcode();
+            msg()<<HepMC::barcode(outpar);
             sep=true;
           }
         }
@@ -2378,7 +2387,7 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
       msg()<<endmsg;
     }
 
-    if(do_simul_state[par->barcode()]<=0) {
+    if(do_simul_state[HepMC::barcode(par)]<=0) {
       continue;
     }
 
@@ -2401,25 +2410,22 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
       fastShowerInfoContainer = std::make_unique<FastShowerInfoContainer>();
     }
 
-  MCparticleCollectionCIter fpart = Simulparticles.begin();
-  MCparticleCollectionCIter lpart = Simulparticles.end();
-
   Stats stats;
   int stat_npar=0;
   int stat_npar_OK=0;
   int stat_npar_nOK=0;
-  for(MCparticleCollectionCIter part=fpart;part<lpart;++part) {
+  for(auto part: Simulparticles) {
 
-    std::vector<Trk::HitInfo>* hitVector = caloHits(*(*part));
+    std::vector<Trk::HitInfo>* hitVector = caloHits(*part);
 
-    Amg::Vector3D mom((*part)->momentum().x(),(*part)->momentum().y(),(*part)->momentum().z());
+    Amg::Vector3D mom(part->momentum().x(),part->momentum().y(),part->momentum().z());
 
     if(process_particle(theCellContainer,
                         hitVector,
                         mom,
-                        (*part)->generated_mass(),
-                        (*part)->pdg_id(),
-                        (*part)->barcode(),
+                        part->generated_mass(),
+                        part->pdg_id(),
+                        HepMC::barcode(part),
                         fastShowerInfoContainer.get(),
                         rndm,
                         stats,

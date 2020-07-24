@@ -22,26 +22,10 @@
 
 // standard stuff
 #include <string>
-#include <map>
-#include <cmath> 
-// general athena stuff
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "TrigParticle/TrigEFBphys.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
-
-//Ntuples
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/NTuple.h"
-
-//#include "TrigTimeAlgs/TrigTimerSvc.h"
-//#include "TrigTimeAlgs/TrigTimer.h"
 
 #include "Constants.h"
 #include "BtrigUtils.h"
@@ -51,11 +35,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODTrigBphys/TrigBphys.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
-#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
-class StoreGateSvc;
 class TriggerElement;
 class Electron;
 

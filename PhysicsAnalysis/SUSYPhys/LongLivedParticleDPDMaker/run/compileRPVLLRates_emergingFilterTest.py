@@ -140,11 +140,11 @@ filterNames_di_pt100 = [fn for fn in filterNames_pt100 if 'DiJet' in fn]
 emFilterList = [fn for fn in filterNames_pt100 if 'DiJet' not in fn] + [fn for fn in filterNames_pt120 if 'DiJet' not in fn] + [fn for fn in filterNames_pt130 if 'DiJet' not in fn] + [fn for fn in filterNames_pt140 if 'DiJet' not in fn] + [fn for fn in filterNames_pt150 if 'DiJet' not in fn]
 dijetFilterList = [fn for fn in filterNames_pt100 if 'DiJet' in fn] + [fn for fn in filterNames_pt120 if 'DiJet' in fn] + [fn for fn in filterNames_pt130 if 'DiJet' in fn] + [fn for fn in filterNames_pt140 if 'DiJet' in fn] + [fn for fn in filterNames_pt150 if 'DiJet' in fn]
 for i in emFilterList:
-    print i
-print ''
+    print(i)
+print('')
 for i in dijetFilterList:
-    print i
-print ''
+    print(i)
+print('')
 
 
 
@@ -156,8 +156,8 @@ nft = nf*2+1                        # number of lines per lumiblock
 ix_dv = filterNames.index('DVAugmentationKernel')
 ix_em = filterNames.index('EmergingFilterKernel')
 ix_dj = filterNames.index('EmergingDiJet110FilterKernel')
-print nf, nft, ix_dv, ix_em, ix_dj
-print ''
+print(nf, nft, ix_dv, ix_em, ix_dj)
+print('')
 
 
 
@@ -269,10 +269,10 @@ procEvents.append(lbEventList[0])
 ## RATE / EFFICIENCY CALCULATIONS ##
 totalEvents = eventList[0]
 totalRPVLLpass = eventList[nft-1]
-print 'Events passing RPVLL filters: ', totalRPVLLpass, 'out of ', totalEvents
-print 'RPVLL filter efficiency: ', float(totalRPVLLpass)/float(totalEvents) * 100., '%'
-print 'RPVLL normalized average rate: ', float(totalRPVLLpass)/float(totalEvents) * 1000., 'Hz'
-print ''
+print('Events passing RPVLL filters: ', totalRPVLLpass, 'out of ', totalEvents)
+print('RPVLL filter efficiency: ', float(totalRPVLLpass)/float(totalEvents) * 100., '%')
+print('RPVLL normalized average rate: ', float(totalRPVLLpass)/float(totalEvents) * 1000., 'Hz')
+print('')
 
 # calculate fraction of events passing each individual filter
 fracList_total = [0] * nf # fraction of ALL events passing filter
@@ -280,7 +280,7 @@ fracList_RPVLL = [0] * nf # fraction of RPVLL events passing filter
 filterEvents = [0] * nf
 closureTest = 0
 
-print 'FRACTION OF (RPVLL | TOTAL) EVENTS PASSING EACH FILTER:'
+print('FRACTION OF (RPVLL | TOTAL) EVENTS PASSING EACH FILTER:')
 for filterNo in range(0, nf):
     closureTest += eventList[filterNo*2+1] # add up all filter-passing events
     fracList_total[filterNo] = float(eventList[filterNo*2+1])/float(totalEvents)
@@ -290,11 +290,11 @@ for filterNo in range(0, nf):
 #        print filterNames[filterNo], ' -- ', '%.2E' % Decimal(fracList_RPVLL[filterNo]), ' | ', '%.2E' % Decimal(fracList_total[filterNo])
 #print ''
 
-print 'NORMALIZED (to 1 kHz) AVERAGE FILTER RATE:'
+print('NORMALIZED (to 1 kHz) AVERAGE FILTER RATE:')
 for filterNo in range(0, nf):
     if filterNo != ix_dv:
-        print filterNames[filterNo], ' -- ', '%.2f' % (fracList_total[filterNo]*1000), 'Hz'
-print ''
+        print(filterNames[filterNo], ' -- ', '%.2f' % (fracList_total[filterNo]*1000), 'Hz')
+print('')
 
 ## subtract away events corresponding to DVAugmentationKernel -- NOT A FILTER
 ## closureTest_mAug will always be larger than totalRPVLLpass because of overlap
@@ -325,7 +325,7 @@ for lineNo,line in enumerate(lbList):
     if (float(line.split()[0]) >= first_lb and float(line.split()[0]) <= last_lb):
         lbEventHist.Fill(float(line.split()[0]), procEvents[l])
         lbEventHist.SetBinError(lbEventHist.FindBin(float(line.split()[0])), 0)
-        if (len(line.split()) > 3:
+        if (len(line.split()) > 3):
             lbFullEventHist.Fill(float(line.split()[0]), float(line.split()[3]))
             lbFullEventHist.SetBinError(lbFullEventHist.FindBin(float(line.split()[0])), 0)
             scale.append(float(line.split()[3])/float(procEvents[l]))
@@ -334,9 +334,9 @@ for lineNo,line in enumerate(lbList):
             scale.append(1)
         lbScaleHist.Fill(float(line.split()[0]), scale[l])
         lbScaleHist.SetBinError(lbScaleHist.FindBin(float(line.split()[0])), 0)
-        print line.split()[0], procEvents[l], line.split()[3], scale[l]
+        print(line.split()[0], procEvents[l], line.split()[3], scale[l])
         l += 1
-print ''
+print('')
 
 
 
