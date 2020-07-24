@@ -541,8 +541,12 @@ StatusCode TestHepMC::execute() {
         auto vtx = pitr->end_vertex();
         if (vtx) {
           double p_energy = 0;
+#ifdef HEPMC3
+          for (auto  desc: HepMC::descendant_particles(vtx)) {
+#else
           for (auto  desc_it = vtx->particles_begin(HepMC::descendants); desc_it != vtx->particles_end(HepMC::descendants); ++desc_it) {
           auto desc=(*desc_it);
+#endif
             if (std::abs(desc->pdg_id()) == m_pdg) tau_child = 1;
             if (desc->status() == 1) p_energy += desc->momentum().e();
           }
@@ -572,14 +576,7 @@ StatusCode TestHepMC::execute() {
         const HepMC::FourVector decaypos = decayvtx->position();
         const double displacement = decaypos.x()*decaypos.x() + decaypos.y()*decaypos.y() + decaypos.z()*decaypos.z();
         if (displacement > 1e-6) {
-#ifdef HEPMC3
-          for (auto ip:decayvtx->particles_out()) {
-#else
-          HepMC::GenVertex::particle_iterator ipbegin = decayvtx->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator ipend = decayvtx->particles_end(HepMC::children);
-          for (HepMC::GenVertex::particle_iterator ip_it = ipbegin; ip_it != ipend; ++ip_it) {
-          auto ip=(*ip_it);
-#endif
+          for (auto ip: *decayvtx) {
             const HepMC::FourVector pos2 = ip->production_vertex()->position();
             const double displacement2 = pos2.x()*pos2.x() + pos2.y()*pos2.y() + pos2.z()*pos2.z();
             if (displacement2 < 1e-6) {
