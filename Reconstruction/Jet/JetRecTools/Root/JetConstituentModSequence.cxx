@@ -45,8 +45,8 @@ StatusCode JetConstituentModSequence::initialize() {
 
   ATH_CHECK( m_modifiers.retrieve() );
 
-  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
-
+  ATH_CHECK( m_monTool.retrieve( DisableTool{m_monTool.empty()} ) );
+  
   // Set and initialise DataHandleKeys only for the correct input type
   // Die if the input type is unsupported
   switch(m_inputType) {
