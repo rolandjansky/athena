@@ -27,7 +27,7 @@ atlas_add_component( TrkToLeptonPVTool
                      src/*.cxx  src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking xAODEventInfo GaudiKernel 
-		     VxSecVertex TrkVertexFitterInterfaces InDetBeamSpotService)
+		     VxSecVertex TrkVertexFitterInterfaces InDetBeamSpotServiceLib)
  
 # Install files from the package:
 atlas_install_headers( TrkToLeptonPVTool )
