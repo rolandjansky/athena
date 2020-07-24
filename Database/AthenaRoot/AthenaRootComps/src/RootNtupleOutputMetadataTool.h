@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootNtupleOutputMetadataTool.h 
@@ -33,7 +33,7 @@ namespace Athena {
  *  @brief This is the AthenaRoot version of AthenaServices/AthenaOutputStreamTool.
  **/
 class RootNtupleOutputMetadataTool 
-  : virtual public IIncidentListener, public ::IAthenaOutputTool, public ::AthAlgTool
+  : public extends<::AthAlgTool, IIncidentListener, ::IAthenaOutputTool>
 {
 
 public:
@@ -46,16 +46,17 @@ public:
   virtual ~RootNtupleOutputMetadataTool();
 
   /// Gaudi AlgTool Interface method implementations:
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode stop();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode stop() override;
   /// AthenaOutputTool Interface method implementations:
-  StatusCode postInitialize();
-  StatusCode preFinalize();
-  StatusCode preExecute();
-  StatusCode postExecute();
+  virtual StatusCode postInitialize() override;
+  virtual StatusCode preFinalize() override;
+  virtual StatusCode preExecute() override;
+  virtual StatusCode preStream() override;
+  virtual StatusCode postExecute() override;
   /// Incident service handle listening for Begin/End InputFile incidents
-  void handle(const Incident& incident);
+  virtual void handle(const Incident& incident) override;
     
   /// Connect to the output stream
   ///   Must writeMetadata BEFORE streaming
