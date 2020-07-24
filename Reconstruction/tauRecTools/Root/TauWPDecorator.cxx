@@ -16,8 +16,8 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
   TauRecToolBase(name) {
   declareProperty("UseEleBDT", m_electronMode = false);
   declareProperty("DefineWPs", m_defineWPs = false);
-  declareProperty("ScoreName", m_scoreName = "BDTJetScore");
-  declareProperty("NewScoreName", m_scoreNameTrans = "BDTJetScoreSigTrans");
+  declareProperty("ScoreName", m_scoreName = "");
+  declareProperty("NewScoreName", m_scoreNameTrans = "");
   
   declareProperty("flatteningFile0Prong", m_file0p = "");
   declareProperty("flatteningFile1Prong", m_file1p = "");
@@ -158,6 +158,11 @@ StatusCode TauWPDecorator::initialize() {
   m_hists3p = std::make_unique<std::vector<m_pair_t>>();
   ATH_CHECK(retrieveHistos(3));
   ATH_CHECK(storeLimits(3));  
+    
+  for (size_t wpIndex=0; wpIndex < m_decorWPs.size(); ++wpIndex) {
+    const std::string& name = m_decorWPs[wpIndex];
+    m_charDecors.emplace_back(SG::AuxElement::Decorator<char>(name));
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -280,14 +285,16 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
     }
     // Decorate other WPs
     for (size_t wpIndex=0; wpIndex < m_decorWPs.size(); ++wpIndex) {
+      const SG::AuxElement::Decorator<char>& decorator = m_charDecors[wpIndex];
+
       if(nProng == 0) {
-        pTau.auxdecor<char>(m_decorWPs[wpIndex]) = scoreTrans > (1-m_decorWPEffs0p[wpIndex]);
+        decorator(pTau) = scoreTrans > (1-m_decorWPEffs0p[wpIndex]);
       }
       else if(nProng == 1) {
-        pTau.auxdecor<char>(m_decorWPs[wpIndex]) = scoreTrans > (1-m_decorWPEffs1p[wpIndex]);    
+        decorator(pTau) = scoreTrans > (1-m_decorWPEffs1p[wpIndex]);    
       }
       else {
-        pTau.auxdecor<char>(m_decorWPs[wpIndex]) = scoreTrans > (1-m_decorWPEffs3p[wpIndex]);    
+        decorator(pTau) = scoreTrans > (1-m_decorWPEffs3p[wpIndex]);    
       }
     }
   }
