@@ -126,9 +126,6 @@ jobproperties.CaloCellFlags.doLArCreateMissingCells=False
 
 #Work around to stop crash in pixel cluster splitting (Updated by lshi 23 July 2020, ATLASRECTS-5496)
 from InDetRecExample.InDetJobProperties import InDetFlags#All OK
-#InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True)
-#InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(False)
-#InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False)
 InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
 
 from JetRec.JetRecFlags import jetFlags

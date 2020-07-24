@@ -188,8 +188,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		self.directory = ''
 
 	def handle(self, incident):
-		#self.msg.verbose("Received incident %s from %s" % (incident.type(), incident.source()))
-		self.msg.info("Received incident %s from %s" % (incident.type(), incident.source()))
+		self.msg.verbose("Received incident %s from %s" % (incident.type(), incident.source()))
 
 		# Event and trigger info present, decide stream
 		if incident.type() == 'BeginEvent' and incident.source() == 'BeginIncFiringAlg':
