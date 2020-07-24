@@ -50,9 +50,10 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
 
     # setup fallback IDEnvelope
     InDet = Volume()
+    # InDet should include HGTD when it's turned on, otherwise leave the space where MBTS is to Calo
     if DetFlags.simulate.HGTD_on():
-        InDet.addRZ( 1148.,  3420. ) # TODO: 3420 --> 3545 when HGTD goes inside IDET
-        InDet.addRZ(  34.3,  3420. ) # TODO: 3420 --> 3545 when HGTD goes inside IDET
+        InDet.addRZ( 1148.,  3545. )
+        InDet.addRZ(  34.3,  3545. )
     else:
         InDet.addRZ( 1148.,  3475. )
         InDet.addRZ(  34.3,  3475. )
@@ -61,7 +62,8 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
 
     # setup fallback CaloEnvelope
     Calo = Volume()
-    if DetFlags.simulate.HGTD_on(): # calo should not include HGTD (changed 20.20 --> 21.9)
+    # InDet includes HGTD when it's turned on, otherwise Calo should include the space where MBTS is
+    if DetFlags.simulate.HGTD_on(): 
         Calo.addRZ( 1148.0,  3545.0 )
         Calo.addRZ(  120.0,  3545.0 )
     else:
@@ -108,7 +110,6 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     Muon.addRZ( 13000.0 ,  4000.0 )
     kwargs.setdefault("FallbackMuonR"   , Muon.getRs()        )
     kwargs.setdefault("FallbackMuonZ"   , Muon.getZs()        )
-
 
     # setup fallback CavernEnvelope
     Cavern = Volume()

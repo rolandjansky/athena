@@ -69,10 +69,10 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
     // TODO: deal with recording "StoredPhysVol" and "StoredAlignX" (xfHGTDPos + xfHGTDNeg)
 
     world->add( new GeoNameTag("HGTD_Pos"));
-    world->add( new GeoTransform(HepGeom::TranslateZ3D( 3482.5))); // TODO: take from db! Also needs tweak?
+    world->add( new GeoTransform(HepGeom::TranslateZ3D( 3482.5)));
     world->add(HGTD_EnvelopePos);
     world->add( new GeoNameTag("HGTD_Neg"));
-    world->add( new GeoTransform(HepGeom::TranslateZ3D(-3482.5))); // TODO: take from db! Also needs tweak?
+    world->add( new GeoTransform(HepGeom::TranslateZ3D(-3482.5)));
     world->add( new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
     world->add(HGTD_EnvelopeNeg);
 
@@ -92,7 +92,7 @@ GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
     if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) return nullptr;
 
     std::string AtlasVersion = m_athenaComps->geoModelSvc()->atlasVersion();
-    std::string LArVersion = m_athenaComps->geoModelSvc()->LAr_VersionOverride();
+    std::string LArVersion = m_athenaComps->geoModelSvc()->LAr_VersionOverride(); // TODO: update when HGTD db info moves into own tables, outside of the LAr tag
 
     std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
     std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";

@@ -98,10 +98,10 @@ def getIDETEnvelope(name="IDET", **kwargs):
       innerRadius = rin*10.*mm # The factor 10 is needed for converting in mm the DB entry
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    # IDET should not (yet) include the HGTD (3420 mm < |z| < 3545 mm)
+    # IDET should include the HGTD (3420 mm < |z| < 3545 mm) when turned on, otherwise leave room for MBTS from |z| = 3475 mm since it is placed inside CALO
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.HGTD_on():
-        kwargs.setdefault("dZ", 342.0*cm)        
+        kwargs.setdefault("dZ", 354.5*cm)        
     else:
         kwargs.setdefault("dZ", 347.5*cm)
     SubDetectorList=[]
