@@ -2,7 +2,10 @@
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
+from six import iteritems
+
 log = logging.getLogger(__name__)
+
 
 def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
     list=[]
@@ -30,29 +33,30 @@ def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
                 
 
 
-def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
-    for item, prescales in HLTPrescale.iteritems():
+def applyHLTPrescale(triggerPythonConfig, HLTPrescale, signaturesOverwritten):
+    for item, prescales in iteritems(HLTPrescale):
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
-        if item not in triggerPythonConfig.allChains.keys():
-            if triggerPythonConfig.signaturesOverwritten:
+        if item not in triggerPythonConfig.dicts().keys():
+            if signaturesOverwritten:
                 log.warning('Attempt to set prescales for nonexisting chain: %s', item)
                 continue
             else:
                 log.error('Attempt to set prescales for nonexisting chain: %s', item)
                 continue
         n = len(prescales)
-        hltchain = None
-        for ch in triggerPythonConfig.allChains[item]:
-            if ch.level == 'HLT': 
-                hltchain = ch
-        if n > 0  and hltchain:
-            hltchain.prescale = str(prescales[0])
-        if n > 1  and hltchain:
-            hltchain.pass_through = str(prescales[1])
-        if n > 2  and hltchain:
-            hltchain.rerun_prescale = str(prescales[2])
-       
-        log.info('Applied HLTPS to the item '+item+': PS'+ hltchain.prescale+" PT"+hltchain.pass_through+" RerunPS"+hltchain.rerun_prescale)
+        hltchain = triggerPythonConfig.dicts()[item]
+        if n > 0:
+            hltchain['prescale'] = str(prescales[0])
+        log.info('Applied HLTPS to the item '+item+': PS'+ hltchain['prescale'])
+        #
+        #passthrough and rerun still in the HLTPrescale object but not needed currently
+        #
+        #if n > 1:
+        #    hltchain['pass_through'] = str(prescales[1])
+        #if n > 2:
+        #    hltchain['rerun_prescale'] = str(prescales[2])
+        #
+        #log.info('Applied HLTPS to the item '+item+': PS'+ hltchain.prescale+" PT"+hltchain.pass_through+" RerunPS"+hltchain.rerun_prescale)
 
 
 

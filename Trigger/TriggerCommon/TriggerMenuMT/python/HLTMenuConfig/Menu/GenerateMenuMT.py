@@ -16,7 +16,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
-
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuUtil import applyHLTPrescale
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -99,8 +99,6 @@ class GenerateMenuMT(object):
         == Setup of menu in terms of prescales and overwrite function
         """
         # go over the slices and put together big list of signatures requested
-        #(L1Prescales, HLTPrescales, streamConfig) = MenuPrescaleConfig(self.triggerPythonConfig)
-        # that does not seem to work
         (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(TriggerConfigHLT)
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
@@ -170,6 +168,9 @@ class GenerateMenuMT(object):
 
             chainCounter += 1
             chainDict['chainCounter'] = chainCounter
+
+            #set default chain prescale
+            chainDict['prescale'] = 1
 
             log.debug("Next: getting chain configuration for chain %s ", chain.name) 
             chainConfig= self.__generateChainConfig(chainDict)
@@ -365,6 +366,9 @@ class GenerateMenuMT(object):
 
         makeHLTTree(newJO=False, triggerConfigHLT = TriggerConfigHLT)
         # the return values used for debugging, might be removed later
+
+        # Having built the Menu add prescales for disabling items (e.g. MC production)
+        applyHLTPrescale(TriggerConfigHLT, self.HLTPrescales, self.signaturesOverwritten)
 
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
         generateJSON()
