@@ -1,6 +1,8 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-   Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/* Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de */
+
 #ifndef ATLASHEPMC_RELATIVES_H
 #define ATLASHEPMC_RELATIVES_H
 #ifdef HEPMC3
