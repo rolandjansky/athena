@@ -20,7 +20,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h" // cant be forward declared
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/Surface.h"
-
 #include <memory>
 
 class PixelClusterContainerCnv;
@@ -105,17 +104,19 @@ public:
 
   /// return the flag of this cluster containing a gangedPixel
   virtual bool gangedPixel() const;
-
   /// return the detector element corresponding to this PRD
-  /// The pointer will be zero if the det el is not defined (i.e. it was
-  /// not passed in by the ctor)
-  virtual const InDetDD::SiDetectorElement* detectorElement() const;
+  /// The pointer will be zero if the det el is not defined (i.e. it was not
+  /// passed in by the ctor)
+  virtual const InDetDD::SiDetectorElement* detectorElement() const override final;
+
+  /** Interface method checking the type*/
+  virtual bool type(Trk::PrepRawDataType::Type type) const override final;
 
   /// dump information about the SiCluster
-  virtual MsgStream& dump(MsgStream& stream) const;
+  virtual MsgStream& dump(MsgStream& stream) const override;
   /// dump information about the SiCluster
-  virtual std::ostream& dump(std::ostream& stream) const;
-  //@}
+  virtual std::ostream& dump(std::ostream& stream) const override;
+ //@}
 
   /// Set the m_detEl and calculate globalPostion
   //used by TPCnv converters
@@ -135,48 +136,7 @@ operator<<(MsgStream& stream, const SiCluster& prd);
 std::ostream&
 operator<<(std::ostream& stream, const SiCluster& prd);
 
-///////////////////////////////////////////////////////////////////
-// Inline methods:
-///////////////////////////////////////////////////////////////////
-// return width:
-inline const InDet::SiWidth&
-SiCluster::width() const
-{
-  return m_width;
-}
-// return globalPosition:
-inline const Amg::Vector3D&
-SiCluster::globalPosition() const
-{
-  return m_globalPosition;
-}
-// set gangedPixel:
-inline void
-SiCluster::setGangedPixel(bool ganged)
-{
-  m_gangedPixel = ganged;
-}
-// get gangedPixel:
-inline bool
-SiCluster::gangedPixel() const
-{
-  return m_gangedPixel;
 }
 
-inline const InDetDD::SiDetectorElement*
-SiCluster::detectorElement() const
-{
-  return m_detEl;
-}
-
-inline void
-SiCluster::setDetectorElement(const InDetDD::SiDetectorElement* detEl)
-{
-  m_detEl = detEl;
-  if (m_detEl) {
-    m_globalPosition =
-      m_detEl->surface(identify()).localToGlobalPos(localPosition());
-  }
-}
-}
+#include "InDetPrepRawData/SiCluster.icc"
 #endif // TRKPREPRAWDATA_SICLUSTER_H
