@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -141,7 +141,7 @@ StatusCode TileRawChannelTimeMonTool::bookHists()
     }
   }
 
-  for (const std::pair<int, int> roses : m_timeDifferenceBetweenROS) {
+  for (const std::pair<int, int>& roses : m_timeDifferenceBetweenROS) {
     int ros1 = roses.first;
     int ros2 = roses.second;
     
@@ -367,7 +367,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
         }
 
         int rosesPairIndex(0);
-        for (const std::pair<int, int> roses : m_timeDifferenceBetweenROS) {
+        for (const std::pair<int, int>& roses : m_timeDifferenceBetweenROS) {
           int ros1 = roses.first;
           int ros2 = roses.second;
           
@@ -377,7 +377,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
       
       } else {
         int rosesPairIndex(0);
-        for (const std::pair<int, int> roses : m_timeDifferenceBetweenROS) {
+        for (const std::pair<int, int>& roses : m_timeDifferenceBetweenROS) {
           int ros1 = roses.first;
           int ros2 = roses.second;
           

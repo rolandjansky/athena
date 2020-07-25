@@ -28,9 +28,8 @@ SCT_TdaqEnabledTool::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_pHelper,"SCT_ID"));
   // Read Cond Handle Key
-  if (m_useDatabase) {
-    ATH_CHECK(m_condKey.initialize());
-  }
+  ATH_CHECK(m_condKey.initialize(m_useDatabase));
+
   return StatusCode::SUCCESS;
 }
 
@@ -63,7 +62,7 @@ SCT_TdaqEnabledTool::isGood(const Identifier& elementId, InDetConditions::Hierar
 bool
 SCT_TdaqEnabledTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   const SCT_TdaqEnabledCondData* condData{getCondData(ctx)};
-  if (!condData) return false;
+  if (condData==nullptr) return false;
   return condData->isGood(hashId);
 }
 

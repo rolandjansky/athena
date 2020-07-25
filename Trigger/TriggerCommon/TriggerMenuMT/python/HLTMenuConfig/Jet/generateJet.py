@@ -2,19 +2,23 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
 def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
-    from AthenaConfiguration.ComponentFactory import CompFactory
+    result = ComponentAccumulator()
+    verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVFSCaloJet',
+                                                    DataObjects = [('TrigRoiDescriptorCollection', 'StoreGateSvc+FSJETRoI'),
+                                                                  ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage') ])
+    result.addEventAlgo( verifier )
     cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
     cellmaker.RoIs = "FSJETRoI"
     cellmaker.TrigDataAccessMT = cdaSvc
     cellmaker.CellsName = cellsname
 
-    result = ComponentAccumulator()
+
     result.addEventAlgo(cellmaker)
     return result
 
@@ -73,7 +77,6 @@ def generateChains( flags, chainDict ):
 
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
-    from AthenaConfiguration.ComponentFactory import CompFactory
     hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
     jetsfullname = jetprefix+TrigAntiKt4EMTopoSubJES.basename+jetsuffix+"Jets"
     hypo.Jets = jetsfullname
