@@ -241,6 +241,33 @@ namespace xAOD {
       std::vector< std::vector< float > >    cscHitTime;
       std::vector< std::vector< float > >    cscHitResidual;
 
+      // sTGC clusters
+      std::vector< std::vector< unsigned int > > stgcClusterLayer;
+      std::vector< std::vector< int > >          stgcClusterIsOutlier;
+      std::vector< std::vector< int > >          stgcClusterType;
+      std::vector< std::vector< float > >        stgcClusterEta;
+      std::vector< std::vector< float > >        stgcClusterPhi;
+      std::vector< std::vector< float > >        stgcClusterR;
+      std::vector< std::vector< float > >        stgcClusterZ;
+      std::vector< std::vector< float > >        stgcClusterResidualR;
+      std::vector< std::vector< float > >        stgcClusterResidualPhi;
+      std::vector< std::vector< int > >          stgcClusterStationEta;
+      std::vector< std::vector< int > >          stgcClusterStationPhi;
+      std::vector< std::vector< int > >          stgcClusterStationName;
+
+      // MM clusters
+      std::vector< std::vector< unsigned int > > mmClusterLayer;
+      std::vector< std::vector< int > >          mmClusterIsOutlier;
+      std::vector< std::vector< float > >        mmClusterEta;
+      std::vector< std::vector< float > >        mmClusterPhi;
+      std::vector< std::vector< float > >        mmClusterR;
+      std::vector< std::vector< float > >        mmClusterZ;
+      std::vector< std::vector< float > >        mmClusterResidualR;
+      std::vector< std::vector< float > >        mmClusterResidualPhi;
+      std::vector< std::vector< int > >          mmClusterStationEta;
+      std::vector< std::vector< int > >          mmClusterStationPhi;
+      std::vector< std::vector< int > >          mmClusterStationName;
+
       /// @}
 
    }; // class L2StandAloneMuonAuxContainer_v2
