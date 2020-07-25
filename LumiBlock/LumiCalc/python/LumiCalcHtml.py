@@ -151,7 +151,7 @@ class LumiCalc:
         if self.fileitem.filename:
 
             # strip any leading C: from windows
-            if self.fileitem.filename[0:2] is 'C:':
+            if self.fileitem.filename[0:2] == 'C:':
                 self.fileitem.filename = self.fileitem.filename[2:]
             # strip leading path from file name to avoid directory traversal attacks
             self.grlfn = os.path.basename(self.fileitem.filename)
@@ -226,23 +226,23 @@ class LumiCalc:
 #
     def parseOutput(self):
         
-        matchrun = re.compile('Run ([0-9]+) LB \[([0-9]+)-([0-9]+)\]')
-        matchlumidel = re.compile(': IntL delivered \(ub\^-1\) : ([0-9\.e+]+)')
-        matchlumipre = re.compile(': IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchlumilar = re.compile(': IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchlumirec = re.compile(': IntL recorded after prescale \(ub\^-1\) : ([0-9\.\e\+\-]+)')
-        matchgoodlb = re.compile(': Good LBs     : ([0-9]+)')
-        matchbadlb = re.compile(': Bad LBs      : ([0-9]+)')
+        matchrun = re.compile(r'Run ([0-9]+) LB \[([0-9]+)-([0-9]+)\]')
+        matchlumidel = re.compile(r': IntL delivered \(ub\^-1\) : ([0-9\.e+]+)')
+        matchlumipre = re.compile(r': IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchlumilar = re.compile(r': IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchlumirec = re.compile(r': IntL recorded after prescale \(ub\^-1\) : ([0-9\.\e\+\-]+)')
+        matchgoodlb = re.compile(r': Good LBs     : ([0-9]+)')
+        matchbadlb = re.compile(r': Bad LBs      : ([0-9]+)')
 
-        matchtotlumidel = re.compile(': Total IntL delivered \(ub\^-1\) : ([0-9\.\e\+\-]+)')
-        matchtotlumipre = re.compile(': Total IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchtotlumilar = re.compile(': Total IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchtotlumirec = re.compile(': Total IntL recorded \(ub\^-1\) : ([0-9\.\e\+\-]+)')
-        matchtotgoodlb = re.compile(': Total Good LBs     : ([0-9]+)')
-        matchtotbadlb = re.compile(': Total Bad LBs     : ([0-9]+)')
+        matchtotlumidel = re.compile(r': Total IntL delivered \(ub\^-1\) : ([0-9\.\e\+\-]+)')
+        matchtotlumipre = re.compile(r': Total IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchtotlumilar = re.compile(r': Total IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchtotlumirec = re.compile(r': Total IntL recorded \(ub\^-1\) : ([0-9\.\e\+\-]+)')
+        matchtotgoodlb = re.compile(r': Total Good LBs     : ([0-9]+)')
+        matchtotbadlb = re.compile(r': Total Bad LBs     : ([0-9]+)')
 
-        matchrealtime = re.compile(': Real time: ([0-9\.\e\+\-]+)')
-        matchcputime = re.compile(': CPU time:  ([0-9\.\e\+\-]+)')
+        matchrealtime = re.compile(r': Real time: ([0-9\.\e\+\-]+)')
+        matchcputime = re.compile(r': CPU time:  ([0-9\.\e\+\-]+)')
 
         self.runset = set()
         self.lumidel = dict()

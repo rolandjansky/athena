@@ -3,7 +3,7 @@
 */
 
 #include "VxVertex/RecVertex.h"
-#include "TrigInDetVxInJetTool/TrigInDetVxInJetTool.h"
+#include "TrigInDetVxInJetTool.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TMath.h"

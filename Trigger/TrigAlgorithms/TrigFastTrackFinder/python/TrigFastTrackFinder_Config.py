@@ -207,12 +207,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
-        if self.doResMon:
-            from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
-            resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
-            ToolSvc += resCalc
-            self.TrigL2ResidualCalculator = resCalc
-
         # Run3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
 

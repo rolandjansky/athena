@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIEventShapeJetIteration.h"
+#include "HIEventShapeJetIteration.h"
 #include "xAODHIEvent/HIEventShape.h"
 #include "xAODHIEvent/HIEventShapeAuxContainer.h"
 #include "HIEventUtils/HIEventShapeMap.h"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # ********************* WARNING **********************
 #
@@ -1547,18 +1547,18 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
                  'TrigInDetEvent',
                  'TrigParticle',      'TrigMissingEtEvent',
                  'TrigDecisionEvent', 'TrigMonitoringEvent',
-		 'TrigTopoEvent' , 'TrigCombinedEvent', 
-	         'TrigMonitoringEventTPCnv',   'RecTPCnv',
+                 'TrigTopoEvent' , 'TrigCombinedEvent',
+                 'TrigMonitoringEventTPCnv',   'RecTPCnv',
                  'TrigCaloEventTPCnv',
                  'TrigDecisionEventTPCnv',     'TrigInDetEventTPCnv',
                  'TrigMissingEtEventTPCnv',    'TrigMuonEventTPCnv',
                  'TrigParticleTPCnv',          'TrigSteeringEventTPCnv',
-		 'TrigTopoEventTPCnv',         'TrigCombinedEventTPCnv', 
-		 'tauEventTPCnvDict',          'RecTPCnvDict',
-		 'TrigMonitoringEventTPCnvDict',
-		 'OLD_RecTPCnvDict',
+                 'TrigTopoEventTPCnv',         'TrigCombinedEventTPCnv',
+                 'tauEventTPCnvDict',          'RecTPCnvDict',
+                 'TrigMonitoringEventTPCnvDict',
+                 'OLD_RecTPCnvDict',
 #
-		 #'TrigCombinedEventTPCnv1Dict',     'TrigCaloEventTPCnv1Dict',          
+                 #'TrigCombinedEventTPCnv1Dict',     'TrigCaloEventTPCnv1Dict',
                  #'TrigDecisionEventTPCnv1Dict',     'TrigInDetEventTPCnv1Dict',
                  #'TrigMissingEtEventTPCnv1Dict',    'TrigMuonEventTPCnv1Dict',
                  #'TrigParticleTPCnv1Dict',          'TrigSteeringEventTPCnv1Dict',
@@ -1568,17 +1568,17 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
                  'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet',
                  'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo',
                  'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 
-		 'xAODHIEvent',
+                 'xAODHIEvent',
                  'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict',
                  'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict',
                  'xAODTrigMinBiasDict', 'xAODBTaggingDict',
-		 'xAODHIEventDict'
-	         #'ARA_TrigMonitoringEventTPCnvDict',
+                 'xAODHIEventDict'
+                 #'ARA_TrigMonitoringEventTPCnvDict',
                  #'ARA_TrigCaloEventTPCnv1Dict',
                  #'ARA_TrigDecisionEventTPCnv1Dict',  #'ARA_TrigInDetEventTPCnv1Dict',
                  #'ARA_TrigMissingEtEventTPCnv1Dict', 'ARA_TrigMuonEventTPCnv1Dict',
                  #'ARA_TrigParticleTPCnv1Dict',
                  #'ARA_TrigSteeringEventTPCnv1Dict',
-		 #'ARA_RecTPCnvDict', 'ARA_tauEventTPCnvDict'
+                 #'ARA_RecTPCnvDict', 'ARA_tauEventTPCnvDict'
          ]
 

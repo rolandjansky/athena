@@ -300,7 +300,7 @@ StatusCode TestHepMC::execute() {
       const double sumP = beams.first->momentum().pz() + beams.second->momentum().pz();
       cmenergy = std::sqrt(sumE*sumE - sumP*sumP);
 
-      if (m_cm_energy > 0 && fabs(cmenergy - m_cm_energy) > m_cme_diff) {
+      if (m_cm_energy > 0 && std::abs(cmenergy - m_cm_energy) > m_cme_diff) {
         ATH_MSG_FATAL("Beam particles have incorrect energy: " << m_cm_energy/1000. << " GeV expected, vs. " << cmenergy/1000. << " GeV found");
         setFilterPassed(false);
         if (m_doHist){
@@ -526,7 +526,7 @@ StatusCode TestHepMC::execute() {
           negEnPart.push_back(pbarcode);
           ++m_negativeEnergyTachyonicCheckRate;
         }
-        const double aener = fabs(pmom.e());
+        const double aener = std::abs(pmom.e());
         if ( aener+m_accur_margin < std::abs(pmom.px()) || aener+m_accur_margin < std::abs(pmom.py()) || aener+m_accur_margin < std::abs(pmom.pz()) ) {
           tachyons.push_back(pbarcode);
           ++m_negativeEnergyTachyonicCheckRate;
@@ -541,8 +541,12 @@ StatusCode TestHepMC::execute() {
         auto vtx = pitr->end_vertex();
         if (vtx) {
           double p_energy = 0;
+#ifdef HEPMC3
+          for (auto  desc: HepMC::descendant_particles(vtx)) {
+#else
           for (auto  desc_it = vtx->particles_begin(HepMC::descendants); desc_it != vtx->particles_end(HepMC::descendants); ++desc_it) {
           auto desc=(*desc_it);
+#endif
             if (std::abs(desc->pdg_id()) == m_pdg) tau_child = 1;
             if (desc->status() == 1) p_energy += desc->momentum().e();
           }
@@ -572,14 +576,7 @@ StatusCode TestHepMC::execute() {
         const HepMC::FourVector decaypos = decayvtx->position();
         const double displacement = decaypos.x()*decaypos.x() + decaypos.y()*decaypos.y() + decaypos.z()*decaypos.z();
         if (displacement > 1e-6) {
-#ifdef HEPMC3
-          for (auto ip:decayvtx->particles_out()) {
-#else
-          HepMC::GenVertex::particle_iterator ipbegin = decayvtx->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator ipend = decayvtx->particles_end(HepMC::children);
-          for (HepMC::GenVertex::particle_iterator ip_it = ipbegin; ip_it != ipend; ++ip_it) {
-          auto ip=(*ip_it);
-#endif
+          for (auto ip: *decayvtx) {
             const HepMC::FourVector pos2 = ip->production_vertex()->position();
             const double displacement2 = pos2.x()*pos2.x() + pos2.y()*pos2.y() + pos2.z()*pos2.z();
             if (displacement2 < 1e-6) {
@@ -601,7 +598,7 @@ StatusCode TestHepMC::execute() {
       /// @todo Persuade generator authors to set proper generated masses in HepMC, then *really* require mass = 0
       if (ppdgid == 22 && pstatus == 1) {
         const double mass = pitr->generated_mass();
-        if (fabs(mass) > 1.0) { // in MeV
+        if (std::abs(mass) > 1.0) { // in MeV
           ATH_MSG_WARNING("Photon with non-zero mass found! Mass: " << mass << " MeV, BARCODE=" << pbarcode);
           ++m_nonZeroPhotonMassCheckRate;
         }
@@ -619,7 +616,7 @@ StatusCode TestHepMC::execute() {
     } // End of check for interacting particles not known by G4
 
     // Energy balance
-    double lostE = fabs(totalE - cmenergy);
+    double lostE = std::abs(totalE - cmenergy);
     if (lostE > m_energy_diff) {
       ATH_MSG_WARNING("ENERGY BALANCE FAILED : E-difference = " << lostE << " MeV");
 
@@ -636,12 +633,12 @@ StatusCode TestHepMC::execute() {
     } // End of energy balance check
 
     // Momentum balance
-    if ( fabs(totalPx) > m_energy_diff || fabs(totalPy) > m_energy_diff || fabs(totalPz) > m_energy_diff ) {
+    if ( std::abs(totalPx) > m_energy_diff || std::abs(totalPy) > m_energy_diff || std::abs(totalPz) > m_energy_diff ) {
       ATH_MSG_WARNING("MOMENTUM BALANCE FAILED : SumPx = " << totalPx << " SumPy = " <<  totalPy << " SumPz = " <<  totalPz << " MeV");
       if (m_doHist){
-        m_h_momentumImbalance_px->Fill(fabs(totalPx)*1.E-03);
-        m_h_momentumImbalance_py->Fill(fabs(totalPy)*1.E-03);
-        m_h_momentumImbalance_pz->Fill(fabs(totalPz)*1.E-03);
+        m_h_momentumImbalance_px->Fill(std::abs(totalPx)*1.E-03);
+        m_h_momentumImbalance_py->Fill(std::abs(totalPy)*1.E-03);
+        m_h_momentumImbalance_pz->Fill(std::abs(totalPz)*1.E-03);
       }
       if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_momImbalanceTest) {

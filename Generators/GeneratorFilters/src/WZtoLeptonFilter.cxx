@@ -252,7 +252,7 @@ StatusCode WZtoLeptonFilter::filterEvent() {
 
       if ((abslepid == 11 || abslepid == 13) && (*pitr)->status() == 1) {
         double leppt = (*pitr)->momentum().perp();
-        double lepeta = fabs( (*pitr)->momentum().pseudoRapidity() );
+        double lepeta = std::abs( (*pitr)->momentum().pseudoRapidity() );
 
         LePrdVrt = (*pitr)->production_vertex();
         int anceWZ = 0;

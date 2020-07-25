@@ -928,7 +928,7 @@ class InEventReco( ComponentAccumulator ):
 
 class InViewReco( ComponentAccumulator ):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None):
+    def __init__(self, name, viewMaker=None, roisKey=None):
         super( InViewReco, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -943,7 +943,7 @@ class InViewReco( ComponentAccumulator ):
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
-                                                          InViewRoIs      = name+'RoIs',
+                                                          InViewRoIs      = roisKey if roisKey else name+'RoIs',
                                                           Views           = name+'Views',
                                                           ViewNodeName    = name+"InView")
 

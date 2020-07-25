@@ -46,7 +46,7 @@ atlas_add_component( InDetAlignGenAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives xAODEventInfo GaudiKernel TRT_ConditionsServicesLib TrkParameters TrkFitterUtils AthenaKernel AtlasDetDescr DetDescrConditions IdDictDetDescr InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives xAODEventInfo GaudiKernel TRT_ConditionsServicesLib TrkParameters TrkFitterUtils AthenaKernel AtlasDetDescr DetDescrConditions IdDictDetDescr InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces InDetAlignGenToolsLib RegistrationServicesLib )
 
 # Install files from the package:
 atlas_install_headers( InDetAlignGenAlgs )

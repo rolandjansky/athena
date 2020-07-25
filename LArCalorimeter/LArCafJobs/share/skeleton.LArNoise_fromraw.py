@@ -229,7 +229,7 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HEC
    tf.configForStartup="HLTonline"
    tf.configForStartup.lock()
 
-   include("TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py")
+   include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
 
    ## trigger configuration
    #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

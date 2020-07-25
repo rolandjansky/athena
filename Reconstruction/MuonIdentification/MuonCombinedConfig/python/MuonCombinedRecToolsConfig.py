@@ -256,6 +256,13 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     kwargs.setdefault("AmbiguityProcessor", ambiguityprocessor )
     result.merge(acc)
 
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
+    acc = MuonTrackSummaryToolCfg(flags)
+    track_summary = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("TrackSummaryTool",  track_summary)
+
+
     if flags.Beam.Type=="cosmics":
         kwargs.setdefault("ExtrapolationStrategy", 1 )
     tool = CompFactory.MuonCombined.MuonCandidateTool(name,**kwargs)

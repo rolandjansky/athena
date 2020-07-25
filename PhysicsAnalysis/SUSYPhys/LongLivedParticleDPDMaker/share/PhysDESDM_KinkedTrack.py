@@ -68,7 +68,7 @@ KinkTrkSingleJetMetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTo
                                                                                    LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
                                                                                    LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
-print KinkTrkSingleJetMetFilterTool
+print(KinkTrkSingleJetMetFilterTool)
 ToolSvc += KinkTrkSingleJetMetFilterTool
 
 
@@ -102,7 +102,7 @@ KinkTrkMultiJetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(n
                                                                                LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
                                                                                LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
-print KinkTrkMultiJetFilterTool
+print(KinkTrkMultiJetFilterTool)
 ToolSvc += KinkTrkMultiJetFilterTool
 
 
@@ -136,7 +136,7 @@ KinkTrkStubletFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(na
                                                                               LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
                                                                               LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
-print KinkTrkStubletFilterTool
+print(KinkTrkStubletFilterTool)
 ToolSvc += KinkTrkStubletFilterTool
 
 KinkTrkStubletPrescaleTool = DerivationFramework__PrescaleTool(name = "KinkTrkStubletPrescaleTool",
@@ -172,7 +172,7 @@ KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 
                                                            DeltaPhiMax          = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.deltaPhiMax,
                                                            StoreGateKeyPrefix   = "KinkTrk")
 
-print KinkTrkZeeTagTool
+print(KinkTrkZeeTagTool)
 ToolSvc += KinkTrkZeeTagTool
 
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZmumuTagTool
@@ -192,7 +192,7 @@ KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            =
                                                            DeltaPhiMax         = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.deltaPhiMax,
                                                            StoreGateKeyPrefix  = "KinkTrk")
 
-print KinkTrkZmumuTagTool
+print(KinkTrkZmumuTagTool)
 ToolSvc += KinkTrkZmumuTagTool
 
 ## Kernel for the augmentation tools

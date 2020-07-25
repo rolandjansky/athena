@@ -118,11 +118,14 @@ def setupMenu():
         ChainProp(name='HLT_g5_loose_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g5_medium_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g5_tight_L1EM3', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g25_loose_L1EM15VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g25_medium_L1EM15VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g25_tight_L1EM15VH', groups=SinglePhotonGroup),
         # Primary photon chains
         ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_2g20_tight_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_2g20_tight_L12EM15VH', groups=MultiPhotonGroup),
 
         # ATR-19360
         ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),

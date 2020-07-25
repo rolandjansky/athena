@@ -64,7 +64,7 @@ SCT_ModuleVetoTool::initialize() {
   }
 
   // Read Cond Handle
-  CHECK(m_condKey.initialize(m_useDatabase));
+  ATH_CHECK(m_condKey.initialize(m_useDatabase));
 
   const std::string databaseUseString{m_useDatabase ? "" : "not "};
   ATH_MSG_INFO("Initialized veto service with data, "

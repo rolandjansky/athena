@@ -13,6 +13,8 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
@@ -185,6 +187,18 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPF
 
 # fJVT
 # getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
+
+#====================================================================
+# EGAMMA
+#====================================================================
+
+if DerivationFrameworkIsMonteCarlo:
+   # Schedule the two energy density tools for running after the pseudojets are created.
+   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+      if hasattr(topSequence, alg):
+         edtalg = getattr(topSequence, alg)
+         delattr(topSequence, alg)
+         SeqPHYS += edtalg
 
 #====================================================================
 # Add our sequence to the top sequence
