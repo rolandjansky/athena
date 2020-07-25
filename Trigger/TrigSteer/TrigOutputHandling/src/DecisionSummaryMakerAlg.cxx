@@ -146,7 +146,11 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
 
   // Set the algorithm's filter status. This controlls the running of finalisation algs which we only want to execute
   // in events which are accepted by one ore more chains.
-  setFilterPassed( allPassingFinalIDs.size() > 0, context );
+  bool filterStatus = true;
+  if (m_setFilterStatus) {
+    filterStatus = (allPassingFinalIDs.size() > 0);
+  }
+  setFilterPassed(filterStatus, context );
 
   return StatusCode::SUCCESS;
 }
