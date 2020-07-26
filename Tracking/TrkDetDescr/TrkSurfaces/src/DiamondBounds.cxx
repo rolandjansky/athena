@@ -38,28 +38,6 @@ Trk::DiamondBounds::DiamondBounds(double minhalex, double medhalex, double maxha
   initCache();
 }
 
-// copy constructor
-Trk::DiamondBounds::DiamondBounds(const DiamondBounds& diabo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(diabo.m_boundValues)
-  , m_alpha1(diabo.m_alpha1)
-  , m_alpha2(diabo.m_alpha2)
-{}
-
-// destructor
-Trk::DiamondBounds::~DiamondBounds() = default;
-
-Trk::DiamondBounds&
-Trk::DiamondBounds::operator=(const DiamondBounds& diabo)
-{
-  if (this != &diabo) {
-    m_boundValues = diabo.m_boundValues;
-    m_alpha1 = diabo.m_alpha1;
-    m_alpha2 = diabo.m_alpha2;
-  }
-  return *this;
-}
-
 bool
 Trk::DiamondBounds::operator==(const Trk::SurfaceBounds& sbo) const
 {
@@ -105,13 +83,13 @@ Trk::DiamondBounds::insideFull(const Amg::Vector2D& locpo, double tol1, double t
                      m_boundValues[DiamondBounds::bv_halfY1]
                  : 0.;
     return (fabs(locpo[Trk::locX]) <= m_boundValues[DiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locY]));
-  } 
+  }
     double k = m_boundValues[DiamondBounds::bv_halfY2] > 0.
                  ? (m_boundValues[DiamondBounds::bv_medHalfX] - m_boundValues[DiamondBounds::bv_maxHalfX]) / 2 /
                      m_boundValues[DiamondBounds::bv_halfY2]
                  : 0.;
     return (fabs(locpo[Trk::locX]) <= m_boundValues[DiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locY]));
-  
+
 }
 
 // opening angle in point A
