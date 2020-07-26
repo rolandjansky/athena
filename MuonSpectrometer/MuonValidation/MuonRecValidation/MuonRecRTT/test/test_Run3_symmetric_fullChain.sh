@@ -7,6 +7,7 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-output: OUT_HITS.root
+# art-output: log_diff_HITS.log
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
 # art-output: NSWDigiCheck.txt
@@ -35,7 +36,7 @@ NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
 # check differences wrt reference HITS file
-acmd.py diff-root OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/SymmetricLayout_HITS_v1.root --ignore-leaves timings &> log_diff_HITS.log
+acmd.py diff-root --ignore-leaves timings --mode semi-detailed --error-mode resilient OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/SymmetricLayout_HITS_v1.root &> log_diff_HITS.log
 exit_code=$?
 echo  "art-result: ${exit_code} diff-root_sim"
 if [ ${exit_code} -ne 0 ]
