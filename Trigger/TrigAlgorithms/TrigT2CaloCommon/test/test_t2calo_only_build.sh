@@ -8,7 +8,7 @@
 export EVENTS=20
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/Calo.py"
+export JOBOPTION="TrigT2CaloCommon/Calo.py"
 
 # Skip dumping chain counts because this test doesn't produce the histogram including them
 export SKIP_CHAIN_DUMP=1
