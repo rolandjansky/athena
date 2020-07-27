@@ -32,7 +32,7 @@ def generateChains( flags,  chainDict ):
     accCalo.merge( LumiBlockMuWriterCfg(flags) )
 
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
-                                 CaloClusters = recordable('HLT_L2CaloEMClusters'))
+                                 CaloClusters = recordable('HLT_FastCaloEMClusters'))
 
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
