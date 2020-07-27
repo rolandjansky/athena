@@ -415,6 +415,9 @@ namespace Analysis {
               std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
               (*btagIter)->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);  
               (*btagIter)->setDynTPELName(basename, "tracksAtPVlinks");
+              std::vector<ElementLink<xAOD::BTagVertexContainer>> jfvtx;
+              (*btagIter)->setVariable(basename, "JFvertices", jfvtx);
+              (*btagIter)->setDynBTagVxELName(basename, "JFvertices");
             }
           }
         
