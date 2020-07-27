@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -68,16 +68,19 @@ public:
   CylinderBounds(double radius, double halfphi, double avphi, double halez);
 
   /**Copy Constructor */
-  CylinderBounds(const CylinderBounds& cylbo);
+  CylinderBounds(const CylinderBounds& cylbo) = default;
+
+  /**Move Constructor */
+  CylinderBounds(CylinderBounds&& cylbo) = default;
 
   /**Destructor */
-  virtual ~CylinderBounds();
+  virtual ~CylinderBounds() = default;
 
   /**Assignment operator*/
-  CylinderBounds& operator=(const CylinderBounds& cylbo);
+  CylinderBounds& operator=(const CylinderBounds& cylbo) = default;
 
   /**Move assignment operator*/
-  CylinderBounds& operator=(CylinderBounds&& cylbo);
+  CylinderBounds& operator=(CylinderBounds&& cylbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

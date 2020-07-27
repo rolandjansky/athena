@@ -38,6 +38,10 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+/// enables -ftree-vectorize in gcc
+#include "CxxUtils/vectorize.h"
+ATH_ENABLE_VECTORIZATION;
+
 //static particle masses
 namespace{
   constexpr Trk::ParticleMasses s_particleMasses{};

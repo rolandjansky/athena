@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Gaudi includes
@@ -1782,10 +1782,10 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
 
 
   ATH_MSG(DEBUG) << "In compareRerun: dumping data for BC " << bunchCrossing.getBCID() << endmsg;
-  bunchCrossing.dumpData();
+  bunchCrossing.dumpData(msg());
 
   ATH_MSG(DEBUG) << "In compareRerun: dumping rerun data for BC 0" << endmsg;
-  ctp_bc_rerun.at(0).dumpData();
+  ctp_bc_rerun.at(0).dumpData(msg());
   
   ATH_MSG(DEBUG) << "Comparing TBP from CTP_RDO objects with keys CTP_RDO (from data) and CTP_RDO_Rerun (from simulation)" << endmsg;
   

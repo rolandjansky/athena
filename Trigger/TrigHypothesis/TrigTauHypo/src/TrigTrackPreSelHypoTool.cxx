@@ -89,8 +89,9 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
   auto roiDescriptor = input.roi;
   float roIEta = roiDescriptor->eta();
   float roIPhi = roiDescriptor->phi();
+  float roIZ   = roiDescriptor->zed();
 
-  ATH_MSG_DEBUG( "Input RoI eta: " << roIEta << " Input RoI phi: " << roIPhi );
+  ATH_MSG_DEBUG( "Input RoI eta: " << roIEta << " Input RoI phi: " << roIPhi << " Input RoI z: " << roIZ);
 
   // get the tracks collection
   // Retrieve Input TrackCollection

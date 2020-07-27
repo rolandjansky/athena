@@ -81,4 +81,4 @@ def makeMinBiasBkgInputCol(nEvts, initialList):
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from Digitization.DigitizationFlags import digitizationFlags
 digitizationFlags.LowPtMinBiasInputCols= makeMinBiasBkgInputCol(25*len(athenaCommonFlags.PoolHitsInput.get_Value()), minbiaslist)
-print "digitizationFlags.LowPtMinBiasInputCols size = ", len(digitizationFlags.LowPtMinBiasInputCols.get_Value())
+printfunc ("digitizationFlags.LowPtMinBiasInputCols size = ", len(digitizationFlags.LowPtMinBiasInputCols.get_Value()))

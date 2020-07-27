@@ -380,7 +380,7 @@ StatusCode CosmicGenerator::callGenerator() {
           double beta=direction.angle(center_dir);
           double alpha=asin(m_radius/center_dir.r());
 
-          if(fabs(beta)<alpha) {
+          if(std::abs(beta)<alpha) {
 
             if(m_exzCut) {
               // Old optimization code - is it still useful?
@@ -782,7 +782,7 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
 
   // does trajectory intersect p14 cylinder?
   double z_mid14 = (x0-p14_x)*sinphi-(z0-p14_z)*cosphi;
-  double min_dist14 = fabs(z_mid14);  //minimum distance of line from center
+  double min_dist14 = std::abs(z_mid14);  //minimum distance of line from center
   double shaft_distance14 = 0.;
   if (min_dist14<p14_radius) {
 
@@ -806,7 +806,7 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
 
   // does trajectory intersect p16 cylinder?
   double z_mid16 = (x0-p16_x)*sinphi-(z0-p16_z)*cosphi;
-  double min_dist16 = fabs(z_mid16);
+  double min_dist16 = std::abs(z_mid16);
   double shaft_distance16 = 0.;
   if (min_dist16<p16_radius) {
 
@@ -850,7 +850,7 @@ bool CosmicGenerator::pointsAtPixels(double xgen, double ygen, double zgen, doub
 
   ATH_MSG_VERBOSE("x_pos = " << x_pos << ", z_pos = " << z_pos);
 
-  if((fabs(x_pos)<m_pixelplanemaxx)&&(fabs(z_pos)<m_pixelplanemaxz)){
+  if((std::abs(x_pos)<m_pixelplanemaxx)&&(std::abs(z_pos)<m_pixelplanemaxz)){
     does=true;
   }
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1CaloSim/TransientDatabaseOverride.h"
+#include "TransientDatabaseOverride.h"
 
 #include <functional>
 #include <utility>

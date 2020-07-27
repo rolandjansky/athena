@@ -12,7 +12,6 @@
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/Enums.h"
-#include "TrkParameters/TrackParameters.h"
 
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
@@ -23,7 +22,7 @@
 //----------------------------------------------
 // pT calculation using Trk::Track.
 //----------------------------------------------
-
+/*
 double PtVal(const std::vector<const Trk::Track*> & tracks) {
 
   std::vector<const Trk::Track*>::const_iterator trkItr    = tracks.begin();
@@ -42,7 +41,7 @@ double PtVal(const std::vector<const Trk::Track*> & tracks) {
   if ( pt2 < 0 ) return 0;
   else          return sqrt(pt2);
 }
-
+*/
 //----------------------------------------------
 // pT calculation using xAOD::TrackParticle.
 //----------------------------------------------
@@ -160,7 +159,7 @@ double InvMass(const std::vector<const TrigInDetTrackFitPar*> & tracks, const st
 //--------------------------------------------------------
 // Invariant mass calculations using Trk::MeasuredPerigee.
 //--------------------------------------------------------
-
+/*
 double InvMass(const std::vector<const Trk::TrackParameters*> & tracks, const std::vector<double> & massHypo) {
 
   std::vector<const Trk::TrackParameters*>::const_iterator trkItr    = tracks.begin();
@@ -176,7 +175,7 @@ double InvMass(const std::vector<const Trk::TrackParameters*> & tracks, const st
 
   return InvMass(px, py, pz, massHypo);
 }
-
+*/
 //--------------------------------------------------------
 // Invariant mass calculations using Trk::Perigee.
 //--------------------------------------------------------
@@ -200,7 +199,7 @@ double InvMass(const std::vector<const Trk::Perigee*> & tracks, const std::vecto
 //----------------------------------------------
 // Invariant mass calculations using Trk::Track.
 //----------------------------------------------
-
+/*
 double InvMass(const std::vector<const Trk::Track*> & tracks, const std::vector<double> & massHypo) {
 
   std::vector<const Trk::Track*>::const_iterator trkItr    = tracks.begin();
@@ -221,7 +220,7 @@ double InvMass(const std::vector<const Trk::Track*> & tracks, const std::vector<
 
   return InvMass(px, py, pz, massHypo);
 }
-
+*/
 double fabsDeltaPhi(double phi1, double phi2) {
     double dPhi=fabs(phi1 - phi2);
     if (dPhi > M_PI) dPhi = 2.*M_PI - dPhi;

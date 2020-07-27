@@ -28,6 +28,5 @@ atlas_add_component( xAODTrigBphysCnv
                      LINK_LIBRARIES xAODTrigBphysCnvLib xAODTrigBphys GaudiKernel AthenaBaseComps AthenaKernel TrigParticle )
 
 # Install files from the package:
-atlas_install_headers( xAODTrigBphysCnv )
 atlas_install_joboptions( share/*.py )
 

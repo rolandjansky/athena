@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file AthenaKernel/src/getThinningCache.h
@@ -41,6 +41,35 @@ const SG::ThinningCache* getThinningCache (const EventContext& ctx)
 const SG::ThinningCache* getThinningCache()
 {
   return getThinningCache (Gaudi::Hive::currentContext());
+}
+
+
+/**
+ * @brief Retrieve the current thinning information for @c key.
+ * @brief ctx Event context.
+ * @param key SG key to test.
+ *
+ * Returns nullptr if there is no thinning for @c key.
+ */
+const SG::ThinningInfo* getThinningInfo (const EventContext& ctx,
+                                                 const std::string& key)
+{
+  if (const SG::ThinningCache* cache = getThinningCache (ctx)) {
+    return cache->thinningInfo (key);
+  }
+  return nullptr;
+}
+
+
+/**
+ * @brief Retrieve the current thinning information for @c key.
+ * @param key SG key to test.
+ *
+ * Returns nullptr if there is no thinning for @c key.
+ */
+const SG::ThinningInfo* getThinningInfo (const std::string& key)
+{
+  return getThinningInfo (Gaudi::Hive::currentContext(), key);
 }
 
 

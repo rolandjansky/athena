@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigSecVtxFinder/TrigSecVtxFinder.h"
+#include "TrigSecVtxFinder.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

@@ -301,7 +301,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
   // now loop as long as map is not empty
     std::vector< std::pair< const InDet::PixelCluster*, const Trk::Track* > > sorted;
     sorted.reserve( setOfPixelClustersToTrackAssoc.size() );
-    for( const std::pair< const InDet::PixelCluster*, const Trk::Track* > &pixelTrackItem : setOfPixelClustersToTrackAssoc ) {
+    for( const std::pair< const InDet::PixelCluster* const, const Trk::Track* > &pixelTrackItem : setOfPixelClustersToTrackAssoc ) {
       sorted.push_back( pixelTrackItem );
     }
     std::sort( sorted.begin(), sorted.end(), [](const std::pair< const InDet::PixelCluster*, const Trk::Track* > &a,

@@ -76,13 +76,11 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       const xAOD::BTagging *btagging = *(bTagInfo.btaggingEL);
       double btaggingWeight = -1000;
 
-      if ( m_methodTag == "MV2c00" ) 
-	btaggingWeight = btagging->auxdata< double >("MV2c00_discriminant");
-      else if ( m_methodTag == "MV2c10" ) 
-	btaggingWeight = btagging->auxdata< double >("MV2c10_discriminant");
-      else if ( m_methodTag == "MV2c20" )
-	btaggingWeight = btagging->auxdata< double >("MV2c20_discriminant");
-      else {
+      if ( m_methodTag == "MV2c00" or 
+	   m_methodTag == "MV2c10" or 
+	   m_methodTag == "MV2c20" ) {
+	btagging->MVx_discriminant( m_methodTag, btaggingWeight );
+      } else {
 	ATH_MSG_ERROR( "b-Tagging method has not been recognised: " << m_methodTag.value() );
 	return StatusCode::FAILURE;
       }

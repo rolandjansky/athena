@@ -12,7 +12,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     """
 
     acc = ComponentAccumulator()
-    
+
     ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream=CompFactory.getComps("ByteStreamCnvSvc","ByteStreamEventStorageInputSvc","EventSelectorByteStream",)
 
     if inputFlags.Input.SecondaryFiles:
@@ -22,6 +22,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
         acc.addService( eventSelector )
     else:
         filenames = inputFlags.Input.Files
+
         xAODMaker__EventInfoSelectorTool = CompFactory.xAODMaker.EventInfoSelectorTool
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
@@ -47,7 +48,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
 
     ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
     robDPSvc = ROBDataProviderSvc()
-    acc.addService( robDPSvc ) 
+    acc.addService( robDPSvc )
 
     ByteStreamAddressProviderSvc=CompFactory.ByteStreamAddressProviderSvc
     bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)

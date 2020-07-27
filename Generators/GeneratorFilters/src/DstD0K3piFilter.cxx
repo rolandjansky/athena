@@ -96,7 +96,7 @@ StatusCode DstD0K3piFilter::filterEvent() {
       // Work only with D*
       if (std::abs((*pitr)->pdg_id()) != 413) continue; // D*+
       if ((*pitr)->momentum().perp() < m_Ptmin) continue;
-      if (fabs((*pitr)->momentum().pseudoRapidity()) > m_EtaRange) continue;
+      if (std::abs((*pitr)->momentum().pseudoRapidity()) > m_EtaRange) continue;
 
       int nDstChild = 0;
       HepMC::GenParticle* mcpartDst = *pitr;

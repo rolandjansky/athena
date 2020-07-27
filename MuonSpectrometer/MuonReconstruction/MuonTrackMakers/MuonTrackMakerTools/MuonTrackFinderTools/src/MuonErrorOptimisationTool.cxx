@@ -70,7 +70,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  Trk::Track* MuonErrorOptimisationTool::optimiseErrors( const Trk::Track& track ) const {
+  Trk::Track* MuonErrorOptimisationTool::optimiseErrors( Trk::Track& track ) const {
 
     if( m_refitTool.empty() ) return 0;
     const Trk::Perigee* pp = track.perigeeParameters();
@@ -154,8 +154,8 @@ namespace Muon {
         doSelection = false;
         // ugly bit of code to get the hit counts for the three tracks 
         int nhits0 = -1;
-        const Trk::TrackSummary* summary0 = track.trackSummary();
-        const Trk::MuonTrackSummary* muonSummary0 = 0;
+        Trk::TrackSummary* summary0 = track.trackSummary();
+        Trk::MuonTrackSummary* muonSummary0 = 0;
         if( summary0 ){
           if( summary0->muonTrackSummary() ) {
             muonSummary0 = summary0->muonTrackSummary();
@@ -173,12 +173,12 @@ namespace Muon {
         }
 
         int nhits1 = -1;
-        const Trk::TrackSummary* summary1 = track.trackSummary();
-        const Trk::MuonTrackSummary* muonSummary1 = 0;
+        Trk::TrackSummary* summary1 = track.trackSummary();
+        Trk::MuonTrackSummary* muonSummary1 = 0;
         if( summary1 ){
           if( summary1->muonTrackSummary() ) muonSummary1 = summary1->muonTrackSummary();
           else{
-            Trk::TrackSummary* tmpSum = const_cast<Trk::TrackSummary*>(summary1);
+            Trk::TrackSummary* tmpSum = summary1;
             if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(track,*tmpSum);
             if( tmpSum->muonTrackSummary() ) muonSummary1 = tmpSum->muonTrackSummary();
           }
@@ -191,12 +191,12 @@ namespace Muon {
         }
 
         int nhits2 = -1;
-        const Trk::TrackSummary* summary2 = track.trackSummary();
-        const Trk::MuonTrackSummary* muonSummary2 = 0;
+        Trk::TrackSummary* summary2 = track.trackSummary();
+        Trk::MuonTrackSummary* muonSummary2 = 0;
         if( summary2 ){
           if( summary2->muonTrackSummary() ) muonSummary2 = summary2->muonTrackSummary();
           else{
-            Trk::TrackSummary* tmpSum = const_cast<Trk::TrackSummary*>(summary2);
+            Trk::TrackSummary* tmpSum = summary2;
             if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(track,*tmpSum);
             if( tmpSum->muonTrackSummary() ) muonSummary2 = tmpSum->muonTrackSummary();
           }

@@ -488,12 +488,18 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
        if(msgLvl(MSG::DEBUG)){
          msg(MSG::DEBUG)<<"Initial cascade momenta"<<endmsg;
          for(int kv=0; kv<(int)fittedParticles.size(); kv++){
-           for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)std::cout<<
-	         " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
+           for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)
+             std::cout<<
+	         " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";";
+           std::cout<<'\n';
+         }
          msg(MSG::DEBUG)<<"Squized cascade momenta"<<endmsg;
          for(int kv=0; kv<(int)t_fittedParticles.size(); kv++){
-           for(int kt=0; kt<(int)t_fittedParticles[kv].size(); kt++)std::cout<<
-	         " Px="<<t_fittedParticles[kv][kt].Px<<" Py="<<t_fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
+           for(int kt=0; kt<(int)t_fittedParticles[kv].size(); kt++)
+             std::cout<<
+	         " Px="<<t_fittedParticles[kv][kt].Px<<" Py="<<t_fittedParticles[kv][kt].Py<<";";
+           std::cout<<'\n';
+         }
        }
        for(iv=0; iv<(int)cstate.m_cascadeVList.size(); iv++){
          index=getSimpleVIndex( cstate.m_cascadeVList[iv].vID, cstate );               //index of vertex in simplified structure
@@ -544,8 +550,11 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
        if(msgLvl(MSG::DEBUG)){
          msg(MSG::DEBUG)<<"Refit cascade momenta"<<endmsg;
           for(int kv=0; kv<(int)fittedParticles.size(); kv++){
-            for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)std::cout<<
-	          " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
+            for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)
+              std::cout<<
+	          " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";";
+            std::cout<<'\n';
+          }
        }
 // Covariance matrix for nonmerged vertices is updated.
 //   For merged vertices (both IN and TO ) it's taken from old fit

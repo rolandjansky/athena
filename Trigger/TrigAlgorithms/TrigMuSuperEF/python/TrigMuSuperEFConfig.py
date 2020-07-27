@@ -229,6 +229,10 @@ def TrigMuSuperEF_FSSA(name="TrigMuSuperEF_FSSA",**kwargs):
     kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
     kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
     kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    #Turn off seeded decoding for full scan reconstruction
+    from AthenaCommon.CfgGetter import getPublicToolClone
+    kwargs.setdefault("TMEF_standaloneTrackTool", getPublicToolClone("TrigMuonEFStandaloneTrackToolFullScan", "TrigMuonEFStandaloneTrackTool", 
+                                                                     useMdtSeededDecoding=False, useRpcSeededDecoding=False, useTgcSeededDecoding=False, useCscSeededDecoding=False))
     return TrigMuSuperEF_FSCB(name,**kwargs)
 
 def TrigMuSuperEF_CTonly(name="TrigMuSuperEF_CTonly", **kwargs):

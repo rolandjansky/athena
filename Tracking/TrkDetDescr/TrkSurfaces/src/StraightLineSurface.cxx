@@ -68,8 +68,6 @@ Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, co
   , m_bounds(csf.m_bounds)
 {}
 
-// destructor (will call destructor from base class which deletes objects)
-Trk::StraightLineSurface::~StraightLineSurface() = default;
 
 // assignment operator
 Trk::StraightLineSurface&

@@ -1,5 +1,3 @@
-Py:Configurable     ERROR attempt to add a duplicate (merged_Step3_Step3_1mu31_leg1_EmptySeqStep3.IMmerged_Step3_Step3_1mu31_leg1_EmptySeqStep3) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (merged_Step4_Step4_1mu11_leg1_EmptySeqStep4.IMmerged_Step4_Step4_1mu11_leg1_EmptySeqStep4) ... dupe ignored
 TriggerSummaryStep1                        1   0   DEBUG In summary 4 chains passed:
 TriggerSummaryStep1                        1   0   DEBUG  +++ HLT_TestChain8_ev1_L1EM5 ID#1677577445
 TriggerSummaryStep1                        1   0   DEBUG  +++ HLT_TestChain5_ev1_L1EM3 ID#1756953305
@@ -92,8 +90,8 @@ TriggerSummaryStep4                        3   0   DEBUG In summary 2 chains pas
 TriggerSummaryStep4                        3   0   DEBUG  +++ HLT_TestChain20_muv1_L1MU10 ID#356594709
 TriggerSummaryStep4                        3   0   DEBUG  +++ HLT_TestChain8_muv1_L1MU10 ID#2288364952
 TrigSignatureMoniMT                                 INFO HLT_2TestChain4_muv1dr_L12MU6 #3176095517
-TrigSignatureMoniMT                                 INFO -- #3176095517 Events         0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #3176095517 Features                             0          0          -          -          
+TrigSignatureMoniMT                                 INFO -- #3176095517 Events         0          0          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #3176095517 Features                             0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_2TestChain6_muEmpty1_L12MU6 #2176116418
 TrigSignatureMoniMT                                 INFO -- #2176116418 Events         1          1          0          1          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #2176116418 Features                             0          6          -          -          
@@ -133,9 +131,9 @@ TrigSignatureMoniMT                                 INFO -- #64374772 Features  
 TrigSignatureMoniMT                                 INFO HLT_TestChain6_muv1_TestChain10_muv1_L12MU6 #3196402061
 TrigSignatureMoniMT                                 INFO -- #3196402061 Events         2          2          1          0          0          0          0          
 TrigSignatureMoniMT                                 INFO -- #3196402061 Features                             3          0          0          0          
-TrigSignatureMoniMT                                 INFO HLT_TestChain6_muv1_TestChain5_ev1dr_L12MU6 #3205587050
-TrigSignatureMoniMT                                 INFO -- #3205587050 Events         0          0          0          0          0          0          0          
-TrigSignatureMoniMT                                 INFO -- #3205587050 Features                             0          0          0          0          
+TrigSignatureMoniMT                                 INFO HLT_TestChain6_muv1_TestChain5_ev1dr_L1MU6_EM5 #1237112870
+TrigSignatureMoniMT                                 INFO -- #1237112870 Events         0          0          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #1237112870 Features                             0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_TestChain6_muv2_TestChain8_ev2_L1MU6_EM5 #3476793373
 TrigSignatureMoniMT                                 INFO -- #3476793373 Events         2          2          2          2          2          -          2          
 TrigSignatureMoniMT                                 INFO -- #3476793373 Features                             4          4          4          -          

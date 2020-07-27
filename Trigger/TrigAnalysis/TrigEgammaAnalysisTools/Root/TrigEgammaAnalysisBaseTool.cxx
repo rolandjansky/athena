@@ -212,7 +212,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     
     }*/
 
-    for(const auto cut:m_trigLevel) m_accept.addCut(cut,cut);
+    for(const auto& cut:m_trigLevel) m_accept.addCut(cut,cut);
     return sc;
 }
 

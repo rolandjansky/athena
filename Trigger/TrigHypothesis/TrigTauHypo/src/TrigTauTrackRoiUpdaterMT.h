@@ -33,7 +33,7 @@ class TrigTauTrackRoiUpdaterMT : public AthReentrantAlgorithm {
 
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","InputRoI","Input RoI key name"};
   SG::ReadHandleKey< TrackCollection > m_tracksKey { this, "fastTracksKey", "fasttracks", "fast tracks in view" };
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","Updefined","Output RoI Collection Key"};
+  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","InViewRoI","Output RoI Collection Key"};
 
 };
 #endif

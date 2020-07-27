@@ -40,7 +40,7 @@ atlas_add_component( TrkiPatFitter
                      src/MaterialAllocator.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel TrkParameters TrkTrack TrkFitterInterfaces TrkiPatFitterUtils EventPrimitives TrkDetDescrInterfaces TrkDetElementBase TrkGeometry TrkSurfaces Identifier TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack MuonCompetingRIOsOnTrack TrkExInterfaces TrkExUtils )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel TrkParameters TrkTrack TrkFitterInterfaces TrkiPatFitterUtils EventPrimitives TrkDetDescrInterfaces TrkDetElementBase TrkGeometry TrkSurfaces Identifier TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack MuonCompetingRIOsOnTrack TrkExInterfaces TrkExUtils TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkiPatFitter )

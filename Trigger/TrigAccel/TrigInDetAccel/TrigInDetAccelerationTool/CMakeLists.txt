@@ -8,16 +8,17 @@
 atlas_subdir( TrigInDetAccelerationTool )
 
 # Component(s) in the package:
-atlas_add_component( TrigInDetAccelerationTool
-                     src/*.cxx
-                     src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier TrigInDetEvent TrigSteeringEvent TrigInDetPattRecoTools AthenaBaseComps InDetIdentifier TrigInDetPattRecoEvent TrigAccelEvent TrigInDetAccelerationServiceLib)
 
 atlas_add_library( TrigInDetAccelerationToolLib
 		     src/*.cxx
-                     src/components/*.cxx
  		     INTERFACE
  		     PUBLIC_HEADERS TrigInDetAccelerationTool
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier TrigInDetEvent TrigSteeringEvent TrigInDetPattRecoTools AthenaBaseComps InDetIdentifier TrigInDetPattRecoEvent TrigAccelEvent TrigInDetAccelerationServiceLib)
+
+atlas_add_component( TrigInDetAccelerationTool
+                     src/components/*.cxx
+                     LINK_LIBRARIES TrigInDetAccelerationToolLib)
+
+
 
 

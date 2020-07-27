@@ -16,10 +16,10 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
 #include "TrkParametersBase/ParametersBase.h"
-#include "TrkParametersBase/SurfaceUniquePtrT.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "TrkSurfaces/DistanceSolution.h"
 // Amg

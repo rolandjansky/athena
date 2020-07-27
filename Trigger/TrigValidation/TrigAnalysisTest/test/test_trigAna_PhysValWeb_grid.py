@@ -63,6 +63,7 @@ if not os.path.exists('PHYSVAL_WEB'):
 
 
 pv=[]
+pv.append(['Jet','JetMon'])
 pv.append(['Tau','TauMon'])
 pv.append(['Muon','MuonMon'])
 pv.append(['ID','IDMon'])

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfMPTools.py
 #  @brief Unittests for trfMPTools.py
@@ -67,7 +67,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                 except OSError:
                     pass
             for fname in delement[2]:
-                open(os.path.join(delement[0], fname), "w")
+                open(os.path.join(delement[0], fname), "w").close()
         
         with open("athenaMP-outputs-RAWtoESD-r2e", "w") as mpoutput:
             print("""<?xml version="1.0" encoding="utf-8"?>

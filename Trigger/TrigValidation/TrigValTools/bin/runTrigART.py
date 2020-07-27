@@ -10,6 +10,7 @@ import argparse
 import shutil
 import subprocess
 import json
+import six
 from TrigValTools.TrigARTUtils import package_prefix, find_scripts, remember_cwd
 
 
@@ -121,7 +122,7 @@ def analyse_results(all_test_results):
     max_len_col1 = len(max(table.keys(), key=len))
     max_len_col2 = len(max(table.values(), key=len))
     logging.info('-'*(max_len_col1+max_len_col2+7))
-    for k, v in table.iteritems():
+    for k, v in six.iteritems(table):
         logging.info('| {col1:<{width1}} | {col2:<{width2}} |'.format(
             col1=k, width1=max_len_col1,
             col2=v, width2=max_len_col2))
@@ -199,7 +200,7 @@ def main():
             'export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"',
             'source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet',
             'lsetup -q art']
-        art_cmd = 'art.py run --max-jobs={:d} {:s} . results'.format(args.maxJobs, '' if args.verbose else '-q')
+        art_cmd = 'art.py run --run-all-tests --max-jobs={:d} {:s} . results'.format(args.maxJobs, '-v' if args.verbose else '-q')
         commands.append(art_cmd)
         cmd = ' && '.join(commands)
         logging.info("Executing ART command: %s", art_cmd)

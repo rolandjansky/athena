@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -90,14 +90,14 @@ StatusCode TriggerAnalysisTutorial::execute() {
    if(m_eventNr==1){
        std::vector<std::string> allHLT = m_trigDec->getChainGroup("HLT_.*")->getListOfTriggers();
        // Create list of configured chains from input list
-       for(const std::string chain:allHLT){
+       for(const std::string& chain:allHLT){
            if(std::find(m_chain_names.begin(), m_chain_names.end(), chain) != m_chain_names.end()){ 
                ATH_MSG_INFO("Found corresponding chain in list " << chain); 
                m_cfg_chains.push_back(chain);
            }
        }
    }
-   for(const auto chain : m_cfg_chains){
+   for(const auto& chain : m_cfg_chains){
        if( m_trigDec->isPassed( chain ) )
            m_h_triggerAccepts->Fill( chain.c_str(), 1 );
    }

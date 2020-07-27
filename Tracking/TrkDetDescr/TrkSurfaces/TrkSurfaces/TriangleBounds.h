@@ -64,13 +64,13 @@ public:
   TriangleBounds(const Amg::Vector2D& p1, const Amg::Vector2D& p2, const Amg::Vector2D& p3);
 
   /**Copy constructor*/
-  TriangleBounds(const TriangleBounds& tribo);
+  TriangleBounds(const TriangleBounds& tribo) = default;
 
   /**Destructor*/
-  virtual ~TriangleBounds();
+  virtual ~TriangleBounds() = default;
 
   /**Assignment Operator*/
-  TriangleBounds& operator=(const TriangleBounds& recbo);
+  TriangleBounds& operator=(const TriangleBounds& recbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

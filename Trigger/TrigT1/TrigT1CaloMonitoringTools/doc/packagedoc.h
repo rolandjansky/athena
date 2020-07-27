@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,7 +33,6 @@ Note: These flags are not designed for use on Tier0.
 <table>
 <tr><th> Script                   </th><th> Use For                                     </th></tr>
 <tr><td> @c scripts/findEventFile </td><td> Finding which file a particular event is in </td></tr>
-<tr><td> @c test/rootDiff.cxx     </td><td> Testing histogram merging for Tier0         </td></tr>
 </table>
 
 You'll need to check out the package to access these.

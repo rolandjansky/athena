@@ -1,12 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 egammaMVACalibTool, egammaMVASvc=CompFactory.getComps("egammaMVACalibTool","egammaMVASvc",)
-from ROOT import xAOD
-import cppyy
-cppyy.loadDictionary('xAODEgammaDict')
+from xAODEgamma.xAODEgammaParameters import xAOD
 
 
 def TrigEgammaMVACalibCfg(flags, name="TrigEgammaMVASvc"):
