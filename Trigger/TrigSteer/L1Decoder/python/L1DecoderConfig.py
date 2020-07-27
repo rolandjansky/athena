@@ -127,9 +127,10 @@ class L1Decoder(CompFactory.L1Decoder) :
         ctpUnpacker = CompFactory.CTPUnpackingTool()
 
         self.ctpUnpacker = ctpUnpacker
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
         self.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool",
                                                                Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
-                                                               OutputTrigRoIs = mapThresholdToL1RoICollection("FSNOSEED") ) ]
+                                                               OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED") )) ]
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
             unpackers, rerunUnpackers = createCaloRoIUnpackers()
@@ -174,8 +175,9 @@ def L1DecoderCfg(flags, seqName = None):
         decoderAlg.ExtraInputs += [transTypeKey]
 
 
-
-    decoderAlg.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED") ) ]
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    decoderAlg.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
+                                  OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
 
     unpackers, rerunUnpackers = createCaloRoIUnpackers()
     decoderAlg.roiUnpackers += unpackers
