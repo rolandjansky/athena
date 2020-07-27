@@ -15,7 +15,7 @@ DATAVECTOR_BASE_FWD( xAOD::CaloCluster, xAOD::IParticle );
 
 namespace xAOD {
    /// Define the cluster container as a simple DataVector
-   typedef DataVector< CaloCluster > CaloClusterContainer_v1;
+   typedef DataVector< CaloCluster > CaloClusterContainer;
 }
 
 
