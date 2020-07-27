@@ -19,3 +19,5 @@ atlas_add_component( ISF_FastCaloSimServices
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 
+atlas_add_test( ISF_FastCaloSimServices_Config_test
+                SCRIPT test/FastCaloSimServices_test.py)

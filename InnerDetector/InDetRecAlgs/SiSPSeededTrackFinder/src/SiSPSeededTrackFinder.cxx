@@ -174,7 +174,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
 
   // Save good tracks in track collection
   //
-  for (const std::pair<double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
+  for (const std::pair<const double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
     ++counter[kNTracks];
     if (m_trackSummaryTool.isEnabled()) {
        m_trackSummaryTool->computeAndReplaceTrackSummary(*(qualityAndTrack.second),
@@ -322,7 +322,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   filterSharedTracks(qualitySortedTrackCandidates);
 
   /// Save good tracks in track collection
-  for (const std::pair<double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
+  for (const std::pair<const double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
     ++counter[kNTracks];
     if (m_trackSummaryTool.isEnabled()) {
       /// Note that for run-3 the tool here is configured to not perform a hole search,

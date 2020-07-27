@@ -46,20 +46,20 @@ namespace Muon
 
     friend class ::CscStripPrepDataContainerCnv;
     friend class Muon::CscStripPrepDataContainerCnv_p1;
-  
+
     CscStripPrepData();
     CscStripPrepData(const CscStripPrepData &);
     CscStripPrepData &operator=(const CscStripPrepData &);
 
 
-    /** Constructor 
+    /** Constructor
     @param RDOId The identifier of the strip
     @param collectionHash  The IdenifierHash of the collection used to store this object (i.e. of Muon::CscPrepDataCollection)
     @param locpos The local coords of the measurement (this object will now own the LocalPostion)
     @param locErrMat The error of the measurement (this object will now own the ErrorMatrix)
-    @param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken 
+    @param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken
                 (the pointer is assumed to belong to GeoModel and will not be deleted)
-    @param sampleCharges The vector of charges measured by the strip. @todo More info. 
+    @param sampleCharges The vector of charges measured by the strip. @todo More info.
     @param timeOfFirstSample   The time measured by the CSC @todo More info.
     @param samplingRate The sampling rate.
     */
@@ -70,18 +70,24 @@ namespace Muon
                       const MuonGM::CscReadoutElement* detEl,
                       const std::vector<float>& sampleCharges,
                       float timeOfFirstSample,
-                      unsigned short samplingRate       
+                      unsigned short samplingRate
                       );
 
     /// Destructor:
       virtual ~CscStripPrepData();
-    
+
      /** return global position reference */
      const Amg::Vector3D& globalPosition() const;
 
       /** return the detector element corresponding to this PRD
       The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor) */
-      virtual const MuonGM::CscReadoutElement* detectorElement() const;
+      virtual const MuonGM::CscReadoutElement* detectorElement() const override;
+
+      /** Interface method checking the type*/
+      virtual bool type(Trk::PrepRawDataType::Type type) const override
+      {
+        return type == Trk::PrepRawDataType::MdtPrepData;
+      }
 
       /** returns the IdentifierHash corresponding to the channel. */
       virtual const IdentifierHash collectionHash() const;
@@ -90,21 +96,21 @@ namespace Muon
       const std::vector<float>& sampleCharges() const;
 
       /** return the time of the first sample */
-      double timeOfFirstSample() const; 
+      double timeOfFirstSample() const;
 
       /** return the sampling phase */
       bool samplingPhase() const;
 
       /** return the sampling time in ns: the time between samplings */
-      unsigned short samplingTime() const; 
+      unsigned short samplingTime() const;
 
       /** dump information about the PRD*/
-      virtual MsgStream&    dump( MsgStream&    stream) const;
+      virtual MsgStream&    dump( MsgStream&    stream) const override;
 
       /** dump information about the PRD*/
-      virtual std::ostream& dump( std::ostream& stream) const;
+      virtual std::ostream& dump( std::ostream& stream) const override;
 
-      /** set the sampling phase 
+      /** set the sampling phase
       @warning This does not conform to ATLAS Coding Conventions and will be renamed to setSamplingPhase() */
       void set_samplingPhase () ;
 
@@ -137,7 +143,7 @@ namespace Muon
     {
       return m_detEl;
     }
- 
+
   inline const IdentifierHash CscStripPrepData::collectionHash() const
     {
       return m_collectionHash;
@@ -158,14 +164,14 @@ namespace Muon
       return m_samplingTime;
     }
 
-  inline  bool CscStripPrepData::samplingPhase() const 
+  inline  bool CscStripPrepData::samplingPhase() const
     {
       return m_samplingPhase;
     }
-    
-    inline void CscStripPrepData::set_samplingPhase() 
-    { 
-        m_samplingPhase = true; 
+
+    inline void CscStripPrepData::set_samplingPhase()
+    {
+        m_samplingPhase = true;
     }
 }
 

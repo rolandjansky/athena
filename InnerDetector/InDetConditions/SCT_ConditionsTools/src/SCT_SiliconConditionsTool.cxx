@@ -34,8 +34,8 @@ StatusCode SCT_SiliconConditionsTool::initialize() {
     }
   } 
 
-  ATH_CHECK(m_condKeyHV.initialize ((not m_useGeoModel) && m_useDB));
-  ATH_CHECK(m_condKeyTemp.initialize ((not m_useGeoModel) && m_useDB));
+  ATH_CHECK(m_condKeyHV.initialize((not m_useGeoModel) and m_useDB));
+  ATH_CHECK(m_condKeyTemp.initialize((not m_useGeoModel) and m_useDB));
 
   if (not m_useGeoModel) {
     ATH_MSG_INFO("Will use temperature and voltages from this service (not from GeoModel).");

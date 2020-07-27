@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IATHENAOUTPUTTOOL_H
@@ -27,6 +27,8 @@ public:
    virtual StatusCode postInitialize() = 0;
    /// Called at the beginning of execute
    virtual StatusCode preExecute() = 0;
+   /// Called before actually streaming objects.
+   virtual StatusCode preStream() = 0;
    /// Called at the end of execute
    virtual StatusCode postExecute() = 0;
    /// Called at the beginning of finalize

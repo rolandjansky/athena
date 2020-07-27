@@ -48,7 +48,7 @@ class IMaterialMixtureConvolution;
 class IMultipleScatteringUpdator;
 /** @class GsfExtrapolator */
 
-class GsfExtrapolator
+class GsfExtrapolator final
   : public AthAlgTool
   , virtual public IMultiStateExtrapolator
 {

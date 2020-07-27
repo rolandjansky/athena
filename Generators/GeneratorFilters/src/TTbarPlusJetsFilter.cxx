@@ -122,14 +122,14 @@ StatusCode TTbarPlusJetsFilter::filterEvent() {
     const TLorentzVector jet_tlv = (*jiter)->p4();
     const CLHEP::HepLorentzVector jet_hlv(jet_tlv.Px(), jet_tlv.Py(), jet_tlv.Pz(), jet_tlv.E());
 
-    if (jet_tlv.Et() >= m_ptMinJet && fabs(aJet->eta())<= m_etaMaxJet) {
+    if (jet_tlv.Et() >= m_ptMinJet && std::abs(aJet->eta())<= m_etaMaxJet) {
       ijet++;
       ATH_MSG_VERBOSE("-> jet : eta = " << aJet->eta() << " phi = " << aJet->phi() << " pt = "  << jet_tlv.Et());
-      if (aJet->pt() >= m_ptMinJetB && fabs(aJet->eta()) <= m_etaMaxJetB) {
+      if (aJet->pt() >= m_ptMinJetB && std::abs(aJet->eta()) <= m_etaMaxJetB) {
         bool isjet = true;
         for (unsigned int iele = 0; iele < electronFakingJetCandidates.size(); iele++) {
           double deltaR  = jet_hlv.deltaR( electronFakingJetCandidates[iele] );
-          double deltaPt = fabs(jet_tlv.Et() - electronFakingJetCandidates[iele].perp());
+          double deltaPt = std::abs(jet_tlv.Et() - electronFakingJetCandidates[iele].perp());
           ATH_MSG_VERBOSE("--> matching to electron " << iele << " dR = " << deltaR << " dPt = " << deltaPt << " dPt/Pt = " << deltaPt/jet_tlv.Et());
           if (deltaR < 0.4 && deltaPt/jet_tlv.Et() < 0.1) isjet = false;
         }

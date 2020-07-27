@@ -103,7 +103,7 @@ if DetFlags.pixel_on():
                 elif (runNum >= 222222 and runNum < 289350): # 2015
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
                 else:
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                       UseDeadmapConditions=(not athenaCommonFlags.isOnline()),
@@ -326,6 +326,17 @@ if DetFlags.haveRIO.SCT_on():
     if InDetFlags.useSctDCS():
         from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
         sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+
+        # For HLT and online monitoring
+        if athenaCommonFlags.isOnline():
+            sct_DCSConditionsToolSetup.setReadAllDBFolders(False)
+            if globalflags.DataSource() == "data":
+                sct_DCSConditionsToolSetup.setDbInstance("SCT")
+                dcs_folder="/SCT/HLT/DCS"
+                sct_DCSConditionsToolSetup.setStateFolder(dcs_folder+"/CHANSTAT")
+                sct_DCSConditionsToolSetup.setHVFolder(dcs_folder+"/HV")
+                sct_DCSConditionsToolSetup.setTempFolder(dcs_folder+"/MODTEMP")
+
         sct_DCSConditionsToolSetup.setup()
         InDetSCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
         if InDetFlags.useHVForSctDCS():

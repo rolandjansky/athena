@@ -153,6 +153,13 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
   if (obj->IsA()->InheritsFrom("TH1")) {
     TH1& h = *((TH1*)obj.get());
     TH1& href = *((TH1*)refObj);
+
+    // For alphanumeric axes, sort and deflate
+    if (m_sortLabels) {
+      sortAndDeflate(h);
+      sortAndDeflate(href);
+    }
+
     Bool_t match = compareHist(h,href);
     m_histTotal++;
     if (match) {
@@ -451,6 +458,18 @@ Bool_t TRootCompare::compareHist(const TH1& h, const TH1& href)
   return result;
 }
 
+// sort histogram axes and deflate
+void TRootCompare::sortAndDeflate(TH1& h)
+{
+  if (h.GetXaxis()->IsAlphanumeric()) {
+    h.GetXaxis()->LabelsOption("a");
+    h.LabelsDeflate("X");
+  }
+  if (h.GetYaxis()->IsAlphanumeric()) {
+    h.GetYaxis()->LabelsOption("a");
+    h.LabelsDeflate("Y");
+  }
+}
 
 // Create all directories in dirpath
 void TRootCompare::createDirectory(TFile* f, const char* dirpath)

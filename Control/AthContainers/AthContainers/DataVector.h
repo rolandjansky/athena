@@ -1,11 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataVector.h 794113 2017-01-26 22:01:47Z ssnyder $
-
 /**
  * @file  AthContainers/DataVector.h
  * @author scott snyder, Paolo Calafiura, etc
@@ -1962,10 +1959,6 @@ private:
   SG::IsMostDerivedFlag m_isMostDerived;
 
 
-  /// The DV/DL info struct for this class.
-  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
-
-
   typedef typename
     ROOT_SELECTION_NS::DataVector<T, DataVector_BASE>::self self;
 };
@@ -3178,10 +3171,6 @@ private:
   /// We set this to true in the top-level constructor; the constructor
   /// then calls clearMostDerived on the base classes.
   SG::IsMostDerivedFlag m_isMostDerived;
-
-
-  /// The DV/DL info struct for this class.
-  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
 
 
   typedef typename

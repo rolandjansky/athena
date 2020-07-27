@@ -50,7 +50,7 @@ StatusCode LeptonFilter::filterEvent() {
 		       << ": pT, eta = " << pT << ", " << eta );
         
         // If we've found a stable electron or muon, check eta and pt
-        if (pT > leading_lepton_pt && fabs(eta) <= m_EtaRange) {
+        if (pT > leading_lepton_pt && std::abs(eta) <= m_EtaRange) {
 	  leading_lepton_pt = pT;
         }
       }

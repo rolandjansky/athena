@@ -4,7 +4,7 @@ from collections import OrderedDict
 from builtins import str
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
+from AthenaCommon.CFElements import seqAND, seqOR, parOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
 import six
@@ -516,7 +516,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
 
 
 
-def triggerRunCfg( flags, menu=None ):
+def triggerRunCfg( flags, seqName = None, menu=None ):
     """
     top of the trigger config (for real triggering online or on MC)
     Returns: ca only
@@ -528,11 +528,18 @@ def triggerRunCfg( flags, menu=None ):
 
     acc.merge( L1ConfigSvcCfg(flags) )
 
-    acc.merge( triggerIDCCacheCreatorsCfg( flags ) )
+    acc.addSequence( seqOR( "HLTTop") )
+    
+    acc.addSequence( parOR("HLTBeginSeq"), parentName="HLTTop" )
+    # bit of a hack as for "legacy" type JO a seq name for cache creators has to be given,
+    # in newJO realm the seqName will be removed as a comp fragment shoudl be unaware of where it will be attached
+    acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
-    acc.merge( l1DecoderAcc )
+    # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
+    acc.merge( l1DecoderAcc, sequenceName="HLTBeginSeq" )
+    acc.addEventAlgo( l1DecoderAlg, sequenceName="HLTBeginSeq")
 
 
     # detour to the menu here, (missing now, instead a temporary hack)
@@ -540,22 +547,26 @@ def triggerRunCfg( flags, menu=None ):
         menuAcc = menu( flags )
         HLTSteps = menuAcc.getSequence( "HLTAllSteps" )
         __log.info( "Configured menu with "+ str( len(HLTSteps.Members) ) +" steps" )
-
+        acc.merge( menuAcc, sequenceName="HLTTop")
 
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )
     filters = collectFilters( HLTSteps )
-
+    acc.addSequence( parOR("HLTEndSeq"), parentName="HLTTop" )
+    acc.addSequence( seqAND("HLTFinalizeSeq"), parentName="HLTEndSeq" )
+    
     summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
-    acc.merge( summaryAcc )
+    acc.merge( summaryAcc, sequenceName="HLTFinalizeSeq" )
+    acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
 
     #once menu is included we should configure monitoring here as below
 
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
-    acc.merge( monitoringAcc )
+    acc.merge( monitoringAcc, sequenceName="HLTEndSeq" )
+    acc.addEventAlgo( monitoringAlg, sequenceName="HLTEndSeq" )
 
     from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
-    acc.merge( TrigCostMonitorMTCfg( flags ) )
+    acc.merge( TrigCostMonitorMTCfg( flags ), sequenceName="HLTEndSeq" )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
@@ -563,10 +574,6 @@ def triggerRunCfg( flags, menu=None ):
     __log.info( "Of which, %d are the outputs of hypos", len( decObjHypoOut ) )
     __log.info( str( decObj ) )
 
-    HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )
-    acc.addSequence( HLTTop )
-
-    acc.merge( menuAcc )
 
 
     # configure components need to normalise output before writing out
@@ -577,23 +584,23 @@ def triggerRunCfg( flags, menu=None ):
 
     if edmSet:
         mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
-        acc.addEventAlgo( mergingAlg, sequenceName="HLTTop" )
+        acc.addEventAlgo( mergingAlg, sequenceName="HLTFinalizeSeq" )
 
     return acc
 
-def triggerIDCCacheCreatorsCfg(flags):
+def triggerIDCCacheCreatorsCfg(flags, seqName = None):
     """
     Configures IDC cache loading, for now unconditionally, may make it menu dependent in future
     """
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator(sequenceName = seqName)
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
-    acc.merge( MuonCacheCfg() )
+    acc.merge( MuonCacheCfg(), sequenceName = seqName )
 
     from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
-    acc.merge( MuonPrdCacheCfg() )
+    acc.merge( MuonPrdCacheCfg(), sequenceName = seqName )
 
     from TrigInDetConfig.TrigInDetConfig import InDetIDCCacheCreatorCfg
-    acc.merge( InDetIDCCacheCreatorCfg() )
+    acc.merge( InDetIDCCacheCreatorCfg(), sequenceName = seqName )
 
     return acc
 
@@ -623,7 +630,7 @@ if __name__ == "__main__":
         return menuCA
 
         
-    acc = triggerRunCfg( ConfigFlags, testMenu )
+    acc = triggerRunCfg( ConfigFlags, seqName = None, menu = testMenu )
     Configurable.configurableRun3Behavior=0
     from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
     appendCAtoAthena( acc )

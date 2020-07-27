@@ -95,7 +95,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const 
                 << "]");
 
   //Test Chip Data ConditionsSummary
-  if (m_doTestmyConditionsSummary.value()) {
+  if (m_doTestmyConditionsSummary) {
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_waferId};
@@ -104,7 +104,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const 
   }
 
   //Test data summary
-  if (m_doTestmyDataSummary.value()) {
+  if (m_doTestmyDataSummary) {
     // Test to get some data from the NPtGain or NoiseOccupancy
     Identifier Id{m_moduleId};
     const int side{1};

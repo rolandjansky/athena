@@ -160,7 +160,7 @@ bool TTbarPlusHeavyFlavorFilter::passBSelection(HepMC::ConstGenParticlePtr part)
 
   const HepMC::FourVector& p4 = part->momentum();
   double pt = p4.perp();
-  double eta = fabs(p4.eta());
+  double eta = std::abs(p4.eta());
 
   if(pt<m_bPtMinCut) return false;
   if(eta>m_bEtaMaxCut) return false;
@@ -173,7 +173,7 @@ bool TTbarPlusHeavyFlavorFilter::passCSelection(HepMC::ConstGenParticlePtr part)
 
   const HepMC::FourVector& p4 = part->momentum();
   double pt = p4.perp();
-  double eta = fabs(p4.eta());
+  double eta = std::abs(p4.eta());
 
   if(pt<m_cPtMinCut) return false;
   if(eta>m_cEtaMaxCut) return false;
