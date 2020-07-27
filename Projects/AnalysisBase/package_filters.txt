@@ -46,6 +46,7 @@
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
++ PhysicsAnalysis/AnalysisCommon/TruthClassification
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
