@@ -9,8 +9,6 @@
 #include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 #include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
 
-#include "CxxUtils/checker_macros.h"
-
 namespace Muon {
 
 class RpcRdoToPrepDataToolMT : virtual public RpcRdoToPrepDataToolCore {

@@ -6,8 +6,6 @@
 /// However the MT code uses the const cast in a single-thread
 /// mode by transfering the contents to a thread-safe container
 /// in order to prevent complex adjustments in the core decode functions
-/// As such, it should not be flagged at this stage as unsafe
-#include "CxxUtils/checker_macros.h"
 
 #include "RpcRdoToPrepDataTool.h"
 

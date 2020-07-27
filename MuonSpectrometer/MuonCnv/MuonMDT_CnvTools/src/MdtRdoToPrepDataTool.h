@@ -5,8 +5,6 @@
 #ifndef MUONMdtRdoToPrepDataTool_H
 #define MUONMdtRdoToPrepDataTool_H
      
-#include "CxxUtils/checker_macros.h"
-
 #include "MdtRdoToPrepDataToolCore.h"
 
 namespace Muon 

@@ -104,7 +104,6 @@ void Muon::TgcSlbData::setBitmap(const uint16_t bcTag,
   if(cellAddr == PADDING_WORD) return;
 
   // get bit array
-  //bool *bitArray = const_cast<bool*>(getBitArray(bcTag));
   bool *bitArray = getBitArrayNC(bcTag);
 
   // assign
@@ -130,7 +129,6 @@ void Muon::TgcSlbData::setBit(const uint16_t bcTag,
   if(iBit >= BITMAP_SIZE) return;
 
   // get bit array
-  //  bool *bitArray =  const_cast<bool*>(getBitArray(bcTag));
   bool *bitArray =  getBitArrayNC(bcTag);
   *(bitArray+iBit)=true;
 }
