@@ -71,25 +71,25 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
 {
    // reta
    std::string s("{");
-   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.2, 'maxEt' : 60 }],";
-   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.2, 'maxEt' : 60 }],";
-   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.2, 'maxEt' : 60 }]";
+   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.12, 'maxEt' : 60 }],";
+   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.12, 'maxEt' : 60 }],";
+   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.12, 'maxEt' : 60 }]";
    s += "}";
    std::replace( s.begin(), s.end(), '\'', '"');
    m_eFEXREta = s;
    
    s = "{";
-   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.0, 'maxEt' : 60 }],";
-   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.0, 'maxEt' : 60 }],";
-   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.0, 'maxEt' : 60 }]";
+   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.16, 'maxEt' : 60 }],";
+   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.16, 'maxEt' : 60 }],";
+   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.16, 'maxEt' : 60 }]";
    s += "}";
    std::replace( s.begin(), s.end(), '\'', '"');
    m_eFEXRHad = s;
 
    s = "{";
-   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.0, 'maxEt' : 60 }],";
-   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.0, 'maxEt' : 60 }],";
-   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 1.0, 'maxEt' : 60 }]";
+   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.02, 'maxEt' : 60 }],";
+   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.02, 'maxEt' : 60 }],";
+   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.02, 'maxEt' : 60 }]";
    s += "}";
    std::replace( s.begin(), s.end(), '\'', '"');
    m_eFEXWStot = s;
@@ -379,15 +379,15 @@ LVL1CTP::CTPEmulation::bookHists() {
    CHECK ( m_histSvc->regHist( histpath + "reta", new TH1I("reta","eFEX Cluster R_{#eta}", 44, 0, 1.1)) );
    CHECK ( m_histSvc->regHist( histpath + "rhad", new TH1I("rhad","eFEX cluster R_{had}", 44, 0, 1.1)) );
    CHECK ( m_histSvc->regHist( histpath + "wstot", new TH1I("wstot","eFEX cluster W_{Stot}", 40, 0, 10)) );
-   CHECK ( m_histSvc->regHist( histpath + "retaloose", new TH1I("retaloose","eFEX Cluster R_{#eta} passing loose selection", 44, 0, 1.1)) );
-   CHECK ( m_histSvc->regHist( histpath + "rhadloose", new TH1I("rhadloose","eFEX cluster R_{had} passing loose selection", 44, 0, 1.1)) );
-   CHECK ( m_histSvc->regHist( histpath + "wstotloose", new TH1I("wstotloose","eFEX cluster W_{Stot} passing loose selection", 40, 0, 10)) );
-   CHECK ( m_histSvc->regHist( histpath + "retamedium", new TH1I("retamedium","eFEX Cluster R_{#eta} passing medium selection", 44, 0, 1.1)) );
-   CHECK ( m_histSvc->regHist( histpath + "rhadmedium", new TH1I("rhadmedium","eFEX cluster R_{had} passing medium selection", 44, 0, 1.1)) );
-   CHECK ( m_histSvc->regHist( histpath + "wstotmedium", new TH1I("wstotmedium","eFEX cluster W_{Stot} passing medium selection", 40, 0, 10)) );
-   CHECK ( m_histSvc->regHist( histpath + "retatight", new TH1I("retatight","eFEX Cluster R_{#eta} passing tight selection", 44, 0, 1.1)) );
-   CHECK ( m_histSvc->regHist( histpath + "rhadtight", new TH1I("rhadtight","eFEX cluster R_{had} passing tight selection", 44, 0, 1.1)) );
-   CHECK ( m_histSvc->regHist( histpath + "wstottight", new TH1I("wstottight","eFEX cluster W_{Stot} passing tight selection", 40, 0, 10)) );
+   CHECK ( m_histSvc->regHist( histpath + "retaloose", new TH1I("retaloose","eFEX Cluster R_{#eta} passing loose R_{#eta} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "rhadloose", new TH1I("rhadloose","eFEX cluster R_{had} passing loose R_{had} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "wstotloose", new TH1I("wstotloose","eFEX cluster W_{Stot} passing loose W_{Stot} selection", 40, 0, 10)) );
+   CHECK ( m_histSvc->regHist( histpath + "retamedium", new TH1I("retamedium","eFEX Cluster R_{#eta} passing medium R_{#eta} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "rhadmedium", new TH1I("rhadmedium","eFEX cluster R_{had} passing medium R_{had} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "wstotmedium", new TH1I("wstotmedium","eFEX cluster W_{Stot} passing medium W_{Stot} selection", 40, 0, 10)) );
+   CHECK ( m_histSvc->regHist( histpath + "retatight", new TH1I("retatight","eFEX Cluster R_{#eta} passing tight R_{#eta} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "rhadtight", new TH1I("rhadtight","eFEX cluster R_{had} passing tight R_{had} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "wstottight", new TH1I("wstottight","eFEX cluster W_{Stot} passing tight W_{Stot} selection", 40, 0, 10)) );
 
    // tau
    histpath = histBasePath() + "/input/tau/";
@@ -680,7 +680,13 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
          h6->Fill(cl->wstot());
          {
             auto & wp = m_reta.at(LOOSE).getWP(ieta);
-            if( reta >= wp.value or cl->et() >= wp.maxEt ) hl1->Fill(reta);
+            std::cout << "JOERG FILL " << reta << ", wp.value=" << wp.value << ", et=" << cl->et();
+            if( reta >= wp.value or cl->et() >= wp.maxEt ) { 
+               hl1->Fill(reta);
+               std::cout << " PASS" << std::endl;
+            } else {
+               std::cout << " FAIL" << std::endl;
+            }
          }
          {
             auto & wp = m_reta.at(MEDIUM).getWP(ieta);
@@ -1040,7 +1046,6 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
             const TrigConf::ClusterThresholdValue * clThrV = dynamic_cast<const TrigConf::ClusterThresholdValue*> ( thrV );
             // now check the isolation
             if ( clThrV && clThrV->isolationMask() > 0) {
-               std::cout << "JOERG new thr " << confThr->name() << " has isolation defined: " << clThrV->isolationMask() << std::endl;
                auto isoMask = clThrV->isolationMask();
                static const uint16_t BITMASK_OFFSET_RETA = 4; // this is a convetion which is adapted only for 21.3 based studies of the new eFEX EM thresholds
                static const uint16_t BITMASK_OFFSET_RHAD = 2;
@@ -1049,22 +1054,33 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
                unsigned int selection_reta = ((isoMask >> BITMASK_OFFSET_RETA) & 0x3);
                unsigned int selection_rhad = ((isoMask >> BITMASK_OFFSET_RHAD) & 0x3);
                unsigned int selection_wstot = ((isoMask >> BITMASK_OFFSET_WSTOT) & 0x3);
+               std::cout << "JOERG new thr " << confThr->name() << " has isolation defined: " << clThrV->isolationMask()
+                         << " reta " << selection_reta << ", rhad " << selection_rhad << ", wstot " << selection_wstot << std::endl;
                if( selection_reta>0 ) {
                   auto & wp = m_reta.at(selection_reta).getWP(ieta);
                   if( (cl->et() < wp.maxEt) && reta(*cl) < wp.value) {
                      clusterPasses = false;
+                     std::cout << "JOERG Fails reta" << std::endl;
+                  } else {
+                     std::cout << "JOERG Passes reta" << std::endl;
                   }
                }
                if( clusterPasses && selection_rhad>0 ) {
                   auto & wp = m_rhad.at(selection_rhad).getWP(ieta);
                   if( (cl->et() < wp.maxEt) && rhad(*cl) < wp.value) {
                      clusterPasses = false;
+                     std::cout << "JOERG Fails rhad" << std::endl;
+                  } else {
+                     std::cout << "JOERG Passes rhad" << std::endl;
                   }
                }
                if( clusterPasses && selection_wstot>0 ) {
                   auto & wp = m_wstot.at(selection_wstot).getWP(ieta);
                   if( (cl->et() < wp.maxEt) && cl->wstot() < wp.value) {
                      clusterPasses = false;
+                     std::cout << "JOERG Fails wstot" << std::endl;
+                  } else {
+                     std::cout << "JOERG Passes wstot" << std::endl;
                   }
                }
             }
