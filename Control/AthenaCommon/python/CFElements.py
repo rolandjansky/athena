@@ -82,21 +82,25 @@ def getAllSequenceNames(seq, depth=0):
     return seqNameList
 
 def checkSequenceConsistency( seq ):
-    """ Enforce rules for sequence graph - identical items can only appear at same depth """
-    seqNameList = getAllSequenceNames(seq)
-    names = [sNL[0] for sNL in seqNameList]
+    """ Enforce rules for sequence graph - identical items can not be added to itself (even indirectly) """
 
-    for item, count in collections.Counter(names).items():
-        if count > 1:
-            depths = set()
-            for (name, depth) in seqNameList:
-                if name == item:
-                  depths.add(depth)
-            if len(depths) > 1:
-                if names[0] == name:
-                    raise RuntimeError("Sequence %s contains sub-sequence %s" %(name, name) )
-                else:
-                    raise RuntimeError("Sequence %s contains sub-sequence %s at different depths" %(names[0], item,) )
+    def __noSubSequenceOfName( s, n ):    
+        for c in getSequenceChildren( s ):
+            if isSequence( c ):
+                print("here", compName(c), n)
+                if compName(c) == n:
+                    raise RuntimeError("Sequence {} contains sub-sequence of the same name".format(n) )
+                try:
+                    __noSubSequenceOfName( c, compName(c) ) # check each sequence for repetition as well
+                except RecursionError:
+                    raise RuntimeError("Sequence {} contains itself".format(compName(c)) )
+                try:
+                    __noSubSequenceOfName( c, n )
+                except RecursionError:
+                    raise RuntimeError("Sequence {} contains itself".format(n) )
+
+    __noSubSequenceOfName( seq, compName(seq) )
+
 
 
 def stepSeq(name, filterAlg, rest):
@@ -352,3 +356,20 @@ class TestConf2CF( unittest.TestCase,  TestCF ):
         nest2.Members += [__mkAlg("SomeAlg2")]
         nest2.Members += [__mkAlg("SomeAlg3")]
         self.top = top
+
+class TestNest( unittest.TestCase ):
+    def test( self ):
+        Configurable.configurableRun3Behavior=1
+        top = parOR("top")
+        nest1 = parOR("nest1")
+        nest2 = seqAND("nest2")
+        top.Members += [nest1, nest2]
+
+        deep_nest1 = seqAND("deep_nest1")
+        nest1.Members += [deep_nest1]
+
+        nest2.Members += [nest1] # that one is ok
+        checkSequenceConsistency( top )
+        deep_nest1.Members += [nest1] # introducing an issue
+        self.assertRaises( RuntimeError, checkSequenceConsistency, top )
+
