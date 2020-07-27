@@ -40,7 +40,7 @@ class EFexAlgo (PyAthena.Alg) :
      self.ds = PyAthena.py_svc('DetectorStore')
      # getting local singleton instance good enough to
      # initialize geometry needed for CaloCells
-     dd=ROOT.CaloDetDescrManager.instance()
+     dd=ROOT.CaloDetDescrManager.instance()  # noqa: F841
      return StatusCode.Success
 
    # takes from input list only cells with et above Trh
@@ -106,7 +106,7 @@ class EFexAlgo (PyAthena.Alg) :
 
    # sums energy in EM cells in list (FCAL not included)
    def sumEmCells(self,list):
-      TotalSum=0.0;
+      TotalSum=0.0
       for cell in list:
         if ( cell.caloDDE().getSampling() >=8 ) : continue
         TotalSum+=cell.et()
@@ -114,7 +114,7 @@ class EFexAlgo (PyAthena.Alg) :
 
    # sums energy in Had cells in list (FCAL not included)
    def sumHadCells(self,list):
-      TotalSum=0.0;
+      TotalSum=0.0
       for cell in list:
         samp = cell.caloDDE().getSampling()
         if ( (samp < 8) or (samp>=20) ) : continue
@@ -124,7 +124,7 @@ class EFexAlgo (PyAthena.Alg) :
    # sums hadronic energy in TTs in Tile region (lacking from
    # SuperCell container
    def sumHadTT(self,list):
-      TotalSum=0.0;
+      TotalSum=0.0
       for TT in list:
         print ( "TT explore",TT.eta() , TT.sampling(), TT.pt())
         if ( ROOT.TMath.Abs( TT.eta() )>1.72 ) : continue
@@ -183,14 +183,14 @@ class EFexAlgo (PyAthena.Alg) :
    def finalize(self):
      OutputFile=self.name+".root"
      f=ROOT.TFile(OutputFile,'RECREATE')
-     h1 = ROOT.TH1F("SCellEt","SCellEt",100,0,20);
-     h2 = ROOT.TH2F("SCellEtVsEta","SCellEtVsEta",50,-5.0,5.0,100,0,20);
+     h1 = ROOT.TH1F("SCellEt","SCellEt",100,0,20)
+     h2 = ROOT.TH2F("SCellEtVsEta","SCellEtVsEta",50,-5.0,5.0,100,0,20)
      for x in self.ListOfEt:
         h1.Fill( x )
      for x in self.ListOfEtVsEta:
         h2.Fill( x[0],x[1] )
-     h1.Write();
-     h2.Write();
+     h1.Write()
+     h2.Write()
      f.Write()
      f.Close()
      PyAthena.Alg.finalize(self)
