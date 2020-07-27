@@ -73,9 +73,11 @@ namespace top {
     //         - The top recommendation is that you do OR on tight objects
     //   (3) Determination of Fakes control regions in MC - expert fakes mode
     //
-    
-    top::check(m_overlapRemovalTool_softMuons_PFjets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - PF jets");
-    top::check(m_overlapRemovalTool_softMuons_Alljets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - all jets");
+   
+    if (m_config->useSoftMuons()) {
+      top::check(m_overlapRemovalTool_softMuons_PFjets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - PF jets");
+      top::check(m_overlapRemovalTool_softMuons_Alljets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - all jets");
+    }
 
     if (!m_config->isMC()) m_doLooseCuts = true;
 
