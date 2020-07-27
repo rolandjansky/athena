@@ -110,7 +110,7 @@ atlas_install_python_modules( python/*.py
                               python/HLTMenuConfig
 			      POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_joboptions( share/*.py )
-atlas_install_data( share/*.ref)
+
 
 atlas_install_scripts( scripts/generateMenuMT.py )
 atlas_install_scripts( scripts/generateL1MenuMT.sh )
@@ -142,17 +142,6 @@ atlas_add_test( generateMenuMT
 atlas_add_test( full_menu_cf
 		SCRIPT scripts/test_full_menu_cf.sh
               )
-
-
-set( test full_menu_cf)
-set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${test} )
-file( REMOVE_RECURSE ${rundir} )
-file( MAKE_DIRECTORY ${rundir} )
-atlas_add_test( ${test}
-        SCRIPT scripts/test_${test}.sh
-        LOG_SELECT_PATTERN "TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
-    	PROPERTIES WORKING_DIRECTORY ${rundir}
-       )
 
 
 #----------------------------------
