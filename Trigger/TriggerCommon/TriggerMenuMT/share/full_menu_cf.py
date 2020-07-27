@@ -14,7 +14,7 @@
 
 def generateChains():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
-    from TrigUpgradeTest.TestUtils import makeChain
+    from DecisionHandling.TestUtils import makeChain
     
     testChains = []
     ##################################################################
@@ -119,7 +119,7 @@ def generateChains():
     # jet chains
     ##################################################################
     if opt.doJetSlice == True:
-        from TrigUpgradeTest.jetMenuHelper import jetMenuSequenceFromString
+        from DecisionHandling.jetMenuHelper import jetMenuSequenceFromString
 
         # small-R jets, different calibrations HLT_AntiKt4EMTopoJets_subjesIS
         jetSeq_a4_tc_em = jetMenuSequenceFromString("a4_tc_em_subjesIS")
@@ -161,7 +161,7 @@ def generateChains():
     # bjet chains
     ##################################################################
     if opt.doBjetSlice == True:
-        from TrigUpgradeTest.jetMenuHelper import jetMenuSequenceFromString
+        from DecisionHandling.jetMenuHelper import jetMenuSequenceFromString
         from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
         jetSequence = jetMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf")
