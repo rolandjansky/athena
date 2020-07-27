@@ -158,8 +158,8 @@ StatusCode TrigT1CaloforwEFex::execute(){
 		// do this check before)
 		if ( ! isCellEmMaximum ( m_cellsAround, cellAbove ) ) continue;
 		float et = sumEmCells( m_cellsAround )/TMath::CosH(cellAbove->eta());
-		float clusterEmEnergy32 = sumEmCells2nd( m_cellsAround2 );
-		float clusterEmEnergy72 = sumEmCells2nd( m_cellsAround );
+		//float clusterEmEnergy32 = sumEmCells2nd( m_cellsAround2 );
+		//float clusterEmEnergy72 = sumEmCells2nd( m_cellsAround );
 		float clusterHadEnergy = sumHadCells( m_cellsAround );
 		clusterHadEnergy += sumHadTTs( m_TTsAround );
 		//if ( clusterEmEnergy32 < 10 ) continue;

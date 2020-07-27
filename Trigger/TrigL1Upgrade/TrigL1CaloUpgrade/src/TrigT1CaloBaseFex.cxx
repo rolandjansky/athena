@@ -1349,7 +1349,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
                 CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 addOnce(resultCell,outputVector);
         }
-        msg << MSG::DEBUG << "L2->L1: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
+        ATH_MSG_DEBUG("L2->L1: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker);
 }
 
 CaloCell* TrigT1CaloBaseFex::fromLayer2toPS(const CaloCellContainer* &inputContainer, CaloCell* inputCell, const CaloCell_SuperCell_ID* &idHelper){
@@ -1438,8 +1438,7 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toLayer3(const CaloCellContainer* &inputC
                 resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
                 tracker = 3;
         }
-        //msg << MSG::DEBUG << "L2->L3 tracker = " << tracker << endreq;
-        msg << MSG::DEBUG << "L2->L3: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
+        ATH_MSG_DEBUG("L2->L3: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker);
         return resultCell;
 }
 
