@@ -19,6 +19,8 @@ if 'ESD' not in DQMonFlags.monManEnvironment():
 if 'ESD' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
     topSequence += LArNoisyROMonConfigOld(DQMonFlags)
+    from LArMonitoring.LArCosmicsMonAlg import LArCosmicsMonConfigOld
+    topSequence +=LArCosmicsMonConfigOld(DQMonFlags)
 
 if globalflags.DataSource == 'data' and 'online' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfigOld
