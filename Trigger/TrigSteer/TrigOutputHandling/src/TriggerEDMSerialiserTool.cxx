@@ -205,10 +205,10 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
 
   for (SG::auxid_t auxVarID : selected ) {
 
-    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
     const std::string decorationName = SG::AuxTypeRegistry::instance().getName(auxVarID);
     const std::type_info* tinfo = auxStoreIO->getIOType (auxVarID);
-
+    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
+    const std::string fullTypeName = System::typeinfoName( *tinfo );
 
     ATH_CHECK( tinfo != nullptr );
     TClass* cls = TClass::GetClass (*tinfo);
@@ -217,10 +217,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
     ATH_MSG_DEBUG( "Streaming " << decorationName << " of type " << typeName  << " aux ID " << auxVarID << " class " << cls->GetName() );
 
     CLID clid;
-    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  {
-      ATH_MSG_ERROR( "Can not obtain CLID of: " << typeName );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid) );
     ATH_MSG_DEBUG( "CLID " << clid );
 
     RootType classDesc = RootType::ByNameNoQuiet( cls->GetName() );
