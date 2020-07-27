@@ -175,8 +175,8 @@ def TrigEgammaFastCaloHypoToolFromDict( d ):
     from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
     LuminosityCondAlgOnlineDefault()    
 
-    def __mult(cpart):
-        return int( cpart['multiplicity'] )
+    #def __mult(cpart):
+     #   return int( cpart['multiplicity'] )
 
     def __th(cpart):
         return cpart['threshold']
@@ -191,15 +191,15 @@ def TrigEgammaFastCaloHypoToolFromDict( d ):
 
 
     # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
-    if len(cparts) > 1 or __mult(cparts[0]) > 1:
-        tool = _MultTool(name)
-        for cpart in cparts:
-            for cutNumber in range( __mult( cpart ) ):
-                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th( cpart ), __sel( cpart) ) ]
+    #if len(cparts) > 1 or __mult(cparts[0]) > 1:
+     #   tool = _MultTool(name)
+     #   for cpart in cparts:
+      #      for cutNumber in range( __mult( cpart ) ):
+       #         tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th( cpart ), __sel( cpart) ) ]
 
-        return tool
-    else:
-        return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]))
+       # return tool
+    # else:
+    return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]))
 
 
 def TrigEgammaFastCaloHypoToolFromName( name, conf ):
@@ -219,21 +219,21 @@ if __name__ == "__main__":
     assert t, "cant configure EtCut"
 
 
-    t = TrigEgammaFastCaloHypoToolFromName( "HLT_2e5_etcut_L12EM3", "HLT_2e5_etcut_L12EM3" )
-    assert t, "cant configure symmetric selection"
-    assert len(t.SubTools) == 2, "Sub-tools not configured"
+    #t = TrigEgammaFastCaloHypoToolFromName( "HLT_2e5_etcut_L12EM3", "HLT_2e5_etcut_L12EM3" )
+    #assert t, "cant configure symmetric selection"
+    #assert len(t.SubTools) == 2, "Sub-tools not configured"
 
-    t = TrigEgammaFastCaloHypoToolFromName( "HLT_3e5_etcut_L13EM3", "HLT_3e5_etcut_L13EM3" )
-    assert t, "cant configure symmetric selection"
-    assert len(t.SubTools) == 3, "Sub-tools not configured"
+    #t = TrigEgammaFastCaloHypoToolFromName( "HLT_3e5_etcut_L13EM3", "HLT_3e5_etcut_L13EM3" )
+    #assert t, "cant configure symmetric selection"
+    #assert len(t.SubTools) == 3, "Sub-tools not configured"
 
     # Asymmetric chais not working with this. Commenting out for now
     # t = TrigEgammaFastCaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_L12EM3",  "HLT_e3_etcut_e5_etcut_L12EM3" )
     # assert t, "cant configure asymmetric selection"
     # assert len(t.SubTools) == 2, "Sub-tools not configured"
 
-    t = TrigEgammaFastCaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_mu6_L1EM3_MU3",  "HLT_e3_etcut_e5_etcut_L1EM3_MU3" )
-    assert t, "cant configure asymmetric selection for combined chains"
-    assert len(t.SubTools) == 2, "Sub-tools not configured"
+    #t = TrigEgammaFastCaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_mu6_L1EM3_MU3",  "HLT_e3_etcut_e5_etcut_L1EM3_MU3" )
+    #assert t, "cant configure asymmetric selection for combined chains"
+    #assert len(t.SubTools) == 2, "Sub-tools not configured"
 
     log.info("TrigEgammaFastCaloHypoToolFromName ALL OK" )

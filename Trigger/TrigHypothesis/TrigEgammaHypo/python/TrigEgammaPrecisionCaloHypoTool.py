@@ -57,18 +57,9 @@ def _IncTool(name, threshold, sel):
     return tool
 
 
-def _MultTool(name):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoToolMult
-    return TrigEgammaPrecisionCaloHypoToolMult( name )
-
-
-
 def TrigEgammaPrecisionCaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
-    
-    def __mult(cpart):
-        return int( cpart['multiplicity'] )
 
     def __th(cpart):
         return cpart['threshold']
@@ -77,17 +68,7 @@ def TrigEgammaPrecisionCaloHypoToolFromDict( d ):
         return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
     
     name = d['chainName']
-
-    
-    # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
-    if len(cparts) > 1 or __mult(cparts[0]) > 1:
-        tool = _MultTool(name)
-        for cpart in cparts:
-            for cutNumber in range( __mult( cpart ) ):
-                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __th( cpart ), __sel( cpart) ) ]
-
-        return tool
-    else:        
-        return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ) )
+        
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ) )
                    
     
