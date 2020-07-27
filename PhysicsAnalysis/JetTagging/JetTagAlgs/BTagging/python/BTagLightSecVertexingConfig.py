@@ -7,6 +7,7 @@ from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactor
 
 Analysis__BTagLightSecVertexing=CompFactory.Analysis.BTagLightSecVertexing
 
+from GaudiKernel.Configurable import DEBUG
 
 def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionName="", SVandAssoc = {""}, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
@@ -52,6 +53,7 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionNa
     options['JetJFVtxLinkName'] = jetcol + '.' + OutputFilesJFVxname
     #options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = Name+TimeStamp
+    options['OutputLevel'] = DEBUG
 
     tool = Analysis__BTagLightSecVertexing(**options)
 
