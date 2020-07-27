@@ -12,8 +12,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "eformat/SourceIdentifier.h"
 
-#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
-
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 #include "StoreGate/ReadCondHandleKey.h"
