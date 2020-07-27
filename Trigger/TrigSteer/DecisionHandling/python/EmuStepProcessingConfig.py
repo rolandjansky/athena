@@ -172,14 +172,14 @@ def generateEmuEvents():
                        ';',
                        ';']
 
-    from TrigUpgradeTest.TestUtils import writeEmulationFiles
+    from DecisionHandling.TestUtils import writeEmulationFiles
     writeEmulationFiles(data)
 
 
 ###########################################################################    
 def generateChainsManually():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
-    from TrigUpgradeTest.TestUtils import makeChain
+    from DecisionHandling.TestUtils import makeChain
     
 
     doMuon     = True
@@ -190,7 +190,7 @@ def generateChainsManually():
 
     # muon chains
     if doMuon:
-        from TrigUpgradeTest.HLTSignatureConfig import  muMenuSequence
+        from DecisionHandling.HLTSignatureConfig import  muMenuSequence
         #step1
         mu11 = muMenuSequence(step="1",reconame="v1", hyponame="v1")
         mu12 = muMenuSequence(step="1",reconame="v2", hyponame="v2")
@@ -227,7 +227,7 @@ def generateChainsManually():
 
     ## #electron chains
     if doElectron:
-        from TrigUpgradeTest.HLTSignatureConfig import  elMenuSequence, gamMenuSequence
+        from DecisionHandling.HLTSignatureConfig import  elMenuSequence, gamMenuSequence
         el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1")
         el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
         el22 = elMenuSequence(step="2",reconame="v2", hyponame="v2")
@@ -255,13 +255,13 @@ def generateChainsManually():
         emptySeq2 = EmptyMenuSequence("step2EmptySeqence")
         
         if not doElectron:
-            from TrigUpgradeTest.HLTSignatureConfig import elMenuSequence        
+            from DecisionHandling.HLTSignatureConfig import elMenuSequence        
             el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1")    
             el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
             el41 = elMenuSequence(step="4",reconame="v1", hyponame="v1")
             
         if not doMuon:
-            from TrigUpgradeTest.HLTSignatureConfig import muMenuSequence
+            from DecisionHandling.HLTSignatureConfig import muMenuSequence
             #step1
             mu11 = muMenuSequence(step="1",reconame="v1", hyponame="v1")
             mu12 = muMenuSequence(step="1",reconame="v2", hyponame="v2")
@@ -275,7 +275,7 @@ def generateChainsManually():
             mu41 = muMenuSequence(step="4",reconame="v1", hyponame="v1")
            
            
-        from TrigUpgradeTest.HLTSignatureHypoTools import dimuDrComboHypoTool
+        from DecisionHandling.HLTSignatureHypoTools import dimuDrComboHypoTool
                        
         # multiplicity here indicates the number of objects to be combined:
         # for the chain dictionary, get the sum of the multiplicity in the multiplicy array

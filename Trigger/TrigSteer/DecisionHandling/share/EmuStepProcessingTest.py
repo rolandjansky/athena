@@ -19,7 +19,7 @@ class opt:
 
 from AthenaCommon.Logging import logging
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChainsManually, generateL1DecoderAndChainsByMenu
+from DecisionHandling.EmuStepProcessingConfig import generateL1DecoderAndChainsManually, generateL1DecoderAndChainsByMenu
 from AthenaCommon.AlgSequence import AlgSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 
