@@ -110,6 +110,7 @@ atlas_install_python_modules( python/*.py
                               python/HLTMenuConfig
 			      POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_joboptions( share/*.py )
+atlas_install_data( share/*.ref)
 
 atlas_install_scripts( scripts/generateMenuMT.py )
 atlas_install_scripts( scripts/generateL1MenuMT.sh )
@@ -119,29 +120,39 @@ atlas_install_scripts( scripts/test_HLTmenu.sh )
 atlas_install_scripts( scripts/generateL1MenuRun3.py )
 atlas_install_scripts( scripts/trigCompareOldandNewL1Menus.py )
 atlas_install_scripts( scripts/verify_menu_config.py )
+atlas_install_scripts( scripts/test_full_menu_cf.py)
+
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
+atlas_add_test( generateMenuMT_newJO
+		SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
                 PROPERTIES TIMEOUT 500 
               )
 
-atlas_add_test( ViewCFTest     SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( ViewCFTest
+		SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
+		POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
+atlas_add_test( generateMenuMT
+		SCRIPT bash test_HLTmenu.sh
                 PROPERTIES TIMEOUT 4000 
               )
 
-# prparing to move the emulation tests from TUT
-#atlas_add_test( emu_step_processing
-#		SCRIPT scripts/test_emu_step_processing.sh
-#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-#		)
+atlas_add_test( full_menu_cf
+		SCRIPT scripts/test_full_menu_cf.sh
+              )
 
-#atlas_add_test( emu_step_menu_processing
-#		SCRIPT scripts/test_emu_step_menu_processing.sh
-#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-#		) 
+
+set( test full_menu_cf)
+set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${test} )
+file( REMOVE_RECURSE ${rundir} )
+file( MAKE_DIRECTORY ${rundir} )
+atlas_add_test( ${test}
+        SCRIPT scripts/test_${test}.sh
+        LOG_SELECT_PATTERN "TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
+    	PROPERTIES WORKING_DIRECTORY ${rundir}
+       )
 
 
 #----------------------------------

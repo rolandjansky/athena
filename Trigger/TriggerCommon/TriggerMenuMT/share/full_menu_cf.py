@@ -285,12 +285,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 generateChains()
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
-from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
-createHLTPrescalesFileFromMenu()
 
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
-    
+
+from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+createHLTPrescalesFileFromMenu()
+   
 from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
     
