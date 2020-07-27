@@ -112,11 +112,6 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
   m_rnnip_isDefaults(rnn(f) + "_isDefaults")
 {
-  using namespace FlavorTagDiscriminants;
-  typedef SG::AuxElement::Decorator<float> ADF;
-  typedef SG::AuxElement::Decorator<double> ADD;
-  typedef SG::AuxElement::Decorator<char> ADC;
-  typedef SG::AuxElement::Decorator<int> ADI;
 }
 
 BTagJetAugmenter::~BTagJetAugmenter() = default;
@@ -418,7 +413,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
       max_track_flightDirRelEta = track_flightDirRelEta;
     }
     if (secondary_jf_vtx_index >= 0) {
-      for (const ElementLink<xAOD::TrackParticleContainer> vertex_track_particle : (**m_jf_vertices(btag).at(secondary_jf_vtx_index)).track_links()) {
+      for (const ElementLink<xAOD::TrackParticleContainer>& vertex_track_particle : (**m_jf_vertices(btag).at(secondary_jf_vtx_index)).track_links()) {
         if (*vertex_track_particle == &track_particle) {
           secondaryVtx_track_number++;
           TLorentzVector track_fourVector;
