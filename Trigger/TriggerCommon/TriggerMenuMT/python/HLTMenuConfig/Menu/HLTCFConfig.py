@@ -182,7 +182,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     Configurable.configurableRun3Behavior=1
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder )
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     Configurable.configurableRun3Behavior=0
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
