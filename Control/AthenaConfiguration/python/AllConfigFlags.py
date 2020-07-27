@@ -196,9 +196,8 @@ def _createCfgFlags():
     _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
 
     def __dq():
-        from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
+        from AthenaMonitoring.DQConfigFlags import createDQConfigFlags
         dqf = createDQConfigFlags()
-        dqf.join( createComplexDQConfigFlags() )
         return dqf
     _addFlagsCategory(acf, "DQ", __dq, 'AthenaMonitoring' )
 
