@@ -87,7 +87,6 @@ def checkSequenceConsistency( seq ):
     def __noSubSequenceOfName( s, n ):    
         for c in getSequenceChildren( s ):
             if isSequence( c ):
-                print("here", compName(c), n)
                 if compName(c) == n:
                     raise RuntimeError("Sequence {} contains sub-sequence of the same name".format(n) )
                 try:
