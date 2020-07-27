@@ -18,6 +18,7 @@
 #include "IRegionSelector/RegSelEnums.h"
 #include "RegionSelector/RegSelectorMap.h"
 #include "RegionSelector/RegSelectorHashMap.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -47,12 +48,12 @@ class StoreGateSvc;
      GaudiSvc/.../src/ToolSvc/ToolSvc.cpp
      GaudiSvc/.../src/ToolSvc/ToolSvc.h
 
-     It still needs to be made thread-safe.
+     This service is deprecated.
 
      @author Simon George
 */
 
-class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
+class ATLAS_NOT_THREAD_SAFE RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
 {
  public:
   /** @c Standard constructor for Gaudi services.
