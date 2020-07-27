@@ -19,10 +19,10 @@
 
 
 // Declare that this is a vector of IParticle-derived objects
-DATAVECTOR_BASE_FWD( xAOD::TrackParticle_v1, xAOD::IParticle );
+DATAVECTOR_BASE_FWD( xAOD::TrackParticle, xAOD::IParticle );
 namespace xAOD {
    /// Provide a forward declaration for TrackParticleContainer
-   typedef DataVector< TrackParticle_v1> TrackParticleContainer;
+   typedef DataVector< TrackParticle> TrackParticleContainer;
 }
 
 #endif // XAODTRACKING_TRACKPARTICLECONTAINERFWD_H

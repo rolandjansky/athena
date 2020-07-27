@@ -11,10 +11,10 @@
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaContainerFwd.h"
 
-DATAVECTOR_BASE_FWD( xAOD::Photon_v1, xAOD::Egamma );
+DATAVECTOR_BASE_FWD( xAOD::Photon, xAOD::Egamma );
 namespace xAOD {
    /// The container is a simple typedef for now
-   typedef DataVector< xAOD::Photon_v1 > PhotonContainer;
+   typedef DataVector< xAOD::Photon > PhotonContainer;
 }
 
 

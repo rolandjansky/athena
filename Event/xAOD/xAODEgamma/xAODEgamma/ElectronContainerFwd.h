@@ -11,10 +11,10 @@
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/EgammaContainerFwd.h"
 
-DATAVECTOR_BASE_FWD( xAOD::Electron_v1, xAOD::Egamma );
+DATAVECTOR_BASE_FWD( xAOD::Electron, xAOD::Egamma );
 namespace xAOD {
    /// The container is a simple typedef for now
-   typedef DataVector< xAOD::Electron_v1> ElectronContainer;
+   typedef DataVector< xAOD::Electron> ElectronContainer;
 }
 
 

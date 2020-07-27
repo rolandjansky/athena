@@ -11,11 +11,11 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODBase/IParticleContainer.h"
 
-DATAVECTOR_BASE_FWD( xAOD::CaloCluster_v1, xAOD::IParticle );
+DATAVECTOR_BASE_FWD( xAOD::CaloCluster, xAOD::IParticle );
 
 namespace xAOD {
    /// Define the cluster container as a simple DataVector
-   typedef DataVector< CaloCluster_v1 > CaloClusterContainer_v1;
+   typedef DataVector< CaloCluster > CaloClusterContainer_v1;
 }
 
 
