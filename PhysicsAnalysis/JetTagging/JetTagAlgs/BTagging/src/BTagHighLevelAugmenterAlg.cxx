@@ -40,11 +40,11 @@ namespace Analysis {
     for (const std::string& key: m_aug->getDecoratorKeys()) {
       std::string full_key = m_BTagCollectionName.key() + "." + key;
       ATH_MSG_DEBUG("Adding " << full_key);
-      SG::WriteDecorHandleKey<xAOD::BTaggingContainer> handle{
-        this, key, full_key, ""};
-      m_write_handles.push_back(handle);
+      m_write_handles.emplace_back(
+        std::make_unique<SG::WriteDecorHandleKey<xAOD::BTaggingContainer>>(
+          this, key, full_key, ""));
       ATH_MSG_DEBUG("Initializing " << full_key);
-      ATH_CHECK(m_write_handles.back().initialize());
+      ATH_CHECK(m_write_handles.back()->initialize());
     }
     return StatusCode::SUCCESS;
   }

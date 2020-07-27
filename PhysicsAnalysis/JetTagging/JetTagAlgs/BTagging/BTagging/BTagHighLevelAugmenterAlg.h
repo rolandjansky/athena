@@ -41,7 +41,11 @@ namespace Analysis {
 
     // Decorator keys will be created at run-time to conform to the
     // correct container name.
-    std::vector<SG::WriteDecorHandleKey<xAOD::BTaggingContainer>> m_write_handles;
+    std::vector<
+      std::unique_ptr<
+        SG::WriteDecorHandleKey<xAOD::BTaggingContainer>
+        >
+      > m_write_handles;
   };
 }
 #endif
