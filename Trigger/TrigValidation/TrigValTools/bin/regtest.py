@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import re
 import argparse
@@ -18,7 +20,7 @@ def progErrorExit(message, exitcode):
         failkey
     except NameError:
         failkey = 'FAILURE'
-    print 'regtest.py:', failkey, message  
+    print('regtest.py: %s %s' % (failkey, message))
     sys.exit(exitcode)
         
 def commandLine():
@@ -66,12 +68,12 @@ def commandLine():
                         )
     global args
     args = parser.parse_args()
-    if help == True: 
+    if help is True:
         usage()
         progErrorExit('usage', -1)
 
 def usage():
-    print'''
+    print('''
  Usage: regtest.py [options] 
 
   Testing tool for comparing marked lines in a log file against a reference
@@ -95,7 +97,7 @@ def usage():
   Technical info:
 
   Lines which match the regular expression
-  '''
+  ''')
 
 def regtest():
     with open(args.inputfile,'r') as inpfile:
@@ -105,29 +107,29 @@ def regtest():
                 matchline += 1
    
     if matchline == 0:
-        print '=== Alert!', failkey, 'no lines matching', linematch, 'in LOG'
+        print('=== Alert!', failkey, 'no lines matching', linematch, 'in LOG')
         result = True
         exit()
 
-    if debug == True:
-       print 'regtest.py,: debug: diff -b', args.inputfile, args.reffile
+    if debug is True:
+       print('regtest.py,: debug: diff -b', args.inputfile, args.reffile)
   
     command = 'diff -b ' +  args.inputfile + ' ' +  args.reffile
     rc = os.system(command)
-    if rc == False:
-       print '=== Output is the same as reference.'
+    if rc is False:
+       print('=== Output is the same as reference.')
 #       result = False
        result = 0
     else:
-        print '''=== Alert!''', failkey, '''input file (<) differs from reference (>)
-    If this change is understood, to update the reference file please type:
-    cp ''', args.inputfile, args.reffile
-#        result = True
+        print('''=== Alert!''', failkey, '''input file (<) differs from reference (>)
+        If this change is understood, to update the reference file please type:
+        cp ''', args.inputfile, args.reffile)
+        #        result = True
         result = 1
 
 
-    if debug == True:
-        print 'regtest.py  debug: returning result', result   
+    if debug is True:
+        print('regtest.py  debug: returning result', result)
     return result
 
 if __name__ == '__main__':

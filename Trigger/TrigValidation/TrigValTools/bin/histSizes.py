@@ -13,11 +13,11 @@ def filledBins(h):
     return sum([1 for i in range(N) if h.At(i)!=0])
 
 def hasLabels(h):
-    return (h.GetXaxis().GetLabels()!=None)
+    return (h.GetXaxis().GetLabels() is not None)
 
 def missingLabels(h):
     l = h.GetXaxis().GetLabels()    
-    return (l!=None and h.GetXaxis().GetNbins()!=l.GetSize())
+    return (l is not None and h.GetXaxis().GetNbins()!=l.GetSize())
             
 def addDirList(dir,path,hists):
     list=dir.GetListOfKeys()
@@ -29,9 +29,9 @@ def addDirList(dir,path,hists):
         else:
             h = key.ReadObj()
             if not h.InheritsFrom('TH1'): continue
-            if opts.labeled==True and not hasLabels(h): continue
-            if opts.misslabel==True and not missingLabels(h): continue
-            if opts.empty==True and h.GetEntries()>0: continue
+            if opts.labeled is True and not hasLabels(h): continue
+            if opts.misslabel is True and not missingLabels(h): continue
+            if opts.empty is True and h.GetEntries()>0: continue
             b = filledBins(h) if opts.filled else h.GetSize()
             hists[path+name]=(cname,b)
         
@@ -58,8 +58,7 @@ def byName(hists, nameFunc):
     return algs
 
 def byAlg(hists):
-    f = lambda h : h.split('/',2)[1]
-    return byName(hists, f)
+    return byName(hists, lambda h : h.split('/',2)[1])
 
 
 def main():    
@@ -108,11 +107,11 @@ def main():
 
    if not opts.byAlg: opts.byName = True
 
-   if opts.byName==True:
+   if opts.byName is True:
        for h,v in sorted(hists.items(), key=sortKey):
            print('%-80s %10s %10s' % (h,v[0],v[1]))
 
-   if opts.byAlg==True:
+   if opts.byAlg is True:
        algs = byAlg(hists)
        for h,v in sorted(algs.items(), key=sortKey):
            print('%-80s %10s %10s' % (h,v[0],v[1]))
