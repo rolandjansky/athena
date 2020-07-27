@@ -5,6 +5,7 @@ atlas_subdir( TrigT2CaloCommon )
 
 # External dependencies:
 find_package( tdaq-common )
+find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( TrigT2CaloCommonLib
