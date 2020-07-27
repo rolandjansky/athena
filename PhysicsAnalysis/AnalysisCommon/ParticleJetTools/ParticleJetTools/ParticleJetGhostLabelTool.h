@@ -19,7 +19,7 @@ public:
   /// Constructor
   ParticleJetGhostLabelTool(const std::string& name);
 
-  int modify(xAOD::JetContainer& jets) const;
+  StatusCode modify(xAOD::JetContainer& jets) const;
 
 protected:
 

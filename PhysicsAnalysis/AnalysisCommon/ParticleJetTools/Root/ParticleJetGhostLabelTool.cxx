@@ -21,7 +21,7 @@ ParticleJetGhostLabelTool::ParticleJetGhostLabelTool(const std::string& name)
 }
 
 
-int ParticleJetGhostLabelTool::modify(JetContainer& jets) const {
+StatusCode ParticleJetGhostLabelTool::modify(JetContainer& jets) const {
 
   using namespace std;
   using namespace xAOD;
@@ -53,7 +53,7 @@ int ParticleJetGhostLabelTool::modify(JetContainer& jets) const {
     ParticleJetTools::setJetLabels(jet, counts, m_labelnames);
   }
 
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
 
