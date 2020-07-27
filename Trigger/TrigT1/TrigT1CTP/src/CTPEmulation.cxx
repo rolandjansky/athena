@@ -69,32 +69,6 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    m_itemCountsSumTAP(512,0),
    m_itemCountsSumTAV(512,0)      
 {
-   // reta
-   std::string s("{");
-   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.12, 'maxEt' : 60 }],";
-   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.12, 'maxEt' : 60 }],";
-   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.12, 'maxEt' : 60 }]";
-   s += "}";
-   std::replace( s.begin(), s.end(), '\'', '"');
-   m_eFEXREta = s;
-   
-   s = "{";
-   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.16, 'maxEt' : 60 }],";
-   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.16, 'maxEt' : 60 }],";
-   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.16, 'maxEt' : 60 }]";
-   s += "}";
-   std::replace( s.begin(), s.end(), '\'', '"');
-   m_eFEXRHad = s;
-
-   s = "{";
-   s += "'LOOSE' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.02, 'maxEt' : 60 }],";
-   s += "'MEDIUM' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.02, 'maxEt' : 60 }],";
-   s += "'TIGHT' : [{ 'etamin' : -49, 'etamax' : 49, 'value' : 0.02, 'maxEt' : 60 }]";
-   s += "}";
-   std::replace( s.begin(), s.end(), '\'', '"');
-   m_eFEXWStot = s;
-
-
    declareProperty( "HistogramSvc", m_histSvc, "Histogram Service");
    declareProperty( "HistogramStream", m_histStream, "Histogram stream name, bound to file by THistSvc");
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger configuration service");
@@ -142,10 +116,19 @@ LVL1CTP::CTPEmulation::setEFexConfig(const std::string & prop, std::map<unsigned
    // fill eFEX selection cuts object
    cfgMap.clear();
 
+   boost::property_tree::ptree data;
+   std::string _prop(prop);
+   std::replace( _prop.begin(), _prop.end(), '\'', '"');
    try {
-      boost::property_tree::ptree data;
-      std::istringstream is(prop);
+      std::istringstream is(_prop);
       boost::property_tree::read_json(is, data);
+   }
+   catch(std::exception & ex) {
+      ATH_MSG_FATAL("Could not read property " << _prop  << ".  "  << ex.what());
+      return StatusCode::FAILURE;
+   }
+
+   try {
       for( auto & wp : data ) {
          unsigned int index = 0;
          
@@ -170,7 +153,7 @@ LVL1CTP::CTPEmulation::setEFexConfig(const std::string & prop, std::map<unsigned
       }
    }
    catch(std::exception & ex) {
-      ATH_MSG_FATAL("Could not interpret property " << prop  << ".  "  << ex.what());
+      ATH_MSG_FATAL("Could not interpret property " << _prop  << ".  "  << ex.what());
       return StatusCode::FAILURE;
    }
    return StatusCode::SUCCESS;
@@ -680,45 +663,39 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
          h6->Fill(cl->wstot());
          {
             auto & wp = m_reta.at(LOOSE).getWP(ieta);
-            std::cout << "JOERG FILL " << reta << ", wp.value=" << wp.value << ", et=" << cl->et();
-            if( reta >= wp.value or cl->et() >= wp.maxEt ) { 
-               hl1->Fill(reta);
-               std::cout << " PASS" << std::endl;
-            } else {
-               std::cout << " FAIL" << std::endl;
-            }
+            if( reta >= wp.value or cl->et() >= wp.maxEt ) { hl1->Fill(reta); }
          }
          {
             auto & wp = m_reta.at(MEDIUM).getWP(ieta);
-            if( reta >= wp.value or cl->et() >= wp.maxEt ) hm1->Fill(reta);
+            if( reta >= wp.value or cl->et() >= wp.maxEt ) { hm1->Fill(reta); }
          }
          {
             auto & wp = m_reta.at(TIGHT).getWP(ieta);
-            if( reta >= wp.value or cl->et() >= wp.maxEt ) ht1->Fill(reta);
+            if( reta >= wp.value or cl->et() >= wp.maxEt ) { ht1->Fill(reta); }
          }
          {
             auto & wp = m_rhad.at(LOOSE).getWP(ieta);
-            if( rhad >= wp.value or cl->et() >= wp.maxEt ) hl2->Fill(rhad);
+            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { hl2->Fill(rhad); }
          }
          {
             auto & wp = m_rhad.at(MEDIUM).getWP(ieta);
-            if( rhad >= wp.value or cl->et() >= wp.maxEt ) hm2->Fill(rhad);
+            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { hm2->Fill(rhad); }
          }
          {
             auto & wp = m_rhad.at(TIGHT).getWP(ieta);
-            if( rhad >= wp.value or cl->et() >= wp.maxEt ) ht2->Fill(rhad);
+            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { ht2->Fill(rhad); }
          }
          {
             auto & wp = m_wstot.at(LOOSE).getWP(ieta);
-            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) hl3->Fill(cl->wstot());
+            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { hl3->Fill(cl->wstot()); }
          }
          {
             auto & wp = m_wstot.at(MEDIUM).getWP(ieta);
-            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) hm3->Fill(cl->wstot());
+            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { hm3->Fill(cl->wstot()); }
          }
          {
             auto & wp = m_wstot.at(TIGHT).getWP(ieta);
-            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) ht3->Fill(cl->wstot());
+            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { ht3->Fill(cl->wstot()); }
          }
       }
    }
