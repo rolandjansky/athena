@@ -2,14 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// STL includes
-#include <algorithm>
-#include <iostream>
+#include "MuonRefitTool.h"
 
-// FrameWork includes
-#include "AthenaKernel/errorcheck.h"
-
-//Collections 
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkParameters/TrackParameters.h"
@@ -19,47 +13,21 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
-//Actual Class 
-#include "MuonRefitTool.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonSegmentMakerInterfaces/IDCSLFitProvider.h"
-
-
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
-
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
-
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
 #include "MuonAlignErrorBase/AlignmentTranslationDeviation.h"
 #include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
-#include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
-
 
 namespace Muon {
 
-  MuonRefitTool::MuonRefitTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
+  MuonRefitTool::MuonRefitTool(const std::string& ty, const std::string& na, const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_alignErrorTool("MuonAlign::AlignmentErrorTool"),
-    m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
-    m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-    m_t0Fitter(""),
-    m_muonEntryTrackExtrapolator("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
     m_errorStrategyBEE(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyEE(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyBIS78(MuonDriftCircleErrorStrategyInput()),
@@ -70,67 +38,14 @@ namespace Muon {
     m_errorStrategyTwoStations(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategy(MuonDriftCircleErrorStrategyInput()),
     m_muonErrorStrategy(MuonDriftCircleErrorStrategyInput()),
-    m_finder(5.,3.,false),
-    m_finderCleaning(5.,3.,false),
     m_nrefits(0),
     m_ngoodRefits(0),
-    m_failedErrorUpdateOutlierRemoval(0),
     m_failedOutlierRemoval(0),
     m_failedErrorUpdate(0),
     m_failedRefit(0),
-    m_failedExtrapolationMuonEntry(0),
-    m_nbackExtrapolations(0),
-    m_ngoodBackExtrapolations(0),
-    m_failedExtrapolationIP(0),
-    m_nupdates(0),
-    m_ngoodUpdates(0),
-    m_failedUpdates(0),
-    m_alignmentDelta(0.),
-    m_alignmentAngle(0.),
-    m_alignmentDeltaError(0.1),
-    m_alignmentAngleError(0.001),
-    m_alignmentErrors(false),
-    m_simpleAEOTs(false),
-    m_addAll(false),
-    m_addInner(false),
-    m_addMiddle(true),
-    m_addTwo(false)
+    m_failedExtrapolationMuonEntry(0)
   {
     declareInterface<IMuonRefitTool>(this);
-    declareProperty("FinderDebugLevel",m_finderDebugLevel = -1 );
-    declareProperty("Fitter",m_trackFitter);
-    declareProperty("T0Fitter",m_t0Fitter);
-    declareProperty("MinMuonMom",m_minMuonMomentum = 4000.);
-    declareProperty("UsedFixedError",m_fixedError = 1. );
-    declareProperty("FlagT0FitRange",m_flagT0FitRange = 0.00005 );
-    declareProperty("Printer", m_printer );
-    declareProperty("AlignmentErrorTool", m_alignErrorTool);
-    declareProperty("Extrapolator", m_extrapolator );
-    declareProperty("MuonExtrapolator", m_muonExtrapolator );
-    declareProperty("MuonEntryExtrapolationTool", m_muonEntryTrackExtrapolator );
-    declareProperty("MdtRotCreator",m_mdtRotCreator);
-    declareProperty("DeweightBEE", m_deweightBEE = false );
-    declareProperty("DeweightEE",  m_deweightEE = false );
-    declareProperty("DeweightBIS78", m_deweightBIS78 = true );
-    declareProperty("DeweightBME", m_deweightBME = true );
-    declareProperty("DeweightBOE", m_deweightBOE = true );
-    declareProperty("DeweightEEL1C05", m_deweightEEL1C05 = false );
-    declareProperty("DeweightTwoStationTracks",  m_deweightTwoStationTracks = false );
-    declareProperty("AlignmentDelta", m_alignmentDelta = 0.);
-    declareProperty("AlignmentAngle", m_alignmentAngle = 0.);
-    declareProperty("AlignmentDeltaError", m_alignmentDeltaError = 0.1);
-    declareProperty("AlignmentAngleError", m_alignmentAngleError = 0.001);
-    declareProperty("AlignmentErrors", m_alignmentErrors = false);
-    declareProperty("SimpleAEOTs", m_simpleAEOTs = false);
-    declareProperty("AddAll", m_addAll = false);
-    declareProperty("AddInner", m_addInner = false);
-    declareProperty("AddMiddle", m_addMiddle = false);
-    declareProperty("AddTwo", m_addTwo = false);
-  }
-
-  MuonRefitTool::~MuonRefitTool()
-  {
-
   }
 
   StatusCode MuonRefitTool::initialize()
@@ -154,12 +69,7 @@ namespace Muon {
     if( !m_t0Fitter.empty() ){
       ATH_CHECK( m_t0Fitter.retrieve() );
       ATH_MSG_INFO("Retrieved " << m_t0Fitter );
-      m_finder.setFitter(m_t0Fitter->getFitter());
     }
-
-    m_finder.debugLevel(m_finderDebugLevel);
-    m_finder.setRecoverMDT(false);
-    m_finderCleaning.debugLevel(m_finderDebugLevel);
 
     ATH_CHECK( m_muonEntryTrackExtrapolator.retrieve() );
 
@@ -216,46 +126,29 @@ namespace Muon {
     m_muonErrorStrategy.setParameter(MuonDriftCircleErrorStrategy::ScaledError,true);
     m_muonErrorStrategy.setParameter(MuonDriftCircleErrorStrategy::BroadError,false);
 
-
-    msg(MSG::INFO) << MSG::INFO << " Options: ";
-    if( m_deweightBEE )                  msg(MSG::INFO) << MSG::INFO << " Deweight BEE";
-    if( m_deweightEE )                   msg(MSG::INFO) << MSG::INFO << " Deweight EE";
-    if( m_deweightBIS78 )                msg(MSG::INFO) << MSG::INFO << " Deweight BIS78";
-    if( m_deweightBME )                  msg(MSG::INFO) << MSG::INFO << " Deweight BME";
-    if( m_deweightBOE )                  msg(MSG::INFO) << MSG::INFO << " Deweight BOE";
-    if( m_deweightEEL1C05 )              msg(MSG::INFO) << MSG::INFO << " Deweight EEL1C05";
-    if( m_deweightTwoStationTracks )     msg(MSG::INFO) << MSG::INFO << " Deweight Two stations";
-    msg(MSG::INFO) << endmsg;
-
+    ATH_MSG_INFO("Options:");
+    if( m_deweightBEE )                  ATH_MSG_INFO(" Deweight BEE");
+    if( m_deweightEE )                   ATH_MSG_INFO(" Deweight EE");
+    if( m_deweightBIS78 )                ATH_MSG_INFO(" Deweight BIS78");
+    if( m_deweightBME )                  ATH_MSG_INFO(" Deweight BME");
+    if( m_deweightBOE )                  ATH_MSG_INFO(" Deweight BOE");
+    if( m_deweightEEL1C05 )              ATH_MSG_INFO(" Deweight EEL1C05");
+    if( m_deweightTwoStationTracks )     ATH_MSG_INFO(" Deweight Two stations");
     return StatusCode::SUCCESS;
   }
-
 
   StatusCode MuonRefitTool::finalize()
   {
     double scaleRefit = m_nrefits != 0 ? 1./(double)m_nrefits : 1.;
-    double scaleExtr = m_nbackExtrapolations != 0 ? 1./(double)m_nbackExtrapolations : 1.;
-    double scaleUp = m_nupdates != 0 ? 1./(double)m_nupdates : 1.;
-    ATH_MSG_INFO(   "Number of refits                        " << m_nrefits << endmsg 
-		    << "Good                                    " << scaleRefit*m_ngoodRefits << endmsg
-		    << "Failed Error update in outlier removal  " << scaleRefit*m_failedErrorUpdateOutlierRemoval << endmsg
-		    << "Failed Outlier removal                  " << scaleRefit*m_failedOutlierRemoval << endmsg
-		    << "Failed Error Update                     " << scaleRefit*m_failedErrorUpdate << endmsg
-		    << "Failed Refit                            " << scaleRefit*m_failedRefit << endmsg
+    ATH_MSG_INFO(
+           "Number of refits                        " << m_nrefits << std::endl
+		    << "Good                                    " << scaleRefit*m_ngoodRefits << std::endl
+		    << "Failed Outlier removal                  " << scaleRefit*m_failedOutlierRemoval << std::endl
+		    << "Failed Error Update                     " << scaleRefit*m_failedErrorUpdate << std::endl
+		    << "Failed Refit                            " << scaleRefit*m_failedRefit << std::endl
 		    << "Failed Extrapolation to Muon Entry      " << scaleRefit*m_failedExtrapolationMuonEntry);
-    ATH_MSG_INFO(   "Number of extrapolations to IP   " << m_nbackExtrapolations << endmsg 
-		    << "Good                             " << scaleExtr*m_ngoodBackExtrapolations << endmsg
-		    << "Failed Extrapolation to IP       "  << scaleExtr*m_failedExtrapolationIP);
-
-    ATH_MSG_INFO(   "Number of updated tracks   " << m_nupdates << endmsg 
-		    << "Good                       " << scaleUp*m_ngoodUpdates << endmsg
-		    << "Failed updates             "  << scaleUp*m_failedUpdates);
-  
     return StatusCode::SUCCESS;
   }
-
-
-
 
   const Trk::Track* MuonRefitTool::refit( const Trk::Track& track, const IMuonRefitTool::Settings* set ) const {
 
@@ -393,7 +286,7 @@ namespace Muon {
          isBarrel = false;
 
          if( dynamic_cast<MuonAlign::AlignmentTranslationDeviation*>(it) ) {
-           translationError = sqrt(it->getCovariance(0,0));
+           translationError = std::sqrt(it->getCovariance(0,0));
            // vector to store hit id
            std::vector<Identifier> hitids;
            std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
@@ -425,7 +318,7 @@ namespace Muon {
                if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
                  if( itRot->hasValidHashOfHits() && it->hasValidHashOfHits() ) {
                    if( itRot->getHashOfHits() == it->getHashOfHits() ){
-                     angleError = sqrt(itRot->getCovariance(0,0));
+                     angleError = std::sqrt(itRot->getCovariance(0,0));
                      matchFound = true;
                      usedRotations.push_back(iRot);
                    }
@@ -489,7 +382,7 @@ namespace Muon {
            }
 
            double translationError = 0.;
-           double angleError = sqrt(itRot->getCovariance(0,0));
+           double angleError = std::sqrt(itRot->getCovariance(0,0));
 
            iok++;  
            alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
@@ -573,8 +466,6 @@ namespace Muon {
           trackStateOnSurfaces->push_back(tsosAEOTs[i]);
         }
       }
-// skip outliers
-//      if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
 
       // Skip AEOTs that are already present, as they will be added above already
       if((*tsit)->alignmentEffectsOnTrack()){
@@ -587,14 +478,6 @@ namespace Muon {
     if(indexAEOTs.size()==0 && stationIds.size() > 1) ATH_MSG_WARNING(" Track without AEOT ");
 
     Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
-
-// dump it
-//    const DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfacesNew = newTrack->trackStateOnSurfaces();
-//    tsit     = trackStateOnSurfacesNew->begin();
-//    tsit_end = trackStateOnSurfacesNew->end();
-//    for( ; tsit!=tsit_end ; ++tsit ){
-//        if((*tsit)->alignmentEffectsOnTrack()) std::cout << " Peter alignmentEffectsOnTrack found with track pars " << (*tsit)->trackParameters() << std::endl;
-//    }
 
     ATH_MSG_DEBUG(m_printer->print(*newTrack));
     ATH_MSG_DEBUG(m_printer->printMeasurements(*newTrack));
@@ -834,10 +717,10 @@ namespace Muon {
     std::map<int,std::set<MuonStationIndex::StIndex> >::iterator stit_end = stationsPerSector.end();
     for( ;stit!=stit_end;++stit ){
       if( msgLvl(MSG::VERBOSE) ){
-	msg(MSG::VERBOSE) << " sector " << stit->first;
+	ATH_MSG_VERBOSE(" sector " << stit->first);
 	for( std::set<MuonStationIndex::StIndex>::iterator ssit = stit->second.begin();
 	     ssit != stit->second.end(); ++ssit ){
-	  msg(MSG::VERBOSE) << " " << MuonStationIndex::stName(*ssit);
+	  ATH_MSG_VERBOSE(" " << MuonStationIndex::stName(*ssit));
 	}
       }
       if( stit->second.size() > nmaxStations ) {
@@ -883,14 +766,13 @@ namespace Muon {
       barrelEndcap = true; 
     } 
     if( msgLvl(MSG::DEBUG) ){ 
-      msg() << MSG::DEBUG << " Selected sector " << selectedSector << " nstations " << nmaxStations 
-	    << " barrel " << nbarrel << " endcap " << nendcap; 
+      ATH_MSG_DEBUG(" Selected sector " << selectedSector << " nstations " << nmaxStations 
+	    << " barrel " << nbarrel << " endcap " << nendcap); 
       if( barrelEndcap ) {
-	msg() << " barrel/endcap overlap "  << endmsg; 
-	if(deweightEndcap) msg() << " deweight endcap "  << endmsg; 
-	if(deweightBarrel) msg() << " deweight barrel "  << endmsg; 
+	ATH_MSG_DEBUG(" barrel/endcap overlap "); 
+	if(deweightEndcap) ATH_MSG_DEBUG(" deweight endcap "); 
+	if(deweightBarrel) ATH_MSG_DEBUG(" deweight barrel "); 
       }
-      msg() << MSG::DEBUG << endmsg; 
     } 
 
     unsigned int deweightHits = 0;
@@ -977,12 +859,7 @@ namespace Muon {
 	  }
 
 	  bool hasT0Fit = false;
-	  MdtDriftCircleOnTrack* cmdt =  const_cast<MdtDriftCircleOnTrack*>(mdt);
-	  if( !cmdt ){
-	    ATH_MSG_WARNING(" Failed to const_cast MdtDriftCircleOnTrack ");
-	  }else{
-	    if( cmdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
-	  }
+    if( mdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
       
 	  const Trk::RIO_OnTrack* rot = 0;
 	  int sector = m_idHelperSvc->sector(id);
@@ -1066,14 +943,13 @@ namespace Muon {
 	    
 
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg() << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
+	    ATH_MSG_DEBUG(m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
 		  << " new err " << Amg::error(newMdt->localCovariance(),Trk::locR) 
-		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR);
-	    if( hasT0Fit ) msg() << " HasT0";
-	    else           msg() << " No T0";
-	    if( type == Trk::TrackStateOnSurface::Outlier ) msg() << " Outlier";
-	    if( fabs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) msg() << " Bad recalibration: old r " << mdt->driftRadius();
-	    msg() << endmsg;
+		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR));
+	    if( hasT0Fit ) ATH_MSG_DEBUG(" HasT0");
+	    else           ATH_MSG_DEBUG(" No T0");
+	    if( type == Trk::TrackStateOnSurface::Outlier ) ATH_MSG_DEBUG(" Outlier");
+	    if( std::abs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
 	  }
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
@@ -1294,12 +1170,7 @@ namespace Muon {
 	  }
 
 	  bool hasT0Fit = false;
-	  MdtDriftCircleOnTrack* cmdt =  const_cast<MdtDriftCircleOnTrack*>(mdt);
-	  if( !cmdt ){
-	    ATH_MSG_WARNING(" Failed to const_cast MdtDriftCircleOnTrack ");
-	  }else{
-	    if( cmdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
-	  }
+    if( mdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
       
 	  const Trk::RIO_OnTrack* rot = 0;
 	  Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? 
@@ -1324,14 +1195,13 @@ namespace Muon {
 	    
 
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg() << " updateMdtErrors " << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
+	    ATH_MSG_DEBUG(" updateMdtErrors " << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
 		  << " new err " << Amg::error(newMdt->localCovariance(),Trk::locR) 
-		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR);
-	    if( hasT0Fit ) msg() << " HasT0";
-	    else           msg() << " No T0";
-	    if( type == Trk::TrackStateOnSurface::Outlier ) msg() << " Outlier";
-	    if( fabs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) msg() << " Bad recalibration: old r " << mdt->driftRadius();
-	    msg() << endmsg;
+		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR));
+	    if( hasT0Fit ) ATH_MSG_DEBUG(" HasT0");
+	    else           ATH_MSG_DEBUG(" No T0");
+	    if( type == Trk::TrackStateOnSurface::Outlier ) ATH_MSG_DEBUG(" Outlier");
+	    if( std::abs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
 	  }
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
@@ -1545,9 +1415,14 @@ namespace Muon {
     // set to get Identifiers of chambers with hits
     std::vector< std::pair<Identifier,bool> > indexIdMap;
     indexIdMap.reserve( hits.size() );
-
   
-
+    TrkDriftCircleMath::DCSLFitter dcslFitter;
+    TrkDriftCircleMath::SegmentFinder segFinder(5.,3.,false);
+    if( !m_t0Fitter.empty() ){
+      segFinder.setFitter(m_t0Fitter->getFitter());
+    }
+    segFinder.debugLevel(m_finderDebugLevel);
+    segFinder.setRecoverMDT(false);
 
     unsigned index = 0;
     std::vector<const MdtDriftCircleOnTrack*>::const_iterator it = hits.begin();
@@ -1573,7 +1448,7 @@ namespace Muon {
       Amg::Vector3D locPos = gToStation*mdt->prepRawData()->globalPosition();
       TrkDriftCircleMath::LocPos lpos(locPos.y(),locPos.z());
 
-      double r  = fabs(mdt->localParameters()[Trk::locR]);
+      double r  = std::abs(mdt->localParameters()[Trk::locR]);
       double dr = Amg::error(mdt->localCovariance(),Trk::locR);
       ATH_MSG_VERBOSE("New MDT " << m_idHelperSvc->toString(id) << "  r " << mdt->localParameters()[Trk::locR] 
 		      << " dr  " << dr << "  (original) " << Amg::error(mdt->localCovariance(),Trk::locR) );
@@ -1626,11 +1501,11 @@ namespace Muon {
 
 
     ATH_MSG_DEBUG("Seeding angles " << track_angleYZ << " from surf " << angleYZ << " ch angle " << chamber_angleYZ << " pos " << segPos);
-    m_finder.setPhiRoad(track_angleYZ,chamber_angleYZ,0.14);
+    segFinder.setPhiRoad(track_angleYZ,chamber_angleYZ,0.14);
 
     if( msgLvl(MSG::VERBOSE) ){
       TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
-      if(m_fitter.fit(segment, segPars, dcsOnTrack)){
+      if(dcslFitter.fit(segment, segPars, dcsOnTrack)){
 	segment.hitsOnTrack(dcsOnTrack.size());
 	ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
 		      << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
@@ -1639,7 +1514,7 @@ namespace Muon {
       }
     }
 
-    TrkDriftCircleMath::SegVec segments = m_finder.findSegments(dcs);
+    TrkDriftCircleMath::SegVec segments = segFinder.findSegments(dcs);
     if( !segments.empty() ){
       ATH_MSG_DEBUG("Found segments " << segments.size() );
     }
@@ -1654,7 +1529,7 @@ namespace Muon {
       TrkDriftCircleMath::SegIt sit_end = segments.end();
       for( ;sit!=sit_end;++sit,++index ) {
       
-	double dtheta = fabs(sit->line().phi() - track_angleYZ);
+	double dtheta = std::abs(sit->line().phi() - track_angleYZ);
 	if( dtheta < dthetaBest ){
 	  dthetaBest = dtheta;
 	  indexBest = index;
@@ -1679,24 +1554,6 @@ namespace Muon {
     if( settings.discardNotCleanedTracks && !segment.hasT0Shift() ) return false;
 
     if( segment.hasT0Shift() || segment.hitsOnTrack() > 5 ) {
-      //     it = hits.begin();
-      //     it_end = hits.end();
-      //     for(  ;it!=it_end;++it){
-      
-      //       const Trk::ErrorMatrix& localErrorMatrix = (*it)->localErrorMatrix();
-      //       double error = 1.99;
-      
-      //       double scaledError2 = error*error;
-      //       Trk::CovarianceMatrix* covPtr = const_cast<Trk::CovarianceMatrix*>(localErrorMatrix.covariancePointer());
-      //       Trk::WeightMatrix* weightPtr = const_cast<Trk::WeightMatrix*>(localErrorMatrix.weightPointer());      
-      //       if( covPtr ) {
-      // 	(*covPtr)[Trk::locR][Trk::locR] = scaledError2;
-      //       }
-      //       if( weightPtr ) {
-      // 	(*weightPtr)[Trk::locR][Trk::locR] = 1./scaledError2;
-      //       }
-      //     }
-    
       ATH_MSG_DEBUG("Segment with t0 shift " << segment.t0Shift() ); 
     }
 
@@ -1718,7 +1575,7 @@ namespace Muon {
     for( TrkDriftCircleMath::DCOnTrackCit dcit = matchedDCs.begin();dcit!=matchedDCs.end();++dcit ){
     
       if( dcit->state() == TrkDriftCircleMath::DCOnTrack::OnTrack ) {
-	if( fabs(dcit->r()) - fabs(dcit->rot()->driftRadius()) > 0.1 ){
+	if( std::abs(dcit->r()) - std::abs(dcit->rot()->driftRadius()) > 0.1 ){
 	  ATH_MSG_DEBUG("Large change in drift radius: r_old " 
 		       << dcit->rot()->driftRadius() << "  r_new " 
 		       << dcit->r() );

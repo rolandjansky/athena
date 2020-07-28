@@ -17,7 +17,6 @@
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonPrepRawData/CscPrepDataCollection.h"
-// New Small Wheel
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 
@@ -25,7 +24,6 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-// New Small Wheel
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 
