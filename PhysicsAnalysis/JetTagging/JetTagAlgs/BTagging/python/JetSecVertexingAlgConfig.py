@@ -4,8 +4,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-from GaudiKernel.Configurable import DEBUG
-
 Analysis__JetSecVertexingAlg=CompFactory.Analysis.JetSecVertexingAlg
 
 def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionName="", SVFinder="", Associator="", **options):
@@ -42,7 +40,6 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNam
     options['JetSecVtxLinkName'] = options['JetCollectionName'] + '.' + JetSVLink
     options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = (jetcol + '_' + SVFinder + '_secvtx').lower()
-    options['OutputLevel'] = DEBUG
 
     # -- create the association algorithm
     acc.addEventAlgo(Analysis__JetSecVertexingAlg(**options))
