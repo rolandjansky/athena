@@ -20,8 +20,7 @@
 #include "MagFieldElements/BFieldCond.h"
 #include "MagFieldElements/BFieldMeshZR.h"
 #include "MagFieldElements/BFieldZone.h"
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <iostream>
 #include <memory>
 
