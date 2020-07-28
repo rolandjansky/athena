@@ -168,7 +168,7 @@ namespace JetVar {
     virtual float value(const xAOD::Jet & j) const { return j.p4().Et()*m_scale;}
   };
 
-  struct FChargeVar : public Variable {
+  struct FChargedVar : public Variable {
     using Variable::Variable;
     virtual float value(const xAOD::Jet & j) const { 
       bool status = false;

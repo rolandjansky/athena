@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -107,43 +107,3 @@ It supports declaration of keyed callbacks associated with element names.
      </ul>
 
 */
-
-
-/**
-   
-   @example example1.cxx
-
-   Minimal use of the generic parser. 
-   
- */
-
-
-/**
-   
-   @example example2.cxx
-
-   Constructing a default factory class for simple pretty printing. 
-
-   Helper functions are used in this example. 
-*/
-
-
-/**
-   
-   @example example3.cxx
-
-   Constructing a default factory class for simple pretty printing. 
-
-   Direct manipulation of the DOM tree is used in this example 
-
-
- */
-
-/**
-   
-   @example example4.cxx
-
-   Example of how to register a text entity (to be run against example4.xml)
-
-
- */

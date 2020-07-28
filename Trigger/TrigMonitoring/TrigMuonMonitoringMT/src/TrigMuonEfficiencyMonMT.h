@@ -30,16 +30,12 @@ class TrigMuonEfficiencyMonMT : public TrigMuonMonitorAlgorithm{
 
   StatusCode selectMuonsTagAndProbe(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const ;
 
-  // tools
-  ToolHandle<MuonMatchingTool> m_matchTool {this, "MuonMatchingTool", "MuonMatchingTool", "Tool for matching offline and online objects"};
-
   // properties
   Gaudi::Property<std::string> m_eff_method {this, "Method", "", "Method to measure efficiency e.g. \"TagAndProbe\", \"Bootstrap\""};
   Gaudi::Property<std::string> m_event_trigger {this, "EventTrigger", "", "Trigger used to select events"};
   Gaudi::Property<std::string> m_tag_trig {this, "TagTrigger", "", "Trigger used to define tag muons"};
   Gaudi::Property<std::vector<std::string> > m_monitored_chains_L1 {this, "L1Seeds", {}, "List of L1 seeds of measured trigger"};
   Gaudi::Property<std::vector<double> > m_monitored_chains_threshold {this, "Thresholds", {}, "List of thresholds of measured trigger"};
-  Gaudi::Property<std::string> m_group {this, "Group", "", "Histogram group"};
   Gaudi::Property<bool> m_doL1 {this, "doL1", true, "Flag to analyze L1"};
   Gaudi::Property<bool> m_doL2SA {this, "doL2SA", true, "Flag to analyze L2MuonSA"};
   Gaudi::Property<bool> m_doL2CB {this, "doL2CB", true, "Flag to analyze L2muComb"};

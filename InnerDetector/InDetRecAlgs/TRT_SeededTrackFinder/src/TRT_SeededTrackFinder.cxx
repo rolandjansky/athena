@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/FitQuality.h"
+
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "RoiDescriptor/RoiDescriptor.h"
 
 #include <memory>
 using namespace std;
@@ -63,11 +66,16 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
   declareProperty("MinTRTonly"                 ,m_minTRTonly      = 15); //Minimum Number of Hits on TRT only
   // --- selection cuts after SI extension
   declareProperty("SiExtensionCuts",   m_SiExtensionCuts    = false);
-  declareProperty("minPt",             m_minPt              = 500.);
-  declareProperty("maxEta",            m_maxEta             = 2.7);
-  declareProperty("maxRPhiImp",        m_maxRPhiImp         = 10.);
-  declareProperty("maxZImp",           m_maxZImp            = 250.);
-  declareProperty("Extrapolator",      m_extrapolator);
+  declareProperty("minPt"             ,m_minPt              = 500. );
+  declareProperty("maxEta"            ,m_maxEta             = 2.7  );
+  declareProperty("maxRPhiImp"        ,m_maxRPhiImp         = 10.  );
+  declareProperty("maxZImp"           ,m_maxZImp            = 250. );
+  declareProperty("Extrapolator"      ,m_extrapolator              );
+  declareProperty("CaloSeededRoI"     ,m_caloSeededRoI=false       );
+  declareProperty("CaloClusterEt"     ,m_clusterEt=3000.           );
+  declareProperty("dEtaCaloRoI"       ,m_deltaEta=0.1              );
+  declareProperty("dPhiCaloRoI"       ,m_deltaPhi=0.25             );
+  declareProperty("dZCaloRoI"         ,m_deltaZ=300                );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -79,7 +87,7 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   StatusCode  sc;
 
   msg(MSG::DEBUG) << "Initializing TRT_SeededTrackFinder" << endmsg;
-
+ 
   //Get the TRT seeded track maker tool
   //
   ATH_CHECK(m_trackmaker.retrieve());
@@ -103,6 +111,13 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   ATH_CHECK(  m_SegmentsKey.initialize()) ;  /** TRT segments to use */
   ATH_CHECK( m_outTracksKey.initialize());
 
+  if(m_caloSeededRoI){
+    ATH_CHECK( m_regionSelector.retrieve());
+    ATH_CHECK( m_caloKey.initialize(m_caloSeededRoI) );
+  } else {
+    m_regionSelector.disable();
+  }
+  
   // Get output print level
   //
   if(msgLvl(MSG::DEBUG)) {
@@ -172,8 +187,43 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
   // Event dependent data of SiCombinatorialTrackFinder_xk
   InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(m_prdToTrackMap);
 
-  // Initialize the TRT seeded track tool's new event
-  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p( m_trackmaker->newEvent(ctx, combinatorialData));
+  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p;
+   
+  if(m_caloSeededRoI ) {
+    SG::ReadHandle calo(m_caloKey,ctx);
+    std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
+
+    if (calo.isValid()) {
+      RoiDescriptor * roi =0;
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+      double beamZ = beamSpotHandle->beamVtx().position().z();
+      roiComp->clear();
+      roiComp->setComposite();
+      for (const Trk::CaloClusterROI *c: *calo) {
+        if ( c->energy()/cosh(c->globalPosition().eta()) < m_clusterEt) {
+          continue;
+        }
+
+        double eta = c->globalPosition().eta();
+        double phi = c->globalPosition().phi();
+        double roiPhiMin = phi -m_deltaPhi;
+        double roiPhiMax = phi +m_deltaPhi;
+        double roiEtaMin = eta -m_deltaEta;
+        double roiEtaMax = eta +m_deltaEta;
+        double roiZMin = beamZ -m_deltaZ;
+        double roiZMax = beamZ +m_deltaZ;
+        roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax, beamZ, roiZMin,roiZMax);
+        roiComp->push_back(roi);
+      }
+    }
+    std::vector<IdentifierHash> listOfSCTIds;
+    std::vector<IdentifierHash> listOfPixIds;
+    m_regionSelector->HashIDList(*roiComp, listOfSCTIds );
+    event_data_p = m_trackmaker->newRegion(ctx, combinatorialData, listOfPixIds, listOfSCTIds);
+  } else {
+    event_data_p = m_trackmaker->newEvent(ctx, combinatorialData);
+  }
+   
   std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p( m_trtExtension->newEvent(ctx) );
 
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output

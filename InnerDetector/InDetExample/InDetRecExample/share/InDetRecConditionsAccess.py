@@ -103,7 +103,7 @@ if DetFlags.pixel_on():
                 elif (runNum >= 222222 and runNum < 289350): # 2015
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
                 else:
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                       UseDeadmapConditions=(not athenaCommonFlags.isOnline()),
@@ -140,14 +140,6 @@ if DetFlags.pixel_on():
         if athenaCommonFlags.isOnline():
             alg.ReadKeyStatus = ''
         condSeq += alg
-
-    if athenaCommonFlags.isOnline():
-        if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):
-            conddb.addFolder("TDAQ_ONL", "/TDAQ/Resources/ATLAS/PIXEL/Modules", className="CondAttrListCollection")
-
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg")
 
     #####################
     # Calibration Setup #
@@ -191,9 +183,13 @@ if DetFlags.pixel_on():
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                       MappingFile=IdMappingDat,
-                                       RodIDForSingleLink40=rodIDForSingleLink40)
+        alg = PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                  MappingFile=IdMappingDat,
+                                  RodIDForSingleLink40=rodIDForSingleLink40)
+        if (not conddb.folderRequested("/PIXEL/CablingMap") and
+            not conddb.folderRequested("/PIXEL/Onl/CablingMap")):
+            alg.ReadKey = ''
+        condSeq += alg
 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
@@ -290,7 +286,7 @@ if DetFlags.haveRIO.SCT_on():
     InDetSCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
         printfunc (InDetSCT_ReadCalibDataTool)
-    
+
     # Load flagged condition tool
     from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
     sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
@@ -323,12 +319,24 @@ if DetFlags.haveRIO.SCT_on():
     sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
     sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
     sct_ByteStreamErrorsToolSetup.setup()
+    SCT_ByteStreamErrorsTool = sct_ByteStreamErrorsToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        printfunc (sct_ByteStreamErrorsToolSetup.getTool())
+        printfunc (SCT_ByteStreamErrorsTool)
     
     if InDetFlags.useSctDCS():
         from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
         sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+
+        # For HLT and online monitoring
+        if athenaCommonFlags.isOnline():
+            sct_DCSConditionsToolSetup.setReadAllDBFolders(False)
+            if globalflags.DataSource() == "data":
+                sct_DCSConditionsToolSetup.setDbInstance("SCT")
+                dcs_folder="/SCT/HLT/DCS"
+                sct_DCSConditionsToolSetup.setStateFolder(dcs_folder+"/CHANSTAT")
+                sct_DCSConditionsToolSetup.setHVFolder(dcs_folder+"/HV")
+                sct_DCSConditionsToolSetup.setTempFolder(dcs_folder+"/MODTEMP")
+
         sct_DCSConditionsToolSetup.setup()
         InDetSCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
         if InDetFlags.useHVForSctDCS():
@@ -352,31 +360,31 @@ if DetFlags.haveRIO.SCT_on():
             printfunc (InDetSCT_TdaqEnabledTool)
         
         # Configure summary tool
-        InDetSCT_ConditionsSummaryTool.ConditionsTools= [ sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
-                                                          sct_FlaggedConditionToolSetup.getTool().getFullName(),
-                                                          sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
-                                                          sct_ReadCalibDataToolSetup.getTool().getFullName(),
-                                                          sct_TdaqEnabledToolSetup.getTool().getFullName()]
+        InDetSCT_ConditionsSummaryTool.ConditionsTools= [ InDetSCT_ConfigurationConditionsTool,
+                                                          InDetSCT_FlaggedConditionTool,
+                                                          SCT_ByteStreamErrorsTool,
+                                                          InDetSCT_ReadCalibDataTool,
+                                                          InDetSCT_TdaqEnabledTool ]
         if not athenaCommonFlags.isOnline():
-            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_MonitorConditionsTool ]
 
         if InDetFlags.useSctDCS():
-            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_DCSConditionsToolSetup.getTool().getFullName() ]
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_DCSConditionsTool ]
        
     # switch conditions off for SLHC usage
     elif InDetFlags.doSLHC():
         InDetSCT_ConditionsSummaryTool.ConditionsTools= []
       
     else :
-        InDetSCT_ConditionsSummaryTool.ConditionsTools= [ sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
-                                                          sct_FlaggedConditionToolSetup.getTool().getFullName(),
-                                                          sct_MonitorConditionsToolSetup.getTool().getFullName(),
-                                                          sct_ReadCalibDataToolSetup.getTool().getFullName()]
+        InDetSCT_ConditionsSummaryTool.ConditionsTools= [ InDetSCT_ConfigurationConditionsTool,
+                                                          InDetSCT_FlaggedConditionTool,
+                                                          InDetSCT_MonitorConditionsTool,
+                                                          InDetSCT_ReadCalibDataTool ]
         if InDetFlags.useSctDCS():
-            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_DCSConditionsToolSetup.getTool().getFullName() ]
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_DCSConditionsTool ]
 
     if InDetFlags.doSCTModuleVeto():
-        InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
+        InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_ModuleVetoTool ]
 
     # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
     import InDetRecExample.TrackingCommon as TrackingCommon
@@ -391,9 +399,9 @@ if DetFlags.haveRIO.SCT_on():
     InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()    
     condTools = []
     for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
-        condTool = condToolHandle.typeAndName
+        condTool = condToolHandle
         if condTool not in condTools:
-            if condTool != InDetSCT_FlaggedConditionTool.getFullName():
+            if condTool != InDetSCT_FlaggedConditionTool:
                 condTools.append(condTool)
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
         

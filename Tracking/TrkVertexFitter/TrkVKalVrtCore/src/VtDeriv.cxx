@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
 #include <iostream>
 
 
@@ -39,9 +39,9 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
     extern void tdasatVK(double *, double *, double *, long int, long int);
 
 
-#define rvec_ref(a_1,a_2) rvec[(a_2)*2 + a_1 - 1]
-#define drdpar_ref(a_1,a_2) drdpar[(a_2)*2 + a_1]
-#define cnv_ref(a_1,a_2) cnv[(a_2)*6 + a_1 - 7]
+#define rvec_ref(a_1,a_2) rvec[(a_2)*2 + (a_1) - 1]
+#define drdpar_ref(a_1,a_2) drdpar[(a_2)*2 + (a_1)]
+#define cnv_ref(a_1,a_2) cnv[(a_2)*6 + (a_1) - 7]
 
 /* ---------------------------------------------------------- */
 /*       Subroutine for derivative calculations               */

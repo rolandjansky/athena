@@ -25,10 +25,6 @@ atlas_add_library( MagFieldElements
                    src/*.cxx
                    PUBLIC_HEADERS MagFieldElements
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-		   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel CxxUtils EventPrimitives
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel CxxUtils EventPrimitives
                    PRIVATE_LINK_LIBRARIES PathResolver )
-
-# Install files from the package:
-atlas_install_headers( MagFieldElements )
-
 

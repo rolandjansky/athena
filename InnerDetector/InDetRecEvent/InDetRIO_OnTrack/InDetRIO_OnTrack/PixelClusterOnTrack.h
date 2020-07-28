@@ -60,36 +60,39 @@ namespace InDet {
       /** Constructor with parameters :
       RIO/PrepRawData pointer, LocalPosition&, LocalErrorMatrix&, idDE&
       Everything else is owned elsewhere. */
-      PixelClusterOnTrack( const PixelCluster* RIO, 
-                           const Trk::LocalParameters& locpars, 
-                           const Amg::MatrixX& locerr, 
-                           const IdentifierHash& idDE,
-                           bool hasAmbiguity=false, 
-			   // this parameter is ignored, 
-			   // information taken from RIO
-			   // Just kept not to break the interface to
-			   // already existing code. 
-                           bool isbroad=false
-                         ); 
+      PixelClusterOnTrack(const PixelCluster* RIO,
+                          const Trk::LocalParameters& locpars,
+                          const Amg::MatrixX& locerr,
+                          const IdentifierHash& idDE,
+                          bool hasAmbiguity = false,
+                          // this parameter is ignored,
+                          // information taken from RIO
+                          // Just kept not to break the interface to
+                          // already existing code.
+                          bool isbroad = false);
 
-    
       /** Constructor with parameters :
       RIO/PrepRawData pointer, LocalPosition&, LocalErrorMatrix&, idDE&,
       Global Position.
       Everything else is owned elsewhere. */
-      PixelClusterOnTrack( const PixelCluster* RIO, 
-                           const Trk::LocalParameters& locpars, 
-                           const Amg::MatrixX& locerr, 
-                           const IdentifierHash& idDE,
-                           const Amg::Vector3D& globalPosition,
-                           bool hasAmbiguity=false, 
-			   // this parameter is ignored, 
-			   // information taken from RIO
-			   // Just kept not to break the interface to
-			   // already existing code. 
-                           bool isbroad=false
-                         ); 
-	
+      PixelClusterOnTrack(const PixelCluster* RIO,
+                          const Trk::LocalParameters& locpars,
+                          const Amg::MatrixX& locerr,
+                          const IdentifierHash& idDE,
+                          const Amg::Vector3D& globalPosition,
+                          bool hasAmbiguity = false,
+                          // this parameter is ignored,
+                          // information taken from RIO
+                          // Just kept not to break the interface to
+                          // already existing code.
+                          bool isbroad = false);
+
+      /*
+       * Constuctor used by P->T converter.
+       * The P->T converter calls 
+       * setValues method to complete the object.
+       * e.g set/reset the DetectorElement
+       */
       PixelClusterOnTrack( const ElementLinkToIDCPixelClusterContainer& RIO,
                            const Trk::LocalParameters& locpars, 
                            const Amg::MatrixX& locerr, 
@@ -149,6 +152,7 @@ namespace InDet {
     private:
       friend class PixelClusterOnTrackCnv_p1;
       friend class ::FakeTrackBuilder;
+      
       /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
       virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;

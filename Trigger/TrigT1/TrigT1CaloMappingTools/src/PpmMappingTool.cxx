@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -18,20 +18,6 @@ const int PpmMappingTool::s_crates;
 const int PpmMappingTool::s_modules;
 const int PpmMappingTool::s_channels;
 
-PpmMappingTool::PpmMappingTool(const std::string& type,
-                               const std::string& name,
-			       const IInterface*  parent)
-			     : AthAlgTool(type, name, parent),
-			       m_crateInfo(0), m_currentMap(0),
-			       m_etaPhiMap(0)
-{
-  declareInterface<IL1CaloMappingTool>(this);
-}
-
-PpmMappingTool::~PpmMappingTool()
-{
-}
-
 #ifndef PACKAGE_VERSION
 #define PACKAGE_VERSION "unknown"
 #endif
@@ -40,57 +26,41 @@ StatusCode PpmMappingTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
                  << PACKAGE_VERSION << endmsg;
+  setupMap();
+  setupInverseMap();
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode PpmMappingTool::finalize()
 {
-  std::vector<CoordinateMap*>::iterator pos;
-  for (pos = m_coordMaps.begin(); pos != m_coordMaps.end(); ++pos) {
-    delete *pos;
-  }
-  delete m_crateInfo;
-  delete m_etaPhiMap;
-
   return StatusCode::SUCCESS;
 }
  
 // Return eta, phi and layer mapping for given crate/module/channel
 
 bool PpmMappingTool::mapping(const int crate, const int module,
-               const int channel, double& eta, double& phi, int& layer)
+               const int channel, double& eta, double& phi, int& layer) const
 {
   if (crate < 0 || crate >= s_crates || module < 0 || module >= s_modules ||
       channel < 0 || channel >= s_channels) return false;
 
-  if (!m_currentMap || crate != m_currentCrate || module != m_currentModule) {
+  const ModuleMap& modMap = m_crateInfo[crate];
+  const ModuleInfo& modInfo = modMap[module];
+  const double etaOffset     = modInfo.first.first;
+  const double phiOffset     = modInfo.first.second;
+  const CoordinateMap* currentMap    = modInfo.second;
 
-    // Find the relevant mapping
-
-    if ( !m_crateInfo ) setupMap();
-    CrateMap::const_iterator cpos = m_crateInfo->find(crate);
-    if (cpos == m_crateInfo->end()) return false;
-    const ModuleMap& modMap(cpos->second);
-    ModuleMap::const_iterator mpos = modMap.find(module);
-    if (mpos == modMap.end()) return false;
-    const ModuleInfo modInfo(mpos->second);
-    const Offsets etaPhiOff = modInfo.first;
-    m_currentMap    = modInfo.second;
-    m_etaOffset     = etaPhiOff.first;
-    m_phiOffset     = etaPhiOff.second;
-    m_currentCrate  = crate;
-    m_currentModule = module;
-  }
+  if (!currentMap) return false;
 
   // Set the output
 
-  CoordinateMap::const_iterator pos = m_currentMap->find(channel);
-  if (pos == m_currentMap->end()) return false;
-  ChannelCoordinate relCoord(pos->second);
-  relCoord.setEta(relCoord.eta() + m_etaOffset);
+  ChannelCoordinate relCoord = (*currentMap)[channel];
+  if (relCoord.layer() == ChannelCoordinate::NONE) return false;
+
+  relCoord.setEta(relCoord.eta() + etaOffset);
   eta   = etaSim(relCoord);
-  phi   = relCoord.phi() + m_phiOffset;
+  phi   = relCoord.phi() + phiOffset;
   layer = (relCoord.layer() == ChannelCoordinate::EM) ? 0 : 1;
   return true;
 }
@@ -98,14 +68,13 @@ bool PpmMappingTool::mapping(const int crate, const int module,
 // Return crate, module and channel mapping for given eta/phi/layer
 
 bool PpmMappingTool::mapping(const double eta, const double phi,
-                        const int layer, int& crate, int& module, int& channel)
+                        const int layer, int& crate, int& module, int& channel) const
 {
   const unsigned int invalidChanId = s_crates*s_modules*s_channels;
 
-  if ( !m_etaPhiMap ) setupInverseMap();
   const unsigned int key = etaPhiKey(eta, phi);
-  EtaPhiMap::iterator iter = m_etaPhiMap->find(key);
-  if (iter == m_etaPhiMap->end()) {
+  EtaPhiMap::const_iterator iter = m_etaPhiMap.find(key);
+  if (iter == m_etaPhiMap.end()) {
     msg(MSG::WARNING) << "Invalid eta/phi: " << eta
                       << "/" << phi << endmsg;
     return false;
@@ -126,8 +95,6 @@ bool PpmMappingTool::mapping(const double eta, const double phi,
 
 void PpmMappingTool::setupMap()
 {
-  m_crateInfo = new CrateMap;
-
   // Input to Output channel mappings.
   // Inputs are numbered 1-16 (x4) and outputs 0-63
   // There are four output sets obtained by adding 0,4,8,12 to out
@@ -265,155 +232,155 @@ void PpmMappingTool::setupMap()
   // Construct coordinate maps for each module type
   // Four blocks of each type make up the complete map
 
-  for (int i = 0; i < 12; ++i) m_coordMaps.push_back(new CoordinateMap);
+  for (int i = 0; i < 12; ++i) m_coordMaps.push_back(std::make_unique<CoordinateMap>());
   for (int block = 0; block < 4; ++block) {
     const int incr = block * 4;
-    std::vector<CoordinateMap*>::iterator pos = m_coordMaps.begin();
+    std::vector<std::unique_ptr<CoordinateMap> >::iterator pos = m_coordMaps.begin();
 
     // Map 0 : Type 1 EM
     addCoords(4,4,0.1,M_PI/32.,0.,block*M_PI/8.,in1,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     ++pos;
 
     // Map 1 : Type 1 Had
     addCoords(4,4,0.1,M_PI/32.,0.,block*M_PI/8.,in1,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     ++pos;
 
     // Map 2 : Type 2 EM
     addCoords(4,1,0.1,M_PI/32.,0.0,block*M_PI/8.,in2a,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     addCoords(2,2,0.2,M_PI/16.,0.1,block*M_PI/8.,in2b,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     ++pos;
 
     // Map 3 : Type 2 Had
     addCoords(4,1,0.1,M_PI/32.,0.0,block*M_PI/8.,in2a,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     addCoords(2,2,0.2,M_PI/16.,0.1,block*M_PI/8.,in2b,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     ++pos;
 
     // Map 4 : Type 3 EM
     addCoords(2,2,0.2,M_PI/16.,0.0,block*M_PI/8.,in3a,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     addCoords(4,1,0.1,M_PI/32.,0.4,block*M_PI/8.,in3b,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     ++pos;
 
     // Map 5 : Type 3 Had
     addCoords(2,2,0.2,M_PI/16.,0.0,block*M_PI/8.,in3a,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     addCoords(4,1,0.1,M_PI/32.,0.4,block*M_PI/8.,in3b,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     ++pos;
 
     // Map 6 : Type 4 EM positive eta
     addCoords(4,1,0.2,M_PI/16.,0.0,block*M_PI/4.,in4a,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     addCoords(4,1,0.1,M_PI/16.,0.2,block*M_PI/4.,in4b,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     ++pos;
 
     // Map 7 : Type 4 Had positive eta
     addCoords(4,1,0.2,M_PI/16.,0.0,block*M_PI/4.,in4a,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     addCoords(4,1,0.1,M_PI/16.,0.2,block*M_PI/4.,in4b,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     ++pos;
 
     // Map 8 : Type 4 EM negative eta
     addCoords(4,1,0.1,M_PI/16.,0.0,block*M_PI/4.,in4a,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     addCoords(4,1,0.2,M_PI/16.,0.1,block*M_PI/4.,in4b,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     ++pos;
 
     // Map 9 : Type 4 Had negative eta
     addCoords(4,1,0.1,M_PI/16.,0.0,block*M_PI/4.,in4a,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     addCoords(4,1,0.2,M_PI/16.,0.1,block*M_PI/4.,in4b,out,incr,
-              ChannelCoordinate::HAD, *pos);
+              ChannelCoordinate::HAD, **pos);
     ++pos;
 
     // Map 10 : Type 5 EM FCAL
     addCoords(4,4,0.425,M_PI/8.,0.0,block*M_PI/2.,in5,out,incr,
-              ChannelCoordinate::EM, *pos);
+              ChannelCoordinate::EM, **pos);
     ++pos;
 
     // Map 11 : Type 6 Had FCAL2 and FCAL3
     addCoords(4,2,0.85,M_PI/8.,0.0,block*M_PI/2.,in6a,out,incr,
-              ChannelCoordinate::FCAL2, *pos);
+              ChannelCoordinate::FCAL2, **pos);
     addCoords(4,2,0.85,M_PI/8.,0.0,block*M_PI/2.,in6b,out,incr,
-              ChannelCoordinate::FCAL3, *pos);
+              ChannelCoordinate::FCAL3, **pos);
   }
 
   // Fill crate map
 
-  std::vector<CoordinateMap*>::const_iterator pos = m_coordMaps.begin();
+  std::vector<std::unique_ptr<CoordinateMap> >::const_iterator pos = m_coordMaps.begin();
 
   // Map 0 : all of crates 0,1
   //         crate 2 modules 1,2,5,6,9,10,13,14
   //         crate 3 modules 2,3,6,7,10,11,14,15
-  addMods(0,0,4,4, 0.0,0.0,0.4,M_PI/2.,*pos);
-  addMods(1,0,4,4,-1.6,0.0,0.4,M_PI/2.,*pos);
-  addMods(2,1,4,2, 1.6,0.0,0.4,M_PI/2.,*pos);
-  addMods(3,2,4,2,-2.4,0.0,0.4,M_PI/2.,*pos);
+  addMods(0,0,4,4, 0.0,0.0,0.4,M_PI/2.,pos->get());
+  addMods(1,0,4,4,-1.6,0.0,0.4,M_PI/2.,pos->get());
+  addMods(2,1,4,2, 1.6,0.0,0.4,M_PI/2.,pos->get());
+  addMods(3,2,4,2,-2.4,0.0,0.4,M_PI/2.,pos->get());
   ++pos;
 
   // Map 1 : crate 4 modules 1,2,5,6,9,10,13,14
   //         crate 5 modules 2,3,6,7,10,11,14,15
   //         all of crates 6,7
-  addMods(4,1,4,2, 1.6,0.0,0.4,M_PI/2.,*pos);
-  addMods(5,2,4,2,-2.4,0.0,0.4,M_PI/2.,*pos);
-  addMods(6,0,4,4, 0.0,0.0,0.4,M_PI/2.,*pos);
-  addMods(7,0,4,4,-1.6,0.0,0.4,M_PI/2.,*pos);
+  addMods(4,1,4,2, 1.6,0.0,0.4,M_PI/2.,pos->get());
+  addMods(5,2,4,2,-2.4,0.0,0.4,M_PI/2.,pos->get());
+  addMods(6,0,4,4, 0.0,0.0,0.4,M_PI/2.,pos->get());
+  addMods(7,0,4,4,-1.6,0.0,0.4,M_PI/2.,pos->get());
   ++pos;
 
   // Map 2 : crate 2 modules 3,7,11,15
-  addMods(2,3,4,1, 2.4,0.0,0.5,M_PI/2.,*pos);
+  addMods(2,3,4,1, 2.4,0.0,0.5,M_PI/2.,pos->get());
   ++pos;
 
   // Map 3 : crate 4 modules 3,7,11,15
-  addMods(4,3,4,1, 2.4,0.0,0.5,M_PI/2.,*pos);
+  addMods(4,3,4,1, 2.4,0.0,0.5,M_PI/2.,pos->get());
   ++pos;
 
   // Map 4 : crate 3 modules 1,5,9,13
-  addMods(3,1,4,1,-2.9,0.0,0.5,M_PI/2.,*pos);
+  addMods(3,1,4,1,-2.9,0.0,0.5,M_PI/2.,pos->get());
   ++pos;
 
   // Map 5 : crate 5 modules 1,5,9,13
-  addMods(5,1,4,1,-2.9,0.0,0.5,M_PI/2.,*pos);
+  addMods(5,1,4,1,-2.9,0.0,0.5,M_PI/2.,pos->get());
   ++pos;
 
   // Map 6 : crate 2 modules 4,12
-  addMods(2, 4,1,1, 2.9,0.0,0.3,M_PI,*pos);
-  addMods(2,12,1,1, 2.9,M_PI,0.3,M_PI,*pos);
+  addMods(2, 4,1,1, 2.9,0.0,0.3,M_PI,pos->get());
+  addMods(2,12,1,1, 2.9,M_PI,0.3,M_PI,pos->get());
   ++pos;
 
   // Map 7 : crate 4 modules 4,12
-  addMods(4, 4,1,1, 2.9,0.0,0.3,M_PI,*pos);
-  addMods(4,12,1,1, 2.9,M_PI,0.3,M_PI,*pos);
+  addMods(4, 4,1,1, 2.9,0.0,0.3,M_PI,pos->get());
+  addMods(4,12,1,1, 2.9,M_PI,0.3,M_PI,pos->get());
   ++pos;
 
   // Map 8 : crate 3 modules 4,12
-  addMods(3, 4,1,1,-3.2,0.0,0.3,M_PI,*pos);
-  addMods(3,12,1,1,-3.2,M_PI,0.3,M_PI,*pos);
+  addMods(3, 4,1,1,-3.2,0.0,0.3,M_PI,pos->get());
+  addMods(3,12,1,1,-3.2,M_PI,0.3,M_PI,pos->get());
   ++pos;
 
   // Map 9 : crate 5 modules 4,12
-  addMods(5, 4,1,1,-3.2,0.0,0.3,M_PI,*pos);
-  addMods(5,12,1,1,-3.2,M_PI,0.3,M_PI,*pos);
+  addMods(5, 4,1,1,-3.2,0.0,0.3,M_PI,pos->get());
+  addMods(5,12,1,1,-3.2,M_PI,0.3,M_PI,pos->get());
   ++pos;
 
   // Map 10 : crate 4 module 0, crate 5 module 0
-  addMods(4,0,1,1, 3.2,0.0,1.7,2*M_PI,*pos);
-  addMods(5,0,1,1,-4.9,0.0,1.7,2*M_PI,*pos);
+  addMods(4,0,1,1, 3.2,0.0,1.7,2*M_PI,pos->get());
+  addMods(5,0,1,1,-4.9,0.0,1.7,2*M_PI,pos->get());
   ++pos;
 
   // Map 11 : crate 4 module 8, crate 5 module 8
-  addMods(4,8,1,1, 3.2,0.0,1.7,2*M_PI,*pos);
-  addMods(5,8,1,1,-4.9,0.0,1.7,2*M_PI,*pos);
+  addMods(4,8,1,1, 3.2,0.0,1.7,2*M_PI,pos->get());
+  addMods(5,8,1,1,-4.9,0.0,1.7,2*M_PI,pos->get());
 }
 
 // Set up eta/phi map
@@ -422,7 +389,6 @@ void PpmMappingTool::setupInverseMap()
 {
   const unsigned int invalidChanId = s_crates*s_modules*s_channels;
 
-  m_etaPhiMap = new EtaPhiMap;
   for (int cr = 0; cr < s_crates; ++cr) {
     for (int mod = 0; mod < s_modules; ++mod) {
       for (int chan = 0; chan < s_channels; ++chan) {
@@ -431,12 +397,12 @@ void PpmMappingTool::setupInverseMap()
 	if (mapping(cr, mod, chan, tmpEta, tmpPhi, tmpLayer)) {
 	  const unsigned int key    = etaPhiKey(tmpEta, tmpPhi);
 	  const unsigned int chanId = (cr * s_modules + mod) * s_channels + chan;
-	  EtaPhiMap::iterator iter = m_etaPhiMap->find(key);
-	  if (iter == m_etaPhiMap->end()) {
+	  EtaPhiMap::iterator iter = m_etaPhiMap.find(key);
+	  if (iter == m_etaPhiMap.end()) {
 	    ChannelIds ids(invalidChanId, invalidChanId);
 	    if (tmpLayer == 0) ids.first  = chanId;
             else               ids.second = chanId;
-	    m_etaPhiMap->insert(std::make_pair(key, ids));
+	    m_etaPhiMap.insert(std::make_pair(key, ids));
           } else {
 	    ChannelIds& ids(iter->second);
 	    if (tmpLayer == 0) ids.first  = chanId;
@@ -453,15 +419,15 @@ void PpmMappingTool::setupInverseMap()
 void PpmMappingTool::addCoords(const int nrows, const int ncols,
      const double etaGran, const double phiGran, const double etaOffset,
      const double phiOffset, const int* in, const int* out, const int incr,
-     const ChannelCoordinate::CaloLayer layer, CoordinateMap* coordMap)
+     const ChannelCoordinate::CaloLayer layer, CoordinateMap& coordMap)
 {
   for (int row = 0; row < nrows; ++row) {
     const double phi = (double(row) + 0.5) * phiGran + phiOffset;
     for (int col = 0; col < ncols; ++col) {
       const double eta = (double(col) + 0.5) * etaGran + etaOffset;
       const int channel = out[in[row*ncols+col]-1] + incr;
-      coordMap->insert(std::make_pair(channel, 
-                       ChannelCoordinate(layer, eta, phi, etaGran, phiGran)));
+      assert (channel < s_channels);
+      coordMap[channel] = ChannelCoordinate(layer, eta, phi, etaGran, phiGran);
     }
   }
 }
@@ -473,22 +439,15 @@ void PpmMappingTool::addMods(const int crate, const int modOffset,
      const double phiBase, const double etaRange, const double phiRange,
      const CoordinateMap* coordMap)
 {
+  assert (crate < static_cast<int>(m_crateInfo.size()));
+  ModuleMap& modMap = m_crateInfo[crate];
   for (int row = 0; row < nrows; ++row) {
     for (int col = 0; col < ncols; ++col) {
       const int module = row*4 + col + modOffset;
       const double etaOffset = etaRange * double(col) + etaBase;
       const double phiOffset = phiRange * double(row) + phiBase;
       Offsets off(etaOffset, phiOffset);
-      ModuleInfo modInfo(off, coordMap);
-      CrateMap::iterator cpos = m_crateInfo->find(crate);
-      if (cpos != m_crateInfo->end()) {
-        ModuleMap& modMap(cpos->second);
-        modMap.insert(std::make_pair(module, modInfo));
-      } else {
-        ModuleMap modMap;
-        modMap.insert(std::make_pair(module, modInfo));
-        m_crateInfo->insert(std::make_pair(crate, modMap));
-      }
+      modMap[module] = ModuleInfo (off, coordMap);
     }
   }
 }

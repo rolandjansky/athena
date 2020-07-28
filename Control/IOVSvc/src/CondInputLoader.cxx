@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CondInputLoader.cxx 
@@ -73,11 +73,6 @@ CondInputLoader::CondInputLoader( const std::string& name,
     }
   }
 }
-
-// Destructor
-///////////////
-CondInputLoader::~CondInputLoader()
-{}
 
 //-----------------------------------------------------------------------------
 
@@ -344,8 +339,14 @@ CondInputLoader::execute()
     }
   }
 
-  if (m_dumpEvt) {
-    ATH_MSG_DEBUG(m_condStore->dump()); 
+  if (m_dumpCondStore) {
+    ATH_MSG_DEBUG(m_condStore->dump());
+  }
+
+  if (m_dumpCondSvc) {
+    std::ostringstream ost;
+    m_condSvc->dump(ost);
+    ATH_MSG_DEBUG(ost.str());
   }
   
   return sc;

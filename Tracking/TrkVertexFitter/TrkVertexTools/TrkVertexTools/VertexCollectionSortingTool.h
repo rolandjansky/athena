@@ -38,8 +38,8 @@
   class VertexCollectionSortingTool : public AthAlgTool, virtual public IVertexCollectionSortingTool
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     /**
      * constructor
@@ -54,8 +54,9 @@
     virtual ~VertexCollectionSortingTool();
     
     /** Sort **/
-    virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> sortVertexContainer(const xAOD::VertexContainer& MyVxCont);
-             
+    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+    sortVertexContainer(const xAOD::VertexContainer& MyVxCont) const override;
+
   private:
     ToolHandle < Trk::IVertexWeightCalculator> m_iVertexWeightCalculator; 
       

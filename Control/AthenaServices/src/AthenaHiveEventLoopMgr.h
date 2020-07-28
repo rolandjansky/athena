@@ -263,6 +263,7 @@ private:
   unsigned int m_proc;
   bool m_useTools;
   bool m_doEvtHeartbeat;
+  bool m_firstEventAlone;
 
   unsigned int m_flmbi, m_timeStampInt;
 

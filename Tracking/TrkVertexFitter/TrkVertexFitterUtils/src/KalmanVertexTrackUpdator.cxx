@@ -17,9 +17,9 @@ namespace Trk
   {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_Updator);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_INFO("Retrieved tool " << m_Updator);
-  }
+  
   
   return StatusCode::SUCCESS;
  }
@@ -42,7 +42,7 @@ namespace Trk
  }
  
  KalmanVertexTrackUpdator::~KalmanVertexTrackUpdator()
- {}
+ = default;
  
  void KalmanVertexTrackUpdator::update(VxTrackAtVertex& trk, const xAOD::Vertex& vtx) const
  {
@@ -50,7 +50,7 @@ namespace Trk
    Trk::LinearizedTrack * linTrack = trk.linState();
  
    //protection check
-   if(linTrack == 0)
+   if(linTrack == nullptr)
    {
      if(trk.weight() > m_maxWeight)
      {

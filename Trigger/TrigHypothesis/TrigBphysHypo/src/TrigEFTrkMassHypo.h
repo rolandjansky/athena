@@ -7,8 +7,6 @@
 #define TRIGEFTRKMASSHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TrigT1Interfaces/RecMuonRoI.h" 
-
 #include "Constants.h"
 
 class TriggerElement;
@@ -36,7 +34,6 @@ private:
     unsigned int m_countTotalRoI;
     unsigned int m_countPassedEvents;
     unsigned int m_countPassedRoIs;
-//     StoreGateSvc * m_pStoreGate;
     void handle(const Incident &); 
 
     /* monitored variables */

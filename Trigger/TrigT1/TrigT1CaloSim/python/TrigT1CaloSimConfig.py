@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
 
@@ -7,6 +7,7 @@ class TriggerTowerMakerBase (LVL1__TriggerTowerMaker):
     def __init__(self, name):
         super( TriggerTowerMakerBase, self ).__init__( name )
         from AthenaCommon.DetFlags import DetFlags
+        from AthenaCommon.Constants import WARNING
         if DetFlags.digitize.LVL1_on():
             from Digitization.DigitizationFlags import jobproperties
             self.RndmSvc=jobproperties.Digitization.rndmSvc.get_Value()
@@ -15,21 +16,19 @@ class TriggerTowerMakerBase (LVL1__TriggerTowerMaker):
             jobproperties.Digitization.rndmSeedList.addSeed( str(self.PedEngine), 8594832, 5736213 )
             jobproperties.Digitization.rndmSeedList.addSeed( str(self.DigiEngine), 8631309, 4492432) 
         else:
-            rndmSvc = 'AtRanluxGenSvc'
-            self.RndmSvc = rndmSvc
+            self.RndmSvc = 'AtRanluxGenSvc'
             self.PedEngine = "%s_Pedestal"%name
             self.DigiEngine =  "%s_Digitization"%name
           
             from AthenaCommon.AppMgr import ServiceMgr
-            if not hasattr( ServiceMgr, rndmSvc):
-                from AthenaServices.AthenaServicesConf import  AtRanluxGenSvc
-                randomSvc = eval(rndmSvc)(rndmSvc)
-                ServiceMgr += randomSvc
+            if not hasattr( ServiceMgr, 'AtRanluxGenSvc'):
+                from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+                ServiceMgr += AtRanluxGenSvc()
                
             # init random number seeds
-            getattr(ServiceMgr, rndmSvc).Seeds += [ str(self.PedEngine) + " 8594832 5736213" ]
-            getattr(ServiceMgr, rndmSvc).Seeds += [ str(self.DigiEngine) + " 8631309 4492432" ]
-            getattr(ServiceMgr, rndmSvc).OutputLevel=4 # suppress 1 per event INFO messages.
+            ServiceMgr.AtRanluxGenSvc.Seeds += [ str(self.PedEngine) + " 8594832 5736213" ]
+            ServiceMgr.AtRanluxGenSvc.Seeds += [ str(self.DigiEngine) + " 8631309 4492432" ]
+            ServiceMgr.AtRanluxGenSvc.OutputLevel = WARNING # suppress 1 per event INFO messages.
     
 class TriggerTowerMaker_TTL1(TriggerTowerMakerBase) :
   __slots__ = []
@@ -142,17 +141,17 @@ useNoiseCuts2012: use 2012 values of noise cuts (only available for matched filt
     from AthenaCommon.Logging import logging  # loads logger
     log = logging.getLogger( "TrigT1CaloSimConfig.py" )
     log.info("configureTriggerTowerMaker will override the TriggerTowerMaker configuration")
-    log.info("AutoCorrelation = %s" % useAutoCorr)
-    log.info("PedestalCorrection = %s" % usePedestalCorrection)
-    log.info("NoiseCuts = %s" % useNoiseCuts)
-    log.info("PedestalCorrection from ROOT-File = %s" % usePedestalCorrectionProviderROOT)
+    log.info("AutoCorrelation = %s", useAutoCorr)
+    log.info("PedestalCorrection = %s", usePedestalCorrection)
+    log.info("NoiseCuts = %s", useNoiseCuts)
+    log.info("PedestalCorrection from ROOT-File = %s", usePedestalCorrectionProviderROOT)
     if usePedestalCorrection:
         if usePedestalCorrectionProviderROOT:
-            log.info("ROOT input file = %s" % inputFileRoot)
+            log.info("ROOT input file = %s", inputFileRoot)
         else:
-            log.info("EM input file = %s" % inputFileTxtEM)
-            log.info("HAD input file = %s" % inputFileTxtHAD)
-    log.info("NoiseCuts2012 = %s" % useNoiseCuts2012)
+            log.info("EM input file = %s", inputFileTxtEM)
+            log.info("HAD input file = %s", inputFileTxtHAD)
+    log.info("NoiseCuts2012 = %s", useNoiseCuts2012)
     if useAutoCorr and useNoiseCuts2012:
         log.warning("useNoiseCuts2012: 2012 NoiseCuts only available for matched filters - setting will have not effect")
     if (not useAutoCorr) and useNoiseCuts and useNoiseCuts2012:
@@ -355,7 +354,7 @@ useNoiseCuts2012: use 2012 values of noise cuts (only available for matched filt
                 pedestalProvider = ToolSvc.L1DynamicPedestalProviderRoot
         else:
 
-            if not 'MetaReaderPeeker' in dir():
+            if 'MetaReaderPeeker' not in dir():
                 try:
                     from PyUtils.MetaReaderPeekerFull import metadata
                 except ImportError:

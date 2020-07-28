@@ -394,8 +394,8 @@ for(int ihar=0;ihar<6;ihar++){
 for(int ihar=0;ihar<6;ihar++){
   for(int ib_imp=0;ib_imp<n_b_bins;ib_imp++){
     double reso=profile_resolution[ihar]->GetBinContent(ib_imp+1);
-    if (reso >=0) reso= sqrt( reso);
-    else          reso=-sqrt(-reso);
+    if (reso >=0) reso= std::sqrt( reso);
+    else          reso=-std::sqrt(-reso);
 
     for(int ieta=0;ieta<n_etabin;ieta++){
       profile_pt_dep_reco [ihar][ib_imp][ieta]->Scale(1.0/reso);

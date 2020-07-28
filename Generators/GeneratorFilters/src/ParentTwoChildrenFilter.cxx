@@ -40,35 +40,33 @@ StatusCode ParentTwoChildrenFilter::filterEvent() {
   }
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      int id = (*pitr)->pdg_id();
-      if (abs(id) != m_PDGParent[0]) continue;
-      if ((*pitr)->momentum().perp() < m_PtMinParent) continue;
+    for (auto  pitr:  *genEvt) {
+      int id = pitr->pdg_id();
+      if (std::abs(id) != m_PDGParent[0]) continue;
+      if (pitr->momentum().perp() < m_PtMinParent) continue;
       n_parents++;
-
-      int n_daughters = 0;
-      HepMC::GenParticle* mcpart = (*pitr);
-      const HepMC::GenVertex* decayVtx = mcpart->end_vertex();
+      HepMC::ConstGenVertexPtr decayVtx = pitr->end_vertex();
       // Verify if we got a valid pointer and retrieve the number of daughters
-      if (decayVtx != 0) n_daughters = decayVtx->particles_out_size();
-      if (n_daughters >= 2) {
-        HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-        HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-        HepMC::GenVertex::particle_iterator thisChild = firstChild;
-        for(; thisChild != endChild; ++thisChild) {
-          ATH_MSG_DEBUG(" ParentTwoChildrenFilter: parent ==> " <<(*pitr)->pdg_id() << " child ===> "  <<(*thisChild)->pdg_id());
+      if (!decayVtx) continue; 
+#ifdef HEPMC3
+      int n_daughters = decayVtx->particles_out().size();
+#else
+      int n_daughters = decayVtx->particles_out_size();
+#endif
+      if (n_daughters < 2) continue;
+        for( auto thisChild: *decayVtx ) {
+          ATH_MSG_DEBUG(" ParentTwoChildrenFilter: parent ==> " <<pitr->pdg_id() << " child ===> "  <<thisChild->pdg_id());
           for (int i = 0; i < 2; i++) {
-            if ( abs((*thisChild)->pdg_id()) == m_PDGChild[i] ){
-              if ( (*thisChild)->pdg_id()    == m_PDGChild[i] ){
-                if( ((*thisChild)->momentum().perp() >= m_PtMinChild) )N_Child[i][0]++;
+            if ( std::abs(thisChild->pdg_id()) == m_PDGChild[i] ){
+              if ( thisChild->pdg_id()    == m_PDGChild[i] ){
+                if (thisChild->momentum().perp() >= m_PtMinChild) N_Child[i][0]++;
               }
-              if ( (*thisChild)->pdg_id()   == -m_PDGChild[i] ){
-                if( ((*thisChild)->momentum().perp() >= m_PtMinChild) )N_Child[i][1]++;
+              if ( thisChild->pdg_id()   == -m_PDGChild[i] ){
+                if (thisChild->momentum().perp() >= m_PtMinChild) N_Child[i][1]++;
               }
             }
           }
         }
-      }
     }
   }
   setFilterPassed(N_Child[0][0] >= 1 && N_Child[0][1] >= 1 && N_Child[1][0] >= 1 && N_Child[1][1] >= 1);

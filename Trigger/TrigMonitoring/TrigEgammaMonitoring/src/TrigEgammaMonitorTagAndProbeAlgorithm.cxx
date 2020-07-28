@@ -52,7 +52,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
     ATH_MSG_INFO("Now configuring chains for analysis: " << name() );
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
-    for(const auto trigName:m_trigInputList)
+    for(const auto& trigName:m_trigInputList)
     {
       if(getTrigInfoMap().count(trigName) != 0){
         ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -114,6 +114,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
 
 
 
@@ -265,7 +266,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 
                 probeElectrons.push_back(selProbe);
 
-                auto mon_count_probe= Monitored::Scalar<std::string>(m_anatype+"_PorbeCutCounter","GoodProbe");
+                auto mon_count_probe= Monitored::Scalar<std::string>(m_anatype+"_ProbeCutCounter","GoodProbe");
                 auto mon_mee = Monitored::Scalar<float>(m_anatype+"_Mee" , tpPairMass/1.e3 );
                 fill( monGroup , mon_count_probe, mon_mee );
             }

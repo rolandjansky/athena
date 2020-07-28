@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -79,11 +79,14 @@ bool LArRawChannelBuilderToolParabola::buildRawChannel(const LArDigit* digit,
   iprovenance |= m_helper->returnBitPattern();
   iprovenance = iprovenance & 0x3FFF;
 
+  const float fMAXINT = static_cast<float>(MAXINT);
+  const float fMAXINT2 = static_cast<float>(MAXINT2);
+
   if (time>MAXINT) time=MAXINT;
   if (time<MAXINT2) time=MAXINT2;
 
-  if (energy>MAXINT) energy=MAXINT;
-  if (energy<MAXINT2) energy=MAXINT2;
+  if (energy>fMAXINT) energy=fMAXINT;
+  if (energy<fMAXINT2) energy=fMAXINT2;
 
   
   

@@ -132,7 +132,7 @@ if InDetFlags.doLowBetaFinder():
   include ("InDetRecExample/ConfiguredLowBetaFinder.py")
   from AthenaCommon.GlobalFlags import globalflags
   InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.xAODTrackParticleContainer(),
-                                                     True if (globalflags.DataSource is not "data") else False,
+                                                     True if (globalflags.DataSource != "data") else False,
                                                      InDetKeys.UnslimmedTracks())
 
 # -------------------------------------------------------------------------

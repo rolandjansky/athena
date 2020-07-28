@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSerializeCnvSvc/TrigSerializeCnvSvc.h"
@@ -23,15 +23,4 @@ StatusCode TrigSerializeCnvSvc::initialize(){
   }
   */
   return StatusCode::SUCCESS;
-}
-
-
-long int
-TrigSerializeCnvSvc::storageType() {
-  static long type(0x51);
-  return type;
-}
-
-long int TrigSerializeCnvSvc::repSvcType() const {
-  return storageType();
 }

@@ -395,12 +395,13 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
     ///     a high et track  
     const double inner_radius = m_radius; /// was hardcoded as 47 - now this can be set from the constructor
     const double outer_radius = m_radius;
+
     if ( (  track->hasProdVtx() && rp<=inner_radius ) && 
 	 ( !track->hasDecayVtx() || rd>outer_radius ) ) final_state = true; 
       
     /// leave this in for the moment - we may need to uncomment this afterall
     //    if ( track->status() == 3 ) final_state = false;         /// check its not a documentation particle
-      
+
     if ( !final_state ) return 0; 
     
     double deta = 0;
@@ -462,6 +463,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
       delete t;
       return false;
     }
+
     return true;
       
   }

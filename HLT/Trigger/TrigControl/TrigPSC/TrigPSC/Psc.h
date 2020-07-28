@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -136,6 +136,7 @@ namespace psc {
     std::string                   m_nameEventLoopMgr;    ///< name of the event loop manager
     bool                          m_interactive{false};  ///< Running in interactive mode (athenaHLT)
     std::unique_ptr<psc::Config>  m_config{nullptr};     ///< Config derived from ptree
+    int                           m_workerID{0};         ///< worker ID (0=mother)
 
     SmartIF<ISvcLocator> m_svcLoc;     ///< Service locator handle
   };

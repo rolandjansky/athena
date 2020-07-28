@@ -9,13 +9,13 @@
 //#define TRK2DDISTANCESEEDER_DEBUG
 
 #include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
-#include "TrkVertexSeedFinderUtils/TwoTracks.h"
-#include "TrkParameters/TrackParameters.h"
-#include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-#include <math.h>
+#include "TrkParameters/TrackParameters.h"
+#include "TrkVertexSeedFinderUtils/TwoTracks.h"
 #include <TMath.h>
+#include <cmath>
 
 namespace {
   inline double dist2d(const Amg::Vector3D & a, const Amg::Vector3D & b) {
@@ -72,13 +72,13 @@ namespace {
   inline double getRadiusOfCurvature(const Trk::Perigee & myPerigee,const double Bzfield) {
     return sin(myPerigee.parameters()[Trk::theta])/(Bzfield*myPerigee.parameters()[Trk::qOverP]);
   }
-  inline const Amg::Vector3D getCenterOfCurvature(const Trk::Perigee & myPerigee,const double RadiusOfCurvature,const double phipoca) {
+  inline Amg::Vector3D getCenterOfCurvature(const Trk::Perigee & myPerigee,const double RadiusOfCurvature,const double phipoca) {
     return Amg::Vector3D(myPerigee.associatedSurface().center().x()+myPerigee.parameters()[Trk::d0]*cos(phipoca)-RadiusOfCurvature*cos(phipoca),
 			 myPerigee.associatedSurface().center().y()+myPerigee.parameters()[Trk::d0]*sin(phipoca)-RadiusOfCurvature*sin(phipoca),
 			 myPerigee.associatedSurface().center().z()+myPerigee.parameters()[Trk::z0]+RadiusOfCurvature*
 			 myPerigee.parameters()[Trk::phi0]/tan(myPerigee.parameters()[Trk::theta]));
   }
-  inline const Amg::Vector3D getSeedPoint(const Trk::Perigee & myPerigee,const Amg::Vector3D & center,
+  inline Amg::Vector3D getSeedPoint(const Trk::Perigee & myPerigee,const Amg::Vector3D & center,
 					  const double radius,const double newphi) {
     //    short int sgnd0=(short int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
     return Amg::Vector3D(center.x()+radius*cos(newphi+M_PI/2.),
@@ -86,7 +86,7 @@ namespace {
 			       //		eliminated sgnd0 from center.z()-radius*(newphi-sgnd0*M_PI/2.)/tan(myPerigee.parameters()[Trk::theta]));
 			       center.z()-radius*newphi/tan(myPerigee.parameters()[Trk::theta]));
   }
-  inline const Amg::Vector3D getSeedPoint(const Amg::Vector3D & center,
+  inline Amg::Vector3D getSeedPoint(const Amg::Vector3D & center,
 					  const double radius,const double newphi) {
     //    short int sgnd0=(short int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
     return Amg::Vector3D(center.x()+radius*cos(newphi+M_PI/2.),
@@ -106,7 +106,7 @@ namespace Trk
     declareInterface<Trk2dDistanceSeeder>(this);
   }
 
-  Trk2dDistanceSeeder::~Trk2dDistanceSeeder() {}
+  Trk2dDistanceSeeder::~Trk2dDistanceSeeder() = default;
 
   StatusCode Trk2dDistanceSeeder::initialize() 
   { 
@@ -123,7 +123,7 @@ StatusCode Trk2dDistanceSeeder::finalize()
   }
 
 
-  const TwoPointOnTrack
+  TwoPointOnTrack
   Trk2dDistanceSeeder::GetSeed (const TwoTracks & mytracks,
                                 TwoPoints* twopoints /*=nullptr*/) const
   {
@@ -392,9 +392,9 @@ StatusCode Trk2dDistanceSeeder::finalize()
     if (bfield==0. || isnan(bfield)) {
       ATH_MSG_DEBUG( "Could not find a magnetic field different from zero: very very strange" );
       return 0.60407; //Value in GeV/mm (ATLAS units)
-    } else {
+    } 
       ATH_MSG_DEBUG( "Magnetic field projection of z axis in the perigee position is: " << bfield << " GeV/mm " );
-    }
+    
     return bfield;
   }
 

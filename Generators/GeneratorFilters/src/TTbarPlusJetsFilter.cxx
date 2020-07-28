@@ -55,23 +55,20 @@ StatusCode TTbarPlusJetsFilter::filterEvent() {
   std::vector<CLHEP::HepLorentzVector> electronFakingJetCandidates;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+    for (auto pitr:  *genEvt) {
       // Look for an electron from a W or a tau (it could end up as a jet):
-      if (abs((*pitr)->pdg_id()) == 24 || abs((*pitr)->pdg_id()) == 15) {
-        if ((*pitr)->end_vertex()) {
-          HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-          HepMC::GenVertex::particle_iterator thisChild = firstChild;
-          for (; thisChild != endChild; ++thisChild) {
-            if (abs((*thisChild)->pdg_id()) == 11 && fabs((*thisChild)->momentum().pseudoRapidity()) <= m_etaMaxJetB) {
+      if (std::abs(pitr->pdg_id()) == 24 || std::abs(pitr->pdg_id()) == 15) {
+        if (pitr->end_vertex()) {
+          for (auto thisChild: *(pitr->end_vertex())) {
+            if (std::abs(thisChild->pdg_id()) == 11 && std::abs(thisChild->momentum().pseudoRapidity()) <= m_etaMaxJetB) {
               ATH_MSG_VERBOSE("Electron from W or tau decay found in the ID acceptance: ");
-              ATH_MSG_VERBOSE(" eta = " << (*thisChild)->momentum().pseudoRapidity() <<
-                              " phi = " << (*thisChild)->momentum().phi() <<
-                              " pt = "  << (*thisChild)->momentum().perp());
-              CLHEP::HepLorentzVector momentum_lv((*thisChild)->momentum().px(),
-                                           (*thisChild)->momentum().py(),
-                                           (*thisChild)->momentum().pz(),
-                                           (*thisChild)->momentum().e());
+              ATH_MSG_VERBOSE(" eta = " << thisChild->momentum().pseudoRapidity() <<
+                              " phi = " << thisChild->momentum().phi() <<
+                              " pt = "  << thisChild->momentum().perp());
+              CLHEP::HepLorentzVector momentum_lv(thisChild->momentum().px(),
+                                           thisChild->momentum().py(),
+                                           thisChild->momentum().pz(),
+                                           thisChild->momentum().e());
               electronFakingJetCandidates.push_back(momentum_lv);
             }
           }
@@ -79,24 +76,21 @@ StatusCode TTbarPlusJetsFilter::filterEvent() {
       }
 
       // Count good leptons
-      if ( (*pitr)->status() == 1 &&
-           ((abs((*pitr)->pdg_id()) == 11 && (*pitr)->momentum().perp() >= m_ptMinElec && fabs((*pitr)->momentum().pseudoRapidity()) <= m_etaMaxElec ) ||
-            (abs((*pitr)->pdg_id()) == 13 && (*pitr)->momentum().perp() >= m_ptMinMuon && fabs((*pitr)->momentum().pseudoRapidity()) <= m_etaMaxMuon )) ) {
-        ATH_MSG_VERBOSE("Good lepton found: PDG ID = " << (*pitr)->pdg_id()
-                        << " eta = " << (*pitr)->momentum().pseudoRapidity()
-                        << " phi = " << (*pitr)->momentum().phi()
-                        << " pt  = " << (*pitr)->momentum().perp());
+      if ( pitr->status() == 1 &&
+           ((std::abs(pitr->pdg_id()) == 11 && pitr->momentum().perp() >= m_ptMinElec && std::abs(pitr->momentum().pseudoRapidity()) <= m_etaMaxElec ) ||
+            (std::abs(pitr->pdg_id()) == 13 && pitr->momentum().perp() >= m_ptMinMuon && std::abs(pitr->momentum().pseudoRapidity()) <= m_etaMaxMuon )) ) {
+        ATH_MSG_VERBOSE("Good lepton found: PDG ID = " << pitr->pdg_id()
+                        << " eta = " << pitr->momentum().pseudoRapidity()
+                        << " phi = " << pitr->momentum().phi()
+                        << " pt  = " << pitr->momentum().perp());
         ilep++;
       }
       // Count signs of lepton(s)
-      if (abs((*pitr)->pdg_id()) == 24) {
-        if ((*pitr)->end_vertex()) {
-          HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-          HepMC::GenVertex::particle_iterator thisChild = firstChild;
-          for (; thisChild != endChild; ++thisChild) {
-            if ((*thisChild)->pdg_id() ==  11 || (*thisChild)->pdg_id() ==  13) nLepMinus++;
-            if ((*thisChild)->pdg_id() == -11 || (*thisChild)->pdg_id() == -13) nLepPlus++;
+      if (std::abs(pitr->pdg_id()) == 24) {
+        if (pitr->end_vertex()) {
+          for (auto thisChild: *(pitr->end_vertex())) {
+            if (thisChild->pdg_id() ==  11 || thisChild->pdg_id() ==  13) nLepMinus++;
+            if (thisChild->pdg_id() == -11 || thisChild->pdg_id() == -13) nLepPlus++;
           }
         }
       }
@@ -128,14 +122,14 @@ StatusCode TTbarPlusJetsFilter::filterEvent() {
     const TLorentzVector jet_tlv = (*jiter)->p4();
     const CLHEP::HepLorentzVector jet_hlv(jet_tlv.Px(), jet_tlv.Py(), jet_tlv.Pz(), jet_tlv.E());
 
-    if (jet_tlv.Et() >= m_ptMinJet && fabs(aJet->eta())<= m_etaMaxJet) {
+    if (jet_tlv.Et() >= m_ptMinJet && std::abs(aJet->eta())<= m_etaMaxJet) {
       ijet++;
       ATH_MSG_VERBOSE("-> jet : eta = " << aJet->eta() << " phi = " << aJet->phi() << " pt = "  << jet_tlv.Et());
-      if (aJet->pt() >= m_ptMinJetB && fabs(aJet->eta()) <= m_etaMaxJetB) {
+      if (aJet->pt() >= m_ptMinJetB && std::abs(aJet->eta()) <= m_etaMaxJetB) {
         bool isjet = true;
         for (unsigned int iele = 0; iele < electronFakingJetCandidates.size(); iele++) {
           double deltaR  = jet_hlv.deltaR( electronFakingJetCandidates[iele] );
-          double deltaPt = fabs(jet_tlv.Et() - electronFakingJetCandidates[iele].perp());
+          double deltaPt = std::abs(jet_tlv.Et() - electronFakingJetCandidates[iele].perp());
           ATH_MSG_VERBOSE("--> matching to electron " << iele << " dR = " << deltaR << " dPt = " << deltaPt << " dPt/Pt = " << deltaPt/jet_tlv.Et());
           if (deltaR < 0.4 && deltaPt/jet_tlv.Et() < 0.1) isjet = false;
         }

@@ -32,7 +32,6 @@ atlas_add_component( MuonRPC_Cabling
 		     LINK_LIBRARIES MuonRPC_CablingLib )
 
 # Install files from the package:
-atlas_install_headers( MuonRPC_Cabling )
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/LVL1confAtlas.corr share/ATLAS.data share/LVL1confAtlasRUN2_ver016.corr )
 

@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetCaloClusterROISelector
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps xAODCaloEvent GaudiKernel CaloEvent CaloUtilsLib InDetRecToolInterfaces TrkCaloClusterROI )
+                     LINK_LIBRARIES AthenaBaseComps xAODCaloEvent GaudiKernel CaloEvent CaloUtilsLib InDetRecToolInterfaces TrkCaloClusterROI egammaInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( InDetCaloClusterROISelector )

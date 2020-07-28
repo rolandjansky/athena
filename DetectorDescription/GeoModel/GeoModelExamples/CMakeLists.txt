@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( GeoModelExamples )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/Identifier
-                          GaudiKernel )
-
 # External dependencies:
 find_package( Eigen )
 find_package( GeoModelCore )

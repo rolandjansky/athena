@@ -473,17 +473,6 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     ++Ncand;
   }
 
-	
-  // call eventFinalize on the booked tau tools
-  for (const auto& tool : m_tools) {
-    processStatus = tool->eventFinalize();
-    if( processStatus != StatusCode :: SUCCESS ) {
-      ATH_MSG_DEBUG("tool "<< tool->name()<< "failed in eventFinalize");
-      return StatusCode::FAILURE;
-    }
-  }
-  ATH_MSG_DEBUG("Tools succeed in eventFinalize");	
-	
   //-------------------------------------------------------------------------
   // all done, register the tau Container in TDS.
   //-------------------------------------------------------------------------

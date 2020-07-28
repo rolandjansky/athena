@@ -3,9 +3,11 @@ from future.utils import iteritems
 from future.utils import itervalues
 from future.utils import listvalues
 
-from past.builtins import basestring
 from builtins import object
 from builtins import int
+
+import six
+basestring = six.string_types
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 

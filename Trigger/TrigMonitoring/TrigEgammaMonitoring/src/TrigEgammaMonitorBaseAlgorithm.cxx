@@ -140,10 +140,10 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
 
 
     asg::AcceptInfo accept;
-    for(const auto cut:m_trigLevel) accept.addCut(cut,cut);
+    for(const auto& cut:m_trigLevel) accept.addCut(cut,cut);
     asg::AcceptData acceptData (&accept);
 
-
+   
     bool passedL1Calo=false;
     bool passedL2Calo=false;
     bool passedEFCalo=false;
@@ -151,6 +151,8 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     bool passedEFTrk=false;
     bool passedEF=false;
 
+ 
+    
     auto trigger = info.trigName;
    
     passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois");

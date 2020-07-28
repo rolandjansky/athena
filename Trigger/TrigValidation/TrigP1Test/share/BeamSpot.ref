@@ -1,135 +1,136 @@
-BeamSpotCondAlg                                   DEBUG Property update for OutputLevel : new value = 2
-BeamSpotCondAlg                                    INFO Initializing BeamSpotCondAlg...
-BeamSpotCondAlg                                   DEBUG input handles: 1
-BeamSpotCondAlg                                   DEBUG output handles: 1
-BeamSpotCondAlg                                   DEBUG Data Deps for BeamSpotCondAlg
-BeamSpotCondAlg                                    INFO Finalizing BeamSpotCondAlg...
-BeamSpotCondAlg                         1   0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         1   0      INFO Read from condDB status 4 pos (0.06,1.06,-4.6) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         1   0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[1,l:0] - [360026,l:2]} into conditions store.
-InDet::InDetBeamSpotReader              1   0      INFO In event [360026,629039520,t:1536151928.146430545,l:1,b:2129]
-InDet::InDetBeamSpotReader              1   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              2   0      INFO In event [360026,629048329,t:1536151928.249735590,l:1,b:1121]
-InDet::InDetBeamSpotReader              2   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              3   0      INFO In event [360026,629066479,t:1536151928.462784645,l:1,b:564]
-InDet::InDetBeamSpotReader              3   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              4   0      INFO In event [360026,629057458,t:1536151928.357131985,l:1,b:146]
-InDet::InDetBeamSpotReader              4   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              5   0      INFO In event [360026,629052742,t:1536151928.301033315,l:1,b:653]
-InDet::InDetBeamSpotReader              5   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-BeamSpotCondAlg                         6   0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         6   0      INFO Read from condDB status 4 pos (0.06,1.06,-4.6) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         6   0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[1,l:0] - [360026,l:3]} into conditions store.
-InDet::InDetBeamSpotReader              6   0      INFO In event [360026,629052355,t:1536151928.296812820,l:2,b:2572]
-InDet::InDetBeamSpotReader              6   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              7   0      INFO In event [360026,629059899,t:1536151928.385647935,l:2,b:2556]
-InDet::InDetBeamSpotReader              7   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              8   0      INFO In event [360026,629093183,t:1536151928.773460355,l:2,b:3075]
-InDet::InDetBeamSpotReader              8   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              9   0      INFO In event [360026,629089049,t:1536151928.724931515,l:2,b:469]
-InDet::InDetBeamSpotReader              9   0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              10  0      INFO In event [360026,629087976,t:1536151928.712184980,l:2,b:2817]
-InDet::InDetBeamSpotReader              10  0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-BeamSpotCondAlg                         11  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         11  0      INFO Read from condDB status 4 pos (0.06,1.06,-4.6) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         11  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[1,l:0] - [360026,l:4]} into conditions store.
-InDet::InDetBeamSpotReader              11  0      INFO In event [360026,629100991,t:1536151928.864075730,l:3,b:3130]
-InDet::InDetBeamSpotReader              11  0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              12  0      INFO In event [360026,629070167,t:1536151928.505791985,l:3,b:2842]
-InDet::InDetBeamSpotReader              12  0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              13  0      INFO In event [360026,629105268,t:1536151928.913411500,l:3,b:2437]
-InDet::InDetBeamSpotReader              13  0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              14  0      INFO In event [360026,629049972,t:1536151928.268858385,l:3,b:1283]
-InDet::InDetBeamSpotReader              14  0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              15  0      INFO In event [360026,629096494,t:1536151928.811415320,l:3,b:2443]
-InDet::InDetBeamSpotReader              15  0      INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-BeamSpotCondAlg                         16  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         16  0      INFO Read from condDB status 4 pos (0.04,1.04,-4.4) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         16  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:4] - [360026,l:5]} into conditions store.
-InDet::InDetBeamSpotReader              16  0      INFO In event [360026,629096759,t:1536151928.814699960,l:4,b:2220]
-InDet::InDetBeamSpotReader              16  0      INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              17  0      INFO In event [360026,629111207,t:1536151928.982501350,l:4,b:2259]
-InDet::InDetBeamSpotReader              17  0      INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              18  0      INFO In event [360026,629084836,t:1536151928.675204265,l:4,b:3292]
-InDet::InDetBeamSpotReader              18  0      INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              19  0      INFO In event [360026,629062407,t:1536151928.414880245,l:4,b:1601]
-InDet::InDetBeamSpotReader              19  0      INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-InDet::InDetBeamSpotReader              20  0      INFO In event [360026,629120223,t:1536151929.085827650,l:4,b:2103]
-InDet::InDetBeamSpotReader              20  0      INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
-BeamSpotCondAlg                         21  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         21  0      INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         21  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:6]} into conditions store.
-InDet::InDetBeamSpotReader              21  0      INFO In event [360026,629066532,t:1536151928.463263200,l:5,b:1924]
-InDet::InDetBeamSpotReader              21  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              22  0      INFO In event [360026,629076629,t:1536151928.580524515,l:5,b:721]
-InDet::InDetBeamSpotReader              22  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              23  0      INFO In event [360026,629048362,t:1536151928.250148200,l:5,b:3402]
-InDet::InDetBeamSpotReader              23  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              24  0      INFO In event [360026,629139478,t:1536151929.310496390,l:5,b:367]
-InDet::InDetBeamSpotReader              24  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              25  0      INFO In event [360026,629124505,t:1536151929.136043310,l:5,b:1035]
-InDet::InDetBeamSpotReader              25  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-BeamSpotCondAlg                         26  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         26  0      INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         26  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:7]} into conditions store.
-InDet::InDetBeamSpotReader              26  0      INFO In event [360026,629075402,t:1536151928.566334730,l:6,b:2249]
-InDet::InDetBeamSpotReader              26  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              27  0      INFO In event [360026,629071419,t:1536151928.519986085,l:6,b:1487]
-InDet::InDetBeamSpotReader              27  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              28  0      INFO In event [360026,629138679,t:1536151929.301762310,l:6,b:3150]
-InDet::InDetBeamSpotReader              28  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              29  0      INFO In event [360026,629120878,t:1536151929.093977385,l:6,b:848]
-InDet::InDetBeamSpotReader              29  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              30  0      INFO In event [360026,629126139,t:1536151929.155032420,l:6,b:2967]
-InDet::InDetBeamSpotReader              30  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-BeamSpotCondAlg                         31  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         31  0      INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         31  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:8]} into conditions store.
-InDet::InDetBeamSpotReader              31  0      INFO In event [360026,629045067,t:1536151928.211407135,l:7,b:1040]
-InDet::InDetBeamSpotReader              31  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              32  0      INFO In event [360026,629093793,t:1536151928.780718675,l:7,b:1733]
-InDet::InDetBeamSpotReader              32  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              33  0      INFO In event [360026,629142691,t:1536151929.348842560,l:7,b:1158]
-InDet::InDetBeamSpotReader              33  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              34  0      INFO In event [360026,629074617,t:1536151928.557165085,l:7,b:1831]
-InDet::InDetBeamSpotReader              34  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              35  0      INFO In event [360026,629119079,t:1536151929.072327955,l:7,b:2777]
-InDet::InDetBeamSpotReader              35  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-BeamSpotCondAlg                         36  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         36  0      INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         36  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:9]} into conditions store.
-InDet::InDetBeamSpotReader              36  0      INFO In event [360026,629152854,t:1536151929.464222515,l:8,b:2960]
-InDet::InDetBeamSpotReader              36  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              37  0      INFO In event [360026,629170606,t:1536151929.667925770,l:8,b:2053]
-InDet::InDetBeamSpotReader              37  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              38  0      INFO In event [360026,629175601,t:1536151929.725177615,l:8,b:1432]
-InDet::InDetBeamSpotReader              38  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              39  0      INFO In event [360026,629145750,t:1536151929.383336610,l:8,b:812]
-InDet::InDetBeamSpotReader              39  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              40  0      INFO In event [360026,629048911,t:1536151928.256455795,l:8,b:3160]
-InDet::InDetBeamSpotReader              40  0      INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-BeamSpotCondAlg                         41  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         41  0      INFO Read from condDB status 7 pos (0.09,1.09,-4.9) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         41  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:9] - [360026,l:10]} into conditions store.
-InDet::InDetBeamSpotReader              41  0      INFO In event [360026,629176383,t:1536151929.734118510,l:9,b:3374]
-InDet::InDetBeamSpotReader              41  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              42  0      INFO In event [360026,629170901,t:1536151929.671492005,l:9,b:2424]
-InDet::InDetBeamSpotReader              42  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              43  0      INFO In event [360026,629188660,t:1536151929.878164350,l:9,b:2903]
-InDet::InDetBeamSpotReader              43  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              44  0      INFO In event [360026,629191687,t:1536151929.913558395,l:9,b:2988]
-InDet::InDetBeamSpotReader              44  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              45  0      INFO In event [360026,629183449,t:1536151929.816825975,l:9,b:120]
-InDet::InDetBeamSpotReader              45  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-BeamSpotCondAlg                         46  0     DEBUG Executing BeamSpotCondAlg...
-BeamSpotCondAlg                         46  0      INFO Read from condDB status 7 pos (0.09,1.09,-4.9) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
-BeamSpotCondAlg                         46  0      INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:9] - [360026,l:11]} into conditions store.
-InDet::InDetBeamSpotReader              46  0      INFO In event [360026,629142575,t:1536151929.347510190,l:10,b:1218]
-InDet::InDetBeamSpotReader              46  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              47  0      INFO In event [360026,629182674,t:1536151929.807812320,l:10,b:2390]
-InDet::InDetBeamSpotReader              47  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              48  0      INFO In event [360026,629186765,t:1536151929.856277135,l:10,b:2430]
-InDet::InDetBeamSpotReader              48  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-InDet::InDetBeamSpotReader              49  0      INFO In event [360026,629138697,t:1536151929.301969950,l:10,b:780]
-InDet::InDetBeamSpotReader              49  0      INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
-BeamSpotCondAlg                         50  0      INFO Finalizing BeamSpotCondAlg...
+BeamSpotCondAlg                                    DEBUG Property update for OutputLevel : new value = 2
+BeamSpotCondAlg                                     INFO Initializing BeamSpotCondAlg...
+BeamSpotCondAlg                                    DEBUG input handles: 1
+BeamSpotCondAlg                                    DEBUG output handles: 1
+BeamSpotCondAlg                                    DEBUG Data Deps for BeamSpotCondAlg
+BeamSpotCondAlg                                     INFO Finalizing BeamSpotCondAlg...
+BeamSpotCondAlg                            1   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                            1   0    INFO Read from condDB status 4 pos (0.06,1.06,-4.6) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                            1   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[1,l:0] - [360026,l:2]} into conditions store.
+InDet::InDetBeamSpotReader                 1   0    INFO In event [360026,629039520,t:1536151928.146430545,l:1,b:2129]
+InDet::InDetBeamSpotReader                 1   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                 2   0    INFO In event [360026,629048329,t:1536151928.249735590,l:1,b:1121]
+InDet::InDetBeamSpotReader                 2   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                 3   0    INFO In event [360026,629066479,t:1536151928.462784645,l:1,b:564]
+InDet::InDetBeamSpotReader                 3   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                 4   0    INFO In event [360026,629057458,t:1536151928.357131985,l:1,b:146]
+InDet::InDetBeamSpotReader                 4   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                 5   0    INFO In event [360026,629052742,t:1536151928.301033315,l:1,b:653]
+InDet::InDetBeamSpotReader                 5   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+BeamSpotCondAlg                            6   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                            6   0    INFO Read from condDB status 4 pos (0.06,1.06,-4.6) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                            6   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[1,l:0] - [360026,l:3]} into conditions store.
+InDet::InDetBeamSpotReader                 6   0    INFO In event [360026,629052355,t:1536151928.296812820,l:2,b:2572]
+InDet::InDetBeamSpotReader                 6   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                 7   0    INFO In event [360026,629059899,t:1536151928.385647935,l:2,b:2556]
+InDet::InDetBeamSpotReader                 7   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                 8   0    INFO In event [360026,629093183,t:1536151928.773460355,l:2,b:3075]
+InDet::InDetBeamSpotReader                 8   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                 9   0    INFO In event [360026,629089049,t:1536151928.724931515,l:2,b:469]
+InDet::InDetBeamSpotReader                 9   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                10   0    INFO In event [360026,629087976,t:1536151928.712184980,l:2,b:2817]
+InDet::InDetBeamSpotReader                10   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+BeamSpotCondAlg                           11   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           11   0    INFO Read from condDB status 4 pos (0.06,1.06,-4.6) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           11   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[1,l:0] - [360026,l:4]} into conditions store.
+InDet::InDetBeamSpotReader                11   0    INFO In event [360026,629100991,t:1536151928.864075730,l:3,b:3130]
+InDet::InDetBeamSpotReader                11   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                12   0    INFO In event [360026,629070167,t:1536151928.505791985,l:3,b:2842]
+InDet::InDetBeamSpotReader                12   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                13   0    INFO In event [360026,629105268,t:1536151928.913411500,l:3,b:2437]
+InDet::InDetBeamSpotReader                13   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                14   0    INFO In event [360026,629049972,t:1536151928.268858385,l:3,b:1283]
+InDet::InDetBeamSpotReader                14   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                15   0    INFO In event [360026,629096494,t:1536151928.811415320,l:3,b:2443]
+InDet::InDetBeamSpotReader                15   0    INFO BeamSpot Position: 0.06 1.06 -4.6, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+BeamSpotCondAlg                           16   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           16   0    INFO Read from condDB status 4 pos (0.04,1.04,-4.4) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           16   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:4] - [360026,l:5]} into conditions store.
+InDet::InDetBeamSpotReader                16   0    INFO In event [360026,629096759,t:1536151928.814699960,l:4,b:2220]
+InDet::InDetBeamSpotReader                16   0    INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                17   0    INFO In event [360026,629111207,t:1536151928.982501350,l:4,b:2259]
+InDet::InDetBeamSpotReader                17   0    INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                18   0    INFO In event [360026,629084836,t:1536151928.675204265,l:4,b:3292]
+InDet::InDetBeamSpotReader                18   0    INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                19   0    INFO In event [360026,629062407,t:1536151928.414880245,l:4,b:1601]
+InDet::InDetBeamSpotReader                19   0    INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+InDet::InDetBeamSpotReader                20   0    INFO In event [360026,629120223,t:1536151929.085827650,l:4,b:2103]
+InDet::InDetBeamSpotReader                20   0    INFO BeamSpot Position: 0.04 1.04 -4.4, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 4
+BeamSpotCondAlg                           21   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           21   0    INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           21   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:6]} into conditions store.
+InDet::InDetBeamSpotReader                21   0    INFO In event [360026,629066532,t:1536151928.463263200,l:5,b:1924]
+InDet::InDetBeamSpotReader                21   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                22   0    INFO In event [360026,629076629,t:1536151928.580524515,l:5,b:721]
+InDet::InDetBeamSpotReader                22   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                23   0    INFO In event [360026,629048362,t:1536151928.250148200,l:5,b:3402]
+InDet::InDetBeamSpotReader                23   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                24   0    INFO In event [360026,629139478,t:1536151929.310496390,l:5,b:367]
+InDet::InDetBeamSpotReader                24   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                25   0    INFO In event [360026,629124505,t:1536151929.136043310,l:5,b:1035]
+InDet::InDetBeamSpotReader                25   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+BeamSpotCondAlg                           26   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           26   0    INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           26   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:7]} into conditions store.
+InDet::InDetBeamSpotReader                26   0    INFO In event [360026,629075402,t:1536151928.566334730,l:6,b:2249]
+InDet::InDetBeamSpotReader                26   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                27   0    INFO In event [360026,629071419,t:1536151928.519986085,l:6,b:1487]
+InDet::InDetBeamSpotReader                27   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                28   0    INFO In event [360026,629138679,t:1536151929.301762310,l:6,b:3150]
+InDet::InDetBeamSpotReader                28   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                29   0    INFO In event [360026,629120878,t:1536151929.093977385,l:6,b:848]
+InDet::InDetBeamSpotReader                29   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                30   0    INFO In event [360026,629126139,t:1536151929.155032420,l:6,b:2967]
+InDet::InDetBeamSpotReader                30   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+BeamSpotCondAlg                           31   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           31   0    INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           31   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:8]} into conditions store.
+InDet::InDetBeamSpotReader                31   0    INFO In event [360026,629045067,t:1536151928.211407135,l:7,b:1040]
+InDet::InDetBeamSpotReader                31   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                32   0    INFO In event [360026,629093793,t:1536151928.780718675,l:7,b:1733]
+InDet::InDetBeamSpotReader                32   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                33   0    INFO In event [360026,629142691,t:1536151929.348842560,l:7,b:1158]
+InDet::InDetBeamSpotReader                33   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                34   0    INFO In event [360026,629074617,t:1536151928.557165085,l:7,b:1831]
+InDet::InDetBeamSpotReader                34   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                35   0    INFO In event [360026,629119079,t:1536151929.072327955,l:7,b:2777]
+InDet::InDetBeamSpotReader                35   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+BeamSpotCondAlg                           36   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           36   0    INFO Read from condDB status 7 pos (0.05,1.05,-4.5) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           36   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:5] - [360026,l:9]} into conditions store.
+InDet::InDetBeamSpotReader                36   0    INFO In event [360026,629152854,t:1536151929.464222515,l:8,b:2960]
+InDet::InDetBeamSpotReader                36   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                37   0    INFO In event [360026,629170606,t:1536151929.667925770,l:8,b:2053]
+InDet::InDetBeamSpotReader                37   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                38   0    INFO In event [360026,629175601,t:1536151929.725177615,l:8,b:1432]
+InDet::InDetBeamSpotReader                38   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                39   0    INFO In event [360026,629145750,t:1536151929.383336610,l:8,b:812]
+InDet::InDetBeamSpotReader                39   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                40   0    INFO In event [360026,629048911,t:1536151928.256455795,l:8,b:3160]
+InDet::InDetBeamSpotReader                40   0    INFO BeamSpot Position: 0.05 1.05 -4.5, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+BeamSpotCondAlg                           41   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           41   0    INFO Read from condDB status 7 pos (0.09,1.09,-4.9) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           41   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:9] - [360026,l:10]} into conditions store.
+InDet::InDetBeamSpotReader                41   0    INFO In event [360026,629176383,t:1536151929.734118510,l:9,b:3374]
+InDet::InDetBeamSpotReader                41   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                42   0    INFO In event [360026,629170901,t:1536151929.671492005,l:9,b:2424]
+InDet::InDetBeamSpotReader                42   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                43   0    INFO In event [360026,629188660,t:1536151929.878164350,l:9,b:2903]
+InDet::InDetBeamSpotReader                43   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                44   0    INFO In event [360026,629191687,t:1536151929.913558395,l:9,b:2988]
+InDet::InDetBeamSpotReader                44   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                45   0    INFO In event [360026,629183449,t:1536151929.816825975,l:9,b:120]
+InDet::InDetBeamSpotReader                45   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+BeamSpotCondAlg                           46   0   DEBUG Executing BeamSpotCondAlg...
+BeamSpotCondAlg                           46   0    INFO Read from condDB status 7 pos (0.09,1.09,-4.9) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
+BeamSpotCondAlg                           46   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[360026,l:9] - [360026,l:11]} into conditions store.
+InDet::InDetBeamSpotReader                46   0    INFO In event [360026,629142575,t:1536151929.347510190,l:10,b:1218]
+InDet::InDetBeamSpotReader                46   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                47   0    INFO In event [360026,629182674,t:1536151929.807812320,l:10,b:2390]
+InDet::InDetBeamSpotReader                47   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                48   0    INFO In event [360026,629186765,t:1536151929.856277135,l:10,b:2430]
+InDet::InDetBeamSpotReader                48   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                49   0    INFO In event [360026,629138697,t:1536151929.301969950,l:10,b:780]
+InDet::InDetBeamSpotReader                49   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+InDet::InDetBeamSpotReader                50   0    INFO In event [360026,629151184,t:1536151929.445275770,l:10,b:2726]
+InDet::InDetBeamSpotReader                50   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7

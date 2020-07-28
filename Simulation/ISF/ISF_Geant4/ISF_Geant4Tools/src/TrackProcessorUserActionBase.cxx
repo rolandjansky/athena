@@ -93,7 +93,7 @@ void TrackProcessorUserActionBase::UserSteppingAction(const G4Step* aStep)
     // G4Tracks aready returned to ISF will have a TrackInformation attached to them
     bool particleReturnedToISF = trackInfo && trackInfo->GetReturnedToISF();
     if (!particleReturnedToISF) {
-      HepMC::GenParticle* generationZeroTruthParticle = nullptr;
+      HepMC::GenParticlePtr generationZeroTruthParticle{};
       ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( *aSecondaryTrack,
                                                 *m_curBaseISP,
                                                 Secondary,
@@ -191,8 +191,8 @@ void TrackProcessorUserActionBase::setupSecondary(const G4Track& aTrack)
   auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(aTrack);
 
   // why does TrackInformation return *const* GenParticle and ISFParticle objects!?
-  auto* currentlyTracedTruthParticle = const_cast<HepMC::GenParticle*>( trackInfo->GetHepMCParticle() );
-  auto* primaryTruthParticle = const_cast<HepMC::GenParticle*>( trackInfo->GetPrimaryHepMCParticle() );
+  HepMC::GenParticlePtr currentlyTracedTruthParticle = const_cast<HepMC::GenParticlePtr>( trackInfo->GetHepMCParticle() );
+  HepMC::GenParticlePtr primaryTruthParticle = const_cast<HepMC::GenParticlePtr>( trackInfo->GetPrimaryHepMCParticle() );
   auto* baseISFParticle = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
 
   setCurrentParticle(baseISFParticle, primaryTruthParticle, currentlyTracedTruthParticle);
@@ -200,8 +200,8 @@ void TrackProcessorUserActionBase::setupSecondary(const G4Track& aTrack)
 }
 
 void TrackProcessorUserActionBase::setCurrentParticle(ISF::ISFParticle* baseISFParticle,
-                                                      HepMC::GenParticle* truthPrimary,
-                                                      HepMC::GenParticle* truthCurrentlyTraced)
+                                                      HepMC::GenParticlePtr truthPrimary,
+                                                      HepMC::GenParticlePtr truthCurrentlyTraced)
 {
   m_curBaseISP = baseISFParticle;
   m_eventInfo->SetCurrentPrimary( truthPrimary );
@@ -210,9 +210,9 @@ void TrackProcessorUserActionBase::setCurrentParticle(ISF::ISFParticle* baseISFP
 }
 
 /// Classify the particle represented by the given set of truth links
-TrackClassification TrackProcessorUserActionBase::classify(const HepMC::GenParticle* primaryTruthParticle,
-                                                           const HepMC::GenParticle* generationZeroTruthParticle,
-                                                           const HepMC::GenParticle* currentlyTracedHepPart,
+TrackClassification TrackProcessorUserActionBase::classify(HepMC::ConstGenParticlePtr primaryTruthParticle,
+                                                           HepMC::ConstGenParticlePtr generationZeroTruthParticle,
+                                                           HepMC::ConstGenParticlePtr currentlyTracedHepPart,
                                                            int regenerationNumber) const
 {
   // if particle points to a non-zero truth particle it can not just be a 'simple' Secondary

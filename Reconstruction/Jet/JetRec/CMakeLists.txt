@@ -54,9 +54,9 @@ atlas_add_library( JetRecLib
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AthContainers AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
-  JetInterface
+  JetInterface  ${mon_lib}
   PRIVATE_LINK_LIBRARIES CxxUtils xAODBase xAODCore
-  xAODEventInfo xAODTracking ${mon_lib})
+  xAODEventInfo xAODTracking )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetRec

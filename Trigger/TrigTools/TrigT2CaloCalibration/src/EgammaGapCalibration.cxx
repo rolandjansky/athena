@@ -15,7 +15,7 @@
 //
 // ********************************************************************
 
-#include "TrigT2CaloCalibration/EgammaGapCalibration.h"
+#include "EgammaGapCalibration.h"
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "GaudiKernel/MsgStream.h"

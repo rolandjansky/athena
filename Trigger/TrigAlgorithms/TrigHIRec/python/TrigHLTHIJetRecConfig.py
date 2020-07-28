@@ -1,31 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaCommon.SystemOfUnits import MeV
-
-from JetRec.JetRecConf import JetRecTool
-from JetRec.JetRecConf import (JetFromPseudojet,
-                               JetFinder)
-from JetRec.JetRecFlags import jetFlags
-from JetRec.JetRecStandard import jtm
-from JetRec.JetRecCalibrationFinder import jrcf
-
-
-from GaudiKernel.Constants import (DEBUG,
-                                   INFO,
-                                   ERROR)
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
-#from HIJetRec.HIJetRecUtils import GetNullModulator
-from HIGlobal.HIGlobalFlags import jobproperties
-
-#from TrigHLTJetRec import TrigHLTJetRecConf
-#from TrigHLTJetRecConf import TrigHLTJetRecFromCluster
 from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTJetRecFromCluster
-from TrigHLTJetRec.TrigHLTJetRecConf import TriggerPseudoJetGetter
-
 
 #def _getTriggerHIPseudoJetGetter(hicluster_name):
 #    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
@@ -315,8 +293,7 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
              )
           #self.inputTool = inputTool
           #self.doInputs = False
-          self.jetBuildTool = jetBuildTool
-          print (jetBuildTool)
+          self.jetBuildTool = jetBuildTool 
        else :
           from  TrigHLTJetRec.TrigHLTJetRecConfig import _getJetBuildTool
           self.jetBuildTool = _getJetBuildTool(

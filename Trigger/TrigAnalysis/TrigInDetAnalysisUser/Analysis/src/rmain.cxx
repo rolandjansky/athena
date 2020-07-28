@@ -79,7 +79,7 @@
 extern bool PRINT_BRESIDUALS;
 
 // in BinConfig.cxx
-extern BinConfig binConfig;
+extern BinConfig g_binConfig;
 
 extern BinConfig electronBinConfig;
 extern BinConfig muonBinConfig;
@@ -554,6 +554,11 @@ int main(int argc, char** argv)
 
   //bool printflag = false;  // JK removed (unused)
 
+
+  bool rotate_testtracks = false;
+
+  if ( inputdata.isTagDefined("RotateTestTracks") ) rotate_testtracks = ( inputdata.GetValue("RotateTestTracks") ? true : false );
+
   bool truthMatch = false;
 
   if ( inputdata.isTagDefined("TruthMatch") )   truthMatch = ( inputdata.GetValue("TruthMatch") ? true : false );
@@ -897,7 +902,7 @@ int main(int argc, char** argv)
   if ( binningConfigFile!="" ) binningConfig = new ReadCards( binningConfigFile );
     
   /// set the tags in front of the histogram stuff 
-  binConfig.set(         *binningConfig, "" );
+  g_binConfig.set(       *binningConfig, "" );
   electronBinConfig.set( *binningConfig, "e_" );
   muonBinConfig.set(     *binningConfig, "mu_" );
   tauBinConfig.set(      *binningConfig, "tau_" );
@@ -2096,8 +2101,9 @@ int main(int argc, char** argv)
           
         }
         else vertices_roi = vertices;
-
-
+	
+       	if ( rotate_testtracks ) for ( size_t i=testp.size() ; i-- ; ) testp[i]->rotate();
+	
         foutdir->cd();
 
         // do analysing

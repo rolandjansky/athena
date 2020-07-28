@@ -106,13 +106,12 @@ class TrigEgammaMonAlgBuilder:
       self.activate_electron=True
       self.activate_photon=True
 
-    
+
+
   def configure(self):
     self.setProperties()
     self.configureMonitor()
     self.configureHistograms()
-
-
 
 
 
@@ -170,7 +169,7 @@ class TrigEgammaMonAlgBuilder:
     
     # This will be removed for future.
     monitoring_electron = ['HLT_e3_etcut_L1EM3','HLT_e5_etcut_L1EM3','HLT_e7_etcut_L1EM3','HLT_e300_etcut_L1EM24VHI']
-    monitoring_photon = ['HLT_g5_etcut_L1EM3','HLT_g5_loose_L1EM3','HLT_g5_medium_L1EM3','HLT_g5_tight_L1EM3','HLT_g140_loose_L1EM24VH']
+    monitoring_photon = ['HLT_g5_etcut_L1EM3','HLT_g5_loose_L1EM3','HLT_g5_medium_L1EM3', 'HLT_g5_tight_L1EM3', 'HLT_g25_etcut_L1EM15VH','HLT_g25_loose_L1EM15VH','HLT_g25_medium_L1EM15VH', 'HLT_g25_tight_L1EM15VH', 'HLT_g140_loose_L1EM24VH']
     monitoringTP_electron = ['HLT_e26_lhtight_L1EM22VHI','HLT_e60_lhmedium_L1EM22VHI','HLT_e140_lhloose_L1EM22VHI']
 
 
@@ -178,6 +177,7 @@ class TrigEgammaMonAlgBuilder:
     self.electronList = monitoring_electron
     self.photonList   = monitoring_photon
     self.tpList       = monitoringTP_electron
+    
     self.jpsiList     = []
     self.tagItems     = [] #monitoring_tags 
     self.jpsitagItems = [] #monitoring_jpsitags
@@ -361,34 +361,77 @@ class TrigEgammaMonAlgBuilder:
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
 
     for trigger in triggers:
-      self.bookL1CaloDistributions( monAlg, trigger )
-      self.bookL2CaloDistributions( monAlg, trigger )
-      self.bookL2ElectronDistributions( monAlg, trigger )
-      self.bookEFCaloDistributions( monAlg, trigger )
-      self.bookShowerShapesAndTrackingDistributions( monAlg, trigger, online=True )
-      self.bookShowerShapesAndTrackingDistributions( monAlg, trigger, online=False )
-      self.bookEfficiencies( monAlg, trigger, "L1Calo" )
-      self.bookEfficiencies( monAlg, trigger, "L2Calo" )
-      self.bookEfficiencies( monAlg, trigger, "L2"     )
-      self.bookEfficiencies( monAlg, trigger, "EFCalo" )
-      self.bookEfficiencies( monAlg, trigger, "HLT"    )
-      
-      if self.detailedHistograms:
-        for pid in self.isemnames + self.lhnames:
-          self.bookEfficiencies( monAlg, trigger, "HLT", pid )
-          self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )
+   
+      info = self.getTrigInfo(trigger)
 
-      
+      if info.isL1Item():
+        self.bookL1CaloDistributions( monAlg, trigger )
+        self.bookEfficiencies( monAlg, trigger, "L1Calo" )
+        self.bookL1CaloResolutions( monAlg, trigger )
+        self.bookL1CaloAbsResolutions( monAlg, trigger )
+
+      else:
+        #
+        # Distributions
+        #
+        self.bookL1CaloDistributions( monAlg, trigger )
+        self.bookL2CaloDistributions( monAlg, trigger )
+        self.bookEFCaloDistributions( monAlg, trigger )
+        
+        self.bookL1CaloResolutions( monAlg, trigger )
+        self.bookL1CaloAbsResolutions( monAlg, trigger )
+        self.bookL2CaloResolutions( monAlg, trigger )
+        self.bookHLTResolutions( monAlg, trigger )
+        
+        if info.isElectron():
+          self.bookL2ElectronDistributions( monAlg, trigger )
+          # Offline and HLT
+          self.bookShowerShapesDistributions( monAlg, trigger, online=True )
+          self.bookShowerShapesDistributions( monAlg, trigger, online=False )
+          self.bookTrackingDistributions( monAlg, trigger, online=True )
+          self.bookTrackingDistributions( monAlg, trigger, online=False )
+          self.bookHLTElectronResolutions( monAlg, trigger, info.isIsolated() )
+
+        elif info.isPhoton():
+          # Should we include L2 for photon in the future?
+          self.bookShowerShapesDistributions( monAlg, trigger, online=True )
+          self.bookShowerShapesDistributions( monAlg, trigger, online=False )
+          self.bookHLTPhotonResolutions( monAlg, trigger, info.isIsolated() )
+
+        
+        #
+        # Efficiecies
+        #
+        self.bookEfficiencies( monAlg, trigger, "L1Calo" )
+        self.bookEfficiencies( monAlg, trigger, "L2Calo" )
+        self.bookEfficiencies( monAlg, trigger, "L2"     )
+        self.bookEfficiencies( monAlg, trigger, "EFCalo" )
+        self.bookEfficiencies( monAlg, trigger, "HLT"    )
+        
+        if self.detailedHistograms:
+          for pid in self.isemnames + self.lhnames:
+            self.bookEfficiencies( monAlg, trigger, "HLT", pid )
+            self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )
+
+        
+
+
+    
 
   def bookEvent(self, monAlg, analysis):
 
-    #cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
-    #probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
+    cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
+    probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
+    tagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","IsGoodOQ","PassTrigger","MatchTrigger"]
+    
     # Create mon group.  The group name should be the path name for map
     monGroup = self.addGroup( monAlg, 'Event', self.basePath+'/Expert/Event' )
-    monGroup.defineHistogram(analysis+"_CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",xbins=6, xmin=0, xmax=6)
-    monGroup.defineHistogram(analysis+"_TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",xbins=12, xmin=0, xmax=12)
-    monGroup.defineHistogram(analysis+"_ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",xbins=12, xmin=0, xmax=12)
+    monGroup.defineHistogram(analysis+"_CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",
+        xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
+    monGroup.defineHistogram(analysis+"_TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
+        xbins=len(tagLabels), xmin=0, xmax=len(tagLabels), xlabels=tagLabels)
+    monGroup.defineHistogram(analysis+"_ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
+        xbins=len(probeLabels), xmin=0, xmax=len(probeLabels), xlabels=probeLabels)
     monGroup.defineHistogram(analysis+"_Mee", type='TH1F', path='/', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, xmin=monAlg.ZeeLowerMass, xmax=monAlg.ZeeUpperMass)
 
 
@@ -459,7 +502,7 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book Shower shapes
   #
-  def bookShowerShapesAndTrackingDistributions( self, monAlg, trigger, online=True ):
+  def bookShowerShapesDistributions( self, monAlg, trigger, online=True ):
     
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
@@ -484,6 +527,16 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("topoetcone20_rel", "topoetcone20/pt; topoetcone20/pt ; Count", 100, -0.5, 0.5))
     self.addHistogram(monGroup, TH1F("topoetcone40_shift", "topoetcone40-2.45 GeV; topoetcone40-2.45 GeV [GeV] ; Count", 100, -10.0, 10.0))
     self.addHistogram(monGroup, TH1F("topoetcone40_shift_rel", "(topoetcone40-2.45 GeV)/pt; (topoetcone40-2.45 GeV)/pt ; Count", 100, -0.5, 0.5))
+
+
+  #
+  # Book Tracking
+  #
+  def bookTrackingDistributions( self, monAlg, trigger, online=True ):
+    
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
+                              self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
 
 
     # Tracking quantities
@@ -518,8 +571,6 @@ class TrigEgammaMonAlgBuilder:
       monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level+'_'+subgroup, self.basePath+'/'+trigger+'/Efficiency/'+level+'/'+subgroup )
     else:
       monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
-    
-
 
     # Numerator
     self.addHistogram(monGroup, TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))
@@ -550,11 +601,276 @@ class TrigEgammaMonAlgBuilder:
 
 
 
+  def bookL1CaloResolutions(self, monAlg, trigger):
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L1Calo', self.basePath+'/'+trigger+'/Resolutions/L1Calo' )
+    self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", 50, -2.47, 2.47))
+
+    if self.detailedHistograms:
+      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, -2.47, 2.47,50, -0.1, 0.1))
+    
+
+
+  def bookL1CaloAbsResolutions(self, monAlg, trigger):
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
+    monGroup = self.addGroup( monAlg, trigger+'_AbsResolutions_L1Calo', self.basePath+'/'+trigger+'/AbsResolutions/L1Calo' )
+    self.addHistogram(monGroup, TH1F("eta", "#eta; #eta ; Count", 50, -2.47, 2.47))
+    self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
+    if self.detailedHistograms:
+      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, -2.47, 2.47,50, -0.1, 0.1))
+
+
+
+  def bookL2CaloResolutions(self, monAlg, trigger):
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L2Calo', self.basePath+'/'+trigger+'/Resolutions/L2Calo' )
+    
+    # online values used to fill all 2d histograms
+    self.addHistogram(monGroup, TH1F("et", "E_{T}; E_{T}[GeV] ; Count", 50, 0.0, 100.))
+    self.addHistogram(monGroup, TH1F("eta", "#eta; #eta ; Count", 50, -2.47, 2.47))
+     
+   
+    self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.001, 0.001))
+    self.addHistogram(monGroup, TH1F("res_phi", "#phi resolution; (#phi(on)-#phi(off))/#phi(off) ; Count", 40, -0.001, 0.001))
+    self.addHistogram(monGroup, TH1F("res_ethad", "ethad resolution; (ethad(on)-ethad(off))/ethad(off) ; Count", 20, -5, 5))
+    self.addHistogram(monGroup, TH1F("res_ethad1", "ethad1 resolution; (ethad1(on)-ethad1(off))/ethad1(off) ; Count", 20, -5, 5))
+    self.addHistogram(monGroup, TH1F("res_Rhad", "Rhad resolution; (Rhad(on)-Rhad(off))/Rhad(off) ; Count", 20, -10., 10.))
+    self.addHistogram(monGroup, TH1F("res_Rhad1", "Rhad1; Rhad1 resolution; (Rhad1(on)-Rhad1(off))/Rhad1(off)", 20, -10., 10.))
+    self.addHistogram(monGroup, TH1F("res_Reta", "Reta resolution; (Reta(on)-Reta(off))/Reta(off) ; Count", 20, -0.01, 0.01))
+    self.addHistogram(monGroup, TH1F("res_Rphi", "Rphi resolution; (Rphi(on)-Rphi(off))/Rphi(off) ; Count", 20, -0.01, 0.01))
+    self.addHistogram(monGroup, TH1F("res_weta2", "weta2 resolution; (weta2(on)-weta2(off))/weta2(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_f1", "f1 resolution; (f1(on)-f1(off))/f1(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_f3", "f3 resolution; (f3(on)-f3(off))/f3(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_eratio", "eratio resolution; (eratio(on)-eratio(off))/eratio(off) ; Count", 20, -0.001, 0.001))
+   
+    if self.detailedHistograms:
+      # Book all 2D histograms
+      self.addHistogram(monGroup, TH2F("et,res_etVsEt", "E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                  50, 0., 100.,
+                  100, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                  50, -2.47, 2.47,
+                  100, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("eta,res_f3", "L2Calo f3 resolution as function of #eta; #eta; (f3(on)-f3(off))/f3(off); Count",
+                  50, -2.47, 2.47,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("et,res_f3", "L2Calo f3 resolution as function of E_{T}; E_{T} [GeV]; (f3(on)-f3(off))/f3(off); Count",
+                  50, 0., 100.,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("eta,res_f1", "L2Calo f1 resolution as function of #eta; #eta; (f1(on)-f1(off))/f1(off); Count",
+                  50, -2.47, 2.47,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("et,res_f1", "L2Calo f1 resolution as function of E_{T}; E_{T} [GeV]; (f1(on)-f1(off))/f1(off); Count",
+                  50, 0., 100.,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("eta,res_weta2", "L2Calo weta2 resolution as function of #eta; #eta; (weta2(on)-weta2(off))/weta2(off); Count",
+                  50, -2.47, 2.47,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("et,res_weta2", "L2Calo weta2 resolution as function of E_{T}; E_{T} [GeV]; (weta2(on)-weta2(off))/weta2(off); Count",
+                  50, 0., 100.,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("eta,res_Reta", "L2Calo Reta resolution as function of #eta; #eta; (Reta(on)-Reta(off))/Reta(off); Count",
+                  50, -2.47, 2.47,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("et,res_Reta", "L2Calo Reta resolution as function of E_{T}; E_{T} [GeV]; (Reta(on)-Reta(off))/Reta(off); Count",
+                  50, 0., 100.,
+                  20, -0.05, 0.05))
+      self.addHistogram(monGroup, TH2F("eta,res_Rhad1", "L2Calo E_{T} Rhad1 resolution as function of #eta; #eta; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
+                  50, -2.47, 2.47,
+                  20, -10, 10))
+      self.addHistogram(monGroup, TH2F("et,res_Rhad1", "L2Calo E_{T} RHad1 resolution as function of E_{T}; E_{T} [GeV]; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
+                  50, 0., 100.,
+                  20, -10, 10))
+      self.addHistogram(monGroup, TH2F("eta,res_Rhad", "L2Calo E_{T} Rhad resolution as function of #eta; #eta; (Rhad(on)-Rhad(off))/Rhad(off); Count",
+                  50, -2.47, 2.47,
+                  20, -10, 10))
+      self.addHistogram(monGroup, TH2F("et,res_Rhad", "L2Calo E_{T} RHad resolution as function of E_{T}; E_{T} [GeV]; (Rhad(on)-Rhad(off))/Rhad(off); Count",
+                  50, 0., 100.,
+                  20, -10, 10))
+      self.addHistogram(monGroup, TH2F("eta,res_ethad1", "L2Calo E_{T} Had1 resolution as function of #eta; #eta; (ethad1(on)-ethad1(off))/ethad1(off); Count",
+                  50, -2.47, 2.47,
+                  20, -0.5, 0.5))
+      self.addHistogram(monGroup, TH2F("et,res_ethad1", "L2Calo E_{T} Had1 resolution as function of E_{T}; E_{T} [GeV]; (ethad1(on)-ethad1(off))/ethad1(off); Count",
+                  50, 0., 100.,
+                  20, -0.5, 0.5))
+      self.addHistogram(monGroup, TH2F("eta,res_ethad", "L2Calo E_{T} Had resolution as function of #eta; #eta; (ethad(on)-ethad(off))/ethad(off); Count",
+                  50, -2.47, 2.47,
+                  20, -0.5, 0.5))
+      self.addHistogram(monGroup, TH2F("et,res_ethad", "L2Calo E_{T} Had resolution as function of E_{T}; E_{T} [GeV]; (ethad(on)-ethad(off))/ethad(off); Count",
+                  50, 0., 100.,
+                  20, -0.5, 0.5))
+      self.addHistogram(monGroup, TH2F("eta,res_eratio", "L2Calo eratio resolution as function of #eta; #eta; (eratio(on)-eratio(off))/eratio(off); Count",
+                  50, -2.47, 2.47,
+                  20, -0.001, 0.001))
+      self.addHistogram(monGroup, TH2F("et,res_eratio", "L2Calo eratio resolution as function of E_{T}; E_{T} [GeV]; (eratio(on)-eratio(off))/eratio(off); Count",
+                  50, 0., 100.,
+                  50, -0.001, 0.001))
 
 
 
 
-  # 
+  def bookHLTResolutions(self, monAlg, trigger):
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+     
+    # online values used to fill all 2d histograms
+    self.addHistogram(monGroup, TH1F("et", "E_{T}; E_{T}[GeV] ; Count", 50, 0.0, 100.))
+    self.addHistogram(monGroup, TH1F("eta", "#eta; #eta ; Count", 50, -2.47, 2.47))
+    self.addHistogram(monGroup, TH1F("mu", "#mu; #mu ; Count", 50, 0, 100))
+    
+
+    self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.001, 0.001))
+    self.addHistogram(monGroup, TH1F("res_phi", "#phi resolution; (#phi(on)-#phi(off))/#phi(off) ; Count", 40, -0.001, 0.001))
+    self.addHistogram(monGroup, TH1F("res_ethad", "ethad resolution; (ethad(on)-ethad(off))/ethad(off) ; Count", 20, -5, 5))
+    self.addHistogram(monGroup, TH1F("res_ethad1", "ethad1 resolution; (ethad1(on)-ethad1(off))/ethad1(off) ; Count", 20, -5, 5))
+    self.addHistogram(monGroup, TH1F("res_Rhad", "Rhad resolution; (Rhad(on)-Rhad(off))/Rhad(off) ; Count", 20, -10., 10.))
+    self.addHistogram(monGroup, TH1F("res_Rhad1", "Rhad1; Rhad1 resolution; (Rhad1(on)-Rhad1(off))/Rhad1(off)", 20, -10., 10.))
+    self.addHistogram(monGroup, TH1F("res_Reta", "Reta resolution; (Reta(on)-Reta(off))/Reta(off) ; Count", 20, -0.01, 0.01))
+    self.addHistogram(monGroup, TH1F("res_Rphi", "Rphi resolution; (Rphi(on)-Rphi(off))/Rphi(off) ; Count", 20, -0.01, 0.01))
+    self.addHistogram(monGroup, TH1F("res_weta1", "weta1 resolution; (weta1(on)-weta1(off))/weta1(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_weta2", "weta2 resolution; (weta2(on)-weta2(off))/weta2(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_f1", "f1 resolution; (f1(on)-f1(off))/f1(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_f3", "f3 resolution; (f3(on)-f3(off))/f3(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_eratio", "eratio resolution; (eratio(on)-eratio(off))/eratio(off) ; Count", 20, -0.001, 0.001))
+
+
+    self.addHistogram(monGroup, TH1F("res_etInEta0", "HLT E_{T} resolution in #eta = [0#div1.37]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_etInEta1", "HLT E_{T} resolution in #eta = [1.37#div1.52]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_etInEta2", "HLT E_{T} resolution in #eta = [1.55#div1.8]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_etInEta3", "HLT E_{T} resolution in #eta = [1.8#div2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+ 
+    if self.detailedHistograms:
+      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, -2.47, 2.47,100, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("et,res_et", "E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, 0., 100.,100, -0.1, 0.1))
+
+
+
+  def bookHLTElectronResolutions(self, monAlg, trigger, isolated=False):
+
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+
+    self.addHistogram(monGroup, TH1F("res_pt", "p_{T} resolution; (p_{T}(on)-p_{T}(off))/p_{T}(off) ; Count", 120, -1.5, 1.5))
+    self.addHistogram(monGroup, TH1F("res_deta1", "deta1; deta1 ; (deta1(on)-deta1(off))/deta1(off)", 100, -1., 1.))
+    self.addHistogram(monGroup, TH1F("res_deta2", "deta2; deta2 ; (deta2(on)-deta2(off))/deta2(off)", 100, -1., 1.))
+    self.addHistogram(monGroup, TH1F("res_dphi2", "dphi2; dphi2 ; (dphi2(on)-dphi2(off))/dphi2(off)", 100, -1., 1.))
+    self.addHistogram(monGroup, TH1F("res_dphiresc", "dphiresc; (dphires(on)-dphires(off))/dphires(off) ; Count", 100, -1., 1.))
+    self.addHistogram(monGroup, TH1F("res_d0", "resolution d0; (d0(on)-d0(off)) ; Count", 100, -0.5, 0.5))
+    self.addHistogram(monGroup, TH1F("res_d0sig", "resolution d0sig; (d0sig(on)-d0sig(off)) ; Count", 50, -10, 10))
+    self.addHistogram(monGroup, TH1F("res_eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off)); Count",50, -1, 1))
+    self.addHistogram(monGroup, TH1F("res_nscthits","resolution nSCTHit; (nSCTHits(on)-nSCTHits(off); Count",20, -10, 10))
+    self.addHistogram(monGroup, TH1F("res_npixhits","resolution nPixHit; (nPixHits(on)-nPixHits(off)); Count",10, -5, 5))
+
+    self.addHistogram(monGroup, TH1F("pt", "online p_{T}; p_{T}; Count", 50, 0., 100.))
+ 
+    if self.detailedHistograms:
+      self.addHistogram(monGroup, TH2F("pt,res_eprobht", "eProbHT resolution as function of p_{T}; p_{T} [GeV]; (eprobHT(on)-eprobHT(off)); Count",
+                        50, 0., 100.,
+                        50, -1., 1.))
+
+
+  
+    if isolated:
+        self.addHistogram(monGroup, TH1F("res_ptcone20", "resolution ptcone20; ptcone20 (on-off)/off; Count", 200, -0.1, 0.1))
+        self.addHistogram(monGroup, TH1F("res_ptcone20_rel", "resolution ptcone20/pt; ptcone20/pt (on-off)/off; Count", 100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("eta,res_ptcone20_rel", "HLT ptcone20/pt resolution as function of #eta; #eta; (on-off)/off; Count",
+                    50, -2.47, 2.47,
+                    100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("et,res_ptcone20_rel", "HLT ptcone20/pt resolution as function of E_{T}; E_{T} [GeV]; (on-off)/off; Count",
+                    50, 0., 100.,
+                    100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("mu,res_ptcone20", "HLT ptcone20 resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                    50, 0, 100,
+                    100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("mu,res_ptcone20_rel", "HLT ptcone20/pt resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                    50, 0, 100,
+                    100, -0.1, 0.1))
+
+        self.addHistogram(monGroup, TH1F("res_ptvarcone20", "resolution ptvarcone20; ptvarcone20 (on-off)/off; Count", 200, -0.1, 0.1))
+        self.addHistogram(monGroup, TH1F("res_ptvarcone20_rel", "resolution ptvarcone20/pt; ptvarcone20/pt (on-off)/off; Count", 100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("eta,res_ptvarcone20_rel", "HLT ptvarcone20/pt resolution as function of #eta; #eta; (on-off)/off; Count",
+                    50, -2.47, 2.47,
+                    100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("et,res_ptvarcone20_rel", "HLT ptvarcone20/pt resolution as function of E_{T}; E_{T} [GeV]; (on-off)/off; Count",
+                    50, 0., 100.,
+                    100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("mu,res_ptvarcone20", "HLT ptvarcone20 resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                    50, 0, 100,
+                    100, -0.1, 0.1))
+        self.addHistogram(monGroup, TH2F("mu,res_ptvarcone20_rel", "HLT ptvarcone20/pt resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                    50, 0, 100,
+                    100, -0.1, 0.1))
+
+
+  def bookHLTPhotonResolutions(self, monAlg, trigger, isolated=False):
+
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+
+    self.addHistogram(monGroup, TH1F("res_et_cnv", "HLT E_{T} resolution for converted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_et_uncnv", "HLT E_{T} resolution for unconverted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_cnv_etInEta0", "HLT E_{T} resolution in #eta = [0#div1.37]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_cnv_etInEta1", "HLT E_{T} resolution in #eta = [1.37#div1.52]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_cnv_etInEta2", "HLT E_{T} resolution in #eta = [1.55#div1.8]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_cnv_etInEta3", "HLT E_{T} resolution in #eta = [1.8#div2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_uncnv_etInEta0", "HLT E_{T} resolution in #eta = [0#div1.37]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_uncnv_etInEta1", "HLT E_{T} resolution in #eta = [1.37#div1.52]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_uncnv_etInEta2", "HLT E_{T} resolution in #eta = [1.55#div1.8]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_uncnv_etInEta3", "HLT E_{T} resolution in #eta = [1.8#div2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
+
+    if self.detailedHistograms:
+      self.addHistogram(monGroup, TH2F("eta,res_cnv_et", 
+                  "HLT E_{T} resolution as function of #eta for converted Photons; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                  50, -2.47, 2.47,
+                  200, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("et,res_cnv_et", 
+                  "HLT E_{T} resolution as function of E_{T} for converted Photons; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                  50, 0., 100.,
+                  200, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("eta,res_uncnv_et", 
+                  "HLT E_{T} resolution as function of #eta for unconverted Photons; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                  50, -2.47, 2.47,
+                  200, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("et,res_uncnv_et", 
+                  "HLT E_{T} resolution as function of E_{T} for unconverted Photons; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                  50, 0., 100.,
+                  200, -0.1, 0.1))
+    
+    if isolated:
+
+        self.addHistogram(monGroup, TH1F("res_topoetcone20", "resolution topoetcone20; ptcone20 (on-off)/off; Count", 200, -0.1, 0.1))
+        self.addHistogram(monGroup, TH1F("res_topoetcone20_rel", "resolution topoetcone20/pt; ptcone20/pt (on-off)/off; Count", 100, -0.1, 0.1))
+        
+        if self.detailedHistograms:
+          self.addHistogram(monGroup, TH2F("eta,res_topoetcone20_rel", "HLT topoetcone20/pt resolution as function of #eta; #eta; (on-off)/off; Count",
+                      50, -2.47, 2.47,
+                      100, -0.1, 0.1))
+          self.addHistogram(monGroup, TH2F("et,res_topoetcone20_rel", "HLT topoetcone20/pt resolution as function of E_{T}; E_{T} [GeV]; (on-off)/off; Count",
+                      50, 0., 100.,
+                      100, -0.1, 0.1))
+          self.addHistogram(monGroup, TH2F("mu,res_topoetcone20", "HLT topoetcone20 resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                      50, 0, 100,
+                      100, -0.1, 0.1))
+          self.addHistogram(monGroup, TH2F("mu,res_topoetcone20_rel", "HLT topoetcone20/pt resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                      50, 0, 100,
+                      100, -0.1, 0.1))
+
+
+
+
+
+
+
+  #
   # Set binning
   #
   def setBinning(self, doJpsiee=False):
@@ -631,6 +947,14 @@ class TrigEgammaMonAlgBuilder:
 
       def pidname(self):
         return self.chain().split('_')[2]
+
+      def isIsolated(self):
+        for part_name in ['iloose', 'ivarloose', 'icaloloose', 'icalovloose', 'icalotight']:
+          if part_name in self.chain():
+            return True
+        return False
+
+
 
     return TrigEgammaInfo(trigger)
 

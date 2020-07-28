@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -69,11 +69,11 @@ bool  ISF::TruthAssocSimSelector::passSelectorCuts(const ISFParticle& particle) 
   if (truth)
     {
       // get GenParticle from truth binding
-      const HepMC::GenParticle* genParticle = truth->getTruthParticle();
+      HepMC::ConstGenParticlePtr genParticle = truth->getTruthParticle();
       if (genParticle)
         {
           // test whether any of the pdg codes is found in the genParticle history
-          const HepMC::GenParticle* relative = HepMCHelper::findRealtiveWithPDG( *genParticle, m_relation, m_relatives);
+          HepMC::ConstGenParticlePtr relative = HepMCHelper::findRealtiveWithPDG( *genParticle, m_relation, m_relatives);
           // in case a relative was found
           if (relative)
             {
@@ -84,7 +84,7 @@ bool  ISF::TruthAssocSimSelector::passSelectorCuts(const ISFParticle& particle) 
                               << " barcode=" << particle.barcode() << ")"
                               << " passes due relative particle"
                               << " (pdg=" << relative->pdg_id() << ","
-                              << " barcode=" << relative->barcode() << ")" );
+                              << " barcode=" << HepMC::barcode(*relative) << ")" );
               // selector cuts passed
               return true;
             } // found relative

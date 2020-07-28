@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -637,7 +637,7 @@ void TrigRoIMoni::FillEtaPhiPlots()
   const std::vector< HLT::JetEnergyRoI >& jetERoIs = 
     m_lvl1Tool->createJetEnergyThresholds(*result, false); // MM: safe to set this to false?
   
-  for (const HLT::JetEnergyRoI jetERoI : jetERoIs) {
+  for (const HLT::JetEnergyRoI& jetERoI : jetERoIs) {
     
     if (jetERoI.type() == HLT::JetRoI || jetERoI.type() == HLT::ForwardJetRoI) {
 

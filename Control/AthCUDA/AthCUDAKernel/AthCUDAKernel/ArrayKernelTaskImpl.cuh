@@ -20,11 +20,11 @@
 /// Helper macro for status code checks inside of these functions
 #define AKT_CHECK( EXP )                                                 \
    do {                                                                  \
-      const int _result = EXP;                                           \
-      if( _result != 0 ) {                                               \
+      const int exp_result = EXP;                                        \
+      if( exp_result != 0 ) {                                            \
          std::cerr << __FILE__ << ":" << __LINE__                        \
                    << " Failed to execute: " << #EXP << std::endl;       \
-         return _result;                                                 \
+         return exp_result;                                              \
       }                                                                  \
    } while( false )
 
@@ -385,11 +385,23 @@ namespace {
                      "Only trivial arrays are supported" );
    public:
       /// Operator scheduling the host->device copy of one array
-      int operator()( cudaStream_t stream, std::size_t arraySizes,
-                      typename ArrayKernelTaskHostVariables< ARGS... >::type&
-                         hostArgs,
-                      typename ArrayKernelTaskDeviceVariables< ARGS... >::type&
-                         deviceArgs ) {
+      int operator()( cudaStream_t
+#ifdef __CUDACC__
+                         stream
+#endif // __CUDACC__
+                      , std::size_t
+#ifdef __CUDACC__
+                         arraySizes
+#endif // __CUDACC__
+                      , typename ArrayKernelTaskHostVariables< ARGS... >::type&
+#ifdef __CUDACC__
+                         hostArgs
+#endif // __CUDACC__
+                      , typename ArrayKernelTaskDeviceVariables< ARGS... >::type&
+#ifdef __CUDACC__
+                         deviceArgs
+#endif // __CUDACC__
+                      ) {
          // Schedule the H->D copy.
          CUDA_EXP_CHECK( cudaMemcpyAsync( std::get< Index >( deviceArgs ).get(),
                                           std::get< Index >( hostArgs ).get(),
@@ -502,11 +514,23 @@ namespace {
                      "Only trivial arrays are supported" );
    public:
       /// Operator scheduling the device->host copy of one array
-      int operator()( cudaStream_t stream, std::size_t arraySizes,
-                      typename ArrayKernelTaskDeviceVariables< ARGS... >::type&
-                         deviceObjs,
-                      typename ArrayKernelTaskHostVariables< ARGS... >::type&
-                         hostObjs ) {
+      int operator()( cudaStream_t
+#ifdef __CUDACC__
+                         stream
+#endif // __CUDACC__
+                      , std::size_t
+#ifdef __CUDACC__
+                         arraySizes
+#endif // __CUDACC__
+                      , typename ArrayKernelTaskDeviceVariables< ARGS... >::type&
+#ifdef __CUDACC__
+                         deviceObjs
+#endif // __CUDACC__
+                      , typename ArrayKernelTaskHostVariables< ARGS... >::type&
+#ifdef __CUDACC__
+                         hostObjs
+#endif // __CUDACC__
+                      ) {
          // Schedule the D->H copy.
          CUDA_EXP_CHECK( cudaMemcpyAsync( std::get< Index >( hostObjs ).get(),
                                           std::get< Index >( deviceObjs ).get(),
@@ -801,8 +825,16 @@ namespace {
       /// Function called at the end of the recursive function calls. This
       /// is the function that actually does something.
       template< typename... ARGS1 >
-      static int execute( cudaStream_t stream, std::size_t arraySizes,
-                          const std::tuple<>&, ARGS1... args ) {
+      static int execute( cudaStream_t
+#ifdef __CUDACC__
+                             stream
+#endif // __CUDACC__
+                          , std::size_t arraySizes, const std::tuple<>&,
+                          ARGS1...
+#ifdef __CUDACC__
+                             args
+#endif // __CUDACC__
+                          ) {
 
          // If the arrays are empty, return right away.
          if( arraySizes == 0 ) {

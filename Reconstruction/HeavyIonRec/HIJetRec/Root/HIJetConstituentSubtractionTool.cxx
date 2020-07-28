@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetConstituentSubtractionTool.h"
+#include "HIJetConstituentSubtractionTool.h"
 #include "HIJetRec/HIJetRecDefs.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"

@@ -34,6 +34,3 @@ atlas_add_component( RPC_CondCabling
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES}  RPC_CondCablingLib)
 
-# Install files from the package:
-atlas_install_headers( RPC_CondCabling )
-

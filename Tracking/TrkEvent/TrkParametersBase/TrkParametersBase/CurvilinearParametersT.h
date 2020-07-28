@@ -9,17 +9,14 @@
 #ifndef TRKPARAMETERSBASE_CURVILINEARPARAMETERS_T_H
 #define TRKPARAMETERSBASE_CURVILINEARPARAMETERS_T_H
 
-// STL
-#include <memory>
+#include "TrkParametersBase/ParametersBase.h"
 
-// Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-// Tracking includes
 #include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkParametersBase/ParametersBase.h"
-#include "TrkParametersBase/SurfaceUniquePtrT.h"
+#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 
+#include <memory>
 class MsgStream;
 
 namespace Trk {

@@ -9,18 +9,38 @@ template<class T> std::tuple<bool,double,double> MuonMatchingTool :: trigPosForM
 
 
 template<class T, class OFFL>
-const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float &reqdR, bool &pass,
+const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float reqdR, bool &pass,
                                    std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::match<T>");
 
   using CONTAINER = DataVector<T>;
+  const T* ptr = nullptr;
+
+  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = searchLinkInfo<T>(offl, trig, reqdR, pass, trigPosForMatchFunc);
+  if( featureLinkInfo.isValid() ){
+    const ElementLink<CONTAINER> link = featureLinkInfo.link;
+    ptr = *link;
+  }
   
+  return ptr;
+
+}
+
+
+template<class T, class OFFL>
+const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: searchLinkInfo(const OFFL* offl, std::string trig, float reqdR, bool &pass,
+                                                                                      std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
+
+  ATH_MSG_DEBUG("MuonMonitoring::searchLinkInfo<T>");
+
+  using CONTAINER = DataVector<T>;
+
   double offlEta = offl->eta();
   double offlPhi = offl->phi();
 
   std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = m_trigDec->features<CONTAINER>( trig, TrigDefs::includeFailedDecisions );
-  const T* ptr = nullptr;
+  TrigCompositeUtils::LinkInfo<CONTAINER> muonLinkInfo;
   for(const TrigCompositeUtils::LinkInfo<CONTAINER>& featureLinkInfo : featureCont){
     if ( !featureLinkInfo.isValid() ) continue;
     const ElementLink<CONTAINER> link = featureLinkInfo.link;
@@ -34,15 +54,12 @@ const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float &re
     ATH_MSG_VERBOSE("Trigger muon candidate eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR);
     if( dR<reqdR ){
       reqdR = dR;
+      muonLinkInfo = featureLinkInfo;
       pass = ( featureLinkInfo.state == TrigCompositeUtils::ActiveState::ACTIVE );
-      ptr = *link.cptr();
-      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " pt=" << ptr->pt() << " dR=" << dR <<  " isPassed=" << pass);
+      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR <<  " isPassed=" << pass);
     }
   }
 
-
-  return ptr;
+  return muonLinkInfo;
 
 }
-
-

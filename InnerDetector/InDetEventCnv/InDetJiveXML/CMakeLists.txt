@@ -36,7 +36,7 @@ atlas_add_component( InDetJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRawData TrkSpacePoint TrkTruthData VxVertex JiveXMLLib AthContainers IdDictDetDescr InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkPrepRawData )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRawData TrkSpacePoint TrkTruthData VxVertex JiveXMLLib AthContainers IdDictDetDescr InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkPrepRawData InDetBeamSpotServiceLib )
 
 # Install files from the package:
 atlas_install_headers( InDetJiveXML )

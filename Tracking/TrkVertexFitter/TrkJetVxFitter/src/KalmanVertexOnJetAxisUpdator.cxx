@@ -33,7 +33,7 @@ namespace Trk{
  }
 
  KalmanVertexOnJetAxisUpdator::~KalmanVertexOnJetAxisUpdator()
- {}
+ = default;
  
  StatusCode KalmanVertexOnJetAxisUpdator::initialize()
  {
@@ -89,7 +89,7 @@ namespace Trk{
                                             int sign,bool doFastUpdate) const {
     
     //check that all pointers are there...
-    if (trackToUpdate==0||vertexToUpdate==0||candidateToUpdate==0||(sign!=1&&sign!=-1)) {
+    if (trackToUpdate==nullptr||vertexToUpdate==nullptr||candidateToUpdate==nullptr||(sign!=1&&sign!=-1)) {
       ATH_MSG_WARNING (" Empty pointers then calling fit method update. No fit will be donw...");
       return;
     }
@@ -105,15 +105,15 @@ namespace Trk{
       if ((*tracksIter)==0) {
 	ATH_MSG_WARNING (" Empty pointer in vector of VxTrackAtVertex of the VxVertexOnJetAxis which is being fitted. No fit will be done...");
 	return;
-      } else {
+      } 
 	if (*tracksIter==trackToUpdate) {
 	  found=true;
 	  break;
 	}
-      }
+      
     }  
     
-    if (found==false) {
+    if (!found) {
       ATH_MSG_WARNING ("Track was not found in the VxVertexOnJetAxis's list. No fit will be done...");
       return;
     }
@@ -124,7 +124,7 @@ namespace Trk{
     
     const Trk::RecVertexPositions & old_vrt = candidateToUpdate->getRecVertexPositions();
     
-    if (trackToUpdate->linState()==0) {
+    if (trackToUpdate->linState()==nullptr) {
       ATH_MSG_WARNING ("Linearized state not associated to track. Aborting fit... " << old_vrt);
       return;
     }
@@ -189,10 +189,6 @@ namespace Trk{
     const AmgMatrix(5,3) & B = trk->momentumJacobian();
     const AmgVector(5)& trackParameters = trk->expectedParametersAtPCA();
     
-#ifdef Updator_DEBUG
-    std::cout << "KalmanVertexOnJetAxisUpdator: expected perigee at pca " << trackParameters << std::endl;
-    std::cout << "KalmanVertexOnJetAxisUpdator: expected position at pca " << trk->expectedPositionAtPCA() << std::endl;
-#endif
     
     //   CLHEP::HepVector constantTerm = trk->constantTerm();
     //   the constant term has to be recalculated because of the use of the new parameters
@@ -224,47 +220,32 @@ namespace Trk{
       old_vrt_cov_momentum(2,2) = m_initialMomentumError*m_initialMomentumError/10000.;
 
       //R_k_k-1=V_k+A C_k-1 A_T + B D_k-1 B_T
-      AmgSymMatrix(5) old_residual_cov = 
-	trackParametersCovariance+A*old_vrt_cov*A.transpose()+B*old_vrt_cov_momentum*B.transpose();
+      AmgSymMatrix(5) old_residual_cov =
+        trackParametersCovariance + A * old_vrt_cov * A.transpose() +
+        B * old_vrt_cov_momentum * B.transpose();
 
       //the nice thing of the method is that the matrix to invert (old_residual) is just 5x5,
       //which is much better than n.track+5 x n.track+5 !!!
       if (old_residual_cov.determinant() == 0. ) {
         ATH_MSG_ERROR ("The old_residual matrix inversion failed");
         ATH_MSG_ERROR ("same vertex as before is returned");
-        Trk::RecVertexPositions r_vtx(myPosition);
-        return r_vtx;
+        return Trk::RecVertexPositions(myPosition);
       }
       //      AmgSymMatrix(5) old_residual_cov_inv = old_residual_cov.inverse().eval();
       AmgSymMatrix(5) old_residual_cov_inv = old_residual_cov.inverse().eval();
 
       Eigen::Matrix<double,Eigen::Dynamic,5> Kk1 = old_vrt_cov*A.transpose()*old_residual_cov_inv;
       AmgVector(5) residual_vector=trackParameters-constantTerm-A*old_vrt_pos;
-#ifdef Updator_DEBUG
-      std::cout<<"Gain factor K1 obtained: " << Kk1 << std::endl;
-      std::cout << "res vector "  << residual_vector << std::endl;
-#endif
 
       //obtain new position
       Amg::VectorX new_vrt_pos=old_vrt_pos+Kk1*residual_vector;
 
-#ifdef Updator_DEBUG
-      std::cout << "old position: " << old_vrt_pos << std::endl;
-      std::cout << "new position: " << new_vrt_pos << std::endl;
-#endif
 
       Amg::MatrixX new_vrt_cov=old_vrt_cov+Kk1*old_residual_cov*Kk1.transpose()-2.*Kk1*A*old_vrt_cov;
 
-#ifdef Updator_DEBUG
-      std::cout<<"New vertex covariance obtained: "<<new_vrt_cov<<std::endl;
-#endif
 
       double chi2 = myPosition.fitQuality().chiSquared() +
                     residual_vector.transpose()*old_residual_cov_inv*residual_vector;
-
-#ifdef Updator_DEBUG
-      std::cout << " the chi2 before: " << myPosition.fitQuality().chiSquared() << " after: " << chi2 << std::endl;
-#endif
 
       //NOT SO NICE: BUT: if there was already a track at this vertex,
       //then add 2, otherwise add 1 (additional parameter in the fit decreases +2 ndf)
@@ -274,14 +255,9 @@ namespace Trk{
       } else {
         ndf+=sign*1.;
       }
+      return Trk::RecVertexPositions(new_vrt_pos,new_vrt_cov,ndf,chi2);
 
-      //add the chi2 to the previous chi2
-      //Trk::RecVertexPositions r_vtx(new_vrt_weight_times_position,erm,ndf,0.,true);//ndf, chi2);
-      Trk::RecVertexPositions r_vtx(new_vrt_pos,new_vrt_cov,ndf,chi2);
-
-      return r_vtx;
-
-    } else {
+    } 
     
       const AmgSymMatrix(5) & trackParametersWeight  = trk->expectedWeightAtPCA();
     
@@ -292,12 +268,11 @@ namespace Trk{
       
 
       //vertex to be updated, needs to be copied 
-      RecVertexPositions myPosition=candidateToUpdate.getRecVertexPositions();
+      myPosition=candidateToUpdate.getRecVertexPositions();
       if(myPosition.covariancePosition().determinant() ==0.0) {
         ATH_MSG_WARNING ("The vertex-positions covariance matrix is not invertible");
         ATH_MSG_WARNING ("The copy of initial vertex returned");
-        Trk::RecVertexPositions r_vtx(myPosition);
-        return r_vtx;
+        return Trk::RecVertexPositions(myPosition);
       }
 #ifdef KalmanVertexUpdate_OLD
       const Amg::VectorX & old_vrt_pos = myPosition.position();
@@ -317,19 +292,10 @@ namespace Trk{
         ATH_MSG_WARNING(" The determinant of the track covariance matrix is zero or negative: " << trackParametersWeight.determinant());
       }
 
-    
-//      if (old_full_vrt_weight.determinant()<=0)  
-//      {
-//        ATH_MSG_WARNING(" The determinant of the vertex full weight matrix is zero or negative: " << old_full_vrt_weight.determinant());
-//      }
-
-
-//      std::cout << " WEIGHT MATRIX of POS " << old_full_vrt_weight << std::endl;
 
       Amg::MatrixX         old_vrt_weight(numrow_toupdate+1,numrow_toupdate+1);
       old_vrt_weight = old_full_vrt_weight.block(0,0,numrow_toupdate+1,numrow_toupdate+1);
 
-//      std::cout << " Reduced Weight of POS " << old_vrt_weight << std::endl;
 
 #endif
 
@@ -338,16 +304,14 @@ namespace Trk{
       AmgSymMatrix(3) S = B.transpose()*(trackParametersWeight*B);
 
 
-//      std::cout << " Matrix S " << S << std::endl;
 
       if(S.determinant() ==0.0) {
         ATH_MSG_WARNING ("The S matrix is not invertible");
         ATH_MSG_WARNING ("A copy of initial vertex returned");
-        Trk::RecVertexPositions r_vtx(myPosition);
-        return r_vtx;
-      } else S = S.inverse().eval();
+        return Trk::RecVertexPositions(myPosition);
+      }
+      S = S.inverse().eval();
 
-//      std::cout << " Matrix S after inversion " << S << std::endl;
 
       //G_b = G_k - G_k*B_k*W_k*B_k^(T)*G_k  
 
@@ -355,7 +319,6 @@ namespace Trk{
 	//gB=gB/2.0+gB.transpose().eval()/2.0;
 
 
-//      std::cout << " gB " << gB << std::endl;
 
 #ifdef Updator_DEBUG
       std::cout<<"Gain factor obtained: "<<trackParametersWeight*(B*(S*B.transpose()))*trackParametersWeight.transpose()<<std::endl;
@@ -406,7 +369,7 @@ namespace Trk{
 	smartInvert(new_vrt_cov);
         if (new_vrt_cov.determinant() == 0.0) {
           ATH_MSG_ERROR ("The reduced weight matrix is not invertible, returning copy of initial vertex.");
-          Trk::RecVertexPositions r_vtx(myPosition);
+          const Trk::RecVertexPositions& r_vtx(myPosition);
           return r_vtx;
         }
 //	After symmetrizing the matirx by hand, as mentioned above, the smart inversion works agian.
@@ -415,7 +378,7 @@ namespace Trk{
       catch (std::string a)
       {
         ATH_MSG_ERROR( a << " Previous vertex returned " );
-        Trk::RecVertexPositions r_vtx(myPosition);
+        const Trk::RecVertexPositions& r_vtx(myPosition);
         return r_vtx;
       }
 #endif
@@ -476,7 +439,7 @@ namespace Trk{
           negative=true;
         }
         if (negative) {
-          Trk::RecVertexPositions r_vtx(myPosition);
+          const Trk::RecVertexPositions& r_vtx(myPosition);
           return r_vtx;
         }
       }
@@ -494,7 +457,7 @@ namespace Trk{
       Trk::RecVertexPositions r_vtx(new_full_vrt_pos,new_full_vrt_cov,ndf, chi2);
 #endif
       return r_vtx; 
-    }
+    
     //method which avoids inverting huge covariance matrix still needs to be implemented
 
   }//end of position update method
@@ -504,7 +467,7 @@ namespace Trk{
 						       VxJetCandidate* vertexCandidate) const {
 
     //check that all pointers are there...
-    if (vertexCandidate==0||trackToUpdate==0) { 
+    if (vertexCandidate==nullptr||trackToUpdate==nullptr) { 
       ATH_MSG_WARNING( " Empty pointers then calling fit method updateChi2NdfInfo. No update will be done..." );
       return;
     }
@@ -520,15 +483,15 @@ namespace Trk{
       if ((*tracksIter)==0) {
 	ATH_MSG_WARNING( " Empty pointer in vector of VxTrackAtVertex of the VxVertexOnJetAxis whose chi2 is being updated. No update will be done..." );
 	return;
-      } else {
+      } 
 	if (*tracksIter==trackToUpdate) {
 	  found=true;
 	  break;
 	}
-      }
+      
     }  
     
-    if (found==false) {
+    if (!found) {
       ATH_MSG_WARNING( " Track was not found in the VxVertexOnJetAxis's list. No update will be done..." );
       return;
     }
@@ -541,7 +504,7 @@ namespace Trk{
     
     //    log << MSG::VERBOSE << "vertexPositions (update chi2): " << vertexPositions << endmsg;
 
-    if (trackToUpdate->linState()==0) {
+    if (trackToUpdate->linState()==nullptr) {
       ATH_MSG_WARNING( "Linearized state not associated to track. Aborting chi2 update... " << vertexPositions );
       return;
     }
@@ -610,7 +573,8 @@ namespace Trk{
     if(S.determinant() ==0.0) {
       ATH_MSG_ERROR ("The matrix S is not invertible, return chi2 0");
       return -0.;
-    } else S = S.inverse().eval();
+    } 
+    S = S.inverse().eval();
 
     //refitted track momentum  
     Amg::Vector3D newTrackMomentum = S*B.transpose()*trackParametersWeight*(trackParameters - constantTerm - A*new_vrt_position);
@@ -629,7 +593,7 @@ namespace Trk{
   void KalmanVertexOnJetAxisUpdator::updateVertexChi2(VxJetCandidate* vertexCandidate) const {
 
     //check that all pointers are there...
-    if (vertexCandidate==0) { 
+    if (vertexCandidate==nullptr) { 
       ATH_MSG_WARNING( " Empty pointers then calling chi2 update method updateVertexChi2. No update will be done..." );
       return;
     }
@@ -726,7 +690,7 @@ namespace Trk{
     int numRows=new_vrt_weight.rows();
     if (numRows<=6) {
       if(new_vrt_weight.determinant() ==0)
-// if |A|==0; then A is not invertible;
+        // if |A|==0; then A is not invertible;
       {
         throw std::string("The reduced weight matrix is not invertible. Previous vertex returned ");
       }
@@ -744,13 +708,10 @@ namespace Trk{
         B(i,j-5)=new_vrt_weight(i,j);
       }
     }
-//    std::cout << " weight matrix: " << new_vrt_weight << std::endl;
-//    std::cout << " non diag upper right elem: " << B << std::endl;
 
     // CLHEP::HepSymMatrix D=new_vrt_weight.sub(6,numRows);
     Amg::MatrixX D = new_vrt_weight.block(5,5,numRows-5,numRows-5); // will be of dim (numrows-5)
 
-   //std::cout << " D "<<std::endl << D << std::endl;
     
     // Eigen::DiagonalMatrix<double,Eigen::Dynamic> DdiagINV(D.rows()); // was CLHEP::HepDiagMatrix
 //    if (numRows>6 && D.isDiagonal(/*precision<scalar>=*/1e-7))
@@ -785,15 +746,12 @@ namespace Trk{
     }
 //      D=D.inverse().eval();
 
-//    std::cout << " D after inversion " << D << std::endl;
-
     Amg::MatrixX E = A - B*(D*B.transpose());
     if (E.determinant() == 0.) {
       throw std::string("Cannot invert E matrix...");
     }
     E=E.inverse().eval();
 
-//    std::cout << " E " << E << std::endl;
     
     Amg::MatrixX finalWeight(numRows,numRows); 
     finalWeight.setZero();
@@ -804,7 +762,6 @@ namespace Trk{
     finalWeight.block(5,5,D.rows(),D.rows()) = 
         D+(D*((B.transpose()*(E*B))*D.transpose()));
 
-//    std::cout << " finalWeight " << finalWeight << std::endl;
 
 //    Amg::MatrixX normalInversion=new_vrt_weight.inverse().eval();
 //    Amg::MatrixX smartInversion=finalWeight;
@@ -822,7 +779,6 @@ namespace Trk{
 	}
       }
     }
-    if (mismatch) std::cout << " mismatch, normalInv: " << normalInversion << " smartInv " << smartInversion << " det 1 " << normalInversion.determinant() << " det 2 " << smartInversion.determinant() << std::endl;
 */
 
 //    new_vrt_weight = new_vrt_weight.inverse().eval();//finalWeight;//MODIFIED!!

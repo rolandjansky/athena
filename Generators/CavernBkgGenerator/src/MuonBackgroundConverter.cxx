@@ -195,7 +195,7 @@ StatusCode MuonBackgroundConverter::callGenerator()
          int id = abs (m_evt.at(i).getPdgID() );
          
          bool select = ( (!m_firstHitOnly) || 
-                         (m_firstHitOnly && fabs(p_curr-p_prev)>tolerance) ) && ( id != 13 ); 
+                         (m_firstHitOnly && std::abs(p_curr-p_prev)>tolerance) ) && ( id != 13 ); 
          if ( select )
          {
              //std::cout  <<  evt  <<  std::endl;

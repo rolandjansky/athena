@@ -54,7 +54,7 @@ test.check_steps = CheckSteps.default_check_steps(test)
 
 download=CheckSteps.DownloadRefStep()
 download.artpackage = 'TrigAnalysisTest'
-download.artjobname = 'test_trigAna_PhysValWeb_grid.py'
+download.artjobname = 'test_trigAna_PhysValWeb_mt1_grid.py'
 download.required=True
 test.check_steps.append(download)
 
@@ -64,6 +64,7 @@ if not os.path.exists('PHYSVAL_WEB'):
 
 
 pv=[]
+pv.append(['Jet','JetMon'])
 pv.append(['Tau','TauMon'])
 pv.append(['Muon','MuonMon'])
 pv.append(['ID','IDMon'])

@@ -77,7 +77,7 @@ G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vect
   unsigned int particleID = 0;
   if( m_doPID ) {
     EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-    if (event_info) particleID = event_info->GetCurrentPrimary()->barcode();
+    if (event_info) particleID = HepMC::barcode(event_info->GetCurrentPrimary());
   }
 
   // Build the hit from the calculator results.

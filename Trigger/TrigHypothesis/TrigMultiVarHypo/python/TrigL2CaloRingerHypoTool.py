@@ -1,16 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 import re
 
-_pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
+_pattern = r"(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
 _cpattern = re.compile( _pattern )
 _possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
                   'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
  
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 #from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
 # Just because the TriggerFlags Online and doValidation doen't work
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
@@ -24,7 +23,7 @@ def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
   if EgammaSliceFlags.ringerVersion():
     basepath = EgammaSliceFlags.ringerVersion()
   logger.info('TrigMultiVarHypo version: %s', basepath)
-  if not sel in _possibleSel.keys():
+  if sel not in _possibleSel.keys():
     raise RuntimeError( "Bad selection name: %s" % sel )
   if 'e' in cand:
     constant = basepath+'/'+ 'TrigL2CaloRingerElectron{SEL}Constants.root'.format(SEL=_possibleSel[sel])
