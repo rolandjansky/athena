@@ -6,7 +6,7 @@ def getMonTool_Algorithm(path):
     monTool.HistPath = path
 
     monTool.defineHistogram( 'TIME_execute', path='EXPERT', type='TH1F', title='Counts',
-                             xbins=100, xmin=0, xmax=1000 )
+                             xbins=400, xmin=0, xmax=200 )
     monTool.defineHistogram( 'TIME_subtract', path='EXPERT', type='TH1F', title='Counts',
-                             xbins=100, xmin=0, xmax=1000 )
+                             xbins=400, xmin=0, xmax=200 )
     return monTool
