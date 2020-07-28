@@ -31,9 +31,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "04-00-00" CACHE STRING
+    set( TDAQ-COMMON_VERSION "04-01-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "09-00-00" CACHE STRING
+    set( TDAQ_VERSION "09-01-00" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -73,12 +73,6 @@ set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
    CACHE PATH "Directory holding OpenBlasEnvironmentConfig.cmake" )
 mark_as_advanced( OpenBlasEnvironment_DIR )
 find_package( OpenBlasEnvironment )
-
-# Set up the runtime environment for NumPy.
-set( NumPyEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
-   CACHE PATH "Directory holding NumPyEnvironmentConfig.cmake" )
-mark_as_advanced( NumPyEnvironment_DIR )
-find_package( NumPyEnvironment )
 
 # Set up where to find the AthenaPoolUtilitiesTest CMake code.
 set( AthenaPoolUtilitiesTest_DIR

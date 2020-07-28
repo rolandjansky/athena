@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/MMT_struct.h"
@@ -9,9 +9,9 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
+#include <stdexcept>
 
 using std::vector;
 using std::string;
@@ -22,7 +22,7 @@ using std::setprecision;
 using std::setw;
 
 
-float MMTStructConst = 8192.;
+const float MMTStructConst = 8192.;
 
 std_align::std_align(int qcm,const TVector3& trans,const TVector3& ang):type(qcm),translate(trans),rotate(ang){
   if(type==0){
@@ -39,7 +39,7 @@ string std_align::par_title(int par_num,bool small_unit)const{
   else if(par_num==4) par_title="#beta_{z}";
   else if(par_num==5) par_title="#alpha_{t}";
   else{
-    exit(3);
+    throw std::runtime_error("MMT_struct: Invalid parameter index");
   }
   if(par_num>2){
     if(small_unit)par_title+=" [mrad]";
@@ -57,7 +57,7 @@ string std_align::par_name(int par_num)const{
   else if(par_num==4) par_name="drz";
   else if(par_num==5) par_name="drt";
   else{
-    exit(3);
+    throw std::runtime_error("MMT_struct: Invalid parameter index");
   }
   return par_name;
 }
@@ -240,7 +240,8 @@ string par_par::detail()const{
   return misal.detail()+"; "+corr.detail();
 }
 
-MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM::MuonDetectorManager* detManager){
+MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM::MuonDetectorManager* detManager)
+  : AthMessaging(Athena::getMessageSvc(), "MMT_Parameters") {
   if(inputParams.misal.is_nominal())inputParams.misal.type=0;
   //can still do sim_corrections for nominal
   if(inputParams.corr.is_nominal()&&inputParams.corr.type==2)inputParams.corr.type=0;
@@ -312,7 +313,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   if(z_nominal.size() != setup.size()){
     ATH_MSG_WARNING( "Number of planes in setup is "<< setup.size()
               << ", but we have a nominal "     << z_nominal.size() << " planes.");
-    exit(9);
+    throw std::runtime_error("MMT_Parameters: Invalid number of planes");
   }
 
   mid_plane_large=float32fixed<18>(0.);
@@ -532,10 +533,10 @@ int MMT_Parameters::is_u(int plane){ return (std::find(planes_u.begin(), planes_
 int MMT_Parameters::is_v(int plane){ return (std::find(planes_v.begin(), planes_v.end(), plane) != planes_v.end()) ? 1 : 0; }
 
 vector<int> MMT_Parameters::q_planes(const string& type) const{
-  if(type.length()!=1) exit(0);
+  if(type.length()!=1) throw std::runtime_error("MMT_Parameters::q_planes: Invalid type");
   if(type.compare("x")!=0&&type.compare("u")!=0&&type.compare("v")!=0){
     ATH_MSG_WARNING("Unsupported plane type " << type << " in q_planes...aborting....\n");
-    exit(0);
+    throw std::runtime_error("MMT_Parameters::q_planes: Unsupported plane type");
   }
   vector<int> q_planes;
   for(unsigned int ip=0;ip<setup.size();ip++){
@@ -727,7 +728,7 @@ void MMT_Parameters::fill_crep_table(const string&dir,const string&tag){
 	crep>>title;
 	if(title!=estr+pstr+index_to_hit_str(k)){
 	  ATH_MSG_WARNING("Something's wrong with your simulation-based correct read-in...you want entries for "<<estr+pstr+index_to_hit_str(k)<<", but you got "<<title<<" in "<<crep_nom.str());
-	  exit(2);
+      throw std::runtime_error("MMT_Parameters::fill_crep_table: Invalid configuration");
 	}
 	crep>>the>>phi>>dth;
 	crep_table[i][j][k][0]=the*fudge_factor;crep_table[i][j][k][1]=phi;crep_table[i][j][k][2]=dth*fudge_factor;
@@ -887,7 +888,8 @@ void MMT_Parameters::Delta_theta_optimization_LG(){
 
 int MMT_Parameters::xhits_to_lcl_int(const vector<bool>& xhits) const{
   if(xhits.size()!=4){
-    ATH_MSG_WARNING("There should be 4 xplanes, only "<<xhits.size()<<" in the xhit vector given to local_slope_index()\n"); exit(99);
+    ATH_MSG_WARNING("There should be 4 xplanes, only "<<xhits.size()<<" in the xhit vector given to local_slope_index()\n");
+    throw std::runtime_error("MMT_Parameters::xhits_to_lcl_int: Invalid number of planes");
   }
   if(xhits[0]&& xhits[1]&& xhits[2]&& xhits[3]) return 0;
   else if( xhits[0]&& xhits[1]&& xhits[2]&&!xhits[3]) return 1;
@@ -936,7 +938,8 @@ string MMT_Parameters::bool_to_hit_str(const vector<bool>&track)const{
 vector<bool> MMT_Parameters::lcl_int_to_xhits(int lcl_int)const{
   vector<bool> xhits(4,true);
   if(lcl_int<0||lcl_int>10){
-    ATH_MSG_WARNING("Wherefore dost thou chooseth the hits of planes of X for thy lcl_int "<<lcl_int<<"?  'Tis not in [0,10]!"); exit(-99);
+    ATH_MSG_WARNING("Wherefore dost thou chooseth the hits of planes of X for thy lcl_int "<<lcl_int<<"?  'Tis not in [0,10]!");
+    throw std::runtime_error("MMT_Parameters::lcl_int_to_xhits: invalid value for lcl_int");
   }
   if(lcl_int==0) return xhits;
   if(lcl_int==1||lcl_int==5||lcl_int==6||lcl_int==8)xhits[3]=false;

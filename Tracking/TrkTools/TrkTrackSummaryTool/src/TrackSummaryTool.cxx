@@ -223,6 +223,7 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
     information [numberOfTRTOutliers]              = 0;
     information [numberOfTRTHighThresholdOutliers] = 0;
     information [numberOfTRTTubeHits]              = 0;
+    information [numberOfTRTSharedHits]            = 0;
 
     // Troels.Petersen@cern.ch:
     if ( !m_eProbabilityTool.empty() ) {

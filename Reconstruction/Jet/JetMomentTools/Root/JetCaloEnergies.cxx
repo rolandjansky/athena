@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMomentTools/JetCaloEnergies.h"
@@ -16,43 +16,66 @@
 //**********************************************************************
 
 JetCaloEnergies::JetCaloEnergies(const std::string& name)
-: JetModifierBase(name) { }
+: AsgTool(name) { }
 
 //**********************************************************************
 
-int JetCaloEnergies::modifyJet(xAOD::Jet& jet) const {
-  ATH_MSG_VERBOSE("Begin modifying jet.");
-  static const xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& ePerSamplingAcc =
-    *xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
-  size_t numConstit = jet.numConstituents();
-  std::vector<float> & ePerSampling = ePerSamplingAcc(jet);
-  ePerSampling.resize(CaloSampling::Unknown, 0.);
-  for ( float& e : ePerSampling ) e = 0.0; // re-initialize
-
-  if ( numConstit == 0 ) {
-    ATH_MSG_VERBOSE("Jet has no constituents.");
-    return 1;
+StatusCode JetCaloEnergies::initialize() {
+  ATH_MSG_INFO("Initializing JetCaloEnergies " << name());
+  
+  if(m_jetContainerName.empty()){
+    ATH_MSG_ERROR("JetCaloEnergies needs to have its input jet container configured!");
+    return StatusCode::FAILURE;
   }
+  
+  m_ePerSamplingKey = m_jetContainerName + "." + m_ePerSamplingKey.key();
+  m_emFracKey = m_jetContainerName + "." + m_emFracKey.key();
+  m_hecFracKey = m_jetContainerName + "." + m_hecFracKey.key();
+  m_psFracKey = m_jetContainerName + "." + m_psFracKey.key();
 
-  // should find a more robust solution than using 1st constit type.
-  xAOD::Type::ObjectType ctype = jet.rawConstituent( 0 )->type();
-  if ( ctype  == xAOD::Type::CaloCluster ) {
-    ATH_MSG_VERBOSE("  Constituents are calo clusters.");
-    fillEperSamplingCluster(jet, ePerSampling);
-    
-  } else if (ctype  == xAOD::Type::ParticleFlow) {
-    ATH_MSG_VERBOSE("  Constituents are pflow objects.");
-    fillEperSamplingPFO(jet, ePerSampling);
+  ATH_CHECK(m_ePerSamplingKey.initialize());
+  ATH_CHECK(m_emFracKey.initialize());
+  ATH_CHECK(m_hecFracKey.initialize());
+  ATH_CHECK(m_psFracKey.initialize());
 
-  }else {
-    ATH_MSG_VERBOSE("Constituents are not calo clusters nor pflow objects.");
-  }
-
-  return 1;
+  return StatusCode::SUCCESS;
 }
 
+//**********************************************************************
 
-void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float> & ePerSampling ) const {
+StatusCode JetCaloEnergies::decorate(const xAOD::JetContainer& jets) const {
+  ATH_MSG_VERBOSE("Begin decorating jets.");
+  for(const xAOD::Jet* jet : jets) {
+    SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > ePerSamplingHandle(m_ePerSamplingKey);
+    size_t numConstit = jet->numConstituents();
+    ePerSamplingHandle(*jet) = std::vector<float>(CaloSampling::Unknown, 0.);
+    std::vector<float>& ePerSampling = ePerSamplingHandle(*jet);
+    for ( float& e : ePerSampling ) e = 0.0; // re-initialize
+
+    if ( numConstit == 0 ) {
+      ATH_MSG_VERBOSE("Jet has no constituents.");
+      continue;
+    }
+    
+    // should find a more robust solution than using 1st constit type.
+    xAOD::Type::ObjectType ctype = jet->rawConstituent( 0 )->type();
+    if ( ctype  == xAOD::Type::CaloCluster ) {
+      ATH_MSG_VERBOSE("  Constituents are calo clusters.");
+      fillEperSamplingCluster(*jet, ePerSampling);
+    
+    } else if (ctype  == xAOD::Type::ParticleFlow) {
+      ATH_MSG_VERBOSE("  Constituents are pflow objects.");
+      fillEperSamplingPFO(*jet, ePerSampling);
+
+    }else {
+      ATH_MSG_VERBOSE("Constituents are not calo clusters nor pflow objects.");
+    }
+
+  }
+  return StatusCode::SUCCESS;
+}
+
+void JetCaloEnergies::fillEperSamplingCluster(const xAOD::Jet& jet, std::vector<float> & ePerSampling ) const {
   // loop over raw constituents
   size_t numConstit = jet.numConstituents();    
   for ( size_t i=0; i<numConstit; i++ ) {
@@ -62,19 +85,16 @@ void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float>
     }
     const xAOD::CaloCluster* constit = static_cast<const xAOD::CaloCluster*>(jet.rawConstituent(i));      
     for ( size_t s= CaloSampling::PreSamplerB; s< CaloSampling::Unknown; s++ ) {
-        ePerSampling[s] += constit->eSample( (xAOD::CaloCluster::CaloSample) s );
-      }
+      ePerSampling[s] += constit->eSample( (xAOD::CaloCluster::CaloSample) s );
     }
-  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& emFracAcc =
-    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::EMFrac);
-  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc =
-    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::HECFrac);      
-  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& psFracAcc =
-    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::PSFrac);
+  }
+  SG::WriteDecorHandle<xAOD::JetContainer, float> emFracHandle(m_emFracKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> hecFracHandle(m_hecFracKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> psFracHandle(m_psFracKey);
   
-  emFracAcc(jet) = jet::JetCaloQualityUtils::emFraction( ePerSampling );
-  hecFracAcc(jet) = jet::JetCaloQualityUtils::hecF( &jet );
-  psFracAcc(jet) = jet::JetCaloQualityUtils::presamplerFraction( &jet );
+  emFracHandle(jet) = jet::JetCaloQualityUtils::emFraction( ePerSampling );
+  hecFracHandle(jet) = jet::JetCaloQualityUtils::hecF( &jet );
+  psFracHandle(jet) = jet::JetCaloQualityUtils::presamplerFraction( &jet );
 }
 
 #define FillESamplingPFO( LAYERNAME )					\
@@ -83,7 +103,7 @@ void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float>
     ePerSampling[CaloSampling::LAYERNAME] += E_##LAYERNAME;		\
   }
   
-void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & ePerSampling ) const {
+void JetCaloEnergies::fillEperSamplingPFO(const xAOD::Jet & jet, std::vector<float> & ePerSampling ) const {
 
   float emTot=0;
   float hecTot=0;
@@ -96,7 +116,7 @@ void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & 
       if ( fabs(constit->charge())>FLT_MIN ){
 	eTot += constit->track(0)->e();
       } else {
-	eTot += constit->eEM();
+	eTot += constit->e();
 	FillESamplingPFO(PreSamplerB);
 	FillESamplingPFO(EMB1);
 	FillESamplingPFO(EMB2);
@@ -144,26 +164,24 @@ void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & 
     }
   }
 
-  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& emFracAcc = 
-    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::EMFrac);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> emFracHandle(m_emFracKey);
   if(eTot != 0.0){
-    emFracAcc(jet) = emTot/eTot; 
+    emFracHandle(jet) = emTot/eTot; 
     /*
      * Ratio of EM layer calorimeter energy of neutrals to sum of all constituents 
      * at EM scale (note charged PFO have an EM scale at track scale, and charged weights are ignored)
      * */
   }
   else {
-    emFracAcc(jet)  = 0.;
+    emFracHandle(jet)  = 0.;
   }
 
-  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc = 
-    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::HECFrac);     
+  SG::WriteDecorHandle<xAOD::JetContainer, float> hecFracHandle(m_hecFracKey);
   if (eTot != 0.0){
-    hecFracAcc(jet) = hecTot/eTot;
+    hecFracHandle(jet) = hecTot/eTot;
   }
   else{
-    hecFracAcc(jet) = 0.;
+    hecFracHandle(jet) = 0.;
   }
   
 }

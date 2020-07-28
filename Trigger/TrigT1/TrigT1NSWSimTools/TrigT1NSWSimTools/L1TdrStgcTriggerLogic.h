@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSW_L1TDRSTGCTRIGGERLOGIC_H
@@ -10,8 +10,7 @@
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 
 #include <string>
@@ -45,12 +44,11 @@ namespace NSWL1 {
   davide.gerbaudo@gmail.com
   April 2013
 */
-class L1TdrStgcTriggerLogic {
+class L1TdrStgcTriggerLogic : public AthMessaging {
 
     public:
         
         L1TdrStgcTriggerLogic();//get svc from parent class
-        virtual ~L1TdrStgcTriggerLogic();
         /**
         @brief main function to compute trigger candidates
 
@@ -104,21 +102,6 @@ class L1TdrStgcTriggerLogic {
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,
                                                             const std::vector< size_t > &padIndicesLayer3);
-    protected:                                                                                                                                                                                        
-        /// Log a message using the Athena controlled logging system
-        MsgStream& msg(MSG::Level lvl) const { return m_msg.get() << lvl; }
-
-        /// Check whether the logging system is active at the provided verbosity level
-        bool msgLvl(MSG::Level lvl) { return m_msg.get().level() <= lvl; }
-
-
-        /// Private message stream member
-        mutable Athena::MsgStreamMember m_msg;
-
-
-
-        
-   
 
     private:
        std::vector<size_t> filterByLayer(const std::vector<std::shared_ptr<PadOfflineData>> &pads,

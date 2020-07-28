@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "TrigT1NSWSimTools/L1TdrStgcTriggerLogic.h"
 #include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
@@ -8,6 +10,7 @@
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 #include "TrigT1NSWSimTools/GeoUtils.h"
 #include "TrigT1NSWSimTools/PadOfflineData.h"
+
 #include <fstream>
 #include <functional>
 #include <numeric>
@@ -23,12 +26,9 @@ namespace NSWL1{
     
     
     L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic():
+      AthMessaging(Athena::getMessageSvc(), "L1TdrStgcTriggerLogic") {}
+    //-------------------------------------
 
-         m_msg("L1TdrStgcTriggerLogic"){
-    }
-    //-------------------------------------
-    L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
-    //-------------------------------------
     bool L1TdrStgcTriggerLogic::hitPattern(const std::shared_ptr<PadOfflineData> &firstPad, const std::shared_ptr<PadOfflineData> &otherPad,
                         std::string &pattern) {
         return L1TdrStgcTriggerLogic::hitPattern(firstPad->padEtaId(), firstPad->padPhiId(), otherPad->padEtaId(),

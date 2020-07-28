@@ -20,7 +20,7 @@ lc.workdir = os.getcwd()
 lc.subdir = os.path.basename(os.path.normpath(lc.workdir))
 try:
     lc.grlfn = os.path.basename(glob.glob(lc.workdir+'/*.xml')[0])
-except:
+except Exception:
     lc.grlfn = ''
 
 lc.f = open(lc.workdir+'/working.html', 'a')

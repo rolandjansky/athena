@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
-from TrigCostMonitor.TrigCostMonitorConf import *
+import TrigCostMonitor.TrigCostMonitorConf as Conf
 from AthenaCommon.Logging import logging
 
 #----------------------------------------------------------------------
@@ -15,11 +15,11 @@ steeringHLT_online_doOperationalInfo=10  # frequency of operartional info collec
 #----------------------------------------------------------------------
 # Base class which defines target() method used by TrigSteer config
 #
-class TrigCostTool_Target(TrigCostTool):
+class TrigCostTool_Target(Conf.TrigCostTool):
     __slots__ = []
     
     def __init__(self, name):
-        super(TrigCostTool, self).__init__(name)
+        super(Conf.TrigCostTool, self).__init__(name)
 
         from TrigSteering.TrigSteeringConfig import RandomScaler
         self.scalerTool = RandomScaler('TrigCostScaler')
@@ -72,20 +72,20 @@ def prepareCostTool(target):
     tool.execPrescale     = 1.0
     tool.doConfigReduction = True # Online, only send config info from 1/50 PU nodes to reduce wasted bandwidth (only 1 copy needed at T0) 
     
-    tool.toolConf     = Trig__TrigNtConfTool('Conf'+target)
-    tool.toolEBWeight = Trig__TrigNtEBWeightTool('Ebwt'+target)
-    tool_elem = Trig__TrigNtElemTool('Elem'+target) # Not currently utilised
-    tool_exec = Trig__TrigNtExecTool('Exec'+target)
-    tool_lvl1 = Trig__TrigNtLvl1Tool('Lvl1'+target)
-    tool_hlt2 = Trig__TrigNtHltRTool('Hlt2'+target)
-    tool_robs = Trig__TrigNtRobsTool('Robs'+target)
+    tool.toolConf     = Conf.Trig__TrigNtConfTool('Conf'+target)
+    tool.toolEBWeight = Conf.Trig__TrigNtEBWeightTool('Ebwt'+target)
+    tool_elem = Conf.Trig__TrigNtElemTool('Elem'+target) # Not currently utilised
+    tool_exec = Conf.Trig__TrigNtExecTool('Exec'+target)
+    tool_lvl1 = Conf.Trig__TrigNtLvl1Tool('Lvl1'+target)
+    tool_hlt2 = Conf.Trig__TrigNtHltRTool('Hlt2'+target)
+    tool_robs = Conf.Trig__TrigNtRobsTool('Robs'+target)
 
     #
     # Add TrigNtSaveTool tool for offline running of athenaMT/PT/HLT
     #
     if useSaveTools:
-        save_cost = Trig__TrigNtSaveTool('SaveCost_'+target)
-        save_rate = Trig__TrigNtSaveTool('SaveRate_'+target)
+        save_cost = Conf.Trig__TrigNtSaveTool('SaveCost_'+target)
+        save_rate = Conf.Trig__TrigNtSaveTool('SaveRate_'+target)
         #
         save_cost.fileName      = 'TrigCost'+tool.level+'.root'
         save_cost.writeFile     = True
@@ -210,7 +210,7 @@ def prepareCostRun(name, option = 'hlt'):
     from TrigEDMConfig.TriggerEDM import EDMLibraries
     from TrigNavigation.TrigNavigationConfig import HLTNavigationOnline
 
-    run = TrigCostRun(name)
+    run = Conf.TrigCostRun(name)
 
     run.printEvent  = True
     run.keyStream   = ''
@@ -239,13 +239,13 @@ def prepareCostRun(name, option = 'hlt'):
 
     if option.count('hlt'):
       run.doHLT = True
-	
+
     run.navigation = HLTNavigationOnline()    
     run.navigation.ReferenceAllClasses = False
     run.navigation.Dlls = EDMLibraries
 
-    tool_conf = Trig__TrigNtConfTool('RunCostConf')
-    tool_post = Trig__TrigNtPostTool('RunCostPost')    
+    tool_conf = Conf.Trig__TrigNtConfTool('RunCostConf')
+    tool_post = Conf.Trig__TrigNtPostTool('RunCostPost')
     
     tool_conf.printConfig  = False
     tool_conf.useDB        = True
@@ -261,14 +261,14 @@ def prepareCostRun(name, option = 'hlt'):
 
         svcMgr.THistSvc.Output += ["TrigCostReadBS DATAFILE='TrigCostReadBS.root' OPT='RECREATE'"]
 
-        save_cost = Trig__TrigNtSaveTool('RunCostSave_full')
+        save_cost = Conf.Trig__TrigNtSaveTool('RunCostSave_full')
         save_cost.writeFile        = False
         save_cost.fileName         = ''
         save_cost.streamConfig     = 'TrigCostReadBS'
         save_cost.streamEvent      = 'TrigCostReadBS'
         save_cost.writeRateOnly    = False
 
-        save_rate = Trig__TrigNtSaveTool('RunCostSave_rate')
+        save_rate = Conf.Trig__TrigNtSaveTool('RunCostSave_rate')
         save_rate.writeFile        = False
         save_rate.fileName         = ''
         save_rate.streamConfig     = ''
@@ -291,7 +291,7 @@ def prepareCostRun(name, option = 'hlt'):
             log.info('Picked up HLT tool: RunCost2IS')
 
             run.tools = [tool_2is]
-        except:
+        except Exception:
             log.info('HLT tools are not available... continue without them')
 
     log.info('Prepared TrigCostRun algorithm instance: '+run.getName())
@@ -313,16 +313,16 @@ def prepareReadOnlineAlg(name, suffix):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr += THistSvc()
 
-    alg = TrigCostAlg(name)
+    alg = Conf.TrigCostAlg(name)
     alg.mergeEvent = True
     alg.printEvent = True
 
-    conf_tool = Trig__TrigNtConfTool('CostNtConf_'+suffix)
-    lvl1_tool = Trig__TrigNtLvl1Tool('CostNtLvl1_'+suffix)
-    hlt2_tool = Trig__TrigNtHltRTool('CostNtHlt2_'+suffix)
-    hlt3_tool = Trig__TrigNtHltRTool('CostNtHlt3_'+suffix)
-    post_tool = Trig__TrigNtPostTool('CostNtPost_'+suffix)
-    save_tool = Trig__TrigNtSaveTool('CostNtSave_'+suffix)
+    conf_tool = Conf.Trig__TrigNtConfTool('CostNtConf_'+suffix)
+    lvl1_tool = Conf.Trig__TrigNtLvl1Tool('CostNtLvl1_'+suffix)
+    hlt2_tool = Conf.Trig__TrigNtHltRTool('CostNtHlt2_'+suffix)
+    hlt3_tool = Conf.Trig__TrigNtHltRTool('CostNtHlt3_'+suffix)
+    post_tool = Conf.Trig__TrigNtPostTool('CostNtPost_'+suffix)
+    save_tool = Conf.Trig__TrigNtSaveTool('CostNtSave_'+suffix)
 
     conf_tool.useDB     = True
     hlt2_tool.keyResult = 'HLTResult_L2'
@@ -338,6 +338,7 @@ def prepareReadOnlineAlg(name, suffix):
     #
     # Add all tools. If using combined trigger - then no HLT l3
     #
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
     if not TriggerFlags.doHLT():
         alg.tools += [conf_tool, lvl1_tool, hlt2_tool, hlt3_tool, post_tool, save_tool]
     else:
@@ -352,8 +353,7 @@ def prepareReadOnlineAlg(name, suffix):
 def setupCostExtras(config = ''):
 
     log = logging.getLogger('setupCostExtras')
-    
-    from AthenaCommon.AppMgr import theApp
+
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         
     if not hasattr(svcMgr, "AthenaEventLoopMgr"):
@@ -463,14 +463,13 @@ def setupCostJob(config = 'OPI ROB NOPS'):
                 from AthenaCommon.Include import include
                 include('TrigDataAccessMonitoring/MonROBDataProviderSvc.py')
                 log.info('Setup "online" monitoring for ROBDataProvider')
-        except:
+        except Exception:
             log.warning('Failed to setup "online" version of ROBDataProvider')
             
         try:
-            from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
             svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
             log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
-        except:
+        except Exception:
             log.warning('Failed to set ROBDataProviderSvc.doDetailedROBMonitoring')
             
 #----------------------------------------------------------------------
@@ -484,7 +483,7 @@ def setSteerDebug(name, option, log):
     if hasattr(topSeq, name):
         trigSteer = getattr(topSeq, name)
         
-        if not 'OPITools' in trigSteer.properties():
+        if 'OPITools' not in trigSteer.properties():
             return
         
         for tool in trigSteer.OPITools:
@@ -554,9 +553,9 @@ def postSetupOnlineCost():
         steeringL2_online_doOperationalInfo=1
         steeringEF_online_doOperationalInfo=1
         steeringHLT_online_doOperationalInfo=1
-        log.info('Set global flag for L2: doOperationalInfo=%d' %steeringL2_online_doOperationalInfo)
-        log.info('Set global flag for EF: doOperationalInfo=%d' %steeringEF_online_doOperationalInfo)
-        log.info('Set global flag for HLT: doOperationalInfo=%d' %steeringHLT_online_doOperationalInfo)
+        log.info('Set global flag for L2: doOperationalInfo=%d', steeringL2_online_doOperationalInfo)
+        log.info('Set global flag for EF: doOperationalInfo=%d', steeringEF_online_doOperationalInfo)
+        log.info('Set global flag for HLT: doOperationalInfo=%d', steeringHLT_online_doOperationalInfo)
     
     if hasattr(topSeq, 'TrigSteer_L2'):        
         topSeq.TrigSteer_L2.doOperationalInfo=steeringL2_online_doOperationalInfo
@@ -612,9 +611,9 @@ def preSetupCostForCAF():
     steeringEF_online_doOperationalInfo=1
     steeringHLT_online_doOperationalInfo=1
 
-    log.info('Set global flag for L2: doOperationalInfo=%d' %steeringL2_online_doOperationalInfo)
-    log.info('Set global flag for EF: doOperationalInfo=%d' %steeringEF_online_doOperationalInfo)
-    log.info('Set global flag for HLT: doOperationalInfo=%d' %steeringHLT_online_doOperationalInfo)
+    log.info('Set global flag for L2: doOperationalInfo=%d', steeringL2_online_doOperationalInfo)
+    log.info('Set global flag for EF: doOperationalInfo=%d', steeringEF_online_doOperationalInfo)
+    log.info('Set global flag for HLT: doOperationalInfo=%d', steeringHLT_online_doOperationalInfo)
 
 #----------------------------------------------------------------------
 # Set options for running cost on CAF - used together with CostExecL2/EF options!!!
@@ -687,7 +686,7 @@ def postSetupEBWeighting():
 def readInputFiles(filename = 'input_files.txt', file_key = 'RDO'):
     log = logging.getLogger('TrigCostMonitor:readInputFiles')
     
-    import os, string, sys
+    import os
     filelist = []
 
     try:
@@ -709,7 +708,7 @@ def readInputFiles(filename = 'input_files.txt', file_key = 'RDO'):
             log.info('Added input file: '+file)
                 
         mylist.close()
-    except:
+    except Exception:
         log.warning('Exception when reading file: '+filename)
     
     return filelist

@@ -130,7 +130,7 @@ bool testL1Menu(const string & filename) {
       cout << "L1 menu has " << l1menu.thresholds(tt).size() << " " << tt 
            << " thresholds, going to print the first three." << endl;
       int ni = 3; // print the first 3
-      for(const auto & thr : l1menu.thresholds(tt) ) {
+      for(auto thr : l1menu.thresholds(tt) ) {
          cout << "   " << thr->name() << " of type " << thr->type() << " (mapping " << thr->mapping() << ") " << endl;
          if(--ni==0) break;
       }
@@ -145,8 +145,35 @@ bool testL1Menu(const string & filename) {
          cout << thrName << " threshold value: " << l1menu.threshold(thrName).thrValue() << endl;
       }
    }
+
+   auto thrJET = dynamic_pointer_cast<TrigConf::L1Threshold_JET>(l1menu.thresholds("JET")[0]);
+   if(thrJET) {
+      cout << thrJET->name() << ":" << endl;
+      for(int eta  : {0, 20, 30, 40}) {
+         cout << "   value at eta = " << eta << ": " << thrJET->thrValue(eta) << " GeV, " << thrJET->thrValueMeV(eta) << " MeV, " << thrJET->thrValueCounts(eta) << " counts" << endl;
+      }
+   }
+
+   auto thrXE = dynamic_pointer_cast<TrigConf::L1Threshold_XE>(l1menu.thresholds("XE")[0]);
+   if(thrXE) {
+      cout << thrXE->name() << ": value " << thrXE->thrValue() << " GeV, " << thrXE->thrValueMeV() << " MeV, " << thrXE->thrValueCounts() << " counts" << endl;
+   }
+
+
+   auto thrTERR = dynamic_cast<const TrigConf::L1Threshold_TE&>(l1menu.threshold("TE5.0ETA24"));
+   if(thrTERR) {
+      cout << thrTERR.name() << ":" << endl;
+      for(int eta  : {0, 20, 30, 40}) {
+         cout << "   value at eta = " << eta << ": " << thrTERR.thrValue(eta) << " GeV, " << thrTERR.thrValueMeV(eta) << " MeV, " << thrTERR.thrValueCounts(eta) << " counts" << endl;
+      }
+   }
+
+
    const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM18VHI"));
    cout << "eEM18VHI isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
+
+
+
 
    const auto & thrMU10 = dynamic_cast<const TrigConf::L1Threshold_MU&>(l1menu.threshold("MU10"));
    cout << "Threshold MU10 with "

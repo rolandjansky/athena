@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <iomanip>
@@ -48,7 +48,7 @@ namespace LVL1MUONIF {
 								    size_t sectorAddress,
 								    int    bcid             ) const {
 
-    static Lvl1MuBarrelSectorLogicDataPhase1 dummy;
+    static const Lvl1MuBarrelSectorLogicDataPhase1 dummy;
     for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
       int bc=((m_data[systemAddress]).at(ip)).first;
       if (bc != bcid) continue;

@@ -186,7 +186,7 @@ SCTHitEffMonTool::bookHistograms() {
   if (newRunFlag()) {
     m_badChips = m_configConditions->badChips();
     ATH_MSG_INFO("Found " << m_badChips->size() << " bad chips");
-    for (const std::pair<Identifier, unsigned int>& chip: *m_badChips) {
+    for (const std::pair<const Identifier, unsigned int>& chip: *m_badChips) {
       ATH_MSG_VERBOSE("Module " << m_sctId->wafer_hash(chip.first) << ", chip " << chip.second);
     }
 
@@ -314,7 +314,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
   if (newRunFlag()) {
     m_badChips = m_configConditions->badChips();
     ATH_MSG_INFO("Found " << m_badChips->size() << " bad chips");
-    for (const std::pair<Identifier, unsigned int>& chip: *m_badChips) {
+    for (const std::pair<const Identifier, unsigned int>& chip: *m_badChips) {
       ATH_MSG_VERBOSE("Module " << m_sctId->wafer_hash(chip.first) << ", chip " << chip.second);
     }
 

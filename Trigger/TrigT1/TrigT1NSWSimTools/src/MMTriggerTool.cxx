@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -9,8 +9,6 @@
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 //Muon software includes
 #include "MuonDigitContainer/MmDigit.h"

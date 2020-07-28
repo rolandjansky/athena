@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthenaPoolCnvSvc/T_AuxContainerCopyTPCnv.icc
@@ -26,8 +26,7 @@ persToTrans( const OLDTYPE* oldObj,
 
    // Copy the payload of the v1 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj,
-                            static_cast<SG::ThinningDecisionBase*>(nullptr) );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr);
    
    // Print what happened:
    if( log.level() <= MSG::DEBUG ) {

@@ -27,10 +27,15 @@ def generateChains( flags,  chainDict ):
     l2CaloReco = l2CaloRecoCfg(flags)
     accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
 
+    # this alg needs EventInfo decorated with the  pileup info
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    accCalo.merge( LumiBlockMuWriterCfg(flags) )
+
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
                                  CaloClusters = recordable('HLT_L2CaloEMClusters'),
                                )
     l2CaloHypo.RingerKey = '' # TODO restore to default or EDM setting once Ringer New JO config is available
+
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 

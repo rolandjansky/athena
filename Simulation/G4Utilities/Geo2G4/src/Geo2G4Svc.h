@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_Geo2G4Svc_H
@@ -11,7 +11,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 
 #include "Geo2G4AssemblyFactory.h"
-#include "Geo2G4AssemblyVolume.h"
 
 #include "VolumeBuilder.h"
 

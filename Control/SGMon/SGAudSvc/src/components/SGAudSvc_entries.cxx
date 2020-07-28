@@ -1,4 +1,4 @@
-#include "SGAudSvc/SGAudSvc.h"
+#include "../SGAudSvc.h"
 //#include "../PerfMonAuditor.h"
 
   

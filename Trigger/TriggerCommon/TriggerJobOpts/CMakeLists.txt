@@ -1,14 +1,7 @@
-################################################################################
-# Package: TriggerJobOpts
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TriggerJobOpts )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TriggerCommon/TrigEDMConfig
-                          Trigger/TriggerCommon/TrigTier0 )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py ${ATLAS_FLAKE8} )

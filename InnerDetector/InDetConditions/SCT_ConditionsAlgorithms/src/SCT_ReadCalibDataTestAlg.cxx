@@ -95,7 +95,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG("in execute()");
   
   //Test ConditionsSummary
-  if (m_doTestmyConditionsSummary.value()) {
+  if (m_doTestmyConditionsSummary) {
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_stripId};
@@ -104,7 +104,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& ctx) const
   }
 
   // Loop over all strips and check if good or not using isGood, and print the bad ones
-  if (m_doTestmyDefectIsGood.value()) {
+  if (m_doTestmyDefectIsGood) {
     int ngood{0};
     int nbad{0};
     //Loop over all wafers using hashIds from the cabling service

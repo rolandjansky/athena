@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigT1RPCsteering.TrigT1RPCsteeringConf import *
-from AthenaCommon.GlobalFlags import globalflags
+from TrigT1RPCsteering.TrigT1RPCsteeringConf import TrigT1RPC
+from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AlgSequence import AlgSequence
 

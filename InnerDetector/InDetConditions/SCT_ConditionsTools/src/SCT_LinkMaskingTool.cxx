@@ -24,7 +24,7 @@ StatusCode SCT_LinkMaskingTool::initialize() {
   }
 
   // Read Cond Handle
-  CHECK(m_condKey.initialize());
+  ATH_CHECK(m_condKey.initialize());
 
   return StatusCode::SUCCESS;
 }

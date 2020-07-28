@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -426,7 +426,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
                std::vector<std::string> groupnames {"Trk", "TrkClus", "TRT"};
                for (int ibin = 0; ibin < hist1("IneffisEM" + pid)->GetNbinsX(); ibin++)
                   hist1("IneffisEM" + pid)->Fill(ibin + 0.5, 0);
-               for (const auto groupname : groupnames)
+               for (const auto& groupname : groupnames)
                   for (int ibin = 0; ibin < hist1("IneffisEM" + pid + groupname)->GetNbinsX(); ibin++)
                       hist1("IneffisEM" + pid + groupname)->Fill(ibin + 0.5, 0);
             }        
@@ -536,7 +536,7 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
     const std::string pid = info.trigPidDecorator.substr(2);
     
     ATH_MSG_DEBUG("Efficiency for " << info.trigName << " " <<pidword);
-    for(const auto pairObj : pairObjs){
+    for(const auto& pairObj : pairObjs){
         // Final cuts done here
         if(pairObj.first->type()==xAOD::Type::Electron){
             const xAOD::Electron* el = static_cast<const xAOD::Electron *> (pairObj.first);
@@ -595,12 +595,12 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
               this->fillEfficiency(dir+"/"+algname+"/EFCalo",acceptData.getCutResult("EFCalo"),etthr,pidword,pairObj.first,m_detailedHists);
               this->fillEfficiency(dir+"/"+algname+"/L1Calo",acceptData.getCutResult("L1Calo"),etthr,pidword,pairObj.first);
               if(m_detailedHists){
-                  for(const auto pid : m_isemname) {
+                  for(const auto& pid : m_isemname) {
                       this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                       if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/"+algname+"/HLT/"+pid+"Iso",
                           acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                   }
-                  for(const auto pid : m_lhname) {
+                  for(const auto& pid : m_lhname) {
                       this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                       if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/"+algname+"/HLT/"+pid+"Iso",
                           acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);

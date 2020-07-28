@@ -20,7 +20,7 @@ std::vector<float> shaperInputCharge;
 double shaperResponseFunction(double *x, double *par){
   double response=0;
   for(size_t i=0; i<shaperInputTime.size(); i++){
-    double amp = (x[0]>shaperInputTime[i])? shaperInputCharge[i]*pow((x[0]-shaperInputTime[i])/par[1],par[0])*exp(-(x[0]-shaperInputTime[i])/par[1]) :0;
+    double amp = (x[0]>shaperInputTime[i])? shaperInputCharge[i]*std::pow((x[0]-shaperInputTime[i])/par[1],par[0])*std::exp(-(x[0]-shaperInputTime[i])/par[1]) :0;
     response += amp;
   }
   return response;

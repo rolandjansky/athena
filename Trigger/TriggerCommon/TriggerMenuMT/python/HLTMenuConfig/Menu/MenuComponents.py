@@ -73,7 +73,7 @@ class AlgNode(Node):
     def addOutput(self, name):
         outputs = self.readOutputList()
         if name in outputs:
-            log.debug("Output DH not added in %s: %s already set!", self.name, name)
+            log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.outputProp != '':
                 self.setPar(self.outputProp,name)
@@ -96,7 +96,7 @@ class AlgNode(Node):
     def addInput(self, name):
         inputs = self.readInputList()
         if name in inputs:
-            log.debug("Input DH not added in %s: %s already set!", self.name, name)
+            log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.inputProp != '':
                 self.setPar(self.inputProp,name)
@@ -324,7 +324,7 @@ class EmptyMenuSequence(object):
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(name, [Maker]))
-        log.debug("Making EmptySequence %s",name)
+        log.debug("Made EmptySequence %s",name)
 
     @property
     def sequence(self):
@@ -338,16 +338,12 @@ class EmptyMenuSequence(object):
     def name(self):
         return self._name
 
-    @property
-    def __maker(self):
-        return self._maker
-
     def getOutputList(self):
-        return self.__maker.readOutputList() # Only one since it's merged
+        return self._maker.readOutputList() # Only one since it's merged
 
     def connectToFilter(self, outfilter):
         """ Connect filter to the InputMaker"""
-        self.__maker.addInput(outfilter)
+        self._maker.addInput(outfilter)
 
     def createHypoTools(self, chainDict):
         log.debug("This sequence is empty. No Hypo to conficure")
@@ -932,7 +928,7 @@ class InEventReco( ComponentAccumulator ):
 
 class InViewReco( ComponentAccumulator ):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None):
+    def __init__(self, name, viewMaker=None, roisKey=None):
         super( InViewReco, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -947,7 +943,7 @@ class InViewReco( ComponentAccumulator ):
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
-                                                          InViewRoIs      = name+'RoIs',
+                                                          InViewRoIs      = roisKey if roisKey else name+'RoIs',
                                                           Views           = name+'Views',
                                                           ViewNodeName    = name+"InView")
 

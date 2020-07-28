@@ -140,13 +140,13 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       // photon
       if ( (*pitr)->pdg_id() == 22 && (*pitr)->status() == 1 &&
-           (*pitr)->momentum().perp() >= m_LGMinPt && fabs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+           (*pitr)->momentum().perp() >= m_LGMinPt && std::abs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
         MCTruthPhotonList.push_back((*pitr));
         ATH_MSG_INFO("photon pt(Gaudi::Units::GeV) = " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << " eta = " << (*pitr)->momentum().pseudoRapidity());
       }
       // electon
       if ( abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
-           (*pitr)->momentum().perp() >= m_LGMinPt && fabs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+           (*pitr)->momentum().perp() >= m_LGMinPt && std::abs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
         MCTruthElectronList.push_back((*pitr));
         ATH_MSG_INFO("electron pt(Gaudi::Units::GeV) = " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << " eta = " << (*pitr)->momentum().pseudoRapidity());
       }
@@ -182,7 +182,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   // Select TruthJets
   std::vector<const xAOD::Jet*> jetList;
   for (xAOD::JetContainer::const_iterator it_truth = truthjetTES->begin(); it_truth != truthjetTES->end(); ++it_truth) {
-    if ( (*it_truth)->pt() > m_JetMinPt && fabs( (*it_truth)->eta() ) < m_JetMaxEta ) {
+    if ( (*it_truth)->pt() > m_JetMinPt && std::abs( (*it_truth)->eta() ) < m_JetMaxEta ) {
       jetList.push_back(*it_truth);
       ATH_MSG_INFO("jet pt(Gaudi::Units::GeV) = " << (*it_truth)->pt()/Gaudi::Units::GeV << " eta = " << (*it_truth)->eta());
     }
@@ -203,7 +203,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
     flag1stJet = 0;
     if (jetList.size() >= 1) {
       const xAOD::Jet *j1 = jetList[0];
-      if (j1->pt() > m_Jet1MinPt && fabs(j1->eta()) < m_Jet1MaxEta) {
+      if (j1->pt() > m_Jet1MinPt && std::abs(j1->eta()) < m_Jet1MaxEta) {
         flag1stJet = 1;
       }
     }
@@ -215,7 +215,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
     flag2ndJet = 0;
     if (jetList.size() >= 2) {
       const xAOD::Jet *j2 = jetList[1];
-      if (j2->pt() > m_Jet2MinPt && fabs(j2->eta()) < m_Jet2MaxEta) {
+      if (j2->pt() > m_Jet2MinPt && std::abs(j2->eta()) < m_Jet2MaxEta) {
         flag2ndJet = 1;
       }
     }
@@ -241,7 +241,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
       int okMassJJ = m_MassJJ >= 0. ? 0 : 1;
       for (unsigned i=0;i<jetList.size()-1;++i) {
         for (unsigned j=i+1;j<jetList.size();++j) {
-          double dEta = fabs(jetList[i]->eta()-jetList[j]->eta());
+          double dEta = std::abs(jetList[i]->eta()-jetList[j]->eta());
           double Mjj = (jetList[i]->p4()+jetList[j]->p4()).M();
           ATH_MSG_INFO("DeltaEtaJJ = " << dEta << " MassJJ(CLHEP::GeV) = " << Mjj/CLHEP::GeV << " (" << i << ", " << j << ")");
           if (okDeltaEtaJJ == 0 && dEta > m_DeltaEtaJJ) okDeltaEtaJJ = 1;
@@ -296,7 +296,7 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepM
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
       double dr = sqrt(deta*deta+dphi*dphi);
-      double ratio_pt= fabs((jet->pt()-list[i]->momentum().perp())/list[i]->momentum().perp());
+      double ratio_pt= std::abs((jet->pt()-list[i]->momentum().perp())/list[i]->momentum().perp());
       if (ratio_pt < m_RatioPtJLG && dr < minDR) minDR = dr;
     }
   }
@@ -313,7 +313,7 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHE
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
       double dr = std::sqrt(deta*deta+dphi*dphi);
-      double ratio_pt= fabs((jet->pt()-list[i].vect().perp())/list[i].vect().perp());
+      double ratio_pt= std::abs((jet->pt()-list[i].vect().perp())/list[i].vect().perp());
       if (ratio_pt < m_RatioPtJLG && dr < minDR) minDR = dr;
     }
   }

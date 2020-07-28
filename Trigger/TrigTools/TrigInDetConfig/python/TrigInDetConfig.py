@@ -452,7 +452,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
   RegSelTool_SCT = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
 
-  verifier = CompFactory.AthViews.ViewDataVerifier('IDViewDataVerifier'+signature,
+  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
+
                                                     DataObjects= [('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
                                                                   ('PixelRDO_Cache', 'PixRDOCache'),
                                                                   ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
@@ -463,8 +464,10 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
                                                                       # ('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_L2CaloEMClusters'),
                                                                   ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey)])
+                                                                  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
 
-  
+  acc.addEventAlgo(verifier)
+
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
   if not isMC:
@@ -637,9 +640,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                     SpacePointsPixelName   = "PixelTrigSpacePoints",
                                                                     SpacePointsSCTName     = "SCT_TrigSpacePoints",
                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                    ProcessPixels          = flags.Detector.PixelOn, #DetFlags.haveRIO.pixel_on(), # TODO ask Jiri about thes flags again
-                                                                    ProcessSCTs            = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
-                                                                    ProcessOverlaps        = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
+                                                                    ProcessPixels          = flags.Detector.PixelOn,
+                                                                    ProcessSCTs            = flags.Detector.SCTOn,
+                                                                    ProcessOverlaps        = flags.Detector.SCTOn,
                                                                     SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                                                     SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
   InDetSiTrackerSpacePointFinder.OutputLevel=DEBUG

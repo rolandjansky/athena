@@ -63,9 +63,9 @@ def parse_args():
     args = parser.parse_args()
 
     if args.newConfig:
-        from new_confTool import main
+        from AthenaConfiguration.new_confTool import main
     else:
-        from old_confTool import main
+        from AthenaConfiguration.old_confTool import main
 
     main(args)
 

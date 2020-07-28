@@ -158,17 +158,13 @@ StatusCode TruthTestTool::processEvent()
 
     if (currentGenEventIter!=mcCollection->end() ) {
       {
-        if ((*currentGenEventIter)->signal_process_vertex()) {
-          HepMC::GenVertex *vtx = (*currentGenEventIter)->signal_process_vertex();
+        auto  vtx = HepMC::signal_process_vertex(*currentGenEventIter);
+        if (!vtx && (*currentGenEventIter)->vertices_size()>0) vtx=*((*currentGenEventIter)->vertices_begin());
+        if ( vtx )
+        {  
           m_x_vert->Fill( vtx->position().x() );
           m_y_vert->Fill( vtx->position().y() );
           m_z_vert->Fill( vtx->position().z() );
-        }
-        else if ((*currentGenEventIter)->vertices_size()>0) {
-          HepMC::GenEvent::vertex_const_iterator vtx=(*currentGenEventIter)->vertices_begin();
-          m_x_vert->Fill( (*vtx)->position().x() );
-          m_y_vert->Fill( (*vtx)->position().y() );
-          m_z_vert->Fill( (*vtx)->position().z() );
         }
       }
 
