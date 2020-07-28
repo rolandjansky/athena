@@ -87,7 +87,7 @@ int HIClusterSubtraction::execute() const
 	SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey );
   shape = readHandleEvtShape.cptr();
   const HIEventShapeIndex* es_index = m_eventShapeMapTool->getIndexFromShape( shape );
-	if(es_index == nullptr) ATH_MSG_INFO("Here is the issue");
+	if(es_index == nullptr) ATH_MSG_FATAL("The HIEventShapeMapTool returned a null pointer. Binning scheme not coherent");
   const xAOD::HIEventShape* eshape = nullptr;
   CHECK(m_modulatorTool->getShape(eshape), 1);
 
