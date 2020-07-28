@@ -796,14 +796,6 @@ pdr.flag_domain('output')
 if rec.doCBNT():
     protectedInclude( "RecExCommon/CBNT_config.py" )
 
-# trigger extension to the TrkValNtuple (it needs to be included after TrkValNtuple) from Jiri Masik and Clemencia Mora
-# test if ID is on also (might not be sufficient)
-if recAlgs.doTrigger() and DetFlags.detdescr.ID_on() :
-    if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-        if InDetFlags.doTrkNtuple() and InDetTrigFlags.doTrkNtuple():
-            protectedInclude("InDetTrigRecExample/InDetTrigRecNtupleCreation.py")
 
 #-----------------------------------------------------------------------------
 # Virtual Point1 Display
