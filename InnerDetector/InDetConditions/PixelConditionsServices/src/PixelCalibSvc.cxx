@@ -667,7 +667,6 @@ float PixelCalibSvc::getTotMean(const Identifier& pix_id, float Q) const {
       //===============================================================================================================
       // Special IBL calibration
       const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-      //      const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
       if (m_pixid->barrel_ec(pix_id)==0 && m_pixid->layer_disk(pix_id)==0) {  // IBL
         double scaleC = m_specialIBL_chargescale;
         double corrQ = scaleC*1.11*(1.0-(-7.09*1000.0)/(23.72*1000.0+Q)+(-0.22*1000.0)/(-0.42*1000.0+Q));
