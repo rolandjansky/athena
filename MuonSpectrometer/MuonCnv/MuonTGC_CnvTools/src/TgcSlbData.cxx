@@ -72,7 +72,7 @@ const bool* Muon::TgcSlbData::getBitArray(const uint16_t bcTag) const
 } 
 
 // This function avoids using const cast internally
-bool* Muon::TgcSlbData::getBitArrayNC(const uint16_t bcTag)
+bool* Muon::TgcSlbData::getBitArray(const uint16_t bcTag)
 {
   bool* bitArray = 0;
   switch (bcTag)
@@ -104,7 +104,7 @@ void Muon::TgcSlbData::setBitmap(const uint16_t bcTag,
   if(cellAddr == PADDING_WORD) return;
 
   // get bit array
-  bool *bitArray = getBitArrayNC(bcTag);
+  bool *bitArray = getBitArray(bcTag);
 
   // assign
   int indexMap = BITMAP_SIZE - CELL_SIZE*(cellAddr+1);
@@ -129,7 +129,7 @@ void Muon::TgcSlbData::setBit(const uint16_t bcTag,
   if(iBit >= BITMAP_SIZE) return;
 
   // get bit array
-  bool *bitArray =  getBitArrayNC(bcTag);
+  bool *bitArray =  getBitArray(bcTag);
   *(bitArray+iBit)=true;
 }
 

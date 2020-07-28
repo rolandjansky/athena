@@ -126,7 +126,7 @@ namespace Muon
 
       /** Get bitArray for a BC tag. */
       // Non-const version which is used in this class only
-      bool * getBitArrayNC(const uint16_t bcTag);
+      bool * getBitArray(const uint16_t bcTag);
 
       uint16_t m_bcId;
       uint32_t m_l1Id;
