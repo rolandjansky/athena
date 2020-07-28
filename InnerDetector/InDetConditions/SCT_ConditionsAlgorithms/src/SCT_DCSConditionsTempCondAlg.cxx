@@ -19,11 +19,11 @@ StatusCode SCT_DCSConditionsTempCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
-  if (m_returnHVTemp.value()) {
-    // Read Cond Handle
-    ATH_CHECK(m_readKey.initialize());
-    // Write Cond Handles
-    ATH_CHECK(m_writeKey.initialize());
+  // Read Cond Handle
+  ATH_CHECK(m_readKey.initialize(m_returnHVTemp));
+  // Write Cond Handles
+  ATH_CHECK(m_writeKey.initialize(m_returnHVTemp));
+  if (m_returnHVTemp) {
     if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
       ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
@@ -36,7 +36,7 @@ StatusCode SCT_DCSConditionsTempCondAlg::initialize() {
 StatusCode SCT_DCSConditionsTempCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
-  if (not m_returnHVTemp.value()) {
+  if (not m_returnHVTemp) {
     return StatusCode::SUCCESS;
   }
 

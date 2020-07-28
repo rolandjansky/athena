@@ -3,11 +3,12 @@
 from AthenaCommon.CFElements import findAllAlgorithms
 from AthenaCommon.AthenaCommonFlags import jobproperties as jps
 
+from GaudiKernel.Configurable import WARNING
 
 
 
 
-def FtagJetCollection(jetcol, seq):
+def FtagJetCollection(jetcol, seq, OutputLevel=WARNING):
     
 
     jetcol_name_without_Jets = jetcol.replace('Jets','')
@@ -99,6 +100,7 @@ def FtagJetCollection(jetcol, seq):
     options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
     options['BTagTrackToJetAssociatorName'] = 'BTagTrackToJetAssociator'
     options['name'] = ( 'BTagging_'+jetcol_name_without_Jets+ '_Augment').lower()
+    options['OutputLevel'] = OutputLevel
 
     acc.addEventAlgo(Analysis__BTagHighLevelAugmenterAlg(**options))
 

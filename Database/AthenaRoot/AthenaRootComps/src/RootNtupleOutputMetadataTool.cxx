@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootNtupleOutputMetadataTool.cxx 
@@ -40,14 +40,12 @@ namespace Athena {
 RootNtupleOutputMetadataTool::RootNtupleOutputMetadataTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) : 
-  ::AthAlgTool(type, name, parent),
+  base_class(type, name, parent),
   m_imetaStore("InputMetaDataStore", name),
   m_ometaStore("MetaDataStore", name),
   m_clidSvc("ClassIDSvc", name), 
   m_metaWritten(false)
 {
-  // Declare IAthenaOutputStreamTool interface
-  declareInterface<IAthenaOutputTool>(this);
   // Properties
   declareProperty("InputStore", 
                   m_imetaStore,
@@ -149,6 +147,7 @@ RootNtupleOutputMetadataTool::finalize()
 StatusCode RootNtupleOutputMetadataTool::postInitialize() {return StatusCode::SUCCESS;}
 StatusCode RootNtupleOutputMetadataTool::preFinalize()    {return StatusCode::SUCCESS;}
 StatusCode RootNtupleOutputMetadataTool::preExecute()     {return StatusCode::SUCCESS;}
+StatusCode RootNtupleOutputMetadataTool::preStream()      {return StatusCode::SUCCESS;}
 StatusCode RootNtupleOutputMetadataTool::postExecute()    {return StatusCode::SUCCESS;}
 
 void

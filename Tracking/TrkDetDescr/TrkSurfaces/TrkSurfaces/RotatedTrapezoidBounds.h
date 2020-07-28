@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,10 +61,10 @@ public:
   RotatedTrapezoidBounds(double halex, double minhalex, double maxhalex);
 
   /**Copy constructor*/
-  RotatedTrapezoidBounds(const RotatedTrapezoidBounds& trabo);
+  RotatedTrapezoidBounds(const RotatedTrapezoidBounds& trabo) = default;
 
   /**Destructor*/
-  virtual ~RotatedTrapezoidBounds();
+  virtual ~RotatedTrapezoidBounds() = default;
 
   /**Virtual constructor*/
   virtual RotatedTrapezoidBounds* clone() const override;
@@ -73,7 +73,7 @@ public:
   virtual BoundsType type() const override { return SurfaceBounds::RotatedTrapezoid; }
 
   /**Assignment operator*/
-  RotatedTrapezoidBounds& operator=(const RotatedTrapezoidBounds& sbo);
+  RotatedTrapezoidBounds& operator=(const RotatedTrapezoidBounds& sbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& trabo) const override;

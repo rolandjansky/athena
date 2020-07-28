@@ -21,9 +21,9 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
     ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
   }
 
+  ATH_CHECK( m_costWriteHandleKey.initialize( m_doCostMonitoring ) );
   if (m_doCostMonitoring) {
-    CHECK( m_trigCostSvcHandle.retrieve() );
-    CHECK( m_costWriteHandleKey.initialize() );
+    ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
   
   return StatusCode::SUCCESS;
@@ -143,6 +143,14 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
     ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));
   }
+
+  // Set the algorithm's filter status. This controlls the running of finalisation algs which we only want to execute
+  // in events which are accepted by one ore more chains.
+  bool filterStatus = true;
+  if (m_setFilterStatus) {
+    filterStatus = (allPassingFinalIDs.size() > 0);
+  }
+  setFilterPassed(filterStatus, context );
 
   return StatusCode::SUCCESS;
 }

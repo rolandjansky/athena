@@ -113,14 +113,16 @@ void test1()
 {
   std::cout << "test1\n";
   SG::ThinningDecisionBase dec;
+  SG::ThinningInfo info;
+  info.m_decision = &dec;
 
   AuxStoreTest src;
   SG::AuxStoreInternal dst;
 
-  copyAuxStoreThinned (src, dst, static_cast<const SG::ThinningDecisionBase*>(nullptr));
+  copyAuxStoreThinned (src, dst, nullptr);
   compare (src, dst);
 
-  copyAuxStoreThinned (src, dst, &dec);
+  copyAuxStoreThinned (src, dst, &info);
   compare (src, dst);
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
@@ -158,12 +160,18 @@ void test1()
 
   dec.buildIndexMap();
 
-  copyAuxStoreThinned (src, dst, &dec);
+  copyAuxStoreThinned (src, dst, &info);
   compare (src, dst, true);
 
   SG::AuxStoreInternal dst2;
+  info.m_vetoed.insert (ftyp);
+  copyAuxStoreThinned (src, dst2, &info);
+  compare (src, dst2, true, ftyp);
+
+  info.m_vetoed.clear();
+  SG::AuxStoreInternal dst3;
   src.suppress (ftyp);
-  copyAuxStoreThinned (src, dst2, &dec);
+  copyAuxStoreThinned (src, dst2, &info);
   compare (src, dst2, true, ftyp);
 }
 

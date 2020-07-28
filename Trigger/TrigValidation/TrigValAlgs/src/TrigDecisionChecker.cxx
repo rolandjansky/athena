@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** R.Goncalo - 21/10/2007 - add tests for TrigDecisionTool:
@@ -660,7 +660,7 @@ StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
     const auto vec = fc.get<T>();
     const auto vecbits = fc.get<xAOD::TrigPassBits>();
     std::string label="";
-    for(const auto feat:vecbits){
+    for(const auto& feat:vecbits){
         const auto *xbits=feat.cptr();
         TrigConf::HLTTriggerElement::getLabel(feat.te()->getId(), label );
         const auto *cont=(m_trigDec->ancestor<T>(feat.te())).cptr();

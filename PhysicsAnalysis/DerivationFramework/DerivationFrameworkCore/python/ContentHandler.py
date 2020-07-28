@@ -15,7 +15,8 @@ class ContentHandler:
 		self.ContainersForExpansion = ContainersForExpansion
 	
 	def mainContainerLine(self,containerName):
-		theDictionary = dict(list(self.NamesAndTypes.items()) + list(self.AppendToDictionary.items()))
+		theDictionary = self.NamesAndTypes.copy()
+		theDictionary.update (self.AppendToDictionary)
 		line = ''
 		if containerName in theDictionary.keys():
 			line = theDictionary[containerName]+"#"+containerName

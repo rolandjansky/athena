@@ -684,7 +684,8 @@ class TrigMuonEFTrackIsolationHypoConfig(object) :
 
 def TrigMuonEFInvMassHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
-    thresholds = cparts[0]['invMassInfo']
+    #The invariant mass is specified at end of chain, so only shows up in the last chainPart
+    thresholds = cparts[-1]['invMassInfo']
     config = TrigMuonEFInvMassHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     addMonitoring( tool, TrigMuonEFInvMassHypoMonitoring, "TrigMuonEFInvMassHypoTool", chainDict['chainName'] )
@@ -710,8 +711,8 @@ class TrigMuonEFInvMassHypoConfig(object) :
                 log.debug('Setting passthrough')
                 tool.AcceptAll = True
             else:
-                log.error('threshokds = ', thresholds)
-                raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
+                log.error('thresholds = ', thresholds)
+                raise Exception('TrigMuonEFInvMass Hypo Misconfigured')
         return tool
 
 def TrigMuonLateMuRoIHypoToolFromDict( chainDict ) :

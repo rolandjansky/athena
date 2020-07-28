@@ -25,7 +25,7 @@ StatusCode SCT_SiliconHVCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handles
-  ATH_CHECK(m_readKeyState.initialize (m_useState.value()));
+  ATH_CHECK(m_readKeyState.initialize(m_useState));
   ATH_CHECK(m_readKeyHV.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
@@ -60,7 +60,7 @@ StatusCode SCT_SiliconHVCondAlg::execute(const EventContext& ctx) const {
   writeHandle.addDependency(readHandleHV);
   ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << readHandleHV.getRange());
 
-  if (m_useState.value()) {
+  if (m_useState) {
     // Read Cond Handle (state)
     SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState, ctx};
     const SCT_DCSStatCondData* readCdoState{*readHandleState};
