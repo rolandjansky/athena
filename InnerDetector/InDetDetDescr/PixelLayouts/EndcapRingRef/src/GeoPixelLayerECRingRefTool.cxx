@@ -383,8 +383,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	    ihalfr +=iTwdAway;
 	    bool isTwdBSShift=(0==iTwdAway);
 	    double zPos = m_ringPos[i]-zMiddle;
-	    zPos += (isTwdBSShift) ? -halfSplitOffset : halfSplitOffset;
-	    
+	     zPos += (isTwdBSShift) ? halfSplitOffset : -halfSplitOffset;  
 	    bool swap = false;
 	    if (halfIsEven && (splitMode==MIDDLE || splitMode==GOOD) && !isTwdBSShift) 
 	      swap = true;
@@ -498,9 +497,9 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	    GeoLogVol* _supLogAwayBS = new GeoLogVol("supLogAwayBS",supTubsAwayBS,supMatA);
 	    GeoPhysVol* supPhysAwayBS = new GeoPhysVol(_supLogAwayBS);
 	    
-	    GeoTransform* xformTwdBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle-halfSplitOffset));
-	    GeoTransform* xformAwayBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle+halfSplitOffset));
-	    
+	     GeoTransform* xformTwdBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle+halfSplitOffset));
+            GeoTransform* xformAwayBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle-halfSplitOffset));
+
 	    ecPhys->add(xformTwdBS);
 	    ecPhys->add(supPhysTwdBS);
 	    
