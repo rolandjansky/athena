@@ -3,7 +3,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 StandardFieldSvc=CompFactory.StandardFieldSvc
 
-# from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 #to prevent unit tests failing when just running over simulation
 import os
 if "AthSimulation_DIR" not in os.environ:
@@ -12,22 +11,11 @@ if "AthSimulation_DIR" not in os.environ:
 def StandardFieldSvcCfg(ConfigFlags,name="StandardField", **kwargs):
     result = ComponentAccumulator()
 
-    # #setup the field and add the magneticfield service
-    # acc = MagneticFieldSvcCfg(ConfigFlags)
-    # result.merge(acc)
-
-    # kwargs.setdefault("MagneticFieldSvc", result.getService("AtlasFieldSvc")) # TODO This should probably be based on simFlags.MagneticField?
-    # #kwargs.setdefault("FieldOn", True)
-
     result.addService(StandardFieldSvc(name, **kwargs))
     return result
 
 def ForwardFieldSvcCfg(ConfigFlags, name="ForwardField", **kwargs):
     result = ComponentAccumulator()
-
-    # #setup the field and add the magneticfield service
-    # acc = MagneticFieldSvcCfg(ConfigFlags)
-    # result.merge(acc)
 
     # #FIXME Once it exists this version should use the new MagField Service defined in ForwardRegionMgField
     # kwargs.setdefault("MagneticFieldSvc", result.getService("AtlasFieldSvc"))
