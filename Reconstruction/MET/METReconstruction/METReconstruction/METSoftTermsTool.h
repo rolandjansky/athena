@@ -95,11 +95,11 @@ namespace met{
     bool m_cl_onlyNegE;
     // temporary, until a track-vertex association tool is available
     //std::string m_pv_inputkey;
-    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey{"PrimaryVertices"};
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey{this,"InputPVKey","PrimaryVertices",""};
     SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_caloClusterKey{""};
     SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trackParticleKey{""};
 
-    ToolHandle<CP::IRetrievePFOTool> m_pfotool{this,""};
+    ToolHandle<CP::IRetrievePFOTool> m_pfotool{this,"PFOTool","",""};
   }; 
 
 }

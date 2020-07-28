@@ -90,7 +90,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        #from AthenaCommon.AppMgr import ToolSvc
         tool.PFOTool = pfotool
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
@@ -249,18 +248,9 @@ class METConfig:
                                                               maxZ0SinTheta=3,
                                                               maxD0=2,
                                                               minPt=500)
-        #if not hasattr(ToolSvc,self.trkseltool.name()):
-        #    ToolSvc += self.trkseltool
-        #
         self.trkvxtool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
-        #if not hasattr(ToolSvc,self.trkvxtool.name()):
-        #    ToolSvc += self.trkvxtool
-        #
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        #if not hasattr(ToolSvc,self.trkisotool.name()):
-        #    ToolSvc += self.trkisotool
-        #
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         CaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
@@ -270,8 +260,6 @@ class METConfig:
                                                           addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
-        #if not hasattr(ToolSvc,self.caloisotool.name()):
-        #    ToolSvc += self.caloisotool
 
         self.setupBuilders(buildconfigs)
         self.setupRefiners(refconfigs)

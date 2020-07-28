@@ -78,12 +78,12 @@ namespace met {
     // Either Cells or Clusters
     if(m_calo_useCells) {
       ATH_CHECK( m_caloCellKey.assign(m_input_data_key));
-      ATH_CHECK( m_caloCellKey.initialize() );
     } else {
       ATH_CHECK( m_caloClusterKey.assign(m_input_data_key));
-      ATH_CHECK( m_caloClusterKey.initialize() );    
     } // end if use clusters if/else
-    
+    ATH_CHECK( m_caloCellKey.initialize(m_calo_useCells) );
+    ATH_CHECK( m_caloClusterKey.initialize(!m_calo_useCells) );
+
     return StatusCode::SUCCESS;
   }
 
