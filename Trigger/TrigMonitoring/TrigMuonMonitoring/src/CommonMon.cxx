@@ -1409,10 +1409,18 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   }
 
   std::vector<std::string> vs_ESnoniso;
-  vs_ESnoniso.push_back("HLT_mu8");   // for HI, but HI does not use iso
-  vs_ESnoniso.push_back("HLT_mu14");  // for EnhancedBias
-  vs_ESnoniso.push_back("HLT_mu26");
-  vs_ESnoniso.push_back("HLT_mu24");      
+  if (getTDT()->getNavigationFormat() == "TriggerElement") {
+    vs_ESnoniso.push_back("HLT_mu8");   // for HI, but HI does not use iso
+    vs_ESnoniso.push_back("HLT_mu14");  // for EnhancedBias
+    vs_ESnoniso.push_back("HLT_mu26");
+    vs_ESnoniso.push_back("HLT_mu24");  
+  }
+  else{
+    vs_ESnoniso.push_back("HLT_mu8_L1MU6");   
+    vs_ESnoniso.push_back("HLT_mu14_L1MU10");  
+    vs_ESnoniso.push_back("HLT_mu26_L1MU20");
+    vs_ESnoniso.push_back("HLT_mu24_L1MU20");  
+  }    
       
   std::vector<std::string> vs_EStag;
   //vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight"); // pp v4
