@@ -58,7 +58,7 @@ flags.InDet.usePixelDCS=False
 
 flags.lock()
 
-from AthenaCommon.Constants import INFO,DEBUG,WARNING
+from AthenaCommon.Constants import INFO,DEBUG,WARNING,VERBOSE
 acc = MainServicesCfg( flags )
 acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 
@@ -96,17 +96,12 @@ acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
-<<<<<<< HEAD
 
+acc.foreach_component("*HLTTop/*/Menu1Electron_step1/*").OutputLevel = VERBOSE 
 
 
 acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
-=======
-acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
-acc.foreach_component("*FastEMCaloAlgo*").OutputLevel = DEBUG
-acc.foreach_component("VDVFastEgammaCalo").OutputLevel =DEBUG
->>>>>>> upstream/master
 
 fname = "newJOtest.pkl"
 print( "Storing config in the file {}".format( fname ) )
@@ -116,9 +111,4 @@ with open(fname, "wb") as p:
 status = acc.run()
 if status.isFailure():
     import sys
-<<<<<<< HEAD
-    sys.exit(-1)
-
-=======
     sys.exit(1)
->>>>>>> upstream/master

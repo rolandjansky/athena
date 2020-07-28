@@ -116,10 +116,15 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
   """
   import AthenaCommon.SystemOfUnits as Unit
   name = kwargs.pop("name", "SiTrackMaker_xk")
-  acc = ComponentAccumulator()
+  acc = ComponentAccumulator()  
   acc.merge( SiDetElementsRoadMaker_xkCfg( flags, **kwargs ) )
   combTrackFinderTool = acc.popToolsAndMerge( SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ) )
 
+  acc.addCondAlgo( CompFactory.RIO_OnTrackErrorScalingCondAlg(ErrorScalingType = ["PixelRIO_OnTrackErrorScaling", "SCTRIO_OnTrackErrorScaling", "TRTRIO_OnTrackErrorScaling"],
+                                                              OutKeys        = ["ConditionStore+/Indet/TrkErrorScalingPixel", "ConditionStore+/Indet/TrkErrorScalingSCT", "ConditionStore+/Indet/TrkErrorScalingTRT"],
+                                                              ReadKey        = "ConditionStore+/Indet/TrkErrorScaling") )
+  
+  
   tool = CompFactory.InDet.SiTrackMaker_xk( name,
                                             RoadTool                 = acc.getPublicTool( "InDetTrigSiDetElementsRoadMaker" ),
                                             CombinatorialTrackFinder = combTrackFinderTool,
@@ -453,17 +458,15 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   RegSelTool_SCT = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
 
   verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
-
-                                                    DataObjects= [('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
+                                                    DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
+                                                                  ('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
                                                                   ('PixelRDO_Cache', 'PixRDOCache'),
                                                                   ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
                                                                   ('SCT_RDO_Cache', 'SctRDOCache'),
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
-                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
-                                                                  ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
-                                                                      # ('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_L2CaloEMClusters'),
-                                                                  ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey)])
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),                                                                  
+                                                                  ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
                                                                   ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
 
   acc.addEventAlgo(verifier)
@@ -652,7 +655,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
 
-  acc.addPublicTool( CompFactory.TrigL2ResidualCalculator( "TrigL2ResidualCalculator" ) )
+#  acc.addPublicTool( CompFactory.TrigL2ResidualCalculator( "TrigL2ResidualCalculator" ) )
   acc.merge( SiTrackMaker_xkCfg( flags, name = "InDetTrigSiTrackMaker_FTF"+signature ) )
 
   acc.addPublicTool( CompFactory.TrigInDetTrackFitter( "TrigInDetTrackFitter" ) )
@@ -687,7 +690,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                          LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
                                          SpacePointProviderTool   = acc.getPublicTool( "TrigSpacePointConversionTool" + signature.lower() ),
                                          TrackSummaryTool         = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
-                                         TrigL2ResidualCalculator = acc.getPublicTool( "TrigL2ResidualCalculator" ),
+#                                         TrigL2ResidualCalculator = acc.getPublicTool( "TrigL2ResidualCalculator" ),
                                          initialTrackMaker        = acc.getPublicTool( "InDetTrigSiTrackMaker_FTF" + signature ),
                                          trigInDetTrackFitter     = acc.getPublicTool( "TrigInDetTrackFitter" ),
                                          RoIs = roisKey,
