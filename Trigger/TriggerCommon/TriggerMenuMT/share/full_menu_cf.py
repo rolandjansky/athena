@@ -271,10 +271,12 @@ def generateChains():
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 createHLTMenuExternally=True # menu will be build up explicitly here 
 doWriteRDOTrigger = False
 doWriteBS = False
 forceEnableAllChains=True
+TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 include("TriggerJobOpts/runHLT_standalone.py")
 
