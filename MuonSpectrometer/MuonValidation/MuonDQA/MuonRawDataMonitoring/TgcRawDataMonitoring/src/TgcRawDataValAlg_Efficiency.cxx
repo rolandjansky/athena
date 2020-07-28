@@ -444,7 +444,7 @@ TgcRawDataValAlg::fillEfficiency(){
         // channel number +offset for wires and strips in each layer
         int chIds[2][9] = {{-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,},
                            {-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,}};//[ws][layer]
-        // Eta and Phi positions of channels　(layer2 has no strips)
+        // Eta and Phi positions of channels (layer2 has no strips)
         double chEtas[2][9] = {{-99,-99,-99,-99,-99,-99,-99,-99,-99,},
                                {-99, -1,-99,-99,-99,-99,-99,-99,-99,}};//[ws][layer]
         double chPhis[2][9] = {{-99,-99,-99,-99,-99,-99,-99,-99,-99,},

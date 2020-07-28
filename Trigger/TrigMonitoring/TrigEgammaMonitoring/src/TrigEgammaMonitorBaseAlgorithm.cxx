@@ -140,7 +140,7 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
 
 
     asg::AcceptInfo accept;
-    for(const auto cut:m_trigLevel) accept.addCut(cut,cut);
+    for(const auto& cut:m_trigLevel) accept.addCut(cut,cut);
     asg::AcceptData acceptData (&accept);
 
    

@@ -37,8 +37,8 @@ def toJson(fileName, metadata, L1Triggers, HLTTriggers):
 
 
 def getMetadata(inputFile):
-  metatree = inputFile.Get("metadata");
-  if metatree == None:
+  metatree = inputFile.Get("metadata")
+  if metatree is None:
     return None
 
   metatree.GetEntry(0)

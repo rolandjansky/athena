@@ -47,6 +47,10 @@ private:
   Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false, 
     "Enables end-of-event cost monitoring behavior."};
 
+  Gaudi::Property<bool> m_setFilterStatus{this, "SetFilterStatus", false, 
+    "Enables chain-passed filter. This will cause the downstream EDMCreator to not run if no chains pass, saving CPU in rejected events. "
+    "Cannot be used in jobs producing RDO output."};
+
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_collectionFilter;
 
 };

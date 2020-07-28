@@ -139,6 +139,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     hltEndSeq = parOR("HLTEndSeq")
     hltTop += hltEndSeq
 
+    hltFinalizeSeq = seqAND("HLTFinalizeSeq")
+
+    # TODO - this is not currently used, but can host any algs which need to run conditional on the HLT accepting the event
+    hltAcceptedEventAlgsSeq = parOR("HLTAcceptedEventAlgsSeq")
+
     # make DF and CF tree from chains
     finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
 
@@ -157,26 +162,38 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
+    # Collections required to configure the algs below
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
+
     Configurable.configurableRun3Behavior=1
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     Configurable.configurableRun3Behavior=0
-    hltEndSeq += conf2toConfigurable( summaryAlg )
+    # A) First we check if any chain accepted the event
+    hltFinalizeSeq += conf2toConfigurable( summaryAlg )
     appendCAtoAthena( summaryAcc )
+
+    # B) Then (if true), we run the accepted event algorithms.
+    hltFinalizeSeq += hltAcceptedEventAlgsSeq
+
+    # More collections required to configure the algs below
     decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
+
     Configurable.configurableRun3Behavior=1
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     Configurable.configurableRun3Behavior=0
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
 
-    # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
+    Configurable.configurableRun3Behavior=1
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
+    Configurable.configurableRun3Behavior=0
+    # C) Finally, we create the EDM output
+    hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
-    hltEndSeq += conf2toConfigurable(edmAlg)
+    hltEndSeq += hltFinalizeSeq
 
     # Test the configuration
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/TauFilter.h"
@@ -58,35 +58,30 @@ CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::ConstGenParticle
 
 
 StatusCode TauFilter::filterEvent() {
-  HepMC::GenParticlePtr tau;
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector tauvis;
   CLHEP::HepLorentzVector nutau;
-  tau = 0;
   int ntau = 0;
 
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+    for ( auto  tau: *genEvt) {
       // Look for the first tau with genstat != 3
-      if (abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3) {
-        tau = (*pitr);
-        ATH_MSG_DEBUG("found tau with barcode " << tau->barcode() << " status " << (*pitr)->status());
+      if (std::abs(tau->pdg_id()) != 15 || tau->status() == 3)  continue;
+        ATH_MSG_DEBUG("found tau with barcode " << HepMC::barcode(tau) << " status " << tau->status());
         ATH_MSG_DEBUG("pT\t\teta\tphi\tid");
         ATH_MSG_DEBUG(tau->momentum().perp() << "\t" <<
                       tau->momentum().eta() << "\t" <<
                       tau->momentum().phi() << "\t" <<
                       tau->pdg_id() << "\t");
-
-        HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
-        HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
         int leptonic = 0;
-        for ( ; begin != end; begin++ ) {
-          if ( (*begin)->production_vertex() != tau->end_vertex() ) continue;
-          if ( abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
-          if ( abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
-          if ( abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
+        if ( tau->production_vertex()) continue;
+        for (auto beg: *(tau->end_vertex())) {
+          if ( beg->production_vertex() != tau->end_vertex() ) continue;
+          if ( std::abs( beg->pdg_id() ) == 12 ) leptonic = 1;
+          if ( std::abs( beg->pdg_id() ) == 14 ) leptonic = 2;
+          if ( std::abs( beg->pdg_id() ) == 15 ) leptonic = 11;
         }
 
         if (leptonic == 11) {
@@ -124,7 +119,6 @@ StatusCode TauFilter::filterEvent() {
           ntau++;
           m_eventshadacc++;
         }
-      }
     }
   }
 

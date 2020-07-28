@@ -1,31 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMT_FITTER_H
 #define MMT_FITTER_H
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "MMT_struct.h"
 
 
-class MMT_Fitter{
+class MMT_Fitter : AthMessaging {
  public:
   MMT_Fitter(MMT_Parameters *par, int nlg=256, double LG_min=0., double LG_max=0.5);
-  ~MMT_Fitter(){}
   void Get_Fit(std::vector<Hit>& track, std::map<int,evFit_entry>& Event_Fit, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time);
   evFit_entry fit_event(int event, std::vector<Hit>& track, std::vector<hitData_entry>& hitDatas, int& nfit, std::vector<std::pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const;
   int get_last() const {return m_last;}
   int SC_ROI_n_x() const {return m_par->n_x;}
   int SC_ROI_n_y() const {return m_par->n_y;}
   int find_hitData(const std::vector<hitData_entry>& hitDatas, const hitData_key& key) const;
-
-
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  protected:
   int m_last;
@@ -68,9 +61,6 @@ class MMT_Fitter{
   int m_number_LG_regions,m_n_fit;
   float32fixed<2> m_LG_min,m_LG_max;
   std::vector<int> q_planes(char type) const;//return position of what planes are where
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 
 };
 #endif
