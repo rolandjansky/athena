@@ -575,7 +575,8 @@ if opt.doWriteRDOTrigger:
         theApp.exit(1)
     rec.doWriteRDO = False  # RecExCommon flag
     ConfigFlags.Output.doWriteRDO = True  # new JO flag
-    ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+    if not ConfigFlags.Output.RDOFileName:
+        ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
 if opt.doWriteBS:
     rec.doWriteBS = True  # RecExCommon flag
     TriggerFlags.writeBS = True  # RecExCommon flag
