@@ -116,7 +116,7 @@ recalculateDistances(const Component1D* componentsIn,
     const Component1D componentI = components[i];
     const int32_t index = indexConst + i;
     // if the component has been merged already
-    // so keep the distance wrt to it max always
+    // keep the distance wrt to it max always
     distances[index] = componentI.weight < 0
                          ? std::numeric_limits<float>::max()
                          : symmetricKL(componentI, componentJ);
@@ -125,8 +125,8 @@ recalculateDistances(const Component1D* componentsIn,
   for (int32_t i = j + 1; i < n; ++i) {
     const Component1D componentI = components[i];
     const int32_t index = (i - 1) * i / 2 + j;
-    // This component has been merged to/removed
-    // so keep the distance wrt to it max always
+    // if the component has been merged already
+    // keep the distance wrt to it max always
     distances[index] = componentI.weight < 0
                          ? std::numeric_limits<float>::max()
                          : symmetricKL(componentI, componentJ);
