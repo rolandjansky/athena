@@ -11,7 +11,6 @@ find_package( MadGraph )
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/common/*.py )
-atlas_install_joboptions( test/testJOs/*.py )
 atlas_install_generic( share/file/*.dat share/lhapdf-config share/fastjet-config
                        DESTINATION share
                        EXECUTABLE )

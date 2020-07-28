@@ -10,6 +10,7 @@
 #include "HepMC/GenEvent.h"
 
 #include "GeneratorObjects/McEventCollection.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
@@ -31,6 +32,7 @@
 
 #include <cstdlib>
 #include <memory>
+#include <regex>
 
 using namespace std;
 
@@ -39,7 +41,7 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  //m_histSvc("THistSvc", name),
+  m_hepMCWeightSvc("HepMCWeightSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -56,6 +58,8 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
   declareProperty("DoRootHistos", m_doRootHistos=true);
   declareProperty("SkipWeights", m_skipweights=false);
+  declareProperty("MatchWeights", m_matchWeights="");
+  declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
   // Service handles
   //declareProperty("THistSvc", m_histSvc);
@@ -132,7 +136,9 @@ StatusCode Rivet_i::initialize() {
   m_analysisHandler = new Rivet::AnalysisHandler(m_runname);
   assert(m_analysisHandler);
   m_analysisHandler->setIgnoreBeams(m_ignorebeams); //< Whether to do beam ID/energy consistency checks
-  m_analysisHandler->skipMultiWeights(m_skipweights); //< Whether to skip weights or not
+  m_analysisHandler->skipMultiWeights(m_skipweights); //< Only run on the nominal weight
+  m_analysisHandler->selectMultiWeights(m_matchWeights); //< Only run on a subset of the multi-weights
+  m_analysisHandler->deselectMultiWeights(m_unmatchWeights); //< Veto a subset of the multi-weights
   if(m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
@@ -282,6 +288,14 @@ bool cmpGenParticleByEDesc(const HepMC::GenParticle* a, const HepMC::GenParticle
   return a->momentum().e() > b->momentum().e();
 }
 
+inline std::vector<std::string> split(const std::string& input, const std::string& regex) {
+  // passing -1 as the submatch index parameter performs splitting
+  std::regex re(regex);
+  std::sregex_token_iterator
+  first{input.begin(), input.end(), re, -1},
+    last;
+    return {first, last};
+}
 
 const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   std::vector<HepMC::GenParticle*> beams;
@@ -294,6 +308,65 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     int eventNumber = eventInfo->event_ID()->event_number();
     modEvent->set_event_number(eventNumber);
   }
+
+  // weight-name cleaning
+  const HepMC::WeightContainer& old_wc = event->weights();
+  std::ostringstream stream;
+  old_wc.print(stream);
+  string str =  stream.str();
+  // if it only has one element, 
+  // then it doesn't use named weights
+  // --> no need for weight-name cleaning
+  if (str.size() > 1) {
+    vector<string> orig_order(m_hepMCWeightSvc->weightNames().size());
+    for (const auto& item : m_hepMCWeightSvc->weightNames()) {
+      orig_order[item.second] = item.first;
+    }
+    map<string, double> new_name_to_value;
+    map<string, string> old_name_to_new_name;
+    HepMC::WeightContainer& new_wc = modEvent->weights();
+    new_wc.clear();
+    vector<pair<string,string> > w_subs = {
+      {" nominal ",""},
+      {" set = ","_"},
+      {" = ","_"},
+      {"=",""},
+      {",",""},
+      {".",""},
+      {":",""},
+      {" ","_"},
+      {"#","num"},
+      {"\n","_"},
+      {"/","over"}
+    };
+    std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
+    for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
+         i != std::sregex_iterator(); ++i ) {
+      std::smatch m = *i;
+      vector<string> temp = ::split(m.str(), "[,]");
+      if (temp.size() == 2 || temp.size() == 3) {
+        string wname = temp[0];
+        if (temp.size() == 3)  wname += "," + temp[1];
+        string old_name = string(wname);
+        double value = old_wc[wname];
+        for (const auto& sub : w_subs) {
+          size_t start_pos = wname.find(sub.first);
+          while (start_pos != std::string::npos) {
+            wname.replace(start_pos, sub.first.length(), sub.second);
+            start_pos = wname.find(sub.first);
+          }
+        }
+        new_name_to_value[wname] = value;
+        old_name_to_new_name[old_name] = wname;
+      }
+    }
+    for (const string& old_name : orig_order) {
+      const string& new_name = old_name_to_new_name[old_name];
+      new_wc[ new_name ] = new_name_to_value[new_name];
+    }
+    // end of weight-name cleaning
+  }
+
 
   if (!modEvent->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {

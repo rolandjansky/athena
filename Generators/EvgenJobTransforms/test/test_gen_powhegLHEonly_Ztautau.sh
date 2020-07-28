@@ -9,7 +9,7 @@
 export TRF_ECHO=True;
 rm *;
 Gen_tf.py --ecmEnergy=13000 --jobConfig=421111 \
-    --outputTXTFile=test_powheg_Ztautau.TXT \
+    --outputTXTFile=test_powheg_Ztautau.TXT.tar.gz \
 
 echo "art-result: $? generate"
 

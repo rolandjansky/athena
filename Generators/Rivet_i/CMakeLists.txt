@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel
                           Generators/GeneratorObjects
+                          Generators/GenInterfaces
                           Tools/PathResolver
                           Event/EventInfo )
 

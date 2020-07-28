@@ -67,6 +67,22 @@ class PowhegRES(PowhegBase):
         ]
 
     @property
+    def integration_file_names(self):
+        """! Wildcarded list of integration files that might be created by this process."""
+        return [
+            "pwg*upb*.dat",
+            "pwg*xgrid*.dat",
+            "pwgfullgrid*.dat",
+            "pwggrid*.dat",
+            "pwgubound*.dat"
+        ]
+
+    @property
+    def mandatory_integration_file_names(self):
+        """! Wildcarded list of integration files that are needed for this process."""
+        return self.integration_file_names
+
+    @property
     def powheg_version(self):
         """! Version of PowhegBox process."""
         return "RES"

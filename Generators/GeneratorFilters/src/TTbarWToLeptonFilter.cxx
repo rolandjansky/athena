@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
-
 #include "GeneratorFilters/TTbarWToLeptonFilter.h"
 
 TTbarWToLeptonFilter::TTbarWToLeptonFilter(const std::string& name, ISvcLocator* pSvcLocator)
@@ -18,6 +17,8 @@ StatusCode TTbarWToLeptonFilter::filterEvent() {
   int N_quark_t_all    = 0;
   int N_quark_tbar_all = 0;
   int N_pt_above_cut = 0;
+
+  bool foundlepton[6] = {0, 0, 0, 0, 0, 0}; // e+, e-, mu+, mu-, tau+, tau-
 
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
@@ -59,32 +60,71 @@ StatusCode TTbarWToLeptonFilter::filterEvent() {
 
                 for (; grandchild_mcpartItr != grandchild_mcpartItrE; ++grandchild_mcpartItr) {
 
-			      HepMC::GenParticle * grandchild_mcpart = (*grandchild_mcpartItr);
-			      int grandchild_pid = grandchild_mcpart->pdg_id();
+		  HepMC::GenParticle * grandchild_mcpart = (*grandchild_mcpartItr);
+		  int grandchild_pid = grandchild_mcpart->pdg_id();
 
-			      ATH_MSG_DEBUG("W (t/tbar) has " << mcpart_n_particles_out << " children and the pdg_id of the next is " << grandchild_pid);
+		  ATH_MSG_DEBUG("W (t/tbar) has " << mcpart_n_particles_out << " children and the pdg_id of the next is " << grandchild_pid);
 
-			      // Check if the W's child is W again. If yes, then move to its next decay vertex in a decay tree
-			      if (fabs(grandchild_pid) == 24) {
-					w_decayVtx = grandchild_mcpart->end_vertex();
+		  // Check if the W's child is W again. If yes, then move to its next decay vertex in a decay tree
+		  if (fabs(grandchild_pid) == 24) {
+		    w_decayVtx = grandchild_mcpart->end_vertex();
 
-					// If something wrong comes from truth...
-					if (!w_decayVtx) {
-                      ATH_MSG_ERROR("A stable W is found... ");
-                      break;
-					}
+		    // If something wrong comes from truth...
+		    if (!w_decayVtx) {
+		      ATH_MSG_ERROR("A stable W is found... ");
+		      break;
+		    }
 
-					useNextVertex = true;
-					break;
-			      }
+		    useNextVertex = true;
+		    break;
+		  }
 
-			      if (abs(grandchild_pid) == 11 ||  abs(grandchild_pid) == 13 || abs(grandchild_pid) == 15) {
-					if (grandchild_mcpart->momentum().perp() >= m_Ptmin) N_pt_above_cut++;
-					// W decay lepton is found. Break loop over the decay product particles
-					break;
-			      }
-                }
-
+		  // use brute force to use only leptons that have not been found already 
+		  if (grandchild_pid == -11 && !foundlepton[0]) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[0] = 1;
+		      N_pt_above_cut++;
+		      break;  // W decay lepton is found. Break loop over the decay product particles
+		    }
+		  }
+		  if (grandchild_pid == 11 && !foundlepton[1]) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[1] = 1;
+		      N_pt_above_cut++;
+		      break;  // W decay lepton is found. Break loop over the decay product particles
+		    }
+		  }
+		  if (grandchild_pid == -13 && !foundlepton[2]) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[2] = 1;
+		      N_pt_above_cut++;
+		      break;  // W decay lepton is found. Break loop over the decay product particles
+		    }
+		  }
+		  if (grandchild_pid == 13 && !foundlepton[3]) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[3] = 1;
+		      N_pt_above_cut++;
+		      break;  // W decay lepton is found. Break loop over the decay product particles
+		    }
+		  }
+		  if (grandchild_pid == -15 && !foundlepton[4]) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[4] = 1;
+		      N_pt_above_cut++;
+		      break;  // W decay lepton is found. Break loop over the decay product particles
+		    }
+		  }
+		  if (grandchild_pid == 15 && !foundlepton[5]) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[5] = 1;
+		      N_pt_above_cut++;
+		      break;  // W decay lepton is found. Break loop over the decay product particles
+		    }
+		  }
+			      
+		}
+		
                 // If investigation of W's next decay vertex is not required then finish looking for leptons
                 if (!useNextVertex) break;
               }

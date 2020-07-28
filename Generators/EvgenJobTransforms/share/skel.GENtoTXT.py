@@ -55,7 +55,7 @@ jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Gen_tf_txt')
+evgenLog = logging.getLogger('Gen_tf')
 
 ##==============================================================
 ## Run arg handling
@@ -206,7 +206,7 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
-        evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
+        evgenLog.error(jofile + " contains a physicsShort field of more than 50 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
     jo_physshortparts = jo_physshortpart.split("_")
@@ -237,10 +237,14 @@ print ("****************** CHECKING EVGEN CONFIGURATION *****************")
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
-evgenLog.info(".transform =                   Gen_tf_txt")      
+evgenLog.info(".transform =                   Gen_tf")      
 
 ## Sort and check generator name / JO name consistency
 ##
+## Check that the common fragments are not obsolete:
+if evgenConfig.obsolete:
+    evgenLog.error("JOs or icludes are obsolete, please check them")
+    sys.exit(1)
 ## Check that the generators list is not empty:
 if not evgenConfig.generators:
     evgenLog.error("No entries in evgenConfig.generators: invalid configuration, please check your JO")
@@ -299,45 +303,37 @@ if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile: 
 else:
    multiInput = 0
    
+# check if default nEventsPerJob used
+if not evgenConfig.nEventsPerJob:
+    evgenLog.info('#############################################################')
+    evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ')
+    evgenLog.info('#############################################################')
+else:
+    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+    
+if evgenConfig.minevents > 0 :
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+           
 if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 0")
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#    if multiInput !=0 :
-#        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
-#        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob))
-#        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
-
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0 and 10000 % evgenConfig.nEventsPerJob != 0:
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        rest1000 = evgenConfig.nEventsPerJob % 1000
-#        if multiInput !=0 :
-#            rounding=1
-#            if rest1000 < 1000-rest1000:
-#                evgenLog.info('Replacing nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with roundeded '+str(evgenConfig.nEventsPerJob-rest1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
-#            else:
-#                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
-#        else:    
-           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000 and a divisor of 10000"
+    
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        if multiInput !=0:
-#           rounding=1
-#           round_nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
-#           evgenLog.info('Replacing nEventsPerJob lt 1000 '+str(evgenConfig.nEventsPerJob)+' with rounded '+str(round_nEventsPerJob))
-#           evgenConfig.nEventsPerJob=round_nEventsPerJob
-#        else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
-#    else:
-#    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
+
 
 ## Check that the keywords list is not empty:
 if not evgenConfig.keywords:
@@ -438,6 +434,9 @@ if evgenConfig.categories:
         evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
 
 ## Set the run numbers
+dsid = os.path.basename(runArgs.jobConfig[0])
+if not dsid.isdigit():
+    dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
 #runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
@@ -529,6 +528,8 @@ elif "BeamHaloGenerator" in evgenConfig.generators:
    eventsFile = "beamhalogen.events"
 elif "HepMCAscii" in evgenConfig.generators:
    eventsFile = "events.hepmc"
+elif "ReadMcAscii" in evgenConfig.generators:
+    eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
    #eventsFile = outputTXTFile
    eventsFile = "events.lhe"
@@ -694,7 +695,8 @@ def _checkattr(attr, required=False):
 with open(eventsFile) as f:
     contents = f.read()
     count_ev = contents.count("<event>")
-    
+
+evgenLog.info('Requested output events '+str(count_ev))    
 print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
 
 if _checkattr("description", required=True):

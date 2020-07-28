@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/DirectPhotonFilter.h"
@@ -17,7 +17,7 @@ DirectPhotonFilter::DirectPhotonFilter(const std::string& name, ISvcLocator* pSv
   declareProperty("AllowSUSYDecay",m_AllowSUSYDecay = false);
 
   // Backward compatibility aliases
-  declareProperty("Ptcut", m_Ptmin = std::vector<double>(m_NPhotons, 10000.));
+  declareProperty("Ptcut", m_Ptmin);
 }
 
 StatusCode DirectPhotonFilter::filterInitialize() {
@@ -76,7 +76,8 @@ StatusCode DirectPhotonFilter::filterEvent() {
           ATH_MSG_DEBUG("Looping on Production (parents) vertex : " << (*parent)->pdg_id() << "  " << (*parent)->barcode());
           if (pdgindex > 100) {
             fromHadron = true;
-            if (m_AllowSUSYDecay && ( (pdgindex > 1000000 && pdgindex < 1000040) || (pdgindex > 2000000 && pdgindex < 2000016) ) ) fromHadron = false;
+            if (m_AllowSUSYDecay && ( (pdgindex > 1000000 && pdgindex < 1000040) || (pdgindex > 2000000 && pdgindex < 2000016) ) ) fromHadron = 
+false;
           }
         }
 

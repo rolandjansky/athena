@@ -5,6 +5,7 @@ from configurable import Configurable
 from ..utility import check_svn_revision
 import math
 import os
+import glob
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -36,6 +37,34 @@ class PowhegBase(Configurable):
         os.environ['LD_LIBRARY_PATH'] = ldpath_new
         logger.info("OpenLoopsPath (after) = {0}".format(os.getenv('OpenLoopsPath')))
         logger.debug("LD_LIBRARY_PATH (after) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
+
+    def link_madloop_libraries(self):
+        '''
+        Manual fix for MadLoop libraries, avoiding issues when /afs not available
+        This is NOT a viable long-term solution and should be made obsolete after the migration
+        The trick consists in making a symbolic link of some directory in the installation
+        which contains some files needed by MadLoop
+        '''
+        import os
+        logger.warning("Applying manual, hard-coded fixes for MadLoop library paths")
+        MadLoop_virtual = os.path.dirname(self.executable)+"/virtual"
+        logger.info("Trying to link directory {} locally".format(MadLoop_virtual))
+        if not os.access(MadLoop_virtual,os.R_OK):
+            logger.fatal("Impossible to access directory {} needed for this process which uses MadLoop".format(MadLoop_virtual))
+        if os.access("virtual",os.R_OK):# checking if link already exists
+            logger.info("Found \"virtual\" probably from previous run - deleting it to recreate it with correct path")
+            try:
+                os.remove("virtual")
+            except:
+                logger.fatal("Impossible to remove \"virtual\" symbolic link - exiting...")
+                raise
+        os.symlink(MadLoop_virtual, "virtual")
+        link = os.readlink("virtual")
+        if link != MadLoop_virtual:
+            logger.fatal("Symbolic link \"virtual\" points to {0} while it should point to {1} - linking probably didn't work. Exiting...".format(link,MadLoop_virtual))
+            raise
+        else:
+            logger.info("Local directory \"virtual\" now points to {}".format(MadLoop_virtual))
 
     def __init__(self, base_directory, version, executable_name, cores, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
         """! Constructor.
@@ -112,6 +141,11 @@ class PowhegBase(Configurable):
         raise AttributeError("Integration file names are not known for this process!")
 
     @property
+    def mandatory_integration_file_names(self):
+        """! Wildcarded list of integration files that are needed for this process."""
+        raise AttributeError("Integration file names are not known for this process!")
+
+    @property
     def powheg_version(self):
         """! Version of PowhegBox process."""
         raise AttributeError("Powheg version is not known!")
@@ -169,3 +203,27 @@ class PowhegBase(Configurable):
             for allowed_decay_mode in allowed_decay_modes:
                 logger.info("... {}".format(allowed_decay_mode))
             raise ValueError("Decay mode {} not recognised!".format(decay_mode))
+
+    def check_using_integration_files(self):
+        ###! Return true if pre-made integration grids will be used."""
+        search_strings = [] # list of filename patters to be searched for
+        found_files = [] # list of found files will be printed out for info
+        missing_patterns = [] # list of filename patters which hasn't been found but would be needed for pre-made integration grids
+        try:
+            search_strings = self.mandatory_integration_file_names
+        except AttributeError:
+            logger.fatal("No integration grid file name patterns defined for this process.")
+            raise
+        for s in search_strings:
+            found = glob.glob(s)
+            if found != []:
+                found_files += found
+            else:
+                missing_patterns.append(s)
+        if missing_patterns == []:
+            logger.info("Integration grid files found locally. Event generation shall continue, skipping the integration step.")
+            logger.info("Integration grid files found locally: {}".format(found_files))
+        else:
+            logger.info("Integration grid files needed were not found locally. Event generation shall continue, starting by the integration step.")
+            logger.info("Missing integration grid files with these patterns: {}".format(missing_patterns))
+            logger.info("Integration grid files found locally (if any): {}".format(found_files))

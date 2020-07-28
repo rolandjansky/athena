@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
-
 #ifndef GENERATORFILTERS_DIPHOTONFILTER_H
 #define GENERATORFILTERS_DIPHOTONFILTER_H
 
@@ -26,6 +25,12 @@ private:
   double m_EtaRange_others;
   double m_diphoton_massmin;
   double m_diphoton_massmax;
+	double m_deltaPhiMin;
+  double m_deltaPhiMax;
+  double m_diphoton_PtMin;
+  double m_diphoton_PtMax;
+  double m_deltaRMin ;
+  double m_deltaRMax ;
   bool m_use1st2ndPhotonsforMassCut;
 
 };

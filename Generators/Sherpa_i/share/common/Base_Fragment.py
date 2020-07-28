@@ -38,25 +38,56 @@ genSeq.Sherpa_i.Parameters += [
     "CSS_REWEIGHT_SCALE_CUTOFF=5.0",
     "HEPMC_INCLUDE_ME_ONLY_VARIATIONS=1",
     "SCALE_VARIATIONS=0.25,0.25 0.25,1. 1.,0.25 1.,1. 1.,4. 4.,1. 4.,4.",
-    ]
-
-## Particle masses/widths
-genSeq.Sherpa_i.Parameters += [
-    "MASS[6]=172.5",
-    "WIDTH[6]=1.32",
-    "MASS[15]=1.777",
-    "WIDTH[15]=2.26735e-12",
-    "MASS[23]=91.1876",
-    "WIDTH[23]=2.4952",
-    "MASS[24]=80.399",
-    "WIDTH[24]=2.085",
-    ]
+]
 
 ## Switch to EW_SCHEME=0 to be able to set PDG value of thetaW
-genSeq.Sherpa_i.Parameters += [
-    "EW_SCHEME=0",
-    "SIN2THETAW=0.23113",
-    ]
+genSeq.Sherpa_i.Parameters += [ "EW_SCHEME=0" ]
+
+try:
+    USE_PDG_VALUES
+except NameError:
+    USE_PDG_VALUES = False
+## if USE_PDG_VALUES = True, load PDG value 
+## of sin2thetaW and particle masses/widths 
+## from parameter dictionary located in 
+## EvgenProdTools/python/offline_dict.py 
+## ToDo: Include partial widths for H/W/Z?
+recorded = []
+if USE_PDG_VALUES:
+    from EvgenProdTools.offline_dict import parameters
+    for k,v in parameters.items():
+        if k == 'particles':
+            for key,value in v.items():
+                if 5 < int(key) and int(key) < 26:
+                    ## This includes now the top quark, 
+                    ## the leptons and the bosons
+                    genSeq.Sherpa_i.Parameters += [ 
+                        'MASS['+key+']='+ value['mass'],
+                        'WIDTH['+key+']='+ value['width'],
+                    ]
+                    recorded.append(key)
+        elif k == 'EW_parameters':
+            for key,value in v.items():
+                if key[0] == 'SIN2THETAW':
+                    genSeq.Sherpa_i.Parameters += [
+                        str(key[0])+'='+str(value),
+                    ]
+                    recorded.append(str(key[0]))
+                    break
+
+# Fall-back to the MC15 default values if need be
+defaults = {
+    '6'  : [ "MASS[6]=172.5",    "WIDTH[6]=1.32"         ],
+    '15' : [ "MASS[15]=1.777",   "WIDTH[15]=2.26735e-12" ],
+    '23' : [ "MASS[23]=91.1876", "WIDTH[23]=2.4952"      ],
+    '24' : [ "MASS[24]=80.399",  "WIDTH[24]=2.085"       ],
+    'SIN2THETAW' : [ "SIN2THETAW=0.23113" ],
+}
+for key, value in defaults.items():
+  if key not in recorded:
+    genSeq.Sherpa_i.Parameters += value
+
+
 
 ## set/add partial widths for H, W, Z to PDG values
 ## cf. https://sherpa.hepforge.org/doc/SHERPA-MC-2.2.4.html#HDH_005fWIDTH
@@ -97,4 +128,4 @@ genSeq.Sherpa_i.Parameters += [
 genSeq.Sherpa_i.Parameters += [
     "OL_PREFIX=/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt",
     "OL_PARAMETERS=preset=2 write_parameters=1",
-    ]
+]

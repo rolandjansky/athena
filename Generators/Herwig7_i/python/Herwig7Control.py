@@ -71,7 +71,7 @@ def run(gen_config):
 ## Do the build, integrate, mergegrids and run step in one go
 ## without creating a gridpack
 ##
-## \param[in] cleanup_herwig_scratch Remove `Herwig-scratch` folder after event generation to save disk space
+## \param[in] cleanup_herwig_scratch Remove `Herwig-scratch/Herwig-cache` folder after event generation to save disk space
 def matchbox_run(gen_config, integration_jobs, cleanup_herwig_scratch):
 
   ## perform build/integrate/mergegrids sequence
@@ -84,7 +84,7 @@ def matchbox_run(gen_config, integration_jobs, cleanup_herwig_scratch):
 ## Either do the build, integrate and mergegrids steps and create a gridpack
 ## or extract it and generate events from it
 ##
-## \param[in] cleanup_herwig_scratch Remove `Herwig-scratch` folder after event generation to save disk space
+## \param[in] cleanup_herwig_scratch Remove `Herwig-scratch` or 'Herwig-cache' folder after event generation to save disk space
 def matchbox_run_gridpack(gen_config, integration_jobs, gridpack_name, cleanup_herwig_scratch):
 
   print_integration_logs = True
@@ -255,7 +255,12 @@ def do_compress_gridpack(run_name, gridpack_name):
   if not (gridpack_name.endswith('.tar.gz') or gridpack_name.endswith('.tgz')): gridpack_name += '.tar.gz'
   infile_name = get_infile_name(run_name)
   runfile_name = get_runfile_name(run_name)
-  do_step('compress', ['tar', 'czf', gridpack_name, infile_name, runfile_name, 'Herwig-scratch'])
+  version = herwig_version()
+  athMsgLog.info("ANDREA DEBUG scratch area, this is Herwig version '{}'".format(version))
+  if "7.1" in version or "7.0" in version:
+    do_step('compress', ['tar', 'czf', gridpack_name, infile_name, runfile_name, 'Herwig-scratch'])
+  else:
+    do_step('compress', ['tar', 'czf', gridpack_name, infile_name, runfile_name, 'Herwig-cache'])
 
 
 def do_uncompress_gridpack(gridpack_name):

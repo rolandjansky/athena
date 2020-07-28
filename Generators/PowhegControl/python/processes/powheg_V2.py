@@ -65,7 +65,19 @@ class PowhegV2(PowhegBase):
             "pwggrid*.dat",
             "pwggridinfo*.dat",
             "pwgremnupb*.dat",
-            "pwgubound*.dat"
+            "pwgubound*.dat",
+            "pwgxgrid.dat",
+        ]
+
+    @property
+    def mandatory_integration_file_names(self):
+        """! Wildcarded list of integration files that are needed for this process."""
+        return [
+            "pwgbtildeupb*.dat",
+            "pwgfullgrid*.dat",
+            "pwggrid*.dat",
+            "pwgremnupb*.dat",
+            "pwgubound*.dat",
             "pwgxgrid.dat",
         ]
 

@@ -65,6 +65,11 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
     msg.debug("MP output handler called for report {0} and workers in {1}, data types {2}".format(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary.keys()))
     outputHasBeenHandled = dict([ (dataType, False) for dataType in dataDictionary.keys() if dataDictionary[dataType] ])
 
+    # Check if this is an evgen job - if so, handle things a bit differently
+    if '-generate-' in athenaMPFileReport and 'EVNT' in dataDictionary:
+        athenaMPoutputsLinkAndUpdate(dataDictionary['EVNT'].value, dataDictionary['EVNT'])
+        return
+
     # if sharedWriter mode is active ignore athenaMPFileReport
     sharedWriter=False
     if 'sharedWriter' in argdict and argdict['sharedWriter'].value:

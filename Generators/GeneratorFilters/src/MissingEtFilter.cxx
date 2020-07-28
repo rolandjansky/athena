@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
 
 #include "GeneratorFilters/MissingEtFilter.h"
@@ -13,6 +13,7 @@ MissingEtFilter::MissingEtFilter(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("METCut",m_METmin = 10000.);
   // Normally we'd include them, but this is unstable if using EvtGen
   declareProperty("UseNeutrinosFromHadrons",m_useHadronicNu = false);
+  declareProperty("UseChargedNonShowering",m_useChargedNonShowering = false);
 }
 
 
@@ -26,7 +27,7 @@ StatusCode MissingEtFilter::filterEvent() {
 
       // Consider all non-interacting particles
       // We want Missing Transverse Momentum, not "Missing Transverse Energy"
-      if (MC::isNonInteracting(*pitr)) {
+      if (MC::isNonInteracting(*pitr) || (m_useChargedNonShowering && MC::isChargedNonShowering((*pitr)->pdg_id()))) {
 	bool addpart = true;
 	if(!m_useHadronicNu && MC::isNeutrino(*pitr) && !(fromWZ(*pitr) || fromTau(*pitr)) ) {
 	  addpart = false; // ignore neutrinos from hadron decays

@@ -95,12 +95,12 @@ def add_weight_to_header(header, weightgroup_name, weight_name, weight_id):
 
     # Add weightgroup element if it doesn't exist
     if weightgroup_name not in [x.attrib["name"] for x in header_elem.find("initrwgt").findall("weightgroup")]:
-        header_elem.find("initrwgt").append(ElementTree.fromstring("<weightgroup combine='none' name='{}'></weightgroup>".format(weightgroup_name)))
+        header_elem.find("initrwgt").append(ElementTree.fromstring("<weightgroup name='{}' combine='None' ></weightgroup>".format(weightgroup_name)))
 
     # Add weight to appropriate weightgroup
     weightgroup = [x for x in header_elem.find("initrwgt").findall("weightgroup") if x.attrib["name"] == weightgroup_name][0]
     if not any([weight.attrib["id"] == weight_id for weight in weightgroup.findall("weight")]):
-        weightgroup.append(ElementTree.fromstring("<weight id='{}'> {} </weight>".format(weight_id, weight_name)))
+        weightgroup.append(ElementTree.fromstring("<weight id='{}'>{}</weight>".format(weight_id, weight_name)))
 
     reindent_XML(header_elem)
     return header_elem
@@ -195,6 +195,38 @@ def ensure_coloured_quarks(input_event):
             pass
         event_lines += output_line if output_line is not None else input_line
     return (is_event_changed, event_lines)
+
+
+def update_XWGTUP_with_reweighted_nominal(input_event, wgtid_for_old_XWGTUP_value = None):
+    """! Ensure that XWGTUP is equal to the reweighted nominal."""
+    initial_colour_flow, is_event_changed = -1, False
+    event_lines = ""
+    rwgt_nominal = None
+    XWGTUP = None
+    for input_line in input_event.splitlines(True): # loop first to fine reweighted nominal
+        if input_line.find("<wgt id='0'>") < 0:
+            continue
+        else:
+            try:
+                rwgt_nominal = ElementTree.fromstring(input_line.strip())
+                break # no need to continue the loop
+            except:
+                raise IOError("Impossible to understand line with nominal weight from reweighting")
+    for input_line in input_event.splitlines(True):
+        output_line = None
+        if XWGTUP == None: # XWGTUP not yet found
+            try:  # interpret line as a general event info line
+                NUP, IDPRUP, XWGTUP, SCALUP, AQEDUP, AQCDUP = input_line.split()
+                tokens = re.split(r"(\s+)", input_line)
+                output_line = "      %s  %s  %s  %s %s  %s\n"%(NUP, IDPRUP, rwgt_nominal.text, SCALUP, AQEDUP, AQCDUP)
+            except ValueError:  # this is not a general event info line
+                pass
+        if input_line.find("</rwgt>") >= 0:
+            if (wgtid_for_old_XWGTUP_value != None):# in this case, add the original value of XWGTUP as last weight
+                output_line = "<wgt id='%i'>%s</wgt>\n"%(wgtid_for_old_XWGTUP_value, XWGTUP)
+                output_line += input_line
+        event_lines += output_line if output_line is not None else input_line
+    return (event_lines)
 
 
 def Powheg2LHEv3(input_event, name_to_ID):

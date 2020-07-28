@@ -36,11 +36,13 @@ using boost::assign::operator+=;
   #undef PYTHIA8_NWEIGHTS
   #undef PYTHIA8_WEIGHT
   #undef PYTHIA8_WLABEL
-  #undef PYTHIA8_CONVERSION
   #define PYTHIA8_NWEIGHTS nVariationGroups
   #define PYTHIA8_WEIGHT getGroupWeight
   #define PYTHIA8_WLABEL getGroupName
-  #define PYTHIA8_CONVERSION 1.0e9
+  #if PYTHIA_VERSION_INTEGER < 8244
+    #undef PYTHIA8_CONVERSION
+    #define PYTHIA8_CONVERSION 1.0e9
+  #endif 
   #endif
 #endif
 
@@ -60,7 +62,7 @@ m_sigmaTotal(0.),
 m_conversion(1.),
 m_failureCount(0),
 m_procPtr(0),
-m_userHooksPtrs(std::vector<UserHooksPtrType>()),
+m_userHooksPtrs(),
 m_doLHE3Weights(false),
 m_athenaTool("IPythia8Custom")
 {
@@ -75,7 +77,7 @@ m_athenaTool("IPythia8Custom")
   declareProperty("FxFxXS", m_doFxFxXS = false);
   declareProperty("MaxFailures", m_maxFailures = 10);//the max number of consecutive failures
   declareProperty("UserProcess", m_userProcess="");
-  declareProperty("UserHooks", m_userHooks);
+  declareProperty("UserHooks", m_userHooks={});
   declareProperty("UserResonances", m_userResonances="");
   declareProperty("UseLHAPDF", m_useLHAPDF=true);
   declareProperty("ParticleData", m_particleDataFile="");
@@ -104,18 +106,12 @@ Pythia8_i::~Pythia8_i() {
   delete m_atlasRndmEngine;
 
   if(m_procPtr != 0)     delete m_procPtr;
-
-#ifdef PYTHIA_VERSION_INTEGER
-  #if PYTHIA_VERSION_INTEGER < 8300
+  
+  #ifndef PYTHIA8_3SERIES
   for(UserHooksPtrType ptr: m_userHooksPtrs){
     delete ptr;
   }
   #endif
-#else
-  for(UserHooksPtrType ptr: m_userHooksPtrs){
-    delete ptr;
-  }
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,7 +143,8 @@ StatusCode Pythia8_i::genInitialize() {
 
   bool firstHook=true;
   for(const auto &hook: m_userHooks){
-    m_userHooksPtrs.push_back(Pythia8_UserHooks::UserHooksFactory::create(hook));
+    ATH_MSG_INFO("Adding user hook " + hook + ".");
+    m_userHooksPtrs.push_back(PYTHIA8_PTRWRAP(Pythia8_UserHooks::UserHooksFactory::create(hook)) );
     bool canSetHook = true;
     if(firstHook){
       canSetHook = m_pythia.setUserHooksPtr(m_userHooksPtrs.back());
@@ -323,8 +320,6 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   StatusCode returnCode = SUCCESS;
-  bool doGuess = m_pythia.settings.word("Merging:process") == "guess";
-  if (doGuess) m_pythia.settings.word("Merging:process","pp>e+e-");
 
   if(canInit){
     canInit = m_pythia.init();
@@ -334,8 +329,6 @@ StatusCode Pythia8_i::genInitialize() {
     returnCode = StatusCode::FAILURE;
     ATH_MSG_ERROR(" *** Unable to initialise Pythia !! ***");
   }
-
-  if (doGuess) m_pythia.settings.word("Merging:process","guess");
 
   m_pythia.particleData.listXML(m_outputParticleDataFile);
 
@@ -449,6 +442,12 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   double phaseSpaceWeight = m_pythia.info.weight();
   double mergingWeight    = m_pythia.info.mergingWeight();
+  // include Enhance userhook weight
+  for(const auto &hook: m_userHooksPtrs) {
+    if (hook->canEnhanceEmission()) {
+      mergingWeight *= hook->getEnhancedEventWeight();
+    }
+  }
   double eventWeight = phaseSpaceWeight*mergingWeight;
 
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);

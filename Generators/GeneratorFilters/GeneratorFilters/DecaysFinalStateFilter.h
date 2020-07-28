@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
-
 // GeneratorFilters/DecaysFinalStateFilter
 //
 // picks events with a given number of quarks, leptons and neutrinos from
@@ -45,11 +44,11 @@ private:
   // list of allowed resonances from which decay products are counted
   std::vector<int> m_PDGAllowedParents;
 
-  // required (exact) number of quarks, charged leptons, neutrinos and photons from decays
-  int m_NQuarks, m_NChargedLeptons, m_NNeutrinos, m_NPhotons;
+  // required (exact) number of quarks, b-quarks, charged leptons, neutrinos and photons from decays
+  int m_NQuarks, m_NbQuarks, m_NChargedLeptons, m_NNeutrinos, m_NPhotons;
 
-  // required minimal number of quarks, charged leptons, neutrinos and photons from decays
-  int m_MinNQuarks, m_MinNChargedLeptons, m_MinNNeutrinos, m_MinNPhotons;
+  // required minimal number of quarks, b-quarks, charged leptons, neutrinos and photons from decays
+  int m_MinNQuarks, m_MinNbQuarks, m_MinNChargedLeptons, m_MinNNeutrinos, m_MinNPhotons;
 
 };
 
