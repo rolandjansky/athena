@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ref. SOS054V06,SOS053V04
-#include "TrigT1TGC/TGCInnerSB.hh"
+#include "TrigT1TGC/TGCInnerSB.h"
 #include <iostream>
 #include <cstdlib>
 
 
 namespace LVL1TGCTrigger {
 
-TGCInnerSB::TGCInnerSB(TGCArguments* tgcargs):TGCSlaveBoard(tgcargs)
+TGCInnerSB::TGCInnerSB(const TGCArguments* tgcargs):TGCSlaveBoard(tgcargs)
 {}
 
 void TGCInnerSB::createSlaveBoardOut()
@@ -18,10 +18,6 @@ void TGCInnerSB::createSlaveBoardOut()
   if(m_coincidenceOut!=0){
     if ( m_slaveBoardOut!=0 ) delete m_slaveBoardOut;
     m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
-    if ( !m_slaveBoardOut ) {
-      std::cerr << "TGCInnerSB::createSlaveBoardOut: Memory allocation failure.";
-      exit(1);
-    }
     m_slaveBoardOut->clear();
     m_slaveBoardOut->setNumberOfData(NumberOfInnerSBData);
 

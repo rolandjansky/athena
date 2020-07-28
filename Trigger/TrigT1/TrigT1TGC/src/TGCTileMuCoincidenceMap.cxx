@@ -8,8 +8,8 @@
 #include <string>
 #include <iomanip>
 
-#include "TrigT1TGC/TGCTileMuCoincidenceMap.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCTileMuCoincidenceMap.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 #include "PathResolver/PathResolver.h"
 
 #include "GaudiKernel/ISvcLocator.h"
