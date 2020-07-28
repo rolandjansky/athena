@@ -442,17 +442,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
     m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/FJVTTool_"+toolName);
 
-    // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
-    // Tenacious MET --> Medium JVT WP
-    // Tight MET --> Tight JVT WP
-    m_fJvt_useTightOP = (m_fJvtWP=="Tight");
-    if (m_doFwdJVT && ( (m_metJetSelection == "Tight" && m_fJvtWP != "Tight") || ((m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641") && m_fJvtWP != "Loose") ) ) {
-       ATH_MSG_ERROR( "Tight (Tenacious) MET WP should be used with Tight (Loose) fJvt WP. Please reconfigure." );
-       return StatusCode::FAILURE;
-    }
-
     ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", m_fJvt_useTightOP) );
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", (m_fJvtWP=="Tight")) );
     ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fJvtPtMax) ); // Max Pt to define fwdJets for JVT
     ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fJvtEtaMin) );   // Eta dividing central from forward jets
     ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputLevel", this->msg().level()) );
