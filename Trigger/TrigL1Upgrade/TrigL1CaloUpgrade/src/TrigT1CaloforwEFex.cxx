@@ -36,8 +36,7 @@ TrigT1CaloforwEFex::~TrigT1CaloforwEFex(){
 StatusCode TrigT1CaloforwEFex::initialize(){
 	
 	if ( TrigT1CaloBaseFex::initialize().isFailure() ) return StatusCode::FAILURE;
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing TrigT1CaloforwEFex" << endreq;
+	ATH_MSG_DEBUG( "initializing TrigT1CaloforwEFex" );
         if ( m_enableMon ){
 		std::string histoName(name());
 		histoName+="Algo.root";
@@ -60,8 +59,7 @@ StatusCode TrigT1CaloforwEFex::initialize(){
 
 StatusCode TrigT1CaloforwEFex::finalize(){
 	if ( TrigT1CaloBaseFex::finalize().isFailure() ) return StatusCode::FAILURE;
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloforwEFex" << endreq;
+	ATH_MSG_DEBUG( "finalizing TrigT1CaloforwEFex" );
 	if ( m_enableMon ) {
 		m_histFile->Write();
 		m_histFile->Close();
@@ -71,13 +69,12 @@ StatusCode TrigT1CaloforwEFex::finalize(){
 
 StatusCode TrigT1CaloforwEFex::execute(){
 	
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute TrigT1CaloforwEFex" << endreq;
+	ATH_MSG_DEBUG( "execute TrigT1CaloforwEFex" );
 
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
 	if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
-		msg << MSG::WARNING << " Could not get containers" << endreq;
+		ATH_MSG_WARNING( " Could not get containers" );
 		return StatusCode::SUCCESS;
 	}
 
@@ -89,11 +86,11 @@ StatusCode TrigT1CaloforwEFex::execute(){
 	clusters->setStore(auxclusters);
 	std::string clusterName(m_outputClusterName);
 	if ( evtStore()->record(clusters,clusterName).isFailure() ){
-		msg << MSG::ERROR  << "recording was not possible" << endreq;
+		ATH_MSG_ERROR( "recording was not possible" );
 		return StatusCode::FAILURE;
 	}
 	if ( evtStore()->record(auxclusters,clusterName+"Aux.").isFailure() ){
-		msg << MSG::ERROR << "recording Aux was not possible" << endreq;
+		ATH_MSG_ERROR( "recording Aux was not possible" );
 		return StatusCode::FAILURE;
 	}
 	// Loop over seed cells, this should give us
@@ -146,8 +143,8 @@ StatusCode TrigT1CaloforwEFex::execute(){
 			else
 			m_testR_FCAL->Fill ( fabsf( zClusterN/zClusterNE ) );
 		}
-		msg << MSG::DEBUG << "CELL versus CLUSTER : " << cellAbove->eta() << " " << cellAbove->phi() << " " << etaCluster << " " << phiCluster << 
- " " << cellAbove->eta()-etaCluster << " " << cellAbove->phi()-phiCluster << endreq;
+		ATH_MSG_DEBUG( "CELL versus CLUSTER : " << cellAbove->eta() << " " << cellAbove->phi() << " " << etaCluster << " " << phiCluster << 
+ " " << cellAbove->eta()-etaCluster << " " << cellAbove->phi()-phiCluster );
 		// if find the cluster position fails, etaCluster=999.0
 		if ( etaCluster > 998.0 ) continue;
 		// other cluster sizes for some of the shower shapes

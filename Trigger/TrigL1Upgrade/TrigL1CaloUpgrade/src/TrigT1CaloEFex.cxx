@@ -56,7 +56,6 @@ StatusCode TrigT1CaloEFex::initialize(){
 	pass_Run3eFEX_clusterEnergy  = new SG::AuxElement::Accessor<int>("PassRun3ClusterEnergy");
 
 	if ( TrigT1CaloBaseFex::initialize().isFailure() ) return StatusCode::FAILURE;
-        MsgStream msg(msgSvc(), name());
         if ( m_enableMon ){
 		std::string histoName(name());
 		histoName+="Algo.root";
@@ -73,8 +72,7 @@ StatusCode TrigT1CaloEFex::initialize(){
 
 StatusCode TrigT1CaloEFex::finalize(){
 	if ( TrigT1CaloBaseFex::finalize().isFailure() ) return StatusCode::FAILURE;
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloEFex" << endreq;
+	ATH_MSG_DEBUG("finalizing TrigT1CaloEFex" );
 	if ( m_enableMon ) {
 		m_histFile->Write();
 		m_histFile->Close();
@@ -83,20 +81,19 @@ StatusCode TrigT1CaloEFex::finalize(){
 }
 
 StatusCode TrigT1CaloEFex::execute(){
-        MsgStream msg(msgSvc(), name());
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
 	const TileID* m_tileIDHelper = nullptr;
 	const CaloCellContainer* tileCellCon(0);
 	if (!m_use_tileCells){
 		if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
-			msg << MSG::WARNING << "Could not get containers" << endreq;
+			ATH_MSG_WARNING( "Could not get containers" );
 			return StatusCode::FAILURE;
 		}
 	}
 	else {
 		if ( getContainersTileCal(scells, m_tileIDHelper, tileCellCon).isFailure() ){
-			msg << MSG::WARNING << "Could not get containers and/or Tile ID" << endreq;
+			ATH_MSG_WARNING( "Could not get containers and/or Tile ID" );
 			return StatusCode::FAILURE;
 		}
 	}
@@ -107,18 +104,18 @@ StatusCode TrigT1CaloEFex::execute(){
 	clusters->reserve(100);
 	std::string clusterName(m_outputClusterName);
 	if ( evtStore()->record(clusters, clusterName).isFailure() ) {
-		msg << MSG::ERROR  << "recording was not possible" << endreq;
+		ATH_MSG_ERROR( "recording was not possible" );
 		return StatusCode::FAILURE;
 	}
 	if ( evtStore()->record(auxclusters, clusterName+"Aux.").isFailure() ) {
-		msg << MSG::ERROR << "recording Aux was not possible" << endreq;
+		ATH_MSG_ERROR( "recording Aux was not possible" );
 		return StatusCode::FAILURE;
 	}
 	// Set m_energyWeightedCluster to true if an energy weighted cluster formation should be performed (default:false)
 	if ( !m_energyWeightedCluster ) {
 		const CaloCell_SuperCell_ID* m_idHelper = nullptr;
 		if ( getIDHelper( m_idHelper ).isFailure() ) {
-			msg << MSG::WARNING << "Could not get ID manager " << endreq;
+			ATH_MSG_WARNING( "Could not get ID manager " );
 			return StatusCode::FAILURE;
 		}
 		std::vector<std::vector<float>> clustering = baselineAlg(scells, TTs, m_idHelper, m_tileIDHelper, tileCellCon);
@@ -213,7 +210,7 @@ StatusCode TrigT1CaloEFex::execute(){
 	          }
 	          if ( fabsf(clusterTimeWeight) > 0.1 ) clusterTime /= clusterTimeWeight;
 	          else clusterTime = -999.99;
-	          msg << MSG::DEBUG << "CELL versus CLUSTER : " << cellAbove->eta() << " " << cellAbove->phi() << " " << etaCluster << " " << phiCluster << " " << cellAbove->eta()-etaCluster << " " << cellAbove->phi()-phiCluster << endreq;
+	          ATH_MSG_DEBUG("CELL versus CLUSTER : " << cellAbove->eta() << " " << cellAbove->phi() << " " << etaCluster << " " << phiCluster << " " << cellAbove->eta()-etaCluster << " " << cellAbove->phi()-phiCluster );
 	          // Other cluster sizes for some of the shower shapes
 	          findCellsAround(scells, (const float)etaCluster, (const float)phiCluster, m_cellsAround2, m_deta_clusterFormation_2, m_dphi_clusterFormation_2);
 	          // Include TT (for Tile region only)
