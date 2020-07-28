@@ -366,6 +366,10 @@ replaceAODReducedJets(reducedJetList, SeqSUSY7, "SUSY7")
 # re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY7)
 
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                   
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY7, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY7, algname='JetForwardJvtToolBDTAlg')
+
 # AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(SeqSUSY7, "SUSY7")

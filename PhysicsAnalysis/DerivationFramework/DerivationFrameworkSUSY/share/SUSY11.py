@@ -154,6 +154,10 @@ SeqSUSY11 += CfgMgr.DerivationFramework__DerivationKernel(
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY11)
 
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                   
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY11, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY11, algname='JetForwardJvtToolBDTAlg')
+
 reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, SeqSUSY11, "SUSY11")
 addDefaultTrimmedJets(SeqSUSY11, "SUSY11")

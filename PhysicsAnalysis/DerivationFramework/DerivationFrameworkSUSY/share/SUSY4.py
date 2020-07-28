@@ -266,6 +266,13 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY4)
 
 
+
+## Adding decorations for fJVT PFlow jets
+
+                                                                                                                                                                                                            
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY4, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY4, algname='JetForwardJvtToolBDTAlg')
+
 #SeqSUSY4 += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 # COMMENTED OUT FOR R21
