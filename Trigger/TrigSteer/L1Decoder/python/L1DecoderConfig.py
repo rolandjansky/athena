@@ -202,6 +202,11 @@ def L1DecoderCfg(flags, seqName = None):
     if flags.Trigger.enableL1Phase1:
         acc.addEventAlgo( getL1TriggerResultMaker(), sequenceName = seqName )
 
+    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
+    acc.merge( TrigConfigSvcCfg( flags ) )
+    acc.merge( HLTPrescaleCondAlgCfg( flags ) )
+
+
     Configurable.configurableRun3Behavior -= 1
 
     return acc
@@ -215,9 +220,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",]
     ConfigFlags.lock()
     acc = L1DecoderCfg( ConfigFlags )
-    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
-    acc.merge( TrigConfigSvcCfg( ConfigFlags ) )
-    acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
     acc.merge( TGCCablingConfigCfg( ConfigFlags ) )
     acc.merge( RPCCablingConfigCfg( ConfigFlags ) )

@@ -446,11 +446,11 @@ TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
-generateL1Menu()
-createL1PrescalesFileFromMenu()
+generateL1Menu(ConfigFlags)
+createL1PrescalesFileFromMenu(ConfigFlags)
 
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
-CAtoGlobalWrapper(L1ConfigSvcCfg,None)
+CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 
 # ---------------------------------------------------------------
 # HLT prep: RoIBResult and L1Decoder
@@ -517,9 +517,8 @@ svcMgr.MessageSvc.infoLimit=10000
 
 
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc() )
-setupHLTPrescaleCondAlg()
 
 if not opt.createHLTMenuExternally:
     # the generation of the prescale set file from the menu (with all prescales set to 1)
