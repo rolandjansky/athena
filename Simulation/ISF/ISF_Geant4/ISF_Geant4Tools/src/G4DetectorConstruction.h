@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,17 +36,10 @@ private:
   // Logical volumes
   //
   G4LogicalVolume*          m_worldLog;
-  //G4LogicalVolume*          m_detectorLog;
 
   // Physical volumes
   //
   G4VPhysicalVolume*        m_worldPhys;
-  //G4VPhysicalVolume*        m_detectorPhys;
-
-  // Vaccum material
-  //
-  static G4Material*        s_g4vacuum;
-
 };
 
 #endif
