@@ -74,12 +74,6 @@ def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_L2CaloEMC
     fastCaloVDV.DataObjects = [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMCaloRoIs' )]
 
-    # Make sure BCID average still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
-
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloVDV, fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
@@ -151,8 +145,6 @@ def HLTRoITopoRecoSequence(RoIs):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")
