@@ -268,7 +268,7 @@ namespace Analysis {
       fittedPosition[1] = vtxPositions[Trk::jet_yv];
       fittedPosition[2] = vtxPositions[Trk::jet_zv];
       fittedPosition[3] = nVtx > 0 ? vtxPositions[Trk::jet_phi] : NAN;  // direction of the jet axis
-      fittedPosition[4] = vtxPositions[Trk::jet_theta];
+      fittedPosition[4] = nVtx > 0 ? vtxPositions[Trk::jet_theta] : NAN;
 
       fittedCov[0] = vtxCovMatrix(0,0);
       fittedCov[1] = vtxCovMatrix(1,1);
@@ -410,14 +410,11 @@ namespace Analysis {
 	          }
 	          else if("JetFitter" == basename) {
               std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
-              (*btagIter)->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);  
+              (*btagIter)->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);
               (*btagIter)->setDynTPELName(basename, "tracksAtPVlinks");
-              // std::vector<ElementLink<xAOD::BTagVertexContainer>> jfvtx;
-              // (*btagIter)->setVariable(basename, "JFvertices", jfvtx);
-              // (*btagIter)->setDynBTagVxELName(basename, "JFvertices");
             }
           }
-        
+
           for (  ; itEL != itELend; ++itEL ) {
 	          /// warning -> will not work if at some point we decide to associate to several track collections at the same time (in the same assoc object)
 
