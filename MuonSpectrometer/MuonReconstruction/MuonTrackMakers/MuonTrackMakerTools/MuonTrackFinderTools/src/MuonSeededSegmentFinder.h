@@ -116,8 +116,8 @@ private:
   SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_key_stgc{this,"sTgcPrepDataContainer","STGC_Measurements","sTGC PRDs"};
   SG::ReadHandleKey<Muon::MMPrepDataContainer> m_key_mm{this,"MMPrepDataContainer","MM_Measurements","MM PRDs"};
 
-  double m_adcCut;
-  double m_maxSigma;
+  Gaudi::Property<double> m_adcCut {this, "AdcCut", 50};
+  Gaudi::Property<double> m_maxSigma {this, "MdtSigmaFromTrack", 3};
 };
 
 }
