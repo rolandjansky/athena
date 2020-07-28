@@ -72,9 +72,7 @@ def _getHIJetBuildTool(merge_param,
     if not name:
         name = 'TrigAntiKt%dHIJets' % int_merge_param
 
-    EventShapeKey = "HLT_xAOD__HIEventShapeContainer_TrigHIEventShape" #jobproperties.HIGlobalFlags.EventShapeKey()
-    #EventShapeKey = "HIEventShapeContainer_HIUE"
-    #EventShapeKey = "TrigHIEventShape"
+    EventShapeKey = "HLT_xAOD__HIEventShapeContainer_TrigHIEventShape"
     ClusterKey = hicluster_name
 
     # Plug in directly tools from HIJetTools.py e.g. to avoid PseudoJetGetter which is different at HLT and for other reasons
@@ -147,12 +145,10 @@ def _getHIJetBuildTool(merge_param,
     seed_finder = jtm.addJetFinder(a2_unsubtracted_name,
                                   "AntiKt",
                                   0.2,
-                                  #gettersin=[_getTriggerHIPseudoJetGetter(hicluster_name)],
                                   gettersin=[_getTriggerPseudoJetGetter(cluster_calib)],
                                   #modifiersin=[assoc,max_over_mean,jetfil5], # jtm.modifiersMap['HI_Unsubtr'],	# may think about TrigHI_Unsubtracted with just max_over_mean
                                   modifiersin=[max_over_mean,jetfil5], # jtm.modifiersMap['HI_Unsubtr'],	# may think about TrigHI_Unsubtracted with just max_over_mean
                                   #modifiersin=[assoc,max_over_mean,jetfil5,discrim], # jtm.modifiersMap['HI_Unsubtr'],	# may think about TrigHI_Unsubtracted with just max_over_mean
-                                  #consumers=None, ivtxin=None,
                                   ghostArea=0.0,
                                   isTrigger=True,
                                   ptmin = 5000,
@@ -231,10 +227,8 @@ def _getHIJetBuildTool(merge_param,
     finder=jtm.addJetFinder(name+"_finder",
                             "AntiKt",
                             merge_param,
-                            #gettersin=[_getTriggerHIPseudoJetGetter(hicluster_name)],
                             gettersin=[_getTriggerPseudoJetGetter(cluster_calib)],
                             modifiersin=[subtr2,calib_tool],
-                            #consumers=None, ivtxin=None,
                             ghostArea=0.0,
                             rndseed=0,
                             isTrigger=True,
