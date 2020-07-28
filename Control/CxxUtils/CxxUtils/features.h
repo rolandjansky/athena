@@ -12,7 +12,7 @@
  */
 
 #ifndef CXXUTILS_FEATURES_H
-# define CXXUTILS_FEATURES_H
+#define CXXUTILS_FEATURES_H
 
 /// Do we have function multiversioning?  GCC and clang > 7 support
 /// the target attribute
