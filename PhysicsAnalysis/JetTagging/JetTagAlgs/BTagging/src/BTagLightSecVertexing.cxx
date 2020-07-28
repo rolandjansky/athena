@@ -253,8 +253,8 @@ namespace Analysis {
     newBTag->setDynBTagVxELName(basename, "JFvertices");
     ATH_MSG_DEBUG("#BTAGJF# n vertices: " << newBTag->auxdata<BTagVertices>(basename + "_JFvertices").size());
 
-    Amg::VectorX vtxPositions(5);
-    Amg::MatrixX vtxCovMatrix(5,5);
+    Amg::VectorX vtxPositions = Amg::VectorX::Zero(5);
+    Amg::MatrixX vtxCovMatrix = Amg::MatrixX::Zero(5,5);
     if (nVtx > 0){
       const Trk::RecVertexPositions& recVtxposition = vxjetcand->getRecVertexPositions();
       vtxPositions = recVtxposition.position();
@@ -267,7 +267,7 @@ namespace Analysis {
       fittedPosition[0] = vtxPositions[Trk::jet_xv]; //position x,y,z of PV
       fittedPosition[1] = vtxPositions[Trk::jet_yv];
       fittedPosition[2] = vtxPositions[Trk::jet_zv];
-      fittedPosition[3] = vtxPositions[Trk::jet_phi];  // direction of the jet axis
+      fittedPosition[3] = nVtx > 0 ? vtxPositions[Trk::jet_phi] : NAN;  // direction of the jet axis
       fittedPosition[4] = vtxPositions[Trk::jet_theta];
 
       fittedCov[0] = vtxCovMatrix(0,0);

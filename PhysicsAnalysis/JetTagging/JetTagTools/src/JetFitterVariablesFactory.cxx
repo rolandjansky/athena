@@ -99,7 +99,7 @@ StatusCode JetFitterVariablesFactory::finalize() {
     Trk::VxJetCandidate* myVxJetCandidate = nullptr;
     if (myJetFitterInfo) myVertices = myJetFitterInfo->verticesJF();
     if(myVertices.size() == 0){
-      ATH_MSG_WARNING("#BTAG# Trk::VxJetCandidate not found for jet fitter ");
+      ATH_MSG_DEBUG("#BTAG# Trk::VxJetCandidate not found for jet fitter ");
       fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof, deltaRFlightDir);
       return StatusCode::SUCCESS;
     }
