@@ -259,6 +259,14 @@ namespace top {
     m_saveFailForwardJVTJets(false),
     m_fJVTWP("None"),
 
+    // MET configuration
+    m_METUncertaintiesConfigDir("SetMe"),
+    
+    // Ghost Track Configuration
+    m_ghostTrackspT(500.),
+    m_ghostTracksVertexAssociation("nominal"),
+    m_ghostTracksQuality("TightPrimary"),
+
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
     m_largeRJetUncertainties_NPModel("CategoryReduction"),
@@ -870,7 +878,7 @@ namespace top {
       settings->retrieve("ForceNominalWeightFallbackIndex", m_forceWeightIndex);
 
       // Save the Top Parton History
-      if (this->useTruthParticles() && settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
+      if (settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
       
       // Perform parton-level selection and save particle level objects
       bool topPartonLevel=true;
@@ -1286,7 +1294,10 @@ namespace top {
     // Jet configuration
     this->jetPtcut(std::stof(settings->value("JetPt")));
     this->jetEtacut(std::stof(settings->value("JetEta")));
-    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
+    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")),std::stof(settings->value("JetPt")));
+    if ( m_jetPtcut <= std::stof(settings->value("JetPtGhostTracks"))+5000){  
+        ATH_MSG_WARNING("jetPtGhostTracks set to " << m_jetPtGhostTracks <<" to ensure that all the selected jets have the ghost tracks associated");
+    }
     this->jetEtaGhostTracks(std::stof(settings->value("JetEtaGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
@@ -1303,6 +1314,7 @@ namespace top {
       ATH_MSG_WARNING("TopConfig::setConfigSettings: fJVT WP set to Medium and fJVT in MET requested, MET working point will be changed to Tenacious to maintain compatibility with fJVT!!!");
     }
 
+
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
@@ -1311,6 +1323,11 @@ namespace top {
 
     this->trackJetPtcut(std::stof(settings->value("TrackJetPt")));
     this->trackJetEtacut(std::stof(settings->value("TrackJetEta")));
+    
+    //Ghost track associated to jets quality
+    this->ghostTrackspT(std::stof(settings->value("GhostTrackspT")));
+    this->ghostTracksVertexAssociation(settings->value("GhostTracksVertexAssociation"));
+    this->ghostTracksQuality(settings->value("GhostTracksQuality"));
 
     this->trackPtcut(std::stof(settings->value("TrackPt")));
     this->trackEtacut(std::stof(settings->value("TrackEta")));
@@ -1356,6 +1373,9 @@ namespace top {
       ATH_MSG_WARNING("TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True");
       this->jetStoreTruthLabels(true);
     }
+
+    // MET Configuration
+    this->METUncertaintiesConfigDir(settings->value("AdvancedUsage_METUncertaintiesConfigDir"));
 
     // for top mass analysis, per default set to 1.0!
     m_JSF = std::stof(settings->value("JSF"));

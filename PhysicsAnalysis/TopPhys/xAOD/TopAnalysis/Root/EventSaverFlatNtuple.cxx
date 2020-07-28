@@ -1881,6 +1881,13 @@ namespace top {
     if (m_config->isMC()) m_weight_mc = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     if (m_config->isMC()) {
+      
+     if (m_config->doMCGeneratorWeights()) {
+     // delegate to helper function.
+     loadMCGeneratorWeights();
+     }
+  
+        
       m_weight_pileup = m_sfRetriever->pileupSF(event);
 
       m_weight_leptonSF = m_sfRetriever->leptonSF(event, top::topSFSyst::nominal);
@@ -4191,6 +4198,9 @@ namespace top {
       }
     }
 
+    static const SG::AuxElement::ConstAccessor<int> ghostBHadronsFinalCount("GhostBHadronsFinalCount");
+    static const SG::AuxElement::ConstAccessor<int> ghostCHadronsFinalCount("GhostCHadronsFinalCount");
+
     //jets
     if (m_config->useTruthJets()) {
       unsigned int i = 0;
@@ -4207,15 +4217,21 @@ namespace top {
         m_jet_phi[i] = jetPtr->phi();
         m_jet_e[i] = jetPtr->e();
 
-        try {
-          m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostBHadronsFinalCount");
-          m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostCHadronsFinalCount");
-        } catch (const SG::ExcBadAuxVar& e) {
-          //didn't find any ghost b-hadron info, have to assume it's a light jet
-          ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
-          m_jet_Ghosts_BHadron_Final_Count[i] = 0;
-          m_jet_Ghosts_CHadron_Final_Count[i] = 0;
-        }
+	if(ghostBHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_jet_Ghosts_BHadron_Final_Count[i] = ghostBHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostBHadronFinalCount auxdata");
+	  m_jet_Ghosts_BHadron_Final_Count[i] = 0;
+	}
+	
+	if(ghostCHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_jet_Ghosts_CHadron_Final_Count[i] = ghostCHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostCHadronFinalCount auxdata");
+	  m_jet_Ghosts_CHadron_Final_Count[i] = 0;
+	}
 
         ++i;
       }
@@ -4236,16 +4252,22 @@ namespace top {
         m_ljet_eta[i] = jetPtr->eta();
         m_ljet_phi[i] = jetPtr->phi();
         m_ljet_e[i] = jetPtr->e();
-
-        try {
-          m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostBHadronsFinalCount");
-          m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostCHadronsFinalCount");
-        } catch (const SG::ExcBadAuxVar& e) {
-          //didn't find any ghost b-hadron info, have to assume it's a light jet
-          ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
-          m_ljet_Ghosts_BHadron_Final_Count[i] = 0;
-          m_ljet_Ghosts_CHadron_Final_Count[i] = 0;
-        }
+	
+	if(ghostBHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_ljet_Ghosts_BHadron_Final_Count[i] = ghostBHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostBHadronFinalCount auxdata");
+	  m_ljet_Ghosts_BHadron_Final_Count[i] = 0;
+	}
+	
+	if(ghostCHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_ljet_Ghosts_CHadron_Final_Count[i] = ghostCHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostCHadronFinalCount auxdata");
+	  m_ljet_Ghosts_CHadron_Final_Count[i] = 0;
+	}
 
         ++i;
       }
@@ -4480,15 +4502,23 @@ namespace top {
           m_rcjetsub_eta[i].push_back(subjet->eta());
           m_rcjetsub_phi[i].push_back(subjet->phi());
           m_rcjetsub_e[i].push_back(subjet->e());
-          try {
-            m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>("GhostBHadronsFinalCount"));
-            m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>("GhostCHadronsFinalCount"));
-          } catch (const SG::ExcBadAuxVar& e) {
-            //didn't find any ghost b-hadron info, have to assume it's a light jet
-            ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
-            m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(0);
-            m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(0);
-          }
+	  
+	  if(ghostBHadronsFinalCount.isAvailable(*subjet)) {
+	    m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(ghostBHadronsFinalCount(*subjet));
+	  }
+	  else {
+	    ATH_MSG_DEBUG("Found a jet with no GhostBHadronFinalCount auxdata");
+	    m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(0);
+	  }
+	  
+	  if(ghostCHadronsFinalCount.isAvailable(*subjet)) {
+	    m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(ghostCHadronsFinalCount(*subjet));
+	  }
+	  else {
+	    ATH_MSG_DEBUG("Found a jet with no GhostCHadronFinalCount auxdata");
+	    m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(0);
+	  }
+	  
         } // end for-loop over subjets
         ++i;
       } // end for-loop over re-clustered jets
@@ -4935,6 +4965,9 @@ namespace top {
       ++i;
     }
 
+    static const SG::AuxElement::ConstAccessor<int> ghostBHadronsFinalCount("GhostBHadronsFinalCount");
+    static const SG::AuxElement::ConstAccessor<int> ghostCHadronsFinalCount("GhostCHadronsFinalCount");
+
     // save jets
     i = 0;
     m_jet_pt.resize(upgradeEvent.m_jets->size());
@@ -4955,15 +4988,23 @@ namespace top {
 
       if (jetPtr->auxdata<int>("pileUp") == 0) {
         m_jet_isPileup[i] = 0;
-        try {
-          m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostBHadronsFinalCount");
-          m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostCHadronsFinalCount");
-        } catch (const SG::ExcBadAuxVar& e) {
-          //didn't find any ghost b-hadron info, have to assume it's a light jet
-          ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
-          m_jet_Ghosts_BHadron_Final_Count[i] = 0;
-          m_jet_Ghosts_CHadron_Final_Count[i] = 0;
-        }
+        
+	if(ghostBHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_jet_Ghosts_BHadron_Final_Count[i] = ghostBHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostBHadronFinalCount auxdata");
+	  m_jet_Ghosts_BHadron_Final_Count[i] = 0;
+	}
+	
+	if(ghostCHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_jet_Ghosts_CHadron_Final_Count[i] = ghostCHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostCHadronFinalCount auxdata");
+	  m_jet_Ghosts_CHadron_Final_Count[i] = 0;
+	}
+	
       } else {
         m_jet_isPileup[i] = 1;
         m_jet_Ghosts_BHadron_Final_Count[i] = 0;
@@ -4989,12 +5030,21 @@ namespace top {
         m_ljet_phi[i] = jetPtr->phi();
         m_ljet_e[i] = jetPtr->e();
 
-        if (jetPtr->isAvailable<int>("GhostBHadronsFinalCount")) {
-          m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostBHadronsFinalCount");
-        }
-        if (jetPtr->isAvailable<int>("GhostCHadronsFinalCount")) {
-          m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>("GhostCHadronsFinalCount");
-        }
+        if(ghostBHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_ljet_Ghosts_BHadron_Final_Count[i] = ghostBHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostBHadronFinalCount auxdata");
+	  m_ljet_Ghosts_BHadron_Final_Count[i] = 0;
+	}
+	
+	if(ghostCHadronsFinalCount.isAvailable(*jetPtr)) {
+	  m_ljet_Ghosts_CHadron_Final_Count[i] = ghostCHadronsFinalCount(*jetPtr);
+	}
+	else {
+	  ATH_MSG_DEBUG("Found a jet with no GhostCHadronFinalCount auxdata");
+	  m_ljet_Ghosts_CHadron_Final_Count[i] = 0;
+	}
 
         ++i;
       }

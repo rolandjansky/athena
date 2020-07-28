@@ -34,6 +34,7 @@
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
 #include "TopObjectSelectionTools/SoftMuonSelectionBase.h"
 #include "TopObjectSelectionTools/JetSelectionBase.h"
+#include "TopObjectSelectionTools/JetGhostTrackSelectionBase.h"
 #include "TopObjectSelectionTools/TauSelectionBase.h"
 #include "TopObjectSelectionTools/PhotonSelectionBase.h"
 #include "TopObjectSelectionTools/TrackSelectionBase.h"
@@ -194,6 +195,17 @@ namespace top {
      * TopObjectSelectionTools).
      */
     void trackJetSelection(JetSelectionBase* ptr);
+    
+    /**
+     * @brief Set the code used to select tracks ghost associated to small-R jets.
+     *
+     * Note that nullptr means that no selection will be applied (so all
+     * tracks associated to jets will be accepted) a part from the one during the thinning.
+     *
+     * @param ptr The code used to perform the ghost track selection (see
+     * TopObjectSelectionTools).
+     */
+    void jetGhostTrackSelection(JetGhostTrackSelectionBase* ptr);
 
     /**                                                                                                                                                                                                 
      * @brief Set the code used to select tracks.                                                                                                                                                         
@@ -240,6 +252,7 @@ namespace top {
     void applySelectionPreOverlapRemovalJets();
     void applySelectionPreOverlapRemovalLargeRJets();
     void applySelectionPreOverlapRemovalTrackJets();
+    void applySelectionPreOverlapRemovalJetGhostTracks();
     void applySelectionPreOverlapRemovalTracks();
 
     virtual StatusCode applyOverlapRemoval();
@@ -291,6 +304,9 @@ namespace top {
 
     ///Track jet selection code - can load user defined classes
     std::unique_ptr<top::JetSelectionBase> m_trackJetSelection;
+    
+    ///Ghost Track associated to small-R jets selection code - can load user defined classes   
+    std::unique_ptr<top::JetGhostTrackSelectionBase> m_jetGhostTrackSelection;
 
     ///Track selection code - can load user defined classes   
     std::unique_ptr<top::TrackSelectionBase> m_trackSelection;

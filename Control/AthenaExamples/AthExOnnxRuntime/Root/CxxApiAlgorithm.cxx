@@ -163,11 +163,11 @@ namespace AthONNX {
 
      // create input tensor object from data values
      auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-     Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, input_tensor_values.data(), input_tensor_size, input_node_dims.data(), 3);
+     Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, input_tensor_values.data(), input_tensor_size, input_node_dims.data(), input_node_dims.size());
      assert(input_tensor.IsTensor());
 
      // score model & input tensor, get back output tensor
-     auto output_tensors = m_session->Run(Ort::RunOptions{nullptr}, input_node_names.data(), &input_tensor, 1, output_node_names.data(), 1);
+     auto output_tensors = m_session->Run(Ort::RunOptions{nullptr}, input_node_names.data(), &input_tensor, input_node_names.size(), output_node_names.data(), output_node_names.size());
      assert(output_tensors.size() == 1 && output_tensors.front().IsTensor());
   
      // Get pointer to output tensor float values
