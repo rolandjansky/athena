@@ -14,11 +14,9 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName=
     acc=ComponentAccumulator()
     jetcol = JetCollection
 
-    del options['Release']
-
     # setup the Analysis__BTagTrackAssociation tool
     options.setdefault('BTagTrackAssocTool', acc.popToolsAndMerge(BTagTrackAssociationCfg(ConfigFlags, 'TrackAssociation'+ ConfigFlags.BTagging.GeneralToolSuffix, jetcol, TaggerList )))
-    
+
     options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName, SetupScheme)))
 
     timestamp = options.get('TimeStamp', None)
@@ -26,7 +24,7 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName=
         timestamp = ['']
     else:
         del options['TimeStamp']
-     
+
     for ts in timestamp:
         # setup the secondary vertexing tool
         options['BTagSecVertexing'] = acc.popToolsAndMerge(BTagSecVtxToolCfg(ConfigFlags, 'SecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, TimeStamp = ts, **options))
@@ -43,5 +41,5 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName=
 
         # -- create main BTagging algorithm
         acc.addEventAlgo(JetBTaggerAlg(**options))
-            
+
     return acc
