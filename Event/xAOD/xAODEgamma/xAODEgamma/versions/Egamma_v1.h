@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1.h 788131 2016-12-05 16:24:11Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 
@@ -35,6 +34,10 @@
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
+
+//Already include the DataVector specialization for this type
+#include "xAODEgamma/EgammaContainerFwd.h"
+
 
 namespace xAOD {
 
@@ -415,5 +418,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
+//Finish declaration of IParticle as a base class of Egamma
+DATAVECTOR_BASE_FIN(xAOD::Egamma_v1, xAOD::IParticle);
 
 #endif // XAODEGAMMA_VERSIONS_EGAMMA_V1_H
