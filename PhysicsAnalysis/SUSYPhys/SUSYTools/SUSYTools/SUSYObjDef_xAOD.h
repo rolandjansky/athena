@@ -712,6 +712,7 @@ namespace ST {
     std::string m_defaultTrackJets;
     std::string m_fatJets;
     std::string m_TCCJets;
+    std::string m_defaultTruthJets;
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
     CP::SystematicSet m_currentSyst;
