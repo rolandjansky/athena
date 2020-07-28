@@ -60,7 +60,7 @@ namespace Trk {
     for (int i = 0; i < 5; i++) {
       m_measerror[i] = rhs.m_measerror[i];
       for (int j = 0; j < 5; j++) {
-        m_jacobian[i][j] = rhs.m_jacobian[i][j];
+        m_jacobian(i, j) = rhs.m_jacobian(i, j);
       }
     }
   }
@@ -201,7 +201,7 @@ namespace Trk {
       for (int i = 0; i < 5; i++) {
         m_measerror[i] = rhs.m_measerror[i];
         for (int j = 0; j < 5; j++) {
-          m_jacobian[i][j] = rhs.m_jacobian[i][j];
+          m_jacobian(i, j) = rhs.m_jacobian(i, j);
         }
       }
     }
@@ -252,7 +252,7 @@ namespace Trk {
     GXFTrackState::setJacobian(TransportJacobian * jac) {
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
-        m_jacobian[i][j] = (*jac) (i, j);
+        m_jacobian(i, j) = (*jac)(i, j);
       }
     }
     delete jac;
