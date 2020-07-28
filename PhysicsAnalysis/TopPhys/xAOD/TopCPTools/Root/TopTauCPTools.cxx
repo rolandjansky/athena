@@ -138,10 +138,6 @@ namespace top {
     int tauEleBDTWPLoose = tau_EleBDTWP_to_enum(m_config->tauEleBDTWPLoose());
     top::check(tauEleBDTWPLoose >= 0, m_config->tauEleBDTWPLoose() + " is not a valid tau WP");
 
-//    const std::vector<float> absEtaRegion = {
-//      0., 1.37, 1.37, 1.52, 1.52, 2.5
-//    };
-
     const double absCharge = 1.;
     const std::vector<size_t> nTracks = {
       1, 3
