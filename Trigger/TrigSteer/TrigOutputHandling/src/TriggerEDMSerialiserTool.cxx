@@ -214,7 +214,8 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
     TClass* cls = TClass::GetClass (*tinfo);
     ATH_CHECK( cls != nullptr );
     ATH_MSG_DEBUG( "" );
-    ATH_MSG_DEBUG( "Streaming " << decorationName << " of type " << typeName  << " aux ID " << auxVarID << " class " << cls->GetName() );
+    ATH_MSG_ALWAYS( "Streaming '" << decorationName << "' of type '" << typeName 
+      << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
     CLID clid;
     ATH_CHECK( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid) );

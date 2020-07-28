@@ -149,7 +149,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
     }
     const bool isxAODInterfaceContainer = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") == std::string::npos;
     const bool isxAODAuxContainer       = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") != std::string::npos;
-    const bool isxAODDecoration	        = transientTypeName.find("vector") != std::string::npos;
+    const bool isxAODDecoration	        = transientTypeName.find("vector") != std::string::npos or transientTypeName.find("SG::PackedContainer") != std::string::npos;
     const bool isTPContainer	        = persistentTypeName.find("_p")	   != std::string::npos;
     
     ATH_CHECK( checkSanity( transientTypeName, isxAODInterfaceContainer, isxAODAuxContainer, isxAODDecoration, isTPContainer ) );

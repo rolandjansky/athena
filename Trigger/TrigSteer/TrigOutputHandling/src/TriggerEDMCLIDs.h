@@ -8,12 +8,14 @@
 #include "AthLinks/ElementLink.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
 
+#include "AthContainers/PackedContainer.h"
 
 /**
  * @File TriggerEDMCLIDs.h
@@ -22,10 +24,13 @@
  **/
 
 CLASS_DEF( std::vector<ElementLink<TrigRoiDescriptorCollection> >, 78044011, 1 )
+
 CLASS_DEF( std::vector<ElementLink<xAOD::BTaggingContainer>>, 1289383075, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::TrackParticleContainer>>>, 1188795373, 1 )
 CLASS_DEF( std::vector<ElementLink<xAOD::JetContainer>>, 1210667800, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::VertexContainer>>>, 1164463855, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::BTagVertexContainer>>>, 1289535397, 1 )
+
+CLASS_DEF( SG::PackedContainer<float>, 1180188747, 1 )
 
 #endif //> !TRIGOUTPUTHANDLING_TRIGGEREDMCLIDS_H
