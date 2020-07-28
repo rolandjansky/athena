@@ -871,7 +871,7 @@ def getNiceCanvas(name,aliases,textSize=25):
 	canvas.SetBorderSize(0)
 	canvas.SetFrameFillColor(0)
 	#Stretch width and add subpad for legend
-	width = int(max([len(name) for name in aliases])*textSize*.50)+70
+	width = int(max([len(nm) for nm in aliases])*textSize*.50)+70
 	oldWidth = canvas.GetWindowWidth()
 	newWidth = oldWidth+width
 	canvas.SetCanvasSize(newWidth,canvas.GetWindowHeight())
