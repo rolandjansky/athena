@@ -580,7 +580,7 @@ float TrigT1CaloBaseFex::eFEXIsoTDR (const std::vector<float>& EM2allCell, const
 
 bool TrigT1CaloBaseFex::IseFEXIsoTDR ( const std::vector<float>& EM2allCell, const float& seedPlace, const float& Isovalue) const {
 	bool Is_eFEXIsoTDR = false;
-	if (TrigT1CaloBaseFex::eFEXIsoTDR(EM2allCell,seedPlace) > Is_eFEXIsoTDR) Is_eFEXIsoTDR = true;
+	if (TrigT1CaloBaseFex::eFEXIsoTDR(EM2allCell,seedPlace) > Isovalue) Is_eFEXIsoTDR = true;
 	return Is_eFEXIsoTDR;
 }
 
@@ -1349,7 +1349,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
                 CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 addOnce(resultCell,outputVector);
         }
-        //msg << MSG::DEBUG << "L2->L1: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
+        msg << MSG::DEBUG << "L2->L1: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
 }
 
 CaloCell* TrigT1CaloBaseFex::fromLayer2toPS(const CaloCellContainer* &inputContainer, CaloCell* inputCell, const CaloCell_SuperCell_ID* &idHelper){
@@ -1390,7 +1390,7 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toPS(const CaloCellContainer* &inputConta
                 resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
                 tracker = 3;
         }
-        //msg << MSG::DEBUG << "L2->PS tracker = " << tracker << endreq;
+        msg << MSG::DEBUG << "L2->PS tracker = " << tracker << endreq;
         return resultCell;
 }
 
@@ -1439,7 +1439,7 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toLayer3(const CaloCellContainer* &inputC
                 tracker = 3;
         }
         //msg << MSG::DEBUG << "L2->L3 tracker = " << tracker << endreq;
-        //msg << MSG::DEBUG << "L2->L3: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
+        msg << MSG::DEBUG << "L2->L3: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
         return resultCell;
 }
 
