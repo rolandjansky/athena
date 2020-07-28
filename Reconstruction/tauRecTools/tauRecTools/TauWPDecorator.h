@@ -95,11 +95,11 @@ class TauWPDecorator : public TauRecToolBase {
     
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
     
-    typedef std::pair<double, std::unique_ptr<TH2> > m_pair_t;
+    typedef std::pair<double, std::shared_ptr<TH2> > m_pair_t;
 
-    std::unique_ptr<std::vector<m_pair_t>> m_hists0p; //!< Efficiency and corresponding score distributions of 0-prong taus
-    std::unique_ptr<std::vector<m_pair_t>> m_hists1p; //!< Efficiency and corresponding score distributions of 1-prong taus
-    std::unique_ptr<std::vector<m_pair_t>> m_hists3p; //!< Efficiency and corresponding score distributions of 3-prong taus
+    std::shared_ptr<std::vector<m_pair_t>> m_hists0p; //!< Efficiency and corresponding score distributions of 0-prong taus
+    std::shared_ptr<std::vector<m_pair_t>> m_hists1p; //!< Efficiency and corresponding score distributions of 1-prong taus
+    std::shared_ptr<std::vector<m_pair_t>> m_hists3p; //!< Efficiency and corresponding score distributions of 3-prong taus
     
     std::map<int, double> m_xMin; //!< Map of n-prong and the minimum value of x variables
     std::map<int, double> m_yMin; //!< Map of n-prong and the minimum value of y variables

@@ -44,18 +44,18 @@ TauWPDecorator::~TauWPDecorator() {
 StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   // Find and open file
   std::string fileName;
-  std::vector<m_pair_t>* histArray = nullptr;
+  std::shared_ptr<std::vector<m_pair_t>> histArray = nullptr;
   if (nProng == 0) { 
     fileName = m_file0p;
-    histArray = m_hists0p.get();
+    histArray = m_hists0p;
   }
   else if (nProng == 1) {
     fileName = m_file1p;
-    histArray = m_hists1p.get();
+    histArray = m_hists1p;
   }
   else {
     fileName = m_file3p;
-    histArray = m_hists3p.get();
+    histArray = m_hists3p;
   }
 
   std::string fullPath = find_file(fileName);
@@ -77,11 +77,16 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
       continue;
     }
     graph->SetDirectory(0);       
-    std::unique_ptr<TH2> uniqueGraph(graph);
-    histArray->push_back(m_pair_t(float(i)/100., std::move(uniqueGraph)));
+    std::shared_ptr<TH2> sharedGraph(graph);
+    histArray->push_back(m_pair_t(float(i)/100., std::move(sharedGraph)));
   }
   
   file->Close();
+  
+  if (histArray->size() == 0) {
+    ATH_MSG_ERROR("There is no histograms for " << nProng << "-prong taus");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;  
 }
@@ -89,18 +94,18 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
 
 
 StatusCode TauWPDecorator::storeLimits(int nProng) {
-  std::vector<m_pair_t>* histArray = nullptr;
+  std::shared_ptr<std::vector<m_pair_t>> histArray = nullptr;
   if (nProng == 0) {
-    histArray = m_hists0p.get();
+    histArray = m_hists0p;
   }
   else if (nProng == 1) {
-    histArray = m_hists1p.get();
+    histArray = m_hists1p;
   }
   else {
-    histArray = m_hists3p.get();
+    histArray = m_hists3p;
   }
 
-  TH2* firstHist = histArray->at(0).second.get();
+  std::shared_ptr<TH2> firstHist = histArray->at(0).second;
   m_xMin[nProng] = firstHist->GetXaxis()->GetXmin();
   m_xMax[nProng] = firstHist->GetXaxis()->GetBinCenter(firstHist->GetNbinsX());
   m_yMin[nProng] = firstHist->GetYaxis()->GetXmin();
@@ -108,7 +113,7 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
 
   // Check all the histograms have the same limits
   for (size_t i = 1; i < histArray->size(); ++i) {
-    TH2* hist = histArray->at(i).second.get();
+    std::shared_ptr<TH2> hist = histArray->at(i).second;
   
     double xMin = hist->GetXaxis()->GetXmin();
     double xMax = hist->GetXaxis()->GetBinCenter(firstHist->GetNbinsX());
@@ -140,7 +145,7 @@ StatusCode TauWPDecorator::initialize() {
 
   // 0p is for trigger only
   if (!m_file0p.empty()) {
-    m_hists0p = std::make_unique<std::vector<m_pair_t>>();
+    m_hists0p = std::make_shared<std::vector<m_pair_t>>();
     ATH_CHECK(retrieveHistos(0));
     ATH_CHECK(storeLimits(0));
   }
@@ -151,11 +156,11 @@ StatusCode TauWPDecorator::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_hists1p = std::make_unique<std::vector<m_pair_t>>();
+  m_hists1p = std::make_shared<std::vector<m_pair_t>>();
   ATH_CHECK(retrieveHistos(1));
   ATH_CHECK(storeLimits(1));
   
-  m_hists3p = std::make_unique<std::vector<m_pair_t>>();
+  m_hists3p = std::make_shared<std::vector<m_pair_t>>();
   ATH_CHECK(retrieveHistos(3));
   ATH_CHECK(storeLimits(3));  
     
@@ -222,10 +227,10 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
     ATH_MSG_DEBUG("final mu:\t" << yVariable);
   }
 
-  std::vector<m_pair_t>* histArray = nullptr;
-  if (nProng == 0) histArray = m_hists0p.get();
-  else if (nProng == 1) histArray = m_hists1p.get();
-  else histArray = m_hists3p.get();
+  std::shared_ptr<std::vector<m_pair_t>> histArray = nullptr;
+  if (nProng == 0) histArray = m_hists0p;
+  else if (nProng == 1) histArray = m_hists1p;
+  else histArray = m_hists3p;
   
   std::array<double, 2> cuts = {-1.01, 1.01}; // lower and upper bounday of the score
   std::array<double, 2> effs = {1.0, 0.0}; // efficiency corresponding to the score cut
@@ -237,7 +242,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
   
   // Loop over all histograms to find the lower and upper bounary of the score and corresponding efficiency
   for (unsigned int i = 0; i < histArray->size(); ++i) {
-    TH2* myHist = histArray->at(i).second.get();
+    std::shared_ptr<TH2> myHist = histArray->at(i).second;
     double myCut = myHist->Interpolate(xVariable, yVariable);
     
     if (myCut <= score && ((!gotLow) || std::abs(myCut-score) < std::abs(cuts[0]-score))) {
