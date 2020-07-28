@@ -23,21 +23,21 @@
  */
 
 #ifndef CXXUTILS_VECTORIZE_H
-#define CXXUTILS_VECTORIZE_H
+# define CXXUTILS_VECTORIZE_H
 
 #if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) && !defined(__COVERITY__) &&  \
   !defined(__CUDACC__)
-#define ATH_ENABLE_VECTORIZATION                                                              \
+# define ATH_ENABLE_VECTORIZATION                                                              \
   _Pragma("GCC optimize (\"tree-vectorize\")") class ATH_ENABLE_VECTORIZATION_SWALLOW_SEMICOLON
 #else
-#define ATH_ENABLE_VECTORIZATION class ATH_ENABLE_VECTORIZATION_SWALLOW_SEMICOLON
+# define ATH_ENABLE_VECTORIZATION class ATH_ENABLE_VECTORIZATION_SWALLOW_SEMICOLON
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) && !defined(__COVERITY__) &&  \
   !defined(__CUDACC__)
-#define ATH_ENABLE_FUNCTION_VECTORIZATION __attribute__((optimize("tree-vectorize")))
+# define ATH_ENABLE_FUNCTION_VECTORIZATION __attribute__((optimize("tree-vectorize")))
 #else
-#define ATH_ENABLE_FUNCTION_VECTORIZATION
+# define ATH_ENABLE_FUNCTION_VECTORIZATION
 #endif
 
 #endif // not CXXUTILS_VECTORIZE_H

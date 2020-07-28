@@ -12,31 +12,31 @@
  */
 
 #ifndef CXXUTILS_FEATURES_H
-#define CXXUTILS_FEATURES_H
+# define CXXUTILS_FEATURES_H
 
 /// Do we have function multiversioning?  GCC and clang > 7 support
 /// the target attribute
-#if defined(__ELF__) && defined(__GNUC__) && !defined(__CLING__) && !defined(__ICC) &&        \
-  !defined(__COVERITY__) && !defined(__CUDACC__)
-#define HAVE_FUNCTION_MULTIVERSIONING 1
+#if defined(__ELF__) && defined(__GNUC__) && !defined(__CLING__) &&            \
+  !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
+# define HAVE_FUNCTION_MULTIVERSIONING 1
 #else
-#define HAVE_FUNCTION_MULTIVERSIONING 0
+# define HAVE_FUNCTION_MULTIVERSIONING 0
 #endif
 
 /// Do we have the target_clones attribute?  clang  does not support it
-#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) && !defined(__COVERITY__) &&  \
-  !defined(__CUDACC__)
-#define HAVE_TARGET_CLONES 1
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) &&             \
+  !defined(__COVERITY__) && !defined(__CUDACC__)
+# define HAVE_TARGET_CLONES 1
 #else
-#define HAVE_TARGET_CLONES 0
+# define HAVE_TARGET_CLONES 0
 #endif
 
 /// Do we have support for all GCC intrinsics?
-#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) && !defined(__COVERITY__) &&  \
-  !defined(__CUDACC__)
-#define HAVE_GCC_INTRINSICS 1
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) &&             \
+  !defined(__COVERITY__) && !defined(__CUDACC__)
+# define HAVE_GCC_INTRINSICS 1
 #else
-#define HAVE_GCC_INTRINSICS 0
+# define HAVE_GCC_INTRINSICS 0
 #endif
 
 /// Do we have the bit-counting intrinsics?
@@ -50,18 +50,18 @@
 // __builtin_popcountl
 // __builtin_popcountll
 #if defined(__GNUC__) || defined(__clang__)
-#define HAVE_BITCOUNT_INTRINSICS 1
+# define HAVE_BITCOUNT_INTRINSICS 1
 #else
-#define HAVE_BITCOUNT_INTRINSICS 0
+# define HAVE_BITCOUNT_INTRINSICS 0
 #endif
 
 // Do we have the vector_size attribute for writing explicitly
 // vectorized code?
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__ICC) && !defined(__COVERITY__) && \
-  !defined(__CUDACC__)
-#define HAVE_VECTOR_SIZE_ATTRIBUTE 1
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__ICC) &&            \
+  !defined(__COVERITY__) && !defined(__CUDACC__)
+# define HAVE_VECTOR_SIZE_ATTRIBUTE 1
 #else
-#define HAVE_VECTOR_SIZE_ATTRIBUTE 0
+# define HAVE_VECTOR_SIZE_ATTRIBUTE 0
 #endif
 
 #endif // not CXXUTILS_FEATURES_H
