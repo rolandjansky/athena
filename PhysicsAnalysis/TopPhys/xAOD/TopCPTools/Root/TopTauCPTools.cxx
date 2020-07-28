@@ -138,9 +138,10 @@ namespace top {
     int tauEleBDTWPLoose = tau_EleBDTWP_to_enum(m_config->tauEleBDTWPLoose());
     top::check(tauEleBDTWPLoose >= 0, m_config->tauEleBDTWPLoose() + " is not a valid tau WP");
 
-    const std::vector<float> absEtaRegion = {
-      0., 1.37, 1.37, 1.52, 1.52, 2.5
-    };
+//    const std::vector<float> absEtaRegion = {
+//      0., 1.37, 1.37, 1.52, 1.52, 2.5
+//    };
+
     const double absCharge = 1.;
     const std::vector<size_t> nTracks = {
       1, 3
@@ -218,7 +219,7 @@ namespace top {
                    "Failed to set tau SelectionCuts");
         top::check(asg::setProperty(tauSelectionTool, "PtMin", static_cast<double>(m_config->tauPtcut() / 1e3)),
                    "Failed to set tau pT cut");
-        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", absEtaRegion),
+        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", m_config->tauEtaRegions() ),
                    "Failed to set tau AbsEtaRegion");
         top::check(asg::setProperty(tauSelectionTool, "AbsCharge", absCharge),
                    "Failed to set tau AbsCharge");
@@ -287,7 +288,7 @@ namespace top {
                    "Failed to set tau SelectionCuts");
         top::check(asg::setProperty(tauSelectionTool, "PtMin", static_cast<double>(m_config->tauPtcut() / 1e3)),
                    "Failed to set tau pT cut");
-        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", absEtaRegion),
+        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", m_config->tauEtaRegions()),
                    "Failed to set loose tau AbsEtaRegion");
         top::check(asg::setProperty(tauSelectionTool, "AbsCharge", absCharge),
                    "Failed to set loose tau AbsCharge");

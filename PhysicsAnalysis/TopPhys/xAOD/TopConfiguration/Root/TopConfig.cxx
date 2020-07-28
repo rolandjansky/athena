@@ -1268,6 +1268,7 @@ namespace top {
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));
+    this->tauEtaRegions(settings->value("TauEtaRegions"));
     this->tauJetIDWP(settings->value("TauJetIDWP"));
     this->tauJetIDWPLoose(settings->value("TauJetIDWPLoose"));
     this->tauEleBDTWP(settings->value("TauEleBDTWP"));
