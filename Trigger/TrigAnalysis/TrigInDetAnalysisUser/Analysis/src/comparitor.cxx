@@ -1036,12 +1036,13 @@ int main(int argc, char** argv) {
 
   std::cout << "\n" << argv[0] << "\tconfigfile: " << configfile << std::endl;
 
+  bool use_file_config = false;
  
   if ( configfile!="" ) { 
 
     if ( exists(configfile) ) { 
 
-      std::cout << argv[0] << ":\treading histogram configuration from file " << configfile << std::endl; 
+      std::cout << argv[0] << ":\treading configuration file " << configfile << std::endl; 
     
       ReadCards rc(configfile);
 
@@ -1050,6 +1051,10 @@ int main(int argc, char** argv) {
       
       if ( rc.isTagDefined( "histos" ) ) { 
 	
+	std::cout << argv[0] << ":\treading histogram configuration from file " << configfile << std::endl; 
+
+	use_file_config = true;
+
 	std::vector<std::string> raw_input = rc.GetStringVector( "histos" );
 	
 	for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6) {
@@ -1067,6 +1072,10 @@ int main(int argc, char** argv) {
 
       if ( rc.isTagDefined( "panels" ) ) { 
 	
+	std::cout << argv[0] << ":\treading histogram panel configuration from file " << configfile << std::endl; 
+
+	use_file_config = true;
+
 	std::vector<std::string> panel_config = rc.GetStringVector( "panels" );
 	
 	for ( size_t ipanel=panel_config.size() ; ipanel-- ;  ) { 
@@ -1118,7 +1127,8 @@ int main(int argc, char** argv) {
     }
 
   }
-  else { 
+
+  if ( !use_file_config ) {
 
     std::cout << "using default panels" << std::endl;
 
