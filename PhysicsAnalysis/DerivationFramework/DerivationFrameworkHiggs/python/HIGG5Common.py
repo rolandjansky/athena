@@ -43,13 +43,18 @@ def getHIGG5Common() :
             ".Width"),
         ("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.constituentLinks"
             ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
-            ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
+        ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
             ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
             ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
             ".Width"),
         ("AntiKt10TrackCaloClusterJets"
          ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
+         "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
+         "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag",
+         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",
+         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag",
+
         # "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant.MV2cl100_discriminant",
         # "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
         getBTagEMTopoName()+".MV2cl100_discriminant"]
@@ -168,6 +173,8 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                #  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
+                               "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",
+                               "BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag",
                                "InDetTrackParticles",
                                "PrimaryVertices"]
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo

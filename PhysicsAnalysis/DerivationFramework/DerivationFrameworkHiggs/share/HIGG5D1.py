@@ -248,7 +248,9 @@ HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg5d1Seq)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg5d1Seq)
+addVRJets(higg5d1Seq, do_ghost=True)
 addVRJets(higg5d1Seq, training='201903') #new trackjet training!
+addVRJets(higg5d1Seq, do_ghost=True, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg5d1Seq, ToolSvc)
 
