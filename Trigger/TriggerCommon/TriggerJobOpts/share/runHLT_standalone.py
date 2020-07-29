@@ -425,17 +425,6 @@ elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
 
-# Set up a temporary workaround for ROOT-10940 / ATR-21753.
-from xAODCoreCnv.xAODCoreCnvConf import xAODMaker__ROOTHeaderLoaderSvc
-svcMgr += xAODMaker__ROOTHeaderLoaderSvc( 'ROOTHeaderLoaderSvc',
-            HeaderNames = [ 'xAODEgamma/PhotonContainer.h',
-                            'xAODTrigEgamma/TrigPhotonContainer.h',
-                            'xAODMuon/MuonContainer.h',
-                            'xAODTrigMuon/L2StandAloneMuonContainer.h',
-                            'xAODJet/JetContainer.h',
-                            'xAODTau/TauJetContainer.h' ] )
-theApp.CreateSvc += [ 'xAODMaker::ROOTHeaderLoaderSvc/ROOTHeaderLoaderSvc' ]
-
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
@@ -575,7 +564,8 @@ if opt.doWriteRDOTrigger:
         theApp.exit(1)
     rec.doWriteRDO = False  # RecExCommon flag
     ConfigFlags.Output.doWriteRDO = True  # new JO flag
-    ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+    if not ConfigFlags.Output.RDOFileName:
+        ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
 if opt.doWriteBS:
     rec.doWriteBS = True  # RecExCommon flag
     TriggerFlags.writeBS = True  # RecExCommon flag

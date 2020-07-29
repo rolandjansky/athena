@@ -25,60 +25,7 @@ if isOnline and useEmon:
 
 #ToolSvc.InDetCosmicsEventPhaseTool.GlobalOffset = 0
 
-
-###
-### Fix problem in PixelConditionsTools
-### From Fares Djama
-### " the RUN2 pixel tags have been copied from RUN1,
-###   while we have a new detector, the IBL.
-###   We need to add a new IOV to our tags in the online.
-###   I guess that's the same for all other condb folders"
-###
-
-
-#
-# This part is only for online (SMWANG : Nov 17th 2015)
-#
-
-#from IOVDbSvc.CondDB import conddb
-#
-#if not conddb.folderRequested("PIXEL/PixReco"):
-#        conddb.addFolder('PIXEL','/PIXEL/PixReco')
-#if not conddb.folderRequested("PIXEL/PixCalib"):
-#        conddb.addFolder('PIXEL','/PIXEL/PixCalib')
-#conddb.blockFolder("/PIXEL/PixCalib")
-#conddb.blockFolder("/PIXEL/PixReco")
-#
-#conddb.addFolderWithTag("/det/indet/M8/AtlasProduction-20.1.0.1/NewHLT.db;dbname=CONDBR2","/PIXEL/PixReco","PixReco-HLT-RUN12-000-01",force=True) 
-#conddb.addFolderWithTag("/det/indet/M8/AtlasProduction-20.1.0.1/NewHLT.db;dbname=CONDBR2","/PIXEL/PixCalib","PixReco-HLT-RUN12-000-01",force=True) 
-
-
-#
-# Need to get this part to work online and offline !!! (SMWANG : Nov 17th 2015)
-#
-
-if (isOnline and not isOfflineTest):
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested("PIXEL/PixReco"):
-    conddb.addFolder('PIXEL','/PIXEL/PixReco')
-  if not conddb.folderRequested("PIXEL/PixCalib"):
-    conddb.addFolder('PIXEL','/PIXEL/PixCalib')
-  conddb.blockFolder("/PIXEL/PixCalib")
-  conddb.blockFolder("/PIXEL/PixReco")
-  conddb.addFolderWithTag("/det/indet/M8/AtlasProduction-20.1.0.1/NewHLT.db;dbname=CONDBR2","/PIXEL/PixReco","PixReco-HLT-RUN12-000-01",force=True) 
-  conddb.addFolderWithTag("/det/indet/M8/AtlasProduction-20.1.0.1/NewHLT.db;dbname=CONDBR2","/PIXEL/PixCalib","PixReco-HLT-RUN12-000-01",force=True) 
-
-
-if (isOnline and isOfflineTest):
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested("PIXEL/PixReco"):
-    conddb.addFolder('PIXEL','/PIXEL/PixReco')
-  if not conddb.folderRequested("PIXEL/PixCalib"):
-    conddb.addFolder('PIXEL','/PIXEL/PixCalib')
-  conddb.blockFolder("/PIXEL/PixCalib")
-  conddb.blockFolder("/PIXEL/PixReco")
-  conddb.addFolderWithTag("/afs/cern.ch/work/s/smwang/public/DQM/InDet_online_db/NewHLT.db;dbname=CONDBR2","/PIXEL/PixReco","PixReco-HLT-RUN12-000-01",force=True) 
-  conddb.addFolderWithTag("/afs/cern.ch/work/s/smwang/public/DQM/InDet_online_db/NewHLT.db;dbname=CONDBR2","/PIXEL/PixCalib","PixReco-HLT-RUN12-000-01",force=True) 
+ToolSvc.InDetPixelClusterOnTrackTool.ErrorStrategy=1 # Added 13 Jul 2020 from ATLASRECTS-5544
 
 
 # ----------------------------- Printout

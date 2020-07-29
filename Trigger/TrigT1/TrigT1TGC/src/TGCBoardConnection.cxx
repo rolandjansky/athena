@@ -3,7 +3,7 @@
 */
 
 //$Id: TGCBoardConnection.cxx,v 1.3 2009-01-08 10:06:48 isaya Exp $
-#include "TrigT1TGC/TGCBoardConnection.hh"
+#include "TrigT1TGC/TGCBoardConnection.h"
 
 namespace LVL1TGCTrigger {
 

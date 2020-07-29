@@ -40,7 +40,7 @@ StatusCode JetForwardJvtToolBDT::initialize()
     
   if(m_isAna){
     // -- Retrieve MVfJVT WP configFile ONLY if tool used in 'Analysis mode'
-    std::string filename = PathResolverFindCalibFile(m_configDir+m_wpFile);
+    std::string filename = PathResolverFindCalibFile(std::string(m_configDir)+m_wpFile);
     if (filename.empty()){
       ATH_MSG_ERROR ( "Could NOT resolve file name " << m_wpFile);
       return StatusCode::FAILURE;

@@ -112,7 +112,7 @@ private:
   float m_qThreshold;
 
 
-  /** // 0.350/10 diffusSigma=transverse diffusion (350 μm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
+  /** // 0.350/10 diffusSigma=transverse diffusion (350 microm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
   float m_transverseDiffusionSigma;
   float m_longitudinalDiffusionSigma;
   float m_pitch;

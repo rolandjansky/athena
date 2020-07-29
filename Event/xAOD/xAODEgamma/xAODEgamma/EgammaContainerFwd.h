@@ -15,7 +15,7 @@
 DATAVECTOR_BASE_FWD( xAOD::Egamma, xAOD::IParticle);
 namespace xAOD {
    /// Definition of the current "egamma container version"
-  typedef DataVector<Egamma > EgammaContainer;
+  typedef DataVector<Egamma> EgammaContainer;
 }
 
 #endif // XAODEGAMMA_EGAMMACONTAINERFWD_H

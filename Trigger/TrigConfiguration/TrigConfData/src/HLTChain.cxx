@@ -19,7 +19,6 @@ TrigConf::Chain::update()
    if(! isInitialized() || empty() ) {
       return;
    }
-   m_name = getAttribute("name");
 }
 
 TrigConf::Chain::~Chain()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: build
