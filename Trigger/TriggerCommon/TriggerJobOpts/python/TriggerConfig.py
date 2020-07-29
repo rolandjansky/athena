@@ -439,13 +439,12 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
         ("xAOD::TrigDecision", decmaker.TrigDecisionKey),
         ("xAOD::TrigConfKeys", menuwriter.EventObjectName)]
 
-    # Produce xAOD L1 RoIs from RoIBResult (unless running with exclusively Phase-I L1)
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
-        from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
-        xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags, acc.getSequence().name)
-        acc.merge(xRoIBResultAcc)
-        # Ensure outputs are produced before streamAlg runs
-        streamAlg.ExtraInputs += xRoIBResultOutputs
+    # Produce xAOD L1 RoIs from RoIBResult
+    from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+    xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags, acc.getSequence().name)
+    acc.merge(xRoIBResultAcc)
+    # Ensure outputs are produced before streamAlg runs
+    streamAlg.ExtraInputs += xRoIBResultOutputs
 
     return acc
 
