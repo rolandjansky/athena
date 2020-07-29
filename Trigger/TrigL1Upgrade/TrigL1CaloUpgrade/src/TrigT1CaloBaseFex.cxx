@@ -40,8 +40,10 @@ TrigT1CaloBaseFex::TrigT1CaloBaseFex( const std::string& name, ISvcLocator* pSvc
 	declareProperty("PhiWidthREtaIsolationNumerator", m_phiWidth_REtaIsolation_num = 2);
 	declareProperty("EtaWidthREtaIsolationDenominator", m_etaWidth_REtaIsolation_den = 7);
 	declareProperty("PhiWidthREtaIsolationDenominator", m_phiWidth_REtaIsolation_den = 3);
-	declareProperty("EtaWidthRHadIsolation", m_etaWidth_RHadIsolation = 3);
-	declareProperty("PhiWidthRHadIsolation", m_phiWidth_RHadIsolation = 3);
+	declareProperty("EtaHadWidthRHadIsolation", m_etaHadWidth_RHadIsolation = 9);  // 1 for a 1-eta-tower had cluster, 5 for 2-tower, 9 for 3-tower
+	declareProperty("PhiHadWidthRHadIsolation", m_phiHadWidth_RHadIsolation = 3);
+	declareProperty("EtaEMWidthRHadIsolation", m_etaEMWidth_RHadIsolation = 3);  // 1 for a 1-eta-tower had cluster, 5 for 2-tower, 9 for 3-tower
+	declareProperty("PhiEMWidthRHadIsolation", m_phiEMWidth_RHadIsolation = 3);
 	declareProperty("EtaWidthWStotIsolation", m_etaWidth_wstotIsolation = 5);
 	declareProperty("PhiWidthWStotIsolation", m_phiWidth_wstotIsolation = 3);
   	declareProperty("EnergyThresholdToApplyIsolation", m_clustET_NoIso_thresh = 60.);
@@ -301,7 +303,7 @@ void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells,
 }
 
 bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<CaloCell*>& scells, const CaloCell* cell) const {
-        if ( !cell ) return false;
+    if ( !cell ) return false;
 	int samp = cell->caloDDE()->getSampling();
 	if ( (samp >= 8) && (samp!=21) ) return false; // include FCAL0 EM
 	float cellpt = 1.0001*cell->et(); //make sure you don't get thecell itself
@@ -346,7 +348,7 @@ float TrigT1CaloBaseFex::sumHadCells(const std::vector<CaloCell*>& scells) const
 float TrigT1CaloBaseFex::sumHadTTs(const std::vector<const xAOD::TriggerTower*>& scells) const {
 	float totalSum = 0.0;
 	for(auto scell : scells){
-             if ( fabsf( scell->eta() ) > 1.56 ) continue;
+             if ( fabsf( scell->eta() ) > 1.5 ) continue;
 	     if ( scell->sampling() == 0 ) continue;
              totalSum+= (scell->pt())*TMath::CosH(scell->eta());
 	}
@@ -361,26 +363,26 @@ void TrigT1CaloBaseFex::findCluster(const std::vector<CaloCell*>& scells, float 
 
 	double energyCluster=0.0;
 	bool cross_phi_bound=false;
-        int last_sign=0;
+    int last_sign=0;
 	for(auto scell : scells){
 	  if ( fabsf( scell->phi() ) < 2.7 ) continue;
 	  int layer = scell->caloDDE()->getSampling();
-          if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
+      if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
 	  int cell_sign = ( scell->phi() >=0 ? 1 : -1 );
-          if ( ( last_sign!=0 ) && ( last_sign != cell_sign ) ) cross_phi_bound = true;
+      if ( ( last_sign!=0 ) && ( last_sign != cell_sign ) ) cross_phi_bound = true;
 	  last_sign = cell_sign;
 	}
 
 	for(auto scell : scells){
 	     int layer = scell->caloDDE()->getSampling();
-             if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
+         if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
 	     double scelleta = scell->eta();
 	     double scellphi = scell->phi();
 	     double scellet = scell->et();
-             etaClusterD+= (scellet * scelleta);
+         etaClusterD+= (scellet * scelleta);
 	     if (cross_phi_bound && scellphi < 0 ) scellphi += 2 * M_PI;
-             phiClusterD+= (scellet * scellphi);
-             energyCluster+= (scellet) ;
+         phiClusterD+= (scellet * scellphi);
+         energyCluster+= (scellet) ;
 	}
 	if ( energyCluster > 0.1 ) {
 		etaClusterD/=energyCluster;
@@ -397,10 +399,10 @@ void TrigT1CaloBaseFex::findCluster(const std::vector<CaloCell*>& scells, float 
 void TrigT1CaloBaseFex::findClusterFor(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster, float &zCluster) const {
         etaCluster=0.0;
         phiCluster=0.0;
-	zCluster=0.0;
+	    zCluster=0.0;
         double etaClusterD=0.0;
         double phiClusterD=0.0;
-	double zClusterD=0.0;
+	    double zClusterD=0.0;
 
         double energyCluster=0.0;
         bool cross_phi_bound=false;
@@ -578,7 +580,7 @@ float TrigT1CaloBaseFex::eFEXIsoTDR (const std::vector<float>& EM2allCell, const
 
 bool TrigT1CaloBaseFex::IseFEXIsoTDR ( const std::vector<float>& EM2allCell, const float& seedPlace, const float& Isovalue) const {
 	bool Is_eFEXIsoTDR = false;
-	if (TrigT1CaloBaseFex::eFEXIsoTDR(EM2allCell,seedPlace) > Is_eFEXIsoTDR) Is_eFEXIsoTDR = true;
+	if (TrigT1CaloBaseFex::eFEXIsoTDR(EM2allCell,seedPlace) > Isovalue) Is_eFEXIsoTDR = true;
 	return Is_eFEXIsoTDR;
 }
 
@@ -663,22 +665,23 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_Barrel(CaloCell* inputCell, bool upward
         int maxEta_index = 0;
         int minEta_index = 0;
         if (ithRegion==0){
-		if (ithSampling == 0) maxEta_index = 14;
-		else if (ithSampling == 1 || ithSampling == 2) maxEta_index = 55;
-		else if (ithSampling == 3) maxEta_index = 13;
-		else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
+		  if (ithSampling == 0) maxEta_index = 14;
+		  else if (ithSampling == 1 || ithSampling == 2) maxEta_index = 55;
+		  else if (ithSampling == 3) maxEta_index = 13;
+		  else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
         }
         else if (ithRegion==1){
-		if (ithSampling == 1) maxEta_index =2;
-		else if (ithSampling == 2) maxEta_index=0;
-		else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
+		  if (ithSampling == 1) maxEta_index =2;
+		  else if (ithSampling == 2) maxEta_index=0;
+		  else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
         }
         else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
     
         // Declare next values, default initialisation is the same as cell
         int nextEta_index = ithEta_index;
         // Phi shouldn't change!
-        // Sampling shouldn't change!
+        // One special case where sampling does change, otherwise stays same
+        int nextSampling = ithSampling;
         int nextSub_calo = ithSub_calo;
         int nextPos_neg = ithPos_neg;
         int nextRegion = ithRegion;
@@ -692,68 +695,78 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_Barrel(CaloCell* inputCell, bool upward
     
         // If first cell in region & moving more inwards
         if (ithEta_index==minEta_index && incrementEta==-1){
-		if (ithRegion == 0){
+		  if (ithRegion == 0){
 			nextEta_index = 0;
 			nextPos_neg = ithPos_neg * -1;
 			tracker = 1;
-		}
-		else if (ithRegion == 1){
+		  }
+		  else if (ithRegion == 1){
 			nextEta_index = 55;
 			nextRegion = 0;
 			tracker = 2;
-		}
-		else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
+		  }
+		  else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
         }
 
         // If last cell in region & moving outwards
         else if ((ithEta_index == maxEta_index) && (incrementEta == 1)) {
-		// Reg 0, Layers 1 & 2 go to barrel region 1
-		if ((ithRegion == 0)&&(ithSampling == 1 || ithSampling == 2)){
+		  // Reg 0, Layers 1 & 2 go to barrel region 1
+		  if ((ithRegion == 0)&&(ithSampling == 1 || ithSampling == 2)){
 			nextRegion = 1;
-        		nextEta_index = 0;
-        		tracker = 3;
-		}
-		// Reg 0, Layer 0 & 3 go to OW region 0
-		else if ((ithRegion == 0)&&(ithSampling == 0 || ithSampling == 3)){
+        	nextEta_index = 0;
+        	tracker = 3;
+		  }
+		  // Reg 0, Layer 0 goes to OW region 0 
+		  else if ((ithRegion == 0)&&(ithSampling == 0)){
 			nextEta_index = 0;
 			nextRegion = 0;
 			nextPos_neg = 2*ithPos_neg;
 			tracker = 4;
-		}
-		// Reg 1, Layer 1 go to OW region 2
-		else if ((ithRegion == 1)&&(ithSampling == 1)){
-			nextEta_index=0;
-			nextRegion = 2;
-			nextPos_neg = 2 * ithPos_neg;
+		  }
+		  // Reg 0, Layer 3 goes to OW Layer 2 region 0 (change by ATW)
+		  else if ((ithRegion == 0)&&(ithSampling == 3)){
+		  	nextSampling = 2;
+			nextEta_index = 0;
+			nextRegion = 0;
+			nextPos_neg = 2*ithPos_neg;
 			tracker = 5;
-		}
-		// Reg 1, Layers 1 & 2 go to OW region 1
-		else if ((ithRegion == 1)&&(ithSampling == 2)){
+		  }
+		  // Reg 1, Layer 1 go to OW region 0 (change by ATW)
+		  else if ((ithRegion == 1)&&(ithSampling == 1)){
+			nextEta_index=0;
+			nextRegion = 0;
+			nextPos_neg = 2 * ithPos_neg;
+			tracker = 6;
+		  }
+		  // Reg 1, Layer 2 goes to OW region 1
+		  else if ((ithRegion == 1)&&(ithSampling == 2)){
 			nextEta_index=0;
 			nextRegion = 1;
 			nextPos_neg = 2 * ithPos_neg;
-			tracker = 6;
-		}
-		else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
+			tracker = 7;
+		  }
+		  else msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
         }
+
         // Otherwise 'simply' next cell along
         else {
-		nextEta_index = ithEta_index + incrementEta;
-		tracker = 7;
-	}
-	//msg << MSG::DEBUG << "B Tracker = " << tracker << endreq;
+		  nextEta_index = ithEta_index + incrementEta;
+		  tracker = 8;
+	    }
+	    //msg << MSG::DEBUG << "B Tracker = " << tracker << endreq;
         // Form identifier, find cell & return it
         // sub_calo, left_pos_neg, 2, region, eta_index, down_phi_index
-        Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, ithPhi_index);
+        Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, nextSampling, nextRegion, nextEta_index, ithPhi_index);
         CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);      
         if (nextCell == NULL) {
-		msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
-		msg << MSG::WARNING << "Barrel Tracker = " << tracker << endreq;
-		msg << MSG::WARNING << "from nextCellID: "<<idHelper->sub_calo(nextCellID)<<", "<<idHelper->pos_neg(nextCellID)<<", "<<idHelper->sampling(nextCellID)<<", "<<idHelper->region(nextCellID)<<", "<<idHelper->eta(nextCellID)<<", "<<idHelper->phi(nextCellID)<<", "<<idHelper->calo_cell_hash(nextCellID)<<", "<<nextCellID << endreq;            
-	}
+		  msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
+		  msg << MSG::WARNING << "Barrel Tracker = " << tracker << endreq;
+		  msg << MSG::WARNING << "from nextCellID: "<<idHelper->sub_calo(nextCellID)<<", "<<idHelper->pos_neg(nextCellID)<<", "<<idHelper->sampling(nextCellID)<<", "<<idHelper->region(nextCellID)<<", "<<idHelper->eta(nextCellID)<<", "<<idHelper->phi(nextCellID)<<", "<<idHelper->calo_cell_hash(nextCellID)<<", "<<nextCellID << endreq;            
+	    }
         else {
 		Identifier newID = nextCell->ID();
 		int IDsample = idHelper->sampling(nextCell->ID());
+		/// Leave this in for debug purposes, but I now expect it to happen
 		if (IDsample!=ithSampling){
 			msg << MSG::WARNING << "Layer has changed " << " tracker = " << tracker << endreq;
 			msg << MSG::WARNING << "from nextCellID: "<<idHelper->sub_calo(nextCellID)<<", "<<idHelper->pos_neg(nextCellID)<<", "<<idHelper->sampling(nextCellID)<<", "<<idHelper->region(nextCellID)<<", "<<idHelper->eta(nextCellID)<<", "<<idHelper->phi(nextCellID)<<", "<<idHelper->calo_cell_hash(nextCellID)<<", "<<nextCellID << endreq;
@@ -778,7 +791,8 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_OW(CaloCell*inputCell, bool upwards, co
         // Declare next values, default initialisation is the same as cell
         int nextEta_index = ithEta_index;
         int nextPhi_index = ithPhi_index;
-        // Sampling shouldn't change!
+        // Sampling may change in a couple of special cases (transition tower)
+        int nextSampling = ithSampling;
         int nextSub_calo = ithSub_calo;
         int nextPos_neg = ithPos_neg;
         int nextRegion = ithRegion;
@@ -792,28 +806,28 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_OW(CaloCell*inputCell, bool upwards, co
         else if (ithSampling==2 && ithRegion==1) maxEta_index = 42; 
         else if (ithSampling==3) maxEta_index=9;
         else if (ithSampling==1){
-		switch(ithRegion){
-		  case 0:
-                    maxEta_index=0;
-                    break;
-                  case 1:
-                    msg << MSG::WARNING << "ERROR " << __LINE__ << endreq;
-                    break;
-                  case 2:
-                    maxEta_index=11;
-                    break;
-                  case 3:
-                    maxEta_index=11;// Should this be 11? - it was 7
-                    break;
-                  case 4:
-                    maxEta_index=15;  
-                    break;
-                  case 5:
-                    maxEta_index=0;
-                    break;
-                  default:
+		  switch(ithRegion){
+		    case 0:
+              maxEta_index=0;
+              break;
+            case 1:
+              msg << MSG::WARNING << "ERROR " << __LINE__ << endreq;
+              break;
+            case 2:
+              maxEta_index=11;
+              break;
+            case 3:
+              maxEta_index=11;// Should this be 11? - it was 7
+              break;
+            case 4:
+              maxEta_index=15;  
+              break;
+            case 5:
+              maxEta_index=0;
+              break;
+            default:
 		    msg << MSG::WARNING << "OW region is not covered: " << ithRegion << endreq;
-                }
+          }
         }        
         else msg << MSG::WARNING << "ERROR: "<< __LINE__<< endreq;
         // Calculate the increment for eta: it depends on whether we are moving 'up' & which side we are on
@@ -824,27 +838,32 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_OW(CaloCell*inputCell, bool upwards, co
         int tracker = 0;
         // Lower end of OW, going inwards
         if (ithEta_index==minEta_index && ithRegion==0 && incrementEta==-1){
-		nextPos_neg = ithSide;
-                if (ithSampling==0){
-			nextRegion = 0;
-			nextEta_index = 14;
-                        tracker = 1;
-                  }
-                  else if (ithSampling==1){
-                        nextRegion = 1;
-                        nextEta_index = 2;
-                        tracker = 2;
-                  }
-                  else if (ithSampling==2){
-                        nextRegion = 1;
-                        nextEta_index = 0;
-                        tracker = 3;
-                  }
-                  else if (ithSampling==3){
-                        nextRegion = 0;
-                        nextEta_index = 13;
-                        tracker = 4;
-                  }
+		    nextPos_neg = ithSide;
+            if (ithSampling==0){
+			  nextRegion = 0;
+			  nextEta_index = 14;
+              tracker = 1;
+            }
+            else if (ithSampling==1){
+               nextRegion = 1;
+               nextEta_index = 2;
+               tracker = 2;
+            }
+            /// The OW region 0 layer 2 is treated as layer 3 in transition
+            else if (ithSampling==2){
+               nextRegion = 0;
+               nextSampling = 2;
+               nextEta_index = 13;
+               tracker = 3;
+            }
+            /// Fix by ATW to allow for strange mapping in transition
+            else if (ithSampling==3){
+               nextRegion = 0;
+               nextSampling = 2;
+               nextEta_index = 0;
+               nextPos_neg = ithPos_neg;
+               tracker = 4;
+            }
         }
         // Higher end of OW, going outwards
         else if (ithEta_index==maxEta_index && incrementEta==1){
@@ -861,60 +880,62 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_OW(CaloCell*inputCell, bool upwards, co
                         nextRegion=0;
                         nextPhi_index=ithPhi_index/2;
                         nextPos_neg=3*ithSide;
-                        tracker=11;
+                        tracker=6;
                 }
                 else if (ithSampling==1 && ithRegion==0){
 			// Unsure what to do??
                         nextRegion = 2;
                         nextEta_index = 0;  
-                        tracker = 6;
+                        tracker = 7;
                 }
                 else if (ithSampling==1){
                         nextRegion=ithRegion + 1;
                         nextEta_index=0;
-                        tracker = 7;
+                        tracker = 8;
                 }
         }
         // Lower end of region in OW, going inwards
         else if (ithEta_index==minEta_index && incrementEta==-1){
-		// Shouldn't apply to layers 0 & 3
-                // Only case for layer 2 should be in region 1
-                if (ithSampling==2){
-			nextEta_index=0;
-                        nextRegion=0;
-                        tracker = 8;
+		    // Shouldn't apply to layers 0 & 3
+            // Only case for layer 2 should be in region 1
+            // But this one is special because we want to step into barrel (ATW)
+            if (ithSampling==2){
+               nextRegion = 1;
+               nextEta_index = 0;
+               nextPos_neg = ithPos_neg;
+               tracker = 9;
+            }
+            else if (ithSampling==1){ 
+			    if (ithRegion==0){     // haven't we covered this? (ATW)
+				    nextPos_neg = ithSide;
+				    nextRegion = 1;
+                    nextEta_index = 2;
+                    tracker = 10;
                 }
-                else if (ithSampling==1){
-			if (ithRegion==0){
-				nextPos_neg = ithSide;
-				nextRegion = 1;
-                                nextEta_index = 2;
-                                tracker = 9;
-                        }
-			else {
-				tracker = 10;
-                                // Layer one has muliple regions
-                                nextRegion = ithRegion-1;
-                                if (nextRegion==0) {
-					nextEta_index=0;
-					msg << MSG::WARNING << "ERROR: "<< __LINE__<< endreq;
-                                }
-                                else if (nextRegion==1) {
-					nextRegion = 0;
-					nextEta_index= 0;
-                                }
-				else if (nextRegion==2) nextEta_index=11;
-				else if (nextRegion==3) nextEta_index=7;
-				else if (nextRegion==4) nextEta_index=15;
-			}
-                }
+			    else {
+				    tracker = 11;
+                    // Layer one has muliple regions
+                    nextRegion = ithRegion-1;
+                    if (nextRegion==0) {
+					    nextEta_index=0;
+					    msg << MSG::WARNING << "ERROR: "<< __LINE__<< endreq;
+                    }
+                    else if (nextRegion==1) {
+					    nextRegion = 0;
+					    nextEta_index= 0;
+                    }
+				    else if (nextRegion==2) nextEta_index=11;
+				    else if (nextRegion==3) nextEta_index=7;
+				    else if (nextRegion==4) nextEta_index=15;
+			    }
+            }
         }
         // Middle of region in middle of endcap
         else {
-		nextEta_index = ithEta_index+incrementEta;
-		tracker = 11;
+		  nextEta_index = ithEta_index+incrementEta;
+		  tracker = 12;
         }
-        Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, nextPhi_index);
+        Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, nextSampling, nextRegion, nextEta_index, nextPhi_index);
         CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
         if (nextCell == NULL) {
 		msg << MSG::WARNING << "ERROR: "<<__LINE__<< endreq;
@@ -1101,38 +1122,38 @@ bool TrigT1CaloBaseFex::localMax(const CaloCellContainer* &inputContainer, CaloC
         CaloCell* leftCell = NextEtaCell(inputCell, true, inputContainer, idHelper); 
         if (leftCell != NULL){
 		double leftEnergy = CaloCellET(leftCell, digitScale, 0.);
-                if (leftEnergy>=seedCandidateEnergy)  nCellsMoreEnergetic++;
+                if (leftEnergy>seedCandidateEnergy)  nCellsMoreEnergetic++;
         }
 
         CaloCell* rightCell = NextEtaCell(inputCell, false, inputContainer, idHelper); 
         if (rightCell != NULL){
                 double rightEnergy = CaloCellET(rightCell, digitScale, 0.);
-		if (rightEnergy>seedCandidateEnergy)  nCellsMoreEnergetic++;
+		if (rightEnergy>=seedCandidateEnergy)  nCellsMoreEnergetic++;
         }
 
         CaloCell* upCell = NextPhiCell(inputCell, true, inputContainer, idHelper);
         if (upCell != NULL){
                 double upEnergy = CaloCellET(upCell, digitScale, 0.);
-                if (upEnergy>seedCandidateEnergy) nCellsMoreEnergetic++;
+                if (upEnergy>=seedCandidateEnergy) nCellsMoreEnergetic++;
         }
 
         CaloCell* downCell = NextPhiCell(inputCell, false, inputContainer, idHelper);
         if (downCell != NULL){
                 double downEnergy = CaloCellET(downCell, digitScale, 0.);
-                if (downEnergy>=seedCandidateEnergy) nCellsMoreEnergetic++;
+                if (downEnergy>seedCandidateEnergy) nCellsMoreEnergetic++;
         }
 	
         if (upCell != NULL){
                 CaloCell* upRightCell = NextEtaCell(upCell, false, inputContainer, idHelper);
                 if (upRightCell != NULL){
                         double upRightEnergy = CaloCellET(upRightCell, digitScale, 0.);
-			if (upRightEnergy>seedCandidateEnergy) nCellsMoreEnergetic++;
+			if (upRightEnergy>=seedCandidateEnergy) nCellsMoreEnergetic++;
                 }
 
                 CaloCell* upLeftCell = NextEtaCell(upCell, true, inputContainer, idHelper);
                 if (upLeftCell != NULL){
                         double upLeftEnergy = CaloCellET(upLeftCell, digitScale, 0.);
-                        if (upLeftEnergy>seedCandidateEnergy) nCellsMoreEnergetic++;
+                        if (upLeftEnergy>=seedCandidateEnergy) nCellsMoreEnergetic++;
                 }
         }
   
@@ -1178,8 +1199,8 @@ std::vector<CaloCell*> TrigT1CaloBaseFex::L2cluster(CaloCell* centreCell, int et
         else energeticPhiCell = downPhiCell;
         if (phiWidth == 2) addOnce(energeticPhiCell, centCells); //centCells.push_back(energeticPhiCell);
         else if (phiWidth == 3){
-		addOnce(upPhiCell, centCells); //centCells.push_back(upPhiCell);
-                addOnce(downPhiCell, centCells); //centCells.push_back(downPhiCell);
+		  addOnce(upPhiCell, centCells); //centCells.push_back(upPhiCell);
+          addOnce(downPhiCell, centCells); //centCells.push_back(downPhiCell);
         }
         else if (phiWidth > 3) msg << MSG::WARNING << "ERROR: phiWidth not 2 or 3!!!" << endreq;
         // Forms the main cluster. Starts with each SC in the central band and spreads outward in eta
@@ -1188,19 +1209,19 @@ std::vector<CaloCell*> TrigT1CaloBaseFex::L2cluster(CaloCell* centreCell, int et
         int backToEta = (2*halfEtaWidth)+1;
         if (backToEta != etaWidth) msg << MSG::WARNING << "Eta width doesn't match! " << backToEta << " -> " << halfEtaWidth << " -> " << etaWidth << "  " << __LINE__ << endreq;
         for (auto ithCentCell : centCells){
-          addOnce(ithCentCell, clusCells); //clusCells.push_back(ithCentCell);
-          if (etaWidth > 1){
-		  CaloCell* tempRightCell = NextEtaCell(ithCentCell,true,scells,idHelper);
-                  CaloCell* tempLeftCell = NextEtaCell(ithCentCell,false,scells,idHelper);
-                  addOnce(tempRightCell, clusCells); //clusCells.push_back(tempRightCell);
-                  addOnce(tempLeftCell, clusCells); //clusCells.push_back(tempLeftCell);
-                  for (int i = 1; i < halfEtaWidth; i++){
+            addOnce(ithCentCell, clusCells); //clusCells.push_back(ithCentCell);
+            if (etaWidth > 1){
+		        CaloCell* tempRightCell = NextEtaCell(ithCentCell,true,scells,idHelper);
+                CaloCell* tempLeftCell = NextEtaCell(ithCentCell,false,scells,idHelper);
+                addOnce(tempRightCell, clusCells); //clusCells.push_back(tempRightCell);
+                addOnce(tempLeftCell, clusCells); //clusCells.push_back(tempLeftCell);
+                for (int i = 1; i < halfEtaWidth; i++){
                     tempRightCell = NextEtaCell(tempRightCell,true,scells,idHelper);
                     tempLeftCell = NextEtaCell(tempLeftCell,false,scells,idHelper);
                     addOnce(tempRightCell, clusCells); //clusCells.push_back(tempRightCell);
                     addOnce(tempLeftCell, clusCells); //clusCells.push_back(tempLeftCell);
-                  }
-          }
+                }
+            }
         }
         return clusCells;
 }
@@ -1212,7 +1233,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
         Identifier inputID = inputCell->ID();
         int sampling = idHelper->sampling(inputID);
         const int sub_calo = idHelper->sub_calo(inputID);
-        const int pos_neg = idHelper->pos_neg(inputID);
+        int pos_neg = idHelper->pos_neg(inputID);
         int region = idHelper->region(inputID);
         int eta_index = idHelper->eta(inputID);
         const int phi_index = idHelper->phi(inputID);
@@ -1222,47 +1243,72 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
         int outputRegion = region;
         int outputEta = eta_index;
         bool oneCell = false; // True if layer 2 SC only matches to a single layer 1 SC
-        // Barrel reg 0
+        // Barrel reg 0 (which is a simple one)
         if ((abs(pos_neg) == 1)&&(region == 0)){
-		oneCell = true;
-		tracker = 1;
+		    oneCell = true;
+		    tracker = 1;
         }
         // Barrel reg 1: 3 layer 1 SCs for 1 layer 2 SC
+        // But we should map one of these onto the barrel SC, the other 2 onto EC SCs
         else if ((abs(pos_neg) == 1)&&(region == 1)){
-		tracker = 2;
+		    tracker = 2;
+		    outputRegion = 1;
+		    outputEta = 0;
+		    oneCell = true;
+        /* This code produces a one-to-many matching, which is not how things work
 		for (unsigned int i = 0; i < 3; i++){
 		  Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, region, i, phi_index);
 		  CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
 		  addOnce(resultCell,outputVector);
 		}
+		*/
         }
-        else if (abs(pos_neg)==2&&((region==0)||(region==1 && eta_index <= 2))){
-		// OW region 0: 1 layer 1 SC for 4 layer 2 SCs
+        /// Now we have to map the other 3 SC in the transition tower correctly
+        /// Sample 2 region 0 we treat as layer 3
+        else if (abs(pos_neg)==2 && region == 0) {
+            tracker = -1;
+        }
+        /// Sample 2 region 1 is 1.425-2.5. First 2 cells here map onto last 2 barrel layer 1
+        /// (hence rescaling pos_neg to +/- 1)
+        else if (abs(pos_neg)==2&&((region==1 && eta_index < 2))){
                 tracker = 3;
+                outputRegion = 1;
+                outputEta = eta_index + 1;
+                pos_neg /= abs(pos_neg);
+                oneCell = true;           
+        }
+        /// Third cell in Sample 2 region 1 maps onto Sample 1 region 0
+        else if (abs(pos_neg)==2&&((region==1 && eta_index == 2))){
+                tracker = 4;
                 outputRegion = 0;
                 outputEta = 0;
                 oneCell = true;
         }
+        /// After which the OW is normal for a little bit...
         else if (abs(pos_neg)==2&&region==1 && eta_index <= 14){
                 // OW region 1 (on doc): 1:1 match
-                tracker = 4;
+                tracker = 5;
                 outputRegion = 2;
                 outputEta = eta_index - 3;
                 oneCell = true;
         }
+        /// Then we get to the next weird region (1.8=2.0)
         else if (abs(pos_neg) == 2 && region == 1 && eta_index <= 22){
-                // OW Reg 2 (on doc): 6:4 split!!
+        	    // In this region there are 6 L1 supercells for every 4 L2 ones
+        	    // The code below groups them 2:1:1:2 2:1:1:2, which is an old proposal
+        	    // This is not what is actually done, but the structure of this code
+        	    // makes it impossible to do this correctly.
                 outputRegion = 3;
                 // Middle 2 layer cells match central 2 layer 1 cells
                 if (eta_index%4 == 0 || eta_index%4 ==1){
-                        tracker = 5;
+                        tracker = 6;
                         oneCell = true;
                         if (eta_index < 20) outputEta = eta_index -14;
                         else outputEta = eta_index - 12;
                 }
                 // Edges have a 2:1 ratio. 2 L1s for each L2
                 else {
-			tracker = 6;
+			            tracker = 7;
                         int offset = 0;
                         if (eta_index == 15) offset = 15;
                         else if (eta_index == 18) offset = 14;
@@ -1279,26 +1325,31 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
                         }
                 } 
         }
+        /// Followed by normal again (2.0-2.4)
         else if (abs(pos_neg)==2 && region == 1 && eta_index <= 38){
                 // OW Reg 3 (on doc): 1:1 match
-                tracker = 7;
+                tracker = 8;
                 oneCell = true;
                 outputRegion = 4;
                 outputEta = eta_index - 23;
         }
-        else if (abs(pos_neg)==2 && region == 1 && eta_index <= 42){
+        /// And finally one odd one (2.4-2.5)
+        else if (abs(pos_neg)==2 && region == 1 && eta_index == 40){
                 // OW Reg 4 (on doc): 1 L1 for all 4 L2s
-                tracker = 8;
+        	    // But this must be mapped onto a specific cell: second one seems best
+        	    // Note: to try alternative mapping of this cell (to Layer 0) should return without adding cell here
+                tracker = 9;
                 oneCell = true;
                 outputEta = 0;
                 outputRegion = 5;
         }
+
         if (oneCell){
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, outputRegion, outputEta, phi_index);
                 CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 addOnce(resultCell,outputVector);
         }
-        //msg << MSG::DEBUG << "L2->L1 tracker = " << tracker << endreq;
+        msg << MSG::DEBUG << "L2->L1: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
 }
 
 CaloCell* TrigT1CaloBaseFex::fromLayer2toPS(const CaloCellContainer* &inputContainer, CaloCell* inputCell, const CaloCell_SuperCell_ID* &idHelper){
@@ -1339,7 +1390,7 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toPS(const CaloCellContainer* &inputConta
                 resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
                 tracker = 3;
         }
-        //msg << MSG::DEBUG << "L2->PS tracker = " << tracker << endreq;
+        msg << MSG::DEBUG << "L2->PS tracker = " << tracker << endreq;
         return resultCell;
 }
 
@@ -1370,14 +1421,25 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toLayer3(const CaloCellContainer* &inputC
                 resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 tracker = 1;  
         }
+        /// Special case: transition tower treats endcap layer 2 as layer 3
+        else if (abs(pos_neg)==1 && region ==1) {
+        	    int output_pos_neg = pos_neg*2;
+        	    outputRegion = 0;
+                int outputEta = 0;
+                Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, output_pos_neg, 2, outputRegion, outputEta, phi_index);
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
+                tracker = 2;                  
+        }
+        /// Now in the endcap
         else if (abs(pos_neg)==2 && region ==1){
                 outputEta = (eta_index - 3)/4;
                 outputRegion = 0;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 3, outputRegion, outputEta, phi_index);
                 resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
-                tracker = 2;
+                tracker = 3;
         }
         //msg << MSG::DEBUG << "L2->L3 tracker = " << tracker << endreq;
+        msg << MSG::DEBUG << "L2->L3: sampling = " << sampling << ", region = " << region << ", eta = " << pos_neg*eta_index<< " tracker = " << tracker << endreq;
         return resultCell;
 }
 
@@ -1399,9 +1461,9 @@ std::vector<CaloCell*> TrigT1CaloBaseFex::TDR_Clus(CaloCell* centreCell, int eta
                 if (phiWidth == 2) addOnce(energeticPhiCell, centCells); //centCells.push_back(energeticPhiCell);
                 else if (phiWidth == 3){
                         addOnce(upPhiCell, centCells); //centCells.push_back(upPhiCell);
-			addOnce(downPhiCell, centCells); //centCells.push_back(downPhiCell);
+			            addOnce(downPhiCell, centCells); //centCells.push_back(downPhiCell);
                 }
-                else if (phiWidth > 3) msg << MSG::WARNING << "ERROR: phiWidth not 2 or 3!!!" << endreq;
+                else if (phiWidth > 3) msg << MSG::WARNING << "ERROR: phiWidth not 2 or 3!!!. Value = " << phiWidth << endreq;
         }
         // The actual cluster is initialised
         std::vector<CaloCell*> fullClus;
@@ -1645,8 +1707,8 @@ double TrigT1CaloBaseFex::RHad(CaloCell* centreCell, int etaWidth, int phiWidth,
 	MsgStream msg(msgSvc(), name());
 	std::vector<CaloCell*> fullClus = TDR_Clus(centreCell, etaWidth, phiWidth, scells, idHelper, digitScale, digitThresh);
         double EMcomp = sumVectorET(fullClus, digitScale, digitThresh);
-        double HCALcomp = HadronicET(L2cluster(centreCell, etaWidth, phiWidth, scells, idHelper, digitScale, digitThresh), scells, TTContainer, idHelper, digitScale, digitThresh);
-	HadET = HCALcomp/1e3;
+        double HCALcomp = HadronicET(L2cluster(centreCell, m_etaHadWidth_RHadIsolation, m_phiHadWidth_RHadIsolation, scells, idHelper, digitScale, digitThresh), scells, TTContainer, idHelper, digitScale, digitThresh);
+	    HadET = HCALcomp/1e3;
         double result = HCALcomp/(EMcomp+HCALcomp);
         if (result < 0. || result > 1.){
                 msg << MSG::WARNING << "RHAD ERROR -> " << etaWidth << " * " << phiWidth << endreq;
@@ -1778,7 +1840,7 @@ double TrigT1CaloBaseFex::RHadTile(CaloCell* centreCell, int etaWidth, int phiWi
 	std::vector<float> outVec;
 	double HadET = 0.;
 	std::vector<CaloCell*> L2Cells = L2cluster(centreCell, etaWidth, phiWidth, scells, idHelper, digitScale, digitThresh);
-	std::vector<CaloCell*> fullClus = TDR_Clus(centreCell, etaWidth, phiWidth, scells, idHelper, digitScale, digitThresh);
+	std::vector<CaloCell*> fullClus = TDR_Clus(centreCell, m_etaHadWidth_RHadIsolation, m_phiHadWidth_RHadIsolation, scells, idHelper, digitScale, digitThresh);
 	// Last Tile cell boundary: eta = 1.6
 	// Last outer wheel SC seed that still falls into Tile boundary: eta = 1.5625
 	if (fabs(centreCell->eta()) < 1.57){
@@ -1804,8 +1866,8 @@ double TrigT1CaloBaseFex::RHadTile(CaloCell* centreCell, int etaWidth, int phiWi
 		}
         }
         HadronicET = HadET/1e3;
-	double EMcomp = sumVectorET(fullClus, digitScale, digitThresh);
-	double result = HadET/(EMcomp+HadET);
+	    double EMcomp = sumVectorET(fullClus, digitScale, digitThresh);
+	    double result = HadET/(EMcomp+HadET);
         if (result < 0. || result > 1.){
                 msg << MSG::WARNING << "RHADTILE ERROR -> " << etaWidth << " * " << phiWidth << endreq;
                 msg << MSG::WARNING << "fullClus count = " << fullClus.size() << ", EMcomp = " << EMcomp << ", HCALcomp = " << HadET << endreq;
@@ -1815,35 +1877,97 @@ double TrigT1CaloBaseFex::RHadTile(CaloCell* centreCell, int etaWidth, int phiWi
 }
 
 double TrigT1CaloBaseFex::L1Width(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh){
-	// Finds a L2 cluster and the corresponding L1 cells
+        MsgStream msg(msgSvc(), name());
+    	// Finds a L2 cluster and the corresponding L1 cells
         std::vector<CaloCell*> L2cells = L2cluster(centreCell, etaWidth, phiWidth, scells, idHelper,digitScale, digitThresh);
+
+        /// This loop adds L1 cells matching L2 cluster and finds offsets in eta from central L2 cell
+        /// This offset-calculating logic relies on the order that L2cluster adds cells in: 
+        ///     from 1 cell add neighbours at +/1 1 step in eta, +/- 2 steps, etc.
+        ///     then move to next row in phi and repeat
+        
+        float oldPhi = centreCell->phi();
+        int counter = 0;
+        std::vector<int> offsets;
         std::vector<CaloCell*> frontLayerCells;
         for (auto ithL2Cell : L2cells){
+          // How many cells added already?
+          unsigned int oldsize = frontLayerCells.size();
+          // Add cells matching this L2 cell
           fromLayer2toLayer1(scells, ithL2Cell,frontLayerCells, idHelper);
-        }
-        float frontCentreEta;
-        // Finds the most energetic L1 cell
-        float largET=-1;
-        CaloCell* largCell = NULL;
-        for (auto ithL1Cell : frontLayerCells){
-          if (CaloCellET(ithL1Cell, digitScale, digitThresh) > largET){
-                  largET = CaloCellET(ithL1Cell, digitScale, digitThresh);
-                  largCell = ithL1Cell;
+          // HoW many were added?
+          unsigned int additions = frontLayerCells.size() - oldsize;
+          // Reset counter if phi has changed significantly
+          float dPhi = fabsf(ithL2Cell->phi() - oldPhi);
+          if (dPhi > M_PI) dPhi = 2*M_PI - dPhi;
+          if (dPhi > 0.09) { 
+          	counter = 0;
+            oldPhi = ithL2Cell->phi();
           }
+          // Try storing signed offsets
+          int sign = (ithL2Cell->eta()-centreCell->eta() > 0 ? 1 : -1);
+          // Store current eta offset value for all added cells
+          for (unsigned int adds = 0; adds < additions; ++adds) offsets.push_back(sign*((counter+1)/2));
+          counter++;
         }
-        if (!(largET > 0.)) return 1.;
-        frontCentreEta = largCell->eta();
-        // Finds the 'width' for the cluster, applying defaults
+ 
+        // Finds the 'width' for the cluster, based on eta offsets found above
         float sumET = 0, sumET_Eta2=0;
-        for (auto ithCell : frontLayerCells){
-          float ithET = CaloCellET(ithCell, digitScale, digitThresh);
-          float ithEta = ithCell->eta();
-          sumET_Eta2 += ithET*pow(ithEta-frontCentreEta,2);
+        unsigned int cellCount = 0;
+        //for (auto ithCell : frontLayerCells){
+        for (std::vector<CaloCell*>::iterator ithCell = frontLayerCells.begin(); ithCell != frontLayerCells.end(); ++ithCell){
+
+          // Find offset. As a precaution ignore cells where this can't be found, but warn user
+          int offset = (cellCount < offsets.size() ? offsets[cellCount] : -999);
+          if (offset < -2 || offset > 2) {
+          	msg << MSG::WARNING << "Offset out of range, cell skipped" << endreq;
+          	offset = 0;   // This will result in a weight of zero for the cell
+          }
+
+          // Is this one of the cells between 1.8-2.0 that will be divided?
+          Identifier cellID = (*ithCell)->ID();
+          int pos_neg = idHelper->pos_neg(cellID);
+          int region = idHelper->region(cellID);
+          int eta_index = idHelper->eta(cellID);
+          bool halfCell = false;
+          if (abs(pos_neg) == 2 && region == 3 && (eta_index == 1 || eta_index == 4 || eta_index == 7 || eta_index == 10)) halfCell = true; 
+
+          // Total and weighted ET sums (integer weights to match firmware)
+          float ithET = CaloCellET((*ithCell), digitScale, digitThresh);
           sumET += ithET;
+
+          // 4 cells will be shared with neighbours. Jiggery-pokery required here:
+          if (halfCell) {
+            sumET_Eta2 += 0.5*ithET*pow(offset,2); 
+            // Now what should be the offset for the other half?
+            // Is this one shared with the previous cell?
+            // If so, which cell is shares with depends on which side of that cell it is
+            if ((int)cellCount-1 >= 0 && offsets[cellCount-1] == offset) {
+                auto ithPrev = std::prev(ithCell,1);
+                int sign = ((*ithCell)->eta() > (*ithPrev)->eta() ? 1 : -1);
+                int nextOffset = offset+sign;
+                if (abs(nextOffset) <= 2) sumET_Eta2 += 0.5*ithET*pow(nextOffset,2);
+            }
+            // Alternatively may be shared with next cell
+            else if (cellCount+1 < offsets.size() && offsets[cellCount+1] == offset) {
+                auto ithNext = std::next(ithCell,1);
+                int sign = ((*ithCell)->eta() > (*ithNext)->eta() ? 1 : -1);
+                int nextOffset = offset+sign;
+                if (abs(nextOffset) <= 2) sumET_Eta2 += 0.5*ithET*pow(nextOffset,2);
+            }
+          }
+
+          // For everything else just add cell with weight to the second sum
+          else {
+            sumET_Eta2 += ithET*pow(offset,2);  
+          }
+          cellCount++;
         }
-        float result;
-        if (sumET > 0.) result = sqrt(sumET_Eta2/sumET);
-        else return 1.;
+
+        /// Offline version (floating point)
+        /// Firmware version (integer weights, no sqrt)
+        float result = 4.;
+        if (sumET > 0.) result = sumET_Eta2/sumET;
         return result;
 }
 
@@ -1863,11 +1987,7 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
           bool inEfexCoverage = false;
           if (abs(ithPos_neg) < 3) inEfexCoverage = true;
           if (!inEfexCoverage) continue;
-          bool passedLocalMax = localMax(SCs, ithCell, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
-          if (!passedLocalMax) continue;
-          float clustET = EMClusET(ithCell, m_etaWidth_TDRCluster, m_phiWidth_TDRCluster, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1000.;
-          if (clustET < m_clustET_looseAlg_thresh) continue;
-          potentialCentres.push_back(ithCell);
+          if (localMax(SCs, ithCell, idHelper, m_nominalDigitization, m_nominalNoise_thresh)) potentialCentres.push_back(ithCell);
         }
         // Looops through the local maxes and skips the less energetic ones that belong to the same TT
         for (auto ithCell : potentialCentres){
@@ -1878,30 +1998,34 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
             float ithEt = CaloCellET(ithCell, m_nominalDigitization, m_nominalNoise_thresh);
             float jthEt = CaloCellET(jthCell, m_nominalDigitization, m_nominalNoise_thresh);
             if (ithEt > jthEt) continue;
-            if (ithEt == jthEt && ithCell->eta() < jthCell->eta()) continue;
+            if (ithEt == jthEt && ithCell->eta() > jthCell->eta()) continue;
             useSC = false; 
           }
+          /// Now we can do the minimum cluster ET test
+          float clustET = EMClusET(ithCell, m_etaWidth_TDRCluster, m_phiWidth_TDRCluster, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1000.;
+          if (clustET < m_clustET_looseAlg_thresh) useSC = false; 
+
           if (useSC){
-	    float HadET = -999;
-	    float ithRHad = -1;
+	        float HadET = -999;
+	        float ithRHad = -1;
             float ithEta = ithCell->eta();
             float ithPhi = ithCell->phi();
-            float clustET = EMClusET(ithCell, m_etaWidth_TDRCluster, m_phiWidth_TDRCluster, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1000.;
+            //float clustET = EMClusET(ithCell, m_etaWidth_TDRCluster, m_phiWidth_TDRCluster, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1000.;
             float ithREta = REta(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh); 
-            if (!m_use_tileCells) ithRHad = RHad(ithCell, m_etaWidth_RHadIsolation, m_phiWidth_RHadIsolation, SCs, TTs, idHelper, m_nominalDigitization, m_nominalNoise_thresh, HadET);
-	    else ithRHad = RHadTile(ithCell, m_etaWidth_RHadIsolation, m_phiWidth_RHadIsolation, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh, m_tileIDHelper, tileCellCon, m_tileNoise_tresh, HadET);
+            if (!m_use_tileCells) ithRHad = RHad(ithCell, m_etaEMWidth_RHadIsolation, m_phiEMWidth_RHadIsolation, SCs, TTs, idHelper, m_nominalDigitization, m_nominalNoise_thresh, HadET);
+	        else ithRHad = RHadTile(ithCell, m_etaEMWidth_RHadIsolation, m_phiEMWidth_RHadIsolation, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh, m_tileIDHelper, tileCellCon, m_tileNoise_tresh, HadET);
             float ithL1Width = L1Width(ithCell, m_etaWidth_wstotIsolation, m_phiWidth_wstotIsolation, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
-	    float L2ClusterET33 = L2clusET(ithCell, 3, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
-	    float L2ClusterET37 = L2clusET(ithCell, 7, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
-	    if (!m_use_REtaL12){
-		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37};
-		    result.push_back(ithResult);
-	    }
-	    else {
-		    float ithREtaL12 = REtaL12(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
-		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37, ithREtaL12};
-		    result.push_back(ithResult);
-	    }
+	        float L2ClusterET33 = L2clusET(ithCell, 3, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
+	        float L2ClusterET37 = L2clusET(ithCell, 7, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
+	        if (!m_use_REtaL12){
+		        std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37};
+		        result.push_back(ithResult);
+	        }
+	        else {
+		        float ithREtaL12 = REtaL12(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
+		        std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37, ithREtaL12};
+		        result.push_back(ithResult);
+	        }
           }
         }
         return result;
