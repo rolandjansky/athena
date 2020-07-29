@@ -145,7 +145,7 @@ test.check_steps.append(comp4)
 
 comp5=TrigInDetCompStep('CompareStep5')
 comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
-comp4.output_dir = 'HLTEF-plots-tau'
+comp5.output_dir = 'HLTEF-plots-tau'
 test.check_steps.append(comp5)
 
 
