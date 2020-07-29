@@ -6,7 +6,11 @@
 #define JETINTERFACE_IJETCORRECTIONTOOL_H
 
 // EDM includes
+#include "AsgTools/IAsgTool.h"
+
 #include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class IJetCorrectionTool : virtual public asg::IAsgTool
 {
