@@ -518,8 +518,10 @@ StatusCode Pythia8_i::genFinalize(){
   double xs = info.sigmaGen(); // in mb
 
   if(m_doCKKWLAcceptance){
-    ATH_MSG_DEBUG("Multiplying cross-section by CKKWL merging acceptance of "<<m_nMerged <<"/" <<info.nAccepted());
-    xs *= m_nMerged / info.nAccepted();
+    const double accfactor = m_nMerged / info.nAccepted();
+    ATH_MSG_DEBUG("Multiplying cross-section by CKKWL merging acceptance of "<<m_nMerged <<"/" <<info.nAccepted() << " = " << accfactor
+                  << ": " << xs << " -> " << xs*accfactor);
+    xs *= accfactor;
   }
 
   if(m_doFxFxXS){
