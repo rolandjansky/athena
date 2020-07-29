@@ -48,10 +48,16 @@ namespace top {
      * passed).
      */
     virtual void initialize(std::shared_ptr<top::TopConfig> config, TFile* file,
-                            const std::vector<std::string>& extraBranches);
+                            const std::vector<std::string>& extraBranches) override;
+
+    /**
+     * @brief Execute stuff common for reco/particle/parton level,
+     * e.g. loading of weights, PDF sets, etc.
+     */
+    virtual void execute() override;
 
     //Keep the asg::AsgTool happy
-    virtual StatusCode initialize() {return StatusCode::SUCCESS;}
+    virtual StatusCode initialize() override {return StatusCode::SUCCESS;}
 
     /**
      * @brief Run for every event (actually every systematic for every event).
@@ -61,7 +67,7 @@ namespace top {
      * @param event The top::Event which has had object selection and overlap
      * removal (if requested) applied to it.
      */
-    virtual void saveEvent(const top::Event& event); // calls the three next functions
+    virtual void saveEvent(const top::Event& event) override; // calls the three next functions
     virtual void cleanEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateEvent(const top::Event& event); // calculate the relevant variables
     virtual void fillEvent(const top::Event& event); // calls tree->Fill
@@ -74,7 +80,7 @@ namespace top {
      *   PDF info
      *   TopPartons
      */
-    virtual void saveTruthEvent(); // calls the three next functions
+    virtual void saveTruthEvent() override; // calls the three next functions
     virtual void cleanTruthEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateTruthEvent(); // calculate the relevant variables
     virtual void fillTruthEvent(); // calls tree->Fill
@@ -90,7 +96,7 @@ namespace top {
      * @param plEvent The particle level event whose data content will be
      * written to the output.
      */
-    virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent); // calls the three next functions
+    virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent) override; // calls the three next functions
     virtual void cleanParticleLevelEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent); // calculate the relevant
                                                                                       // variables
@@ -107,7 +113,7 @@ namespace top {
      * @param upgradeEvent The upgrade event whose data content will be
      * written to the output.
      */
-    virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent); // calls the three next functions
+    virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent) override; // calls the three next functions
     virtual void cleanUpgradeEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateUpgradeEvent(const top::ParticleLevelEvent& plEvent); // calculate the relevant variables
     virtual void fillUpgradeEvent(); // calls tree->Fill
@@ -115,7 +121,7 @@ namespace top {
     /**
      * @brief Not used by the flat ntuple code yet, but needed by the xAOD code.
      */
-    virtual void finalize();
+    virtual void finalize() override;
 
     /**
      * @brief shorten name of b-tagging working point (FixedCutBEff_*)
@@ -1665,7 +1671,7 @@ namespace top {
 
     int filterBranches(const top::TreeManager*, const std::string& variable);
 
-    ClassDef(top::EventSaverFlatNtuple, 0);
+    ClassDefOverride(top::EventSaverFlatNtuple, 0);
   };
 }
 

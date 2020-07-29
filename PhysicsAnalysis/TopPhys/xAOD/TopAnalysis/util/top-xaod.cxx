@@ -678,6 +678,10 @@ int main(int argc, char** argv) {
         pileupWeight = topScaleFactors->pileupWeight();
       }
 
+      // perform any operation common to both reco and truth level
+      // currently we load the MC generator weights inside, if requested
+      eventSaver->execute();
+
       ///-- Truth events --///
       if (topConfig->isMC()) {
         // Save, if requested, MC truth block, PDFInfo, TopPartons
