@@ -9,4 +9,5 @@ SUSY19ExtraVariables = [
     "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
     "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
     "BTagging_AntiKt2Track.MV2c10_discriminant",
+    "InDetTrackParticles.trackCaloClusEta.trackCaloClusPhi.trackCaloSampleE.trackCaloSampleNumber",
     ]
