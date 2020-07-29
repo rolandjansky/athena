@@ -41,6 +41,14 @@ template<typename T, size_t ALIGNMENT>
 struct AlignedDynArray
 {
 
+  // These come from the posix_memalign
+  // which is the typical underlying implementation
+  static_assert(ALIGNMENT != 0, "Zero alignment 0");
+  static_assert((ALIGNMENT & (ALIGNMENT - 1)) == 0,
+                "Alignment not a power of 2");
+  static_assert((ALIGNMENT % sizeof(void*)) == 0,
+                "Alignment not an integral multiple of sizeof(void*)");
+
   ///@{
   // Standard typedefs
   typedef T value_type;
@@ -56,25 +64,25 @@ struct AlignedDynArray
 
   /// Deleted default constructor
   AlignedDynArray() = delete;
-  
+
   /// Deleted default copy constructor
   AlignedDynArray(AlignedDynArray const&) = delete;
-  
+
   /// Deleted default assignment operator
   AlignedDynArray& operator=(AlignedDynArray const&) = delete;
 
   /// Constructor with default initializing elements
-  explicit AlignedDynArray(size_type n);
- 
+  explicit AlignedDynArray(const size_type n);
+
   /// Constructor initializing elements to value
-  explicit AlignedDynArray(size_type n, const T& value);
+  explicit AlignedDynArray(const size_type n, const T& value);
 
   /// Move copy constructor
   AlignedDynArray(AlignedDynArray&&) noexcept;
- 
+
   /// Move assignment operator
   AlignedDynArray& operator=(AlignedDynArray&&) noexcept;
- 
+
   /// Destructor
   ~AlignedDynArray();
 
@@ -86,7 +94,7 @@ struct AlignedDynArray
 
   /// index array operator
   reference operator[](size_type pos) noexcept;
-  
+
   /// index array operator (const)
   const_reference operator[](size_type pos) const noexcept;
 
@@ -98,7 +106,7 @@ struct AlignedDynArray
 
   /// iterator pointing to the past-the-end  element
   iterator end() noexcept;
- 
+
   /// const iterator pointing to the past-the-end  element
   const_iterator end() const noexcept;
 
@@ -108,15 +116,14 @@ struct AlignedDynArray
   /// returns true is size == 0
   bool empty() const noexcept;
 
-
 private:
   /// Helper method for calling the dtor for the elements
   void cleanup();
 
-  ///Pointer to the underlying buffer
+  /// Pointer to the underlying buffer
   pointer m_buffer = nullptr;
-  
-  ///Num of elements/size
+
+  /// Num of elements/size
   size_type m_size = 0;
 };
 
