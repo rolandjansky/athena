@@ -30,11 +30,6 @@ def PrepareTruthJetInputs(algseq):
                                                           #IncludePromptPhotons=False,
                                                           BarCodeFromMetadata=0)
 
-    ToolSvc += ParticleJetToolsConf.CopyTruthJetParticles("truthpartcopy",
-                                                          OutputName="JetInputTruthParticles",
-                                                          MCTruthClassifier=ToolSvc.JetMCTruthClassifier,
-                                                          BarCodeFromMetadata=0)
-
     ToolSvc += ParticleJetToolsConf.CopyTruthPartons("truthpartonscopy",
                                                      OutputName="TruthLabelPartons",
                                                      PtMin=5000)
@@ -98,10 +93,10 @@ def ScheduleAntiKtTruthJets(jetradius,algseq,mods=""):
         truthpartonget = ToolSvc.truthpartonget
     else:
         truthpartonget = JetRecConf.PseudoJetGetter("truthpartonget",
-                                                    Label = "TruthPartons",
+                                                    Label = "GhostPartons",
                                                     InputContainer = ToolSvc.truthpartonscopy.OutputName,
-                                                    OutputContainer = "PseudoJetTruthPartons",
-                                                    GhostScale = 0.0,
+                                                    OutputContainer = "PseudoJetGhostPartons",
+                                                    GhostScale = 1e-40,
                                                     SkipNegativeEnergy = True,
                                                     )
         ToolSvc += truthpartonget
