@@ -36,7 +36,7 @@ namespace Trk {
     void setReferenceParameters(const TrackParameters *);
     void setScatteringAngles(std::vector < std::pair < double, double > >&);
     void setTrackStates(std::vector < GXFTrackState * >&);
-    void setBrems(std::vector < double >&);
+    void setBrems(std::vector<double> &);
     void setNumberOfPerigeeParameters(int);
     void setConverged(bool);
     void reset();
@@ -44,9 +44,10 @@ namespace Trk {
     void setOutlier(int, bool isoutlier = true);
     void setPrevChi2(double);
     void setChi2(double);
-    void setResiduals(std::vector < double >&);
-    void setResidualDerivatives(std::vector < std::vector < double > >&);
     void setMass(double);
+
+    std::pair<GXFTrackState *, GXFTrackState *> findFirstLastMeasurement(void);
+    bool hasKink(void);
 
     int numberOfScatterers();
     void setNumberOfScatterers(int);
@@ -66,7 +67,7 @@ namespace Trk {
     std::vector < GXFTrackState * >&trackStates();
     std::vector < std::pair < double, double >>&scatteringAngles();
     std::vector < std::pair < double, double >>&scatteringSigmas();
-    std::vector < double >&brems();
+    std::vector<double> & brems();
     
     const TrackParameters *referenceParameters(bool takeownership = false);
     bool converged();
@@ -76,9 +77,9 @@ namespace Trk {
     double prevchi2();
     int nDOF();
   
-    std::vector < double >&residuals();
-    std::vector < double >&errors();
-    std::vector < std::vector < double >>&weightedResidualDerivatives();
+    Amg::VectorX & residuals();
+    Amg::VectorX & errors();
+    Amg::MatrixX & weightedResidualDerivatives();
 
     double totalX0();
     double totalEnergyLoss();
@@ -115,10 +116,10 @@ namespace Trk {
     bool m_converged;
     std::vector < std::pair < double, double >>m_scatteringangles;
     std::vector < std::pair < double, double >>m_scatteringsigmas;
-    std::vector < double >m_brems;
-    std::vector < double >m_res;
-    std::vector < double >m_errors;
-    std::vector < std::vector < double >>m_weightresderiv;
+    std::vector<double> m_brems;
+    Amg::VectorX m_res;
+    Amg::VectorX m_errors;
+    Amg::MatrixX m_weightresderiv;
     double m_totx0;
     double m_toteloss;
     double m_mass;

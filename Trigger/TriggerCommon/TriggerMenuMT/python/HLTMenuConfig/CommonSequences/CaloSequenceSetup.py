@@ -9,7 +9,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 class CaloMenuDefs(object):
       """Static Class to collect all string manipulations in Calo sequences """
       from TrigEDMConfig.TriggerEDMRun3 import recordable
-      L2CaloClusters= recordable("HLT_L2CaloEMClusters")
+      L2CaloClusters= recordable("HLT_FastCaloEMClusters")
 
 
 

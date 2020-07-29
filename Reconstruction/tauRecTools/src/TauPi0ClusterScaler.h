@@ -30,7 +30,7 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer) override; 
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer) const override; 
 
 private:
 
@@ -38,22 +38,22 @@ private:
     //ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool;
 
     /** @brief reset neutral PFO kinematics (for AOD running) */
-    void resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer);
+    void resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
 
     /** @brief create charged PFOs */
-    void createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer);
+    void createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
 
     /** @brief extrapolate charged PFO tracks to EM and HAD layers */
     //void extrapolateChargedPFOs(xAOD::TauJet& pTau);
     
     /** @brief associate hadronic PFOs to charged PFOs */
-    void associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer);
+    void associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
     
     /** @brief associate charged PFOs to neutral PFOs */
-    void associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer);
+    void associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
     
     /** @brief associate charged PFOs to neutral PFOs */
-    void subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& pNeutralPFOContainer);
+    void subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& pNeutralPFOContainer) const;
 
     /** @brief sets of EM/Had samplings for track extrapolation */
     //std::set<CaloSampling::CaloSample> m_EMSamplings;

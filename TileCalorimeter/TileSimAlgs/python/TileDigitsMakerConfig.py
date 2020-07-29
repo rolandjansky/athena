@@ -60,7 +60,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
 
         if flags.Overlay.DataOverlay:
             from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-            acc.merge(ByteStreamReadCfg(flags, typeNames=[
+            acc.merge(ByteStreamReadCfg(flags, type_names=[
                 'TileDigitsContainer/' + flags.Overlay.BkgPrefix + 'TileDigitsCnt',
                 'TileRawChannelContainer/' + flags.Overlay.BkgPrefix + 'TileRawChannelCnt']
             ))

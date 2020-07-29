@@ -2,9 +2,9 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCHighPtBoardOut.hh"
-#include "TrigT1TGC/TGCHighPtBoard.hh"
-#include "TrigT1TGC/TGCHighPtChipOut.hh"
+#include "TrigT1TGC/TGCHighPtBoardOut.h"
+#include "TrigT1TGC/TGCHighPtBoard.h"
+#include "TrigT1TGC/TGCHighPtChipOut.h"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>

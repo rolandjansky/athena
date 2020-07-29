@@ -50,7 +50,7 @@ if TriggerFlags.doCalo:
      filterL1RoIsAlg.Output = ["HLTNav_FilteredEMRoIDecisions"]
      filterL1RoIsAlg.Chains = [ "HLT_EMTestChain" ]
      (fastCaloSequence, sequenceOut) = createFastCaloSequence(filterL1RoIsAlg.Output[0], doRinger=True,
-                                                              ClustersName="HLT_L2CaloEMClusters",
+                                                              ClustersName="HLT_FastCaloEMClusters",
                                                               RingerKey="HLT_FastCaloRinger")
      steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
 
