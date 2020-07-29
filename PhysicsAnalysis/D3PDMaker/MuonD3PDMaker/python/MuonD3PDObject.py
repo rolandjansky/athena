@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 import MuonD3PDMaker
@@ -50,12 +50,12 @@ MuonD3PDObject.defineBlock (1, 'NumberOfSegments',
 MuonD3PDObject.defineBlock (
     1, 'Isolation',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['etcone20',
-            'etcone30',
-            'etcone40',
-            'ptcone20',
-            'ptcone30',
-            'ptcone40',
+    Vars = ['etcone20 < float: 0',
+            'etcone30 < float: 0',
+            'etcone40 < float: 0',
+            'ptcone20 < float: 0',
+            'ptcone30 < float: 0',
+            'ptcone40 < float: 0',
             'scatteringCurvatureSignificance < float: 0',
             'scatteringNeighbourSignificance < float: 0',
             'momentumBalanceSignificance < float: 0'])
