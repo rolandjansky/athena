@@ -585,7 +585,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         return CP::CorrectionCode::OutOfValidityRange; 
     }
 
-    ATH_MSG_VERBOSE("Matched truth Jet: pt = " << jet_truth_matched.pt()/1000. << ", mass = " << jet_truth_matched.m()/1000. << ", eta = " << jet_truth_matched.eta());
+    ATH_MSG_VERBOSE("Matched truth Jet: pt = " << jet_truth_matched.pt() << ", mass = " << jet_truth_matched.m() << ", eta = " << jet_truth_matched.eta());
 
     //Get the jet topology
     std::string jetTopology;
