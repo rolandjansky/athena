@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,16 +19,7 @@
 
 #include "Identifier/IdentifierHash.h"
 
-#include <sstream>
-#include <iomanip>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <cstdlib>
-#include <functional>
-#include <map>
-#include <utility>
-
+#include <algorithm>
 
 
 
@@ -183,13 +174,7 @@ LArCosmicsMonAlg::fillHistograms(const EventContext& ctx)  const {
       if(sampling != 1) continue;
       
       // Get highest energy sample
-      float sample_max = 0.; 
-      int nsamples = samples.size();
-      for (int im = 0 ; im < nsamples; im++)  {
-	if (samples[im] > sample_max){
-	  sample_max = samples[im];
-	}
-      }
+      float sample_max = * std::max_element(samples.begin(), samples.end());
       sample_max = sample_max-pedestal;
       
       // If energy above threshold, we found a muon in the HEC
@@ -215,13 +200,7 @@ LArCosmicsMonAlg::fillHistograms(const EventContext& ctx)  const {
       if(sampling != 2) continue;
       
       // Get highest energy sample 
-      float sample_max = 0.; 
-      int nsamples = samples.size();
-      for (int im = 0 ; im < nsamples; im++)  {
-	if (samples[im] > sample_max){
-	  sample_max = samples[im];
-	}
-      }
+      float sample_max = * std::max_element(samples.begin(), samples.end());
       sample_max = sample_max-pedestal;
       
       // If energy above threshold, we found a muon in the FCAL
@@ -245,13 +224,7 @@ LArCosmicsMonAlg::fillHistograms(const EventContext& ctx)  const {
       if(sampling != 2) continue;
       
       // Get highest energy sample
-      float sample_max = 0.; 
-      int nsamples = samples.size();
-      for (int im = 0 ; im < nsamples; im++)  {
-	if (samples[im] > sample_max){
-	  sample_max = samples[im];
-	}
-      }
+      float sample_max = * std::max_element(samples.begin(), samples.end());
       sample_max = sample_max-pedestal;
       
       // If energy above threshold, we found a muon in the barrel

@@ -32,29 +32,11 @@
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
-#include <map>
-#include <string>
-#include <bitset>
-#include <vector>
-#include "TH1.h"
-#include "TH2I.h"
-#include "TH2F.h"
-#include "TMath.h"
-#include "TProfile2D.h"
-#include "TTree.h"
-
 class LArEM_ID;
 class LArOnlineID;
-class CaloDetDescrManager;
-class CaloDetDescrElement;
-class StoreGateSvc;
-class ITHistSvc;
 
-class TH1I;
-class TH2I;
-class TH2F;
-class TProfile2D;
-class TTree;
+
+
 
 class LArCosmicsMonAlg: public AthMonitorAlgorithm
 {
