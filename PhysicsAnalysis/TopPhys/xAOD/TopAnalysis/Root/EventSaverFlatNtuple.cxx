@@ -1442,6 +1442,20 @@ namespace top {
     setupParticleLevelTreeManager();
   }
 
+  void EventSaverFlatNtuple::execute() {
+    if (m_config->isMC() && m_config->doMCGeneratorWeights()) {
+      loadMCGeneratorWeights();
+    }
+
+    if (m_config->isMC() && m_config->doTruthPDFInfo()) {
+      loadPdfInfo();
+    }
+
+    if (m_config->isMC() && m_config->saveLHAPDFEvent()) {
+      loadPdfWeights();
+    }
+  }
+
   void EventSaverFlatNtuple::setupParticleLevelTreeManager(/*const top::ParticleLevelEvent& plEvent*/) {
     // Quick return if particle level is disabled or the tree is already initialised.
     // If particle level is disabled, no tree will be created.
@@ -1881,13 +1895,6 @@ namespace top {
     if (m_config->isMC()) m_weight_mc = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     if (m_config->isMC()) {
-      
-     if (m_config->doMCGeneratorWeights()) {
-     // delegate to helper function.
-     loadMCGeneratorWeights();
-     }
-  
-        
       m_weight_pileup = m_sfRetriever->pileupSF(event);
 
       m_weight_leptonSF = m_sfRetriever->leptonSF(event, top::topSFSyst::nominal);
@@ -4037,16 +4044,6 @@ namespace top {
       }
     }
 
-    if (m_config->doTruthPDFInfo()) {
-      // delegate to helper function.
-      loadPdfInfo();
-    }
-
-    if (m_config->doMCGeneratorWeights()) {
-      // delegate to helper function.
-      loadMCGeneratorWeights();
-    }
-
     if (m_config->doTopPartonHistory()) {
       const xAOD::PartonHistoryContainer* partonHistoryContainer(nullptr);
       const xAOD::PartonHistory* partonHistory(nullptr);
@@ -4064,11 +4061,6 @@ namespace top {
         }
         saveObjectIntoTruthTree(*(partonHistory));
       }
-    }
-
-    if (m_config->saveLHAPDFEvent()) {
-      // Delegate to helper function.
-      loadPdfWeights();
     }
   }
 
@@ -4705,23 +4697,6 @@ namespace top {
     if (m_config->useTruthMET()) {
       m_met_met = plEvent.m_met->met();
       m_met_phi = plEvent.m_met->phi();
-    }
-
-    // Let us write the PDF Info into the branch variable(s).
-    if (m_config->doTruthPDFInfo()) {
-      // Delegate to helper function.
-      loadPdfInfo();
-    }
-
-    if (m_config->doMCGeneratorWeights()) {
-      // delegate to helper function.
-      loadMCGeneratorWeights();
-    }
-
-    // Let us write the PDF weights into the branch variable(s).
-    if (m_config->saveLHAPDFEvent()) {
-      // Delegate to helper function.
-      loadPdfWeights();
     }
 
     if (m_config->doPseudoTop()) {
