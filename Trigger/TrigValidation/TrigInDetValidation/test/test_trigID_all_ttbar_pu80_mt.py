@@ -27,7 +27,7 @@
 
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
 import sys,getopt
