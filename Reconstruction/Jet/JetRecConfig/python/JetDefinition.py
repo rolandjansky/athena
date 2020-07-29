@@ -129,9 +129,9 @@ class JetConstit(object):
         if self.basetype==xAODType.TruthParticle:
             self.label = self.label.replace("NoWZ","WZ")
 
-	if self.basetype==xAODType.CaloCluster:
-	    self.label = self.label.replace("TopoEM","EMTopo")
-	    self.label = self.label.replace("TopoLC","LCTopo")
+        if self.basetype==xAODType.CaloCluster:
+            self.label = self.label.replace("TopoEM","EMTopo")
+            self.label = self.label.replace("TopoLC","LCTopo")
 
         containernames = {
             xAODType.CaloCluster:      "TopoClusters",
