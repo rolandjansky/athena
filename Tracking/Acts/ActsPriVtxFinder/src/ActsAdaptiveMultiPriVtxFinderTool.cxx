@@ -217,8 +217,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
     Acts::Surface::makeShared<Acts::PerigeeSurface>(beamSpotPos);
 
-    // TODO: Get the correct magnetic field context
-    Acts::MagneticFieldContext magFieldContext = m_extrapolationTool.getMagneticFieldContext(ctx);
+    // Get the magnetic field context
+    Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
     const auto& geoContext
     = m_trackingGeometryTool->getGeometryContext(ctx).any();

@@ -27,7 +27,6 @@
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/Navigator.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"

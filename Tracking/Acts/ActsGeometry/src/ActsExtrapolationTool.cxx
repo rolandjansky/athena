@@ -359,3 +359,15 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
 
   return parameters;
 }
+
+Acts::MagneticFieldContext ActsExtrapolationTool::getMagneticFieldContext(const EventContext& ctx) const {
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  if (!readHandle.isValid()) {
+     std::stringstream msg;
+     msg << "Failed to retrieve magnetic field condition data " << m_fieldCacheCondObjInputKey.key() << ".";
+     throw std::runtime_error(msg.str());
+  }
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+  return Acts::MagneticFieldContext(fieldCondObj);
+}
