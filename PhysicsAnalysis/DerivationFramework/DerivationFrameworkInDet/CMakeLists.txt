@@ -1,76 +1,16 @@
-################################################################################
-# Package: DerivationFrameworkInDet
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DerivationFrameworkInDet )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthLinks
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/IRegionSelector
-                          DetectorDescription/Identifier
-                          DetectorDescription/RoiDescriptor
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTracking
-                          InnerDetector/InDetConditions/SCT_ConditionsTools
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/SCT_Cabling
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-			  InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          InnerDetector/InDetRecTools/TRT_ElectronPidTools
-                          PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex
-                          PRIVATE
-                          Commission/CommissionEvent
-                          DetectorDescription/AtlasDetDescr
-                          Event/FourMomUtils
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTau
-                          Event/xAOD/xAODTruth
-                          GaudiKernel
-                          InnerDetector/InDetConditions/TRT_ConditionsServices
-			  InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-			  InnerDetector/InDetRecTools/InDetAssociationTools
-                          InnerDetector/InDetValidation/InDetPhysValMonitoring
-                          LArCalorimeter/LArRecEvent
-                          PhysicsAnalysis/CommonTools/ExpressionEvaluation
-                          Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkEventUtils
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
-
 # External dependencies:
-find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_library( DerivationFrameworkInDetLib
-                   src/*.cxx
-                   PUBLIC_HEADERS DerivationFrameworkInDet
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData TrkTrack VxVertex StoreGateLib SGtests SCT_CablingLib TRT_ConditionsServicesLib ExpressionEvaluationLib
-                   PRIVATE_LINK_LIBRARIES CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel LArRecEvent TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces InDetRIO_OnTrack )
-
 atlas_add_component( DerivationFrameworkInDet
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_CablingLib InDetPrepRawData TrkTrack VxVertex CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel TRT_ConditionsServicesLib LArRecEvent ExpressionEvaluationLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces DerivationFrameworkInDetLib InDetRIO_OnTrack )
+                     src/*.cxx src/components/*.cxx
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel AtlasDetDescr CommissionEvent DerivationFrameworkInterfaces ExpressionEvaluationLib FourMomUtils GaudiKernel InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetReadoutGeometry InDetTrackSelectionToolLib LArRecEvent SCT_CablingLib SCT_ConditionsToolsLib StoreGateLib TRT_ConditionsServicesLib TRT_ElectronPidToolsLib TRT_ReadoutGeometry TrigDecisionToolLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkExInterfaces TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkToolInterfaces TrkTrack TrkVertexFitterInterfaces xAODBase xAODCore xAODEgamma xAODEventInfo xAODJet xAODMuon xAODTau xAODTracking )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
