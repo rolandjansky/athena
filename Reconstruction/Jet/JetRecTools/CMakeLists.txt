@@ -7,7 +7,6 @@ atlas_subdir( JetRecTools )
 find_package( FastJet )
 find_package( FastJetContrib COMPONENTS SoftKiller ConstituentSubtractor )
 
-set( mon_deps )
 set( mon_lib )
 if( NOT GENERATIONBASE )
    set( mon_deps Control/AthenaMonitoringKernel )
