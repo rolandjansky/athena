@@ -11,6 +11,9 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 
+#include <utility>
+#include <memory>
+#include <vector>
 #include <map>
 
 class TH2;

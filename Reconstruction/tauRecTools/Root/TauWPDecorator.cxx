@@ -6,7 +6,7 @@
 
 #include "AsgDataHandles/ReadHandle.h"
 
-#include <utility>
+#include <algorithm>
 #include "TFile.h"
 #include "TH2.h"
 
@@ -216,8 +216,8 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
     ATH_MSG_DEBUG("original mu:\t" << yVariable);
   }
 
-  xVariable = TMath::Min(m_xMax.at(nProng), TMath::Max(m_xMin.at(nProng), xVariable));
-  yVariable = TMath::Min(m_yMax.at(nProng), TMath::Max(m_yMin.at(nProng), yVariable));
+  xVariable = std::min(m_xMax.at(nProng), std::max(m_xMin.at(nProng), xVariable));
+  yVariable = std::min(m_yMax.at(nProng), std::max(m_yMin.at(nProng), yVariable));
   
   ATH_MSG_DEBUG("final pT:\t" << xVariable);
   if (m_electronMode) {
