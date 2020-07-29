@@ -1,20 +1,7 @@
-################################################################################
-# Package: ByteStreamTest
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamTest )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/MinimalRunTime
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/ByteStreamCnvSvc
-                          Event/ByteStreamData
-                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_component( ByteStreamTest
@@ -24,7 +11,6 @@ atlas_add_component( ByteStreamTest
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-
 
 function (bytestreamtest_run_test jo)
   cmake_parse_arguments( ARG "" "DEPENDS" "" ${ARGN} )
@@ -41,7 +27,6 @@ function (bytestreamtest_run_test jo)
                           PROPERTIES DEPENDS ByteStreamTest_ByteStreamTest${ARG_DEPENDS}_ctest )
   endif()
 endfunction (bytestreamtest_run_test)
-
 
 #bytestreamtest_run_test( SkipAll )
 bytestreamtest_run_test( SkipOne )
