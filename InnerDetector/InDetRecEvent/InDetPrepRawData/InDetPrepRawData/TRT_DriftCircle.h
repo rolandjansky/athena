@@ -117,7 +117,10 @@ class TRT_DriftCircle :   public Trk::PrepRawData
   virtual bool driftTimeValid() const; 
         
 	/** return the detector element corresponding to this PRD */
-	virtual const InDetDD::TRT_BaseElement* detectorElement() const;
+	virtual const InDetDD::TRT_BaseElement* detectorElement() const override final;
+
+  /** Interface method checking the type*/
+  virtual bool type(Trk::PrepRawDataType::Type type) const override final;
 
   // modifiers
 
@@ -126,127 +129,32 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 
   //analysers
 
+  /** returns true if the hit is caused by noise with a high
+    probability. This is a temporary feature. To be replaced
+    by a tool that can be configured for different gas
+    speeds etc */
+  virtual bool isNoise() const;
+
 
   //debug printers
 
   /** dump information about the PRD object. */
-  virtual MsgStream&    dump( MsgStream&    stream) const;
+  virtual MsgStream&    dump( MsgStream&    stream) const override;
 
   /** dump information about the PRD object. */
-  virtual std::ostream& dump( std::ostream& stream) const;
+  virtual std::ostream& dump( std::ostream& stream) const override;
 
 
 	private:
 	// not const because of DataPool
 	const InDetDD::TRT_BaseElement* m_detEl;
   unsigned int m_word;
-
 };
 
  MsgStream&    operator << (MsgStream& stream,    const TRT_DriftCircle& prd);
  std::ostream& operator << (std::ostream& stream, const TRT_DriftCircle& prd);
-
-
-///////////////////////////////////////////////////////////////////
-// Inline methods:
-///////////////////////////////////////////////////////////////////
-
-inline unsigned int TRT_DriftCircle::getWord() const
-{
-  return m_word;
 }
 
-inline int TRT_DriftCircle::driftTimeBin() const
-{
-  return TRT_LoLumRawData::driftTimeBin(m_word);
-}  
-
-inline int TRT_DriftCircle::trailingEdge() const
-{
-  return TRT_LoLumRawData::trailingEdge(m_word);
-}
-
-inline bool TRT_DriftCircle::highLevel() const 
-{
-  return TRT_LoLumRawData::highLevel(m_word);
-}
-
-
-inline bool
-TRT_DriftCircle::firstBinHigh() const 
-{ 
-  return (m_word & 0x02000000);
-}
-
-inline bool
-TRT_DriftCircle::lastBinHigh() const
-{
-  return (m_word & 0x1);
-}
-
-inline double TRT_DriftCircle::timeOverThreshold() const
-{
-  return TRT_LoLumRawData::timeOverThreshold(m_word);
-}
-
-inline double TRT_DriftCircle::rawDriftTime() const
-{
-  return (TRT_LoLumRawData::driftTimeBin(m_word)+0.5) * TRT_LoLumRawData::getDriftTimeBinWidth();
-}
-
-inline bool TRT_DriftCircle::driftTimeValid() const
-{
-  return m_word & 0x08000000; 
-}
-
-inline void TRT_DriftCircle::setDriftTimeValid(bool valid)
-{
-  unsigned maskfalse = 0xF7FFFFFF; 
-  unsigned masktrue  = 0x08000000; 
-  if( valid ) {
-    m_word |= masktrue;
-  } else {
-    m_word &= maskfalse; }
-}
-
-inline int TRT_DriftCircle::numberOfHighsBetweenEdges() const
-{
-  // should return always 0 with the largest island algorithm
-  int LE = driftTimeBin( );
-  int TE = trailingEdge( );
-  unsigned  mask = 0x02000000;
-  int nhigh=0;
-  int i;
-  for (i = 0; i < 24; ++i)
-    {
-      if ( (m_word & mask) && i>=LE && i<=TE ) nhigh++;
-      mask >>= 1;
-      if (i == 7 || i == 15) mask >>= 1;
-    }
-  return nhigh;
-}
-
-inline int TRT_DriftCircle::numberOfLowsBetweenEdges() const
-{
-  // should return always 0 with the largest island algorithm
-  int LE = driftTimeBin( );
-  int TE = trailingEdge( );
-  return (TE-LE+1-numberOfHighsBetweenEdges());
-}
-
-
-inline bool TRT_DriftCircle::isNoise() const                                                       
-{
-  if( numberOfHighsBetweenEdges()<3 ) return true;
-  if( timeOverThreshold()<7.)         return true;
-  return false;
-}
-
-inline const InDetDD::TRT_BaseElement* TRT_DriftCircle::detectorElement() const
-{
-	return m_detEl;
-}
-
-}
+#include "InDetPrepRawData/TRT_DriftCircle.icc"
 #endif // TRKPREPRAWDATA_TRT_DRIFTCIRCLE_H
 
