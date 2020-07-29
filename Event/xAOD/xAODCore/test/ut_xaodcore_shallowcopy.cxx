@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodcore_shallowcopy.cxx 673658 2015-06-09 12:45:34Z krasznaa $
@@ -95,11 +95,12 @@ int testCopy (const DataVector<SG::AuxElement>& origVec,
    }
 
    // Finally, test variable filtering:
-   copyAux.selectAux( std::set< std::string >( { "FloatVar", "DoubleVar" } ) );
+   xAOD::AuxSelection sel;
+   sel.selectAux (std::set< std::string >( { "FloatVar", "DoubleVar" } ) );
    copyAux.setShallowIO( true );
-   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 1 );
+   SIMPLE_ASSERT( sel.getSelectedAuxIDs (copyAux.getSelectedAuxIDs()).size() == 1 );
    copyAux.setShallowIO( false );
-   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 2 );
+   SIMPLE_ASSERT( sel.getSelectedAuxIDs (copyAux.getSelectedAuxIDs()).size() == 2 );
 
    return 0;
 }

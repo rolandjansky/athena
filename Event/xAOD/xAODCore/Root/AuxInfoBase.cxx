@@ -583,15 +583,6 @@ namespace xAOD {
       return dummy;
    }
 
-   void AuxInfoBase::selectAux( const std::set< std::string >& attributes ) {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      m_selection.selectAux( attributes );
-      return;
-   }
-
    AuxInfoBase::auxid_set_t
    AuxInfoBase::getSelectedAuxIDs() const {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -466,14 +466,6 @@ namespace xAOD {
       } else {
          return getAuxIDs();
       }
-   }
-
-   void ShallowAuxContainer::
-   selectAux( const std::set< std::string >& attributes ) {
-
-      guard_t guard (m_mutex);
-      m_selection.selectAux( attributes );
-      return;
    }
 
    ShallowAuxContainer::auxid_set_t
