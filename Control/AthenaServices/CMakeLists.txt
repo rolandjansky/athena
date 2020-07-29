@@ -1,33 +1,7 @@
-################################################################################
-# Package: AthenaServices
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaServices )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   Control/AthToolSupport/AsgTools
-   AtlasTest/TestTools
-   Control/AthContainersInterfaces
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/RootUtils
-   Control/CxxUtils
-   Control/AthContainers
-   Control/DataModelRoot
-   Control/Navigation
-   Control/PerformanceMonitoring/PerfMonEvent
-   Control/PerformanceMonitoring/PerfMonKernel
-   Control/RngComps
-   Control/SGTools
-   Control/StoreGate
-   Database/PersistentDataModel
-   Event/EventInfo
-   Event/xAOD/xAODEventInfo
-   Event/EventInfoUtils
-   GaudiKernel )
 
 # External dependencies:
 find_package( Boost COMPONENTS thread )
@@ -41,7 +15,7 @@ atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    ${CLHEP_INCLUDE_DIRS} ${YAMPL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${Python_LIBRARIES} ${YAMPL_LIBRARIES}
    ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel RootUtils CxxUtils
-   AthContainers DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
+   AthContainers AthContainersInterfaces DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
    StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo EventInfoUtils GaudiKernel )
 
 # Test library checking the ability to build T/P converters:

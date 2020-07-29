@@ -1,23 +1,12 @@
-################################################################################
-# Package: RngComps
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RngComps )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   AtlasTest/TestTools
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/StoreGate
-   GaudiKernel
-   Simulation/Tools/AtlasCLHEP_RandomGenerators )
-
 # External dependencies:
 find_package( Boost )
 find_package( CLHEP )
+find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_component( RngComps src/*.h src/*.cxx src/components/*.cxx
@@ -61,8 +50,7 @@ atlas_add_test( TestSeedRunEvent
 atlas_add_test( RNGWrapper_test
    SOURCES test/RNGWrapper_test.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
-   GaudiKernel AtlasCLHEP_RandomGenerators )
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaKernel AtlasCLHEP_RandomGenerators TestTools )
 
 atlas_add_test( RandomServices_test
                 SCRIPT test/RandomServices_test.py )
