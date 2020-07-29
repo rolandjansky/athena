@@ -313,12 +313,14 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     track_number++;
     track_E_total += track_particle.e();
 
-    TVector3 track_flightDirRelVect = track_particle.p4().Vect();
-    track_flightDirRelVect.SetTheta(track_flightDirRelVect.Angle(flightDir));
 
     double track_flightDirRelEta = NAN;
-    if (track_flightDirRelVect.Perp() != 0) {
-      track_flightDirRelEta = track_flightDirRelVect.PseudoRapidity();
+    if (!std::isnan(jf_phi)) {
+      TVector3 track_flightDirRelVect = track_particle.p4().Vect();
+      if (track_flightDirRelVect.Perp()) {
+        track_flightDirRelVect.SetTheta(track_flightDirRelVect.Angle(flightDir));
+        track_flightDirRelEta = track_flightDirRelVect.PseudoRapidity();
+      }
     }
 
     track_flightDirRelEta_total += track_flightDirRelEta;

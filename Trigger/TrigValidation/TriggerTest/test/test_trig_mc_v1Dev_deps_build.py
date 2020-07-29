@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test with SGInputLoader.FailIfNoProxy=True to check for unmet data dependencies
 # art-type: build

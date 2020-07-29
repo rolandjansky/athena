@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test running on ALFACalib data with ALFA ROB Monitor enabled, 2 forks, 3 slots, 6 threads
 # art-type: build

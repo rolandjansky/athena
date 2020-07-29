@@ -155,7 +155,7 @@ if __name__=='__main__':
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt',
                      'TileDigitsContainer/TileDigitsCnt',
                      'TileBeamElemContainer/TileBeamElemCnt']
-    cfg.merge( ByteStreamReadCfg(ConfigFlags, typeNames = tileTypeNames) )
+    cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
 
     from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
     cfg.merge( TileRawChannelMakerCfg(ConfigFlags) )

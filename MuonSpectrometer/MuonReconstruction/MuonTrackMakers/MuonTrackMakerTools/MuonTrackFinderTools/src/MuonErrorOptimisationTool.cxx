@@ -15,15 +15,8 @@
 namespace Muon {
 
   MuonErrorOptimisationTool::MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
-    AthAlgTool(ty,na,pa),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
-    m_refitTool("Muon::MuonRefitTool/MuonRefitTool")
+    AthAlgTool(ty,na,pa)
   {
-    declareProperty("Printer", m_printer );
-    declareProperty("TrackSummaryTool", m_trackSummaryTool );
-    declareProperty("RefitTool",m_refitTool ); 
-
     declareProperty("PrepareForFit",		         m_refitSettings.prepareForFit = true );
     declareProperty("RecreateStartingParameters",m_refitSettings.recreateStartingParameters = true );
     declareProperty("UpdateErrors",		           m_refitSettings.updateErrors = true );

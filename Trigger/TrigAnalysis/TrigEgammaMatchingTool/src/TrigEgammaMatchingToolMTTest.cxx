@@ -101,8 +101,8 @@ void TrigEgammaMatchingToolMTTest::inspect(const std::string trigger,const xAOD:
 
       bool passedHLT    =  m_matchTool->ancestorPassed<xAOD::ElectronContainer> (dec, trigger , "HLT_egamma_Electrons");
       bool passedEFCalo =  m_matchTool->ancestorPassed<xAOD::CaloClusterContainer> (dec, trigger , "HLT_CaloEMClusters");
-      bool passedL2     =  m_matchTool->ancestorPassed<xAOD::TrigElectronContainer> (dec, trigger , "HLT_L2Electrons");
-      bool passedL2Calo =  m_matchTool->ancestorPassed<xAOD::TrigEMClusterContainer> (dec, trigger , "HLT_L2CaloEMClusters");
+      bool passedL2     =  m_matchTool->ancestorPassed<xAOD::TrigElectronContainer> (dec, trigger , "HLT_FastElectrons");
+      bool passedL2Calo =  m_matchTool->ancestorPassed<xAOD::TrigEMClusterContainer> (dec, trigger , "HLT_FastCaloEMClusters");
       bool passedL1Calo =  m_matchTool->ancestorPassed<TrigRoiDescriptorCollection> (dec, trigger , "initialRois");
       
       ATH_MSG_INFO( "L1Calo passed : "<< passedL1Calo   );

@@ -387,6 +387,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
   // return all the requested ROB fragments from the cache
   robFragments.clear() ;
+  robIds_missing.clear() ;
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
 }
 
