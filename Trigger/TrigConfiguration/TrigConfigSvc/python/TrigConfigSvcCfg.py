@@ -178,8 +178,8 @@ def getL1ConfigSvc( flags = None ):
     generatedFile = generateL1Menu( flags=flags )
 
     # configure config svc
-
-    l1ConfigSvc = CompFactory.TrigConf.LVL1ConfigSvc("LVL1ConfigSvc")
+    TrigConf__LVL1ConfigSvc = CompFactory.getComp("TrigConf::LVL1ConfigSvc")
+    l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
 
     l1ConfigSvc.ConfigSource = "XML"
     l1XMLFile = TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile
@@ -210,7 +210,8 @@ def getL1ConfigSvc( flags = None ):
 @memoize
 def getHLTConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    hltConfigSvc = CompFactory.TrigConf.HLTConfigSvc("HLTConfigSvc")
+    TrigConf__HLTConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")
+    hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvc")
 
     hltXMLFile = "None"
     hltConfigSvc.ConfigSource = "None"
@@ -230,7 +231,8 @@ def getHLTConfigSvc( flags = None ):
 @memoize
 def setupHLTPrescaleCondAlg( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    hltPrescaleCondAlg = CompFactory.TrigConf.HLTPrescaleCondAlg("HLTPrescaleCondAlg")
+    TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
+    hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlg")
 
     tc = getTrigConfigFromFlag( flags )
     hltPrescaleCondAlg.Source = tc["source"]
