@@ -13,6 +13,7 @@
 
 namespace HI{
 
+  enum BinningScheme{ TOWER = 100, COMPACT = 562 };
 
   namespace TowerBins{
     constexpr unsigned int numEtaBins() {return 100;}
