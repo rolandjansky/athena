@@ -319,7 +319,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
     if(isFake) nFakeTracks++;
     if(!isAssociatedTruth) nMissingAssociatedTruth++;
-    m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth);
+    m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth, puEvents, nVertices);
 
   }
   //FIXME: I don't get why... this is here
@@ -359,7 +359,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         }
       }
       ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
-      m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents);
+      m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents, nVertices);
     }
   }
 

@@ -116,7 +116,7 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle) {
   particle.summaryValue(iTrtHits, xAOD::numberOfTRTHits);
 
   std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
-  bool isTRTExtension = patternInfo.test(3) or iTrtHits > 0;
+  bool isTRTExtension = patternInfo.test(xAOD::TrackPatternRecoInfo::InDetExtensionProcessor) or iTrtHits > 0;
 
   fillHisto(m_fracTRTExtensions_vs_eta, eta, isTRTExtension);
   fillHisto(m_fracTRTExtensions_vs_pt, pt, isTRTExtension);
@@ -133,7 +133,7 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const floa
   particle.summaryValue(iTrtHits, xAOD::numberOfTRTHits);
 
   std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
-  bool isTRTExtension = patternInfo.test(3) or iTrtHits > 0;
+  bool isTRTExtension = patternInfo.test(xAOD::TrackPatternRecoInfo::InDetExtensionProcessor) or iTrtHits > 0;
 
   fillHisto(m_fracTRTExtensions_vs_mu, mu, isTRTExtension);
   fillHisto(m_fracTRTExtensions_vs_nvertices, nvertices, isTRTExtension);
