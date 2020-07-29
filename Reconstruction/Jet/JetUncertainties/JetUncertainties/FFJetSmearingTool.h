@@ -35,7 +35,7 @@
 
 // Other packages includes
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
-#include "JetInterface/IJetCorrectionTool.h"
+#include "JetCPInterfaces/ICPJetCorrectionTool.h"
 #include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 // Local includes
@@ -99,7 +99,7 @@ namespace JetTools{
 }
 
 namespace CP {
-    class FFJetSmearingTool : public asg::AsgTool, virtual public IJetCorrectionTool 
+    class FFJetSmearingTool : public asg::AsgTool, virtual public ICPJetCorrectionTool 
     {
 
         /// Proper constructor for Athena
