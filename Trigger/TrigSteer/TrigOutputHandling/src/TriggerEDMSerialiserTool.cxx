@@ -218,7 +218,9 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
       << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
     CLID clid;
-    ATH_CHECK( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid) );
+    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  { // First try
+      ATH_CHECK( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid) ); // Second try
+    }
     ATH_MSG_DEBUG( "CLID " << clid );
 
     RootType classDesc = RootType::ByNameNoQuiet( cls->GetName() );

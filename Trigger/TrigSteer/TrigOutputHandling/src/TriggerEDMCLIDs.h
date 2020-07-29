@@ -15,8 +15,6 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
 
-#include "AthContainers/PackedContainer.h"
-
 /**
  * @File TriggerEDMCLIDs.h
  * @brief Declaration of additional types which can be serialised.
@@ -30,7 +28,5 @@ CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::TrackParticleContainer>>>, 
 CLASS_DEF( std::vector<ElementLink<xAOD::JetContainer>>, 1210667800, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::VertexContainer>>>, 1164463855, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::BTagVertexContainer>>>, 1289535397, 1 )
-
-CLASS_DEF( SG::PackedContainer<float>, 1180188747, 1 )
 
 #endif //> !TRIGOUTPUTHANDLING_TRIGGEREDMCLIDS_H
