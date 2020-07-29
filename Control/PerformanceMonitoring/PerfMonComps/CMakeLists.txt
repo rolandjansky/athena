@@ -1,23 +1,7 @@
-################################################################################
-# Package: PerfMonComps
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PerfMonComps )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/RootUtils
-   Control/CxxUtils
-   Control/PerformanceMonitoring/PerfMonEvent
-   Control/PerformanceMonitoring/PerfMonKernel
-   Control/SGTools
-   Control/StoreGate
-   GaudiKernel
-   Tools/PyUtils )
 
 # External dependencies:
 find_package( AIDA )
