@@ -259,8 +259,6 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
         nb = fChain->GetEntry(jentry);
         _currentEntry = jentry;
         nbytes += nb;
-        // std::cout << "current entry = " << _currentEntry << std::endl;
-        DoAnalysis();
 
         if (jentry > 1) {
             float log10Entry = std::floor(std::log ((float) jentry) / std::log(10));
@@ -270,6 +268,16 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
                 std::cout << "Processed event " << jentry << std::endl;
             }
         }
+
+        // if (eventNumber == 1189883485) saveEvent = true;
+
+        if (_outputplot) {
+            if (!saveEvent) {
+                continue;
+            }
+        }
+
+        DoAnalysis();
 
         if (mcBranches) {
             for (size_t side : {0, 1}) {
@@ -505,8 +513,8 @@ void ZDCTreeAnalysis::DoAnalysis()
     zdc_ModuleMask = _dataAnalyzer_p->GetModuleMask();
     bitset<4> bs(zdc_ModuleMask >> 4);
     int countBits = bs.count();
-    // if ((countBits == 2 || countBits == 3 || countBits == 4) && zdc_SumAmp[1] > 90 && zdc_SumAmp[1] < 110 && lumiBlock > 162) saveEvent = true;
-    saveEvent = true;
+    // if (eventNumber == 1189883485) saveEvent = true;
+    // saveEvent = true;
     // -----------------------------------------------------
 
     if (_doOutput) {
