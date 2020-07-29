@@ -93,9 +93,9 @@ def ScheduleAntiKtTruthJets(jetradius,algseq,mods=""):
         truthpartonget = ToolSvc.truthpartonget
     else:
         truthpartonget = JetRecConf.PseudoJetGetter("truthpartonget",
-                                                    Label = "GhostTruthPartons",
+                                                    Label = "GhostPartons",
                                                     InputContainer = ToolSvc.truthpartonscopy.OutputName,
-                                                    OutputContainer = "PseudoJetGhostTruthPartons",
+                                                    OutputContainer = "PseudoJetGhostPartons",
                                                     GhostScale = 1e-40,
                                                     SkipNegativeEnergy = True,
                                                     )
