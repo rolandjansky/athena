@@ -123,29 +123,29 @@ if ((not exclude) or postproc ):
  
 # Now the comparitor steps
 comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF'
-comp.output_dir = 'HLT-plots-muon-FTF'
+comp.chains = 'HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF'
+comp.output_dir = 'HLTL2-plots-muon'
 test.check_steps.append(comp)
  
  
 comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig'
-comp2.output_dir = 'HLT-plots-muon-IDTrig'
+comp2.chains='HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF  HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig'
+comp2.output_dir = 'HLTEF-plots-muon'
 test.check_steps.append(comp2)
 
 comp3=TrigInDetCompStep('CompareStep3')
 comp3.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
-comp3.output_dir = 'HLT-plots-bjet-IDTrig'
+comp3.output_dir = 'HLTEF-plots-bjet'
 test.check_steps.append(comp3)
 
 comp4=TrigInDetCompStep('CompareStep4')
 comp4.chains='HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
-comp4.output_dir = 'HLT-plots-el-IDTrig'
+comp4.output_dir = 'HLTEF-plots-electron'
 test.check_steps.append(comp4)
 
 comp5=TrigInDetCompStep('CompareStep5')
 comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
-comp5.output_dir = 'HLT-plots-tau-IDTrig'
+comp5.output_dir = 'HLTEF-plots-tau'
 test.check_steps.append(comp5)
 
 
