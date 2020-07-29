@@ -107,10 +107,10 @@ StatusCode ParticleDecayer::changeMass( HepMC::GenParticlePtr genpart, double ne
       return StatusCode::FAILURE;
    }
    //At this point, we have e, theta, and phi.  Put them together to get the four-momentum.
-   double p  = sqrt(p2);
-   double px = p*sin(theta)*cos(phi);
-   double py = p*sin(theta)*sin(phi);
-   double pz = p*cos(theta);
+   double p  = std::sqrt(p2);
+   double px = p*std::sin(theta)*std::cos(phi);
+   double py = p*std::sin(theta)*std::sin(phi);
+   double pz = p*std::cos(theta);
    //Fill the four-momentum
    const CLHEP::HepLorentzVector updatedLV(px,py,pz,e);
    genpart->set_momentum(HepMC::FourVector(updatedLV.x(),updatedLV.y(),updatedLV.z(),updatedLV.e()));
@@ -546,12 +546,12 @@ StatusCode ParticleDecayer::getDecayProducts( CLHEP::HepLorentzVector parentLV,
    //Get the angles in the rest frame
    double phi_rf   = rnd_DoubleRange(-CLHEP::pi, CLHEP::pi); 
    double ct_rf    = cosgen(decayType);
-   double theta_rf = acos(ct_rf);
+   double theta_rf = std::acos(ct_rf);
 
    //construct p1 particle momentum in rest-frame (_rf)
    double p1_rf = sqrt(parentMass*parentMass/4. - decayPartMass*decayPartMass);
-   double px_rf = p1_rf*cos(phi_rf)*sin(theta_rf);
-   double py_rf = p1_rf*sin(phi_rf)*sin(theta_rf);
+   double px_rf = p1_rf*std::cos(phi_rf)*std::sin(theta_rf);
+   double py_rf = p1_rf*std::sin(phi_rf)*std::sin(theta_rf);
    double pz_rf = p1_rf*ct_rf;
    CLHEP::HepLorentzVector hlv1(  px_rf,  py_rf,  pz_rf, parentMass/2.);
    CLHEP::HepLorentzVector hlv2( -px_rf, -py_rf, -pz_rf, parentMass/2.);
