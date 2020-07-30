@@ -134,18 +134,18 @@ namespace CP {
             /// @}
 
 
-            CP::CorrectionCode applyCorrection(xAOD::Jet* jet_reco);// The user has to use this function to smear it's jet mass
+            CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco);// The user has to use this function to smear it's jet mass
 
-            StatusCode getMatchedTruthJet( xAOD::Jet* jet_reco, xAOD::Jet& jet_truth_matched);
+            StatusCode getMatchedTruthJet( xAOD::Jet jet_reco, xAOD::Jet& jet_truth_matched);
 
         private:
 
 
             StatusCode readFFJetSmearingToolSimplifiedData(TEnv& settings);
 
-            StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass,  JetTools::FFJetAllowedMassDefEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
+            StatusCode getJMSJMR( xAOD::Jet jet_reco, double jet_mass,  JetTools::FFJetAllowedMassDefEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
 
-            StatusCode getJetTopology( xAOD::Jet* jet_reco, std::string& jetTopology);
+            StatusCode getJetTopology( xAOD::Jet jet_reco, std::string& jetTopology);
 
             double Read3DHistogram(TH3* histo, double x, double y, double z);
 

@@ -488,7 +488,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 
 
-                if(!(ffjetsmearingtool.getMatchedTruthJet(jet_reco, jet_truth_matched).isSuccess())){ 
+                if(!(ffjetsmearingtool.getMatchedTruthJet(*jet_reco, jet_truth_matched).isSuccess())){ 
                     delete jet_reco_TA;
                     continue;            
                 }
@@ -500,7 +500,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                     Double_t aux_original_jet_mass = jet_reco->m()/1000.;
 
-                    ffjetsmearingtool.applyCorrection(jet_reco_TA);
+                    ffjetsmearingtool.applyCorrection(*jet_reco_TA);
                     if(lead_jet == true && aux_original_jet_mass > 0){
                     smeared_reco_jet_mass_hist->Fill(jet_reco_TA->m()/1000.); lead_jet=false;
 
@@ -510,7 +510,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 else{
                     Double_t aux_original_jet_mass = jet_reco->m()/1000.;
 
-                    ffjetsmearingtool.applyCorrection(jet_reco);
+                    ffjetsmearingtool.applyCorrection(*jet_reco);
                     if(lead_jet == true && aux_original_jet_mass > 0){
                         smeared_reco_jet_mass_hist->Fill(jet_reco->m()/1000.); lead_jet=false; 
 

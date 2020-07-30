@@ -402,7 +402,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 // The function "getMatchedTruthJet" finds the truth jet that match with the given jet_reco and it save it in the given jet_truth_matched jet.
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet* jet_reco, xAOD::Jet& jet_truth_matched){
+StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet jet_reco, xAOD::Jet& jet_truth_matched){
 
     // Get the truth jets of the event
     const xAOD::JetContainer* jets_truth = 0;
@@ -421,7 +421,7 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet* jet_reco, xAOD::Jet&
 
         const xAOD::Jet* jet_truth = *jetItr;
 
-        double dR=jet_reco->p4().DeltaR(jet_truth->p4());
+        double dR=jet_reco.p4().DeltaR(jet_truth->p4());
 
         if(dRmax_truthJet < 0 || dR < dRmax_truthJet){//dRmax_truthJet < 0 the closest truth jet is used as matched dRmax_truthJet < 0 
             if( dR < dRmin ){
@@ -442,17 +442,17 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet* jet_reco, xAOD::Jet&
 // The function "getJetTopology" gets the topology of the given jet. "QCD" jets have a extra source of uncertainties called "MODELLINGUNCERTAINTIESQCDJETS".
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getJetTopology( xAOD::Jet* jet_reco, std::string& jetTopology){
+StatusCode FFJetSmearingTool::getJetTopology( xAOD::Jet jet_reco, std::string& jetTopology){
 
     const SG::AuxElement::ConstAccessor<int> accTruthLabel(m_truthlabelaccessor);
-    if (!accTruthLabel.isAvailable(*jet_reco) )
+    if (!accTruthLabel.isAvailable(jet_reco) )
     {
         ATH_MSG_ERROR("Unable to retrieve the FatjetTruthLabel from the jet.  Please call the BoostedJetTaggers decorateTruthLabel() function before calling this function.");
         return StatusCode::FAILURE;
     }
 
 
-LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(accTruthLabel(*jet_reco));
+LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(accTruthLabel(jet_reco));
 
     if(jetTruthLabel == LargeRJetTruthLabel::tqqb || jetTruthLabel == LargeRJetTruthLabel::other_From_t)
     {
@@ -494,7 +494,7 @@ LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(acc
 // The function "getJMSJMR" read the JMS and JMR uncertainties associated with the systematic 
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err){
+StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err){
 
     //JMS/JMR systematic variations
     JMS_err=0;
@@ -520,7 +520,7 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_va
 
 
     float jet_mass = jet_mass_value/1000.;//jet_reco->m()/1000.; The TA mass can not be extracted this way
-    float jet_pT = jet_reco->pt()/1000.;
+    float jet_pT = jet_reco.pt()/1000.;
 
 
     if(m_Syst_Affects_JMSorJMR[m_SystName] == "JMS"){
@@ -554,20 +554,20 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_va
 // Once the tool is initialized. The user can call the function "SmearJetMass" to perform the jet smearing using FF (for the current systematic in his loop)
 //-----------------------------------------------------------------------------
 
-CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
+CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
 
     ATH_MSG_VERBOSE("//---------------------------------------------------------------//");
-    ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco->pt() << ", mass = " << jet_reco->m() << ", eta = " << jet_reco->eta());
+    ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco.pt() << ", mass = " << jet_reco.m() << ", eta = " << jet_reco.eta());
 
-    if(std::abs(jet_reco->eta()) > m_EtaRange){//JetCalibTools do not properly for jets with |eta|>2
+    if(std::abs(jet_reco.eta()) > m_EtaRange){//JetCalibTools do not properly for jets with |eta|>2
         ATH_MSG_INFO("This jet exceeds the eta range that the tool allows (|eta|<" << m_EtaRange << ")");
         return CP::CorrectionCode::OutOfValidityRange; 
     }
-    if(jet_reco->m() > m_MaxMass){
+    if(jet_reco.m() > m_MaxMass){
         ATH_MSG_INFO("This jet exceeds the mass range that the tool allows jet_mass <" << m_MaxMass << " MeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
-    if(jet_reco->pt() > m_MaxPt){
+    if(jet_reco.pt() > m_MaxPt){
         ATH_MSG_INFO("This jet exceeds the maximum pt that the tool allows jet_pt <" << m_MaxPt << " MeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
@@ -613,9 +613,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         xAOD::JetFourMom_t jet_reco_TA;
         xAOD::JetFourMom_t jet_reco_Comb;
 
-        jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jet_reco_CALO);
-        jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA);
-        jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCombQCD",jet_reco_Comb);
+        jet_reco.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jet_reco_CALO);
+        jet_reco.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA);
+        jet_reco.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCombQCD",jet_reco_Comb);
 
         ATH_MSG_VERBOSE("CALO jet mass " << jet_reco_CALO.mass());
         ATH_MSG_VERBOSE("TA jet mass " << jet_reco_TA.mass() );
@@ -624,14 +624,14 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         jet_mass_CALO = jet_reco_CALO.mass();
         jet_mass_TA = jet_reco_TA.mass();
 
-        jet_reco->getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
+        jet_reco.getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
     }
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
-        jet_mass_CALO = jet_reco->m();
+        jet_mass_CALO = jet_reco.m();
         calo_mass_weight = 1;
     }
     else if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
-        jet_mass_TA = jet_reco->m();
+        jet_mass_TA = jet_reco.m();
         calo_mass_weight = 0;
     }
 
@@ -645,22 +645,22 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
 
-        if(m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.)) == 0){//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
+        if(m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.)) == 0){//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
         avg_response_CALO=1;
         }
         else{
-            avg_response_CALO = m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.));
+            avg_response_CALO = m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.));
         }
     }
 
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
 
-        if(m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.))==0){
+        if(m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.))==0){
 
             avg_response_TA=1;
         }
         else{           
-            avg_response_TA = m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.));
+            avg_response_TA = m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.));
         }
     }
 
@@ -740,8 +740,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         xAOD::JetFourMom_t jet_reco_CALO;
         xAOD::JetFourMom_t jet_reco_TA;
 
-        jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jet_reco_CALO);
-        jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA);
+        jet_reco.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jet_reco_CALO);
+        jet_reco.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA);
 
 
         xAOD::JetFourMom_t p4_aux;
@@ -789,14 +789,14 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     ATH_MSG_VERBOSE("Smeared CALO mass " << smeared_CALO_mass);
     ATH_MSG_VERBOSE("Smeared TA mass " << smeared_TA_mass);
 
-    xAOD::JetFourMom_t p4 = jet_reco->jetP4();
+    xAOD::JetFourMom_t p4 = jet_reco.jetP4();
 
 
-    p4 = xAOD::JetFourMom_t(jet_reco->pt(),jet_reco->eta(),jet_reco->phi(),smeared_mass);
-    jet_reco->setJetP4(p4);
+    p4 = xAOD::JetFourMom_t(jet_reco.pt(),jet_reco.eta(),jet_reco.phi(),smeared_mass);
+    jet_reco.setJetP4(p4);
 
 
-    ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco->pt() << ", mass = " << jet_reco->m() << ", eta = " << jet_reco->eta());
+    ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco.pt() << ", mass = " << jet_reco.m() << ", eta = " << jet_reco.eta());
 	
 
 

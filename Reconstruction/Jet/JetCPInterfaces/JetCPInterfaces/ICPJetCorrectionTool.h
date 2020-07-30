@@ -27,7 +27,7 @@ class ICPJetCorrectionTool : virtual public IJetCorrectionTool,
         ICPJetCorrectionTool& operator=( ICPJetCorrectionTool&& ) { return *this; }
 
         // Apply a systematic variation 
-        virtual CP::CorrectionCode applyCorrection(xAOD::Jet* jet_reco) = 0;
+        virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) = 0;
 
 }; // class ICPJetCorrectionTool
 
