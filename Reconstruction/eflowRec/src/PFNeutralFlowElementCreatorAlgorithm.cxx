@@ -91,18 +91,11 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
 
     ATH_MSG_VERBOSE("  Sucessfully set cluster link");
 
-
     const xAOD::CaloCluster* cluster = thisEfRecCluster->getCluster();
     ATH_MSG_VERBOSE("Got CaloCluster from EfRecCluster");
     //be careful here - cluster p4 methods do not store sign. Thus -ve energy clusters have +ve pt and hence +ve energy
     //we use eta,phi at EM scale for both 4-vectors - standard FE are at EM scale
     thisFE->setP4(cluster->rawE()/cosh(cluster->rawEta()), cluster->rawEta(),cluster->rawPhi(),cluster->rawM());
-    //TODO
-    //Now we make a shallow copy of the object such that we can have an LC scale version    
-    //const xAOD::FlowElement* test = const_cast<xAOD::FlowElement*>(thisFE);
-    //std::pair<xAOD::FlowElement*, xAOD::ShallowAuxInfo*>  ret = xAOD::shallowCopyObject(*test);
-    //thisFE->setP4(cluster->pt(), cluster->rawEta(), cluster->rawPhi(), cluster->m());
-    //thisFE->setP4EM(cluster->rawE()/cosh(cluster->rawEta()), cluster->rawEta(),cluster->rawPhi(),cluster->rawM());
     
     ATH_MSG_DEBUG("Created neutral FlowElement with E, pt, eta and phi of " << thisFE->e() << ", " << thisFE->pt() << ", " << thisFE->eta() << " and " << thisFE->phi());
     
@@ -172,7 +165,6 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
     const SG::AuxElement::Accessor<float> accFloatTiming("eflowRec_TIMING");
     accFloatTiming(*thisFE) = cluster->time();
  
-  
   }//cluster loop
   return StatusCode::SUCCESS;
 }

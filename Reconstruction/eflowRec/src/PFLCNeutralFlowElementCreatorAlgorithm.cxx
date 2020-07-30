@@ -34,6 +34,8 @@ StatusCode PFLCNeutralFlowElementCreatorAlgorithm::execute(const EventContext& c
     ElementLink<xAOD::CaloClusterContainer> clusElementLink = accShowerSubtractedClusterLink(*thisFE);
 
     xAOD::FlowElement* theCopiedFE = (*neutralFELCContainerWriteHandle)[counter];
+    //be careful here - cluster p4 methods do not store sign. Thus -ve energy clusters have +ve pt and hence +ve energy
+    //we use eta,phi at EM scale for both 4-vectors - standard FE are at EM scale
     theCopiedFE->setP4((*clusElementLink)->pt(), (*clusElementLink)->rawEta(), (*clusElementLink)->rawPhi(), (*clusElementLink)->m());
   }
 

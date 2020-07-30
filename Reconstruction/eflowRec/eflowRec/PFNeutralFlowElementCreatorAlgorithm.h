@@ -37,12 +37,6 @@ private:
   /** Function to add caluster sampling energies onto FE */
   void addSamplingEnergy(const xAOD::CaloCluster::CaloSample& sampling, const std::string& feAttribute, const xAOD::CaloCluster& theCluster, xAOD::FlowElement& theFE) const;
 
-  /** Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed */
-  Gaudi::Property<bool> m_eOverPMode{this,"EOverPMode",false,"Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed"};
-
-  /** Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
-  Gaudi::Property<bool> m_doClusterMoments{this,"DoClusterMoments",true,"Bool to toggle whether cluster moments are added to the PFOs"};
-
   /** Toggle usage of calibration hit truth - false by default */
   Gaudi::Property<bool> m_useCalibHitTruth{this,"UseCalibHitTruth",false,"Toggle usage of calibration hit truth - false by default"};
 
