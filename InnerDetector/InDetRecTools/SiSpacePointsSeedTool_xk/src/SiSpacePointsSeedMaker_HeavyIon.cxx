@@ -210,7 +210,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::finalize()
 void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent (int)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; 
+  if(!m_pixel && !m_sct) return;
   erase();
   buildBeamFrameWork();
 
@@ -297,7 +297,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; 
+  if(!m_pixel && !m_sct) return;
   erase();
 
   buildBeamFrameWork();
@@ -503,8 +503,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::findVSp (const std::list<Trk::Verte
 
 MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dump( MsgStream& out ) const
 {
-  if(m_nprint)  
-    return dumpEvent(out); 
+  if(m_nprint)  return dumpEvent(out);
   return dumpConditions(out);
 }
 
@@ -996,7 +995,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::fillLists()
   
   for(int i=0; i!= r_size;  ++i) {
 
-    if(!r_map[i]) continue; 
+    if(!r_map[i]) continue;
     r = r_Sorted[i].begin();
 
     while(r!=r_Sorted[i].end()) {
@@ -1099,8 +1098,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production2Sp()
 	float X  = (*r0)->x();
 	float Y  = (*r0)->y();
 	float R  = (*r0)->radius();
-	if(R<m_r2minv) continue; 
-  if(R>m_r2maxv) break;
+	if(R<m_r2minv) continue;
+	if(R>m_r2maxv) break;
 	float Z  = (*r0)->z();
 	float ax = X/R;
 	float ay = Y/R;
@@ -1119,11 +1118,11 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production2Sp()
 	  for(; r!=re; ++r) {
 	    
 	    float Rb =(*r)->radius();
-	    if(Rb<m_r1minv) continue; 
-      if(Rb>m_r1maxv) break;
+	    if(Rb<m_r1minv) continue;
+	    if(Rb>m_r1maxv) break;
 	    float dR = R-Rb; 
-	    if(dR<m_drminv) break; 
-      if(dR>m_drmax) continue;
+	    if(dR<m_drminv) break;
+	    if(dR>m_drmax) continue;
 	    float dZ = Z-(*r)->z();
 	    float Tz = dZ/dR; if(Tz<m_dzdrmin || Tz>m_dzdrmax) continue;
 	    float Zo = Z-R*Tz;	          
@@ -1145,8 +1144,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production2Sp()
 	    float UR = Ut*R+1.              ; if(UR == 0.) continue;
 	    float A  = Vt*R/UR              ;
 	    float B  = Vt-A*Ut              ;
-	    if(fabs(B*m_K) > m_ipt*sqrt(1.+A*A)) continue; 
-      ++nseed;
+	    if(fabs(B*m_K) > m_ipt*sqrt(1.+A*A)) continue;
+	    ++nseed;
 	    newSeed((*r)->spacepoint,(*r0)->spacepoint,Zo);
 	  }
 	}

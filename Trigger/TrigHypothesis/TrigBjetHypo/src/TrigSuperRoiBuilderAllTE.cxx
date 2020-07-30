@@ -34,7 +34,7 @@
 
 
 TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISvcLocator* pSvcLocator) :
-  HLT::AllTEAlgo(name, pSvcLocator)
+  HLT::AllTEAlgo(name, pSvcLocator), m_useFullScan(false)
 {
   declareProperty ("JetInputKey",     m_jetInputKey     = "TrigJetRec");
   declareProperty ("JetOutputKey",    m_jetOutputKey    = "SuperRoi");
@@ -46,6 +46,7 @@ TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISv
   declareProperty ("DynamicMinJetEt", m_dynamicMinJetEt = false); // if (X > -1 && nJets > X) minJetEt = m_minJetEt + (nJets-X)*Y
   declareProperty ("DynamicNJetsMax", m_dynamicNJetsMax = 9999); // variable X above
   declareProperty ("DynamicEtFactor", m_dynamicEtFactor = 0); // variable Y above
+  declareProperty ("UseFullScan",     m_useFullScan     = false ); // use fullscan rather than super Roi
 }
 
 
@@ -69,6 +70,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltInitialize() {
   ATH_MSG_DEBUG( " DynamicMinJetEt = " << m_dynamicMinJetEt );
   ATH_MSG_DEBUG( " DynamicNJetsMax = " << m_dynamicNJetsMax );
   ATH_MSG_DEBUG( " DynamicEtFactor = " << m_dynamicEtFactor );
+  ATH_MSG_DEBUG( " UseFullScan     = " << m_useFullScan     );
 
   return HLT::OK;
 }
@@ -131,82 +133,89 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   ATH_MSG_DEBUG( "Found " << jets->size() << " jets, creating corresponding RoIs" );
 
   // Create a superROI to add all the jet ROIs to.
-  TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
-  superRoi->setComposite(true);
+  TrigRoiDescriptor* superRoi = new TrigRoiDescriptor( m_useFullScan );
 
   //HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
   //HLT::TriggerElement* outputTE  = config()->getNavigation()->addNode(initialTE,output);
-
+  
   std::vector<HLT::TriggerElement*> empty;
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(empty, output);
-
+  
   outputTE->setActiveState(true);
   std::string key = "";
-
-  int i = 0;
-  for ( xAOD::JetContainer::const_iterator jetitr=jets->begin() ; jetitr!=jets->end() ; jetitr++ ) { 
   
-    ++i;
-    auto jet = *jetitr;
 
-    float jetEt  = jet->p4().Et()*0.001;
-    float jetEta = jet->eta();
-    float jetPhi = jet->phi();
-
-    if (jetEt < m_minJetEt) {
-      ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." );
-      continue;
-    }
-
-    if (fabs(jetEta) > m_maxJetEta) {
-      ATH_MSG_DEBUG( "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." );
-      continue;
-    }
+  if ( !m_useFullScan ) { 
    
-    // For high pile-up situations, raise the pT threshold of the jets considered after checking the first N (=m_dynamicNJetsMax) jets
-    if (m_dynamicMinJetEt && i > m_dynamicNJetsMax ) {
-      float dynamicMinJetEt = m_minJetEt + ((i - m_dynamicNJetsMax) * m_dynamicEtFactor); 
-      if (jetEt < dynamicMinJetEt) {
-	ATH_MSG_DEBUG( "Jet "<< i << " below the dynamic " << dynamicMinJetEt << " GeV ( = " 
-		       << m_minJetEt << " + (" << i << " - " << m_dynamicNJetsMax << ") * " << m_dynamicEtFactor << ")"
-		       << " threshold; Et " << jetEt << "; skipping this jet." );
+    superRoi->setComposite(true);
+
+    
+    int i = 0;
+    for ( xAOD::JetContainer::const_iterator jetitr=jets->begin() ; jetitr!=jets->end() ; jetitr++ ) { 
+      
+      ++i;
+      auto jet = *jetitr;
+      
+      float jetEt  = jet->p4().Et()*0.001;
+      float jetEta = jet->eta();
+      float jetPhi = jet->phi();
+      
+      if (jetEt < m_minJetEt) {
+	ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." );
 	continue;
-      }    
-    }
-
-    if (m_nJetsMax > 0 && i > m_nJetsMax) {
-      ATH_MSG_DEBUG( "Maximum allowed jet multiplicity = "<< m_nJetsMax << "; skipping jet " << i << "." );
-      continue;
-    }
-
-    ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
-
-    // create RoI correspondinding to the jet
-    double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
-    double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
-    double etaMinus = jetEta-m_etaHalfWidth;  
-    double etaPlus  = jetEta+m_etaHalfWidth;  
-
-    TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta, etaMinus, etaPlus, 
-						    jetPhi, phiMinus, phiPlus );
-
-    ATH_MSG_DEBUG( "Adding ROI descriptor to superROI!" );
-    superRoi->push_back( roi );
-
-    // ConstDataVector<xAOD::JetContainer>* jc = new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
-    // jc->clear(SG::VIEW_ELEMENTS); 
-    // jc->push_back ( *jetitr );
-
-    // ... so for the time being do a deep copy
-    xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
-    xAOD::JetContainer* jc = new xAOD::JetContainer;
-    jc->setStore(&trigJetTrigAuxContainer);
-    jc->push_back ( new xAOD::Jet(**jetitr) );
-
-    HLT::ErrorCode hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
-    if (hltStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endmsg;
-      return hltStatus;
+      }
+      
+      if (fabs(jetEta) > m_maxJetEta) {
+	ATH_MSG_DEBUG( "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." );
+	continue;
+      }
+      
+      // For high pile-up situations, raise the pT threshold of the jets considered after checking the first N (=m_dynamicNJetsMax) jets
+      if (m_dynamicMinJetEt && i > m_dynamicNJetsMax ) {
+	float dynamicMinJetEt = m_minJetEt + ((i - m_dynamicNJetsMax) * m_dynamicEtFactor); 
+	if (jetEt < dynamicMinJetEt) {
+	  ATH_MSG_DEBUG( "Jet "<< i << " below the dynamic " << dynamicMinJetEt << " GeV ( = " 
+			 << m_minJetEt << " + (" << i << " - " << m_dynamicNJetsMax << ") * " << m_dynamicEtFactor << ")"
+			 << " threshold; Et " << jetEt << "; skipping this jet." );
+	  continue;
+	}    
+      }
+      
+      if (m_nJetsMax > 0 && i > m_nJetsMax) {
+	ATH_MSG_DEBUG( "Maximum allowed jet multiplicity = "<< m_nJetsMax << "; skipping jet " << i << "." );
+	continue;
+      }
+      
+      ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
+      
+      // create RoI correspondinding to the jet
+      double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
+      double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+      double etaMinus = jetEta-m_etaHalfWidth;  
+      double etaPlus  = jetEta+m_etaHalfWidth;  
+      
+      TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta, etaMinus, etaPlus, 
+						      jetPhi, phiMinus, phiPlus );
+      
+      ATH_MSG_DEBUG( "Adding ROI descriptor to superROI!" );
+      superRoi->push_back( roi );
+      
+      // ConstDataVector<xAOD::JetContainer>* jc = new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
+      // jc->clear(SG::VIEW_ELEMENTS); 
+      // jc->push_back ( *jetitr );
+      
+      // ... so for the time being do a deep copy
+      xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
+      xAOD::JetContainer* jc = new xAOD::JetContainer;
+      jc->setStore(&trigJetTrigAuxContainer);
+      jc->push_back ( new xAOD::Jet(**jetitr) );
+      
+      HLT::ErrorCode hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
+      if (hltStatus != HLT::OK) {
+	msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endmsg;
+	return hltStatus;
+      }
+      
     }
 
   }

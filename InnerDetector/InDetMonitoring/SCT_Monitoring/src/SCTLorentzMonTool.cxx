@@ -6,7 +6,7 @@
  *
  *    @author Elias Coniavitis based on code from Luca Fiorini,
  *    Shaun Roe, Manuel Diaz, Rob McPherson & Richard Batley
- *    Modified by Yuta
+ *    Modified by Yuta, Arka Santra
  */
 #include "SCT_Monitoring/SCTLorentzMonTool.h"
 #include "deletePointers.h"
@@ -30,6 +30,11 @@
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+
 // for sct residuals
 #include "TrkTrackSummary/TrackSummary.h"
 
@@ -37,6 +42,18 @@ using namespace std;
 using namespace Rec;
 using namespace SCT_Monitoring;
 
+namespace{//anonymous namespace for functions at file scope
+  template< typename T > Identifier surfaceOnTrackIdentifier(T & tsos, const bool useTrackParameters=true){
+    Identifier result(0); //default constructor produces invalid value
+    const Trk::MeasurementBase* mesb = tsos->measurementOnTrack();
+    if (mesb and mesb->associatedSurface().associatedDetectorElement())
+      result = mesb->associatedSurface().associatedDetectorElement()->identify();
+    else if (useTrackParameters and tsos->trackParameters()){
+      result = tsos->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
+    }
+    return result;
+  }
+}//namespace end
 // ====================================================================================================
 /** Constructor, calls base class constructor with parameters
  *
@@ -53,20 +70,15 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   m_phiVsNstrips_Side{},
   m_phiVsNstrips_Side_100{},
   m_phiVsNstrips_Side_111{},
+  m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr) {
-    /** sroe 3 Sept 2015:
-	histoPathBase is declared as a property in the base class, assigned to m_path
-	with default as empty string.
-	Declaring it here as well gives rise to compilation warning
-	WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
-
-	declareProperty("histoPathBase", m_stream = "/stat"); **/
-    m_stream = "/stat";
-    declareProperty("tracksName", m_tracksName = "CombinedInDetTracks"); // this recommended
-    declareProperty("TrackToVertexTool", m_trackToVertexTool); // for TrackToVertexTool
-    m_numberOfEvents = 0;
-  }
+  m_stream = "/stat";
+  declareProperty("tracksName", m_tracksName = "CombinedInDetTracks"); // this recommended
+  declareProperty("TrackToVertexTool", m_trackToVertexTool); // for TrackToVertexTool
+  m_numberOfEvents = 0;
+  declareProperty("HoleSearch", m_holeSearchTool);
+}
 
 // ====================================================================================================
 // ====================================================================================================
@@ -83,6 +95,7 @@ StatusCode
 SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                                                                              //
                                                                                                                                              // hidetoshi
                                                                                                                                              // 14.01.21
+  CHECK (m_holeSearchTool.retrieve());
   m_path = "";
   if (newRunFlag()) {
     m_numberOfEvents = 0;                                                                                                                        //
@@ -109,6 +122,7 @@ StatusCode
 SCTLorentzMonTool::bookHistograms( ) {                                                                                                      //
                                                                                                                                             // hidetoshi
                                                                                                                                             // 14.01.21
+  CHECK (m_holeSearchTool.retrieve());
   m_path = "";
   m_numberOfEvents = 0;                                                                                                                                  //
                                                                                                                                                          // hidetoshi
@@ -174,9 +188,15 @@ SCTLorentzMonTool::fillHistograms() {
 
   for (; trkitr != trkend; ++trkitr) {
     // Get track
-    const Trk::Track *track = (*trkitr);
+    const Trk::Track *track = m_holeSearchTool->getTrackWithHoles(**trkitr);
     if (not track) {
-      msg(MSG::ERROR) << "no pointer to track!!!" << endmsg;
+      ATH_MSG_WARNING ("track pointer is invalid");
+      continue;
+    }
+
+    const Trk::Track * track2 = (*trkitr);
+    if (not track2) {
+      ATH_MSG_ERROR("no pointer to track2!!!");
       continue;
     }
 
@@ -188,7 +208,7 @@ SCTLorentzMonTool::fillHistograms() {
       continue;
     }
 
-    const Trk::TrackSummary *summary = track->trackSummary();
+    const Trk::TrackSummary *summary = track2->trackSummary();
     if (not summary) {
       msg(MSG::WARNING) << " null trackSummary" << endmsg;
       continue;
@@ -240,7 +260,7 @@ SCTLorentzMonTool::fillHistograms() {
             if (bec != 0) {
               continue; // We only care about the barrel
             }
-            // wtf is this?
+            
             for (unsigned int i = 0; i < layer100_n; i++) {
               if (layer100[i] == layer && eta100[i] == eta && phi100[i] == phi) {
                 in100 = true;
@@ -276,7 +296,7 @@ SCTLorentzMonTool::fillHistograms() {
 
               if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) &&
                   (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-                  (summary->get(Trk::numberOfSCTHits) > 6)// && // #SCTHits >6
+                  (summary->get(Trk::numberOfSCTHits) > 6)// && // SCTHits >6
                   ) {
                 passesCuts = true;
               }// 01.02.2015
@@ -286,13 +306,10 @@ SCTLorentzMonTool::fillHistograms() {
               /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT in any region) >=7 , N_hit(Pixel) >= 2
 
               else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-                       (fabs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
-                       // (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) && // d0 <
-		       // 1mm
-                       (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-                       //(summary->get(Trk::numberOfSCTHits) > 6)// && // #SCTHits >6
-                       (nSCTBarrel > 7) && // this is for barrel SCT hits, tighter
-                       (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1
+                       (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
+		       //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
+		       (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
+                       (summary->get(Trk::numberOfSCTHits) > 6)// // SCTHits >6
                        ) {
                 passesCuts = true;
               }else {
@@ -314,9 +331,7 @@ SCTLorentzMonTool::fillHistograms() {
 		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
 		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                     
-		//std::cout << "@@@@@@@@@@ the eta and etaIndex " << eta << " : " << etaIndex << std::endl;
 		if (in100) {
-		  // cout << "This event is going to 100" << endl;
 		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
 		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
                                         
@@ -333,11 +348,105 @@ SCTLorentzMonTool::fillHistograms() {
 		}
               }// end if passesCuts
             }// end if mtrkp
-            //            delete perigee;perigee = 0;
-          } // end if SCT..
+	  } // end if SCT..
         } // end if(clus)
       } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
+      else if((*it)->type(Trk::TrackStateOnSurface::Hole)) {
+	Identifier surfaceID;
+	surfaceID = surfaceOnTrackIdentifier(*it);
+	if(not m_pSCTHelper->is_sct(surfaceID)) continue; //We only care about SCT
+	const int bec(m_pSCTHelper->barrel_ec(surfaceID));
+	const int layer(m_pSCTHelper->layer_disk(surfaceID));
+	const int side(m_pSCTHelper->side(surfaceID));
+	const int eta(m_pSCTHelper->eta_module(surfaceID));
+	const int phi(m_pSCTHelper->phi_module(surfaceID));
+	bool in100 = false;
+	if(bec!=0) {
+	  continue; //We only care about the barrel
+	}
+	//wtf is this?
+	for (unsigned int i=0 ; i<layer100_n ; i++){
+	  if (layer100[i]==layer && eta100[i]==eta && phi100[i]==phi){
+	    in100=true;
+	    break;
+	  }
+	}
+	// find cluster size
+	int nStrip = 0;
+	const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters*>( (*it)->trackParameters() );
+	if (not trkp) {
+	  ATH_MSG_WARNING(" Null pointer to MeasuredTrackParameters");
+	  continue;
+	}
+
+	const Trk::Perigee* perigee = track->perigeeParameters();
+
+	if (perigee){
+	  //Get angle to wafer surface
+	  float phiToWafer(90.),thetaToWafer(90.);
+	  float sinAlpha = 0.; //for barrel, which is the only thing considered here
+	  float pTrack[3];
+	  pTrack[0] = trkp->momentum().x();
+	  pTrack[1] = trkp->momentum().y();
+	  pTrack[2] = trkp->momentum().z();
+	  int iflag = findAnglesToWaferSurface (pTrack, sinAlpha, surfaceID, thetaToWafer, phiToWafer );
+	  if ( iflag < 0) {
+	    ATH_MSG_WARNING("Error in finding track angles to wafer surface");
+	    continue; // Let's think about this (later)... continue, break or return?
+	  }
+	  bool passesCuts = true;
+	  if( (AthenaMonManager::dataType() ==  AthenaMonManager::cosmics) &&
+	      (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
+	      (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
+	      ){
+	    passesCuts=true;
+	  }
+	  else if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
+		   (std::abs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
+		   //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.)  // another way to implement d0 < 1mm
+		   (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
+		   (summary->get(Trk::numberOfSCTHits) > 6 )// && // SCTHits >6
+		   ){
+	    passesCuts=true;
+	  }else{
+	    passesCuts=false;
+	  }
+
+	  if (passesCuts) {
+	    // Fill profile
+	    /// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
+		int etaIndex(0);
+		if(eta < 0 )
+		  etaIndex = eta + 6;
+		else
+		  etaIndex = eta + 5;
+                    
+		m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    
+		if (in100) {
+		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                        
+		  m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                    
+		}else {
+		  m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                        
+		  m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                
+		}
+	  }// end if passesCuts
+	}// end if mtrkp
+      } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
+    delete track;
+    track=0;
   } // end of loop on tracks
 
   m_numberOfEvents++;
@@ -482,24 +591,7 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
   }
   if (success == 0) {
     return StatusCode::FAILURE;
-  }
-  //  }
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //                                                                                                                 //
-  // hidetoshi 14.01.22
+  }                                                                                                                 //
   return StatusCode::SUCCESS;
 }
 

@@ -134,13 +134,6 @@ class doMinBias(JobProperty):
 	StoredValue=True
 list+=[doMinBias]
 
-class doIDJpsiMon(JobProperty):
-	""" ID JPsi switch for Monitoring """
-	statusOn=True
-	allowdTypes=['bool']
-	StoredValue=True
-list+=[doIDJpsiMon]
-
 class doDump(JobProperty):
 	""" DumpTools switch for monitoring """
 	statusOn=False

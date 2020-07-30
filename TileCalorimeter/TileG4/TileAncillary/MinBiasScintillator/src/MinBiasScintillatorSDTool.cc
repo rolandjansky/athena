@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -19,6 +19,8 @@ MinBiasScintillatorSDTool::MinBiasScintillatorSDTool(const std::string& type, co
   declareProperty( "TimeCut" , m_options.timeCut );
   declareProperty( "TileTB" , m_options.tileTB );
   declareProperty( "DoBirk" , m_options.doBirk );
+  declareProperty( "Birk1", m_options.birk1 );
+  declareProperty( "Birk2", m_options.birk2 );
   declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );
 
 }

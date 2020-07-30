@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EndcapCryostatConstruction
@@ -15,21 +15,22 @@
 #include "LArGeoHec/HECWheelConstruction.h"
 
 
-#include "GeoModelKernel/GeoElement.h"  
-#include "GeoModelKernel/GeoMaterial.h"  
-#include "GeoModelKernel/GeoFullPhysVol.h"  
-#include "GeoModelKernel/GeoPhysVol.h"  
-#include "GeoModelKernel/GeoVPhysVol.h"  
-#include "GeoModelKernel/GeoLogVol.h"  
-#include "GeoModelKernel/GeoPcon.h"  
-#include "GeoModelKernel/GeoTubs.h"  
-#include "GeoModelKernel/GeoTube.h"  
-#include "GeoModelKernel/GeoTrd.h"  
-#include "GeoModelKernel/GeoNameTag.h"  
-#include "GeoModelKernel/GeoTransform.h"  
-#include "GeoModelKernel/GeoAlignableTransform.h"  
-#include "GeoModelKernel/GeoIdentifierTag.h"  
+#include "GeoModelKernel/GeoElement.h"
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoVPhysVol.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoPcon.h"
+#include "GeoModelKernel/GeoTubs.h"
+#include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoTrd.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
+#include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -46,7 +47,7 @@
 
 // For transforms:
 
-#include "CLHEP/Geometry/Transform3D.h" 
+#include "CLHEP/Geometry/Transform3D.h"
 // For units:
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -85,12 +86,13 @@ using namespace GeoXF;
 typedef std::map<int, unsigned int, std::less<int> > planeIndMap;
 
 
-LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(bool fullGeo):
+LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(bool fullGeo, bool activateFT):
   //  cryoEnvelopePhysical(NULL),
   m_fcalVisLimit(-1),
   m_pAccessSvc(NULL),
   m_geoModelSvc(NULL),
-  m_fullGeo(fullGeo)
+  m_fullGeo(fullGeo),
+  m_activateFT(activateFT)
 {
 
   m_fcal = new FCALConstruction();
@@ -117,21 +119,15 @@ LArGeo::EndcapCryostatConstruction::~EndcapCryostatConstruction()
 GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 {
   // Get access to the material manager:
-  
+
   ISvcLocator *svcLocator = Gaudi::svcLocator();
   IMessageSvc * msgSvc;
   if (svcLocator->service("MessageSvc", msgSvc, true )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, cannot access MessageSvc");
   }
 
-  MsgStream log(msgSvc, "LArGeo::EndcapCryostatConstruction"); 
-
-  log  << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-  log << "+                                                   +" << std::endl;
-  log << "+    HELLO from LArGeo::EndcapCryostatConstruction  +" << std::endl;
-  log << "+                                                   +" << std::endl;
-  log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-
+  MsgStream log(msgSvc, "LArGeo::EndcapCryostatConstruction");
+  log << MSG::DEBUG << "started" << endmsg;
 
   StoreGateSvc *detStore;
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
@@ -147,12 +143,12 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   if (!Lead) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, std::Lead is not found.");
   }
-  
+
   GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, std::Air is not found.");
   }
-  
+
   GeoMaterial *Al  = materialManager->getMaterial("std::Aluminium");
   if (!Al) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, std::Aluminium is not found.");
@@ -168,7 +164,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
   GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in EndcapCryostatConstruction, std::Copper is not found.");
-  
+
   GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in EndcapCryostatConstruction, std::Iron is not found.");
 
@@ -251,20 +247,33 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
   double zStartCryoMother = 0.; // This variable is needed to calculate local transform of the MBTS mother
 
-  for(unsigned int ind=0; ind<cryoMotherPlanes.size(); ind++) 
+  for(unsigned int ind=0; ind<cryoMotherPlanes.size(); ind++)
   {
     iter = cryoMotherPlanes.find(ind);
 
     if(iter==cryoMotherPlanes.end())
       throw std::runtime_error("Error in EndcapCryostatConstruction, missing plane in Endcap Cryo Mother");
-    else 
+    else
     {
       const IRDBRecord *currentRecord = (*cryoPcons)[(*iter).second];
-      cryoMotherShape->addPlane(currentRecord->getDouble("ZPLANE"),
-			        currentRecord->getDouble("RMIN"),
-			        currentRecord->getDouble("RMAX"));
-      if(ind==0)
-	zStartCryoMother = currentRecord->getDouble("ZPLANE");
+      double zplane = currentRecord->getDouble("ZPLANE");
+      double rmin = currentRecord->getDouble("RMIN");
+      double rmax =  currentRecord->getDouble("RMAX");
+      /* This sould be corrected in the DB, but we have no time */
+      if(m_activateFT){
+        if(zplane == 0.){
+          zplane = 12.;
+          log << MSG::DEBUG << "Put cryoMother zplane " << ind
+		          << " at " << zplane << " to accomodate FEC" << endmsg;
+        }
+        if(rmax == 2476.){
+          rmax = 2506.;
+          log << MSG::DEBUG << "Put cryoMother rmax " << ind
+		          << " at " << rmax << " to accomodate FT Chimney" << endmsg;
+        }
+      }
+      cryoMotherShape->addPlane(zplane, rmin, rmax);
+      if(ind == 0) zStartCryoMother = zplane;
     }
   }
 
@@ -370,7 +379,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
     // end of inserting extra lead plate before PS
 
-
+  IRDBRecordset_ptr LArEndcapCratePhiPos = m_pAccessSvc->getRecordsetPtr("LArEndcapCratePhiPos",detectorKey, detectorNode);
 
   for (unsigned int layer = 0; layer < cryoCylinders->size(); layer++) {
 
@@ -380,84 +389,150 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     if(m_fullGeo || cylNumber==14 || cylNumber==100) { // 100 - is the piece of Shielding. We need to build it for minimal geo too
 
       if(currentRecord->getString("CYL_LOCATION")=="Endcap") {
-      
-	std::ostringstream cylStream;
-	//int cylID = currentRecord->getInt("CYL_ID");
-	//cylStream << baseName << "::Cylinder::#" << cylID;
-	cylStream << baseName << "::Cylinder";
-	std::string cylName = (cylNumber==100?"JDSH_AddShield_Inner":cylStream.str());
+        std::ostringstream cylStream;
+        //int cylID = currentRecord->getInt("CYL_ID");
+        //cylStream << baseName << "::Cylinder::#" << cylID;
+        cylStream << baseName << "::Cylinder";
+        std::string cylName = (cylNumber == 100?"JDSH_AddShield_Inner":cylStream.str());
 
-	if (!currentRecord->isFieldNull("QUALIFIER")) {
-	  std::string qualifier = currentRecord->getString("QUALIFIER");
-	  if (qualifier.size()) cylName = cylName + "::" + qualifier;
-	}
-      
-	GeoTubs* solidCyl
-	  = new GeoTubs(currentRecord->getDouble("RMIN")*CLHEP::cm,
-			currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm,
-			currentRecord->getDouble("DZ")*CLHEP::cm / 2.,
-			(double) 0.,
-			(double) 2.*M_PI*CLHEP::rad);
-	GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
-      
-	if (!material) {
-	  std::ostringstream errorMessage;
-	  errorMessage << "Error in EndcapCrysostat Construction" << std::endl;
-	  errorMessage << "Material " << currentRecord->getString("MATERIAL") << " is not found" << std::endl;
-	  throw std::runtime_error(errorMessage.str().c_str());
-	}
-      
-	const GeoLogVol* logicCyl
-	  = new GeoLogVol(cylName,solidCyl,material);
-      
-	GeoPhysVol* physCyl = new GeoPhysVol(logicCyl);
-      
+        if(!currentRecord->isFieldNull("QUALIFIER")){
+          std::string qualifier = currentRecord->getString("QUALIFIER");
+          if (qualifier.size()) cylName = cylName + "::" + qualifier;
+        }
+
+        const GeoShape* solidCyl = new GeoTubs(
+          currentRecord->getDouble("RMIN")*CLHEP::cm,
+          currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm,
+          currentRecord->getDouble("DZ")*CLHEP::cm / 2.,
+          (double) 0.,
+          (double) 2.*M_PI*CLHEP::rad
+        );
+        const GeoMaterial *material = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
+
+        if(!material){
+          std::ostringstream errorMessage;
+          errorMessage << "Error in EndcapCrysostat Construction" << std::endl;
+          errorMessage << "Material " << currentRecord->getString("MATERIAL") << " is not found" << std::endl;
+          throw std::runtime_error(errorMessage.str().c_str());
+        }
+
+        if(m_activateFT){ // need to cut holes in cryostat walls for FT
+          if(cylNumber == 13){ // warm wall
+            log << MSG::DEBUG << "Cut holes for feedthroughs in warm wall "
+                << cylName
+                << endmsg;
+            const double rmin = currentRecord->getDouble("RMIN")*CLHEP::cm;
+            const double rmax = currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm;
+            const double dz = currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
+            const double warmhole_radius = 0.5*340.*CLHEP::mm;
+            const double warmhole_pos = dz - 247.*CLHEP::mm;
+            GeoTube *warmhole = new GeoTube(0., warmhole_radius, (rmax - rmin) * 4);
+            const GeoShapeShift &h1 = (*warmhole) << HepGeom::RotateX3D(90*CLHEP::deg);
+            const double r = (rmin + rmax) * 0.5;
+            const GeoShape* warmwall = solidCyl;
+            const double dphi = 5.*CLHEP::deg;
+            auto put = [&warmwall, &warmhole_pos, &r, &h1, &dz](double pos){
+              const double x = r*cos(pos), y = r*sin(pos);
+              warmwall = &(warmwall->subtract(
+                h1 << HepGeom::Translate3D(x, y, warmhole_pos)
+                     *HepGeom::RotateZ3D(pos + 90*CLHEP::deg)
+              ));
+            };
+            for(unsigned int i{0}; i < LArEndcapCratePhiPos->size(); ++ i){
+              const int num = (*LArEndcapCratePhiPos)[i]->getInt("CRATENUM");
+              const double phi = (*LArEndcapCratePhiPos)[i]->getDouble("PHIPOS")*CLHEP::deg;
+              if(num == 10){ // topmost crate has one FT
+                put(phi + dphi); // asymmetric, see DMConstruction
+              } else {
+                put(phi - dphi);
+                put(phi + dphi);
+              }
+            }
+            solidCyl = warmwall;
+          } else if(cylNumber == 20){ // cold wall
+            log << MSG::DEBUG << "Cut holes for feedthroughs in cold wall "
+                << cylName
+                << endmsg;
+            const double rmin = currentRecord->getDouble("RMIN")*CLHEP::cm;
+            const double rmax = currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm;
+            const double dz = currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
+            const double coldhole_radius = 0.5*150.*CLHEP::mm;
+            const double coldhole_pos = 21.5*CLHEP::mm;
+            GeoTube *coldhole = new GeoTube(0., coldhole_radius, (rmax - rmin) * 4);
+            const GeoShapeShift &h1 = (*coldhole) << HepGeom::RotateX3D(90*CLHEP::deg);
+            const double r = (rmin + rmax) * 0.5;
+            const GeoShape *coldwall = solidCyl;
+            const double dphi = 5.*CLHEP::deg;
+            auto put = [&coldwall, &coldhole_pos, &r, &h1, &dz](double pos){
+              const double x = r*cos(pos), y = r*sin(pos);
+              coldwall = &(coldwall->subtract(
+                h1 << HepGeom::Translate3D(x, y, coldhole_pos)
+                     *HepGeom::RotateZ3D(pos + 90*CLHEP::deg)
+              ));
+            };
+            for(unsigned int i{0}; i < LArEndcapCratePhiPos->size(); ++ i){
+              const int num = (*LArEndcapCratePhiPos)[i]->getInt("CRATENUM");
+              const double phi = (*LArEndcapCratePhiPos)[i]->getDouble("PHIPOS")*CLHEP::deg;
+              if(num == 10){ // topmost crate has one FT
+                put(phi + dphi); // asymmetric, see DMConstruction
+              } else {
+                put(phi - dphi);
+                put(phi + dphi);
+              }
+            }
+            solidCyl = coldwall;
+          }
+        }
+
+        const GeoLogVol* logicCyl = new GeoLogVol(cylName,solidCyl,material);
+        GeoPhysVol* physCyl = new GeoPhysVol(logicCyl);
+
 	double zInCryostat = currentRecord->getDouble("ZMIN")*CLHEP::cm + currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
 	// Don't move the pump even if the rest of the cryostat moves.
 
 	//if ( cylNumber == 33 ) zInCryostat -= zEmec;
-      
+
 	// Place each cylinder.
-      
+
 	cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
 	cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
-      
-	// Front cold wall of Cryostat is a mother for Endcap Presampler 
+
+	// Front cold wall of Cryostat is a mother for Endcap Presampler
 	if ( cylNumber == 14 ) {
-	  // its PhysicalVolume has a special name 
+	  // its PhysicalVolume has a special name
 	  cryoMotherPhysical->add( new GeoNameTag(cylName + "::PresamplerMother") );
-	  
+
 	  EndcapPresamplerConstruction endcapPresamplerConstruction;
-	  
+
 	  GeoFullPhysVol* emecPSEnvelope = endcapPresamplerConstruction.Envelope();
 	  if ( emecPSEnvelope != 0 ) {
 	    // Get the position of the presampler from the geometry helper.
-	    double Zpos = 30.5*CLHEP::mm; 
-	    
-	    // It is highly debateable whether the endcap presampler is 
+	    double Zpos = 30.5*CLHEP::mm;
+
+	    // It is highly debateable whether the endcap presampler is
 	    // alignable, but in any case we shall not align it here because
 	    // we need to completely redo it, anyway, since it does  not
 	    // even live  "in" this volume, not in real life anyway.
 	    GeoTransform *xfPs = new GeoTransform(HepGeom::TranslateZ3D(Zpos));
-	    
+
 	    physCyl->add(xfPs);
 	    physCyl->add( emecPSEnvelope );
-	    
+
 	    std::string tag = bPos? std::string("PRESAMPLER_EC_POS") : std::string("PRESAMPLER_EC_NEG");
 	    StatusCode status;
-	    
+
 	    StoredPhysVol *sPhysVol = new StoredPhysVol(emecPSEnvelope);
 	    status=detStore->record(sPhysVol,tag);
 	    if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag).c_str());
 	  }
 	}
-      
+
 	// After we've added any additional sub-volumes, add the cylinder.
 	cryoMotherPhysical->add(physCyl);
       }
     }
   }
-  
+
   // g.p., 3-Apr-2006
   // placing Pcones for FCAL nose, instead of cylinders 34,28,29
   if(m_fullGeo)
@@ -465,7 +540,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
       GeoPcon *fcalNosePcon = new GeoPcon(0,2*M_PI);
       for(unsigned int ind=0; ind<fcalNosePlanes.size(); ind++) {
 	iter = fcalNosePlanes.find(ind);
-	
+
 	if(iter==fcalNosePlanes.end()) {
 	  throw std::runtime_error("Error in BarrelCryostatConstruction, missing plane in InnerWall");
 	} else {
@@ -495,13 +570,13 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   std::string totalEMHLArName = baseName + "::EmecHecLAr";
   GeoPcon* totalEMHLArShape = new GeoPcon(0.,2.*M_PI);
 
-  for(unsigned int ind=0; ind<emhPlanes.size(); ind++) 
+  for(unsigned int ind=0; ind<emhPlanes.size(); ind++)
   {
     iter = emhPlanes.find(ind);
 
     if(iter==emhPlanes.end())
       throw std::runtime_error("Error in EndcapCryostatConstruction, missing plane in EMH");
-    else 
+    else
     {
       const IRDBRecord *currentRecord = (*cryoPcons)[(*iter).second];
       totalEMHLArShape->addPlane(currentRecord->getDouble("ZPLANE"),
@@ -544,6 +619,27 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     }
   }
 
+  if(m_activateFT){
+  // this ring emulates signal cables concentration area
+  // nearby the theedtrougs inside the cryostat
+    const double rcoldwall = 2155.*CLHEP::mm;
+    const double coldhole_radius = 0.5*150.*CLHEP::mm; // copied from above
+    const double icable_dz = coldhole_radius;
+    const double icable_dr =
+      (1920./LArEndcapCratePhiPos->size()) *
+      M_PI * 1.1*1.1/4. * CLHEP::mm2
+      / (icable_dz*2);
+    log << MSG::DEBUG << "adding " << icable_dr/CLHEP::mm << " mm"
+        << " of cables inside EC cryostat in front of FT" << endmsg;
+    const double z_pos = -249.*CLHEP::mm - icable_dz;
+    const GeoMaterial* icable_mat = materialManager->getMaterial("LAr::FT::Cable");
+    GeoShape* icable = new GeoTube(rcoldwall - icable_dr, rcoldwall, icable_dz);
+    GeoLogVol* icableLV = new GeoLogVol("LAr::Endcap::InnerFTCables", icable, icable_mat);
+    GeoPhysVol* icablePV = new GeoPhysVol(icableLV);
+    totalEMHLArPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(z_pos)));
+    totalEMHLArPhysical->add(icablePV);
+  }
+
   cryoMotherPhysical->add( totalEMHLArPhysical );
 
   {
@@ -558,11 +654,11 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
     std::string tag = bPos? std::string("EMEC_POS") : std::string("EMEC_NEG");
     StatusCode status;
-    
+
     StoredPhysVol *sPhysVol = new StoredPhysVol(envelope);
     status=detStore->record(sPhysVol,tag);
     if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag).c_str());
-    
+
     StoredAlignX *sAlignX = new StoredAlignX(xfEmec);
     status=detStore->record(sAlignX,tag);
     if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag).c_str());
@@ -572,16 +668,16 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     totalEMHLArPhysical->add(xfEmec);
     totalEMHLArPhysical->add( envelope );
   }
-  
+
   {
 
     std::string wheelType="front";
     bool threeBoards= false;
     HECWheelConstruction frontHEC(m_fullGeo,wheelType,threeBoards,bPos) ;
     GeoFullPhysVol* EnvelopeF = frontHEC.GetEnvelope();
-    
+
     StatusCode status;
-    
+
 
     //--- Make the Front Wheel alignable:
 
@@ -590,54 +686,54 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     GeoAlignableTransform *xfHec1 = new GeoAlignableTransform(xfPosHec1);
 
     std::string tag1 = bPos? std::string("HEC1_POS") : std::string("HEC1_NEG");
-    
+
     StoredPhysVol *sPhysVol1 = new StoredPhysVol(EnvelopeF);
     status=detStore->record(sPhysVol1,tag1);
     if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag1).c_str());
-    
+
     StoredAlignX *sAlignX1 = new StoredAlignX(xfHec1);
     status=detStore->record(sAlignX1,tag1);
     if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag1).c_str());
-    
+
     totalEMHLArPhysical->add( xfHec1);
     totalEMHLArPhysical->add(new GeoIdentifierTag(0));
     totalEMHLArPhysical->add( EnvelopeF );
-    
-    
-    
+
+
+
     wheelType="rear";
     threeBoards= false;
     HECWheelConstruction rearHEC(m_fullGeo,wheelType,threeBoards,bPos) ;
     GeoFullPhysVol* EnvelopeR = rearHEC.GetEnvelope();
-    
+
     const IRDBRecord *posHec2 = GeoDBUtils::getTransformRecord(larPosition, bPos ? "HEC2_POS":"HEC2_NEG");
     HepGeom::Transform3D xfPosHec2 = posHec2 ? GeoDBUtils::getTransform(posHec2) : HepGeom::Translate3D(0.,0.,-1566.0);
     GeoAlignableTransform *xfHec2 = new GeoAlignableTransform(xfPosHec2);
 
     std::string tag2 = bPos? std::string("HEC2_POS") : std::string("HEC2_NEG");
-    
+
     StoredPhysVol *sPhysVol2 = new StoredPhysVol(EnvelopeR);
     status=detStore->record(sPhysVol2,tag2);
     if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag2).c_str());
-    
+
     StoredAlignX *sAlignX2 = new StoredAlignX(xfHec2);
     status=detStore->record(sAlignX2,tag2);
     if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag2).c_str());
-    
+
     totalEMHLArPhysical->add( xfHec2);
     totalEMHLArPhysical->add(new GeoIdentifierTag(1));
     totalEMHLArPhysical->add( EnvelopeR );
-    
-    
+
+
   }
-  
+
 
 
   // 13-Mar-2002 WGS: Place the FCAL detector inside the cryostat.
   m_fcal->setFCALVisLimit(m_fcalVisLimit);
   m_fcal->setFullGeo(m_fullGeo);
   {
-    
+
     // The "envelope" determined by the EMB should be a GeoFullPhysVol.
     GeoVFullPhysVol* fcalEnvelope = m_fcal->GetEnvelope(bPos);
 
@@ -646,8 +742,8 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
        2) Reconstruction needs each FCAL module to have a
        separate alignable envelope.  We'll work out t hese
        issues later. */
-    
-    
+
+
     // From FCALConstruction.cxx: */
    //
 
@@ -662,7 +758,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     StoredAlignX *sAlignX = new StoredAlignX(fcalXF);
     status=detStore->record(sAlignX,tag);
     if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag).c_str());
-    
+
 
     const GeoLogVol *envVol = fcalEnvelope->getLogVol();
     const GeoShape  *envShape = envVol->getShape();
@@ -676,8 +772,8 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     cryoMotherPhysical->add(fcalXF);
     cryoMotherPhysical->add( new GeoTransform( HepGeom::TranslateZ3D(tubs->getZHalfLength()) ) );
     cryoMotherPhysical->add( fcalEnvelope );
-    
-    
+
+
   }
 
   //_________________________ Mini FCAL ___________________________________________________
@@ -698,7 +794,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     IRDBRecordset_ptr mbtsPcons  = m_pAccessSvc->getRecordsetPtr("MBTSPcons",detectorKey, detectorNode);
     IRDBRecordset_ptr mbtsGen    = m_pAccessSvc->getRecordsetPtr("MBTSGen",  detectorKey, detectorNode);
     IRDBRecordset_ptr mbtsTrds   = m_pAccessSvc->getRecordsetPtr("MBTSTrds", detectorKey, detectorNode);
-    
+
     double zposMM = 0.;
     std::map<std::string,unsigned> trdMap;  // Used in the new description only
     for(unsigned indTrd(0);indTrd<mbtsTrds->size();++indTrd) {
@@ -715,7 +811,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
       // Mother volume
       GeoPhysVol* pvMM = 0;
-      
+
       if(mbtsPcons->size()==0) {
 	// ****
 	// In this description the Moderator and the JM tube are constructed as separate volumes (both of them are tubes)
@@ -732,21 +828,21 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	}
 
 	// Build mother volume
-	double rminMM = (*itMother)->getDouble("RMIN")*CLHEP::mm; 
+	double rminMM = (*itMother)->getDouble("RMIN")*CLHEP::mm;
 	double rmaxMM = (*itMother)->getDouble("RMAX")*CLHEP::mm;
 	double dzMM = (*itMother)->getDouble("DZ")*CLHEP::mm;
 	zposMM = (*itMother)->getDouble("ZPOS")*CLHEP::mm;
-	
+
 	GeoMaterial *matMM  = materialManager->getMaterial((*itMother)->getString("MATERIAL"));
-	
+
 	GeoTube  *tubeMM = new GeoTube(rminMM,rmaxMM,dzMM);
-	
+
 	GeoTube *tubeJM=NULL;
 	const GeoShape *solidMM=NULL;
 	if (itTube!=mbtsTubs->end()) {
 	  double dzMod   = (*itTube)->getDouble("DZ")*CLHEP::mm;
 	  double rMaxMod = (*itTube)->getDouble("RMAX")*CLHEP::mm;
-	  
+
 	  GeoPcon *pcon = new GeoPcon(0,2*M_PI);
 	  pcon->addPlane(-dzMM,rminMM,rmaxMM);
 	  pcon->addPlane( dzMM,rminMM,rmaxMM);
@@ -755,34 +851,34 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	  tubeJM = new GeoTube(rminMM,rMaxMod,dzMod);
 	  solidMM=pcon;
 	}
-	
+
 	if (!solidMM)  solidMM = new GeoTube(rminMM,rmaxMM,dzMM);
-	
+
 	GeoLogVol* lvMM = new GeoLogVol("MBTS_mother",solidMM,matMM);
 	pvMM = new GeoPhysVol(lvMM);
-	
+
 	cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zposMM)));
 	cryoMotherPhysical->add(pvMM);
 
 	// Moderator cylinder
-	//double rminMod  = (*itModerator)->getDouble("RMIN")*CLHEP::mm; 
+	//double rminMod  = (*itModerator)->getDouble("RMIN")*CLHEP::mm;
 	//double rmaxMod = (*itModerator)->getDouble("RMAX")*CLHEP::mm;
 	double dzMod = (*itModerator)->getDouble("DZ")*CLHEP::mm;
 	double zposMod = (*itModerator)->getDouble("ZPOS")*CLHEP::mm;
-	
+
 	GeoMaterial *matMod  = materialManager->getMaterial((*itModerator)->getString("MATERIAL"));
-	
+
 	GeoTube* solidMod = new GeoTube(rminMM,rmaxMM,dzMod);
 	GeoLogVol* lvMod = new GeoLogVol("Moderator",solidMod, matMod);
 	GeoPhysVol* pvMod = new GeoPhysVol(lvMod);
-	
+
 	pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(zposMod)));
 	pvMM->add(pvMod);
-      
+
 	if (tubeJM) {
 	  GeoLogVol* lvMod  = new GeoLogVol("ModeratorTube",tubeJM, matMod);
 	  GeoPhysVol* pvMod = new GeoPhysVol(lvMod);
-	  
+
 	  pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(tubeMM->getZHalfLength()+tubeJM->getZHalfLength())));
 	  pvMM->add(pvMod);
 	}
@@ -840,12 +936,12 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
 	// Construct volumes:
 
-	// Mother 
+	// Mother
 	GeoLogVol* lvMM = new GeoLogVol("MBTS_mother",solidMM,Air);
 	pvMM = new GeoPhysVol(lvMM);
-	
+
 	zposMM = zStartCryoMother - zStartMM;
-	cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zposMM))); 
+	cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zposMM)));
 	cryoMotherPhysical->add(pvMM);
 
 	// Extra tube for the moderator:
@@ -873,7 +969,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	// The "old" description: just scintillators, no aluminum envelopes
 	for(unsigned int scinId=0; scinId<mbtsScin->size(); scinId++) {
 	  const IRDBRecord* curScin = (*mbtsScin)[scinId];
-	
+
 	  int nScin = curScin->getInt("SCINNUM");
 	  double dx1Scin = curScin->getDouble("DX1")*CLHEP::mm;
 	  double dx2Scin = curScin->getDouble("DX2")*CLHEP::mm;
@@ -889,13 +985,13 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	      startPhi = curScin->getDouble("STARTPHI");
 	  }
 	  catch(std::runtime_error&) {}
-	
+
 	  GeoMaterial *matScin  = materialManager->getMaterial(curScin->getString("MATERIAL"));
-	
+
 	  std::ostringstream ostr;
 	  ostr << curScin->getInt("SCIN_ID");
 	  std::string scinName = std::string("MBTS")+ostr.str();
-	
+
 	  GeoTrd* solidScin = new GeoTrd(dx1Scin,dx2Scin,dy1Scin,dy2Scin,dzScin);
 	  GeoLogVol* lvScin = new GeoLogVol(scinName,solidScin,matScin);
 	  GeoPhysVol* pvScin = new GeoPhysVol(lvScin);
@@ -904,7 +1000,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	  double deltaPhi = 360./nScin;
 	  Variable varInd;
 	  GeoSerialTransformer* stScin = 0;
-	  
+
 	  if(bPos) {
 	    GENFUNCTION phiInd = deltaPhi*(varInd + startPhi)*CLHEP::deg;
 	    TRANSFUNCTION xfScin = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateZ3D(zposScin)*HepGeom::TranslateX3D(rposScin)*HepGeom::RotateY3D(90*CLHEP::deg);
@@ -914,10 +1010,10 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	    TRANSFUNCTION xfScin = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateZ3D(zposScin)*HepGeom::TranslateX3D(rposScin)*HepGeom::RotateY3D(90*CLHEP::deg);
 	    stScin = new GeoSerialTransformer(pvScin,&xfScin,nScin);
 	  }
-	  
+
 	  pvMM->add(new GeoSerialIdentifier(0));
 	  pvMM->add(stScin);
-	}    
+	}
       }
       else {
 	// The "new" description: scintillators + aluminum envelopes + plastic plugs + aluminum press bars (only for RUN1)
@@ -962,7 +1058,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	// Build direct children of the 'air-in-aluminum'
 	for(itTrdMap=trdMap.begin();itTrdMap!=trdMap.end();++itTrdMap) {
 	  rec = (*mbtsTrds)[itTrdMap->second];
-	  if(rec->getString("PARENT")=="MBTSAirInAlu") 
+	  if(rec->getString("PARENT")=="MBTSAirInAlu")
 	     buildMbtsTrd(rec,materialManager,pvAirInAlu);
 	}
 
@@ -1013,11 +1109,11 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	  for(unsigned int scinId=0; scinId<2; scinId++) {
 	      int nScin(0), eta(0);
 	      double dx1Scin(0.), dzScin(0.), zposScin(0.), rposScin(0.), scineta(0.), scindeta(0.), deltaPhi(0.), startPhi(0.);
-	      
+
 	      if(mbtsGen->size()==0) {
 		// The "old" description:
 		const IRDBRecord* curScin = (*mbtsScin)[scinId];
-	
+
 		nScin = curScin->getInt("SCINNUM");
 		eta = curScin->getInt("SCIN_ID")-1;
 		dx1Scin = curScin->getDouble("DX1")*CLHEP::mm;
@@ -1056,7 +1152,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	      MbtsDetectorElement* mbtsDDE = new MbtsDetectorElement();
 	      // Construct Identifier
 	      mbtsDDE->set_id(tileTBID->channel_id(sidesign,phi,eta));
- 	      mbtsDDE->set_z((globalZMM + zposScin)*sidesign); 
+ 	      mbtsDDE->set_z((globalZMM + zposScin)*sidesign);
 	      mbtsDDE->set_dz(dx1Scin);
 	      mbtsDDE->set_r(rposScin);
 	      mbtsDDE->set_dr(dzScin);
@@ -1079,7 +1175,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   }
 
   // Build endcap electronics crates
-  EndcapDMConstruction crateBuilder;
+  EndcapDMConstruction crateBuilder(m_activateFT);
   crateBuilder.create(cryoMotherPhysical);
 
   return cryoMotherPhysical;

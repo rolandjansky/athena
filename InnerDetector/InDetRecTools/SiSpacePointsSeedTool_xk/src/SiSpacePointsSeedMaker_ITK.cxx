@@ -614,8 +614,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::findVSp (const std::list<Trk::Vertex>& l
 
 MsgStream& InDet::SiSpacePointsSeedMaker_ITK::dump( MsgStream& out ) const
 {
-  if(m_nprint)  
-    return dumpEvent(out); 
+  if(m_nprint)  return dumpEvent(out);
   return dumpConditions(out);
 }
 
@@ -1124,7 +1123,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
   for(int i=r_first; i!=r_size;  ++i) {
     
     if(!r_map[i]) continue; 
-    r = r_Sorted[i].begin(); re = r_Sorted[i].end();
+    r = r_Sorted[i].begin();
+    re = r_Sorted[i].end();
     
     if(!ir0) ir0 = i; 
     irm = i; 
@@ -1170,7 +1170,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
    for(int i=r_first; i!=r_size;  ++i) {
      
      if(!r_map[i]) continue; 
-     r = r_Sorted[i].begin(); re = r_Sorted[i].end();
+     r = r_Sorted[i].begin();
+     re = r_Sorted[i].end();
      
      if((*r)->spacepoint->clusterList().second) break;
      
