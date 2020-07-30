@@ -41,6 +41,12 @@ public:
   // Compute the muon score given a track particle
   double getMuonScore(const xAOD::TrackParticle* trk) const;
 
+  // run the ONNX inference on the input tensor
+  float runOnnxInference(std::vector<float> &tensor) const;
+
+  // create vectors from the particle cell assocation - return a tuple of vectors: (eta, phi, energy, sampling ID)
+  std::tuple<std::vector<float>, std::vector<float>, std::vector<float>, std::vector<int>> getInputVectors(const Rec::ParticleCellAssociation* association) const;
+
   // Compute the median of a vector of floats (can be even or odd in length)
   float getMedian(std::vector<float> v) const;
 
@@ -53,26 +59,27 @@ public:
   // Given a calo sampling ID (as integer), return the corresponding "RGB"-like channel ID (0,1,2,3,4,5,6)
   int channelForSamplingId(int &samplingId) const;
 
+  // for a given particle, consume vectors for eta, phi, energy, sampling ID, and return the input tensor to be used in ONNX
+  std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const;
 
 private:
-  // model name to be loaded
-  const char MODEL_NAME[] = "./models/model.onnx";
-
   // Number of bins in eta
-  const int ETA_BINS = 30;
+  int m_etaBins;
 
   // Number of bins in phi
-  const int PHI_BINS = 30;
+  int m_phiBins;
 
   // window in terms of abs(eta) to consider around the median eta value
-  const float ETA_CUT = 0.25;
+  float m_etaCut;
 
   // window in terms of abs(phi) to consider around the median phi value
-  const float PHI_CUT = 0.25;
+  float m_phiCut;
 
   // Number of colour channels to consider in the convolutional neural network
-  const int N_CHANNELS = 7;
+  int m_nChannels;
 
+  // name of the model to use
+  std::string m_modelFileName;
 
   ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
 };
