@@ -127,6 +127,51 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
       this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_HAD,"eflowRec_ENG_CALIB_FRAC_HAD",*cluster,*thisFE);
       this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_REST,"eflowRec_ENG_CALIB_FRAC_REST",*cluster,*thisFE);
     }
+
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::PreSamplerB,"eflowRec_LAYERENERGY_PreSamplerB",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB1,"eflowRec_LAYERENERGY_EMB1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB2,"eflowRec_LAYERENERGY_EMB2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB3,"eflowRec_LAYERENERGY_EMB3",*cluster,*thisFE);
+    
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::PreSamplerE,"eflowRec_LAYERENERGY_PreSamplerE",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME1,"eflowRec_LAYERENERGY_EME1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME2,"eflowRec_LAYERENERGY_EME2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME3,"eflowRec_LAYERENERGY_EME3",*cluster,*thisFE);
+
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC0,"eflowRec_LAYERENERGY_HEC0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC1,"eflowRec_LAYERENERGY_HEC1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC2,"eflowRec_LAYERENERGY_HEC2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC3,"eflowRec_LAYERENERGY_HEC3",*cluster,*thisFE);
+
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar0,"eflowRec_LAYERENERGY_TileBar0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar1,"eflowRec_LAYERENERGY_TileBar1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar2,"eflowRec_LAYERENERGY_TileBar2",*cluster,*thisFE);
+
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap1,"eflowRec_LAYERENERGY_TileGap1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap2,"eflowRec_LAYERENERGY_TileGap2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap3,"eflowRec_LAYERENERGY_TileGap3",*cluster,*thisFE);
+
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt0,"eflowRec_LAYERENERGY_TileExt0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt1,"eflowRec_LAYERENERGY_TileExt1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt2,"eflowRec_LAYERENERGY_TileExt2",*cluster,*thisFE);
+
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL0,"eflowRec_LAYERENERGY_FCAL0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL1,"eflowRec_LAYERENERGY_FCAL1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL2,"eflowRec_LAYERENERGY_FCAL2",*cluster,*thisFE);
+
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL0,"eflowRec_LAYERENERGY_MINIFCAL0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL1,"eflowRec_LAYERENERGY_MINIFCAL1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL2,"eflowRec_LAYERENERGY_MINIFCAL2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL3,"eflowRec_LAYERENERGY_MINIFCAL3",*cluster,*thisFE);
+
+    float layerEnergy_TileBar0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar0);
+    float layerEnergy_TileExt0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileExt0);
+    const SG::AuxElement::Accessor<float> accFloatTIle0E("eflowRec_LAYERENERGY_TILE0");
+    accFloatTIle0E(*thisFE) = layerEnergy_TileBar0 + layerEnergy_TileExt0;
+
+    const SG::AuxElement::Accessor<float> accFloatTiming("eflowRec_TIMING");
+    accFloatTiming(*thisFE) = cluster->time();
+ 
   
   }//cluster loop
   return StatusCode::SUCCESS;
@@ -143,4 +188,9 @@ void PFNeutralFlowElementCreatorAlgorithm::addMoment(const xAOD::CaloCluster::Mo
   }
   else ATH_MSG_WARNING(" Could not retrieve moment from the CaloCluster");
 
+}
+
+void PFNeutralFlowElementCreatorAlgorithm::addSamplingEnergy(const xAOD::CaloCluster::CaloSample& sampling, const std::string& feAttribute, const xAOD::CaloCluster& theCluster, xAOD::FlowElement& theFE) const {
+  const SG::AuxElement::Accessor<float> accFloat(feAttribute);
+  accFloat(theFE) = theCluster.eSample(sampling);
 }
