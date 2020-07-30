@@ -38,3 +38,5 @@ else:
   "ColourReconnection:range = 1.8"]                            
 
 evgenConfig.tune = "A3 NNPDF23LO"
+print "WARNING! These parameters are derived tuning Pythia 8.186 to data"
+
