@@ -7,8 +7,10 @@
 
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
 
+#include "AthExOnnxRuntime/IONNXRuntimeSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "CaloEvent/CaloClusterContainer.h"

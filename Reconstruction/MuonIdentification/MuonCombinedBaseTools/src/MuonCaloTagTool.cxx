@@ -234,6 +234,7 @@ namespace MuonCombined {
 
       // --- Muon tagging ---
       float likelihood = 0;                                                                                                                                                    
+      float muon_score = 0;
       int tag = 0;
       std::vector<DepositInCalo> deposits;
       if (m_doCaloMuonTag) {
@@ -245,9 +246,13 @@ namespace MuonCombined {
 	tag = m_caloMuonTagLoose->caloMuonTag(deposits, par->eta(), par->pT());
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
       }
-      if(m_doCaloLR)
+      if(m_doCaloLR){
 	likelihood = m_caloMuonLikelihood->getLHR(tp, caloClusterCont);
-	ATH_MSG_DEBUG("Track found with tag " << tag << " and LHR " << likelihood);
+      }
+      if(m_doCaloScore || 1){
+	muon_score = m_caloMuonScore->getMuonScore();
+      }
+      ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and muon score " << muon_score);
       // --- If both the taggers do not think it's a muon, forget about it ---
       if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut) {
 	continue;                                                                                                                                                            
@@ -258,7 +263,7 @@ namespace MuonCombined {
       }
       
       // FIXME const-cast  changes object passed in as const
-      createMuon(*idTP,  deposits, tag, likelihood, tagMap);
+      createMuon(*idTP,  deposits, tag, likelihood, muon_score, tagMap);
 
       // --- Count number of muons written to container 
       if ( abs(pdgId) == 13 )  m_nMuonsTagged++;
@@ -377,7 +382,7 @@ namespace MuonCombined {
   }
   
   void MuonCaloTagTool::createMuon(const InDetCandidate& muonCandidate,
-                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const {
+                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood, float muonScore, InDetCandidateToTagMap* tagMap) const {
     
     std::vector<DepositInCalo>::const_iterator deposit  = deposits.begin();
     std::vector<DepositInCalo>::const_iterator depositE = deposits.end();
@@ -397,7 +402,7 @@ namespace MuonCombined {
       caloTag->set_deposits(deposits);
       caloTag->set_caloMuonIdTag(tag);
       caloTag->set_caloLRLikelihood(likelihood);
-      
+      caloTag->set_caloMuonScore(muonScore);
       tagMap->addEntry(&muonCandidate,caloTag);
     }
   }

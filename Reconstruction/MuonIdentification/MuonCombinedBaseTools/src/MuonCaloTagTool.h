@@ -25,6 +25,7 @@
 #include "muonEvent/DepositInCalo.h"
 
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
+#include "ICaloTrkMuIdTools/ICaloMuonScoreTool.h"
 #include "ICaloTrkMuIdTools/ICaloMuonTag.h"
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
@@ -64,7 +65,7 @@ namespace MuonCombined {
 
   private:
     
-    void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const;
+    void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, float muonScore, InDetCandidateToTagMap* tagMap) const;
     const Trk::TrackParameters* getTrackParameters(const Trk::Track* trk) const;
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;
     bool selectCosmic(const Trk::Track* ptcl) const;
@@ -83,6 +84,7 @@ namespace MuonCombined {
     // --- Set up what to do and what not to do ---
     bool m_doCaloMuonTag;               //!< run CaloMuonTag Tool
     bool m_doCaloLR;                    //!< run CaloMuonLikelihoodTool
+    bool m_doCaloScore;                 //!< run CaloMuonScoreTool
     bool m_doTrkSelection;              //!< This variable should be set to false when there is no primary vertex reconstructed.
     bool m_doCosmicTrackSelection;      //!< Apply track selection for cosmics
     
@@ -108,6 +110,7 @@ namespace MuonCombined {
     
     // --- CaloTrkMuIdTools ---
     ToolHandle<ICaloMuonLikelihoodTool>  m_caloMuonLikelihood; //!< CaloTrkMuIdTools::CaloMuonLikelihoodTool
+    ToolHandle<ICaloMuonScoreTool>  m_caloMuonScore; //!< CaloTrkMuIdTools::CaloMuonScoreTool
     ToolHandle<ICaloMuonTag>             m_caloMuonTagLoose{this,"CaloMuonTagLoose","CaloMuonTag/CaloMuonTagLoose","CaloTrkMuIdTools::CaloMuonTag for loose tagging"}; 
     ToolHandle<ICaloMuonTag>             m_caloMuonTagTight{this,"CaloMuonTagTight","CaloMuonTag/CaloMuonTag","CaloTrkMuIdTools::CaloMuonTag for tight tagging"}; 
     ToolHandle<ITrackDepositInCaloTool>  m_trkDepositInCalo;   //!< CaloTrkMuIdTools::TrackDepositInCaloTool
