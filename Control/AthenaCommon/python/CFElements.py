@@ -84,19 +84,17 @@ def getAllSequenceNames(seq, depth=0):
 def checkSequenceConsistency( seq ):
     """ Enforce rules for sequence graph - identical items can not be added to itself (even indirectly) """
 
-    def __noSubSequenceOfName( s, n ):    
+    def __noSubSequenceOfName( s, n, seen = set() ):
+        seen = seen.copy()
+        seen.add (s)
         for c in getSequenceChildren( s ):
+            if c in seen:
+                raise RuntimeError("Sequence {} contains itself".format(compName(c)) )
             if isSequence( c ):
                 if compName(c) == n:
                     raise RuntimeError("Sequence {} contains sub-sequence of the same name".format(n) )
-                try:
-                    __noSubSequenceOfName( c, compName(c) ) # check each sequence for repetition as well
-                except RecursionError:
-                    raise RuntimeError("Sequence {} contains itself".format(compName(c)) )
-                try:
-                    __noSubSequenceOfName( c, n )
-                except RecursionError:
-                    raise RuntimeError("Sequence {} contains itself".format(n) )
+                __noSubSequenceOfName( c, compName(c), seen ) # check each sequence for repetition as well
+                __noSubSequenceOfName( c, n, seen )
 
     __noSubSequenceOfName( seq, compName(seq) )
 
