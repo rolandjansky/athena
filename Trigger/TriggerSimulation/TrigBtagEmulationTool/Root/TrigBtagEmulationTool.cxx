@@ -676,7 +676,7 @@ bool TrigBtagEmulationTool::checkTriggerChain(const std::vector<std::string>& to
 StatusCode TrigBtagEmulationTool::retrieve( std::unique_ptr< Trig::JetManager >& manager, bool useTriggerNavigation) {
 
   StatusCode sc = StatusCode::FAILURE;
-  if (useTriggerNavigation) sc = manager->retrieveByNavigation();
+  if (useTriggerNavigation) sc = manager->retrieveByNavigation(m_tagOfflineWeights || m_tagOnlineWeights);
   else sc = manager->retrieveByContainer();
 
   if ( sc.isFailure() ) {
