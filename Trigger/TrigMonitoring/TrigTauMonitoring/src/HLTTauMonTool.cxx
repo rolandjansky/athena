@@ -498,7 +498,7 @@ StatusCode HLTTauMonTool::fill() {
 	bool good_tau_BDT = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 	bool good_tau_RNN = (*offlinetau)->isTau(xAOD::TauJetParameters::JetRNNSigMedium);
 	if(!Selection(*offlinetau)) continue;
-	if( !(good_tau_BDT || good_tau_BDT) ) continue;
+	if( !(good_tau_BDT || good_tau_RNN) ) continue; 
 	if (good_tau_BDT) m_taus_BDT.push_back( *offlinetau );
 	if (good_tau_RNN) m_taus_RNN.push_back( *offlinetau );
       }
@@ -542,14 +542,13 @@ StatusCode HLTTauMonTool::fill() {
 				}
 			} 
 			if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
-	
+	               
 			std::string goodTauRefType;
-			if (monRNN) {
-				goodTauRefType = "RNN";
-			} else {
-				goodTauRefType = "BDT";
-			}
+			goodTauRefType = "RNN";
 
+		 
+
+			 
       // muCut on Filling the Histograms
       if (muCut40Passed)
 	{
@@ -1678,8 +1677,8 @@ StatusCode HLTTauMonTool::fillL1TauVsOffline(const xAOD::EmTauRoI *aL1Tau, const
     return StatusCode::FAILURE;
   }
 
-  std::vector<const xAOD::TauJet *> m_taus_here;
-	if (goodTauRefType == "RNN") {
+  std::vector<const xAOD::TauJet *> m_taus_here;  
+  	if (goodTauRefType == "RNN") {   
 		m_taus_here = m_taus_RNN;
 	} else {
 		m_taus_here = m_taus_BDT;
@@ -2632,7 +2631,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
       if(addToDenom){	
 	tlv_TauDenom.push_back(m_taus_here.at(t)->p4());
 	ntrk_TauDenom.push_back(m_taus_here.at(t)->nTracks());
-	good_TauDenom.push_back(true);		
+	good_TauDenom.push_back(true);
       }
       if(!addToDenom){
 	tlv_tmp.push_back(m_taus_here.at(t)->p4());
