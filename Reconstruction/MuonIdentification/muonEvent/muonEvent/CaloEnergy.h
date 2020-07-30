@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -53,6 +54,7 @@ public:
                 float   sigmaPlusDeltaE=0.0,
 		unsigned short energyLossType=0,
 		float          likelhoold=0,
+		float   muonScore=0,
 		unsigned short tag=0);
 
     /** full constructor with the detailed deposits in Calo */
@@ -61,7 +63,8 @@ public:
 		float	sigmaMinusDeltaE,
 		float   sigmaPlusDeltaE,
 		unsigned short energyLossType,
-		float likelhoold,
+		float likelihood,
+		float muonScore,
 		unsigned short tag,
 		const std::vector<DepositInCalo>& deposits);
 
@@ -86,6 +89,9 @@ public:
     /** the calo Muon Identification likehood */
     double caloLRLikelihood() const { return  m_caloLRLikelihood; }
 
+    /** the calo Muon Identification likehood */
+    double caloMuonScore() const { return  m_caloMuonScore; }
+
     /** the vector of detailed deposits in calo layers */
     const std::vector<DepositInCalo>& depositInCalo() const { return m_deposits; }
  
@@ -102,6 +108,9 @@ public:
 
     /** set the likelihood */
     void set_caloLRLikelihood ( const float likelihood ) { m_caloLRLikelihood = likelihood; }
+
+    /** set the calo muon score */
+    void set_caloMuonScore ( const float muonScore ) { m_caloMuonScore = muonScore; }
 
     /** set the tag */
     void set_caloMuonIdTag ( unsigned short tag ) { m_caloMuonIdTag = tag; }
@@ -145,6 +154,7 @@ private:
 
     EnergyLossType m_energyLossType;
     float          m_caloLRLikelihood;
+    float          m_caloMuonScore;
     unsigned short m_caloMuonIdTag;
     float          m_fsrCandidateEnergy;
     std::vector<DepositInCalo> m_deposits; 

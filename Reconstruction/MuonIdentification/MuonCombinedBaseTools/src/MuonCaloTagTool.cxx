@@ -48,6 +48,7 @@ namespace MuonCombined {
 	m_nTracksTagged(0),
 	m_nMuonsTagged(0),
 	m_caloMuonLikelihood("CaloMuonLikelihoodTool/CaloMuonLikelihoodTool",this),
+	m_caloMuonScore("CaloMuonScoreTool/CaloMuonScoreTool",this),
         m_trkDepositInCalo("TrackDepositInCaloTool/TrackDepositInCaloTool"),
 	m_trackIsolationTool("xAOD::TrackIsolationTool"),
         m_trkSelTool("InDet::InDetDetailedTrackSelectorTool/CaloTrkMuIdAlgTrackSelectorTool")
@@ -73,12 +74,14 @@ namespace MuonCombined {
     // --- Calorimeter ID Tools ---
     declareProperty("doCaloMuonTag",                     m_doCaloMuonTag        =  true );
     declareProperty("doCaloLR",                          m_doCaloLR             =  true );
+    declareProperty("doCaloScore",                       m_doCaloScore          =  true );
     declareProperty("ShowTruth",                         m_doTruth              =  true);
     declareProperty("DebugMode",                         m_debugMode            =  false);
     declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  false);
     declareProperty("IgnoreSiAssociatedCandidates",      m_ignoreSiAssocated    =  true );
     declareProperty("ShowCutFlow",                       m_showCutFlow          =  true);
     declareProperty("CaloMuonLikelihoodTool",            m_caloMuonLikelihood           );
+    declareProperty("CaloMuonScoreTool",                 m_caloMuonScore                );
     declareProperty("CaloLRLikelihoodCut",               m_CaloLRlikelihoodCut  =  0.5  );  //Likelihood ratio hard cut
     
     // --- Track in Calo Tools ---
@@ -99,6 +102,10 @@ namespace MuonCombined {
     // --- Get an Identifier helper object ---
     if( m_doCaloLR ) ATH_CHECK( m_caloMuonLikelihood.retrieve() );
     else m_caloMuonLikelihood.disable();
+
+    if( m_doCaloScore ) ATH_CHECK( m_caloMuonScore.retrieve() );
+    else m_caloMuonScore.disable();
+
     ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
     ATH_CHECK( m_caloMuonTagTight.retrieve()   );
     ATH_CHECK( m_trkDepositInCalo.retrieve()   );
