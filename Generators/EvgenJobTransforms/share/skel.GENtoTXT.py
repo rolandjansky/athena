@@ -472,6 +472,38 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.spe
 ## Process random seed arg and pass to generators
 #include("EvgenJobTransforms/Generate_randomseeds.py")
 
+##=============================================================
+## Check release number
+##=============================================================
+# Function to check blacklist (from Spyros'es logParser.py)
+def checkBlackList(relFlavour,cache,generatorName) :
+    isError = None
+    with open('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common/BlackList_caches.txt') as bfile:
+        for line in bfile.readlines():
+            if not line.strip():
+                continue
+            # Blacklisted release flavours
+            badRelFlav=line.split(',')[0].strip()
+            # Blacklisted caches
+            badCache=line.split(',')[1].strip()
+            # Blacklisted generators
+            badGens=line.split(',')[2].strip()
+
+            used_gens = ','.join(generatorName)
+            #Match Generator and release type e.g. AtlasProduction, MCProd
+            if relFlavour==badRelFlav and cache==badCache and re.search(badGens,used_gens) is not None:
+                if badGens=="": badGens="all generators"
+                isError=relFlavour+","+cache+" is blacklisted for " + badGens
+                return isError  
+    return isError
+## Announce start of JO checkingrelease nimber checking
+evgenLog.debug("****************** CHECKING RELEASE IS NOT BLACKLISTED *****************")
+rel = os.popen("echo $AtlasVersion").read()
+rel = rel.strip()
+errorBL = checkBlackList("AthGeneration",rel,gennames)
+if (errorBL):
+   evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
+#   raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)
 
 ##==============================================================
 ## Handling of a post-include/exec args at the end of standard configuration
