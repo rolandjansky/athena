@@ -53,9 +53,9 @@ namespace Muon
       Identifier getOfflineData(const TgcRawData * rawData, bool orFlag, uint16_t& bctag) const;
 
     private:
-      StatusCode getCabling() const;
+      StatusCode getCabling();
 
-      mutable const ITGCcablingSvc *m_cabling ATLAS_THREAD_SAFE;
+      const ITGCcablingSvc *m_cabling;
       bool m_applyPatch;
 
     };
