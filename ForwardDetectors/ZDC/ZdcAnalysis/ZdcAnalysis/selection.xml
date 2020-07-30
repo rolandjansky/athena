@@ -1,4 +1,4 @@
 <lcgdict>
-  <class name="ZdcAnalysisAlg" />
-  <class name="ZdcAnalysisTool" />
+  <class name="ZDC::ZdcAnalysisAlg" />
+  <class name="ZDC::ZdcAnalysisTool" />
 </lcgdict>
