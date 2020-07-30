@@ -112,7 +112,12 @@ namespace InDet
       
       /** Pointer to Extrapolator AlgTool*/
       ToolHandle< Trk::IExtrapolator >  m_extrapolator;
-      ToolHandle<Trk::IBoundaryCheckTool> m_boundaryCheckTool;
+      ToolHandle<Trk::IBoundaryCheckTool> m_boundaryCheckTool {
+         this,
+         "BoundaryCheckTool",
+         "InDet::InDetBoundaryCheckTool",
+         "Boundary checking tool for detector sensitivities"
+      };
 
       /** Configure outwards hole search */
       bool m_extendedListOfHoles,m_cosmic;

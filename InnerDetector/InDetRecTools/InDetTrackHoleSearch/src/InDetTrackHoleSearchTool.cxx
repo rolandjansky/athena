@@ -36,13 +36,11 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_atlasId(nullptr),
   m_extrapolator("Trk::Extrapolator"),
-  m_boundaryCheckTool("InDet::InDetBoundaryCheckTool"),
   m_extendedListOfHoles(false),
   m_cosmic(false),
   m_warning(0) {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
-  declareProperty("BoundaryCheckTool"    , m_boundaryCheckTool);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
   declareProperty("minSiHits"            , m_minSiHits = 3);  
