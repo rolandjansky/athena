@@ -1,5 +1,6 @@
 #include "eflowRec/PFLCNeutralFlowElementCreatorAlgorithm.h"
 #include "xAODCore/ShallowCopy.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 PFLCNeutralFlowElementCreatorAlgorithm::PFLCNeutralFlowElementCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
@@ -25,6 +26,17 @@ StatusCode PFLCNeutralFlowElementCreatorAlgorithm::execute(const EventContext& c
   std::unique_ptr<xAOD::ShallowAuxContainer> neutralFELCContainerAux{shallowCopyPair.second};
   SG::WriteHandle<xAOD::FlowElementContainer> neutralFELCContainerWriteHandle(m_neutralFELCContainerWriteHandleKey,ctx);
   ATH_CHECK( neutralFELCContainerWriteHandle.record(std::move(neutralFELCContainer),std::move(neutralFELCContainerAux)));
+
+  for( unsigned int counter = 0; counter < (*neutralFEContainerReadHandle).size(); counter++){
+    const xAOD::FlowElement* thisFE = (*neutralFEContainerReadHandle)[counter];
+
+    const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > accShowerSubtractedClusterLink("FEShowerSubtractedClusterLink");
+    ElementLink<xAOD::CaloClusterContainer> clusElementLink = accShowerSubtractedClusterLink(*thisFE);
+
+    xAOD::FlowElement* theCopiedFE = (*neutralFELCContainerWriteHandle)[counter];
+    theCopiedFE->setP4((*clusElementLink)->pt(), (*clusElementLink)->rawEta(), (*clusElementLink)->rawPhi(), (*clusElementLink)->m());
+  }
+
 
   return StatusCode::SUCCESS;
 }
