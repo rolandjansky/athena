@@ -7354,11 +7354,9 @@ namespace Trk {
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(TrackStateOnSurface::Perigee);
 
-    std::unique_ptr<const TrackStateOnSurface> pertsos = std::make_unique<const TrackStateOnSurface>(nullptr, per.release(), nullptr, nullptr, typePattern);
-    
     ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
 
-    return pertsos;
+    return std::make_unique<const TrackStateOnSurface>(nullptr, per.release(), nullptr, nullptr, typePattern);
   }
 
   std::unique_ptr<Track> GlobalChi2Fitter::makeTrack(
