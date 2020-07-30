@@ -212,10 +212,14 @@ protected :
 	int m_etaWidth_REtaIsolation_den;
 	// phi width for REta isolation given in number of SCs (denominator of fraction)
 	int m_phiWidth_REtaIsolation_den;
-	// eta width for RHad isolation given in number of SCs
-	int m_etaWidth_RHadIsolation;
-	// phi width for RHad isolation given in number of SCs
-	int m_phiWidth_RHadIsolation;
+	// EM eta width for RHad isolation given in number of SCs
+	int m_etaEMWidth_RHadIsolation;
+	// EM phi width for RHad isolation given in number of SCs
+	int m_phiEMWidth_RHadIsolation;
+	// hadronic eta width for RHad isolation given in number of SCs
+	int m_etaHadWidth_RHadIsolation;
+	// hadronic phi width for RHad isolation given in number of SCs
+	int m_phiHadWidth_RHadIsolation;
 	// eta width for wstot isolation given in number of SCs
 	int m_etaWidth_wstotIsolation;
 	// phi width for wstot isolation given in number of SCs
