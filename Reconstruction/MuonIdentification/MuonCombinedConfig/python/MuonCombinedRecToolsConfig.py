@@ -112,12 +112,15 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
 
 
 def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**kwargs):
-    # FIXME - not sure how to handle the trigger bit below (from the old configuration)
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
-
-    result = MuonCombinedTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool", result.getPrimary() ) 
+    result = ComponentAccumulator()    
+    if flags.Muon.MuonTrigger:
+        from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
+        acc = MuonTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        acc = MuonCombinedTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", acc.getPrimary() ) 
 
     acc = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("Extrapolator", acc.getPrimary() )
@@ -176,10 +179,16 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     result.addPublicTool(atlas_extrapolator)
     kwargs = dict()
     kwargs["Extrapolator"] = atlas_extrapolator
-    acc = MuonCombinedTrackSummaryToolCfg(flags)
-    muon_combined_track_summary_tool = acc.popPrivateTools()
-    result.merge(acc)
-    kwargs["TrackSummaryTool"] = muon_combined_track_summary_tool
+    if flags.Muon.SAMuonTrigger:
+        from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
+        acc = MuonTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        acc = MuonCombinedTrackSummaryToolCfg(flags)
+        muon_combined_track_summary_tool = acc.popPrivateTools()
+        result.merge(acc)
+        kwargs["TrackSummaryTool"] = muon_combined_track_summary_tool
     kwargs["KeepAllPerigee"] = True 
     kwargs["PerigeeExpression"] = "Origin"
     track_particle_creator = CompFactory.Trk.TrackParticleCreatorTool(name="MuonCaloParticleCreator",**kwargs)
@@ -203,11 +212,13 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
     result = MuonMaterialProviderToolCfg(flags)
     kwargs.setdefault( "CaloMaterialProvider", result.getPrimary() )
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault('MakeTrackAtMSLink',True)
-    #     kwargs.setdefault("FillTimingInformation",False)
-    #     kwargs.setdefault("MuonSelectionTool", "")
-    # else:
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault('MakeTrackAtMSLink',True)
+        kwargs.setdefault("FillTimingInformation",False)
+        kwargs.setdefault("MuonSelectionTool", "")
+        kwargs.setdefault("UseCaloCells", False)
+        kwargs.setdefault("TrackSegmentAssociationTool", "")
+
     acc = MuonCombinedParticleCreatorCfg(flags)
     kwargs.setdefault("TrackParticleCreator", acc.getPrimary() )
     result.merge(acc)
@@ -228,8 +239,13 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
 
 def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
     #FIXME complete this configuration
-    result = MuonCombinedTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool", result.popPrivateTools() )
+    if flags.Muon.MuonTrigger:
+        from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
+        result = MuonTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", result.popPrivateTools())
+    else:
+        result = MuonCombinedTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", result.popPrivateTools() )
     result.setPrivateTools(CompFactory.ExtrapolateMuonToIPTool(name,**kwargs))
     return result
 
@@ -240,13 +256,17 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
 
     result = CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")
     kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
-#   Why was this dependent on cosmics? will now always create this 
-#   if flags.Beam.Type=="cosmics":
-    acc = ExtrapolateMuonToIPToolCfg(flags)
-    extrapolator = acc.popPrivateTools()
-    result.addPublicTool(extrapolator)
-    kwargs.setdefault("TrackExtrapolationTool", extrapolator )
-    result.merge(acc)
+    #   Why was this dependent on cosmics? will now always create this 
+    #   if flags.Beam.Type=="cosmics":
+    if flags.Muon.MuonTrigger and flags.Beam.Type!="cosmics":
+        #trigger definitely only uses the ExtrapolateToIPtool in cosmics mode
+        kwargs.setdefault("TrackExtrapolationTool", "")
+    else:
+        acc = ExtrapolateMuonToIPToolCfg(flags)
+        extrapolator = acc.popPrivateTools()
+        result.addPublicTool(extrapolator)
+        kwargs.setdefault("TrackExtrapolationTool", extrapolator )
+        result.merge(acc)
 #   if cosmics was until here
 
     acc = MuonAmbiProcessorCfg(flags)
@@ -346,11 +366,16 @@ def iPatFitterCfg(flags, name='iPatFitter', **kwargs):
     kwargs.setdefault("FullCombinedFit", True )
     result = MuidMaterialAllocatorCfg(flags)
     kwargs.setdefault("MaterialAllocator",result.popPrivateTools() )
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("MaxIterations", 15)
-    acc = MuonCombinedTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool", acc.getPrimary() )
-    result.merge(acc)
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("MaxIterations", 15)
+        from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
+        acc = MuonTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        acc = MuonCombinedTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", acc.getPrimary() )
+        result.merge(acc)
 
     tool = CompFactory.Trk.iPatFitter(name,**kwargs)
     result.setPrivateTools(tool)
