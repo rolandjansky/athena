@@ -38,6 +38,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
 ToolSvc+=JETM1ORTool
 
+
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
@@ -290,7 +291,7 @@ JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jet
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",
                                        "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack"]
 
-JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "TruthVertices",
+JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "TruthVertices", "TruthEvents"
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape"]
 
 # Trigger content
@@ -313,7 +314,7 @@ addJetOutputs(JETM1SlimmingHelper,["SmallR","JETM1"],["AntiKt10UFOCSSKJets",
               )
 
 if DerivationFrameworkIsMonteCarlo:
-    JETM1SlimmingHelper.AllVariables += ["TruthMuons", "TruthElectrons", "TruthPhotons"]
+    JETM1SlimmingHelper.AllVariables += ["TruthMuons", "TruthElectrons", "TruthPhotons", "TruthEvents"]
     for truthc in ["TruthTop", "TruthBoson"]:
         JETM1SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
         JETM1SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
