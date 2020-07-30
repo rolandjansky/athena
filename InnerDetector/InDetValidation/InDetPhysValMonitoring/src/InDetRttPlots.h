@@ -34,7 +34,7 @@
 #include "InDetPerfPlot_VerticesVsMu.h"
 #include "InDetPerfPlot_TrkInJet.h"
 #include "InDetPerfPlot_TRTExtension.h"
-#include "InDetPerfPlot_AltNonprimTracking.h"
+#include "InDetPerfPlot_ANTracking.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -55,6 +55,7 @@ public:
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
   void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx); //mu dependent plots
+  void fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx); 
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///Fill for efficiency plots
@@ -93,7 +94,7 @@ private:
   InDetPerfPlot_Vertex m_hardScatterVertexPlots;
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
   InDetPerfPlot_TRTExtension m_trtExtensionPlots;
-  //InDetPerfPlot_AltNonprimTracking m_altNonprimTrackingPlots;
+  InDetPerfPlot_ANTracking m_anTrackingPlots;
   std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;
   std::unique_ptr<InDetPerfPlot_VertexTruthMatching> m_vertexTruthMatchingPlots;

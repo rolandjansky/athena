@@ -30,6 +30,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   m_hardScatterVertexPlots(this, "Vertices/HardScatteringVertex"),
   m_hardScatterVertexTruthMatchingPlots(this, "Vertices/HardScatteringVertex"),
   m_trtExtensionPlots(this, "Tracks/TRTExtension"),
+  m_anTrackingPlots(this, "Tracks/ANT"),
   m_resolutionPlotSecd(nullptr),
   m_doTrackInJetPlots(true) //FIX CONFIGURATION
 {
@@ -37,7 +38,6 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
   
-//  m_altNonprimTrackingPlots(this, "Tracks/ANT"),
   if(m_iDetailLevel >= 200){
     m_resolutionPlotSecd = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "Tracks/Matched/Resolutions/Secondary"));
     m_hitsMatchedTracksPlots = std::unique_ptr<InDetPerfPlot_Hits>(new InDetPerfPlot_Hits(this, "Tracks/Matched/HitsOnTracks"));
@@ -146,6 +146,8 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
   m_hitEffPlot.fill(particle);
   // fill pt plots
   m_trackParameters.fill(particle);
+  m_anTrackingPlots.fill(particle);
+
   if(m_iDetailLevel >= 200){
     std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
     
@@ -165,7 +167,6 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
 
   m_hitsRecoTracksPlots.fill(particle);
   m_trtExtensionPlots.fill(particle);
-//  m_altNonprimTrackingPlots.fill(particle);
 }
 
 void
@@ -175,6 +176,12 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const float mu, const u
 
 }
 
+void
+InDetRttPlots::fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx) { 
+
+  m_anTrackingPlots.fill(nTrkANT, nTrkSTD, nTrkBAT, mu, nVtx);
+
+}
 //
 //Fill plots for selected truth particle
 //
@@ -192,10 +199,8 @@ InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle) {
 void
 InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx) {
   m_effPlots.fill(truth, isGood);
-   std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo> patternInfo = track.patternRecoInfo();
-  std::cout << patternInfo.test(49) << std::endl;
-  //m_altNonprimTrackingPlots.fillEfficiency(truth, track, isGood, mu, nVtx);
 
+  m_anTrackingPlots.fillEfficiency(truth, track, isGood, mu, nVtx);
   if(m_iDetailLevel >= 200){
     if(isGood){
       std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();
@@ -232,10 +237,11 @@ void
 InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx){
 
   m_missingTruthFakePlots.fill(track, !isAssociatedTruth);
- // m_altNonprimTrackingPlots.fillUnlinked(track, !isAssociatedTruth, mu, nVtx);
+  m_anTrackingPlots.fillUnlinked(track, !isAssociatedTruth, mu, nVtx);
+
   if(isAssociatedTruth) {
     m_fakePlots.fill(track, isFake);
-  //  m_altNonprimTrackingPlots.fillFakeRate(track, isFake, mu, nVtx);
+      m_anTrackingPlots.fillFakeRate(track, isFake, mu, nVtx);
 
     if(m_iDetailLevel >= 200){
       std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();

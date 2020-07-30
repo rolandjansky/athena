@@ -281,6 +281,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   //
   std::vector<const xAOD::TrackParticle*> selectedTracks {};
   selectedTracks.reserve(tracks->size());
+  unsigned int nTrackBAT = 0, nTrackSTD = 0, nTrackANT = 0;
   for (const auto& thisTrack: *tracks) {
     //FIXME: Why is this w.r.t the primary vertex?
     const asg::AcceptData& accept = m_trackSelectionTool->accept(*thisTrack, primaryvertex);
@@ -291,6 +292,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
     //Number of selected reco tracks
     nSelectedRecoTracks++;
     //Fill plots for selected reco tracks, hits / perigee / ???
+    std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = thisTrack->patternRecoInfo();
+    bool isBAT = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTSeededTrackFinder);
+    bool isANT = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_LargeD0);
+    bool isSTD = not isBAT and not isANT;
+    if(isBAT) nTrackBAT++;
+    if(isSTD) nTrackSTD++;
+    if(isANT) nTrackANT++;
+
     m_monPlots->fill(*thisTrack);                                      
     m_monPlots->fill(*thisTrack, puEvents, nVertices);  //fill mu dependent plots
     const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
@@ -322,6 +331,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth, puEvents, nVertices);
 
   }
+  m_monPlots->fill(nTrackANT, nTrackSTD, nTrackBAT, puEvents, nVertices);
   //FIXME: I don't get why... this is here
   if (m_truthSelectionTool.get()) {
     ATH_MSG_DEBUG( CutFlow(tmp_truth_cutflow).report(m_truthSelectionTool->names()) );
@@ -347,7 +357,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       //Loop over reco tracks to find the match
       //
       const xAOD::TrackParticle* matchedTrack = nullptr;
-      for (const auto& thisTrack: selectedTracks) { // Inner loop over selected track particles
+      for (const auto& thisTrack: selectedTracks) { // Inner loop over selected track particleis
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
         if (associatedTruth && associatedTruth == thisTruth) {
           float prob = getMatchingProbability(*thisTrack);

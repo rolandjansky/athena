@@ -436,6 +436,40 @@
   <x title="number of vertices" n="100" lo="0.0" hi="100.0"/>
   <y title="Fake Rate" lo="0" hi="2.0"/>
 </h>
+
+<h id="trkpropSplit_vs_d0" type="TH1F" title="reco_{d_{0}}">
+  <x title="reco_{d0} [mm]" n="100" lo="-300.0" hi="300.0"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkpropSplit_vs_z0" type="TH1F" title="reco_{z_{0}}">
+  <x title="reco_{z_{0}}" n="100" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkpropSplit_vs_phi" type="TH1F" title="reco_{#phi}">
+  <x title="reco_{#phi} [rads]" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkpropSplit_vs_eta" type="TH1F" title="reco_{#eta}">
+  <x title="reco_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkpropSplit_vs_pt" type="TH1F" title="reco_{p_{T}} [GeV]">
+  <x title="reco_{p_{T}} [GeV]" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="ntrkSplit_vs_mu" type="TH2" title="Number of tracks versus mu">
+  <x title="#LT#mu#GT" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+<h id="ntrkSplit_vs_nvertices" type="TH2" title="Number of tracks versus nvertices">
+  <x title="Number of vertices" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
 <!--
    =======================================================
    end ANT plots
