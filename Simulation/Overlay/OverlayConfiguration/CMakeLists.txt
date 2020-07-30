@@ -22,3 +22,8 @@ atlas_add_test( OverlayTest_data
                 SCRIPT test/OverlayTest.py -d
                 PROPERTIES TIMEOUT 900
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( OverlayMetadataConfig_test
+                SCRIPT test/OverlayMetadataConfig_test.py
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh )
