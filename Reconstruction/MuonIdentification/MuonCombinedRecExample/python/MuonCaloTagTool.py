@@ -47,6 +47,10 @@ def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
+def CaloMuonScoreTool(name='CaloMuonScoreTool', **kwargs ):
+    kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
+    return CfgMgr.CaloMuonScoreTool(name,**kwargs)
+
 def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):  
     from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
     CaloMuonTagLoose = ConfiguredCaloMuonTag(name = "CaloMuonTagLoose")
