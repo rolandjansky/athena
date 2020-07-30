@@ -178,8 +178,8 @@ namespace top {
     			"use OldLoose or OldMedium if you really want to use both (outdated)");
     }
     if (m_config->tauEleOLRLoose() && tauEleBDTWPLoose >=2 && !(tauEleBDTWPLoose==TauAnalysisTools::ELEIDBDTOLDLOOSE || tauEleBDTWPLoose==TauAnalysisTools::ELEIDBDTOLDMEDIUM)){
-        	ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options. "
-        			"Use OldLoose or OldMedium if you really want to use both (outdated)");
+      ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options. "
+          "Use OldLoose or OldMedium if you really want to use both (outdated)");
         }
 
     //============================================================
