@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
 
@@ -47,7 +47,8 @@ def configureFlagsBase():
 def configureFlagsFullG4():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "FullG4"
-    ISF_Flags.HITSMergingRequired = False
+    mergeDict = {'ID':False, 'CALO':False, 'MUON':False}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsFullG4_LongLived():
@@ -111,6 +112,8 @@ def configureFlagsATLFASTII():
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
+    mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsATLFASTII_PileUp():
@@ -152,6 +155,9 @@ def configureFlagsATLFASTIIF():
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.MaterialVersion=21
     TrkDetFlags.TRT_BuildStrawLayers=True
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsFatras_newExtrapolation():
@@ -180,6 +186,9 @@ def configureFlagsG4HS_FastPileup():
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.MaterialVersion=21
     TrkDetFlags.TRT_BuildStrawLayers=True
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsATLFASTIIF_IDOnly():
@@ -203,6 +212,8 @@ def configureFlagsFastOnly():
 def configureFlagsMultiSimTest():
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
+    mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsG4GammaCones():
