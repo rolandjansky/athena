@@ -219,14 +219,6 @@ namespace Trk {
       int, int
     ) const;
 
-    void processStates(
-      GXFTrajectory &,
-      bool,
-      Eigen::Matrix<double, 5, 5> &,
-      std::vector<Eigen::Matrix<double, 5, 5>> &,
-      std::vector<Eigen::Matrix<double, 5, 5>> &
-    ) const;
-
     Track * fitIm(
       const EventContext& ctx,
       Cache & cache,
@@ -447,7 +439,26 @@ namespace Trk {
       const ParticleHypothesis
     ) const;
 
-    Track *makeTrack(
+    void makeTrackFillDerivativeMatrix(
+      Cache &,
+      GXFTrajectory &
+    ) const;
+
+    std::unique_ptr<const TrackParameters> makeTrackFindPerigeeParameters(
+      const EventContext &,
+      Cache &,
+      GXFTrajectory &,
+      const ParticleHypothesis
+    ) const;
+
+    std::unique_ptr<const TrackStateOnSurface> makeTrackFindPerigee(
+      const EventContext &,
+      Cache &,
+      GXFTrajectory &,
+      const ParticleHypothesis
+    ) const;
+
+    std::unique_ptr<Track> makeTrack(
       const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
@@ -533,24 +544,6 @@ namespace Trk {
 
     bool correctAngles(double &, double &) const;
 
-    void errors1(
-      double (*jac)[5], 
-      AmgSymMatrix(5) & prevcov,
-      AmgSymMatrix(5) & trackerrmat, 
-      bool onlylocal
-    ) const;
-
-    void errors2(
-      Amg::MatrixX & derivatives, 
-      AmgSymMatrix(5) & trackerrmat,
-      double *myarray, 
-      std::vector<int> *rowindices, 
-      int &maxl,
-      int *minm, 
-      bool onlylocal, 
-      int nfitpars
-    ) const;
-     
     bool isMuonTrack(const Track &) const;
 
     void incrementFitStatus(enum FitterStatusType) const;

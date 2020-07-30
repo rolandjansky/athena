@@ -3,9 +3,9 @@
 */
 
 #include "TrigT1TGC/TGCTrackSelector.h"
-#include "TrigT1TGC/TGCSectorLogic.hh"
+#include "TrigT1TGC/TGCSectorLogic.h"
 #include "TrigT1TGC/TGCTrackSelectorOut.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceOut.hh"
+#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
 
 
 namespace LVL1TGCTrigger {

@@ -37,10 +37,10 @@ StatusCode SimTimeEstimate::execute()
             // Grab the momentum
             const HepMC::FourVector pmom = part->momentum();
             // Only count particles with finite eta
-            if (pmom.perp()==0 || fabs(pmom.eta())>m_etaMax) continue;
+            if (pmom.perp()==0 || std::abs(pmom.eta())>m_etaMax) continue;
             m_particleEtas.push_back(pmom.eta());
             // add  ID of particle to list 
-            m_particleIDs.push_back(abs(part->pdg_id()));
+            m_particleIDs.push_back(std::abs(part->pdg_id()));
             // add energy per particle to get the distribution:
             m_particleEnergies.push_back(pmom.e());
 

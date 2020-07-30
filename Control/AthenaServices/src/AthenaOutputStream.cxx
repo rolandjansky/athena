@@ -202,104 +202,50 @@ AthenaOutputStream::~AthenaOutputStream() {
 
 // initialize data writer
 StatusCode AthenaOutputStream::initialize() {
-   StatusCode status(StatusCode::FAILURE);
-   StatusCode baseStatus = this->FilteredAlgorithm::initialize();
+   ATH_CHECK( this->FilteredAlgorithm::initialize() );
    ATH_MSG_DEBUG("In initialize");
    // Reset the number of events written
    m_events = 0;
 
    // set up the SG service:
-   status = m_dataStore.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate default store");
-      return(status);
-   } else {
-      ATH_MSG_DEBUG("Found " << m_dataStore.typeAndName() << " store.");
-   }
+   ATH_CHECK( m_dataStore.retrieve() );
+   ATH_MSG_DEBUG("Found " << m_dataStore.typeAndName() << " store.");
    assert(static_cast<bool>(m_dataStore));
    if (!m_metadataItemList.value().empty()) {
-      status = m_metadataStore.retrieve();
-      if (!status.isSuccess()) {
-         ATH_MSG_FATAL("Could not locate metadata store");
-         return(status);
-      } else {
-         ATH_MSG_DEBUG("Found " << m_metadataStore.typeAndName() << " store.");
-      }
+      ATH_CHECK( m_metadataStore.retrieve() );
+      ATH_MSG_DEBUG("Found " << m_metadataStore.typeAndName() << " store.");
       assert(static_cast<bool>(m_metadataStore));
    }
 
    // set up the CLID service:
-   status = m_pCLIDSvc.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate default ClassIDSvc");
-      return(status);
-   }
+   ATH_CHECK( m_pCLIDSvc.retrieve() );
 
    // set up the ItemListSvc service:
    assert(static_cast<bool>(m_pCLIDSvc));
-   status = m_itemSvc.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate default ItemListSvc");
-      return(status);
-   }
+   ATH_CHECK( m_itemSvc.retrieve() );
    assert(static_cast<bool>(m_itemSvc));
 
    // set up the OutputStreamSequencer service:
-   status = m_outSeqSvc.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate OutputStreamSequencerSvc");
-      return(status);
-   }
+   ATH_CHECK( m_outSeqSvc.retrieve() );
    assert(static_cast<bool>(m_outSeqSvc));
 
    // Get Output Stream tool for writing
-   status = m_streamer.retrieve();
-   if (status.isFailure()) {
-      ATH_MSG_FATAL("Cannot find " << m_streamer);
-      return(status);
-   }
-   status = m_streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord);
-   if (status.isFailure()) {
-      ATH_MSG_FATAL("Unable to connect services");
-      return(status);
-   }
+   ATH_CHECK( m_streamer.retrieve() );
+   ATH_CHECK( m_streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord) );
 
-   status = m_helperTools.retrieve();
-   if (status.isFailure()) {
-      ATH_MSG_FATAL("Cannot find " << m_helperTools);
-      return(status);
-   }
+   ATH_CHECK( m_helperTools.retrieve() );
    ATH_MSG_INFO("Found " << m_helperTools << endmsg << "Data output: " << m_outputName);
 
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-           iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->postInitialize().isSuccess()) {
-         status = StatusCode::FAILURE;
-      }
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+     ATH_CHECK( tool->postInitialize() );
    }
 
    // Register this algorithm for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
-   status = iomgr.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Cannot get the IoComponentMgr");
-      return(status);
-   }
-   status = iomgr->io_register(this);
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not register myself with the IoComponentMgr");
-      return(status);
-   }
-   status = iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName);
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not register [" << m_outputName << "] for output !");
-      return(status);
-   }
-   status = this->io_reinit();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could re-init I/O component");
-      return(status);
-   }
+   ATH_CHECK( iomgr.retrieve() );
+   ATH_CHECK( iomgr->io_register(this) );
+   ATH_CHECK( iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName) );
+   ATH_CHECK( this->io_reinit() );
 
    // Add an explicit input dependency for everything in our item list
    // that we know from the configuration is in the transient store.
@@ -361,8 +307,7 @@ StatusCode AthenaOutputStream::initialize() {
    }
 
    ATH_MSG_DEBUG("End initialize");
-   if (baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
-   return(status);
+   return StatusCode::SUCCESS;
 }
 
 StatusCode AthenaOutputStream::stop()
@@ -441,9 +386,8 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
 
    // Moved preFinalize of helper tools to stop - want to optimize the
    // output file in finalize RDS 12/2009
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-        iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->preFinalize().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->preFinalize().isSuccess()) {
          throw GaudiException("Cannot finalize helper tool", name(), StatusCode::FAILURE);
       }
    }
@@ -517,9 +461,8 @@ StatusCode AthenaOutputStream::finalize() {
 
 StatusCode AthenaOutputStream::execute() {
    bool failed = false;
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-           iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->preExecute().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->preExecute().isSuccess()) {
          failed = true;
       }
    }
@@ -529,9 +472,8 @@ StatusCode AthenaOutputStream::execute() {
          failed = true;
       }
    }
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-           iter != m_helperTools.end(); iter++) {
-      if(!(*iter)->postExecute().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if(!tool->postExecute().isSuccess()) {
          failed = true;
       }
    }
@@ -613,6 +555,10 @@ StatusCode AthenaOutputStream::write() {
    }
    // prepare before releasing lock because m_outputAttributes change in metadataStop
    const std::string connectStr = outputFN + m_outputAttributes;
+
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+     ATH_CHECK( tool->preStream() );
+   }
 
    // MN: would be nice to release the Stream lock here
    // lock.unlock();
@@ -1111,9 +1057,8 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-       iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->postInitialize().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->postInitialize().isSuccess()) {
           ATH_MSG_ERROR("Cannot initialize helper tool");
       }
    }
@@ -1123,9 +1068,8 @@ StatusCode AthenaOutputStream::io_reinit() {
 
 StatusCode AthenaOutputStream::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-       iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->preFinalize().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->preFinalize().isSuccess()) {
           ATH_MSG_ERROR("Cannot finalize helper tool");
       }
    }

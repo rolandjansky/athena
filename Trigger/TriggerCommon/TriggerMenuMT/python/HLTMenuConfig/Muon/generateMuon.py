@@ -19,14 +19,31 @@ def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     return HLTTest__TestHypoAlg( name, Input="" )
 
 def EFMuonViewDataVerifierCfg():
-    EFMuonViewDataVerifier =  CompFactory.getComp("AthViews::ViewDataVerifier")("EFMuonViewDataVerifier")
-    EFMuonViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
+    EFMuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFMuon")
+    EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                          ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
                                           ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                           ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                           ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonViewDataVerifier)
+    return result
+
+def MuFastViewDataVerifier():
+    result = ComponentAccumulator()
+    alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuFast",
+                                                 DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                                                ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
+                                                                ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
+                                                                ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
+                                                                ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
+                                                                ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
+                                                                ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
+                                                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' ),
+                                                                ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )
+                                                               ]  )
+    result.addEventAlgo(alg)
     return result
 
 def generateChains( flags, chainDict ):
@@ -43,6 +60,8 @@ def generateChains( flags, chainDict ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
     reco = InViewReco("L2MuFastReco")
 
+    #external data loading to view
+    reco.mergeReco( MuFastViewDataVerifier() )
 
 
     # decoding

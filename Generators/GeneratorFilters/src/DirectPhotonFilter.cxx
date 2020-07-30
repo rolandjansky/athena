@@ -93,7 +93,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
     for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
       if (((*pitr)->pdg_id() == 22)) {
 	if( ((*pitr)->momentum().perp() >= m_Ptmin) && ((*pitr)->momentum().perp() <= m_Ptmax) &&
-	    fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange){
+	    std::abs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange){
 	  ATH_MSG_DEBUG("Generic photon found with status = " << (*pitr)->status() << " " << (*pitr)->barcode());
 
           HepMC::GenVertex* CandProdVertex = (*pitr)->production_vertex();
@@ -120,7 +120,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
       if ( ((*pitr)->pdg_id() == 22) ){ 
 	if( (*pitr)->status() == 1 &&
 	    ((*pitr)->momentum().perp() >= m_Ptmin) && ((*pitr)->momentum().perp() <= m_Ptmax) &&
-	    fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange){
+	    std::abs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange){
 
           // The following lines are for cross checking purpose when using different generators
           HepMC::GenVertex* CandProdVertex = (*pitr)->production_vertex();

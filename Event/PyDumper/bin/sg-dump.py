@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file: PyDumper/bin/sg-dump.py
 # @purpose: a simple python script to run pyathena and use PySgDumper to dump
 #           a (set of) event(s) from a POOL (esd/aod) file into an ASCII file
@@ -154,6 +154,8 @@ if __name__ == "__main__":
             athena_opts=options.athena_opts,
             msg=msg
             )
-    except Exception,err:
+    except Exception as err:
         msg.error('problem while running sg-dump:\n%s', err)
+        import traceback
+        traceback.print_exc()
     sys.exit(sc)

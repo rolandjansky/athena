@@ -55,10 +55,10 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 					      xAOD::PFOContainer& hadronicPFOContainer, 
 					      xAOD::CaloClusterContainer& caloClusterContainer, 
-					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) override;
+					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) const override;
   virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) const override;  
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) override;  
-  virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) override;
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) const override;  
+  virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const override;
   virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& particleContainer) override;
 
   //-----------------------------------------------------------------

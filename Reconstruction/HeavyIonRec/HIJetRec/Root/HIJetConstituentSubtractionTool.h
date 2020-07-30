@@ -32,6 +32,7 @@
 #include "HIJetRec/IHISubtractorTool.h"
 #include "HIJetRec/IHIUEModulatorTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -79,6 +80,7 @@ private:
   /// subtracted kinematics for each constituent
   ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetClusterSubtractorTool", "" };
   ToolHandle<IHIUEModulatorTool> m_modulatorTool { this, "Modulator" , "HIUEModulatorTool ", "" };
+  ToolHandle<IHIEventShapeMapTool> m_eventShapeMapTool { this, "EventShapeMapTool", "HIEventShapeMapTool", "Handle to Event Shape Map Tool"};
 
   Gaudi::Property< bool > m_originCorrection { this, "ApplyOriginCorrection", false, "Apply Origin Correction boolean switch"};
 

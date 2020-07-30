@@ -366,7 +366,7 @@ if __name__=='__main__':
     # file to be run w/ doRun2 = False
     # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
-    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest200520.AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest010720.AOD.pool.root'
     # file to be run w/ doRun2 = True
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_ST_240919/AOD.pool.root'
     # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-09-16T2129/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'

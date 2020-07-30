@@ -1,21 +1,11 @@
-################################################################################
-# Package: DetDescrConditions
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DetDescrConditions )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-			  Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier
-                          GaudiKernel )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( DetDescrConditions
@@ -27,14 +17,10 @@ atlas_add_library( DetDescrConditions
                    src/DetStatusMap.cxx
                    PUBLIC_HEADERS DetDescrConditions
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolUtilities Identifier GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities GaudiKernel Identifier )
 
 atlas_add_dictionary( DetDescrConditionsDict
                       DetDescrConditions/DetDescrConditionsDict.h
                       DetDescrConditions/selection.xml
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolUtilities Identifier GaudiKernel DetDescrConditions )
-
+                      LINK_LIBRARIES DetDescrConditions )

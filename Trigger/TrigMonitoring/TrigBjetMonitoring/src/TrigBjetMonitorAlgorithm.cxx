@@ -348,7 +348,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	  auto nJet = Monitored::Scalar<int>(nJetH,0.0);
 	  nJet = onlinejets.size();
 	  fill("TrigBjetMonitor",nJet);
-	  for(const auto jetLinkInfo : onlinejets) {
+	  for(const auto& jetLinkInfo : onlinejets) {
 	    // jetPt
 	    const xAOD::Jet* jet = *(jetLinkInfo.link);
 	    std::string NameH = "jetPt_"+trigName;
@@ -373,7 +373,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	      std::string vtxname = m_onlineVertexContainerKey.key();
 	      if ( vtxname.find("HLT_")==0 ) vtxname.erase(0,4);
 
-	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120
+	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120 & MS 290620
 	      ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	      const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	      NameH = "PVz_jet_"+trigName;

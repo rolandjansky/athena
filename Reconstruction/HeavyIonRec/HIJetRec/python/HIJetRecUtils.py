@@ -126,6 +126,11 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
 
+    if 'map_tool' in kwargs.keys() : map_tool=kwargs['map_tool']
+    else :
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        map_tool=HIEventShapeMapTool()
+
     subtr=HIJetConstituentSubtractionTool("HICS_"+suffix)
     subtr.EventShapeKey=shapeKey
     subtr.Modulator=mod_tool
@@ -133,6 +138,8 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     subtr.SetMomentOnly=momentOnly
     subtr.ApplyOriginCorrection=HIJetFlags.ApplyOriginCorrection()
     subtr.Subtractor=GetSubtractorTool(**kwargs)
+    subtr.EventShapeMapTool=map_tool
+
     jtm.add(subtr)
     return subtr
 
@@ -150,6 +157,11 @@ def ApplySubtractionToClusters(**kwargs) :
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
+
+    if 'map_tool' in kwargs.keys() : map_tool=kwargs['map_tool']
+    else :
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        map_tool=HIEventShapeMapTool()
 
     if 'update_only' in kwargs.keys() : update_only = kwargs['update_only']
     else : update_only = False
@@ -173,6 +185,7 @@ def ApplySubtractionToClusters(**kwargs) :
     theAlg.UpdateOnly=update_only
     theAlg.SetMoments=do_cluster_moments
     theAlg.ApplyOriginCorrection=apply_origin_correction
+    theAlg.EventShapeMapTool=map_tool
 
     if do_cluster_moments :
         CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
@@ -254,6 +267,11 @@ def AddIteration(seed_container,shape_name, **kwargs) :
             #mod_shape_name=BuildHarmonicName(out_shape_name,**kwargs)
             mod_tool=MakeModulatorTool(mod_shape_key,**kwargs)
 
+    if 'map_tool' in kwargs.keys() : map_tool=kwargs['map_tool']
+    else :
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        map_tool=HIEventShapeMapTool()
+
     assoc_name=jtm.HIJetDRAssociation.AssociationName
     HIEventShapeJetIteration=CompFactory.HIEventShapeJetIteration
     iter_tool=HIEventShapeJetIteration('HIJetIteration_%s' % out_shape_name )
@@ -268,6 +286,7 @@ def AddIteration(seed_container,shape_name, **kwargs) :
     iter_tool.Modulator=mod_tool
     iter_tool.ShallowCopy=False
     iter_tool.ModulationEventShapeKey=mod_shape_key
+    iter_tool.EventShapeMapTool=map_tool
 
     if 'track_jet_seeds' in kwargs.keys() :
         iter_tool.TrackJetSeedContainerKey=kwargs['track_jet_seeds']
@@ -305,7 +324,7 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
     # Add the PseudoJetAlgorithm
     # To avoid massive refactoring and to preserve familiarity,
     # jet guys kept calling things "getters", but these are already
-    # PseudoJetAlgorithms as they eliminated the wrappers 
+    # PseudoJetAlgorithms as they eliminated the wrappers
     for getter in jtm.allGetters:
         print ('Adding PseudoJetAlgorithm %s' % getter.name)
         print ('Input Container %s' % getter.InputContainer)

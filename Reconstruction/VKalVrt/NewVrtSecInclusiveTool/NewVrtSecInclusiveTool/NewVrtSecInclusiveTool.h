@@ -54,8 +54,6 @@ namespace Trk{
  
 namespace MVAUtils { class BDT; }
 
-typedef std::vector<double> dvect;
-
  
 //------------------------------------------------------------------------
 namespace Rec {

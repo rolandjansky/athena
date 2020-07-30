@@ -108,14 +108,14 @@ StatusCode Boosted2DijetFilter::filterEvent() {
   //getting a collection of truth jets which pass some cuts 
   for (jitr = (*truthjetTES).begin(); jitr !=(*truthjetTES).end(); ++jitr) { 
     if( (*jitr)->pt() < m_jetPtMin ) continue;
-    if( fabs( (*jitr)->eta() ) > m_jetEtaMax ) continue;
+    if( std::abs( (*jitr)->eta() ) > m_jetEtaMax ) continue;
     jets.push_back(jitr);
   }
 
   //getting the akt8 truth jets 
   for (jitr_akt8 = (*truthjetTES_akt8).begin(); jitr_akt8 !=(*truthjetTES_akt8).end(); ++jitr_akt8) { 
     if( (*jitr_akt8)->pt() < m_akt8PtMin ) continue;
-    if( fabs( (*jitr_akt8)->eta() ) > m_jetEtaMax ) continue;
+    if( std::abs( (*jitr_akt8)->eta() ) > m_jetEtaMax ) continue;
     jets_akt8.push_back(jitr_akt8);
   }
   

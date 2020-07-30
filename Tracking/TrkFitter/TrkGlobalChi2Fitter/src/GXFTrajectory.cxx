@@ -436,9 +436,9 @@ namespace Trk {
   }
 
   void GXFTrajectory::reset() {
-    m_res.clear();
-    m_weightresderiv.clear();
-    m_errors.clear();
+    m_res.resize(0);
+    m_weightresderiv.resize(0, 0);
+    m_errors.resize(0);
     m_scatteringangles.clear();
     m_scatteringsigmas.clear();
     m_converged = false;
@@ -570,7 +570,7 @@ namespace Trk {
     return m_scatteringsigmas;
   }
 
-  std::vector < double >& GXFTrajectory::brems() {
+  std::vector<double> & GXFTrajectory::brems() {
     return m_brems;
   }
 
@@ -592,14 +592,14 @@ namespace Trk {
   }
 
   void
-    GXFTrajectory::setBrems(std::vector < double >&brems) {
+    GXFTrajectory::setBrems(std::vector<double> & brems) {
     // if (m_prefit==1) return;
     m_brems = brems;
     int bremno = 0;
     for (auto & state : m_states) {
       if (((*state).materialEffects() != nullptr)
           && (*state).materialEffects()->sigmaDeltaE() > 0) {
-        (*state).materialEffects()->setdelta_p(brems[bremno]);
+        (*state).materialEffects()->setdelta_p(m_brems[bremno]);
         bremno++;
       }
     }
@@ -614,39 +614,26 @@ namespace Trk {
     m_states = states;
   }
 
-  std::vector < double >& GXFTrajectory::residuals() {
-    if (m_res.empty()) {
-      m_res =
-        std::vector <
-        double >( /* 2*m_nscatterers+ */ numberOfBrems() + m_ndof +
-                 m_nperpars + m_nmeasoutl, 0);
+  Amg::VectorX & GXFTrajectory::residuals() {
+    if (m_res.size() == 0) {
+      m_res.setZero(numberOfBrems() + m_ndof + m_nperpars + m_nmeasoutl);
     }
     return m_res;
   }
 
-  std::vector < double >& GXFTrajectory::errors() {
-    if (m_errors.empty()) {
-      m_errors =
-        std::vector <
-        double >( /* 2*m_nscatterers+ */ numberOfBrems() + m_ndof +
-                 m_nperpars + m_nmeasoutl, 0);
+  Amg::VectorX & GXFTrajectory::errors() {
+    if (m_errors.size() == 0) {
+      m_errors.setZero(numberOfBrems() + m_ndof + m_nperpars + m_nmeasoutl);
     }
     return m_errors;
   }
 
-  std::vector < std::vector < double >>&
-    GXFTrajectory::weightedResidualDerivatives() {
-    if (m_weightresderiv.empty()) {
-      m_weightresderiv.resize(numberOfBrems() + m_ndof + m_nperpars +
-                              m_nmeasoutl);
-      // std::cout << "nmeas: " << 2*m_nscatterers+m_nbrems+m_ndof+m_nperpars+m_nmeasoutl << " capacity: " <<
-      // m_resderiv.capacity() << " numberOfFitParameters: " << numberOfFitParameters() << std::endl;
-      int nfitpar = numberOfFitParameters();
-      // std::cout << "capacity: " << m_resderiv.capacity() << " nbrems: " << numberOfBrems() << " ndof: " << m_ndof <<
-      // " perpars: " << m_nperpars << " noutl: " << m_nmeasoutl << std::endl;
-      for (auto & i : m_weightresderiv) {
-        i.resize(nfitpar);
-      }
+  Amg::MatrixX & GXFTrajectory::weightedResidualDerivatives() {
+    if (m_weightresderiv.size() == 0) {
+      m_weightresderiv.setZero(
+        numberOfBrems() + m_ndof + m_nperpars + m_nmeasoutl,
+        numberOfFitParameters()
+      );
     }
     return m_weightresderiv;
   }
@@ -678,5 +665,52 @@ namespace Trk {
   std::vector < std::pair < const Layer *, const Layer *>>&
     GXFTrajectory::upstreamMaterialLayers() {
     return m_upstreammat;
+  }
+
+  std::pair<GXFTrackState *, GXFTrackState *> GXFTrajectory::findFirstLastMeasurement(void) {
+    GXFTrackState *firstmeasstate = nullptr;
+    GXFTrackState *lastmeasstate = nullptr;
+
+    for (auto & hit : trackStates()) {
+      if (
+        hit->measurementType() == TrackState::Pseudo &&
+        hit->trackStateType() == TrackState::GeneralOutlier
+      ) {
+        continue;
+      }
+
+      if (hit->measurement(false) != nullptr) {
+        if (firstmeasstate == nullptr) {
+          firstmeasstate = hit;
+        }
+        lastmeasstate = hit;
+      }
+    }
+
+    if (firstmeasstate == nullptr) {
+      throw std::logic_error("no first measurement.");
+    }
+
+    return std::make_pair(firstmeasstate, lastmeasstate);
+  }
+
+  bool GXFTrajectory::hasKink(void) {
+    for (auto & hit : trackStates()) {
+      if (
+        hit->measurementType() == TrackState::Pseudo &&
+        hit->trackStateType() == TrackState::GeneralOutlier
+      ) {
+        continue;
+      }
+      
+      if (
+        (hit->materialEffects() != nullptr) && 
+        hit->materialEffects()->isKink()
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

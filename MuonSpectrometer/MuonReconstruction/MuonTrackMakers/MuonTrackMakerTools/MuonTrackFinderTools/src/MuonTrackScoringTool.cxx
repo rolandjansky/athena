@@ -1,36 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkTrackSummary/TrackSummary.h"
 #include "MuonTrackScoringTool.h"
+
+#include "TrkTrackSummary/TrackSummary.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
-#include "GaudiKernel/MsgStream.h"
-
-//#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include <cassert>
-#include <vector>
 
 namespace Muon {
 
-  MuonTrackScoringTool::MuonTrackScoringTool(const std::string& t,
-					     const std::string& n,
-					     const IInterface*  p )
-    :
+  MuonTrackScoringTool::MuonTrackScoringTool(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_trkSummaryTool("Trk::TrackSummaryTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_summaryTypeScore(Trk::numberOfTrackSummaryTypes)
   {
     declareInterface<Trk::ITrackScoringTool>(this);
-    declareProperty("SumHelpTool",          m_trkSummaryTool);
 	
     //set some test values
     m_summaryTypeScore[Trk::numberOfPixelHits]	      =  20;
@@ -64,21 +52,12 @@ namespace Muon {
     m_summaryTypeScore[Trk::numberOfMmHits] = 5;
   }
 
-  MuonTrackScoringTool::~MuonTrackScoringTool()
-  {
-  }
-
   StatusCode MuonTrackScoringTool::initialize()
   {
     
     ATH_CHECK( m_trkSummaryTool.retrieve() );
     ATH_MSG_DEBUG("Retrieved tool " << m_trkSummaryTool);
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonTrackScoringTool::finalize()
-  {
     return StatusCode::SUCCESS;
   }
 

@@ -245,11 +245,13 @@ StatusCode AddFlowByShifting::execute() {
 
 #ifdef HEPMC3
     int particles_in_event = (*itr)->particles().size();
+    m_particles_processed = 0;
+    for ( auto parent: mainvtx->particles_out()) {
 #else
     int particles_in_event = (*itr)->particles_size();
-#endif
     m_particles_processed = 0;
     for ( auto parent: *mainvtx) {
+#endif
 
       // Process particles from main vertex
       CLHEP::HepLorentzVector momentum(parent->momentum().px(),
@@ -264,7 +266,7 @@ StatusCode AddFlowByShifting::execute() {
 
       //skip particle if eta is outside implementation range
       if(m_floweta_sw){
-        float eta=fabs(momentum.pseudoRapidity());
+        float eta=std::abs(momentum.pseudoRapidity());
         if (eta<m_flow_mineta || eta> m_flow_maxeta) continue;
       }
 
@@ -350,15 +352,19 @@ void AddFlowByShifting::MoveDescendantsToParent
     ATH_MSG_DEBUG("Processing branch of parent particle "<< HepMC::barcode(parent));
 
     // now rotate descendant vertices
+#ifdef HEPMC3
+    for (HepMC::GenVertexPtr descvtx:  HepMC::descendant_vertices(endvtx)) {
+#else
     for ( HepMC::GenVertex::vertex_iterator
 	    descvtxit = endvtx->vertices_begin(HepMC::descendants);
 	  descvtxit != endvtx->vertices_end(HepMC::descendants);
 	  ++descvtxit) {
       auto descvtx = (*descvtxit);
+#endif
       ATH_MSG_DEBUG("Processing vertex " << HepMC::barcode(descvtx));
 
       // rotate vertex
-      if(fabs(phishift) > 1e-7) {
+      if(std::abs(phishift) > 1e-7) {
 	CLHEP::HepLorentzVector position(descvtx->position().x(),
 				  descvtx->position().y(),
 				  descvtx->position().z(),
@@ -368,7 +374,11 @@ void AddFlowByShifting::MoveDescendantsToParent
       }
 
       // now rotate their associated particles
+#ifdef HEPMC3
+      for (auto descpart: descvtx->particles_out()){
+#else
       for (auto descpart: *descvtx){
+#endif
         CLHEP::HepLorentzVector momentum(descpart->momentum().px(),
 				  descpart->momentum().py(),
 				  descpart->momentum().pz(),
@@ -381,7 +391,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 
 	m_particles_processed++;
 	// rotate particle
-	if(fabs(phishift) > 1e-7) {
+	if(std::abs(phishift) > 1e-7) {
 	  momentum.rotateZ(phishift*Gaudi::Units::rad);
 	  descpart->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
    	  ATH_MSG_DEBUG(" Phi shift =   " << phishift<<
@@ -488,7 +498,7 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticlePtr parent, const H
     phishift = phi-phi_0;
   }
 
-  if(fabs(phishift) > 1e-7) {
+  if(std::abs(phishift) > 1e-7) {
     momentum.rotateZ(phishift*Gaudi::Units::rad);
     parent->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
   }
