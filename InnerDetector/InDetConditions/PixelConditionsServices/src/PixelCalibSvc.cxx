@@ -230,12 +230,12 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
 
   if (isITK) {
     
-    col = (int)eta_index/p_design->columnsPerCircuit();
-    row = (int)phi_index/p_design->rowsPerCircuit();
+    col = floor(eta_index/p_design->columnsPerCircuit());
+    row = floor(phi_index/p_design->rowsPerCircuit());
     circ = 2*row+col;
  
     if( (row != 0 && row != 1) ||  (col != 0 && col != 1) ){ 
-      ATH_MSG_WARNING("FE row is "<<row<<" col is " <<col);
+      ATH_MSG_WARNING("FE row is "<<row<<" col is " <<col<<" they should both have been either 0 or 1");
       circ = 0;
       return 0;
     }  
@@ -287,12 +287,12 @@ int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_i
   int circ(-1);
   if (isITK) {
 
-    int col = (int)eta_index/p_design->columnsPerCircuit();
-    int row = (int)phi_index/p_design->rowsPerCircuit();
+    int col = floor(eta_index/p_design->columnsPerCircuit());
+    int row = floor(phi_index/p_design->rowsPerCircuit());
     circ = 2*row+col;
  
     if( (row != 0 && row != 1) ||  (col != 0 && col != 1) ){ 
-      ATH_MSG_WARNING("FE row is "<<row<<" col is " <<col);
+      ATH_MSG_WARNING("FE row is "<<row<<" col is " <<col<<" while they both should be either 0 or 1");
       circ = 0;
     }  
   }
@@ -666,7 +666,6 @@ float PixelCalibSvc::getTotMean(const Identifier& pix_id, float Q) const {
     if (m_specialIBL_correction) {
       //===============================================================================================================
       // Special IBL calibration
-      const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
       if (m_pixid->barrel_ec(pix_id)==0 && m_pixid->layer_disk(pix_id)==0) {  // IBL
         double scaleC = m_specialIBL_chargescale;
         double corrQ = scaleC*1.11*(1.0-(-7.09*1000.0)/(23.72*1000.0+Q)+(-0.22*1000.0)/(-0.42*1000.0+Q));
