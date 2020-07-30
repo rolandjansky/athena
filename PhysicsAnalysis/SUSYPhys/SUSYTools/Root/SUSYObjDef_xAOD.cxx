@@ -839,7 +839,15 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
   }
   m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
-  ATH_MSG_INFO( "Configured for jet collection " << m_defaultJets );
+  ATH_MSG_INFO( "Configured for jet collection: " << m_defaultJets );
+
+  m_defaultTruthJets = "AntiKt4TruthJets";
+  const xAOD::FileMetaData* fmd = 0;
+  std::string dataType;
+  if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() )
+     fmd->value(xAOD::FileMetaData::dataType, dataType);
+  if ( dataType.compare("StreamDAOD_PHYS")==0 || dataType.compare("StreamDAOD_PHYSLITE")==0 ) m_defaultTruthJets = "AntiKt4TruthDressedWZJets";
+  ATH_MSG_INFO( "Configured for truth jet collection: " << m_defaultTruthJets );
 
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
   m_inputMETMap = "METAssoc_" + m_inputMETSuffix;
