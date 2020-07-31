@@ -136,6 +136,43 @@ private:
   TH2* m_ntrkANT_nvertices;
   TH2* m_ntrkBAT_nvertices;
   TH2* m_ntrkSTD_nvertices;
+
+  TProfile* m_nPixelHitsANT_vs_eta;
+  TProfile* m_nPixelHitsSTD_vs_eta;
+  TProfile* m_nPixelHitsBAT_vs_eta;
+
+  TProfile* m_nSCTHitsANT_vs_eta;
+  TProfile* m_nSCTHitsSTD_vs_eta;
+  TProfile* m_nSCTHitsBAT_vs_eta;
+
+  TProfile* m_nTRTHitsANT_vs_eta;
+  TProfile* m_nTRTHitsSTD_vs_eta;
+  TProfile* m_nTRTHitsBAT_vs_eta;
+
+  TProfile* m_nPixelHolesANT_vs_eta;
+  TProfile* m_nPixelHolesSTD_vs_eta;
+  TProfile* m_nPixelHolesBAT_vs_eta;
+
+  TProfile* m_nSCTHolesANT_vs_eta;
+  TProfile* m_nSCTHolesSTD_vs_eta;
+  TProfile* m_nSCTHolesBAT_vs_eta;
+
+  TProfile* m_nTRTHolesANT_vs_eta;
+  TProfile* m_nTRTHolesSTD_vs_eta;
+  TProfile* m_nTRTHolesBAT_vs_eta;
+
+  TProfile* m_nPixelSharedHitsANT_vs_eta;
+  TProfile* m_nPixelSharedHitsSTD_vs_eta;
+  TProfile* m_nPixelSharedHitsBAT_vs_eta;
+
+  TProfile* m_nSCTSharedHitsANT_vs_eta;
+  TProfile* m_nSCTSharedHitsSTD_vs_eta;
+  TProfile* m_nSCTSharedHitsBAT_vs_eta;
+
+  TProfile* m_nTRTSharedHitsANT_vs_eta;
+  TProfile* m_nTRTSharedHitsSTD_vs_eta;
+  TProfile* m_nTRTSharedHitsBAT_vs_eta;
+
 };
 
 #endif

@@ -133,6 +133,48 @@ InDetPerfPlot_ANTracking::initializePlots() {
   book(m_ntrkANT_nvertices, "ntrkSplit_vs_nvertices", "ntrkANT_vs_nvertices");
   book(m_ntrkBAT_nvertices, "ntrkSplit_vs_nvertices", "ntrkBAT_vs_nvertices");
   book(m_ntrkSTD_nvertices, "ntrkSplit_vs_nvertices", "ntrkSTD_vs_nvertices");
+
+
+  book(m_nPixelHitsANT_vs_eta, "nPixelHits_vs_eta","nPixelHitsANT_vs_eta");
+  book(m_nPixelHitsSTD_vs_eta, "nPixelHits_vs_eta","nPixelHitsBAT_vs_eta");
+  book(m_nPixelHitsBAT_vs_eta, "nPixelHits_vs_eta","nPixelHitsSTD_vs_eta");
+
+  book(m_nSCTHitsANT_vs_eta, "nSCTHits_vs_eta","nSCTHitsANT_vs_eta");
+  book(m_nSCTHitsSTD_vs_eta, "nSCTHits_vs_eta","nSCTHitsBAT_vs_eta");
+  book(m_nSCTHitsBAT_vs_eta, "nSCTHits_vs_eta","nSCTHitsSTD_vs_eta");
+
+  book(m_nTRTHitsANT_vs_eta, "nTRTHits_vs_eta","nTRTHitsANT_vs_eta");
+  book(m_nTRTHitsSTD_vs_eta, "nTRTHits_vs_eta","nTRTHitsBAT_vs_eta");
+  book(m_nTRTHitsBAT_vs_eta, "nTRTHits_vs_eta","nTRTHitsSTD_vs_eta");
+
+  book(m_nPixelHolesANT_vs_eta, "nPixelHoles_vs_eta","nPixelHolesANT_vs_eta");
+  book(m_nPixelHolesSTD_vs_eta, "nPixelHoles_vs_eta","nPixelHolesBAT_vs_eta");
+  book(m_nPixelHolesBAT_vs_eta, "nPixelHoles_vs_eta","nPixelHolesSTD_vs_eta");
+
+  book(m_nSCTHolesANT_vs_eta, "nSCTHoles_vs_eta","nSCTHolesANT_vs_eta");
+  book(m_nSCTHolesSTD_vs_eta, "nSCTHoles_vs_eta","nSCTHolesBAT_vs_eta");
+  book(m_nSCTHolesBAT_vs_eta, "nSCTHoles_vs_eta","nSCTHolesSTD_vs_eta");
+
+  book(m_nTRTHolesANT_vs_eta, "nTRTHoles_vs_eta","nTRTHolesANT_vs_eta");
+  book(m_nTRTHolesSTD_vs_eta, "nTRTHoles_vs_eta","nTRTHolesBAT_vs_eta");
+  book(m_nTRTHolesBAT_vs_eta, "nTRTHoles_vs_eta","nTRTHolesSTD_vs_eta");
+
+
+  book(m_nPixelSharedHitsANT_vs_eta, "nPixelSharedHits_vs_eta","nPixelSharedHitsANT_vs_eta");
+  book(m_nPixelSharedHitsSTD_vs_eta, "nPixelSharedHits_vs_eta","nPixelSharedHitsBAT_vs_eta");
+  book(m_nPixelSharedHitsBAT_vs_eta, "nPixelSharedHits_vs_eta","nPixelSharedHitsSTD_vs_eta");
+
+  book(m_nSCTSharedHitsANT_vs_eta, "nSCTSharedHits_vs_eta","nSCTSharedHitsANT_vs_eta");
+  book(m_nSCTSharedHitsSTD_vs_eta, "nSCTSharedHits_vs_eta","nSCTSharedHitsBAT_vs_eta");
+  book(m_nSCTSharedHitsBAT_vs_eta, "nSCTSharedHits_vs_eta","nSCTSharedHitsSTD_vs_eta");
+
+  book(m_nTRTSharedHitsANT_vs_eta, "nTRTSharedHits_vs_eta","nTRTSharedHitsANT_vs_eta");
+  book(m_nTRTSharedHitsSTD_vs_eta, "nTRTSharedHits_vs_eta","nTRTSharedHitsBAT_vs_eta");
+  book(m_nTRTSharedHitsBAT_vs_eta, "nTRTSharedHits_vs_eta","nTRTSharedHitsSTD_vs_eta");
+
+
+
+
 }
 
 void 
