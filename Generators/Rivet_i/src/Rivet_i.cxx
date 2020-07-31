@@ -8,6 +8,8 @@
 #include "Rivet_i/LogLevels.h"
 
 #include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "GenInterfaces/IHepMCWeightSvc.h"
@@ -61,6 +63,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("MatchWeights", m_matchWeights="");
   declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
+  declareProperty("AssumeSingleParticleGun", m_isSPG=false);
   // Service handles
   //declareProperty("THistSvc", m_histSvc);
 }
@@ -406,6 +409,21 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 
 
   if (!modEvent->valid_beam_particles()) {
+    if (m_isSPG && modEvent->particles_size() == 1) {
+      // a single particle gun only has one particle without
+      // a production vertex. In this kludge, we add a 
+      // dummy vertex with an exact copy of the particle 
+      // (but using a documentary HepMC status code) and 
+      // set pretend beam particles to trick Rivet_i and 
+      // Rivet into accepting these types of events.
+      HepMC::GenParticle* old = *modEvent->particles_begin();
+      HepMC::GenParticle* ghost = new HepMC::GenParticle(old->momentum(), old->pdg_id(), 3);
+      HepMC::GenVertex* dummy_vertex = new HepMC::GenVertex();
+      dummy_vertex->add_particle_out(ghost);
+      modEvent->add_vertex(dummy_vertex);
+      beams.push_back(old);
+      beams.push_back(ghost);
+    }
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
         beams.push_back(*p);
