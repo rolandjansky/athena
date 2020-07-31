@@ -124,7 +124,7 @@ void Trk::TrackingGeometry::compactify ATLAS_NOT_THREAD_SAFE (MsgStream& msg, co
     msg << MSG::VERBOSE << endmsg;
 }
 
-void Trk::TrackingGeometry::synchronizeLayers(MsgStream& msg, const TrackingVolume* vol) const
+void Trk::TrackingGeometry::synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msg, const TrackingVolume* vol) const
 {
     const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
     tVolume->synchronizeLayers(msg);    

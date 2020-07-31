@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactory.h"
@@ -28,6 +28,8 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <sstream>
 #include <iostream>
 
@@ -39,14 +41,12 @@ TRT_ServMatFactory::TRT_ServMatFactory(const InDetDD::AthenaComps * athenaComps)
 
 TRT_ServMatFactory::~TRT_ServMatFactory()
 {
-  // It owns the material manager
-  delete m_materialManager;
 }
 
 
 
 //## Other Operations (implementation)
-void TRT_ServMatFactory::create(GeoPhysVol *mother)
+void TRT_ServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc method is used.
 {
 
   msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
@@ -73,7 +73,8 @@ void TRT_ServMatFactory::create(GeoPhysVol *mother)
 
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table if it exists
-  m_materialManager = new InDetMaterialManager("TRT_MaterialManager", getAthenaComps());
+  m_materialManagerUnique = std::make_unique<InDetMaterialManager>("TRT_MaterialManager", getAthenaComps());
+  m_materialManager = m_materialManagerUnique.get();
   m_materialManager->addWeightTable(weightTable, "trt");
   m_materialManager->addScalingTable(scalingTable);
 

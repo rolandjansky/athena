@@ -37,12 +37,12 @@ BSFilterLog.info( '**** ByteStreamInputSvc configuration' )
 
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
-# ByteStreamInputSvc.FullFileName = open(runArgs.InputFileMapFile).readline().rstrip().split(',')
+# svcMgr.EventSelector.Input = open(runArgs.InputFileMapFile).readline().rstrip().split(',')
 if hasattr( runArgs, 'inputZeroBiasBSFile'):
-    ByteStreamInputSvc.FullFileName=runArgs.inputZeroBiasBSFile
+    svcMgr.EventSelector.Input=runArgs.inputZeroBiasBSFile
 else:
-    ByteStreamInputSvc.FullFileName=runArgs.inputBS_SKIMFile
-print ByteStreamInputSvc
+    svcMgr.EventSelector.Input=runArgs.inputBS_SKIMFile
+printfunc (ByteStreamInputSvc)
 
 # ---------------------------
 # Service to write out BS events
@@ -56,7 +56,7 @@ for n in range(0,runArgs.noutputs):
         else: myn=str(n)
         bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc"+myn,OutputDirectory='./',SimpleFileName=getattr(runArgs,"outputBS_TRIGSKIM"+myn+"File"))
     svcMgr += bsOutputSvc
-    print bsOutputSvc
+    printfunc (bsOutputSvc)
 
 # ---------------------------
 BSFilterLog.info( '**** ByteStreamFilter configuration' )
@@ -130,7 +130,7 @@ topSequence += OutputStreamBSCopy
 
 OutputStreamBSCopy.AcceptAlgs =["BSFilter"] 
 
-print topSequence
+printfunc (topSequence)
 
 # ---------------------------
 # Post-include/exec

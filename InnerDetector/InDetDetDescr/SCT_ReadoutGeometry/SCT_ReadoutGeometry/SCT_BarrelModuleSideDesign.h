@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,10 +13,10 @@
 
 // Base class
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "TrkSurfaces/RectangleBounds.h"
 
 namespace Trk{
- class RectangleBounds;
- class SurfaceBounds;
+  class SurfaceBounds;
 }
 
 namespace InDetDD {
@@ -62,7 +62,7 @@ namespace InDetDD {
 			     int readoutSide = -1);
 
       /** Destructor: */
-      virtual ~SCT_BarrelModuleSideDesign();
+      virtual ~SCT_BarrelModuleSideDesign() = default;
 
       /** Assignment operator: */
       SCT_BarrelModuleSideDesign &operator=(const SCT_BarrelModuleSideDesign &design);
@@ -166,7 +166,7 @@ namespace InDetDD {
       double m_totalDeadLength; //!< includes detector edge and gap between decetors
       double m_xPhiAbsSize; //!< size in xPhi/2 for active area
       double m_xEtaAbsSizeLow, m_xEtaAbsSizeHigh; //!< active area in xEta
-      Trk::RectangleBounds * m_bounds; //!< surface bound description
+      Trk::RectangleBounds m_bounds; //!< surface bound description
   };
 
   ///////////////////////////////////////////////////////////////////

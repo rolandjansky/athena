@@ -20,8 +20,9 @@ topSequence = AlgSequence()
 
 from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 InputMakerAlg = InputMakerForRoI("MetCellInputMaker", RoIsLink="initialRoI")
+InputMakerAlg.RoITool = ViewCreatorInitialROITool()
 InputMakerAlg.RoIs='METCellRoI'
 InputMakerAlg.InputMakerInputDecisions=[mapThresholdToL1DecisionCollection("XE")]
 InputMakerAlg.InputMakerOutputDecisions="InputMaker_from_L1MET"
@@ -39,7 +40,7 @@ metHypoTool.metThreshold=50
 metHypoAlg = MissingETHypoAlgMT("METHypoAlg")
 metHypoAlg.HypoTools = [metHypoTool]
 metHypoAlg.METContainerKey="HLT_MET"
-metHypoAlg.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions[0]
+metHypoAlg.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions
 metHypoAlg.HypoOutputDecisions = "EFMETDecisions"
 
 topSequence += metHypoAlg

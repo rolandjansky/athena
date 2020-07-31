@@ -15,14 +15,23 @@ WriteHepMC::WriteHepMC(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode WriteHepMC::initialize() {
   CHECK(GenBase::initialize());
+#ifdef HEPMC3
+  m_hepmcio.reset(new HepMC3::WriterAsciiHepMC2(m_outfile) );
+  m_hepmcio->set_precision(m_precision);
+#else
   m_hepmcio.reset( new HepMC::IO_GenEvent(m_outfile) );
   m_hepmcio->precision(m_precision);
+#endif
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode WriteHepMC::execute() {
   // Just write out the first (i.e. signal) event in the collection
+#ifdef HEPMC3
+  m_hepmcio->write_event(*(event_const()));
+#else
   m_hepmcio->write_event(event_const());
+#endif
   return StatusCode::SUCCESS;
 }

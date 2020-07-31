@@ -22,7 +22,6 @@
 #ifndef TrigL2BMuMuXFex_h 
 #define TrigL2BMuMuXFex_h
 
-#include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/ComboAlgo.h"
 #include "BtrigUtils.h"
 
@@ -36,8 +35,6 @@
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"                         
 
 #include "TrigInDetEvent/TrigVertexCollection.h"
-#include "TrigParticle/TrigL2BphysContainer.h"
-#include "TrigParticle/TrigL2Bphys.h"
 
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
@@ -238,10 +235,10 @@ class TrigL2BMuMuXFex: public HLT::ComboAlgo
     
     TrigVertexCollection* m_VertexColl;
     // temporary
-    TrigL2BphysContainer* m_trigBphysColl_kStar;   
-    TrigL2BphysContainer* m_trigBphysColl_phi;   
-    TrigL2BphysContainer* m_trigBphysColl_lambda;   
-    TrigL2BphysContainer* m_trigBphysColl_ds;
+//    TrigL2BphysContainer* m_trigBphysColl_kStar;   
+//    TrigL2BphysContainer* m_trigBphysColl_phi;   
+//    TrigL2BphysContainer* m_trigBphysColl_lambda;   
+//    TrigL2BphysContainer* m_trigBphysColl_ds;
 
     xAOD::TrigBphysContainer* m_trigBphysColl_kStarxAOD;
     xAOD::TrigBphysContainer* m_trigBphysColl_phixAOD;

@@ -25,13 +25,19 @@ class MaterialProperties;
 class MaterialEffectsOnTrack;
 
 /** Interface ID for IMaterialEffectsUpdator*/
-static const InterfaceID IID_IMaterialEffectsUpdator("IMaterialEffectsUpdator", 1, 0);
+static const InterfaceID IID_IMaterialEffectsUpdator("IMaterialEffectsUpdator",
+                                                     1,
+                                                     0);
 
 /** @class IMaterialEffectsUpdator
   Interface class for the updater AlgTool, it inherits from IAlgTool
-  Detailed information about private members and member functions can be found in the actual
-  implementation class MaterialEffectsUpdator which inherits from this one.
+
+  Detailed information about private members and member functions can be found
+  in the actual implementation class MaterialEffectsUpdator which inherits from
+  this one.
+
   @author Andreas.Salzburger@cern.ch
+
   @author Christos Anastopoulos (Athena MT)
   */
 
@@ -43,78 +49,23 @@ public:
   virtual ~IMaterialEffectsUpdator() {}
 
   /** AlgTool and IAlgTool interface methods */
-  static const InterfaceID& interfaceID() { return IID_IMaterialEffectsUpdator; }
+  static const InterfaceID& interfaceID()
+  {
+    return IID_IMaterialEffectsUpdator;
+  }
 
-  /** Updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update method.
-    Layer-based material update
-    */
-  virtual const TrackParameters* update(const TrackParameters* parm,
-                                        const Layer& sf,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const = 0;
-
-  /** User updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are deleted inside the update method.
-    Update occurs on the place where the parameters parm are according to the specified
-    MaterialEffectsOnTrack
-    */
-  virtual const TrackParameters* update(const TrackParameters* parm,
-                                        const MaterialEffectsOnTrack& meff,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const = 0;
-  /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update method.
-    Layer-based material update
-    */
-  virtual const TrackParameters* preUpdate(const TrackParameters* parm,
-                                           const Layer& sf,
-                                           PropDirection dir = alongMomentum,
-                                           ParticleHypothesis particle = pion,
-                                           MaterialUpdateMode matupmode = addNoise) const = 0;
-
-  /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update method.
-    Layer-based material update
-    if the postUpdate fails, it returns 0
-    */
-  virtual const TrackParameters* postUpdate(const TrackParameters& parm,
-                                            const Layer& sf,
-                                            PropDirection dir = alongMomentum,
-                                            ParticleHypothesis particle = pion,
-                                            MaterialUpdateMode matupmode = addNoise) const = 0;
-
-  /** Updator interface:
-    The parmeters are given as a pointer, they are delete inside the update method.
-    MaterialProperties based material update
-    - used by all Layer-based methods
-    */
-  virtual const TrackParameters* update(const TrackParameters& parm,
-                                        const MaterialProperties& mprop,
-                                        double pathcorrection,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const = 0;
-  /** Validation Action:
-    outside access to internal validation steps
-    Optional */
-  virtual void validationAction() const = 0;
-
-  /** Model Action: Provides the possibility of
-   * doing non-local MaterialEffectsUpdates for different models
-   * Optional
-   */
-  virtual void modelAction(const TrackParameters* parm = nullptr) const = 0;
-
-  /** Interfaces for clients using  a local cache.*/
-
-  /** 
-   * The cache class
+  /**
+   * Abstract cache class to allow passing information to/between calls.
+   * This can be particular useful in Athena MT
+   * re-entrant algorithms
    */
   class ICache
   {
   public:
+    /* we can make this concrete
+     * if we do not need a Dummy
+     * Material Effects updator
+     */
     enum MaterialCacheType
     {
       MaterialEffects = 0,
@@ -126,49 +77,146 @@ public:
   protected:
     ICache() = default;
   };
-
+  /**
+   * Creates an instance of the cache to be used.
+   * by the client.
+   */
   virtual std::unique_ptr<ICache> getCache() const = 0;
 
-  virtual const TrackParameters* update(ICache& icache,
-                                        const TrackParameters* parm,
-                                        const Layer& sf,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const = 0;
+  /** Updator interface (full update for a layer):
+    The parmeters are given as a pointer, they are delete inside the update
+    method. Layer-based material update
+    */
+  virtual const TrackParameters* update(
+    ICache& icache,
+    const TrackParameters* parm,
+    const Layer& sf,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
 
-  virtual const TrackParameters* update(ICache& icache,
-                                        const TrackParameters* parm,
-                                        const MaterialEffectsOnTrack& meff,
-                                        Trk::ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const = 0;
+  /** User updator interface (full update for a layer):
+    The parmeters are given as a pointer, they are deleted inside the update
+    method. Update occurs on the place where the parameters parm are according
+    to the specified MaterialEffectsOnTrack
+    */
+  virtual const TrackParameters* update(
+    ICache& icache,
+    const TrackParameters* parm,
+    const MaterialEffectsOnTrack& meff,
+    Trk::ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
 
-  virtual const TrackParameters* preUpdate(ICache& icache,
-                                           const TrackParameters* parm,
-                                           const Layer& sf,
-                                           PropDirection dir = alongMomentum,
-                                           ParticleHypothesis particle = pion,
-                                           MaterialUpdateMode matupmode = addNoise) const = 0;
+  /** Updator interface (pre-update for a layer):
+    The parmeters are given as a pointer, they are delete inside the update
+    method. Layer-based material update
+    */
+  virtual const TrackParameters* preUpdate(
+    ICache& icache,
+    const TrackParameters* parm,
+    const Layer& sf,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
 
-  virtual const TrackParameters* postUpdate(ICache& icache,
-                                            const TrackParameters& parm,
-                                            const Layer& sf,
-                                            PropDirection dir = alongMomentum,
-                                            ParticleHypothesis particle = pion,
-                                            MaterialUpdateMode matupmode = addNoise) const = 0;
+  /** Updator interface (pre-update for a layer):
+    The parmeters are given as a pointer, they are delete inside the update
+    method. Layer-based material update if the postUpdate fails, it returns 0
+    */
+  virtual const TrackParameters* postUpdate(
+    ICache& icache,
+    const TrackParameters& parm,
+    const Layer& sf,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
 
-  virtual const TrackParameters* update(ICache& icache,
-                                        const TrackParameters& parm,
-                                        const MaterialProperties& mprop,
-                                        double pathcorrection,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const = 0;
+  /** Updator interface:
+    The parmeters are given as a pointer, they are delete inside the update
+    method. MaterialProperties based material update
+    - used by all Layer-based methods
+    */
+  virtual const TrackParameters* update(
+    ICache& icache,
+    const TrackParameters& parm,
+    const MaterialProperties& mprop,
+    double pathcorrection,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** Validation Action: */
   virtual void validationAction(ICache& icache) const = 0;
 
   /** Model Action:*/
-  virtual void modelAction(ICache& icache, const TrackParameters* parm = nullptr) const = 0;
+  virtual void modelAction(ICache& icache,
+                           const TrackParameters* parm = nullptr) const = 0;
+
+  /** Updator interface (full update for a layer):
+    The parmeters are given as a pointer, they are delete inside the update
+    method. Layer-based material update
+    */
+  virtual const TrackParameters* update(
+    const TrackParameters* parm,
+    const Layer& sf,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
+
+  /** User updator interface (full update for a layer):
+    The parmeters are given as a pointer, they are deleted inside the update
+    method. Update occurs on the place where the parameters parm are according
+    to the specified MaterialEffectsOnTrack
+    */
+  virtual const TrackParameters* update(
+    const TrackParameters* parm,
+    const MaterialEffectsOnTrack& meff,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
+  /** Updator interface (pre-update for a layer):
+    The parmeters are given as a pointer, they are delete inside the update
+    method. Layer-based material update
+    */
+  virtual const TrackParameters* preUpdate(
+    const TrackParameters* parm,
+    const Layer& sf,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
+
+  /** Updator interface (pre-update for a layer):
+    The parmeters are given as a pointer, they are delete inside the update
+    method. Layer-based material update if the postUpdate fails, it returns 0
+    */
+  virtual const TrackParameters* postUpdate(
+    const TrackParameters& parm,
+    const Layer& sf,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
+
+  /** Updator interface:
+    The parmeters are given as a pointer, they are delete inside the update
+    method. MaterialProperties based material update
+    - used by all Layer-based methods
+    */
+  virtual const TrackParameters* update(
+    const TrackParameters& parm,
+    const MaterialProperties& mprop,
+    double pathcorrection,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    MaterialUpdateMode matupmode = addNoise) const = 0;
+  /** Validation Action:
+    outside access to internal validation steps
+    Optional */
+  virtual void validationAction() const = 0;
+
+  /** Model Action: Provides the possibility of
+   * doing non-local MaterialEffectsUpdates for different models
+   * Optional
+   */
+  virtual void modelAction(const TrackParameters* parm = nullptr) const = 0;
 };
 
 } // end of namespace

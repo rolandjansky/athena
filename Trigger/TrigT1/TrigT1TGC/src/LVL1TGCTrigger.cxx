@@ -12,16 +12,17 @@
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCSLSelectorOut.hh"// for Run2
-#include "TrigT1TGC/TGCTrackSelectorOut.h"// for Run3
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
-#include "TrigT1TGC/TGCTimingManager.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
-#include "TrigT1TGC/TGCSector.hh"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCSLSelectorOut.h" // for Run2
+#include "TrigT1TGC/TGCTrackSelectorOut.h" // for Run3
+#include "TrigT1TGC/TGCElectronicsSystem.h"
+#include "TrigT1TGC/TGCTimingManager.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
+#include "TrigT1TGC/TGCNSW.h"
 
 // Athena/Gaudi
 #include "StoreGate/StoreGate.h"
@@ -41,6 +42,10 @@
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigit.h"
 #include "MuonRDO/TgcRdoContainer.h"
+
+
+#include "MuonRDO/NSW_TrigRawData.h"
+#include "MuonRDO/NSW_TrigRawDataContainer.h"
 
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
@@ -94,6 +99,8 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() && m_tgcArgs.USE_INNER() );
+    m_tgcArgs.set_USE_NSW( m_USENSW.value() && m_tgcArgs.USE_INNER() );
+
     m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
 
@@ -109,6 +116,7 @@ namespace LVL1TGCTrigger {
     // read and write handle key
     ATH_CHECK(m_keyTgcDigit.initialize());
     ATH_CHECK(m_keyTileMu.initialize());
+    ATH_CHECK(m_keyNSWTrigOut.initialize());
     ATH_CHECK(m_muctpiPhase1Key.initialize(tgcArgs()->useRun3Config()));
     ATH_CHECK(m_muctpiKey.initialize(!tgcArgs()->useRun3Config()));
 
@@ -146,11 +154,10 @@ namespace LVL1TGCTrigger {
     // doMaskOperation is performed at the first event
     // It is better to implement callback against
     // MuonTGC_CablingSvc::updateCableASDToPP (Susumu Oda, 2010/10/27)
-    static bool firstTime = true;
-    if(firstTime) {
+    if(m_firstTime) {
       // do mask operation
       if(getMaskedChannel().isFailure()) return StatusCode::FAILURE;
-      firstTime = false;
+      m_firstTime = false;
     }
     
     StatusCode sc = StatusCode::SUCCESS;
@@ -162,6 +169,11 @@ namespace LVL1TGCTrigger {
       const TGCTriggerData* readCdo{*readHandle};
       doTileMu = readCdo->isActive(TGCTriggerData::CW_TILE);
     }
+
+
+    // NSW data
+    bool doNSW = m_tgcArgs.USE_NSW();
+
     
     // TgcRdo
     m_tgcrdo.clear();
@@ -212,7 +224,13 @@ namespace LVL1TGCTrigger {
           return sc;
         }
       }
-      
+
+      // Use NSW trigger output 
+      if(doNSW && bc==m_CurrentBunchTag){
+	ATH_CHECK(fillNSW());
+      }
+
+
       if (m_ProcessAllBunches || bc==m_CurrentBunchTag){
         m_bctagInProcess =bc;
         sc=processOneBunch(tgc_container, muctpiinput, muctpiinputPhase1);
@@ -304,7 +322,7 @@ namespace LVL1TGCTrigger {
           if(i==1) subsystem = LVL1MUONIF::Lvl1MuCTPIInput::idSideC();
           if (m_OutputTgcRDO.value()) recordRdoSL(sector, subsystem);
 
-          TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
+          const TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
 	  std::shared_ptr<TGCTrackSelectorOut>  trackSelectorOut;
 	  sector->getSL()->getTrackSelectorOutput(trackSelectorOut); 
 
@@ -601,7 +619,7 @@ namespace LVL1TGCTrigger {
         TGCSlaveBoard * slb = sector->getSB(itype, index);
         if (0==slb) continue;
         id = slb->getId();
-        TGCSlaveBoardOut * out = slb->getOutput();
+        const TGCSlaveBoardOut * out = slb->getOutput();
         if (0==out) continue;
 
         bool isEIFI = (moduleType==TgcRawData::SLB_TYPE_INNER_WIRE ||
@@ -879,7 +897,7 @@ namespace LVL1TGCTrigger {
     
     
     // Tile
-    TGCTMDB* tmdb = m_system->getTMDB();
+    const TGCTMDB* tmdb = m_system->getTMDB();
     int inner_tile = tmdb->getInnerTileBits(sector->getSideId(), sectorId);
     
     if (inner_tile > 0) {
@@ -908,7 +926,7 @@ namespace LVL1TGCTrigger {
   void LVL1TGCTrigger::recordRdoSL(TGCSector * sector, unsigned int subsystem)
   {
     // check if whether trigger exists or not
-    TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
+    const TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
     if (selectorOut ==0) return;
     if (selectorOut->getNCandidate()==0) return;
     
@@ -1132,7 +1150,7 @@ namespace LVL1TGCTrigger {
   }
   
   ////////////////////////////////////////////////
-  // see TGCNumbering.hh 
+  // see TGCNumbering.h 
   int LVL1TGCTrigger::getLPTTypeInRawData(int type)
   {
     switch(type) {
@@ -1362,6 +1380,44 @@ namespace LVL1TGCTrigger {
     return sc;
   }
 
+
+
+  //----------------------------------- 
+  //NSW input
+  //----------------------------------
+  StatusCode LVL1TGCTrigger::fillNSW(){
+    ATH_MSG_DEBUG("fillNSW");
+    StatusCode sc = StatusCode::SUCCESS;
+    std::shared_ptr<TGCNSW> nsw = m_system->getNSW();
+    nsw->eraseOutput();
+
+    //The following part will be available when NSW Trigger Output is available.
+
+    /*
+    SG::ReadHandle<Muon::NSW_TrigRawDataContainer> readNSW_TrigRawDataContainer(m_keyNSWTrigOut);
+    if(!readNSW_TrigRawDataContainer.isValid()){
+      ATH_MSG_ERROR("Cannot retrieve NSW TrigRawData Container.");
+      return StatusCode::FAILURE;
+    }
+    const Muon::NSW_TrigRawDataContainer* nsw_TrigRawDataContainer = readNSW_TrigRawDataContainer.cptr();
+    for(const Muon::NSW_TrigRawData* nsw_sector : *nsw_TrigRawDataContainer){
+      for(const Muon::NSW_TrigRawDataSegment* nsw_trk : *nsw_sector){
+	nsw->setOutput(nsw_sector->sideId(),        // side
+		       //nsw_sector->sectorId(), // Sector number in NSW
+		       //nsw_trk->rIndex(),      // R-index
+		       //nsw_trk->phiIndex(),    // Phi-index
+		       //nsw_trk->deltaTheta() // Delta theta index
+	              );
+      }
+    } 
+    */
+  
+
+    if(sc.isFailure()){
+      ATH_MSG_WARNING("Couldn't retrieve NSW trigger output");
+    }
+    return sc; 
+  }
 
 } //end of namespace bracket
 

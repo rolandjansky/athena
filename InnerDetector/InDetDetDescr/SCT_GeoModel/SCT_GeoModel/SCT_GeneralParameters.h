@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_GeneralParameters_H
@@ -7,7 +7,7 @@
 
 #include "GeoModelKernel/GeoDefinitions.h"
 
-#include <map>
+#include <memory>
 #include <string>
 
 class SCT_DataBase;
@@ -37,7 +37,7 @@ public:
 private:
 
   SCT_DataBase * m_rdb;
-  TopLevelPlacements * m_placements;
+  std::unique_ptr<TopLevelPlacements> m_placements;
     
 };
 

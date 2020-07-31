@@ -84,7 +84,7 @@ class VTimer( object ):
         x = '%s %s' % ( tName, x )
         try:
             getattr( self.logger, severity )( x )
-        except:
+        except Exception:
             print (x)
 
     def toHMS( self, seconds = 0 ):
@@ -143,7 +143,7 @@ class VTimer( object ):
             self._print( 'not started [%s]' % name )
             # not re-inserting back onto _resultsStack as should not be on the stack in the first place.
             return
-        elif tContent.started == False:
+        elif tContent.started is False:
             self._print( 'already stopped [%s]' % name )
             # not re-inserting back onto _resultsStack as should not be on the stack in the first place.
             return
@@ -200,7 +200,7 @@ class VTimer( object ):
             return
         try:
             fileObj = open( fileName, 'w' )
-        except:
+        except Exception:
             self._print( ' : Could not open %s for writing.' % fileName )
             return
         pickle.dump( self._resultsDict, fileObj, pickle.HIGHEST_PROTOCOL )

@@ -21,7 +21,7 @@ Sim_tf.py \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' \
 --outputHITSFile 'test.HITS.pool.root' \
 --maxEvents '4' \
---imf False
+--imf False 
 
 rc=$?
 rc2=-9999

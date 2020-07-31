@@ -195,16 +195,13 @@ StatusCode MuonBackgroundConverter::callGenerator()
          int id = abs (m_evt.at(i).getPdgID() );
          
          bool select = ( (!m_firstHitOnly) || 
-                         (m_firstHitOnly && fabs(p_curr-p_prev)>tolerance) ) && ( id != 13 ); 
+                         (m_firstHitOnly && std::abs(p_curr-p_prev)>tolerance) ) && ( id != 13 ); 
          if ( select )
          {
              //std::cout  <<  evt  <<  std::endl;
  
              // polarisation 
-             double polX, polY, polZ;
-             polX = polY = polZ = 0.0;
-             HepMC::Polarization pol;
-             pol.set_normal3d( HepGeom::Normal3D<double>( polX, polY, polZ ) );
+             HepMC::Polarization pol(0.0,0.0);
              m_polarization.push_back( pol );
           
              // PDG id, vertex, kinematic variables

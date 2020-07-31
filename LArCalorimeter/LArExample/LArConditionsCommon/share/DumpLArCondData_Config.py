@@ -28,14 +28,6 @@ theApp.Dlls += [ "LArRawUtils" ]
 theApp.Dlls += [ "LArTools" ]
 theApp.Dlls += [ "LArConditionsTest" ]
 
-#--------------------------------------------------------------
-# Load SEAL/POOL support
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# Check the dictionary in memory for completeness
-AthenaSealSvc = Service( "AthenaSealSvc" )
-# AthenaSealSvc.CheckDictionary = True
-
 # Make sure AthenaPoolServices is loaded for custom streamer
 include ("AthenaPoolServices/AthenaRootStreamerSvc_jobOptions.py")
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )

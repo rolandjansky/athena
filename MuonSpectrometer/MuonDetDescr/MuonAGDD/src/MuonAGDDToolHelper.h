@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONAGDD_MUONAGDDTOOLHELPER_H
@@ -25,15 +25,17 @@ public:
 	
 	void SetNSWComponents();
 	
-	std::string GetAGDD(bool dumpIt, std::string tableName);
+	std::string GetAGDD(const bool dumpIt, const std::string& tableName, const std::string& outFileName);
 	
 	bool BuildMScomponents() const;
-	bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
+
+	void setAGDDtoGeoSvcName(const std::string& name);
 
 private:
 
 	IRDBAccessSvc* p_RDBAccessSvc;
 	IGeoModelSvc* p_GeoModelSvc;
+	std::string m_svcName;
 	
 };
 

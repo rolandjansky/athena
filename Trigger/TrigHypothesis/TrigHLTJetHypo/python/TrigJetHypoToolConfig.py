@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
-from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
@@ -28,7 +28,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     tree = parser.parse()
 
-  
+
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
@@ -41,10 +41,10 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     # chain name in run 2 dicts were missing the 'HLT_' prefix
     # but it seems it is necessary to run the hypos in AthenaMT ?...?
-    
+
     if not chain_name.startswith('HLT_'):
         chain_name = 'HLT_' + chain_name
-        
+
     log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
 
     # debug flag to be relayed to C++ objects
@@ -92,11 +92,11 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
             chain_dict['chainName'],)
         m += '  jet hypo scenario: %s' % (
             chain_dict['chainParts'][0]['hypoScenario'],)
-        
+
         log.error(m)
-        
+
         raise e
-    
+
     chain_name = chain_dict['chainName']
 
     toolSetter = None
@@ -108,7 +108,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     return trigJetHypoToolHelperFromDict_(chain_label,
                                           chain_name,
                                           toolSetter)
-     
+
 
 def  trigJetHypoToolFromDict(chain_dict):
     """Produce  a jet trigger hypo tool from a chainDict"""
@@ -116,7 +116,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     log.info('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
 
     chain_name = chain_dict['chainName']
-    tool = TrigJetHypoToolMT(name=chain_name)
+    tool = CompFactory.TrigJetHypoToolMT(name=chain_name)
 
     # obtain  a Helper Tool (possibly a tree of tools) to
     # make the hypo decision.
@@ -125,8 +125,8 @@ def  trigJetHypoToolFromDict(chain_dict):
     # controls whether debug visitor is sent to helper tool
     debug = False  # SET TO False WHEN COMMITTING
     tool.visit_debug = debug
-    
     log.debug('%s', tool)
+
     return tool
 
 
@@ -140,7 +140,7 @@ class TestStringMethods(unittest.TestCase):
         for chain_name in chain_names:
             chain_dict = dictFromChainName(chain_name)
             tool = trigJetHypoToolFromDict(chain_dict)
-            self.assertIsNotNone(tool) 
+            self.assertIsNotNone(tool)
             log.info('%s %s', chain_name.rjust(wid), tool)
 
 
@@ -152,16 +152,16 @@ class TestDebugFlagIsFalse(unittest.TestCase):
         chain_name = 'HLT_j85_L1J20'
         chain_dict = dictFromChainName(chain_name)
         tool = trigJetHypoToolFromDict(chain_dict)
-        self.assertIsNotNone(tool) 
-        self.assertFalse(tool.visit_debug) 
+        self.assertIsNotNone(tool)
+        self.assertFalse(tool.visit_debug)
 
-        
+
 def _tests():
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 
     chainNameDecoder = DictFromChainName.DictFromChainName()
-        
+
     chain_names = (
         'j80_0eta240_2j60_320eta490_L1J20',
         'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
@@ -170,10 +170,10 @@ def _tests():
         chain_dict = chainNameDecoder.getChainDict(cn)
 
         trigJetHypoToolFromDict(chain_dict)
-        
+
 
 if __name__ == '__main__':
     unittest.main()
-    
+
     # run _tests outide untit tests so as to see stdout
     # _tests()

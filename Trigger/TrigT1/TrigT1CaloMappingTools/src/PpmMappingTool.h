@@ -9,12 +9,13 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <array>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "ChannelCoordinate.h"
 
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 
 class IInterface;
 class StatusCode;
@@ -32,32 +33,33 @@ namespace LVL1 {
  *  @author Peter Faulkner
  */
 
-class PpmMappingTool : virtual public IL1CaloMappingTool,
-                               public AthAlgTool {
-
+class PpmMappingTool : public extends<AthAlgTool, IL1CaloMappingTool>
+{
  public:
 
-   PpmMappingTool(const std::string& type, const std::string& name,
-                                           const IInterface* parent);
-   virtual ~PpmMappingTool();
+   using base_class::base_class;
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// Return eta, phi and layer mapping for given crate/module/channel
    virtual bool mapping(int crate, int module, int channel,
-                        double& eta, double& phi, int& layer);
+                        double& eta, double& phi, int& layer) const override;
    /// Return crate, module and channel mapping for given eta/phi/layer
    virtual bool mapping(double eta, double phi, int layer,
-                        int& crate, int& module, int& channel);
+                        int& crate, int& module, int& channel) const override;
 
  private:
+   static const int s_crates   = 8;
+   static const int s_modules  = 16;
+   static const int s_channels = 64;
+
    //  Crate/module map constituents
    typedef std::pair< double, double >                Offsets;
-   typedef std::map< int, ChannelCoordinate >         CoordinateMap;
+   typedef std::array< ChannelCoordinate, s_channels> CoordinateMap;
    typedef std::pair< Offsets, const CoordinateMap* > ModuleInfo;
-   typedef std::map< int, ModuleInfo >                ModuleMap;
-   typedef std::map< int, ModuleMap >                 CrateMap;
+   typedef std::array< ModuleInfo, s_modules >        ModuleMap;
+   typedef std::array< ModuleMap, s_crates >          CrateMap;
    //  Inverse map constituents
    typedef std::pair< unsigned int, unsigned int >    ChannelIds;
    typedef std::map< unsigned int, ChannelIds >       EtaPhiMap;
@@ -70,7 +72,7 @@ class PpmMappingTool : virtual public IL1CaloMappingTool,
    void addCoords(int nrows, int ncols, double etaGran, double phiGran,
         double etaOffset, double phiOffset,
 	const int* in, const int* out, int incr,
-	ChannelCoordinate::CaloLayer layer, CoordinateMap* coordMap);
+	ChannelCoordinate::CaloLayer layer, CoordinateMap& coordMap);
    /// Add a block of similar modules to a crate
    void addMods(int crate, int modOffset, int nrows, int ncols,
         double etaBase, double phiBase, double etaRange, double phiRange,
@@ -81,26 +83,11 @@ class PpmMappingTool : virtual public IL1CaloMappingTool,
    unsigned int etaPhiKey(double eta, double phi) const;
 
    /// Pointer to crate/module map
-   CrateMap* m_crateInfo;
+   std::array<ModuleMap, s_crates> m_crateInfo;
    /// Vector of CoordinateMaps
-   std::vector<CoordinateMap*> m_coordMaps;
-   /// Current Coordinate map
-   mutable const CoordinateMap* m_currentMap;
-   /// Current module eta offset
-   mutable double m_etaOffset;
-   /// Current module phi offset
-   mutable double m_phiOffset;
-   /// Current crate
-   mutable int m_currentCrate;
-   /// Current module
-   mutable int m_currentModule;
+   std::vector<std::unique_ptr<CoordinateMap> > m_coordMaps;
    /// Pointer to inverse map
-   EtaPhiMap* m_etaPhiMap;
-
-   static const int s_crates   = 8;
-   static const int s_modules  = 16;
-   static const int s_channels = 64;
-
+   EtaPhiMap m_etaPhiMap;
 };
 
 } // end namespace

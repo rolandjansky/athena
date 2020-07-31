@@ -3,7 +3,7 @@
 */
 
 #include "./L1TopoSimulationTest.h"
-#include "L1TopoSimulation/AthenaL1TopoHistSvc.h"
+#include "../AthenaL1TopoHistSvc.h"
 
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoConfig/L1TopoMenu.h"

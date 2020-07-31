@@ -5,6 +5,9 @@
 #ifndef EVENTCONTAINERS_INTERNALOFFLINEFAST_H
 #define EVENTCONTAINERS_INTERNALOFFLINEFAST_H
 #include "EventContainers/I_InternalIDC.h"
+#include "CxxUtils/checker_macros.h"
+#include <atomic>
+#include <mutex>
 
 namespace EventContainers{
 /*
@@ -21,8 +24,6 @@ public:
     virtual InternalConstItr cend() const override;
     virtual InternalConstItr indexFind( IdentifierHash hashId ) const override;
     virtual const std::vector < hashPair >& getAllHashPtrPair() const override;
-    std::vector<std::pair<IdentifierHash::value_type, const void*>> m_map;
-    std::vector<const void*> m_fullMap;
     virtual bool tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock) override;
     virtual bool tryAddFromCache(IdentifierHash hashId) override;
     virtual void wait() const override;
@@ -37,7 +38,11 @@ public:
     virtual StatusCode addLock(IdentifierHash hashId, const void* ptr) override;
     virtual void* removeCollection( IdentifierHash hashId ) override;
     virtual void destructor(deleter_f*) noexcept override;
-
+private:
+    mutable std::vector<std::pair<IdentifierHash::value_type, const void*>> m_map;
+    std::vector<const void*> m_fullMap;
+    mutable std::mutex m_waitMutex ATLAS_THREAD_SAFE;
+    mutable std::atomic<bool> m_needsupdate ATLAS_THREAD_SAFE; //These mutables are carefully thought out, do not change
 };
 
 }

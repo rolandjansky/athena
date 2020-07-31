@@ -3543,7 +3543,7 @@ xAODTestTypeles...   INFO   aFloat: 8020.500;
   aFloat: 8001.500; 
 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 xaoddata.root        INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F7C10C73-2295-3D41-AE08-0867F9A55622
 xaoddata3.root       INFO Database being retired...

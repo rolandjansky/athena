@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ persToTrans( const Muon::STGC_ClusterOnTrack_p1 *persObj,
   transObj->m_positionAlongStrip = persObj->m_positionAlongStrip; 
   
    // Attempt to call supertool to fill in detElements
-   m_eventCnvTool->recreateRIO_OnTrack(const_cast<Muon::sTgcClusterOnTrack *>(transObj));
+   m_eventCnvTool->recreateRIO_OnTrack(transObj);
    if (transObj->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
@@ -45,25 +45,18 @@ transToPers( const Muon::sTgcClusterOnTrack *transObj,
   //     << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;   
   
   // Prepare ELs
-   m_eventCnvTool->prepareRIO_OnTrack(const_cast<Muon::sTgcClusterOnTrack *>(transObj));  
+   Trk::IEventCnvSuperTool::ELKey_t key;
+   Trk::IEventCnvSuperTool::ELIndex_t index;
+   m_eventCnvTool->prepareRIO_OnTrackLink(transObj, key, index);
+   ElementLinkToIDC_STGC_Container eltmp (key, index);
   
-   m_elCnv.transToPers(&transObj->prepRawDataLink(),&persObj->m_prdLink,log);
+   m_elCnv.transToPers(&eltmp, &persObj->m_prdLink,log);
    persObj->m_positionAlongStrip = transObj->positionAlongStrip();
    persObj->m_id = transObj->identify().get_identifier32().get_compact();
    persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->localParameters(), log );
    Trk::ErrorMatrix pMat;
    EigenHelpers::eigenMatrixToVector(pMat.values, transObj->localCovariance(), "STGC_ClusterOnTrackCnv_p1");
    persObj->m_localErrMat = toPersistent( &m_errorMxCnv, &pMat, log );
-  
-   // Extra check.
-   // Attempt to call supertool to fill in detElements
-   Muon::sTgcClusterOnTrack * nonconst = const_cast<Muon::sTgcClusterOnTrack *>(transObj);
-   nonconst->m_detEl=0;
-   m_eventCnvTool->recreateRIO_OnTrack(const_cast<Muon::sTgcClusterOnTrack *>(nonconst));
-   if (nonconst->detectorElement()==0) 
-        log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
-            << "probably because of a problem with the Identifier/IdentifierHash : ("
-            << nonconst->identify()<<"/"<<nonconst->idDE()<<")"<<endmsg;   
 }
 
 

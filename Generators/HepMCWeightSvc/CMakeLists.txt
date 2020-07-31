@@ -26,4 +26,4 @@ atlas_add_component( HepMCWeightSvc
    NO_PUBLIC_HEADERS
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps
-   AthenaPoolUtilities IOVDbDataModel EventInfo )
+   AthenaPoolUtilities IOVDbDataModel EventInfo GenInterfacesLib IOVDbMetaDataToolsLib )

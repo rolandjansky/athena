@@ -69,6 +69,9 @@ TriggerFlags.doHLT=True
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
 
+from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+LumiBlockMuWriterDefault()
+
 #-----------------Monitoring and leak check-----------------
 jobproperties.PerfMonFlags.doMonitoring = True
 jobproperties.PerfMonFlags.OutputFile = "ntuple.root"

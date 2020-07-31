@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonG4SD )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonSimEvent
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/MCTruth 
-                          AtlasTest/TestTools )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
@@ -22,18 +12,17 @@ find_package( Geant4 )
 find_package( XercesC )
 find_package( GTest )
 
-# Component(s) in the package:
-atlas_add_component( MuonG4SD
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} StoreGateLib SGtests GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
 atlas_add_library( MuonG4SDLib
                    src/*.cxx
                    NO_PUBLIC_HEADERS MuonG4SD
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} StoreGateLib SGtests GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
+
+# Component(s) in the package:
+atlas_add_component( MuonG4SD
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} MuonG4SDLib StoreGateLib SGtests GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
 
 atlas_add_test( CSCSensitiveDetector_gtest
                 SOURCES test/CSCSensitiveDetector_gtest.cxx

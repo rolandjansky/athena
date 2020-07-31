@@ -42,6 +42,7 @@ namespace Muon
 
     double m_chargeCut;
     unsigned int m_maxHoleSize;
+    double m_addError;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

@@ -10,19 +10,19 @@ find_package( cx_Oracle )
 find_package( future )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( scripts/*.py )
-atlas_install_scripts( scripts/HelloWorld_tf.py )
+atlas_install_runtime( scripts/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( scripts/HelloWorld_tf.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_generic( share/*.db
                        DESTINATION share
                        EXECUTABLE )
-foreach( test Echo_tf Sleep_tf
+foreach( test Echo_tf LogFileScanner Sleep_tf
          transform trfAMI trfArgs trfDecorators trfEnv
          trfExceptions trfExe trfExitCodes trfFileUtils trfGraph trfJobOptions trfLogger
-         trfMPTools trfSignal trfSignatures
+         trfMPTools trfReports trfReportsSignaledExit trfSignal trfSignatures
          trfUtils trfUtilsDBRelease trfUtilsParallelJobProcessor trfUtilsParallelJobProcessorData
-         trfValidateRootFile )
+         trfValidateRootFile trfValidation )
    atlas_add_test( ${test}
       SCRIPT test/test_${test}.py
       PROPERTIES TIMEOUT 300

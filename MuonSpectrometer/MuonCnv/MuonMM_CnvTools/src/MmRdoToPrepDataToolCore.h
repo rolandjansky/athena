@@ -5,28 +5,23 @@
 #ifndef MUONMmRdoToPrepDataToolCore_H
 #define MUONMmRdoToPrepDataToolCore_H
 
+#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
-
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "NSWCalibTools/INSWCalibTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
 #include <vector>
 
 class MM_RawDataCollection;
-
-namespace MuonGM
-{    
-    class MuonDetectorManager;
-}
 
 namespace Muon 
 {
@@ -66,8 +61,7 @@ namespace Muon
 
     void processRDOContainer( std::vector<IdentifierHash>& idWithDataVect );
 
-    /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager * m_muonMgr;
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
     
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
@@ -84,6 +78,7 @@ namespace Muon
     ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool;
     ToolHandle<INSWCalibTool> m_calibTool;
 
+    float m_singleStripChargeCut;
   }; 
 } // end of namespace
 

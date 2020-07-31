@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -261,7 +261,7 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
     const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress pTAd (id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
-    for (; iProvider != iEnd; iProvider++) {
+    for (; iProvider != iEnd; ++iProvider) {
       if ( ((*iProvider)->updateAddress(store.storeID(),&pTAd,ctx)).isSuccess() ) 
 	{
 	  pTAd.setProvider(*iProvider, store.storeID());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,11 +9,8 @@
 #ifndef TRKPARAMETERS_TRACKPARAMETERS_H
 #define TRKPARAMETERS_TRACKPARAMETERS_H
 
-
+#include "TrkParametersBase/CurvilinearParametersT.h"
 #include "TrkParametersBase/ParametersT.h"
-#include "TrkParametersBase/CurvilinearParametersT.h"
-#include "TrkParametersBase/Charged.h"
-#include "TrkParametersBase/CurvilinearParametersT.h"
 #include "TrkSurfaces/ConeSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -23,21 +20,26 @@
 
 namespace Trk {
 
-    typedef ParametersBase<5, Charged>                       TrackParameters;
-    typedef CurvilinearParametersT<5, Charged, PlaneSurface>   CurvilinearParameters;
-    typedef ParametersT<5, Charged, ConeSurface>             AtaCone;
-    typedef ParametersT<5, Charged, CylinderSurface>         AtaCylinder;
-    typedef ParametersT<5, Charged, DiscSurface>             AtaDisc;
-    typedef ParametersT<5, Charged, PerigeeSurface>          Perigee;
-    typedef ParametersT<5, Charged, PlaneSurface>            AtaPlane;
-    typedef ParametersT<5, Charged, StraightLineSurface>     AtaStraightLine;
-    
+// Alias declarations
+using TrackParameters = ParametersBase<5, Charged>;
+using CurvilinearParameters = CurvilinearParametersT<5, Charged, PlaneSurface>;
+using AtaCone = ParametersT<5, Charged, ConeSurface>;
+using AtaCylinder = ParametersT<5, Charged, CylinderSurface>;
+using AtaDisc = ParametersT<5, Charged, DiscSurface>;
+using Perigee = ParametersT<5, Charged, PerigeeSurface>;
+using AtaPlane = ParametersT<5, Charged, PlaneSurface>;
+using AtaStraightLine = ParametersT<5, Charged, StraightLineSurface>;
+
 }
 
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
-MsgStream& operator << ( MsgStream& sl, const Trk::TrackParameters& pars);
+/**Overload of << operator for both, MsgStream and std::ostream for debug
+ * output*/
+MsgStream&
+operator<<(MsgStream& sl, const Trk::TrackParameters& pars);
 
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
-std::ostream& operator << ( std::ostream& sl, const Trk::TrackParameters& pars);
+/**Overload of << operator for both, MsgStream and std::ostream for debug
+ * output*/
+std::ostream&
+operator<<(std::ostream& sl, const Trk::TrackParameters& pars);
 
 #endif

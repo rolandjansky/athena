@@ -1,28 +1,7 @@
-################################################################################
-# Package: AthExThinning
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthExThinning )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthLinks
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthenaPython
-                          Control/AthenaServices
-                          Control/DataModelAthenaPool
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          GaudiKernel
-                          PRIVATE
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolCnvSvc )
-
-# External dependencies:
-find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( AthExThinningEvent
@@ -38,31 +17,25 @@ atlas_add_library( AthExThinningEvent
                    src_lib/AthExParticles_p1.cxx
                    src_lib/AthExFatObject_p1.cxx
                    PUBLIC_HEADERS AthExThinning
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps AthenaKernel AthenaPoolUtilities GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} )
+                   LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib GaudiKernel StoreGateLib )
 
 atlas_add_component( AthExThinningAlgs
                      src_lib/CreateData.cxx
                      src_lib/WriteThinnedData.cxx
                      src_lib/ReadThinnedData.cxx
                      src_lib/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent )
+                     LINK_LIBRARIES AthExThinningEvent )
 
 atlas_add_poolcnv_library( AthExThinningPoolCnv
                            src/*.cxx
                            FILES AthExThinning/AthExParticles.h AthExThinning/AthExIParticles.h AthExThinning/AthExDecay.h AthExThinning/AthExElephantino.h AthExThinning/AthExFatObject.h
-                           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent )
+                           LINK_LIBRARIES AthExThinningEvent AthenaPoolCnvSvcLib )
 
 atlas_add_dictionary( AthExThinningEventDict
                       AthExThinning/AthExThinningEventDict.h
                       AthExThinning/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent
-                      ELEMENT_LINKS  AthExParticles AthExIParticles )
+                      LINK_LIBRARIES AthExThinningEvent
+                      ELEMENT_LINKS AthExParticles AthExIParticles )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py

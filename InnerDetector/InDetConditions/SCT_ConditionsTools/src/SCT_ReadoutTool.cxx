@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutTool.h"
 
 #include "InDetIdentifier/SCT_ID.h"
+#include "SCT_ConditionsData/SCT_ReadoutData.h"
 
 #include <algorithm>
-
-#include "SCT_ConditionsData/SCT_ReadoutData.h"
 
 // Constructor
 SCT_ReadoutTool::SCT_ReadoutTool(const std::string& type, const std::string& name, const IInterface* parent):
@@ -22,7 +21,9 @@ SCT_ReadoutTool::SCT_ReadoutTool(const std::string& type, const std::string& nam
 StatusCode SCT_ReadoutTool::initialize() {
   ATH_MSG_DEBUG("Initialize SCT_ReadoutTool");
   // Retrieve cabling
-  ATH_CHECK(m_cablingTool.retrieve());
+  if (not m_cablingTool.empty()) {
+    ATH_CHECK(m_cablingTool.retrieve());
+  }
   // Retrieve SCT helper
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   // Get MessageSvc for SCT_ReadoutData
@@ -37,7 +38,7 @@ StatusCode SCT_ReadoutTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ReadoutTool::determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) const {
+StatusCode SCT_ReadoutTool::determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip>& chips, bool link0ok, bool link1ok) const {
   // Determine which chips are in the module readout from truncated serial number
   
   // Get moduleId
@@ -49,7 +50,7 @@ StatusCode SCT_ReadoutTool::determineReadout(const int truncatedSerialNumber, st
   return determineReadout(moduleId, chips, link0ok, link1ok);
 }
 
-StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) const {
+StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::vector<SCT_Chip>& chips, bool link0ok, bool link1ok) const {
   // This determineReadout(const Identifier is the main method of this class.
   // Methods of SCT_ReadoutData are called in the following order in this method:
   // setChips

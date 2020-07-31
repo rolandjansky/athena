@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PFCELLLEVELSUBTRACTIONTOOL_H
@@ -9,12 +9,14 @@
 #include "eflowRec/IPFSubtractionTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "eflowRec/eflowCaloObject.h"
-#include "eflowRec/eflowCellList.h"
-#include "eflowRec/eflowLayerIntegrator.h"
-#include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
+
+#include "eflowRec/eflowCaloObject.h"
+#include "eflowRec/eflowCellList.h"
+#include "eflowRec/eflowEEtaBinnedParameters.h"
+#include "eflowRec/PFMatchPositions.h"
+#include "eflowRec/EtaPhiLUT.h"
 
 #include <vector>
 
@@ -25,6 +27,14 @@ class IEFlowCellEOverPTool;
 class PFTrackClusterMatchingTool;
 class eflowRecTrack;
 
+namespace PFMatch {
+  class TrackEtaPhiInFixedLayersProvider;
+}
+
+namespace eflowRec {
+  class EtaPhiLUT;
+}
+
 class PFCellLevelSubtractionTool : public extends<AthAlgTool, IPFSubtractionTool> {
 public:
 
@@ -33,26 +43,30 @@ public:
   ~PFCellLevelSubtractionTool();
 
   StatusCode initialize();
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer);
+  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer) const;
   StatusCode finalize();
 
  private:
 
-  void calculateRadialEnergyProfiles();
-  void calculateAverageEnergyDensity();
-  void performSubtraction();
-  bool runInGoldenMode() { return ((m_goldenModeString == "golden1") || (m_goldenModeString == "golden2")); }
-  bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode);
-  bool canAnnihilated(double expectedEnergy, double sigma, double clusterEnergy);
+  struct eflowData {
+    eflowCaloObjectContainer* caloObjects;
+    eflowRecTrackContainer* tracks;
+    eflowRecClusterContainer* clusters;
+    eflowRec::EtaPhiLUT clusterLUT;
+  };
 
-  int matchAndCreateEflowCaloObj(int n);
-  std::string printTrack(const xAOD::TrackParticle* track);
-  std::string printCluster(const xAOD::CaloCluster* cluster);
-  void printAllClusters(const eflowRecClusterContainer& recClusterContainer);
+  void calculateRadialEnergyProfiles(eflowData& data) const;
+  void performSubtraction(eflowData& data) const;
+  bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode) const;
+  bool canAnnihilated(double expectedEnergy, double sigma, double clusterEnergy) const;
 
-  eflowCaloObjectContainer* m_eflowCaloObjectContainer;
-  eflowRecTrackContainer* m_eflowTrackContainer;
-  eflowRecClusterContainer* m_eflowClusterContainer;
+  unsigned int matchAndCreateEflowCaloObj(unsigned int n, eflowData& data) const;
+  std::string printTrack(const xAOD::TrackParticle* track) const;
+  std::string printCluster(const xAOD::CaloCluster* cluster) const;
+  void printAllClusters(const eflowRecClusterContainer& recClusterContainer) const;
+
+  // Need a track position provider to preselect clusters
+  std::unique_ptr<PFMatch::TrackEtaPhiInFixedLayersProvider> m_trkpos;
 
   /** Default track-cluster matching tool */
   ToolHandle<PFTrackClusterMatchingTool> m_matchingTool{this,"PFTrackClusterMatchingTool","PFTrackClusterMatchingTool/CalObjBldMatchingTool","The track-cluster matching tool"};
@@ -62,7 +76,6 @@ public:
   
   /* Tools for "shower simulation" */
   std::unique_ptr<eflowEEtaBinnedParameters> m_binnedParameters;
-  std::unique_ptr<eflowLayerIntegrator> m_integrator;
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool{this,"eflowCellEOverPTool","eflowCellEOverPTool","Energy Flow E/P Values and Shower Paremeters Tool"};
 
   /** Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction */
@@ -78,6 +91,7 @@ public:
 
   /** Toggle whether to use golden mode, whereby we only use idealised track-cluster matches within +- N sigma of expected mean e/p */
   Gaudi::Property<std::string> m_goldenModeString{this,"goldenModeString","","Toggle whether to use golden mode, whereby we only use idealised track-cluster matches within +- N sigma of expected mean e/p"};
+  bool m_runInGoldenMode{false};
   
   /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
   Gaudi::Property<bool> m_useUpdated2015ChargedShowerSubtraction{this,"useUpdated2015ChargedShowerSubtraction",true,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region"};

@@ -110,8 +110,16 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         # Start by adding the topocluster reco sequence
         # This makes EM clusters!
-        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-        (topoClusterSequence, clustersKey) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence,RoIs)
+        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+                caloClusterRecoSequence, LCCaloClusterRecoSequence)
+        if jetRecoDict["calib"] == "em":
+            topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
+                    caloClusterRecoSequence, flags=None, RoIs=RoIs)
+        elif jetRecoDict["calib"] == "lcw":
+            topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
+                    LCCaloClusterRecoSequence, flags=None, RoIs=RoIs)
+        else:
+            raise ValueError("Invalid value for calib: '{}'".format(jetRecoDict["calib"]))
         recoSeq += topoClusterSequence
 
         # Set up tracking sequence -- may need to reorganise or relocate
@@ -181,9 +189,13 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
         jetModList += calibMods
 
+        # Get online monitoring tool
+        from JetRec import JetOnlineMon
+        monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+jetsFullName+"/")
+
         # Generate a JetAlgorithm to run the jet finding and modifiers
         # (via a JetRecTool instance).
-        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList)
+        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList, monTool)
         recoSeq += conf2toConfigurable( jetRecAlg )
         # End of basic jet reco
         pass

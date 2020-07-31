@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -95,8 +95,10 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   using DCStatus = hltinterface::DataCollector::Status;
   DCStatus status = DCStatus::NO_EVENT;
+  auto monLBN = Monitored::Scalar<uint16_t>("getNext_LBN", m_maxLB);
+  auto monNoEvent = Monitored::Scalar<bool>("getNext_noEvent", false);
   try {
-    auto t_getNext = Monitored::Timer("TIME_getNext");
+    auto t_getNext = Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_getNext");
     status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
     auto mon = Monitored::Group(m_monTool, t_getNext);
   }
@@ -117,6 +119,8 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   }
   else if (status == DCStatus::NO_EVENT) {
     ATH_MSG_DEBUG("DataCollector::getNext returned NO_EVENT - no events available temporarily");
+    monNoEvent = true;
+    auto mon = Monitored::Group(m_monTool, monLBN, monNoEvent);
     throw hltonl::Exception::NoEventsTemporarily();
   }
   else if (status != DCStatus::OK) {
@@ -127,6 +131,12 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   // Create a cached FullEventFragment object from the cached raw data
   cache->fullEventFragment.reset(new RawEvent(cache->rawData.get()));
+
+  // Update LB number for monitoring
+  if (m_maxLB < cache->fullEventFragment->lumi_block()) {
+    m_maxLB = cache->fullEventFragment->lumi_block();
+    monLBN = m_maxLB;
+  }
 
   // Monitor the input
   auto numROBs = Monitored::Scalar<int>("L1Result_NumROBs",
@@ -141,7 +151,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
     subdetNameVec.push_back(sid.human_detector());
   }
   auto subdets = Monitored::Collection<std::vector<std::string>>("L1Result_SubDets", subdetNameVec);
-  auto mon = Monitored::Group(m_monTool, numROBs, fragSize, subdets);
+  auto mon = Monitored::Group(m_monTool, numROBs, fragSize, subdets, monLBN, monNoEvent);
 
   // Give the FullEventFragment pointer to ROBDataProviderSvc and also return it
   m_robDataProviderSvc->setNextEvent(*eventContext, cache->fullEventFragment.get());

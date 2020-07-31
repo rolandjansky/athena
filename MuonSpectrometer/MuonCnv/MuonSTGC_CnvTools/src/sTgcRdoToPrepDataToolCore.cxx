@@ -13,7 +13,6 @@ using namespace Muon;
 
 Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
   m_fullEventDone(false),
   m_stgcPrepDataContainer(0),
   m_clusterBuilderTool("Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool",this)
@@ -32,13 +31,11 @@ Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t,
 StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
-  /// get the detector descriptor manager
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
   ATH_CHECK( m_idHelperSvc.retrieve() );
-
   // check if the initialization of the data container is success
   ATH_CHECK(m_stgcPrepDataContainerKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -53,7 +50,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
   sTgcPrepDataCollection* prdColl = nullptr;
   
   // check if the collection already exists, otherwise add it
-  if ( m_stgcPrepDataContainer->indexFind(hash) != m_stgcPrepDataContainer->end() ) {
+  if ( m_stgcPrepDataContainer->indexFindPtr(hash) != nullptr ) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
     return StatusCode::FAILURE;
@@ -86,17 +83,30 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
   std::vector<sTgcPrepData> sTgcPadPrds;
   // convert the RDO collection to a PRD collection
   STGC_RawDataCollection::const_iterator it = rdoColl->begin();
+  
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> detMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muonDetMgr = detMgrHandle.cptr(); 
+  if(!muonDetMgr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE;
+  }
+  
   for ( ; it != rdoColl->end() ; ++it ) {
 
     ATH_MSG_DEBUG("Adding a new sTgc PrepRawData");
 
     const STGC_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
+    if (!m_idHelperSvc->issTgc(rdoId)) {
+      ATH_MSG_WARNING("given Identifier "<<rdoId.get_compact()<<" ("<<m_idHelperSvc->stgcIdHelper().print_to_string(rdoId)<<") is no sTGC Identifier, continuing");
+      continue;
+    }
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
     
     // get the local and global positions
-    const MuonGM::sTgcReadoutElement* detEl = m_muonMgr->getsTgcReadoutElement(rdoId);
+    const MuonGM::sTgcReadoutElement* detEl = muonDetMgr->getsTgcReadoutElement(rdoId);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(rdoId,localPos);
@@ -223,6 +233,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     // merge the eta and phi prds that fire closeby strips or wires
     std::vector<Muon::sTgcPrepData*> sTgcStripClusters;
     std::vector<Muon::sTgcPrepData*> sTgcWireClusters;
+    std::vector<Muon::sTgcPrepData*> sTgcPadClusters;
     //
     // Clusterize strips
     //
@@ -231,6 +242,9 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     // Clusterize wires
     //
     ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
+    // Clusterize pads
+    //
+    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcPadPrds,sTgcPadClusters));
     //
     // Add the clusters to the event store ( do not clusterize wires for now )
     //
@@ -241,7 +255,11 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     for ( auto it : sTgcWireClusters ) {
       it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
       prdColl->push_back(it);
-    } 
+    }
+    for ( auto it : sTgcPadClusters ) {
+      it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+      prdColl->push_back(it);
+    }
   }
 
 

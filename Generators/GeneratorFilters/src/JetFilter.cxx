@@ -78,25 +78,25 @@ StatusCode JetFilter::filterEvent() {
 
   // Loop over all particles in the event and build up the grid
   const HepMC::GenEvent* genEvt = event();
-  for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+  for (auto part: *genEvt) {
     /// @todo Use MCPID to identify leptons
-    // if ( (*pitr)->status() == 1 ) {// stables only
-      if(MC::isGenStable(*pitr)) { //stables only
-      if ( ((*pitr)->pdg_id() != 13 ) &&  ((*pitr)->pdg_id() != -13 ) &&
-           ((*pitr)->pdg_id() != 12 ) && ((*pitr)->pdg_id() != -12 ) &&
-           ((*pitr)->pdg_id() != 14 ) && ((*pitr)->pdg_id() != -14 ) &&
-           ((*pitr)->pdg_id() != 16 ) && ((*pitr)->pdg_id() != -16 ) &&
-           (fabs((*pitr)->momentum().pseudoRapidity()) <= m_emaxeta) ) { // no neutrinos or muons and particles must be in active range
+    // if ( part->status() == 1 ) {// stables only
+      if(MC::isGenStable(part)) { //stables only
+      if ( (part->pdg_id() != 13 ) &&  (part->pdg_id() != -13 ) &&
+           (part->pdg_id() != 12 ) && (part->pdg_id() != -12 ) &&
+           (part->pdg_id() != 14 ) && (part->pdg_id() != -14 ) &&
+           (part->pdg_id() != 16 ) && (part->pdg_id() != -16 ) &&
+           (std::abs(part->momentum().pseudoRapidity()) <= m_emaxeta) ) { // no neutrinos or muons and particles must be in active range
         int ip, ie;
-        ip = (int) ((m_twopi/2.+ (*pitr)->momentum().phi())/m_edphi); //phi is in range -CLHEP::pi to CLHEP::pi
-        ie = (int) (((*pitr)->momentum().pseudoRapidity()+m_emaxeta)/m_edeta);
+        ip = (int) ((m_twopi/2.+ part->momentum().phi())/m_edphi); //phi is in range -CLHEP::pi to CLHEP::pi
+        ie = (int) ((part->momentum().pseudoRapidity()+m_emaxeta)/m_edeta);
         if (ie < 0 || (ie >= m_greta)) { // its outside the ends so we should not be here
           ATH_MSG_FATAL("Jet too close to end");
           return StatusCode::FAILURE;
         }
         while (ip < 0) ip += m_grphi; //fix phi wrapping note that this is done after rr is calculated
         while (ip > m_grphi-1) ip -= m_grphi; //fix phi wrapping note that this is done after rr is calculated
-        etgrid[ip][ie] = etgrid[ip][ie]+(*pitr)->momentum().perp(); // fortran had pt here
+        etgrid[ip][ie] = etgrid[ip][ie]+part->momentum().perp(); // fortran had pt here
       }
     }
   }
@@ -201,7 +201,7 @@ StatusCode JetFilter::filterEvent() {
       FoundJet.setPy(jetpy);
       FoundJet.setPz(jetpz);
       FoundJet.setE(jete);
-      if (fabs(FoundJet.pseudoRapidity()) < m_UserEta) {
+      if (std::abs(FoundJet.pseudoRapidity()) < m_UserEta) {
         m_Jets.push_back(FoundJet);   //OK we found one. add it to the list  if its inside the eta region
       }
     }

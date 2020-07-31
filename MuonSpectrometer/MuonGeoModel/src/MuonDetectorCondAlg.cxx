@@ -5,6 +5,7 @@
 #include "MuonGeoModel/MuonDetectorCondAlg.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 #include "MuonGeoModel/MuonDetectorTool.h"
+#include "MuonDetDescrUtils/BuildNSWReadoutGeometry.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -14,7 +15,7 @@
 #include "AthenaKernel/CondCont.h"
 
 MuonDetectorCondAlg::MuonDetectorCondAlg( const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_condSvc{"CondSvc", name}
 { }
 
@@ -55,14 +56,14 @@ MuonDetectorCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonDetectorCondAlg::execute(const EventContext& ctx) const
+StatusCode MuonDetectorCondAlg::execute()
 {
   ATH_MSG_DEBUG( "execute " << name() );
 
   // =======================
   // Write ILine Cond Handle
   // =======================
-  SG::WriteCondHandle<MuonGM::MuonDetectorManager> writeHandle{m_writeDetectorManagerKey, ctx};
+  SG::WriteCondHandle<MuonGM::MuonDetectorManager> writeHandle{m_writeDetectorManagerKey};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
   		  << ". In theory this should not be called, but may happen"
@@ -84,11 +85,21 @@ StatusCode MuonDetectorCondAlg::execute(const EventContext& ctx) const
     (theFactory.getDetectorManager());
 
   // =======================
+  // Add NSW to the MuonDetectorManager by calling BuildReadoutGeometry from MuonAGDDToolHelper
+  // =======================
+  if (MuonMgrData->mmIdHelper() && MuonMgrData->stgcIdHelper()) {
+    BuildNSWReadoutGeometry theBuilder = BuildNSWReadoutGeometry();
+    if (!theBuilder.BuildReadoutGeometry(MuonMgrData.get())) {
+      ATH_MSG_FATAL("unable to add NSW ReadoutGeometry in the MuonDetectorManager in conditions store");
+    }
+  }
+
+  // =======================
   // Update CSC Internal Alignment if requested
   // =======================
 
   if (MuonMgrData->applyCscIntAlignment()) {
-    SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey, ctx};
+    SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey};
     const CscInternalAlignmentMapContainer* readILinesCdo{*readILinesHandle};
 
     writeHandle.addDependency( readILinesHandle );
@@ -101,7 +112,7 @@ StatusCode MuonDetectorCondAlg::execute(const EventContext& ctx) const
   // Update MdtAsBuiltMapContainer if requested BEFORE updating ALINES and BLINES
   // =======================
   if (MuonMgrData->applyMdtAsBuiltParams()) {
-    SG::ReadCondHandle<MdtAsBuiltMapContainer> readAsBuiltHandle{m_readAsBuiltKey, ctx};
+    SG::ReadCondHandle<MdtAsBuiltMapContainer> readAsBuiltHandle{m_readAsBuiltKey};
     const MdtAsBuiltMapContainer* readAsBuiltCdo{*readAsBuiltHandle};
     writeHandle.addDependency( readAsBuiltHandle );
 
@@ -114,7 +125,7 @@ StatusCode MuonDetectorCondAlg::execute(const EventContext& ctx) const
   // Update Alignment, ALINES
   // =======================
 
-  SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey, ctx};
+  SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey};
   if (MuonMgrData->updateAlignment(**readALinesHandle).isFailure()) ATH_MSG_ERROR("Unable to update Alignment" );
   else ATH_MSG_DEBUG("update Alignment DONE" );
 
@@ -122,7 +133,7 @@ StatusCode MuonDetectorCondAlg::execute(const EventContext& ctx) const
   // Update Deformations, BLINES
   // =======================
 
-  SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey, ctx};
+  SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey};
 
   writeHandle.addDependency( readALinesHandle, readBLinesHandle );
 
@@ -148,4 +159,3 @@ StatusCode MuonDetectorCondAlg::finalize()
   ATH_MSG_DEBUG( "finalize " << name() );
   return StatusCode::SUCCESS;
  }
-

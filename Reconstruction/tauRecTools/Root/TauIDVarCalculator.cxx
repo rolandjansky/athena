@@ -8,11 +8,13 @@
  * Author: Lorenz Hauswald
  */
 
-#include "tauRecTools/HelperFunctions.h"
 #include "tauRecTools/TauIDVarCalculator.h"
-#include "xAODTracking/VertexContainer.h"  
+#include "tauRecTools/HelperFunctions.h"
+
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "AsgDataHandles/ReadHandle.h"
+
 #include "TLorentzVector.h"
 
 #define GeV 1000

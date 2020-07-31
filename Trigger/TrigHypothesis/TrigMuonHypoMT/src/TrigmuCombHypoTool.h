@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 
 #define TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 1
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 
@@ -71,7 +71,7 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
 	this, "PtBins", { {0, 2.5} }, "Bins range of each pT threshold" };
 
     Gaudi::Property< std::vector<std::vector<double>> > m_ptThresholds {
-	this, "PtThresholds", { {5.83 * CLHEP::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
+    this, "PtThresholds", { {5.83 * Gaudi::Units::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
 
     Gaudi::Property< bool > m_acceptAll {
 	this, "AcceptAll", false, "Ignore selection" };     

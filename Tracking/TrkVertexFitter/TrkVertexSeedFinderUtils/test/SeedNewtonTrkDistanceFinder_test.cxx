@@ -80,8 +80,8 @@ void test1 (Trk::ITrkDistanceFinder& tool)
   assert( op );
   pp = op.value();
 
-  assertVec3D (pp.first,  { -27.3934, -27.3934, 0 });
-  assertVec3D (pp.second, { -27.3934, -27.3934, 0 });
+  assertVec3D(pp.first, { 30.3934, 30.3934, 0 });
+  assertVec3D(pp.second, { 30.3934, 30.3934, 0 });
 
   Amg::Vector3D pos3a { 10, 2, 2 };
   Amg::Vector3D mom3a { 10000, 30000, 50000 };
@@ -97,7 +97,7 @@ void test1 (Trk::ITrkDistanceFinder& tool)
   assertVec3D (pp.second, { -4.46622, 4.67974,  -2.14596  });
 }
 
-std::unique_ptr<MagField::AtlasFieldMap> getFieldMap(const std::string mapFile, double sol_current, double tor_current) {
+std::unique_ptr<MagField::AtlasFieldMap> getFieldMap(const std::string& mapFile, double sol_current, double tor_current) {
        // find the path to the map file
     std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
     assert ( !resolvedMapFile.empty() );

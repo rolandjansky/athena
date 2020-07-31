@@ -28,14 +28,14 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 pileUpEventLoopMgr = PileUpEventLoopMgr()
 pileUpEventLoopMgr.OutStreamType = "AthenaOutputStream"
 
-print "================  DetFlags  ================ "
+printfunc ("================  DetFlags  ================ ")
 DetFlags.Print()
 
 if overlayFlags.isDataOverlay():
     from InDetRecExample.InDetJobProperties import InDetFlags
     from ByteStreamCnvSvc import ReadByteStream
     include("RecExCommon/BSRead_config.py")
-    ServiceMgr.ByteStreamInputSvc.FullFileName = DataInputCollections
+    ServiceMgr.EventSelector.Input = DataInputCollections
     ServiceMgr.ByteStreamInputSvc.EventStore= "StoreGateSvc/"+overlayFlags.dataStore()
     from AthenaKernel import StoreID
     ServiceMgr.ByteStreamAddressProviderSvc.StoreID=StoreID.UNKNOWN

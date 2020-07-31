@@ -6,13 +6,16 @@ from __future__ import print_function
 __author__ = "Will Buttinger"
 __doc__ = """Extract dataset parameters from AMI, and write them to a text file.\nExamples:\n\n\ngetMetadata.py --inDS="mc15_13TeV.361103%DAOD_TRUTH%" --fields=dataset_number,ldn,nfiles,events,crossSection,genFiltEff,generator_name"""
 
-
-
 import logging
+import sys
 
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
+
+# Python 2.x/3.x compatibility
+if sys.version_info[0] >= 3:
+    unicode = str   # strings are unicode in Python3
 
 #pinched from pandatools!
 def readDsFromFile(txtName):
@@ -33,9 +36,9 @@ def readDsFromFile(txtName):
             dsList += [tmpLine]
         # close file    
         txt.close()
-    except:
+    except Exception:
         errType,errValue = sys.exc_info()[:2]
-        logging.error("cannot read datasets from %s due to %s:%s" % (txtName,errType,errValue))
+        logging.error("cannot read datasets from %s due to %s:%s",txtName,errType,errValue)
         sys.exit(-1)    
     return dsList
 
@@ -43,7 +46,7 @@ def readDsFromFile(txtName):
 
 def isfloat(x):
     try:
-        a = float(x)
+        float(x)
     except ValueError:
         return False
     else:
@@ -91,13 +94,13 @@ def main():
     #check the voms proxy 
     status,out = subprocess.getstatusoutput("voms-proxy-info -fqan -exists")
     if status!=0:
-        logging.error("Please renew your certificate with this command: voms-proxy-init -voms atlas");
+        logging.error("Please renew your certificate with this command: voms-proxy-init -voms atlas")
         return -1
 
     try:
         client = pyAMI.client.Client('atlas')
         AtlasAPI.init()
-    except:
+    except Exception:
         logging.error("Could not establish pyAMI session. Are you sure you have a valid certificate? Do: voms-proxy-init -voms atlas")
         return -1
 
@@ -110,7 +113,7 @@ def main():
 
     res = client.execute('ListPhysicsParameterDefs',format='dom_object')
     for r in res.get_rows() : #r is OrderedDict
-        explainString = "%s: %s" % (r[u'PARAMNAME'],r[u'DESCRIPTION']);
+        explainString = "%s: %s" % (r[u'PARAMNAME'],r[u'DESCRIPTION'])
         if r[u'UNITS']!=u'NULL': 
             explainString += " (units: %s)" % r[u'UNITS']
             paramUnits[r[u'PARAMNAME']] = r[u'UNITS']
@@ -205,7 +208,7 @@ def main():
 
     if len(paramFields)>0 and args.physicsGroups==[""]:
         logging.error("You must specify at least one physics group. See -h for allowed groups")
-        return -1;
+        return -1
 
     #combine paramDefaults with fieldDefaults
     fieldDefaults.update(paramDefaults)
@@ -214,9 +217,9 @@ def main():
     
     for field in args.fields:
         if field not in fieldDefaults:
-            logging.error("%s is not a recognised field. Allowed fields are:" % field)
+            logging.error("%s is not a recognised field. Allowed fields are:", field)
             logging.error(fieldDefaults.keys())
-            return -1;
+            return -1
         
 
     if args.oldTimestamp!="":
@@ -231,7 +234,7 @@ def main():
   
     if len(args.inDS)==0 or (len(args.inDS)==1 and args.inDS[0]==""):
         logging.error("No datasets provided. Please specify datasets with the --inDS or --inDsTxt options")
-        return -1;
+        return -1
 
     logging.info("Fetching list of datasets from AMI (this may take a few minutes)...")
 
@@ -239,10 +242,10 @@ def main():
     #obtain list of datasets 
     res = AtlasAPI.list_datasets(client,patterns=args.inDS,fields=dsFields+['ldn'],ami_status="VALID") #changed status from %, to only catch valid now: wb 08/2015
 
-    logging.info("...Found %d datasets matching your selection" % len(res))
+    logging.info("...Found %d datasets matching your selection", len(res))
 
     if len(res)==0:
-        return 0;
+        return 0
     
     #NOTE: Should we allow retrieval of the extra information: keyword, genfiltereff, approx crossection, .. these all come from GetDatasetInfo ami command
 
@@ -258,7 +261,9 @@ def main():
         if len(extraFields)>0 or len(args.keywords)>0:
             info_res = AtlasAPI.get_dataset_info(client,str(r['ldn']))
             #print(info_res)
-            if len(info_res)==0: logging.error("Unable to retrieve dataset info for %s" % str(r['ldn']));return -1
+            if len(info_res)==0:
+                logging.error("Unable to retrieve dataset info for %s", r['ldn'])
+                return -1
             for field in extraFields:
                 #ignore the keyword_ fields 
                 if field.startswith("keyword_"): continue
@@ -284,14 +289,14 @@ def main():
 
     for ds in args.inDS:
         if '%' not in ds and ds not in dataset_values.keys():
-            logging.warning("Unknown dataset: %s" % ds)
+            logging.warning("Unknown dataset: %s", ds)
 
     datasetsToQuery = ",".join(dataset_values.keys())
 
     #if using inDsTxt, retain any comment or blank lines in structure of output
     complete_values = OrderedDict()
     if args.inDsTxt != "":
-         # read lines
+        # read lines
         commentcount=0
         import re
         txt = open(args.inDsTxt)
@@ -315,7 +320,8 @@ def main():
         txt.close()
         dataset_values = complete_values
 
-    logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.timestamp))
+    logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)",
+                 args.fields, args.timestamp)
 
     #do as one query, to be efficient
     if(args.timestamp==current_time):
@@ -332,7 +338,8 @@ def main():
 
 
     if args.oldTimestamp!="" :
-        logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.oldTimestamp))
+        logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)",
+                     args.fields,args.oldTimestamp)
         res2 = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.oldTimestamp,"--history=true"], format='dom_object')
         old_parameterQueryResults = dict()
         for r in res2.get_rows():
@@ -391,14 +398,14 @@ def main():
                         groupsWithVals[param] += [(str(r[u'physicsGroup']),str(r[u'paramValue']))]
                         continue
                     if args.physicsGroups.index(str(r[u'physicsGroup'])) > bestGroupIndex : continue
-                    if args.physicsGroups.index(str(r[u'physicsGroup'])) == bestGroupIndex : logging.warning("Duplicate parameter %s for group %s in dataset %s (subprocess %d). Please report this!" % (param,str(r[u'physicsGroup']),ds,sp))
+                    if args.physicsGroups.index(str(r[u'physicsGroup'])) == bestGroupIndex : logging.warning("Duplicate parameter %s for group %s in dataset %s (subprocess %d). Please report this!", param, r[u'physicsGroup'], ds, sp)
                     paramVals[param] = str(r[u'paramValue'])
                     if param=="crossSection_pb": paramVals[param] = str(float(paramVals[param])*1000.0)
                     bestGroupIndex=args.physicsGroups.index(str(r[u'physicsGroup']))
                     #keep the explanation info 
                     for e in args.explainInfo: 
                         if unicode(e) not in r:
-                            logging.error("Unrecognised explainInfo field: %s" % e)
+                            logging.error("Unrecognised explainInfo field: %s", e)
                             return -1
                         explainInfo[param][e]=str(r[unicode(e)])
                 if args.oldTimestamp!="":
@@ -409,7 +416,7 @@ def main():
                         if str(r[u'paramName']) != param  and not (param=="crossSection_pb" and str(r[u'paramName'])=="crossSection"): continue
                         if str(r[u'physicsGroup']) not in args.physicsGroups: continue
                         if args.physicsGroups.index(str(r[u'physicsGroup'])) > bestGroupIndex : continue
-                        if args.physicsGroups.index(str(r[u'physicsGroup'])) == bestGroupIndex : logging.warning("Duplicate parameter %s for group %s in dataset %s (subprocess %d). Please report this!" % (param,str(r[u'physicsGroup']),ds,sp))
+                        if args.physicsGroups.index(str(r[u'physicsGroup'])) == bestGroupIndex : logging.warning("Duplicate parameter %s for group %s in dataset %s (subprocess %d). Please report this!", param, r[u'physicsGroup'], ds, sp)
                         paramVals2[param] = str(r[u'paramValue'])
                         if param=="crossSection_pb": paramVals2[param] = str(float(paramVals2[param])*1000.0)
                         bestGroupIndex=args.physicsGroups.index(str(r[u'physicsGroup']))
@@ -424,8 +431,8 @@ def main():
                 elif param == "subprocessID": val = sp
                 elif param in dataset_values[ds].keys(): val = dataset_values[ds][param]
                 else: val = paramVals.get(param,None)
-                if val == None:
-                    if args.outFile != sys.stdout: logging.warning("dataset %s (subprocess %d) does not have parameter %s, which has no default." % (ds,sp,param))
+                if val is None:
+                    if args.outFile != sys.stdout: logging.warning("dataset %s (subprocess %d) does not have parameter %s, which has no default.",ds,sp,param)
                     if len(groupsWithVals.get(param,[]))>0:
                         logging.warning("The follow physicsGroups have defined that parameter though:")
                         logging.warning(groupsWithVals[param])
@@ -439,7 +446,7 @@ def main():
                     elif param == "subprocessID": val2 = sp
                     elif param in dataset_values[ds].keys(): val2 = dataset_values[ds][param]
                     else: val2 = paramVals2.get(param,None)
-                    if val2 == None: val2 = "#UNKNOWN#"
+                    if val2 is None: val2 = "#UNKNOWN#"
                     #if isfloat(str(val2)): val2 = "%.6g" % float(val)
                     if(str(val)!=str(val2)):
                         if not firstPrint: print("%s:" % ds)
@@ -478,7 +485,8 @@ def main():
             if commentCount > 0:
                 if args.outFile!=sys.stdout and args.delim!="": print(commentCache,file=args.outFile)
                 outputTable += [["COMMENT",commentCache]]
-                commentCache = ''; commentCount = 0
+                commentCache = ''
+                commentCount = 0
             if args.outFile != sys.stdout and args.delim!="": print(rowString,file=args.outFile)
             outputTable += [rowList]
             #also print the required explanations
@@ -487,7 +495,7 @@ def main():
                 doneFirst=False
                 for eField in args.explainInfo:
                     if doneFirst: outString += " , "
-                    if not eField in expl.keys(): outString += " %s: <NONE .. value is default>"%eField
+                    if eField not in expl.keys(): outString += " %s: <NONE .. value is default>"%eField
                     else: outString += "%s: %s" % (eField,expl[eField])
                     doneFirst=True
                 outString += " }"
@@ -528,12 +536,10 @@ def main():
         print("",file=args.outFile)
         print("#lsetup  \"asetup %s,%s\" pyAMI" % (os.environ.get('AtlasProject','UNKNOWN!'),os.environ.get('AtlasVersion','UNKNOWN!')),file=args.outFile)
         print("#getMetadata.py --timestamp=\"%s\" --physicsGroups=\"%s\" --fields=\"%s\" --inDS=\"%s\"" % (args.timestamp,",".join(args.physicsGroups),",".join(args.fields),",".join(datasetss)),file=args.outFile )
-        logging.info("Results written to: %s" % args.outFile.name)
+        logging.info("Results written to: %s", args.outFile.name)
 
     args.outFile.close()
 
 
 if __name__ == "__main__":
-    import sys
     sys.exit(main())
-

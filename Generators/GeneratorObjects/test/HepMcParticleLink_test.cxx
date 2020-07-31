@@ -213,15 +213,12 @@ namespace MCTesting {
     }
 
     if(!ge.vertices_empty()){
-      std::vector<HepMC::GenVertexPtr> vtxvec;
       HepMC::GenEvent::vertex_iterator itvtx = ge.vertices_begin();
-      for (;itvtx != ge.vertices_end(); ++itvtx ) {
-        ge.remove_vertex(*itvtx);
-        vtxvec.push_back((*itvtx));
-        //fix me: delete vertex pointer causes crash
-        //delete (*itvtx);
+      while (itvtx != ge.vertices_end()) {
+        HepMC::GenVertex* vtx = *itvtx++;
+        ge.remove_vertex(vtx);
+        delete vtx;
       }
-      for(unsigned int i=0;i<vtxvec.size();i++)  delete vtxvec[i];
     }
 
     //.....add new vertex with geantino

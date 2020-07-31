@@ -15,5 +15,5 @@ atlas_add_library( InDetCoolCoralClientUtils
                    src/*.cpp
                    PUBLIC_HEADERS InDetCoolCoralClientUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CxxUtils )
 

@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 
 # import the SVTag configurable
@@ -14,7 +13,7 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
     The following options have BTaggingFlags defaults:
 
     Runmodus                            default: BTagging.RunModus
-    referenceType                       default: BTaggingFlags.ReferenceType
+    referenceType                       default: BTagging.ReferenceType
     SVAlgType                           default: "SV1"
     jetCollectionList                   default: BTaggingFlags.Jets
     LikelihoodTool                      default: None
@@ -29,12 +28,12 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
     options['name'] = name
     options['xAODBaseName'] = 'SV1'
     if useBTagFlagsDefaults:
-        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SV1NewLikelihoodTool', 'SV1'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SV1NewLikelihoodTool', 'SV1', scheme))
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'referenceType'                    : BTaggingFlags.ReferenceType,
+                     'referenceType'                    : flags.BTagging.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'SVAlgType'                        : 'SV1',
-                     'jetCollectionList'                : BTaggingFlags.Jets,
+                     'jetCollectionList'                : [], #used only in reference mode
                      'SecVxFinderName'                  : 'SV1',
                      'UseCHypo'                         : True,
                      'LikelihoodTool'                   : likelihood }
@@ -43,3 +42,4 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
     acc.setPrivateTools(Analysis__SVTag(**options))
 
     return acc
+

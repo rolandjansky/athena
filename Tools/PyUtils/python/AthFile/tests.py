@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/AthFile/tests.py
 # @purpose a simple abstraction of a file to retrieve informations out of it
@@ -473,7 +473,6 @@ def main(verbose=False):
     return result
 
 if __name__ == "__main__":
-    import sys
     print (__file__)
     sys.exit(main())
     

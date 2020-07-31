@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCaloEnergyTool.h"
@@ -19,7 +19,7 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace Rec {
 
@@ -98,7 +98,7 @@ namespace Rec {
     E_dead_exp  = 0.;
 
     bool storeCells = false;
-    if(crossedCells!=0&&sigmaNoise_cell!=0&&E_exp_cell!=0) {   
+    if(crossedCells!=nullptr&&sigmaNoise_cell!=nullptr&&E_exp_cell!=nullptr) {   
       storeCells = true;
       crossedCells->clear();
       sigmaNoise_cell->clear();
@@ -134,7 +134,7 @@ namespace Rec {
 
     // associate muon to calorimeter 
 
-    const xAOD::TrackParticle* tp = 0;
+    const xAOD::TrackParticle* tp = nullptr;
 
     SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(m_indetTrackParticleLocation);
     if(indetTrackParticles.isValid()){
@@ -170,7 +170,7 @@ namespace Rec {
     std::unique_ptr<const xAOD::TrackParticle> tpholder;
     if(!tp) {
       tpholder = std::unique_ptr<const xAOD::TrackParticle>
-        (m_particleCreator->createParticle(*trk, NULL, NULL, xAOD::muon) );
+        (m_particleCreator->createParticle(*trk, nullptr, nullptr, xAOD::muon) );
 
       tp = tpholder.get();
       if(tp) ATH_MSG_DEBUG( " xAOD::TrackParticle created from scratch " << tp );

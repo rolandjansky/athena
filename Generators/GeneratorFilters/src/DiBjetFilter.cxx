@@ -114,7 +114,7 @@ StatusCode DiBjetFilter::filterEvent() {
        lead_jet_pt = (*jitr)->pt();
     }
     if( (*jitr)->pt() < m_jetPtMin ) continue;
-    if( fabs( (*jitr)->eta() ) > m_jetEtaMax ) continue;
+    if( std::abs( (*jitr)->eta() ) > m_jetEtaMax ) continue;
     jets.push_back(jitr);
   }
 
@@ -124,17 +124,16 @@ StatusCode DiBjetFilter::filterEvent() {
   double weight = 1;
   for (const HepMC::GenEvent* genEvt : *events()) {
     weight = genEvt->weights().front();
-    HepMC::GenEvent::particle_const_iterator pitr;
-    std::vector< HepMC::GenEvent::particle_const_iterator > bHadrons;
-    for(pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {  
-      if( !isBwithWeakDK( (*pitr)->pdg_id()) ) continue;
-      if( (*pitr)->momentum().perp() < m_bottomPtMin ) continue;
-      if( fabs( (*pitr)->momentum().pseudoRapidity() ) > m_bottomEtaMax) continue;
+    std::vector< HepMC::ConstGenParticlePtr > bHadrons;
+    for(auto pitr: *genEvt) {  
+      if( !isBwithWeakDK( pitr->pdg_id()) ) continue;
+      if( pitr->momentum().perp() < m_bottomPtMin ) continue;
+      if( std::abs( pitr->momentum().pseudoRapidity() ) > m_bottomEtaMax) continue;
       bHadrons.push_back(pitr);     
     }    
     for(uint i = 0; i < jets.size(); i++){   
       for(uint j = 0; j < bHadrons.size(); j++){
-	HepMC::FourVector tmp = (*bHadrons[j])->momentum();
+	HepMC::FourVector tmp = bHadrons[j]->momentum();
 	TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
 	double dR = (*jets[i])->p4().DeltaR(genpart);
 	if(dR<m_deltaRFromTruth){ 

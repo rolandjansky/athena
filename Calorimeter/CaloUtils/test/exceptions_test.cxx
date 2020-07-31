@@ -22,6 +22,7 @@ void test1()
   std::cout << CaloUtils::ExcConstantNotSet ("tool", "const").what() << "\n";
 
   std::cout << CaloUtils::ExcConstantReset ("tool", "const").what() << "\n";
+  std::cout << CaloUtils::ExcBadContextlessRetrieve ("tool", "const").what() << "\n";
 }
 
 

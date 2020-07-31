@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "Identifier/ExpandedIdentifier.h"
-#include <stdarg.h>
-#include <stdio.h>
 #include <algorithm>
+#include <cstdarg>
+#include <cstdio>
 #include <cstring>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 //-----------------------------------------------
 static void show_vector (const ExpandedIdentifier::element_vector& v)
@@ -44,7 +44,7 @@ ExpandedIdentifier::ExpandedIdentifier (const std::string& text)
 void ExpandedIdentifier::set (const std::string& text)
 {
   clear ();
-  if (text.size () == 0) return;
+  if (text.empty()) return;
   const char* ctext = text.c_str ();
 
   for (;;)
@@ -59,7 +59,7 @@ void ExpandedIdentifier::set (const std::string& text)
 
       add ((element_type) value);
 
-      if (sep == 0) break;
+      if (sep == nullptr) break;
       
       ctext = sep + 1;
     }

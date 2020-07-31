@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,6 @@
 #include "SCT_ReadoutTestAlg.h"
 
 #include "Identifier/Identifier.h"
-#include "SCT_ConditionsData/SCT_Chip.h"
 
 // Constructor
 SCT_ReadoutTestAlg::SCT_ReadoutTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
@@ -35,8 +34,7 @@ StatusCode SCT_ReadoutTestAlg::initialize() {
   std::vector<std::string>::const_iterator end{m_chipConfigs.end()};
 
   for (short ichip{0}; itr != end; ++itr, ++ichip) {
-    SCT_Chip* chip{initialiseChip(ichip, *itr)};
-    m_chips.push_back(chip);
+    m_chips.push_back(initialiseChip(ichip, *itr));
   } 
 
   return StatusCode::SUCCESS;
@@ -50,13 +48,13 @@ StatusCode SCT_ReadoutTestAlg::execute() {
   ATH_MSG_INFO("Calling execute");
 
   ATH_MSG_INFO( "Chips before readout ..." );
-  for (const SCT_Chip* chip: m_chips) ATH_MSG_INFO(*chip);
+  for (const SCT_Chip& chip: m_chips) ATH_MSG_INFO(chip);
 
   // Determin readout for this module
-  ATH_CHECK(m_readout->determineReadout(Identifier{m_moduleId.value()}, m_chips, m_link0ok.value(), m_link1ok.value()));
+  ATH_CHECK(m_readout->determineReadout(Identifier{m_moduleId}, m_chips, m_link0ok, m_link1ok));
   
   ATH_MSG_INFO("Chips after readout ...");
-  for (const SCT_Chip* chip: m_chips) ATH_MSG_INFO(*chip);
+  for (const SCT_Chip& chip: m_chips) ATH_MSG_INFO(chip);
 
   return StatusCode::SUCCESS;
 }
@@ -64,9 +62,6 @@ StatusCode SCT_ReadoutTestAlg::execute() {
 // Finalize
 StatusCode SCT_ReadoutTestAlg::finalize() {
   ATH_MSG_INFO("Calling finalize");
-
-  // Free up the memory associated to the chips
-  for (const SCT_Chip* chip: m_chips) delete chip;
 
   return StatusCode::SUCCESS;
 }
@@ -98,10 +93,10 @@ short SCT_ReadoutTestAlg::bin2dec(const char *bin)
 }
 
 // Initalise chip from id and config string (all channels are initially good)
-SCT_Chip* SCT_ReadoutTestAlg::initialiseChip(short id, std::string configString) {
+SCT_Chip SCT_ReadoutTestAlg::initialiseChip(short id, std::string configString) {
   // Opposite convention for LSB
   std::reverse(configString.begin(), configString.end());
   short config{bin2dec(configString.c_str())};
   const int minus1{-1};
-  return new SCT_Chip(id, config, minus1, minus1, minus1, minus1);
+  return SCT_Chip(id, config, minus1, minus1, minus1, minus1);
 }

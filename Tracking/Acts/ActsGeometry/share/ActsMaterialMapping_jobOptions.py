@@ -18,13 +18,13 @@ ServiceMgr.MessageSvc.defaultLimit = 20000
 DetFlags.ID_setOn()
 DetFlags.detdescr.pixel_setOn()
 DetFlags.detdescr.SCT_setOn()
-
+DetFlags.Calo_setOff()
 
 # MC or data - affects which conditions database instance is used
 globalflags.DataSource='geant4'
 #globalflags.DataSource='data'
 
-# Select the geometry version. 
+# Select the geometry version.
 globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
 
 # print "HERE"
@@ -43,15 +43,11 @@ from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
 # conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
 
-import glob
-fileList = glob.glob("*root*") #/tmp/salzburg/*/*.root*")
-
 from AthenaCommon.AppMgr import ServiceMgr
 
 # Read material step file
-import AthenaPoolCnvSvc.ReadAthenaPool 
-ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile_1e6.root"]
-
+import AthenaPoolCnvSvc.ReadAthenaPool
+ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile.root"]
 
 
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -69,32 +65,52 @@ svcMgr += CondSvc( OutputLevel=INFO )
 # ServiceMgr.THistSvc.Output += ["MATTRACKVAL DATAFILE='MaterialTracks.root' OPT='RECREATE'"]
 # ServiceMgr.ToolSvc.OutputLevel = VERBOSE
 
+
 # Set up ACTS tracking geometry service
-from ActsGeometry.ActsGeometryConfig import TrackingGeometrySvc
-trkGeomSvc = TrackingGeometrySvc()
+from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
+trkGeomSvc = ActsTrackingGeometrySvc()
 trkGeomSvc.OutputLevel = INFO
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
+trkGeomSvc.BuildSubDetectors = [
+  "Pixel",
+  "SCT",
+  # "TRT",
+  # "Calo",
+]
 ServiceMgr += trkGeomSvc
 
-# Set up ACTS extrapolation cell writer service
-exCellWriterSvc = CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
-exCellWriterSvc.FilePath = "excells_charged_mapping.root"
-ServiceMgr += exCellWriterSvc
+trkGeomTool = CfgMgr.ActsTrackingGeometryTool("ActsTrackingGeometryTool")
+trkGeomTool.OutputLevel = INFO;
 
-mTrackWriterSvc = CfgMgr.Acts__MaterialTrackWriterSvc("MaterialTrackWriterSvc")
-mTrackWriterSvc.OutputLevel = DEBUG
+# Set up ACTS extrapolation cell writer service
+# exCellWriterSvc = CfgMgr.ActsExCellWriterSvc("ActsExCellWriterSvc")
+# exCellWriterSvc.FilePath = "excells_charged_mapping.root"
+# ServiceMgr += exCellWriterSvc
+mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
+mTrackWriterSvc.OutputLevel = INFO
 mTrackWriterSvc.FilePath = "MaterialTracks_mapping.root"
 # mTrackWriterSvc.MaxQueueSize = 10
 ServiceMgr += mTrackWriterSvc
 
+mMaterialStepConverterTool = CfgMgr.ActsMaterialStepConverterTool("ActsMaterialStepConverterTool")
+mMaterialStepConverterTool.OutputLevel = INFO
+
+mActsSurfaceMappingTool = CfgMgr.ActsSurfaceMappingTool("ActsSurfaceMappingTool")
+mActsSurfaceMappingTool.OutputLevel = INFO
+mActsSurfaceMappingTool.TrackingGeometryTool = trkGeomTool
+
+mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
+mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
+mActsMaterialJsonWriterTool.FilePath = "material-maps.json"
+
 from ActsGeometry import ActsGeometryConf
 
 ## SET UP ALIGNMENT CONDITIONS ALGORITHM
-from AthenaCommon.AlgSequence import AthSequencer 
-condSeq = AthSequencer("AthCondSeq") 
-condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg", 
-                                                     OutputLevel=VERBOSE)
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
+                                                 OutputLevel=INFO)
 ## END OF CONDITIONS SETUP
 
 # Set up algorithm sequence
@@ -108,20 +124,16 @@ if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
 if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
     ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
 
-# from GaudiAlg.GaudiAlgConf import EventCounter
-# job += EventCounter(Frequency=1000)
+from GaudiAlg.GaudiAlgConf import EventCounter
+job += EventCounter(Frequency=1000)
 
 # Set up material mapping algorithm
 from ActsGeometry.ActsGeometryConf import ActsMaterialMapping
 
 alg = ActsMaterialMapping()
 alg.Cardinality = 0#nThreads
-alg.OutputLevel = VERBOSE
-alg.ExtrapolationTool.FieldMode = "Constant"
-alg.ExtrapolationTool.ConstantFieldVector = [0, 0, 0]
-alg.ExtrapolationTool.OutputLevel = INFO
-
-
+alg.MaterialStepConverterTool = mMaterialStepConverterTool
+alg.SurfaceMappingTool = mActsSurfaceMappingTool
+alg.MaterialJsonWriterTool = mActsMaterialJsonWriterTool
 alg.OutputLevel = INFO
 job += alg
-

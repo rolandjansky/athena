@@ -226,9 +226,9 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 
           if (elementId != oldElementId) {
             // get collection
-            TgcDigitContainer::const_iterator it_coll = tgcContainer->indexFind(coll_hash);
-            if (tgcContainer->end() !=  it_coll) {
-              TgcDigitCollection* aCollection ATLAS_THREAD_SAFE = const_cast<TgcDigitCollection*>( *it_coll ); // FIXME
+            auto coll = tgcContainer->indexFindPtr(coll_hash);
+            if (nullptr !=  coll) {
+              TgcDigitCollection* aCollection ATLAS_THREAD_SAFE = const_cast<TgcDigitCollection*>( coll ); // FIXME
               collection = aCollection;
             }
             else

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -16,130 +16,102 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "AthLinks/ElementLink.h"
 #include "TrkTrack/LinkToTrack.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "TrkVertexFitterInterfaces/IVertexFitter.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetConversionFinderTools/ConversionPostSelector.h"
-#include "InDetConversionFinderTools/SingleTrackConversionTool.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "InDetConversionFinderTools/ConversionFinderUtils.h"
-#include "InDetConversionFinderTools/VertexPointEstimator.h"
-#include "InDetConversionFinderTools/ConversionPostSelector.h"
-#include "InDetConversionFinderTools/SingleTrackConversionTool.h"
-#include "InDetConversionFinderTools/TrackPairsSelector.h"
-#include <vector>
-#include <utility> 
-
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
-//using CLHEP::Hep3Vector;
-
-//Necessary for the TrackParticleContainer
-#include "Particle/TrackParticleContainer.h"
+#include <vector>
+#include <utility> 
 
 namespace InDet
 {
-  double InDetConversionFinderTools::s_innerDetectorR = 500.;
-  
-  InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t, const std::string& n, const IInterface* p) 
-    :  AthAlgTool(t,n,p),
-       m_TrkParticleCollection("TrackParticleCandidate"),
-       m_iVertexFitter("Trk::FullVertexFitter"),
-       m_trackPairsSelector("InDet::TrackPairsSelector"),
-       m_vertexEstimator("InDet::VertexPointEstimator"),
-       m_postSelector("InDet::ConversionPostSelector"),
-       m_singleTrkConvTool("InDet::SingleTrackConversionTool"),
-       m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
-       m_trkSelector("InDet::TrackSelectorTool")
-  {
-    m_mindR          = -350.;
-    m_maxdR          = 250.;
-    m_MinInitVtxR    = 0.;
-    m_MinFlightAngle = 0.;
 
-    declareInterface<IVertexFinder>(this);
-    declareProperty("VertexFitterTool",           m_iVertexFitter);
-    declareProperty("TrackPairsSelector",         m_trackPairsSelector);
-    declareProperty("VertexPointEstimator",       m_vertexEstimator);
-    declareProperty("PostSelector",               m_postSelector);
-    declareProperty("SingleTrackConversionTool",  m_singleTrkConvTool);
-    declareProperty("Extrapolator",               m_extrapolator );
-    declareProperty("TrackParticleCollection",    m_TrkParticleCollection); //Input track particle collection
-    declareProperty("RemoveTrtTracks",            m_removeTrt); //Remove standalone TRT tracks
-    declareProperty("IsConversion",               m_isConversion); //Conversion or V0s
-    declareProperty("DecorateVertices",           m_decorateVertices=true); //Decorate vertices with values used for vertex selection  
-    declareProperty("TrackSelectorTool",          m_trkSelector);
-    declareProperty("MinDistVtxHit",              m_mindR);
-    declareProperty("MaxDistVtxHit",              m_maxdR);
-    declareProperty("MinInitVtxR",                m_MinInitVtxR);
-    declareProperty("MinFlightAngle",             m_MinFlightAngle);
+InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
+                                                       const std::string& n,
+                                                       const IInterface* p)
+  : AthAlgTool(t, n, p)
+  , m_mindR{ -350. }
+  , m_maxdR{ 250. }
+  , m_MinInitVtxR{ 0 }
+  , m_MinFlightAngle{ 0 }
+{
+  declareInterface<IVertexFinder>(this);
+  // Remove standalone TRT tracks
+  declareProperty("RemoveTrtTracks", m_removeTrt);
+  // Conversion or V0s
+  declareProperty("IsConversion", m_isConversion); 
+   // Decorate vertices with values used for vertex selection
+  declareProperty("DecorateVertices", m_decorateVertices = true);
+  declareProperty("MinDistVtxHit", m_mindR);
+  declareProperty("MaxDistVtxHit", m_maxdR);
+  declareProperty("MinInitVtxR", m_MinInitVtxR);
+  declareProperty("MinFlightAngle", m_MinFlightAngle);
   }
   
-  InDetConversionFinderTools::~InDetConversionFinderTools(){}
+  InDetConversionFinderTools::~InDetConversionFinderTools()= default;
   
   StatusCode InDetConversionFinderTools::initialize()
   {
     StatusCode sc = AthAlgTool::initialize();
-    if ( sc.isFailure() ) {
-      msg(MSG::FATAL) << "Unable to initialize InDetConversionFinderTools" << endmsg;
+    if (sc.isFailure()) {
+      ATH_MSG_FATAL("Unable to initialize InDetConversionFinderTools");
       return StatusCode::FAILURE;
-    } 
+    }
     /* Get the right vertex fitting tool from ToolSvc */
-    if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
+    if (m_iVertexFitter.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_iVertexFitter);
       return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
     }
+    ATH_MSG_INFO("Retrieved tool " << m_iVertexFitter);
+
     /* Get the track pairs selector tool from ToolSvc */
-    if ( m_trackPairsSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackPairsSelector << endmsg;
+    if (m_trackPairsSelector.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_trackPairsSelector);
       return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trackPairsSelector << endmsg;
     }
-    
+    ATH_MSG_INFO("Retrieved tool " << m_trackPairsSelector);
+
     /* Get the vertex point estimator tool from ToolSvc */
-    if ( m_vertexEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexEstimator << endmsg;
+    if (m_vertexEstimator.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_vertexEstimator);
       return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endmsg;
     }
+    ATH_MSG_INFO("Retrieved tool " << m_vertexEstimator);
+
     /* Get the postselector tool from ToolSvc */
-    if ( m_postSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_postSelector << endmsg;
+    if (m_postSelector.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_postSelector);
       return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_postSelector << endmsg;
     }
+    ATH_MSG_INFO("Retrieved tool " << m_postSelector);
+
     /* Get the single track conversion tool from ToolSvc */
-    if ( m_singleTrkConvTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_singleTrkConvTool << endmsg;
+    if (m_singleTrkConvTool.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_singleTrkConvTool);
       return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_singleTrkConvTool << endmsg;
     }
+    ATH_MSG_INFO("Retrieved tool " << m_singleTrkConvTool);
+
     /* Get the extrapolator tool from ToolSvc */
-    if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+    if (m_extrapolator.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
       return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
     }
+    ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
+
     /* Get the track selector tool from ToolSvc */
-    if ( m_trkSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelector << endmsg;
+    if (m_trkSelector.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSelector);
       return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
     }
-    
-    msg(MSG::INFO) << "Initialization successful" << endmsg;
+    ATH_MSG_INFO("Retrieved tool " << m_trkSelector);
+
+    ATH_CHECK(m_TrkParticleCollectionKey.initialize(
+      !m_TrkParticleCollectionKey.key().empty()));
+
+    ATH_MSG_INFO("Initialization successful");
     return StatusCode::SUCCESS;
   }
   
@@ -148,21 +120,10 @@ namespace InDet
     return StatusCode::SUCCESS;
   }
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetConversionFinderTools::findVertex(const Trk::TrackParticleBaseCollection* /*trk_coll*/){
-    
-    ATH_MSG_ERROR("Using old TrackParticle Container no longer supported returning an empty conatiner");
-
-    // Make collection for conversions.
-    xAOD::VertexContainer* InDetConversionContainer = new xAOD::VertexContainer();
-    xAOD::VertexAuxContainer* InDetConversionContainerAux = new xAOD::VertexAuxContainer();
-    InDetConversionContainer->setStore( InDetConversionContainerAux ); 
-
-    return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
-   } 
-
-
   //TrackCollection
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetConversionFinderTools::findVertex(const TrackCollection* /*trk_coll*/)
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  InDetConversionFinderTools::findVertex(const EventContext& /*ctx*/,
+                                         const TrackCollection* /*trk_coll*/) const
   {
     
     ATH_MSG_ERROR("Using Track Container not currently supported returning an empty conatiner");
@@ -175,185 +136,240 @@ namespace InDet
     return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
   }
 
-  //TrackParticleBaseCollection
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetConversionFinderTools::findVertex ( const xAOD::TrackParticleContainer* trk_coll )
+  // TrackParticle Collection
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  InDetConversionFinderTools::findVertex(const EventContext& ctx, 
+                                         const xAOD::TrackParticleContainer* trk_coll) const
   {
     // Make collection for conversions.
-    xAOD::VertexContainer* InDetConversionContainer = new xAOD::VertexContainer();
-    xAOD::VertexAuxContainer* InDetConversionContainerAux = new xAOD::VertexAuxContainer();
-    InDetConversionContainer->setStore( InDetConversionContainerAux ); 
+    xAOD::VertexContainer* InDetConversionContainer =
+      new xAOD::VertexContainer();
+    xAOD::VertexAuxContainer* InDetConversionContainerAux =
+      new xAOD::VertexAuxContainer();
+    InDetConversionContainer->setStore(InDetConversionContainerAux);
     // Count for number of successful conversions
     int numConversions = 0;
-    
-    //have to be used for the vertex fit
-    Amg::Vector3D pos(0.,0.,0.); Amg::Vector3D initPos(0.,0.,0.);
-    
-    // Make seperate lists of positive and negative tracks (after presection cuts)
-    std::vector<const xAOD::TrackParticle*> negSelectedTracks; negSelectedTracks.clear();
-    std::vector<const xAOD::TrackParticle*> posSelectedTracks; posSelectedTracks.clear();
-    std::vector<int> negIndx; std::vector<int> posIndx;
-    
-    //track preselection -->pt-cut
+
+    // have to be used for the vertex fit
+    Amg::Vector3D pos(0., 0., 0.);
+    Amg::Vector3D initPos(0., 0., 0.);
+
+    // Make seperate lists of positive and negative tracks (after presection
+    // cuts)
+    std::vector<const xAOD::TrackParticle*> negSelectedTracks;
+    negSelectedTracks.clear();
+    std::vector<const xAOD::TrackParticle*> posSelectedTracks;
+    posSelectedTracks.clear();
+    std::vector<int> negIndx;
+    std::vector<int> posIndx;
+
+    TrackPairsSelector::Cache cache{};
+    // track preselection -->pt-cut
     xAOD::TrackParticleContainer::const_iterator iter;
-    for ( iter =(*trk_coll).begin(); iter !=(*trk_coll).end(); ++iter ) {    
-      if (m_trkSelector->decision(**iter, 0)){ // Only save if track passes the pt, d0, z0 and TRT PID cuts
+    for (iter = (*trk_coll).begin(); iter != (*trk_coll).end(); ++iter) {
+      if (m_trkSelector->decision(
+            **iter,
+            nullptr)) { // Only save if track passes the pt, d0, z0 and TRT PID cuts
         ATH_MSG_DEBUG("Track passed preselection");
-        if ( (*iter)->charge() < 0) {negSelectedTracks.push_back(*iter); negIndx.push_back(0);}
-        else {posSelectedTracks.push_back(*iter); posIndx.push_back(0);}
-      }
-      else         ATH_MSG_DEBUG("Track failed preselection");
-    }// end pt,d0.z0-cuts
-  
-    // Make track pairs.
+        if ((*iter)->charge() < 0) {
+          negSelectedTracks.push_back(*iter);
+          negIndx.push_back(0);
+        } else {
+          posSelectedTracks.push_back(*iter);
+          posIndx.push_back(0);
+        }
+      } else
+        ATH_MSG_DEBUG("Track failed preselection");
+    } // end pt,d0.z0-cuts
+
+    // Make track pairs. To be used for double leg conversions
     std::vector<const xAOD::TrackParticle*>::const_iterator iter_pos;
     std::vector<const xAOD::TrackParticle*>::const_iterator iter_neg;
-    std::vector<Amg::Vector3D> positionList; positionList.clear();
-    std::vector<const xAOD::TrackParticle*> trackParticleList; trackParticleList.clear();
-    std::vector<const xAOD::TrackParticle*> singleTrackConvList; singleTrackConvList.clear();
-    int ipos = -1; int ineg = -1;
-    // Outer loop: Loop over positive tracks 
-    for (iter_pos = posSelectedTracks.begin(); iter_pos != posSelectedTracks.end(); ++iter_pos) {
+    std::vector<Amg::Vector3D> positionList;
+    positionList.clear();
+    std::vector<const xAOD::TrackParticle*> trackParticleList;
+    trackParticleList.clear();
+    std::vector<const xAOD::TrackParticle*> singleTrackConvList;
+    singleTrackConvList.clear();
+    int ipos = -1;
+    int ineg = -1;
+    // Outer loop: Loop over positive tracks
+    for (iter_pos = posSelectedTracks.begin();
+         iter_pos != posSelectedTracks.end();
+         ++iter_pos) {
       ineg = -1;
       ipos++;
-      // Inner loop: Loop over negative tracks 
-      for (iter_neg = negSelectedTracks.begin(); iter_neg != negSelectedTracks.end(); ++iter_neg) {
+      // Inner loop: Loop over negative tracks
+      for (iter_neg = negSelectedTracks.begin();
+           iter_neg != negSelectedTracks.end();
+           ++iter_neg) {
         ineg++;
         int flag = 0;
 
         std::map<std::string, float> intersectionDecors;
-        if (!passPreSelection( *iter_pos , *iter_neg, positionList, initPos, flag,
-                               intersectionDecors))
-        { 
-          positionList.clear(); 
+        if (!passPreSelection(cache,
+                              *iter_pos,
+                              *iter_neg,
+                              positionList,
+                              initPos,
+                              flag,
+                              intersectionDecors)) {
+          positionList.clear();
           continue;
         }
-  
+
         // Do the fit
         if (positionList.size() < 2) {
           ATH_MSG_DEBUG("No tracks to fit ");
-          positionList.clear(); 
+          positionList.clear();
           continue;
-        } 
-        
-        trackParticleList.push_back( *iter_pos );
-        trackParticleList.push_back( *iter_neg );
-        
-        xAOD::Vertex* myVertex =0;
-	myVertex = m_iVertexFitter->fit(trackParticleList, initPos);
+        }
+
+        trackParticleList.push_back(*iter_pos);
+        trackParticleList.push_back(*iter_neg);
+
+        std::unique_ptr<xAOD::Vertex> myVertex =
+          m_iVertexFitter->fit(ctx, trackParticleList, initPos);
         trackParticleList.clear();
-        if(myVertex) {
-          ATH_MSG_DEBUG("VertexFit successful!"); 
+
+        // We have a new vertex
+        if (myVertex) {
+          ATH_MSG_DEBUG("VertexFit successful!");
           int type = -1;
-          if (( m_isConversion && m_postSelector->selectConversionCandidate(myVertex,flag,positionList)) ||
-              (!m_isConversion && m_postSelector->selectSecVtxCandidate(myVertex, flag, positionList, type))){
+          if ((m_isConversion && m_postSelector->selectConversionCandidate(
+                                   myVertex.get(), flag, positionList)) ||
+              (!m_isConversion &&
+               m_postSelector->selectSecVtxCandidate(
+                 myVertex.get(), flag, positionList, type))) {
 
             ATH_MSG_DEBUG(" Conversion passed postselection cuts");
-                        
-            //Really need to check that this correct.
-            //Remove old element links
+            // Remove old element links
             myVertex->clearTracks();
-                        
-            if (m_isConversion){
-              myVertex->setVertexType(xAOD::VxType::ConvVtx);
-              InDetConversionContainer->push_back(myVertex);
-            }
-            else if (type==101 || type==110 || type==11) {// V0
-              myVertex->setVertexType(xAOD::VxType::V0Vtx);
-              InDetConversionContainer->push_back(myVertex);
-            }
-	    else{
-	      ATH_MSG_WARNING("Unknown type of vertex");
-	      delete myVertex;
-	      myVertex = 0;
-	    }
 
-	    if(myVertex){
-	      if (m_decorateVertices){
-		  ATH_MSG_DEBUG("Decorating vertex with values used in track pair selector");
-		  for (const auto& kv : m_trackPairsSelector->getLastValues()){
-		    myVertex->auxdata<float>(kv.first) = kv.second;
-		  }
-		  ATH_MSG_DEBUG("Decorating vertex with values used in vertex point estimator");
-		  for (const auto& kv : intersectionDecors){
-		    myVertex->auxdata<float>(kv.first) = kv.second;
-		  }
-	      }	      
-	      ElementLink<xAOD::TrackParticleContainer> newLinkPos(*iter_pos, *trk_coll);
-	      ElementLink<xAOD::TrackParticleContainer> newLinkNeg(*iter_neg, *trk_coll);
-	      myVertex->addTrackAtVertex(newLinkPos);
-	      myVertex->addTrackAtVertex(newLinkNeg);
-	    }
+            // If we do not have a valid type just reset
+            if (!m_isConversion && !(type == 101) && !(type == 110) &&
+                !(type == 11)) {
+              myVertex.reset();
+            }
+
+            // If we have the right type (not reset above) lets fill information
+            // and then push to the containers
+            if (myVertex) {
+              if (m_decorateVertices) {
+                ATH_MSG_DEBUG(
+                  "Decorating vertex with values used in track pair selector");
+                for (const auto& kv :
+                     m_trackPairsSelector->getLastValues(cache)) {
+                  myVertex->auxdata<float>(kv.first) = kv.second;
+                }
+                ATH_MSG_DEBUG("Decorating vertex with values used in vertex "
+                              "point estimator");
+                for (const auto& kv : intersectionDecors) {
+                  myVertex->auxdata<float>(kv.first) = kv.second;
+                }
+              }
+
+              ElementLink<xAOD::TrackParticleContainer> newLinkPos(*iter_pos,
+                                                                   *trk_coll);
+              ElementLink<xAOD::TrackParticleContainer> newLinkNeg(*iter_neg,
+                                                                   *trk_coll);
+              myVertex->addTrackAtVertex(newLinkPos);
+              myVertex->addTrackAtVertex(newLinkNeg);
+
+              // Now fill in the containers depending on the 2 possible
+              // cases
+              if (m_isConversion) {
+                myVertex->setVertexType(xAOD::VxType::ConvVtx);
+                InDetConversionContainer->push_back(std::move(myVertex));
+              }
+              else if (type == 101 || type == 110 || type == 11) { // V0
+                myVertex->setVertexType(xAOD::VxType::V0Vtx);
+                InDetConversionContainer->push_back(std::move(myVertex));
+              }
+
+           } // End if on right type
 
             negIndx[ineg] = 1;
             posIndx[ipos] = 1;
-            numConversions++;
-          
-	  }else {
+            ++numConversions;
+          } else {
             ATH_MSG_DEBUG("VxCandidate failed the post selection cuts!");
-            delete myVertex;
-	    myVertex = 0;
+            myVertex.reset();
           }
         } else {
           ATH_MSG_DEBUG("VertexFit was NOT successful!");
-        }      
+        }
         positionList.clear();
       } // neg loop
-    } // pos loop
-    ATH_MSG_DEBUG("Number of conversions found passing post selection cuts: "<<numConversions);
-    
-    if(m_isConversion) {
-      //single track conversions
-      for(int ip=0;ip<int(posIndx.size());++ip) {
-        if(posIndx[ip]==0) singleTrackConvList.push_back(posSelectedTracks[ip]);
+    }   // pos loop
+    ATH_MSG_DEBUG("Number of conversions found passing post selection cuts: "
+                  << numConversions);
+
+    // single track conversions
+    if (m_isConversion) {
+      for (int ip = 0; ip < int(posIndx.size()); ++ip) {
+        if (posIndx[ip] == 0)
+          singleTrackConvList.push_back(posSelectedTracks[ip]);
       }
-      for(int in=0;in<int(negIndx.size());++in) {
-        if(negIndx[in]==0) singleTrackConvList.push_back(negSelectedTracks[in]);
+      for (int in = 0; in < int(negIndx.size()); ++in) {
+        if (negIndx[in] == 0)
+          singleTrackConvList.push_back(negSelectedTracks[in]);
       }
-      
-      std::vector<const xAOD::TrackParticle*>::iterator itk, itke=singleTrackConvList.end();
+
+      std::vector<const xAOD::TrackParticle*>::iterator itk,
+        itke = singleTrackConvList.end();
       int numSingle = 0;
-      for(itk=singleTrackConvList.begin();itk!=itke;++itk){
-        if(!m_singleTrkConvTool->selectSingleTrackParticleConversion((*itk)))
+      for (itk = singleTrackConvList.begin(); itk != itke; ++itk) {
+        if (!m_singleTrkConvTool->selectSingleTrackParticleConversion((*itk)))
           ATH_MSG_DEBUG("Track failed single track conversion selection");
-        else
-        {
-          xAOD::Vertex * sConver(0);
-          sConver = m_singleTrkConvTool->buildSingleTrackParticleConversion((*itk), InDetConversionContainer);
-          if(sConver) {
+        else {
+          xAOD::Vertex* sConver(nullptr);
+          sConver = m_singleTrkConvTool->buildSingleTrackParticleConversion(
+            (*itk), InDetConversionContainer);
+          if (sConver) {
             sConver->clearTracks();
 
             ElementLink<xAOD::TrackParticleContainer> newLink;
-            newLink.toContainedElement( *trk_coll, *itk );
+            newLink.toContainedElement(*trk_coll, *itk);
             sConver->addTrackAtVertex(newLink);
             sConver->setVertexType(xAOD::VxType::ConvVtx);
             numSingle++;
-            
-            if (m_decorateVertices)
-            {
-              ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in track pair selector");
-              for (const auto& kv : m_trackPairsSelector->getLastValues())
+
+            if (m_decorateVertices) {
+              ATH_MSG_DEBUG("Decorating single track vertex with dummy values "
+                            "used in track pair selector");
+              for (const auto& kv : m_trackPairsSelector->getLastValues(cache))
                 sConver->auxdata<float>(kv.first) = 0.;
 
-              ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in vertex point estimator");
+              ATH_MSG_DEBUG("Decorating single track vertex with dummy values "
+                            "used in vertex point estimator");
               for (const std::string& k : m_vertexEstimator->decorKeys())
                 sConver->auxdata<float>(k) = 0.;
-              
-              ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in post selector");
+
+              ATH_MSG_DEBUG("Decorating single track vertex with dummy values "
+                            "used in post selector");
               m_postSelector->decorateVertex(*sConver, 0., 0., 0., 0., 0.);
             }
-
-            
           }
         }
       }
-      ATH_MSG_DEBUG("Number successful reconstructed single track conversion: "<<numSingle);
+      ATH_MSG_DEBUG("Number successful reconstructed single track conversion: "
+                    << numSingle);
     }
-        
-    return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
-  } 
 
-  bool InDetConversionFinderTools::passPreSelection(const xAOD::TrackParticle* track_pos, const xAOD::TrackParticle* track_neg, std::vector<Amg::Vector3D>&  trackList, Amg::Vector3D& initPos,  int& flag,
-                                                    std::map<std::string, float>& intersectionDecors)
+    return std::make_pair(InDetConversionContainer,
+                          InDetConversionContainerAux);
+  }
+
+  bool
+  InDetConversionFinderTools::passPreSelection(
+    TrackPairsSelector::Cache& cache,
+    const xAOD::TrackParticle* track_pos,
+    const xAOD::TrackParticle* track_neg,
+    std::vector<Amg::Vector3D>& trackList,
+    Amg::Vector3D& initPos,
+    int& flag,
+    std::map<std::string, float>& intersectionDecors) const
   {
     //Track summary information
   
@@ -380,12 +396,14 @@ namespace InDet
     if(nclusNeg==0 && nclusPos==0) flag = 2;
     if(m_removeTrt && (flag==1 || flag==2)) return false;
 
-    if (m_trackPairsSelector->selectTrackParticlePair( track_pos,track_neg)){
+    if (m_trackPairsSelector->selectTrackParticlePair( track_pos,track_neg,cache)){
   
       const Trk::Perigee& perPos = track_pos->perigeeParameters();
       const Trk::Perigee& perNeg = track_neg->perigeeParameters();
       int errorcode = 0;
-      Amg::Vector3D startingPoint(m_vertexEstimator->getCirclesIntersectionPoint(&perPos,&perNeg,flag,errorcode,intersectionDecors));
+      Amg::Vector3D startingPoint(
+        m_vertexEstimator->getCirclesIntersectionPoint(
+          &perPos, &perNeg, flag, errorcode, intersectionDecors));
       if(m_isConversion && errorcode != 0) return false;
       if(!m_isConversion){ 
         Amg::Vector3D v_direction = perPos.momentum() + perNeg.momentum();

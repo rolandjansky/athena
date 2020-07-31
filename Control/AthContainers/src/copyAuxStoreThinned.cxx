@@ -28,22 +28,24 @@ namespace SG {
  * @brief Helper to copy an aux store while applying thinning.
  * @param orig Source aux store from which to copy.
  * @param copy Destination aux store to which to copy.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * @c orig and @c copy are both auxiliary store objects.
  * The data from @c orig will be copied to @c copy, with individual
- * elements removed according to thinning recorded in @c dec.
+ * elements / variables removed according @c info.
  */
 void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
    (const SG::IConstAuxStore& orig,
     SG::IAuxStore& copy,
-    const SG::ThinningDecisionBase* dec)
+    const SG::ThinningInfo* info)
 {
   size_t size = orig.size();
   if (size == 0) {
     copy.resize(0);
     return;
   }
+
+  const ThinningDecisionBase* dec = info ? info->m_decision : nullptr;
 
   size_t nremaining = dec ? dec->thinnedSize() : size;
   
@@ -77,8 +79,12 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     if(auxid == SG::null_auxid) continue;
 
     // Skip non-selected dynamic variables.
-    if (dyn_auxids.test(auxid) && !sel_auxids.test(auxid))
-      continue;
+    if (dyn_auxids.test(auxid)) {
+      if (info) {
+        if (info->vetoed(auxid)) continue;
+      }
+      if (!sel_auxids.test(auxid)) continue;
+    }
 
     // Access the source variable:
     const void* src = orig.getData (auxid);

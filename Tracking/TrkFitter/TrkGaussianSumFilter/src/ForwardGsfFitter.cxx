@@ -91,6 +91,7 @@ Trk::ForwardGsfFitter::configureTools(
 std::unique_ptr<Trk::ForwardTrajectory>
 Trk::ForwardGsfFitter::fitPRD(
   const EventContext& ctx,
+  Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
   const Trk::PrepRawDataSet& inputPrepRawDataSet,
   const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
   const Trk::ParticleHypothesis particleHypothesis) const
@@ -149,6 +150,7 @@ Trk::ForwardGsfFitter::fitPRD(
     // stepForwardFit method is updated
     bool stepIsValid = stepForwardFit(
       ctx,
+      extrapolatorCache,
       forwardTrajectory.get(),
       *prepRawData,
       nullptr,
@@ -172,6 +174,7 @@ Trk::ForwardGsfFitter::fitPRD(
 std::unique_ptr<Trk::ForwardTrajectory>
 Trk::ForwardGsfFitter::fitMeasurements(
   const EventContext& ctx,
+  Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
   const Trk::MeasurementSet& inputMeasurementSet,
   const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
   const Trk::ParticleHypothesis particleHypothesis) const
@@ -230,6 +233,7 @@ Trk::ForwardGsfFitter::fitMeasurements(
   for (; measurement != inputMeasurementSet.end(); ++measurement) {
 
     bool stepIsValid = stepForwardFit(ctx,
+                                      extrapolatorCache,
                                       forwardTrajectory.get(),
                                       nullptr,
                                       *measurement,
@@ -252,6 +256,7 @@ Trk::ForwardGsfFitter::fitMeasurements(
 bool
 Trk::ForwardGsfFitter::stepForwardFit(
   const EventContext& ctx,
+  Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
   ForwardTrajectory* forwardTrajectory,
   const Trk::PrepRawData* originalPrepRawData,
   const Trk::MeasurementBase* originalMeasurement,
@@ -276,6 +281,7 @@ Trk::ForwardGsfFitter::stepForwardFit(
   // =================================================================
   Trk::MultiComponentState extrapolatedState =
     m_extrapolator->extrapolate(ctx,
+                                extrapolatorCache,
                                 updatedState,
                                 surface,
                                 Trk::alongMomentum,
@@ -284,6 +290,8 @@ Trk::ForwardGsfFitter::stepForwardFit(
   if (extrapolatedState.empty()) {
     ATH_MSG_DEBUG("Extrapolation failed... returning false");
     return false;
+  } else {
+    ATH_MSG_DEBUG("Extrapolation worked... state size: "<< extrapolatedState.size() );
   }
   // =======================
   // Measurement Preparation
@@ -321,6 +329,8 @@ Trk::ForwardGsfFitter::stepForwardFit(
   if (updatedState.empty()) {
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
+  } else {
+    ATH_MSG_DEBUG("Measurement update of the state worked : " << updatedState.size() );
   }
   // Bail if the fit quality is not defined:
   if (!fitQuality) {

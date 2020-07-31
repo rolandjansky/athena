@@ -132,19 +132,19 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     // BARREL
 
     auto rconv_barrel = Monitored::Scalar<Float_t>("RConvinBARREL",0.0);
-    auto convtype_barrel = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinBARREL",0);
+    auto convtype_barrel = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinBARREL",nullptr);
     auto contrkmatch1_barrel = Monitored::Scalar<u_int8_t>("ConvTrkmatch1inBARREL",0);
     auto contrkmatch2_barrel = Monitored::Scalar<u_int8_t>("ConvTrkmatch2inBARREL",0);
 
     // ENDCAP
     auto rconv_endcap = Monitored::Scalar<Float_t>("RConvinENDCAP",0.0);
-    auto convtype_endcap = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinENDCAP",0);
+    auto convtype_endcap = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinENDCAP",nullptr);
     auto contrkmatch1_endcap = Monitored::Scalar<u_int8_t>("ConvTrkmatch1inENDCAP",0);
     auto contrkmatch2_endcap = Monitored::Scalar<u_int8_t>("ConvTrkmatch2inENDCAP",0);
 
     // CRACK
     auto rconv_crack = Monitored::Scalar<Float_t>("RConvinCRACK",0.0);
-    auto convtype_crack = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinCRACK",0);
+    auto convtype_crack = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinCRACK",nullptr);
     auto contrkmatch1_crack = Monitored::Scalar<u_int8_t>("ConvTrkmatch1inCRACK",0);
     auto contrkmatch2_crack = Monitored::Scalar<u_int8_t>("ConvTrkmatch2inCRACK",0);
 
@@ -226,7 +226,7 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
 
       // Conversion details
       xAOD::EgammaParameters::ConversionType myconvtype = xAOD::EgammaHelpers::conversionType(p_iter);
-      bool isUnconverted = (myconvtype==xAOD::EgammaParameters::ConversionType::unconverted ? true : false) ;
+      bool isUnconverted = (myconvtype==xAOD::EgammaParameters::ConversionType::unconverted) ;
 
       is_pt_gt_2_5gevandconv = myis_pt_gt_2_5gev && !isUnconverted ;
       is_pt_gt_2_5gevandunconv = myis_pt_gt_2_5gev && isUnconverted ;

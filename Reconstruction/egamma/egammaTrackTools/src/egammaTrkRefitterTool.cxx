@@ -124,10 +124,10 @@ StatusCode egammaTrkRefitterTool::refitTrackParticle(const EventContext& ctx,
   if ( trackParticle->trackLink().isValid()) {      
     // retrieve and refit original track
     return refitTrack( ctx,trackParticle->track() , cache);
-  } else {
+  } 
     ATH_MSG_WARNING("Could not get TrackElementLink of the TrackParticle");
     return StatusCode::FAILURE;
-  }  
+   
   return StatusCode::SUCCESS;
 }
 
@@ -200,10 +200,10 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const EventContext& ctx,
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
-  } else {
+  } 
     ATH_MSG_DEBUG("Refit Failed");
     return StatusCode::FAILURE;
-  }
+  
 }
 
 const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk::Track* track) const

@@ -16,7 +16,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArShapeP*"/>
+  <class name="std::pair<unsigned int, LArShapeP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArShapeP> >"/>
   <class name="std::vector<LArShapeP>"/>
   <class name="std::vector<std::pair<unsigned int, LArShapeP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArShapeP> > >"/>
@@ -30,7 +31,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArTdriftP*"/>
+  <class name="std::pair<unsigned int, LArTdriftP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArTdriftP> >"/>
   <class name="std::vector<LArTdriftP>"/>
   <class name="std::vector<std::pair<unsigned int, LArTdriftP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArTdriftP> > >"/>
@@ -45,7 +47,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArRinjP*"/>
+  <class name="std::pair<unsigned int, LArRinjP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArRinjP> >"/>
   <class name="std::vector<LArRinjP>"/>
   <class name="std::vector<std::pair<unsigned int, LArRinjP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArRinjP> > >"/>
@@ -59,7 +62,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArCableLengthP*"/>
+  <class name="std::pair<unsigned int, LArCableLengthP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArCableLengthP> >"/>
   <class name="std::vector<LArCableLengthP>"/>
   <class name="std::vector<std::pair<unsigned int, LArCableLengthP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArCableLengthP> > >"/>
@@ -73,7 +77,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArCableAttenuationP*"/>
+  <class name="std::pair<unsigned int, LArCableAttenuationP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArCableAttenuationP> >"/>
   <class name="std::vector<LArCableAttenuationP>"/>
   <class name="std::vector<std::pair<unsigned int, LArCableAttenuationP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArCableAttenuationP> > >"/>
@@ -87,7 +92,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArTshaperP*"/>
+  <class name="std::pair<unsigned int, LArTshaperP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArTshaperP> >"/>
   <class name="std::vector<LArTshaperP>"/>
   <class name="std::vector<std::pair<unsigned int, LArTshaperP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArTshaperP> > >"/>
@@ -101,7 +107,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArOFCBinP*"/>
+  <class name="std::pair<unsigned int, LArOFCBinP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArOFCBinP> >"/>
   <class name="std::vector<LArOFCBinP>"/>
   <class name="std::vector<std::pair<unsigned int, LArOFCBinP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArOFCBinP> > >"/>
@@ -115,7 +122,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArEMEC_CphiP*"/>
+  <class name="std::pair<unsigned int, LArEMEC_CphiP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArEMEC_CphiP> >"/>
   <class name="std::vector<LArEMEC_CphiP>"/>
   <class name="std::vector<std::pair<unsigned int, LArEMEC_CphiP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArEMEC_CphiP> > >"/>
@@ -129,7 +137,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArEMEC_HValphaP*"/>
+  <class name="std::pair<unsigned int, LArEMEC_HValphaP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArEMEC_HValphaP> >"/>
   <class name="std::vector<LArEMEC_HValphaP>"/>
   <class name="std::vector<std::pair<unsigned int, LArEMEC_HValphaP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArEMEC_HValphaP> > >"/>
@@ -143,7 +152,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArEMEC_HVbetaP*"/>
+  <class name="std::pair<unsigned int, LArEMEC_HVbetaP>"/>
+  <class name="std::pair<unsigned int, std::vector<LArEMEC_HVbetaP> >"/>
   <class name="std::vector<LArEMEC_HVbetaP>"/>
   <class name="std::vector<std::pair<unsigned int, LArEMEC_HVbetaP> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArEMEC_HVbetaP> > >"/>
@@ -161,7 +171,8 @@
 
   <class name="std::vector<LArCaliWave>" />
   <!-- <class name="std::vector<std::vector<LArCaliWaveVec> >" /> -->
-  <class pattern="*pair*<unsigned*LArCaliWaveVec*"/>
+  <class name="std::pair<unsigned int, LArCaliWaveVec>"/>
+  <class name="std::pair<unsigned int, std::vector<LArCaliWaveVec> >"/>
   <class name="std::vector<LArCaliWaveVec>"/>
   <class name="std::vector<std::pair<unsigned int, LArCaliWaveVec> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArCaliWaveVec> > >"/>
@@ -176,7 +187,8 @@
     <field name="m_subsetMap" transient="true" />
   </class>
 
-  <class pattern="*pair*<unsigned*LArPhysWave*"/>
+  <class name="std::pair<unsigned int, LArPhysWave>"/>
+  <class name="std::pair<unsigned int, std::vector<LArPhysWave> >"/>
   <class name="std::vector<LArPhysWave>"/>
   <class name="std::vector<std::pair<unsigned int, LArPhysWave> >"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<LArPhysWave> > >"/>

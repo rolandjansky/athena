@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,12 +39,9 @@ Trk::MaterialProperties::MaterialProperties(const Trk::Material& material, float
   m_zOaTrTd( material.A*material.A > 10e-10  ? path*material.Z/material.A*material.rho : 0.)
 {}
 
-Trk::MaterialProperties::MaterialProperties(const Trk::MaterialProperties& mprop) :
-  m_material(mprop.m_material),
-  m_dInX0(mprop.m_dInX0),
-  m_dInL0(mprop.m_dInL0),  
-  m_zOaTrTd(mprop.m_zOaTrTd)  
-{}
+Trk::MaterialProperties::MaterialProperties(const Trk::MaterialProperties& mprop)   
+   
+= default;
 
 
 Trk::MaterialProperties* Trk::MaterialProperties::clone() const 

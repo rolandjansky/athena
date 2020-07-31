@@ -497,6 +497,12 @@ namespace Muon {
       const Identifier& id = hit.info().id;
       
       if( hit.info().status != MuPatHit::OnTrack || !id.is_valid() ) continue;
+      
+      // in theory, there are only MuPatHit objects for MS hits
+      if (!m_idHelperSvc->isMuon(id)) {
+          ATH_MSG_WARNING("given Identifier "<<id.get_compact()<<" ("<<m_idHelperSvc->mdtIdHelper().print_to_string(id)<<") is not a muon Identifier, continuing");
+          continue;
+      }
 
       MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(id);
       MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex( chIndex );

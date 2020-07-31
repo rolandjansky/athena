@@ -61,20 +61,20 @@ StatusCode MultiObjectsFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if ((*pitr)->status()==1 && (*pitr)->momentum().perp() > m_PtCut && fabs((*pitr)->momentum().pseudoRapidity()) < m_EtaCut) {
+    for (auto part: *genEvt) {
+      if (part->status()==1 && part->momentum().perp() > m_PtCut && std::abs(part->momentum().pseudoRapidity()) < m_EtaCut) {
         //electrons
-        if (m_useEle && abs((*pitr)->pdg_id()) == 11) {
-          ATH_MSG_DEBUG("Found electron: PT,ETA,PHI " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << "GeV, " << (*pitr)->momentum().pseudoRapidity() << " " << (*pitr)->momentum().phi());
-          pt.push_back((*pitr)->momentum().perp());
+        if (m_useEle && abs(part->pdg_id()) == 11) {
+          ATH_MSG_DEBUG("Found electron: PT,ETA,PHI " << part->momentum().perp()/Gaudi::Units::GeV << "GeV, " << part->momentum().pseudoRapidity() << " " << part->momentum().phi());
+          pt.push_back(part->momentum().perp());
         //muons
-        } else if (m_useMuo && abs((*pitr)->pdg_id()) == 13) {
-          ATH_MSG_DEBUG("Found muon: PT,ETA,PHI " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << "GeV, " << (*pitr)->momentum().pseudoRapidity() << " " << (*pitr)->momentum().phi());
-          pt.push_back((*pitr)->momentum().perp());
+        } else if (m_useMuo && abs(part->pdg_id()) == 13) {
+          ATH_MSG_DEBUG("Found muon: PT,ETA,PHI " << part->momentum().perp()/Gaudi::Units::GeV << "GeV, " << part->momentum().pseudoRapidity() << " " << part->momentum().phi());
+          pt.push_back(part->momentum().perp());
         //photons
-        } else if (m_usePho && abs((*pitr)->pdg_id()) == 22) {
-          ATH_MSG_DEBUG("Found photon: PT,ETA,PHI " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << "GeV, " << (*pitr)->momentum().pseudoRapidity() << " " << (*pitr)->momentum().phi());
-          pt.push_back((*pitr)->momentum().perp());
+        } else if (m_usePho && abs(part->pdg_id()) == 22) {
+          ATH_MSG_DEBUG("Found photon: PT,ETA,PHI " << part->momentum().perp()/Gaudi::Units::GeV << "GeV, " << part->momentum().pseudoRapidity() << " " << part->momentum().phi());
+          pt.push_back(part->momentum().perp());
         }
       }
     }
@@ -86,7 +86,7 @@ StatusCode MultiObjectsFilter::filterEvent() {
     ATH_MSG_DEBUG("xAOD::JetContainer Size = " << truthjetTES->size());
 
     for (xAOD::JetContainer::const_iterator jitr = truthjetTES->begin(); jitr != truthjetTES->end(); ++jitr) {
-      if ((*jitr)->pt() > m_jetPtCut && fabs((*jitr)->eta()) < m_jetEtaCut) {
+      if ((*jitr)->pt() > m_jetPtCut && std::abs((*jitr)->eta()) < m_jetEtaCut) {
         ATH_MSG_DEBUG("Found jet: pT, eta, phi = " << (*jitr)->pt()/Gaudi::Units::GeV << "GeV, " << (*jitr)->eta() << " " << (*jitr)->phi());
         pt.push_back((*jitr)->pt());
       }

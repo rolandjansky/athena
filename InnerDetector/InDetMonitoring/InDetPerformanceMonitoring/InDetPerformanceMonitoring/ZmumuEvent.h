@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPERFMON_ZMUMUEVENT_H
@@ -14,6 +14,8 @@
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
 
+#include "CxxUtils/checker_macros.h"
+
 //==============================================================================
 // Forward class declarations...
 //==============================================================================
@@ -22,7 +24,7 @@ class TrackParticle;
 //==============================================================================
 // Class declaration...
 //==============================================================================
-class ZmumuEvent : public EventAnalysis
+class ATLAS_NOT_THREAD_SAFE ZmumuEvent : public EventAnalysis // Thread unsafe MuonSelector class is used.
 {
  public:
   ZmumuEvent();

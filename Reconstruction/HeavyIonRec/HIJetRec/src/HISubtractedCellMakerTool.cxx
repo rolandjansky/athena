@@ -43,7 +43,7 @@ StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
   SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey , ctx);
   shape = readHandleEvtShape.cptr();
 
-  const HIEventShapeIndex* index=HIEventShapeMap::getIndex(m_eventShapeKey.key());
+  const HIEventShapeIndex* index=m_eventShapeMapTool->getIndexFromShape( shape );
   if(index==nullptr)
   {
     ATH_MSG_ERROR("Could not retrieve HIEventShapeIndex for key " << m_eventShapeKey.key());
@@ -56,13 +56,7 @@ StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
     return StatusCode::SUCCESS;
   }
 
-  // FIXME: m_modulatorTool->retrieveShape() is non-const.
-  // It should be made const in order to be able to safely call it from here.
-  // However, this method already needs updating to work in MT (and is checked
-  // above), so just use a const_cast for now to allow this to compile
-  // when ToolHandle restrictions are enabled.
-
-  IHIUEModulatorTool* modtool_nc = const_cast<IHIUEModulatorTool*> (m_modulatorTool.get());
+  auto modtool_nc = m_modulatorTool.get();
   CHECK(modtool_nc->retrieveShape());
 
   for(auto pCell : *theCells)
@@ -76,8 +70,8 @@ StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
     {
       if( std::abs(eta) - HICaloRange::getRange().getRangeMax(sample) )
       {
-	double fp_round=(eta > 0.) ? -5e-3 : 5e-3;
-	bin=index->getIndex(eta+fp_round,sample);
+      	double fp_round=(eta > 0.) ? -5e-3 : 5e-3;
+      	bin=index->getIndex(eta+fp_round,sample);
       }
     }
 

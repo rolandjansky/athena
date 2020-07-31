@@ -90,19 +90,9 @@ namespace InDet {
         std::vector< std::vector<const xAOD::TrackParticle*> >  FoundSecondTracks;
 		     std::vector<const xAOD::TrackParticle*>    TrkFromV0; 
   };
-
-  struct workVectorArrREC{
-        std::vector<const Rec::TrackParticle*> listJetTracks;
-        std::vector<const Rec::TrackParticle*> tmpListTracks;
-        std::vector<const Rec::TrackParticle*> listSecondTracks;
-        std::vector<const Rec::TrackParticle*> TracksForFit;
-        std::vector<const Rec::TrackParticle*> InpTrk;
-        std::vector< std::vector<const Rec::TrackParticle*> >  FoundSecondTracks;
-		     std::vector<const Rec::TrackParticle*>    TrkFromV0;
-  };
-
-//This tool should not be used in a reentrant algorithm because of the mutable m_NRefPVTrk
-  class ATLAS_NOT_THREAD_SAFE InDetVKalVxInJetTool : public AthAlgTool, virtual public ISecVertexInJetFinder{
+  
+  class ATLAS_NOT_THREAD_SAFE InDetVKalVxInJetTool : //This tool should not be used in a reentrant algorithm because of the mutable m_NRefPVTrk
+    public AthAlgTool, virtual public ISecVertexInJetFinder{
 
 
   public:
@@ -114,11 +104,6 @@ namespace InDet {
 
       StatusCode initialize();
       StatusCode finalize();
-
-
-      Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
-					        const TLorentzVector & jetMomentum,
-					        const std::vector<const Trk::TrackParticleBase*> & inputTracks) const;
 
       Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & primaryVertex,
                                                 const TLorentzVector & jetMomentum,
@@ -378,18 +363,12 @@ namespace InDet {
                                    std::vector<double>                           & Results,
                                    std::vector<const xAOD::TrackParticle*>       & SelSecTrk,
                                    std::vector<const xAOD::TrackParticle*>       & TrkFromV0) const;
-      xAOD::Vertex*      GetVrtSec(const std::vector<const Rec::TrackParticle*> & InpTrk,
-                                   const xAOD::Vertex                           & PrimVrt,
-                                   const TLorentzVector                         & JetDir,
-                                   std::vector<double>                          & Results,
-                                   std::vector<const Rec::TrackParticle*>       & SelSecTrk,
-                                   std::vector<const Rec::TrackParticle*>       & TrkFromV0) const;
+
       std::vector<xAOD::Vertex*> GetVrtSecMulti(
-                                         workVectorArrxAOD * ,
-                                         workVectorArrREC  * ,
-                                   const xAOD::Vertex                          & PrimVrt,
-	                           const TLorentzVector                        & JetDir,
-	                           std::vector<double>                         & Results) const;
+        workVectorArrxAOD*,
+        const xAOD::Vertex& PrimVrt,
+        const TLorentzVector& JetDir,
+        std::vector<double>& Results) const;
 
       void  TrackClassification(std::vector<WrkVrt> *WrkVrtSet, 
                                 std::vector< std::deque<long int> > *TrkInVrt) const;
@@ -405,7 +384,7 @@ namespace InDet {
 //
 //
 
-      void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string name ) const;
+      void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string& name ) const;
 
 
       StatusCode CutTrk(double,double, double , double , double , 
@@ -443,15 +422,15 @@ namespace InDet {
       double JetProjDist(Amg::Vector3D &SecVrt, const xAOD::Vertex &PrimVrt, const TLorentzVector &JetDir) const;
 
       double VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> SecVrtErr, const TLorentzVector & JetDir) const;
+                                  const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> SecVrtErr, const TLorentzVector & JetDir) const;
+                                  const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>& VrtErr1,
                         const Amg::Vector3D & Vrt2, const std::vector<double>& VrtErr2) const;
  
@@ -466,8 +445,6 @@ namespace InDet {
  
 
       const Trk::Perigee* GetPerigee( const xAOD::TrackParticle* ) const;
-      const Trk::Perigee* GetPerigee( const Rec::TrackParticle* ) const;
-      std::vector<const Trk::Perigee*> GetPerigeeVector( const std::vector<const Rec::TrackParticle*>& ) const;
       std::vector<const Trk::Perigee*> GetPerigeeVector( const std::vector<const Trk::TrackParticleBase*>& ) const;
 
 
@@ -512,11 +489,7 @@ namespace InDet {
                                  Trk::IVKalState& istate,
                                  bool ifCovV0) const;
 
-      int   SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpPart,
-                                const xAOD::Vertex                          & PrimVrt,
-	                        const TLorentzVector                        & JetDir,
-                                      std::vector<const Rec::TrackParticle*>& SelPart) const;
-      int   SelGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpPart,
+     int   SelGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpPart,
                                 const xAOD::Vertex                           & PrimVrt,
 	                        const TLorentzVector                         & JetDir,
                                       std::vector<const xAOD::TrackParticle*>& SelPart) const;
@@ -541,7 +514,6 @@ namespace InDet {
 //
 //     template <class Track>
 //     StatusCode VKalVrtFitFastBase(const std::vector<const Track*>& listPart,Amg::Vector3D& Vertex) const;
-     StatusCode VKalVrtFitFastBase(const std::vector<const Rec::TrackParticle*>& listPart,Amg::Vector3D& Vertex, Trk::IVKalState& istate) const;
      StatusCode VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listPart,Amg::Vector3D& Vertex, Trk::IVKalState& istate) const;
 
      template <class Track>
@@ -549,25 +521,12 @@ namespace InDet {
      template <class Track>
      bool  Check1TrVertexInPixel( const Track* p1, Amg::Vector3D &, std::vector<double> & ) const;
 
-     void  getPixelLayers(const  Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
-     void  getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
      void  getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
-     void  getPixelProblems(const Rec::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
 
 
-     StatusCode VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,
-                               Amg::Vector3D&                 Vertex,
-                               TLorentzVector&                Momentum,
-                               long int&                      Charge,
-                               std::vector<double>&           ErrorMatrix,
-                               std::vector<double>&           Chi2PerTrk,
-                               std::vector< std::vector<double> >& TrkAtVrt,
-                               double& Chi2,
-                               Trk::IVKalState& istate,
-                               bool ifCovV0) const;
-      StatusCode VKalVrtFitBase(const std::vector<const xAOD::TrackParticle*> & listPart,
+     StatusCode VKalVrtFitBase(const std::vector<const xAOD::TrackParticle*> & listPart,
                                 Amg::Vector3D&                 Vertex,
                                 TLorentzVector&                Momentum,
                                 long int&                      Charge,
@@ -578,10 +537,6 @@ namespace InDet {
                                 Trk::IVKalState& istate,
                                 bool ifCovV0) const;
 
-     const std::vector<const Trk::TrackParticleBase*> 
-               PartToBase(const std::vector<const Rec::TrackParticle*> & listPart) const;
-     const std::vector<const Rec::TrackParticle*> 
-               BaseToPart(const std::vector<const Trk::TrackParticleBase*> & listBase) const;
      StatusCode GetTrkFitWeights(std::vector<double> & wgt,
                                  const Trk::IVKalState& istate) const;
    };

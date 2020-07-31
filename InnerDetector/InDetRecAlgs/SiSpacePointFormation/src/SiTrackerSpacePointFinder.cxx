@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -94,7 +94,6 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   // create containers (requires the Identifier Helpers)
   if (m_selectPixels){
     ATH_CHECK(detStore()->retrieve(m_idHelperPixel,"PixelID"));
-    ATH_CHECK(m_pixelDetEleCollKey.initialize());
   }
 
   if (m_selectSCTs) {
@@ -221,7 +220,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       // Create SpacePointCollection
       IdentifierHash idHash = colNext->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainer_SCT->getWriteHandle(idHash);
-      if(lock.alreadyPresent()){
+      if(lock.OnlineAndPresentInAnotherView()){
           ATH_MSG_DEBUG("SCT Hash " << idHash << " is already in cache");
           ++sctCacheCount;
           continue; //Skip if already present in cache
@@ -277,7 +276,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       nReceivedClustersPIX = (*colNext)->size();
       IdentifierHash idHash = (*colNext)->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainerPixel->getWriteHandle(idHash);
-      if(lock.alreadyPresent()){
+      if(lock.OnlineAndPresentInAnotherView()){
           ATH_MSG_DEBUG("pixel Hash " << idHash << " is already in cache");
           ++pixCacheCount;
           continue;

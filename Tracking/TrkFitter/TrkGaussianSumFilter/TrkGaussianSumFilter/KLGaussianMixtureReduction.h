@@ -30,10 +30,10 @@
  *
  * [ (1,0) ] <br>
  * [ (2,0), (2,1) ] <br>
- * [ (3,0), (3,1), (3,2)] <br> 
+ * [ (3,0), (3,1), (3,2)] <br>
  * [ (4,0), (4,1), (4,2) , (4,3) <br>
  * [.............................] <br>
- * [(N-1,0),(N-1,1),(N-1,2),(N-1,3) ... (N-1,N-2)]<br> 
+ * [(N-1,0),(N-1,1),(N-1,2),(N-1,3) ... (N-1,N-2)]<br>
  *
  * With size 1+2+3+ .... (N-1) = N*(N-1)/2
  *
@@ -44,7 +44,7 @@
  * (2,0) => 2 *(2-1)/2 + 0 => 1 <br>
  * (2,1) => 2 *(2-1)/2 + 1 => 2 <br>
  * (3,0) => 3 * (3-1)/2 +0 => 3 <br>
- *  
+ *
  * Leading to <br>
  * [(1,0),(2,0),(2,1),(3,0),(3,1),(3,2).... (N-1,N-2)]
  *
@@ -73,7 +73,6 @@
 #define KLGaussianMixReductionUtils_H
 
 #include "CxxUtils/features.h"
-#include "CxxUtils/restrict.h"
 #include <cstdint>
 #include <utility>
 #include <vector>
@@ -87,6 +86,7 @@ constexpr size_t alignment = 32;
 
 /**
  * @brief struct representing 1D component
+ * Negative weight means invalidated component
  */
 struct Component1D
 {
@@ -99,24 +99,19 @@ struct Component1D
 /**
  * @brief Helper struct to map position in
  * triangular array to I, J indices
- */ 
+ */
 struct triangularToIJ
 {
   int32_t I = -1;
   int32_t J = -1;
 };
 
-/// typedef for float* restrict
-typedef float* ATH_RESTRICT floatPtrRestrict;
-/// typedef for Component1D* restrict
-typedef Component1D* ATH_RESTRICT componentPtrRestrict;
-
 /**
  * @brief Merge the componentsIn and return
  * which componets got merged
  */
 std::vector<std::pair<int32_t, int32_t>>
-findMerges(componentPtrRestrict componentsIn,
+findMerges(Component1D* componentsIn,
            const int32_t inputSize,
            const int32_t reducedSize);
 
@@ -126,17 +121,23 @@ findMerges(componentPtrRestrict componentsIn,
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2"))) std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
-__attribute__((target("sse4.1"))) std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
-__attribute__((target("sse2"))) std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
+__attribute__((target("avx2")))
+int32_t
+findMinimumIndex(const float* distancesIn, const int32_t n);
+
+__attribute__((target("sse4.1")))
+int32_t
+findMinimumIndex(const float* distancesIn, const int32_t n);
+
+__attribute__((target("sse2")))
+int32_t
+findMinimumIndex(const float* distancesIn, const int32_t n);
 #endif // x86_64 specific targets
+
 __attribute__((target("default")))
 #endif // function multiversioning
-std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
+int32_t
+findMinimumIndex(const float* distancesIn, const int32_t n);
 
 } // namespace KLGaussianMixtureReduction
 

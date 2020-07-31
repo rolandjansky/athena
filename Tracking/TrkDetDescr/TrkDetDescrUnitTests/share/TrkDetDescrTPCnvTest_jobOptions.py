@@ -57,7 +57,6 @@ svcMgr = theApp.serviceMgr()
 svcMgr.MessageSvc.OutputLevel 	= VERBOSE
 svcMgr.MessageSvc.Format 	= "% F%30W%S%7W%R%T %0W%M"
 svcMgr.MessageSvc.defaultLimit	= 1000000
-svcMgr.AthenaSealSvc.OutputLevel = VERBOSE
 
 #  level for HelloAlg only (note name: instance, not type)
 BinUtilityTest = INFO
@@ -84,8 +83,6 @@ theApp.EvtMax = 1
 ############### The Material hit collection ##################
 if WriteFile :
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-    # --- check dictionary
-    ServiceMgr.AthenaSealSvc.CheckDictionary   = True
     # --- commit interval (test)
     ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
     MaterialStream              = AthenaPoolOutputStream ( 'TrkDetDescrTPCnv' )

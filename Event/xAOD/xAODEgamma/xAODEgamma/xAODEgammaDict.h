@@ -35,8 +35,6 @@
 #include "xAODEgamma/ElectronxAODHelpers.h"
 #include "xAODEgamma/PhotonxAODHelpers.h"
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"
-#include "xAODEgamma/EgammaEnums.h"
-#include "xAODEgamma/EgammaDefs.h"
 
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"

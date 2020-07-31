@@ -35,32 +35,25 @@ StatusCode DecayPositionFilter::filterEvent() {
   int nPass = 0;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if (abs((*pitr)->pdg_id()) == m_PDGID) {
-	    if ( fabs((*pitr)->momentum().pseudoRapidity()) ) {
-	    
+    for (auto pitr: *genEvt) {
+      if (std::abs(pitr->pdg_id()) != m_PDGID)  continue;
+	    if ( !std::abs( pitr->momentum().pseudoRapidity()) ) continue;// AV:WHAT IS THIS?   
             // Count only particles not decaying to themselves
-            bool notSelfDecay = true;
-            if ((*pitr)->end_vertex()) {
-              HepMC::GenVertex::particle_iterator child = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-              HepMC::GenVertex::particle_iterator childE = (*pitr)->end_vertex()->particles_end(HepMC::children);
-              for (; child != childE; ++child) {
-                if ( (*child)->pdg_id() == (*pitr)->pdg_id() && (*child)->barcode()!=(*pitr)->barcode() && (*child)->barcode() < 100000) {
+        bool notSelfDecay = true;
+        if (!pitr->end_vertex()) continue;
+        for ( auto child:  *(pitr->end_vertex())) {
+                if ( child->pdg_id() == pitr->pdg_id() && HepMC::barcode(child)!=HepMC::barcode(pitr) && HepMC::barcode(child) < 100000) {
                   notSelfDecay = false;
                   break;
                 }
-              }
-              if(notSelfDecay){
-
-	            HepMC::GenVertex* vtx = (*pitr)->end_vertex();
-				float x = vtx->position().x();
-				float y = vtx->position().y();
-				float Rdecay = sqrt(x*x + y*y);
-			    if(Rdecay < m_RCut ) nPass++;	
-			  }
-			}
-	    }
-      }
+         }
+         if(notSelfDecay){
+	     auto vtx = pitr->end_vertex();
+		 double x = vtx->position().x();
+		 double y = vtx->position().y();
+		 double Rdecay = std::sqrt(x*x + y*y);
+		 if(Rdecay < m_RCut ) nPass++;	
+		 }
      }
     }
     setFilterPassed(nPass == m_MinPass);

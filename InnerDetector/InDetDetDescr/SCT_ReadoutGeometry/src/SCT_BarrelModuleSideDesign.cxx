@@ -13,8 +13,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Geometry/Vector3D.h"
 
-#include "TrkSurfaces/RectangleBounds.h"
-
 #include <cmath>
 
 namespace InDetDD {
@@ -56,14 +54,9 @@ SCT_BarrelModuleSideDesign::SCT_BarrelModuleSideDesign(const double thickness,
     m_xEtaAbsSizeLow = m_xEtaAbsSizeHigh = m_xPhiAbsSize = 0.0;
   }
   
-  m_bounds = new Trk::RectangleBounds(0.5*width(), 0.5*length());
+  m_bounds = Trk::RectangleBounds(0.5*width(), 0.5*length());
 }
 
-
-SCT_BarrelModuleSideDesign::~SCT_BarrelModuleSideDesign()
-{
-  delete m_bounds;
-}
 
 // Returns distance to nearest detector edge 
 // +ve = inside
@@ -257,7 +250,7 @@ SCT_BarrelModuleSideDesign::cellIdOfPosition(const SiLocalPosition & localPositi
 const Trk::SurfaceBounds & 
 SCT_BarrelModuleSideDesign::bounds() const
 {
-  return *m_bounds;
+  return m_bounds;
 }
 
 } // namespace InDetDD

@@ -3,11 +3,13 @@ from future.utils import iteritems
 from future.utils import itervalues
 from future.utils import listvalues
 
-from past.builtins import basestring
 from builtins import object
 from builtins import int
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+import six
+basestring = six.string_types
+
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
@@ -18,11 +20,9 @@ import argparse
 import bz2
 import copy
 import glob
-import io
 import os
 import re
 import subprocess
-import types
 import uuid
 
 import logging
@@ -31,7 +31,7 @@ msg = logging.getLogger(__name__)
 import PyJobTransforms.trfExceptions as trfExceptions
 
 from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, PRWEntries, urlType, ROOTGetSize
-from PyJobTransforms.trfUtils import call, cliToKey
+from PyJobTransforms.trfUtils import call
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
 from PyJobTransforms.trfAMI import getAMIClient
@@ -41,13 +41,13 @@ from PyJobTransforms.trfAMI import getAMIClient
 #  @brief Factory class used to generate argument class instances for argparse
 class argFactory(object):
     def __init__(self, genclass, *args, **kwargs):
-        msg.debug('Initialised class %s with args=%s; kwargs=%s' % (genclass, args, kwargs))
+        msg.debug('Initialised class %s with args=%s; kwargs=%s', genclass, args, kwargs)
         self._genclass = genclass
         self._args = args
         self._kwargs = kwargs
     
     def __call__(self, valueString=None):
-        msg.debug('Called class %s with value=%s; args=%s; kwargs=%s' % (self._genclass, valueString, self._args, self._kwargs))
+        msg.debug('Called class %s with value=%s; args=%s; kwargs=%s', self._genclass, valueString, self._args, self._kwargs)
         
         # Wrap this step in our own try/except because if this goes wrong we want to see the exception
         # instead of having it masked by the argparse module
@@ -1110,7 +1110,7 @@ class argFile(argList):
                     self._fileMetadata[fname]['integrity'] = True
                 except (OSError, IOError) as e:
                     msg.error('Got exception {0!s} raised while checking integrity of file {1}'.format(e, fname))
-                    self._fileMetadata[file]['integrity'] = False
+                    self._fileMetadata[fname]['integrity'] = False
                     
                     
     ## @brief Generate a GUID on demand - no intrinsic for this file type        
@@ -1808,7 +1808,7 @@ class argLHEFile(argFile):
                         lhecount = lines.find('/event')
 
                 self._fileMetadata[fname]['nentries'] = lhecount
-            except :
+            except Exception:
                 msg.debug('Entries is set to None - event count undefined for this LHE')
                 self._fileMetadata[fname]['nentries'] = 'UNDEFINED'
 
@@ -1833,7 +1833,7 @@ class argLHEFile(argFile):
                                     w = float(re.sub(' +',' ',line).split(" ")[2])
                                     if w > 0 : weightPos += w
                                     else : weightNeg += abs(w)
-                                except :
+                                except Exception:
                                     pass
                                 next = False
                             if "<event" in line :
@@ -1841,7 +1841,7 @@ class argLHEFile(argFile):
 
                 self._fileMetadata[fname]['lheSumOfPosWeights'] = weightPos
                 self._fileMetadata[fname]['lheSumOfNegWeights'] = weightNeg
-            except :
+            except Exception:
                 msg.debug('Entries is set to None - negative fraction count undefined for this LHE')
                 self._fileMetadata[fname]['lheSumOfPosWeights'] = 'UNDEFINED'
                 self._fileMetadata[fname]['lheSumOfNegWeights'] = 'UNDEFINED'
@@ -2146,7 +2146,7 @@ class argSubstepInt(argSubstep):
                 self._value = value
             else:
                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
-        except ValueError as e:
+        except ValueError:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert substep value {0} to int'.format(value))
 
 
@@ -2157,7 +2157,6 @@ class argSubstepFloat(argSubstep):
     def __init__(self, value=None, min=None, max=None, runarg=True, name=None):
         self._min = min
         self._max = max
-        desc = {}
         super(argSubstepFloat, self).__init__(value = value, runarg = runarg, name=name)
         
     @property
@@ -2430,7 +2429,7 @@ class trfArgParser(argparse.ArgumentParser):
     def defineArgGroup(self, *args):
         # Get an argparse group
         if args[0] in self._argGroups:
-            msg.warning('Argument group %s already exists' % args[0])
+            msg.warning('Argument group %s already exists', args[0])
             return
         self._argGroups[args[0]] = self.add_argument_group(*args)
         
@@ -2466,13 +2465,13 @@ class trfArgParser(argparse.ArgumentParser):
         else:
             namespace = super(trfArgParser, self).parse_args(args = args)
         for k, v in iteritems(namespace.__dict__):
-            msg.debug('Treating key %s (%s)' % (k, v))
+            msg.debug('Treating key %s (%s)', k, v)
             if isinstance(v, list):
                 # We build on the v[0] instance as this contains the correct metadata
                 # and object references for this instance (shallow copying can 
                 # mess up object references and deepcopy thows exceptions!)
                 newValueObj = v[0] 
-                msg.debug('Started with: %s = %s' % (type(newValueObj), newValueObj))
+                msg.debug('Started with: %s = %s', type(newValueObj), newValueObj)
                 if isinstance(v[0], argSubstep):
                     # Make sure you do not have a reference to the original value - this is a deeper copy
                     newValues = dictSubstepMerge(v[0].value, {})
@@ -2483,7 +2482,7 @@ class trfArgParser(argparse.ArgumentParser):
                 else:
                     newValues = [v[0].value,]
                 for valueObj in v[1:]:
-                    msg.debug('Value Object: %s = %s' % (type(valueObj), valueObj))
+                    msg.debug('Value Object: %s = %s', type(valueObj), valueObj)
                     if isinstance(v[0], argSubstep):
                         # Special merger for lists attached to substeps
                         newValues = dictSubstepMerge(newValues, valueObj.value)
@@ -2497,7 +2496,7 @@ class trfArgParser(argparse.ArgumentParser):
                         newValues.append(valueObj.value)
                 newValueObj.value = newValues
                 namespace.__dict__[k] = newValueObj
-                msg.debug('Set to %s' % newValueObj.value)                
+                msg.debug('Set to %s', newValueObj.value)                
 
         return namespace
 

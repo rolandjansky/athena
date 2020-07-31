@@ -18,6 +18,7 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IOVTime.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
@@ -33,18 +34,18 @@
 #include "GaudiKernel/ClassID.h"
 
 //STL
-#include <string>
-#include <map>
-#include <set>
 #include <list>
+#include <map>
+#include <memory>
 #include <mutex>
+#include <set>
+#include <string>
 
 //forward declarations
 class IdentifierHash;
 class SCT_ID;
 class IIOVRegistrationSvc;
 class IAthenaOutputStreamTool;
-class CondAttrListCollection;
 
 /**
  ** Algorithm to test writing conditions data and reading them back.
@@ -72,10 +73,15 @@ class SCTCalibWriteTool : public AthAlgTool {
       std::string
       createDefectString(const int defectBeginChannel,const int defectEndChannel) const;
 
-      StatusCode
-      createCondObjects ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* m_sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const;
+     StatusCode createCondObjects ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+                                 (const Identifier& wafer_id,
+                                  const SCT_ID* m_sctId,
+                                  const int samplesize,
+                                  const std::string& defectType,
+                                  const float threshold,
+                                  const std::string& defectList) const;
 
-      StatusCode createListStrip ATLAS_NOT_THREAD_SAFE
+      StatusCode createListStrip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                                 (const Identifier& wafer_id,
                                  const SCT_ID* m_sctId,
                                  const int samplesize,
@@ -83,7 +89,7 @@ class SCTCalibWriteTool : public AthAlgTool {
                                  const float threshold,
                                  const std::string& defectList) const;
 
-      StatusCode createListChip ATLAS_NOT_THREAD_SAFE
+      StatusCode createListChip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                                (const Identifier& wafer_id,
                                 const SCT_ID* m_sctId,
                                 const int samplesize,
@@ -91,32 +97,32 @@ class SCTCalibWriteTool : public AthAlgTool {
                                 const float threshold,
                                 const std::string& defectList) const;
 
-      StatusCode createListEff ATLAS_NOT_THREAD_SAFE
+      StatusCode createListEff ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                               (const Identifier& wafer_id,
                                const SCT_ID* m_sctId,
                                const int samplesize,
                                const float eff) const;
 
-      StatusCode createListNO ATLAS_NOT_THREAD_SAFE
+      StatusCode createListNO ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                              (const Identifier& wafer_id,
                               const SCT_ID* m_sctId,
                               const int samplesize,
                               const float noise_occ) const;
 
-      StatusCode createListRawOccu ATLAS_NOT_THREAD_SAFE
+      StatusCode createListRawOccu ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                                   (const Identifier& wafer_id,
                                    const SCT_ID* m_sctId,
                                    const int samplesize,
                                    const float raw_occu) const;
 
-      StatusCode createListBSErr ATLAS_NOT_THREAD_SAFE
+      StatusCode createListBSErr ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                                 (const Identifier& wafer_id,
                                  const SCT_ID* m_sctId,
                                  const int samplesize,
                                  const std::string& errorList,
                                  const std::string& probList) const ;
 
-      StatusCode createListLA ATLAS_NOT_THREAD_SAFE
+      StatusCode createListLA ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                              (const Identifier& wafer_id,
                               const SCT_ID* m_sctId,
                               const int samplesize,
@@ -176,14 +182,14 @@ class SCTCalibWriteTool : public AthAlgTool {
       // cache for the Collections, access by foldername
       mutable std::mutex m_mutex{};
       mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap ATLAS_THREAD_SAFE; // Guarded by m_mutex
-      CondAttrListCollection*      m_attrListColl{nullptr};
-      CondAttrListCollection*      m_attrListColl_deadStrip{nullptr};
-      CondAttrListCollection*      m_attrListColl_deadChip{nullptr};
-      CondAttrListCollection*      m_attrListColl_eff{nullptr};
-      CondAttrListCollection*      m_attrListColl_no{nullptr};
-      CondAttrListCollection*      m_attrListColl_RawOccu{nullptr};
-      CondAttrListCollection*      m_attrListColl_BSErr{nullptr};
-      CondAttrListCollection*      m_attrListColl_LA{nullptr};
+      std::unique_ptr<CondAttrListCollection> m_attrListColl;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_deadStrip;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_deadChip;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_eff;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_no;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_RawOccu;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_BSErr;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_LA;
       BooleanProperty              m_writeCondObjs{this, "WriteCondObjs", true};
       BooleanProperty              m_regIOV{this, "RegisterIOV", true};
       BooleanProperty              m_readWriteCool{this, "ReadWriteCool", true};

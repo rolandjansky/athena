@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaOutputStream_test.cxx
@@ -42,7 +42,7 @@ int main() {
   const std::string appName = "AthenaOutputStream_test";
   cout << "*** " << appName << " starts ***" <<endl;
   ISvcLocator* pSvcLoc(nullptr);
-  if (!initGaudi("AthenaOutputStream_test.txt", pSvcLoc)) {
+  if (!initGaudi("AthenaServices/AthenaOutputStream_test.txt", pSvcLoc)) {
     cerr << "This test can not be run" << endl;
     return 0;
   }  

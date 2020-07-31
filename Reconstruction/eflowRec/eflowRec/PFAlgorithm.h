@@ -7,6 +7,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowRecTrack.h"
@@ -50,7 +51,10 @@ private:
 
   /** WriteHandleKey for eflowCaloObjectContainer to be written out */
   SG::WriteHandleKey<eflowCaloObjectContainer> m_eflowCaloObjectsWriteHandleKey{this,"eflowCaloObjectsOutputName","eflowCaloObjects","WriteHandleKey for eflowCaloObjectContainer to be written out"};
-  
+
+  /** Online monitoring tool for recording histograms of the alg in action */
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+
   /** Funciton to print out list of tools if in VERBOSE mode */
   void printTools();
   

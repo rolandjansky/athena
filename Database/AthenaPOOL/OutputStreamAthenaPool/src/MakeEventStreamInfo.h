@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MAKEEVENTSTREAMINFO_H
@@ -14,6 +14,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IMetaDataSvc.h"
 
 #include <string>
 
@@ -23,7 +24,7 @@ namespace xAODMaker {  class IEventInfoCnvTool;  }
 /** @class MakeEventStreamInfo 
  *  @brief This class provides an algorithm to make the EventStreamInfo object and update it.
  **/
-class MakeEventStreamInfo : public ::AthAlgTool, virtual public IAthenaOutputTool {
+class MakeEventStreamInfo : public extends<::AthAlgTool, IAthenaOutputTool> {
 public:
    /// Standard AlgTool Constructor
    MakeEventStreamInfo(const std::string& type, const std::string& name, const IInterface* parent);
@@ -31,17 +32,19 @@ public:
    virtual ~MakeEventStreamInfo();
    /// Required of all IAthenaOutputTools:
    /// Called by AthenaOutputStream::initialize() (via ToolSvc retrieve()).
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
    /// Called at the end of AthenaOutputStream::initialize().
-   StatusCode postInitialize();
+   virtual StatusCode postInitialize() override;
    /// Called at the beginning of AthenaOutputStream::execute().
-   StatusCode preExecute();
+   virtual StatusCode preExecute() override;
+   /// Called before actually streaming objects.
+   virtual StatusCode preStream() override;
    /// Called at the end of AthenaOutputStream::execute().
-   StatusCode postExecute();
+   virtual StatusCode postExecute() override;
    /// Called at the beginning of AthenaOutputStream::finalize().
-   StatusCode preFinalize();
+   virtual StatusCode preFinalize() override;
    /// Called at the end of AthenaOutputStream::finalize() (via release()).
-   StatusCode finalize();
+   virtual StatusCode finalize() override;
 
 private:
    /// Key, the StoreGate key for the EventStreamInfo object.
@@ -53,7 +56,7 @@ private:
    StringProperty m_oEventInfoKey;
 
    /// Pointer to the data stores
-   ServiceHandle<StoreGateSvc> m_metaDataStore;
-   ServiceHandle<StoreGateSvc> m_eventStore;
+   ServiceHandle<IMetaDataSvc>  m_metaDataSvc;
+   ServiceHandle<StoreGateSvc>  m_eventStore;
 };
 #endif

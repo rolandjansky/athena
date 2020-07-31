@@ -34,6 +34,12 @@ atlas_ctest_setup()
 atlas_project( USE AnalysisBaseExternals ${AnalysisBaseExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
+# Configure flake8:
+set( ATLAS_FLAKE8 true   # <- this is the shell builtin `true`
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER ""
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Configure and install the pre/post-configuration files:
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )

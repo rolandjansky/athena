@@ -37,31 +37,29 @@ namespace InDet {
     public:
     /// Create a constructor for standalone usage
     InDetTrackSmearingTool( const std::string& name );
-    virtual ~InDetTrackSmearingTool() = default;
+    virtual ~InDetTrackSmearingTool();
 
     /// Function initialising the tool
-    virtual StatusCode initialize();
-    /// Function finalising the tool
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
     /// Smearing method
-    virtual CP::CorrectionCode applyCorrection( xAOD::TrackParticle& ID );
+    virtual CP::CorrectionCode applyCorrection( xAOD::TrackParticle& ID ) override;
 
     // we need explicit forwarding calls because CP::CorrectionTool does not have a pure interface
     // this isn't really elegant (ideally these would come automatically) but we'd need IInDetTrackSmearingTool
     //  to inherit from CP::CorrectionTool, which would make it not pure-virtual.
     // at least, forwarding calls are easy enough to read and understand.
     virtual CP::CorrectionCode correctedCopy( const xAOD::TrackParticle& in,
-					      xAOD::TrackParticle*& out );
-    virtual CP::CorrectionCode applyContainerCorrection( xAOD::TrackParticleContainer& cont );
+					      xAOD::TrackParticle*& out ) override;
+    virtual CP::CorrectionCode applyContainerCorrection( xAOD::TrackParticleContainer& cont ) override;
     
     /// returns: whether the tool is affected by the systematic
-    virtual bool isAffectedBySystematic( const CP::SystematicVariation& ) const;
+    virtual bool isAffectedBySystematic( const CP::SystematicVariation& ) const override;
     /// returns: list of systematics this tool can be affected by
-    virtual CP::SystematicSet affectingSystematics() const;
+    virtual CP::SystematicSet affectingSystematics() const override;
     /// returns: list of recommended systematics to use with this tool
-    virtual CP::SystematicSet recommendedSystematics() const;
+    virtual CP::SystematicSet recommendedSystematics() const override;
     /// configure the tool to apply a given list of systematic variations
-    virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& );
+    virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& ) override;
 
     /// Get smearing widths to add to IPs
     float GetSmearD0Sigma(const xAOD::TrackParticle&);

@@ -173,8 +173,6 @@ include( "GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py" )
 # 2101 = EventInfo
 # 133273 = MCTruth (HepMC)
 Stream1.ItemList += ["2101#*", "133273#*" ]
-include("AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.CheckDictionary = TRUE
 Stream1.OutputFile = "pythiaB.pool.root"
 
 #==============================================================

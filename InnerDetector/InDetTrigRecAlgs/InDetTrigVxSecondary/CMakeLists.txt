@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/VxSecVertex
                           Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTrackJetFinderTool
+                          Trigger/TrigTools/TrigInDetToolInterfaces
                           PRIVATE
                           Control/AthContainers
                           Control/CxxUtils
@@ -35,7 +35,7 @@ atlas_add_component( InDetTrigVxSecondary
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} xAODTracking GaudiKernel VxSecVertex TrigInterfacesLib AthContainers GeoPrimitives IRegionSelector xAODBase InDetRecToolInterfaces TrkParameters TrkTrack VxVertex TrigInDetEvent TrigSteeringEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} xAODTracking GaudiKernel VxSecVertex TrigInterfacesLib AthContainers GeoPrimitives IRegionSelector xAODBase InDetRecToolInterfaces TrkParameters TrkTrack VxVertex TrigInDetEvent TrigSteeringEvent InDetBeamSpotServiceLib )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigVxSecondary )

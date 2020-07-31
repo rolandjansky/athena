@@ -535,7 +535,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 
 
 // private -- helper to make pretty debug output
-void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, std::string ptype,
+void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, const std::string& ptype,
                                                          const Trk::TrackParameters& ref,
                                                          const AmgVector(5)& diff) const
 {

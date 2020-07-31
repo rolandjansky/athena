@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 756859 2016-06-22 10:53:03Z krasznaa $
-################################################################################
-# Package: ByteStreamCnvSvcLegacy
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamCnvSvcLegacy )

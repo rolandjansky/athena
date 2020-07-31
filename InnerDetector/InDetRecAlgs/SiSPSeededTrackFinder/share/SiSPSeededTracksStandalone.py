@@ -137,7 +137,7 @@ IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2018-03"
 IOVDbSvc.OutputLevel = WARNING
 
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
-ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
+ServiceMgr.EventSelector.Input = inputBSFiles
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputBSFiles
 
@@ -277,14 +277,6 @@ if doPixel:
     if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
         condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
-
-    if athenaCommonFlags.isOnline():
-        if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):
-            conddb.addFolder("TDAQ_ONL", "/TDAQ/Resources/ATLAS/PIXEL/Modules", className="CondAttrListCollection")
-
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg")
 
     #####################
     # Calibration Setup #
@@ -453,6 +445,7 @@ else:
     InDetClusterMakerTool.PixelModuleData = ""
     InDetClusterMakerTool.PixelChargeCalibCondData = ""
     InDetClusterMakerTool.PixelLorentzAngleTool = None
+    InDetClusterMakerTool.PixelOfflineCalibData = ""
 
 # Set up Pixel neutral network tools
 clusterSplitProbTool = None

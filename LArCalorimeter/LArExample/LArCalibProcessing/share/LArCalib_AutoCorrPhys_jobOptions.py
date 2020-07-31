@@ -123,7 +123,7 @@ except:
    pass
 
 theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
-theByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
 
 theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
 theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]

@@ -28,10 +28,12 @@ def createTriggerFlags():
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
 
-    # L1 decoding options
-    flags.addFlag('Trigger.decodeLegacyL1', True)
-    flags.addFlag('Trigger.decodePhaseIL1', False)
-    
+    # Enable Run-3 LVL1 simulation and/or decoding
+    flags.addFlag('Trigger.enableL1Phase1', False)
+
+    # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
+    flags.addFlag('Trigger.enableL1CaloLegacy', True)
+
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
     def EDMDecodingVersion(flags):
         log.debug("Attempting to determine EDMDecodingVersion.")
@@ -105,9 +107,9 @@ def createTriggerFlags():
 
     # Enables collection and export of detailed monitoring data of the HLT execution
     flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
-    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor')
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
-    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', True) # Defaulting to "True" is temporary
+    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
 
 
     # enable Bcm inputs simulation

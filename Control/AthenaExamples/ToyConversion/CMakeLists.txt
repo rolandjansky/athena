@@ -1,14 +1,7 @@
-################################################################################
-# Package: ToyConversion
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ToyConversion )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_library( ToyConversionLib
@@ -22,4 +15,3 @@ atlas_add_component( ToyConversion
 
 # Install files from the package:
 atlas_install_joboptions( share/ToyConversionOpts.txt share/ToyConversionOpts.py )
-

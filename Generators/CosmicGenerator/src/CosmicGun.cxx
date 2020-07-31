@@ -70,8 +70,8 @@ CosmicGun::CosmicGun(void){
   m_printmod = 50;
 
   coscut_.ctcut = m_coscut;
-  genpar_.LEMIN = log10(m_emin);
-  genpar_.LEMAX = log10(m_emax);
+  genpar_.LEMIN = std::log10(m_emin);
+  genpar_.LEMAX = std::log10(m_emax);
   genpar_.NBIN  = 100;
   genpar_.LBINWID = (genpar_.LEMAX-genpar_.LEMIN)/genpar_.NBIN;
 
@@ -118,10 +118,10 @@ CLHEP::HepLorentzVector CosmicGun::GenerateEvent(void){
   }
   m_event++;
   
-  float sinth = sqrt( 1-pow(cosevt_.COSTH,2) );
+  float sinth = std::sqrt( 1-std::pow(cosevt_.COSTH,2) );
   float e  = cosevt_.ENER;
-  float px = cosevt_.ENER * sinth * sin( cosevt_.PHI);
-  float py = cosevt_.ENER * sinth * cos( cosevt_.PHI);
+  float px = cosevt_.ENER * sinth * std::sin( cosevt_.PHI);
+  float py = cosevt_.ENER * sinth * std::cos( cosevt_.PHI);
   float pz = cosevt_.ENER * cosevt_.COSTH;
   CLHEP::HepLorentzVector p(px,py,pz,e);
 
@@ -147,8 +147,8 @@ void CosmicGun::SetEnergyRange(float emin, float emax){
   m_emin = emin;
   m_emax = emax;
 
-  genpar_.LEMIN = log10(m_emin);
-  genpar_.LEMAX = log10(m_emax);
+  genpar_.LEMIN = std::log10(m_emin);
+  genpar_.LEMAX = std::log10(m_emax);
   genpar_.NBIN  = 100;
   genpar_.LBINWID = (genpar_.LEMAX-genpar_.LEMIN)/genpar_.NBIN;
 

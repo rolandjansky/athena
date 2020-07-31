@@ -98,7 +98,7 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
     ATH_MSG_ERROR( "Can not find CLID for " << transientType << " that is needed for serialisation " << key );
     return StatusCode::FAILURE;
   }
-
+  ATH_MSG_VERBOSE("Decoded transient type: " << transientType << " with the CLID " << clid );
   if ( transientType == configuredType ) {
     std::string realTypeName;
     if( m_clidSvc->getTypeInfoNameOfID( clid, realTypeName ).isFailure() ) {
@@ -106,12 +106,12 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
       return StatusCode::FAILURE;
     }
     persistentType = transientType + version( realTypeName );
+    ATH_MSG_VERBOSE(transientType << " = "<< configuredType << " thus obtained real type name from clid svc " << realTypeName << " forming persistent type name "<< persistentType );
   } else {
     persistentType = configuredType;
   }
 
   ATH_MSG_DEBUG( "Persistent type: " << persistentType );
-  ATH_CHECK( persistentType.find("_") != std::string::npos );
 
   RootType classDesc = RootType::ByNameNoQuiet( persistentType );
   if ( ! classDesc.IsComplete() ) {
@@ -523,5 +523,7 @@ std::string TriggerEDMSerialiserTool::version( const std::string& name ) const {
     size_t start = name.find("_");
     return name.substr( start, name.find(">") - start );
   }
-  return name.substr( name.find("_") );
+  if ( name.find("_") != std::string::npos )
+    return name.substr( name.find("_") );
+  return "";
 }

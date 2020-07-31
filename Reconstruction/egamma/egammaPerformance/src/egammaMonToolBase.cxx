@@ -90,10 +90,10 @@ unsigned int egammaMonToolBase::getCurrentLB()
   SG::ReadHandle<xAOD::EventInfo> evtInfo{m_EventInfoKey};
   if (evtInfo.isValid()) {
     return evtInfo->lumiBlock();
-  } else {
+  } 
     ATH_MSG_ERROR("couldn't retrieve event info");
     return -1;
-  }
+  
 }
 
 StatusCode egammaMonToolBase::bookHistograms()

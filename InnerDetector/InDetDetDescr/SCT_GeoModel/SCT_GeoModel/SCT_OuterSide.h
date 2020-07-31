@@ -8,6 +8,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+
+#include <memory>
 #include <string>
 
 class GeoMaterial;
@@ -41,12 +43,12 @@ public:
   double width()     const {return m_width;}
   double length()    const {return m_length;}
 
-  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
-  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
+  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector.get();}
+  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector.get();}
 
-  const SCT_Hybrid       * hybrid() const {return m_hybrid;}
-  const SCT_Pigtail      * pigtail()      const {return m_pigtail;}
-  const SCT_Sensor             * sensor()       const {return m_sensor;}
+  const SCT_Hybrid * hybrid() const {return m_hybrid.get();}
+  const SCT_Pigtail * pigtail() const {return m_pigtail.get();}
+  const SCT_Sensor * sensor() const {return m_sensor.get();}
 
   double hybridOffsetX() const {return m_hybridOffsetX;}
   double hybridOffsetZ() const {return m_hybridOffsetZ;}
@@ -63,15 +65,15 @@ private:
   double m_hybridOffsetZ;
   double m_safety;
 
-  SCT_Hybrid  * m_hybrid;
-  SCT_Pigtail * m_pigtail;
-  SCT_Sensor        * m_sensor;
+  std::unique_ptr<SCT_Hybrid> m_hybrid;
+  std::unique_ptr<SCT_Pigtail> m_pigtail;
+  std::unique_ptr<SCT_Sensor> m_sensor;
 
   GeoTransform * m_hybridPos;
   GeoTransform * m_pigtailPos;
   GeoTransform * m_sensorPos;
-  GeoTrf::Vector3D * m_env1RefPointVector;
-  GeoTrf::Vector3D * m_env2RefPointVector;
+  std::unique_ptr<GeoTrf::Vector3D> m_env1RefPointVector;
+  std::unique_ptr<GeoTrf::Vector3D> m_env2RefPointVector;
 
 };
 

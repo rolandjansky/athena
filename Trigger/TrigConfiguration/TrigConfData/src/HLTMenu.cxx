@@ -49,7 +49,7 @@ TrigConf::HLTMenu::setSMK(unsigned int smk) {
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::begin() const
 {
-   return {data().get_child("chains"), 0,  [](auto & x){return Chain(x.second);}};
+    return {data().get_child("chains"), 0,  [](auto & x){auto chain = Chain(x.second); chain.setName(x.first); return chain; }};
 }
 
 TrigConf::HLTMenu::const_iterator
@@ -60,11 +60,25 @@ TrigConf::HLTMenu::end() const
 }
 
 
+std::vector<TrigConf::DataStructure>
+TrigConf::HLTMenu::streams() const
+{
+   std::vector<DataStructure> strlist;
+   const auto & streams = data().get_child("streams");
+   strlist.reserve(streams.size());
+
+   for( auto & strData : streams )
+      strlist.emplace_back( strData.second );
+
+   return strlist;
+}
+
 
 void
 TrigConf::HLTMenu::printMenu(bool full) const
 {
    cout << "HLT menu '" << name() << "'" << endl;
+   cout << "Streams: " << data().get_child("streams").size() << endl;
    cout << "Chains: " << size() << endl;
    if(full) {
       int c(0);

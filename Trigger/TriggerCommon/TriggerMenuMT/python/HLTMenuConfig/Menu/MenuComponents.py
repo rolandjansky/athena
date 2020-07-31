@@ -73,7 +73,7 @@ class AlgNode(Node):
     def addOutput(self, name):
         outputs = self.readOutputList()
         if name in outputs:
-            log.debug("Output DH not added in %s: %s already set!", self.name, name)
+            log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.outputProp != '':
                 self.setPar(self.outputProp,name)
@@ -96,7 +96,7 @@ class AlgNode(Node):
     def addInput(self, name):
         inputs = self.readInputList()
         if name in inputs:
-            log.debug("Input DH not added in %s: %s already set!", self.name, name)
+            log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.inputProp != '':
                 self.setPar(self.inputProp,name)
@@ -233,7 +233,7 @@ class InputMakerNode(AlgNode):
     def __init__(self, Alg):
         assert isInputMakerBase(Alg), "Error in creating InputMakerNode from Alg "  + compName(Alg)
         AlgNode.__init__(self,  Alg, 'InputMakerInputDecisions', 'InputMakerOutputDecisions')
-        input_maker_output = CFNaming.inputMakerOutName(compName(self.Alg),"out")
+        input_maker_output = CFNaming.inputMakerOutName(compName(self.Alg))
         self.addOutput(input_maker_output)
 
 
@@ -320,10 +320,11 @@ class EmptyMenuSequence(object):
     def __init__(self, name):
         self._name = name
         Maker = CompFactory.InputMakerForRoI("IM"+name)
+        Maker.RoITool = CompFactory.ViewCreatorInitialROITool()
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(name, [Maker]))
-        log.debug("Making EmptySequence %s",name)
+        log.debug("Made EmptySequence %s",name)
 
     @property
     def sequence(self):
@@ -337,16 +338,12 @@ class EmptyMenuSequence(object):
     def name(self):
         return self._name
 
-    @property
-    def __maker(self):
-        return self._maker
-
     def getOutputList(self):
-        return self.__maker.readOutputList() # Only one since it's merged
+        return self._maker.readOutputList() # Only one since it's merged
 
     def connectToFilter(self, outfilter):
         """ Connect filter to the InputMaker"""
-        self.__maker.addInput(outfilter)
+        self._maker.addInput(outfilter)
 
     def createHypoTools(self, chainDict):
         log.debug("This sequence is empty. No Hypo to conficure")
@@ -769,8 +766,9 @@ class CFSequence(object):
     def setDecisions(self):
         """ Set the output decision of this CFSequence as the hypo outputdecision; In case of combo, takes the Combo outputs"""
         self.decisions=[]
+        # empty steps:
         if not len(self.step.sequences):
-            self.decisions.extend(self.filter.readOutputList())
+            self.decisions.extend(self.filter.getOutputList())
         else:
             if self.step.isCombo:
                 self.decisions.extend(self.step.combo.getOutputList())
@@ -804,7 +802,7 @@ class CFSequence(object):
                 seq.connectToFilter( filter_out )
                 nseq+=1
         else:
-          log.debug("This CFSequence has no sequences: outputs are the Filter outputs")
+          log.debug("This CFSequence has no sequences: outputs are the Filter outputs, which are %d", len(self.decisions))
 
 
     def connectCombo(self):
@@ -839,11 +837,13 @@ class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
 
+        # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
+        if sum(multiplicity)==0:
+            multiplicity=[]
+
         # sanity check on inputs
         if len(Sequences) != len(multiplicity):
-            # empty steps have one entry in multiplicity
-            if not (len(Sequences)==0 and len(multiplicity)==1):
-                raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
+            raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
 
         self.name = name
         self.sequences=Sequences
@@ -878,6 +878,8 @@ class ChainStep(object):
             return list(self.combo.getChains())
         
     def __repr__(self):
+        if len(self.sequences) == 0:
+            return "--- ChainStep %s ---\n is Empty, ChainDict = %s "%(self.name,  ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])) )
         if not self.isCombo:
             return "--- ChainStep %s ---\n , multiplicity = %d  ChainDict = %s \n + MenuSequences = %s "%(self.name,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
         else:
@@ -913,11 +915,6 @@ class InEventReco( ComponentAccumulator ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.recoSeq.getName() )
 
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per event"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.recoSeq.name )
-
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
 
@@ -931,7 +928,7 @@ class InEventReco( ComponentAccumulator ):
 
 class InViewReco( ComponentAccumulator ):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None):
+    def __init__(self, name, viewMaker=None, roisKey=None):
         super( InViewReco, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -946,7 +943,7 @@ class InViewReco( ComponentAccumulator ):
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
-                                                          InViewRoIs      = name+'RoIs',
+                                                          InViewRoIs      = roisKey if roisKey else name+'RoIs',
                                                           Views           = name+'Views',
                                                           ViewNodeName    = name+"InView")
 
@@ -966,11 +963,6 @@ class InViewReco( ComponentAccumulator ):
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.getName() )
-
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per view"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.viewsSeq.name )
 
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )

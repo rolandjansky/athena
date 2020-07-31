@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 
 # import the DL1Tag configurable
 Analysis__DL1Tag=CompFactory.Analysis.DL1Tag
@@ -26,13 +25,18 @@ def DL1TagCfg(flags, name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **o
     acc = ComponentAccumulator()
     options['name'] = name + 'Tag'
     basename = name
+    DL1LocalNNConfig = ''
+    ForceDL1CalibrationAlias = True
+    DL1CalibAlias = 'AntiKt4EMTopo'
     options['xAODBaseName'] = basename
-    options['LocalNNConfigurationFile'] = BTaggingFlags.DL1LocalNNConfig
+    options['LocalNNConfigurationFile'] = DL1LocalNNConfig
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
  
     if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'forceDL1CalibrationAlias'         : BTaggingFlags.ForceDL1CalibrationAlias,
-                     'DL1CalibAlias'                    : BTaggingFlags.DL1CalibAlias,
+                     'forceDL1CalibrationAlias'         : ForceDL1CalibrationAlias,
+                     'DL1CalibAlias'                    : DL1CalibAlias,
                      'calibration_directory'            : basename,
                      }
         for option in defaults:

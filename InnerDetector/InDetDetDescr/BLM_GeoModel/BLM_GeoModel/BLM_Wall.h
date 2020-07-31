@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,18 +30,18 @@ class BLM_Wall
   GeoPhysVol* BuildBlock(double X, double Y, double Z, std::string logname, const GeoMaterial* material);
   GeoPhysVol* BuildClamp(const GeoMaterial* material);
 
-  static double s_width;
-  static double s_length;
-  static double s_extended_length;
-  static double s_hole_r;
-  static double s_hole_position;
-  static double s_holder_length;
-  static double s_holder_height;
-  static double s_holder_spacing;
-  static double s_holder_spacing_length;
-  static double s_holder_thickness;
-  static double s_clamp_length;
-  static double s_clamp_thickness;
+  static constexpr double s_width = 18;
+  static constexpr double s_length = 22;
+  static constexpr double s_extended_length = 27;//must be more than 'length'
+  static constexpr double s_hole_r = 1.85;
+  static constexpr double s_hole_position = 2.5;
+  static constexpr double s_holder_length = 33;
+  static constexpr double s_holder_height = 10;
+  static constexpr double s_holder_spacing = 4;
+  static constexpr double s_holder_spacing_length = 4;
+  static constexpr double s_holder_thickness = 3;
+  static constexpr double s_clamp_length = 6;
+  static constexpr double s_clamp_thickness = 2;
 
 };
 

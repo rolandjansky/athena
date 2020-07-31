@@ -15,6 +15,8 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 # radmaptool.NBinsLogEn      =    90
 # radmaptool.NBinsLogEo      =    45
 # radmaptool.NBinsLogTimeCut =    20
+# radmaptool.NBinsDPhi       =    18
+# radmaptool.NBinsTheta      =     9
 # radmaptool.NBinsR3D        =    30
 # radmaptool.NBinsZ3D        =    60
 # radmaptool.NBinsPhi3D      =    32
@@ -34,6 +36,8 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 # radmaptool.LogEMaxo        =    7.0  # in log10(E/MeV)
 # radmaptool.LogTMin         =   -9.0  # in log10(t_cut/s)
 # radmaptool.LogTMax         =   11.0  # in log10(t_cut/s)
+# radmaptool.ThetaMin        =    0.0  # in degrees 
+# radmaptool.ThetaMin        =   90.0  # in degrees
 # radmaptool.ElemZMin        =    1    # Atomic number
 # radmaptool.ElemZMax        =   92    # Atomic number
 #

@@ -16,17 +16,7 @@
 
 SCT_DistortionsTool::SCT_DistortionsTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_sctID(nullptr),
-  m_dataJap1_S0(nullptr),
-  m_dataJap2_S0(nullptr),
-  m_dataUK_S0(nullptr),
-  m_dataUSA_S0(nullptr),
-  m_dataScand_S0(nullptr),
-  m_dataJap1_S1(nullptr),
-  m_dataJap2_S1(nullptr),
-  m_dataUK_S1(nullptr),
-  m_dataUSA_S1(nullptr),
-  m_dataScand_S1(nullptr)
+  m_sctID(nullptr)
 {
   declareInterface<ISCT_ModuleDistortionsTool>(this);
   declareProperty("TextFileName1",m_textFileNameJ1="HashJap1.txt","Read this file for hash id"); 
@@ -46,18 +36,6 @@ StatusCode SCT_DistortionsTool::initialize(){
     ATH_MSG_FATAL( "Could not get SCT ID helper");
     return StatusCode::FAILURE;
   }
-  
-  m_dataJap1_S0 =  new std::vector<float>;
-  m_dataJap2_S0 =  new std::vector<float>;
-  m_dataUK_S0 =  new std::vector<float>;
-  m_dataUSA_S0 =  new std::vector<float>;
-  m_dataScand_S0 =  new std::vector<float>;
-
-  m_dataJap1_S1 =  new std::vector<float>;
-  m_dataJap2_S1 =  new std::vector<float>;
-  m_dataUK_S1 =  new std::vector<float>;
-  m_dataUSA_S1 =  new std::vector<float>;
-  m_dataScand_S1 =  new std::vector<float>;
   
   bool readFiles = loadData();
   if (!readFiles){
@@ -295,35 +273,35 @@ const std::vector<float>* SCT_DistortionsTool::readDistortions(int RegionID, int
 {
   if(RegionID == 1 ){//Jap1 LL and RL
     if ( Side == 0 )
-      return m_dataJap1_S0;
+      return &m_dataJap1_S0;
     else
-      return m_dataJap1_S1;
+      return &m_dataJap1_S1;
   }
   else if(RegionID == 2){//Jap2
     if ( Side == 0 )
-      return m_dataJap2_S0;
+      return &m_dataJap2_S0;
     else
-      return m_dataJap2_S1;
+      return &m_dataJap2_S1;
   }
   else if(RegionID == 3){//UK
     if ( Side == 0 )
-      return m_dataUK_S0;
+      return &m_dataUK_S0;
     else
-      return m_dataUK_S1;
+      return &m_dataUK_S1;
   }
   else if(RegionID == 4){//USA
     if ( Side == 0 )
-      return m_dataUSA_S0;
+      return &m_dataUSA_S0;
     else 
-      return m_dataUSA_S1;
+      return &m_dataUSA_S1;
   }
   else if(RegionID == 5 ){//Scand
     if ( Side == 0 )
-      return m_dataScand_S0;
+      return &m_dataScand_S0;
     else
-      return m_dataScand_S1;
+      return &m_dataScand_S1;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -433,85 +411,85 @@ bool SCT_DistortionsTool::loadData()
 
     if(lines < 364 && lines > 338) //LL
     {
-      m_dataJap1_S1->push_back(ZVal);
+      m_dataJap1_S1.push_back(ZVal);
     }
     if(lines < 392 && lines > 366) //RL
     {
-      m_dataJap1_S1->push_back(ZVal);
+      m_dataJap1_S1.push_back(ZVal);
     }
     if(lines < 476 && lines > 450) //LL
     {
-      m_dataJap2_S1->push_back(ZVal);
+      m_dataJap2_S1.push_back(ZVal);
     }
     if(lines < 504 && lines > 478) //RL
     {
-      m_dataJap2_S1->push_back(ZVal);
+      m_dataJap2_S1.push_back(ZVal);
     }
     if(lines < 252 && lines > 226) //LL
     {
-      m_dataUK_S1->push_back(ZVal);
+      m_dataUK_S1.push_back(ZVal);
     }
     if(lines < 280 && lines > 254) //RL
     {
-      m_dataUK_S1->push_back(ZVal);
+      m_dataUK_S1.push_back(ZVal);
     }
     if(lines < 140 && lines > 114) //LL
     {
-      m_dataUSA_S1->push_back(ZVal);
+      m_dataUSA_S1.push_back(ZVal);
     }
     if(lines < 168 && lines > 142) //RL
     {
-      m_dataUSA_S1->push_back(ZVal);
+      m_dataUSA_S1.push_back(ZVal);
     }
     if(lines < 28 && lines > 2) //LL
     {
-      m_dataScand_S1->push_back(ZVal);
+      m_dataScand_S1.push_back(ZVal);
     }
     if(lines < 56 && lines > 30) //RL
     {
-      m_dataScand_S1->push_back(ZVal);
+      m_dataScand_S1.push_back(ZVal);
     }
 
     // **** Upper surface ****
     if(lines < 420 && lines > 394) //LU
     {
-      m_dataJap1_S0->push_back(ZVal);
+      m_dataJap1_S0.push_back(ZVal);
     }
     if(lines < 448 && lines > 422) //RU
     {
-      m_dataJap1_S0->push_back(ZVal);
+      m_dataJap1_S0.push_back(ZVal);
     }
     if(lines < 532 && lines > 506) //LU
     {
-      m_dataJap2_S0->push_back(ZVal);
+      m_dataJap2_S0.push_back(ZVal);
     }
     if(lines < 560 && lines > 534) //RU
     {
-      m_dataJap2_S0->push_back(ZVal);
+      m_dataJap2_S0.push_back(ZVal);
     }
     if(lines < 308 && lines > 282) //LU
     {
-      m_dataUK_S0->push_back(ZVal);
+      m_dataUK_S0.push_back(ZVal);
     }
     if(lines < 336 && lines > 310) //RU
     {
-      m_dataUK_S0->push_back(ZVal);
+      m_dataUK_S0.push_back(ZVal);
     }
     if(lines < 196 && lines > 170) //LU
     {
-      m_dataUSA_S0->push_back(ZVal);
+      m_dataUSA_S0.push_back(ZVal);
     }
     if(lines < 224 && lines > 198) //RU
     {
-      m_dataUSA_S0->push_back(ZVal);
+      m_dataUSA_S0.push_back(ZVal);
     }
     if(lines < 84 && lines > 58) //LU
     {
-      m_dataScand_S0->push_back(ZVal);
+      m_dataScand_S0.push_back(ZVal);
     }
     if(lines < 112 && lines > 86) //RU
     {
-      m_dataScand_S0->push_back(ZVal);
+      m_dataScand_S0.push_back(ZVal);
     }
    
     if ( inputProfile.bad() || inputProfile.eof() ) break;
@@ -544,18 +522,6 @@ int SCT_DistortionsTool::identifyRegion(IdentifierHash id) const
 StatusCode SCT_DistortionsTool::finalize() {
   ATH_MSG_INFO("finalize()");
   
-  delete  m_dataJap1_S0;
-  delete  m_dataJap2_S0;
-  delete  m_dataUK_S0;
-  delete  m_dataUSA_S0;
-  delete  m_dataScand_S0;
-  
-  delete  m_dataJap1_S1;
-  delete  m_dataJap2_S1;
-  delete  m_dataUK_S1;
-  delete  m_dataUSA_S1;
-  delete  m_dataScand_S1;
-
   return StatusCode::SUCCESS;
 }
 

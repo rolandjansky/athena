@@ -6,7 +6,7 @@ import os, sys, runInfo,re
 def inputBs(dataFilename):
   outputFile='input_BS.py' #the file to write will be an input file to the jobOptions
   f=open(outputFile,'w')
-  f.write('ServiceMgr.ByteStreamInputSvc.FullFileName = [\n')
+  f.write('ServiceMgr.EventSelector.Input = [\n')
   f.write('"'+dataFilename+'"\n]\n')
   f.close()
   

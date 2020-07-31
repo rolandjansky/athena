@@ -11,6 +11,7 @@ exec 2>&1
 run() { (set -x; exec "$@") }
 
 
+lastref_dir=last_results
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 inputRDO=${artdata}/InDetPhysValMonitoring/inputs/OUT.RDO_ttbar_PU40.pool.root 
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
@@ -63,7 +64,7 @@ if [ $rec_tf_exit_code -eq 0 ]  ;then
   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
     -p -x dcube_last \
     -c ${dcubeXml} \
-    -r last_results/physval.ntuple.root \
+    -r ${lastref_dir}/physval.ntuple.root \
     physval.ntuple.root
   echo "art-result: $? plots"
 fi

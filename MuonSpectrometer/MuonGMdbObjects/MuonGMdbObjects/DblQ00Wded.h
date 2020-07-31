@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_WDED_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Wded {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wded {
 public:
     DblQ00Wded(){};
     ~DblQ00Wded();
     DblQ00Wded(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wded(AmdcDb* wded);
 
     // data members for DblQ00/WDED fields
     struct WDED {

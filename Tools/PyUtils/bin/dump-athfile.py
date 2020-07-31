@@ -18,15 +18,11 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 1.4 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 import sys
 import os
 
-try:                import cPickle as pickle
-except ImportError: import pickle
-    
 from optparse import OptionParser
 
 if __name__ == "__main__":
@@ -65,11 +61,11 @@ if __name__ == "__main__":
         fnames = [ arg for arg in args if arg[0] != "-" ]
         pass
 
-    if options.fname == None and len(fnames) == 0:
+    if options.fname is None and len(fnames) == 0:
         str(parser.print_help() or "")
         sys.exit(1)
 
-    if options.fname != None:
+    if options.fname is not None:
         fname = os.path.expandvars(os.path.expanduser(options.fname))
         fnames.append(fname)
 
@@ -88,7 +84,7 @@ if __name__ == "__main__":
         sc = 1
         pass
 
-    except :
+    except Exception:
         msg.error("Caught something !! (don't know what)")
         msg.error("\n%s\n%s",sys.exc_info()[0], sys.exc_info()[1])
         sc = 10
@@ -154,7 +150,7 @@ if __name__ == "__main__":
     
     if options.oname:
         oname = options.oname
-        msg.info("saving report into [%s]..." % oname)
+        msg.info("saving report into [%s]...", oname)
         if os.path.exists(oname):
             os.rename(oname, oname+'.bak')
         af.server.save_cache(oname)

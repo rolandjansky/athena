@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetConf_v1.cxx 767576 2016-08-11 13:53:42Z ssnyder $ 
+// Local include(s).
 #include "xAODCaloRings/versions/RingSetConf_v1.h"
-
 #include "xAODCaloRings/versions/RingSetConfContainer_v1.h"
 
+// System include(s).
 #include <iostream>
 
 namespace xAOD {
@@ -203,30 +203,6 @@ Ringer::CalJointLayer RingSetConf_v1::whichLayer(
 /// @{
 
 //==============================================================================
-void RingSetConf_v1::print( const RawConf &raw, 
-    MsgStream &stream, MSG::Level level )
-{
-
-  if( stream.level() <= level ) {
-
-    stream << level << "| "; 
-
-    stream << raw.nRings << " Rings, Layer: " << raw.calJointLayer <<
-      " (" << raw.layerStartIdx << " -> " << raw.layerEndIdx <<
-      ") Section: " << raw.calJointSection << 
-      " (" << raw.sectionStartIdx << " -> " << raw.sectionEndIdx <<
-      "), etaWidth = " << raw.etaWidth << ", phiWidth = " << raw.phiWidth <<
-      ", cellMaxDEtaDist = " << raw.cellMaxDEtaDist <<
-      ", cellMaxDPhiDist = " << raw.cellMaxDPhiDist <<
-      ", doEtaAxesDivision = " << raw.doEtaAxesDivision <<
-      ", doPhiAxesDivision = " << raw.doPhiAxesDivision;
-
-    stream << "|" << endmsg;
-
-  }
-}
-
-//==============================================================================
 void RingSetConf_v1::print( const RawConf &raw, std::ostream &stream ) 
 {
   stream << "| "; 
@@ -335,19 +311,6 @@ void RingSetConf_v1::addRawConfColBounderies( RawConfCollection &clRingsConf )
       default:
         throw std::runtime_error(std::string(
               "Found unknown JointSection type."));
-    }
-  }
-}
-
-//==============================================================================
-void RingSetConf_v1::print( const RawConfCollection &rawCol, 
-    MsgStream &stream, MSG::Level level ) 
-{
-  if( stream.level() <= level ) {
-    stream << level << "RawConfCollection is : " << endmsg;
-    for (unsigned rsIdx = 0; rsIdx < rawCol.size(); ++rsIdx) {
-      stream << level << "RawConf #" << rsIdx << " : ";
-      RingSetConf_v1::print(rawCol.at(rsIdx),stream,level);
     }
   }
 }
@@ -731,28 +694,6 @@ RingSetConf_v1& RingSetConf_v1::operator=(const RingSetConf_v1& rsConf ){
   }
   // by convention, always return *this
   return *this;
-}
-
-//==============================================================================
-void RingSetConf_v1::print( MsgStream &stream, MSG::Level level ) const {
-
-  if( stream.level() <= level ) {
-
-    stream << level << "| "; 
-
-    stream << nRings() << " Rings, Layer: " << calJointLayer() <<
-      " (" << layerStartIdx() << " -> " << layerEndIdx() <<
-      ") Section: " << calJointSection() << 
-      " (" << sectionStartIdx() << " -> " << sectionEndIdx() <<
-      "), etaWidth = " << etaWidth() << ", phiWidth = " << phiWidth() <<
-      ", cellMaxDEtaDist = " << cellMaxDEtaDist() <<
-      ", cellMaxDPhiDist = " << cellMaxDPhiDist() <<
-      ", doEtaAxesDivision = " << doEtaAxesDivision() << 
-      ", doPhiAxesDivision = " << doPhiAxesDivision();
-
-    stream << "|" << endmsg;
-
-  }
 }
 
 //==============================================================================

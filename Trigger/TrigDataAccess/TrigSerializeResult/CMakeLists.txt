@@ -1,51 +1,35 @@
-################################################################################
-# Package: TrigSerializeResult
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigSerializeResult )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/CxxUtils
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/DataModelRoot
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Core Tree MathCore Hist pthread )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( TrigSerializeResultLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigSerializeResult
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaKernel GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver )
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils DataModelRoot PathResolver )
 
 atlas_add_component( TrigSerializeResult
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib )
+                     LINK_LIBRARIES TrigSerializeResultLib )
 
 atlas_add_dictionary( TrigSerializeResultDict
                       TrigSerializeResult/TrigSerializeResultDict.h
                       TrigSerializeResult/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib )
-
-atlas_add_test( remap_test
-                SOURCES
-                test/remap_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib
-                POST_EXEC_SCRIPT nopost.sh )
+                      LINK_LIBRARIES TrigSerializeResultLib )
 
 # Install files from the package:
 atlas_install_runtime( share/bs-streamerinfos*.root )
 
+# Tests in the package:
+atlas_add_test( remap_test
+                SOURCES
+                test/remap_test.cxx
+                LINK_LIBRARIES TrigSerializeResultLib
+                POST_EXEC_SCRIPT nopost.sh )

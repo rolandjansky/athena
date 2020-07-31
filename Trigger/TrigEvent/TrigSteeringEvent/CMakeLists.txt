@@ -1,61 +1,20 @@
-################################################################################
-# Package: TrigSteeringEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigSteeringEvent )
 
-# Declare the package's dependencies:
-if( XAOD_STANDALONE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthContainers
-      Control/AthToolSupport/AsgTools
-      Trigger/TrigConfiguration/TrigConfHLTData
-      DetectorDescription/RoiDescriptor
-      Event/xAOD/xAODCore )
-elseif( XAOD_ANALYSIS )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthContainers
-      Control/AthToolSupport/AsgTools
-      Control/AthenaKernel
-      DetectorDescription/RoiDescriptor
-      Trigger/TrigConfiguration/TrigConfHLTData
-      DetectorDescription/RoiDescriptor
-      Event/xAOD/xAODCore )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthContainers
-      Control/AthToolSupport/AsgTools
-      Control/AthenaKernel
-      DetectorDescription/RoiDescriptor
-      Event/xAOD/xAODCore
-      GaudiKernel
-      Trigger/TrigConfiguration/TrigConfHLTData
-      PRIVATE
-      Event/xAOD/xAODTrigger
-      Trigger/TrigDataAccess/TrigSerializeCnvSvc
-      Trigger/TrigEvent/TrigNavigation
-      Trigger/TrigT1/TrigT1Interfaces )
-
-    find_package( tdaq-common )
-endif()
-
-# External dependencies:
 # Component(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_library( TrigSteeringEvent
       TrigSteeringEvent/*.h Root/*.cxx
       PUBLIC_HEADERS TrigSteeringEvent
-      LINK_LIBRARIES AthContainers AsgTools RoiDescriptor xAODCore
+      LINK_LIBRARIES AthContainers AsgTools CxxUtils RoiDescriptor xAODCore
       TrigConfHLTData )
 elseif( XAOD_ANALYSIS )
    atlas_add_library( TrigSteeringEvent
       TrigSteeringEvent/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS TrigSteeringEvent
-      LINK_LIBRARIES AthContainers AsgTools AthenaKernel RoiDescriptor
+      LINK_LIBRARIES AthContainers AsgTools AthenaKernel CxxUtils RoiDescriptor
       xAODCore GaudiKernel TrigConfHLTData )
 
    atlas_add_dictionary( TrigSteeringEventDict
@@ -63,12 +22,15 @@ elseif( XAOD_ANALYSIS )
       DATA_LINKS TrigRoiDescriptor TrigSuperRoi
       LINK_LIBRARIES TrigSteeringEvent )
 else()
+   # External dependencies:
+   find_package( Boost )
+   find_package( tdaq-common )
+
    atlas_add_library( TrigSteeringEvent
       TrigSteeringEvent/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS TrigSteeringEvent
-      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthContainers AsgTools AthenaKernel
-      RoiDescriptor xAODCore GaudiKernel TrigConfHLTData
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AsgTools AthContainers AthenaBaseComps AthenaKernel CxxUtils GaudiKernel RoiDescriptor TrigConfHLTData xAODCore
       PRIVATE_LINK_LIBRARIES TrigT1Interfaces xAODTrigger TrigNavigationLib )
 
    atlas_add_dictionary( TrigSteeringEventDict

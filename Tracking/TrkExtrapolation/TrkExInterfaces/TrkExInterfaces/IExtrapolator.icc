@@ -1,0 +1,319 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// IExtrapolator.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+/** [TrackParameters] old interfaces WITHOUT EventContext ------------------------------------------ */
+
+      
+/** xAOD 0) xAOD track particle */
+inline const Trk::TrackParameters*
+Trk::IExtrapolator::extrapolate(const xAOD::TrackParticle& particleBase,
+                                const Trk::Surface& sf,
+                                Trk::PropDirection dir,
+                                const BoundaryCheck& bcheck,
+                                Trk::ParticleHypothesis particle,
+                                Trk::MaterialUpdateMode matupmode) const 
+{
+    return extrapolate( Gaudi::Hive::currentContext(),
+                        particleBase,
+                        sf,
+                        dir,
+                        bcheck,
+                        particle,
+                        matupmode);
+}
+
+
+
+      
+/** 1) <b>Configured AlgTool extrapolation method</b>):
+    -  returns the TrackParameters at the Destination Surface (if extrapolation succeeds),
+    nullptr if extrapolation to destination surface does not succeed */
+inline const Trk::TrackParameters*
+Trk::IExtrapolator::extrapolate(const TrackParameters& parm,
+                                const Trk::Surface& sf,
+                                Trk::PropDirection dir,
+                                const BoundaryCheck& bcheck,
+                                Trk::ParticleHypothesis particle,
+                                Trk::MaterialUpdateMode matupmode,
+                                Trk::ExtrapolationCache* cache) const 
+{
+    return extrapolate( Gaudi::Hive::currentContext(),
+                        parm,
+                        sf,
+                        dir,
+                        bcheck,
+                        particle,
+                        matupmode,
+                        cache);
+}
+
+
+/** 2) <b>Configured AlgTool extrapolation method</b>):
+    - returns a vector of TrackParameters representing the tracking detector elements
+    hit in between and the TrackParameters at the destination Surface (if final extrapolation suceeds),
+    empty if the extrapolation to the destination surface does not suceed*/
+inline std::vector<std::unique_ptr<const Trk::TrackParameters>> Trk::IExtrapolator::extrapolateStepwise(
+    const TrackParameters& parm,
+    const Trk::Surface& sf,
+    Trk::PropDirection dir,
+    const BoundaryCheck& bcheck,
+    Trk::ParticleHypothesis particle) const
+{
+    return extrapolateStepwise(Gaudi::Hive::currentContext(),
+                               parm,
+                               sf,
+                               dir,
+                               bcheck,
+                               particle);
+}
+
+/** 3) <b>Configured AlgTool extrapolation method</b>):
+    - searches the closest TrackParameters of the Track to the destination Surface
+    - returns the TrackParameters at the Destination Surface (if extrapolation succeeds), 
+    0 if extrapolation to destination surface does not suceed */
+inline const Trk::TrackParameters* Trk::IExtrapolator::extrapolate(const Track& trk,
+                                                                   const Trk::Surface& sf,
+                                                                   Trk::PropDirection dir,
+                                                                   const BoundaryCheck& bcheck,
+                                                                   Trk::ParticleHypothesis particle,
+                                                                   Trk::MaterialUpdateMode matupmode,
+                                                                   Trk::ExtrapolationCache* cache) const
+{
+    return extrapolate(Gaudi::Hive::currentContext(),
+                       trk,
+                       sf,
+                       dir,
+                       bcheck,
+                       particle,
+                       matupmode,
+                       cache);
+}
+
+/** 4) <b>Configured AlgTool extrapolation method</b>):
+    - direct extrapolation to the destination surface, no material effects 
+    or intermediate steps are taken into account
+*/
+inline Trk::TrackParameters* Trk::IExtrapolator::extrapolateDirectly(const TrackParameters& parm,
+                                                                     const Trk::Surface& sf,
+                                                                     Trk::PropDirection dir,
+                                                                     const BoundaryCheck& bcheck,
+                                                                     Trk::ParticleHypothesis particle) const
+{
+    return extrapolateDirectly(Gaudi::Hive::currentContext(),
+                               parm,
+                               sf,
+                               dir,
+                               bcheck,
+                               particle);
+}
+
+/** 4.1) <b>Configured AlgTool extrapolation method</b>):
+    Same as 4 but with propagator arguement (needed by a single client TRT_TrackExtensionToolCosmics
+*/
+inline Trk::TrackParameters* Trk::IExtrapolator::extrapolateDirectly(const IPropagator& prop,
+                                                                     const TrackParameters& parm,
+                                                                     const Trk::Surface& sf,
+                                                                     Trk::PropDirection dir,
+                                                                     const BoundaryCheck& bcheck,
+                                                                     Trk::ParticleHypothesis particle) const
+{
+    return extrapolateDirectly(Gaudi::Hive::currentContext(),
+                               prop,
+                               parm,
+                               sf,
+                               dir,
+                               bcheck,
+                               particle);
+}
+
+/** 5) <b>Configured AlgTool extrapolation method</b>):
+    - blind inside the given tracking Volume (boundaryVol), 
+    if none is given the reference surface for destination is used
+*/
+inline std::vector<std::unique_ptr<const Trk::TrackParameters>> Trk::IExtrapolator::extrapolateBlindly(
+    const TrackParameters& parm,
+    Trk::PropDirection dir,
+    const BoundaryCheck& bcheck,
+    Trk::ParticleHypothesis particle,
+    const Volume* boundaryVol) const
+{
+    return extrapolateBlindly(Gaudi::Hive::currentContext(),
+                              parm,
+                              dir,
+                              bcheck,
+                              particle,
+                              boundaryVol);
+}
+
+/** 6) <b>Configured AlgTool extrapolation method</b>):
+ *- extrapolation to the next active layer, based on the extrapolation to the next layer
+ and layer identification*/
+inline std::pair<const Trk::TrackParameters*, const Trk::Layer*> Trk::IExtrapolator::extrapolateToNextActiveLayer(
+    const TrackParameters& parm,
+    Trk::PropDirection dir,
+    const BoundaryCheck& bcheck,
+    Trk::ParticleHypothesis particle,
+    Trk::MaterialUpdateMode matupmode) const
+{
+    return extrapolateToNextActiveLayer(Gaudi::Hive::currentContext(),
+                                        parm,
+                                        dir,
+                                        bcheck,
+                                        particle,
+                                        matupmode);
+}
+
+/** 7) <b>Configured AlgTool extrapolation method</b>):*/
+inline std::pair<const Trk::TrackParameters*, const Trk::Layer*> Trk::IExtrapolator::extrapolateToNextActiveLayerM(
+    const TrackParameters& parm,
+    Trk::PropDirection dir,
+    const BoundaryCheck& bcheck,
+    std::vector<const Trk::TrackStateOnSurface*>& material,
+    Trk::ParticleHypothesis particle,
+    Trk::MaterialUpdateMode matupmode) const
+{
+    return extrapolateToNextActiveLayerM(Gaudi::Hive::currentContext(),
+                                         parm,
+                                         dir,
+                                         bcheck,
+                                         material,
+                                         particle,
+                                         matupmode);
+}
+
+/** 8) <b>Configured AlgTool extrapolation method</b> ):
+    - extrapolation to the next active layer, based on the extrapolation to the next layer
+    and layer identification
+    * */
+inline const Trk::TrackParameters* Trk::IExtrapolator::extrapolateToVolume(const TrackParameters& parm,
+                                                                           const Trk::TrackingVolume& vol,
+                                                                           Trk::PropDirection dir,
+                                                                           Trk::ParticleHypothesis particle) const
+{
+    return extrapolateToVolume(Gaudi::Hive::currentContext(),
+                               parm,
+                               vol,
+                               dir,
+                               particle);
+}
+
+/** 9) <b>Configured AlgTool extrapolation method</b>:
+    - Extrapolate to a destination surface, while collecting all the material layers in between.
+*/
+inline std::vector<const Trk::TrackStateOnSurface*>* Trk::IExtrapolator::extrapolateM(const TrackParameters& parameters,
+                                                                                      const Trk::Surface& sf,
+                                                                                      Trk::PropDirection dir,
+                                                                                      const BoundaryCheck& bcheck,
+                                                                                      Trk::ParticleHypothesis particle,
+                                                                                      Trk::ExtrapolationCache* cache) const
+{
+    return extrapolateM(Gaudi::Hive::currentContext(),
+                        parameters,
+                        sf,
+                        dir,
+                        bcheck,
+                        particle,
+                        cache);
+}
+
+/** 10) <b>Configured AlgTool extrapolation method</b>:
+    - Extrapolate to a destination surface, while collecting all the material layers and transport jacobians in
+    between.
+*/
+inline std::vector<const Trk::TrackParameters*>* Trk::IExtrapolator::extrapolateM(const TrackParameters& parameters,
+                                                                                  const Trk::Surface& sf,
+                                                                                  Trk::PropDirection dir,
+                                                                                  const BoundaryCheck& bcheck,
+                                                                                  std::vector<MaterialEffectsOnTrack>& material,
+                                                                                  std::vector<Trk::TransportJacobian*>& jacs,
+                                                                                  Trk::ParticleHypothesis particle,
+                                                                                  Trk::ExtrapolationCache* cache) const
+{
+    return extrapolateM(Gaudi::Hive::currentContext(),
+                        parameters,
+                        sf,
+                        dir,
+                        bcheck,
+                        material,
+                        jacs,
+                        particle,
+                        cache);
+}
+
+inline const Trk::TrackParameters* Trk::IExtrapolator::extrapolateWithPathLimit(
+    const Trk::TrackParameters& parm,
+    double& pathLim,
+    Trk::PropDirection dir,
+    Trk::ParticleHypothesis particle,
+    std::vector<const Trk::TrackParameters*>*& parmOnSf,
+    std::vector<const Trk::TrackStateOnSurface*>*& material,
+    const Trk::TrackingVolume* boundaryVol,
+    Trk::MaterialUpdateMode matupmod) const
+{
+    return extrapolateWithPathLimit(Gaudi::Hive::currentContext(),
+                                    parm,
+                                    pathLim,
+                                    dir,
+                                    particle,
+                                    parmOnSf,
+                                    material,
+                                    boundaryVol,
+                                    matupmod);
+}
+
+/** extrapolation method collecting intersections with subdetector boundaries and active volumes/layers.
+    A primitive identification is provided - to be replaced with appropriate identifier, and possibly merged
+    with TrackParameters. Material collection in option. Destination (subdetector boundary) : geoID (exit)
+*/
+inline const std::vector<std::pair<const Trk::TrackParameters*, int>>* Trk::IExtrapolator::extrapolate(
+    const Trk::TrackParameters& parm,
+    Trk::PropDirection dir,
+    Trk::ParticleHypothesis particle,
+    std::vector<const Trk::TrackStateOnSurface*>*& material,
+    int destination) const
+{
+    return extrapolate(Gaudi::Hive::currentContext(),
+                       parm,
+                       dir,
+                       particle,
+                       material,
+                       destination);
+}
+
+
+
+
+    
+    
+
+inline const Trk::TrackParameters*
+Trk::IExtrapolator::extrapolateWithPathLimit(const EventContext& /*ctx*/,
+                                             const Trk::TrackParameters& /*parm*/,
+                                             double& /*pathLim*/,
+                                             Trk::PropDirection /*dir*/,
+                                             Trk::ParticleHypothesis /*particle*/,
+                                             std::vector<const Trk::TrackParameters*>*& /*parmOnSf*/,
+                                             std::vector<const Trk::TrackStateOnSurface*>*& /*material*/,
+                                             const Trk::TrackingVolume* /*boundaryVol*/,
+                                             Trk::MaterialUpdateMode /*matupmod*/) const
+{
+    std::cout << "CONFIGURATION ERROR: dummy version of extrapolation-with-path-limit method called " << std::endl;
+    return 0;
+}
+
+inline const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+Trk::IExtrapolator::extrapolate(const EventContext& /*ctx*/,
+                                const Trk::TrackParameters& /*parm*/,
+                                Trk::PropDirection /*dir*/,
+                                Trk::ParticleHypothesis /*particle*/,
+                                std::vector<const Trk::TrackStateOnSurface*>*& /*material*/,
+                                int /*destination*/) const
+{
+    std::cout << "CONFIGURATION ERROR: dummy version of extrapolation through active regions called " << std::endl;
+    return 0;
+}

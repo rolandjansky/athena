@@ -16,9 +16,9 @@ ElectronFilter::ElectronFilter(const std::string& name, ISvcLocator* pSvcLocator
 StatusCode ElectronFilter::filterEvent() {
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
-    for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {
-      if ((*pitr)->status() == 1 && abs((*pitr)->pdg_id()) == 11) { // electron
-        if ((*pitr)->momentum().perp() >= m_Ptmin && fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange) {
+    for (auto part: *genEvt) {
+      if (part->status() == 1 && abs(part->pdg_id()) == 11) { // electron
+        if (part->momentum().perp() >= m_Ptmin && std::abs(part->momentum().pseudoRapidity()) <= m_EtaRange) {
           return StatusCode::SUCCESS;
         }
       }

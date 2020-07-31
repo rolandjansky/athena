@@ -103,10 +103,11 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 
   //get RoI descriptor
   auto roiDescriptor = input.roi;
+  float roIZ   = roiDescriptor->zed();
   float roIEta = roiDescriptor->eta();
   float roIPhi = roiDescriptor->phi();
 
-  ATH_MSG_DEBUG( "Input RoI eta: " << roIEta << " Input RoI phi: " << roIPhi );
+  ATH_MSG_DEBUG( "Input RoI eta: " << roIEta << " Input RoI phi: " << roIPhi << " Input RoI z: " << roIZ);
 
   auto TauContainer = input.taujetcontainer;
   ninputTaus = TauContainer->size();

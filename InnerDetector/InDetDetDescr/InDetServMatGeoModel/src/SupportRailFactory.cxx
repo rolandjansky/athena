@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SupportRailFactory.h"
@@ -26,6 +26,8 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 #include <math.h>
 
@@ -43,7 +45,7 @@ SupportRailFactory::~SupportRailFactory()
 
 
 //## Other Operations (implementation)
-void SupportRailFactory::create(GeoPhysVol *mother)
+void SupportRailFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread usnafe rdbAccessSvc and materialManager methods are used.
 {
 
   DecodeVersionKey atlasVersionKey(geoDbTagSvc(),"ATLAS");

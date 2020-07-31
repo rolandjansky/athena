@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/AthFile/__init__.py
 # @purpose a simple abstraction of a file to retrieve informations out of it
@@ -7,13 +7,7 @@
 from __future__ import with_statement, print_function
 
 __doc__ = "a simple abstraction of a file to retrieve informations out of it"
-__version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
-
-### imports -------------------------------------------------------------------
-import os
-import imp
-import hashlib
 
 __all__        = []
 __pseudo_all__ = [

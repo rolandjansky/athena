@@ -8,7 +8,6 @@ __author__  = "Hasan Ozturk <haozturk@cern.ch"
 __doc__     = "A python module which parses the PerfMonMTSvc results and makes plots"
 
 
-import sys
 import json
 
 import matplotlib
@@ -19,6 +18,13 @@ import numpy as np
 import operator
 import argparse
 
+colors = { "dCPU" : "tab:blue", "dWall" : "tab:orange",
+           "dVmem" : "tab:blue", "dPss" : "tab:green",
+           "dRss" : "tab:orange", "dSwap" : "tab:red",
+           "cpuTime" : "tab:blue", "malloc" : "tab:orange",
+           "vmem" : "tab:blue", "pss" : "tab:green",
+           "rss" : "tab:orange", "swap" : "tab:red" }
+
 def plotBarChart(params):
 
   ax = params["ax"]
@@ -26,7 +32,8 @@ def plotBarChart(params):
   offset = 1 - len(params["vals"])
   for metric in params["vals"]:
     vals = params["vals"][metric]
-    rects = ax.barh(params["index"] + (offset/2)*params["width"], vals, params["width"], alpha=0.8, label = metric)
+    ax.barh(params["index"] + (offset*0.5)*params["width"], vals, params["width"],
+            color = colors[metric], alpha=0.8, label = metric)
     offset += 2
 
   ax.set_xlabel(params["xlabel"], fontsize=params['xlabelFontSize'])
@@ -34,7 +41,8 @@ def plotBarChart(params):
   ax.set_title(params["title"], fontsize=params['titleFontSize'], fontweight='bold')
   ax.set_yticks(params["index"])
   ax.set_yticklabels(params["yTickLabels"])
-  ax.legend(prop={'size': params['legendFontSize']})
+  handles, labels = ax.get_legend_handles_labels()
+  ax.legend(reversed(handles), reversed(labels), prop={'size': params['legendFontSize']})
   ax.tick_params(axis='both', which='major', labelsize=30)
   ax.grid(linestyle=':',linewidth=0.1)
 
@@ -43,16 +51,13 @@ def plotLineChart(params):
   ax = params['ax']
 
   for label, metric in params['yVals'].items():
-
-    ax.plot(params['xVals'], metric, label=label)
+    ax.plot(params['xVals'], metric, color = colors[label], label = label)
 
   ax.set_xlabel(params['xlabel'])
   ax.set_ylabel(params['ylabel'])
 
-  index = np.arange(len(params['xVals']))
-
   ax.set_xticklabels(params['xVals'], rotation='vertical')
-  ax.tick_params(axis='x', labelsize=3)
+  ax.tick_params(axis='both', which='major', labelsize=10)
   ax.set_title(params['title'])
   ax.legend()
   ax.grid(linestyle=':',linewidth=0.1)
@@ -89,7 +94,8 @@ def plotSnapshotLevel(snapshotData, plotname):
 
   # Collect data
   stepNames, dCPUVals, dWallVals, dVmemVals, dRssVals, dPssVals, dSwapVals = [],[],[],[],[],[],[]
-  for step, meas in snapshotData.items():
+  for step in ['Finalize', 'Execute', 'Initialize', 'Configure']:
+    meas = snapshotData[step]
     
     # Show in seconds
     dCPU = meas["dCPU"] * 0.001
@@ -155,9 +161,7 @@ def plotSnapshotLevel(snapshotData, plotname):
     "xlabelFontSize": 40,
     "ylabelFontSize": 40,
     "legendFontSize": 30
-
   }
-
   
 
   plotBarChart(timeMonParams)
@@ -165,10 +169,10 @@ def plotSnapshotLevel(snapshotData, plotname):
 
 
   timeMonFig.set_tight_layout( True )
-  timeMonFig.savefig("Snaphot Level Time") 
+  timeMonFig.savefig("Snaphot_Level_Time")
 
   memMonFig.set_tight_layout(True)
-  memMonFig.savefig("Snapshot Level Memory")
+  memMonFig.savefig("Snapshot_Level_Memory")
 
 
 def plotComponentLevel(componentLevelData, compCountPerPlot):
@@ -219,14 +223,12 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
       "vals": sortedTimeMonVals,
       "yTickLabels": sortedTimeMonCompNames,
       "xlabel": "Time [sec]",
-      "ylabel": "Steps",
+      "ylabel": "Components",
       "title": step,
       "titleFontSize": 70,
       "xlabelFontSize": 50,
       "ylabelFontSize": 50,
       "legendFontSize": 30
-
-
     }
 
     memMonParams = {
@@ -236,24 +238,22 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
       "vals": sortedMemMonVals,
       "yTickLabels": sortedCompNamesMem,
       "xlabel": "Memory [MB]",
-      "ylabel": "Steps",
+      "ylabel": "Components",
       "title": step,
       "titleFontSize": 70,
       "xlabelFontSize": 50,
       "ylabelFontSize": 50,
       "legendFontSize": 30
-
-
     }
 
     plotBarChart(timeMonParams)
     plotBarChart(memMonParams)
 
   timeMonFig.set_tight_layout( True )
-  timeMonFig.savefig("Component Level Time")
+  timeMonFig.savefig("Component_Level_Time")
 
   memMonFig.set_tight_layout( True )
-  memMonFig.savefig("Component Level Memory")
+  memMonFig.savefig("Component_Level_Memory")
 
 
 def plotEventLevel(eventLevelData):
@@ -313,27 +313,29 @@ def plotEventLevel(eventLevelData):
   plotLineChart(memMonParams)
 
   timeMonFig.set_tight_layout(True)
-  timeMonFig.savefig("Event Level Time")
+  timeMonFig.savefig("Event_Level_Time")
 
   memMonFig.set_tight_layout(True)
-  memMonFig.savefig("Event Level Memory")
+  memMonFig.savefig("Event_Level_Memory")
   
 def main():
+    ''' Main function for producing plots from PerfMonMT JSON file.'''
 
     parser = argparse.ArgumentParser()
 
-    defaultJsonResultFile = 'PerfMonMTSvc_result.json'
-    compCountPerPlot = 20   
-
-    parser.add_argument("--pathToJsonResultFile", default=defaultJsonResultFile)
-    parser.add_argument("--compCountPerPlot", default=compCountPerPlot)
+    parser.add_argument("-i", "--inFile", dest = "inFile",
+                        default = 'PerfMonMTSvc_result.json',
+                        help = 'The input JSON file')
+    parser.add_argument("-n", "--numberOfCompsPerPlot",
+                        dest = "numberOfCompsPerPlot", default = 20,
+                        help = "The number of components to be plotted")
 
     args = parser.parse_args()
 
-    jsonResultFileDirpath = args.jsonResultFileDirpath
-    compCountPerPlot = args.compCountPerPlot
+    inFile = args.inFile
+    numberOfCompsPerPlot = args.numberOfCompsPerPlot
 
-    with open( jsonResultFileDirpath ) as jsonFile:
+    with open( inFile ) as jsonFile:
 
       data = json.load(jsonFile)
 
@@ -343,7 +345,7 @@ def main():
 
       if "componentLevel" in data:
         componentLevelData = data["componentLevel"]
-        plotComponentLevel(componentLevelData, int(compCountPerPlot))
+        plotComponentLevel(componentLevelData, int(numberOfCompsPerPlot))
 
       if "eventLevel" in data:
         eventLevelData = data["eventLevel"]

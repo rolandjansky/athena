@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolxAODCnv.icc
@@ -18,7 +18,7 @@ class BAuxVec;
 }
 namespace SG {
 DMTest::BAuxVec* copyThinned (DMTest::BAuxVec& v,
-                              const SG::ThinningDecisionBase* dec);
+                              const SG::ThinningInfo* dec);
 }
 
 
@@ -47,8 +47,8 @@ T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistentWithKey( XAOD* trans,
                                                                const std::string& key)
 {
   AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<XAOD>::ID());
-  const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key);
-  return SG::copyThinned (*trans, dec).release();
+  const SG::ThinningInfo* info = SG::getThinningInfo (key);
+  return SG::copyThinned (*trans, info).release();
 }
 
 

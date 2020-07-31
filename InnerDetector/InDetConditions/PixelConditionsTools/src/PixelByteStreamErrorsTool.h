@@ -18,6 +18,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 //Athena includes
+#include "CxxUtils/checker_macros.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/PixelID.h"
@@ -28,7 +29,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamErrorsTool {
+class ATLAS_NOT_THREAD_SAFE PixelByteStreamErrorsTool: // This class currently has many mutable memebers without mutex guard or atomicity.
+public AthAlgTool, public IPixelByteStreamErrorsTool {
   public:
     static InterfaceID& interfaceID();
 

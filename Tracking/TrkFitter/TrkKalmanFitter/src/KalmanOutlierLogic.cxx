@@ -379,7 +379,7 @@ bool Trk::KalmanOutlierLogic::reject(const Trk::FitQuality& fitQuality) const
                      fitQuality.chiSquared()/std::abs(fitQuality.numberDoF()) <<
                      ", prob= " << prob << " fails quality cut" );
       return true;
-    } else ATH_MSG_VERBOSE ("-O- trajectory passes quality cut, prob= " << prob);
+    } ATH_MSG_VERBOSE ("-O- trajectory passes quality cut, prob= " << prob);
   } else {
     if ( !(fitQuality.numberDoF() > 0))
       ATH_MSG_DEBUG ("-O- number d.o.f not positive - reject trajectory.");

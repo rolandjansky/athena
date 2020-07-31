@@ -9,7 +9,14 @@
 
 #include "Pythia8/Pythia.h"
 //#include "Pythia8/../Pythia8Plugins/HepMC2.h"
+#ifdef HEPMC3
+#include "Pythia8ToHepMC3.h"
+namespace HepMC {
+typedef HepMC3::Pythia8ToHepMC3	Pythia8ToHepMC;	
+}
+#else
 #include "Pythia8Plugins/HepMC2.h"
+#endif
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"

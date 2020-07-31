@@ -25,7 +25,7 @@ Modified :
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigInDetEvent/TrigVertex.h"
 
-#include "TrigFake/ZVertexFromKine.h"                               
+#include "ZVertexFromKine.h"                               
 
 
 

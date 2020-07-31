@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,7 +14,7 @@
 //
 // ********************************************************************
 
-#include "TrigT2CaloCalibration/EgammaLWCalibration.h"
+#include "EgammaLWCalibration.h"
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "GaudiKernel/MsgStream.h"
@@ -25,8 +25,7 @@ using CaloClusterCorr::interpolate;
 
 StatusCode EgammaLWCalibration::initialize(){
 
-	CHECK (AthAlgTool::initialize());
-	CHECK (CaloRec::ToolWithConstantsMixin::initialize() );
+	CHECK (base_class::initialize());
 	m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
 	(*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
@@ -41,10 +40,8 @@ StatusCode EgammaLWCalibration::initialize(){
 	m_samps[1][2]=CaloSampling::EME2;
 	m_samps[1][3]=CaloSampling::EME3;
 
-	unsigned int shape[] = {2};
-	m_interp_barriers = new CaloRec::WritableArrayData<1> (shape);
-	(*m_interp_barriers)[0] = m_eta_start_crack;
-	(*m_interp_barriers)[1] = m_eta_end_crack;
+	m_interp_barriers[0] = m_eta_start_crack();
+	m_interp_barriers[1] = m_eta_end_crack();
 
 	return StatusCode::SUCCESS;
 }
@@ -52,7 +49,6 @@ StatusCode EgammaLWCalibration::initialize(){
 StatusCode EgammaLWCalibration::finalize(){
 	(*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endmsg;
 	delete m_log;
-	delete m_interp_barriers;
 	return StatusCode::SUCCESS;
 }
 
@@ -65,29 +61,32 @@ void EgammaLWCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 	(*m_log) << MSG::DEBUG << "Cluster E input : " <<
 		clus->energy() << endmsg;
 #endif
+        const float etamax = m_etamax();
 	float the_aeta=(clus->eta());
 	if (the_aeta<0) the_aeta=-the_aeta;
-	if (the_aeta >= m_etamax) return;
+	if (the_aeta >= etamax) return;
 	int si;
-	if (the_aeta < m_eta_start_crack) si=0;
-	else if ( the_aeta > m_eta_end_crack) si=1;
+	if (the_aeta < m_eta_start_crack()) si=0;
+	else if ( the_aeta > m_eta_end_crack()) si=1;
 	else return; // No Correction at the Gap.
 	float pars[4];
-	int ibin=static_cast<int> (the_aeta/m_etamax * m_correction.size());
-	pars[0] = m_correction[ibin][1];
-	pars[1] = m_correction[ibin][2];
-	if (m_interpolate){
+        const CxxUtils::Array<2> correction = m_correction();
+	int ibin=static_cast<int> (the_aeta/etamax * correction.size());
+	pars[0] = correction[ibin][1];
+	pars[1] = correction[ibin][2];
+        const int degree = m_degree();
+	if (m_interpolate()){
 	for(int i=2;i<4;i++)
-		pars[i] = interpolate(m_correction,
-			the_aeta,m_degree,i+1,(*m_interp_barriers));
+		pars[i] = interpolate(correction,
+			the_aeta,degree,i+1,m_interp_barriers);
 	}
 	else{
-		pars[2]=m_correction[ibin][3];
-		pars[3]=m_correction[ibin][4];
+		pars[2]=correction[ibin][3];
+		pars[3]=correction[ibin][4];
 	}
 
 	float e_offset = 0;
-	if (m_preserve_offset) {
+	if (m_preserve_offset()) {
 	  double total0 = 0;
 	  for (int sampling=0; sampling<4; ++sampling)
 	     total0 += clus->energy(m_samps[si][sampling]);
@@ -109,19 +108,3 @@ void EgammaLWCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 
 }
 
-StatusCode
-EgammaLWCalibration::setProperty (const std::string& propname,
-                                    const std::string& value)
-{
-  CHECK( AthAlgTool::setProperty(propname,value) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-EgammaLWCalibration::setProperty (const Property& p)
-{
-  CHECK( AthAlgTool::setProperty(p) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
-  return StatusCode::SUCCESS;
-}

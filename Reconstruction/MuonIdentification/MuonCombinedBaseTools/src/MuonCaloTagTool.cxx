@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
@@ -42,7 +41,6 @@
 
 namespace MuonCombined {
  
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
@@ -89,11 +87,6 @@ namespace MuonCombined {
     declareProperty("TrackSelectorTool",                 m_trkSelTool        );
   }
 
-  MuonCaloTagTool::~MuonCaloTagTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-
   StatusCode MuonCaloTagTool::initialize() {
     
     ATH_MSG_INFO("MuonCaloTagTool::initialize()");
@@ -130,14 +123,14 @@ namespace MuonCombined {
   }
 
   void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
+					TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
     //shouldn't need this interface for this tool, I don't think
     if(!prdData.mdtPrds) ATH_MSG_DEBUG("calo-tagging doesn't need PRDs");
     extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-				Trk::SegmentCollection* segments) {
+				Trk::SegmentCollection* segments) const {
 
     if(combTracks || meTracks || segments) ATH_MSG_DEBUG("track collections passed to MuonCaloTagTool?");
     const xAOD::CaloClusterContainer* caloClusterCont=0;
@@ -159,7 +152,7 @@ namespace MuonCombined {
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
                                 const CaloCellContainer* caloCellCont,
-                                const xAOD::CaloClusterContainer* caloClusterCont) {
+                                const xAOD::CaloClusterContainer* caloClusterCont) const {
 
 
     // --- Retrieve primary vertex (not retrieving for now) ---
@@ -335,7 +328,7 @@ namespace MuonCombined {
   
   // applyTrackIsolation check 
   
-  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) {
+  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) const {
 
     if( m_trackIsolationTool.empty() ) return true;
 

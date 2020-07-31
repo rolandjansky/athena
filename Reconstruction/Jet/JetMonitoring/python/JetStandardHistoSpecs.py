@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import  SystemOfUnits
-from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, ToolSpec
+from JetMonitoring.JetMonitoringConfig import HistoSpec, EventHistoSpec, VarSpec, ConfigDict, ToolSpec
 
 # ***********************************************    
 # ***********************************************
@@ -19,10 +19,21 @@ knownVar = dict(
 
     # this variable has an index specified. It will thus has only 1 value per jet : the JVF at pos 0
     JVF0 = VarSpec('JVF', 'vecfloat', 0),
+
 )
 
 
-
+knownEventVar = dict(    
+    # These always are of type 'float'
+    avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Attribute='averageInteractionsPerCrossing'),
+    actMu = ToolSpec('EventHistoVarTool', 'actMu', Attribute='actualInteractionsPerCrossing'),
+    njets = ToolSpec('NumJetVarTool', 'njets', ),
+    njetsPt20 = ToolSpec('NumJetVarTool', 'njetsPt20', PtCut=20.),
+    njetsPt50 = ToolSpec('NumJetVarTool', 'njetsPt50', PtCut=50.),
+    njetsEt20 = ToolSpec('NumJetVarTool', 'njetsEt20', EtCut=20.),
+    njetsEt50 = ToolSpec('NumJetVarTool', 'njetsEt50', EtCut=50.),
+    njetsEt40Eta1_2 = ToolSpec('NumJetVarTool', 'njetsEt40Eta1_2', EtCut=50., EtaMin=1., EtaMax=2.),
+)
 
 # ***************************************
 # The list of standard jet histograms.
@@ -34,12 +45,10 @@ knownVar = dict(
 # See various commented examples below for optional arguments.
 
 _knownHistos = [
-
     # Simple form : histogram of variable 'eta' (the name of spec is the same as the name of variable)
     #        As in TH1 ctor, ';' in the title is interpreted as in "Main Title;Title xAxis;Title yAxis"
     HistoSpec( 'eta',  (50,-5,5) , title='#eta;#eta;Entries'),
     HistoSpec( 'phi',  (50,-3.3,3.3) , title='#phi;#phi;Entries'),
-
     # Same but we indicate that the variable is to be plotted in GeV by appending ':GeV'
     HistoSpec( 'pt:GeV',  (100,0,200) , title='p_{T};p_{T} [GeV];'),    
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
@@ -50,7 +59,7 @@ _knownHistos = [
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
     HistoSpec( 'highpt',  (100,0.,4000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),    
 
-    
+    #EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
     # When the jet variable is not a simple float, use the xvar argument to refer to a detailed variable spec in 'knownVar'
     HistoSpec( 'JVF',  (100,0,1.2) , title='Jet Vtx Frac;JVF;', xvar='JVF'),    
     # if the var name contains '[N]' the system will assume the variable is a vector<float> and setup tools accordingly (so we don't need to specify 'xvar')
@@ -79,8 +88,8 @@ _knownHistos = [
     HistoSpec('Jvt', (70, -0.2, 1.2), title='Jet JVT;JVT;',  ),
     HistoSpec('JVFCorr', (120, -1.2, 1.2), title='Jet JVT; JVFCorr;', ),
     HistoSpec('JvtRpt', (75, 0, 1.5), title='Jet JVT Rpt; JVTRpt;', ),
-    HistoSpec('EM3Frac', (50,-0.1,0.5), title="EM3 fraction;EM3 fraction;Entries"),
-    HistoSpec('Tile0Frac', (50,-0.1,0.5), title="Tile0 fraction;Tile0 fraction;Entries"),
+    HistoSpec('EM3Frac', (50,-0.1,1.0), title="EM3 fraction;EM3 fraction;Entries"),
+    HistoSpec('Tile0Frac', (50,-0.1,1.0), title="Tile0 fraction;Tile0 fraction;Entries"),
 
 
     HistoSpec('GhostMuonSegmentCount', (60, 0, 60), title='Number of associated muon segments;Number;', xvar=VarSpec('GhostMuonSegmentCount','int')),
@@ -92,10 +101,11 @@ _knownHistos = [
     HistoSpec('Width15', (50, 0, 1.5), title='Jet Width;Width;', xvar='Width'),
     HistoSpec('Mu12', (100, 0, 1.0), title='Mu12;Mu12;', ),
 
-    HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);', ),
-    HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);', ),
-    HistoSpec('SumPtTrkPt500:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPt(p_{T}>0.5 GeV);', ),
-    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV[0]:SumPt(p_{T}>0.5 GeV)[0];', ),
+    HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);NumTrkPt500;Entries', ),
+    HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);NumTrkPt1000;Entries', ),
+    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPtTrk(p_{T}>0.5 GeV);SumPtTrkPt500 [GeV];Entries', ),
+    HistoSpec('SumPtChargedPFOPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV:SumPtChargedPFO(p_{T}>0.5 GeV);SumPtChargedPFOPt500 [GeV];Entries', ),
+    HistoSpec('fCharged', (100, 0, 2), title='Normalised sum Pt of all charged PFO above 0.5 GeV:fCharged(p_{T}>0.5 GeV);fCharged;Entries', ),
 
     HistoSpec('FoxWolfram4', (100, -1, 1), title='FoxWolfram0;FoxWolfram4;', ),
     HistoSpec('FoxWolfram0', (100, -1, 1), title='FoxWolfram0;FoxWolfram0;', ),

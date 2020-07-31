@@ -186,7 +186,7 @@ SCTHitEffMonTool::bookHistograms() {
   if (newRunFlag()) {
     m_badChips = m_configConditions->badChips();
     ATH_MSG_INFO("Found " << m_badChips->size() << " bad chips");
-    for (const std::pair<Identifier, unsigned int>& chip: *m_badChips) {
+    for (const std::pair<const Identifier, unsigned int>& chip: *m_badChips) {
       ATH_MSG_VERBOSE("Module " << m_sctId->wafer_hash(chip.first) << ", chip " << chip.second);
     }
 
@@ -314,7 +314,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
   if (newRunFlag()) {
     m_badChips = m_configConditions->badChips();
     ATH_MSG_INFO("Found " << m_badChips->size() << " bad chips");
-    for (const std::pair<Identifier, unsigned int>& chip: *m_badChips) {
+    for (const std::pair<const Identifier, unsigned int>& chip: *m_badChips) {
       ATH_MSG_VERBOSE("Module " << m_sctId->wafer_hash(chip.first) << ", chip " << chip.second);
     }
 
@@ -978,10 +978,9 @@ SCTHitEffMonTool::getResidual(const Identifier& surfaceID, const Trk::TrackParam
     return trackHitResidual;
   }
   IdentifierHash idh{m_sctId->wafer_hash(surfaceID)};
-  InDet::SCT_ClusterContainer::const_iterator containerIterator{p_sctclcontainer->indexFind(idh)};
-  InDet::SCT_ClusterContainer::const_iterator containerEnd{p_sctclcontainer->end()};
-  if (containerIterator != containerEnd) {
-    for (const InDet::SCT_Cluster* cluster: **containerIterator) {
+  const InDet::SCT_ClusterCollection *containerIterator{p_sctclcontainer->indexFindPtr(idh)};
+  if (containerIterator != nullptr) {
+    for (const InDet::SCT_Cluster* cluster: *containerIterator) {
       if ((cluster==nullptr) or (cluster->detectorElement()==nullptr)) {
         ATH_MSG_WARNING("nullptr to RIO or detElement");
         continue;

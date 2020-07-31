@@ -14,19 +14,6 @@
  */
 
 
-/*************************************************************************************
-      IMultiStateMaterialEffects.h  -  description
-      --------------------------------------------
-begin                : Thursday 17th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : (Non-pure) abstract base class for defining material
-                       effects including energy loss and multiple scattering for
-                       use in the multi-component state environment. These
-                       material effects will produce multi-component state
-outputs
-************************************************************************************/
-
 #ifndef Trk_IMultiStateMaterialEffects_H
 #define Trk_IMultiStateMaterialEffects_H
 
@@ -36,8 +23,6 @@ outputs
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 
 #include <Eigen/StdVector>
 #include <memory>
@@ -59,6 +44,7 @@ public:
     {
       weights.reserve(6);
       deltaPs.reserve(6);
+      deltaParameters.reserve(6);
       deltaCovariances.reserve(6);
     }
     Cache(Cache&&) = default;
@@ -75,13 +61,28 @@ public:
      * "you must use the Eigen::aligned_allocator (not another aligned
      * allocator), and #include <Eigen/StdVector>."
      */
+    std::vector<AmgVector(5),Eigen::aligned_allocator<AmgVector(5)>>
+      deltaParameters;
     std::vector<AmgSymMatrix(5), Eigen::aligned_allocator<AmgSymMatrix(5)>>
       deltaCovariances;
     void reset()
     {
       weights.clear();
       deltaPs.clear();
+      deltaParameters.clear();
       deltaCovariances.clear();
+    }
+    void resetAndAddDummyValues()
+    {
+      reset();
+      weights.push_back(1);
+      deltaPs.push_back(0);
+      AmgVector(5) newParameters;
+      newParameters.setZero();
+      deltaParameters.push_back( std::move(newParameters) );
+      AmgSymMatrix(5) newCovarianceMatrix;
+      newCovarianceMatrix.setZero();
+      deltaCovariances.push_back( std::move(newCovarianceMatrix) );
     }
   };
 

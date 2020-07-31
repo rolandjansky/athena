@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
-_steeringFlags = [ 'doGlobalMon', 'LVL1CaloMon', 'doCTPMon', 'doHLTMon',
+_steeringFlags = [ 'doGlobalMon', 'doLVL1CaloMon', 'doCTPMon', 'doHLTMon',
                    'doPixelMon', 'doSCTMon', 'doTRTMon', 'doInDetMon',
                    'doLArMon', 'doTileMon',
                    'doCaloGlobalMon', 'doMuonMon',
@@ -34,20 +34,22 @@ def createDQConfigFlags():
     # temp thing for steering from inside old-style ...
     acf.addFlag('DQ.isReallyOldStyle', False)
 
+    # computed
+    acf.addFlag('DQ.Environment', getEnvironment )
+    acf.addFlag('DQ.DataType', getDataType )
+    
     # steering ...
     for flag in _steeringFlags + _lowLevelSteeringFlags:
-        acf.addFlag('DQ.Steering.' + flag, True)
+        arg = True
+        if flag == 'doJetTagMon':
+            arg = lambda x: x.DQ.DataType != 'cosmics' # noqa: E731
+        acf.addFlag('DQ.Steering.' + flag, arg)
+
     # HLT steering ...
     from PyUtils.moduleExists import moduleExists
     if moduleExists ('TrigHLTMonitoring'):
         from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
         acf.join(createHLTDQConfigFlags())
-    return acf
-
-def createComplexDQConfigFlags():
-    acf=AthConfigFlags()
-    acf.addFlag('DQ.Environment', getEnvironment )
-    acf.addFlag('DQ.DataType', getDataType )
     return acf
 
 def getDataType(flags):

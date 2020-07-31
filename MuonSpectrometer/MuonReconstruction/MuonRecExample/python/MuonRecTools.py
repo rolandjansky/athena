@@ -48,6 +48,9 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
 
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
 
+def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
+    return CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs)
+
 def getMuonRIO_OnTrackErrorScalingCondAlg() :
     error_scaling_def=["CSCRIO_OnTrackErrorScaling:/MUON/TrkErrorScalingCSC"]
     return getRIO_OnTrackErrorScalingCondAlg( name                = "MuonRIO_OnTrackErrorScalingCondAlg",
@@ -232,11 +235,6 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
     return CfgMgr.Trk__Extrapolator(name,**kwargs)
 # end of factory function MuonExtrapolator
 
-def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
-    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
-    getService("MuonIdHelperSvc")
-    return Muon__MuonIdHelperTool(name,**kwargs)
-
 def MuonIdHelperSvc(name="MuonIdHelperSvc",**kwargs):
     from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
@@ -251,7 +249,7 @@ def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
 
 def MuonEDMHelperSvc(name='MuonEDMHelperSvc',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
-    getPublicTool("MuonIdHelperTool")
+    getService("MuonIdHelperSvc")
     getPublicTool("AtlasExtrapolator")
 
     from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
@@ -390,7 +388,10 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
+    else:
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):

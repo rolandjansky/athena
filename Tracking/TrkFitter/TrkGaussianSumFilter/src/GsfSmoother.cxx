@@ -65,6 +65,7 @@ Trk::GsfSmoother::configureTools(
 
 Trk::SmoothedTrajectory*
 Trk::GsfSmoother::fit(const EventContext& ctx,
+                      Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
                       const ForwardTrajectory& forwardTrajectory,
                       const ParticleHypothesis particleHypothesis,
                       const Trk::CaloCluster_OnTrack* ccot) const
@@ -112,9 +113,15 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
    * We can have single or Multi components here, so we choose what to clone
    */
   const Trk::MultiComponentStateOnSurface*
+    smootherPredictionMultiStateOnSurface = nullptr;
+
+  // Check if we already have a MultiComponent state
+  if (smootherPredictionStateOnSurface->variety() ==
+      Trk::TrackStateOnSurface::MultiComponent) {
     smootherPredictionMultiStateOnSurface =
-      dynamic_cast<const Trk::MultiComponentStateOnSurface*>(
+      static_cast<const Trk::MultiComponentStateOnSurface*>(
         smootherPredictionStateOnSurface);
+  }
 
   if (!smootherPredictionMultiStateOnSurface) {
     ATH_MSG_DEBUG(
@@ -249,6 +256,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
 
     Trk::MultiComponentState extrapolatedState =
       m_extrapolator->extrapolate(ctx,
+                                  extrapolatorCache,
                                   updatedState,
                                   measurement->associatedSurface(),
                                   Trk::oppositeMomentum,
@@ -299,8 +307,14 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
       std::unique_ptr<Trk::MultiComponentState> forwardsMultiStateOwn;
 
       const Trk::MultiComponentStateOnSurface* forwardsMultiStateOnSurface =
-        dynamic_cast<const Trk::MultiComponentStateOnSurface*>(
-          *trackStateOnSurface);
+        nullptr;
+      // Check if we already have a MultiComponent state on surface
+      if ((*trackStateOnSurface)->variety() ==
+          Trk::TrackStateOnSurface::MultiComponent) {
+        forwardsMultiStateOnSurface =
+          static_cast<const Trk::MultiComponentStateOnSurface*>(
+            *trackStateOnSurface);
+      }
 
       if (!forwardsMultiStateOnSurface) {
         // Create new multiComponentState from single state
@@ -366,7 +380,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
       if (ccot && trackStateOnSurface == secondLastTrackStateOnSurface) {
 
         Trk::MultiComponentState ccotState =
-          addCCOT(ctx,updatedStateOnSurface, ccot, smoothedTrajectory.get());
+          addCCOT(ctx, updatedStateOnSurface, ccot, smoothedTrajectory.get());
         if (!ccotState.empty()) {
           updatedState = std::move(ccotState);
         }
@@ -480,8 +494,15 @@ Trk::GsfSmoother::addCCOT(const EventContext& ctx,
                           const Trk::CaloCluster_OnTrack* ccot,
                           Trk::SmoothedTrajectory* smoothedTrajectory) const
 {
-  const Trk::MultiComponentStateOnSurface* currentMultiStateOS =
-    dynamic_cast<const Trk::MultiComponentStateOnSurface*>(currentState);
+
+  const Trk::MultiComponentStateOnSurface* currentMultiStateOS = nullptr;
+
+  // Check if we already have a MultiComponent state
+  if (currentState->variety() == Trk::TrackStateOnSurface::MultiComponent) {
+    currentMultiStateOS =
+      static_cast<const Trk::MultiComponentStateOnSurface*>(currentState);
+  }
+
   if (!currentMultiStateOS || !ccot) {
     return {};
   }
@@ -531,13 +552,12 @@ Trk::GsfSmoother::addCCOT(const EventContext& ctx,
       fitQuality.release());
 
   // Extrapolate back to the surface nearest the origin
-  extrapolatedState =
-    m_extrapolator->extrapolateDirectly(ctx,
-                                        updatedState,
-                                        *currentSurface,
-                                        Trk::oppositeMomentum,
-                                        false,
-                                        Trk::nonInteracting);
+  extrapolatedState = m_extrapolator->extrapolateDirectly(ctx,
+                                                          updatedState,
+                                                          *currentSurface,
+                                                          Trk::oppositeMomentum,
+                                                          false,
+                                                          Trk::nonInteracting);
 
   if (extrapolatedState.empty()) {
     ATH_MSG_DEBUG("Extrapolation from CCOT to 1st measurement failed .. now "

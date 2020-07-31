@@ -34,24 +34,23 @@ StatusCode LeptonFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = *itr;
 
     // Loop over all particles in event
-    HepMC::GenEvent::particle_const_iterator pitr;
-    for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
+    for (auto part: *genEvt) {
 
       // We're only interested in stable (status == 1) particles
-      if ( (*pitr)->status() != 1) continue;
+      if ( part->status() != 1) continue;
 
       // We are specifically looking for electrons (+-11) and muons (+-13)
-      const long pid = (*pitr)->pdg_id();
+      const long pid = part->pdg_id();
       const long apid = std::abs(pid);
       if (apid == 11 || apid == 13) {
-        const double pT = (*pitr)->momentum().perp();
-        const double eta = (*pitr)->momentum().pseudoRapidity();
+        const double pT = part->momentum().perp();
+        const double eta = part->momentum().pseudoRapidity();
         const std::string pname = ((apid == 11) ? "electron" : "muon");
         ATH_MSG_DEBUG( "Found " << pname
 		       << ": pT, eta = " << pT << ", " << eta );
         
         // If we've found a stable electron or muon, check eta and pt
-        if (pT > leading_lepton_pt && fabs(eta) <= m_EtaRange) {
+        if (pT > leading_lepton_pt && std::abs(eta) <= m_EtaRange) {
 	  leading_lepton_pt = pT;
         }
       }

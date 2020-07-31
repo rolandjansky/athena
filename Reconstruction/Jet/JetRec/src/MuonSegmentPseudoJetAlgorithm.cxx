@@ -46,8 +46,8 @@ StatusCode MuonSegmentPseudoJetAlgorithm::execute(const EventContext& ctx) const
   auto pjcont = std::make_unique<PseudoJetContainer>(extractor.release(), vpj);
   
   auto outcoll = SG::makeHandle<PseudoJetContainer>(m_outcoll,ctx);
-  ATH_CHECK(outcoll.record(std::move(pjcont)));
   ATH_MSG_DEBUG("New PseudoJetContainer size " << pjcont->size());
+  ATH_CHECK(outcoll.record(std::move(pjcont)));
 
   return StatusCode::SUCCESS;
 }

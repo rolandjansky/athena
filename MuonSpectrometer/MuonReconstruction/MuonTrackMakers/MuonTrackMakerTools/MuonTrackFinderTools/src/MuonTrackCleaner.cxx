@@ -52,6 +52,7 @@ namespace Muon {
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_slextrapolator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
     ATH_CHECK( m_compRotCreator.retrieve() );
@@ -897,6 +898,7 @@ namespace Muon {
     fieldCondObj->getInitializedCache (fieldCache);
     
     state.slFit =  !fieldCache.toroidOn() || m_edmHelperSvc->isSLTrack( track );
+    if(m_use_slFit) state.slFit = true;
 
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -1194,7 +1196,8 @@ namespace Muon {
 	ATH_MSG_DEBUG("updated competing ROT");
 	info.cleanedCompROT = std::move(updatedCompRot);
 	if( info.cleanedCompROT->associatedSurface() != meas->associatedSurface() ){
-	  const Trk::TrackParameters* exPars=m_extrapolator->extrapolate(*pars,info.cleanedCompROT->associatedSurface(),Trk::anyDirection,false,Trk::muon);
+	  const Trk::TrackParameters* exPars= state.slFit ? m_slextrapolator->extrapolate(*pars,info.cleanedCompROT->associatedSurface(),Trk::anyDirection,false,Trk::muon) :
+                                                      m_extrapolator->extrapolate(*pars,info.cleanedCompROT->associatedSurface(),Trk::anyDirection,false,Trk::muon);
 	  if( !exPars ){
 	    ATH_MSG_WARNING("Update of comp rot parameters failed, keeping old ones" );
 	    info.cleanedCompROT.reset();
@@ -1332,7 +1335,7 @@ namespace Muon {
     }
 
     // update sl fit configuration if track has ID hits or vertex constraint
-    if( state.slFit && (state.hasVertexConstraint || state.nIdHits > 0 ) && fieldCache.solenoidOn() ) {
+    if( !m_use_slFit && state.slFit && (state.hasVertexConstraint || state.nIdHits > 0 ) && fieldCache.solenoidOn() ) {
       state.slFit = false;
     }
 

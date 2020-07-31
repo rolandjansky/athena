@@ -1,4 +1,4 @@
-#include "TrigT1MBTS/TrigT1MBTS.h"
+#include "../TrigT1MBTS.h"
 
 DECLARE_COMPONENT( LVL1::TrigT1MBTS )
 

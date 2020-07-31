@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ public:
     but call InDet::CompetingSCT_ClustersOnTrackTool, otherwise inconsistency of
     the data will be very probable. */
     CompetingSCT_ClustersOnTrack(
-        std::vector<const InDet::SCT_ClusterOnTrack*>* childrots,
+        std::vector<const InDet::SCT_ClusterOnTrack*>&& childrots,
         std::vector<AssignmentProb>* assgnProb
     );
 
@@ -109,7 +109,7 @@ private:
     CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     /** The vector of contained InDet::SCT_ClusterOnTrack objects */
-    std::vector<const InDet::SCT_ClusterOnTrack*>*   m_containedChildRots;
+    std::vector<const InDet::SCT_ClusterOnTrack*> m_containedChildRots;
 
     /** Have all the contained ROTs a common associated surface?
       If withNonVanishingAssignProb==true just the ROTs with non-vanishing assignment probabilities
@@ -125,16 +125,16 @@ inline CompetingSCT_ClustersOnTrack* CompetingSCT_ClustersOnTrack::clone() const
 }
 
 inline const Trk::Surface& CompetingSCT_ClustersOnTrack::associatedSurface() const {
-    return ((*(m_containedChildRots->begin()))->associatedSurface());
+    return ((*(m_containedChildRots.begin()))->associatedSurface());
 }
 
 
 inline const std::vector<const InDet::SCT_ClusterOnTrack*>& CompetingSCT_ClustersOnTrack::containedROTs() const {
-    return (*m_containedChildRots);
+    return m_containedChildRots;
 }
 
 inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack(unsigned int indx) const {
-        return * m_containedChildRots->operator[](indx);
+    return *(m_containedChildRots[indx]);
 }
 
 inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
@@ -145,7 +145,7 @@ inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const
 }
 
 inline unsigned int CompetingSCT_ClustersOnTrack::numberOfContainedROTs() const {
-    return m_containedChildRots->size();
+    return m_containedChildRots.size();
 }
 
 }

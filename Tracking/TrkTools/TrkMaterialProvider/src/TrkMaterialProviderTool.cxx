@@ -475,7 +475,7 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 
   MagField::AtlasFieldCache    fieldCache;
   // Get field cache object
-  EventContext ctx = Gaudi::Hive::currentContext();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
  
@@ -640,7 +640,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
     }
     return caloTSOS;    
     
-  } else {
+  } 
 
     // get boundary surfaces of the target volume
     auto boundaryIntersections = targetVolume->boundarySurfacesOrdered<Trk::TrackParameters>(parm,dir,false);
@@ -691,7 +691,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
         return caloTSOS;    
       }
     }
-  }
+  
 
   return caloTSOS;
 }
@@ -991,7 +991,7 @@ CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track) c
 	      paramCaloEnergy->set_measEnergyLoss(caloEnergy->deltaEMeas(), caloEnergy->sigmaDeltaEMeas());
 	      paramCaloEnergy->set_paramEnergyLoss(caloEnergy->deltaEParam(), caloEnergy->sigmaMinusDeltaEParam(), caloEnergy->sigmaPlusDeltaEParam());
 	      return paramCaloEnergy;
-	    }else
+	    }
 	      return caloEnergy->clone();
 	  }
 	}
@@ -1078,9 +1078,9 @@ void Trk::TrkMaterialProviderTool::removeOutOfCalo(std::vector<const Trk::TrackS
                                       state=nullptr;
                                       return true;
                                     }
-                                    else {
+                                    
                                       return false;
-                                    }
+                                    
                                   } ), 
                    caloTSOS->end());
 
@@ -1102,9 +1102,9 @@ void Trk::TrkMaterialProviderTool::removeMS(std::vector<const Trk::TrackStateOnS
                                       state=nullptr;
                                       return true;
                                     }
-                                    else {
+                                    
                                       return false;
-                                    }
+                                    
                                   } ), 
                    caloTSOS->end());
 
@@ -1135,7 +1135,7 @@ void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackState
     while(i<ntoupdate) {
       it = inputTSOS->erase(it);
       ++i;
-      firstMS--;
+      --firstMS;
     }    
     inputTSOS->insert(firstMS, caloTSOS->begin(), caloTSOS->end());
   }
@@ -1169,7 +1169,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
 
 // In the MuonSpectrometer the TSOS for the MaterialEffectsOnTrack do NOT have trackParameters
 
-  for(;it!= inputTSOS->end();it++) {
+  for(;it!= inputTSOS->end();++it) {
     msStates++;
     if((*it)->materialEffectsOnTrack()) {
       msMatStates++;
@@ -1220,7 +1220,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
    std::cout << " msStates " <<   msStates << " msMatStates " << msMatStates << " msMatParStates " << msMatParStates << std::endl;
 
 // dump (new) energy loss
-   for(it = firstMS;it!= inputTSOS->end();it++) {
+   for(it = firstMS;it!= inputTSOS->end();++it) {
     if((*it)->materialEffectsOnTrack()) {
       const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((*it)->materialEffectsOnTrack());
       if(meot) {

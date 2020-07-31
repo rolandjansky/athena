@@ -1,14 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.NeuralNetworkToHistoToolConfig import NeuralNetworkToHistoToolCfg
 
 # import the JetFitterNNTool configurable
 Analysis__JetFitterNNTool=CompFactory.Analysis.JetFitterNNTool
 
-def JetFitterNNToolCfg( name = 'JetFitterNNTool', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
+def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterNNTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -24,7 +23,13 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', CombinedIPNN = False, useBTagF
     output: The actual tool."""
     acc = ComponentAccumulator()
     options['name'] = name
-    if not BTaggingFlags.RunJetFitterNNTool:
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
+    # you can force the NN tool off with this flag (avoids loading
+    # old jetfitter nns which sometimes crash
+    RunJetFitterNNTool = True
+
+    if not RunJetFitterNNTool:
         raise ValueError("This case is not implemented because always True during Run2. Contact BTagging software team.")
     if useBTagFlagsDefaults:
         if not CombinedIPNN:
@@ -45,3 +50,4 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', CombinedIPNN = False, useBTagF
     acc.setPrivateTools(Analysis__JetFitterNNTool( **options))
  
     return acc
+

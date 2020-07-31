@@ -47,10 +47,10 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -746,18 +746,16 @@ void LArFCalSamplingFraction::FCalCalibAnalysis(const std::string name, const Ca
 
 void LArFCalSamplingFraction::TruthImpactPosition(McEventCollection::const_iterator e)
 {
-    for (HepMC::GenEvent::particle_const_iterator p = (**e).particles_begin();
-         p != (**e).particles_end(); p++)
+    for (auto theParticle: **e)
     {
-        const HepMC::GenParticle *theParticle = *p;
-
         // Note: old GenParticles used HepLorentzVectors, now they use HepMC::FourVectors
 
         // Get the kinematic variables
         HepMC::FourVector HMCmom = theParticle->momentum();
         CLHEP::HepLorentzVector momentum(CLHEP::Hep3Vector(HMCmom.px(), HMCmom.py(), HMCmom.pz()), HMCmom.e());
 
-        HepMC::ThreeVector HMC3vec = theParticle->production_vertex()->point3d();
+        HepMC::FourVector HMC3vec(0.0,0.0,0.0,0.0);
+        if (theParticle->production_vertex()) HMC3vec = theParticle->production_vertex()->position();
         HepGeom::Point3D<double> origin = HepGeom::Point3D<double>(HMC3vec.x(), HMC3vec.y(), HMC3vec.z());
 
         // Put VEta and VPhi into the Ntuple
@@ -775,9 +773,9 @@ void LArFCalSamplingFraction::TruthImpactPosition(McEventCollection::const_itera
 
         m_E = momentum.e();
 
-        m_vertx = theParticle->production_vertex()->point3d().x();
-        m_verty = theParticle->production_vertex()->point3d().y();
-        m_vertz = theParticle->production_vertex()->point3d().z();
+        m_vertx = theParticle->production_vertex()->position().x();
+        m_verty = theParticle->production_vertex()->position().y();
+        m_vertz = theParticle->production_vertex()->position().z();
 
         // Must get x-offset depending on TB position. The 90.0 mm is from the
         // initial x-offset of FCal in cryostat. The -15.0 mm is from the
@@ -900,11 +898,8 @@ StatusCode LArFCalSamplingFraction::doFCal()
                  mcEvent++)
             {
                 // There may be many particles per event
-                for (HepMC::GenEvent::particle_const_iterator p = (**mcEvent).particles_begin();
-                     p != (**mcEvent).particles_end();
-                     p++)
+                for (auto theParticle: **mcEvent)
                 {
-                    const HepMC::GenParticle *theParticle = *p;
                     m_pdg_id->push_back(theParticle->pdg_id());
                     numParticles++;
                 }

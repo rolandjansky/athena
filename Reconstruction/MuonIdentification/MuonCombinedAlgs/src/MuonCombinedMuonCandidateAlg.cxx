@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedMuonCandidateAlg.h"
@@ -10,9 +10,6 @@ MuonCombinedMuonCandidateAlg::MuonCombinedMuonCandidateAlg(const std::string& na
 {
   declareProperty("MuonCandidateTool", m_muonCandidateTool);
 }
-
-MuonCombinedMuonCandidateAlg::~MuonCombinedMuonCandidateAlg()
-{}
 
 StatusCode MuonCombinedMuonCandidateAlg::initialize()
 {
@@ -25,7 +22,6 @@ StatusCode MuonCombinedMuonCandidateAlg::initialize()
 
 StatusCode MuonCombinedMuonCandidateAlg::execute()
 {
-
   // retrieve MuonSpectrometer tracks
   SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation);
   if(!muonTrackParticles.isValid()){
@@ -36,18 +32,10 @@ StatusCode MuonCombinedMuonCandidateAlg::execute()
     ATH_MSG_WARNING(m_muonTrackParticleLocation<<" not present");
     return StatusCode::SUCCESS;
   }
-
   SG::WriteHandle<MuonCandidateCollection> muonCandidates(m_candidateCollectionName);
   ATH_CHECK(muonCandidates.record(std::make_unique<MuonCandidateCollection>()));
   SG::WriteHandle<TrackCollection> msOnlyTracks(m_msOnlyTracks);
   ATH_CHECK(msOnlyTracks.record(std::make_unique<TrackCollection>()));
   m_muonCandidateTool->create(*muonTrackParticles,*muonCandidates,*msOnlyTracks);
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode MuonCombinedMuonCandidateAlg::finalize()
-{
   return StatusCode::SUCCESS;
 }

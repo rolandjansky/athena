@@ -1,3 +1,12 @@
+// Run 3
+#include "../CpmMonitorAlgorithm.h"
+//#include "../CpmSimMonitorAlgorithm.h"
+//#include "../PpmSimBsMonitorAlgorithm.h"
+#include "../PprMonitorAlgorithm.h"
+//#include "../PprSpareMonitorAlgorithm.h"
+//#include "../PprStabilityMonitorAlgorithm.h"
+
+// Run 2
 #include "../CPMon.h"
 #include "../CPSimMon.h"
 #include "../JEPJEMMon.h"
@@ -24,7 +33,15 @@
 #include "../JetEfficienciesMonTool.h"
 #include "../RODMonV1.h"
 
+// Run 3
+DECLARE_COMPONENT( CpmMonitorAlgorithm )
+//DECLARE_COMPONENT( CpmSimMonitorAlgorithm )
+//DECLARE_COMPONENT( PpmSimBsMonitorAlgorithm )
+DECLARE_COMPONENT( PprMonitorAlgorithm )
+//DECLARE_COMPONENT( PprSpareMonitorAlgorithm )
+//DECLARE_COMPONENT( PprStabilityMonitorAlgorithm )
 
+// Run 2
 DECLARE_COMPONENT( LVL1::OverviewMon )
 DECLARE_COMPONENT( LVL1::CPMon )
 DECLARE_COMPONENT( LVL1::CPSimMon )

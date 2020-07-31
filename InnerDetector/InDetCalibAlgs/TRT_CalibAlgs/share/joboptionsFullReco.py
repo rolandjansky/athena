@@ -155,7 +155,7 @@ InDetFlags.doMonitoringAlignment = False
 #InDetFlags.doPerfMon = True
 
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 
 # --- produce various ntuples (all in one root file)
 InDetFlags.doTrkNtuple      = False
@@ -208,7 +208,7 @@ theApp.EvtMax = 10
 #ServiceMgr.EventSelector.SkipEvents = 2
 #ServiceMgr.StoreGateSvc.Dump = True
 
-#ServiceMgr.ByteStreamInputSvc.FullFileName = ["data12_8TeV.00208485.express_express.merge.RAW._lb0055._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0056._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0057._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0058._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0059._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0060._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0061._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0062._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0063._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0064._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0065._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0066._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0067._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0068._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0069._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0070._SFO-ALL._0001.1"]
+#ServiceMgr.EventSelector.Input = ["data12_8TeV.00208485.express_express.merge.RAW._lb0055._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0056._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0057._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0058._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0059._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0060._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0061._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0062._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0063._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0064._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0065._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0066._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0067._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0068._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0069._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0070._SFO-ALL._0001.1"]
 
 from AthenaCommon.AppMgr import ToolSvc
 

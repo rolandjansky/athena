@@ -1,5 +1,4 @@
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 
 from PyUtils.MetaReaderPeeker import convert_itemList
 inputObjects = convert_itemList(layout=None)
@@ -12,19 +11,15 @@ def __addInput( stream, skip=[] ):
 
 
 elStream = MSMgr.NewPoolStream( 'elXAODStream', 'elXAOD.pool.root' )
-svcMgr += createThinningSvc(svcName='elThinningSvc', outStreams=[elStream.Stream])
 __addInput(elStream)
 
 
 phStream = MSMgr.NewPoolRootStream( 'phXAODStream', 'phXAOD.pool.root' )
-svcMgr += createThinningSvc(svcName='phThinningSvc', outStreams=[phStream.Stream])
 
 tauStream = MSMgr.NewPoolRootStream( 'tauXAODStream', 'tauXAOD.pool.root' )
-svcMgr += createThinningSvc(svcName='tauThinningSvc', outStreams=[tauStream.Stream])
 
 
-from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool, TrigNavigationThinningTool, HLT__StreamTrigNavSlimming
-from TrigNavTools.TrigNavToolsConfig import navigationSlimming
+from TrigNavTools.TrigNavToolsConfig import navigationThinningSvc
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 dk = DerivationFramework__DerivationKernel()
 
@@ -39,11 +34,22 @@ tokeep = {'electron': ['HLT_TrigElectronContainer_L2ElectronFex',
                  'HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTF']
           }
 
-dk.ThinningTools +=  [navigationSlimming({'name':'el', 'features':tokeep['electron'], 'chains':'HLT_e1.*', 'mode':'normal', 'ThinningSvc':svcMgr.elThinningSvc})]
+def _addThinning (stream, svc):
+    for t in stream.GetEventStream().HelperTools:
+        if t.getType() == 'Athena::ThinningCacheTool':
+            t.TrigNavigationThinningSvc = svc
+            break
+    return
 
-dk.ThinningTools +=  [navigationSlimming({'name':'ph', 'features':tokeep['photon'], 'chains':'HLT_g.*|HLT_.g.*', 'mode':'normal', 'ThinningSvc':svcMgr.phThinningSvc})]
 
-dk.ThinningTools +=  [navigationSlimming({'name':'tau', 'features':tokeep['tau'], 'chains':'HLT_tau.*|HLT_.tau.*', 'mode':'normal', 'ThinningSvc':svcMgr.tauThinningSvc})]
+_addThinning (elStream,
+              navigationThinningSvc ({'name':'el', 'features':tokeep['electron'], 'chains':'HLT_e1.*', 'mode':'normal'}))
+
+_addThinning (phStream,
+              navigationThinningSvc ({'name':'ph', 'features':tokeep['photon'], 'chains':'HLT_g.*|HLT_.g.*', 'mode':'normal'}))
+
+_addThinning (tauStream,
+              navigationThinningSvc ({'name':'tau', 'features':tokeep['tau'], 'chains':'HLT_tau.*|HLT_.tau.*', 'mode':'normal'}))
 
 
 from AthenaCommon.AlgSequence import AlgSequence

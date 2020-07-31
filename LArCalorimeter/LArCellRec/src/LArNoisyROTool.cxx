@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArNoisyROTool.cxx 
@@ -208,10 +208,10 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   
   //for ( std::vector<HWIdentifier>::const_iterator febit = badfebs.begin();
   //	febit != badfebs.end(); febit++ )
-  for (const HWIdentifier febid : badfebs) 
+  for (const HWIdentifier& febid : badfebs) 
   {
     // first channel of FEB, as safety since FEBid seem to be the Id of the
-    // first channel (no garantee?)
+    // first channel (no guarantee?)
     HWIdentifier chanID = m_onlineID->channel_Id(febid,0);
 
     int weight = 1;

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/TriggerTranslatorSimple.h"
+#include "TriggerTranslatorSimple.h"
 #include "boost/algorithm/string/split.hpp"
 #include "boost/algorithm/string/classification.hpp"
 
@@ -20,7 +20,7 @@ TriggerTranslatorToolSimple::~TriggerTranslatorToolSimple() {}
 StatusCode TriggerTranslatorToolSimple::initialize() {
   std::vector<std::string> junk;
   //m_trigmap[""] = junk;
-  for(const auto item : m_trigmap_property) {
+  for(const auto& item : m_trigmap_property) {
     ATH_MSG_DEBUG( "Key " << item.first << " Value " << item.second );
     std::vector<std::string> triggers;
     boost::split(triggers, item.second, boost::is_any_of(","));

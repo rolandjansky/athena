@@ -10,7 +10,7 @@
 /// @todo Move to a sorting utils module
 class High2LowByGenParticleClassPt {
 public:
-  bool operator() (const HepMC::GenParticle *t1, const HepMC::GenParticle *t2) const {
+  bool operator() (HepMC::ConstGenParticlePtr t1, HepMC::ConstGenParticlePtr t2) const {
     return t1->momentum().perp2() > t2->momentum().perp2();
   }
 };
@@ -56,15 +56,15 @@ StatusCode DiPhotonFilter::filterEvent() {
   ATH_MSG_DEBUG("min pt(photon) = " << ptcut << " (CLHEP::MeV)");
 
   // find truth photons
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
+  std::vector<HepMC::ConstGenParticlePtr> MCTruthPhotonList;
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {
-      if ( ((*pitr)->pdg_id() == 22) ) {
-        if ( (*pitr)->status() == 1 && ((*pitr)->momentum().perp() >= ptcut) ) {
-          MCTruthPhotonList.push_back((*pitr));
+    for (auto part: *genEvt) {
+      if ( (part->pdg_id() == 22) ) {
+        if ( part->status() == 1 && (part->momentum().perp() >= ptcut) ) {
+          MCTruthPhotonList.push_back(part);
         }
       }
     }
@@ -79,7 +79,7 @@ StatusCode DiPhotonFilter::filterEvent() {
   if (MCTruthPhotonList.size() < 2) {
     isOK = false;
   } else {
-    std::vector<HepMC::GenParticle*> MCTruthPhotonList2;
+    std::vector<HepMC::ConstGenParticlePtr> MCTruthPhotonList2;
     // check pT and eta to select truth photons
     for (size_t i = 0; i < MCTruthPhotonList.size(); ++i) {
       ATH_MSG_DEBUG(i << ": pT=" << MCTruthPhotonList[i]->momentum().perp() << ", eta=" << MCTruthPhotonList[i]->momentum().pseudoRapidity());
@@ -93,7 +93,7 @@ StatusCode DiPhotonFilter::filterEvent() {
         etamax = m_EtaRange_2nd;
       }
       if (MCTruthPhotonList[i]->momentum().perp() >= ptmin &&
-          fabs(MCTruthPhotonList[i]->momentum().pseudoRapidity()) <= etamax) {
+          std::abs(MCTruthPhotonList[i]->momentum().pseudoRapidity()) <= etamax) {
         MCTruthPhotonList2.push_back(MCTruthPhotonList[i]);
       }
     }

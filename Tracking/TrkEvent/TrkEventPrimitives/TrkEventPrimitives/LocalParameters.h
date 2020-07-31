@@ -16,7 +16,7 @@
 #include "TrkEventPrimitives/DefinedParameter.h"
 #include "TrkEventPrimitives/ProjectionMatricesSet.h"
 // maths
-#include <math.h>
+#include <cmath>
 
 class MsgStream;
 
@@ -99,7 +99,14 @@ namespace Trk {
     public:
       /**Default constructor used for POOL */
       LocalParameters();
-      
+
+      //default other operations 
+      LocalParameters(const LocalParameters&) = default;
+      LocalParameters(LocalParameters&&) = default;
+      LocalParameters& operator=(const LocalParameters&) = default;
+      LocalParameters& operator=(LocalParameters&&) = default;
+      ~LocalParameters() = default;
+
       /**Default constructor with dimension */
       LocalParameters(int dim);
       
@@ -119,18 +126,9 @@ namespace Trk {
       /**Dynamical constructor */                
       LocalParameters(const std::vector<DefinedParameter>& );
 
-      /** Copy constructor */
-      LocalParameters(const LocalParameters& );
-    
-      /** Virtual destructor */
-      virtual ~LocalParameters();
-
       /**Pseudo-constructor */
       LocalParameters* clone() const;
       
-      /** Assignment */
-      LocalParameters& operator=(const LocalParameters& );
-
       /** Reduction matrix from 5x5 to the [dimension()]x[dimension()] */
       const Amg::MatrixX& reductionMatrix() const;
       
@@ -144,25 +142,25 @@ namespace Trk {
       int parameterKey() const;
       
       /** The simple check for the clients wheter the parameter is contained */
-      inline bool contains(ParamDefs par) const;
+      bool contains(ParamDefs par) const;
 
       /**Read from data members */
-      inline const double & operator[](ParamDefs par) const;
+      const double & operator[](ParamDefs par) const;
       
       /**Write data members */      
-      inline double & operator[](ParamDefs par);
+      double & operator[](ParamDefs par);
       
         /**Retrieve specified parameter (const version). There is NO check to see if a parameter is contained, 
         so consider using contains(ParamDefs par) to make sure it is actually defined for this object.
         @param par Parameters requested to be return
         @return Value of stored parameter (or undefined, if the parameter is not used in this object i.e. be SURE it is!) */
-      inline double get(ParamDefs par) const;
+      double get(ParamDefs par) const;
 
         /**Retrieve specified parameter. There is NO check to see if a parameter is contained, 
         so consider using contains(ParamDefs par) to make sure it is actually defined for this object.
         @param par Parameters requested to be return
         @return Value of stored parameter (or undefined, if the parameter is not used in this object i.e. be SURE it is!) */
-      inline double get(ParamDefs par);
+      double get(ParamDefs par);
       
       /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
       friend MsgStream& operator << ( MsgStream& sl, const LocalParameters& lp);
@@ -175,33 +173,9 @@ namespace Trk {
      
     private: 
      static const ProjectionMatricesSet s_projectionMatrices;
-     
   };    
-
-inline LocalParameters* LocalParameters::clone() const { return new LocalParameters(*this); }  
-  
-inline int LocalParameters::dimension() const { return Amg::VectorX::rows(); }    
-
-inline int LocalParameters::parameterKey() const { return m_parameterkey; }
-
-inline bool LocalParameters::contains(ParamDefs par) const
-{ return (m_parameterkey & (1<< int(par))); }
-
-inline const double& LocalParameters::operator[](ParamDefs par) const
-{ 
-  if (m_parameterkey == 31 || m_parameterkey == 1 || m_parameterkey == 3) { return Amg::VectorX::operator[](par);}
-  return Amg::VectorX::operator[](s_projectionMatrices.accessor(m_parameterkey, par)); }
-
-inline double& LocalParameters::operator[](ParamDefs par)
-{ 
-   if (m_parameterkey == 31 || m_parameterkey == 1 || m_parameterkey == 3) { return Amg::VectorX::operator[](par);}
-   return Amg::VectorX::operator[](s_projectionMatrices.accessor(m_parameterkey, par)); }
-        
-inline double LocalParameters::get(ParamDefs par) const { return (*this)[par]; }
-
-inline double LocalParameters::get(ParamDefs par)       { return (*this)[par]; }
-        
+       
 } // end of namespace
 
-
+#include "TrkEventPrimitives/LocalParameters.icc"
 #endif // TRKEVENTPRIMITIVES_LOCALPARAMETERS_H

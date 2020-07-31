@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTMonitoring.HLTMonTriggerList import HLTMonTriggerList
 hltmonList = HLTMonTriggerList()
@@ -19,7 +19,7 @@ containers = [
               ]
 if TriggerFlags.EDMDecodingVersion == 3 :
   # will add the MT version of TrigBphys containers once they are available in EDM
-  containers = [ "TrigBphysDimu", "TrigBphysEFDimu" ]
+  containers = [ "HLT_DimuEF" ]
   
 DetailedChains = {
                   "BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?',
@@ -90,7 +90,6 @@ if hltmonList.cosmic_mode :
         #monGroups.append("HLT_bphys_misc")
     #pass
 
-from AthenaCommon.AppMgr import ToolSvc
 def TrigBphysMonitoringTool():
     from TrigBphysMonitoring.TrigBphysMonitoringConf import HLTXAODBphysMonTool
     from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
@@ -158,8 +157,6 @@ def TrigBphysMonitoringTool():
                                   pTErr_max           =  10.
                                   )
     
-    from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += HLTBphysMon
     items = [ HLTBphysMon ]
     return items
 

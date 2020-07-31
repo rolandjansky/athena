@@ -3,25 +3,16 @@
 */
 
 #include <sstream>
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
 #include "DiMuMon.h"
-#include "xAODMuon/Muon.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include <math.h>
 
-#include "TProfile.h"
-#include "TMath.h"
 #include "TF1.h"
-#include "TH1.h"
-#include "TH2.h"
 #include "TCanvas.h"
-#include "TString.h"
-#include "TLorentzVector.h"
-#include "TPostScript.h"
 #include "TStyle.h"
 
 #include "RooRealVar.h"
@@ -252,7 +243,7 @@ StatusCode DiMuMon::bookHistograms()
 }
 
 
-StatusCode DiMuMon::fillHistograms()
+StatusCode DiMuMon::fillHistograms ATLAS_NOT_THREAD_SAFE () // const_cast is used.
 {
 
   const double muonMass = 105.66*Gaudi::Units::MeV;
@@ -265,11 +256,6 @@ StatusCode DiMuMon::fillHistograms()
 
   //make a new container
   xAOD::MuonContainer* goodMuons = new xAOD::MuonContainer( SG::VIEW_ELEMENTS );
-  StatusCode sc = evtStore()->record ( goodMuons, "myGoodMuons" + m_triggerChainName + m_resonName);
-  if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Could not record good muon tracks container.");
-    return StatusCode::FAILURE;
-  }
 
   //pick out the good muon tracks and store in the new container
   for(const auto* muon : *muons ) {
@@ -302,11 +288,6 @@ StatusCode DiMuMon::fillHistograms()
     m_stat->Fill("eta<2.5",1);
 
     goodMuons->push_back(const_cast<xAOD::Muon*>(muon));
-  }
-  sc = evtStore()->setConst( goodMuons );
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not set good muon track collection to const");
-    return StatusCode::FAILURE;
   }
 
   //pair up the tracks of the good muons and fill histograms
@@ -470,7 +451,7 @@ StatusCode DiMuMon::fillHistograms()
 }
 
 
-StatusCode DiMuMon::procHistograms()
+StatusCode DiMuMon::procHistograms ATLAS_NOT_THREAD_SAFE () // Thread unsafe DiMuMon::iterativeGausFit is used.
 {
 
 
@@ -502,7 +483,7 @@ StatusCode DiMuMon::procHistograms()
 }
 
 
-void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
+void DiMuMon::iterativeGausFit ATLAS_NOT_THREAD_SAFE (TH2F* hin, std::vector<TH1F*> hout, int mode){ // Global gStyle is used.
   // a canvas may be needed when implmenting this into the post-processing file
   TString hname =  hin->GetName();
   TString psName = hname + m_triggerChainName + ".ps";
@@ -609,7 +590,7 @@ void DiMuMon::RegisterHisto(MonGroup& mon, T* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::WARNING) << "Cannot book histogram:" << endmsg;
+    ATH_MSG_WARNING( "Cannot book histogram:" );
   }
 }
 

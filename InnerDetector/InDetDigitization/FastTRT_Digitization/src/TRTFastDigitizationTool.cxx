@@ -760,7 +760,7 @@ bool TRTFastDigitizationTool::isArgonStraw( const Identifier &straw_id ) const
 int TRTFastDigitizationTool::gasType( const Identifier &straw_id ) const
 {
   // getStatusHT returns enum EStatus { Undefined, Dead, Good, Xenon, Argon, Krypton } // from 20.7.1
-  // ​see InnerDetector/​InDetConditions/​TRT_ConditionsData/​TRT_ConditionsData/​StrawStatus.h
+  //see InnerDetector/InDetConditions/TRT_ConditionsData/TRT_ConditionsData/StrawStatus.h
   // TRT representation of gasType = Xenon: 0, Argon: 1, Krypton: 2
 
   int status = m_trtStrawStatusSummaryTool->getStatusHT( straw_id );
@@ -804,7 +804,7 @@ double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEn
 
   } // end of switch
 
-  static Trk::ParticleMasses particleMasses;
+  static const Trk::ParticleMasses particleMasses;
   float pTrk = sqrt( kineticEnergy * kineticEnergy + 2. * kineticEnergy * particleMasses.mass[ hypothesis ] );
   if ( pTrk < 250. || pTrk > 7000000. ) return 0.;
 

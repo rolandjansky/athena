@@ -187,9 +187,9 @@ Trk::SlidingCylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& p
   if (A == 0.) { // direction parallel to cylinder axis
     if (fabs(currDist) < tol) {
       return Trk::DistanceSolution(1, 0., true, 0.); // solution at surface
-    } else {
+    } 
       return Trk::DistanceSolution(0, currDist, true, 0.); // point of closest approach without intersection
-    }
+    
   }
 
   // minimal distance to cylinder axis
@@ -198,22 +198,22 @@ Trk::SlidingCylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& p
   if (rmin > radius) { // no intersection
     double first = B / A;
     return Trk::DistanceSolution(0, currDist, true, first); // point of closest approach without intersection
-  } else {
+  } 
     if (fabs(rmin - radius) < tol) { // tangential 'intersection' - return double solution
       double first = B / A;
       return Trk::DistanceSolution(2, currDist, true, first, first);
-    } else {
+    } 
       double first = B / A - sqrt((radius - rmin) * (radius + rmin) / A);
       double second = B / A + sqrt((radius - rmin) * (radius + rmin) / A);
       if (first >= 0.) {
         return Trk::DistanceSolution(2, currDist, true, first, second);
-      } else if (second <= 0.) {
+      } if (second <= 0.) {
         return Trk::DistanceSolution(2, currDist, true, second, first);
-      } else { // inside cylinder
+      } // inside cylinder
         return Trk::DistanceSolution(2, currDist, true, second, first);
-      }
-    }
-  }
+      
+    
+  
 }
 
 Trk::DistanceSolution

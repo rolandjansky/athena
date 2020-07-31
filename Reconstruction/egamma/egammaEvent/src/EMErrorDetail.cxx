@@ -27,7 +27,7 @@ EMErrorDetail::EMErrorDetail() : egDetail() { }
 EMErrorDetail::~EMErrorDetail() { }
 
 /** interfaces */
-std::string EMErrorDetail::s_className = ClassName<EMErrorDetail>::name();
+const std::string EMErrorDetail::s_className = ClassName<EMErrorDetail>::name();
 
 const std::string& EMErrorDetail::className() const {
   return s_className;
@@ -151,17 +151,17 @@ double EMErrorDetail::getClusterEtaPosError(const egamma* eg,
   }
   if (!pars) {
     return 0.30e-3*sqrt(100./(clusterE*0.001));
-  } else {
+  } 
     const EMClusterEtaPosErrorsMatrix& mat = pars->getEtaPosMatrix(tp);
     const double err = mat.getError(eta, clusterE);
     if (err != -1.0) {
       return err;
-    } else {
+    } 
       // it actually was not found
       // use old parametrization.
       return 0.30e-3*sqrt(100./(clusterE*0.001));
-    }
-  }
+    
+  
 }
 
 
@@ -233,9 +233,9 @@ double EMErrorDetail::caloEta(const egamma* eg, double clusterEta) const {
   const double etaPointing = eg->detailValue(egammaParameters::etap);
   if ( fabs(etaPointing - clusterEta ) < 0.15 ) {
     return etaPointing;
-  } else {
+  } 
     return clusterEta;
-  }
+  
 }
 
 
@@ -267,9 +267,9 @@ Amg::MatrixX EMErrorDetail::getCombinedErrorMatrix() const
   // matrix.
   if (EMtrack_comb_CovPP() == egammaParameters::EgParamUndefined) {
     return getEMPhotonErrorMatrix();
-  } else {
+  } 
     return getEMTrackCombinedErrorMatrix();
-  }
+  
 }
 
 // ====================================================================
@@ -278,9 +278,9 @@ Amg::MatrixX EMErrorDetail::getUncombinedErrorMatrix() const
   // this still looks for combined matrix to make the decision
   if (EMtrack_comb_CovPP() == egammaParameters::EgParamUndefined) {
     return getEMPhotonErrorMatrix();
-  } else {
+  } 
     return getEMTrackUncombinedErrorMatrix();
-  }
+  
 }
 
 // ====================================================================
@@ -291,9 +291,9 @@ AmgSymMatrix(4) EMErrorDetail::get4x4CombinedErrorMatrix() const
   // matrix.
   if (EMtrack_comb_CovPP() == egammaParameters::EgParamUndefined) {
     return get4x4EMPhotonErrorMatrix();
-  } else {
+  } 
     return get4x4EMTrackCombinedErrorMatrix();
-  }
+  
 }
 
 // ====================================================================
@@ -302,9 +302,9 @@ AmgSymMatrix(4) EMErrorDetail::get4x4UncombinedErrorMatrix() const
   // this still looks for combined matrix to make the decision
   if (EMtrack_comb_CovPP() == egammaParameters::EgParamUndefined) {
     return get4x4EMPhotonErrorMatrix();
-  } else {
+  } 
     return get4x4EMTrackUncombinedErrorMatrix();
-  }
+  
 }
 
 // ====================================================================
@@ -370,7 +370,7 @@ AmgSymMatrix(5) EMErrorDetail::getEMTrackUncombinedErrorMatrix() const {
     //similarity
     return  jacob*hepSymMatrix*jacob.transpose();
     
-  } else {
+  } 
     AmgSymMatrix(5) hepSymMatrix;
     hepSymMatrix.setIdentity();
     // use cluster for energy and eta
@@ -392,7 +392,7 @@ AmgSymMatrix(5) EMErrorDetail::getEMTrackUncombinedErrorMatrix() const {
     hepSymMatrix.fillSymmetric(3,4,EMphoton_CovetaEclus());
 
     return hepSymMatrix;
-  }
+  
 
 }
 
@@ -434,7 +434,7 @@ AmgSymMatrix(4) EMErrorDetail::get4x4EMTrackUncombinedErrorMatrix() const {
     jacob(1,1) = (-1./sin(EMtrack_perigee_theta()));     // deta/dtheta
     //similarity
     return  jacob*hepSymMatrix*jacob.transpose();  
-  } else {
+  } 
     
     AmgSymMatrix(4) hepSymMatrix;
     hepSymMatrix.setZero();
@@ -446,7 +446,7 @@ AmgSymMatrix(4) EMErrorDetail::get4x4EMTrackUncombinedErrorMatrix() const {
     hepSymMatrix.fillSymmetric(0,1, EMphoton_CovetaEclus());
   
     return hepSymMatrix;
-  }
+  
 
 }
 

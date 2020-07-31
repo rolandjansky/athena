@@ -16,13 +16,13 @@ PURPOSE:  object containing information about Bremstrahlung fit
 
 // INCLUDE HEADER FILES:
 
-#include <math.h>
+#include "egammaEvent/EMBremFit.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/ClassName.h"
+#include "GaudiKernel/GaudiException.h"
+#include <cmath>
 #include <iomanip>
 #include <iostream>
-#include "egammaEvent/EMBremFit.h"
-#include "GaudiKernel/GaudiException.h"
-#include "AthenaKernel/ClassName.h"
-#include "AthenaKernel/BaseInfo.h"
 
 //  END OF HEADER FILES INCLUDE
 
@@ -40,7 +40,7 @@ EMBremFit::~EMBremFit()
 { }
 
 // interfaces
-std::string EMBremFit::s_className = ClassName<EMBremFit>::name();
+const std::string EMBremFit::s_className = ClassName<EMBremFit>::name();
 const std::string& EMBremFit::className() const
 {
   return s_className;

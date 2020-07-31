@@ -14,7 +14,7 @@ import sys
 import uuid
 
 import PyUtils.dbsqlite as dbsqlite
-from PyUtils.Logging import msg, logging
+from PyUtils.Logging import msg
 
 def _create_file_info_template():
     """simple helper function to create consistent dicts for the
@@ -198,13 +198,13 @@ class AthBSFile(object):
         beam_type   = '<beam-type N/A>'
         try:
             beam_type = data_reader.beamType()
-        except Exception as err:
+        except Exception:
             msg.warning ("problem while extracting beam-type information")
 
         beam_energy = '<beam-energy N/A>'
         try:
             beam_energy = data_reader.beamEnergy()
-        except Exception as err:
+        except Exception:
             msg.warning ("problem while extracting beam-type information")
 
         bs = ef.istream(fname)
@@ -265,7 +265,7 @@ class AthBSFile(object):
             return
         
         if evtmax == -1:
-            evtmax = nentries
+            evtmax = bs.total_events
             
         ievt = iter(bs)
         for i in range(evtmax):
@@ -305,7 +305,6 @@ class AthTagFile(object):
         return self._metadata
 
     def _process_tag_file(self, evtmax=1):
-        tag_ref= None
         tag_guid=None
         nentries = 0
         runs=[]
@@ -318,7 +317,7 @@ class AthTagFile(object):
 
             metadata= f.Get('CollectionMetadata') if f else None
             if metadata:
-                nbytes = metadata.GetEntry(0)
+                metadata.GetEntry(0)
                 # note: we used to use .rstrip('\0') b/c of the change in
                 # semantics in PyROOT (char[] and const char* may not mean
                 # the same thing)
@@ -402,8 +401,8 @@ class AthInpFile(object):
                 # _get_guid() code from FilePeeker class by Sebastian Binet
                 pool = f.Get('##Params')
                 if pool:
-                    pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'\
-                                            r'[[]VALUE=(?P<value>.*?)[]]').match
+                    pool_token = re.compile(r'\[NAME=(?P<name>.*?)\]'\
+                                            r'\[VALUE=(?P<value>.*?)\]').match
                     params = []
                     for i in range(pool.GetEntries()):
                         if pool.GetEntry(i)>0:

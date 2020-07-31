@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
-#include <math.h>
+#include <cmath>
 
 Trk::JacobianThetaPToCotThetaPt::JacobianThetaPToCotThetaPt(const double theta, const double qp):
   AmgMatrix(5,5)()
@@ -20,8 +20,3 @@ Trk::JacobianThetaPToCotThetaPt::JacobianThetaPToCotThetaPt(const double theta, 
    (*this)(4,3) = - qp * std::cos(theta)/(sintheta*sintheta);
    (*this)(4,4) = 1.0 / sintheta;
 }
-
-
-Trk::JacobianThetaPToCotThetaPt::~JacobianThetaPToCotThetaPt()
-{}
-

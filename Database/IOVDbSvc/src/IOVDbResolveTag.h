@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef IOVDbSvc_IOVDbResolveTag_h
 #define IOVDbSvc_IOVDbResolveTag_h
@@ -12,7 +12,7 @@
 
 	namespace IOVDbNamespace{
 	std::string
-	resolveCrestTag(const std::string & globalTagName, const std::string & folderName, const std::string forceTag="");
+	resolveCrestTag(const std::string & globalTagName, const std::string & folderName, const std::string & forceTag="");
 	
 	}
 	#endif

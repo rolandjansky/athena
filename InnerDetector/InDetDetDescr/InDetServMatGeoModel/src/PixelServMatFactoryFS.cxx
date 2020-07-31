@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactoryFS.h"
@@ -36,7 +36,6 @@ PixelServMatFactoryFS::PixelServMatFactoryFS(StoreGateSvc *detStore,
 					     ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
-  m_materialManager(0),
   m_msg("PixelServMatFactoryFS")
 { 
 }
@@ -44,7 +43,6 @@ PixelServMatFactoryFS::PixelServMatFactoryFS(StoreGateSvc *detStore,
 
 PixelServMatFactoryFS::~PixelServMatFactoryFS()
 {
-  delete m_materialManager;
 }
 
 
@@ -63,7 +61,7 @@ void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table if it exists
-  m_materialManager = new InDetMaterialManager("PixelMaterialManager", m_detStore, weightTable, "pix");
+  m_materialManager = std::make_unique<InDetMaterialManager>("PixelMaterialManager", m_detStore, weightTable, "pix");
 
 
   // Build general services:
@@ -84,7 +82,6 @@ void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
     const GeoShape* serviceTube = serviceTubeTmp;
 
     std::string materialName = tubeHelper.materialName();
-    //const GeoMaterial* material = m_materialManager->getMaterialForVolume(materialName, serviceTube->volume());
     const GeoMaterial* material = m_materialManager->getMaterial(materialName);
    
 

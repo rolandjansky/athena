@@ -206,9 +206,9 @@ namespace Trk
   {
     if (m_originalTrack.isValid()){
       return *m_originalTrack;
-    } else {
-      return nullptr;
     } 
+      return nullptr;
+    
   }
 
   inline
@@ -216,10 +216,10 @@ namespace Trk
   {
     if (m_elVxCandidate.isValid()) {
       return *m_elVxCandidate;
-    } else
-    {
+    } 
+    
       return nullptr;
-    }
+    
   }
 
   inline const ElementLink<VxContainer>& TrackParticleBase::reconstructedVertexLink() const

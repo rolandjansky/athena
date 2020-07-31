@@ -40,11 +40,11 @@ CscCondDbAlg::initialize(){
     ATH_CHECK(m_readKey_folder_da_f001   .initialize());
     ATH_CHECK(m_readKey_folder_da_noise  .initialize());
     ATH_CHECK(m_readKey_folder_da_ped    .initialize());
-    if (m_pslopeFromDB) ATH_CHECK(m_readKey_folder_da_pslope .initialize());
+    ATH_CHECK(m_readKey_folder_da_pslope .initialize(m_pslopeFromDB));
     ATH_CHECK(m_readKey_folder_da_rms    .initialize());
     ATH_CHECK(m_readKey_folder_da_status .initialize());
-    ATH_CHECK(m_readKey_folder_da_t0base .initialize());
-    ATH_CHECK(m_readKey_folder_da_t0phase.initialize());
+    ATH_CHECK(m_readKey_folder_da_t0base .initialize(!m_readKey_folder_da_t0base.empty()));
+    ATH_CHECK(m_readKey_folder_da_t0phase.initialize(!m_readKey_folder_da_t0phase.empty()));
 
     if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
       ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");

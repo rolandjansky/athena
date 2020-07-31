@@ -25,47 +25,13 @@ public:
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 
-  std::string get_pt_uncalib_key();
-  std::string get_eta_uncalib_key();
-  std::string get_abs_eta_uncalib_key();
-
-  std::string get_ip2d_nTrks_key();
-  std::string get_ip2d_isDefaults_key();
-  std::string get_ip2d_cu_key();
-  std::string get_ip2d_bu_key();
-  std::string get_ip2d_bc_key();
-
-  std::string get_ip3d_nTrks_key();
-  std::string get_ip3d_isDefaults_key();
-  std::string get_ip3d_cu_key();
-  std::string get_ip3d_bu_key();
-  std::string get_ip3d_bc_key();
-
-  std::string get_jf_isDefaults_key();
-  std::string get_jf_deltaR_key();
-
-  std::string get_sv1_isDefaults_key();
-
-  std::string get_secondaryVtx_isDefaults_key();
-  std::string get_secondaryVtx_nTrks_key();
-  std::string get_secondaryVtx_m_key();
-  std::string get_secondaryVtx_E_key();
-  std::string get_secondaryVtx_EFrac_key();
-  std::string get_secondaryVtx_L3d_key();
-  std::string get_secondaryVtx_Lxy_key();
-  std::string get_secondaryVtx_min_trk_flightDirRelEta_key();
-  std::string get_secondaryVtx_max_trk_flightDirRelEta_key();
-  std::string get_secondaryVtx_avg_trk_flightDirRelEta_key();
-  std::string get_min_trk_flightDirRelEta_key();
-  std::string get_max_trk_flightDirRelEta_key();
-  std::string get_avg_trk_flightDirRelEta_key();
-
-  std::string get_smt_isDefaults_key();
-
-  std::string get_rnnip_isDefaults_key();
+  std::vector<std::string> getDecoratorKeys() const;
 
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
+
+  float safelog_prob(float p_up, float p_down);
+  
   typedef SG::AuxElement AE;
 
   AE::Decorator<float> m_pt_uncalib;

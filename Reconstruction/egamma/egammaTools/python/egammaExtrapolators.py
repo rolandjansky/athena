@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from egammaRec.Factories import ToolFactory
+from egammaRec.Factories import ToolFactory, PublicToolFactory
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 __doc__ = "ToolFactories to instantiate InDet tools for egamma with default configuration"
 __author__ = "Bruno Lenzi"
 
 # Tools for extrapolating to the calo
+
 
 def configureExtrapolator(egammaExtrapolator):
 
@@ -70,10 +71,15 @@ def configureExtrapolator(egammaExtrapolator):
 ###############
 
 
-# The general use extrapolator now same as ATLAS default
+# The general use extrapolator same as ATLAS default
 egammaExtrapolator = ToolFactory(
     AtlasExtrapolator,
     name='egammaExtrapolator')
+
+# The general use extrapolator same as ATLAS default public
+AtlasPublicExtrapolator = PublicToolFactory(
+    AtlasExtrapolator,
+    name='AtlasPublicExtrapolator')
 
 # Specialized for e/gamma calo extrapolations i.e ignore material effect
 # that are not that relevant in the calo side

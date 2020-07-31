@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,29 +52,6 @@ Trk::EllipseBounds::EllipseBounds(double minradX,
     swap(m_boundValues[EllipseBounds::bv_rMinX], m_boundValues[EllipseBounds::bv_rMaxX]);
   if (m_boundValues[EllipseBounds::bv_rMinY] > m_boundValues[EllipseBounds::bv_rMaxY])
     swap(m_boundValues[EllipseBounds::bv_rMinY], m_boundValues[EllipseBounds::bv_rMaxY]);
-}
-
-Trk::EllipseBounds::EllipseBounds(const EllipseBounds& discbo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(discbo.m_boundValues)
-{}
-
-Trk::EllipseBounds::~EllipseBounds() = default;
-
-Trk::EllipseBounds&
-Trk::EllipseBounds::operator=(const EllipseBounds& discbo)
-{
-  if (this != &discbo)
-    m_boundValues = discbo.m_boundValues;
-  return *this;
-}
-
-Trk::EllipseBounds&
-Trk::EllipseBounds::operator=(EllipseBounds&& discbo)
-{
-  if (this != &discbo)
-    m_boundValues = std::move(discbo.m_boundValues);
-  return *this;
 }
 
 bool

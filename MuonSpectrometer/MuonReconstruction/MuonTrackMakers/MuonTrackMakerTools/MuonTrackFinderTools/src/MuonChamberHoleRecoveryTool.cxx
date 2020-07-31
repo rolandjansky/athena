@@ -8,9 +8,6 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
-#include "MuonStationIntersectSvc/MuonStationIntersect.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -18,7 +15,6 @@
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
-// New Small Wheel
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 
@@ -36,43 +32,16 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include <map>
 
 namespace Muon {
 
   MuonChamberHoleRecoveryTool::MuonChamberHoleRecoveryTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa),
-      m_intersectSvc("MuonStationIntersectSvc",name()),
-      m_extrapolator("Trk::Extrapolator/MuonExtrapolator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-      m_clusRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-      m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    : AthAlgTool(ty,na,pa)
   {
     declareInterface<IMuonHoleRecoveryTool>(this);
     declareInterface<MuonChamberHoleRecoveryTool>(this);
-
-    declareProperty("MuonStationIntersectSvc", m_intersectSvc);
-    declareProperty("Extrapolator",            m_extrapolator);
-    declareProperty("MdtRotCreator",           m_mdtRotCreator);
-    declareProperty("CscRotCreator",           m_cscRotCreator);
-    declareProperty("ClusterRotCreator",       m_clusRotCreator);
-    declareProperty("PullCalculator",          m_pullCalculator);
-    declareProperty("EDMPrinter",              m_printer);
-
-    declareProperty("AddMeasurements",       m_addMeasurements = true);
-    declareProperty("AssociationPullCutEta", m_associationPullCutEta = 3.  );
-    declareProperty("AssociationPullCutPhi", m_associationPullCutPhi = 10. );
-    declareProperty("DetectBadSorting", m_detectBadSort = false );
-    declareProperty("AdcCut", m_adcCut = 50 );
   }
-
-
-  MuonChamberHoleRecoveryTool::~MuonChamberHoleRecoveryTool() {}
-
 
   StatusCode MuonChamberHoleRecoveryTool::initialize()
   {
@@ -105,11 +74,7 @@ namespace Muon {
     
     return StatusCode::SUCCESS;
   }
-  StatusCode MuonChamberHoleRecoveryTool::finalize()
-  {
-    return StatusCode::SUCCESS;
-  }
-  
+
   Trk::Track* MuonChamberHoleRecoveryTool::recover( const Trk::Track& track ) const {
         
     // call actual recovery routine
@@ -147,7 +112,6 @@ namespace Muon {
     states.insert(states.end(), trkstates->begin(), trkstates->end());
     
     std::set<MuonStationIndex::StIndex> stations;
-    Identifier currentMdtChId;
     unsigned int nholes = 0;
     // loop over TSOSs
     std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit = states.begin();
@@ -1312,13 +1276,13 @@ namespace Muon {
     IdentifierHash hash_id;
     m_idHelperSvc->mdtIdHelper().get_module_hash(chId,hash_id );
     
-    MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
-    if( colIt == mdtPrdContainer->end() ){
+    auto collptr = mdtPrdContainer->indexFindPtr(hash_id);
+    if( collptr == nullptr ){
       ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(chId)
 		    << "  not found in container " );
       return 0;
     }
-    return *colIt;
+    return collptr;
   }
 
   const CscPrepDataCollection* MuonChamberHoleRecoveryTool::findCscPrdCollection( const Identifier& detElId ) const {
@@ -1336,13 +1300,13 @@ namespace Muon {
     IdentifierHash hash_id;
     m_idHelperSvc->cscIdHelper().get_geo_module_hash(detElId,hash_id );
     
-    CscPrepDataContainer::const_iterator colIt = cscPrdContainer->indexFind(hash_id);
-    if( colIt == cscPrdContainer->end() ){
+    auto collptr = cscPrdContainer->indexFindPtr(hash_id);
+    if( collptr == nullptr ){
       ATH_MSG_DEBUG(" CscPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId)
 		    << "  not found in container " );
       return 0;
     }
-    return *colIt;
+    return collptr;
   }
 
   const TgcPrepDataCollection* MuonChamberHoleRecoveryTool::findTgcPrdCollection( const Identifier& detElId ) const {
@@ -1360,13 +1324,13 @@ namespace Muon {
     IdentifierHash hash_id;
     m_idHelperSvc->tgcIdHelper().get_module_hash(detElId,hash_id );
 
-    TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
-    if( colIt == tgcPrdContainer->end() ){
+    auto collptr = tgcPrdContainer->indexFindPtr(hash_id);
+    if( collptr == nullptr ){
       ATH_MSG_DEBUG(" TgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId)
 		    << "  not found in container " );
       return 0;
     }
-    return *colIt;
+    return collptr;
   }
 
   const RpcPrepDataCollection* MuonChamberHoleRecoveryTool::findRpcPrdCollection( const Identifier& detElId ) const {
@@ -1383,12 +1347,12 @@ namespace Muon {
     if(rpcPrdContainer->size()==0) return 0;
     IdentifierHash hash_id;
     m_idHelperSvc->rpcIdHelper().get_module_hash(detElId,hash_id );
-    RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
-    if( colIt == rpcPrdContainer->end() ){
+    auto collptr = rpcPrdContainer->indexFindPtr(hash_id);
+    if( collptr == nullptr ){
       ATH_MSG_DEBUG(" RpcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container " );
       return 0;
     }
-    return *colIt;
+    return collptr;
   }
 
   const sTgcPrepDataCollection* MuonChamberHoleRecoveryTool::findStgcPrdCollection( const Identifier& detElId ) const {
@@ -1406,13 +1370,13 @@ namespace Muon {
     IdentifierHash hash_id;
     m_idHelperSvc->stgcIdHelper().get_module_hash(detElId, hash_id );
     
-    sTgcPrepDataContainer::const_iterator colIt = stgcPrdContainer->indexFind(hash_id);
-    if ( colIt == stgcPrdContainer->end() ) {
+    auto collptr = stgcPrdContainer->indexFindPtr(hash_id);
+    if ( collptr == nullptr ) {
       ATH_MSG_DEBUG(" StgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId)
 		    << "  not found in container " );
       return 0;
     }
-    return *colIt;
+    return collptr;
   }
 
   const MMPrepDataCollection* MuonChamberHoleRecoveryTool::findMmPrdCollection( const Identifier& detElId ) const {
@@ -1431,13 +1395,13 @@ namespace Muon {
     IdentifierHash hash_id;
     m_idHelperSvc->mmIdHelper().get_module_hash(detElId, hash_id );
     
-    MMPrepDataContainer::const_iterator colIt = mmPrdContainer->indexFind(hash_id);
-    if ( colIt == mmPrdContainer->end() ) {
+    auto collptr = mmPrdContainer->indexFindPtr(hash_id);
+    if ( collptr == nullptr ) {
       ATH_MSG_DEBUG(" MmPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId)
 		    << "  not found in container " );
       return 0;
     }
-    return *colIt;
+    return collptr;
   }
 
 }

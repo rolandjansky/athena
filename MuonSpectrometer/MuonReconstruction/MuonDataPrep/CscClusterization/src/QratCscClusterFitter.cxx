@@ -8,7 +8,6 @@
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -211,7 +210,6 @@ int qrat_atanh(const double a, const double b, double c, const double x0,
 
 QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent),
-    m_detMgr(nullptr), 
     m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
 {
   declareInterface<ICscClusterFitter>(this);
@@ -263,7 +261,9 @@ StatusCode QratCscClusterFitter::initialize() {
   
   ATH_MSG_VERBOSE ( "Initalizing " << name() );
 
-  ATH_CHECK(detStore()->retrieve(m_detMgr,"Muon"));
+  // retrieve MuonDetectorManager from the conditions store     
+  ATH_CHECK(m_DetectorManagerKey.initialize()); 
+
   ATH_CHECK(m_idHelperSvc.retrieve());
 
   if ( m_alignmentTool.retrieve().isFailure() )   {
@@ -374,7 +374,15 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
   const CscStripPrepData* pstrip = sfits[0].strip;
   Identifier idStrip0 = pstrip->identify();
 
-  const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
+  // retrieve MuonDetectorManager from the conditions store  
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+  if(MuonDetMgr==nullptr){       
+    ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+    return results;     
+  }
+  const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(idStrip0);
+
   bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   unsigned int maxstrip = pro->maxNumberOfStrips(measphi);

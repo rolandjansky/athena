@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +10,6 @@
 #define TRKRIO_ONTRACK_SICLUSTERONTRACK_H
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "CxxUtils/CachedUniquePtr.h"
 #include "Identifier/IdentifierHash.h"
 
 class SiClusterOnTrackCnv_p1;
@@ -78,10 +77,7 @@ namespace InDet {
       - fullfills Trk::MeasurementBase interface */
       virtual const Amg::Vector3D& globalPosition() const override;
 
-      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override
-      {
-        return (type == Trk::RIO_OnTrackType::SiCluster);
-      }
+      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override = 0;
 
       /** returns the DE hashID* 
       - fullfills Trk::RIO_OnTrack interface*/
@@ -108,7 +104,7 @@ namespace InDet {
       /** The IdentifierHash - probably not used*/
       IdentifierHash                      m_idDE;
       /** The global position */
-      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
+      Amg::Vector3D m_globalPosition;
       bool m_isbroad;
   };
 

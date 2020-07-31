@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_VHTOVVFILTERDILEP_H
@@ -36,7 +36,7 @@ private:
   int m_nVHtoVV;
   int m_nGoodVHtoVV;
 
-  void findAncestor(const HepMC::GenVertex* searchvertex,
+  void findAncestor(HepMC::ConstGenVertexPtr searchvertex,
                     int targetPDGID, int& n_okPDGChild);
 
 };

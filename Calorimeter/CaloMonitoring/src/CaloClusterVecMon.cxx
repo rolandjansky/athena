@@ -26,7 +26,6 @@
 
 #include "RecBackgroundEvent/BeamBackgroundData.h"
 
-#include "xAODEventInfo/EventInfo.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "AthenaKernel/Units.h"
 #include <math.h>

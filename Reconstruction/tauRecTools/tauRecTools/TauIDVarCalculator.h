@@ -13,9 +13,7 @@
 #define TAUIDVARCALCULATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "xAODTau/TauJet.h"
-#include "xAODEventInfo/EventInfo.h"
-#include <string>
+#include "AsgDataHandles/ReadHandleKey.h"
 
 class TauIDVarCalculator: public TauRecToolBase
 {

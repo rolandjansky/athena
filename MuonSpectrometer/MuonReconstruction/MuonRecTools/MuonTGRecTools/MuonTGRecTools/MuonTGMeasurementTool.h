@@ -61,7 +61,6 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  void updateAssocMeas( MuonTGHits*, MuonTGSegments* ) const;
   const std::vector<const Trk::PrepRawData*>* getMeasurementOnLayer(const Trk::Layer* lay) const;
   const std::vector<const Trk::PrepRawData*>* getEtaPhiMeasurementOnLayer(const Trk::Layer* lay, bool phi) const;
   const std::vector<const Trk::Segment*>* getSegments(const Trk::DetachedTrackingVolume* station) const;
@@ -108,18 +107,7 @@ private:
 
 };
 
-} 
-
-inline void Muon::MuonTGMeasurementTool::updateAssocMeas( Muon::MuonTGHits* assocHits,
-                                                          Muon::MuonTGSegments* assocSegments ) const
-{ 
-  if (Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
-    ATH_MSG_WARNING("Access to Muon::MuonTGMeasurementTool::updateAssocMeas() blocked due to thread safety concerns");
-  } else {
-    m_hits = assocHits;
-    m_segments = assocSegments; 
-  }
-} 
+}
 
 #endif //MUONTGRECTOOLS_MUONTGMEASUREMENTTOOL_H
 

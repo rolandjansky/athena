@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Test of Trigger config flags autoconfiguration
 # Exercised on BS data and MC POOL file formats
@@ -25,7 +26,7 @@ inputfiles = {
     "Run2_Data": "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1",
     "Run3_Data": nightlydir+"/TrigP1Test/test_trigP1_v1PhysP1_T0Mon_build/data18_13TeV.00360026.physics_Main.unknown.RAW._lb0151._athenaHLT._0001.data",
     #
-    "Run2_MC_r21": nightlydir+"TrigAnalysisTest/test_trigAna_RDOtoAOD_build/AOD.pool.root",
+    "Run2_MC_r22": nightlydir+"TrigAnalysisTest/test_trigAna_RDOtoAOD_build/AOD.pool.root",
     "Run2_MC_r21": getRun2MCFile(),
     #
     "Run3_MC": nightlydir+"TrigAnalysisTest/test_trigAna_RDOtoAOD_mt1_build/AOD.pool.root",
@@ -63,7 +64,7 @@ if __name__=="__main__":
         log.info("{} {} input file: {}".format(run, source, inputfiles[sample]))
         try:
             test_TriggerFlags(sample)
-        except AssertionError as e:
+        except AssertionError:
             sys.exit(1)
             
     log.info("Done with test")

@@ -41,9 +41,29 @@ StatusCode ThinningCacheTool::postInitialize()
 }
 
 
+/**
+ * @brief Called at the beginning of execute.  A no-op for now.
+ */
 StatusCode ThinningCacheTool::preExecute()
 {
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Called before actually streaming objects.
+ *        Find all thinning requests for this stream, build the @c ThinningCache,
+ *        and install it in the current @c EventContext.
+ */
+StatusCode ThinningCacheTool::preStream()
+{
   m_cache.clear();
+
+  // Nothing to do if we don't have an extended event context.
+  EventContext ctx = Gaudi::Hive::currentContext();
+  if (!Atlas::hasExtendedEventContext (ctx)) {
+    return StatusCode::SUCCESS;
+  }
 
   // Examine all ThinningDecision objects in the store.
   SG::ConstIterator<SG::ThinningDecision> beg;
@@ -84,7 +104,6 @@ StatusCode ThinningCacheTool::preExecute()
   // in the EventContext.
   if (!m_cache.empty() || m_cache.trigNavigationThinningSvc()) {
     m_cache.lockOwned();
-    EventContext ctx = Gaudi::Hive::currentContext();
     Atlas::getExtendedEventContext (ctx).setThinningCache (&m_cache);
     Gaudi::Hive::setCurrentContext (ctx);
   }

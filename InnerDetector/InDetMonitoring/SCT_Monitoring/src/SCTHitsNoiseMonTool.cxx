@@ -396,9 +396,9 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
     // Define a set of spIDs
     std::unordered_set<Identifier> mySetOfSPIds;
     for (int side{0}; side<N_SIDES; side++) {
-      SpacePointContainer::const_iterator spContainerIterator{spacePointContainer->indexFind(side==0 ? theModuleHash0 : theModuleHash1)};
-      if (spContainerIterator==spacePointContainer->end()) continue;
-      for (const Trk::SpacePoint* sp: **spContainerIterator) {
+      auto spContainer{spacePointContainer->indexFindPtr(side==0 ? theModuleHash0 : theModuleHash1)};
+      if (spContainer==nullptr) continue;
+      for (const Trk::SpacePoint* sp: *spContainer) {
         const std::vector<Identifier>& rdoList{(side==thisSide ? sp->clusterList().first->rdoList() : sp->clusterList().second->rdoList())};
         mySetOfSPIds.insert(rdoList.begin(), rdoList.end());
       }
@@ -823,7 +823,6 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::checkNoiseMaps() {
-  IdentifierHash next;
   std::vector<float> vectorOfOccupancies;
 
   if (m_doSpacePointBasedNoise) {

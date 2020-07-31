@@ -167,9 +167,10 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   }
 
   // Calculate the weight of each component after the measurement
-  PosteriorWeightsCalculator pwc;
   std::vector<Trk::ComponentParameters> stateWithNewWeights =
-    pwc.weights(std::move(stateBeforeUpdate), measurement);
+    PosteriorWeightsCalculator::weights(std::move(stateBeforeUpdate),
+                                        measurement);
+  
   if (stateWithNewWeights.empty()) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");
     return {};
@@ -290,16 +291,20 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   if (stateBeforeUpdate.empty()) {
     ATH_MSG_WARNING("Cannot update multi-state with no components!");
     return {};
+  } else {
+    ATH_MSG_DEBUG("calculateFilterStep() starting with  : " <<  stateBeforeUpdate.size() );
   }
 
   // Calculate the weight of each component after the measurement
-  PosteriorWeightsCalculator pwc;
   std::vector<Trk::ComponentParameters> stateWithNewWeights =
-    pwc.weights(std::move(stateBeforeUpdate), measurement);
+    PosteriorWeightsCalculator::weights(std::move(stateBeforeUpdate),
+                                        measurement);
 
   if (stateWithNewWeights.empty()) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");
     return {};
+  } else {
+    ATH_MSG_DEBUG("calculateFilterStep() after new weights : " <<  stateWithNewWeights.size() );
   }
 
   // Update each component using the specified updator
@@ -311,9 +316,10 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
 
   for (; component != stateWithNewWeights.end(); ++component) {
 
-    if (fabs((*component).first->parameters()[Trk::qOverP]) > 0.033333) {
+    if ( stateWithNewWeights.size() > 1 && 
+         std::abs((*component).first->parameters()[Trk::qOverP]) > 0.033333) {
       ATH_MSG_DEBUG(
-        "About to update component with p<30MeV...skipping component! (2)");
+        "About to update component with p<30 MeV...skipping component! (2)");
       continue;
     }
     Trk::FitQualityOnSurface* componentFitQuality = nullptr;
@@ -380,11 +386,15 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
     }
   }
 
+  ATH_MSG_DEBUG("Assembeler cache size : " << cache.multiComponentState.size() );
+
   Trk::MultiComponentState assembledUpdatedState =
     MultiComponentStateAssembler::assembledState(cache);
 
   if (assembledUpdatedState.empty()) {
     return {};
+  } else {
+    ATH_MSG_DEBUG("Assembeled size : " << assembledUpdatedState.size() );
   }
 
   fitQoS = std::make_unique<FitQualityOnSurface>(chiSquared, degreesOfFreedom);

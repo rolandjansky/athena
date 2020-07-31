@@ -1,3 +1,0 @@
-To run the ZH code for the ZH-> invisible analysis, follow the instructions given in my website:
-
-http://pauline.web.cern.ch/pauline/RunningAthena.html

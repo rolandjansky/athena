@@ -44,6 +44,8 @@
 
 #include <boost/property_tree/xml_parser.hpp>
 
+#include "CxxUtils/checker_macros.h"
+
 using namespace boost::property_tree;
 
 namespace
@@ -523,7 +525,20 @@ bool psc::Psc::prepareForRun (const ptree& args)
   }
 
   // bind args to prepareForRun
-  auto prep = [&args](ITrigEventLoopMgr* mgr){return mgr->prepareForRun(args);};
+  auto prep = [&args](ITrigEventLoopMgr* mgr) {
+    // FIXME: ITrigEventLookMgr::prepareForRun is declared NOT_THREAD_SAFE.
+    // Probably this method shoud also be NOT_THREAD_SAFE, but that's
+    // awkward because it implements a tdaq interface from hltinterface.
+    StatusCode ret ATLAS_THREAD_SAFE = mgr->prepareForRun (args);
+
+    // This dance is needed to prevent RV optimization.
+    // Otherwise, the optimizer loses the ATLAS_THREAD_SAFE attribute
+    // on RET before the thread-safety checker gets to see the code.
+    if (ret.isSuccess()) {
+      return StatusCode (StatusCode::SUCCESS);
+    }
+    return ret;
+  };
   if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess())
   {
     ERS_PSC_ERROR("Error preparing the EventLoopMgr");
@@ -555,6 +570,19 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
     ERS_PSC_ERROR("Error executing stop(void) for ApplicationMgr");
     return false;
   }
+
+  // Workers: store histograms at the end of stop as the children may not
+  // go through finalize with SkipFinalizeWorker=1.
+  if (m_workerID != 0) {
+    SmartIF<IService> histsvc = m_svcLoc->service("THistSvc", /*createIf=*/ false);
+    if (histsvc.isValid()) {
+      ERS_LOG("Finalize THistSvc to save histograms");
+      if (histsvc->finalize().isFailure()) {
+        ERS_PSC_ERROR("Error executing finalize for THistSvc");
+      }
+    }
+  }
+
 
   return true;
 }
@@ -690,6 +718,8 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
       PyEval_SaveThread();
     }
   }
+
+  m_workerID = args.get<int>("workerId");
 
   ERS_LOG("Individualizing DF properties");
   m_config->prepareWorker(args);

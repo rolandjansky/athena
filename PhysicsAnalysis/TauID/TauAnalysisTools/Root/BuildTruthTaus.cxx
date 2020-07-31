@@ -15,16 +15,12 @@
 // Tool include(s)
 #include "MCTruthClassifier/MCTruthClassifier.h"
 
-#define PRINTVAR(VAR)                                                   \
-  std::cout<<__FILE__<<" "<<__LINE__<<":"<<#VAR<<" = "<<VAR<<"\n";
-
 using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
 BuildTruthTaus::BuildTruthTaus( const std::string& name )
   : AsgMetadataTool(name)
-  , m_bIsData(-1) // Unknown
   , m_bTruthTauAvailable(true)
   , m_sNewTruthTauContainerNameAux("TruthTausAux.")
   , m_bTruthMuonAvailable(true)
@@ -46,9 +42,8 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
 }
 
 //______________________________________________________________________________
-BuildTruthTaus::~BuildTruthTaus( )
+BuildTruthTaus::~BuildTruthTaus()
 {
-
 }
 
 //______________________________________________________________________________
@@ -57,8 +52,13 @@ StatusCode BuildTruthTaus::initialize()
   ATH_MSG_INFO( "Initializing BuildTruthTaus" );
   m_sNewTruthTauContainerNameAux = m_sNewTruthTauContainerName + "Aux.";
 
+  // The following properties are only available in athena
+#ifndef XAOD_ANALYSIS
   ATH_CHECK(m_tMCTruthClassifier.setProperty("ParticleCaloExtensionTool", ""));
   ATH_CHECK(m_tMCTruthClassifier.setProperty("TruthInConeTool", ""));
+#endif
+  
+  ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMCTruthClassifier, MCTruthClassifier));
   ATH_CHECK(m_tMCTruthClassifier.initialize());
 
   return StatusCode::SUCCESS;
@@ -67,8 +67,6 @@ StatusCode BuildTruthTaus::initialize()
 //______________________________________________________________________________
 xAOD::TruthParticleContainer* BuildTruthTaus::getTruthTauContainer()
 {
-  if (isData())
-    return nullptr;
   if (!m_bTruthTauAvailable)
     return m_truthTausEvent.m_xTruthTauContainer;
   else
@@ -81,8 +79,6 @@ xAOD::TruthParticleContainer* BuildTruthTaus::getTruthTauContainer()
 //______________________________________________________________________________
 xAOD::TruthParticleAuxContainer* BuildTruthTaus::getTruthTauAuxContainer()
 {
-  if (isData())
-    return nullptr;
   if (!m_bTruthTauAvailable)
     return m_truthTausEvent.m_xTruthTauAuxContainer;
   else
@@ -100,18 +96,6 @@ StatusCode BuildTruthTaus::beginEvent()
   return StatusCode::SUCCESS;
 }
 
-bool BuildTruthTaus::isData()
-{
-  if (m_bIsData<0) {
-    const xAOD::EventInfo* xEventInfo = nullptr;
-    if (evtStore()->retrieve(xEventInfo,"EventInfo").isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve EventInfo for setting metadata; assuming not data");
-      return false;
-    }
-    m_bIsData = xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION) ? 0 : 1;
-  }
-  return m_bIsData>0;
-}
 
 StatusCode BuildTruthTaus::retrieveTruthTaus()
 {

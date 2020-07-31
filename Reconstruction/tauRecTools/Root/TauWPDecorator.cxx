@@ -2,12 +2,14 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "tauRecTools/TauWPDecorator.h"
+
+#include "AsgDataHandles/ReadHandle.h"
+
 #include <utility>
 #include "TFile.h"
 #include "TH2.h"
 #include "TString.h"
-#include "tauRecTools/TauWPDecorator.h"
-#include "xAODEventInfo/EventInfo.h"
 
 /********************************************************************/
 TauWPDecorator::TauWPDecorator(const std::string& name) :
@@ -248,9 +250,9 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const
   // Evaluate and decorate new score
   double newscore = -1111.;
   // Score higher than default upper boundary (rare)
-  if( score > cuts[1] )      newscore = cuts[0];
+  if( score > cuts[1] )      newscore = 1 - effs[1];
   // Score lower than default lower boundary (rare)            
-  else if( score < cuts[0] ) newscore = cuts[1];
+  else if( score < cuts[0] ) newscore = 1 - effs[0];
   // Score inside boundaries            
   else {
     newscore = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);

@@ -21,4 +21,4 @@ def getEventInfo (aKey):
       athena> print e.event_ID().event_number()
     
     """
-    return PyK.retrieve(PyK.GNS.EventInfo,aKey)
+    return PyK.retrieve('xAOD::EventInfo',aKey)

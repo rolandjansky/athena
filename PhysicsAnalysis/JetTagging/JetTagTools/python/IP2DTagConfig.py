@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
 from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFactoryCfg
@@ -18,7 +17,7 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
     The following options have BTaggingFlags defaults:
 
     Runmodus                            default: BTagging.RunModus
-    referenceType                       default: BTaggingFlags.ReferenceType
+    referenceType                       default: BTagging.ReferenceType
     impactParameterView                 default: "2D"
     trackGradePartitions                default: [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
     RejectBadTracks                     default: False
@@ -35,25 +34,19 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
     options['name'] = name
     options['xAODBaseName'] = 'IP2D'
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
-    if (scheme == ""): 
-        if useBTagFlagsDefaults:
-            grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
-                  "0HitInExp", "0HitIn",
-                  "0HitNInExp", "0HitNIn",
-                  "InANDNInShared", "PixShared", "SctShared",
-                  "InANDNInSplit", "PixSplit",
-                  "Good"]
-            trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
-            svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
-            trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP2DDetailedTrackGradeFactory'))
-            trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP2DTrackSelector'))
-            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP2DNewLikelihoodTool', 'IP2D'))
 
-            defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'referenceType'                    : BTaggingFlags.ReferenceType,
+    if useBTagFlagsDefaults:
+        trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
+        svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
+        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP2DDetailedTrackGradeFactory'))
+        trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP2DTrackSelector'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP2DNewLikelihoodTool', 'IP2D', scheme))
+
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
+                     'referenceType'                    : flags.BTagging.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'impactParameterView'              : '2D',
-                     'trackGradePartitions'             : grades,
+                     'trackGradePartitions'             : flags.BTagging.Grades,
                      'RejectBadTracks'                  : True,
                      'jetCollectionList'                : [], #used only in reference mode
                      'unbiasIPEstimation'               : False,
@@ -68,8 +61,8 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
                      'trackGradeFactory'                : trackGradeFactory,
                      'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
                      }
-            for option in defaults:
-                options.setdefault(option, defaults[option])
+        for option in defaults:
+            options.setdefault(option, defaults[option])
 
     acc.setPrivateTools(Analysis__IPTag( **options))
 

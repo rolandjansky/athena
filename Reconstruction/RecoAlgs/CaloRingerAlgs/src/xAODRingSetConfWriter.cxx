@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: xAODRingSetConfWriter.cxx 789607 2016-12-14 04:40:50Z ssnyder $
 
 // STL include(s)
 #include <algorithm>
+#include <sstream>
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -16,7 +15,6 @@
 // EDM include(s):
 #include "xAODCore/AuxInfoBase.h"
 #include "xAODCaloRings/RingSetConfAuxContainer.h"
-#include "xAODCaloRings/tools/PrintHelperFcns.h"
 
 // Local include(s):
 #include "xAODRingSetConfWriter.h"
@@ -109,7 +107,9 @@ StatusCode xAODRingSetConfWriter::initialize() {
     if ( nullptr != c ) {
       if ( msg().level() <= MSG::VERBOSE ) {
         for ( const auto& r : *c ){
-          r->print( msg(), MSG::VERBOSE );
+          std::ostringstream str;
+          r->print( str );
+          ATH_MSG_VERBOSE( str.str() );
         }
       }
     } else {
@@ -199,12 +199,20 @@ StatusCode xAODRingSetConfWriter::copyKeyToStore( const std::string &key )
   for ( const base_value_type* obj : *cont ) {
     ATH_MSG_VERBOSE("Original object:");
     // Print-out object:
-    obj->print( msg(), MSG::VERBOSE ); 
+    if( msgLevel() <= MSG::VERBOSE ) {
+      std::ostringstream str;
+      obj->print( str );
+      ATH_MSG_VERBOSE( str.str() );
+    }
     // Copy object
     value_type objCopy = new (base_value_type)( *obj );
     // Print-out object:
     ATH_MSG_VERBOSE("Copied object:");
-    objCopy->print( msg(), MSG::VERBOSE ); 
+    if( msgLevel() <= MSG::VERBOSE ) {
+      std::ostringstream str;
+      objCopy->print( str );
+      ATH_MSG_VERBOSE( str.str() );
+    }
     // Add to container
     contCopy->push_back( objCopy );
   }

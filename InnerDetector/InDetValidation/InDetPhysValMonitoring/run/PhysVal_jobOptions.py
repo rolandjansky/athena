@@ -1,5 +1,4 @@
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: PhysVal_jobOptions.py 795792 2017-02-06 14:45:08Z sroe $
 
@@ -99,7 +98,6 @@ tool1 = InDetPhysValMonitoringTool()
 tool1.TruthSelectionTool = AthTruthSelectionTool
 tool1.useTrackSelection = usingTrackSelection
 tool1.TrackSelectionTool=InDetTrackSelectorTool
-tool1.useTrkSelectPV= False
 tool1.FillTrackInJetPlots = True
 print tool1
 #ToolSvc += tool1

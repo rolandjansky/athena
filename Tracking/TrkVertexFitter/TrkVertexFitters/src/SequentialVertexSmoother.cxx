@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitters/SequentialVertexSmoother.h"
@@ -17,9 +17,9 @@ namespace  Trk
   if ( m_vertexTrackUpdator.retrieve().isFailure() ) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexTrackUpdator << endmsg;
     return StatusCode::FAILURE;
-  } else {
+  } 
     msg(MSG::INFO) << "Retrieved tool " << m_vertexTrackUpdator << endmsg;
-  }
+  
   
   msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
   return StatusCode::SUCCESS;
@@ -41,7 +41,7 @@ namespace  Trk
  }//end of constructor description
  
  //class destructor empty so far
- SequentialVertexSmoother::~SequentialVertexSmoother() {}
+ SequentialVertexSmoother::~SequentialVertexSmoother() = default;
 
  //smooth method itself
  // Had to make the vtx non-const because xAOD::Vertex stores
@@ -56,7 +56,7 @@ namespace  Trk
      std::vector<Trk::VxTrackAtVertex> & tracks = vtx.vxTrackAtVertex();
 
      //updating the tracks one by one
-     if(tracks.size() !=0)
+     if(!tracks.empty())
      {
        for(std::vector<Trk::VxTrackAtVertex>::iterator i = tracks.begin(); i!=tracks.end(); ++i)
        {

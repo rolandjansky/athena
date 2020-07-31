@@ -89,7 +89,7 @@ StatusCode HTFilter::filterEvent() {
   double HT = -1;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
-    if ( (*it_truth)->pt()>m_MinJetPt*CLHEP::GeV && fabs((*it_truth)->eta())<m_MaxJetEta ) {
+    if ( (*it_truth)->pt()>m_MinJetPt*CLHEP::GeV && std::abs((*it_truth)->eta())<m_MaxJetEta ) {
       ATH_MSG_VERBOSE("Adding truth jet with pt " << (*it_truth)->pt()
 		      << ", eta " << (*it_truth)->eta()
 		      << ", phi " << (*it_truth)->phi()
@@ -107,28 +107,28 @@ StatusCode HTFilter::filterEvent() {
       return StatusCode::SUCCESS;
     }
 
-    std::vector<const HepMC::GenParticle*> WZleptons;
+    std::vector<HepMC::GenParticlePtr> WZleptons;
     WZleptons.reserve(10);
 
-    for (HepMC::GenEvent::particle_const_iterator iter=(*mecc)[0]->particles_begin(); iter!=(*mecc)[0]->particles_end();++iter){
-      if ( !(*iter) ) continue;
-      int pdgid = (*iter)->pdg_id();
-      if (m_UseNu && MC::PID::isNeutrino(pdgid) && MC::isGenStable(*iter)) {
-	if( fromWZ(*iter) || fromTau(*iter) ) {
-	  HT += (*iter)->momentum().perp();
+    for (auto  iter: *((*mecc)[0])){
+      if ( !iter ) continue;
+      int pdgid = iter->pdg_id();
+      if (m_UseNu && MC::PID::isNeutrino(pdgid) && MC::isGenStable(iter)) {
+	if( fromWZ(iter) || fromTau(iter) ) {
+	  HT += iter->momentum().perp();
 	}
       }
       // pick muons and electrons specifically -- isLepton selects both charged leptons and neutrinos
-      if (m_UseLep && (abs(pdgid)==11 || abs(pdgid)==13) && MC::isGenStable(*iter)
-	  && (*iter)->momentum().perp()>m_MinLepPt*CLHEP::GeV && fabs((*iter)->momentum().eta())<m_MaxLepEta) {
-	bool isFromWZ = fromWZ(*iter);
-	if( isFromWZ || fromTau(*iter) ) {
-	  ATH_MSG_VERBOSE("Adding W/Z/tau lepton with pt " << (*iter)->momentum().perp()
-			  << ", eta " << (*iter)->momentum().eta()
-			  << ", phi " << (*iter)->momentum().phi()
-			  << ", status " << (*iter)->status()
+      if (m_UseLep && (std::abs(pdgid)==11 || std::abs(pdgid)==13) && MC::isGenStable(iter)
+	  && (iter)->momentum().perp()>m_MinLepPt*CLHEP::GeV && std::abs(iter->momentum().eta())<m_MaxLepEta) {
+	bool isFromWZ = fromWZ(iter);
+	if( isFromWZ || fromTau(iter) ) {
+	  ATH_MSG_VERBOSE("Adding W/Z/tau lepton with pt " << iter->momentum().perp()
+			  << ", eta " << iter->momentum().eta()
+			  << ", phi " << iter->momentum().phi()
+			  << ", status " << iter->status()
 			  << ", pdgId " << pdgid);
-	  HT += (*iter)->momentum().perp();
+	  HT += iter->momentum().perp();
 	}
       }
     }
@@ -149,7 +149,7 @@ StatusCode HTFilter::filterEvent() {
   return StatusCode::SUCCESS;
 }
 
-bool HTFilter::fromWZ( const HepMC::GenParticle* part ) const
+bool HTFilter::fromWZ(HepMC::ConstGenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use
@@ -163,6 +163,15 @@ bool HTFilter::fromWZ( const HepMC::GenParticle* part ) const
   //    generators do not include the W or Z in the truth record (like Sherpa)
   //   This code, like the code before it, really assumes one incoming particle per vertex...
   if (!part->production_vertex()) return false;
+#ifdef HEPMC3
+  for (auto  iter: part->production_vertex()->particles_in()){
+    int parent_pdgid = iter->pdg_id();
+    if (MC::PID::isW(parent_pdgid) || MC::PID::isZ(parent_pdgid)) return true;
+    if (MC::PID::isHadron( parent_pdgid ) ) return false;
+    if ( std::abs( parent_pdgid ) < 9 ) return true;
+    if ( parent_pdgid == part->pdg_id() ) return fromWZ( iter );
+  }
+#else
   for (HepMC::GenVertex::particles_in_const_iterator iter=part->production_vertex()->particles_in_const_begin(); 
        iter!=part->production_vertex()->particles_in_const_end();++iter){
     int parent_pdgid = (*iter)->pdg_id();
@@ -171,10 +180,11 @@ bool HTFilter::fromWZ( const HepMC::GenParticle* part ) const
     if ( abs( parent_pdgid ) < 9 ) return true;
     if ( parent_pdgid == part->pdg_id() ) return fromWZ( *iter );
   }
+#endif  
   return false;
 }
 
-bool HTFilter::fromTau( const HepMC::GenParticle* part ) const
+bool HTFilter::fromTau(HepMC::ConstGenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use
@@ -186,6 +196,14 @@ bool HTFilter::fromTau( const HepMC::GenParticle* part ) const
   // Find a hadron or parton -> return false
   //   This code, like the code before it, really assumes one incoming particle per vertex...
   if (!part->production_vertex()) return false;
+#ifdef HEPMC3
+  for (auto iter: part->production_vertex()->particles_in()){
+    int parent_pdgid = iter->pdg_id();
+    if ( std::abs( parent_pdgid ) == 15 ) return true;
+    if (MC::PID::isHadron( parent_pdgid ) || std::abs( parent_pdgid ) < 9 ) return false;
+    if ( parent_pdgid == part->pdg_id() ) return fromTau( iter );
+  }
+#else
   for (HepMC::GenVertex::particles_in_const_iterator iter=part->production_vertex()->particles_in_const_begin(); 
        iter!=part->production_vertex()->particles_in_const_end();++iter){
     int parent_pdgid = (*iter)->pdg_id();
@@ -193,5 +211,6 @@ bool HTFilter::fromTau( const HepMC::GenParticle* part ) const
     if (MC::PID::isHadron( parent_pdgid ) || abs( parent_pdgid ) < 9 ) return false;
     if ( parent_pdgid == part->pdg_id() ) return fromTau( *iter );
   }
+#endif
   return false;
 }

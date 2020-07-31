@@ -115,9 +115,9 @@ def _main():
 						type=str,
 						choices=['tiny', 'lite', 'full', 'peeker'],
 						help="This flag provides the user capability to select the amount of metadata retrieved. There three options: "
-							 "tiny (only those values used in PyJobTransforms), "
-							 "lite (same output as dump-athfile) "
-							 "and full ( all  available data found) ")
+							"tiny (only those values used in PyJobTransforms), "
+							"lite (same output as dump-athfile) "
+							"and full ( all  available data found) ")
 	parser.add_argument('-t',
 						'--type',
 						default= None,
@@ -129,7 +129,7 @@ def _main():
 						'--filter',
 						default= [],
 						metavar='FILTER',
-	                    nargs = '+',
+						nargs = '+',
 						type=str,
 						help="The metadata keys to filter. ")
 	parser.add_argument('--promote',
@@ -166,9 +166,9 @@ def _main():
 		if is_json:
 			print(json.dumps(metadata, indent=indent))
 		else:
-			enc = sys.stdout.encoding.lower()
-			ascii = not sys.stdout.isatty() or enc.find('ansi') >= 0 or enc.find('ascii') >= 0
-			pp=_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = True)
+			enc = sys.stdout.encoding
+			ascii = not sys.stdout.isatty() or not enc or enc.lower().find('ansi') >= 0 or enc.lower().find('ascii') >= 0
+			_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = True)
 			print(_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = ascii))
 
 	else:

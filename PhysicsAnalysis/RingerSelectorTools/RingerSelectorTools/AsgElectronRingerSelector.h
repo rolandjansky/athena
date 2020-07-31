@@ -1,8 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AsgElectronRingerSelector.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_ASGELECTRONCALORINGERSELECTOR_H
 #define RINGERSELECTORTOOLS_ASGELECTRONCALORINGERSELECTOR_H
 
@@ -21,8 +20,7 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 
 // xAOD includes:
-#include "xAODCaloRings/CaloRingsContainer.h" // needed for caloRingsReader_t
-#include "xAODCaloRings/RingSetConfContainerFwd.h"
+#include "xAODCaloRings/RingSetConfContainer.h"
 
 // Local includes:
 #include "RingerSelectorTools/IAsgElectronRingerSelector.h"
@@ -253,9 +251,6 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
 
     /// @brief Hold the track patterns:
     mutable TrackPatternsHolder *m_trackPat;
-
-    /// @brief The particles CaloRings decorations reader
-    xAOD::caloRingsReader_t* m_ringsELReader;
 
     /// @brief Last particle accept bitmask (already applying the m_cutsToUse)
     asg::AcceptInfo m_accept;

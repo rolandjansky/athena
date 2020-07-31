@@ -11,6 +11,13 @@
  *  @author Paul Keener
  */
 
+
+//Update, June 2020, W.L: 
+//This service is replaced by the TRT_BSErrContainer object in SG
+//It's only remaining purpose is to carry information from the 
+//TRT_TRTRawDataProvider to the TRT_TrgRIO_Maker with are both thread-unsafe
+//legcay tools 
+
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
@@ -20,11 +27,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
-#include "InDetByteStreamErrors/TRT_BSIdErrContainer.h"
 
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
 
 /// Service for retrieving ByteStream conditions information
 class TRT_ByteStream_ConditionsSvc : public AthService,
@@ -84,10 +87,6 @@ class TRT_ByteStream_ConditionsSvc : public AthService,
 
   void add_rob_error( uint32_t robSourceId, uint32_t robStatus );
 
-  virtual StatusCode readData( void );
-  virtual StatusCode recordData( void );
-
-
  private:
 
   ServiceHandle<StoreGateSvc> m_evtStore;
@@ -103,14 +102,6 @@ class TRT_ByteStream_ConditionsSvc : public AthService,
 
   std::set<std::pair<uint32_t,uint32_t> > m_rob_status_errors;
 
-  bool m_writeBCIDError;      // true if we should write BCID errors to SG
-  bool m_writeL1IDError;      // true if we should write L1ID errors to SG
-  bool m_writeMISSINGError;   // true if we should write MISSING errors to SG
-  bool m_writeERRORError;     // true if we should write ERROR errors to SG
-  bool m_writeSIDError;       // true if we should write SID errors to SG
-
-  bool m_readCondFromESD;     // true if we are reading ESD and we should
-                              //      read the conditions data
   int m_num_l1id_errors;
   int m_num_bcid_errors;
   int m_num_missing_errors;
@@ -127,11 +118,6 @@ class TRT_ByteStream_ConditionsSvc : public AthService,
 
   //TRT_BSIdErrContainer* m_IdCont;
   //TRT_BSErrContainer* m_cont;
-
-  SG::ReadHandleKey<TRT_BSIdErrContainer> m_keyerrContid{this,"ByteStreamIdErrsKey","TRT_ByteStreamIdErrs","RHK to retrieve ByteStream Error ID"};
-  SG::ReadHandleKey<TRT_BSErrContainer> m_keyerrCont{this,"ByteStreamErrsKey","TRT_ByteStreamErrs","RHK to retrieve ByteStream Errrors"};
-  SG::WriteHandleKey<TRT_BSIdErrContainer> m_writekeyErrContID{this,"ByteStreamIdErrsKeyContainer","TRT_ByteStreamIdErrs","WHK to write the ByteStream Error id"};
-  SG::WriteHandleKey<TRT_BSErrContainer> m_writekeyErrCont{this,"ByteStreamErrsKeyContainer","TRT_ByteStreamErrs","WHK to write the ByteStream Errors"};
 
 };
 

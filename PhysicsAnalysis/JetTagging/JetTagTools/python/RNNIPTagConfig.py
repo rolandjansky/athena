@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
 from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFactoryCfg
@@ -28,33 +27,31 @@ def RNNIPTagCfg( flags, name = 'RNNIP', scheme = '', calibration=None, useBTagFl
     acc = ComponentAccumulator()   
     options['name'] = name
     basename = 'RNNIP'
+    RNNIPConfig = {'rnnip':''}
+    WriteRNNInputs = False
     options['xAODBaseName'] = basename
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
     cal_dir = calibration or basename
     is_flipped=False
     if (scheme == "Flip"):
         is_flipped=True
 
     if useBTagFlagsDefaults:
-        grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
-                  "0HitInExp", "0HitIn",
-                  "0HitNInExp", "0HitNIn",
-                  "InANDNInShared", "PixShared", "SctShared",
-                  "InANDNInSplit", "PixSplit",
-                  "Good"]
         trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
         svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
         trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('RNNIPDetailedTrackGradeFactory'))
         trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'RNNIPTrackSelector'))
 
         defaults = {
-                'trackGradePartitions'      : grades ,
+                'trackGradePartitions'      : flags.BTagging.Grades,
                 'RejectBadTracks'           : True,
-                'NetworkConfig'             : BTaggingFlags.RNNIPConfig,
+                'NetworkConfig'             : RNNIPConfig,
                 'unbiasIPEstimation'        : False,
                 'SecVxFinderName'           : 'SV1',
                 'calibration_directory'     : cal_dir,
-                'writeInputsToBtagObject'   : BTaggingFlags.WriteRNNInputs,
+                'writeInputsToBtagObject'   : WriteRNNInputs,
                 'trackSelectorTool'         : trackSelectorTool,
                 'SVForIPTool'               : svForIPTool,
                 'trackGradeFactory'         : trackGradeFactory,

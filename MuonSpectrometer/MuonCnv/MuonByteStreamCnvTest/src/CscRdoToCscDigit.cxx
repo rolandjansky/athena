@@ -117,8 +117,8 @@ StatusCode CscRdoToCscDigit::decodeCsc(const CscRawDataCollection *rdoColl, CscD
       }
 
       if (oldId != stationId) {
-        CscDigitContainer::const_iterator it_coll = cscContainer->indexFind(coll_hash);
-        if (cscContainer->end() ==  it_coll) {
+        const CscDigitCollection * coll = cscContainer->indexFindPtr(coll_hash);
+        if (nullptr ==  coll) {
           CscDigitCollection *newCollection = new CscDigitCollection(stationId, coll_hash);
           newCollection->push_back(newDigit);
           collection = newCollection;
@@ -128,7 +128,7 @@ StatusCode CscRdoToCscDigit::decodeCsc(const CscRawDataCollection *rdoColl, CscD
           }
         }
         else {
-          CscDigitCollection *oldCollection ATLAS_THREAD_SAFE = const_cast<CscDigitCollection*>( *it_coll ); // FIXME
+          CscDigitCollection *oldCollection ATLAS_THREAD_SAFE = const_cast<CscDigitCollection*>( coll ); // FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

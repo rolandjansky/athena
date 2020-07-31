@@ -113,7 +113,7 @@ include ( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
  
 
 #Set input files
-ServiceMgr.ByteStreamInputSvc.FullFileName = myInputFiles
+ServiceMgr.EventSelector.Input = myInputFiles
 
 #---------------------------------------------------------------
 # CSC Calibration from DB

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthExFortranAlgorithm/FortranAlgorithm.h"
+#include "FortranAlgorithm.h"
 
 extern "C" {
   void initialize_(const int& lun, const char*, int);

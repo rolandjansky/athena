@@ -4,7 +4,7 @@ from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRec
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 
-from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
+from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -27,22 +27,25 @@ def generateChains( flags,  chainDict ):
     l2CaloReco = l2CaloRecoCfg(flags)
     accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
 
+    # this alg needs EventInfo decorated with the  pileup info
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    accCalo.merge( LumiBlockMuWriterCfg(flags) )
+
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
-                                 CaloClusters = recordable('HLT_L2CaloEMClusters'))
+                                 CaloClusters = recordable('HLT_FastCaloEMClusters'))
+
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
     fastCaloSequence = CAMenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
-                                     HypoToolGen = TrigL2CaloHypoToolFromDict, 
+                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict, 
                                      CA = accCalo)
-
-    fastCaloSequence.createHypoTools(chainDict)
 
     accCalo.printConfig()
 
-    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
+    fastCaloStep = ChainStep(name=firstStepName, Sequences=[fastCaloSequence], chainDicts=[chainDict])
 
 
     secondStepName = getChainStepName('Electron', 2)
@@ -73,9 +76,7 @@ def generateChains( flags,  chainDict ):
                                       HypoToolGen = makeFakeHypoTool,
                                       CA = accTrk)
 
-    fastInDetSequence.createHypoTools(chainDict)
-
-    fastInDetStep = ChainStep( secondStepName, [fastInDetSequence] )
+    fastInDetStep = ChainStep( name=secondStepName, Sequences=[fastInDetSequence], chainDicts=[chainDict])
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:

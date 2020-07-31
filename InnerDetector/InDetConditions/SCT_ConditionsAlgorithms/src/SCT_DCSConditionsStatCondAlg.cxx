@@ -16,28 +16,24 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
 StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  m_doState = ((m_readAllDBFolders.value() and m_returnHVTemp.value()) or (not m_readAllDBFolders.value() and not m_returnHVTemp.value()));
+  m_doState = ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp));
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
-  if (m_returnHVTemp.value()) {
-    // Read Cond Handle (HV)
-    ATH_CHECK(m_readKeyHV.initialize());
+  // Read Cond Handle (HV)
+  ATH_CHECK(m_readKeyHV.initialize(m_returnHVTemp));
+
+  // Read Cond Handle (state)
+  ATH_CHECK(m_readKeyState.initialize(m_doState));
+  // Write Cond Handle
+  ATH_CHECK(m_writeKeyState.initialize(m_doState));
+  if (m_doState and m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
+    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
+    return StatusCode::FAILURE;
   }
 
-  if (m_doState) {
-    // Read Cond Handle (state)
-    ATH_CHECK(m_readKeyState.initialize());
-    // Write Cond Handle
-    ATH_CHECK(m_writeKeyState.initialize());
-    if (m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  if (m_useHV.value()) {
+  if (m_useDefaultHV) {
     m_hvLowLimit = m_useHVLowLimit;
     m_hvUpLimit = m_useHVUpLimit;
     m_chanstatCut = m_useHVChanCut;
@@ -82,6 +78,8 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
   std::unique_ptr<SCT_DCSStatCondData> writeCdoState{std::make_unique<SCT_DCSStatCondData>()};
 
   // Read state info
+  // Meaning of state word is found at
+  // https://twiki.cern.ch/twiki/bin/view/Atlas/SctDCSSoftware#Decoding_Status_words
   std::string paramState{"STATE"};
   CondAttrListCollection::const_iterator attrListState{readCdoState->begin()};
   CondAttrListCollection::const_iterator endState{readCdoState->end()};
@@ -92,11 +90,17 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
     const CondAttrListCollection::AttributeList &payload{attrListState->second};
     if (payload.exists(paramState) and not payload[paramState].isNull()) {
       unsigned int val{payload[paramState].data<unsigned int>()};
-      unsigned int hvstate{val bitand 240};
-      unsigned int lvstate{val bitand 15};
-      if (   ( (m_chanstatCut=="NORM")  and not ((hvstate==16 or hvstate==48)                                and (lvstate==1 or lvstate==3))                             )
-          or ( (m_chanstatCut=="NSTBY") and not ((hvstate==16 or hvstate==48 or hvstate==32)                 and (lvstate==1 or lvstate==3 or lvstate==2))               )
-          or ( (m_chanstatCut=="LOOSE") and not ((hvstate==16 or hvstate==48 or hvstate==32 or hvstate==128) and (lvstate==1 or lvstate==3 or lvstate==2 or lvstate==8)) )) {
+      unsigned int hvstate{(val >> 4) & 0xF};
+      unsigned int lvstate{ val       & 0xF};
+      if (   ((m_chanstatCut=="NORM")  
+              and not ((hvstate==ON or hvstate==MANUAL)
+                       and (lvstate==ON or lvstate==MANUAL)))
+          or ((m_chanstatCut=="NSTBY")
+              and not ((hvstate==ON or hvstate==MANUAL or hvstate==STANDBY)
+                       and (lvstate==ON or lvstate==MANUAL or lvstate==STANDBY)))
+          or ((m_chanstatCut=="LOOSE")
+              and not ((hvstate==ON or hvstate==MANUAL or hvstate==STANDBY or hvstate==RAMPING)
+                       and (lvstate==ON or lvstate==MANUAL or lvstate==STANDBY or lvstate==RAMPING)))) {
         writeCdoState->fill(channelNumber, paramState);
       } else {
         writeCdoState->remove(channelNumber, paramState);
@@ -106,7 +110,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
     }
   }
 
-  if (m_returnHVTemp.value()) {
+  if (m_returnHVTemp) {
     // Read Cond Handle 
     SG::ReadCondHandle<CondAttrListCollection> readHandleHV{m_readKeyHV, ctx};
     const CondAttrListCollection* readCdoHV{*readHandleHV};

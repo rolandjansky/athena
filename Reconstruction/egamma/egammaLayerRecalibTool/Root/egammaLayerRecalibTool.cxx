@@ -137,42 +137,42 @@ void ScaleEcalorimeter::scale_inputs(StdCalibrationInputs & inputs, float amount
 }
 
 
-const std::string& egammaLayerRecalibTool::resolve_alias(const std::string& tune) const {
-  static std::string result;
-  result = tune;
-  if ("layer1_2012" == tune)              result = "layer1_2012_v5";
-  else if ("layer1_alt_2012" == tune)     result = "layer1_alt_2012_v5";
-  else if ("layer1_2011" == tune)         result = "layer1_2011_v5";
-  else if ("layer1_alt_2011" == tune)     result = "layer1_alt_2011_v5";
-  else if ("layer1_2010" == tune)         result = "layer1_2010_v5";
-  else if ("ps_2012" == tune)             result = "ps_2012_v3";
-  else if ("ps_2011" == tune)             result = "ps_2011_v3";
-  else if ("ps_2010" == tune)             result = "ps_2010_v3";
-  else if ("layer1_2012_up" == tune)      result = "layer1_2012_v5_up";
-  else if ("layer1_2012_down" == tune)    result = "layer1_2012_v5_down";
-  else if ("layer1_2012_errup" == tune)   result = "layer1_2012_v5_errup";
-  else if ("layer1_2012_errdown" == tune) result = "layer1_2012_v5_errdown";
-  else if ("layer1_2011_up" == tune)      result = "layer1_2011_v5_up";
-  else if ("layer1_2011_down" == tune)    result = "layer1_2011_v5_down";
-  else if ("layer1_2011_errup" == tune)   result = "layer1_2011_v5_errup";
-  else if ("layer1_2011_errdown" == tune) result = "layer1_2011_v5_errdown";
-  else if ("layer1_2010_up" == tune)      result = "layer1_2010_v5_up";
-  else if ("layer1_2010_down" == tune)    result = "layer1_2010_v5_down";
-  else if ("layer1_2010_errup" == tune)   result = "layer1_2010_v5_errup";
-  else if ("layer1_2010_errdown" == tune) result = "layer1_2010_v5_errdown";
-  else if ("ps_2012_up" == tune)          result = "ps_2012_v3_up";
-  else if ("ps_2012_down" == tune)        result = "ps_2012_v3_down";
-  else if ("ps_2012_errup" == tune)       result = "ps_2012_v3_errup";
-  else if ("ps_2012_errdown" == tune)     result = "ps_2012_v3_errdown";
-  else if ("ps_2011_up" == tune)          result = "ps_2011_v3_up";
-  else if ("ps_2011_down" == tune)        result = "ps_2011_v3_down";
-  else if ("ps_2011_errup" == tune)       result = "ps_2011_v3_errup";
-  else if ("ps_2011_errdown" == tune)     result = "ps_2011_v3_errdown";
-  else if ("ps_2010_up" == tune)          result = "ps_2010_v3_up";
-  else if ("ps_2010_down" == tune)        result = "ps_2010_v3_down";
-  else if ("ps_2010_errup" == tune)       result = "ps_2010_v3_errup";
-  else if ("ps_2010_errdown" == tune)     result = "ps_2010_v3_errdown";
-  return result;
+std::string egammaLayerRecalibTool::resolve_alias(const std::string& tune) const {
+
+  if ("layer1_2012" == tune)         return "layer1_2012_v5";
+  if ("layer1_alt_2012" == tune)     return "layer1_alt_2012_v5";
+  if ("layer1_2011" == tune)         return "layer1_2011_v5";
+  if ("layer1_alt_2011" == tune)     return "layer1_alt_2011_v5";
+  if ("layer1_2010" == tune)         return "layer1_2010_v5";
+  if ("ps_2012" == tune)             return "ps_2012_v3";
+  if ("ps_2011" == tune)             return "ps_2011_v3";
+  if ("ps_2010" == tune)             return "ps_2010_v3";
+  if ("layer1_2012_up" == tune)      return "layer1_2012_v5_up";
+  if ("layer1_2012_down" == tune)    return "layer1_2012_v5_down";
+  if ("layer1_2012_errup" == tune)   return "layer1_2012_v5_errup";
+  if ("layer1_2012_errdown" == tune) return "layer1_2012_v5_errdown";
+  if ("layer1_2011_up" == tune)      return "layer1_2011_v5_up";
+  if ("layer1_2011_down" == tune)    return "layer1_2011_v5_down";
+  if ("layer1_2011_errup" == tune)   return "layer1_2011_v5_errup";
+  if ("layer1_2011_errdown" == tune) return "layer1_2011_v5_errdown";
+  if ("layer1_2010_up" == tune)      return "layer1_2010_v5_up";
+  if ("layer1_2010_down" == tune)    return "layer1_2010_v5_down";
+  if ("layer1_2010_errup" == tune)   return "layer1_2010_v5_errup";
+  if ("layer1_2010_errdown" == tune) return "layer1_2010_v5_errdown";
+  if ("ps_2012_up" == tune)          return "ps_2012_v3_up";
+  if ("ps_2012_down" == tune)        return "ps_2012_v3_down";
+  if ("ps_2012_errup" == tune)       return "ps_2012_v3_errup";
+  if ("ps_2012_errdown" == tune)     return "ps_2012_v3_errdown";
+  if ("ps_2011_up" == tune)          return "ps_2011_v3_up";
+  if ("ps_2011_down" == tune)        return "ps_2011_v3_down";
+  if ("ps_2011_errup" == tune)       return "ps_2011_v3_errup";
+  if ("ps_2011_errdown" == tune)     return "ps_2011_v3_errdown";
+  if ("ps_2010_up" == tune)          return "ps_2010_v3_up";
+  if ("ps_2010_down" == tune)        return "ps_2010_v3_down";
+  if ("ps_2010_errup" == tune)       return "ps_2010_v3_errup";
+  if ("ps_2010_errdown" == tune)     return "ps_2010_v3_errdown";
+
+  return tune;
 }
 
 void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
@@ -805,7 +805,7 @@ void egammaLayerRecalibTool::add_scale(InputModifier* modifier, GetAmountBase* a
 CP::CorrectionCode egammaLayerRecalibTool::scale_inputs(StdCalibrationInputs & inputs) const
 {
   CP::CorrectionCode status = CP::CorrectionCode::Ok;
-  for (const auto modifier : m_modifiers)  {
+  for (const auto& modifier : m_modifiers)  {
     const float amount = (*modifier.second)(inputs);
     const auto s = (*modifier.first)(inputs, amount);
     if (s != CP::CorrectionCode::Ok) {
@@ -834,11 +834,11 @@ CP::CorrectionCode egammaLayerRecalibTool::applyCorrection(xAOD::Egamma& particl
 
   const CP::CorrectionCode status = scale_inputs(inputs);
 
-  static SG::AuxElement::Decorator<double> deco_E0("correctedcl_Es0");
-  static SG::AuxElement::Decorator<double> deco_E1("correctedcl_Es1");
-  static SG::AuxElement::Decorator<double> deco_E2("correctedcl_Es2");
-  static SG::AuxElement::Decorator<double> deco_E3("correctedcl_Es3");
-  static SG::AuxElement::Decorator<std::string> deco_layer_correction("layer_correction");
+  static const SG::AuxElement::Decorator<double> deco_E0("correctedcl_Es0");
+  static const SG::AuxElement::Decorator<double> deco_E1("correctedcl_Es1");
+  static const SG::AuxElement::Decorator<double> deco_E2("correctedcl_Es2");
+  static const SG::AuxElement::Decorator<double> deco_E3("correctedcl_Es3");
+  static const SG::AuxElement::Decorator<std::string> deco_layer_correction("layer_correction");
 
   if (status == CP::CorrectionCode::Ok) {
     ATH_MSG_DEBUG("decorating cluster with corrected layer energies");
@@ -849,7 +849,7 @@ CP::CorrectionCode egammaLayerRecalibTool::applyCorrection(xAOD::Egamma& particl
     deco_layer_correction(*cluster) = m_tune;
     return status;
   }
-  else {
+  
     ATH_MSG_DEBUG("cannot correct layer energies: decorating particle with non-corrected layer energies");
     // this is done for safety, since when a particle is decorated
     // all the particle in the container are decorated
@@ -861,7 +861,7 @@ CP::CorrectionCode egammaLayerRecalibTool::applyCorrection(xAOD::Egamma& particl
     deco_E3(*cluster) = cluster->energyBE(3);
     deco_layer_correction(*cluster) = m_tune;
     return status;
-  }
+  
 }
 
 

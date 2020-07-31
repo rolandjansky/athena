@@ -96,7 +96,7 @@ class EtaPtFilterTool : public TruthParticleFilterBaseTool
 
   /** Check if a given particle is within the acceptance (pt+eta)
    */
-  bool isAccepted( const HepMC::GenParticle* mcPart ) const;
+  bool isAccepted( HepMC::ConstGenParticlePtr mcPart ) const;
 
   /** Check if a given vertex has at least one in-going
    *  or out-going particle within the acceptance (pt+eta)

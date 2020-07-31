@@ -27,49 +27,23 @@ void applyConstraints(VKVertex * vk)
   int NTRK=vk->TrackList.size();
   for(int ic=0; ic<NCEntries; ic++){
     vk->ConstraintList[ic]->applyConstraint();
-                 //std::cout<<(*pnt_cnst)<<'\n';
-/*//-------------------------------------
-       int ici=1;  double aa0=vk->ConstraintList[ic]->aa[ici];
-       double der1,der2,der3;
-       for(int it=0; it<NTRK; it++){
-          vk->TrackList[it]->cnstP[0] += 0.0001; calcPointConstraint( pnt_cnst ); 
-          vk->TrackList[it]->cnstP[0] -= 0.0001;
-          der1=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.0001;
-          vk->TrackList[it]->cnstP[1] += 0.0001; calcPointConstraint( pnt_cnst ); 
-          vk->TrackList[it]->cnstP[1] -= 0.0001;
-          der2=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.0001;
-          vk->TrackList[it]->cnstP[2] *= 1.001;  calcPointConstraint( pnt_cnst ); 
-          vk->TrackList[it]->cnstP[2] /= 1.001;
-          der3=(vk->ConstraintList[ic]->aa[ici]-aa0)/(vk->TrackList[it]->cnstP[2]*0.001);
-          std::cout<<"Numerical deriv it="<<it<<"  "<<der1<<", "<<der2<<", "<<der3<<'\n';
-       }
-       vk->cnstV[0] += 0.001; calcPointConstraint( pnt_cnst ); 
-       vk->cnstV[0] -= 0.001; der1=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.001;
-       vk->cnstV[1] += 0.001; calcPointConstraint( pnt_cnst ); 
-       vk->cnstV[1] -= 0.001; der2=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.001;
-       vk->cnstV[2] += 0.001; calcPointConstraint( pnt_cnst ); 
-       vk->cnstV[2] -= 0.001; der3=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.001;
-       std::cout<<"Numerical deriv vrt="<<der1<<", "<<der2<<", "<<der3<<'\n';
-*///------------------------------------------
-     
   }      
 //
 // Effect of symmetrization
 //
     for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
        for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
-         vk->ConstraintList[ii]->h0t[ic].X /= 2. ;
-         vk->ConstraintList[ii]->h0t[ic].Y /= 2. ;
-         vk->ConstraintList[ii]->h0t[ic].Z /= 2. ;
+         vk->ConstraintList[ii]->h0t[ic].X *= 0.5 ;
+         vk->ConstraintList[ii]->h0t[ic].Y *= 0.5 ;
+         vk->ConstraintList[ii]->h0t[ic].Z *= 0.5 ;
          for(int it=0; it<NTRK; it++){
-	    vk->ConstraintList[ii]->f0t.at(it)[ic].X /= 2. ;
-	    vk->ConstraintList[ii]->f0t[it][ic].Y    /= 2. ;
-	    vk->ConstraintList[ii]->f0t[it][ic].Z    /= 2. ;
+	    vk->ConstraintList[ii]->f0t.at(it)[ic].X *= 0.5 ;
+	    vk->ConstraintList[ii]->f0t[it][ic].Y    *= 0.5 ;
+	    vk->ConstraintList[ii]->f0t[it][ic].Z    *= 0.5 ;
          }
        }
     }
-    return;
-}
+    }
 
 
  VKConstraintBase::VKConstraintBase(const int NC,int NTRK, VKContraintType t, VKVertex* vrt): NCDim(NC), NTrk(NTRK),
@@ -78,7 +52,7 @@ void applyConstraints(VKVertex * vk)
   }
 
 
-  VKConstraintBase::~VKConstraintBase(){}
+  VKConstraintBase::~VKConstraintBase()= default;
   std::ostream &  operator << ( std::ostream& out, const VKConstraintBase & cnst  )
   {
         int NTRK=cnst.f0t.size();
@@ -114,7 +88,7 @@ void applyConstraints(VKVertex * vk)
     for(int i=0; i<(int)listTrk.size(); i++) m_usedParticles.push_back(listTrk[i]);
     m_originVertex = vk;
   }
-  VKMassConstraint::~VKMassConstraint(){}
+  VKMassConstraint::~VKMassConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKMassConstraint & cnst  )
   {
         const VKVertex * vk = cnst.getOriginVertex();
@@ -139,7 +113,7 @@ void applyConstraints(VKVertex * vk)
   VKPhiConstraint::VKPhiConstraint(int NTRK, VKVertex *vk):
     VKConstraintBase(1,NTRK, VKContraintType::Phi, vk)
   {m_originVertex = vk;}
-  VKPhiConstraint::~VKPhiConstraint(){}
+  VKPhiConstraint::~VKPhiConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKPhiConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
@@ -153,7 +127,7 @@ void applyConstraints(VKVertex * vk)
   VKThetaConstraint::VKThetaConstraint(int NTRK, VKVertex *vk):
     VKConstraintBase(1,NTRK, VKContraintType::Theta, vk)
   {m_originVertex = vk;}
-  VKThetaConstraint::~VKThetaConstraint(){}
+  VKThetaConstraint::~VKThetaConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKThetaConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
@@ -171,7 +145,7 @@ void applyConstraints(VKVertex * vk)
   { m_originVertex = vk;m_targetVertex[0]=vrt[0]; m_targetVertex[1]=vrt[1]; m_targetVertex[2]=vrt[2];
     m_onlyZ=onlyZ;  // For Z only constraint
   }
-  VKPointConstraint::~VKPointConstraint(){}
+  VKPointConstraint::~VKPointConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKPointConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
@@ -194,7 +168,7 @@ void applyConstraints(VKVertex * vk)
   VKPlaneConstraint::VKPlaneConstraint(int NTRK, double a, double b, double c, double d, VKVertex *vk):
     VKConstraintBase(1,NTRK, VKContraintType::Plane, vk)
   {m_A=a; m_B=b; m_C=c; m_D=d; }
-  VKPlaneConstraint::~VKPlaneConstraint(){}
+  VKPlaneConstraint::~VKPlaneConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKPlaneConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;

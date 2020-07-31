@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -7,8 +7,6 @@
 
 #include "InDetLowBetaFinder/TrtToolsBetaLiklihood.h"
 #include "InDetLowBetaFinder/TrtToolsBetaLiklihood.calibration.h"
-
-
 
 // Define the control parameters here instead of in the header to enable linking
 // (Fixing the one-definition rule of C++)
@@ -264,7 +262,8 @@ void TrtToolBetaLiklihood::TRT_FEbeta_min(float &beta, float &betaSigmaLo, float
   //std::cout << "waypoint 9" << std::endl;  
 }
 
-void TRT_FEbeta_fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
+void TRT_FEbeta_fcn ATLAS_NOT_THREAD_SAFE // Global variables are used without protection.
+(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 
    //std::cout << "FEbeta_fcn 0" << std::endl;
    const double c = 30.; // speed of light in cm/ns
@@ -320,7 +319,7 @@ void TRT_FEbeta_fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_
      //std::cout << "FEbeta_fcn 2" << std::endl;
      
      // beta so small we've shifted off the map
-     if (bit-binShift-1 < 0) {
+     if (bit-binShift-1 < 0 || bit-binShift >= 24) {
        prob = 1.E-15; // give some very low prob to get away from here
        //std::cout << prob << std::endl;
      } else {

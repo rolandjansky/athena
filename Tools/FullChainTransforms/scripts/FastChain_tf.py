@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #  FastChain_tf.py
 #  One step transform to run SIM+DIGI as one job, then reco
@@ -10,18 +10,16 @@
 import sys
 import time
 
-import logging
-
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
-msg.info('logging set in %s' % sys.argv[0])
+msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments, addTriggerArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 from RecJobTransforms.recTransformUtils import addRecoSubsteps, addAllRecoArgs
-from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addCommonSimTrfArgs, addBasicDigiArgs, addCommonSimDigTrfArgs, addTrackRecordArgs, addSim_tfArgs, addPileUpTrfArgs
+from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addBasicDigiArgs, addCommonSimDigTrfArgs, addTrackRecordArgs, addSim_tfArgs, addPileUpTrfArgs
 from PATJobTransforms.PATTransformUtils import addPhysValidationFiles, addValidationArguments, appendPhysValidationSubstep
 
 from PyJobTransforms.trfArgClasses import argFactory, argList, argRDOFile
@@ -30,14 +28,14 @@ from PyJobTransforms.trfArgClasses import argFactory, argList, argRDOFile
 @sigUsrStackTrace
 def main():
 
-    msg.info('This is %s' % sys.argv[0])
+    msg.info('This is %s', sys.argv[0])
 
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
     trf.generateReport()
 
-    msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
+    msg.info("%s stopped at %s, trf exit code %d", sys.argv[0], time.asctime(), trf.exitCode)
     sys.exit(trf.exitCode)
 
 def getTransform():
@@ -51,7 +49,7 @@ def getTransform():
                                    inData=['NULL','EVNT'],
                                    outData=['RDO','NULL'] ))
     # Overlay
-    from EventOverlayJobTransforms.overlayTransformUtils import addOverlay_PoolSubstep, addOverlay_PoolArguments
+    from EventOverlayJobTransforms.overlayTransformUtils import addOverlay_PoolArguments
     executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
                                    substep = 'overlayPOOL', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData = [('HITS', 'RDO_BKG')], outData = ['RDO', 'RDO_SGNL']))

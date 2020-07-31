@@ -142,7 +142,7 @@ SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
   unsigned int nBadMods{static_cast<unsigned int>(m_configurationTool->badModules()->size())}; // bad modules
   const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks{m_configurationTool->badLinks(ctx)}; // bad links
   unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
-  for (const std::pair<IdentifierHash, std::pair<bool, bool>>& link: *badLinks) {
+  for (const std::pair<const IdentifierHash, std::pair<bool, bool>>& link: *badLinks) {
     std::pair<bool, bool> status{link.second};
     if ((status.first == false) and (status.second == true)) {
       ++nBadLink0;
@@ -157,7 +157,7 @@ SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
 
   const std::map<Identifier, unsigned int>* badChips{m_configurationTool->badChips(ctx)}; // bad chips
   unsigned int nBadChips{0};
-  for (const std::pair<Identifier, unsigned int>& chip : *badChips) {
+  for (const std::pair<const Identifier, unsigned int>& chip : *badChips) {
     unsigned int status{chip.second};
     for (unsigned int i{0}; i < CHIPS_PER_MODULE; i++) {
       nBadChips += ((status & (1 << i)) == 0 ? 0 : 1);
@@ -281,7 +281,8 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
   }
   
   // Coverage check is time consuming and run at the first event of each lumi block.
-  if (m_coverageCheck and m_firstEventOfLB[pEvent->lumiBlock()]) {
+  if (m_coverageCheck and
+      (not m_coverageCheckOnlyFirtsEventOfLB or m_firstEventOfLB[pEvent->lumiBlock()])) {
     m_firstEventOfLB[pEvent->lumiBlock()] = false;
     ATH_MSG_DEBUG("Detector Coverage calculation starts" );
 

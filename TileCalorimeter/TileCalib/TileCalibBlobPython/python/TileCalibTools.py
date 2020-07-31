@@ -3,8 +3,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # TileCalibTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
+#
 # Carlos Solans <carlos.solans@cern.ch>, 2012-10-19
-# Andrey Kamenshchikov <akamensh@cern.ch>, 23-10-2013
+# Andrey Kamenshchikov <akamensh@cern.ch>, 2013-10-23
 # Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 ################################################################
 """
@@ -201,7 +202,7 @@ def openDb(db, instance, mode="READONLY",schema="COOLONL_TILE",sqlfn="tileSqlite
         connStr="sqlite://X;schema=%s;dbname=%s" % (sqlfn,instance)
     elif db=='ORACLE':
         connStr='oracle://%s;schema=ATLAS_%s;dbname=%s' % ('ATLAS_COOLPROD',schema,instance)
-#        connStr=schema+'/'+instance
+        #connStr=schema+'/'+instance
 
     return openDbConn(connStr, mode)
 
@@ -213,8 +214,8 @@ def openDbConn(connStr, mode="READONLY"):
     - connStr: The DB connection string.
     - mode: Can be READONLY (default), RECREATE or UPDATE
     """
-# split the name into schema and dbinstance
 
+    #=== split the name into schema and dbinstance
     splitname=connStr.split('/')
     if (len(splitname)!=2):  # string connection ready to be used as it is
         connStr_new=connStr
@@ -344,16 +345,16 @@ def getFolderTag(db, folderPath, globalTag):
             if 'OFLP200' in db or 'MC' in db:
                 schema='COOLOFL_TILE/OFLP200'
                 if not globalTag.startswith("OFLCOND"):
-                   if globalTag.startswith("RUN"):
-                      globalTag='OFLCOND-'+globalTag
-                      log.info("Using Simulation global tag \'%s\'", globalTag)
+                    if globalTag.startswith("RUN"):
+                        globalTag='OFLCOND-'+globalTag
+                        log.info("Using Simulation global tag \'%s\'", globalTag)
             elif 'COMP200' in db or 'RUN1' in db:
                 schema='COOLOFL_TILE/COMP200'
                 if globalTag!='UPD1' and globalTag!='UPD4' and ('UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag):
-                   log.info("Using suffix \'%s\' as it is", globalTag)
+                    log.info("Using suffix \'%s\' as it is", globalTag)
                 else:
-                   globalTag='COMCOND-BLKPA-RUN1-06'
-                   log.info("Using RUN1 global tag \'%s\'", globalTag)
+                    globalTag='COMCOND-BLKPA-RUN1-06'
+                    log.info("Using RUN1 global tag \'%s\'", globalTag)
         if schema == 'COOLOFL_TILE/CONDBR2':
             if globalTag=='CURRENT' or globalTag=='UPD4' or globalTag=='':
                 globalTag=resolveAlias.getCurrent()
@@ -770,36 +771,36 @@ class TileBlobReader(TileCalibLogger):
         Returns a default drawer number (among first 20 COOL channels) for any drawer in any partition
         """
         if ros==0:
-           if drawer<=4 or drawer==12 or drawer>=20:
-              drawer1=0
-           elif drawer<12:
-              drawer1=4
-           else:
-              drawer1=12
+            if drawer<=4 or drawer==12 or drawer>=20:
+                drawer1=0
+            elif drawer<12:
+                drawer1=4
+            else:
+                drawer1=12
         elif ros==1 or ros==2:
-           drawer1=4
+            drawer1=4
         elif ros==3:
-           OffsetEBA = [ 0, 0, 0, 0, 0, 0, 3, 2, #// Merged E+1: EBA07; Outer MBTS: EBA08
-                         0, 0, 0, 0, 7, 6, 5, 7, #// D+4: EBA13, EBA16; Special D+4: EBA14; Special D+40: EBA15
-                         7, 6, 6, 7, 0, 0, 0, 2, #// D+4: EBA17, EBA20; Special D+4: EBA18, EBA19; Outer MBTS: EBA24
-                         3, 0, 0, 0, 0, 0, 0, 0, #// Merged E+1:  EBA25
-                         0, 0, 0, 0, 0, 0, 1, 1, #// Inner MBTS + special C+10: EBA39, EBA40
-                         1, 1, 2, 3, 0, 0, 0, 0, #// Inner MBTS + special C+10: EBA41, EBA42; Outer MBTS: EBA43; Merged E+1: EBA44
-                         0, 0, 0, 0, 3, 2, 1, 1, #// Merged E+1: EBA53; Outer MBTS: EBA54; Inner MBTS + special C+10: EBA55, EBA56
-                         1, 1, 0, 0, 0, 0, 0, 0] #// Inner MBTS + special C+10: EBA57, EBA58
-           drawer1 = 12 + OffsetEBA[drawer]
+            OffsetEBA = [ 0, 0, 0, 0, 0, 0, 3, 2, #// Merged E+1: EBA07; Outer MBTS: EBA08
+                          0, 0, 0, 0, 7, 6, 5, 7, #// D+4: EBA13, EBA16; Special D+4: EBA14; Special D+40: EBA15
+                          7, 6, 6, 7, 0, 0, 0, 2, #// D+4: EBA17, EBA20; Special D+4: EBA18, EBA19; Outer MBTS: EBA24
+                          3, 0, 0, 0, 0, 0, 0, 0, #// Merged E+1:  EBA25
+                          0, 0, 0, 0, 0, 0, 1, 1, #// Inner MBTS + special C+10: EBA39, EBA40
+                          1, 1, 2, 3, 0, 0, 0, 0, #// Inner MBTS + special C+10: EBA41, EBA42; Outer MBTS: EBA43; Merged E+1: EBA44
+                          0, 0, 0, 0, 3, 2, 1, 1, #// Merged E+1: EBA53; Outer MBTS: EBA54; Inner MBTS + special C+10: EBA55, EBA56
+                          1, 1, 0, 0, 0, 0, 0, 0] #// Inner MBTS + special C+10: EBA57, EBA58
+            drawer1 = 12 + OffsetEBA[drawer]
         elif ros==4:
-           OffsetEBC = [ 0, 0, 0, 0, 0, 0, 3, 2, #// Merged E-1: EBC07; Outer MBTS: EBC08
-                         0, 0, 0, 0, 7, 6, 6, 7, # // D-4: EBC13, EBC16; Special D-4: EBC14, EBC15;
-                         7, 5, 6, 7, 0, 0, 0, 2, #// D-4: EBC17, EBC20; Special D-40 EBC18; Special D-4: EBC19; Outer MBTS: EBC24
-                         3, 0, 0, 3, 4, 0, 3, 4, #// Merged E-1:  EBC25, EBC28, EBC31; E-4': EBC29, EBC32
-                         0, 4, 3, 0, 4, 3, 1, 1, #// E-4': EBC34, EBC37; Merged E-1: EBC35, EBC38; Inner MBTS + special C-10: EBC39, EBC40
-                         1, 1, 2, 3, 0, 0, 0, 0, #// Inner MBTS + special C-10: EBC41, EBC42; Outer MBTS: EBC43; Merged E-1: EBC44
-                         0, 0, 0, 0, 3, 2, 1, 1, #// Merged E-1: EBC53; Outer MBTS: EBC54; Inner MBTS + special C-10: EBC55, EBC56
-                         1, 1, 0, 0, 0, 0, 0, 0] #// Inner MBTS + special C-10: EBC57, EBC58
-           drawer1 = 12 + OffsetEBC[drawer]
+            OffsetEBC = [ 0, 0, 0, 0, 0, 0, 3, 2, #// Merged E-1: EBC07; Outer MBTS: EBC08
+                          0, 0, 0, 0, 7, 6, 6, 7, # // D-4: EBC13, EBC16; Special D-4: EBC14, EBC15;
+                          7, 5, 6, 7, 0, 0, 0, 2, #// D-4: EBC17, EBC20; Special D-40 EBC18; Special D-4: EBC19; Outer MBTS: EBC24
+                          3, 0, 0, 3, 4, 0, 3, 4, #// Merged E-1:  EBC25, EBC28, EBC31; E-4': EBC29, EBC32
+                          0, 4, 3, 0, 4, 3, 1, 1, #// E-4': EBC34, EBC37; Merged E-1: EBC35, EBC38; Inner MBTS + special C-10: EBC39, EBC40
+                          1, 1, 2, 3, 0, 0, 0, 0, #// Inner MBTS + special C-10: EBC41, EBC42; Outer MBTS: EBC43; Merged E-1: EBC44
+                          0, 0, 0, 0, 3, 2, 1, 1, #// Merged E-1: EBC53; Outer MBTS: EBC54; Inner MBTS + special C-10: EBC55, EBC56
+                          1, 1, 0, 0, 0, 0, 0, 0] #// Inner MBTS + special C-10: EBC57, EBC58
+            drawer1 = 12 + OffsetEBC[drawer]
         else:
-           drawer1=0
+            drawer1=0
 
         return (0,drawer1)
 
@@ -1272,57 +1273,57 @@ class TileASCIIParser2(TileCalibLogger):
 
             #=== fill dictionary
             if ros<0:
-               rosmin=0
-               rosmax=5
+                rosmin=0
+                rosmax=5
             elif ros>=5:
-               rosmin=1
-               rosmax=5
+                rosmin=1
+                rosmax=5
             else:
-               rosmin=ros
-               rosmax=ros+1
+                rosmin=ros
+                rosmax=ros+1
 
             if mod<0 or mod>=64:
-               modmin=0
-               modmax=64
+                modmin=0
+                modmax=64
             else:
-               modmin=mod
-               modmax=mod+1
+                modmin=mod
+                modmax=mod+1
 
             allchannels=True
             if chn<-2:
-               chnmin=0
-               chnmax=-chn
+                chnmin=0
+                chnmax=-chn
             elif chn<0:
-               chnmin=0
-               chnmax=48
-               allchannels=(chn==-1) # if chn=-2 only connected channels will be updated
+                chnmin=0
+                chnmax=48
+                allchannels=(chn==-1) # if chn=-2 only connected channels will be updated
             else:
-               chnmin=chn
-               chnmax=chn+1
+                chnmin=chn
+                chnmax=chn+1
 
             if adc<-1:
-               adcmin=0
-               adcmax=-adc
+                adcmin=0
+                adcmax=-adc
             elif adc<0:
-               adcmin=0
-               adcmax=2
+                adcmin=0
+                adcmax=2
             else:
-               adcmin=adc
-               adcmax=adc+1
+                adcmin=adc
+                adcmax=adc+1
 
             for ros in range(rosmin,rosmax):
-               for mod in range(modmin,modmax):
-                  for chn in range(chnmin,chnmax):
-                     if allchannels or self.channel2PMT(ros,mod,chn)>0:
-                        for adc in range (adcmin,adcmax):
-                           dictKey = (ros,mod,chn,adc)
-                           if self.__manyIOVs:
-                               if dictKey in self.__dataDict:
-                                   self.__dataDict[dictKey] += [(iov,data)]
-                               else:
-                                   self.__dataDict[dictKey] = [(iov,data)]
-                           else:
-                               self.__dataDict[dictKey] = data
+                for mod in range(modmin,modmax):
+                    for chn in range(chnmin,chnmax):
+                        if allchannels or self.channel2PMT(ros,mod,chn)>0:
+                            for adc in range (adcmin,adcmax):
+                                dictKey = (ros,mod,chn,adc)
+                                if self.__manyIOVs:
+                                    if dictKey in self.__dataDict:
+                                        self.__dataDict[dictKey] += [(iov,data)]
+                                    else:
+                                        self.__dataDict[dictKey] = [(iov,data)]
+                                else:
+                                    self.__dataDict[dictKey] = data
 
     #____________________________________________________________________
     def getData(self, ros, drawer, channel, adc, iov=(MAXRUN,MAXLBK)):
@@ -1442,4 +1443,3 @@ class TileASCIIParser3(TileCalibLogger):
     def getDict(self):
         import copy
         return copy.deepcopy(self.__dataDict)
-

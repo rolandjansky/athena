@@ -306,8 +306,7 @@ if val_n>0:
 
 
 import ROOT
-from ROOT import TCanvas, TH1D, TH2D, TGraph, TTree, TLegend, TLatex
-from ROOT import gROOT
+from ROOT import TCanvas, TH2D, TGraph, TTree, TLegend, TLatex
 from ROOT import kTRUE
 import numpy as np
 
@@ -350,31 +349,31 @@ idb = TileCalibTools.openDbConn(schema,'READONLY')
 iovList = []
 blobReader = []
 for (fp,ft) in zip(folderPath,folderTag):
-  try:
-    br = TileCalibTools.TileBlobReader(idb,fp, ft)
-    blobReader += [br]
-    dbobjs = br.getDBobjsWithinRange(COOL_part, COOL_chan)
-    if (dbobjs is None):
-        raise Exception("No DB objects retrieved when building IOV list!")
-    while dbobjs.goToNext():
-      obj = dbobjs.currentRef()
-      objsince = obj.since()
-      sinceRun = objsince >> 32
-      sinceLum = objsince & 0xFFFFFFFF
-      since    = (sinceRun, sinceLum)
-      objuntil = obj.until()
-      untilRun = objuntil >> 32
-      untilLum = objuntil & 0xFFFFFFFF
-      until    = (untilRun, untilLum)
+    try:
+        br = TileCalibTools.TileBlobReader(idb,fp, ft)
+        blobReader += [br]
+        dbobjs = br.getDBobjsWithinRange(COOL_part, COOL_chan)
+        if (dbobjs is None):
+            raise Exception("No DB objects retrieved when building IOV list!")
+        while dbobjs.goToNext():
+            obj = dbobjs.currentRef()
+            objsince = obj.since()
+            sinceRun = objsince >> 32
+            sinceLum = objsince & 0xFFFFFFFF
+            since    = (sinceRun, sinceLum)
+            objuntil = obj.until()
+            untilRun = objuntil >> 32
+            untilLum = objuntil & 0xFFFFFFFF
+            until    = (untilRun, untilLum)
 
-      if multi:
-          iov = (since, since)
-      else:
-          iov = (since, until)
-      iovList.append(iov)
-  except Exception:
-    print ("Warning: can not read IOVs from input DB file")
-    sys.exit(2)
+            if multi:
+                iov = (since, since)
+            else:
+                iov = (since, until)
+            iovList.append(iov)
+    except Exception:
+        print ("Warning: can not read IOVs from input DB file")
+        sys.exit(2)
 
 if multi:
     il=[]
@@ -555,45 +554,45 @@ for iovs in iovList:
             modName = TileCalibUtils.getDrawerString(ros,mod)
             for (fp,ft,br) in zip(folderPath,folderTag,blobReader):
                 try:
-                  flt = br.getDrawer(ros, mod,(run,lumi), False, False)   # modified
-                  if flt is None or isinstance(flt, (int)):
-                      if one_iov or ros!=0:
-                          print ("%s is missing in DB" % modName)
-                  else:
-                      nchan = flt.getNChans()
-                      ngain = flt.getNGains()
-                      nval  = flt.getObjSizeUint32()
-                      for chn in range(chanmin,min(chanmax+1,nchan)):
-                          for adc in range(gainmin,min(gainmax+1,ngain)):
-                              msg = "%s  %s %2i %1i  " % (rl, modName, chn, adc )
-                              for val in range(nval):
-                                  msg += "  %f" % flt.getData(chn, adc, val)
-                                  vals.push_back(flt.getData(chn, adc, val))
-                                  if val==0:
-                                      value[0] *= flt.getData(chn, adc, val)
-                              if print_msg:
-                                  if multi:
-                                      print (fp,msg)
-                                  else:
-                                      print (msg)
-                          channel_n[0] = chn
-                          if one_run:
-                              labels.push_back(str(lumi))
-                          else:
-                              labels.push_back(str(run))
-                          if not multi or opt2d:
-                              if first:
-                                  if vals.size()>val_n:
-                                      scale[0]=vals[val_n]
-                                  first=False
-                              tree.Fill()
-                              if not line or many:
-                                  labels.clear()
-                                  vals.clear()
-                                  value[0] = 1.
+                    flt = br.getDrawer(ros, mod,(run,lumi), False, False)   # modified
+                    if flt is None or isinstance(flt, (int)):
+                        if one_iov or ros!=0:
+                            print ("%s is missing in DB" % modName)
+                    else:
+                        nchan = flt.getNChans()
+                        ngain = flt.getNGains()
+                        nval  = flt.getObjSizeUint32()
+                        for chn in range(chanmin,min(chanmax+1,nchan)):
+                            for adc in range(gainmin,min(gainmax+1,ngain)):
+                                msg = "%s  %s %2i %1i  " % (rl, modName, chn, adc )
+                                for val in range(nval):
+                                    msg += "  %f" % flt.getData(chn, adc, val)
+                                    vals.push_back(flt.getData(chn, adc, val))
+                                    if val==0:
+                                        value[0] *= flt.getData(chn, adc, val)
+                                if print_msg:
+                                    if multi:
+                                        print (fp,msg)
+                                    else:
+                                        print (msg)
+                            channel_n[0] = chn
+                            if one_run:
+                                labels.push_back(str(lumi))
+                            else:
+                                labels.push_back(str(run))
+                            if not multi or opt2d:
+                                if first:
+                                    if vals.size()>val_n:
+                                        scale[0]=vals[val_n]
+                                    first=False
+                                tree.Fill()
+                                if not line or many:
+                                    labels.clear()
+                                    vals.clear()
+                                    value[0] = 1.
 
                 except Exception as e:
-                  print (e)
+                    print (e)
 
             if multi and not opt2d and vals.size()>0:
                 if first:
@@ -665,7 +664,7 @@ elif one_run:
 cx = 1600
 cy = 800
 #if label is not None:
-#  cy = int(1.05*cy)
+#    cy = int(1.05*cy)
 canv = TCanvas("PlotCalib","plotCalib",0,0,cx,cy)
 
 if opt2d:
@@ -905,8 +904,8 @@ os.system("display "+fname+".png")
 
 #
 #if __name__ == '__main__':
-#   rep = ''
-#   while not rep in [ 'q', 'Q' ]:
-#      rep = raw_input( 'enter "q" to quit: ' )
-#      if 1 < len(rep):
-#         rep = rep[0]
+#    rep = ''
+#    while not rep in [ 'q', 'Q' ]:
+#        rep = raw_input( 'enter "q" to quit: ' )
+#        if 1 < len(rep):
+#            rep = rep[0]

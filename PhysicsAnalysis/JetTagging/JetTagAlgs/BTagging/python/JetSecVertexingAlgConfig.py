@@ -2,12 +2,11 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
 Analysis__JetSecVertexingAlg=CompFactory.Analysis.JetSecVertexingAlg
 
-def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", **options):
+def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionName="", SVFinder="", Associator="", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -24,14 +23,15 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
         JetSVLink = 'JFVtx'
     if SVFinder == 'SV1':
         JetSVLink = 'SecVtx'
+    if SVFinder == 'MSV':
+        JetSVLink = 'MSecVtx' # Maybe no used
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
     btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
     options = {}
     options.setdefault('SecVtxFinderxAODBaseName', SVFinder)
-    options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
     options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo_' + JetCollection
     options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator

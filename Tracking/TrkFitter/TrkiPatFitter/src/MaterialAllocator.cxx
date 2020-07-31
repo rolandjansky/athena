@@ -102,35 +102,35 @@ namespace Trk
     if (m_extrapolator.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-    }
+    
     if (m_intersector.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_intersector);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved tool " << m_intersector);
-    }
+    
 
     // retrieve services
     if (m_trackingGeometrySvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingGeometrySvc);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved Svc " << m_trackingGeometrySvc);
-    }
+    
 
     // need to create the IndetExit and MuonEntrance TrackingVolumes
     if (m_trackingVolumesSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
       m_calorimeterVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
       m_indetVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-    }
+    
 
     if (m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_stepPropagator);
@@ -252,8 +252,8 @@ namespace Trk
       if (haveDelimiter && intersection && surface && m_indetVolume->inside(endPosition)) {
         // debug
         if (msgLvl(MSG::VERBOSE)) {
-          Amg::Vector3D direction = intersection->direction();
-          Amg::Vector3D startPosition = intersection->position();
+          const Amg::Vector3D& direction = intersection->direction();
+          const Amg::Vector3D& startPosition = intersection->position();
           ATH_MSG_VERBOSE(" addLeadingMaterial: using extrapolateM from distance "
                           << direction.dot(fitParameters.position() - startPosition));
         }
@@ -489,7 +489,7 @@ namespace Trk
                    && leadingOutlier->intersection(FittedTrajectory).position().perp() > radius) {
               leadingOutliers.pop_back();
               measurements.insert(measurements.begin(), leadingOutlier);
-              if (leadingOutliers.size()) {
+              if (!leadingOutliers.empty()) {
                 leadingOutlier = leadingOutliers.back();
               } else {
                 leadingOutlier = nullptr;
@@ -723,9 +723,9 @@ namespace Trk
         // missing TrackingGeometrySvc - no leading material will be added
         m_messageHelper->printWarning(0);
         return nullptr;
-      } else {
+      } 
         createSpectrometerEntranceOnce();
-      }
+      
     }
 
     // check input parameters are really in the spectrometer
@@ -759,7 +759,7 @@ namespace Trk
                            garbage);
     delete entranceParameters;
     if (!extrapolatedTSOS
-        || !extrapolatedTSOS->size()
+        || extrapolatedTSOS->empty()
         || !extrapolatedTSOS->front()->trackParameters()) {
       ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                       << "leadingSpectrometerTSOS: no material found from RZ"
@@ -1115,7 +1115,7 @@ namespace Trk
                                           const TrackParameters& parameters,
                                           const Surface& surface,
                                           PropDirection dir,
-                                          BoundaryCheck boundsCheck,
+                                          const BoundaryCheck& boundsCheck,
                                           ParticleHypothesis particleHypothesis,
                                           Garbage_t& garbage) const {
     // fix up material duplication appearing after recent TrackingGeometry speed-up
@@ -1405,7 +1405,7 @@ namespace Trk
       if (!materialSurface) continue;
 
       // or if it's already been allocated upstream
-      if (surfaces.size() && materialSurface == surfaces.back()) continue;
+      if (!surfaces.empty() && materialSurface == surfaces.back()) continue;
 
       // skip leading material during the fit (up to and including first measurement)
       // insert an materialDelimiter so the leading material can be allocated after the fit converges
@@ -1539,7 +1539,7 @@ namespace Trk
     ATH_MSG_INFO("segment material aggregation " << material.size());
     FitMeasurement* measurement1 = nullptr;
     FitMeasurement* measurement2 = nullptr;
-    if (!material.size()) return std::pair<FitMeasurement*, FitMeasurement*>(measurement1, measurement2);
+    if (material.empty()) return std::pair<FitMeasurement*, FitMeasurement*>(measurement1, measurement2);
 
     Amg::Vector3D* referencePosition = nullptr;
 
@@ -2113,7 +2113,7 @@ namespace Trk
     ATH_MSG_VERBOSE("measurements and material:  distance        X0   deltaE            E        pT"
                     << "           R      phi         Z  DoF      phi    theta");
 
-    if (!measurements.size()) return;
+    if (measurements.empty()) return;
 
     std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
     while (m != measurements.end()
@@ -2320,9 +2320,9 @@ namespace Trk
         // missing TrackingGeometrySvc - no spectrometer material added
         m_messageHelper->printWarning(2);
         return;
-      } else {
+      } 
         createSpectrometerEntranceOnce();
-      }
+      
     }
 
     // entranceParameters are at the MS entrance surface (0 if perigee downstream)

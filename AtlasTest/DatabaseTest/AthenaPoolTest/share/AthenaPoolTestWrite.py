@@ -23,23 +23,11 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
 
-# Set handler for traceback
-svcMgr.CoreDumpSvc.FatalHandler = 438
-
 #--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
 
-#--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-
-# Add in dictionary name:
-#svcMgr.AthenaSealSvc = Service( "AthenaSealSvc" )
-#AthenaSealSvc.DictNames += [ "SealCLHEPDict" ]
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
@@ -104,7 +92,6 @@ svcMgr.MessageSvc.debugLimit  = 100000
 
 #rds svcMgr.ClassIDSvc = Service( "ClassIDSvc" )
 #rds svcMgr.ClassIDSvc.OutputLevel = 3
-svcMgr.AthenaSealSvc.OutputLevel = WARNING
 
 from AthenaServices import AthenaServicesConf
 AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()

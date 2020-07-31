@@ -81,7 +81,7 @@ void test1()
   ServiceHandle<StoreGateSvc> sg ("StoreGateSvc", "test");
   assert (sg.retrieve().isSuccess());
 
-  assert (tool->preExecute().isSuccess());
+  assert (tool->preStream().isSuccess());
   assert (SG::getThinningCache() == nullptr);
   assert (tool->postExecute().isSuccess());
   assert (SG::getThinningCache() == nullptr);
@@ -105,7 +105,7 @@ void test1()
   assert( sg->record (std::move (d2), "v2_THINNED_MyStream.a", false).isSuccess() );
   assert( sg->record (std::move (d3), "v2_THINNED_MyStream.b", false).isSuccess() );
 
-  assert (tool->preExecute().isSuccess());
+  assert (tool->preStream().isSuccess());
   assert (SG::getThinningCache() != nullptr);
 
   assert (SG::getThinningDecision ("v1") == d1p);
@@ -137,7 +137,7 @@ void test2()
   ServiceHandle<ITrigNavigationThinningSvc> tsvc ("TestTNThinningSvc", "test");
   assert (tsvc.retrieve().isSuccess());
 
-  assert (tool->preExecute().isSuccess());
+  assert (tool->preStream().isSuccess());
   assert (SG::getThinningCache() != nullptr);
   assert (SG::getThinningCache()->trigNavigationThinningSvc() == tsvc.get());
   assert (tool->postExecute().isSuccess());
@@ -150,7 +150,7 @@ int main()
 {
   std::cout << "AthenaServices/ThinningCacheTool_test\n";
   ISvcLocator* svcloc = nullptr;
-  if (!Athena_test::initGaudi("ThinningCacheTool_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/ThinningCacheTool_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 1;
   }  

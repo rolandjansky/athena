@@ -6,6 +6,8 @@
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/HelperFunctions.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+
 #define GeV 1000
 
 //_____________________________________________________________________________

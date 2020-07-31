@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/DiTauJetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODPFlow/PFOContainer.h"
@@ -105,7 +106,6 @@ namespace ExpressionParsing {
 
     m_elementProxyLoader->setData(metElement);
   }
-
 
   // End helper classes
 
@@ -157,6 +157,7 @@ namespace ExpressionParsing {
 
     // End specific workarounds
 
+    TRY_VECTOR(xAOD::TruthParticleContainer);
     TRY_VECTOR(xAOD::ElectronContainer);
     TRY_VECTOR(xAOD::PhotonContainer);
     TRY_VECTOR(xAOD::MuonContainer);
@@ -164,10 +165,10 @@ namespace ExpressionParsing {
     TRY_VECTOR(xAOD::TrackParticleContainer);
     TRY_VECTOR(xAOD::VertexContainer);
     TRY_VECTOR(xAOD::CaloClusterContainer);
-    TRY_VECTOR(xAOD::TruthParticleContainer);
     TRY_VECTOR(xAOD::TruthEventContainer);
     TRY_VECTOR(xAOD::TruthVertexContainer);
     TRY_VECTOR(xAOD::TauJetContainer);
+    TRY_VECTOR(xAOD::DiTauJetContainer);
     TRY_VECTOR(xAOD::BTaggingContainer);
     TRY_VECTOR(xAOD::PFOContainer);
     TRY_VECTOR(xAOD::ParticleContainer);

@@ -12,7 +12,6 @@
 #include "TRT_StrawStatusSummaryTool.h"
 #include "InDetIdentifier/TRT_ID.h"
 
-
 TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
     m_condSvc("CondSvc",name) {}
@@ -28,23 +27,19 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
     return StatusCode::FAILURE;
   }
 
-    // Read keys in case of normal reconstruction/digitization
+  // Read keys in case of normal reconstruction/digitization
   ATH_CHECK( m_statReadKey.initialize() );
   ATH_CHECK( m_permReadKey.initialize() );
 
-  if(!m_isGEANT4) {
-  
-    ATH_CHECK( m_statHTReadKey.initialize() );
-  }
+  // Only require this input if not using G4 sim
+  ATH_CHECK( m_statHTReadKey.initialize( !m_isGEANT4 ) );
 
-  if(m_isGEANT4) {
+  if ( m_isGEANT4 ) {
     // processing GEANT4 simulation - revert to old non-MT style cond access
-
-    if(StatusCode::SUCCESS!=detStore()->retrieve(m_strawstatusHTG4,m_par_strawstatusHTcontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatusHTcontainerkey);
-        return StatusCode::FAILURE;
-      }
-
+    if ( StatusCode::SUCCESS!=detStore()->retrieve( m_strawstatusHTG4, m_par_strawstatusHTcontainerkey ) ) {
+      ATH_MSG_FATAL( "Could not retrieve folder " << m_par_strawstatusHTcontainerkey );
+      return StatusCode::FAILURE;
+    }
   }
 
   ATH_MSG_INFO("TRT_StrawStatusSummaryTool initialized successfully  ");
@@ -98,7 +93,7 @@ int TRT_StrawStatusSummaryTool::getStatusHT(Identifier offlineID, const EventCon
 
   const StrawStatusContainer* strawstatusHTcontainer;
   if(m_isGEANT4) {
-     strawstatusHTcontainer=m_strawstatusHTG4.cptr();
+    strawstatusHTcontainer=m_strawstatusHTG4.cptr();
   }
   else {
     SG::ReadCondHandle<StrawStatusContainer> rht(m_statHTReadKey,ctx);
@@ -112,7 +107,7 @@ const TRTCond::StrawStatusMultChanContainer* TRT_StrawStatusSummaryTool::getStra
 
   const StrawStatusContainer* strawstatusHTcontainer;
   if(m_isGEANT4) {
-     strawstatusHTcontainer=m_strawstatusHTG4.cptr();
+    strawstatusHTcontainer=m_strawstatusHTG4.cptr();
   }
   else {
     SG::ReadCondHandle<StrawStatusContainer> rht(m_statHTReadKey,Gaudi::Hive::currentContext());

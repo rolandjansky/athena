@@ -83,6 +83,13 @@ namespace {
     {
       addRef();
     }
+    // Extra constructor to create a temporary proxy without aliases, for objects in MetaContainers
+    AltDataBucket(void* ptr, CLID clid, const std::type_info& tinfo, const std::string name) :
+       m_proxy(this, new SG::TransientAddress(clid, name) ),
+       m_ptr(ptr), m_clid(clid), m_tinfo(tinfo)
+    {
+      addRef();
+    }
 
     virtual const CLID& clID() const override { return m_clid; }
     virtual void* object() override { return m_ptr; }
@@ -195,104 +202,50 @@ AthenaOutputStream::~AthenaOutputStream() {
 
 // initialize data writer
 StatusCode AthenaOutputStream::initialize() {
-   StatusCode status(StatusCode::FAILURE);
-   StatusCode baseStatus = this->FilteredAlgorithm::initialize();
+   ATH_CHECK( this->FilteredAlgorithm::initialize() );
    ATH_MSG_DEBUG("In initialize");
    // Reset the number of events written
    m_events = 0;
 
    // set up the SG service:
-   status = m_dataStore.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate default store");
-      return(status);
-   } else {
-      ATH_MSG_DEBUG("Found " << m_dataStore.type() << " store.");
-   }
+   ATH_CHECK( m_dataStore.retrieve() );
+   ATH_MSG_DEBUG("Found " << m_dataStore.typeAndName() << " store.");
    assert(static_cast<bool>(m_dataStore));
    if (!m_metadataItemList.value().empty()) {
-      status = m_metadataStore.retrieve();
-      if (!status.isSuccess()) {
-         ATH_MSG_FATAL("Could not locate metadata store");
-         return(status);
-      } else {
-         ATH_MSG_DEBUG("Found " << m_metadataStore.type() << " store.");
-      }
+      ATH_CHECK( m_metadataStore.retrieve() );
+      ATH_MSG_DEBUG("Found " << m_metadataStore.typeAndName() << " store.");
       assert(static_cast<bool>(m_metadataStore));
    }
 
    // set up the CLID service:
-   status = m_pCLIDSvc.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate default ClassIDSvc");
-      return(status);
-   }
+   ATH_CHECK( m_pCLIDSvc.retrieve() );
 
    // set up the ItemListSvc service:
    assert(static_cast<bool>(m_pCLIDSvc));
-   status = m_itemSvc.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate default ItemListSvc");
-      return(status);
-   }
+   ATH_CHECK( m_itemSvc.retrieve() );
    assert(static_cast<bool>(m_itemSvc));
 
    // set up the OutputStreamSequencer service:
-   status = m_outSeqSvc.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not locate OutputStreamSequencerSvc");
-      return(status);
-   }
+   ATH_CHECK( m_outSeqSvc.retrieve() );
    assert(static_cast<bool>(m_outSeqSvc));
 
    // Get Output Stream tool for writing
-   status = m_streamer.retrieve();
-   if (status.isFailure()) {
-      ATH_MSG_FATAL("Cannot find " << m_streamer);
-      return(status);
-   }
-   status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
-   if (status.isFailure()) {
-      ATH_MSG_FATAL("Unable to connect services");
-      return(status);
-   }
+   ATH_CHECK( m_streamer.retrieve() );
+   ATH_CHECK( m_streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord) );
 
-   status = m_helperTools.retrieve();
-   if (status.isFailure()) {
-      ATH_MSG_FATAL("Cannot find " << m_helperTools);
-      return(status);
-   }
+   ATH_CHECK( m_helperTools.retrieve() );
    ATH_MSG_INFO("Found " << m_helperTools << endmsg << "Data output: " << m_outputName);
 
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-           iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->postInitialize().isSuccess()) {
-         status = StatusCode::FAILURE;
-      }
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+     ATH_CHECK( tool->postInitialize() );
    }
 
    // Register this algorithm for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
-   status = iomgr.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Cannot get the IoComponentMgr");
-      return(status);
-   }
-   status = iomgr->io_register(this);
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not register myself with the IoComponentMgr");
-      return(status);
-   }
-   status = iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName);
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could not register [" << m_outputName << "] for output !");
-      return(status);
-   }
-   status = this->io_reinit();
-   if (!status.isSuccess()) {
-      ATH_MSG_FATAL("Could re-init I/O component");
-      return(status);
-   }
+   ATH_CHECK( iomgr.retrieve() );
+   ATH_CHECK( iomgr->io_register(this) );
+   ATH_CHECK( iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName) );
+   ATH_CHECK( this->io_reinit() );
 
    // Add an explicit input dependency for everything in our item list
    // that we know from the configuration is in the transient store.
@@ -354,8 +307,7 @@ StatusCode AthenaOutputStream::initialize() {
    }
 
    ATH_MSG_DEBUG("End initialize");
-   if (baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
-   return(status);
+   return StatusCode::SUCCESS;
 }
 
 StatusCode AthenaOutputStream::stop()
@@ -434,9 +386,8 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
 
    // Moved preFinalize of helper tools to stop - want to optimize the
    // output file in finalize RDS 12/2009
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-        iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->preFinalize().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->preFinalize().isSuccess()) {
          throw GaudiException("Cannot finalize helper tool", name(), StatusCode::FAILURE);
       }
    }
@@ -453,7 +404,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
    ATH_MSG_DEBUG("metadataItemList: " << m_metadataItemList.value() );
    if (!m_metadataItemList.value().empty()) {
       m_currentStore = &m_metadataStore;
-      StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
+      StatusCode status = streamer->connectServices(m_metadataStore.typeAndName(), m_persName, false);
       if (status.isFailure()) {
          throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
       }
@@ -471,7 +422,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
       }
       m_outputAttributes.clear();
       m_currentStore = &m_dataStore;
-      status = streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+      status = streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord);
       if (status.isFailure()) {
          throw GaudiException("Unable to re-connect services", name(), StatusCode::FAILURE);
       }
@@ -479,7 +430,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
       if ((pAsIProp->setProperty(m_itemList)).isFailure()) {
          throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
       }
-      ATH_MSG_INFO("Records written: " << m_events);
+      ATH_MSG_INFO("Metadata records written: " << m_events);
    }
 }
 
@@ -510,9 +461,8 @@ StatusCode AthenaOutputStream::finalize() {
 
 StatusCode AthenaOutputStream::execute() {
    bool failed = false;
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-           iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->preExecute().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->preExecute().isSuccess()) {
          failed = true;
       }
    }
@@ -522,9 +472,8 @@ StatusCode AthenaOutputStream::execute() {
          failed = true;
       }
    }
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-           iter != m_helperTools.end(); iter++) {
-      if(!(*iter)->postExecute().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if(!tool->postExecute().isSuccess()) {
          failed = true;
       }
    }
@@ -555,7 +504,7 @@ StatusCode AthenaOutputStream::write() {
          st->addRef();
          streamer = dynamic_cast<IAthenaOutputStreamTool*>( st );
          if( streamer->initialize().isFailure()
-             || streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord).isFailure() ) {
+             || streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord).isFailure() ) {
             ATH_MSG_FATAL("Unable to initialize OutputStreamTool for " << outputFN );
             return StatusCode::FAILURE;
          }
@@ -606,6 +555,10 @@ StatusCode AthenaOutputStream::write() {
    }
    // prepare before releasing lock because m_outputAttributes change in metadataStop
    const std::string connectStr = outputFN + m_outputAttributes;
+
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+     ATH_CHECK( tool->preStream() );
+   }
 
    // MN: would be nice to release the Stream lock here
    // lock.unlock();
@@ -700,7 +653,8 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
    } else {
       item_key = item.key();
    }
-   ATH_MSG_DEBUG("addItemObjects(" << item.id() << ",\"" << item.key() << "\") called");
+   CLID item_id = item.id();
+   ATH_MSG_DEBUG("addItemObjects(" << item_id << ",\"" << item_key << "\") called");
    ATH_MSG_DEBUG("           Key:" << item_key );
    if( aux_attr.size() ) {
    ATH_MSG_DEBUG("      Aux Attr:" << aux_attr );
@@ -709,7 +663,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
    std::set<std::string> clidKeys;
    for (SG::IFolder::const_iterator iter = m_decoder->begin(), iterEnd = m_decoder->end();
            iter != iterEnd; iter++) {
-      if (iter->id() == item.id()) {
+      if (iter->id() == item_id) {
          clidKeys.insert(iter->key());
       }
    }
@@ -727,7 +681,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
      for (SG::IFolder::const_iterator iter = m_compressionDecoderHigh->begin(), iterEnd = m_compressionDecoderHigh->end();
             iter != iterEnd; iter++) {
        // First match the IDs for early rejection.
-       if (iter->id() != item.id()) {
+       if (iter->id() != item_id) {
          continue;
        }
        // Then find the compression item key and the compression list string
@@ -754,7 +708,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
      for (SG::IFolder::const_iterator iter = m_compressionDecoderLow->begin(), iterEnd = m_compressionDecoderLow->end();
             iter != iterEnd; iter++) {
        // First match the IDs for early rejection.
-       if (iter->id() != item.id()) {
+       if (iter->id() != item_id) {
          continue;
        }
        // Then find the compression item key and the compression list string
@@ -790,9 +744,11 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
      }
    }
 
+   // For MetaData objects of type T that are kept in MetaContainers get the MetaCont<T> ID
+   const CLID remapped_item_id = m_metaDataSvc->remapMetaContCLID( item_id );
    SG::ConstProxyIterator iter, end;
    // Look for the clid in storegate
-   if (((*m_currentStore)->proxyRange(item.id(), iter, end)).isSuccess()) {
+   if (((*m_currentStore)->proxyRange(remapped_item_id, iter, end)).isSuccess()) {
       bool added = false, removed = false;
       // For item list entry
       // Check for wildcard within string, i.e. 'xxx*yyy', and save the matching parts
@@ -841,27 +797,43 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
          if (keyMatch && !xkeyMatch) {
             if (m_forceRead && itemProxy->isValid()) {
                if (nullptr == itemProxy->accessData()) {
-                  ATH_MSG_ERROR(" Could not get data object for id " << item.id() << ",\"" << itemProxy->name());
+                  ATH_MSG_ERROR(" Could not get data object for id " << remapped_item_id << ",\"" << itemProxy->name());
                }
             }
             if (nullptr != itemProxy->object()) {
                if( std::find(m_objects.begin(), m_objects.end(), itemProxy->object()) == m_objects.end() &&
                    std::find(m_altObjects.begin(), m_altObjects.end(), itemProxy->object()) == m_altObjects.end() )
                {
-                 if (item.exact()) {
+                  if( item_id != remapped_item_id ) {
+                     // For MetaCont<T>: - 
+                     // create a temporary DataObject for an entry in the  container to pass to CnvSvc
+                     DataBucketBase* dbb = static_cast<DataBucketBase*>( itemProxy->object() );
+                     const MetaContBase* metaCont = static_cast<MetaContBase*>( dbb->cast( ClassID_traits<MetaContBase>::ID() ) );
+                     if( metaCont ) {
+                        void* obj = metaCont->getAsVoid( m_outSeqSvc->currentRangeID() );
+                        auto altbucket = std::make_unique<AltDataBucket>(
+                           obj, item_id, *CLIDRegistry::CLIDToTypeinfo(item_id), itemProxy->name() );
+                        m_objects.push_back( altbucket.get() );
+                        m_ownedObjects.push_back( std::move(altbucket) );
+                        m_altObjects.push_back( itemProxy->object() ); // only for duplicate prevention
+                     } else {
+                        ATH_MSG_ERROR("Failed to retrieve object from MetaCont with key=" << item_key << " for EventRangeID=" << m_outSeqSvc->currentRangeID() );
+                        return;
+                     }
+                  } else if (item.exact()) {
                    // If the exact flag is set, make a new DataObject
                    // holding the object as the requested type.
                    DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (itemProxy->object());
                    if (!dbb) std::abort();
-                   void* ptr = dbb->cast (item.id());
+                   void* ptr = dbb->cast (item_id);
                    if (!ptr) {
                      // Hard cast
                      ptr = dbb->object();
                    }
                    auto altbucket =
                      std::make_unique<AltDataBucket>
-                       (ptr, item.id(),
-                        *CLIDRegistry::CLIDToTypeinfo (item.id()),
+                       (ptr, item_id,
+                        *CLIDRegistry::CLIDToTypeinfo (item_id),
                         *itemProxy);
                    m_objects.push_back(altbucket.get());
                    m_ownedObjects.push_back (std::move(altbucket));
@@ -869,16 +841,16 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                  }
                  else
                    m_objects.push_back(itemProxy->object());
-                 ATH_MSG_DEBUG(" Added object " << item.id() << ",\"" << itemProxy->name() << "\"");
+                 ATH_MSG_DEBUG(" Added object " << item_id << ",\"" << itemProxy->name() << "\"");
                }
 
                // Build ItemListSvc string
                std::string tn;
                std::stringstream tns;
-               if (!m_pCLIDSvc->getTypeNameOfID(item.id(), tn).isSuccess()) {
+               if (!m_pCLIDSvc->getTypeNameOfID(item_id, tn).isSuccess()) {
                   ATH_MSG_ERROR(" Could not get type name for id "
-                         << item.id() << ",\"" << itemProxy->name());
-                  tns << item.id() << '_' << itemProxy->name();
+                         << item_id << ",\"" << itemProxy->name());
+                  tns << item_id << '_' << itemProxy->name();
                } else {
                   tn += '_' + itemProxy->name();
                   tns << tn;
@@ -902,10 +874,6 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   if( auxio ) {
                      // collect dynamic Aux selection (parse the line, attributes separated by dot)
                      std::set<std::string> attributes;
-                     // Start by resetting the object. This is needed in case a
-                     // previous stream set some selection on it that we don't
-                     // need here.
-                     auxio->selectAux( attributes );
                      if( aux_attr.size() ) {
                         std::stringstream ss(aux_attr);
                         std::string attr;
@@ -918,10 +886,13 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                            }
                         }
                         // don't let keys with wildcard overwrite existing selections
-                        if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
-                            || item_key.find('*') == string::npos )
-                           auxio->selectAux(attributes);
+                        // MN: TODO: this condition was always true - need a better check
+                        //if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
+                        //    || item_key.find('*') == string::npos )
+                        //   auxio->selectAux(attributes);
                      }
+                     // Reset selection even if empty - in case we write multiple streams 
+                     auxio->selectAux( attributes );
                   }
                   // Here comes the compression logic using SG::IAuxStoreCompression
                   // similar to that of SG::IAuxStoreIO above
@@ -960,14 +931,14 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
          }
       } // proxy loop
       if (!added && !removed) {
-         ATH_MSG_DEBUG(" No object matching " << item.id() << ",\"" << item_key  << "\" found");
+         ATH_MSG_DEBUG(" No object matching " << item_id << ",\"" << item_key  << "\" found");
       } else if (removed) {
          ATH_MSG_DEBUG(" Object being excluded based on property setting "
-                 << item.id() << ",\"" << item_key  << "\". Skipping");
+                 << item_id << ",\"" << item_key  << "\". Skipping");
       }
    } else {
       ATH_MSG_DEBUG(" Failed to receive proxy iterators from StoreGate for "
-              << item.id() << ",\"" << item_key  << "\". Skipping");
+              << item_id << ",\"" << item_key  << "\". Skipping");
    }
 }
 
@@ -1086,9 +1057,8 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-       iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->postInitialize().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->postInitialize().isSuccess()) {
           ATH_MSG_ERROR("Cannot initialize helper tool");
       }
    }
@@ -1098,9 +1068,8 @@ StatusCode AthenaOutputStream::io_reinit() {
 
 StatusCode AthenaOutputStream::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-       iter != m_helperTools.end(); iter++) {
-      if (!(*iter)->preFinalize().isSuccess()) {
+   for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
+      if (!tool->preFinalize().isSuccess()) {
           ATH_MSG_ERROR("Cannot finalize helper tool");
       }
    }

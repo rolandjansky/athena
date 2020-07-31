@@ -106,18 +106,18 @@ public:
           || ((x * h + y * w - w * h) * (x * h + y * w - w * h) <= r * r * (w * w + h * h) && x * w - y * h >= -h * h &&
               x * w - y * h <= w * w)) { // collision with (0, h)---(w, 0)
         return true;
-      } else {
+      }
         if ((x - w) * (x - w) + (y - h) * (y - h) <= r * r || (x <= w && y - r <= h) || (y <= h && x - r <= w)) {
           return iterate(x, y, w, 0, 0, h, r * r); // collision within triangle (0, h) (w, h) (0, 0) is possible
         }
         return false;
-      }
-    } else {
+
+    }
       double R = -r;
       double localCos = x / R;
       double deltaR = std::sqrt(h * h + (w * w - h * h) * localCos * localCos);
       return deltaR >= R - std::sqrt(x * x + y * y);
-    }
+
   }
   EllipseCollisionTest(int maxIterations) { this->m_maxIterations = maxIterations; }
 };
@@ -195,9 +195,6 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
   m_maxYin = std::min(m_solution_R_max[1], m_solution_L_max[1]);
   m_minYin = minR;
 }
-
-// destructor
-Trk::AnnulusBounds::~AnnulusBounds() = default;
 
 bool
 Trk::AnnulusBounds::operator==(const Trk::SurfaceBounds& sbo) const
@@ -334,10 +331,11 @@ Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk
      isRight(locpo, 0, 0, m_solution_L_max[0], m_solution_L_max[1], m_solution_L_min[0], m_solution_L_min[1]) &&
      isLeft(locpo, 0, 0, m_solution_R_max[0], m_solution_R_max[1], m_solution_R_min[0], m_solution_R_min[1]));
 
-  if (condLine)
+  if (condLine){
     return condR;
-  else
-    return (condR && condSide);
+  }
+
+  return (condR && condSide);
 }
 
 // checking if local point lies above a line
@@ -356,7 +354,7 @@ Trk::AnnulusBounds::isAbove(const Amg::Vector2D& locpo,
     // the most tolerant approach for tol1 and tol2
     double sign = k > 0. ? -1. : +1.;
     return (locpo[Trk::locY] + tol2 > (k * (locpo[Trk::locX] + sign * tol1) + d));
-  } else
+  }
     return false;
 }
 
@@ -375,15 +373,19 @@ Trk::AnnulusBounds::isRight(const Amg::Vector2D& locpo,
     double k = (y2 - y1) / (x2 - x1);
     double d = y1 - k * x1;
 
-    if (k > 0)
-      return (locpo[Trk::locY] < (k * locpo[Trk::locX] + d) || EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
-    else if (k < 0)
-      return (locpo[Trk::locY] > (k * locpo[Trk::locX] + d) || EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
-    else
-      return false;
-  } else {
-    return (locpo[Trk::locX] > x1 || EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
+    if (k > 0){
+      return (locpo[Trk::locY] < (k * locpo[Trk::locX] + d) ||
+              EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
+    }
+    if (k < 0){
+      return (locpo[Trk::locY] > (k * locpo[Trk::locX] + d) ||
+              EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
+    }
+
+    return false;
   }
+  return (locpo[Trk::locX] > x1 ||
+          EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
 }
 
 // checking if local point left from a line
@@ -401,15 +403,19 @@ Trk::AnnulusBounds::isLeft(const Amg::Vector2D& locpo,
     double k = (y2 - y1) / (x2 - x1);
     double d = y1 - k * x1;
 
-    if (k < 0)
-      return (locpo[Trk::locY] < (k * locpo[Trk::locX] + d) || EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
-    else if (k > 0)
-      return (locpo[Trk::locY] > (k * locpo[Trk::locX] + d) || EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
-    else
-      return false;
-  } else {
-    return (locpo[Trk::locX] < x1 || EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
+    if (k < 0){
+      return (locpo[Trk::locY] < (k * locpo[Trk::locX] + d) ||
+              EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
+    }
+    if (k > 0){
+      return (locpo[Trk::locY] > (k * locpo[Trk::locX] + d) ||
+              EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
+    }
+
+    return false;
   }
+  return (locpo[Trk::locX] < x1 ||
+          EllipseIntersectLine(locpo, tol1, tol2, x1, y1, x2, y2));
 }
 
 double
@@ -434,9 +440,9 @@ Trk::AnnulusBounds::minDistance(const Amg::Vector2D& locpo) const
 
   dist = std::min(dist, distArc);
 
-  if (inside(locpo, 0., 0.))
+  if (inside(locpo, 0., 0.)){
     dist = -dist;
-
+  }
   return dist;
 }
 
@@ -456,14 +462,14 @@ Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d) const
   // equation:   (1+k^2)*x^2 + 2kdx +d^2 - R^2 = 0
   double delta = 4. * k * d * k * d - 4. * (1 + k * k) * (d * d - R * R);
 
-  if (delta < 0)
+  if (delta < 0){
     return solution;
-  else {
+  }
     x1 = (-2. * k * d - std::sqrt(delta)) / (2. * (1 + k * k));
     x2 = (-2. * k * d + std::sqrt(delta)) / (2. * (1 + k * k));
     y1 = k * x1 + d;
     y2 = k * x2 + d;
-  }
+
   if (y1 > y2) {
     solution.push_back(x1);
     solution.push_back(y1);
@@ -522,10 +528,11 @@ Trk::AnnulusBounds::distanceToArc(const Amg::Vector2D& locpo,
   double tanPhi_L = sL[0] / sL[1];
   double tanPhi_R = sR[0] / sR[1];
 
-  if (tanlocPhi > tanPhi_L && tanlocPhi < tanPhi_R)
+  if (tanlocPhi > tanPhi_L && tanlocPhi < tanPhi_R){
     return std::fabs(std::sqrt(X * X + Y * Y) - R);
-  else
-    return 9999999999.;
+  }
+
+  return 9999999999.;
 }
 
 // ellipse and line intersection

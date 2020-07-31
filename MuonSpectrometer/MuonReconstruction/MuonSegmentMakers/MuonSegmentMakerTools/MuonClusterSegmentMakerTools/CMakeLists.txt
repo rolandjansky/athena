@@ -37,5 +37,5 @@ atlas_add_component( MuonClusterSegmentMakerTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps MuonPrepRawDataProviderToolsLib MuonDetDescrUtils MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLinearSegmentMakerUtilities MuonSegmentMakerUtils TrkParameters TrkTrack TrkTruthData TrkFitterInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps MuonPrepRawDataProviderToolsLib MuonDetDescrUtils MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLinearSegmentMakerUtilities MuonSegmentMakerUtils TrkParameters TrkTrack TrkTruthData TrkFitterInterfaces TrkToolInterfaces MuonSegmentMakerToolInterfaces )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,6 @@
 #include <limits>
 
 
-
 // Constructor with parameters - no global position assigned
 InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO, 
            const Trk::LocalParameters& locpars, 
@@ -24,9 +23,13 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
            bool isbroad) : 
   SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(),isbroad) //call base class constructor
 {
-  m_detEl=nullptr;
+  m_detEl=RIO->detectorElement();
   m_positionAlongStrip=std::numeric_limits<double>::quiet_NaN();
   m_rio.setElement(RIO);
+
+  // Set global position
+  Amg::Vector2D lpos(localParameters().get(Trk::locX), m_positionAlongStrip);
+  m_globalPosition = detectorElement()->surface(identify()).localToGlobalPos(lpos);
 }
 
 // Constructor with parameters
@@ -42,12 +45,11 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
   m_rio.setElement(RIO);
   
 //constructing local position provided a global one  
-  const Amg::Vector2D * lpos =  detectorElement()->surface( identify() ).
-                                positionOnSurface(globalPosition);
+  std::unique_ptr<const Amg::Vector2D>
+    lpos{detectorElement()->surface( identify() ).positionOnSurface(globalPosition)};
 					
 //storing the position along the strip if available
   m_positionAlongStrip = (lpos) ? (*lpos)[Trk::locY]:0.; 
-  delete lpos;
 }
 
 InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const ElementLinkToIDCSCT_ClusterContainer& RIO,
@@ -62,17 +64,18 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const ElementLinkToIDCSCT_Cluster
                      idDE,
                      id,
                      isbroad),
-    m_rio (RIO),
-    m_detEl (nullptr),
+    m_rio(RIO),
+    m_detEl(nullptr),
     m_positionAlongStrip (positionAlongStrip)
-{}
+{
+}
 
 
 // Default constructor:
 InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack():
   SiClusterOnTrack(),
   m_rio(),
-  m_detEl(0),
+  m_detEl(nullptr),
   m_positionAlongStrip(std::numeric_limits<double>::quiet_NaN())
 {}
 
@@ -85,21 +88,14 @@ const Trk::Surface& InDet::SCT_ClusterOnTrack::associatedSurface() const
 void InDet::SCT_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* )
 {
     m_detEl = dynamic_cast< const InDetDD::SiDetectorElement* >(detEl);
+    if (m_detEl) {
+      // Set global position after setting the detector element
+      Amg::Vector2D lpos(localParameters().get(Trk::locX),
+                         m_positionAlongStrip);
+      m_globalPosition =
+        detectorElement()->surface(identify()).localToGlobalPos(lpos);
+    }
 }
-  
-const  Amg::Vector3D& InDet::SCT_ClusterOnTrack::globalPosition() const
-  {
-   //checking whether the globalposition is available
-   if (not m_globalPosition)
-   {
-    
-    // calculate global position from the position of the strip and the position along the strip
-     Amg::Vector2D lpos( localParameters().get(Trk::locX), m_positionAlongStrip );
-     m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(detectorElement()->surface( identify() ).localToGlobal( lpos )));            
-   }
-    
-   return (*m_globalPosition);
-} 
 
 MsgStream& InDet::SCT_ClusterOnTrack::dump( MsgStream& sl ) const
 {

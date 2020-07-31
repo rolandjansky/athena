@@ -10,6 +10,7 @@
 # Tags the generation string as an optional second argument.
 #
 
+from __future__ import print_function
 from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 from CaloClusterCorrection.MakeHierTags      import MakeHierTags
 import sys
@@ -25,7 +26,7 @@ while sys.argv[1][0] == '-':
         nomagic = True
         del sys.argv[1]
     else:
-        print "Unknown switch", sys.arv[1]
+        print ("Unknown switch", sys.arv[1])
         sys.exit(1)
 
 coolfile = sys.argv[1]

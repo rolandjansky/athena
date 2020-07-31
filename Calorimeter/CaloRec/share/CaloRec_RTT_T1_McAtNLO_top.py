@@ -60,4 +60,4 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 #CBNT_Audit.nEventPrintMem=999999
 MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 
-print "BEGIN_RTTINFO = 1103_T1_McAtNLO_top"
+printfunc ("BEGIN_RTTINFO = 1103_T1_McAtNLO_top")

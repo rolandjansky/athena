@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -13,10 +13,6 @@ namespace Muon {
     : base_class(name, svc), m_detStore("DetectorStore", name)
   {
   }
-
-
-  MuonIdHelperSvc::~MuonIdHelperSvc(){}
-
 
   StatusCode MuonIdHelperSvc::initialize()  {
     ATH_CHECK( m_detStore.retrieve() );
@@ -203,6 +199,18 @@ namespace Muon {
     return m_stgcIdHelper->is_stgc(id);
   }
 
+  bool MuonIdHelperSvc::hasHPTDC( const Identifier& id ) const {
+    if (!isMdt(id)) return false;
+    else if (!m_rpcIdHelper) return false; // there must be RPCs in the layout
+    else if (m_mdtIdHelper->isBMG(id)) return true; // all BMG sMDTs have an HPTDC
+    else if (m_mdtIdHelper->isEndcap(id)) return false; // there are no HPTDCs in the endcaps
+    else if (m_mdtIdHelper->stationNameString(stationName(id)).find("BI")!=0) return false; // outside the inner barrel layer there are no HPTDCs
+    // now try to retrieve RPC identifier with the same station name/eta/phi and check if it is valid
+    bool isValid = false;
+    m_rpcIdHelper->elementID(stationName(id), stationEta(id), stationPhi(id), 1, true, &isValid); // last 3 arguments are: doubletR, check, isValid
+    if (isValid) return true; // there is a BI RPC in the same station, thus, this station was already upgraded and the sMDT must have an HPTDC
+    return false;
+  }
 
   bool MuonIdHelperSvc::measuresPhi( const Identifier& id ) const {
     if( isRpc(id) ) {
@@ -665,6 +673,48 @@ namespace Muon {
       return m_stgcIdHelper->stationEta(id);
     }else if( isMM(id) ){
       return m_mmIdHelper->stationEta(id);
+    }
+    return 0;
+  }
+
+  int MuonIdHelperSvc::stationName( const Identifier& id ) const {
+    if( !id.is_valid() ) {
+      ATH_MSG_WARNING("stationName: invalid ID");
+      return 0;
+    }
+    if( isRpc(id) ) {
+      return m_rpcIdHelper->stationName(id);
+    }else if( isTgc(id) ) {
+      return m_tgcIdHelper->stationName(id);
+    }else if( isMdt(id) ){
+      return m_mdtIdHelper->stationName(id);
+    }else if( isCsc(id) ){
+      return m_cscIdHelper->stationName(id);
+    }else if( issTgc(id) ){
+      return m_stgcIdHelper->stationName(id);
+    }else if( isMM(id) ){
+      return m_mmIdHelper->stationName(id);
+    }
+    return 0;
+  }
+
+  int MuonIdHelperSvc::stationRegion( const Identifier& id ) const {
+    if( !id.is_valid() ) {
+      ATH_MSG_WARNING("stationRegion: invalid ID");
+      return 0;
+    }
+    if( isRpc(id) ) {
+      return m_rpcIdHelper->stationRegion(id);
+    }else if( isTgc(id) ) {
+      return m_tgcIdHelper->stationRegion(id);
+    }else if( isMdt(id) ){
+      return m_mdtIdHelper->stationRegion(id);
+    }else if( isCsc(id) ){
+      return m_cscIdHelper->stationRegion(id);
+    }else if( issTgc(id) ){
+      return m_stgcIdHelper->stationRegion(id);
+    }else if( isMM(id) ){
+      return m_mmIdHelper->stationRegion(id);
     }
     return 0;
   }

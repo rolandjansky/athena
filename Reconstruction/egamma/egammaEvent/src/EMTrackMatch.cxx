@@ -37,11 +37,11 @@ Updated:  Jan, 2004 (FD+AK)
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-#include <math.h>
 #include "egammaEvent/EMTrackMatch.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ClassName.h"
 #include "GaudiKernel/GaudiException.h"
+#include <cmath>
 
 //  END OF HEADER FILES INCLUDE
 
@@ -114,7 +114,7 @@ EMTrackMatch::~EMTrackMatch()
 /// interface methods
 const std::string& EMTrackMatch::className() const
 {
-  static std::string className = ClassName<EMTrackMatch>::name();
+  static const std::string className = ClassName<EMTrackMatch>::name();
   return className;
 }
 

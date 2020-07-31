@@ -228,7 +228,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
           it->isOutlier(GeneralOutlier,fitIteration);
         firstNew = 1;
         return true;
-      } else {
+      } 
 
       const int badRankedNumberOfMeas = m_utility->rankedNumberOfMeasurements(T);
       Trk::Trajectory::iterator lastSctState = T.end();
@@ -420,7 +420,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
               it->isOutlier(false);
         }
       }
-    }
+    
     }      
 
   } // stop recovery for bad cases
@@ -572,7 +572,7 @@ bool Trk::KalmanOutlierRecovery_InDet::reject(const Trk::FitQuality& fitQuality)
                      << fitQuality.chiSquared()/std::abs(fitQuality.numberDoF())
                      << ", prob= " << prob << " fails quality cut" );
       return true;
-    } else ATH_MSG_VERBOSE ( "-O- trajectory passes quality cut, prob= " << prob );
+    } ATH_MSG_VERBOSE ( "-O- trajectory passes quality cut, prob= " << prob );
   } else {
     if ( !(fitQuality.numberDoF() > 0))
       ATH_MSG_DEBUG ("-O- number d.o.f not positive - reject trajectory.");

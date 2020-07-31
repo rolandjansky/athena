@@ -45,7 +45,7 @@ namespace AsgConfigHelper{
       buffer>>f;
       return true;
     } 
-    else {
+    
       //if we have found comment character check if it is inlined between two "#"
       last = (input.find('#',first+1) );
       //if nor error
@@ -60,7 +60,7 @@ namespace AsgConfigHelper{
       std::istringstream buffer (tmp);
       buffer>>f;
       return true;
-    }
+    
   }
 
   template <typename T>  

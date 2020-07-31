@@ -127,8 +127,8 @@ public:
   CLHEP::HepRandomEngine*           m_randomEngine;
   std::string                m_randomEngineName;         //!< Name of the random number stream
 
-  mutable float m_pitch_X;
-  mutable float m_pitch_Y;
+  float m_pitch_X;
+  float m_pitch_Y;
 
   bool m_merge;
   double m_nSigma;
@@ -215,7 +215,7 @@ public:
   double           m_Err_y_SCT;
 
   ServiceHandle<Trk::ITrackingGeometrySvc>     m_trackingGeometrySvc;        //!< Service handle for retrieving the TrackingGeometry
-  mutable const Trk::TrackingGeometry*              m_trackingGeometry;           //!< The TrackingGeometry to be retrieved
+  const Trk::TrackingGeometry*              m_trackingGeometry;           //!< The TrackingGeometry to be retrieved
   std::string                                  m_trackingGeometryName;       //!< The Name of the TrackingGeometry
 
   bool m_useCustomGeometry;

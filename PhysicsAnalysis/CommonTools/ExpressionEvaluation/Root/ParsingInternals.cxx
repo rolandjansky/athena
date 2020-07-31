@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -12,34 +12,45 @@
 #include "ParsingInternals.h"
 
 #define VM_CASE_UNARY(OP) case op_ ## OP: \
-          m_stack_ptr[-1] = m_stack_ptr[-1]._ ## OP(); \
+          stack.back() = stack.back()._ ## OP();    \
           break
 
-#define VM_CASE_BINARY(OP) case op_ ## OP: \
-          --m_stack_ptr; \
-          m_stack_ptr[-1] = m_stack_ptr[-1]._ ## OP(m_stack_ptr[0]); \
-          break
+
 
 #define VISITOR_UNARY(OP) else if (x.operator_ == #OP) code.push_back(op_ ## OP)
 
-namespace ExpressionParsing {
+std::atomic<std::size_t> g_maxStackSize=0;
 
-  void VirtualMachine::execute(std::vector<StackElement> const& code)
+namespace ExpressionParsing {
+   template <class T_func>
+   void bin_op( std::vector<StackElement> &stack, T_func a_func) {
+      assert( stack.size() >= 2);
+      std::vector<ExpressionParsing::StackElement>::iterator last_elm = stack.end()-1;
+      std::vector<ExpressionParsing::StackElement>::iterator second_last_elm = stack.end()-2;
+      a_func(*second_last_elm, *last_elm);
+      stack.pop_back();
+   }
+
+  StackElement VirtualMachine::execute(std::vector<StackElement> const& code) const
   {
+    std::vector<StackElement> stack;
+    stack.reserve(m_stackSize);
+    std::size_t max_stack_size=g_maxStackSize;
+
     std::vector<StackElement>::const_iterator pc = code.begin();
-    m_stack_ptr = m_stack.begin();
 
     while (pc != code.end())
     {
+       if (stack.size() > max_stack_size) max_stack_size = stack.size();
       ++pc;
       switch (pc[-1].asInt())
       {
-        case op_neg:
-          m_stack_ptr[-1] = -m_stack_ptr[-1];
+        case op_neg: {
+          stack.back() = -std::move(stack.back());
           break;
-
+        }
         case op_not:
-          m_stack_ptr[-1] = !m_stack_ptr[-1];
+          stack.back() = !std::move(stack.back());
           break;
 
         VM_CASE_UNARY(sum);
@@ -62,47 +73,42 @@ namespace ExpressionParsing {
         VM_CASE_UNARY(log);
         VM_CASE_UNARY(exp);
 
-        VM_CASE_BINARY(and);
-        VM_CASE_BINARY(or);
-        VM_CASE_BINARY(eq);
-        VM_CASE_BINARY(neq);
-        VM_CASE_BINARY(gt);
-        VM_CASE_BINARY(gte);
-        VM_CASE_BINARY(lt);
-        VM_CASE_BINARY(lte);
+        case op_and: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._and(b); }); break;
+        case op_or:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._or(b); });  break;
+        case op_eq:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._eq(b); });  break;
+        case op_neq: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._neq(b); }); break;
+        case op_gt:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._gt(b); });  break;
+        case op_gte: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._gte(b); }); break;
+        case op_lt:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._lt(b); });  break;
+        case op_lte: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._lte(b); }); break;
 
-        case op_add:
-          --m_stack_ptr;
-          m_stack_ptr[-1] += m_stack_ptr[0];
-          break;
+        case op_add: bin_op(stack,[](StackElement &a, StackElement &b) { a += b; }); break;
+        case op_sub: bin_op(stack,[](StackElement &a, StackElement &b) { a -= b; }); break;
 
-        case op_sub:
-          --m_stack_ptr;
-          m_stack_ptr[-1] -= m_stack_ptr[0];
-          break;
+        case op_pow: bin_op(stack,[](StackElement &a, StackElement &b) { a = a._pow(b); }); break;
 
-        VM_CASE_BINARY(pow);
-
-        case op_mul:
-          --m_stack_ptr;
-          m_stack_ptr[-1] *= m_stack_ptr[0];
-          break;
-
-        case op_div:
-          --m_stack_ptr;
-          m_stack_ptr[-1] /= m_stack_ptr[0];
-          break;
+        case op_mul: bin_op(stack,[](StackElement &a, StackElement &b) { a *= b; }); break;
+        case op_div: bin_op(stack,[](StackElement &a, StackElement &b) { a /= b; }); break;
 
         case op_val:
-          *m_stack_ptr++ = *pc++;
-          if (m_stack_ptr[-1].isProxy()) m_stack_ptr[-1].setValueFromProxy();
+          if (pc->isProxy()) {
+             stack.emplace_back(pc->valueFromProxy());
+          }
+          else {
+             stack.emplace_back(*pc);
+          }
+          ++pc;
           break;
       }
     }
 
-    if ((m_stack_ptr - m_stack.begin()) != 1){
+    if (stack.size()!=1){
       throw std::runtime_error("ExpressionEvaluation: Virtual machine finished in undefined state. Is expression valid?");
     }
+    if (max_stack_size>g_maxStackSize) {
+       g_maxStackSize=max_stack_size;
+    }
+    return std::move(stack.back());
   }
 
 

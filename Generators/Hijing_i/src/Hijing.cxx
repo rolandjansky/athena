@@ -29,6 +29,7 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/HeavyIon.h"
 
 #include <stdlib.h>
 
@@ -279,6 +280,22 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
     float sigmainel =  m_hiparnt.hint1(12);
  
+ #ifdef HEPMC3
+     HepMC::GenHeavyIonPtr ion= std::make_shared<HepMC::GenHeavyIon>();
+                      ion->Ncoll_hard=static_cast<int>(jatt);
+                      ion->Npart_proj=static_cast<int>(np);
+                      ion->Npart_targ=static_cast<int>(nt);
+                      ion->Ncoll=static_cast<int>(n0+n10+n01+n11);
+                      ion->N_Nwounded_collisions=static_cast<int>(n01);
+                      ion->Nwounded_N_collisions=static_cast<int>(n10);
+                      ion->Nwounded_Nwounded_collisions=static_cast<int>(n11);
+                      ion->spectator_neutrons=-1;
+                      ion->spectator_protons=-1;
+                      ion->impact_parameter= b;
+                      ion->event_plane_angle=bphi;
+                      ion->event_plane_angle=-1;
+                      ion->sigma_inel_NN=sigmainel;
+#else
     HepMC::HeavyIon ion
       (			
        static_cast<int>(jatt), // Ncoll_hard
@@ -297,6 +314,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
     evt->set_heavy_ion(ion); 
     std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
+#endif
 
     //  Did we keep decay history?
     //
@@ -308,13 +326,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
     // Vectors that will keep track of where particles originate from and die
     //
-    std::vector<int> partOriginVertex_vec;
-    std::vector<int> partDecayVertex_vec;
-    std::vector<HepMC::GenParticlePtr> particleHepPartPtr_vec;
-
-    partOriginVertex_vec.assign(numHijingPart, 0);
-    partDecayVertex_vec.assign(numHijingPart, -1);
-    particleHepPartPtr_vec.assign(numHijingPart, (HepMC::GenParticle*) 0);
+    std::vector<int> partOriginVertex_vec(numHijingPart, 0);
+    std::vector<int> partDecayVertex_vec(numHijingPart, -1);
+    std::vector<HepMC::GenParticlePtr> particleHepPartPtr_vec(numHijingPart, nullptr);
 
     // Vector that will keep pointers to generated vertices
     //
@@ -475,9 +489,15 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
                     << ", " << vertexPtrVec[parentDecayIndex]->position().z() 
                     << ", associated daughter IDs = ";
               
-                HepMC::GenVertex::particles_out_const_iterator iter;
-                for (iter = vertexPtrVec[parentDecayIndex]->particles_out_const_begin(); 
-                     iter != vertexPtrVec[parentDecayIndex]->particles_out_const_end(); 
+#ifdef HEPMC3
+                auto vertexPtrVec_particles_out_const_begin=vertexPtrVec[parentDecayIndex]->particles_out().begin();
+                auto vertexPtrVec_particles_out_const_end=vertexPtrVec[parentDecayIndex]->particles_out().end();
+#else
+                auto vertexPtrVec_particles_out_const_begin=vertexPtrVec[parentDecayIndex]->particles_out_const_begin();
+                auto vertexPtrVec_particles_out_const_end=vertexPtrVec[parentDecayIndex]->particles_out_const_end();
+#endif
+                for (auto iter = vertexPtrVec_particles_out_const_begin; 
+                     iter != vertexPtrVec_particles_out_const_end; 
                      iter++)
                   {
                     log << HepMC::barcode((*iter)) << ", "; 
@@ -766,13 +786,13 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
       //      std::cout <<"random="<<ranz <<std::endl;
       if (ranz < 0.5) {
        //      std::cout <<"flip="<<ranz <<std::endl;
-      for(HepMC::GenEvent::particle_const_iterator pitr= evt->particles_begin(); pitr != evt->particles_end(); ++pitr){
-       tmpmom= (*pitr)->momentum();
+      for(auto  pitr: *evt){
+       tmpmom= pitr->momentum();
        tmpmom.setX(-tmpmom.x());
        tmpmom.setY(-tmpmom.y());
        tmpmom.setZ(-tmpmom.z());
        tmpmom.setT(tmpmom.t());
-       (*pitr)->set_momentum(tmpmom);
+       pitr->set_momentum(tmpmom);
        }
       }
     }
@@ -795,16 +815,16 @@ Hijing::randomizeVertex()
   double ranx, rany, xmax, ymax;
   double ranz = CLHEP::RandFlat::shoot(engine, -Zmax, Zmax);
   if( m_wide ){ // Allow the whole pipe
-    if( fabs(ranz) < Start1 ) {
+    if( std::abs(ranz) < Start1 ) {
       xmax = Xmin + Delta1;
       ymax = xmax;
-    } else if( fabs(ranz) < Start2 ) {
+    } else if( std::abs(ranz) < Start2 ) {
       xmax = Xmin + Delta2;
       ymax = xmax;
-    } else if( fabs(ranz) < Start3 ) {
+    } else if( std::abs(ranz) < Start3 ) {
       xmax = Xmin + Delta3;
       ymax = xmax;
-    } else if ( fabs(ranz) <= Envelope ){
+    } else if ( std::abs(ranz) <= Envelope ){
       xmax = Xmin;
       ymax = xmax;
     } else {    

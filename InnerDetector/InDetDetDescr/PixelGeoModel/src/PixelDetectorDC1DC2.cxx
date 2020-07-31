@@ -42,6 +42,7 @@
 #include <memory>
 #include <vector>
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Legacy code
 
 using namespace PixelGeoDC2;
 
@@ -1208,7 +1209,7 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
   std::shared_ptr<const PixelDiodeMatrix> fullMatrix = PixelDiodeMatrix::construct(PixelDiodeMatrix::phiDir,
 						       nullptr, singleRow, DiodeRowPerCirc, nullptr);
 
-  PixelModuleDesign *p_barrelDesign2 = new PixelModuleDesign(thickness,
+  std::unique_ptr<PixelModuleDesign> p_barrelDesign2 = std::make_unique<PixelModuleDesign>(thickness,
 							     CircPerCol,
 							     CircPerRow,
 							     CellColPerCirc,
@@ -1257,9 +1258,9 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
   }
   
 
-  m_design = p_barrelDesign2;
+  m_design = p_barrelDesign2.get();
 
-  m_DDmgr->addDesign(m_design);
+  m_DDmgr->addDesign(std::move(p_barrelDesign2));
 
 }
 GeoVPhysVol* GeoPixelSiCrystal::Build() {

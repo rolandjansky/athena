@@ -142,7 +142,7 @@ InDetFlags.doMonitoringAlignment = False
 # --- activate (memory/cpu) monitoring
 #InDetFlags.doPerfMon        = True
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 # --- active storegate delection
 #InDetFlags.doSGDeletion  = True
 
@@ -218,10 +218,10 @@ if not doReadBS:
 if doReadBS:
   # input used for FDR2b (run 8): low lumi (2.3 min bias, 10^33)/pile-up/shifted vertex run 8
   # this file needs (as set by default): DetDescrVersion = "ATLAS-CSC-02-00-00" globalflags.ConditionsTag="OFLCOND-FDR-02-01-00", jobproperties.Beam.numberOfCollisions = 2.3
-  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/tmp/jahreda/data11_7TeV.00191628.physics_ZeroBias.merge.RAW/data11_7TeV.00191628.physics_ZeroBias.merge.RAW._lb0216._SFO-ALL._0001.1"]
+  ServiceMgr.EventSelector.Input = [ "/tmp/jahreda/data11_7TeV.00191628.physics_ZeroBias.merge.RAW/data11_7TeV.00191628.physics_ZeroBias.merge.RAW._lb0216._SFO-ALL._0001.1"]
   # if you create the input BS file yourself with InDetWriteBS jobO the output will be this file
   # and you have to set the detdescr and cond tag to what you used ...
-  #ServiceMgr.ByteStreamInputSvc.FullFileName = [ "daq.csc13.0000000.Single.Stream.LB0000.Athena._0001.data" ]
+  #ServiceMgr.EventSelector.Input = [ "daq.csc13.0000000.Single.Stream.LB0000.Athena._0001.data" ]
 
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 theAtlasExtrapolator = AtlasExtrapolator()

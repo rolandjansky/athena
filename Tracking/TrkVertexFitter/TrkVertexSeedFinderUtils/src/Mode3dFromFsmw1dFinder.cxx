@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 //#define Mode3dFromFsmw1d_DEBUG
 
 #include "TrkVertexSeedFinderUtils/Mode3dFromFsmw1dFinder.h"
-#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 #include "TrkParameters/TrackParameters.h"
-#include <math.h>
+#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
+#include <cmath>
 
 namespace Trk
 {
@@ -57,7 +57,7 @@ StatusCode Mode3dFromFsmw1dFinder::finalize()
 }
 
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::getMode(const double vx,
                                 const double vy,
                                 const std::vector<Trk::PositionAndWeight> & VectorOfPoints) const
@@ -67,7 +67,7 @@ Mode3dFromFsmw1dFinder::getMode(const double vx,
 }
 
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::getMode(const double vx,
                                 const double vy,
                                 const std::vector<Trk::PositionAndWeight> & VectorOfPoints,
@@ -82,7 +82,7 @@ Mode3dFromFsmw1dFinder::getMode(const double vx,
 
 
 //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::getMode(const double /*vx*/,
                                 const double /*vy*/,
                                 const std::vector<Amg::Vector3D> & VectorOfPoints) const
@@ -112,7 +112,7 @@ Mode3dFromFsmw1dFinder::getMode(const double /*vx*/,
 }
 
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::getMode(const double vx,
                                 const double vy,
                                 const std::vector<Amg::Vector3D> & VectorOfPoints,
@@ -122,7 +122,7 @@ Mode3dFromFsmw1dFinder::getMode(const double vx,
 }
 
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
                                  const double vx,
                                  const double vy,
@@ -137,7 +137,7 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
     
   Amg::Vector3D tmpseed( 0., 0., 0. ) ;
 
-  if ( VectorOfPoints.size() == 0 ) return tmpseed ;
+  if ( VectorOfPoints.empty() ) return tmpseed ;
   if ( VectorOfPoints.size() == 1 ) 
     return Amg::Vector3D( begin->first.x(), begin->first.y(), begin->first.z() ) ;
  
@@ -158,9 +158,9 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
     double r = sqrt( px*px + py*py ) ;
 
     // this Vector3D has no physics meaning of xyz position, just borrowing its form in tri-element
-    tmpphi.push_back( Amg::Vector3D( phi, wght, 1.0*idx )  ) ;
-    tmpradi.push_back( Amg::Vector3D( r, wght, 1.0*idx )  ) ;
-    tmpz.push_back( Amg::Vector3D( i->first.z(), wght, 1.0*idx ) ) ;
+    tmpphi.emplace_back( phi, wght, 1.0*idx  ) ;
+    tmpradi.emplace_back( r, wght, 1.0*idx  ) ;
+    tmpz.emplace_back( i->first.z(), wght, 1.0*idx ) ;
 
     info.pushPoint (phi, r, i->first.z(), wght);
     vectorOfPoints.push_back( *i ) ;
@@ -255,7 +255,7 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
   VeVecIndices olphiradi = CheckCorrelation( info, vectorOfPoints, info.m_idxphi, info.m_idxradi ) ;
 
   // some efforts to patch phi-Radius correlation
-  if ( olphiradi.size() == 0 )
+  if ( olphiradi.empty() )
   {
     if ( phisz > 1 && radisz > 1 ) 
     {
@@ -270,7 +270,7 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
     ATH_MSG_DEBUG( " " << " more modes found : " << phisz <<" "<< radisz );
     olphiradi = CheckCorrelation( info, vectorOfPoints, info.m_idxphi, info.m_idxradi ) ;
 
-    if ( olphiradi.size() == 0 )
+    if ( olphiradi.empty() )
     {
       // shall we clear phi-Radius modes and retry with larger MinimalModeDistance ?
       if ( phibroader && radiusbroader )  
@@ -278,16 +278,16 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
         olphiZ = CheckCorrelation( info, vectorOfPoints, info.m_idxphi, info.m_idxZ, 1 ) ;
         olradiZ = CheckCorrelation( info, vectorOfPoints, info.m_idxradi, info.m_idxZ, 1 ) ;
 
-        if ( olphiZ.size() == 0 && olradiZ.size() == 0 )
+        if ( olphiZ.empty() && olradiZ.empty() )
           tmpseed = Mode2Seed( info, vectorOfPoints, info.m_idxphi, info.m_idxradi, info.m_idxZ ) ;
-        else if ( olphiZ.size() > 0 && olradiZ.size() == 0 )
+        else if ( !olphiZ.empty() && olradiZ.empty() )
           tmpseed = Mode2Seed( info, vectorOfPoints, olphiZ, info.m_idxradi  ) ;
-        else if ( olphiZ.size() == 0 && olradiZ.size() > 0 )  
+        else if ( olphiZ.empty() && !olradiZ.empty() )  
           tmpseed = Mode2Seed( info, vectorOfPoints, olradiZ, info.m_idxphi ) ;
         else 
         {
           ol_phi_radi_Z = CheckCorrelation( info, vectorOfPoints, info.m_idxphi, olradiZ, 1 ) ;
-          if ( ol_phi_radi_Z.size() < 1 ) 
+          if ( ol_phi_radi_Z.empty() ) 
           {
             ATH_MSG_WARNING(" strange arrival at NON-correlation !" );
             tmpseed = Mode2Seed( info, vectorOfPoints, info.m_idxphi, info.m_idxradi, info.m_idxZ )  ;
@@ -297,15 +297,15 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
         tmpsdX = tmpseed.x() - vx ;
         tmpsdY = tmpseed.y() - vy ;
         tmpsdXY = sqrt( tmpsdX*tmpsdX + tmpsdY*tmpsdY ) ;
-        if ( tmpsdXY > m_minXYbeam )
+        if (tmpsdXY > m_minXYbeam){
           return tmpseed ;
-        else
-          return getClosestPair(info, vectorOfPoints, vx, vy)  ;
- 
+        }
+
+        return getClosestPair(info, vectorOfPoints, vx, vy);
 
       }     //  end of Z mode preCorrelation search
-      else 
-      {
+      
+      
         ATH_MSG_DEBUG(" One more searching for WIDER mode in phi or/and radius !" );
         if ( ! phibroader ) 
         {
@@ -321,21 +321,21 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
 
         olphiradi = CheckCorrelation( info, vectorOfPoints, info.m_idxphi, info.m_idxradi ) ;
 
-        if ( olphiradi.size() == 0 )
+        if ( olphiradi.empty() )
         {
           olphiZ = CheckCorrelation( info, vectorOfPoints, info.m_idxphi, info.m_idxZ, 1 ) ;
           olradiZ = CheckCorrelation( info, vectorOfPoints, info.m_idxradi, info.m_idxZ, 1 ) ;
 
-          if ( olphiZ.size() == 0 && olradiZ.size() == 0 )
+          if ( olphiZ.empty() && olradiZ.empty() )
             tmpseed = Mode2Seed( info, vectorOfPoints, info.m_idxphi, info.m_idxradi, info.m_idxZ ) ;
-          else if ( olphiZ.size() > 0 && olradiZ.size() == 0 )
+          else if ( !olphiZ.empty() && olradiZ.empty() )
             tmpseed = Mode2Seed( info, vectorOfPoints, olphiZ, info.m_idxradi  ) ;
-          else if ( olphiZ.size() == 0 && olradiZ.size() > 0 )  
+          else if ( olphiZ.empty() && !olradiZ.empty() )  
             tmpseed = Mode2Seed( info, vectorOfPoints, olradiZ, info.m_idxphi ) ;
           else 
           {
             ol_phi_radi_Z = CheckCorrelation( info, vectorOfPoints, info.m_idxphi, olradiZ, 1 ) ;
-            if ( ol_phi_radi_Z.size() < 1 ) 
+            if ( ol_phi_radi_Z.empty() ) 
             {
               ATH_MSG_WARNING(" strange arrival at NON-correlation !" );
               tmpseed = Mode2Seed( info, vectorOfPoints, info.m_idxphi, info.m_idxradi, info.m_idxZ )  ;
@@ -345,18 +345,19 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
           tmpsdX = tmpseed.x() - vx ;
           tmpsdY = tmpseed.y() - vy ;
           tmpsdXY = sqrt( tmpsdX*tmpsdX + tmpsdY*tmpsdY ) ;
-          if ( tmpsdXY > m_minXYbeam )
+          if ( tmpsdXY > m_minXYbeam ){
             return tmpseed ;
-          else
-            return getClosestPair(info, vectorOfPoints, vx, vy)  ;
+          }
+
+          return getClosestPair(info, vectorOfPoints, vx, vy);
         } 
-      }   //  end of one more seach for BROADER modes
+        //  end of one more seach for BROADER modes
     }  // end of one more mode seach 
   }
   ATH_MSG_DEBUG( " " << olphiradi.size() << " modes found with phi-radius correlated " );
 
   ol_phi_radi_Z = CheckCorrelation( info, vectorOfPoints, olphiradi, info.m_idxZ, 1 ) ;
-  if ( ol_phi_radi_Z.size() == 0 )
+  if ( ol_phi_radi_Z.empty() )
   {
     if ( Zsz < 2 ) 
     { 
@@ -364,24 +365,26 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
       Zsz +=  doModeSearch( &info.m_idxZ, allz, m_minModeDistZ )  ;
       ol_phi_radi_Z = CheckCorrelation( info, vectorOfPoints, olphiradi, info.m_idxZ, 1 ) ;
 
-      if ( ol_phi_radi_Z.size() == 0 )
+      if ( ol_phi_radi_Z.empty() )
       {
         Zsz +=  doModeSearch( &info.m_idxZ, allz, m_minModeDistZ + 1 )  ;
         ol_phi_radi_Z = CheckCorrelation( info, vectorOfPoints, olphiradi, info.m_idxZ, 1 ) ;
 
-        if ( ol_phi_radi_Z.size() == 0 )
+        if ( ol_phi_radi_Z.empty() )
         {
           tmpseed = Mode2Seed( info, vectorOfPoints, olphiradi, info.m_idxZ ) ;
           if ( tmpseed.z() == 0. ) return getClosestPair(info, vectorOfPoints, vx, vy)  ;
           tmpsdX = tmpseed.x() - vx ;
           tmpsdY = tmpseed.y() - vy ;
           tmpsdXY = sqrt( tmpsdX*tmpsdX + tmpsdY*tmpsdY ) ;
-          if ( tmpsdXY > m_minXYbeam )
-            return tmpseed ;
-          else 
-            return getClosestPair(info, vectorOfPoints, vx, vy) ;
-//               for ( unsigned int xy = 0 ; xy < olphiradi.size() ; xy ++ ) 
-//                 ol_phi_radi_Z.push_back( olphiradi[xy] ) ;
+          if (tmpsdXY > m_minXYbeam) {
+            return tmpseed;
+          }
+
+          return getClosestPair(info, vectorOfPoints, vx, vy);
+          //               for ( unsigned int xy = 0 ; xy < olphiradi.size() ;
+          //               xy ++ )
+          //                 ol_phi_radi_Z.push_back( olphiradi[xy] ) ;
           } 
         } 
       }
@@ -396,10 +399,11 @@ Mode3dFromFsmw1dFinder::getMode (Mode3dFromFsmw1dInfo& info,
     tmpsdX = tmpseed.x() - vx ;
     tmpsdY = tmpseed.y() - vy ;
     tmpsdXY = sqrt( tmpsdX*tmpsdX + tmpsdY*tmpsdY ) ;
-    if ( tmpsdXY > m_minXYbeam )
+    if ( tmpsdXY > m_minXYbeam ){
       return tmpseed ;
-    else
-      return getClosestPair( info, vectorOfPoints, vx, vy ) ;
+    }
+
+    return getClosestPair(info, vectorOfPoints, vx, vy);
 }
 
 
@@ -485,7 +489,7 @@ int Mode3dFromFsmw1dFinder::doModeSearch( VeVecIndices * idxs,
     do
     {
       std::vector< std::pair< int,int> > idx_tmp = getFsmw1dMode( spltposi, expectMax ) ;
-      if ( idx_tmp.size() > 0 )
+      if ( !idx_tmp.empty() )
       {
         idxs->push_back( idx_tmp )  ;
         spltgot ++ ;
@@ -561,7 +565,7 @@ Mode3dFromFsmw1dFinder::CheckCorrelation( [[maybe_unused]] Mode3dFromFsmw1dInfo&
           if ( it == axidx.end() )
           {
             ATH_MSG_DEBUG(" extra indices supplemented : " << bx[k].first );
-            supp.push_back( std::pair<int,int>( bx[k].first, bx[k].second ) ) ;
+            supp.emplace_back( bx[k].first, bx[k].second ) ;
           }
         }
         hit = true ;
@@ -579,7 +583,7 @@ Mode3dFromFsmw1dFinder::CheckCorrelation( [[maybe_unused]] Mode3dFromFsmw1dInfo&
 #ifdef Mode3dFromFsmw1d_DEBUG
   if ( corre.size() == 0 ) return corre ;
 #else
-  if ( corre.size() > 0 ) return corre ;
+  if ( !corre.empty() ) return corre ;
 #endif
 
   ATH_MSG_DEBUG(" Korrelation failed by indices match, now try 3D distance ... " );
@@ -668,7 +672,7 @@ Mode3dFromFsmw1dFinder::CheckCorrelation( [[maybe_unused]] Mode3dFromFsmw1dInfo&
         for ( unsigned int m = 0 ; m < bx.size() ; m ++ )
         {
           std::vector<int>::iterator it = std::find( axidx.begin(), axidx.end(), bx[m].first ) ;
-          if ( it == axidx.end() ) supp.push_back( std::pair<int,int>( bx[m].first, bx[m].second ) ) ;
+          if ( it == axidx.end() ) supp.emplace_back( bx[m].first, bx[m].second ) ;
         }
         supp.insert( supp.end(), ax.begin(), ax.end() ) ;
         corre.push_back( supp ) ;
@@ -704,7 +708,7 @@ Mode3dFromFsmw1dFinder::getFsmw1dMode( std::vector< IndexedWeighted > & posidxwg
   if ( posidxwght.size() == 1 ) 
   {
     std::vector<IndexedWeighted>::const_iterator mid = posidxwght.begin();
-    idx.push_back( std::pair<int,int>( mid->first.second.first, mid->first.second.second ) ) ;
+    idx.emplace_back( mid->first.second.first, mid->first.second.second ) ;
     return idx ;
   }
 
@@ -775,7 +779,7 @@ Mode3dFromFsmw1dFinder::getFsmw1dMode( std::vector< IndexedWeighted > & posidxwg
     if ( m_broaden && ( best_end - best_begin ) <= 2 && best_begin != mid ) 
     {
       mid = best_begin - 1 ;
-      idx.push_back( std::pair<int,int>( mid->first.second.first, mid->first.second.second ) ) ;
+      idx.emplace_back( mid->first.second.first, mid->first.second.second ) ;
       ATH_MSG_DEBUG(" found 1d mode  " << ( mid->first ).first <<" "
 		    << ( mid->first ).second.first <<" "<< mid->first.second.second );
     }
@@ -784,7 +788,7 @@ Mode3dFromFsmw1dFinder::getFsmw1dMode( std::vector< IndexedWeighted > & posidxwg
     for ( mid = best_begin ; mid != best_end ; mid ++ )
     {
       // the indexed position 
-      idx.push_back( std::pair<int,int>( mid->first.second.first, mid->first.second.second ) ) ;   
+      idx.emplace_back( mid->first.second.first, mid->first.second.second ) ;   
       ATH_MSG_DEBUG(" found 1d mode  " << ( mid->first ).first <<" "
 		    << ( mid->first ).second.first <<" "<< mid->first.second.second );
     }
@@ -796,7 +800,7 @@ Mode3dFromFsmw1dFinder::getFsmw1dMode( std::vector< IndexedWeighted > & posidxwg
       if ( best_end != mid )
       {
         mid = best_end ;
-        idx.push_back( std::pair<int,int>( mid->first.second.first, mid->first.second.second  ) ) ;
+        idx.emplace_back( mid->first.second.first, mid->first.second.second  ) ;
         ATH_MSG_DEBUG(" found 1d mode  " << ( mid->first ).first <<" "
 		      << ( mid->first ).second.first <<" "<< mid->first.second.second );
       }
@@ -807,7 +811,7 @@ Mode3dFromFsmw1dFinder::getFsmw1dMode( std::vector< IndexedWeighted > & posidxwg
 }
   
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::getClosestPair (Mode3dFromFsmw1dInfo& info,
                                         const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                                         const double vx,
@@ -900,7 +904,7 @@ Mode3dFromFsmw1dFinder::getClosestPair (Mode3dFromFsmw1dInfo& info,
 }
 
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::Mode2Seed( Mode3dFromFsmw1dInfo& info,
                                    const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                                    const VeVecIndices & phiradiZol ) const
@@ -944,7 +948,7 @@ Mode3dFromFsmw1dFinder::Mode2Seed( Mode3dFromFsmw1dInfo& info,
 }
 
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::Mode2Seed( Mode3dFromFsmw1dInfo& info,
                                    const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                                    const VeVecIndices & phiradi, 
@@ -1037,7 +1041,7 @@ Mode3dFromFsmw1dFinder::Mode2Seed( Mode3dFromFsmw1dInfo& info,
 }
 
 
-const Amg::Vector3D
+Amg::Vector3D
 Mode3dFromFsmw1dFinder::Mode2Seed( Mode3dFromFsmw1dInfo& info,
                                    const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                                    const VeVecIndices & phi, 
@@ -1269,7 +1273,7 @@ void
 Mode3dFromFsmw1dFinder::Mode3dFromFsmw1dInfo::pushIndices
   (const std::vector< std::pair<int,int> >& modes)
 {
-  for (const std::pair<int,int> p : modes) {
+  for (const std::pair<int,int>& p : modes) {
     m_UsedCrossingPointsIndices.push_back( p.first ) ;
   }
 }

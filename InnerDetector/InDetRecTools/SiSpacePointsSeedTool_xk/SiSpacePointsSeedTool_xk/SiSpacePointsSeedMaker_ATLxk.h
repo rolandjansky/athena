@@ -107,6 +107,14 @@ namespace InDet {
     /// produced accordingly methods find    
     ///////////////////////////////////////////////////////////////////
     //@{
+    /** This method will update the data.seedOutput member to be the next seed pointed at by 
+    * the data.i_seed_Pro iterator over the data.l_seeds_Pro list. 
+    * Some poor quality PPS seeds will be skipped, this cut is implemented within the SiSpacePointsSeed::set3 method. 
+    * If we run out of seeds after having previously reached a premature abort condition, 
+    * seed finding will automatically be continued until all seeds have been found. 
+    * @param[in] ctx: Event contex
+    * @param[in,out] data Event data, updated and used to obtain the next seed to return 
+    **/ 
     virtual const SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
     //@}
       
@@ -119,17 +127,21 @@ namespace InDet {
 
   private:
     /// enum for array sizes
-    enum Size {SizeRF=53,
-               SizeZ=11,
-               SizeRFZ=SizeRF*SizeZ,
-               SizeI=9,
-               SizeRFV=100,
-               SizeZV=3,
-               SizeRFZV=SizeRFV*SizeZV,
-               SizeIV=6};
-
+    /// Note that this stores the maximum capacities, the actual binnings 
+    /// do not always use the full size. See data members below for the 
+    /// actual binning paramaters, which are determined in buildFramework. 
+    //@{
+    enum Size {arraySizePhi=53,     ///< capacity of the 1D phi arrays 
+               arraySizeZ=11,       ///< capacity of the 1D z arrays
+               arraySizePhiZ=arraySizePhi*arraySizeZ,   ///< capacity for the 2D phi-z arrays 
+               arraySizeNeighbourBins=9,  ///< array size to store neighbouring phi-z-regions in the seed finding
+               arraySizePhiV=100,         ///< array size in phi for vertexing 
+               arraySizeZV=3,             ///< array size in z for vertexing
+               arraySizePhiZV=arraySizePhiV*arraySizeZV,      ///< array size in phi-Z 2D for the vertexing
+               arraySizeNeighbourBinsVertex=6};       ///< array size to store neighbouring phi-z regions for the vertexing
+    //@} 
     ///////////////////////////////////////////////////////////////////
-    // Private data and methods
+    /// Private data and methods
     ///////////////////////////////////////////////////////////////////
 
     /// @name Data handles
@@ -139,7 +151,7 @@ namespace InDet {
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
     SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap{this,"PRDtoTrackMap","","option PRD-to-track association"};
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
-    // Read handle for conditions object to get the field cache
+    /// Read handle for conditions object to get the field cache
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
                                                                           "Name of the Magnetic Field conditions object key"};
     //@}
@@ -152,7 +164,14 @@ namespace InDet {
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", true};
     IntegerProperty m_maxsize{this, "maxSize", 50000};
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 5000};
+    /// maximum number of seeds to keep per central space point. 
+    /// the top N seeds sorted by quality are preserved if more candidates
+    /// than the limit exist 
     IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
+    /// This flag will lead to all confirmed seeds (seeds where a second compatible seed
+    /// with a different top spacepoint is found) being kept, even in excess of 
+    /// maxSeedsForSpacePoint above 
+    BooleanProperty m_alwaysKeepConfirmedSeeds{this, "alwaysKeepConfirmedSeeds", false};
     FloatProperty m_etamax{this, "etaMax", 2.7};
     FloatProperty m_r1minv{this, "minVRadius1", 0.};
     FloatProperty m_r1maxv{this, "maxVRadius1", 60.};
@@ -169,12 +188,12 @@ namespace InDet {
     //@{
     FloatProperty m_etamin{this, "etaMin", 0.};
     FloatProperty m_r_rmax{this, "radMax", 600.};
-    FloatProperty m_r_rstep{this, "radStep", 2.};
-    FloatProperty m_r3max{this, "maxRadius3", 600.}; //!< This is always overwritten by m_r_rmax.
+    FloatProperty m_binSizeR{this, "radStep", 2.};
+    FloatProperty m_r3max{this, "maxRadius3", 600.}; ///< This is always overwritten by m_r_rmax.
     FloatProperty m_drmin{this, "mindRadius", 5.};
-    FloatProperty m_diver{this, "maxdImpact", 10.};
-    FloatProperty m_diversss{this, "maxdImpactSSS", 50.};
-    FloatProperty m_divermax{this, "maxdImpactForDecays", 20.};
+    FloatProperty m_maxdImpact{this, "maxdImpact", 10.};
+    FloatProperty m_maxdImpactSSS{this, "maxdImpactSSS", 50.};
+    FloatProperty m_maxdImpactDecays{this, "maxdImpactForDecays", 20.};
     FloatProperty m_ptmin{this, "pTmin", 500.};
     //@}
 
@@ -182,6 +201,20 @@ namespace InDet {
     //@{
     BooleanProperty m_checketa{this, "checkEta", false};
     //@}
+
+    /// Scoring modifiers applied when ranking seeds. 
+    /// These are used within the newOneSeedWithCurvaturesComparison method. 
+    /// Be aware that a negative score is considered "better", so these should be 
+    /// set to negative numbers. 
+    ///@{
+    FloatProperty m_seedScoreBonusPPP{this, "seedScoreBonusPPP", -200.};
+    FloatProperty m_seedScoreBonusSSS{this, "seedScoreBonusSSS", -400.};
+    FloatProperty m_seedScoreBonusConfirmationSeed{this, "seedScoreBonusConfirmationSeed", -200.};
+    ///@}
+
+    /// Maximum score to accept 
+    FloatProperty m_maxScore{this, "maximumAcceptedSeedScore", 100.}; 
+
 
     /// @name Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ATLxk class
     //@{
@@ -192,7 +225,7 @@ namespace InDet {
     FloatProperty m_r2max{this, "maxRadius2", 600.};
     FloatProperty m_r3min{this, "minRadius3", 0.};
     FloatProperty m_rapcut{this, "RapidityCut", 2.7};
-    FloatProperty m_diverpps{this, "maxdImpactPPS", 1.7};
+    FloatProperty m_maxdImpactPPS{this, "maxdImpactPPS", 1.7};
     //@}
 
     /// @name Data member, which is not updated at all.
@@ -202,22 +235,48 @@ namespace InDet {
 
     /// @name Data members, which are updated only in buildFrameWork in initialize
     //@{
-    float m_dzdrmin0{0.};
-    float m_dzdrmax0{0.};
-    float m_ipt{0.};
-    float m_ipt2{0.};
-    float m_COF{0.};
-    int m_r_size{0};
-    int m_fNmax{0};
-    int m_fvNmax{0};
-    int m_rfz_b[SizeRFZ];
-    int m_rfz_t[SizeRFZ];
-    int m_rfz_ib[SizeRFZ][SizeI];
-    int m_rfz_it[SizeRFZ][SizeI];
-    int m_rfzv_n[SizeRFZV];
-    int m_rfzv_i[SizeRFZV][SizeIV];
-    float m_sF{0};
-    float m_sFv{0};
+    /// conversion factors and cached cut values
+    float m_dzdrmin0{0.};   ///< implicitly store eta cut
+    float m_dzdrmax0{0.};   ///< implicitly store eta cut
+    float m_ipt{0.};    ///< inverse of 90% of the ptmin cut 
+    float m_ipt2{0.};   ///< inverse square of 90% of the pt min cut 
+    static constexpr float m_COF{134*.05*9};    ///< conversion factor. A very magic number indeed. 
+
+    /// @name Binning parameters 
+    ///@{
+    int m_nBinsR{0};              ///<  number of bins in the radial coordinate 
+    int m_maxPhiBin{0};           ///<  number of bins in phi 
+    int m_maxBinPhiVertex{0};     ///<  number of bins in phi for vertices 
+    float m_inverseBinSizePhi{0};   ///<  cache the inverse bin size in phi which we use - needed to evaluate phi bin locations
+    float m_inverseBinSizePhiVertex{0};///<  as above but for vertex
+    ///@}
+
+
+    /** Seed score thresholds defined based on the modifiers defined 
+    * as configurables above.
+    * These allow to categorise the seeds based on their quality score.
+    * The modifiers above are much larger than the range of the raw 
+    * unmodified scores would be, resulting in a grouping of the scores
+    * based on the modifiers applied. The thresholds are just below 
+    * the value reachable without the additional modifier
+    * @{
+    **/   
+    float m_seedScoreThresholdPPPConfirmationSeed{0.};    ///< max (score is assigned negative sign) score for PPP seeds with confirmation seed requirement. 
+    float m_seedScoreThresholdSSSConfirmationSeed{0.};    ///< max (score is assigned negative sign) score for SSS seeds with confirmation seed requirement. 
+    ///@}
+
+    /// We detect IBL hits via the seed radial location. 
+    /// Place the cut value roughly between IBL and L0
+    static constexpr float m_radiusCutIBL{43.}; 
+
+    /// arrays associating bins to each other for SP formation
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsBottom;  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsTop;  ///< number of neighbouring phi-z bins to consider when looking for "top SP" candidates for each phi-z bin
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottom; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "bottom SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZbottom
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTop; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "top SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZtop
+
+    std::array<int,arraySizePhiZV> m_nNeighboursVertexPhiZ;
+    std::array<std::array<int, arraySizeNeighbourBinsVertex>, arraySizePhiZ> m_neighboursVertexPhiZ;
     //@}
 
     ///////////////////////////////////////////////////////////////////
@@ -234,46 +293,161 @@ namespace InDet {
     MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
     MsgStream& dumpEvent     (EventData& data, MsgStream& out) const;
 
+    /// prepare several data members with cached cut values,
+    /// conversion factors, binnings, etc 
     void buildFrameWork();
+    /* updates the beam spot information stored in the event data
+    * object. 
+    * @param[out] data: Event data, receives update to the x/y/zbeam members 
+    **/
     void buildBeamFrameWork(EventData& data) const;
 
+    /** Create a SiSpacePointForSeed from the space point. 
+    * This will also add the point to the data object's
+    * l_spforseed list and update its i_spforseed iterator 
+    * to point to the entry after the new SP 
+    * for further additions.
+    * Returns a nullptr if the SP fails the eta cut, 
+    * should we apply one 
+    * @param[in,out] data: Provides beam spot location, receives updates to the l_spforseed and i_spforseed members 
+    * @param[in] sp: Input space point. 
+    **/
     SiSpacePointForSeed* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp) const;
+
     void newSeed(EventData& data, SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2, float z) const;
 
+    /** This inserts a seed into the set of saved seeds. 
+    * It internally respects the user-configured max number of seeds per central 
+    * space point. Once this is exceeded, the new seed will replace worse-quality 
+    * seeds if there are any, otherwise it will not insert anything. 
+    * @param[in,out] data Event data - update OneSeeds_Pro and mapOneSeeds_Pro members 
+    * @param[in] p1 First space point for this seed
+    * @param[in] p2 Second space point for this seed
+    * @param[in] p3 Third space point for this seed
+    * @param[in] z z0 IP estimate
+    * @param[in] quality quality estimate (based on d0, plus modifiers) 
+    **/ 
     void newOneSeed(EventData& data,
                     SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2,
-                    SiSpacePointForSeed*& p3, float z, float q) const;
+                    SiSpacePointForSeed*& p3, float z, float quality) const;
 
+    /** This creates all possible seeds with the passed central and bottom SP, using all top SP 
+    * candidates which are stored in the data.CmSp member.  Seeds are scored by a quality score 
+    * seeded by abs(d0), and modified if there is a second-seed confirmation or in case of PPP/SSS 
+    * topologies. Then, they are written out via the newOneSeed method.
+    * @param[in,out] data Event data, used to read top SP candidates and write out found seeds (see newOneSeed). 
+    * @param[in] SPb Bottom Space point for the seed creation
+    * @param[in] SP0 Central Space point for the seed creation
+    * @param[in] Zob z0 estimate 
+    **/ 
     void newOneSeedWithCurvaturesComparison
     (EventData& data, SiSpacePointForSeed*& SPb, SiSpacePointForSeed*& SP0, float Zob) const;
 
+    /// fills the seeds from the mapOneSeeds_Pro member into the l_seeds_Pro member of the data object, applying some more 
+    /// quality requirements on the way. 
+    /// @param[in,out] data Event data which is modified
     void fillSeeds(EventData& data) const;
+
+    /** this method populates the data object's "histograms" (implemented as nested vectors). 
+    * using the list of r-binned space points in the object assumed to have been previously
+    * set (for example via the newEvent method of this class). 
+    * @param[in,out] data: Event data which will be updated. 
+    **/ 
     void fillLists(EventData& data) const;
     void erase(EventData& data) const;
     void production2Sp(EventData& data) const;
+
+
+    /** Top-level method for 3-SP seed production. 
+    * This method loops over each eta-Z region, and in each region 
+    * calls the extended production3Sp method below to do the actual work. 
+    * @param[in,out] data Event data which will be updated
+    **/
     void production3Sp(EventData& data) const;
+
+    /** \brief: Seed production from space points. 
+    * 
+    * This method will try to find 3-SP combinations within a 
+    * local phi-z region in the detector. 
+    * 
+    * The central SP of the seed will be taken from this region
+    * (technically via the first entry of the bottom candidate array, 
+    * which always points to the phi-z bin of interest itself). 
+    * 
+    * The top SP is allowed to come from the same or one of several close-by
+    * phi-Z bins, as is the bottom SP. 
+    * 
+    * All SP collections are expected to be internally sorted in the radial coordinate.
+    * 
+    * @param[in,out] data: Event data
+    * @param[in,out] iter_bottomCands: collection of iterators over SP collections for up to 9 phi-z cells to consider for the bottom space-point search 
+    * @param[in,out] iter_endBottomCands: collection of end-iterators over the 
+    * SP collections  for up to 9 phi-z cells to consider for the bottom space-point search 
+    * @param[in,out] iter_topCands: collection of iterators over SP collections for up to 9 phi-z cells to consider for the top space-point search 
+    * @param[in,out] iter_endTopCands: collection of end-iterators over the 
+    * SP collections  for up to 9 phi-z cells to consider for the top space-point search 
+    * @param[in] numberBottomCells: Number of bottom cells to consider. Determines how many entries in iter_(end)bottomCands are expected to be valid. 
+    * @param[in] numberTopCells: Number of top cells to consider.Determines how many entries in iter_(end)topCands are expected to be valid. 
+    * @param[out] nseed: Number of seeds found 
+    **/ 
     void production3Sp
     (EventData& data,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rb,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rt,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
-     const int NB, const int NT, int& nseed) const;
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+     const int numberBottomCells, const int numberTopCells, int& nseed) const;
+
+    /// as above, but for the trigger 
     void production3SpTrigger
     (EventData& data,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rb,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rt,
-     std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
-     const int NB, const int NT, int& nseed) const;
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & rb,
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & rbe,
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & rt,
+     std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & rte,
+     const int numberBottomCells, const int numberTopCells, int& nseed) const;
  
+    /** This method updates the EventData based on the passed list of vertices. 
+    * The list may be empty. 
+    * Updates the isvertex, l_vertex, zminU and zmaxU members of the data object.
+    * Always returns false.  
+    * @param[in,out] data  Event data to update 
+    * @param[in] lV possibly empty list of vertices
+    **/
     bool newVertices(EventData& data, const std::list<Trk::Vertex>& lV) const;
+    /** This method is called within next() when we are out of vertices. 
+     * It will internally trigger a re-run of production3Sp if we are out of seeds 
+     * and data.endlist is not set (indicating the search is not finished). 
+    **/ 
     void findNext(EventData& data) const;
     bool isZCompatible(EventData& data, const float& Zv, const float& R, const float& T) const;
-    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, float* r) const;
+
+    /** This method popualtes the r array 
+    * with the space point's coordinates 
+    * relative to the beam spot. 
+    * @param[in] data Event data 
+    * @param[in] sp: Space point to take the global position from 
+    * @param[out] r: 3-array, will be populated with the relative coordinates 
+    **/
+    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, std::array<float,3> & r) const;
+
     bool isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;
+
+    /** Helper method to determine if a seed 
+     * is 'confirmed' - this means that a second
+     * seed exists with compatible curvature, 
+     * the same bottom and central SP, but a 
+     * different third SP. This information 
+     * is stored in a modification of the 
+     * seed quality, which we check here. 
+     * @param[in] bottomSP: bottom space point
+     * @param[in] topSP: top space point 
+     * @param[in] quality: seed quality
+     * @return true if the seed is confirmed, false otherwise 
+     **/ 
+    bool isConfirmedSeed(const InDet::SiSpacePointForSeed* bottomSP, const InDet::SiSpacePointForSeed* topSP, float quality) const; 
   };
   
 } // end of name space

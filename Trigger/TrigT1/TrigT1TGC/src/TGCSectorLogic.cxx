@@ -2,13 +2,17 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCSectorLogic.hh"
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
-#include "TrigT1TGC/TGCHighPtBoard.hh"
-#include "TrigT1TGC/TGCHighPtBoardOut.hh"
-#include "TrigT1TGC/TGCHighPtChipOut.hh"
+#include "TrigT1TGC/TGCSectorLogic.h"
+#include "TrigT1TGC/TGCElectronicsSystem.h"
+#include "TrigT1TGC/TGCHighPtBoard.h"
+#include "TrigT1TGC/TGCHighPtBoardOut.h"
+#include "TrigT1TGC/TGCHighPtChipOut.h"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
+
+#include "TrigT1TGC/TGCNSW.h"
+#include "TrigT1TGC/NSWTrigOut.h"
+#include "TrigT1TGC/TGCNSWCoincidenceMap.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
@@ -100,6 +104,14 @@ void TGCSectorLogic::setTileMuMap(const TGCTMDB* tmdb,
   if (m_mapTileMu ==0 || m_pTMDB==0) m_useTileMu = false;
 }
 
+  void TGCSectorLogic::setNSWMap(std::shared_ptr<const TGCNSW> nsw,
+				 std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW){
+  m_nsw = nsw;
+  m_mapNSW = mapNSW;
+  if( m_nsw == 0 || m_mapNSW == 0){tgcArgs()->set_USE_NSW(false);}
+}
+
+
 void TGCSectorLogic::setWireHighPtBoard(int port, TGCHighPtBoard* highPtBoard)
 {
   m_wireHighPtBoard[port] = highPtBoard;
@@ -111,12 +123,7 @@ void TGCSectorLogic::setStripHighPtBoard(TGCHighPtBoard* highPtBoard)
   m_stripHighPtBoard = highPtBoard;	 
 }
 
-TGCSLSelectorOut* TGCSectorLogic::getSelectorOutput() const
-{
-  return m_selectorOut;
-}
-
-  void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
+void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
 {
   trackSelectorOut=m_trackSelectorOut;
 }
@@ -187,10 +194,16 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
     }
     ////////////////////////////////////////////
     // do coincidence with Inner Tracklet of EIFI and/or TileMu
-    if (m_useEIFI){ 
-      if(!tgcArgs()->useRun3Config()){doInnerCoincidence(readCondKey, SSCid, coincidenceOut);}
-      else{/*InnerCoincidence Algorithm for Run3 will be implemented;*/}
+
+    if(!tgcArgs()->useRun3Config()){
+      if (m_useEIFI){ 
+	doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
+      }
     }
+    else{
+      doInnerCoincidenceRun3(SSCid, coincidenceOut);/*InnerCoincidence Algorithm for Run3 will be implemented;*/
+    }
+
 
     if(coincidenceOut){
       if(tgcArgs()->useRun3Config()){m_trackSelector.input(coincidenceOut);}// TrackSelector for Run3
@@ -533,5 +546,87 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
   coincidenceOut->setHit(pt);
  
 }
+
+
+
+  ////////////////////////////////////////
+  // Inner Coincidnece Algorithms on Run3
+  ////////////////////////////////////////
+  void TGCSectorLogic::doInnerCoincidenceRun3(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut){
+    if (coincidenceOut ==0) return;
+    
+    int pt = coincidenceOut->getpT();
+    if (pt==0) return;
+
+    if(SSCId<=4 && m_region==ENDCAP){//3 detectors are used to inner coincidnece in SSC#0~4 in Endcap;  
+
+      // WHICH INNER COINCIDENCE
+      // select a inner station detector which is used in inner coincidence algorithm.
+      //Defenation of innerDetectorNumber :: enum{EI=0,TILE,BIS78};
+
+      /*int innerDetectorNumber = which_InnerCoincidence();*/ //this function will be implemented.
+      
+      // doTGCEICoincidnece();
+      // doTILECoincidence();
+      // doTGCBISCoincidence();
+
+    }
+    else{//  NSW or FI are used to inner coincidnece in SSC#5~18 in Endcap and Forward region 
+      if(tgcArgs()->USE_NSW() /*&& isNSWside(m_sideId)*/){ //this function will be implemented.There is a NSW on A-side only in early Run3;
+      doTGCNSWCoincidence(coincidenceOut);
+      }
+      else if(/*!isNSWside(m_sideId)*/false){
+	//doTGCFICoincidence();
+      }
+
+    }
+
+
+
+  }
+
+
+  void TGCSectorLogic::doTGCNSWCoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+
+    int pt_EtaPhi=0,pt_EtaDtheta=0;
+
+    //////// calculate pT //////
+
+    std::shared_ptr<const NSWTrigOut> pNSWOut = m_nsw->getOutput(m_region,m_sideId,m_sectorId);
+    pt_EtaPhi = m_mapNSW->TGCNSW_pTcalcu_EtaPhi(
+						pNSWOut.get(),
+						coincidenceOut->getRoI()
+						);
+
+    pt_EtaDtheta = m_mapNSW->TGCNSW_pTcalcu_EtaDtheta(
+						      pNSWOut.get(),
+						      coincidenceOut->getRoI()
+						      );
+    ///////  set flag  ////////
+    if(pt_EtaPhi==0 && pt_EtaDtheta==0){
+      coincidenceOut->setInnerCoincidenceFlag(false);
+      return;
+    }
+    else{
+      coincidenceOut->setInnerCoincidenceFlag(true);
+    }
+
+
+    //////  select lowest pT   /////
+    if(pt_EtaPhi>coincidenceOut->getpT() && pt_EtaDtheta>coincidenceOut->getpT()){
+      return;
+    }
+    else if(pt_EtaPhi<pt_EtaDtheta){
+      coincidenceOut->setpT(pt_EtaPhi);
+      return;
+    }
+    else{
+      coincidenceOut->setpT(pt_EtaDtheta);
+      return;
+    }
+
+  }
+
+
 
 } //end of namespace bracket

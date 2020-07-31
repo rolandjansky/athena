@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -82,8 +82,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
     double closestHitR=1.e6;   //VK needed for FirstMeasuredPointLimit if this hit itself is absent
     if(m_firstMeasuredPoint){               //First measured point strategy
        //------
-       if(InpTrkC.size()){
-          if( m_InDetExtrapolator == 0 ){
+       if(!InpTrkC.empty()){
+          if( m_InDetExtrapolator == nullptr ){
             if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given."<<
 	                                 "Can't use FirstMeasuredPoint with xAOD::TrackParticle!!!" << endmsg;
             return StatusCode::FAILURE;        
@@ -100,7 +100,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 	                                    "Try extrapolation from Perigee to FisrtMeasuredPoint radius"<<'\n';
               tmpInputC.push_back(m_fitPropagator->myxAODFstPntOnTrk((*i_ntrk))); 
               if( (*i_ntrk)->radiusOfFirstHit() < closestHitR ) closestHitR=(*i_ntrk)->radiusOfFirstHit();
-              if(tmpInputC[tmpInputC.size()-1]==0){  //Extrapolation failure 
+              if(tmpInputC[tmpInputC.size()-1]==nullptr){  //Extrapolation failure 
               if(msgLvl(MSG::WARNING))msg()<< "InDetExtrapolator can't etrapolate xAOD::TrackParticle Perigee "<<
                                               "to FirstMeasuredPoint radius! Stop vertex fit!" << endmsg;
                 for(unsigned int i=0; i<tmpInputC.size()-1; i++) delete tmpInputC[i]; 
@@ -115,10 +115,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
           }
        }
     }else{
-       if(InpTrkC.size()) sc=CvtTrackParticle(InpTrkC,ntrk,state);
+       if(!InpTrkC.empty()) sc=CvtTrackParticle(InpTrkC,ntrk,state);
     }
     if(sc.isFailure())return StatusCode::FAILURE;
-    if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk,state); if(sc.isFailure())return StatusCode::FAILURE;}
+    if(!InpTrkN.empty()){sc=CvtNeutralParticle(InpTrkN,ntrk,state); if(sc.isFailure())return StatusCode::FAILURE;}
 //--
     int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, ifCovV0 ) ;
 //
@@ -162,44 +162,6 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 }
 
 
-
-StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBase*>& InpTrk,
-        Amg::Vector3D& Vertex,
-	TLorentzVector&   Momentum,
-	long int& Charge,
-	dvect& ErrorMatrix, 
-	dvect& Chi2PerTrk, 
-        std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2,
-        IVKalState& istate,
-        bool ifCovV0 /*= false*/) const
-{
-    State& state = dynamic_cast<State&> (istate);
-
-//
-//------  extract information about selected tracks
-//
-    int ntrk=0;
-    StatusCode sc;
-    std::vector<const TrackParameters*> baseInpTrk;
-    if(m_firstMeasuredPoint){               //First measured point strategy
-       std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
-       for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
-       sc=CvtTrackParameters(baseInpTrk,ntrk,state);
-       if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(InpTrk,ntrk,state);}
-    }else{
-       sc=CvtTrackParticle(InpTrk,ntrk,state);
-    }
-    if(sc.isFailure())return StatusCode::FAILURE;
-
-    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                            Chi2PerTrk, TrkAtVrt,Chi2, state, ifCovV0 ) ;
-    if (ierr) return StatusCode::FAILURE;
-    return StatusCode::SUCCESS;
-}
-
-
-
 StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*>    & InpTrkC,
                                         const std::vector<const NeutralParameters*>  & InpTrkN,
         Amg::Vector3D& Vertex,
@@ -219,16 +181,16 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 //
     int ntrk=0;
     StatusCode sc; sc.setChecked();
-    if(InpTrkC.size()>0){
+    if(!InpTrkC.empty()){
       sc=CvtTrackParameters(InpTrkC,ntrk,state);
       if(sc.isFailure())return StatusCode::FAILURE;
     }
-    if(InpTrkN.size()>0){
+    if(!InpTrkN.empty()){
       sc=CvtNeutralParameters(InpTrkN,ntrk,state);
       if(sc.isFailure())return StatusCode::FAILURE;
     }
     
-    if(state.m_ApproximateVertex.size()==0 && state.m_globalFirstHit){  //Initial guess if absent
+    if(state.m_ApproximateVertex.empty() && state.m_globalFirstHit){  //Initial guess if absent
 	state.m_ApproximateVertex.reserve(3);
         state.m_ApproximateVertex.push_back(state.m_globalFirstHit->position().x());
         state.m_ApproximateVertex.push_back(state.m_globalFirstHit->position().y());
@@ -628,7 +590,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
     if( state.m_usePassNear || state.m_usePassWithTrkErr ) { NDOF+= 2; } 
 
     if( state.m_massForConstraint>0. )  { NDOF+=1; }
-    if( state.m_partMassCnst.size()>0 ) { NDOF+= state.m_partMassCnst.size(); }
+    if( !state.m_partMassCnst.empty() ) { NDOF+= state.m_partMassCnst.size(); }
     if( state.m_useAprioriVertex )      { NDOF+= 3; }    
     if( state.m_usePhiCnst )            { NDOF+=1; }  
     if( state.m_useThetaCnst )          { NDOF+=1; }  

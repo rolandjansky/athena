@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARCABLEATTENUATIONP
@@ -20,7 +20,7 @@
 class  LArCableAttenuationP{
 public:
 
-    LArCableAttenuationP() : m_CableAttenuation(-999999999) {} 
+    LArCableAttenuationP() : m_CableAttenuation(-9999999) {} 
     LArCableAttenuationP(float f) 
 	    : m_CableAttenuation(f) {} 
     bool isEmpty() const { return m_CableAttenuation < -9999 ; } ;

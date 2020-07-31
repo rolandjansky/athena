@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.MV2defaultValues import default_values
 from BTagging.MV2defaultValues import MVTM_varNames
 
@@ -27,14 +26,18 @@ def MV2TagCfg( flags, name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True,
     acc = ComponentAccumulator()
     options['name'] = name + 'Tag'
     basename = name
+    ForceMV2CalibrationAlias = False
+    MV2CalibAlias = 'AntiKt4EMTopo'
     options['xAODBaseName'] = basename
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
 
     if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'taggerName'                       : basename,
                      'taggerNameBase'                   : basename,
-                     'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
-                     'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
+                     'forceMV2CalibrationAlias'         : ForceMV2CalibrationAlias,
+                     'MV2CalibAlias'                    : MV2CalibAlias,
                      'defaultvals'                      : default_values,
                      'MVTMvariableNames'                : MVTM_varNames,
                      }

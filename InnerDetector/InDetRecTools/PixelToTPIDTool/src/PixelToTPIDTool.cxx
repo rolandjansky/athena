@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelToTPIDTool/PixelToTPIDTool.h"
@@ -111,7 +111,13 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track, int& nUsedHits, int&
           return -1;
         }
 
-        const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
+        const InDet::PixelClusterOnTrack* pixclus = nullptr;
+        if (measurement->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+          const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(measurement);
+          if (tmpRio->rioType(Trk::RIO_OnTrackType::PixelCluster)) {
+            pixclus = static_cast<const InDet::PixelClusterOnTrack*>(tmpRio);
+          }
+        }
         if (pixclus) {
           //bool isok=false;
           double locx=pixclus->localParameters()[Trk::locX];

@@ -333,7 +333,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
 
 }
 
-const Trk::FitterStatusCode
+Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 (Trajectory& trajectory, const ParticleHypothesis&   particleType) const
 {
@@ -346,7 +346,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 
 //================ main method: the piece-wise filter ==========================
 
-const Trk::FitterStatusCode
+Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece 
 (Trajectory& trajectory,
  Trajectory::iterator& start,

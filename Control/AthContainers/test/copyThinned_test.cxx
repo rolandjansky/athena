@@ -85,7 +85,9 @@ template <class CONTAINER>
 void tryit (CONTAINER& cont, const SG::ThinningDecisionBase* dec,
             bool thinned = false)
 {
-  std::unique_ptr<const CONTAINER> newcont = SG::copyThinned (cont, dec);
+  SG::ThinningInfo info;
+  info.m_decision = dec;
+  std::unique_ptr<const CONTAINER> newcont = SG::copyThinned (cont, &info);
   compare (cont, *newcont, thinned);
 }
 
@@ -94,7 +96,9 @@ template <class CONTAINER>
 void tryitConst (CONTAINER& cont, const SG::ThinningDecisionBase* dec,
                  bool thinned = false)
 {
-  std::unique_ptr<const CONTAINER> newcont = SG::copyThinnedConst (cont, dec);
+  SG::ThinningInfo info;
+  info.m_decision = dec;
+  std::unique_ptr<const CONTAINER> newcont = SG::copyThinnedConst (cont, &info);
   compare (cont, *newcont, thinned);
 }
 

@@ -29,31 +29,38 @@ namespace Trk
   * February 2014
   */
 
- class LinkToXAODTrackParticle : public ITrackLink, public ElementLink<xAOD::TrackParticleContainer> 
- {
- 
-   public:
-    /** default constructor (needed for persistency) */
-    LinkToXAODTrackParticle();
-    
-    /** constructor with ElementLink */
-    LinkToXAODTrackParticle( ElementLink<xAOD::TrackParticleContainer>& link );
+class LinkToXAODTrackParticle
+  : public ITrackLink
+  , public ElementLink<xAOD::TrackParticleContainer>
+{
 
-    /** default destructor */
-    virtual ~LinkToXAODTrackParticle() = default;
-   
-    /** return the track parameters of the track (to which the EL< TrackCollection > points) */
-    const TrackParameters* parameters() const;
+public:
+  /** default constructor (needed for persistency) */
+  LinkToXAODTrackParticle();
 
-    /** return the neutral parameters of the NeutralParticle) */
-    virtual const NeutralParameters* neutralParameters() const {return nullptr;};
+  /** constructor with ElementLink */
+  LinkToXAODTrackParticle(ElementLink<xAOD::TrackParticleContainer>& link);
+
+  /** default destructor */
+  virtual ~LinkToXAODTrackParticle() = default;
+
+  /** return the track parameters of the track (to which the EL< TrackCollection
+   * > points) */
+  virtual  const TrackParameters* parameters() const override final;
+
+  /** return the neutral parameters of the NeutralParticle) */
+  virtual const NeutralParameters* neutralParameters() const override final
+  {
+    return nullptr;
+  }
+
+  /** method to clone the LinkToXAODTrackParticle object */
+  virtual LinkToXAODTrackParticle* clone() const override final;
     
-    /** method to clone the LinkToXAODTrackParticle object */
-    LinkToXAODTrackParticle * clone() const ;
-    
-    // This is here to make sure that the TrackCollection typedef
-    // will make it into the dictionary.
-   // typedef TrackCollection TrackCollectionForDict;
+  virtual ITrackLinkType type() const override final {
+    return ToxAODTrackParticle;
+  }
+
  };//end of class definitions
 }//end of namespace definitions
 

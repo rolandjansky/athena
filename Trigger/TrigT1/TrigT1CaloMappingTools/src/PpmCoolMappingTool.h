@@ -12,10 +12,10 @@
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "CaloTriggerTool/CaloTriggerTowerService.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 
 class CaloLVL1_ID;
-class CaloTriggerTowerService;
 class IInterface;
 class StatusCode;
 class TTOnlineID;
@@ -30,33 +30,30 @@ namespace LVL1 {
  *  @author Peter Faulkner
  */
 
-class PpmCoolMappingTool : virtual public IL1CaloMappingTool,
-                                   public IIncidentListener,
-                                   public AthAlgTool {
-
+class PpmCoolMappingTool : public extends<AthAlgTool, IL1CaloMappingTool, IIncidentListener>
+{
  public:
 
-   PpmCoolMappingTool(const std::string& type, const std::string& name,
-                                               const IInterface* parent);
-   virtual ~PpmCoolMappingTool();
+   using base_class::base_class;
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual void handle(const Incident&);
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+   virtual void handle(const Incident&) override;
 
    /// Return eta, phi and layer mapping for given crate/module/channel
    virtual bool mapping(int crate, int module, int channel,
-                        double& eta, double& phi, int& layer);
+                        double& eta, double& phi, int& layer) const override;
    /// Return crate, module and channel mapping for given eta/phi/layer
    virtual bool mapping(double eta, double phi, int layer,
-                        int& crate, int& module, int& channel);
+                        int& crate, int& module, int& channel) const override;
 
  private:
 
    // Tools and helpers
-   ToolHandle<CaloTriggerTowerService> m_ttSvc;
-   const CaloLVL1_ID*                  m_lvl1Helper;
-   const TTOnlineID*                   m_l1ttonlineHelper;
+   ToolHandle<CaloTriggerTowerService> m_ttSvc
+   { this, "CaloTriggerTowerService", "CaloTriggerTowerService" };
+   const CaloLVL1_ID*                  m_lvl1Helper = nullptr;
+   const TTOnlineID*                   m_l1ttonlineHelper = nullptr;
 
    /// Mapping lookup table
    std::vector<unsigned int> m_idTable;

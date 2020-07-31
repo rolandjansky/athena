@@ -37,12 +37,6 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 svcMgr.EventSelector.InputCollections        = [ "SimplePoolFile.root" ]
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 5
@@ -94,7 +88,6 @@ svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
 #rds ClassIDSvc = Service( "ClassIDSvc" )
 #rds ClassIDSvc.OutputLevel = 3
-svcMgr.AthenaSealSvc.OutputLevel = WARNING
 AthenaPoolTestDataWriter.OutputLevel = DEBUG
 
 from AthenaServices import AthenaServicesConf

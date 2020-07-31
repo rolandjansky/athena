@@ -1,21 +1,7 @@
-################################################################################
-# Package: DetDescrCondTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DetDescrCondTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          GaudiKernel
-                          PRIVATE
-                          Database/APR/FileCatalog
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/AthenaPOOL/PoolSvc
-                          DetectorDescription/DetDescrCond/DetDescrConditions
-                          DetectorDescription/Identifier )
 
 # External dependencies:
 find_package( CLHEP )
@@ -36,6 +22,5 @@ atlas_add_component( DetDescrCondTools
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel FileCatalog AthenaPoolUtilities DetDescrConditions Identifier PoolSvcLib )
 
 # Install files from the package:
-atlas_install_headers( DetDescrCondTools )
 atlas_install_scripts( share/coolHist_setFileIdentifier.sh share/coolHist_extractFileIdentifier.sh share/coolHist_setReference.py share/coolHist_insertFileToCatalog.py share/coolStrFileSvc_set.py )
 

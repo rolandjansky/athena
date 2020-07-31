@@ -30,14 +30,6 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
     kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
     result.merge(tmpAcc)
 
-  if ('PixelSummaryTool' not in kwargs):
-    if flags.Detector.PixelOn:
-      tmpAcc = PixelConditionsSummaryToolCfg(flags)
-      kwargs.setdefault("PixelSummaryTool", tmpAcc.popPrivateTools())
-      result.merge(tmpAcc)
-    else:
-      kwargs.setdefault("PixelSummaryTool", None)
-
   if ('SctSummaryTool' not in kwargs):
     if flags.Detector.SCTOn:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)
@@ -110,7 +102,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
 
 def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
     #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg
 
     kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
 
@@ -122,7 +114,6 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
     result.merge(PixelConfigCondAlgCfg(flags))
     result.merge(PixelDCSCondStateAlgCfg(flags))
     result.merge(PixelDCSCondStatusAlgCfg(flags))
-    result.merge(PixelTDAQCondAlgCfg(flags))
 
     result.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name, **kwargs))
     return result
@@ -362,15 +353,6 @@ def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs
   result.setPrivateTools(tool)
   return result
 
-#<<<<<<< HEAD
-#def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", **kwargs):
-#  acc = ComponentAccumulator()
-#  folder="/SCT/Derived/Monitoring"
-
-#  acc.merge(addFolders(flags,folder, "SCT_OFL", className="CondAttrListCollection"))
-
-#  acc.addCondAlgo(CompFactory.SCT_MonitorCondAlg( "SCT_MonitorCondAlg",ReadKey = folder))
-#=======
 
 def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", cond_kwargs={}, **kwargs):
   cond_kwargs.setdefault("Folder", "/SCT/Derived/Monitoring")
@@ -385,7 +367,6 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", c
 
   result.addCondAlgo( CompFactory.SCT_MonitorCondAlg(name    = cond_kwargs["MonitorCondAlgName"],
                                                      ReadKey = cond_kwargs["Folder"] ))
-#>>>>>>> robert/inDetRecToolsConfig
 
   tool = CompFactory.SCT_MonitorConditionsTool(name, **kwargs)
   result.setPrivateTools(tool)

@@ -203,8 +203,6 @@ CBNT_Athena.NtupleLocID="/FILE1/Cosmic/tree"
 # Write out Transient Event Store content in POOL
 #-------------------------------------------------
 
-AthenaSealSvc.CheckDictionary = True
-
 if CosmicMonitorFlags.doWriteESD:
     if not CosmicMonitorFlags.doSim:
         include ("AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py")

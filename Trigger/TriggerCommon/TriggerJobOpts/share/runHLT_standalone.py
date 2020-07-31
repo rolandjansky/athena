@@ -41,8 +41,8 @@ class opt:
     endJobAfterGenerate = False       # Finish job after menu generation
     failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
-    decodeLegacyL1 = True             # Decode L1 RoIs from legacy L1 systems through RoIBResult for HLT seeding
-    decodePhaseIL1 = False            # Decode L1 RoIs from Run-3 L1 systems through L1TriggerResult for HLT seeding
+    enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
+    enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
 #Individual slice flags
     doEgammaSlice     = True
     doMuonSlice       = True
@@ -61,6 +61,7 @@ class opt:
     filterViews       = False
     enabledSignatures = []
     disabledSignatures = []
+    selectChains      = []
 
 
 #
@@ -69,6 +70,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
+from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone.py')
 
@@ -81,7 +83,7 @@ for option in defaultOptions:
     if option in globals():
         setattr(opt, option, globals()[option])
         print(' %20s = %s' % (option, getattr(opt, option)))
-    else:        
+    else:
         print(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
 
@@ -129,6 +131,7 @@ if len(athenaCommonFlags.FilesInput())>0:
     af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
     globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
     globalflags.DataSource = 'data' if af.fileinfos['evt_type'][0]=='IS_DATA' else 'geant4'
+    ConfigFlags.Input.isMC = False if globalflags.DataSource=='data' else True
     # Set isOnline=False for MC inputs unless specified in the options
     if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
         log.info("Setting isOnline = False for MC input")
@@ -144,6 +147,7 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
+    ConfigFlags.Input.isMC = False
     if '_run_number' not in dir():
         import PyUtils.AthFile as athFile
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -159,12 +163,16 @@ else:   # athenaHLT
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
+ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
 globalflags.ConditionsTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
+ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = jobproperties.Beam.beamType()
 jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')
@@ -175,13 +183,18 @@ if 'doL1Sim' not in globals():
     opt.doL1Sim = globalflags.DataSource != 'data'
     log.info('Setting default doL1Sim=%s because globalflags.DataSource=%s', opt.doL1Sim, globalflags.DataSource())
 
+# Translate opts to flags for LVL1
+ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
+ConfigFlags.Trigger.enableL1Phase1 = opt.enableL1Phase1
+ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
+
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
 #-------------------------------------------------------------
 
 # To turn off HLT for athena running
 TriggerFlags.doHLT = bool(opt.doHLT)
-    
+
 # To extract the Trigger configuration
 TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
 if opt.trigBase is not None:
@@ -234,15 +247,16 @@ TriggerFlags.doCalo = opt.doCalo
 modifierList=[]
 from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
 meta = TrigConfMetaData()
-    
+
 for mod in dir(TriggerJobOpts.Modifiers):
-    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'): continue
+    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'):
+        continue
     if mod in dir():  #allow turning on and off modifiers by variable of same name
         if globals()[mod]:
             if mod not in setModifiers:
                 setModifiers+=[mod]
-        else:
-            if mod in setModifiers: setModifiers.remove(mod)
+        elif mod in setModifiers:
+                setModifiers.remove(mod)
     if mod in setModifiers:
         modifierList+=[getattr(TriggerJobOpts.Modifiers,mod)()]
         meta.Modifiers += [mod]    # store in trig conf meta data
@@ -347,7 +361,7 @@ else:
     topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
 
 # ----------------------------------------------------------------
-# Detector geometry 
+# Detector geometry
 # ----------------------------------------------------------------
 # Always enable AtlasFieldSvc
 from AthenaCommon.DetFlags import DetFlags
@@ -378,7 +392,6 @@ if TriggerFlags.doMuon():
 # ---------------------------------------------------------------
 # ID conditions
 # ---------------------------------------------------------------
-
 if TriggerFlags.doID:
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     InDetTrigFlags.doPixelClusterSplitting = False
@@ -387,10 +400,6 @@ if TriggerFlags.doID:
     from AthenaCommon.Include import include
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
-
-
-isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
-
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -398,12 +407,12 @@ if globalflags.InputFormat.is_pool():
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
-    # enable transient BS 
+    # enable transient BS
     if TriggerFlags.doTransientByteStream():
         log.info("setting up transient BS")
         include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-        
-     
+
+
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
@@ -427,57 +436,57 @@ from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFile
 generateL1Menu()
 createL1PrescalesFileFromMenu()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc,L1ConfigSvcCfg
+from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,None)
-#svcMgr += getL1ConfigSvc()
 
+# ---------------------------------------------------------------
+# HLT prep: RoIBResult and L1Decoder
+# ---------------------------------------------------------------
+
+# main HLT top sequence
+from AthenaCommon.CFElements import seqOR,parOR
+hltTop = seqOR("HLTTop")
+hltBeginSeq = parOR("HLTBeginSeq")
+hltTop += hltBeginSeq
+
+l1decoder = None
+if opt.doL1Unpacking:
+    if globalflags.InputFormat.is_bytestream():
+        # Create inputs for L1Decoder from ByteStream
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+        L1ByteStreamDecodersRecExSetup()
+    if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
+        # TODO: replace with L1DecoderCfg
+        from L1Decoder.L1DecoderConfig import L1Decoder
+        l1decoder = L1Decoder("L1Decoder")
+        l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
+        l1decoder.RoIBResult = "RoIBResult" if opt.enableL1CaloLegacy or not opt.enableL1Phase1 else ""
+        l1decoder.L1TriggerResult = "L1TriggerResult" if opt.enableL1Phase1 else ""
+        if opt.enableL1Phase1:
+            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
+            hltBeginSeq += conf2toConfigurable(getL1TriggerResultMaker())
+        if TriggerFlags.doTransientByteStream():
+            transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
+            l1decoder.ExtraInputs += [transTypeKey]
+
+        hltBeginSeq += conf2toConfigurable(l1decoder)
+    else:
+        from TrigUpgradeTest.TestUtils import L1EmulationTest
+        hltBeginSeq += L1EmulationTest()
+
+topSequence += hltTop
 
 # ---------------------------------------------------------------
 # Level 1 simulation
 # ---------------------------------------------------------------
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    topSequence += Lvl1SimulationSequence()
-
-
-
-
-# ---------------------------------------------------------------
-# HLT prep: RoIBResult and L1Decoder
-# ---------------------------------------------------------------
-l1decoder = None
-if opt.doL1Unpacking:
-    if globalflags.InputFormat.is_bytestream():
-        # Create inputs for L1Decoder from ByteStream
-        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-        L1ByteStreamDecodersRecExSetup(
-            enableRun2L1=opt.decodeLegacyL1,
-            enableRun3L1=opt.decodePhaseIL1)
-    if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
-        from L1Decoder.L1DecoderConfig import L1Decoder
-        l1decoder = L1Decoder("L1Decoder")
-        l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
-        if opt.decodePhaseIL1:
-            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
-            topSequence += conf2toConfigurable(getL1TriggerResultMaker())
-        else:
-            l1decoder.L1TriggerResult = ""
-        if not opt.decodeLegacyL1:
-            l1decoder.RoIBResult = ""
-        if TriggerFlags.doTransientByteStream():
-            transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
-            l1decoder.ExtraInputs += [transTypeKey]
-
-        topSequence += conf2toConfigurable(l1decoder)
-    else:
-        from TrigUpgradeTest.TestUtils import L1EmulationTest
-        topSequence += L1EmulationTest()
+    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
 
 
 # ---------------------------------------------------------------
 # HLT generation
 # ---------------------------------------------------------------
-
 if not opt.createHLTMenuExternally:
 
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
@@ -491,13 +500,22 @@ if not opt.createHLTMenuExternally:
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
 
-    # generating the HLT structure requires 
+    if (opt.selectChains):
+        menu.selectChainsForTesting = opt.selectChains
+
+    # generating the HLT structure requires
     # the L1Decoder to be defined in the topSequence
     menu.generateMT()
 
     if opt.endJobAfterGenerate:
         import sys
         sys.exit(0)
+
+
+
+#Needed to get full output from TrigSignatureMoniMT with a large menu: see ATR-21487
+#Can be removed once chainDump.py is used instead of log file parsing
+svcMgr.MessageSvc.infoLimit=10000
 
 
 
@@ -525,51 +543,52 @@ if hasattr(svcMgr.THistSvc, "Output"):
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
-# Apply modifiers
-#-------------------------------------------------------------
-for mod in modifierList:
-    mod.postSetup()
-
-#-------------------------------------------------------------
 # Conditions overrides
-#-------------------------------------------------------------    
+#-------------------------------------------------------------
 if len(opt.condOverride)>0:
     for folder,tag in opt.condOverride.iteritems():
         log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
 
-if svcMgr.MessageSvc.OutputLevel<INFO:
+if svcMgr.MessageSvc.OutputLevel < logging.INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print(svcMgr)
 
 #-------------------------------------------------------------
-# Use parts of NewJO
-#-------------------------------------------------------------
-from AthenaCommon.Configurable import Configurable
-
 # Output flags
+#-------------------------------------------------------------
 if opt.doWriteRDOTrigger:
-    if isPartition:
+    if ConfigFlags.Trigger.Online.isPartition:
         log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
         theApp.exit(1)
     rec.doWriteRDO = False  # RecExCommon flag
     ConfigFlags.Output.doWriteRDO = True  # new JO flag
-    ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+    if not ConfigFlags.Output.RDOFileName:
+        ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
 if opt.doWriteBS:
     rec.doWriteBS = True  # RecExCommon flag
     TriggerFlags.writeBS = True  # RecExCommon flag
     ConfigFlags.Output.doWriteBS = True  # new JO flag
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
-ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+#-------------------------------------------------------------
 # ID Cache Creators
+#-------------------------------------------------------------
 ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
+CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 
-# Trigger output
+# B-jet output
+if opt.doBjetSlice or opt.forceEnableAllChains:
+    from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
+    alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
+    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, NewChannel = alias)
+
+#-------------------------------------------------------------
+# Output configuration
+#-------------------------------------------------------------
 if opt.doWriteBS or opt.doWriteRDOTrigger:
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectHypoDecisionObjects, triggerOutputCfg
     from AthenaCommon.CFElements import findAlgorithm,findSubSequence
@@ -604,7 +623,7 @@ if opt.reverseViews or opt.filterViews:
     viewMakers = collectViewMakers( topSequence )
     theFilter = []
     if opt.filterViews:
-        theFilter = [ "Cache", "EventInfo", "HLT_EFHistoPrmVtx" ]
+        theFilter = [ "Cache", "EventInfo", "HLT_IDVertex_FS" ]
     for alg in viewMakers:
         alg.ReverseViewsDebug = opt.reverseViews
         alg.FallThroughFilter = theFilter
@@ -618,6 +637,12 @@ include("TriggerTest/disableChronoStatSvcPrintout.py")
 # Enable xAOD::EventInfo decorations for pileup values
 #-------------------------------------------------------------
 include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+
+#-------------------------------------------------------------
+# Apply modifiers
+#-------------------------------------------------------------
+for mod in modifierList:
+    mod.postSetup()
 
 #-------------------------------------------------------------
 # Print top sequence

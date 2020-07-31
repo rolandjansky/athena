@@ -108,7 +108,7 @@ namespace Analysis {
     }
 
     //retrieve the JF Vertex container
-    SG::ReadHandle<xAOD::BTagVertexContainer> h_BTagJFVtxCollectionName (m_BTagJFVtxCollectionName.key(), ctx );
+    SG::ReadHandle<xAOD::BTagVertexContainer> h_BTagJFVtxCollectionName (m_BTagJFVtxCollectionName, ctx);
     if (!h_BTagJFVtxCollectionName.isValid()) {
       ATH_MSG_ERROR( " cannot retrieve JF Vertex container with key " << m_BTagJFVtxCollectionName.key()  );
       return StatusCode::FAILURE;
@@ -116,7 +116,7 @@ namespace Analysis {
     ATH_MSG_DEBUG("#BTAG# Size of the JF Vertex container: " <<  h_BTagJFVtxCollectionName->size());
 
     //retrieve the Secondary Vertex container
-    SG::ReadHandle<xAOD::VertexContainer> h_BTagSVCollectionName ( m_BTagSVCollectionName.key(), ctx );
+    SG::ReadHandle<xAOD::VertexContainer> h_BTagSVCollectionName (m_BTagSVCollectionName , ctx);
     if (!h_BTagSVCollectionName.isValid()) {
       ATH_MSG_ERROR( " cannot retrieve Sec Vertex container with key " << m_BTagJFVtxCollectionName.key()  );
       return StatusCode::FAILURE;

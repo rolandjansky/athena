@@ -1,3 +1,11 @@
+#ifdef NDEBUG
+static const int timeout = 3000;
+#undef NDEBUG
+#else
+static const int timeout = 8000;
+#endif
+
+
 #include "../src/TrigMessageSvc.h"
 #include "TestTools/initGaudi.h"
 
@@ -5,11 +13,12 @@
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
 
+#include "TInterpreter.h"
+#include "CxxUtils/ubsan_suppress.h"
+
 #include <random>
 #include <chrono>
 #include <cassert>
-
-#undef NDEBUG
 
 constexpr size_t numSources = 1000;
 constexpr size_t numMessages = 50000;
@@ -18,7 +27,9 @@ int main() {
   using namespace std;
   ISvcLocator* pSvcLoc;
   assert(Athena_test::initGaudi(pSvcLoc));
-  
+
+   CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
+
   //--------------------------------------------------
   // Create THistSvc and TrigMessageSvc
   //--------------------------------------------------
@@ -65,7 +76,7 @@ int main() {
   auto t1 = std::chrono::high_resolution_clock::now();
   auto td = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
   msgsvc.reportMessage("Benchmark", 3, std::string("Time: ").append(std::to_string(td.count()).append(" ms")));
-  assert(td.count() < 3000);
+  assert(td.count() < timeout);
 
   //--------------------------------------------------
   // Stop and finalise the services

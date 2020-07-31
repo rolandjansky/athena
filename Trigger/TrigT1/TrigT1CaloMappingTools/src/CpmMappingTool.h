@@ -11,7 +11,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 
 class IInterface;
 class StatusCode;
@@ -29,24 +29,21 @@ namespace LVL1 {
  *  @author Peter Faulkner
  */
 
-class CpmMappingTool : virtual public IL1CaloMappingTool,
-                               public AthAlgTool {
-
+class CpmMappingTool : public extends<AthAlgTool, IL1CaloMappingTool>
+{
  public:
+  
+   using base_class::base_class;
 
-   CpmMappingTool(const std::string& type, const std::string& name,
-                                           const IInterface* parent);
-   virtual ~CpmMappingTool();
-
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// Return eta, phi and layer mapping for given crate/module/channel
    virtual bool mapping(int crate, int module, int channel,
-                        double& eta, double& phi, int& layer);
+                        double& eta, double& phi, int& layer) const override;
    /// Return crate, module and channel mapping for given eta/phi/layer
    virtual bool mapping(double eta, double phi, int layer,
-                        int& crate, int& module, int& channel);
+                        int& crate, int& module, int& channel) const override;
 
  private:
 

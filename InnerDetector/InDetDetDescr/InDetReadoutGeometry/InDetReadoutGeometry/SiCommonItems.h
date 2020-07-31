@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,11 +24,6 @@ class AtlasDetectorID;
 #include "CLHEP/Geometry/Transform3D.h"
 
 #include <mutex>
-
-/**
- * mutable Athena::MsgStreamMember issues warnings.
- */
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 namespace InDetDD {
 
@@ -92,7 +87,7 @@ namespace InDetDD {
     /**
      * Message stream member
      */
-    mutable Athena::MsgStreamMember m_msg;
+    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
           
     /**
      * IdHelper

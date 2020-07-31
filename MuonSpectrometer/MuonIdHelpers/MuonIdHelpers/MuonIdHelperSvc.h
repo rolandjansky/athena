@@ -27,7 +27,7 @@ namespace Muon {
     MuonIdHelperSvc(const std::string& name, ISvcLocator* svc);
 
     /** @brief destructor */
-    virtual ~MuonIdHelperSvc() override;
+    virtual ~MuonIdHelperSvc() override=default;
     
     /** @brief AlgTool initilize */
     virtual StatusCode initialize() override;
@@ -76,6 +76,9 @@ namespace Muon {
 
     /** @brief returns whether this is a sTGC Identifier or not */
     virtual bool issTgc( const Identifier& id ) const override;
+
+    /** @brief returns whether this Identifier belongs to an MDT with HPTDC or not */
+    virtual bool hasHPTDC( const Identifier& id ) const override;
 
     /** @brief returns whether channel measures phi or not */
     virtual bool measuresPhi( const Identifier& id ) const override;
@@ -145,6 +148,12 @@ namespace Muon {
 
     /** @brief Return stationEta for all technologies */
     virtual int stationEta( const Identifier& id ) const override;
+
+    /** @brief Return stationName for all technologies */
+    virtual int stationName( const Identifier& id ) const override;
+
+    /** @brief Return stationRegion for all technologies */
+    virtual int stationRegion( const Identifier& id ) const override;
 
     /** @brief return sector number 1-16, odd=large, even=small */
     virtual int sector( const Identifier& id ) const override;

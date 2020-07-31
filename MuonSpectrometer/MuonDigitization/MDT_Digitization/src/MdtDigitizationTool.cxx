@@ -153,6 +153,9 @@ StatusCode MdtDigitizationTool::initialize() {
   if ( m_t0_from_DB ) {
     ATH_CHECK(m_calibrationDbTool.retrieve());
   }
+  else {
+    m_calibrationDbTool.disable();
+  }
 
   //Gather masked stations
   for (unsigned int i=0;i<m_maskedStations.size();i++) {
@@ -941,8 +944,8 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
   
   StatusCode status;
   // Get the messaging service, print where you are
-  MdtDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
-  if (digitContainer->end() ==  it_coll) {
+  const MdtDigitCollection *coll = digitContainer->indexFindPtr(coll_hash);
+  if (nullptr ==  coll) {
     digitCollection = new MdtDigitCollection(elementId, coll_hash);
     status = digitContainer->addCollection(digitCollection, coll_hash);
     if (status.isFailure())
@@ -951,7 +954,7 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
       ATH_MSG_DEBUG ( "New MdtDigitCollection with key=" << coll_hash << " recorded in StoreGate." );
   } 
   else { 
-    digitCollection = const_cast<MdtDigitCollection*>( *it_coll );
+    digitCollection = const_cast<MdtDigitCollection*>( coll );
   }
   return digitCollection;
 }

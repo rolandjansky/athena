@@ -1,23 +1,19 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package basic_trfarg
 #
 #  @brief Package contains the basic argument types for JobTransforms.
 #  @details Classes defined in this package are not intended to be used directly.
 #  @see Argument classes designed to be used can be found in the full_trfarg package.
-#  @author $LastChangedBy: ivukotic $
-#  @version $Rev: 451072 $
-#  @date $Date: 2011-07-28 19:22:06 +0200 (Thu, 28 Jul 2011) $
 
 from __future__ import print_function
 
-import os, shutil, time, fnmatch, subprocess, copy
-import stat as statconsts
-from PyJobTransformsCore import fileutil, AtlasErrorCodes
-from PyJobTransformsCore.trfutil import *
-from PyJobTransformsCore.trferr import *
+import os, sys, time, fnmatch, subprocess, copy, re
+from PyJobTransformsCore import fileutil, envutil
+from PyJobTransformsCore.trfutil import AODFile, BSFile, CommentLine, DPDFile, ESDFile, EvgenFile, FileType, HitsFile, PoolDataFile, expandStringToList, strip_suffix
+from PyJobTransformsCore.trferr import TransformDefinitionError, TransformArgumentError, InputFileError, OutputFileError
 from PyJobTransformsCore.JobReport import FileInfo
-from PyJobTransformsCore.TransformLogger import TransformLogger,logging
+from PyJobTransformsCore.TransformLogger import TransformLogger
 
 
 ## @brief Base class of all transform argument classes.
@@ -442,7 +438,7 @@ class FloatArg( Argument ):
         """Turn a command line argument string into an float python object"""
         try: return float(val)
         except ValueError :
-            raise TransformArgumentError( '%s=%s is not of type %s' % \
+            raise TransformArgumentError( '%s=%s is not of type %s' %
                                           (self.name(), repr(val), self.basicType()) )
 
 
@@ -468,7 +464,7 @@ class StringArg( Argument ):
     def toPython(self,val):
         try: return str(val+'')
         except TypeError :
-            raise TransformArgumentError( '%s=%s is not of type %s' % \
+            raise TransformArgumentError( '%s=%s is not of type %s' %
                                           (self.name(), repr(val), self.basicType()) )
 
 
@@ -487,10 +483,10 @@ class StringChoicesArg( ArgChoices, StringArg ):
         if default is not None:
             try: default = self.toPython(default)
             except TransformDefinitionError :
-                raise TransformDefinitionError( 'Default value %s=%s is not of type %s' % \
+                raise TransformDefinitionError( 'Default value %s=%s is not of type %s' %
                                                 (self._name, repr(default), self.basicType()) )
             if not self.checkChoices(default):
-                raise TransformDefinitionError( 'Default value %s=%s is not one of %s' % \
+                raise TransformDefinitionError( 'Default value %s=%s is not one of %s' %
                                                 (self._name, repr(default), self.choices()) )
 
         Argument.setDefault(self,default)
@@ -503,7 +499,7 @@ class StringChoicesArg( ArgChoices, StringArg ):
             valUpper = val.upper()
             for c in self.choices():
                 if valUpper == c.upper() and val != c:
-                    self.logger().warning( 'Changing case of %s to %s' % (val,c) )
+                    self.logger().warning( 'Changing case of %s to %s', val, c )
                     val = c
                     break
         Argument.setValue(self,val)
@@ -517,7 +513,7 @@ class StringChoicesArg( ArgChoices, StringArg ):
         if not ArgChoices.checkChoices(self,val):
             raise TransformArgumentError( '%s=%r is not one of %s' %
                                           (name, val, ','.join(choices)) )
-        self.logger().debug( '%s is in list %s -> OK' % (repr(val), repr(choices)) )
+        self.logger().debug( '%s is in list %s -> OK', repr(val), repr(choices) )
 
             
 #
@@ -546,14 +542,14 @@ class BoolArg( ArgChoices, Argument ):
 
 
     def toPython(self,val):
-        if type(val) == type(True): return val != False
-        if type(val) == type(''):
+        if isinstance(val, bool): return val is not False
+        if isinstance(val, str):
             if val.lower() == 'true':  return True
             if val.lower() == 'false': return False
-            raise TransformArgumentError( '%s=%r is not one of %s' % \
+            raise TransformArgumentError( '%s=%r is not one of %s' %
                                           (self.name(), val, ','.join(self.choices())) )
         else:
-            raise TransformArgumentError( '%s=%r is not of type %s' % \
+            raise TransformArgumentError( '%s=%r is not of type %s' %
                                           (self.name(), val, self.basicType()) )
 
 
@@ -591,7 +587,7 @@ class FileArg( StringArg ):
                 #convert value to the correct case
                 valUpper = value.upper()
                 if valUpper == 'NONE' and value != 'NONE':
-                    self.logger().info( 'Changing case of %s to %s' % (value,valUpper) )
+                    self.logger().info( 'Changing case of %s to %s', value, valUpper )
                     value = valUpper
         if value != self.originalValue():
             self.__eventCount = None
@@ -613,7 +609,7 @@ class FileArg( StringArg ):
         """check that file exists (possibly with attempt number) and is non-empty"""
         val = self.value()
         if val.startswith( 'LFN:' ):
-            self.logger().info( '%s is an LFN. Omitting any local file checks.' % val )
+            self.logger().info( '%s is an LFN. Omitting any local file checks.', val )
             return
 #        if not fileutil.exists(val):
 #            found = fileutil.exists_suffix_number(val + '.')
@@ -700,7 +696,7 @@ class DataFileArg( FileArg ):
                 singleHash = False
         except IndexError: # problem with format of filename. filename ends with a single '#'!
             hashPos = -1
-            self.logger().warning( "Error trying to extract dataset from %s." % filename )
+            print( "Error trying to extract dataset from %s." % filename )
         dataset = filename[ 0 : hashPos ]
         if omitFromName:
             dsPrefix = ''
@@ -718,7 +714,7 @@ class DataFileArg( FileArg ):
             try:
                 fname = dsPrefix + dataset + filename[ hashPos + 2 : ]
             except IndexError: # problem with format of filename. filename ends with a double '#'!
-                self.logger().warning( "Error trying to extract filename from %s." % filename )
+                print( "Error trying to extract filename from %s." % filename )
             else:
                 if dirName:
                     fname = os.sep.join( [ dirName, fname ] )
@@ -737,7 +733,7 @@ class DataFileArg( FileArg ):
     #
     def eventCount(self):
         if self.__eventCount is None and self:
-            self.logger().info("Counting events of %s..." % self.originalValue())
+            self.logger().info("Counting events of %s...", self.originalValue())
             start = time.time()
             self.__eventCount = self._fileType.eventCount( self )
             if self.__eventCount is not None:
@@ -770,7 +766,7 @@ class InputFileArg( FileArg ):
         """Check that the file exists, and is readable"""
         if not self: return
         self.checkFile()
-        self.logger().debug( 'Inputfile %s is usable -> OK' % (self.originalValue()) )
+        self.logger().debug( 'Inputfile %s is usable -> OK', self.originalValue() )
         
 
     def eventCount(self):
@@ -913,7 +909,7 @@ class InputDataFileArg( DataFileArg ):
         if self:
             try:
                 val = self.value()[0]
-            except:
+            except Exception:
                 pass
             else:
                 return self._fileType.type( val )
@@ -925,7 +921,7 @@ class InputDataFileArg( DataFileArg ):
         if self:
             try:
                 val = self.value()[0]
-            except:
+            except Exception:
                 pass
             else:
                 return self._fileType.contents( val )
@@ -952,14 +948,14 @@ class InputDataFileArg( DataFileArg ):
         """First filename without the path and type"""
         try:
             return self._fileType.baseFilename( self.value()[0] )
-        except:
+        except Exception:
             return ""
 
     def bareFilename(self):
         """First filename without the path, the contents and the type."""
         try:
             return self._fileType.bareFilename( self.value()[0] )
-        except:
+        except Exception:
             return ""
 
 
@@ -992,7 +988,7 @@ class InputTarFileArg( InputFileArg ):
                 if not line: continue
                 self._filelist.append(line)
           # hack for slving bug on poll (Python 2.4?)      
-            ret=p.wait()
+            p.wait()
             while True:
                 line = p.stdout.readline().strip()
                 if not line: break
@@ -1107,11 +1103,12 @@ class InputTarFileAndSetupArg( InputTarFileArg ):
         pwd = os.getcwd()
         if setupdir and setupdir != os.curdir: os.chdir(setupdir)
         if fullsetup.endswith('.py'):
+            from past.builtins import execfile
             # avoid pollution of global namespace
             env = {}
             execfile( setupbase,env )
         else:
-            source_setup( setupbase )
+            envutil.source_setup( setupbase )
         # go back to original directory
         os.chdir(pwd)
         
@@ -1168,7 +1165,6 @@ class OutputFileArg( DataFileArg ):
         DataFileArg.preRunAction(self)
         val = self.value()
         self._fileInfo = None
-        mess = ''
         if not self:
             self.logger().debug( 'No output file expected. Nothing to be done.' )
         elif fileutil.exists(val):
@@ -1182,7 +1178,7 @@ class OutputFileArg( DataFileArg ):
     
     def validateFile( self ):
         if self._temporary or self._intermediate:
-            self.logger().info( '%s is a temporary/intermediate file. It will not be validated.' % self.name() )
+            self.logger().info( '%s is a temporary/intermediate file. It will not be validated.', self.name() )
             return
         try:
             self._fileType.validateFile( self, **self.__validationDict )
@@ -1214,12 +1210,12 @@ class OutputFileArg( DataFileArg ):
                 if FT is None: FT='unset'
                 necoll=self._fileType.writeSize(self)
                 if necoll is not None:
-					# returns filetype, number_of_events and tuple_of_sizes
+                    # returns filetype, number_of_events and tuple_of_sizes
                     alltheData.append(FT.upper())
                     alltheData.append(necoll[0])
                     alltheData.append(necoll[1])
                     return
-            except:
+            except Exception:
                 print ("basic_trfarg.py  exception caught:", sys.exc_type, ":", sys.exc_value)
         else:
             print ('basic_trfarg.py  Not checking object sizes for this file type')

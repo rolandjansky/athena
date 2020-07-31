@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Run HITS file and produce histograms.
@@ -40,7 +40,7 @@ def getTransform():
     executorSet.add(athenaExecutor(name = 'FCS_Ntup',
                                    skeletonFile = 'ISF_FastCaloSimParametrization/skeleton.ESDtoNTUP_FCS.py',
                                    inData = ['ESD'], outData = ['NTUP_FCS'],))
-    trf = transform(executor = executorSet, description = 'FastCaloSim V2 Parametrization ntuple transform. Inputs must be ESD. Outputs must bentuple files.')
+    trf = transform(executor = executorSet, description = 'FastCaloSim V2 Parametrization ntuple transform. Inputs must be ESD. Outputs must be ntuple files.')
     addAthenaArguments(trf.parser)
     addFCS_NtupArgs(trf.parser)
     return trf

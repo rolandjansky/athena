@@ -43,16 +43,15 @@ inline IMaterialEffectsUpdator::ICache&
 Extrapolator::subMaterialEffectsUpdatorCache(Cache& cache,
                                              const TrackingVolume& tvol) const
 {
-  return  *(cache.m_MaterialUpCache[tvol.geometrySignature()]);
+  return *(cache.m_MaterialUpCache[tvol.geometrySignature()]);
 }
-
 
 inline void
 Extrapolator::populateMatEffUpdatorCache(Cache& cache) const
 {
-  size_t numUpdaters=m_subupdaters.size();
+  size_t numUpdaters = m_subupdaters.size();
   cache.m_MaterialUpCache.reserve(numUpdaters);
-  for (size_t i=0; i< numUpdaters ; ++i) {
+  for (size_t i = 0; i < numUpdaters; ++i) {
     cache.m_MaterialUpCache.emplace_back(m_subupdaters[i]->getCache());
   }
 }

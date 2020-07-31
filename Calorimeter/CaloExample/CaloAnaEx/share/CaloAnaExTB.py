@@ -665,12 +665,6 @@ if doWriteESD:
         Stream1.EvtConversionSvc = "AthenaPoolCnvSvc"
         Stream1.OutputFile = "reconstruction.root"
 
-    #check dictionary
-    AthenaSealSvc.CheckDictionary = True
-
-    # Needed for TBEvent ESD writing
-    include ( "TBEvent/TBEventDict_joboptions.py")    
-
     # Define the output file name
     Stream1.OutputFile    = "athena.root"
 
@@ -771,5 +765,3 @@ theApp.AuditAlgorithms=True
 #theApp.AuditServices=True
 #theApp.AuditTools=True # FIXME crash on finalisation 
 MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
-from __main__ import AtlasTrackingGeometrySvc
-AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False

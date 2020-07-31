@@ -367,7 +367,7 @@ InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TruthParticle& truthprt
     }
   }
   //rescale Pt 
-  if (m_truetrkP[PT] != undefinedValue) m_truetrkP[PT] = truthprt.pt() / Gaudi::Units::GeV;
+  m_truetrkP[PT] = truthprt.pt() / Gaudi::Units::GeV;
   //special cases
   //need both theta and qOverP for qOverPT
   //we didnt check qOverP yet, since the closest named variable (strangely; see header) is ptqopt

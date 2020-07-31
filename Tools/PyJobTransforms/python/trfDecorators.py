@@ -1,8 +1,6 @@
-from future import standard_library
-standard_library.install_aliases()
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-## @Package PyJobTrasforms.trfDecorators
+## @Package PyJobTransforms.trfDecorators
 #  @brief Some useful decorators used by the transforms
 #  @author atlas-comp-transforms-dev@cern.ch
 #  @version $Id: trfDecorators.py 696484 2015-09-23 17:20:28Z graemes $
@@ -26,23 +24,31 @@ msg = logging.getLogger(__name__)
 def silent(func):
     def silent_running(*args, **kwargs):
         # Create some filehandles to save the stdout/err fds to    
-        save_err  = open('/dev/null', 'w')
-        save_out  = open('/dev/null', 'w')
-        os.dup2(sys.stderr.fileno(), save_err.fileno())
-        os.dup2(sys.stdout.fileno(), save_out.fileno())
+        save_err  = os.open('/dev/null', os.O_WRONLY)
+        save_out  = os.open('/dev/null', os.O_WRONLY)
+        os.dup2(sys.stderr.fileno(), save_err)
+        os.dup2(sys.stdout.fileno(), save_out)
 
         # Now open 'quiet' file handles and attach stdout/err
-        quiet_err  = open('/dev/null', 'w')
-        quiet_out  = open('/dev/null', 'w')
-        os.dup2(quiet_err.fileno(), sys.stderr.fileno())
-        os.dup2(quiet_out.fileno(), sys.stdout.fileno())
+        quiet_err  = os.open('/dev/null', os.O_WRONLY)
+        quiet_out  = os.open('/dev/null', os.O_WRONLY)
+        os.dup2(quiet_err, sys.stderr.fileno())
+        os.dup2(quiet_out, sys.stdout.fileno())
         
         # Execute function
         rc = func(*args, **kwargs)
+
+        sys.stderr.flush()
+        sys.stdout.flush()
         
         # Restore fds
-        os.dup2(save_err.fileno(), sys.stderr.fileno())
-        os.dup2(save_out.fileno(), sys.stdout.fileno())
+        os.dup2(save_err, sys.stderr.fileno())
+        os.dup2(save_out, sys.stdout.fileno())
+
+        os.close (save_err)
+        os.close (save_out)
+        os.close (quiet_err)
+        os.close (quiet_out)
 
         return rc
     # Make the wrapper look like the wrapped function
@@ -110,7 +116,7 @@ def sigUsrStackTrace(func):
         pass
     
     def sigHandler(signum, frame):
-        msg.info('Handling signal %d in sigHandler' % signum)
+        msg.info('Handling signal %d in sigHandler', signum)
         raise SigUsr1
     
     def signal_wrapper(*args, **kwargs):
@@ -153,11 +159,11 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
             try:
                 result = func(*args, **kwargs)
                 queue.put((True, result))
-            except:
+            except Exception:
                 exc0=exc_info()[0]
                 exc1=exc_info()[1]
                 exc2=traceback.format_exc()
-                msg.warning('In time limited function %s an exception occurred' % (func.__name__))
+                msg.warning('In time limited function %s an exception occurred', func.__name__)
                 msg.warning('Original traceback:')
                 msg.warning(exc2)            
                 queue.put((False,(exc0, exc1, exc2))) 
@@ -187,7 +193,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                 
             n=0
             while n<=lretry:
-                msg.info('Try %i out of %i (time limit %s s) to call %s.' % (n+1, retry+1, ltimeout, func.__name__))
+                msg.info('Try %i out of %i (time limit %s s) to call %s.', n+1, retry+1, ltimeout, func.__name__)
                 starttime = time.time()
                 q=mp.Queue(maxsize=1)
                 nargs = (q,) + args
@@ -197,23 +203,23 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                     # Wait for function to run and return, but with a timeout
                     flag,result = q.get(block=True, timeout=ltimeout)
                     proc.join(60)
-                    msg.info('Executed call within %d s.' % (time.time()-starttime))
+                    msg.info('Executed call within %d s.', time.time()-starttime)
                     if flag:
                         return result
                     else:
-                        msg.warning('But an exception occurred in function %s.' % (func.__name__))
-                        msg.warning('Returning default return code %s.' % ldefaultrc)
+                        msg.warning('But an exception occurred in function %s.', func.__name__)
+                        msg.warning('Returning default return code %s.', ldefaultrc)
                         return ldefaultrc
                 except queue.Empty:
                     # Our function did not run in time - kill increase timeout
-                    msg.warning('Timeout limit of %d s reached. Kill subprocess and its children.' % ltimeout)
+                    msg.warning('Timeout limit of %d s reached. Kill subprocess and its children.', ltimeout)
                     parent=proc.pid
                     pids=[parent]
                     pids.extend(trfUtils.listChildren(parent=parent, listOrphans = False))
                     trfUtils.infanticide(pids)
                     proc.join(60) # Ensure cleanup
                     if n!=lretry:
-                        msg.info('Going to sleep for %d s.' % lsleeptime)                    
+                        msg.info('Going to sleep for %d s.', lsleeptime)                    
                         time.sleep(lsleeptime)
                     n+=1
                     ltimeout*=ltimefactor
@@ -223,7 +229,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                     msg.error(errMsg)
                     raise TransformInternalException(trfExit.nameToCode("TRF_EXTERNAL"), errMsg)
 
-            msg.warning('All %i tries failed!' % n)
+            msg.warning('All %i tries failed!', n)
             raise TransformTimeoutException(trfExit.nameToCode('TRF_EXEC_TIMEOUT'), 'Timeout in function %s' % (func.__name__))
             
         return funcWithTimeout

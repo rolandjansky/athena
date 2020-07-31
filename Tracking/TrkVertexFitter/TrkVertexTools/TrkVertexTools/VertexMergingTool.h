@@ -56,16 +56,16 @@
     /**
      *Merging  
      */
-    virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) override;
+    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+    mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) const override;
 
-        
   private:
     
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
     bool m_useBeamConstraint;
 
-    bool checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 );
+    bool checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 ) const;
      
   }; //end of class description
  }//end of namespace definition

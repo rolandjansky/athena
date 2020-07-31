@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OVERLAYCOPYALGS_COPYMCEVENTCOLLECTION_H
@@ -22,7 +22,7 @@ private:
   SG::ReadHandleKey<McEventCollection> m_signalInputKey{ this, "SignalInputKey", "Sig_TruthEvent", "ReadHandleKey for Signal McEventCollection" };
   SG::WriteHandleKey<McEventCollection> m_outputKey{ this, "OutputKey", "TruthEvent", "WriteHandleKey for Output McEventCollection" };
 
-  bool m_removeBkgHardScatterTruth;
+  Gaudi::Property<bool> m_removeBkgHardScatterTruth{ this, "RemoveBkgHardScatterTruth", true, "Remove hard scatter truth from background" };
 
 };
 

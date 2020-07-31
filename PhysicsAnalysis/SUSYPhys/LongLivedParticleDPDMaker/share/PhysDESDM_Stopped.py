@@ -110,7 +110,7 @@ cmdstring = jetFilterName+" and "+segFilterName;
 if primRPVLLDESDM.Stopped_muonSegmentFilterFlags.addPrescaledLooseFilter:
     cmdstring = jetFilterName+" and ("+segFilterName+" or "+prescaledMuSegFilterName+")"
 
-print 'Josh\'s Stopped_CombinedOfflineFilter: %s' % cmdstring
+print('Josh\'s Stopped_CombinedOfflineFilter: %s' % cmdstring)
 topSequence.Stopped_CombinedOfflineFilter.cmdstring=cmdstring
 filtersToBookkeep+=["Stopped_CombinedOfflineFilter"]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIEventUtils/HIEventShapeSummaryTool.h"
@@ -36,7 +36,7 @@ HIEventShapeSummaryTool::HIEventShapeSummaryTool(const std::string& n) : asg::As
 StatusCode HIEventShapeSummaryTool::summarize(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShapeContainer* out) const
 {
   out->reserve(m_summary_list.size());
-  for(const auto itr : m_summary_list)
+  for(const auto& itr : m_summary_list)
   {
     xAOD::HIEventShape* es=new xAOD::HIEventShape();
     out->push_back(es);
@@ -53,7 +53,7 @@ StatusCode HIEventShapeSummaryTool::initialize()
 {
   //not optimal, but minimal code re-use, gets called only at initialization
   ATH_MSG_INFO("Configuring for summary");
-  for(const auto s : m_samp_names)
+  for(const auto& s : m_samp_names)
   {
     auto mItr=m_summary_list.find(s);
     if(mItr!=m_summary_list.end()) continue;
@@ -81,7 +81,7 @@ StatusCode HIEventShapeSummaryTool::initialize()
     }
   }
 
-  for(const auto s : m_subcalo_names)
+  for(const auto& s : m_subcalo_names)
   {
     auto mItr=m_summary_list.find(s);
     if(mItr!=m_summary_list.end()) continue;
@@ -160,7 +160,7 @@ std::string HIEventShapeSummaryTool::dumpList() const
      << std::setw(15) << "eta max"
      << std::setw(15) << "layer"
      << std::endl;
-  for(const auto itr : m_summary_list)
+  for(const auto& itr : m_summary_list)
   {
     ss << std::setw(15) << itr.second.name
        << std::setw(15) << itr.second.eta_min

@@ -72,7 +72,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  Trk::Track* MooTrackBuilder::refit( const Trk::Track& track ) const {
+  Trk::Track* MooTrackBuilder::refit(Trk::Track& track ) const {
 
     // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
       
@@ -762,8 +762,6 @@ namespace Muon {
     // If any new state is created, all states will be cloned and a new track will beformed from them.
     std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
     newStates.reserve(states->size()+5);
-
-    Identifier currentMdtChId;
 
     // loop over TSOSs
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();

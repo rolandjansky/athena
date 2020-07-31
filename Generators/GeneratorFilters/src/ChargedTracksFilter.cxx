@@ -23,20 +23,18 @@ StatusCode ChargedTracksFilter::filterEvent() {
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
 
-    // Loop over all particles in event
-    HepMC::GenEvent::particle_const_iterator pitr;
-    for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+  for (auto part: *genEvt){
       // We only care about stable particles
-      if (!MC::isGenStable(*pitr)) continue;
+      if (!MC::isGenStable(part)) continue;
 
       // Particle's charge
-      int pID = (*pitr)->pdg_id();
+      int pID = part->pdg_id();
       double pCharge = MC::PID::charge(pID);
 
       // Count tracks in specified acceptance
-      const double pT = (*pitr)->momentum().perp();
-      const double eta = (*pitr)->momentum().pseudoRapidity();
-      if (pT >= m_Ptmin && fabs(eta) <= m_EtaRange && pCharge != 0) {
+      const double pT = part->momentum().perp();
+      const double eta = part->momentum().pseudoRapidity();
+      if (pT >= m_Ptmin && std::abs(eta) <= m_EtaRange && pCharge != 0) {
         ATH_MSG_DEBUG("Found particle, " <<
                       " pT = " << pT <<
                       " eta = " << eta <<

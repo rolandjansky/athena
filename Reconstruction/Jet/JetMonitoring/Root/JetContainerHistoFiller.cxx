@@ -3,7 +3,6 @@
 */
 
 #include "JetMonitoring/JetContainerHistoFiller.h"
-#include "xAODEventInfo/EventInfo.h"
 
 JetContainerHistoFiller::JetContainerHistoFiller(const std::string& n) : HistoGroupBase(n)
                                                                        , m_histoTools(this)
@@ -22,6 +21,7 @@ StatusCode JetContainerHistoFiller::initialize() {
     return StatusCode::FAILURE;
   }
   CHECK( m_jetContainerName.initialize() );
+  CHECK( m_EventInfoKey.initialize() );
 
   if(m_histoDir=="") m_histoDir =  m_jetContainerName.key()+"/";
 
@@ -34,8 +34,11 @@ int JetContainerHistoFiller::fillHistos(){
 
   ATH_MSG_DEBUG ("Filling hists " << name() << "..." << m_jetContainerName.key());
 
-  const xAOD::EventInfo* evtInfo;
-  CHECK(evtStore()->retrieve( evtInfo ), 1);
+  SG::ReadHandle<xAOD::EventInfo> evtInfo{m_EventInfoKey};
+  if (!evtInfo.isValid()) {
+    ATH_MSG_DEBUG("Unable to retrieve xAOD::EventInfo");
+    return 1;
+  }
 
   //LAr event veto: skip events rejected by LAr
   if(evtInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){

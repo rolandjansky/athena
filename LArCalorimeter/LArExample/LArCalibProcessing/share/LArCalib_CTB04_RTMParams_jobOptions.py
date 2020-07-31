@@ -157,9 +157,6 @@ if ( WriteNT ) :
 # write extracted parameters to local POOL file
 #
 if ( WritePOOLFile ) :
-	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-	AthenaSealSvc.CheckDictionary = True
-
 	include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 	theApp.Dlls += [ "LArAthenaPoolPoolCnv" ]
 	theApp.Dlls += [ "LArCondAthenaPoolPoolCnv" ]

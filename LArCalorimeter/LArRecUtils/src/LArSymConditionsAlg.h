@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARSYMCONDITIONSALG_H
@@ -17,19 +17,21 @@
 template<class MC_t, class SYM_t>
 class LArSymConditionsAlg: public AthAlgorithm {
  public:
+  
+  //delegate to base-class ctor
+  using AthAlgorithm::AthAlgorithm;
 
-  LArSymConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArSymConditionsAlg();
+  virtual ~LArSymConditionsAlg()=default;
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
  private:
-  SG::ReadCondHandleKey<MC_t> m_readKey;
-  SG::ReadCondHandleKey<LArMCSym> m_mcSymKey;
-  SG::WriteCondHandleKey<SYM_t>  m_writeKey;
-  ServiceHandle<ICondSvc> m_condSvc;
+  SG::ReadCondHandleKey<LArMCSym> m_mcSymKey{this,"LArMCSym","LArMCSym","Key of the LArMCSym symmetry table CDO"};
+  SG::ReadCondHandleKey<MC_t> m_readKey{this,"ReadKey","LArRampMC","Key of LArXYZMC input CDO"}; 
+  SG::WriteCondHandleKey<SYM_t>  m_writeKey{this,"WriteKey","RampSym","Key of LArXYZSym output CDO"};
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
 
 };
 

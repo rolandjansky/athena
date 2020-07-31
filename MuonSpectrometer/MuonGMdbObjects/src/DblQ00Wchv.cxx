@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,32 +7,19 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Wchv.cxx,v 1.4 2007-02-12 17:33:50 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Wchv.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
+
 #include <iostream>
 #include <sstream>
-//#include <stdio>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 namespace MuonGM
 {
 
-DblQ00Wchv::DblQ00Wchv(std::unique_ptr<IRDBQuery>&& wchv)
- : m_nObj(0)
-{
+DblQ00Wchv::DblQ00Wchv(std::unique_ptr<IRDBQuery>&& wchv) :
+    m_nObj(0) {
   if(wchv) {
     wchv->execute();
     m_nObj = wchv->size();
@@ -47,9 +34,6 @@ DblQ00Wchv::DblQ00Wchv(std::unique_ptr<IRDBQuery>&& wchv)
         m_d[i].heightness     = wchv->data<float>("WCHV_DATA.HEIGHTNESS");
         m_d[i].largeness      = wchv->data<float>("WCHV_DATA.LARGENESS");
         m_d[i].thickness      = wchv->data<float>("WCHV_DATA.THICKNESS");
-//         std::cerr<<i<<" type, iz, iphi, z, r, s "<<m_d[i].type<<" "<<m_d[i].iz <<" ";
-//         for(unsigned int j=0; j<8; j++)std::cerr<<m_d[i].iphi[j];
-//         std::cerr<<" "<<m_d[i].z<<" "<<m_d[i].r<<" "<<m_d[i].s    <<std::endl;
         i++;
     }
     wchv->finalize();
@@ -59,7 +43,48 @@ DblQ00Wchv::DblQ00Wchv(std::unique_ptr<IRDBQuery>&& wchv)
     std::cerr<<"NO Wchv banks in the MuonDD Database"<<std::endl;
   }
 }
-    
+
+DblQ00Wchv::DblQ00Wchv(AmdcDb* wchv) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = wchv->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new WCHV[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Wchv banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
+  
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+
+     m_d[i].version = (*it)->getInt("VERS");    
+     m_d[i].jsta = (*it)->getInt("JSTA");
+     m_d[i].num = (*it)->getInt("NUM");
+     m_d[i].heightness = (*it)->getFloat("HEIGHTNESS");
+     m_d[i].largeness = (*it)->getFloat("LARGENESS");
+     m_d[i].thickness = (*it)->getFloat("THICKNESS");
+  }
+}
+
 DblQ00Wchv::~DblQ00Wchv()
 {
     delete [] m_d;

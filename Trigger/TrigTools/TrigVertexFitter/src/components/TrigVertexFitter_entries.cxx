@@ -1,7 +1,7 @@
-#include "TrigVertexFitter/TrigVertexFitter.h"
-#include "TrigVertexFitter/TrigPrimaryVertexFitter.h"
-#include "TrigVertexFitter/TrigL2VertexFitter.h"
-#include "TrigVertexFitter/TrigVertexingTool.h"
+#include "../TrigVertexFitter.h"
+#include "../TrigPrimaryVertexFitter.h"
+#include "../TrigL2VertexFitter.h"
+#include "../TrigVertexingTool.h"
 
 DECLARE_COMPONENT( TrigVertexFitter )
 DECLARE_COMPONENT( TrigPrimaryVertexFitter )

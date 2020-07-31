@@ -42,7 +42,7 @@ atlas_add_library( RingerSelectorToolsEnumsLib
                    Root/enums/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} PATCoreLib )
 
 atlas_add_library( RingerSelectorToolsLib
                    Root/*.cxx
@@ -50,8 +50,8 @@ atlas_add_library( RingerSelectorToolsLib
                    Root/tools/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib
-                   PRIVATE_LINK_LIBRARIES xAODBase PathResolver )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib 
+                   PRIVATE_LINK_LIBRARIES xAODBase PathResolver TrkTrackSummary )
 if( NOT XAOD_STANDALONE )
   atlas_add_component( RingerSelectorTools
                        src/components/*.cxx

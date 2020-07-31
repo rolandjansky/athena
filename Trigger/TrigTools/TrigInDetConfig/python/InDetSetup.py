@@ -56,12 +56,19 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
-                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                    ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    
     viewAlgs.append( ViewDataVerifier )
 
     # Load RDOs if we aren't loading bytestream
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
+
+    topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
+
+
+
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
@@ -69,12 +76,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
       topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
                                          ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
-
-    # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "Cond/StatusHT" ):
-      ViewDataVerifier.DataObjects += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
-      topSequence.SGInputLoader.Load += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
 
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from AthenaCommon.AppMgr import ToolSvc
@@ -138,6 +139,9 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     InDetSCTRawDataProvider.RoIs = rois
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
     InDetSCTRawDataProvider.BSErrCacheKey = InDetCacheNames.SCTBSErrCacheKey
+
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+    InDetSCTRawDataProvider.RegSelTool = makeRegSelTool_SCT()
 
     viewAlgs.append(InDetSCTRawDataProvider)
 
@@ -257,6 +261,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetSCT_Clusterization.RoIs = rois
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
 
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+  InDetSCT_Clusterization.RegSelTool = makeRegSelTool_SCT()
 
   viewAlgs.append(InDetSCT_Clusterization)
 

@@ -1062,6 +1062,10 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
 
     return getInDetTrackSummaryTool( name, **kwargs)
 
+def getInDetTrackSummaryToolTRTTracks(name='InDetTrackSummaryToolTRTTracks',**kwargs) :
+    # @TODO should switch off PixelToTPID, shared hits (setDefaults(kwargs,doSharedHits=False))
+    return getInDetTrackSummaryToolSharedHits(name, **setDefaults(kwargs,doSharedHits=True))
+
 def getInDetTrigTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
     return getInDetTrackSummaryTool(name,**setDefaults(kwargs,
                                                        namePrefix = "InDetTrig",
@@ -1160,6 +1164,10 @@ def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCut
                        RoadWidth             = 20.,
                        UseParameterization   = InDetNewTrackingCuts.useParameterizedTRTCuts(),
                        maxImpactParameter    = 500 if InDetFlags.doBeamHalo() or InDetFlags.doBeamGas() else 50) # single beam running, open cuts
+    if (InDetNewTrackingCuts.RoISeededBackTracking()):
+        kwargs=setDefaults(kwargs,
+                           minTRTSegmentpT   = InDetNewTrackingCuts.minSecondaryPt()) #50% of the calo roi cluster Et requirement for RoISeededBackTracking
+
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
     return InDet__TRT_TrackExtensionTool_xk(the_name, **kwargs)
 

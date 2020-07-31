@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // INCLUDE HEADER FILES:
@@ -61,9 +61,9 @@ StatusCode EMPIDBuilder::initialize()
        if (m_lumiBlockMuTool.retrieve().isFailure()) {
             ATH_MSG_FATAL("Unable to retrieve Luminosity Tool");
             return StatusCode::FAILURE;
-        } else {
+        } 
             ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
-        }
+        
     } else {
        std::cout << "disabling lumiBlockMuTool" <<std::endl; 
         m_lumiBlockMuTool.disable();

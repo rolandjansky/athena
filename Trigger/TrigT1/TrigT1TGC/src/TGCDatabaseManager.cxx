@@ -2,14 +2,15 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCDatabaseManager.hh"
-#include "TrigT1TGC/TGCConnectionPPToSL.hh"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
+#include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCConnectionPPToSL.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
-#include "TrigT1TGC/TGCTileMuCoincidenceMap.hh"
-#include "TrigT1TGC/TGCConnectionASDToPP.hh"
-#include "TrigT1TGC/TGCConnectionInPP.hh"
-#include "TrigT1TGC/TGCPatchPanel.hh"
+#include "TrigT1TGC/TGCTileMuCoincidenceMap.h"
+#include "TrigT1TGC/TGCNSWCoincidenceMap.h"
+#include "TrigT1TGC/TGCConnectionASDToPP.h"
+#include "TrigT1TGC/TGCConnectionInPP.h"
+#include "TrigT1TGC/TGCPatchPanel.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -69,12 +70,11 @@ void TGCDatabaseManager::addConnectionInPP(const TGCPatchPanel* patchPanel,
 }
 
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
- : m_mapTileMu(0),
+ : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
+   m_mapTileMu(0),
    m_tgcArgs(tgcargs)
 {
-  // set message label
-  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCDatabaseManager");
-  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+  setLevel(tgcArgs()->MSGLEVEL());
 
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1){
@@ -99,11 +99,10 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 				       const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
 				       const std::string& ver, bool )
- : m_tgcArgs(tgcargs)
+ : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
+   m_tgcArgs(tgcargs)
 {
-  // set message label
-  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCDatabaseManager");
-  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+  setLevel(tgcArgs()->MSGLEVEL());
 
   bool status = true;
 
@@ -127,12 +126,19 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   std::string ver_BW   = ver;
   std::string ver_EIFI = ver;
   std::string ver_TILE = ver;
+  std::string ver_NSW   = ver;
 
   std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
-  if (vers.size() == 3) {
+  if (vers.size() == 3) { // for Run2
     ver_BW   = "v" + vers[2];
     ver_EIFI = "v" + vers[1];
     ver_TILE = "v" + vers[0];
+  }
+  else if(vers.size() == 4 && tgcArgs()->useRun3Config()) { // for Run3
+    ver_BW   = "v" + vers[3];
+    ver_EIFI = "v" + vers[2];
+    ver_TILE = "v" + vers[1];
+    ver_NSW  = "v" + vers[0];
   }
 
   // RPhi Coincidence Map
@@ -151,6 +157,17 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   // Tile-Mu coincidence Map
   m_mapTileMu = new TGCTileMuCoincidenceMap(tgcArgs(), readCondKey, ver_TILE);
 
+  if(tgcArgs()->useRun3Config() && tgcArgs()->USE_NSW()){
+  for (int side=0; side<NumberOfSide; side +=1) {
+    for (int oct=0; oct<NumberOfOctant; oct++) {
+      for(int mod=0; mod<NumberOfModuleInBW; mod++){
+	// NSW Coincidence Map
+	m_mapNSW[side][oct][mod].reset(new TGCNSWCoincidenceMap(tgcArgs(),ver_NSW,side,oct,mod));
+      }
+    }
+  }
+
+  }  
 }
 
 void TGCDatabaseManager::deleteConnectionPPToSL()
@@ -190,6 +207,7 @@ TGCDatabaseManager::~TGCDatabaseManager()
 }
 
 TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
+  : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager")
 {
   for(int j=0; j<NumberOfRegionType; j+=1){
     for(int i=0; i<NumberOfPatchPanelType; i+=1){
@@ -246,23 +264,17 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
   return *this;
 }
 
-const std::string& TGCDatabaseManager::getFilename(int type)
+std::string TGCDatabaseManager::getFilename(int type)
 {
-  static std::string fn="";
   switch (type) {
    case 0: //ASD2PP
-    fn = "MuonTGC_Cabling_ASD2PP.db";
-    break; 
+    return "MuonTGC_Cabling_ASD2PP.db";
    case 1: //PP
-    fn = "MuonTGC_Cabling_PP.db";
-    break;
+    return "MuonTGC_Cabling_PP.db";
    case 2: //PP2SL
-    fn = "MuonTGC_Cabling_PP2SL.db";
-    break;
-   default:
-    break;
+    return "MuonTGC_Cabling_PP2SL.db";
   }
-  return fn;
+  return "";
 }
 
 const std::vector<std::string> TGCDatabaseManager::splitCW(const std::string& input, char delimiter)

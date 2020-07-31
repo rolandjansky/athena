@@ -2,12 +2,12 @@
 
 from __future__ import print_function
 
-import os, sys, re, shutil, inspect, glob, time, signal, pickle
+import os, sys, re, shutil, glob, time, signal, pickle
 import bz2
 import functools
 import tarfile
-import traceback
 import uuid
+from builtins import range
 
 from subprocess import Popen, PIPE, STDOUT
 from threading import Thread
@@ -16,14 +16,12 @@ try:
 except AttributeError:  # __stop does not exist in Python 3.0
     TRF_Thread_stop = Thread._stop
 
-from .xmlutil import XMLNode
-from .envutil import *
+from .envutil import find_executable, find_file_env, find_files_env
 from PyJobTransformsCore import trfconsts, trfenv, fileutil
-from PyJobTransformsCore.trferr import *
-from PyJobTransformsCore import AtlasErrorCodes
+from PyJobTransformsCore.trferr import TransformValidationError, TransformThreadError, TransformThreadTimeout, JobOptionsNotFoundError, FileError
 from PyJobTransformsCore.TransformLogger import TransformLogger
 from PyJobTransformsCore.VTimer import vTimer
-from PyUtils import AthFile, RootUtils
+from PyUtils import RootUtils
 
 try:
     import PyDumper.SgDumpLib as sdl
@@ -37,7 +35,7 @@ TRF_SETTING = { 'testrun' : False, 'validationTimeout' : 600, 'validationRetry' 
 
 LFN_VER_DICT = {}
 
-_PFNPat = re.compile( '^(?P<url>\S*?)(?P<lfn>[A-Za-z0-9\.\-\_]+?)(?P<ver>\.\d+)?$' )
+_PFNPat = re.compile( r'^(?P<url>\S*?)(?P<lfn>[A-Za-z0-9\.\-\_]+?)(?P<ver>\.\d+)?$' )
 
 _defaultSignalHandlerDict = {}
 
@@ -151,7 +149,7 @@ def getAncestry():
 #         so signaling left to right is correct 
 def listChildren(psTree = None, parent = os.getpid()):
     '''Take a psTree dictionary and list all children'''
-    if psTree == None:
+    if psTree is None:
         psTree = getAncestry()
     
     children = []
@@ -183,7 +181,6 @@ def infanticide(childPIDs, sleepTime = 3):
 
 ## @brief Decorator to dump a stack trace when hit by SIGUSR
 def sigUsrStackTrace(func):
-    import os
     import signal
     import traceback
     
@@ -241,7 +238,7 @@ def timelimited_exec1( tl_func, tl_timeout = TRF_SETTING[ 'TRFTimeout' ], tl_ret
             myChildren = listChildren()
             infanticide(myChildren)
             p.poll()
-            if p.returncode == None:
+            if p.returncode is None:
                 # Error - set some fallback value for rc
                 rc = -signal.SIGALRM
             else:
@@ -368,7 +365,7 @@ def getGUIDfromPFC(filename):
     if p.returncode != 0:
         print ("GUID retrieval failed: %s" % stderr)
         return (1, None)
-    if guid == None:
+    if guid is None:
         print ('Did not find GUID in catalog %s (usually harmless)' % catalog)
         return (0, None)
     print ("GUID retrieval: %s (%s) found in %s" % ( guid, filename, catalog ))
@@ -401,13 +398,13 @@ def StringToList(cmd):
     else:
         try:
             valList=cmd.split(',,')
-        except:
+        except Exception:
             raise ValueError("StringToList cannot interpret '%s' as a list."%str(cmd))
     return valList
 
 def ntup_entries(fname, tree_names):
     """Count events in ROOT-based files."""
-    if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
+    if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testCountEvents' ] is False ):
         print ('Test run in progress. Event count (ROOT-based) disabled.')
         return None
     #work with string or list of strings
@@ -494,7 +491,7 @@ def strip_prefix( aString, aPrefix ):
 
 def remove_filename_extension( aString ):
     """Remove everything from <aString> starting from the last . (dot) after
-    the last path separator (/ or \) if any. If <aString> does not have a dot
+    the last path separator ('/' or '\') if any. If <aString> does not have a dot
     or if it ends with a path separator, then nothing is removed."""
     slash = aString.rfind(os.sep)
     dot = aString.rfind(os.extsep,slash+1)
@@ -737,7 +734,7 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
             # Check existence of targetFile (side effect of an exception when running os.path.samefile).
             try:
                 isSameFile = os.path.samefile( srcFile, targetFile )
-            except OSError as x: # good. targetFile does not exist.
+            except OSError: # good. targetFile does not exist.
 #                print ("%s does not exist. %s" % ( targetFile, x ))
                 if os.path.islink( targetFile ): # broken symlink
                     try:
@@ -767,7 +764,7 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
             try:
                 print ("**Attempting to remove %s" % targetFile)
                 os.remove( targetFile ) # remove files and symlinks
-            except: # dst file is a directory
+            except Exception: # dst file is a directory
                 for _root, _dirs, _files in os.walk( targetFile , topdown = False ):
                     for name in _files:
                         os.remove( os.path.join( _root, name ) )
@@ -916,10 +913,10 @@ def expandParallelVectorNotation( valIn ):
         return [ valIn ]
     if valIn.count( '[' ) != valIn.count( ']' ):
         raise Exception( 'Mismatched brackets.')
-    pieces = re.findall( '\[[\S]+\]', valIn ) # get the bracket sections
+    pieces = re.findall( r'\[[\S]+\]', valIn ) # get the bracket sections
     if not pieces:
         return [ valIn ]
-    if False in [ not re.findall('\[|\]', p[ 1:-1 ] ) for p in pieces ]:
+    if False in [ not re.findall( r'\[|\]', p[ 1:-1 ] ) for p in pieces ]:
         raise Exception( 'Nested brackets detected.' )
     ppieces = [ [ i.strip() for i in p[ 1:-1 ].split( ',' ) ] for p in pieces ]
     for i in map( None, *ppieces ):
@@ -1036,7 +1033,7 @@ def getCachedFileInfo( filename, infoKey ):
                 return resultList
             try:
                 return resultList[0]
-            except:
+            except Exception:
                 pass
     print (stdout)
     return None
@@ -1056,13 +1053,13 @@ def corruptionTestBS( filename, file_type,logger):
     while p.poll() is None:
       line = p.stdout.readline()
       if line:
-        logger.info("AtlListBSEvents Report: %s" % line.strip())
+        logger.info("AtlListBSEvents Report: %s", line.strip())
     rc = p.returncode
     if rc == 0:
       return rc
     #AltListBSEvents.exe failed, fall back to PyDumper
     else:
-      logger.info("AtlListBSEvents failed to validate %s, Using the (slower) PyDumper method " %filename)
+      logger.info("AtlListBSEvents failed to validate %s, Using the (slower) PyDumper method ", filename)
       cmdSnippet = os.linesep.join( [
           "from sys import exit",
           "import os",
@@ -1216,7 +1213,7 @@ class BSFile( FileType ):
         except Exception as e:
             print ("Event count failed for %s: %s" % ( arg, e ))
             return None
-        if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
+        if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testCountEvents' ] is False ):
             logger.info( 'Test run in progress. Event count (AthFile-based) disabled.' )
             return None
         resultList = getCachedFileInfo( fileList, 'nentries' )
@@ -1240,7 +1237,7 @@ class BSFile( FileType ):
         except Exception as e:
             print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
-        if VALIDATION_DICT[ 'ALL' ] == False:
+        if VALIDATION_DICT[ 'ALL' ] is False:
             logger.info( "Skipping all validation routines." )
             return
         # Defined default validation values
@@ -1258,28 +1255,28 @@ class BSFile( FileType ):
             if vDict[ 'testIfExists' ]:
                 raise TransformValidationError( fName, 'failed validation. File not created. Argument %s' % argName, 'TRF_OUTFILE_NOTFOUND' )
             else:
-                logger.info( "Ignoring missing %s." % fName )
+                logger.info( "Ignoring missing %s.", fName )
                 return
         if fileutil.getsize( fName ) == 0:
             if vDict[ 'testIfEmpty' ]:
                 raise TransformValidationError( fName, 'failed validation. Empty file. Argument %s' % argName, 'TRF_OUTFILE_EMPTY' )
             else:
-                logger.info( "Ignoring empty %s." % fName )
+                logger.info( "Ignoring empty %s.", fName )
                 return
         # Check if sdl can cope with the file type
         if self.validationType() == 'any':
             vDict[ 'testIfCorrupt' ] = False
         if vDict[ 'testIfCorrupt' ] and sdl is not None:
-            logger.info( "Checking %s for corruption." % fName )
+            logger.info( "Checking %s for corruption.", fName )
             vTimer.start( '%s validation' % argName )
             sc = corruptionTestBS( fName, self.validationType(),logger )
             vTimer.stop( '%s validation' % argName )
             if sc < 0:
-                logger.warning( "Execution of corruption test failed [%s]." % sc )
+                logger.warning( "Execution of corruption test failed [%s].", sc )
             elif sc > 0:
                 raise TransformValidationError( fName, 'failed validation [%s]. File corrupt. Argument %s' % ( sc, argName ) )
         if vDict[ 'testCountEvents' ]:
-            logger.info( "Attempting to validate %s using event count routine." % fName )
+            logger.info( "Attempting to validate %s using event count routine.", fName )
             vTimer.start( '%s validation' % argName )
             eCount = arg.eventCount()
             vTimer.stop( '%s validation' % argName )
@@ -1288,15 +1285,15 @@ class BSFile( FileType ):
                   if not vDict[ 'continueOnZeroEventCount' ]:  
                     raise TransformValidationError( fName, 'failed validation. File contains no events. Argument %s' % argName, 'TRF_OUTFILE_TOOFEW' )
                   else:
-                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. " % fName)
+                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. ", fName)
                 else:
-                    logger.info( "Ignoring 0 events in %s." % fName )
+                    logger.info( "Ignoring 0 events in %s.", fName )
                     return
-            elif eCount == None:
+            elif eCount is None:
                 if vDict[ 'stopOnEventCountNone' ]:
                   raise TransformValidationError( fName, 'failed validation. Events could not be counted Argument %s' % argName, 'TRF_OUTFILE_NEVENTFAIL' )
                 else:
-                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways." % fName )
+                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways.", fName )
         if callable( vDict[ 'extraValidation' ] ):
             vTimer.start()
             extraValidationResult = None
@@ -1305,9 +1302,9 @@ class BSFile( FileType ):
             except TransformThreadTimeout:
                 logger.warning( 'Extra validation routine timed out.' )
             except TransformThreadError as e:
-                logger.warning( 'Thread running extra validation routine failed to stop.\n%s' % e )
+                logger.warning( 'Thread running extra validation routine failed to stop.\n%s', e )
             except Exception as e:
-                logger.warning( 'Extra validation routine error.\n%s' % e )
+                logger.warning( 'Extra validation routine error.\n%s', e )
             vTimer.stop()
             if not extraValidationResult:
                 raise TransformValidationError( fName, 'failed additional validation. Argument %s' % argName, 'TRF_OUTFILE' )
@@ -1322,7 +1319,7 @@ class BSFile( FileType ):
 #            sc, out = sdl.run_sg_dump( files = [ fName ], output = os.devnull, pyalg_cls = 'PyDumper.PyComps:DataProxyLoader', use_recex_links = False, file_type = self.validationType(), msg = logger )
 #            if sc != 0:
 #                raise TransformValidationError( fName, 'failed validation [%s]. File corrupt. Argument %s' % ( sc, argName ) )
-        logger.info( "%s successfully validated." % fName )
+        logger.info( "%s successfully validated.", fName )
         return
 
     def getGUID(self,filename):
@@ -1330,7 +1327,7 @@ class BSFile( FileType ):
             return None
         guid = getCachedFileInfo( filename, 'file_guid' )
         if guid is None:
-            raise FileError( filename, "File %s GUID not present in BS file." % filename )
+            raise FileError( filename, "File %s GUID not present in BS file.", filename )
         return guid
 
     def getMetaData(self,filename):
@@ -1361,7 +1358,7 @@ class RootTTreeFile( FileType ):
             return None
         # Use FClistGUID
         rc, guid = getGUIDfromPFC(filename)
-        if guid != None:
+        if guid is not None:
             return guid
         if rc != 0:
             print ('Warning: Problem with PFC')
@@ -1391,7 +1388,7 @@ class PoolDataFile( RootTTreeFile ):
     def getGUID(self, filename):
         # Use FClistGUID
         rc, guid = getGUIDfromPFC(filename)
-        if guid != None:
+        if guid is not None:
             return guid
         if rc != 0:
             print ('Warning: Problem with PFC')
@@ -1409,7 +1406,7 @@ class PoolDataFile( RootTTreeFile ):
                 if filename in words[1]:
                     guid = words[0]
                     break
-            except:
+            except Exception:
                 continue
         if p.returncode != 0:
             print ("GUID retrieval failed: %s" % stderr)
@@ -1430,7 +1427,7 @@ class PoolDataFile( RootTTreeFile ):
         except Exception as e:
             print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
-        if VALIDATION_DICT[ 'ALL' ] == False:
+        if VALIDATION_DICT[ 'ALL' ] is False:
             logger.info( "Skipping all validation routines." )
             return
         # Defined default validation values
@@ -1445,26 +1442,26 @@ class PoolDataFile( RootTTreeFile ):
             if vDict[ 'testIfExists' ]:
                 raise TransformValidationError( fName, 'failed validation. File not created. Argument %s' % argName, 'TRF_OUTFILE_NOTFOUND' )
             else:
-                logger.info( "Ignoring missing %s." % fName )
+                logger.info( "Ignoring missing %s.", fName )
                 return
         if fileutil.getsize( fName ) == 0:
             if vDict[ 'testIfEmpty' ]:
                 raise TransformValidationError( fName, 'failed validation. Empty file. Argument %s' % argName, 'TRF_OUTFILE_EMPTY' )
             else:
-                logger.info( "Ignoring empty %s." % fName )
+                logger.info( "Ignoring empty %s.", fName )
                 return
         # Check if sdl can cope with the file type
         if self.validationType() == 'any':
             vDict[ 'testIfCorrupt' ] = False
         if vDict[ 'testIfCorrupt' ]:
-            logger.info( "Checking %s for corruption." % fName )
+            logger.info( "Checking %s for corruption.", fName )
             vTimer.start( '%s validation' % argName )
             sc = corruptionTestROOT( fName, self.validationType() )
             vTimer.stop( '%s validation' % argName )
             if sc<0:
                 raise TransformValidationError( fName, 'failed validation [%s]. File corrupt. Argument %s' % ( sc, argName ) )
         if vDict[ 'testCountEvents' ]:
-            logger.info( "Attempting to validate %s using event count routine." % fName )
+            logger.info( "Attempting to validate %s using event count routine.", fName )
             vTimer.start( '%s validation' % argName )
             eCount = arg.eventCount()
             vTimer.stop( '%s validation' % argName )
@@ -1473,15 +1470,15 @@ class PoolDataFile( RootTTreeFile ):
                   if not vDict[ 'continueOnZeroEventCount' ]:  
                     raise TransformValidationError( fName, 'failed validation. File contains no events. Argument %s' % argName, 'TRF_OUTFILE_TOOFEW' )
                   else:
-                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. " % fName)
+                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. ", fName)
                 else:
-                    logger.info( "Ignoring 0 events in %s." % fName )
+                    logger.info( "Ignoring 0 events in %s.", fName )
                     return
-            elif eCount == None:
+            elif eCount is None:
                 if vDict[ 'stopOnEventCountNone' ]:
                   raise TransformValidationError( fName, 'failed validation. Events could not be counted Argument %s' % argName, 'TRF_OUTFILE_NEVENTFAIL' )
                 else:
-                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways." % fName )
+                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways.", fName )
         if callable( vDict[ 'extraValidation' ] ):
             vTimer.start()
             extraValidationResult = None
@@ -1490,9 +1487,9 @@ class PoolDataFile( RootTTreeFile ):
             except TransformThreadTimeout:
                 logger.warning( 'Extra validation routine timed out.' )
             except TransformThreadError as e:
-                logger.warning( 'Thread running extra validation routine failed to stop.\n%s' % e )
+                logger.warning( 'Thread running extra validation routine failed to stop.\n%s', e )
             except Exception as e:
-                logger.warning( 'Extra validation routine error.\n%s' % e )
+                logger.warning( 'Extra validation routine error.\n%s', e )
             vTimer.stop()
             if not extraValidationResult:
                 raise TransformValidationError( fName, 'failed additional validation. Argument %s' % argName, 'TRF_OUTFILE' )
@@ -1508,7 +1505,7 @@ class PoolDataFile( RootTTreeFile ):
 #            if sc != 0:
 #                raise TransformValidationError( fName, 'failed validation [%s]. File corrupt. Argument %s' % ( sc, argName ) )
 
-        logger.info( "%s successfully validated." % fName )
+        logger.info( "%s successfully validated.", fName )
         return
     
     def writeSize(self, arg):
@@ -1544,8 +1541,8 @@ class PoolDataFile( RootTTreeFile ):
             #     print (sys.exc_info()[0])
             #     print (sys.exc_info()[1])
             #     return
-			
-			#returns number_of_events and tuple of sizes
+
+            #returns number_of_events and tuple of sizes
             return [ne, collectionSize]	
         else:
             print ('not needed for file of this type')
@@ -1560,7 +1557,7 @@ class PoolDataFile( RootTTreeFile ):
         except Exception as e:
             print ("Event count failed for %s: %s" % ( arg, e ))
             return None
-        if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
+        if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testCountEvents' ] is False ):
             logger.info( 'Test run in progress. Event count (AthFile-based) disabled.' )
             return None
         resultList = getCachedFileInfo( fileList, 'nentries' )
@@ -1581,7 +1578,7 @@ class PoolDataFile( RootTTreeFile ):
         if oldLevel != newLevel:
             os.environ['POOL_OUTMSG_LEVEL'] = newLevel
             if logger:
-                logger.info( "Setting POOL message level to %d." % level )
+                logger.info( "Setting POOL message level to %d.", level )
 
 
 class EvgenFile( PoolDataFile ):
@@ -1622,7 +1619,7 @@ class TAGFile( RootTTreeFile ):
     def getGUID(self, filename):
         # Use FClistGUID, then fallback to AthFile (N.B. tag files have funny names in the PFC!)
         rc, guid = getGUIDfromPFC("RootCollection||PFN:" + filename)
-        if guid != None:
+        if guid is not None:
             return guid
         if rc != 0:
             print ('Warning: Problem with PFC')
@@ -1638,7 +1635,6 @@ class TAGFile( RootTTreeFile ):
         """Return number of events in file of argument arg.
         Return None if event count is not applicable to file type."""
         try:
-            logger = arg.logger()
             fName = arg.value()
         except Exception as e:
             print ("Event count failed for %s: %s" % ( arg, e ))
@@ -1726,7 +1722,6 @@ class NtupleFile( RootTTreeFile ):
     
     def eventCount( self, arg ):
         try:
-            logger = arg.logger()
             fName = arg.value()
         except Exception as e:
             print ("Event count failed for %s: %s" % ( arg, e ))
@@ -1750,7 +1745,7 @@ class NtupleFile( RootTTreeFile ):
         except Exception as e:
             print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
-        if VALIDATION_DICT[ 'ALL' ] == False:
+        if VALIDATION_DICT[ 'ALL' ] is False:
             logger.info( "Skipping all validation routines." )
             return
         # Defined default validation values
@@ -1765,17 +1760,17 @@ class NtupleFile( RootTTreeFile ):
             if vDict[ 'testIfExists' ]:
                 raise TransformValidationError( fName, 'failed validation. File not created. Argument %s' % argName, 'TRF_OUTFILE_NOTFOUND' )
             else:
-                logger.info( "Ignoring missing %s." % fName )
+                logger.info( "Ignoring missing %s.", fName )
                 return
         if fileutil.getsize( fName ) == 0:
             if vDict[ 'testIfEmpty' ]:
                 raise TransformValidationError( fName, 'failed validation. Empty file. Argument %s' % argName, 'TRF_OUTFILE_EMPTY' )
             else:
-                logger.info( "Ignoring empty %s." % fName )
+                logger.info( "Ignoring empty %s.", fName )
                 return
 
         if vDict[ 'testIfCorrupt' ]:
-            logger.info( "Checking %s for corruption." % fName )
+            logger.info( "Checking %s for corruption.", fName )
             vTimer.start( '%s validation' % argName )
             from PyJobTransformsCore.trfValidateRootFile import checkFile as checkNTUPFile
             sc = checkNTUPFile(fileName=fName, type='basketWise', requireTree=False, msg=logger)
@@ -1785,7 +1780,7 @@ class NtupleFile( RootTTreeFile ):
     
             
         if vDict[ 'testCountEvents' ] and self.tree_names:
-            logger.info( "Attempting to validate %s using event count routine." % fName )
+            logger.info( "Attempting to validate %s using event count routine.", fName )
             vTimer.start( '%s validation' % argName )
             eCount = arg.eventCount()
             vTimer.stop( '%s validation' % argName )
@@ -1794,18 +1789,18 @@ class NtupleFile( RootTTreeFile ):
                   if not vDict[ 'continueOnZeroEventCount' ]:  
                     raise TransformValidationError( fName, 'failed validation. File contains no events. Argument %s' % argName, 'TRF_OUTFILE_TOOFEW' )
                   else:
-                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. " % fName)
+                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. ", fName)
                 else:
-                    logger.info( "Ignoring 0 events in %s." % fName )
+                    logger.info( "Ignoring 0 events in %s.", fName )
                     return
-            elif eCount == None:
+            elif eCount is None:
                 if vDict[ 'stopOnEventCountNone' ]:
                   raise TransformValidationError( fName, 'failed validation. Events could not be counted Argument %s' % argName, 'TRF_OUTFILE_NEVENTFAIL' )
                 else:
-                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways." % fName )
+                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways.", fName )
         else:
-            logger.info( "Event counting not tested for %s." % fName )
-        logger.info( "%s successfully validated." % fName )
+            logger.info( "Event counting not tested for %s.", fName )
+        logger.info( "%s successfully validated.", fName )
         return
 
 
@@ -1823,7 +1818,7 @@ class MonitorHistFile( RootTTreeFile ):
         except Exception as e:
             print ("Event count failed for %s: %s" % ( arg, e ))
             return None
-        if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
+        if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testCountEvents' ] is False ):
             logger.info( 'Test run in progress. Event count (ROOT-based) disabled.' )
             return None
         ROOT = RootUtils.import_root(batch=True)
@@ -1833,9 +1828,9 @@ class MonitorHistFile( RootTTreeFile ):
         except TransformThreadTimeout:
             logger.warning( 'ROOT file opening timed out.' )
         except TransformThreadError as e:
-            logger.warning( 'Thread for ROOT file opening failed to stop.\n%s' % e )
+            logger.warning( 'Thread for ROOT file opening failed to stop.\n%s', e )
         except Exception as e:
-            logger.warning( 'ROOT file open error.\n%s' % e )
+            logger.warning( 'ROOT file open error.\n%s', e )
         if not f:
             logger.warning("Could not open file [%s].", fName)
             return None
@@ -1858,12 +1853,12 @@ class MonitorHistFile( RootTTreeFile ):
             return None
         try:
             nBinsX = h.GetNbinsX()
-        except:
+        except Exception:
             f.Close()
             logger.warning( 'Unable to retrieve number of events.' )
             return None            
         nev = 0
-        for i in xrange(1, nBinsX):
+        for i in range(1, nBinsX):
             if h[i] < 0:
                 # should not happen
                 logger.warning( 'Negative number of events for step %s.', h.GetXaxis().GetBinLabel(i) )
@@ -1892,7 +1887,7 @@ class MonitorHistFile( RootTTreeFile ):
         except Exception as e:
             print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
-        if VALIDATION_DICT[ 'ALL' ] == False:
+        if VALIDATION_DICT[ 'ALL' ] is False:
             logger.info( "Skipping all validation routines." )
             return
         # Defined default validation values
@@ -1907,23 +1902,23 @@ class MonitorHistFile( RootTTreeFile ):
             if vDict[ 'testIfExists' ]:
                 raise TransformValidationError( fName, 'failed validation. File not created. Argument %s' % argName, 'TRF_OUTFILE_NOTFOUND' )
             else:
-                logger.info( "Ignoring missing %s." % fName )
+                logger.info( "Ignoring missing %s.", fName )
                 return
         if fileutil.getsize( fName ) == 0:
             if vDict[ 'testIfEmpty' ]:
                 raise TransformValidationError( fName, 'failed validation. Empty file. Argument %s' % argName, 'TRF_OUTFILE_EMPTY' )
             else:
-                logger.info( "Ignoring empty %s." % fName )
+                logger.info( "Ignoring empty %s.", fName )
                 return
 #         if vDict[ 'testIfCorrupt' ]:
-#             logger.info( "Checking %s for corruption." % fName )
+#             logger.info( "Checking %s for corruption.", fName )
 #             vTimer.start( '%s validation' % argName )
 #             sc = corruptionTestROOT( fName, self.validationType() )
 #             vTimer.stop( '%s validation' % argName )
 #             if sc<0:
 #                 raise TransformValidationError( fName, 'failed validation [%s]. File corrupt. Argument %s' % ( sc, argName ) )
         if vDict[ 'testCountEvents' ] and 'HIST_' not in fName:
-            logger.info( "Attempting to validate %s using event count routine." % fName )
+            logger.info( "Attempting to validate %s using event count routine.", fName )
             vTimer.start( '%s validation' % argName )
             eCount = arg.eventCount()
             vTimer.stop( '%s validation' % argName )
@@ -1932,17 +1927,17 @@ class MonitorHistFile( RootTTreeFile ):
                   if not vDict[ 'continueOnZeroEventCount' ]:  
                     raise TransformValidationError( fName, 'failed validation. File contains no events. Argument %s' % argName, 'TRF_OUTFILE_TOOFEW' )
                   else:
-                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. " % fName)
+                    logger.info(" WARNING - 0 events in %s, proceeding with empty file. ", fName)
                 else:
-                    logger.info( "Ignoring 0 events in %s." % fName )
+                    logger.info( "Ignoring 0 events in %s.", fName )
                     return
-            elif eCount == None:
+            elif eCount is None:
                 if vDict[ 'stopOnEventCountNone' ]:
                   raise TransformValidationError( fName, 'failed validation. Events could not be counted Argument %s' % argName, 'TRF_OUTFILE_NEVENTFAIL' )
                 else:
-                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways." % fName )
+                  logger.info( "No event count for file %s (corrupt or unreachable). Proceeding anyways.", fName )
         elif 'HIST_' in fName:
-            logger.info('No event counting validation performed because file %s is of HIST_ subtype' % fName)
+            logger.info('No event counting validation performed because file %s is of HIST_ subtype', fName)
             
         if callable( vDict[ 'extraValidation' ] ):
             vTimer.start()
@@ -1952,13 +1947,13 @@ class MonitorHistFile( RootTTreeFile ):
             except TransformThreadTimeout:
                 logger.warning( 'Extra validation routine timed out.' )
             except TransformThreadError as e:
-                logger.warning( 'Thread running extra validation routine failed to stop.\n%s' % e )
+                logger.warning( 'Thread running extra validation routine failed to stop.\n%s', e )
             except Exception as e:
-                logger.warning( 'Extra validation routine error.\n%s' % e )
+                logger.warning( 'Extra validation routine error.\n%s', e )
             vTimer.stop()
             if not extraValidationResult:
                 raise TransformValidationError( fName, 'failed additional validation. Argument %s' % argName, 'TRF_OUTFILE' )
-        logger.info( "%s successfully validated." % fName )
+        logger.info( "%s successfully validated.", fName )
         return
 
 
@@ -1999,8 +1994,8 @@ class CommentLine:
     def bigComment(self,char='-',width=80):
         line = CommentLine.getLine(char,width)
         return line + os.linesep + \
-                self.smallComment() + os.linesep + \
-                line
+            self.smallComment() + os.linesep + \
+            line
 
 
 #
@@ -2120,7 +2115,7 @@ class StringNumberList:
         if self.__numberList is not None: return (self.__numberList,self.__digits)
         nums = self.getNumbers(openBracket,closeBracket)
         if nums is None: return (None,None)
-        if nums is "": return (list(),0)
+        if nums=="": return (list(),0)
         numList = [ ]
         bclose = len(nums)
         posB = 1
@@ -2293,7 +2288,7 @@ class ServiceOverride(PostJobOptionsFile,TransformLogger):
             val = members[mem]
             jo.append( "%s.%s = %r" % (self.__service, mem, val) )
             filename += '_%s_%s' % (mem,val)
-        self.logger().info('Creating jobOptions file %s' % filename)
+        self.logger().info('Creating jobOptions file %s', filename)
         joFile = open(filename,'w')
         joFile.write( os.linesep.join(jo) + os.linesep )
         joFile.close()

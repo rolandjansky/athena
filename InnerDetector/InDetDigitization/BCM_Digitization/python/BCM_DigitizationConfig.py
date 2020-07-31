@@ -31,15 +31,26 @@ def BCM_DigitizationTool(name="BCM_DigitizationTool",**kwargs):
  
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", BCM_FirstXing() )
-        kwargs.setdefault("LastXing",  BCM_LastXing()  ) 
+        kwargs.setdefault("LastXing",  BCM_LastXing()  )
 
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        kwargs.setdefault("OutputRDOKey", overlayFlags.bkgPrefix() + "BCM_RDOs")
-        kwargs.setdefault("OutputSDOKey", overlayFlags.bkgPrefix() + "BCM_SDO_Map")
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("OnlyUseContainerName", False)
+            kwargs.setdefault("OutputRDOKey", overlayFlags.sigPrefix() + "BCM_RDOs")
+            kwargs.setdefault("OutputSDOKey", overlayFlags.sigPrefix() + "BCM_SDO_Map")
+        else:
+            kwargs.setdefault("OutputRDOKey", overlayFlags.evtStore() + "+BCM_RDOs")
+            kwargs.setdefault("OutputSDOKey", overlayFlags.evtStore() + "+BCM_SDO_Map")
     else:
-        kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
-        kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
+        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            kwargs.setdefault("OutputRDOKey", overlayFlags.bkgPrefix() + "BCM_RDOs")
+            kwargs.setdefault("OutputSDOKey", overlayFlags.bkgPrefix() + "BCM_SDO_Map")
+        else:
+            kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
+            kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
 
     from AthenaCommon import CfgMgr
     return CfgMgr.BCM_DigitizationTool(name,**kwargs)
@@ -60,6 +71,8 @@ def BCM_OverlayDigitizationTool(name="BCM_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("OnlyUseContainerName", False)
+    # Disable the noise
+    kwargs.setdefault("ModNoise", [ 0., 0., 0., 0., 0., 0., 0., 0. ])
     return BCM_DigitizationTool(name,**kwargs)
 
 def BCM_OverlayDigitization(name="BCM_OverlayDigitization",**kwargs):

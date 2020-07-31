@@ -61,6 +61,8 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
+#include "CxxUtils/checker_macros.h"
+
 //#include "driftCircle.h" // local copy for debugging and development
 
 //_____________________________________________________________________________
@@ -87,7 +89,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::initialize()
+StatusCode TRTDigitizationTool::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe detStore()->regFcn (callback) is used.
 {
 
   ATH_MSG_DEBUG ( name()<<"::initialize() begin" );
@@ -153,7 +155,12 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
   //Retrieve TRT_CalDbTool
-  ATH_CHECK(m_calDbTool.retrieve());
+  if (m_settings->getT0FromData()) {
+    ATH_CHECK(m_calDbTool.retrieve());
+  }
+  else {
+    m_calDbTool.disable();
+  }
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
 
@@ -318,7 +325,10 @@ StatusCode TRTDigitizationTool::lateInitialize(const EventContext& ctx) {
 
   ITRT_SimDriftTimeTool *pTRTsimdrifttimetool = &(*m_TRTsimdrifttimetool);
 
-  const ITRT_CalDbTool* calDbTool=m_calDbTool.get();
+  const ITRT_CalDbTool* calDbTool = nullptr;
+  if (m_settings->getT0FromData()) {
+    calDbTool = m_calDbTool.get();
+  }
   m_pProcessingOfStraw =
     new TRTProcessingOfStraw( m_settings,
                               m_manager,

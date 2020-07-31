@@ -7,7 +7,6 @@ atlas_subdir( MuonConfig )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py test/MdtRdoToPrepDataTool_test.py test/MdtIntersectGeometry_test.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 
 if( NOT SIMULATIONBASE )
@@ -45,9 +44,11 @@ if( NOT SIMULATIONBASE )
 
    atlas_add_test( MuonReconstructionConfigTest
                    SCRIPT python -m MuonConfig.MuonReconstructionConfig --run
+                   PROPERTIES TIMEOUT 1200
                    POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( MuonSegmentFindingConfigTest
                    SCRIPT python -m MuonConfig.MuonSegmentFindingConfig --run
+                   PROPERTIES TIMEOUT 300
                    POST_EXEC_SCRIPT nopost.sh )
 endif()

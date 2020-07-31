@@ -20,7 +20,6 @@
 #include "AthenaKernel/Timeout.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"

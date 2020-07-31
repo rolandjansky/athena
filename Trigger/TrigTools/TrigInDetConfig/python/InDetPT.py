@@ -77,15 +77,6 @@ def makeInDetPrecisionTracking( whichSignature,
   outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
 
 
-#  # disable the TRT extension at the moment for bjets and muons
-  if "electron" in whichSignature :
-      doTRTextension = True
-  elif "tau" in whichSignature :
-      doTRTextension = True
-  else : 
-      doTRTextension = False
-
-
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
   #e.g InDetTrigPT_Tracks_electron
@@ -113,16 +104,17 @@ def makeInDetPrecisionTracking( whichSignature,
   from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTrackSummaryHelperToolSharedHits,InDetTrigTRT_ElectronPidTool
 
-  InDetTrigTrackSummaryToolSharedHitsWithTRTPid  = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT%s"%(algNamePrefix, signature),
-                          InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
-                          doSharedHits           = InDetTrigFlags.doSharedHits(),
-                          doHolesInDet           = True,
-                          TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
+  trigTrackSummaryTool  = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT%s"%(algNamePrefix, signature),
+                                                InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
+                                                doSharedHits           = InDetTrigFlags.doSharedHits(),
+                                                doHolesInDet           = True )
+  
+  if doTRTextension:
+      if "electron" in whichSignature  or "tau" in whichSignature :
+         trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
-
-  if whichSignature == "electron" or "tau" in whichSignature :
       Parameter_config = True 
-      SummaryTool_config = InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+      SummaryTool_config = trigTrackSummaryTool
   else:
       SummaryTool_config = InDetTrigTrackSummaryTool
       Parameter_config = False

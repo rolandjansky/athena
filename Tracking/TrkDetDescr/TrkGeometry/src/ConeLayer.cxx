@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,10 +56,9 @@ Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform,
   Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
 {}
 
-Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay):
-  ConeSurface(clay),
-  Layer(clay)
-{}
+Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay)
+  
+= default;
 
 Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay, const Amg::Transform3D& transf):
   ConeSurface(clay,transf),

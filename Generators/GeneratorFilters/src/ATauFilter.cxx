@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/ATauFilter.h"
@@ -50,22 +50,16 @@ StatusCode ATauFilter::filterFinalize() {
 
 
 StatusCode ATauFilter::filterEvent() {
-  HepMC::GenParticle *tau;
-  HepMC::GenParticle *atau;
-  HepMC::GenParticle *nutau;
-  HepMC::GenParticle *anutau;
-  HepMC::GenParticle *taulep;
-  HepMC::GenParticle *ataulep;
 
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector mom_atauprod;  //   calculated with mom_tauprod = mom_tau - mom_nutau
 
-  tau = 0;               // will contain the tau once found by id only
-  atau = 0;
-  taulep = 0;            // lepton that has the genvertex in common with the endvertex of tau
-  ataulep = 0;
-  nutau = 0;             // nutau that has the genvertex in common with the endvertex of tau
-  anutau = 0;
+  HepMC::ConstGenParticlePtr   tau = nullptr;               // will contain the tau once found by id only
+  HepMC::ConstGenParticlePtr   atau = nullptr;
+  HepMC::ConstGenParticlePtr   taulep = nullptr;            // lepton that has the genvertex in common with the endvertex of tau
+  HepMC::ConstGenParticlePtr   ataulep = nullptr;
+  HepMC::ConstGenParticlePtr   nutau = nullptr;             // nutau that has the genvertex in common with the endvertex of tau
+  HepMC::ConstGenParticlePtr   anutau = nullptr;
 
   m_eventsaccepted++;
 
@@ -74,60 +68,59 @@ StatusCode ATauFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {
+  for (auto part: *genEvt){
       // Look for the first tau with genstat != 3 which has not a tau as daughter
       fsr = 0;
-      if ( (*pitr)->end_vertex()!= 0 ) {
-        HepMC::GenVertex::particles_out_const_iterator  itr = (*pitr)->end_vertex()->particles_out_const_begin();
-        for ( ; itr != (*pitr)->end_vertex()->particles_out_const_end(); itr++ ) {
-          if ( (*pitr)->pdg_id() == (*itr)->pdg_id() ) fsr = 1;
+      if ( part->end_vertex() ) {
+        for ( auto pitr: *(part->end_vertex())) {
+          if ( part->pdg_id() == pitr->pdg_id() ) fsr = 1;
         }
       }
 
-      if ( ( (*pitr)->pdg_id() == 15 ) && ( tau == 0 ) && ( (*pitr)->status() != 3 ) && ( fsr == 0 ) ) {
-        tau = (*pitr);
-        ATH_MSG_DEBUG("Found tau with barcode " << tau->barcode() << " status " << (*pitr)->status());
+      if ( ( part->pdg_id() == 15 ) && ( tau == 0 ) && ( part->status() != 3 ) && ( fsr == 0 ) ) {
+        tau = part;
+        ATH_MSG_DEBUG("Found tau with barcode " << HepMC::barcode(tau) << " status " << part->status());
       }
 
       // Look for the first atau with genstat != 3 which has not a tau as daughter
-      if ( ( (*pitr)->pdg_id() == -15 ) && ( atau == 0 ) && ( (*pitr)->status() != 3 ) && ( fsr == 0 ) ) {
-        atau = (*pitr);
-        ATH_MSG_DEBUG("Found atau with barcode " << atau->barcode() << " status " << (*pitr)->status());
+      if ( ( part->pdg_id() == -15 ) && ( atau == 0 ) && ( part->status() != 3 ) && ( fsr == 0 ) ) {
+        atau = part;
+        ATH_MSG_DEBUG("Found atau with barcode " << HepMC::barcode(atau) << " status " << part->status());
       }
 
       // If tau was already found look for his nu
-      if ( ( tau != 0 ) && ( (*pitr)->pdg_id() == 16 ) ) {
-        if ( tau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found nutau with barcode " << (*pitr)->barcode() << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          nutau = (*pitr);
+      if ( ( tau != 0 ) && ( part->pdg_id() == 16 ) ) {
+        if ( tau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found nutau with barcode " << HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          nutau = part;
         }
       }
 
       // If atau was already found look for his anu
-      if ( ( atau != 0 ) && ( (*pitr)->pdg_id() == -16 ) ) {
-        if ( atau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found anutau with barcode " << (*pitr)->barcode() << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          anutau = (*pitr);
+      if ( ( atau != 0 ) && ( part->pdg_id() == -16 ) ) {
+        if ( atau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found anutau with barcode " << HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          anutau = part;
         }
       }
 
       // if tau was already found look for his lepton
-      if ( ( tau != 0 ) && ( ( (*pitr)->pdg_id() == 13 ) || ( (*pitr)->pdg_id() == 11 ) ) ) {
-        if ( tau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found tau-lepton with barcode " << (*pitr)->barcode() << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          taulep = (*pitr);
+      if ( ( tau != 0 ) && ( ( part->pdg_id() == 13 ) || ( part->pdg_id() == 11 ) ) ) {
+        if ( tau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found tau-lepton with barcode " <<HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          taulep = part;
         }
       }
 
       // If atau was already found look for his alepton
-      if ( ( atau != 0 ) && ( ( (*pitr)->pdg_id() == -13 ) || ( (*pitr)->pdg_id() == -11 ) ) ) {
-        if ( atau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found atau-lepton with barcode "  << (*pitr)->barcode() << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          ataulep = (*pitr);
+      if ( ( atau != 0 ) && ( ( part->pdg_id() == -13 ) || ( part->pdg_id() == -11 ) ) ) {
+        if ( atau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found atau-lepton with barcode "  << HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          ataulep = part;
         }
       }
     }
@@ -172,11 +165,11 @@ StatusCode ATauFilter::filterEvent() {
            || ( ( taulep->momentum().perp() >= m_llPtminmu ) && ( taulep->pdg_id() == 13 ) ) )
          && ( ( ( ataulep->momentum().perp() >= m_llPtmine ) && ( ataulep->pdg_id() == -11 ) )
               || ( ( ataulep->momentum().perp() >= m_llPtminmu ) && ( ataulep->pdg_id() == -13 ) ) )
-         && ( ( fabs( taulep->momentum().pseudoRapidity() ) <= m_EtaRange ) )
-         && ( fabs( ataulep->momentum().pseudoRapidity() ) <= m_EtaRange ) ) {
+         && ( ( std::abs( taulep->momentum().pseudoRapidity() ) <= m_EtaRange ) )
+         && ( std::abs( ataulep->momentum().pseudoRapidity() ) <= m_EtaRange ) ) {
       CLHEP::HepLorentzVector mom_taulep(taulep->momentum().px(), taulep->momentum().py(), taulep->momentum().pz(), taulep->momentum().e());
       CLHEP::HepLorentzVector mom_ataulep(ataulep->momentum().px(), ataulep->momentum().py(), ataulep->momentum().pz(), ataulep->momentum().e());
-      if ( fabs(mom_taulep.vect().deltaPhi(mom_ataulep.vect())) < m_maxdphi ) {
+      if ( std::abs(mom_taulep.vect().deltaPhi(mom_ataulep.vect())) < m_maxdphi ) {
         m_eventsllacc++;
         return StatusCode::SUCCESS;
       }
@@ -190,10 +183,10 @@ StatusCode ATauFilter::filterEvent() {
     if ( ( ( ( taulep->momentum().perp() >= m_lhPtmine ) && ( taulep->pdg_id() == 11 ) )
            || ( ( taulep->momentum().perp() >= m_lhPtminmu ) && ( taulep->pdg_id() == 13 ) ) )
          && ( mom_atauprod.perp() >= m_lhPtminh )
-         && ( fabs( taulep->momentum().pseudoRapidity() ) <= m_EtaRange )
-         && ( fabs( mom_atauprod.pseudoRapidity() ) <= m_EtaRange ) ) {
+         && ( std::abs( taulep->momentum().pseudoRapidity() ) <= m_EtaRange )
+         && ( std::abs( mom_atauprod.pseudoRapidity() ) <= m_EtaRange ) ) {
       CLHEP::HepLorentzVector mom_taulep(taulep->momentum().px(), taulep->momentum().py(), taulep->momentum().pz(), taulep->momentum().e());
-      if ( fabs(mom_taulep.vect().deltaPhi(mom_atauprod.vect())) < m_maxdphi ) {
+      if ( std::abs(mom_taulep.vect().deltaPhi(mom_atauprod.vect())) < m_maxdphi ) {
         m_eventslhacc++;
         return StatusCode::SUCCESS;
       }
@@ -206,10 +199,10 @@ StatusCode ATauFilter::filterEvent() {
     if ( ( ( ( ataulep->momentum().perp() >= m_lhPtmine ) && ( ataulep->pdg_id() == -11 ) )
            || ( ( ataulep->momentum().perp() >= m_lhPtminmu ) && ( ataulep->pdg_id() == -13 ) ) )
          && ( mom_tauprod.perp() >= m_lhPtminh )
-         && ( fabs( mom_tauprod.pseudoRapidity() ) <= m_EtaRange )
-         && ( fabs( ataulep->momentum().pseudoRapidity() ) <= m_EtaRange ) ) {
+         && ( std::abs( mom_tauprod.pseudoRapidity() ) <= m_EtaRange )
+         && ( std::abs( ataulep->momentum().pseudoRapidity() ) <= m_EtaRange ) ) {
       CLHEP::HepLorentzVector mom_ataulep(ataulep->momentum().px(), ataulep->momentum().py(), ataulep->momentum().pz(), ataulep->momentum().e());
-      if ( fabs(mom_ataulep.vect().deltaPhi(mom_tauprod.vect())) < m_maxdphi ) {
+      if ( std::abs(mom_ataulep.vect().deltaPhi(mom_tauprod.vect())) < m_maxdphi ) {
         m_eventslhacc++;
         return StatusCode::SUCCESS;
       }
@@ -225,9 +218,9 @@ StatusCode ATauFilter::filterEvent() {
     m_eventshh++;
     if ( ( mom_tauprod.perp() >= m_hhPtmin )                                  // check pt
          && ( mom_atauprod.perp() >= m_hhPtmin )
-         && ( fabs( mom_tauprod.pseudoRapidity() ) <= m_EtaRange )            // check eta-range
-         && ( fabs( mom_atauprod.pseudoRapidity() ) <= m_EtaRange ) ) {
-      if ( fabs(mom_atauprod.vect().deltaPhi(mom_tauprod.vect())) < m_maxdphi ) {
+         && ( std::abs( mom_tauprod.pseudoRapidity() ) <= m_EtaRange )            // check eta-range
+         && ( std::abs( mom_atauprod.pseudoRapidity() ) <= m_EtaRange ) ) {
+      if ( std::abs(mom_atauprod.vect().deltaPhi(mom_tauprod.vect())) < m_maxdphi ) {
         m_eventshhacc++;
         m_nPass++;
         return StatusCode::SUCCESS;

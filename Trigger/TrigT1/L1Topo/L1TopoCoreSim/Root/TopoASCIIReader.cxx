@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //  TopoASCIIReader.cpp
 
@@ -13,7 +13,6 @@ using namespace std;
 TCS::TopoASCIIReader::TopoASCIIReader(int verbose) :
    m_verbosity(verbose)
 {
-   cout << "TopoASCIIReader Initialized" << endl;
 }
 
 // destructor

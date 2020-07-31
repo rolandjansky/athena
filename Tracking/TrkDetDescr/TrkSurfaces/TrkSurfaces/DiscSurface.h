@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,14 +51,19 @@ public:
   /**Default Constructor*/
   DiscSurface();
 
-  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$ */
+  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
+   */
   DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax);
 
-  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max}, \phi_{hsec} \f$ */
-  DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax, double hphisec);
+  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
+   * \phi_{hsec} \f$ */
+  DiscSurface(Amg::Transform3D* htrans,
+              double rmin,
+              double rmax,
+              double hphisec);
 
-  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max}, hx_{min}, hx_{max} \f$
-     In this case you have DiscTrapezoidalBounds*/
+  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
+     hx_{min}, hx_{max} \f$ In this case you have DiscTrapezoidalBounds*/
   DiscSurface(Amg::Transform3D* htrans,
               double minhalfx,
               double maxhalfx,
@@ -89,7 +94,7 @@ public:
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
 
   /**Destructor*/
-  virtual ~DiscSurface();
+  virtual ~DiscSurface() = default;
 
   /**Assignement operator*/
   DiscSurface& operator=(const DiscSurface& dsf);
@@ -100,45 +105,41 @@ public:
   /** Virtual constructor*/
   virtual DiscSurface* clone() const override;
 
-  /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(double l1,
-                                                                      double l2,
-                                                                      double phi,
-                                                                      double theta,
-                                                                      double qop,
-                                                                      AmgSymMatrix(5) * cov = nullptr) const override
-  {
-    return new ParametersT<5, Charged, DiscSurface>(l1, l2, phi, theta, qop, *this, cov);
-  }
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
+   * charged */
+  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
 
-  /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(const Amg::Vector3D& position,
-                                                                      const Amg::Vector3D& momentum,
-                                                                      double charge,
-                                                                      AmgSymMatrix(5) * cov = nullptr) const override
-  {
-    return new ParametersT<5, Charged, DiscSurface>(position, momentum, charge, *this, cov);
-  }
+  /** Use the Surface as a ParametersBase constructor, from global parameters -
+   * charged*/
+  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
 
-  /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(double l1,
-                                                                        double l2,
-                                                                        double phi,
-                                                                        double theta,
-                                                                        double qop,
-                                                                        AmgSymMatrix(5) * cov = nullptr) const override
-  {
-    return new ParametersT<5, Neutral, DiscSurface>(l1, l2, phi, theta, qop, *this, cov);
-  }
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
+   * neutral */
+  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
 
-  /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(const Amg::Vector3D& position,
-                                                                        const Amg::Vector3D& momentum,
-                                                                        double charge,
-                                                                        AmgSymMatrix(5) * cov = nullptr) const override
-  {
-    return new ParametersT<5, Neutral, DiscSurface>(position, momentum, charge, *this, cov);
-  }
+  /** Use the Surface as a ParametersBase constructor, from global parameters -
+   * neutral */
+  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
@@ -147,23 +148,22 @@ public:
                                                      double phi,
                                                      double theta,
                                                      double qop,
-                                                     AmgSymMatrix(DIM) * cov = 0) const
-  {
-    return new ParametersT<DIM, T, DiscSurface>(l1, l2, phi, theta, qop, *this, cov);
-  }
+                                                     AmgSymMatrix(DIM) *
+                                                       cov = 0) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, DiscSurface>* createParameters(const Amg::Vector3D& position,
-                                                     const Amg::Vector3D& momentum,
-                                                     double charge,
-                                                     AmgSymMatrix(DIM) * cov = 0) const
-  {
-    return new ParametersT<DIM, T, DiscSurface>(position, momentum, charge, *this, cov);
-  }
+  ParametersT<DIM, T, DiscSurface>* createParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(DIM) * cov = 0) const;
 
   /** Return the surface type */
-  virtual SurfaceType type() const override { return Surface::Disc; }
+  virtual SurfaceType type() const override final;
+
+  /** Return the surface type */
+  static constexpr SurfaceType staticType();
 
   /** Returns a global reference point:
      For the Disc this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
@@ -175,54 +175,78 @@ public:
   const SurfaceBounds& bounds() const override;
 
   /**This method calls the inside method of the bounds*/
-  virtual bool insideBounds(const Amg::Vector2D& locpos, double tol1 = 0., double tol2 = 0.) const override;
-  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override;
+  virtual bool insideBounds(const Amg::Vector2D& locpos,
+                            double tol1 = 0.,
+                            double tol2 = 0.) const override;
+  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
+                                 const BoundaryCheck& bchk) const override;
 
-  /** This method returns true if the GlobalPosition is on the Surface for both, within
-    or without check of whether the local position is inside boundaries or not */
+  /** This method returns true if the GlobalPosition is on the Surface for both,
+    within or without check of whether the local position is inside boundaries
+    or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
                            BoundaryCheck bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override;
 
   /** Specialized for DiscSurface : LocalParameters to Vector2D */
-  virtual Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
+  virtual Amg::Vector2D localParametersToPosition(
+    const LocalParameters& locpars) const override final;
 
-  /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory allocation */
-  virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
+  /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory
+   * allocation */
+  virtual void localToGlobal(const Amg::Vector2D& locp,
+                             const Amg::Vector3D& mom,
+                             Amg::Vector3D& glob) const override;
 
-  /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory allocation - boolean checks if on surface
+  /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory
+   * allocation - boolean checks if on surface
    */
-  virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const override;
+  virtual bool globalToLocal(const Amg::Vector3D& glob,
+                             const Amg::Vector3D& mom,
+                             Amg::Vector2D& loc) const override;
 
-  /**  Special method for DiscSurface : local<->local transformations polar <-> cartesian */
+  /**  Special method for DiscSurface : local<->local transformations polar <->
+   * cartesian */
   const Amg::Vector2D* localPolarToCartesian(const Amg::Vector2D& locpol) const;
 
-  /**  Special method for Disc surface : local<->local transformations polar <-> cartesian */
-  const Amg::Vector2D* localCartesianToPolar(const Amg::Vector2D& loccart) const;
+  /**  Special method for Disc surface : local<->local transformations polar <->
+   * cartesian */
+  const Amg::Vector2D* localCartesianToPolar(
+    const Amg::Vector2D& loccart) const;
 
-  /**  Special method for Disc surface : local<->local transformations polar <-> cartesian by value*/
+  /**  Special method for Disc surface : local<->local transformations polar <->
+   * cartesian by value*/
   Amg::Vector2D localCartesianToPolarValue(const Amg::Vector2D& loccart) const;
 
-  /**  Special method for DiscSurface : local<->local transformations polar <-> cartesian */
-  const Amg::Vector2D* localPolarToLocalCartesian(const Amg::Vector2D& locpol) const;
+  /**  Special method for DiscSurface : local<->local transformations polar <->
+   * cartesian */
+  const Amg::Vector2D* localPolarToLocalCartesian(
+    const Amg::Vector2D& locpol) const;
 
-  /** Special method for DiscSurface :  local<->global transformation when provided cartesian coordinates */
-  const Amg::Vector3D* localCartesianToGlobal(const Amg::Vector2D& locpos) const;
+  /** Special method for DiscSurface :  local<->global transformation when
+   * provided cartesian coordinates */
+  const Amg::Vector3D* localCartesianToGlobal(
+    const Amg::Vector2D& locpos) const;
 
-  /** Special method for DiscSurface : global<->local from cartesian coordinates */
-  const Amg::Vector2D* globalToLocalCartesian(const Amg::Vector3D& glopos, double tol = 0.) const;
+  /** Special method for DiscSurface : global<->local from cartesian coordinates
+   */
+  const Amg::Vector2D* globalToLocalCartesian(const Amg::Vector3D& glopos,
+                                              double tol = 0.) const;
 
-  /** fast straight line intersection schema - standard: provides closest intersection and (signed) path length
-      forceDir is to provide the closest forward solution
+  /** fast straight line intersection schema - standard: provides closest
+     intersection and (signed) path length forceDir is to provide the closest
+     forward solution
 
       <b>mathematical motivation:</b>
 
       the equation of the plane is given by: <br>
       @f$ \vec n \cdot \vec x = \vec n \cdot \vec p,@f$ <br>
-      where @f$ \vec n = (n_{x}, n_{y}, n_{z})@f$ denotes the normal vector of the plane,
-      @f$ \vec p = (p_{x}, p_{y}, p_{z})@f$ one specific point on the plane and @f$ \vec x = (x,y,z) @f$ all possible
-     points on the plane.<br> Given a line with:<br>
+      where @f$ \vec n = (n_{x}, n_{y}, n_{z})@f$ denotes the normal vector of
+     the plane,
+      @f$ \vec p = (p_{x}, p_{y}, p_{z})@f$ one specific point on the plane and
+     @f$ \vec x = (x,y,z) @f$ all possible points on the plane.<br> Given a line
+     with:<br>
       @f$ \vec l(u) = \vec l_{1} + u \cdot \vec v @f$, <br>
       the solution for @f$ u @f$ can be written:
       @f$ u = \frac{\vec n (\vec p - \vec l_{1})}{\vec n \vec v}@f$ <br>
@@ -230,114 +254,38 @@ public:
       - either in the plane
       - perpenticular to the normal of the plane
    */
-  virtual Intersection straightLineIntersection(const Amg::Vector3D& pos,
-                                                const Amg::Vector3D& dir,
-                                                bool forceDir = false,
-                                                Trk::BoundaryCheck bchk = false) const override;
+  virtual Intersection straightLineIntersection(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& dir,
+    bool forceDir = false,
+    Trk::BoundaryCheck bchk = false) const override final;
 
   /** fast straight line distance evaluation to Surface */
-  virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,
-                                                        const Amg::Vector3D& dir) const override;
+  virtual DistanceSolution straightLineDistanceEstimate(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& dir) const override;
 
   /** fast straight line distance evaluation to Surface - with bound option*/
-  virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,
-                                                        const Amg::Vector3D& dir,
-                                                        bool Bound) const override;
+  virtual DistanceSolution straightLineDistanceEstimate(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& dir,
+    bool Bound) const override;
 
   /** Return properly formatted class name for screen output */
-  virtual std::string name() const override { return "Trk::DiscSurface"; }
+  virtual std::string name() const override;
 
 protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>
   friend class ::BoundSurfaceCnv_p1;
-
-  SharedObject<const SurfaceBounds> m_bounds;                 //!< bounds (shared)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint; //!< reference Point on the Surface
-  static const NoBounds s_boundless;                          //!< static member for boundless approach
+  //!< bounds (shared)
+  SharedObject<const SurfaceBounds> m_bounds;
+  //!< reference Point on the Surface
+  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  //!< static member for boundless approach
+  static const NoBounds s_boundless;
 };
 
-inline DiscSurface*
-DiscSurface::clone() const
-{
-  return new DiscSurface(*this);
-}
-
-inline const SurfaceBounds&
-DiscSurface::bounds() const
-{
-  if (m_bounds.get())
-    return (*(m_bounds.get()));
-  if (Surface::m_associatedDetElement && Surface::m_associatedDetElementId.is_valid()) {
-    return m_associatedDetElement->bounds(Surface::m_associatedDetElementId);
-  }
-  if (Surface::m_associatedDetElement)
-    return m_associatedDetElement->bounds();
-  return s_boundless;
-}
-
-inline bool
-DiscSurface::insideBounds(const Amg::Vector2D& locpos, double tol1, double tol2) const
-{
-  return bounds().inside(locpos, tol1, tol2);
-}
-
-inline bool
-DiscSurface::insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const
-{
-  return (bounds().inside(locpos, bchk));
-}
-
-inline Amg::Vector2D
-DiscSurface::localParametersToPosition(const LocalParameters& locpars) const
-{
-  if (locpars.contains(Trk::locR) && locpars.contains(Trk::locPhi))
-    return Amg::Vector2D(locpars[Trk::locR], locpars[Trk::locPhi]);
-  if (locpars.contains(Trk::locR))
-    return Amg::Vector2D(locpars[Trk::locR], 0.);
-  if (locpars.contains(Trk::locPhi))
-    return Amg::Vector2D(0.5 * bounds().r(), locpars[Trk::locPhi]);
-  return Amg::Vector2D(0.5 * bounds().r(), 0.);
-}
-
-inline const Amg::Vector2D*
-DiscSurface::localPolarToCartesian(const Amg::Vector2D& locpol) const
-{
-  return (new Amg::Vector2D(locpol[locR] * std::cos(locpol[locPhi]), locpol[locR] * std::sin(locpol[locPhi])));
-}
-
-inline const Amg::Vector2D*
-DiscSurface::localCartesianToPolar(const Amg::Vector2D& loccart) const
-{
-  return (new Amg::Vector2D(std::sqrt(loccart[locX] * loccart[locX] + loccart[locY] * loccart[locY]),
-                            std::atan2(loccart[locY], loccart[locX])));
-}
-inline Amg::Vector2D
-DiscSurface::localCartesianToPolarValue(const Amg::Vector2D& loccart) const
-{
-  return (Amg::Vector2D(std::sqrt(loccart[locX] * loccart[locX] + loccart[locY] * loccart[locY]),
-                        std::atan2(loccart[locY], loccart[locX])));
-}
-
-inline Intersection
-DiscSurface::straightLineIntersection(const Amg::Vector3D& pos,
-                                      const Amg::Vector3D& dir,
-                                      bool forceDir,
-                                      Trk::BoundaryCheck bchk) const
-{
-  double denom = dir.dot(normal());
-  if (denom) {
-    double u = (normal().dot((center() - pos))) / (denom);
-    Amg::Vector3D intersectPoint(pos + u * dir);
-    // evaluate the intersection in terms of direction
-    bool isValid = forceDir ? (u > 0.) : true;
-    // evaluate (if necessary in terms of boundaries)
-    isValid = bchk ? (isValid && isOnSurface(intersectPoint)) : isValid;
-    // return the result
-    return Trk::Intersection(intersectPoint, u, isValid);
-  }
-  return Trk::Intersection(pos, 0., false);
-}
-
 } // end of namespace
+#include "TrkSurfaces/DiscSurface.icc"
 
 #endif // TRKSURFACES_DISCSURFACE_H

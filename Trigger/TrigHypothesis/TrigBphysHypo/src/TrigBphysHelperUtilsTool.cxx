@@ -16,10 +16,6 @@
 
 // FrameWork includes
 
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "xAODTrigMuon/L2StandAloneMuon.h"
 
 
@@ -239,20 +235,10 @@ StatusCode TrigBphysHelperUtilsTool::getRunEvtLb(uint32_t & run, uint32_t & evt,
     evt = ~0;
     lb  = ~0;
     // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( evtStore()->retrieve(evtInfo).isFailure() ) {
-        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
+        ATH_MSG_WARNING("Failed to get xAOD::EventInfo " );
         // now try the old event ifo
-        if ( evtStore()->retrieve(pEventInfo).isFailure() ) {
-            ATH_MSG_DEBUG("Failed to get EventInfo " );
-            return StatusCode::FAILURE;
-        } else {
-            run   = pEventInfo->event_ID()->run_number();
-            evt   = pEventInfo->event_ID()->event_number();
-            lb    = pEventInfo->event_ID()->lumi_block();
-            ATH_MSG_DEBUG(" Run " << run << " Event " << evt );
-        }// found old event info
     }else { // found the xAOD event info
         run   = evtInfo->runNumber();
         evt   = evtInfo->eventNumber();

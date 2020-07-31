@@ -70,6 +70,7 @@ public:
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
   virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
+
 private:
 
   

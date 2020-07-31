@@ -1,18 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcPrepDataContainerCnv.h"
 
-// Gaudi
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-
-// Athena
 #include "StoreGate/StoreGateSvc.h"
-
-// Id includes
-// #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
 sTgcPrepDataContainerCnv::sTgcPrepDataContainerCnv(ISvcLocator* svcloc) :
@@ -39,7 +33,6 @@ sTgcPrepDataContainer_PERS*    sTgcPrepDataContainerCnv::createPersistent (Muon:
     MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
     sTgcPrepDataContainer_PERS *pers= m_converter_p1.createPersistent( transCont, log );
-    // COMPRESS sTgcPrepDataContainer_PERS *pers= m_converter_p1.createPersistent( transCont, log );
     return pers;
 }
 

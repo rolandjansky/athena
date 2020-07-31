@@ -17,8 +17,8 @@ public:
 
 protected:
 
-  bool isElectron(const HepMC::GenParticle* p) const;
-  bool isParton(const HepMC::GenParticle* p) const;
+  bool isElectron(HepMC::ConstGenParticlePtr p) const;
+  bool isParton(HepMC::ConstGenParticlePtr p) const;
 
 private:
 

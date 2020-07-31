@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
   
 #include "InDetRegionSelector/SiRegionSelectorTable.h"
@@ -14,6 +14,9 @@
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
 #include "RegSelLUT/RegSelModule.h" 
 #include "RegSelLUT/RegSelSiLUT.h" 
+
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -38,8 +41,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
      m_roiFileName("RoITable.txt"),
      m_printHashId(true),
      m_printTable(false),
-     m_noDBM(true),
-     m_sctCablingToolInc("SCT_CablingToolInc")
+     m_noDBM(true)
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
@@ -77,7 +79,12 @@ SiRegionSelectorTable::initialize(){
   ATH_CHECK(m_condCablingKey.initialize());
 
   ATH_MSG_WARNING("So far, this prevents the conditions migration!! The createTable() should NOT be used in the initilization step...");
-  ATH_CHECK(createTable());
+  const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
+  const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+  EventContext ctx = Gaudi::Hive::currentContext();
+  ctx.setEventID (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0));
+  Atlas::getExtendedEventContext(ctx).setConditionsRun (0);
+  ATH_CHECK(createTable (ctx));
 
   return StatusCode::SUCCESS;
 }
@@ -93,7 +100,7 @@ SiRegionSelectorTable::~SiRegionSelectorTable()
 
 
 // Get the lookup table.
-RegSelSiLUT* SiRegionSelectorTable::getLUT() const
+RegSelSiLUT* SiRegionSelectorTable::getLUT()
 {
   return m_regionLUT;
 }
@@ -102,7 +109,7 @@ RegSelSiLUT* SiRegionSelectorTable::getLUT() const
 
 
 StatusCode 
-SiRegionSelectorTable::createTable()
+SiRegionSelectorTable::createTable (const EventContext& ctx)
 {
 
   if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
@@ -121,12 +128,7 @@ SiRegionSelectorTable::createTable()
     if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
   }
 
-  if (!manager->isPixel()) { // SCT
-    if (m_sctCablingToolInc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT_CablingToolInc." << endmsg;
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK(m_sctCablingToolInc.retrieve( DisableTool{manager->isPixel()} ));
 
   // Create RegionSelectorLUT pointers for Pixel or Sct
   //  RegionSelectorLUT*  rslut = new RegionSelectorLUT;
@@ -137,7 +139,7 @@ SiRegionSelectorTable::createTable()
   else                        rd = new RegSelSiLUT(RegSelSiLUT::SCT);
 
 
-  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
+  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey, ctx);
 
   SiDetectorElementCollection::const_iterator iter;
   for (iter = manager->getDetectorElementBegin(); iter != manager->getDetectorElementEnd(); ++iter){

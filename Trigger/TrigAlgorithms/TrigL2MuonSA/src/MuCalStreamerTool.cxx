@@ -2,9 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MuCalStreamerTool.h"
+#include "MuCalStreamerTool.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <cmath>
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -24,24 +24,13 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_MuCalStreamerTool("IID_MuCalStreamerTool", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MuCalStreamerTool::interfaceID() { return IID_MuCalStreamerTool; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type, 
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
    m_regionSelector( "RegSelSvc", name ),
-   m_robDataProvider( "ROBDataProviderSvc", name ),
-   m_cid(-1),
-   m_calibEvent(0),
-   m_roi(NULL)
+   m_robDataProvider( "ROBDataProviderSvc", name )
 {
-   declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -49,36 +38,22 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
 
 StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
 {
-   ATH_CHECK(AthAlgTool::initialize());
-
    // locate the region selector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved the region selector");
 
    // Locate ROBDataProvider
    ATH_CHECK( m_robDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name()); 
+   ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name());
 
-   // initialize the local vector buffer
-   m_localBuffer = new std::vector<int>();
+   m_localBuffer.clear();
 
    m_localBufferSize = 0;
 
    ATH_CHECK(m_tgcRdoKey.initialize());
 
-   return StatusCode::SUCCESS; 
+   return StatusCode::SUCCESS;
 
-}
-
-
-StatusCode TrigL2MuonSA::MuCalStreamerTool::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing MuCalStreamerTool - package version " << PACKAGE_VERSION);
-   
-   // delete the calibration buffer
-   if ( m_localBuffer ) delete m_localBuffer; 
-
-   return AthAlgTool::finalize();
 }
 
 // --------------------------------------------------------------------------------
@@ -92,13 +67,13 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream(int calBufferSize)
 
   if ( m_cid == -1 ) { 
     if (m_writeToFile) {
-      m_outputFile = new std::ofstream(name.c_str());
+      m_outputFile.open(name.c_str());
       m_cid = 1;
-      if ( !m_outputFile ) {
+      if ( !m_outputFile.is_open() ) {
 	ATH_MSG_WARNING("Could not open muon calibration output file, name: " << name);
-      } 
+      }
       
-    } 
+    }
     else {
       char* chr ATLAS_THREAD_SAFE = const_cast<char*>(name.c_str());
       m_cid = CircOpenCircConnection(0, chr, calBufferSize);
@@ -127,12 +102,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream(int calBufferSize)
 StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 {
 
-  std::string name = m_calBufferName+"_"+m_algInstanceName; 
+  std::string name = m_calBufferName+"_"+m_algInstanceName;
 
-  if (m_writeToFile && m_outputFile) {
-    m_outputFile->close();
-    delete m_outputFile;
-    m_outputFile = NULL;
+  if (m_writeToFile && m_outputFile.is_open()) {
+    m_outputFile.close();
   }
   else if ( !m_writeToFile && m_cid>-1) {
     char* chr ATLAS_THREAD_SAFE = const_cast<char*>(name.c_str());
@@ -158,12 +131,12 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 void TrigL2MuonSA::MuCalStreamerTool::clearLocalBuffer()
 {
   
-  ATH_MSG_DEBUG("Local buffer size before clear: " << m_localBuffer->size());
+  ATH_MSG_DEBUG("Local buffer size before clear: " << m_localBuffer.size());
 
-  m_localBuffer->clear();
+  m_localBuffer.clear();
   m_localBufferSize = 0;
 
-  ATH_MSG_DEBUG("Local buffer size after clear: " << m_localBuffer->size());
+  ATH_MSG_DEBUG("Local buffer size after clear: " << m_localBuffer.size());
 
   return;
 }
@@ -190,7 +163,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
     ATH_MSG_DEBUG("Too many hits: skip the RoI");
     updateTriggerElement=false;
     return StatusCode::SUCCESS;
-  } 
+  }
   
   // init roi pointer
   if ( !roi ) {
@@ -202,11 +175,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
 
   // retrieve the event and trigger info
   const EventInfo* eventInfo(0);
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()){
-    ATH_MSG_FATAL("Can't get EventInfo object");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(eventInfo) );
   
   const EventID* eventId = eventInfo->event_ID();
   if(eventId==0) {
@@ -236,30 +205,30 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   double phi_roi = m_roi->phi();
   double phiMin = m_roi->phi()-0.05;
   double phiMax = m_roi->phi()+0.05;
-  if( phi_roi < 0 ) phi_roi += 2*CLHEP::pi;     
-  if( phiMin < 0 ) phiMin += 2*CLHEP::pi;  
-  if( phiMax < 0 ) phiMax += 2*CLHEP::pi; 
+  if( phi_roi < 0 ) phi_roi += 2*M_PI;
+  if( phiMin < 0 ) phiMin += 2*M_PI;
+  if( phiMax < 0 ) phiMax += 2*M_PI;
   
-  TrigRoiDescriptor roiDescr( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );     
+  TrigRoiDescriptor roiDescr( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );
     
-  const IRoiDescriptor* iroi = (IRoiDescriptor*) &roiDescr;                                                        
-  m_regionSelector->DetROBIDListUint(MDT, *iroi, robIdList);  
+  const IRoiDescriptor* iroi = (IRoiDescriptor*) &roiDescr;
+  m_regionSelector->DetROBIDListUint(MDT, *iroi, robIdList);
 
   // dump the list of robs for debugging 
-  int isize = robIdList.size()<5 ? robIdList.size() : 4; 
+  int isize = robIdList.size()<5 ? robIdList.size() : 4;
   for (int ii = 0 ; ii<isize ; ++ii ) {
     ATH_MSG_DEBUG("robId: 0x" << std::hex << robIdList.at(ii) << std::dec);
     mrods[ii] = robIdList.at(ii);
-  }  
+  }
   
   // get the list of TGC robs
   std::vector<uint32_t> tgcRobIdList;
-  m_regionSelector->DetROBIDListUint(TGC, *iroi, tgcRobIdList);  
+  m_regionSelector->DetROBIDListUint(TGC, *iroi, tgcRobIdList);
   ATH_MSG_DEBUG("Size of the tgc rob list: " << tgcRobIdList.size());
 
   // get the list of CSC robs
   std::vector<uint32_t> cscRobIdList;
-  m_regionSelector->DetROBIDListUint(CSC, *iroi, cscRobIdList);  
+  m_regionSelector->DetROBIDListUint(CSC, *iroi, cscRobIdList);
   ATH_MSG_DEBUG("Size of the tgc rob list: " << cscRobIdList.size());
 
   LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
@@ -267,10 +236,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
 
   // create the MDT fragment
   if ( mdtHits.size()>0 ) {
-    sc = createMdtFragment(mdtHits,mdtFragment,phi);
-    if ( sc != StatusCode::SUCCESS ) {
-      ATH_MSG_ERROR("Could not create the Mdt fragment of the calibration stream");
-    } 
+    ATH_CHECK( createMdtFragment(mdtHits,mdtFragment,phi) );
     
     // add the mdt fragment to the event
     event << mdtFragment;
@@ -280,10 +246,9 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   if ( rpcHits.size() > 0 ) {    
     LVL2_MUON_CALIBRATION::RpcCalibFragment rpcFragment;
     
-    sc = createRpcFragment(roi, rpcFragment);
-    if ( sc != StatusCode::SUCCESS ) {
+    if ( createRpcFragment(roi, rpcFragment) != StatusCode::SUCCESS ) {
       ATH_MSG_WARNING("Could not create the Rpc fragment of the calibration stream");
-    } 
+    }
     else {
       ATH_MSG_DEBUG("Adding the RPC fragment to the calibration stream");
       event << rpcFragment;
@@ -293,10 +258,9 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   if ( tgcHits.size() > 0 ) {    
     LVL2_MUON_CALIBRATION::TgcCalibFragment tgcFragment;
 
-    sc = createTgcFragment(tgcRobIdList,tgcFragment);
-    if ( sc != StatusCode::SUCCESS ) {
+    if ( createTgcFragment(tgcRobIdList,tgcFragment) != StatusCode::SUCCESS ) {
       ATH_MSG_ERROR("Could not create the Tgc fragment of the calibration stream");
-    } 
+    }
     else {
       ATH_MSG_DEBUG("Adding the TGC fragment to the calibration stream");
       event << tgcFragment;
@@ -309,47 +273,46 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   if ( cscRobIdList.size()>0 ) {
     
     LVL2_MUON_CALIBRATION::CscCalibFragment cscFragment;
-    sc = createCscFragment(cscRobIdList,cscFragment);
-    if ( sc != StatusCode::SUCCESS ) {
+    if ( createCscFragment(cscRobIdList,cscFragment) != StatusCode::SUCCESS ) {
       ATH_MSG_ERROR("Could not create the Csc fragment of the calibration stream");
-    } 
+    }
     else {
       ATH_MSG_DEBUG("Adding the CSC fragment to the calibration stream");
       event << cscFragment;
     }
 
-  } 
+  }
 
 
 
-  if (m_writeToFile && m_outputFile) {                  
-    uint16_t eventSize = event.size();       
+  if (m_writeToFile && m_outputFile.is_open()) {                  
+    uint16_t eventSize = event.size();
     if (eventSize>1000) return StatusCode::SUCCESS;
-    uint8_t* buff = new uint8_t[eventSize];                                                                              
-    event.dumpWords(buff,eventSize); 
-    m_outputFile->write( (char*) buff, event.size() );                                                                   
+    uint8_t* buff = new uint8_t[eventSize];
+    event.dumpWords(buff,eventSize);
+    m_outputFile.write( (char*) buff, event.size() );
     // CID 22892: DELETE_ARRAY 
-    // delete buff; 
-    delete [] buff; 
-  }                                                                                                                        
+    // delete buff;
+    delete [] buff;
+  }
   else if ( !doDataScouting && m_cid != -1) {  
     uint16_t eventSize = event.size();
-    char* p = NULL;  
+    char* p = NULL;
     if ((p = CircReserve (m_cid, m_calibEvent, event.size())) != (char *) -1) { 
-      uint8_t* buff = reinterpret_cast<uint8_t*>(p); 
+      uint8_t* buff = reinterpret_cast<uint8_t*>(p);
       uint16_t eventSize8bits = eventSize;
       // encode the event
-      event.dumpWords(buff,eventSize); 
+      event.dumpWords(buff,eventSize);
       
       // dump the encoded event to the screen
       uint16_t eventSize32bits = eventSize8bits/4;
       ATH_MSG_DEBUG("Size of the CIRCULAR buffer in 8 and 32 bits words: " << eventSize8bits << " " 
 		    << eventSize32bits);
       for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
-	uint32_t byte1 = *(buff+words*4);     
-	uint32_t byte2 = *(buff+1+words*4); 
-	uint32_t byte3 = *(buff+2+words*4); 
-	uint32_t byte4 = *(buff+3+words*4);                                                                                  
+	uint32_t byte1 = *(buff+words*4);
+	uint32_t byte2 = *(buff+1+words*4);
+	uint32_t byte3 = *(buff+2+words*4);
+	uint32_t byte4 = *(buff+3+words*4);
 	ATH_MSG_DEBUG("byte1 = 0x" << std::hex << (byte1) << std::dec);
 	ATH_MSG_DEBUG("byte2 = 0x" << std::hex << (byte2) << std::dec);
 	ATH_MSG_DEBUG("byte3 = 0x" << std::hex << (byte3) << std::dec);
@@ -361,62 +324,62 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
       	ATH_MSG_DEBUG("Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec);
       	
 	
-      } 
+      }
       
       // dump the words to the circular buffer   
-      CircValidate (m_cid, m_calibEvent, p, event.size() ); 
+      CircValidate (m_cid, m_calibEvent, p, event.size() );
       
-    }                          
+    }
     else {  
       ATH_MSG_DEBUG("Could not dump the event in the calibration stream circular buffer");
-    }  
-  }                                                                                                                        
+    }
+  }
   else if ( doDataScouting ) { 
 
-    uint16_t eventSize_ds = event.size();  
+    uint16_t eventSize_ds = event.size();
     if (eventSize_ds>1000) return StatusCode::SUCCESS;
 
-    uint8_t* buff_ds = new uint8_t[eventSize_ds]; 
+    uint8_t* buff_ds = new uint8_t[eventSize_ds];
 
-    // encode the event                                                                                                    
-    uint16_t eventSize8bits = eventSize_ds; 
+    // encode the event
+    uint16_t eventSize8bits = eventSize_ds;
     uint16_t eventSize32bits = eventSize8bits/4;
-    event.dumpWords(buff_ds,eventSize_ds); 
+    event.dumpWords(buff_ds,eventSize_ds);
 
     // fill the local buffer 
     // dump the words also in the local buffer     
     // dump the encoded event to the screen
     ATH_MSG_DEBUG("Size of the DATASCOUTING buffer in 32 bits words: " << eventSize32bits);
     for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
-      uint32_t byte1 = *(buff_ds+words*4);  
-      uint32_t byte2 = *(buff_ds+1+words*4); 
-      uint32_t byte3 = *(buff_ds+2+words*4);  
-      uint32_t byte4 = *(buff_ds+3+words*4); 
+      uint32_t byte1 = *(buff_ds+words*4);
+      uint32_t byte2 = *(buff_ds+1+words*4);
+      uint32_t byte3 = *(buff_ds+2+words*4);
+      uint32_t byte4 = *(buff_ds+3+words*4);
 
       // encoding in big-endian for now ( revert order for little-endian )
       uint32_t dataWord = (byte4 << 24) + (byte3 << 16) + (byte2 << 8) + byte1 ;
       //	std::cout << "Number of data words: " << words << std::endl;
       ATH_MSG_DEBUG("Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec);
       
-      m_localBuffer->push_back(dataWord);
+      m_localBuffer.push_back(dataWord);
     }
-    m_localBufferSize += eventSize32bits; 
+    m_localBufferSize += eventSize32bits;
 
     if ( m_localBufferSize< calBufferSize ) { 
       ATH_MSG_DEBUG("Local buffer size = " << m_localBufferSize);
       ATH_MSG_DEBUG("Trigger element not to be updated yet ");
-      updateTriggerElement = false; 
-    }                                                                                                                      
+      updateTriggerElement = false;
+    }
     else {
       ATH_MSG_DEBUG("Local buffer size = " << m_localBufferSize);
       ATH_MSG_DEBUG("Attach the buffer to the trigger element ");
 
       updateTriggerElement = true;
-    } 
+    }
 
     delete [] buff_ds;
-  }                
-                                                                                                      
+  }
+
   m_calibEvent++;
   
   return StatusCode::SUCCESS;
@@ -480,12 +443,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   unsigned int sectorRoIOvl  = (roIWord & 0x000007FC) >> 2;
   unsigned int side =  sectorAddress & 0x00000001;
   unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
-  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;  
+  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
 
-  Identifier padId;
-  
   // retrieve the pad container
-  const RpcPadContainer* rpcPadContainer=nullptr; 
+  const RpcPadContainer* rpcPadContainer=nullptr;
   ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
 
   SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
@@ -493,14 +454,13 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   unsigned int padIdHash;
   if (readCdo->give_PAD_address( side, sector, roiNumber, padIdHash)) {
 
-    RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
-    if( itPad==rpcPadContainer->end() ) {        
+    auto itPad = rpcPadContainer->indexFindPtr(padIdHash);  
+    if( itPad==nullptr ) {        
       ATH_MSG_WARNING("Failed to retrieve PAD hash Id " << padIdHash);  
       return StatusCode::FAILURE;                         
     }
-    const RpcPad* rpcPad = *itPad;
+    const RpcPad* rpcPad = itPad;
 
-    if(rpcPad) {
       uint16_t sector = rpcPad->sector();
       uint16_t sysId  = (sector<32)? 0x66 : 0x65;
       uint16_t secId  = sector%32;
@@ -511,7 +471,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
       LVL2_MUON_CALIBRATION::RpcCalibFragment frag(sysId,secId,padId,status,error);
       rpcFragment = frag;
 
-      RpcPad::const_iterator it3 = rpcPad->begin(); 
+      RpcPad::const_iterator it3 = rpcPad->begin();
       for (; it3!=rpcPad->end() ; ++it3) {
 	const RpcCoinMatrix * cma = (*it3);
 	
@@ -523,7 +483,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
 	LVL2_MUON_CALIBRATION::RpcCalibData matrix(cmaId,fel1Id,febcId,crc);
 	
 	//for each cma for over fired channels
-	RpcCoinMatrix::const_iterator it5 = (*it3)->begin(); 
+	RpcCoinMatrix::const_iterator it5 = (*it3)->begin();
 	for (; it5 != (*it3)->end() ; ++it5) {
 	  const RpcFiredChannel * fChannel = (*it5);
 	  
@@ -542,11 +502,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
 	rpcFragment << matrix;
       } // loop on the pad matrices
     
-    }
-    else {
-      ATH_MSG_WARNING("Can't initialize the RpcPad");
-      return StatusCode::FAILURE;
-    }
   }
   else {
     ATH_MSG_WARNING("Can't get the pad address from the RpcCablingCondData");
@@ -569,7 +524,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
   if ( tgcRobIdList.size()<1 ) {
     ATH_MSG_DEBUG("No TGC Rob found");
     return StatusCode::SUCCESS;
-  } 
+  }
 
   // system Id = 1 should correspond to the endcap
   uint16_t systemId = 1;
@@ -685,7 +640,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
 	  ATH_MSG_ERROR("Invalid TgcRawData type: " << raw->type());
 	  return StatusCode::FAILURE;
 	}
-      }	
+      }
       
       tgc_payload.getHit(roh,tps,rot,hpt,sl);
       
@@ -716,15 +671,15 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createCscFragment(std::vector<uint32
   for ( it = robFragments.begin() ; it != robFragments.end() ; ++it ) {
     
     LVL2_MUON_CALIBRATION::CscCalibData CscData;
-    uint32_t rod_words     = (**it).rod_fragment_size_word(); 
+    uint32_t rod_words     = (**it).rod_fragment_size_word();
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType wr;
-    (*it)->rod_start(wr); 
+    (*it)->rod_start(wr);
 
     for (uint32_t i=0;i<rod_words;++i) {
       // CID 22907: CAST_TO_QUALIFIED_TYPE
       // CscData << static_cast<const uint32_t>(*(wr+i));
       CscData << static_cast<uint32_t>(*(wr+i));
-    }            
+    }
     cscFragment << CscData;
   }
 

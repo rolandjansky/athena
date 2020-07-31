@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,6 +24,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 
+#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+
 /*
  * TRT Specific detector manager to get layout information
  */
@@ -43,7 +45,7 @@ TRT_RodDecoder::TRT_RodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool              ( type,name,parent ),
      m_CablingSvc            ( "TRT_CablingSvc", name ),
-     m_bsErrSvc              ( "TRT_ByteStream_ConditionsSvc", name ),
+     //     m_bsErrSvc              ( "TRT_ByteStream_ConditionsSvc", name ),
      m_recordBSErrors        ( true ),
      m_lookAtSidErrors       ( true ),
      m_lookAtErrorErrors     ( false ),
@@ -63,7 +65,6 @@ TRT_RodDecoder::TRT_RodDecoder
 
 {
   declareProperty ( "TRT_Cabling", m_CablingSvc );
-  declareProperty ( "BSCondSvc", m_bsErrSvc );
   declareProperty ( "RecordByteStreamErrors", m_recordBSErrors );
   declareProperty ( "LookAtSidErrors",        m_lookAtSidErrors );
   declareProperty ( "LookAtErrorErrors",      m_lookAtErrorErrors );
@@ -117,17 +118,6 @@ StatusCode TRT_RodDecoder::initialize()
     return StatusCode::FAILURE;
   } else 
     ATH_MSG_INFO( "Retrieved tool " << m_CablingSvc );
-
-
-  /*
-   * Retrieve conditions tool
-   */
-  if ( m_bsErrSvc.retrieve().isFailure() )
-  {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_bsErrSvc );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO( "Retrieved service " << m_bsErrSvc );
 
 
   /*
@@ -258,8 +248,10 @@ StatusCode TRT_RodDecoder::finalize() {
  * ----------------------------------------------------------
  */
 StatusCode
-TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
+TRT_RodDecoder::fillCollection ATLAS_NOT_THREAD_SAFE // Non-thread-safe function 'StatusCode TRT_RodDecoder::update()' called
+                               ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
+				 TRT_BSErrContainer* bsErr,
 				 const std::vector<IdentifierHash>* vecHash )
 {
 
@@ -280,8 +272,6 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
   //		<< robid << " L1ID = " << robFrag->rod_lvl1_id()
   //		<< MSG::dec );
 
-  static int  err_count                = 0;
-
   /*
    * Save non-zero rob status to TRT BS Conditions Services
    */
@@ -293,21 +283,27 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
     if ( *rob_status )
     {
 
-      m_bsErrSvc->add_rob_error( robFrag->rob_source_id(), *rob_status ); 
+      bsErr->add_rob_error( robFrag->rob_source_id(), *rob_status ); 
+      
 
 
       /*
        * This is a hack to only print once per event.  It will work the
        * vast majority of the time, but it may miss an occasional event.
        */
-      static uint32_t Last_print_L1ID = 0xffffffff;
-      static uint32_t Last_print_BCID = 0xffffffff;
 
-      if ( (Last_print_L1ID != robFrag->rod_lvl1_id()) || 
-      	   (Last_print_BCID != robFrag->rod_bc_id()) )
+      const EventContext& ctx{Gaudi::Hive::currentContext()};
+      CacheEntry* ent{m_cache.get(ctx)};
+      if (ent->m_evt!=ctx.evt()) { // New event in this slot
+        ent->reset();
+        ent->m_evt = ctx.evt();
+      }
+
+      if ( (ent->Last_print_L1ID != robFrag->rod_lvl1_id()) || 
+      	   (ent->Last_print_BCID != robFrag->rod_bc_id()) )
       {
-	Last_print_L1ID = robFrag->rod_lvl1_id();
-	Last_print_BCID = robFrag->rod_bc_id();
+	ent->Last_print_L1ID = robFrag->rod_lvl1_id();
+	ent->Last_print_BCID = robFrag->rod_bc_id();
 
 	ATH_MSG_INFO( "Non-Zero ROB status word for ROB " 
 		      << MSG::hex 
@@ -332,18 +328,18 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 				 vecHash );  
     else
     {
-      if ( err_count < 100 )
+      if ( m_err_count_fillCollection < 100 )
       {
 	ATH_MSG_WARNING( "Rod Version: " << RodBlockVersion		\
 			 << ", but Compression Table not loaded!  ROD ID = " \
 			 << MSG::hex << robid << MSG::dec );
-	err_count++;
+	m_err_count_fillCollection++;
       }
-      else if ( 100 == err_count )
+      else if ( 100 == m_err_count_fillCollection )
       {
 	ATH_MSG_WARNING( "Too many Rod Version messages.  "	\
 			 << "Turning message off." );
-	err_count++;
+	m_err_count_fillCollection++;
       }
       
       sc = StatusCode::FAILURE;
@@ -442,14 +438,14 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 		if ( m_lookAtSidErrors && D_sid )
 		{
 		  //		    cout << "sid ";
-		  m_bsErrSvc->add_sid_error( Index );
+		  bsErr->add_sid_error( Index );
 		  sid_errors++;
 		}
 		      
 		if ( m_lookAtErrorErrors && D_error )
 		{
 		  //		    cout << "err ";
-		  m_bsErrSvc->add_error_error( Index );
+		  bsErr->add_error_error( Index );
 		  error_errors++;
 		}
 		      
@@ -457,7 +453,7 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 		{
 		  //		    cout << "l1(" << hex << D_L1ID << "/" 
 		  //			 << (rod_L1ID & 0x7) << dec;
-		  m_bsErrSvc->add_l1id_error( Index, D_L1ID );
+		  bsErr->add_l1id_error( Index, D_L1ID );
 		  l1id_errors++;
 		}
 
@@ -476,14 +472,14 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 		{
 		  //		    cout << "bc(" << hex << D_BCID << "/" 
 		  //			 << expected_BCID << dec;
-		  m_bsErrSvc->add_bcid_error( Index, D_BCID );
+		  bsErr->add_bcid_error( Index, D_BCID );
 		  bcid_errors++;
 		}
 	      } 
 	      else if ( m_lookAtMissingErrors )
 	      {
 		//		 cout << "mis ";
-		m_bsErrSvc->add_missing_error( Index );
+		bsErr->add_missing_error( Index );
 		missing_errors++;
 	      }
 		  
@@ -715,8 +711,6 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 					TRT_RDO_Container* rdoIdc,
 					const std::vector<IdentifierHash>* vecHash)
 {
-  static int err_count = 0;
-  
   uint32_t robid = robFrag->rod_source_id();
   
   // get the ROD version. It could be used to decode the data in one
@@ -783,14 +777,14 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 	    //  ATH_MSG_WARNING( "vint[" << in_ptr << "] = " << MSG::hex << vint[in_ptr] << MSG::dec );
 	  }
 	  if ( v ) {
-	    if ( err_count < 100 ) {
+	    if ( m_err_count_int_fillMinimalCompress < 100 ) {
 	       ATH_MSG_WARNING( "Invalid ByteStream, ROD ID = " \
 				<< MSG::hex << robid << MSG::dec );
-	      err_count++;
-	    } else if ( 100 == err_count ) {
+	      m_err_count_int_fillMinimalCompress++;
+	    } else if ( 100 == m_err_count_int_fillMinimalCompress ) {
 	       ATH_MSG_WARNING( "Too many Invalid ByteStream messages  " \
 				<< "Turning message off." );
-	      err_count++;
+	      m_err_count_int_fillMinimalCompress++;
 	    }
 	    return StatusCode::RECOVERABLE;
 	  }
@@ -946,8 +940,6 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 				      t_CompressTable* Ctable,
 				      const std::vector<IdentifierHash>* vecHash)
 {
-  static int err_count = 0;
-
   int phase;
   for ( phase=0; phase<2; phase++ )
   {
@@ -1041,17 +1033,17 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
       word = Ctable->m_syms[idx];
     else
     {
-      if ( err_count < 100 ) 
+      if ( m_err_count_int_fillFullCompress < 100 ) 
       {
 	ATH_MSG_WARNING( "Invalid ByteStream, ROD ID = "		\
 			 << MSG::hex << robid << MSG::dec );
-	err_count++;
+	m_err_count_int_fillFullCompress++;
       }
-      else if ( 100 == err_count ) 
+      else if ( 100 == m_err_count_int_fillFullCompress ) 
       {
 	ATH_MSG_WARNING( "Too many Invalid ByteStream messages  "	\
 			 << "Turning message off." );
-	err_count++;
+	m_err_count_int_fillFullCompress++;
       }
 
       return StatusCode::RECOVERABLE;
@@ -1708,7 +1700,7 @@ TableFilename
  * Read Compression Table from DB on IOV change
  */
 StatusCode
-TRT_RodDecoder::update()
+TRT_RodDecoder::update ATLAS_NOT_THREAD_SAFE () // Non-thread-safe function 'AthenaAttributeList::AthenaAttributeList(const coral::AttributeList&)' called
 {  
 
   /*

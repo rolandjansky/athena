@@ -812,7 +812,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
 
 
 // private -- helper to make pretty debug output
-void Trk::ForwardKalmanFitter::printGlobalParams(int istate, std::string ptype,
+void Trk::ForwardKalmanFitter::printGlobalParams(int istate, const std::string& ptype,
                                                  const Trk::TrackParameters* param,
                                                  const Trk::DNA_MaterialEffects* mefot)
   const

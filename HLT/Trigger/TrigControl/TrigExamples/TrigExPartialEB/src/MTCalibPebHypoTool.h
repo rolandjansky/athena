@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEXPARTIALEB_MTCALIBPEBHYPOTOOL_H
@@ -52,7 +52,7 @@ private:
     /// String form for debug print-outs
     const std::string toString() const;
     /// Type of instruction
-    enum Type {INVALID, ADD, GET, COL} type = INVALID;
+    enum Type {INVALID, ADD, GET, ADDGET, COL} type = INVALID;
     /// Flag switching requests of a random sub-sample of the ROB list
     bool isRandom = false;
     /// Size of random request
@@ -60,6 +60,10 @@ private:
   };
 
   // ------------------------- Properties --------------------------------------
+  Gaudi::Property<bool> m_useRandomSeed {
+    this, "UseRandomSeed", false,
+    "If true, use random seed for the internal RNG. If false, use a seed based on run/event number and tool name."
+  };
   Gaudi::Property<double> m_acceptRate {
     this, "RandomAcceptRate", -1,
     "Rate of random accepts, <=0 is never, >=1 is always"
@@ -83,11 +87,11 @@ private:
   Gaudi::Property<std::map<std::string,std::vector<uint32_t> > > m_robAccessDictProp {
     this, "ROBAccessDict", {},
     "Dictionary of prefetch/retrieve operations with given ROB IDs. The value is a vector of ROB IDs. "
-    "The string key has to contain :ADD: (prefetch), :GET: (retrieve), or :COL: (full event building). :ADD: and :GET: "
-    "may be also appended with :RNDX: where X is an integer. In this case, random X ROBs will be prefetched/retrieved "
-    "from the provided list, e.g. :GET:RND10: retrieves 10 random ROBs from the list. Otherwise the full list is used. "
-    "Note std::map is sorted by std::less<std::string>, so starting the key with a number may be needed to enforce "
-    "ordering, e.g. '01 :ADD:RND10:'."
+    "The string key has to contain :ADD: (prefetch), :GET: (retrieve), :ADDGET: (prefetch+retrieve) or :COL: (full "
+    "event building). :ADD:, :GET: and :ADDGET: may be also appended with :RNDX: where X is an integer. In this case, "
+    "random X ROBs will be prefetched/retrieved from the provided list, e.g. :GET:RND10: retrieves 10 random ROBs from "
+    "the list. Otherwise the full list is used. Note std::map is sorted by std::less<std::string>, so starting the key "
+    "with a number may be needed to enforce ordering, e.g. '01 :ADD:RND10:'."
   };
   Gaudi::Property<unsigned int> m_timeBetweenRobReqMillisec {
     this, "TimeBetweenROBReqMillisec", 0,

@@ -28,7 +28,8 @@ if __name__ == '__main__':
   # Finalize 
   ConfigFlags.lock()
 
-  from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
+  from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, InputConverterCfg
+  from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 
   ## Initialize a new component accumulator
   cfg = MainServicesCfg(ConfigFlags)

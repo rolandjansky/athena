@@ -16,10 +16,10 @@ LeadingPhotonFilter::LeadingPhotonFilter(const std::string& name, ISvcLocator* p
 StatusCode LeadingPhotonFilter::filterEvent() {
   const HepMC::GenEvent* genEvt = (*(events()->begin()));
   double ptmax = 0;
-  for (HepMC::GenEvent::particle_const_iterator p = genEvt->particles_begin(); p != genEvt->particles_end(); ++p) {
-    if ((*p)->pdg_id() != 22 || (*p)->status() != 1) continue;
-    if (fabs((*p)->momentum().pseudoRapidity()) > m_EtaRange) continue;
-    ptmax = std::max((*p)->momentum().perp(), ptmax);
+  for (auto p: *genEvt) {
+    if (p->pdg_id() != 22 || p->status() != 1) continue;
+    if (std::abs(p->momentum().pseudoRapidity()) > m_EtaRange) continue;
+    ptmax = std::max(p->momentum().perp(), ptmax);
   }
   setFilterPassed(ptmax >= m_Ptmin && ptmax < m_Ptmax);
   return StatusCode::SUCCESS;

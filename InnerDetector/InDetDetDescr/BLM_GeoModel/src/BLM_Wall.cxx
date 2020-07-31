@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BLM_GeoModel/BLM_Wall.h"
@@ -11,19 +11,6 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-double BLM_Wall::s_width = 18;
-double BLM_Wall::s_length = 22;
-double BLM_Wall::s_extended_length = 27;//must be more than 'length'
-double BLM_Wall::s_hole_r = 1.85;
-double BLM_Wall::s_hole_position = 2.5;
-double BLM_Wall::s_holder_length = 33;
-double BLM_Wall::s_holder_height = 10;
-double BLM_Wall::s_holder_spacing = 4;
-double BLM_Wall::s_holder_spacing_length = 4;
-double BLM_Wall::s_holder_thickness = 3;
-double BLM_Wall::s_clamp_thickness = 2;
-double BLM_Wall::s_clamp_length = 6;
 
 GeoPhysVol* BLM_Wall::BuildClamp(const GeoMaterial* material)
 {

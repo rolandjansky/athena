@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCElectronicsSystem.cxx,v 1.13 2009-05-04 11:39:44 isaya Exp $
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
+#include "TrigT1TGC/TGCElectronicsSystem.h"
 #include "TrigT1TGC/TGCASDOut.h"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
-#include "TrigT1TGC/TGCSector.hh"
+#include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCSector.h"
 
 #include <iostream>
 #include <vector>
@@ -15,7 +14,7 @@ namespace LVL1TGCTrigger {
 
 void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
 {
-  std::vector<LVL1TGCTrigger::TGCASDOut*>& vecASDOut= event->GetASDOutVector();
+  const std::vector<LVL1TGCTrigger::TGCASDOut*>& vecASDOut= event->GetASDOutVector();
   event=0;
   size_t i;
   for( i=0; i< vecASDOut.size(); i++) {
@@ -36,6 +35,7 @@ void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
 TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
   :m_DB(0),
    m_tmdb(0),
+   m_nsw(0),
    m_tgcArgs(tgcargs)
 {
   for(int side=0; side < NumberOfSide; side++){
@@ -54,10 +54,16 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
 					     bool                ):
   m_DB(database),
   m_tmdb(0),
+  m_nsw(0),
   m_tgcArgs(tgcargs)
 { 
   // TileMu
   m_tmdb = new TGCTMDB();
+
+  // NSW
+  if(tgcargs->USE_NSW() && tgcargs->useRun3Config()){
+    m_nsw.reset(new TGCNSW());
+  }
 
   int SectorId;
   LVL1TGCTrigger::TGCRegionType RegionType;
@@ -71,7 +77,9 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
         m_sector[side][oct][mod] = new TGCSector(tgcArgs(),SectorId, RegionType, 
 						 forwardBackward, 
 						 m_DB,
-						 m_tmdb);
+						 m_tmdb,
+						 m_nsw
+						 );
       } // loop module
     } // loop octant
   } //loop side
@@ -187,7 +195,7 @@ TGCElectronicsSystem::~TGCElectronicsSystem()
     } // loop octant
   } // loop side
 
-  if (m_tmdb) delete m_tmdb;
+  if (m_tmdb){ delete m_tmdb;}
 }
 
 // hiddedn copy constructor

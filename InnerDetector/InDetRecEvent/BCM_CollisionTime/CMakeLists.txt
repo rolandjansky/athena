@@ -11,6 +11,10 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( BCM_CollisionTime )
+atlas_add_library( BCM_CollisionTimeLib
+                   BCM_CollisionTime/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS BCM_CollisionTime
+                   LINK_LIBRARIES AthenaKernel )
+
 

@@ -165,7 +165,7 @@ namespace Trk
           m_trackParticleOrigin       =   rhs.m_trackParticleOrigin;
           m_elVxCandidate             =   rhs.m_elVxCandidate;
             
-          m_trackInfo                 =    std::move(rhs.m_trackInfo);
+          m_trackInfo                 =    rhs.m_trackInfo;
         }
         return *this;
     }

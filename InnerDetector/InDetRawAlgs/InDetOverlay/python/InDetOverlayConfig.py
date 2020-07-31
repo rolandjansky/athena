@@ -110,3 +110,37 @@ def getTRTSDOOverlay(name="TRTSDOOverlay", **kwargs):
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_SDO_Map");
 
     return CfgMgr.InDetSDOOverlay(name, **kwargs)
+
+
+def getBCMOverlay(name="BCMOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    kwargs.setdefault("isDataOverlay", overlayFlags.isDataOverlay())
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "BCM_RDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "BCM_RDOs");
+        kwargs.setdefault("OutputKey", "BCM_RDOs");
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+BCM_RDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+BCM_RDOs");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+BCM_RDOs");
+
+    return CfgMgr.BCMOverlay(name, **kwargs)
+
+
+def getBCMSDOOverlay(name="BCMSDOOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    # We do not need background pixel SDOs
+    kwargs.setdefault("BkgInputKey", "");
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "BCM_SDO_Map");
+        kwargs.setdefault("OutputKey", "BCM_SDO_Map");
+    else:
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+BCM_SDO_Map");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+BCM_SDO_Map");
+
+    return CfgMgr.InDetSDOOverlay(name, **kwargs)
+

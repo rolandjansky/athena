@@ -37,8 +37,8 @@ LArWheelSliceSolid::LArWheelSliceSolid(
     createSolid(name, zside, slice);
 }
 
-LArWheelSliceSolid::LArWheelSliceSolid(const G4String& name, const LArWheelCalculator *calc)
-  : G4VSolid(name), m_Calculator(calc), m_msg("LArWSS")
+LArWheelSliceSolid::LArWheelSliceSolid(const G4String& name)
+  : G4VSolid(name), m_Calculator(0), m_msg("LArWSS")
 {
     if(name.find("::Inner") != G4String::npos) m_Pos = Inner;
     else if(name.find("::Outer") != G4String::npos) m_Pos = Outer;
