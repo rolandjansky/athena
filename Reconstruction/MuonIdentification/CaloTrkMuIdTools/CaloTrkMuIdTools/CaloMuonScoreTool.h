@@ -6,8 +6,7 @@
 #define CALOTRKMUIDTOOLS_CALOMUONSCORETOOL_H
 
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
-
-#include "AthExOnnxRuntime/IONNXRuntimeSvc.h"
+#include "ICaloTrkMuIdTools/ICaloMuonScoreONNXRuntimeSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
