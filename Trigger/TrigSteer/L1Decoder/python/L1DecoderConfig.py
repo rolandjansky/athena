@@ -170,7 +170,7 @@ def L1DecoderCfg(flags, seqName = None):
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
     #Transient bytestream
-    if flags.Input.Format == "RDO":
+    if flags.Input.Format == "POOL":
         transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
         decoderAlg.ExtraInputs += [transTypeKey]
 
