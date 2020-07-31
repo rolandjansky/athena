@@ -224,7 +224,7 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
         print( prefix, 'Taking configurations from METRecoFlags')
         configs = metFlags.METAssocConfigs()
         print(configs)
-    for key,conf in configs.iteritems():
+    for key,conf in six.iteritems(configs):
         print( prefix, 'Generate METAssocTool for MET_'+key)
         assoctool = getMETAssocTool(conf,msglvl)
         assocTools.append(assoctool)

@@ -66,7 +66,6 @@ namespace met {
     //declareProperty( "InputPVKey",      m_pv_inputkey = "PrimaryVertices"    );
     declareProperty( "VetoNegEClus",     m_cl_vetoNegE = true     );
     declareProperty( "OnlyNegEClus",     m_cl_onlyNegE = false    );
-    declareProperty( "PFOTool",          m_pfotool                );
   }
 
   // Destructor

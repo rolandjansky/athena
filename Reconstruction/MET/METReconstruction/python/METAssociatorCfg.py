@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #from METReconstruction.METRecoFlags import metFlags
-from METReconstruction.METAssocCfg import AssocConfig, METAssocConfig,getMETAssocTool,getMETAssocAlg
+from METReconstruction.METAssocCfg import AssocConfig, METAssocConfig,getMETAssocAlg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from METUtilities.METMakerConfig import getMETMakerAlg
 
 
 #attempt at migrating to the new configuration system
-def METAssociator_Cfg(configFlags):
+def METAssociatorCfg(configFlags):
     sequencename = "METAssociation"
 
     components = ComponentAccumulator()

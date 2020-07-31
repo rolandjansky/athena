@@ -13,18 +13,7 @@ __all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAODType"]
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetDefinition')
 
-# Trigger xAODType.ObjectType dict entry loading
-#import cppyy
-#try:
-#    cppyy.loadDictionary('xAODBaseObjectTypeDict')
-#except Exception:
-#    pass
-#import ROOT
-#from ROOT import xAODType
-#xAODType.ObjectType
-
 from xAODBase.xAODType import xAODType
-
 
 # Code from JetRecUtils
 # define the convention that we write R truncating the decimal point
