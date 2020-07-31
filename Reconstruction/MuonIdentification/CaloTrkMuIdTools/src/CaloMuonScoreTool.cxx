@@ -26,7 +26,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonScoreTool::CaloMuonScoreTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   AthAlgTool(type,name,parent),
-  m_modelFileName("CaloMuonCNN_0.onnx");
+  m_modelFileName("CaloMuonCNN_0.onnx")
 {
   declareInterface<ICaloMuonScoreTool>(this);  
   declareProperty("ModelFileName", m_modelFileName);
@@ -39,6 +39,7 @@ StatusCode CaloMuonScoreTool::initialize() {
   ATH_MSG_INFO("Initializing " << name());
 
   ATH_CHECK(m_caloExtensionTool.retrieve());
+  ATH_CHECK(m_caloCellAssociationTool.retrieve());
   
   if (m_modelFileName.empty()) {
     ATH_MSG_FATAL("Could not find an ONNX model file!");
@@ -53,9 +54,9 @@ StatusCode CaloMuonScoreTool::initialize() {
   session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
 
   // declared in header, so we should not need this
-  // std::unique_ptr<Ort::Session> m_session;
+  std::unique_ptr<Ort::Session> m_session;
 
-  m_session = std::make_unique< Ort::Session > (env, ModelFileName, session_options);
+  m_session = std::make_unique< Ort::Session > (env, m_modelFileName, session_options);
 
   ATH_MSG_INFO("Created ONNX runtime session");
   
@@ -65,7 +66,7 @@ StatusCode CaloMuonScoreTool::initialize() {
   for( std::size_t i = 0; i < num_input_nodes; i++ ) {
     // print input node names
     char* input_name = m_session->GetInputName(i, allocator);
-    ATH_MSG_DEBUG(<<"Input "<<i<<" : "<<" name= "<<input_name);
+    ATH_MSG_DEBUG("Input "<<i<<" : "<<" name= "<<input_name);
     input_node_names[i] = input_name;
     // print input node types
     Ort::TypeInfo type_info = m_session->GetInputTypeInfo(i);
@@ -79,7 +80,7 @@ StatusCode CaloMuonScoreTool::initialize() {
     for (std::size_t j = 0; j < input_node_dims.size(); j++){
       if(input_node_dims[j]<0)
 	input_node_dims[j] =1;
-      ATH_MSG_DEBUG(<<"Input "<<i<<" : dim "<<j<<"= "<<input_node_dims[j]);
+      ATH_MSG_DEBUG("Input "<<i<<" : dim "<<j<<"= "<<input_node_dims[j]);
     }  
   }
 
@@ -113,26 +114,23 @@ StatusCode CaloMuonScoreTool::initialize() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CaloMuonScoreTool::getInputVectors
+// CaloMuonScoreTool::fillInputVectors
 ///////////////////////////////////////////////////////////////////////////////
-std::tuple<std::vector<float>, std::vector<float>, std::vector<float>, std::vector<int>> getInputVectors(const Rec::ParticleCellAssociation* association){
-  std::vector<float> eta, phi, energy;
-  std::vector<int> sampling;
-
+void CaloMuonScoreTool::fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation> association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const {
   int cell_count = 0;
 
   for( auto cluster: association->data()){
-    eta->push_back(cluster->eta());
-    phi->push_back(cluster->phi());
-    sampling->push_back(cluster->caloDDE()->getSampling());
-    energy->push_back(cluster->energy());
+    eta.push_back(cluster->eta());
+    phi.push_back(cluster->phi());
+    samplingId.push_back(cluster->caloDDE()->getSampling());
+    energy.push_back(cluster->energy());
     
     cell_count++;
   }
 
   ATH_MSG_DEBUG("Iterated over " << cell_count << " calo cells");
 
-  return std::make_tuple(eta, phi, energy, sampling);
+  return;
 }
 
 
@@ -143,7 +141,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   ATH_MSG_DEBUG("in CaloMuonScoreTool::getMuonScore()");
 
   // - associate calocells to trackparticle, cone size 0.2, use cache
-  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*tp,0.2,nullptr);
+  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,0.2,nullptr);
   if(!association){
     ATH_MSG_VERBOSE("Could not get particleCellAssociation");
     return -1.;
@@ -153,7 +151,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   // create input vectors from calo cell association
   std::vector<float> eta, phi, energy;
   std::vector<int> sampling;
-  std::tie(eta, phi, energy, sampling) = getInputVectors(association);
+  fillInputVectors(association, eta, phi, energy, sampling);
 
   // create tensor from vectors
   std::vector<float> inputTensor = getInputTensor(eta, phi, energy, sampling);
@@ -168,7 +166,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::runOnnxInference
 ///////////////////////////////////////////////////////////////////////////////
-float CaloMuonScoreTool::runOnnxInference( std::vector<float> &tensor ) {  
+float CaloMuonScoreTool::runOnnxInference( std::vector<float> &tensor ) const {  
   // create input tensor object from data values
   auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
   int input_tensor_size(m_etaBins * m_phiBins * m_nChannels);
@@ -267,7 +265,7 @@ std::vector<float> getLinearlySpacedBins(float min, float max, int nBins){
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getInputTensor
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling){
+std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const {
   int n_cells = eta.size();
 
   float median_eta = getMedian(eta);

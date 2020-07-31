@@ -19,7 +19,7 @@ class ICaloMuonScoreTool : virtual public IAlgTool
 
   static const InterfaceID& interfaceID(){return IID_ICaloMuonScoreTool;}
   
-  virtual double getMuonScore(const xAOD::TrackParticle* trk) const = 0;
+  virtual float getMuonScore(const xAOD::TrackParticle* trk) const = 0;
   
 };
 

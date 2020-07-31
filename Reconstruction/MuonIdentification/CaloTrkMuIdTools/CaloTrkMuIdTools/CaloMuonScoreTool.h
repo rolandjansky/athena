@@ -5,17 +5,17 @@
 #ifndef CALOTRKMUIDTOOLS_CALOMUONSCORETOOL_H
 #define CALOTRKMUIDTOOLS_CALOMUONSCORETOOL_H
 
-#include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
+#include "ICaloTrkMuIdTools/ICaloMuonScoreTool.h"
 #include "ICaloTrkMuIdTools/ICaloMuonScoreONNXRuntimeSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#include "CaloEvent/CaloClusterContainer.h"
+#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 #include <vector>
-
+//#include <tuple>
 
 /** @class CaloMuonScoreTool
 
@@ -40,13 +40,13 @@ public:
   virtual StatusCode initialize();
   
   // Compute the muon score given a track particle
-  double getMuonScore(const xAOD::TrackParticle* trk) const;
+  float getMuonScore(const xAOD::TrackParticle* trk) const;
 
   // run the ONNX inference on the input tensor
   float runOnnxInference(std::vector<float> &tensor) const;
 
-  // create vectors from the particle cell assocation - return a tuple of vectors: (eta, phi, energy, sampling ID)
-  std::tuple<std::vector<float>, std::vector<float>, std::vector<float>, std::vector<int>> getInputVectors(const Rec::ParticleCellAssociation* association) const;
+  // fill vectors from the particle cell association
+  void fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation> association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const;
 
   // Compute the median of a vector of floats (can be even or odd in length)
   float getMedian(std::vector<float> v) const;
@@ -83,6 +83,7 @@ private:
   std::string m_modelFileName;
 
   ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
+  ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
 };
 
 #endif
