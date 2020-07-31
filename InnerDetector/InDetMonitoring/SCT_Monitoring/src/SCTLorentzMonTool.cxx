@@ -63,8 +63,9 @@ namespace{//anonymous namespace for functions at file scope
 // ====================================================================================================
 SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
                                      const IInterface *parent) : SCTMotherTrigMonTool(type, name, parent),
-								 m_trackToVertexTool("Reco::TrackToVertex", this), // for TrackToVertexTool
-								 m_phiVsNstrips{},
+                                                                 m_trackToVertexTool("Reco::TrackToVertex", this), // for TrackToVertexTool
+                                                                 m_getTrackHoles(true),
+                                                                 m_phiVsNstrips{},
   m_phiVsNstrips_100{},
   m_phiVsNstrips_111{},
   m_phiVsNstrips_Side{},
@@ -78,6 +79,7 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   declareProperty("TrackToVertexTool", m_trackToVertexTool); // for TrackToVertexTool
   m_numberOfEvents = 0;
   declareProperty("HoleSearch", m_holeSearchTool);
+  declareProperty("GetTrackHoles", m_getTrackHoles);
 }
 
 // ====================================================================================================
@@ -92,7 +94,7 @@ SCTLorentzMonTool::~SCTLorentzMonTool() {
 // StatusCode SCTLorentzMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool isNewLumiBlock, bool isNewRun
 // )//suppress 'unused' compiler warning     // hidetoshi 14.01.21
 StatusCode
-SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                                                                              //
+SCTLorentzMonTool::bookHistogramsRecurrent() {                                                                                              //
                                                                                                                                              // hidetoshi
                                                                                                                                              // 14.01.21
   CHECK (m_holeSearchTool.retrieve());
@@ -110,7 +112,7 @@ SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                 
   ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22
+    ATH_MSG_WARNING("Error in bookLorentzHistos()");                                // hidetoshi 14.01.22
   }
   return StatusCode::SUCCESS;
 }
@@ -119,7 +121,7 @@ SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                 
 //                       SCTLorentzMonTool :: bookHistograms
 // ====================================================================================================
 StatusCode
-SCTLorentzMonTool::bookHistograms( ) {                                                                                                      //
+SCTLorentzMonTool::bookHistograms() {                                                                                                      //
                                                                                                                                             // hidetoshi
                                                                                                                                             // 14.01.21
   CHECK (m_holeSearchTool.retrieve());
@@ -135,7 +137,7 @@ SCTLorentzMonTool::bookHistograms( ) {                                          
   ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22
+    ATH_MSG_WARNING("Error in bookLorentzHistos()");                                // hidetoshi 14.01.22
   }
   return StatusCode::SUCCESS;
 }
@@ -175,11 +177,11 @@ SCTLorentzMonTool::fillHistograms() {
   const TrackCollection *tracks(0);
   if (evtStore()->contains<TrackCollection> (m_tracksName)) {
     if (evtStore()->retrieve(tracks, m_tracksName).isFailure()) {
-      msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName << endmsg;
+      ATH_MSG_WARNING(" TrackCollection not found: Exit SCTLorentzTool" << m_tracksName);
       return StatusCode::SUCCESS;
     }
   } else {
-    msg(MSG::WARNING) << "Container " << m_tracksName << " not found.  Exit SCTLorentzMonTool" << endmsg;
+    ATH_MSG_WARNING("Container " << m_tracksName << " not found.  Exit SCTLorentzMonTool");
     return StatusCode::SUCCESS;
   }
 
@@ -187,268 +189,217 @@ SCTLorentzMonTool::fillHistograms() {
   TrackCollection::const_iterator trkend = tracks->end();
 
   for (; trkitr != trkend; ++trkitr) {
-    // Get track
-    const Trk::Track *track = m_holeSearchTool->getTrackWithHoles(**trkitr);
+    // get track
+    const Trk::Track * origTrack = (*trkitr);
+    if (not origTrack) {
+        ATH_MSG_ERROR("no pointer to origTrack!!!");
+        continue;
+    }
+    
+    const Trk::TrackSummary *summary = origTrack->trackSummary();
+    if (not summary){
+        ATH_MSG_WARNING(" null trackSummary");
+        continue;
+    }
+    
+    const Trk::Perigee *perigee = origTrack->perigeeParameters();
+    if(not perigee)continue;
+    /// selecting the tracks, the pT cut on tracks is applied later
+    bool passesCuts = true;
+    if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) &&
+        (summary->get(Trk::numberOfSCTHits) > 6)//  SCTHits >6
+    ){
+        passesCuts = true;
+    }// 01.02.2015
+    else if ((perigee->parameters()[Trk::qOverP] < 0.) && // use negative track only
+        (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
+        //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
+        (summary->get(Trk::numberOfSCTHits) > 6) // SCTHits >6
+        //&& (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1 may be used if needed. 
+    ){
+        passesCuts = true;
+    }else{
+        passesCuts = false;
+    }
+      
+    if(not passesCuts)continue;
+      
+    const Trk::Track *track = nullptr;
+    if(m_getTrackHoles){
+        // Get track with holes for the tracks passing the selection
+        track = m_holeSearchTool->getTrackWithHoles(*origTrack);
+    }
+    else{
+        // get track without holes
+        track = origTrack;
+    }
+    
     if (not track) {
       ATH_MSG_WARNING ("track pointer is invalid");
       continue;
     }
-
-    const Trk::Track * track2 = (*trkitr);
-    if (not track2) {
-      ATH_MSG_ERROR("no pointer to track2!!!");
-      continue;
-    }
-
+    
+    
     // Get pointer to track state on surfaces
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
     if (not trackStates) {
-      msg(MSG::WARNING) << "for current track, TrackStateOnSurfaces == Null, no data will be written for this track" <<
-	endmsg;
+      ATH_MSG_WARNING("for current track, TrackStateOnSurfaces == Null, no data will be written for this track");
       continue;
     }
-
-    const Trk::TrackSummary *summary = track2->trackSummary();
-    if (not summary) {
-      msg(MSG::WARNING) << " null trackSummary" << endmsg;
-      continue;
-    }
-
-
-
-
-    unsigned int nSCTBarrel = 0;
-    for (const Trk::TrackStateOnSurface* tsos : *trackStates) {
-      if (not tsos->type(Trk::TrackStateOnSurface::Measurement)) continue; // Not a hit
-
-      const InDet::SiClusterOnTrack* rot = dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack());
-      if (rot==nullptr) continue; // Not a valid SiClusterOnTrack
-
-      const InDet::SiCluster* clus = dynamic_cast<const InDet::SiCluster*>(rot->prepRawData());
-      if (clus==nullptr) continue; // Not a valid SiCluster
-
-      if (not clus->detectorElement()->isSCT()) continue; // Not an SCT hit
-
-      const Identifier& sct_id = clus->identify();
-      const int bec = m_pSCTHelper->barrel_ec(sct_id);
-
-      if (bec==0) nSCTBarrel++; // This SCT hit is in Barrel
-    }
-
-
 
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit = trackStates->end();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != endit; ++it) {
+      /// selection of tracks
+      const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters *>((*it)->trackParameters());
+      if (not trkp){
+          ATH_MSG_DEBUG(" Null pointer to MeasuredTrackParameters");
+          continue;
+      }
+      
+      /// selecting track momentum greater than 500
+      if(trkp->momentum().perp() < 500.) continue;
+      // working on hits
       if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
         const InDet::SiClusterOnTrack *clus =
-          dynamic_cast<const InDet::SiClusterOnTrack *>((*it)->measurementOnTrack());
+        dynamic_cast<const InDet::SiClusterOnTrack *>((*it)->measurementOnTrack());
         if (clus) { // Is it a SiCluster? If yes...
-          const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster *>(clus->prepRawData());
-          if (not RawDataClus) {
-            continue; // Continue if dynamic_cast returns null
-          }
-          if (RawDataClus->detectorElement()->isSCT()) {
-            const Identifier sct_id = clus->identify();
-            const int bec(m_pSCTHelper->barrel_ec(sct_id));
-            const int layer(m_pSCTHelper->layer_disk(sct_id));
-            const int side(m_pSCTHelper->side(sct_id));
-            const int eta(m_pSCTHelper->eta_module(sct_id));
-            const int phi(m_pSCTHelper->phi_module(sct_id));
-
-            bool in100 = false;
-            if (bec != 0) {
-              continue; // We only care about the barrel
+            const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster *>(clus->prepRawData());
+            if (not RawDataClus) {
+                continue; // Continue if dynamic_cast returns null
             }
-            
-            for (unsigned int i = 0; i < layer100_n; i++) {
-              if (layer100[i] == layer && eta100[i] == eta && phi100[i] == phi) {
-                in100 = true;
+            if (RawDataClus->detectorElement()->isSCT()) {
+                const Identifier sct_id = clus->identify();
+                const int bec(m_pSCTHelper->barrel_ec(sct_id));
+                const int layer(m_pSCTHelper->layer_disk(sct_id));
+                const int side(m_pSCTHelper->side(sct_id));
+                const int eta(m_pSCTHelper->eta_module(sct_id));
+                const int phi(m_pSCTHelper->phi_module(sct_id));
+                bool in100 = false;
+                if (bec != 0) {
+                    continue; // We only care about the barrel
+                }
+                for (unsigned int i = 0; i < layer100_n; i++) {
+                    if (layer100[i] == layer && eta100[i] == eta && phi100[i] == phi) {
+                        in100 = true;
+                        break;
+                    }
+                }
+                // find cluster size
+                const std::vector<Identifier> &rdoList = RawDataClus->rdoList();
+                int nStrip = rdoList.size();
+                
+                // Get angle to wafer surface
+                float phiToWafer(90.), thetaToWafer(90.);
+                float sinAlpha = 0.; // for barrel, which is the only thing considered here
+                float pTrack[3];
+                pTrack[0] = trkp->momentum().x();
+                pTrack[1] = trkp->momentum().y();
+                pTrack[2] = trkp->momentum().z();
+                int iflag = findAnglesToWaferSurface(pTrack, sinAlpha, clus->identify(), thetaToWafer, phiToWafer);
+                if (iflag < 0) {
+                    ATH_MSG_WARNING("Error in finding track angles to wafer surface");
+                    continue; // Let's think about this (later)... continue, break or return?
+                }
+                // Fill profile
+                    
+                /// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
+                int etaIndex(0);
+                if(eta < 0 )
+                    etaIndex = eta + 6;
+                else
+                    etaIndex = eta + 5;
+                    
+                m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    
+                if (in100) {
+                    m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                            
+                    m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                    
+                }else {
+                    m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                            
+                    m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                    
+                }
+            }// end if SCT
+        } // end if clus..
+      } // end if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
+      // working on holes only if we want to
+      else if(m_getTrackHoles && (*it)->type(Trk::TrackStateOnSurface::Hole)) {
+        Identifier surfaceID;
+        surfaceID = surfaceOnTrackIdentifier(*it);
+        if(not m_pSCTHelper->is_sct(surfaceID)) continue; //We only care about SCT
+        const int bec(m_pSCTHelper->barrel_ec(surfaceID));
+        const int layer(m_pSCTHelper->layer_disk(surfaceID));
+        const int side(m_pSCTHelper->side(surfaceID));
+        const int eta(m_pSCTHelper->eta_module(surfaceID));
+        const int phi(m_pSCTHelper->phi_module(surfaceID));
+        bool in100 = false;
+        if(bec!=0) {
+            continue; //We only care about the barrel
+        }
+        for (unsigned int i=0 ; i<layer100_n ; i++){
+            if (layer100[i]==layer && eta100[i]==eta && phi100[i]==phi){
+                in100=true;
                 break;
-              }
             }
-            // find cluster size
-            const std::vector<Identifier> &rdoList = RawDataClus->rdoList();
-            int nStrip = rdoList.size();
-            const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters *>((*it)->trackParameters());
-            if (not trkp) {
-              msg(MSG::WARNING) << " Null pointer to MeasuredTrackParameters" << endmsg;
-              continue;
-            }
-
-            const Trk::Perigee *perigee = track->perigeeParameters();
-
-            if (perigee) {
-              // Get angle to wafer surface
-              float phiToWafer(90.), thetaToWafer(90.);
-              float sinAlpha = 0.; // for barrel, which is the only thing considered here
-              float pTrack[3];
-              pTrack[0] = trkp->momentum().x();
-              pTrack[1] = trkp->momentum().y();
-              pTrack[2] = trkp->momentum().z();
-              int iflag = findAnglesToWaferSurface(pTrack, sinAlpha, clus->identify(), thetaToWafer, phiToWafer);
-              if (iflag < 0) {
-                msg(MSG::WARNING) << "Error in finding track angles to wafer surface" << endmsg;
-                continue; // Let's think about this (later)... continue, break or return?
-              }
-
-              bool passesCuts = true;
-
-              if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) &&
-                  (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-                  (summary->get(Trk::numberOfSCTHits) > 6)// && // SCTHits >6
-                  ) {
-                passesCuts = true;
-              }// 01.02.2015
-              /// cuts used by Arka for tighter selection:
-              /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT barrel) >= 8, N_hit(Pixel) >= 2
-              /// cuts used by Arka for looser selection:
-              /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT in any region) >=7 , N_hit(Pixel) >= 2
-
-              else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-                       (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
-		       //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
-		       (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
-                       (summary->get(Trk::numberOfSCTHits) > 6)// // SCTHits >6
-                       ) {
-                passesCuts = true;
-              }else {
-                passesCuts = false;
-              }
-
-              if (passesCuts) {
-		// Fill profile
-                    
-		/// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
-		int etaIndex(0);
-		if(eta < 0 )
-		  etaIndex = eta + 6;
-		else
-		  etaIndex = eta + 5;
-                    
-		m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
-		m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
-		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                    
-		if (in100) {
-		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                        
-		  m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+        }
+        // find cluster size
+        int nStrip = 0;
+        //Get angle to wafer surface
+        float phiToWafer(90.),thetaToWafer(90.);
+        float sinAlpha = 0.; //for barrel, which is the only thing considered here
+        float pTrack[3];
+        pTrack[0] = trkp->momentum().x();
+        pTrack[1] = trkp->momentum().y();
+        pTrack[2] = trkp->momentum().z();
+        int iflag = findAnglesToWaferSurface (pTrack, sinAlpha, surfaceID, thetaToWafer, phiToWafer );
+        if ( iflag < 0) {
+            ATH_MSG_WARNING("Error in finding track angles to wafer surface");
+            continue; // Let's think about this (later)... continue, break or return?
+        }
+        // Fill profile
+        /// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
+        int etaIndex(0);
+        if(eta < 0 )
+            etaIndex = eta + 6;
+        else
+            etaIndex = eta + 5;
+            
+        m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
+        m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+        m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
+        m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            
+        if (in100) {
+            m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
                                     
-		}else {
-		  m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                        
-		  m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                                
-		}
-              }// end if passesCuts
-            }// end if mtrkp
-	  } // end if SCT..
-        } // end if(clus)
-      } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
-      else if((*it)->type(Trk::TrackStateOnSurface::Hole)) {
-	Identifier surfaceID;
-	surfaceID = surfaceOnTrackIdentifier(*it);
-	if(not m_pSCTHelper->is_sct(surfaceID)) continue; //We only care about SCT
-	const int bec(m_pSCTHelper->barrel_ec(surfaceID));
-	const int layer(m_pSCTHelper->layer_disk(surfaceID));
-	const int side(m_pSCTHelper->side(surfaceID));
-	const int eta(m_pSCTHelper->eta_module(surfaceID));
-	const int phi(m_pSCTHelper->phi_module(surfaceID));
-	bool in100 = false;
-	if(bec!=0) {
-	  continue; //We only care about the barrel
-	}
-	//wtf is this?
-	for (unsigned int i=0 ; i<layer100_n ; i++){
-	  if (layer100[i]==layer && eta100[i]==eta && phi100[i]==phi){
-	    in100=true;
-	    break;
-	  }
-	}
-	// find cluster size
-	int nStrip = 0;
-	const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters*>( (*it)->trackParameters() );
-	if (not trkp) {
-	  ATH_MSG_WARNING(" Null pointer to MeasuredTrackParameters");
-	  continue;
-	}
-
-	const Trk::Perigee* perigee = track->perigeeParameters();
-
-	if (perigee){
-	  //Get angle to wafer surface
-	  float phiToWafer(90.),thetaToWafer(90.);
-	  float sinAlpha = 0.; //for barrel, which is the only thing considered here
-	  float pTrack[3];
-	  pTrack[0] = trkp->momentum().x();
-	  pTrack[1] = trkp->momentum().y();
-	  pTrack[2] = trkp->momentum().z();
-	  int iflag = findAnglesToWaferSurface (pTrack, sinAlpha, surfaceID, thetaToWafer, phiToWafer );
-	  if ( iflag < 0) {
-	    ATH_MSG_WARNING("Error in finding track angles to wafer surface");
-	    continue; // Let's think about this (later)... continue, break or return?
-	  }
-	  bool passesCuts = true;
-	  if( (AthenaMonManager::dataType() ==  AthenaMonManager::cosmics) &&
-	      (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-	      (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
-	      ){
-	    passesCuts=true;
-	  }
-	  else if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-		   (std::abs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
-		   //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.)  // another way to implement d0 < 1mm
-		   (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
-		   (summary->get(Trk::numberOfSCTHits) > 6 )// && // SCTHits >6
-		   ){
-	    passesCuts=true;
-	  }else{
-	    passesCuts=false;
-	  }
-
-	  if (passesCuts) {
-	    // Fill profile
-	    /// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
-		int etaIndex(0);
-		if(eta < 0 )
-		  etaIndex = eta + 6;
-		else
-		  etaIndex = eta + 5;
-                    
-		m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
-		m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
-		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                    
-		if (in100) {
-		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                        
-		  m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+        }else {
+            m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
                                     
-		}else {
-		  m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                        
-		  m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-		  m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                                
-		}
-	  }// end if passesCuts
-	}// end if mtrkp
+            m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+        }
       } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
-    }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
-    delete track;
-    track=0;
-  } // end of loop on tracks
-
+    } // end of for loop trackStates
+    if(m_getTrackHoles){
+        delete track;
+        track=0;
+    }
+  }// end of loop on tracks
   m_numberOfEvents++;
   return StatusCode::SUCCESS;
 }
@@ -481,9 +432,7 @@ SCTLorentzMonTool::checkHists(bool /*fromFinalize*/) {
 //                              SCTLorentzMonTool :: bookLorentzHistos
 // ====================================================================================================
 StatusCode
-SCTLorentzMonTool::bookLorentzHistos() {                                                                                                                //
-                                                                                                                                                        // hidetoshi
-                                                                                                                                                        // 14.01.22
+SCTLorentzMonTool::bookLorentzHistos() {                                                                                                                
   const int nLayers(4);
   const int nSides(2);
   const int nEta(12);
@@ -526,10 +475,10 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
     m_phiVsNstrips_111[l]->GetYaxis()->SetTitle("Num of Strips");
 
     for (int etaModule=0; etaModule != nEta; ++etaModule){
-		
+                
       // granularity set to eta for now
       m_phiVsNstrips_100_eta[l][etaModule] = pFactory("h_phiVsNstrips_100" + hNum[l] + "_Eta" + hEtaS[etaModule], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
-		
+                
       m_phiVsNstrips_111_eta[l][etaModule] = pFactory("h_phiVsNstrips_111" + hNum[l] + "_Eta" + hEtaS[etaModule], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
       //// old histograms/TProfiles
       m_phiVsNstrips_100_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
@@ -537,7 +486,7 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
 
       m_phiVsNstrips_111_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
       m_phiVsNstrips_111_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
-		
+                
 
       m_phiVsNstrips_eta[l][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "_Eta" + hEtaS[etaModule], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
       m_phiVsNstrips_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
@@ -565,24 +514,24 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
       m_phiVsNstrips_Side_111[l][side]->GetYaxis()->SetTitle("Num of Strips");
 
       for (int etaModule=0; etaModule != nEta; ++etaModule){
-	m_phiVsNstrips_Side_100_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
-								   "100 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
-								   nProfileBins, -18., 18., Lorentz, iflag);
-	m_phiVsNstrips_Side_111_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
-								   "111 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
-								   nProfileBins, -18., 18., Lorentz, iflag);
-	m_phiVsNstrips_Side_eta[l][side][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
-							       "Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
-							       nProfileBins, -18., 18., Lorentz, iflag);
+        m_phiVsNstrips_Side_100_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
+                                                                   "100 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+                                                                   nProfileBins, -18., 18., Lorentz, iflag);
+        m_phiVsNstrips_Side_111_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
+                                                                   "111 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+                                                                   nProfileBins, -18., 18., Lorentz, iflag);
+        m_phiVsNstrips_Side_eta[l][side][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
+                                                               "Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+                                                               nProfileBins, -18., 18., Lorentz, iflag);
 
-	m_phiVsNstrips_Side_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-	m_phiVsNstrips_Side_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+        m_phiVsNstrips_Side_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_Side_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
 
-	m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-	m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+        m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
 
-	m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-	m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+        m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
       }
 
     }

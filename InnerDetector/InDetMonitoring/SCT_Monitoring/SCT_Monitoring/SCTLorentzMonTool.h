@@ -83,6 +83,8 @@ private:
 
   //for Vertex and perigee
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
+  
+  bool m_getTrackHoles;
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
   Prof_t m_phiVsNstrips[4];

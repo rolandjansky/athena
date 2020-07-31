@@ -35,8 +35,6 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   m_maxSCTsp(500000) 						       ,
   m_nfreeCut(1)                                                        ,
   m_doRandomSpot(false)                                                        , //see comment proceding line with "double RandZBoundary[2];"
-  m_SpacePointsSCT("SCT_SpacePoints"),
-  m_SpacePointsPixel("PixelSpacePoints"),
   m_outputTracks("SiSPSeededTracks"),
   m_vxOutputName ( "LowPtRoIVertices" ),
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
@@ -66,8 +64,6 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   declareProperty("maxNumberSeeds"      ,m_maxNumberSeeds      );
   declareProperty("maxNumberPIXsp"      ,m_maxPIXsp            );
   declareProperty("maxNumberSCTsp"      ,m_maxSCTsp            );
-  declareProperty("SpacePointsSCTName"  ,m_SpacePointsSCT      );
-  declareProperty("SpacePointsPixelName",m_SpacePointsPixel    );
   declareProperty("FreeClustersCut"     ,m_nfreeCut            );
   declareProperty("doRandomSpot"     ,m_doRandomSpot            );
   declareProperty("PropagatorTool"      ,m_proptool            );
@@ -83,8 +79,6 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::initialize()
 {
 
   // Initialize read and write handles
-  ATH_CHECK( m_SpacePointsSCT.initialize() );
-  ATH_CHECK( m_SpacePointsPixel.initialize() );
   ATH_CHECK( m_outputTracks.initialize() );
 
   // Get the ZWindowRoI seed tool
@@ -234,11 +228,6 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
     if ( sc_aux.isFailure() ) delete theVertexAuxContainer;
     return StatusCode::FAILURE;
   }
-  else{
-    // empty container written successfully.  No need to continue with rest of code
-    return StatusCode::SUCCESS;
-  }
-
   
 
   // Find seeds that point within the RoI region in z
