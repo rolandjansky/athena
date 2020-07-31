@@ -33,6 +33,7 @@ decription           : Implementation code for GsfExtrapolator class
 #include "TrkTrack/TrackStateOnSurface.h"
 
 #include <utility>
+#include <unordered_set>
 
 namespace {
 const bool useBoundaryMaterialUpdate(true);
@@ -482,7 +483,7 @@ Trk::GsfExtrapolator::extrapolate(
     ATH_MSG_DEBUG("MultiComponentState is empty...");
     return {};
   }
-  
+
   cache.reset();
 
   // Set the propagator to that one corresponding to the configuration level
@@ -706,7 +707,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
                                                          *navigationParameters,
                                                          direction,
                                                          trackingVolume);
-   
+
     nextVolume = nextNavigationCell.nextVolume;
     if (navigationPropagatorIndex >= 1) {
       delete navigationParameters;
@@ -961,7 +962,7 @@ Trk::GsfExtrapolator::extrapolateFromLayerToLayer(
   const Trk::Layer* nextLayer =
     currentLayer->nextLayer(currentPosition, currentDirection);
 
-  std::set<const Trk::Layer*> layersHit;
+  std::unordered_set<const Trk::Layer*> layersHit;
   layersHit.insert(currentLayer);
 
   // Begin while loop over all intermediate layers

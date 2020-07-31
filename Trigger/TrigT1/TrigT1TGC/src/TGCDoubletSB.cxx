@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCDoubletSB.hh"
-#include "TrigT1TGC/TGCSlaveBoard.hh"
-#include "TrigT1TGC/TGCPatchPanelOut.hh"
-#include "TrigT1TGC/TGCHitPattern.hh"
+#include "TrigT1TGC/TGCDoubletSB.h"
+#include "TrigT1TGC/TGCSlaveBoard.h"
+#include "TrigT1TGC/TGCPatchPanelOut.h"
+#include "TrigT1TGC/TGCHitPattern.h"
 #include <iostream>
 #include <cstdlib>
 
 
 namespace LVL1TGCTrigger {
 
-TGCDoubletSB::TGCDoubletSB( TGCArguments* tgcargs)
+TGCDoubletSB::TGCDoubletSB(const TGCArguments* tgcargs)
   :TGCSlaveBoard(tgcargs),
    m_priorSign(1),m_numberOfData(2),m_nChInBlock(32),
    m_maxDev(0),m_posMaxDev(0),m_negMaxDev(0),m_nChAdj(0),m_iChBase(0),
@@ -55,10 +55,6 @@ void TGCDoubletSB::doCoincidence()
 
   if ( m_slaveBoardOut!= 0 ) delete m_slaveBoardOut;
   m_slaveBoardOut = new TGCSlaveBoardOut(this,m_bid);
-  if ( !m_slaveBoardOut ) {
-    std::cerr << "TGCDoubletSB::createSlaveBoardOut: Memory allocation failure.";
-    exit(1);
-  }
   m_slaveBoardOut->clear();
   m_slaveBoardOut->setNumberOfData(NumberOfDoubletSBData);
 
@@ -211,10 +207,6 @@ void TGCDoubletSB::do3outof4Coincedence(TGCHitPattern** LCOut)
   if(((LCOut[0]!=0)||(LCOut[1]!=0))&&((LCOut[2]!=0)||(LCOut[3]!=0))){
     if ( m_coincidenceOut != 0 ) delete m_coincidenceOut;
     m_coincidenceOut = new TGCHitPattern;
-    if ( !m_coincidenceOut ) {
-      std::cerr << "TGCDoubletSB::create coincidenceOut: Memory allocation failure.";
-      exit(1);
-    }
 #ifdef TGCDEBUG
     std::cout << "# DoubletSB [do3outof4Coincedence]" <<std::endl;
     std::cout<<"#SB LCOut[0]: inner 2hit";LCOut[0]->print();

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronContainerFwd.h 644948 2015-02-07 01:33:06Z christos $
 #ifndef XAODEGAMMA_ELECTRONCONTAINERFWD_H
 #define XAODEGAMMA_ELECTRONCONTAINERFWD_H
 
@@ -15,7 +14,7 @@
 DATAVECTOR_BASE_FWD( xAOD::Electron, xAOD::Egamma );
 namespace xAOD {
    /// The container is a simple typedef for now
-   typedef DataVector< xAOD::Electron > ElectronContainer;
+   typedef DataVector< xAOD::Electron> ElectronContainer;
 }
 
 

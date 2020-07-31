@@ -51,7 +51,7 @@ StatusCode TopCKMFilter::filterEvent() {
       {
        Wbosons[i]=Child->pdg_id();
        if (!Child->end_vertex()) continue;
-       for (auto gChild: *(Child->end_vertex()) if (std::abs(gChild->pdg_id()) == 15) isTau[i] = true;
+       for (auto gChild: *(Child->end_vertex())) if (std::abs(gChild->pdg_id()) == 15) isTau[i] = true;
        }
        }
        }

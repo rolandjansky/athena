@@ -35,17 +35,11 @@ def MuFastViewDataVerifier():
     alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuFast",
                                                  DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                                                 ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
-                                                                ( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ),
                                                                 ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
                                                                 ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
                                                                 ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
-                                                                ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' ),
                                                                 ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
-                                                                ( 'MdtCsmContainer' , 'StoreGateSvc+MDTCSM' ),
                                                                 ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
-                                                                ( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' ),
-                                                                ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                                                ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
                                                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' ),
                                                                 ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )
                                                                ]  )

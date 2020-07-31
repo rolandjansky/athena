@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/DQBadLBFilterAlg.h"
+#include "DQBadLBFilterAlg.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/AthenaAttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"

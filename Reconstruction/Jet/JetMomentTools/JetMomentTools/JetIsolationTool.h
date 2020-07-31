@@ -138,14 +138,14 @@ public:
   JetIsolationTool(const std::string &myname);
 
   /// Dtor.
-  ~JetIsolationTool(); 
+  virtual ~JetIsolationTool(); 
 
   // Athena algtool Hooks
   virtual StatusCode  initialize() override;
-  StatusCode  finalize();
+  virtual StatusCode  finalize() override;
 
   // Jet Modifier methods.
-  StatusCode decorate(const xAOD::JetContainer& jets) const override;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
 private: 
   Gaudi::Property<std::vector<std::string>> m_isolationCodes{this, "IsolationCalculations", {}, "Isolation calculation data vector"};

@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "HIJetRec/IHIUEModulatorTool.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "AsgTools/ToolHandle.h"
 
@@ -30,6 +31,7 @@ private:
 
   SG::ReadHandleKey<xAOD::HIEventShapeContainer>  m_eventShapeKey     { this, "EventShapeKey", "HIEventShapeContainer", "Event Shape Key"};
   ToolHandle<IHIUEModulatorTool> m_modulatorTool { this, "Modulator", "HIUEModulatorTool", "Handle to HIUEModulatorTool"};
+  ToolHandle<IHIEventShapeMapTool> m_eventShapeMapTool { this, "EventShapeMapTool", "HIEventShapeMapTool", "Handle to Event Shape Map Tool"};
 
 };
 

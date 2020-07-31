@@ -1,29 +1,7 @@
-################################################################################
-# Package: AthenaMonitoring
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaMonitoring )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-    PUBLIC
-        Control/AthenaBaseComps
-        Control/AthenaMonitoringKernel
-        LumiBlock/LumiBlockComps
-        LumiBlock/LumiBlockData
-        Trigger/TrigEvent/TrigDecisionInterface
-        Trigger/TrigAnalysis/TrigDecisionTool
-    PRIVATE
-        AtlasTest/TestTools
-        Control/AthenaKernel
-        Control/SGMon/SGAudCore
-        Database/AthenaPOOL/AthenaPoolUtilities
-        Event/EventInfo
-        Tools/LWHists
-        Trigger/TrigAnalysis/TrigAnalysisInterfaces
-        MuonSpectrometer/MuonAlignment/MuonAlignmentData
-)
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -42,23 +20,28 @@ atlas_add_library(
         ${Boost_INCLUDE_DIRS}
         ${CORAL_INCLUDE_DIRS}
     LINK_LIBRARIES
-        ${Boost_LIBRARIES}
         ${ROOT_LIBRARIES}
         AthenaBaseComps
         AthenaMonitoringKernelLib
         GaudiKernel
-        LumiBlockCompsLib
         LumiBlockData
-        TrigDecisionToolLib
         TrigAnalysisInterfaces
+        TrigDecisionInterface
+        TrigDecisionToolLib
     PRIVATE_LINK_LIBRARIES
+        ${Boost_LIBRARIES}
         ${CORAL_LIBRARIES}
         AthenaKernel
+        CxxUtils
         SGAudCore
+        StoreGateLib
         AthenaPoolUtilities
         EventInfo
         LWHists
         MuonAlignmentData
+        InDetReadoutGeometry
+        MuonAlignmentData
+        TRT_ReadoutGeometry
 )
 
 atlas_add_component(
@@ -68,11 +51,8 @@ atlas_add_component(
         ${CORAL_INCLUDE_DIRS}
     LINK_LIBRARIES
         AthenaMonitoringLib
-        AthenaMonitoringKernelLib
-        LumiBlockData
         LWHists
         SGAudCore
-        TrigDecisionToolLib
         MuonAlignmentData
 )
 

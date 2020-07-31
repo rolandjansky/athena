@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCSLSelector.hh"
-#include "TrigT1TGC/TGCSectorLogic.hh"
-#include "TrigT1TGC/TGCSLSelectorOut.hh"
-#include "TrigT1TGC/TGCSLPreSelectorOut.hh"
+#include "TrigT1TGC/TGCSLSelector.h"
+#include "TrigT1TGC/TGCSectorLogic.h"
+#include "TrigT1TGC/TGCSLSelectorOut.h"
+#include "TrigT1TGC/TGCSLPreSelectorOut.h"
 
 namespace LVL1TGCTrigger {
 

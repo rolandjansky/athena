@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ref. SOS051V07,S0S052V06 
-#include "TrigT1TGC/TGCWireTripletSB.hh"
+#include "TrigT1TGC/TGCWireTripletSB.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -17,10 +17,6 @@ void TGCWireTripletSB::createSlaveBoardOut()
   if(m_coincidenceOut!=0){
     if ( m_slaveBoardOut != 0 ) delete m_slaveBoardOut;
     m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
-    if ( !m_slaveBoardOut ) {
-      std::cerr << "TGCWireTripletSB::createSlaveBoardOut: Memory allocation failure."<<std::endl;
-      exit(1);
-    }
     m_slaveBoardOut->clear();
     m_slaveBoardOut->setNumberOfData(NumberOfWireTripletSBData);
 
@@ -148,10 +144,6 @@ TGCWireTripletSB& TGCWireTripletSB::operator=(const TGCWireTripletSB& right)
     if ( m_lengthOfCoincidenceOut > 0) { 
       if ( m_coincidenceOut ) delete  m_coincidenceOut; 
       m_coincidenceOut = new TGCHitPattern (m_lengthOfCoincidenceOut);
-      if ( !m_coincidenceOut ) {
-        std::cerr << "TGCWireTripletSB::TGCWireTripletSB: Memory allocation failure." << std::endl;
-        exit(1);
-      }
     }
   }
   return *this;

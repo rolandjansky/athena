@@ -25,6 +25,7 @@ find_package( Boost )
 find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS Core PyROOT )
 find_package( nlohmann_json )
+find_package( psutil )
 
 # Component(s) in the package:
 atlas_add_component( PerfMonComps

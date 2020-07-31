@@ -47,7 +47,7 @@ namespace Trk {
     GXFMaterialEffects *materialEffects();
     const Surface *surface();
     void setJacobian(TransportJacobian *);
-    double (* (jacobian)())[5];
+    Eigen::Matrix<double, 5, 5> & jacobian();
     Amg::MatrixX & derivatives();
     void setDerivatives(Amg::MatrixX &);
     AmgSymMatrix(5) * trackCovariance(bool takeownership = false);
@@ -79,7 +79,7 @@ namespace Trk {
     TrackState::TrackStateType m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
     const TrackParameters *m_trackpar;  //!< track parameters
     GXFMaterialEffects *m_materialEffects;      //!< Material effects on track (ie scatterer, brem)
-    double m_jacobian[5][5];    //!< Transport jacobian wrt previous state
+    Eigen::Matrix<double, 5, 5> m_jacobian;    //!< Transport jacobian wrt previous state
     Amg::MatrixX * m_derivs;  //!< Derivatives of local parameters wrt fit parameters
     AmgSymMatrix(5) * m_covariancematrix;     //!< Covariance matrix of track parameters at this surface
     const FitQualityOnSurface *m_fitqual;
@@ -95,7 +95,7 @@ namespace Trk {
     Amg::Vector3D m_globpos;
   };
 
-  inline double (* (GXFTrackState::jacobian)())[5] {
+  inline Eigen::Matrix<double, 5, 5> & GXFTrackState::jacobian() {
     return m_jacobian;
   } 
   

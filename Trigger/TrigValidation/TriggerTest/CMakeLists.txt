@@ -1,21 +1,16 @@
-################################################################################
-# Package: TriggerTest
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TriggerTest )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.cxx Testing/*.conf )
+atlas_install_scripts( test/test*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
+atlas_install_joboptions( share/*.py )
+atlas_install_runtime( share/*.conf )
 atlas_install_data( share/*.ref )
 
 # Unit tests:
-atlas_add_test( flake8_test_dir
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/test
-                POST_EXEC_SCRIPT nopost.sh )
-
 atlas_add_test( TrigValSteeringUT
                 SCRIPT trigvalsteering-unit-tester.py ${CMAKE_CURRENT_SOURCE_DIR}/test
                 PROPERTIES TIMEOUT 300

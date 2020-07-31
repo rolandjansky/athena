@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Legacy trigger test on MC with Physics_HI_v4 menu
 # art-type: grid

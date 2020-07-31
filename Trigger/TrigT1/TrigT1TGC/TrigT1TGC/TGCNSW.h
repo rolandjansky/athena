@@ -13,7 +13,7 @@
 #include <vector>
 #include <memory>
 
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCNumbering.h"
 
 namespace LVL1TGCTrigger {
 

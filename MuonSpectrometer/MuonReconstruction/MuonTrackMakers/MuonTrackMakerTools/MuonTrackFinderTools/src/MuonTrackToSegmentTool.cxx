@@ -5,40 +5,24 @@
 #include "MuonTrackToSegmentTool.h"
 
 #include "MuonSegment/MuonSegment.h"
-
 #include "MuonSegment/MuonSegmentQuality.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/JacobianPhiThetaLocalAngles.h"
-
 #include "TrkGeometry/MagneticFieldProperties.h"
-
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include <set>
 
 namespace Muon {
-
-  
   MuonTrackToSegmentTool::MuonTrackToSegmentTool(const std::string& t,const std::string& n,const IInterface* p)  :  
-    AthAlgTool(t,n,p),
-    m_intersectSvc("MuonStationIntersectSvc", name()),
-    m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    AthAlgTool(t,n,p)
   {
-
     declareInterface<IMuonTrackToSegmentTool>(this);
-
-    declareProperty("MuonStationIntersectSvc", m_intersectSvc);
-    declareProperty("Propagator",              m_propagator);
-    declareProperty("EDMPrinter",              m_printer);
-
   }
 
   StatusCode MuonTrackToSegmentTool::initialize() {
