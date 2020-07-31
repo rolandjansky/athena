@@ -229,7 +229,7 @@ SCTLorentzMonTool::fillHistograms() {
     else if ((perigee->parameters()[Trk::qOverP] < 0.) && // use negative track only
         (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
         //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
-        (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1 may be used if needed. 
+        (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1
     ){
         passesCuts = true;
     }else{
@@ -379,12 +379,14 @@ SCTLorentzMonTool::fillHistograms() {
                 
                 /// first change the negative eta to positive eta index. This is needed to fill the array of histograms.
                 int etaIndex(-1);
-                if(eta == -1 )
+                if(eta == -1 ){
                     etaIndex = 0;
-                else if(eta == 1)
+                }
+                else if(eta == 1){
                     etaIndex = 1;
+                }
                 
-                if(eta==-1 || eta==1){
+                if(std::abs(eta)==1){
                     m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                     m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                     m_phiVsNstrips_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
@@ -420,7 +422,7 @@ SCTLorentzMonTool::fillHistograms() {
                     m_phiVsNstrips_eta0p5_111_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
                     m_phiVsNstrips_eta0p5_Side_111_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
                 }
-                if(eta==-1 || eta==1){
+                if(std::abs(eta)==1){
                     m_phiVsNstrips_eta0p5_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                     m_phiVsNstrips_eta0p5_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                     m_phiVsNstrips_eta0p5_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
@@ -493,12 +495,14 @@ SCTLorentzMonTool::fillHistograms() {
         }
         /// first change the negative eta to positive eta index. This is needed to fill the array of histograms.
         int etaIndex(-1);
-        if(eta == -1 )
+        if(eta == -1 ){
             etaIndex = 0;
-        else if(eta == 1)
+        }
+        else if(eta == 1){
             etaIndex = 1;
+        }
         
-        if(eta==-1 || eta==1){
+        if(std::abs(eta)==1){
             m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
@@ -533,7 +537,7 @@ SCTLorentzMonTool::fillHistograms() {
             m_phiVsNstrips_eta0p5_111_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_eta0p5_Side_111_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
         }
-        if(eta==-1 || eta==1){
+        if(std::abs(eta)==1){
             m_phiVsNstrips_eta0p5_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_eta0p5_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_eta0p5_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
