@@ -452,13 +452,11 @@ hltBeginSeq = parOR("HLTBeginSeq")
 hltTop += hltBeginSeq
 topSequence += hltTop
 
-l1decoder = None
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
         ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
         from L1Decoder.L1DecoderConfig import L1DecoderCfg
         CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
-        l1Decoder = hltBeginSeq.L1Decoder
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
@@ -582,8 +580,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
-    if not summaryMakerAlg:
-        log.warning("Failed to find DecisionSummaryMakerAlg")
+    l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
     if l1decoder and summaryMakerAlg:
         decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryMakerAlg )
@@ -591,7 +588,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
         log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
         log.debug(decObj)
     else:
-        log.warning("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
+        log.error("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
     CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
