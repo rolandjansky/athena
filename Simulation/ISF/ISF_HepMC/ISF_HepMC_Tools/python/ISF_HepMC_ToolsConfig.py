@@ -31,11 +31,6 @@ def getParticleSimWhiteList_ExtraParticles(name="ISF_ParticleSimWhiteList_ExtraP
     kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_ExtraParticles.txt'] )
     return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
 
-def getParticleSimWhiteList_LongLived(name="ISF_ParticleSimWhiteList_LongLived", **kwargs):
-    # GenParticleSimWhiteList_LongLived
-    kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_Mesons.txt'] )
-    return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
-
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
     # ParticlePositionFilter
     kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc'    )

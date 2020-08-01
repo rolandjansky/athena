@@ -727,6 +727,31 @@ StatusCode EgammaMonitoring::finalize() {
     ATH_CHECK(recoPhotonConvIsoFixedCutTightCaloOnlyEfficiency.divide( recoPhotonConvIsoFixedCutTightCaloOnly.get(), truthPhotonConvRecoConv.get()));
     egammaMonitoring::EfficiencyPlot recoPhotonConvIsoFixedCutLooseEfficiency("recoPhotonConvIsoFixedCutLooseEfficiency", "/MONITORING/recoPhotonConvIsoFixedCutLooseEfficiency/", rootHistSvc );
     ATH_CHECK(recoPhotonConvIsoFixedCutLooseEfficiency.divide( recoPhotonConvIsoFixedCutLoose.get(), truthPhotonConvRecoConv.get()));
+  
+    egammaMonitoring::WidthPlot truthPhotonRecoPhotonWidth("truthPhotonRecoPhotonWidth", "/MONITORING/truthPhotonRecoPhotonWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonRecoPhotonWidth.fill(truthPhotonRecoPhoton.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvPhotonWidth("truthPhotonConvPhotonWidth", "/MONITORING/truthPhotonConvPhotonWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvPhotonWidth.fill(truthPhotonConvPhoton.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvRecoConvWidth("truthPhotonConvRecoConvWidth", "/MONITORING/truthPhotonConvRecoConvWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvRecoConvWidth.fill(truthPhotonConvRecoConv.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvRecoConv1SiWidth("truthPhotonConvRecoConv1SiWidth", "/MONITORING/truthPhotonConvRecoConv1SiWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvRecoConv1SiWidth.fill(truthPhotonConvRecoConv1Si.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvRecoConv1TRTWidth("truthPhotonConvRecoConv1TRTWidth", "/MONITORING/truthPhotonConvRecoConv1TRTWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvRecoConv1TRTWidth.fill(truthPhotonConvRecoConv1TRT.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvRecoConv2SiWidth("truthPhotonConvRecoConv2SiWidth", "/MONITORING/truthPhotonConvRecoConv2SiWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvRecoConv2SiWidth.fill(truthPhotonConvRecoConv2Si.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvRecoConv2TRTWidth("truthPhotonConvRecoConv2TRTWidth", "/MONITORING/truthPhotonConvRecoConv2TRTWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvRecoConv2TRTWidth.fill(truthPhotonConvRecoConv2TRT.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvRecoConv2SiTRTWidth("truthPhotonConvRecoConv2SiTRTWidth", "/MONITORING/truthPhotonConvRecoConv2SiTRTWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvRecoConv2SiTRTWidth.fill(truthPhotonConvRecoConv2SiTRT.get()));
+    egammaMonitoring::WidthPlot truthPhotonConvRecoUnconvWidth("truthPhotonConvRecoUnconvWidth", "/MONITORING/truthPhotonConvRecoUnconvWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonConvRecoUnconvWidth.fill(truthPhotonConvRecoUnconv.get()));
+    egammaMonitoring::WidthPlot truthPhotonUnconvPhotonWidth("truthPhotonUnconvPhotonWidth", "/MONITORING/truthPhotonUnconvPhotonWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonUnconvPhotonWidth.fill(truthPhotonUnconvPhoton.get()));
+    egammaMonitoring::WidthPlot truthPhotonUnconvRecoConvWidth("truthPhotonUnconvRecoConvWidth", "/MONITORING/truthPhotonUnconvRecoConvWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonUnconvRecoConvWidth.fill(truthPhotonUnconvRecoConv.get()));
+    egammaMonitoring::WidthPlot truthPhotonUnconvRecoUnconvWidth("truthPhotonUnconvRecoUnconvWidth", "/MONITORING/truthPhotonUnconvRecoUnconvWidth/", rootHistSvc);
+    ATH_CHECK(truthPhotonUnconvRecoUnconvWidth.fill(truthPhotonUnconvRecoUnconv.get()));
   }
 
   return StatusCode::SUCCESS;

@@ -43,6 +43,7 @@
 #include "ShowerShapesHistograms.h"
 #include "ClusterHistograms.h"
 #include "EfficiencyPlot.h"
+#include "WidthPlot.h"
 
 #include "IsolationHistograms.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
