@@ -48,15 +48,7 @@ long TagInfoMgr_StorageType = 0x50;
 // Constructor with parameters:
 TagInfoMgr::TagInfoMgr(const std::string &name, 
                        ISvcLocator *pSvcLocator) :
-        AthCnvSvc(name, pSvcLocator, TagInfoMgr_StorageType),    
-        m_storeGate("StoreGateSvc", name),
-        m_detStore("DetectorStore", name),
-        m_iovDbSvc("IOVDbSvc", name),
-        m_metaDataTool("IOVDbMetaDataTool"),
-        m_isFirstBeginRun(true),
-        m_conditionsRun(EventIDBase::UNDEFNUM),
-        m_newFileIncidentSeen(false),
-        m_lastIOVRange(IOVRange(IOVTime(),IOVTime()))
+    AthCnvSvc(name, pSvcLocator, TagInfoMgr_StorageType)
 {}
 
 TagInfoMgr::~TagInfoMgr() 
@@ -435,35 +427,42 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     attrListColl->add(0, attrList);
     // Set IOV:
 
-    // set to the IOV of the incoming conditions
-    //  if run num is in previous IOV, set new IOV to be [runNum, lastStop)
-    IOVTime testTime(runNumber, 0);
-    IOVTime start = m_lastIOVRange.start();
-    IOVTime stop  = m_lastIOVRange.stop();
-    bool isFirstIOVCheck = false;
-    if (!start.isValid() || !stop.isValid()) {
-        // Start of job, set lastIOVRange to the incoming IOV
-        IOVRange minRange = tagInfoCond->minRange();
-        start = minRange.start();
-        stop  = minRange.stop();
+    if (tagInfoCond) {
+        // set to the IOV of the incoming conditions
+        //  if run num is in previous IOV, set new IOV to be [runNum, lastStop)
+        IOVTime testTime(runNumber, 0);
+        IOVTime start = m_lastIOVRange.start();
+        IOVTime stop  = m_lastIOVRange.stop();
+        bool isFirstIOVCheck = false;
+        if (!start.isValid() || !stop.isValid()) {
+            // Start of job, set lastIOVRange to the incoming IOV
+            IOVRange minRange = tagInfoCond->minRange();
+            start = minRange.start();
+            stop  = minRange.stop();
+            m_lastIOVRange = IOVRange(start, stop);
+            isFirstIOVCheck = true; // 
+        }
+        if (m_lastIOVRange.isInRange(testTime)) {
+            // set start to runNumber after the 
+            if (!isFirstIOVCheck) start = testTime; 
+            ATH_MSG_DEBUG( "fillMetaData: run number is in previous IOVRange: " << runNumber << " " << m_lastIOVRange);
+        }
+        else {
+            // Out of range
+            start = testTime;
+            stop  = IOVTime(runNumber + 1, 0);
+            ATH_MSG_DEBUG( "fillMetaData: run number is outside of previous IOVRange: " << runNumber << " " << m_lastIOVRange << ". Reset range to run number.");
+        }
+        attrListColl->addNewStart(start);
+        attrListColl->addNewStop (stop);
         m_lastIOVRange = IOVRange(start, stop);
-        isFirstIOVCheck = true; // 
-    }
-    if (m_lastIOVRange.isInRange(testTime)) {
-        // set start to runNumber after the 
-        if (!isFirstIOVCheck) start = testTime; 
-        ATH_MSG_DEBUG( "fillMetaData: run number is in previous IOVRange: " << runNumber << " " << m_lastIOVRange);
+        ATH_MSG_DEBUG( "fillMetaData: start, stop: " << start << " " << stop);
     }
     else {
-        // Out of range
-        start = testTime;
-        stop  = IOVTime(runNumber + 1, 0);
-        ATH_MSG_DEBUG( "fillMetaData: run number is outside of previous IOVRange: " << runNumber << " " << m_lastIOVRange << ". Reset range to run number.");
+        // set to the IOV of this run to run+1
+        attrListColl->addNewStart(IOVTime(runNumber, 0));
+        attrListColl->addNewStop(IOVTime(runNumber + 1, 0));
     }
-    attrListColl->addNewStart(start);
-    attrListColl->addNewStop (stop);
-    m_lastIOVRange = IOVRange(start, stop);
-    ATH_MSG_DEBUG( "fillMetaData: start, stop: " << start << " " << stop);
     
     /// Register folder in the IOV Db MetaData
     if (StatusCode::SUCCESS != m_metaDataTool->registerFolder("/TagInfo")) {
