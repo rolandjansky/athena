@@ -1,6 +1,6 @@
 #!/bin/bash
 export release=latest
-export MyTestArea=/var/www/lumicalc
+export MyTestArea=/var/www/lumicalc_dev
 
 echo `date`
 echo Working directory is `pwd`
