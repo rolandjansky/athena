@@ -235,7 +235,7 @@ ToolSvc.InDetSurveyDBTool.DBRoot="/Indet/SiSurvey"
 #ToolSvc.CondStream1.OutputFile="MisalignPixECModuleRand.root"
   
 # Select the appropriate shared library
-theApp.DLLs += [ "RootHistCnv" ]
+theApp.Dlls += [ "RootHistCnv" ]
 # Select HBOOK or ROOT persistency 
 theApp.HistogramPersistency = "ROOT"
 HistogramPersistencySvc = Service( "HistogramPersistencySvc" ) 

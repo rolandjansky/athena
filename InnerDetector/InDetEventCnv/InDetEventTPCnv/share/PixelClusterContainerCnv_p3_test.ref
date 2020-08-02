@@ -2,7 +2,7 @@
 
 Initializing Gaudi ApplicationMgr using job opts ../share/InDetEventTPCnv_test.txt
 JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/InDetEventTPCnv_test.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.Dlls += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/InDetEventTPCnv_test.txt
 ApplicationMgr    SUCCESS 

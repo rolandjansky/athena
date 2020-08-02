@@ -3,7 +3,7 @@
 
 Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/share/IOVSvcTool_test.txt
 JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/share/IOVSvcTool_test.txt
-JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "IOVSvc"]
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.Dlls += ["StoreGate", "IOVSvc"]
 JobOptionsSvc        INFO # (3,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/share/IOVSvcTool_test.txt

@@ -2,7 +2,7 @@
 
 Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3/Simulation/ISF/ISF_Fatras/ISF_FatrasEventTPCnv/share/ISF_FatrasEventTPCnv_test.txt
 JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Simulation/ISF/ISF_Fatras/ISF_FatrasEventTPCnv/share/ISF_FatrasEventTPCnv_test.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.Dlls += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3/Simulation/ISF/ISF_Fatras/ISF_FatrasEventTPCnv/share/ISF_FatrasEventTPCnv_test.txt
 ApplicationMgr    SUCCESS 

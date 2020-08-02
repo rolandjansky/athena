@@ -13,7 +13,7 @@
 // Private Application Configuration options
 //--------------------------------------------------------------
 
-ApplicationMgr.DLLs += {"LArSim"} ;
+ApplicationMgr.Dlls += {"LArSim"} ;
 
 
 ApplicationMgr.TopAlg += {"LArHitMaker/hitmaker1"} ;
