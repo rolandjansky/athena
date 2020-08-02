@@ -1056,6 +1056,24 @@ namespace MuonCombined {
 		  }
 		}
 	      }
+	      //Same for low-pT MuidCo muons
+              if(tag->author()==xAOD::Muon::MuidCo){
+		const CombinedFitTag* cfTag = static_cast<const CombinedFitTag*>(tag);
+		//this should be a problem only for low-pT muons, so to avoid too many extra calls I think it makes sense to put a pT cut here
+		//since this isn't really a tunable parameter of the reconstruction, I'm not making it a property
+                if(cfTag->combinedTrack() && cfTag->combinedTrack()->perigeeParameters()->pT()<3000){
+		  std::unique_ptr<xAOD::TrackParticle> combtp(m_particleCreator->createParticle(cfTag->combinedTrackLink(),nullptr,nullptr,xAOD::muon));
+		  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
+		  if(!caloExtension){
+                    ATH_MSG_WARNING("failed to get a calo extension for this combined muon, don't use it");
+                    continue;
+		  }
+                  if( caloExtension->caloLayerIntersections().empty()){
+                    ATH_MSG_WARNING("failed to retrieve any calo layers for this combined muon, don't use it");
+                    continue;
+                  }
+                }
+	      } 
 	      tags.push_back(tag);
 	    }
           }
