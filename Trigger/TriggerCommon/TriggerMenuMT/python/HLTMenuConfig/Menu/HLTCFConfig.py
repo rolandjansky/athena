@@ -141,9 +141,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     hltFinalizeSeq = seqAND("HLTFinalizeSeq")
 
-    # TODO - this is not currently used, but can host any algs which need to run conditional on the HLT accepting the event
-    hltAcceptedEventAlgsSeq = parOR("HLTAcceptedEventAlgsSeq")
-
     # make DF and CF tree from chains
     finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
 
@@ -175,7 +172,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     appendCAtoAthena( summaryAcc )
 
     # B) Then (if true), we run the accepted event algorithms.
-    hltFinalizeSeq += hltAcceptedEventAlgsSeq
+    # Add any required algs to hltFinalizeSeq here
 
     # More collections required to configure the algs below
     decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
