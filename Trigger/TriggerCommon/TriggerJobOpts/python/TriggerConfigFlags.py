@@ -249,7 +249,7 @@ def createTriggerFlags():
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         return createMuonConfigFlags()
-    flags.addFlagsCategory('Trigger.Offline', __muon)
+    flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
 
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags
