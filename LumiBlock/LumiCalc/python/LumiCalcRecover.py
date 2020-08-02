@@ -7,12 +7,17 @@ from __future__ import print_function
 import os
 import glob
 import cgitb
+
 # Enable debugging output for CGI  
 cgitb.enable()
 
 # Use imp to import directly from path in cgi-bin?
 import imp
-lcmod = imp.load_source('LumiCalc', '/var/www/lumicalc/LumiBlock/LumiCalc/python/LumiCalcHtml.py')
+
+if os.environ.get('SERVER_NAME', '') == 'atlas-lumicalc-dev.cern.ch':
+    lcmod = imp.load_source('LumiCalc', '/var/www/lumicalc_dev/athena/LumiBlock/LumiCalc/python/LumiCalcHtml.py')
+else:
+    lcmod = imp.load_source('LumiCalc', '/var/www/lumicalc/athena/LumiBlock/LumiCalc/python/LumiCalcHtml.py')
 
 lc = lcmod.LumiCalc()
 
