@@ -84,8 +84,8 @@ function check ()
 
   ##echo file=${file}
 
-  #echo "------ DLLs:"
-  for f in `awk '/(DLLs).*{/,/}/ {print}' ${file} | sed -e 's#[^{]*{##' -e 's#}.*##' -e 's#[",]##g'`; do
+  #echo "------ Dlls:"
+  for f in `awk '/(Dlls).*{/,/}/ {print}' ${file} | sed -e 's#[^{]*{##' -e 's#}.*##' -e 's#[",]##g'`; do
     #echo ${tabulation}${f}
 
     s=`echo "${all_dlls}" | egrep -e "[ ]${f}[ ]"`

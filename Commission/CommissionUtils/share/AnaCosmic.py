@@ -24,13 +24,13 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
 
 
-theApp.DLLs +=["LArAthenaPoolPoolCnv"] 
-theApp.DLLs +=["TileEventAthenaPoolPoolCnv"] 
-theApp.DLLs +=["GeneratorObjectsAthenaPoolPoolCnv"] 
-theApp.DLLs +=["TruthExamples"] 
+theApp.Dlls +=["LArAthenaPoolPoolCnv"] 
+theApp.Dlls +=["TileEventAthenaPoolPoolCnv"] 
+theApp.Dlls +=["GeneratorObjectsAthenaPoolPoolCnv"] 
+theApp.Dlls +=["TruthExamples"] 
 
 # add user Dlls and TopAlg.
-# theApp.DLLs +=["XYZ"] 
+# theApp.Dlls +=["XYZ"] 
 # theApp.TopAlg = ["UVW"] 
 
 # CBNT 

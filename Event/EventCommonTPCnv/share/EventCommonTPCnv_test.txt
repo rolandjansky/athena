@@ -1,2 +1,2 @@
-ApplicationMgr.DLLs += { "StoreGate", "CLIDComps" };
+ApplicationMgr.Dlls += { "StoreGate", "CLIDComps" };
 ApplicationMgr.ExtSvc += { "StoreGateSvc" };

@@ -3,7 +3,7 @@
 Initializing Gaudi ApplicationMgr using job opts ../share/FPEControlSvc_test.txt
 /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 16, which is not a valid value for type 'bool'
 JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/AthenaServices/share/../share/FPEControlSvc_test.txt
-JobOptionsSvc        INFO # (5,1): ApplicationMgr.DLLs += ["AthenaServices"]
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.Dlls += ["AthenaServices"]
 JobOptionsSvc        INFO # (6,1): ApplicationMgr.ExtSvc += ["FPEControlSvc"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/FPEControlSvc_test.txt
 ApplicationMgr    SUCCESS 

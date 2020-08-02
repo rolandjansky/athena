@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthService.h"
@@ -30,7 +31,7 @@ namespace TrigConf {
    *  - `DB`:   Read properties from DB, connection string in `PATH`, see \ref parseDBString
    *
    */
-  class JobOptionsSvc : public extends<AthService, TrigConf::IJobOptionsSvc, ::IJobOptionsSvc> {
+  class JobOptionsSvc : public extends<AthService, TrigConf::IJobOptionsSvc, ::IJobOptionsSvc, Gaudi::Interfaces::IOptionsSvc> {
     using AthService::getProperties;
 
   public:
@@ -38,6 +39,44 @@ namespace TrigConf {
 
     virtual StatusCode initialize() override;
     virtual StatusCode start() override;
+
+    /// @name IOptionsSvc interface
+    ///@{
+    virtual void set( const std::string& key, const std::string& value ) {
+      return m_optsvc->set(key,value);
+    }
+
+    virtual std::string get( const std::string& key, const std::string& default_ = {} ) const {
+      return m_optsvc->get(key,default_);
+    }
+
+    virtual std::string pop( const std::string& key, const std::string& default_ = {} ) {
+      return m_optsvc->pop(key,default_);
+    }
+    
+    virtual bool has( const std::string& key ) const {
+      return m_optsvc->has(key);
+    }
+    
+    virtual bool isSet( const std::string& key ) const {
+      return m_optsvc->isSet(key);
+    }
+
+    virtual std::vector<std::tuple<std::string, std::string>> items() const {
+      return m_optsvc->items();
+    }
+
+    virtual void bind( const std::string& prefix, Gaudi::Details::PropertyBase* property ) {
+      return m_optsvc->bind(prefix,property);
+    }
+
+    //    using OnlyDefaults = Gaudi::tagged_bool<class OnlyDefaults_tag>;
+    using OnlyDefaults = Gaudi::Interfaces::IOptionsSvc::OnlyDefaults;
+    virtual void broadcast( const std::regex& filter, const std::string& value,
+                            OnlyDefaults defaults = OnlyDefaults{true} ) {
+      return m_optsvc->broadcast(filter, value, defaults);
+    }
+    ///@}
 
     /// @name IJobOptionsSvc interface
     /// Most interfaces are just forwards to the "real" JobOptionsSvc.
@@ -102,6 +141,7 @@ namespace TrigConf {
 
     /// handle to the "real" IJobOptionsSvc
     ServiceHandle<::IJobOptionsSvc> m_josvc;
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_optsvc;
   };
 
 } // namespace TrigConf

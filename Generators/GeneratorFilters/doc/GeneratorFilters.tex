@@ -139,11 +139,11 @@ PhotonFilter.Ptcut = 10000. \\4 GeV
 
 The filters are used in an Athena seqence as in the following example
 \begin{verbatim}
-theApp.DLLs  += [ "Herwig_i" ]
-theApp.DLLs  += [ "TruthExamples" ]
-theApp.DLLs += [ "HbookCnv" ]
-theApp.DLLs += [ "GeneratorFilters" ]
-theApp.DLLs += ["GaudiAlg"]
+theApp.Dlls  += [ "Herwig_i" ]
+theApp.Dlls  += [ "TruthExamples" ]
+theApp.Dlls += [ "HbookCnv" ]
+theApp.Dlls += [ "GeneratorFilters" ]
+theApp.Dlls += ["GaudiAlg"]
 theApp.HistogramPersistency = "HBOOK"
 theApp.TopAlg = ["Sequencer/Generator"]
 Generator.Members = ["Herwig", "ElectronFilter", "HistSample"]

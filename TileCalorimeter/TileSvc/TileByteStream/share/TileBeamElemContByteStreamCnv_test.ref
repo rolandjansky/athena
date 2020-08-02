@@ -299,7 +299,7 @@ TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCond
 TileEMScaleCondAlg   INFO ProxyOflLasFib is set up and can be used
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCes) for folder: "/TILE/OFL02/CALIB/CES"
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflEms) for folder: "/TILE/OFL02/CALIB/EMS"
-TileEMScaleCondAlg   INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':Invalid
+TileEMScaleCondAlg   INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':'Invalid'
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCis) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlLas) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCes) for folder: "/TILE/OFL02/CALIB/CES"
@@ -951,7 +951,7 @@ TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyC
 TileEMScaleCondAlg                             0    INFO ProxyOflLasFib is set up and can be used
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCes) for folder: "/TILE/OFL02/CALIB/CES"
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflEms) for folder: "/TILE/OFL02/CALIB/EMS"
-TileEMScaleCondAlg                             0    INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':Invalid
+TileEMScaleCondAlg                             0    INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':'Invalid'
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCis) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlLas) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCes) for folder: "/TILE/OFL02/CALIB/CES"
