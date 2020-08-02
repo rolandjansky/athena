@@ -47,17 +47,17 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
     acc = MuonTrackSummaryHelperToolCfg(flags)
     muon_track_summary_helper_tool = acc.getPrimary()
-    track_summary_tool = CompFactory.Trk.TrackSummaryTool(name            = "CombinedMuonTrackSummary",
-                                                                doSharedHits             = False,
-                                                                doHolesInDet             = True,
-                                                                doHolesMuon              = False,
-                                                                AddDetailedInDetSummary  = True,
-                                                                AddDetailedMuonSummary   = True,
-                                                                InDetSummaryHelperTool   = indet_track_summary_helper_tool,
-                                                                TRT_ElectronPidTool      = None,
-                                                                PixelToTPIDTool          = None,
-                                                                MuonSummaryHelperTool    = muon_track_summary_helper_tool,
-                                                                PixelExists              = True )
+    track_summary_tool = CompFactory.Trk.TrackSummaryTool(name="CombinedMuonTrackSummary",
+                                                          doSharedHits             = False,
+                                                          doHolesInDet             = True,
+                                                          doHolesMuon              = False,
+                                                          AddDetailedInDetSummary  = True,
+                                                          AddDetailedMuonSummary   = True,
+                                                          InDetSummaryHelperTool   = indet_track_summary_helper_tool,
+                                                          TRT_ElectronPidTool      = None,
+                                                          PixelToTPIDTool          = None,
+                                                          MuonSummaryHelperTool    = muon_track_summary_helper_tool,
+                                                          PixelExists              = True )
     result.merge(acc)
     result.addPublicTool(track_summary_tool)
     result.setPrivateTools(track_summary_tool)
@@ -216,6 +216,15 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
     result.merge(acc)
 
+    from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg, MuonTrackSummaryToolCfg
+    acc = MuonAmbiProcessorCfg(flags)
+    kwargs.setdefault("AmbiguityProcessor", acc.popPrivateTools())
+    result.merge(acc)
+
+    acc = MuonTrackSummaryToolCfg(flags)
+    kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools())
+    result.merge(acc)
+
     # This tool needs MuonScatteringAngleSignificanceTool... which in turn needs TrackingVolumeSvc.
     # FIXME - probably this should be someplace central.
     trackingVolSvc = CompFactory.Trk.TrackingVolumesSvc(name="TrackingVolumesSvc")
@@ -309,6 +318,11 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
 
     acc = MuonMatchQualityCfg(flags)
     kwargs.setdefault("MatchQuality",           acc.popPrivateTools() )
+    result.merge(acc)
+
+    from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
+    acc = MuonTrackScoringToolCfg(flags)
+    kwargs.setdefault("TrackScoringTool", acc.popPrivateTools())
     result.merge(acc)
 
     tool = CompFactory.MuonCombined.MuonCombinedFitTagTool(name,**kwargs)
