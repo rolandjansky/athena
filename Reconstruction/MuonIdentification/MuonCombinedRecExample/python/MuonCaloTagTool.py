@@ -48,7 +48,10 @@ def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
 def CaloMuonScoreTool(name='CaloMuonScoreTool', **kwargs ):
+    from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
+    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
     kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
+    kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
     return CfgMgr.CaloMuonScoreTool(name,**kwargs)
 
 def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):  
@@ -59,6 +62,7 @@ def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):
     kwargs.setdefault("CaloMuonTagLoose",       CaloMuonTagLoose )
     kwargs.setdefault("CaloMuonTagTight",       CaloMuonTagTight )
     kwargs.setdefault("CaloMuonLikelihoodTool", getPrivateTool("CaloMuonLikelihoodTool") )
+    kwargs.setdefault("CaloMuonScoreTool", getPrivateTool("CaloMuonScoreTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )
     kwargs.setdefault("doCaloLR",               True )

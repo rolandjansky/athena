@@ -82,6 +82,7 @@ addTool("MuonCombinedRecExample.MuonCaloTagTool.TrackDepositInCaloTool","TrackDe
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTagLoose","CaloMuonTagLoose")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTag","CaloMuonTag")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonLikelihoodTool","CaloMuonLikelihoodTool")
+addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreTool","CaloMuonScoreTool")
 
 ####### muid tools
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMatchQuality","MuonMatchQuality")

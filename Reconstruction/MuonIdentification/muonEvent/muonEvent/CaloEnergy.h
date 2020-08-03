@@ -53,7 +53,7 @@ public:
                 float   sigmaMinusDeltaE=0.0,
                 float   sigmaPlusDeltaE=0.0,
 		unsigned short energyLossType=0,
-		float          likelhoold=0,
+		float          likelihood=0,
 		float   muonScore=0,
 		unsigned short tag=0);
 

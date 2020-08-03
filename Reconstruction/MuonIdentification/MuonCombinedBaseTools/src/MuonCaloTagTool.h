@@ -100,7 +100,7 @@ namespace MuonCombined {
     
     // --- CaloTrkMuIdTools ---
     ToolHandle<ICaloMuonLikelihoodTool>  m_caloMuonLikelihood{this,"CaloMuonLikelihoodTool","CaloMuonLikelihoodTool/CaloMuonLikelihoodTool"};
-    ToolHandle<ICaloMuonScoreTool>  m_caloMuonScore{this, "CaloMuonScoreTool", "CaloMuonScoreTool/CaloMuonScoreTool"};
+    ToolHandle<ICaloMuonScoreTool>  m_caloMuonScoreTool{this, "CaloMuonScoreTool", "CaloMuonScoreTool/CaloMuonScoreTool"};
 
     ToolHandle<ICaloMuonTag>             m_caloMuonTagLoose{this,"CaloMuonTagLoose","CaloMuonTag/CaloMuonTagLoose","CaloTrkMuIdTools::CaloMuonTag for loose tagging"}; 
     ToolHandle<ICaloMuonTag>             m_caloMuonTagTight{this,"CaloMuonTagTight","CaloMuonTag/CaloMuonTag","CaloTrkMuIdTools::CaloMuonTag for tight tagging"}; 

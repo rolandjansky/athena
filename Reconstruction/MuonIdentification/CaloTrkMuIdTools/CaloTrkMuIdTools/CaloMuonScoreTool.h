@@ -89,6 +89,7 @@ private:
   std::string m_modelFileName;
 
   ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
+
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
 
   std::unique_ptr< Ort::Session > m_session;
