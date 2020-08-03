@@ -551,11 +551,9 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
+    l1DecoderAcc = L1DecoderCfg( flags, seqName =  "HLTBeginSeq")
     # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
-    acc.merge( l1DecoderAcc, sequenceName="HLTBeginSeq" )
-    acc.addEventAlgo( l1DecoderAlg, sequenceName="HLTBeginSeq")
-
+    acc.merge( l1DecoderAcc )
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
@@ -575,6 +573,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
 
     #once menu is included we should configure monitoring here as below
+    l1DecoderAlg = l1DecoderAcc.getEventAlgo("L1Decoder")
 
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc, sequenceName="HLTEndSeq" )

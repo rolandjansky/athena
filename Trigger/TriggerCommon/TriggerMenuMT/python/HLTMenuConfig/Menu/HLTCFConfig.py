@@ -127,9 +127,8 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
 
     # find main HLT top sequence (already set up in runHLT_standalone)
-    from AthenaCommon.CFElements import findSubSequence
-    hltBeginSeq = findSubSequence(topSequence, "HLTBeginSeq")
-    l1decoder = [ d for d in hltBeginSeq.getChildren() if d.getType() == "L1Decoder" ]
+    from AthenaCommon.CFElements import findSubSequence,findAlgorithm
+    l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -175,11 +174,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # Add any required algs to hltFinalizeSeq here
 
     # More collections required to configure the algs below
-    decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
+    decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     Configurable.configurableRun3Behavior=1
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder )
     Configurable.configurableRun3Behavior=0
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
