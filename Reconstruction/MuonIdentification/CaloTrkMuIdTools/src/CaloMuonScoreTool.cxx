@@ -58,7 +58,7 @@ StatusCode CaloMuonScoreTool::initialize() {
 
   m_session = std::make_unique< Ort::Session > (env, model_file_name.c_str(), session_options);
 
-  ATH_MSG_INFO("Created ONNX runtime session");
+  ATH_MSG_INFO("Created ONNX runtime session with model " << model_file_name);
   
   std::vector<int64_t> input_node_dims;
   size_t num_input_nodes = m_session->GetInputCount();
@@ -66,21 +66,21 @@ StatusCode CaloMuonScoreTool::initialize() {
   for( std::size_t i = 0; i < num_input_nodes; i++ ) {
     // print input node names
     char* input_name = m_session->GetInputName(i, allocator);
-    ATH_MSG_DEBUG("Input "<<i<<" : "<<" name= "<<input_name);
+    ATH_MSG_INFO("Input "<<i<<" : "<<" name= "<<input_name);
     input_node_names[i] = input_name;
     // print input node types
     Ort::TypeInfo type_info = m_session->GetInputTypeInfo(i);
     auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
     ONNXTensorElementDataType type = tensor_info.GetElementType();
-    ATH_MSG_DEBUG("Input "<<i<<" : "<<" type= "<<type);
+    ATH_MSG_INFO("Input "<<i<<" : "<<" type= "<<type);
     
     // print input shapes/dims
     input_node_dims = tensor_info.GetShape();
-    ATH_MSG_DEBUG("Input "<<i<<" : num_dims= "<<input_node_dims.size());
+    ATH_MSG_INFO("Input "<<i<<" : num_dims= "<<input_node_dims.size());
     for (std::size_t j = 0; j < input_node_dims.size(); j++){
       if(input_node_dims[j]<0)
 	input_node_dims[j] =1;
-      ATH_MSG_DEBUG("Input "<<i<<" : dim "<<j<<"= "<<input_node_dims[j]);
+      ATH_MSG_INFO("Input "<<i<<" : dim "<<j<<"= "<<input_node_dims[j]);
     }  
   }
 
@@ -92,21 +92,21 @@ StatusCode CaloMuonScoreTool::initialize() {
   for( std::size_t i = 0; i < num_output_nodes; i++ ) {
     // print output node names
     char* output_name = m_session->GetOutputName(i, allocator);
-    ATH_MSG_DEBUG("Output "<<i<<" : "<<" name= "<<output_name);
+    ATH_MSG_INFO("Output "<<i<<" : "<<" name= "<<output_name);
     output_node_names[i] = output_name;
     
     Ort::TypeInfo type_info = m_session->GetOutputTypeInfo(i);
     auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
     ONNXTensorElementDataType type = tensor_info.GetElementType();
-    ATH_MSG_DEBUG("Output "<<i<<" : "<<" type= "<<type);
+    ATH_MSG_INFO("Output "<<i<<" : "<<" type= "<<type);
     
     // print output shapes/dims
     output_node_dims = tensor_info.GetShape();
-    ATH_MSG_DEBUG("Output "<<i<<" : num_dims= "<<output_node_dims.size());
+    ATH_MSG_INFO("Output "<<i<<" : num_dims= "<<output_node_dims.size());
     for (std::size_t j = 0; j < output_node_dims.size(); j++){
       if(output_node_dims[j]<0)
 	output_node_dims[j] =1;
-      ATH_MSG_DEBUG("Output"<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
+      ATH_MSG_INFO("Output"<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
     }  
   }
 
