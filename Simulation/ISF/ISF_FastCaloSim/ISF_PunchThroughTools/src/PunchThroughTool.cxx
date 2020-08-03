@@ -526,7 +526,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
       // and ensure that we do not create too many particles
       do
         {
-          numParticles = lround( p->getNumParticlesPDF()->getRand(parameters, true) );
+          numParticles = lround( p->getNumParticlesPDF()->getRand(parameters) );
           // scale the number of particles if requested
           numParticles = lround( numParticles *= p->getNumParticlesFactor() );
         }
@@ -669,7 +669,7 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
 
   // (2.1) get the energy
   double energy = p->getExitEnergyPDF()->getRand(
-                                                 parInitEnergyEta, false, p->getMinEnergy(), maxEnergy/p->getEnergyFactor() );
+                                                 parInitEnergyEta, 0., p->getMinEnergy(), maxEnergy/p->getEnergyFactor() );
   energy *= p->getEnergyFactor(); // scale the energy if requested
 
   // set up the new parameters for the next PDFcreator::getRand calls
@@ -687,19 +687,21 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
     {
       // get random value
       double deltaTheta = p->getExitDeltaThetaPDF()->getRand(
-                                                             parExitEnergyInitEta, false );
+                                                             parInitEnergyEta, energy);
       // decide if delta positive/negative
       deltaTheta *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
       // calculate the exact theta value of the later created
       // punch-through particle
       theta = m_initTheta + deltaTheta*p->getPosAngleFactor();
+      std::cout << "particle deltaTheta " << deltaTheta << std::endl;
+
     }
   while ( (theta > M_PI) || (theta < 0.) );
-
+  std::cout << "particle theta " << theta << " eta " << -log(tan(theta/2.)) << std::endl;
   // (2.3) get the particle's delta phi relative to the incoming particle
 
   double deltaPhi = p->getExitDeltaPhiPDF()->getRand(
-                                                     parExitEnergyInitEta, false );
+                                                     parInitEnergyEta, energy);
   deltaPhi *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
 
   // keep phi within range [-PI,PI]
@@ -724,19 +726,22 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
     {
       // get random value
       double momDeltaTheta = p->getMomDeltaThetaPDF()->getRand(
-                                                               parExitEnergyExitEta, false );
+                                                               parInitEnergyEta, energy);
       // decide if delta positive/negative
       momDeltaTheta *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
       // calculate the exact momentum theta value of the later created
       // punch-through particle
       momTheta = theta + momDeltaTheta*p->getMomAngleFactor();
+      std::cout << "particle momDeltaTheta " << momDeltaTheta << std::endl;
+
     }
   while ( (momTheta > M_PI) || (momTheta < 0.) );
+  std::cout << "particle momTheta " << momTheta << std::endl;
 
   // (2.5) get the particle momentum delta phi, relative to its position
 
   double momDeltaPhi = p->getMomDeltaPhiPDF()->getRand(
-                                                       parExitEnergyExitEta, false );
+                                                       parInitEnergyEta, energy);
   momDeltaPhi *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
 
   double momPhi = phi + momDeltaPhi*p->getMomAngleFactor();
@@ -906,64 +911,9 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
 { 
 
   // will hold the PDFcreator class which will be returned at the end
-  // this will store the probability density functions for the number of punch-through particles
-  // (as functions of energy & eta of the incoming particle)
-  PDFcreator *pdf = 0;
-
-  // (1.) retrieve the distribution function
-  std::stringstream name;
-  name << folderName << pdg << "/function";
-  TF1 *func = (TF1*)m_fileLookupTable->Get(name.str().c_str());
-  if (! func )
-    {
-      ATH_MSG_ERROR("[ punchthrough ] unable to retrieve the PDF (" << folderName << ") from the lookuptable" );
-      return 0;
-    }
-  // store this function in the PDFcreator class
-  pdf = new PDFcreator(func, m_randomEngine);
-
-  // (2.) get this function maximum and minimum
-  std::stringstream namemin, namemax;
-  namemin << folderName << pdg << "/randmin";
-  TH1 *randmin = (TH1*)m_fileLookupTable->Get(namemin.str().c_str());
-  namemax << folderName << pdg << "/randmax";
-  TH1 *randmax = (TH1*)m_fileLookupTable->Get(namemax.str().c_str());
-
-  if ( !(randmin && randmax) )
-    {
-      ATH_MSG_ERROR("[ punchthrough ] unable to retrieve the PDF boundaries (" << folderName << ") from the lookuptable" );
-      delete pdf;
-      return 0;
-    }
-
-  // store this histogram in the PDFcreator class
-  pdf->setRange( randmin, randmax);
-
-  // (3.) get the parameters for the just received distribution function (stored in TH2F histograms)
-  for (int par = 0; par < func->GetNpar(); par++)
-    {
-      // prepare the name of the histogram in the file
-      name.str("");
-      name << folderName << pdg<< "/parameter" << par;
-
-      // get the histogram from the file
-      TH1 *hist = (TH1*)m_fileLookupTable->Get(name.str().c_str());
-
-      // if histogram does not exist -> error!
-      if(! hist)
-        {
-          ATH_MSG_ERROR( "[ punchthrough ] unable to retrieve all parameters for the distribution ("<< folderName << pdg << ")" );
-          delete pdf;
-          return 0;
-        }
-
-      // add this histogram to the PDFcreator class
-      pdf->addPar( hist );
-    }
-
-
-    bool newParam = true;
-    if(newParam){
+  // this will store the distributions for the punch through particles
+  // (as map of energy & eta of the incoming particle)
+  PDFcreator *pdf = new PDFcreator(m_randomEngine);
 
       //Get directory object
       std::stringstream dirName;
@@ -985,29 +935,24 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
 
       while ((key = (TKey*)keyList())) {
 
-        //Check that key is a histogram
-        TClass *cl = gROOT->GetClass(key->GetClassName());
-        if (!cl->InheritsFrom("TH1")) continue;
-
-        //Get histogram object from key to store in pdf
-        TH1* hist = (TH1*)key->ReadObj();
-
-        //Get histogam name to extract eta and energy slice
-        std::string histName = hist->GetName();
-
-        //temporary solition to skip old param
-        if(histName.find("param") != std::string::npos){continue;}
-        if(histName.find("rand") != std::string::npos){continue;}
-
+        //Get histogram object from key and its name
+        TH1* hist1D;
+        TH2* hist2D;
+        std::string histName;
+        if(strcmp(key->GetClassName(), "TH1F") == 0){
+          hist1D = (TH1*)key->ReadObj();
+          histName = hist1D->GetName();
+        }
+        if(strcmp(key->GetClassName(), "TH2F") == 0){
+          hist2D = (TH2*)key->ReadObj();
+          histName = hist2D->GetName();
+        }
         //extract energy and eta from hist name 6 and 1 to position delimeters correctly 
         std::string strEnergy = histName.substr( histName.find_first_of("E") + 1, histName.find_first_of("_")-histName.find_first_of("E") - 1 );
         histName.erase(0, histName.find_first_of("_") + 1);
         std::string strEtaMin = histName.substr( histName.find("etaMin") + 6, histName.find_first_of("_") - histName.find("etaMin") - 6 );
         histName.erase(0, histName.find("_") + 1);
         std::string strEtaMax = histName.substr( histName.find("etaMax") + 6, histName.length());
-
-        //debug printer
-        //std::cout << strEnergy << " " << strEtaMin << " " << strEtaMax << std::endl;
         
         //convert string slice information to int and push back to vector
         std::vector<double> energyEtaMinEtaMax;
@@ -1022,11 +967,15 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
         etaMinEtaMax.push_back(std::stod(strEtaMax));
 
         //Add entry to pdf map 
-        pdf->addToSliceHistMap(energyEtaMinEtaMax, hist);
-        pdf->addToEnergyEtaRangeHistMap(energy, etaMinEtaMax, hist);
+        if(strcmp(key->GetClassName(), "TH1F") == 0){
+          pdf->addToEnergyEtaRangeHist1DMap(energy, etaMinEtaMax, hist1D);
+        }
+        if(strcmp(key->GetClassName(), "TH2F") == 0){
+          pdf->addToEnergyEtaRangeHist2DMap(energy, etaMinEtaMax, hist2D);
+        }
       }
 
-    }
+    
 
   return pdf;
 }
@@ -1063,7 +1012,6 @@ ISF::ISFParticle* ISF::PunchThroughTool::createExitPs( int pdg,
 
   ISF::ISFParticle* finalPar = new ISF::ISFParticle (pos, mom, mass, charge, pdg, pTime, *m_initPs, m_secBC);
   finalPar->setNextGeoID( AtlasDetDescr::fAtlasMS);
-
   // return the punch-through particle
   return finalPar;
 }
