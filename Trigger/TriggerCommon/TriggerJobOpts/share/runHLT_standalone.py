@@ -513,6 +513,13 @@ svcMgr.MessageSvc.infoLimit=10000
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc() )
 
+if not opt.createHLTMenuExternally:
+    # the generation of the prescale set file from the menu (with all prescales set to 1)
+    # is not really needed. If no file is provided all chains are either enabled or disabled,
+    # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+    from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+    createHLTPrescalesFileFromMenu()
+
 
 
 # ---------------------------------------------------------------
