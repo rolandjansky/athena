@@ -160,6 +160,18 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 	else
 	{
 		ATH_MSG_WARNING("\n\n\t\tRetrieve works!!!.\n\n");
+		
+	for(int i=1; i<=3654; i++)
+	{
+		if (m_bunchCrossingTool->isFilled(i))
+		{
+			std::cout << "\tFilled: " << i << std::endl;
+		}
+		else
+		{
+			std::cout << "\tNOT filled: " << i << std::endl;
+		}
+	}
 	}
 
 	return AthMonitorAlgorithm::initialize();
@@ -218,7 +230,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 	// IMPORTANT PART
 	EventID::number_type specialBCID = GetEventInfo(ctx)->bcid();
-	(m_bunchCrossingTool->isFilled(specialBCID))
+	if (m_bunchCrossingTool->isFilled(specialBCID))
 	{
 		std::cout << "\tFilled: " << specialBCID << std::endl;
 	}
