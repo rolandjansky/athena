@@ -1,16 +1,16 @@
 The script 
 
-athenaHLT-select-PEB-stream.py
+trigbs_extractStream.py
 
 allows to select from a bytestream file events which belong to a given stream and to write them to a bytestream output file which
 obeys the same conventions as the files produced in P1.
 
-athenaHLT-select-PEB-stream.py -h
+trigbs_extractStream.py -h
 
 gives a list of options which can be used:
 
-./athenaHLT-select-PEB-stream.py -h
-global "./athenaHLT-select-PEB-stream.py" options: -[DFPadhlnpsv] | --[dump-options,help,lumi-block,max-events,option-file,output-dir,progress-bar,project-tag,start-event,stream-name,verbosity] [arguments]+
+./trigbs_extractStream.py -h
+global "./trigbs_extractStream.py" options: -[DFPadhlnpsv] | --[dump-options,help,lumi-block,max-events,option-file,output-dir,progress-bar,project-tag,start-event,stream-name,verbosity] [arguments]+
 
  [Global options]
 
@@ -50,9 +50,9 @@ Typical workflow for developers:
 
 The <athenaHLT-output-file> will contain all events which have triggered, including also DataScouting events.
 
-3) Generate a P1 stream file with "athenaHLT-select-PEB-stream.py" from the athenaHLT output file
+3) Generate a P1 stream file with "trigbs_extractStream.py" from the athenaHLT output file
 
-> athenaHLT-select-PEB-stream.py -s <my-preferred-stream> <athenaHLT-output-file>
+> trigbs_extractStream.py -s <my-preferred-stream> <athenaHLT-output-file>
 
 There will be an output file produced of the form
 
@@ -69,9 +69,9 @@ All input events have to be for the same run number, but can have different lumi
 Some Remarks:
 -------------
 
-1) athenaHLT-select-PEB-stream.py allows to read multiple input files
+1) trigbs_extractStream.py allows to read multiple input files
 
-> athenaHLT-select-PEB-stream.py <file1> <file2> ... <fileN>
+> trigbs_extractStream.py <file1> <file2> ... <fileN>
 
 All events have to be however from the same run. Events from different runs are skipped and an ERROR message is printed.
 
@@ -81,10 +81,10 @@ All events have to be however from the same run. Events from different runs are 
 
 4) For repeated running with the same options a standard option file can be generated:
 
-athenaHLT-select-PEB-stream.py -D <various options> <input files>  > my-opt-file.py
+trigbs_extractStream.py -D <various options> <input files>  > my-opt-file.py
 
 and the run can be repeated with
 
-athenaHLT-select-PEB-stream.py -F my-opt-file.py
+trigbs_extractStream.py -F my-opt-file.py
 
 The file my-opt-file.py can be also edited and modified with Python commands.
