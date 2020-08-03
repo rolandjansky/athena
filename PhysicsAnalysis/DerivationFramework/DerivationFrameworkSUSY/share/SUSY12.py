@@ -42,6 +42,15 @@ SUSY12ThinningHelper.TriggerChains = '(' + ' | '.join(triggers) + ')' #triggerRe
 SUSY12ThinningHelper.AppendToStream( SUSY12Stream )
 
 
+#==============================================================================                                                                                                                            # Jet building                                                                                                                                                                                             #==============================================================================                                                                                                                             
+#re-tag PFlow jets so they have b-tagging info.                                                                                                                                                            
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY12)
+
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                  
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY12, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY12, algname='JetForwardJvtToolBDTAlg')
+
+
 #====================================================================
 # THINNING TOOL
 #====================================================================\
@@ -278,9 +287,11 @@ SeqSUSY12 += CfgMgr.DerivationFramework__DerivationKernel(
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY12SlimmingHelper = SlimmingHelper("SUSY12SlimmingHelper")
 
-SUSY12SlimmingHelper.SmartCollections = [
+SUSY12SlimmingHelper.SmartCollections = ["AntiKt4EMPFlowJets",
+                                         "MET_Reference_AntiKt4EMPFlow",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "BTagging_AntiKt4EMPFlow_201903",
                                          "AntiKt4EMTopoJets",
-                                         #"AntiKt4EMPFlowJets",
                                          #"AntiKt4LCTopoJets",
                                          "Electrons",
                                          "Photons",
@@ -288,7 +299,6 @@ SUSY12SlimmingHelper.SmartCollections = [
                                          "TauJets",
                                          "PrimaryVertices",
                                          "MET_Reference_AntiKt4EMTopo",
-                                         #"BTagging_AntiKt4EMTopo",
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "BTagging_AntiKt4EMTopo_201810",
                                          "InDetTrackParticles"

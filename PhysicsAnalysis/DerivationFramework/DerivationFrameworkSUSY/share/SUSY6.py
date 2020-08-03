@@ -476,6 +476,10 @@ SeqSUSY6 += CfgMgr.DerivationFramework__DerivationKernel("SUSY6KernelSkim",
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY6)
 
+
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                   
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY6, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY6, algname='JetForwardJvtToolBDTAlg')
 #==============================================================================
 # Augment after skim
 #==============================================================================
