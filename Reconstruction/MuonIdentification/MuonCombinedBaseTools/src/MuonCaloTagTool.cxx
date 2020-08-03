@@ -257,7 +257,7 @@ namespace MuonCombined {
 	likelihood = m_caloMuonLikelihood->getLHR(tp, caloClusterCont);
       }
       if(m_doCaloScore || 1){
-	muon_score = m_caloMuonScore->getMuonScore();
+	muon_score = m_caloMuonScore->getMuonScore(tp);
       }
       ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and muon score " << muon_score);
       // --- If both the taggers do not think it's a muon, forget about it ---

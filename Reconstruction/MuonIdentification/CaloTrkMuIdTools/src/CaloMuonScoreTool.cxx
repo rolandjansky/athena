@@ -12,9 +12,7 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
 #include "TrkParameters/TrackParameters.h"
-
-#include "TFile.h"
-#include "TH1F.h"
+#include "ParticleCaloExtension/ParticleCellAssociationCollection.h"
 
 #include <string>
 #include <iostream>
@@ -54,9 +52,11 @@ StatusCode CaloMuonScoreTool::initialize() {
   session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
 
   // declared in header, so we should not need this
-  std::unique_ptr<Ort::Session> m_session;
+  //  std::unique_ptr<Ort::Session> m_session;
 
-  m_session = std::make_unique< Ort::Session > (env, m_modelFileName, session_options);
+  const std::string model_file_name = PathResolverFindDataFile( m_modelFileName );
+
+  m_session = std::make_unique< Ort::Session > (env, model_file_name.c_str(), session_options);
 
   ATH_MSG_INFO("Created ONNX runtime session");
   
@@ -116,7 +116,7 @@ StatusCode CaloMuonScoreTool::initialize() {
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::fillInputVectors
 ///////////////////////////////////////////////////////////////////////////////
-void CaloMuonScoreTool::fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation> association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const {
+void CaloMuonScoreTool::fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation>& association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const {
   int cell_count = 0;
 
   for( auto cluster: association->data()){
@@ -193,7 +193,7 @@ float CaloMuonScoreTool::runOnnxInference( std::vector<float> &tensor ) const {
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::channelForSamplingId
 ///////////////////////////////////////////////////////////////////////////////
-int channelForSamplingId(int &samplingId){
+int CaloMuonScoreTool::channelForSamplingId(int &samplingId) const{
   //[0,1,2,3,12,13,14]
   switch(samplingId){
   case 0: return 0;
@@ -211,7 +211,7 @@ int channelForSamplingId(int &samplingId){
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getMedian
 ///////////////////////////////////////////////////////////////////////////////
-float getMedian(std::vector<float> vec){
+float CaloMuonScoreTool::getMedian(std::vector<float> vec) const{
   std::nth_element( vec.begin(), vec.begin() + vec.size() / 2, vec.end() );
 
   float val_right = *(vec.begin() + (vec.size() / 2));
@@ -229,7 +229,7 @@ float getMedian(std::vector<float> vec){
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getBin
 ///////////////////////////////////////////////////////////////////////////////
-int getBin(std::vector<float> &bins, float &val){
+int CaloMuonScoreTool::getBin(std::vector<float> &bins, float &val) const{
   // return -1 if value is outside the range
   if(val < bins.front()){
     return -1;
@@ -239,7 +239,7 @@ int getBin(std::vector<float> &bins, float &val){
     return -1;
   }
   
-  for(int i = 0; i < bins.size(); i++) {
+  for(long unsigned int i = 0; i < bins.size(); i++) {
     if(val < bins[i]) return i;
   }
 
@@ -250,7 +250,7 @@ int getBin(std::vector<float> &bins, float &val){
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getLinearlySpacedBins
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<float> getLinearlySpacedBins(float min, float max, int nBins){
+std::vector<float> CaloMuonScoreTool::getLinearlySpacedBins(float min, float max, int nBins) const{
   double h = (max - min) / static_cast<float>(nBins-1);
   std::vector<float> xs(nBins);
   std::vector<float>::iterator x;
@@ -265,7 +265,7 @@ std::vector<float> getLinearlySpacedBins(float min, float max, int nBins){
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getInputTensor
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const {
+std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const {
   int n_cells = eta.size();
 
   float median_eta = getMedian(eta);
@@ -283,18 +283,18 @@ std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &p
 
   for(int i = 0; i < n_cells; i++ ){
     // take eta and phi values, and shift them by their repsective median
-    float _eta = eta[i] - median_eta;
-    float _phi = phi[i] - median_phi;
+    float shifted_eta = eta[i] - median_eta;
+    float shifted_phi = phi[i] - median_phi;
 
-    int eta_bin = getBin(eta_bins, _eta); 
-    int phi_bin = getBin(phi_bins, _phi);
+    int eta_bin = getBin(eta_bins, shifted_eta); 
+    int phi_bin = getBin(phi_bins, shifted_phi);
 
     // the cell lies outside the acceptable range
     if(eta_bin == -1 || phi_bin == -1){
       skipped_cells++;
       ATH_MSG_DEBUG("Skipping cell because eta or phi bin lies outside of range. Eta bin: " << eta_bin << " phi bin: " << phi_bin);
       ATH_MSG_DEBUG("eta value: " << eta[i] << ", phi value: " << phi[i]);
-      ATH_MSG_DEBUG("Median-shifted eta value: " << _eta << ", median-shifted phi value: " << _phi);
+      ATH_MSG_DEBUG("Median-shifted eta value: " << shifted_eta << ", median-shifted phi value: " << shifted_phi);
       continue;
     }
 

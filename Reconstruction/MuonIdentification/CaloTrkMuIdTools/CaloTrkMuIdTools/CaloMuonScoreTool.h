@@ -15,7 +15,7 @@
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 #include <vector>
-//#include <tuple>
+#include <memory>
 
 /** @class CaloMuonScoreTool
 
@@ -46,7 +46,7 @@ public:
   float runOnnxInference(std::vector<float> &tensor) const;
 
   // fill vectors from the particle cell association
-  void fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation> association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const;
+  void fillInputVectors(std::unique_ptr<const Rec::ParticleCellAssociation>& association, std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const;
 
   // Compute the median of a vector of floats (can be even or odd in length)
   float getMedian(std::vector<float> v) const;
@@ -62,6 +62,12 @@ public:
 
   // for a given particle, consume vectors for eta, phi, energy, sampling ID, and return the input tensor to be used in ONNX
   std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const;
+
+  std::vector<const char*> input_node_names;
+
+  std::vector<const char*> output_node_names;
+
+  std::vector<int64_t> input_node_dims;
 
 private:
   // Number of bins in eta
@@ -84,6 +90,8 @@ private:
 
   ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
+
+  std::unique_ptr< Ort::Session > m_session;
 };
 
 #endif
