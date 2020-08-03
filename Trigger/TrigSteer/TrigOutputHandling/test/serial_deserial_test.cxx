@@ -21,6 +21,8 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
+#include "xAODBTagging/BTaggingContainer.h"
+
 #include "../src/TriggerEDMSerialiserTool.h"
 #include "../src/TriggerEDMDeserialiserAlg.h"
 
@@ -111,6 +113,7 @@ void testTrigEMContainerInsert(StoreGateSvc* pStore) {
   SG::AuxElement::Accessor< int >   viewIndex( "viewIndex" );
   SG::AuxElement::Accessor< float > testFloat( "testFloat" );
   SG::AuxElement::Accessor< float > testSmallFloat( "testSmallFloat" );
+  SG::AuxElement::Accessor< ElementLink<xAOD::BTaggingContainer> > testTypedElementLink( "testTypedElementLink" );
 
 
   auto fill = [&]( double x) {
@@ -136,6 +139,7 @@ void testTrigEMContainerInsert(StoreGateSvc* pStore) {
       viewIndex( *cluster ) = x+1; // for sake of change add 1
       testFloat( *cluster ) = float(x)+0.1; // for sake of change add 0.1
       testSmallFloat( *cluster ) = float(x);
+      testTypedElementLink( *cluster ) = ElementLink<xAOD::BTaggingContainer>(123, 456);
     };
 
 
@@ -165,6 +169,7 @@ void testTrigEMContainerReadAndCheck(StoreGateSvc* pStore) {
   SG::AuxElement::ConstAccessor< int > viewIndexReader( "viewIndex" );
   SG::AuxElement::ConstAccessor< float > testFloatReader( "testFloat" );
   SG::AuxElement::ConstAccessor< float > testSmallFloatReader( "testSmallFloat" );
+  SG::AuxElement::ConstAccessor< ElementLink<xAOD::BTaggingContainer> > testTypedElementLinkReader( "testTypedElementLink" );
 
   VALUE ( emback->size() ) EXPECTED ( 30 ); // as many fills were made
 
@@ -176,12 +181,14 @@ void testTrigEMContainerReadAndCheck(StoreGateSvc* pStore) {
     float fl = testFloatReader( *cl );
     float smallFl = testSmallFloatReader( *cl );
     float rawEt = cl->rawEt();
+    ElementLink<xAOD::BTaggingContainer> el = testTypedElementLinkReader( *cl );
 
     std::cout << vi << " " << fl << " " << rawEt << " ";
     VALUE( vi ) EXPECTED ( i + 1 );
     VALUE( fl ) EXPECTED ( 0.1 + i );
     VALUE( (smallFl - i) < 0.1 ) EXPECTED ( true );  // precision is poor because we decided to reduce space for this variable
     VALUE( rawEt ) EXPECTED ( i - 0.2 );
+    VALUE( el ) EXPECTED ( ElementLink<xAOD::BTaggingContainer>(123, 456) );
   }
   std::cout << std::endl;
 }

@@ -15,7 +15,7 @@ Use and configuration in ATHENA:
 
     * Load and use the required DLL module with the following command lines:
 
-       ApplicationMgr.DLLs += { "TrigT1RPCsteering" };
+       ApplicationMgr.Dlls += { "TrigT1RPCsteering" };
        ApplicationMgr.TopAlg = { "TrigT1RPC" };
 
     * The steering needs all the other packages inside the branch TrigT1RPC.

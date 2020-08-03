@@ -152,8 +152,6 @@ def tauCaloSequence(ConfigFlags):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
     return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    
@@ -186,8 +184,6 @@ def tauCaloMVASequence(ConfigFlags):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     tauCaloMVASequence = seqAND("tauCaloMVASequence", [tauCaloMVAViewsMaker, tauCaloMVAInViewSequence ])
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)

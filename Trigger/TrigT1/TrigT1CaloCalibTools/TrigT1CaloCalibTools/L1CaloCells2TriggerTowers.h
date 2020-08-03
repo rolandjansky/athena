@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOCELLS2TRIGGERTOWERS_H_
@@ -8,6 +8,7 @@
 // Athena Includes
 #include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Calo includes
@@ -47,7 +48,9 @@
   */
 
 namespace LVL1 {
-class L1CaloCells2TriggerTowers final : virtual public IL1CaloCells2TriggerTowers, public asg::AsgTool
+
+class ATLAS_NOT_THREAD_SAFE   // use of LArCablingBase
+L1CaloCells2TriggerTowers final : virtual public IL1CaloCells2TriggerTowers, public asg::AsgTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( L1CaloCells2TriggerTowers , LVL1::IL1CaloCells2TriggerTowers )

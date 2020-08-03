@@ -4,17 +4,17 @@
 
 //$Id: TGCTimingManager.cxx,v 1.4 2009-05-13 02:53:51 isaya Exp $
 
-#include "TrigT1TGC/TGCSector.hh"
-#include "TrigT1TGC/TGCPatchPanel.hh"
-#include "TrigT1TGC/TGCSlaveBoard.hh"
-#include "TrigT1TGC/TGCDoubletSB.hh"
-#include "TrigT1TGC/TGCWireTripletSB.hh"
-#include "TrigT1TGC/TGCStripTripletSB.hh"
-#include "TrigT1TGC/TGCHighPtBoard.hh"
-#include "TrigT1TGC/TGCWireHighPtBoard.hh"
-#include "TrigT1TGC/TGCStripHighPtBoard.hh"
-#include "TrigT1TGC/TGCSectorLogic.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCPatchPanel.h"
+#include "TrigT1TGC/TGCSlaveBoard.h"
+#include "TrigT1TGC/TGCDoubletSB.h"
+#include "TrigT1TGC/TGCWireTripletSB.h"
+#include "TrigT1TGC/TGCStripTripletSB.h"
+#include "TrigT1TGC/TGCHighPtBoard.h"
+#include "TrigT1TGC/TGCWireHighPtBoard.h"
+#include "TrigT1TGC/TGCStripHighPtBoard.h"
+#include "TrigT1TGC/TGCSectorLogic.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"

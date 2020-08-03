@@ -662,7 +662,7 @@ class MessageCountStep(Step):
         ret, cmd = super(MessageCountStep, self).run(dry_run)
         self.auto_report_result = auto_report
         if ret != 0:
-            self.log.error('%s failed')
+            self.log.error('%s failed', self.name)
             self.result = 1
             if self.auto_report_result:
                 self.report_result()
@@ -742,12 +742,12 @@ def default_check_steps(test):
         log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
-    reco_tf_steps = [step for step in test.exec_steps if step.type=='Reco_tf']
+    reco_tf_steps = [step for step in test.exec_steps if step.type in ['Reco_tf', 'Trig_reco_tf']]
     if len(reco_tf_steps) > 0:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL']
+                    'PhysicsValidation', 'RAWtoALL', 'BSRDOtoRAW']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         if not get_step_from_list('LogMerge', check_steps):
             for step in reco_tf_steps:

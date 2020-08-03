@@ -3,12 +3,12 @@
 */
 
 // ********************************************************************
-// 
+//
 // NAME:     muCombMT.h
 // PACKAGE:  Trigger/TrigAlgorithms/TrigmuComb
-// 
+//
 // AUTHORS:   S. Giagu <stefano.giagu@cern.ch>
-// 
+//
 // PURPOSE:  LVL2 Combined Muon FEX Algorithm (MT version)
 // ********************************************************************
 
@@ -17,7 +17,7 @@
 
 // standard stuff
 #include <vector>
-#include <cmath> 
+#include <cmath>
 
 // general athena stuff
 #include "GaudiKernel/IToolSvc.h"
@@ -33,7 +33,6 @@
 #include "StoreGate/WriteHandleKey.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
-//#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -53,14 +52,14 @@ class muCombMT : public AthAlgorithm
   muCombMT(const std::string&, ISvcLocator*);
   /** Destructor */
   ~muCombMT(){};
-   
+
   /** initialize. Called by the Steering. */
   StatusCode initialize();
   /** finalize. Called by the Steering. */
   StatusCode finalize();
-  /** execute execute the combined muon FEX. */ 
+  /** execute execute the combined muon FEX. */
   StatusCode execute();
-   
+
  private:
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrackParticleContainerKey{ this,
@@ -82,27 +81,24 @@ class muCombMT : public AthAlgorithm
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
   /** Handle to the G4 backExtrapolator tool */
-  //ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;  
+  //ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;
   PublicToolHandle<Trk::IExtrapolator> m_backExtrapolatorG4 {this,
      "AtlasExtrapolator",
      "Trk::Extrapolator/AtlasExtrapolator",
      "Tool to backextrapolate muon from MS to IP (G4 based)"};
 
-  /** Handle to the Magnetic field service */
-  //ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;       //!< helper tool to get the magnetic field
-  //MagField::IMagFieldSvc* m_MagFieldSvc; 
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
 
   int    drptMatch(double, double, double,
-                   double, double, double, int, 
+                   double, double, double, int,
 		   double&, double&, double&, double&, double&);
 
-  int    drptMatch(const xAOD::L2StandAloneMuon* feature, 
-                   double, double, double, int, 
+  int    drptMatch(const xAOD::L2StandAloneMuon* feature,
+                   double, double, double, int,
 		   double&, double&, double&, double&, double&);
 
-  int    mfMatch(const xAOD::L2StandAloneMuon* feature, 
+  int    mfMatch(const xAOD::L2StandAloneMuon* feature,
                  double, double, double, double,
 		 double&, double&, double&, double&, double&, int&);
 
@@ -180,7 +176,7 @@ class muCombMT : public AthAlgorithm
    Gaudi::Property<double>  m_WeightEta      {this, "WeightEta",            2.0, "matching parameter: LUT-based"};
   /** Scale factor for the Phi matching window in LUT backextrapolator */
    Gaudi::Property<double>  m_WeightPhi      {this, "WeightPhi",            2.0, "matching parameter: LUT-based"};
-                                             
+
    // g4 based backextrapolator
   /** Number of sigmas for the Eta matching window LUT backextrapolator (Barrel) */
    Gaudi::Property<double>  m_WinEta_g4      {this, "WinEtaSigma_g4",       7.0, "matching parameter: G4-based"};

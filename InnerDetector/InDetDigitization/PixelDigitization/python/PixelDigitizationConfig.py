@@ -342,11 +342,13 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
-        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg",
+                                        ReadKeyState = '')
 
     if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
-        condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
+        condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg",
+                                         ReadKeyStatus = '')
 
     if not conddb.folderRequested("/PIXEL/DCS/HV"):
         conddb.addFolder("DCS_OFL", "/PIXEL/DCS/HV", className="CondAttrListCollection")
@@ -395,13 +397,16 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
         condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
 
+    pixelReadKey = ''
     if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
+        pixelReaddKey = '/PIXEL/CablingMap'
         if not conddb.folderRequested("/PIXEL/CablingMap"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
         condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                       ReadKey = pixelReadKey,
                                        MappingFile=IdMappingDat,
                                        RodIDForSingleLink40=0)
 

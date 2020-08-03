@@ -100,7 +100,7 @@ StatusCode AsymJetFilter::filterEvent() {
              &&(part->pdg_id() != 12 ) && (part->pdg_id() != -12 )
              &&(part->pdg_id() != 14 ) && (part->pdg_id() != -14 )
              &&(part->pdg_id() != 16 ) && (part->pdg_id() != -16 )
-             && (fabs(part->momentum().pseudoRapidity()) <= m_emaxeta)
+             && (std::abs(part->momentum().pseudoRapidity()) <= m_emaxeta)
              ){ // no neutrinos or muons and particles must be in active range
           int ip,ie;
           //      std::cout << part->momentum().phi() << "eta" << part->momentum().pseudoRapidity() << std::endl;

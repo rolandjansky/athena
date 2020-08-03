@@ -14,7 +14,7 @@ bool MuonPadDesign::withinSensitiveArea(const Amg::Vector2D& pos) const
     double bot_H2 = minSensitiveY();
     double max_x = maxAbsSensitiveX(pos.y());
     bool y_in_range = (pos.y() <= top_H1 and pos.y() >= bot_H2);
-    bool x_in_range = fabs(pos.x()) <= max_x+0.01;
+    bool x_in_range = std::abs(pos.x()) <= max_x+0.01;
     return y_in_range and x_in_range;
 }
 //----------------------------------------------------------

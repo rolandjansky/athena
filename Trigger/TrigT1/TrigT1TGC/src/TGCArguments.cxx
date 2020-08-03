@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCArguments.h"
 
 namespace LVL1TGCTrigger {
   

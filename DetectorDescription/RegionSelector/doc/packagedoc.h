@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -95,8 +95,6 @@ case.
 RegionSelector is configured by the RegSelSvcDefault
 configurable. Declaring the ServiceHandle as shown above should
 generate the configuration you need automatically.
-
-For backward compatability it can be imported, instantiated and added to the ServiceMgr by including the file "RegionSelector/RegionSelector_jobOptions.py". 
 
 RegionSelector has the following properties:
 

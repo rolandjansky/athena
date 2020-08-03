@@ -30,6 +30,8 @@ StatusCode TrigTauCaloRoiUpdaterMT::initialize() {
 }
 
 
+
+
 StatusCode TrigTauCaloRoiUpdaterMT::execute() {
 
   ATH_MSG_DEBUG( "Running "<< name() <<" ... " );
@@ -42,17 +44,15 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
   SG::ReadHandle< xAOD::CaloClusterContainer > CCContainerHandle = SG::makeHandle( m_clustersKey,ctx );
   CHECK( CCContainerHandle.isValid() );
   const xAOD::CaloClusterContainer *RoICaloClusterContainer = CCContainerHandle.get();
-  ATH_MSG_DEBUG( "Found " << RoICaloClusterContainer->size() << " caloClusters, updating the corresponding RoI ... " );
 
   if(RoICaloClusterContainer != NULL) {
-    ATH_MSG_DEBUG( "REGTEST: Size of vector CaloCluster container is " << RoICaloClusterContainer->size());
+    ATH_MSG_DEBUG( "Size of vector CaloCluster container is " << RoICaloClusterContainer->size());
     if(RoICaloClusterContainer->size()==0) {
-      ATH_MSG_DEBUG( "Cannot proceed, size of vector CaloCluster container is " << RoICaloClusterContainer->size());
-      return StatusCode::SUCCESS;
+      ATH_MSG_DEBUG( "CaloCluster container has zero size");
     }
   }else {
-    ATH_MSG_DEBUG( "no CaloCluster container found " );
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR( "no CaloCluster container found " );
+    return StatusCode::FAILURE;
   }
 
   //get RoI descriptor
@@ -60,15 +60,16 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
   ATH_MSG_DEBUG("Size of roisHandle: "<<roisHandle->size());
   const TrigRoiDescriptor *roiDescriptor = roisHandle->at(0);
 
-  ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
-       << ": Eta = " << roiDescriptor->eta()
-       << ", Phi = " << roiDescriptor->phi() );
-
   // fill local variables for RoI reference position
   // Preserve the dEta and dPhi requirements from the original RoI
-  float dEta = fabs(roiDescriptor->etaPlus() - roiDescriptor->eta());
-  float dPhi = fabs(CxxUtils::wrapToPi(roiDescriptor->phiPlus()-roiDescriptor->phi()));
+  float eta  = roiDescriptor->eta();
+  float phi  = roiDescriptor->phi();
+  float dEta = fabs(roiDescriptor->etaPlus() - eta);
+  float dPhi = fabs(CxxUtils::wrapToPi(roiDescriptor->phiPlus()-phi));
 
+  ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
+                 << ": Eta = " << eta
+                 << ", Phi = " << phi );
 
   // Make a minimal effort to speed things up ;)
   TLorentzVector myCluster;
@@ -92,11 +93,15 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
     TauDetectorAxis += myCluster;
   } // end loop on clusters
 
+  //Only update the roi if TauDetectorAxis.Pt() is larger than zero, in other words, if the calo clusters sum makes sense
+  if(TauDetectorAxis.Eta()!=roiDescriptor->eta() && TauDetectorAxis.Pt()>0.) eta = TauDetectorAxis.Eta();
+  if(TauDetectorAxis.Eta()!=roiDescriptor->eta() && TauDetectorAxis.Pt()>0.) phi = TauDetectorAxis.Phi();
+
   // Prepare the new RoI
   TrigRoiDescriptor *outRoi = new TrigRoiDescriptor(roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
-                      TauDetectorAxis.Eta(), TauDetectorAxis.Eta()-dEta, TauDetectorAxis.Eta()+dEta,
-                      TauDetectorAxis.Phi(), CxxUtils::wrapToPi(TauDetectorAxis.Phi()-dPhi), CxxUtils::wrapToPi(TauDetectorAxis.Phi()+dPhi),
-                      roiDescriptor->zed() ,roiDescriptor->zedMinus(), roiDescriptor->zedPlus());
+                                                    eta, eta-dEta, eta+dEta,
+                                                    phi, CxxUtils::wrapToPi(phi-dPhi), CxxUtils::wrapToPi(phi+dPhi),
+                                                    roiDescriptor->zed() ,roiDescriptor->zedMinus(), roiDescriptor->zedPlus());
 
   ATH_MSG_DEBUG("Input RoI " << *roiDescriptor);
   ATH_MSG_DEBUG("Output RoI " << *outRoi);

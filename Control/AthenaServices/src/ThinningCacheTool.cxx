@@ -59,6 +59,12 @@ StatusCode ThinningCacheTool::preStream()
 {
   m_cache.clear();
 
+  // Nothing to do if we don't have an extended event context.
+  EventContext ctx = Gaudi::Hive::currentContext();
+  if (!Atlas::hasExtendedEventContext (ctx)) {
+    return StatusCode::SUCCESS;
+  }
+
   // Examine all ThinningDecision objects in the store.
   SG::ConstIterator<SG::ThinningDecision> beg;
   SG::ConstIterator<SG::ThinningDecision> end;
@@ -98,7 +104,6 @@ StatusCode ThinningCacheTool::preStream()
   // in the EventContext.
   if (!m_cache.empty() || m_cache.trigNavigationThinningSvc()) {
     m_cache.lockOwned();
-    EventContext ctx = Gaudi::Hive::currentContext();
     Atlas::getExtendedEventContext (ctx).setThinningCache (&m_cache);
     Gaudi::Hive::setCurrentContext (ctx);
   }

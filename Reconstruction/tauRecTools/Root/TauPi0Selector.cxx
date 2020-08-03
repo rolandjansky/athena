@@ -44,7 +44,7 @@ StatusCode TauPi0Selector::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) 
+StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     // decay mode enum
     auto kDecayModeProto = xAOD::TauJetParameters::PanTau_DecayModeProto;
@@ -123,7 +123,7 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
     return StatusCode::SUCCESS;
 }
 
-int TauPi0Selector::getPi0Cluster_etaBin(double Pi0Cluster_eta){
+int TauPi0Selector::getPi0Cluster_etaBin(double Pi0Cluster_eta) const {
     int Pi0Cluster_etaBin = -1;
     double Pi0Cluster_noCorr_ABSeta = std::abs(Pi0Cluster_eta);
 
@@ -135,7 +135,7 @@ int TauPi0Selector::getPi0Cluster_etaBin(double Pi0Cluster_eta){
     return Pi0Cluster_etaBin;
 }
 
-TLorentzVector TauPi0Selector::getP4(const xAOD::TauJet& pTau)
+TLorentzVector TauPi0Selector::getP4(const xAOD::TauJet& pTau) const
 {
     TLorentzVector p4(0.,0.,0.,0.);
     // Add charged PFOs 

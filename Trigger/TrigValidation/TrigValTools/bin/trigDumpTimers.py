@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-# @file:    dumpTimes.py
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# @file:    trigDumpTimers.py
 # @purpose: Script to dump the timing histograms from expert-monitoring.root/TIMERS
 # @author:  Stewart Martin-Haugh
 
-import argparse
 import ROOT
 from optparse import OptionParser
-import os
 import re
 from TrigValTools.TrigRootUtils import lsroot
 
@@ -31,7 +29,7 @@ def get_matches(pattern, exclude, myFile):
   if exclude:
     regex_exclude = re.compile(".*" + exclude + ".*")
   for name in names:
-    if not "TIME" in name:
+    if "TIME" not in name:
       continue
     if not regex.match(name):
       continue
@@ -44,18 +42,18 @@ def get_matches(pattern, exclude, myFile):
 def main():
   parser = OptionParser()
   parser.add_option("-p", "--pattern", dest="pattern", type = "string", default = None,
-                                                                      help="Pattern to match histogram to")
+                    help="Pattern to match histogram to")
   parser.add_option("-x", "--exclude", dest="exclude", type = "string", default = None,
-                                                                      help="Pattern to exclude histogram from matching")
+                    help="Pattern to exclude histogram from matching")
   (options, args) = parser.parse_args()        
-  print(options, args)
+
   for arg in args:
     print(arg)
     myFile = ROOT.TFile(arg)
     pattern = ".*"
     if (options.pattern):
       pattern = options.pattern
-    get_matches(options.pattern, options.exclude, myFile)
+    get_matches(pattern, options.exclude, myFile)
 
     
 if __name__ == "__main__":

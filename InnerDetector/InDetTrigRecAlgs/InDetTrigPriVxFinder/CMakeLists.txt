@@ -27,7 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrigPriVxFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TrigInterfacesLib StoreGateLib SGtests EventPrimitives InDetRecToolInterfaces MagFieldInterfaces TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack VxVertex TrigParticle xAODTracking )
+                     LINK_LIBRARIES GaudiKernel TrigInterfacesLib StoreGateLib SGtests EventPrimitives InDetRecToolInterfaces MagFieldInterfaces TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack VxVertex TrigParticle xAODTracking InDetBeamSpotServiceLib )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigPriVxFinder )

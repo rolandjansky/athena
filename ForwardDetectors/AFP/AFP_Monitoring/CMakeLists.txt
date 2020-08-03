@@ -1,33 +1,16 @@
-# $Id: CMakeLists.txt 766963 2016-08-08 20:07:09Z ggach $
-################################################################################
-# Package: AFP_Monitoring
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AFP_Monitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-   Control/AthenaMonitoring
-   Event/xAOD/xAODForward
-   ForwardDetectors/AFP/AFP_RawEv
-   PRIVATE
-   Tools/LWHists
-   Event/xAOD/xAODEventInfo
-   )
-
 # External dependencies:
-
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-
+find_package( ROOT COMPONENTS Hist )
 
 # Component(s) in the package:
 atlas_add_component( AFP_Monitoring
    src/*.cxx
    src/components/*.cxx
-   PUBLIC_HEADERS AFP_Monitoring
-   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES AthenaMonitoringLib LWHists xAODForward xAODEventInfo AFP_RawEv)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AFP_RawEv AthenaBaseComps AthenaMonitoringLib GaudiKernel LWHists LumiBlockCompsLib xAODEventInfo xAODForward )
 
-atlas_install_headers( AFP_Monitoring )
+# Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -98,7 +98,7 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
     ATH_MSG_ERROR( "Can not find CLID for " << transientType << " that is needed for serialisation " << key );
     return StatusCode::FAILURE;
   }
-
+  ATH_MSG_VERBOSE("Decoded transient type: " << transientType << " with the CLID " << clid );
   if ( transientType == configuredType ) {
     std::string realTypeName;
     if( m_clidSvc->getTypeInfoNameOfID( clid, realTypeName ).isFailure() ) {
@@ -106,12 +106,12 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
       return StatusCode::FAILURE;
     }
     persistentType = transientType + version( realTypeName );
+    ATH_MSG_VERBOSE(transientType << " = "<< configuredType << " thus obtained real type name from clid svc " << realTypeName << " forming persistent type name "<< persistentType );
   } else {
     persistentType = configuredType;
   }
 
   ATH_MSG_DEBUG( "Persistent type: " << persistentType );
-  ATH_CHECK( persistentType.find("_") != std::string::npos );
 
   RootType classDesc = RootType::ByNameNoQuiet( persistentType );
   if ( ! classDesc.IsComplete() ) {
@@ -205,21 +205,21 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
 
   for (SG::auxid_t auxVarID : selected ) {
 
-    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
     const std::string decorationName = SG::AuxTypeRegistry::instance().getName(auxVarID);
     const std::type_info* tinfo = auxStoreIO->getIOType (auxVarID);
-
+    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
+    const std::string fullTypeName = System::typeinfoName( *tinfo );
 
     ATH_CHECK( tinfo != nullptr );
     TClass* cls = TClass::GetClass (*tinfo);
     ATH_CHECK( cls != nullptr );
     ATH_MSG_DEBUG( "" );
-    ATH_MSG_DEBUG( "Streaming " << decorationName << " of type " << typeName  << " aux ID " << auxVarID << " class " << cls->GetName() );
+    ATH_MSG_DEBUG( "Streaming '" << decorationName << "' of type '" << typeName 
+      << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
     CLID clid;
-    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  {
-      ATH_MSG_ERROR( "Can not obtain CLID of: " << typeName );
-      return StatusCode::FAILURE;
+    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  { // First try
+      ATH_CHECK( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid) ); // Second try
     }
     ATH_MSG_DEBUG( "CLID " << clid );
 
@@ -523,5 +523,7 @@ std::string TriggerEDMSerialiserTool::version( const std::string& name ) const {
     size_t start = name.find("_");
     return name.substr( start, name.find(">") - start );
   }
-  return name.substr( name.find("_") );
+  if ( name.find("_") != std::string::npos )
+    return name.substr( name.find("_") );
+  return "";
 }

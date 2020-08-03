@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/TriggerTranslatorSimple.h"
+#include "TriggerTranslatorSimple.h"
 #include "boost/algorithm/string/split.hpp"
 #include "boost/algorithm/string/classification.hpp"
 

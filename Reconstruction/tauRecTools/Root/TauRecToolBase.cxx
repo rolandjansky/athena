@@ -192,12 +192,12 @@ StatusCode TauRecToolBase::executeVertexVariables(xAOD::TauJet& /*pTau*/, xAOD::
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executePi0ClusterScaler(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, xAOD::PFOContainer& /*chargedPFOContainer*/ ) {
+StatusCode TauRecToolBase::executePi0ClusterScaler(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, xAOD::PFOContainer& /*chargedPFOContainer*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 } 
 
-StatusCode TauRecToolBase::executePi0nPFO(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/) {
+StatusCode TauRecToolBase::executePi0nPFO(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }

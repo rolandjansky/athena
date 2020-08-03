@@ -107,7 +107,7 @@ if __name__=='__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 
-    ConfigFlags.Input.Files = ['root://eosatlas//eos/atlas/atlascerngroupdisk/det-tile/test/data14_cos.00239908.physics_CosmicCalo.merge.RAW._lb0004._SFO-ALL._0001.1']
+    ConfigFlags.Input.Files = ['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-tile/test/data14_cos.00239908.physics_CosmicCalo.merge.RAW._lb0004._SFO-ALL._0001.1']
     ConfigFlags.IOVDb.GlobalTag = 'CONDBR2-ES1PA-2018-02'
 
     ConfigFlags.Output.HISTFileName = 'TileRawChannelNoiseMonitorOutput.root'
@@ -121,7 +121,7 @@ if __name__=='__main__':
 
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
-    cfg.merge( ByteStreamReadCfg(ConfigFlags, typeNames = tileTypeNames) )
+    cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
 
     from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
     cfg.merge( TileRawChannelMakerCfg(ConfigFlags) )

@@ -1,6 +1,5 @@
 include.block ("L1TopoSimulation/L1Simulation_topOptions.py")
 
-svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 
 from AthenaCommon.Logging import logging

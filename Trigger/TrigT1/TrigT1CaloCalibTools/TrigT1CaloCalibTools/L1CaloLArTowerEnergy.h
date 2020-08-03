@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H_
@@ -8,6 +8,7 @@
 // Athena includes
 #include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/Identifier.h"
@@ -40,7 +41,8 @@
 
 namespace LVL1 {
 
-class L1CaloLArTowerEnergy : virtual public IL1CaloLArTowerEnergy, public asg::AsgTool
+class ATLAS_NOT_THREAD_SAFE   // use of LArCablingBase
+L1CaloLArTowerEnergy : virtual public IL1CaloLArTowerEnergy, public asg::AsgTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( L1CaloLArTowerEnergy , LVL1::IL1CaloLArTowerEnergy )

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file:    root2html.py
 # @purpose: Generate the index.htm for a list of root files
 # @author:  Will Buttinger
@@ -27,8 +27,6 @@ html_template = """
 
 
 import sys
-import os
-from AthenaCommon.Utils.unixtools import FindFile
 
 def main():
          
@@ -48,7 +46,7 @@ def main():
    o_html.writelines(html_template%d)
    o_html.flush()
    o_html.close()
-   print "Wrote index.htm file"
+   print("Wrote index.htm file")
 
    return 0
 

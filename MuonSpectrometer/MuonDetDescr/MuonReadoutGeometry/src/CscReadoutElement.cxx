@@ -359,7 +359,7 @@ double CscReadoutElement::stripLength(int chamberLayer, int measuresPhi,
 
   double pos = stripWidth * (stripNumber-0.5-numberOfStrips/2.0);
   epsilon = lengthCorrection(measuresPhi,pos);
-  double stripPos = fabs(pos);
+  double stripPos = std::abs(pos);
 
   if (measuresPhi==0) {
     double effectiveLength = stripWidth * numberOfStrips;
@@ -399,8 +399,8 @@ double CscReadoutElement::lengthCorrection(int measuresPhi, double stripPos) con
   double shortLength  = bigLength - (bigWidth-gslWidth)*tan(alpha)/2.;
 
   if (measuresPhi == 1) {
-     if ( fabs(stripPos) > (gslWidth/2.) ) 
-        epsilon = ( fabs(stripPos)-gslWidth/2. ) * tan(alpha);
+     if ( std::abs(stripPos) > (gslWidth/2.) ) 
+        epsilon = ( std::abs(stripPos)-gslWidth/2. ) * tan(alpha);
   }
   else {
      double z0 =  shortLength-bigLength/2;

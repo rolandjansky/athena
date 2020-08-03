@@ -654,8 +654,8 @@ def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
     if 'MaximumNumberOfComponents' not in kwargs :
         kwargs=setDefaults(kwargs, MaximumNumberOfComponents = 12)
 
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolutionLM
-    return Trk__GsfMaterialMixtureConvolutionLM (name = the_name, **kwargs)
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+    return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
 
 
 @makePublicTool
@@ -1055,9 +1055,6 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults(kwargs,
                          doSharedHits           = InDetFlags.doSharedHits(),
-                         TRTdEdx_DivideByL      = True, # default is True
-                         TRTdEdx_useHThits      = True, # default is True
-                         TRTdEdx_corrected      = True, # default is True
                          minTRThitsForTRTdEdx   = 1)    # default is 1
 
     return getInDetTrackSummaryTool( name, **kwargs)
@@ -1093,7 +1090,7 @@ def getInDetTRT_ExtensionToolCosmics(name='InDetTRT_ExtensionToolCosmics',**kwar
                          TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
                          SearchNeighbour       = False,  # needs debugging!!!
                          RoadWidth             = 10.)
-                            
+
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
     return InDet__TRT_TrackExtensionToolCosmics(name                  = the_name, **kwargs)
 

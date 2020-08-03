@@ -1,17 +1,7 @@
-################################################################################
-# Package: AthAllocators
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthAllocators )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   GaudiKernel
-   PRIVATE
-   Control/CxxUtils
-   AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS thread )

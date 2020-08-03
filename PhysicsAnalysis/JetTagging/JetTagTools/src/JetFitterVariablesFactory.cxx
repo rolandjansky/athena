@@ -95,13 +95,15 @@ StatusCode JetFitterVariablesFactory::finalize() {
     int ndof(0);
     float deltaRFlightDir(0.);
 
-    const std::vector<Trk::VxJetCandidate*>& myVertices = myJetFitterInfo->verticesJF();
+    std::vector<Trk::VxJetCandidate*> myVertices;
+    Trk::VxJetCandidate* myVxJetCandidate = nullptr;
+    if (myJetFitterInfo) myVertices = myJetFitterInfo->verticesJF();
     if(myVertices.size() == 0){
-      ATH_MSG_WARNING("#BTAG# Trk::VxJetCandidate not found for jet fitter ");
+      ATH_MSG_DEBUG("#BTAG# Trk::VxJetCandidate not found for jet fitter ");
       fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof, deltaRFlightDir);
       return StatusCode::SUCCESS;
     }
-    const Trk::VxJetCandidate* myVxJetCandidate=dynamic_cast<Trk::VxJetCandidate*>(myVertices[0]);
+    if(myVertices.size() > 0) myVxJetCandidate=dynamic_cast<Trk::VxJetCandidate*>(myVertices[0]);
     if (myVxJetCandidate==0) {
       ATH_MSG_WARNING("#BTAG# No correct VxJetCandidate could be retrieved." );
       fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof, deltaRFlightDir);

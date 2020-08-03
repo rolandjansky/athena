@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from PerfMonVTuneConf import VTuneProfilerService as _VTuneProfilerService
+from PerfMonVTune.PerfMonVTuneConf import VTuneProfilerService as _VTuneProfilerService
 
 class VTuneProfilerService( _VTuneProfilerService ):
     
