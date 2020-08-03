@@ -343,15 +343,10 @@ namespace InDet {
       void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string name ) const;
 
 
-      StatusCode CutTrkRelax(double, double,
-			     double, double,
-			     long int, long int,
-			     double) const;
-      StatusCode CutTrk(double, double, double,
-			double, double, double,
-			long int, long int, long int, bool,
-			double, double,
-			double, double, double) const;
+      StatusCode CutTrkRelax(std::unordered_map<std::string,double> TrkVarDouble,
+                             std::unordered_map<std::string,long int> TrkVarLongInt) const;
+      StatusCode CutTrk(std::unordered_map<std::string,double> TrkVarDouble,
+                        std::unordered_map<std::string,long int> TrkVarLongInt) const;
       double ConeDist(const AmgVector(5) & , const TLorentzVector & ) const;
 //
 // Gives correct mass assignment in case of nonequal masses

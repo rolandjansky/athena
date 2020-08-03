@@ -10,12 +10,19 @@
 //-------------------------------------------------
 namespace InDet{
 
-  StatusCode InDetVKalVxInJetTool::CutTrkRelax(double eta, double ThetaVert,
-					       double A0Vert, double ZVert,
-					       long int PixelHits, long int SctHits,
-					       double ConeDist)
+  StatusCode InDetVKalVxInJetTool::CutTrkRelax(std::unordered_map<std::string,double> TrkVarDouble,
+                                               std::unordered_map<std::string,long int> TrkVarLongInt)
   const
   {
+
+    double eta       = TrkVarDouble["eta"];
+    double ThetaVert = TrkVarDouble["ThetaVert"];
+    double A0Vert    = TrkVarDouble["A0Vert"];
+    double ZVert     = TrkVarDouble["ZVert"];
+    double ConeDist  = TrkVarDouble["ConeDist"];
+
+    long int PixelHits = TrkVarLongInt["PixelHits"];
+    long int SctHits   = TrkVarLongInt["SctHits"];
 
     if ( ConeDist > m_ConeForTag )                        return StatusCode::FAILURE;
 
@@ -40,13 +47,27 @@ namespace InDet{
   }
 
 
-  StatusCode InDetVKalVxInJetTool::CutTrk(double eta, double PInvVert, double ThetaVert,
-					  double A0Vert, double ZVert, double Chi2,
-					  long int PixelHits, long int SctHits, long int BLayHits, bool badHits,
-					  double CovTrkMtx11, double CovTrkMtx22,
-					  double ConeDist, double trkP, double trkPErr)
+  StatusCode InDetVKalVxInJetTool::CutTrk(std::unordered_map<std::string,double> TrkVarDouble,
+                                          std::unordered_map<std::string,long int> TrkVarLongInt)
   const
   {
+
+    double eta         = TrkVarDouble["eta"];
+    double PInvVert    = TrkVarDouble["PInvVert"];
+    double ThetaVert   = TrkVarDouble["ThetaVert"];
+    double A0Vert      = TrkVarDouble["A0Vert"];
+    double ZVert       = TrkVarDouble["ZVert"];
+    double Chi2        = TrkVarDouble["Chi2"];
+    double ConeDist    = TrkVarDouble["ConeDist"];
+    double CovTrkMtx11 = TrkVarDouble["CovTrkMtx11"];
+    double CovTrkMtx22 = TrkVarDouble["CovTrkMtx22"];
+    double trkP        = TrkVarDouble["trkP"];
+    double trkPErr     = TrkVarDouble["trkPErr"];
+
+    long int PixelHits = TrkVarLongInt["PixelHits"];
+    long int SctHits   = TrkVarLongInt["SctHits"];
+    long int BLayHits  = TrkVarLongInt["BLayHits"];
+    long int badHits   = TrkVarLongInt["badHits"];
 
     if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  return StatusCode::FAILURE;
     if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    return StatusCode::FAILURE;
@@ -151,11 +172,27 @@ namespace InDet{
 
           double eta = (*i_ntrk)->eta();
 
-          StatusCode sc = CutTrk(eta, VectPerig[4] , VectPerig[3],
-				 ImpactA0 , ImpactZ, trkChi2,
-				 PixelHits, SctHits, BLayHits, badHits,
-				 CovTrkMtx11, CovTrkMtx22, coneDist, trkP, trkPErr);
-					  
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,long int> TrkVarLongInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["PInvVert"]    = VectPerig[4];
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["Chi2"]        = trkChi2;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+	  TrkVarDouble["CovTrkMtx11"] = CovTrkMtx11;
+	  TrkVarDouble["CovTrkMtx22"] = CovTrkMtx22;
+	  TrkVarDouble["trkP"]        = trkP;
+	  TrkVarDouble["trkPErr"]     = trkPErr;
+
+	  TrkVarLongInt["PixelHits"] = PixelHits;
+	  TrkVarLongInt["SctHits"]   = SctHits;
+	  TrkVarLongInt["BLayHits"]  = BLayHits;
+	  TrkVarLongInt["badHits"]   = (long int) badHits;
+
+          StatusCode sc = CutTrk(TrkVarDouble, TrkVarLongInt);
           if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
@@ -201,10 +238,19 @@ namespace InDet{
 
           double eta = (*i_ntrk)->eta();
 
-          StatusCode sc = CutTrkRelax(eta, VectPerig[3],
-				      ImpactA0, ImpactZ,
-				      PixelHits, SctHits,
-				      coneDist);
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,long int> TrkVarLongInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+
+	  TrkVarLongInt["PixelHits"] = PixelHits;
+	  TrkVarLongInt["SctHits"]   = SctHits;
+
+          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarLongInt);
           if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
@@ -262,10 +308,27 @@ namespace InDet{
 
 	  double eta = (*i_ntrk)->eta();
 
-	  StatusCode sc = CutTrk(eta, VectPerig[4] , VectPerig[3],
-				 ImpactA0 , ImpactZ, trkChi2,
-				 PixelHits, SctHits, BLayHits, badHits,
-				 CovTrkMtx11, CovTrkMtx22, coneDist, trkP, trkPErr);
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,long int> TrkVarLongInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["PInvVert"]    = VectPerig[4];
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["Chi2"]        = trkChi2;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+	  TrkVarDouble["CovTrkMtx11"] = CovTrkMtx11;
+	  TrkVarDouble["CovTrkMtx22"] = CovTrkMtx22;
+	  TrkVarDouble["trkP"]        = trkP;
+	  TrkVarDouble["trkPErr"]     = trkPErr;
+
+	  TrkVarLongInt["PixelHits"] = PixelHits;
+	  TrkVarLongInt["SctHits"]   = SctHits;
+	  TrkVarLongInt["BLayHits"]  = BLayHits;
+	  TrkVarLongInt["badHits"]   = (long int) badHits;
+
+          StatusCode sc = CutTrk(TrkVarDouble, TrkVarLongInt);
           if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
@@ -306,10 +369,19 @@ namespace InDet{
 
           double eta = (*i_ntrk)->eta();
 
-          StatusCode sc = CutTrkRelax(eta, VectPerig[3],
-				      ImpactA0, ImpactZ,
-				      PixelHits, SctHits,
-				      coneDist);
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,long int> TrkVarLongInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+
+	  TrkVarLongInt["PixelHits"] = PixelHits;
+	  TrkVarLongInt["SctHits"]   = SctHits;
+
+          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarLongInt);
 	  if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
