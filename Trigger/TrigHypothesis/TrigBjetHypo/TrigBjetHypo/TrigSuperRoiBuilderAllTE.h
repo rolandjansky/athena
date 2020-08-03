@@ -40,10 +40,12 @@ class TrigSuperRoiBuilderAllTE : public HLT::AllTEAlgo {
   double m_minJetEt; 
   double m_maxJetEta;
 
-  int m_nJetsMax;        
-  bool m_dynamicMinJetEt;  
-  int m_dynamicNJetsMax;  
+  int    m_nJetsMax;        
+  bool   m_dynamicMinJetEt;  
+  int    m_dynamicNJetsMax;  
   double m_dynamicEtFactor;  
+
+  bool   m_useFullScan;
 
 };
  

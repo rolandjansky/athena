@@ -445,7 +445,7 @@ else:
     #     after standard reconstruction...?
     #
     # ------------------------------------------------------------
-    if InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
       #
@@ -457,6 +457,8 @@ else:
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
+        elif InDetFlags.doR3LargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
         else:
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
       InDetNewTrackingCutsLargeD0.printInfo()
@@ -528,6 +530,43 @@ else:
                                                                  TrackCollectionTruthKeys)
       # --- add into list for combination
       InputCombinedInDetTracks += [ InDetLowPtTRTExtension.ForwardTrackCollection() ]
+
+    # ------------------------------------------------------------
+    #
+    # --- Low Pt option within selected roi (after BackTracking)
+    #
+    # ------------------------------------------------------------
+
+    if InDetFlags.doLowPtRoI():
+      #
+      # --- configure cuts for Low Pt tracking
+      #
+      if (not 'InDetNewTrackingCutsLowPtRoI' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsLowPtRoI not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsLowPtRoI = ConfiguredNewTrackingCuts("LowPtRoI")
+      InDetNewTrackingCutsLowPtRoI.printInfo()
+      #
+      # --- now run Si pattern for Low Pt
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetLowPtRoISiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                           InDetKeys.ResolvedLowPtRoITracks(),
+                                                           InDetKeys.SiSpSeededLowPtRoITracks(),
+                                                           InDetNewTrackingCutsLowPtRoI,
+                                                           TrackCollectionKeys,
+                                                           TrackCollectionTruthKeys)
+      
+      #
+      # --- do the TRT pattern
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetLowPtRoITRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsLowPtRoI,
+                                                                 InDetLowPtRoISiPattern.SiTrackCollection(),
+                                                                 InDetKeys.ExtendedLowPtRoITracks(),
+                                                                 InDetKeys.ExtendedTracksMapLowPtRoI(),
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys)
 
     # ------------------------------------------------------------
     #
@@ -1083,6 +1122,12 @@ else:
                                                                    InDetKeys.SiSPSeedSegments()+'DetailedTruth',
                                                                    InDetKeys.SiSPSeedSegments()+'TruthCollection')
 
+            if InDetFlags.doStoreTrackSeeds() and InDetFlags.doLowPtRoI():
+              include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+              InDetTracksTruthSegemntsLowPtRoI = ConfiguredInDetTrackTruth(InDetKeys.SiSPLowPtRoISeedSegments(),
+                                                                   InDetKeys.SiSPLowPtRoISeedSegments()+'DetailedTruth',
+                                                                   InDetKeys.SiSPLowPtRoISeedSegments()+'TruthCollection')
+
           #
           # add final output for statistics
           #
@@ -1173,6 +1218,33 @@ else:
 
        if (InDetFlags.doPrintConfigurables()):
          print TrkTrackCollectionMerger_pixThreeLayer
+
+      # Dummy Merger to fill additional info for all LowPt within slected roi tracks
+      if InDetFlags.doLowPtRoI():
+       DummyCollectionLowPtRoI = []
+       DummyCollectionLowPtRoI += [ InDetKeys.ExtendedLowPtRoITracks()]
+       TrkTrackCollectionMerger_LowPtRoI = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_LowPtRoI",
+                                                                           TracksLocation          = DummyCollectionLowPtRoI,
+                                                                           OutputTracksLocation    = InDetKeys.LowPtRoITracks(),
+                                                                           AssoTool                = InDetPrdAssociationTool,
+                                                                           UpdateSharedHitsOnly    = False,
+                                                                           UpdateAdditionalInfo    = True,
+                                                                           SummaryTool             = InDetTrackSummaryToolSharedHits)
+       #TrkTrackCollectionMerger_LowPtRoI.OutputLevel = VERBOSE
+       topSequence += TrkTrackCollectionMerger_LowPtRoI
+
+       
+       if InDetFlags.doTruth():
+          # set up the truth info for this container
+          #
+            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.LowPtRoITracks(),
+                                                         InDetKeys.LowPtRoIDetailedTracksTruth(),
+                                                         InDetKeys.LowPtRoITracksTruth())
+    
+
+       if (InDetFlags.doPrintConfigurables()):
+         print TrkTrackCollectionMerger_LowPtRoI
 
     # ------------------------------------------------------------
     #
@@ -1391,6 +1463,8 @@ else:
         cuts = InDetNewTrackingCutsVeryLowPt
       elif InDetFlags.doLowPt():
         cuts = InDetNewTrackingCutsLowPt
+      elif InDetFlags.doLowPtRoI():
+        cuts = InDetNewTrackingCutsLowPtRoI
       elif InDetFlags.doROIConv():
         cuts = InDetNewTrackingCutsROIConv
       else:

@@ -20,6 +20,8 @@
 # Some analysis packages that are not part of Athena
 - PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
+- Trigger/TrigTools/TrigJPsiTools
+- Trigger/TrigMonitoring/TrigIDJpsiMonitoring
 
 # Data quality packages not needed in Athena
 - DataQuality/DataQualityConfigurations

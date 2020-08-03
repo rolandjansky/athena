@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -32,6 +32,9 @@
 
 // Geant4 headers
 #include "G4Types.hh"
+
+//CLHEP headers
+#include "CLHEP/Units/SystemOfUnits.h"
 
 // STL headers
 #include <vector>
@@ -107,6 +110,8 @@ private:
 
   TileSDOptions m_options;
 
+  double m_birk1{0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2)}; //exp. values from NIM 80 (1970) 239-244;
+  double m_birk2{9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2)}; //exp. values from NIM 80 (1970) 239-244;
 
   /** @brief granularity in time for hits */
   mutable double m_deltaT; // FIXME set during initialize, then reset during MakePmtEdepTime

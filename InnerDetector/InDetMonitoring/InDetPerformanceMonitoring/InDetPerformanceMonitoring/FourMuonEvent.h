@@ -20,7 +20,10 @@
 
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
-//==============================================================================
+
+//-
+#include "AthenaBaseComps/AthAlgorithm.h"
+///==============================================================================
 // Forward class declarations...
 //==============================================================================
 class TrackParticle;
@@ -60,7 +63,7 @@ class FourMuonEvent : public EventAnalysis
     NUM_TYPES
   };
 
-  void Init(); 
+  void Init();  
   bool Reco();
 
   // Public access methods

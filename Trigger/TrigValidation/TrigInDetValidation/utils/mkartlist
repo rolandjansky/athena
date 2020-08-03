@@ -39,6 +39,12 @@ function waitonallproc   {
     while [ $IRUNNING -gt 0 ]; do sleep $WAITING ; IRUNNING=$(running) ; done
 }
 
+suf=""
+for a in "$@"; do
+    case "$a" in
+        -a | --art ) suf="_art" ;;
+    esac
+done
 
 
 
@@ -46,7 +52,7 @@ for job in $(grep include TIDAbuild/TrigInDetValidation_TestConfiguration_main.x
 
     waitonproc
 
-    file=$(echo $job | tr '[:upper:]' '[:lower:]' | sed 's|\.xml|\.sh|g')
+    file=$(echo $job | tr '[:upper:]' '[:lower:]' | sed 's|\.xml|'"$suf"'\.sh|g')
 
 
     [ -e test/$file ] && continue
@@ -60,7 +66,7 @@ for job in $(grep include TIDAbuild/TrigInDetValidation_TestConfiguration_main.x
     if [ $BUILD -eq 1 ]; then
 	files="$files $job"
  	echo "TIDAbuild/$job -> test/$file"
-	utils/mkart-template -c TIDAbuild/$job -o test &
+	utils/mkart-template "$@" -c TIDAbuild/$job -o test &
 	PID=$!
         BGPROCS="$BGPROCS $PID"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ namespace ISF {
       float    m_cut_maxMomEta; //!< maximum pseudorapidity of particle momentum
       double   m_cut_minMom2;   //!< minimum squarde particle momentum magnitude
       double   m_cut_maxMom2;   //!< maximum squared particle momentum magnitude 
+      double   m_cut_maxEkin;   //!< maximum particle kinetic energy 
       float    m_cut_charge;    //!< particle charge
       int      m_cut_pdg;       //!< particle PDG code
   };

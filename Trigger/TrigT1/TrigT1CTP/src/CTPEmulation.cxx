@@ -850,8 +850,8 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
          int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
          int iphi = 0;
          const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue( ieta, iphi );
-         const ClusterThresholdValue *ctv = dynamic_cast<const ClusterThresholdValue *>(thrV);
-         float scale = ctv->caloInfo().globalEmScale();
+
+         float scale = 1; // eFEX clusters in 21.3 have an energy scale of 1 GeV
 
          bool clusterPasses = ( ((unsigned int) cl->et()) > thrV->ptcut()*scale ); // need to add cut on isolation and other variables, once available
          multiplicity +=  clusterPasses ? 1 : 0;

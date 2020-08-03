@@ -321,7 +321,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   // Digitizer mode doesn't change between events
   static int digiMode = -1;
   
-  if (digiMode < 0) { // try to find digi mode until good mode is found
+  if (digiMode < 0 && size > 0) { // try to find digi mode until good mode is found
     digiMode = m_d2Bytes.getDigiMode(data, chipCount, blockSize);
   }
   

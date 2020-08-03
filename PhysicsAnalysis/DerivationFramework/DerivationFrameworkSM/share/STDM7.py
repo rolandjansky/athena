@@ -176,7 +176,7 @@ STDM7SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices" ]
+                                        "PrimaryVertices"]
 
 STDM7SlimmingHelper.IncludeEGammaTriggerContent = True
 STDM7SlimmingHelper.IncludeMuonTriggerContent = True

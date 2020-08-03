@@ -21,7 +21,7 @@ TFCSEnergyRenormalization::~TFCSEnergyRenormalization()
 
 FCSReturnCode TFCSEnergyRenormalization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
-  std::vector< float > energies(CaloCell_ID_FCS::MaxSample,0);
+  std::vector< double > energies(CaloCell_ID_FCS::MaxSample,0);
 
   //Loop over all cells and sum up energies
   for(const auto& iter : simulstate.cells()) {
