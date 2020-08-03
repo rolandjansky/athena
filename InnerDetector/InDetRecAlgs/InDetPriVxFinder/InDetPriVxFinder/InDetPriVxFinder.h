@@ -42,10 +42,9 @@ namespace InDet
   class InDetPriVxFinder : public AthReentrantAlgorithm
   {
   public:
-    // Use base class constructor
-    using AthReentrantAlgorithm::AthReentrantAlgorithm;
+    InDetPriVxFinder(const std::string &name, ISvcLocator *pSvcLocator);
     
-    virtual ~InDetPriVxFinder(){};
+    virtual ~InDetPriVxFinder() = default;
 
     // Gaudi algorithm hooks
     virtual StatusCode initialize() override;
@@ -57,7 +56,7 @@ namespace InDet
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksName{this,"TracksName","InDetTrackParticles","xAOD::TrackParticle Collection used in Vertexing"};
     SG::WriteHandleKey<xAOD::VertexContainer> m_vxCandidatesOutputName{this,"VxCandidatesOutputName","PrimaryVertices","Output Vertex Collection"};
 
-    ToolHandle< IVertexFinder > m_VertexFinderTool{this, "InDetPriVxFinderTool", "", "Primary vertex finder tool"};
+    ToolHandle< IVertexFinder > m_VertexFinderTool{this, "VertexFinderTool", "", "Primary vertex finder tool"};
     ToolHandle<Trk::IVertexMergingTool > m_VertexMergingTool{this, "VertexMergingTool", "", "Vertex merging tool"};
     ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool{this, "VertexCollectionSortingTool", "", "Vertex collection sorting tool"};
     

@@ -21,6 +21,10 @@
 namespace InDet
 {
 
+InDetPriVxFinder::InDetPriVxFinder
+ (const std::string& name,ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator)
+ { }
+
 
   StatusCode InDetPriVxFinder::initialize()
   {
