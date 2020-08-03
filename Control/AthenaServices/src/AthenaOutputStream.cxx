@@ -309,8 +309,14 @@ StatusCode AthenaOutputStream::initialize() {
                   "low compression will use " << m_compressionBitsLow << " mantissa bits.");
    }
 
-   /// Set SG key for seleted variable information.
-   m_selVetoesKey = "SelectionVetoes_" + this->name();
+   /// Set SG key for selected variable information.
+   // For CreateOutputStream.py, the algorithm name is the same as the stream
+   // name.  But OutputStreamConfig.py adds `OutputStream' to the front.
+   std::string streamName = this->name();
+   if (streamName.substr (0, 12) == "OutputStream") {
+     streamName.erase (0, 12);
+   }
+   m_selVetoesKey = "SelectionVetoes_" + streamName;
    ATH_CHECK( m_selVetoesKey.initialize() );
 
    ATH_MSG_DEBUG("End initialize");
