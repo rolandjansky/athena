@@ -61,8 +61,9 @@ public:
   // enums
   //////////////////////////////////////////////////////////////////////////
   enum EDataBaseType {kOldDB,kNewDB};
-  enum EstCalc  {kAlgStandard,kAlgScalingToXe,kAlgReweight,kAlgReweightTrunkOne};
-  enum EToTEstimatorType {kToTLargerIsland,kToTHighOccupancy,kToTHighOccupancySmart};
+  enum EstCalc  {kAlgStandard,kAlgReweight,kAlgReweightTrunkOne};
+  enum EOccupancyCorrection{kRSOnly, kHitBased, kTrackBased, kGlobal};
+  enum EGasType {kXenon,kArgon,kKrypton,kUnset};
 
 private:
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_rdhkEvtInfo {this
@@ -77,18 +78,20 @@ private:
   ToolHandle< InDet::ITRT_LocalOccupancy > m_localOccTool;     //!< the track selector tool
 
   // Algorithm switchers
+
   bool m_corrected;                 // If true - make correction using rs-distributions
   bool m_divideByL;                 // If true - divide ToT to the L of track in straw.
-  bool m_useHThits;                 // If true - use HT hit for dEdX estimator calculation
 
-  int  m_whichToTEstimatorAlgo;     // If true - use getToTNewApproach(), else - use getToTlargerIsland()
   int  m_useTrackPartWithGasType;   // If kUnset - use any gas for dEdX calculation;
-  int  m_toolScenario;              // Algorithm type for dEdX estimator calculation:
-  // kAlgStandard               - old dEdX estimator calculation algorithm;
-  // kAlgScalingToXe            - mimicToXe other gastype hits and apply Xenon calibrations;
-  // kAlgReweight               - calculate dEdX estimator using reweighting of separate gas types estimator using numbers of hits; truncate 1 max hit for each gas;
-  // kAlgReweightTrunkOne       - same as previous, but truncate only one max hit on track;
-  bool m_applyMimicToXeCorrection;  // Possibility to apply mimicToXenon function for any algorithm. For kAlgScalingToXe that always true.
+  int  m_toolScenario;              // Algorithm type for dEdX estimator calculation;
+  int  m_correctionType;            // Type of dEdx correction
+  ////////////////////////////////////////////////////
+  // Different cases for correctionType            //
+  // kRSOnly: only r-S calibration                  //
+  // kHitBased: Hit-based occupancy calibration     //
+  // kTrackBased: Track-based occupancy calibration //
+  // kGlobal: Global occupancy calibration          //
+  ////////////////////////////////////////////////////
 
 
   // Event info
@@ -100,13 +103,12 @@ private:
 
   bool m_useZeroRHitCut;  // skip tracks with where RHit=0
 
+  unsigned int m_nTrunkateHits = 1;
+
 
 public:
   /** AlgTool like constructor */
   TRT_ToT_dEdx(const std::string&,const std::string&,const IInterface*);
-  TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p, 
-               bool DivideByL, bool useHThits, bool corrected, bool useHighOccToTAlgo, 
-               float minRtrack, float maxRtrack, bool useZeroRHitCut);
   
   /** Virtual destructor*/
   virtual ~TRT_ToT_dEdx();
@@ -117,55 +119,39 @@ public:
 
   /**
    * @brief function to calculate sum ToT normalised to number of used hits
-   * @param track pointer
-   * @param bool variable to decide wheter ToT or ToT/L should be used
-   * @param bool variable whether HT hits shoule be used 
-   * @return ToT
+   * @param track pointer to track
+   * @param useHitsHT decide if HT hits should be used in the estimate
+   * @return dEdx value
    */
-  double dEdx(const Trk::Track*, bool DivideByL, bool useHThits, bool corrected, EOccupancyCorrection correction_type=EOccupancyCorrection::kTrackBased) const;
-
-  /**
-   * @brief function to calculate sum ToT normalised to number of used hits
-   * @param track pointer
-   * @return ToT
-   */
-  double dEdx(const Trk::Track*, EOccupancyCorrection correction_type=EOccupancyCorrection::kTrackBased) const;
+  double dEdx(const Trk::Track* track, bool useHThits=true) const;
 
   /**
    * @brief function to calculate number of used hits
    * @param track pointer
-   * @param bool variable to decide wheter ToT or ToT/L should be used
-   * @param bool variable whether HT hits shoule be used
+   * @param useHitsHT decide if HT hits should be used in the estimate
    * @return nHits
    */
-  double usedHits(const Trk::Track* track, bool DivideByL, bool useHThits) const;
+  double usedHits(const Trk::Track* track, bool useHThits=true) const;
 
-  /**
-   * @brief function to calculate number of used hits
-   * @param track pointer
-   * @return nHits
-   */
-  double usedHits(const Trk::Track* track) const;
-
+protected:
   /** 
    * @brief function to define what is a good hit to be used for dEdx calculation
-   * cuts on track level can be made later by the user
-   * @param driftcircle object
-   * @param track parameter object
+   * cuts on track level can be made latekAlgStandardr by the user. Also returns the length in the straw.
+   * @param trackState measurement on track
+   * @param useHitsHT decide if HT hits should be used in the estimate
+   * @param length length in straw
    * @return decision
    */
-  bool isGood_Hit(const Trk::TrackStateOnSurface *itr) const;
-  bool isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideByL, bool useHThits, double& length) const;
+  bool isGoodHit(const Trk::TrackStateOnSurface* trackState, bool useHitsHT, double& length) const;
 
   /**
    * @brief correct overall dEdx normalization on track level
-   * @param dEdx definition (ToT or ToT/L)
-   * @param scaling correction (needed for data)
    * @param number of primary vertices per event
    * @return scaling variable
    */
-  double correctNormalization(bool divideLength, bool scaledata, double nVtx=-1) const;
+  double correctNormalization(double nVtx=-1) const;
 
+public:
   /**
    * @brief function to calculate likelihood from prediction and resolution
    * @param observed dEdx
@@ -175,8 +161,7 @@ public:
    * @return brobability  value between 0 and 1
    */
   double getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const;
-  double getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits, bool dividebyL) const;
-  double getProb(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits, bool dividebyL) const;
+  double getProb(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const;
 
   /**
    * @brief function to calculate likelihood ratio test
@@ -188,18 +173,15 @@ public:
    * @return test value between 0 and 1
    */
   double getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const;
-  double getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool dividebyL) const;
-
   /**
    * @brief function to calculate expectation value for dEdx using BB fit
    * @param track momentum
    * @param hypothesis
    * @return dEdx_pred
    */
-  double predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis, bool dividebyL) const;
   double predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis) const;
 
-  double predictdEdx(EGasType gasType, const double pTrk, Trk::ParticleHypothesis hypothesis, bool dividebyL) const;
+  double predictdEdx(EGasType gasType, const double pTrk, Trk::ParticleHypothesis hypothesis) const;
 
 
 
@@ -211,25 +193,7 @@ public:
    */
   double mass(const Trk::TrackStateOnSurface *itr, const double pTrk, double dEdx ) const;
 
-  /**
-   * @brief function to correct ToT/L used by the PIDTool parameters obtimized to be consistend with existing functions
-   * @param track parameter object
-   * @param trift circle object
-   * @param number to decide whether it is barrel or endcap
-   * @param number to identify layer ID
-   * @param number to identify strawlayer id
-   * @param bool to set data or MC
-   * @return corrected ToT/L (returns 0 if hit criteria are not fulfilled)
-   */
-  double strawLength(const Trk::TrackParameters* trkP) const;
-  double correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) const;
-
-  double correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData, bool useHThits, double length) const;
-
-
-  double correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) const;
-  double correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData, bool useHThits) const;
-
+protected:
   /**
    * @brief main function to correct ToT values on hit level as a function of track radius and z-position
    * @param track on surface object
@@ -239,79 +203,7 @@ public:
    * @param bool variable whether mimic ToT to other gas hits shoule be used 
    * @return corrected value for ToT
    */
-  double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const;
-  double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool divideByL, bool corrected, double length) const;
-
-  /**
-   * @brief compute ToT time for largest island
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTlargerIsland(unsigned int BitPattern) const;
-
-  /**
-   * @brief compute ToT time counting only 1 bits
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTonly1bits(unsigned int BitPattern) const;
-
-  /**
-   * @brief compute ToT time using special validity gate. Also take in account new LE and TE selection 
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTHighOccupancy(unsigned int BitPattern) const;
-
-  /**
-   * @brief LE for getToTHighOccupancy()
-   * @param bitpattern
-   * @return ToT
-   */
-  int DriftTimeBin_v2(unsigned int BitPattern) const;
-
-  /**
-   * @brief TE for getToTHighOccupancy()
-   * @param bitpattern
-   * @return ToT
-   */
-  int TrailingEdge_v2(unsigned int BitPattern) const;
-
-  /**
-   * @brief same as getToTHighOccupancy(), but use TrailingEdge_v3() with search of second TE
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTHighOccupancySmart(unsigned int BitPattern) const;
-
-  /**
-   * @brief TE for getToTHighOccupancy() with search second TE
-   * @param bitpattern
-   * @return ToT
-   */
-  int TrailingEdge_v3(unsigned int BitPattern) const;
-
-  /**
-   * @brief function to compute correction factor to mimic ToT Ar to the Xe
-   * @param driftradius
-   * @param straw layer index
-   * @param sign for positive or negative side
-   * @param gas type variable (0-Xe,1-Ar,2-Kr)
-   * @param bool variable to specify whether data or MC correction
-   * @return correction
-   */
-  double mimicToXeHit_Endcap(EGasType gasType, double driftRadius, int Layer, int sign) const;
-
-  /**
-   * @brief function to compute correction factor to mimic ToT Ar to the Xe
-   * @param driftradius
-   * @param layer index
-   * @param straw layer index
-   * @param gas type variable (0-Xe,1-Ar,2-Kr)
-   * @param bool variable to specify whether data or MC correction
-   * @return correction
-   */
-  double mimicToXeHit_Barrel(EGasType gasType, double driftRadius, int Layer, int Strawlayer) const;
+  double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, double length) const;
     
   /**
    * @brief return gas type for that hit
@@ -384,13 +276,6 @@ private:
    */
   double fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const;
 
-  /**
-   * @brief choose estimator algo using m_whichToTEstimatorAlgo and return ToT from bitpattern.
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToT(unsigned int BitPattern) const;
-
   /* Calibration functions for occupancy corrections */
   double hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;
   double trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const;
@@ -399,60 +284,30 @@ private:
 public:
   // Setters and getters
 
-  void SetDefaultConfiguration();
+  void  setDefaultConfiguration();
 
-  // void  SwitchOnRSCorrection()                { m_corrected=true;           }
-  // void  SwitchOffRSCorrection()               { m_corrected=false;          }
-  bool  GetStatusRSCorrection() const         { return m_corrected;         }
+  void  setStatusCorrection(bool value)       { m_corrected = value;        }
+  bool  getStatusCorrection() const           { return m_corrected;         }
 
-  // void  SwitchOnDivideByL()                   { m_divideByL=true;           }
-  // void  SwitchOffDivideByL()                  { m_divideByL=false;          }
-  bool  GetStatusDivideByL() const            { return m_divideByL;         }
+  void  setCorrectionType(EOccupancyCorrection value)  { m_correctionType = value;        }
+  bool  getCorrectionType() const                      { return m_correctionType;         }
 
-  // void  SwitchOnUseHThits()                   { m_useHThits=true;           }
-  // void  SwitchOffUseHThits()                  { m_useHThits=false;          }
-  bool  GetStatusUseHThits() const            { return m_useHThits;         }
+  void  setMinRtrack(float minRtrack)         { m_trackConfig_minRtrack=minRtrack;}
+  float getMinRtrack() const                  { return m_trackConfig_minRtrack;   }
 
-  void  SetLargerIslandToTEstimatorAlgo()           { m_whichToTEstimatorAlgo=kToTLargerIsland;        }
-  void  SetHighOccupancyToTEstimatorAlgo()          { m_whichToTEstimatorAlgo=kToTHighOccupancy;       }
-  void  SetHighOccupancySmartToTEstimatorAlgo()     { m_whichToTEstimatorAlgo=kToTHighOccupancySmart;  }
-  bool  GetStatusToTEstimatorAlgo() const           { return m_whichToTEstimatorAlgo;                  }
+  void  setMaxRtrack(float maxRtrack)         { m_trackConfig_maxRtrack=maxRtrack;}
+  float getMaxRtrack() const                  { return m_trackConfig_maxRtrack;   }
 
+  void  setStatusUseZeroRHitCut(bool value)   { m_useZeroRHitCut = value; }
+  bool  getStatusUseZeroRHitCut() const       { return m_useZeroRHitCut; }
 
-  void  SetMinRtrack(float minRtrack)         { m_trackConfig_minRtrack=minRtrack;}
-  float GetMinRtrack() const                  { return m_trackConfig_minRtrack;   }
+  void  setGasTypeFordEdXCalculation(EGasType gasType) { m_useTrackPartWithGasType = gasType; }
+  int   getGasTypeFordEdXCalculation() const           { return m_useTrackPartWithGasType;    }
 
-  void  SetMaxRtrack(float maxRtrack)         { m_trackConfig_maxRtrack=maxRtrack;}
-  float GetMaxRtrack() const                  { return m_trackConfig_maxRtrack;   }
+  void  setAlgorithm(EstCalc alg)             { m_toolScenario=alg;    }
+  int   getAlgorithm() const                  { return m_toolScenario; }
 
-  void  SwitchOnUseZeroRHitCut()              { m_useZeroRHitCut=true;   }
-  void  SwitchOffUseZeroRHitCut()             { m_useZeroRHitCut=false;  }
-  bool  GetStatusUseZeroRHitCut() const       { return m_useZeroRHitCut; }
-
-  void  SetXenonFordEdXCalculation()          { m_useTrackPartWithGasType=kXenon;   }
-  void  SetArgonFordEdXCalculation()          { m_useTrackPartWithGasType=kArgon;   }
-  void  SetKryptonFordEdXCalculation()        { m_useTrackPartWithGasType=kKrypton; }
-  void  UnsetGasTypeFordEdXCalculation()      { m_useTrackPartWithGasType=kUnset;   }
-  int   GetGasTypeFordEdXCalculation() const  { return m_useTrackPartWithGasType;   }
-
-  // void  SetXenonGasTypeInStraw()              { m_gasTypeInStraw=kXenon;   }
-  // void  SetArgonGasTypeInStraw()              { m_gasTypeInStraw=kArgon;   }
-  // void  SetKryptonGasTypeInStraw()            { m_gasTypeInStraw=kKrypton; }
-  // void  UnsetGasTypeInStraw()                 { m_gasTypeInStraw=kUnset;   }
-  // int   GetStatusGasTypeInStraw() const       { return m_gasTypeInStraw;   }
-
-  void  UseStandardAlgorithm()                { m_toolScenario=kAlgStandard;         }
-  void  UseScalingAlgorithm()                 { m_toolScenario=kAlgScalingToXe; SwitchOnMimicToXeCorrection(); }
-  void  UseReweightingAlgorithm()             { m_toolScenario=kAlgReweight;         }
-  void  UseReweightingAlgorithmTrunkOne()     { m_toolScenario=kAlgReweightTrunkOne; }
-  int   GetStatusAlgorithm() const            { return m_toolScenario;               }
-
-  void  SwitchOnMimicToXeCorrection()         { m_applyMimicToXeCorrection=true;   }
-  void  SwitchOffMimicToXeCorrection()        { m_applyMimicToXeCorrection=false;  }
-  bool  GetStatusMimicToXeCorrection() const  { return m_applyMimicToXeCorrection; }
-
-
-  void  ShowDEDXSetup() const;
+  void  showDEDXSetup() const;
 
   
 };

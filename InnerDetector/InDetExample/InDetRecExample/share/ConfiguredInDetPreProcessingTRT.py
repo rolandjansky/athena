@@ -138,9 +138,6 @@ class ConfiguredInDetPreProcessingTRT:
                                                                ValidityGateSuppression         = not InDetFlags.doCosmics(),
                                                                LowGate                         = LowGate,
                                                                HighGate                        = HighGate,
-                                                               MaskFirstHTBit                  = False,
-                                                               MaskMiddleHTBit                 = False,
-                                                               MaskLastHTBit                   = False,
                                                                SimpleOutOfTimePileupSupressionArgon = InDetFlags.doCosmics(),
                                                                RejectIfFirstBitArgon                = False, # fixes 50 nsec issue 
                                                                MinTrailingEdgeArgon                 = MinTrailingEdge,
@@ -148,9 +145,6 @@ class ConfiguredInDetPreProcessingTRT:
                                                                ValidityGateSuppressionArgon         = not InDetFlags.doCosmics(),
                                                                LowGateArgon                         = LowGate,
                                                                HighGateArgon                        = HighGate,
-                                                               MaskFirstHTBitArgon                  = False,
-                                                               MaskMiddleHTBitArgon                 = False,
-                                                               MaskLastHTBitArgon                   = False,
                                                                useDriftTimeHTCorrection        = True,
                                                                useDriftTimeToTCorrection       = True)
          if not usePhase:
