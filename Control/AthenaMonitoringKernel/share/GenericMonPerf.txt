@@ -1,7 +1,7 @@
 // -*- C -*-
 // startup script for GenericMonTool tests
 
-ApplicationMgr.DLLs += { "StoreGate", "AthenaMonitoringKernel" };
+ApplicationMgr.Dlls += { "StoreGate", "AthenaMonitoringKernel" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
 ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" };
 ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };

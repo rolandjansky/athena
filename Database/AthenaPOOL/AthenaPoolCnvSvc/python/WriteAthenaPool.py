@@ -10,7 +10,7 @@
 # Each subsystem should provide additional jobOpt fragments to load converter and append
 # to event object ItemList. For example, LArAthenaPool should include:
 #
-# ApplicationMgr.DLLs += [ "LArAthenaPool" ];
+# ApplicationMgr.Dlls += [ "LArAthenaPool" ];
 # Stream1.ItemList += [ "2701#*", "2731#*" ];
 #
 #==============================================================

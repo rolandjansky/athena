@@ -202,10 +202,10 @@ namespace TrigCompositeUtils {
 
     
   /**
-   * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter
-   * @return matching TC or nullptr
+   * @brief traverses Decision object links for another Decision object fufilling the prerequisite specified by the filter
+   * @return matching Decision object or nullptr
    **/
-  const xAOD::TrigComposite* find(const xAOD::TrigComposite*, const std::function<bool(const xAOD::TrigComposite*)>& filter);
+  const Decision* find(const Decision*, const std::function<bool(const Decision*)>& filter);
 
   /**
    * @brief Prerequisite object usable with @see filter allowing to find TC having a link to an object of name
@@ -220,7 +220,7 @@ namespace TrigCompositeUtils {
      * @brief checks if the arg TC has link of name specified at construction 
      * @warning method for internal consumption within @see find function 
      **/
-    bool operator()(const xAOD::TrigComposite* ) const;
+    bool operator()(const Decision* ) const;
   private:
     std::string m_name;
   };
@@ -235,10 +235,10 @@ namespace TrigCompositeUtils {
      **/
     HasObjectCollection(const std::string& name): m_name(name) {}
     /**
-     * @brief checks if the arg TC has link collection of name specified at construction 
+     * @brief checks if the arg Decision object has link collection of name specified at construction 
      * @warning method for internal consumption within @see find function 
      **/
-    bool operator()(const xAOD::TrigComposite* ) const;
+    bool operator()(const Decision* ) const;
   private:
     std::string m_name;
   };
@@ -286,13 +286,13 @@ namespace TrigCompositeUtils {
   };
 
   /**
-   * @brief Helper to keep the TC & object it has linked together (for convenience)
+   * @brief Helper to keep a Decision object, ElementLink and ActiveState (with respect to some requested ChainGroup) linked together (for convenience)
    **/
   template<typename T>
   struct LinkInfo {
     LinkInfo()
       : source{0} {}
-    LinkInfo(const xAOD::TrigComposite *s, const ElementLink<T>& l, ActiveState as = ActiveState::UNSET)
+    LinkInfo(const Decision* s, const ElementLink<T>& l, ActiveState as = ActiveState::UNSET)
       : source{s}, link{l}, state{as} {}
 
     bool isValid() const {
@@ -305,7 +305,7 @@ namespace TrigCompositeUtils {
       return (isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE);
     }
 
-    const xAOD::TrigComposite *source;
+    const Decision* source;
     ElementLink<T> link;
     ActiveState state;
   };
@@ -345,45 +345,60 @@ namespace TrigCompositeUtils {
     const DecisionIDContainer chainIDs = DecisionIDContainer());
 
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC (recursively).
+   * @brief Perform a recursive search for ElementLinks of type T and name 'linkName', starting from Decision object 'start' 
    * For the case of multiple links, this function only returns the first one found. @see findLinks
-   * @arg start the TC  from where the link back is to be looked for
-   * @arg linkName the name with which the Link was added to the source TC
-   * @arg suppressMultipleLinksWarning findLink will print a warning if more than one link is found, this can be silenced here
-   * @return pair of link and TC with which it was associated, 
+   * @param[in] start the Decision Object from where recursive search should begin
+   * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
+   * @param[in] suppressMultipleLinksWarning findLink will print a warning if more than one ElementLink is found, this can be silenced here.
+   * @return LinkInfo A wrapper around an ElementLink and the location in the graph 
    */
   template<typename T>
   LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName, const bool suppressMultipleLinksWarning = false);
+  findLink(const Decision* start, 
+    const std::string& linkName, 
+    const bool suppressMultipleLinksWarning = false);
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
-   * Populates provided vector with all located links to T of the corresponding name. 
-   * @arg start the TC  from where the link back is to be looked for
-   * @arg linkName the name with which the Link was added to the source TC
-   * @arg links Reference to vector, this will be populated with the found links. 
+   * Populates provided vector with all located links to T of the corresponding linkName. 
+   * @param[in] start the Decision Object from where recursive search should begin
+   * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
+   * @param[inout] links Reference to vector, this will be populated with the found links. 
+   * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
+                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          branch once a link has been located and collected. 
+   * @param[inout] visitedCache Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
    */
   template<typename T>
   void
-  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour = TrigDefs::allFeaturesOfType);
+  findLinks(const Decision* start, 
+    const std::string& linkName,
+    std::vector<LinkInfo<T>>& links, 
+    unsigned int behaviour = TrigDefs::allFeaturesOfType, 
+    std::set<const xAOD::TrigComposite*>* visitedCache = nullptr);
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
    * This version returns a vector rather than requiring that one be passed to it. 
-   * @arg start the TC  from where the link back is to be looked for
-   * @arg linkName the name with which the Link was added to the source TC
+   * @param[in] start the Decision Object from where recursive search should begin
+   * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
+   * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
+                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          branch once a link has been located and collected. 
    * @return Vector with the found links. 
    */
   template<typename T>
   std::vector<LinkInfo<T>>
-  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, unsigned int behaviour = TrigDefs::allFeaturesOfType);
+  findLinks(const Decision* start,
+    const std::string& linkName,
+    unsigned int behaviour = TrigDefs::allFeaturesOfType);
 
 
   /**
-   * Prints the TC including the linked seeds
+   * Prints the Decision object including the linked seeds
    * @warnign expensive call
    **/  
-  std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
+  std::string dump( const Decision*  tc, std::function< std::string( const Decision* )> printerFnc );
 
 
   

@@ -4,7 +4,7 @@
 
 #ifndef MUONMdtRdoToPrepDataTool_H
 #define MUONMdtRdoToPrepDataTool_H
-
+     
 #include "MdtRdoToPrepDataToolCore.h"
 
 namespace Muon 

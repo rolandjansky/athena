@@ -54,7 +54,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::finalize()
   return RpcRdoToPrepDataToolCore::finalize();
 }
 
-StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeInTheEvent)
+StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers (bool& firstTimeInTheEvent)
 {
   // We will need to retrieve from cache even in different threads
   SG::WriteHandle< Muon::RpcPrepDataContainer >rpcPRDHandle(m_rpcPrepDataContainerKey);
@@ -142,7 +142,8 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataToolMT::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ){
+/// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
+StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ){
   ATH_MSG_DEBUG("Calling Core decode function from MT decode function (hash vector)");
   StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( idVect, selectedIdVect );
   if (status.isFailure()){
@@ -158,7 +159,8 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::decode( std::vector<IdentifierHash>& id
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataToolMT::decode( const std::vector<uint32_t>& robIds ){
+/// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
+StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( const std::vector<uint32_t>& robIds ){
   ATH_MSG_DEBUG("Calling Core decode function from MT decode function (ROB vector)");
   StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( robIds );
   if (status.isFailure()){

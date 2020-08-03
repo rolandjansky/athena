@@ -1,38 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackSegmentAssociationTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
 
 namespace Muon {
 
-  //Constructor
-
-  TrackSegmentAssociationTool::TrackSegmentAssociationTool(const std::string& t, 
-                                                                 const std::string& n, 
-                                                                 const IInterface* p):
-    AthAlgTool(t,n,p),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-  {
-  
-    declareInterface<TrackSegmentAssociationTool>(this);
-    //  declareInterface<ITrackSegmentAssociationTool>(this);
-
-    declareProperty("MuonEDMPrinterTool",m_printer);
+  TrackSegmentAssociationTool::TrackSegmentAssociationTool(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p) {
+      declareInterface<TrackSegmentAssociationTool>(this);
   }
-
-  //Destructor
-
-  TrackSegmentAssociationTool::~TrackSegmentAssociationTool() {}
-
-  //Initialization
 
   StatusCode TrackSegmentAssociationTool::initialize() {
     ATH_CHECK(m_edmHelperSvc.retrieve());
@@ -40,13 +23,6 @@ namespace Muon {
     ATH_CHECK(m_segments.initialize());
     return StatusCode::SUCCESS;
   }
-
-  //Finalization
-
-  StatusCode TrackSegmentAssociationTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
 
   const xAOD::MuonSegmentContainer* TrackSegmentAssociationTool::retrieveSegments( std::string location ) const {
     
