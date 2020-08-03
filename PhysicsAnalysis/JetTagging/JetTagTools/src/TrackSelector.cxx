@@ -224,13 +224,13 @@ namespace Analysis {
     }
 
     double d0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta) : m_d0Max;
-    if(fabs(trackD0)>d0_cut) {
+    if(std::abs(trackD0)>d0_cut) {
       pass = false;
       failedCuts.set(d0Max);
     }
 
     double z0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxZImpactAtEta(eta) : m_z0Max;
-    if(fabs(trackZ0*sin(track->theta()))>z0_cut) {
+    if(std::abs(trackZ0*sin(track->theta()))>z0_cut) {
       pass = false;
       failedCuts.set(z0Max);
     }
@@ -244,7 +244,7 @@ namespace Analysis {
       failedCuts.set(sigz0Max);
     }
     if(m_useAntiPileUpCuts) {
-      if(fabs(trackZ0/tracksigZ0)>m_antiPileUpSigZ0Cut && fabs(trackD0/tracksigD0)<m_antiPileUpSigD0Cut) {
+      if(std::abs(trackZ0/tracksigZ0)>m_antiPileUpSigZ0Cut && std::abs(trackD0/tracksigD0)<m_antiPileUpSigD0Cut) {
         pass = false;
         failedCuts.set(sigz0Max);
         failedCuts.set(sigd0Max);
@@ -252,7 +252,7 @@ namespace Analysis {
     }
 
     double eta_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxEta() : m_etaMax;
-    if(fabs(track->eta())>eta_cut) {
+    if(std::abs(track->eta())>eta_cut) {
       pass = false;
       failedCuts.set(etaMax);
     }
@@ -344,8 +344,8 @@ namespace Analysis {
 	track->summaryValue(nibl , xAOD::numberOfPixelHits);
 	track->summaryValue(nnibl, xAOD::numberOfPixelHits);
 	bool innerHitsCrit = ((nibl+nnibl)>0);
-	bool lowetaCrit  = fabs(track->eta())> 1.65 && (ns+np)>=11;
-	bool highetaCrit = fabs(track->eta())<=1.65 && (ns+np)>=9 ;
+	bool lowetaCrit  = std::abs(track->eta())> 1.65 && (ns+np)>=11;
+	bool highetaCrit = std::abs(track->eta())<=1.65 && (ns+np)>=9 ;
 	bool pixholeCrit = (nhp==0) ;
 	bool isTight = innerHitsCrit && pixholeCrit && (lowetaCrit || highetaCrit);
 	if (!isTight){
