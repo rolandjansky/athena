@@ -136,6 +136,32 @@ namespace InDet {
       ATH_MSG_INFO ("Xi2max: " << m_Xi2max);
       ATH_MSG_INFO ("Xi2maxNoAdd: " << m_Xi2maxNoAdd);                
 
+      // Initialize maps for navigation
+      m_mapDoubleCuts[InDet::CutName::etaBins]            = m_etaBins;
+      m_mapDoubleCuts[InDet::CutName::minPT]              = m_minPT;
+      m_mapDoubleCuts[InDet::CutName::maxPrimaryImpact]   = m_maxPrimaryImpact;
+      m_mapDoubleCuts[InDet::CutName::maxZImpact]         = m_maxZImpact;
+      m_mapDoubleCuts[InDet::CutName::Xi2max]             = m_Xi2max;
+      m_mapDoubleCuts[InDet::CutName::Xi2maxNoAdd]        = m_Xi2maxNoAdd;
+      m_mapDoubleCuts[InDet::CutName::maxdImpactSSSSeeds] = m_maxdImpactSSSSeeds;
+      m_mapDoubleCuts[InDet::CutName::minPTBrem]          = m_minPTBrem;
+      m_mapDoubleCuts[InDet::CutName::etaWidthBrem]       = m_etaWidthBrem;
+      m_mapDoubleCuts[InDet::CutName::phiWidthBrem]       = m_phiWidthBrem;
+
+      m_mapIntCuts[InDet::CutName::minClusters]           = m_minClusters;
+      m_mapIntCuts[InDet::CutName::minSiNotShared]        = m_minSiNotShared;
+      m_mapIntCuts[InDet::CutName::maxShared]             = m_maxShared;
+      m_mapIntCuts[InDet::CutName::minPixelHits]          = m_minPixelHits;
+      m_mapIntCuts[InDet::CutName::maxHoles]              = m_maxHoles;
+      m_mapIntCuts[InDet::CutName::maxPixelHoles]         = m_maxPixelHoles;
+      m_mapIntCuts[InDet::CutName::maxSctHoles]           = m_maxSctHoles;
+      m_mapIntCuts[InDet::CutName::maxDoubleHoles]        = m_maxDoubleHoles;
+      m_mapIntCuts[InDet::CutName::maxHolesPattern]       = m_maxHolesPattern;
+      m_mapIntCuts[InDet::CutName::maxHolesGapPattern]    = m_maxHolesGapPattern;
+      m_mapIntCuts[InDet::CutName::nWeightedClustersMin]  = m_nWeightedClustersMin;
+      m_mapIntCuts[InDet::CutName::minInPixelHits]        = m_minInPixelHits;
+      m_mapIntCuts[InDet::CutName::minStripHits]          = m_minStripHits;
+
       return StatusCode::SUCCESS;
     }
     
@@ -189,52 +215,12 @@ namespace InDet {
       
       // resize the cut vector before setting it
       cut.resize(m_noOfEtaBins);
-      
-      switch (cutName) {
-        case InDet::CutName::etaBins:
-          cut = m_etaBins;
-          break;
-        
-        case InDet::CutName::minPT:
-          cut = m_minPT;
-          break;
-          
-        case InDet::CutName::maxPrimaryImpact:
-          cut = m_maxPrimaryImpact;
-          break;
-          
-        case InDet::CutName::maxZImpact:
-          cut = m_maxZImpact;
-          
-          break;
-        case InDet::CutName::Xi2max:
-          cut = m_Xi2max;
-          break;
-          
-        case InDet::CutName::Xi2maxNoAdd:
-          cut = m_Xi2maxNoAdd;
-          break;
-          
-        case InDet::CutName::maxdImpactSSSSeeds:
-          cut = m_maxdImpactSSSSeeds;
-          break;
-        
-        case InDet::CutName::minPTBrem:
-          cut = m_minPTBrem;
-          break;
-          
-        case InDet::CutName::etaWidthBrem:
-          cut = m_etaWidthBrem;
-          break;
-          
-        case InDet::CutName::phiWidthBrem:
-          cut = m_phiWidthBrem;
-          break;
-        
-        default:
-          ATH_MSG_ERROR("CutName not recognized. Cuts will remain unchanged.");
-          break;
-      }
+
+      std::unordered_map< InDet::CutName, std::vector<double> >::iterator it = m_mapDoubleCuts.find(cutName);
+
+      if(it!=m_mapDoubleCuts.end()) cut = it->second;
+      else ATH_MSG_ERROR("CutName not recognized. Cuts will remain unchanged.");
+
     }
     
     void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName,    std::vector < int >& cut) {
@@ -242,63 +228,11 @@ namespace InDet {
       // resize the cut vector before setting it
       cut.resize(m_noOfEtaBins);
 
-      switch (cutName) {
-        case InDet::CutName::minClusters:
-          cut = m_minClusters;
-          break;
-        
-        case InDet::CutName::minSiNotShared:
-          cut = m_minSiNotShared;
-          break;
-          
-        case InDet::CutName::maxShared:
-          cut = m_maxShared;
-          break;
-          
-        case InDet::CutName::minPixelHits:
-          cut = m_minPixelHits;
-          break;
+      std::unordered_map< InDet::CutName, std::vector<int> >::iterator it = m_mapIntCuts.find(cutName);
 
-        case InDet::CutName::maxHoles:
-          cut = m_maxHoles;
-          break;
-          
-        case InDet::CutName::maxPixelHoles:
-          cut = m_maxPixelHoles;
-          break;
-          
-        case InDet::CutName::maxSctHoles:
-          cut = m_maxSctHoles;
-          break;
-        
-        case InDet::CutName::maxDoubleHoles:
-          cut = m_maxDoubleHoles;
-          break;
-          
-        case InDet::CutName::maxHolesPattern:
-          cut = m_maxHolesPattern;
-          break;
-          
-        case InDet::CutName::maxHolesGapPattern:
-          cut = m_maxHolesGapPattern;
-          break;
-          
-        case InDet::CutName::nWeightedClustersMin:
-          cut = m_nWeightedClustersMin;
-          break;
-        
-        case InDet::CutName::minInPixelHits:
-          cut = m_minInPixelHits;
-          break;
+      if(it!=m_mapIntCuts.end()) cut = it->second;
+      else ATH_MSG_ERROR("CutName not recognized. Cuts will remain unchanged.");
 
-        case InDet::CutName::minStripHits:
-          cut = m_minStripHits;
-          break;
-
-        default:
-          ATH_MSG_ERROR("CutName not recognized. Cuts will remain unchanged.");
-          break;
-      }
     }
   
     template <class T>

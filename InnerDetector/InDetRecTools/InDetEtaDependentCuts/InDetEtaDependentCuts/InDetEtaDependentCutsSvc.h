@@ -101,6 +101,10 @@ namespace InDet {
       std::vector<int>     m_minInPixelHits       ; // min number of pixel hits in the innermost layer
       std::vector<int>     m_minStripHits         ; // min number of strip hits
       
+      std::unordered_map< InDet::CutName, std::vector<double> > m_mapDoubleCuts; // double min/max stored in a single object
+      std::unordered_map< InDet::CutName, std::vector<int> >    m_mapIntCuts; // int min/max stored in a single object
+
+
     }; 
 
     
