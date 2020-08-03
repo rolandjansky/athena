@@ -191,10 +191,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
      m_useEtaDependentCuts = !(m_etaDependentCutsSvc.name().empty());
      if (m_useEtaDependentCuts){
        ATH_CHECK(m_etaDependentCutsSvc.retrieve());
-       ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Track selections from config not used");
+       ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Individual inclusive track selections from config not used");
      }
      else{
-       ATH_MSG_INFO("Using track selections from config");
+       ATH_MSG_INFO("Using individual inclusive track selections from config");
      }
 
  
