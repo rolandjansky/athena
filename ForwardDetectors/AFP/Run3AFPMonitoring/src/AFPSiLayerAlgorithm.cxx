@@ -11,6 +11,7 @@
 #include <Run3AFPMonitoring/AFPFastReco.h>
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODForward/AFPStationID.h"
+#include "EventInfo/EventID.h"
 
 
 	unsigned int clusterCounter[1000][4][4];
@@ -115,15 +116,15 @@
 		}
 		return false;
 	}
-	
-
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 , m_afpHitContainerKey("AFPSiHitContainer")
+, m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
 
 {
 	declareProperty( "AFPSiHitContainer", m_afpHitContainerKey );
+	declareProperty("BunchCrossingTool", m_bunchCrossingTool);
 }
 
 
@@ -149,6 +150,16 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 				clusterCounter[a][b][c] = 0;
 			}
 		}
+	}
+	
+	StatusCode sc = m_bunchCrossingTool.retrieve();
+	if(sc.isFailure())
+	{
+		ATH_MSG_WARNING("\n\n\t\tUnable to retrieve bunchCrossingTool.\n\n");
+	}
+	else
+	{
+		ATH_MSG_WARNING("\n\n\t\tRetrieve works!!!.\n\n");
 	}
 
 	return AthMonitorAlgorithm::initialize();
@@ -204,6 +215,19 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	++counterForEventsStation;
 
 	int tempbcid = GetEventInfo(ctx)->bcid();
+
+	// IMPORTANT PART
+	EventID::number_type specialBCID = GetEventInfo(ctx)->bcid();
+	(m_bunchCrossingTool->isFilled(specialBCID))
+	{
+		std::cout << "\tFilled: " << specialBCID << std::endl;
+	}
+	else
+	{
+		std::cout << "\tNOT filled: " << specialBCID << std::endl;
+	}
+	// END OF IMPORTANT PART
+	
 	if(isInList(tempbcid, frontBCIDs) == true)
 	{
 		++counterForEventsFront;
@@ -214,8 +238,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		++counterForEventsEnd;
 		++counterForEventsStationEnd;
 	}
-	
-	if(isInList(tempbcid, middleBCIDs) == true)
+	else if(isInList(tempbcid, middleBCIDs) == true)
 	{
 		++counterForEventsMiddle;
 		++counterForEventsStationMiddle;
