@@ -1,26 +1,13 @@
-# $Id: CMakeLists.txt 779405 2016-10-20 13:44:57Z krasznaa $
-################################################################################
-# Package: AsgExampleTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AsgExampleTools )
 
 if (SIMULATIONBASE)
-  set (extra_dep )
   set (extra_lib )
 else()
-  set (extra_dep Event/xAOD/xAODMuon)
   set (extra_lib xAODMuon)
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgDataHandles
-   Control/AthToolSupport/AsgTools
-   Control/AthToolSupport/AsgTesting
-   ${extra_dep})
 
 # External dependencies:
 find_package( GTest )
