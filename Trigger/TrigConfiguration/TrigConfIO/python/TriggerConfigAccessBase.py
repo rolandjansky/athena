@@ -145,7 +145,7 @@ class ConfigDBLoader(ConfigLoader):
                 failures += [ (q.format(**qdict), str(e)) ]
             else:
                 configblob = cursor.fetchall()[0][0]
-                config = json.loads(str(configblob), object_pairs_hook = odict)
+                config = json.loads(configblob.read().decode("utf-8"), object_pairs_hook = odict)
                 break
         if not config:
             for q,f in failures:
