@@ -409,7 +409,7 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 
 
   if (!modEvent->valid_beam_particles()) {
-    if (m_isSPG && modEvent->particles_size() == 1) {
+    if (m_isSPG) {
       // a single particle gun only has one particle without
       // a production vertex. In this kludge, we add a 
       // dummy vertex with an exact copy of the particle 
