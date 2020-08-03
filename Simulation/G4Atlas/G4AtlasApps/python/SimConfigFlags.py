@@ -95,5 +95,15 @@ def createSimConfigFlags():
     scf.addFlag("Sim.FastChain.PUWeights_lar_hec", [1.0]) # LAr HEC
     scf.addFlag("Sim.FastChain.PUWeights_lar_bapre", [1.0]) # LAr Barrel presampler
     scf.addFlag("Sim.FastChain.PUWeights_tile", [1.0]) # Tile
+    
+    # Fatras
+    scf.addFlag("Sim.Fatras.RandomStreamName", "FatrasRnd")
+    scf.addFlag("Sim.Fatras.G4RandomStreamName", "FatrasG4")
+    scf.addFlag("Sim.Fatras.TrkExRandomStreamName", "TrkExRnd")
+    # Fatras fine tuning
+    scf.addFlag("Sim.Fatras.MomCutOffSec", 50.) # common momentum cut-off for secondaries
+    scf.addFlag("Sim.Fatras.HadronIntProb", 1.) # hadronic interaction scale factor
+    scf.addFlag("Sim.Fatras.GaussianMixtureModel", True) # use Gaussian mixture model for Multiple Scattering
+    scf.addFlag("Sim.Fatras.BetheHeitlerScale", 1.) # scale to Bethe-Heitler contribution
 
     return scf
