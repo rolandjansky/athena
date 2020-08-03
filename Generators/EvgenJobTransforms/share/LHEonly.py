@@ -1,6 +1,7 @@
 # Common fragment for generation of 1 Pythia8 event, when producing LHE output only
-# the number of events is set to 1 in two places: as Pythia param: Main:numberOfEvents = 1 and evgenconfig.nEventsPerJob=1 (the later one is stronger)
+# the number of events is set to 1 in two places: as Pythia param: Main:numberOfEvents = 1 and postSeq.CountHepMC.RequestedOutput=1 (the later one is stronger)
 # It is needed to make the transform run
+# we don't modify nEventsPerJob anymore, which now corresponds to the number of events in the output lhe file
 # No output is kept from this generation
 ## Base config for Pythia8
 
@@ -19,7 +20,7 @@ genSeq += Pythia8_i("Pythia8")
 
 genSeq.Pythia8.Commands += [
     "Main:timesAllowErrors = 500",
-    "Main:numberOfEvents = 1",
+    "Main:numberOfEvents = 1",### first place for number of dummy events
     "6:m0 = 172.5",
     "23:m0 = 91.1876",
     "23:mWidth = 2.4952",
@@ -41,7 +42,15 @@ genSeq.Pythia8.Commands += [
     "SoftQCD:inelastic = on",
     "SpaceShower:rapidityOrder=0"]
 
-evgenConfig.nEventsPerJob = 1
+### second place for number of dummy events
+if not hasattr(postSeq, "CountHepMC"):
+    postSeq += CountHepMC()
+postSeq.CountHepMC.RequestedOutput = 1
+
+### we don't modify nEventsPerJob, it'll correspond to the number of events in the output lhe file
+#evgenConfig.nEventsPerJob = 1
+
+### deleting TestHepMC for lhe-only production
 del testSeq.TestHepMC
 
 
