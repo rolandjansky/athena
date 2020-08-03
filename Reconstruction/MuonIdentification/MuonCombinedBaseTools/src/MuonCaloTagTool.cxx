@@ -62,7 +62,7 @@ namespace MuonCombined {
     if( m_doCaloLR ) ATH_CHECK( m_caloMuonLikelihood.retrieve() );
     else m_caloMuonLikelihood.disable();
 
-    if( m_doCaloScore ) ATH_CHECK( m_caloMuonScore.retrieve() );
+    if( m_doCaloMuonScore ) ATH_CHECK( m_caloMuonScore.retrieve() );
     else m_caloMuonScore.disable();
 
     ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
@@ -211,7 +211,7 @@ namespace MuonCombined {
       if(m_doCaloLR){
 	likelihood = m_caloMuonLikelihood->getLHR(tp, caloClusterCont);
       }
-      if(m_doCaloScore || 1){
+      if(m_doCaloMuonScore || 1){
 	muon_score = m_caloMuonScore->getMuonScore(tp);
       }
       ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and muon score " << muon_score);
