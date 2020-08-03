@@ -44,4 +44,3 @@ namespace JetHelpers
 
 
 #endif
-

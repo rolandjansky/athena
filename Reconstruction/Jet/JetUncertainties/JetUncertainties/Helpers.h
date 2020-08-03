@@ -189,5 +189,3 @@ std::vector<T> utils::vectorize(const TString& str, const TString& sep)
 } // end jet namespace
 
 #endif
-
-

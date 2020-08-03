@@ -23,7 +23,6 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
 
-//#include <AsgTools/AsgToolConfig.h>
 
 // ROOT
 #include "TFile.h"
@@ -647,18 +646,3 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

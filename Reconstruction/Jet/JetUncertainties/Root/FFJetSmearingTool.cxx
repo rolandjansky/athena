@@ -560,15 +560,15 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
     ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco.pt() << ", mass = " << jet_reco.m() << ", eta = " << jet_reco.eta());
 
     if(std::abs(jet_reco.eta()) > m_EtaRange){//JetCalibTools do not properly for jets with |eta|>2
-        ATH_MSG_INFO("This jet exceeds the eta range that the tool allows (|eta|<" << m_EtaRange << ")");
+        ATH_MSG_DEBUG("This jet exceeds the eta range that the tool allows (|eta|<" << m_EtaRange << ")");
         return CP::CorrectionCode::OutOfValidityRange; 
     }
     if(jet_reco.m() > m_MaxMass){
-        ATH_MSG_INFO("This jet exceeds the mass range that the tool allows jet_mass <" << m_MaxMass << " MeV)");
+        ATH_MSG_DEBUG("This jet exceeds the mass range that the tool allows jet_mass <" << m_MaxMass << " MeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
     if(jet_reco.pt() > m_MaxPt){
-        ATH_MSG_INFO("This jet exceeds the maximum pt that the tool allows jet_pt <" << m_MaxPt << " MeV)");
+        ATH_MSG_DEBUG("This jet exceeds the maximum pt that the tool allows jet_pt <" << m_MaxPt << " MeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
 
@@ -848,4 +848,3 @@ double FFJetSmearingTool::Read3DHistogram(TH3* histo, double x, double y, double
 }
 
 } // namespace CP
-

@@ -22,8 +22,8 @@ double JetHelpers::Interpolate(const TH1* histo, const double x)
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
     // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
     // Probable reason is that FindBin isn't const, but there should be a const version...
-    Int_t xbin = FindBin(histo->GetXaxis(),x);
-    Double_t x0,x1,y0,y1;
+    int xbin = FindBin(histo->GetXaxis(),x);
+    double x0,x1,y0,y1;
     
     if(x<=histo->GetBinCenter(1)) {
        return histo->GetBinContent(1);
@@ -66,16 +66,16 @@ double JetHelpers::Interpolate2D(const TH1* histo, const double x, const double 
         return 0;
     }
 
-    Double_t f=0;
-    Double_t x1=0,x2=0,y1=0,y2=0;
-    Double_t dx,dy;
-    Int_t bin_x = FindBin(fXaxis,x);
-    Int_t bin_y = FindBin(fYaxis,y);
+    double f=0;
+    double x1=0,x2=0,y1=0,y2=0;
+    double dx,dy;
+    int bin_x = FindBin(fXaxis,x);
+    int bin_y = FindBin(fYaxis,y);
     if(bin_x<1 || bin_x>fXaxis->GetNbins() || bin_y<1 || bin_y>fYaxis->GetNbins()) {
        histo->Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(fXaxis->GetNbins()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(fYaxis->GetNbins()+1));
        return 0;
     }
-    Int_t quadrant = 0; // CCW from UR 1,2,3,4
+    int quadrant = 0; // CCW from UR 1,2,3,4
     // which quadrant of the bin (bin_P) are we in?
     dx = fXaxis->GetBinUpEdge(bin_x)-x;
     dy = fYaxis->GetBinUpEdge(bin_y)-y;
@@ -113,19 +113,19 @@ double JetHelpers::Interpolate2D(const TH1* histo, const double x, const double 
        y2 = fYaxis->GetBinCenter(bin_y);
        break;
     }
-    Int_t bin_x1 = FindBin(fXaxis,x1);
+    int bin_x1 = FindBin(fXaxis,x1);
     if(bin_x1<1) bin_x1=1;
-    Int_t bin_x2 = FindBin(fXaxis,x2);
+    int bin_x2 = FindBin(fXaxis,x2);
     if(bin_x2>fXaxis->GetNbins()) bin_x2=fXaxis->GetNbins();
-    Int_t bin_y1 = FindBin(fYaxis,y1);
+    int bin_y1 = FindBin(fYaxis,y1);
     if(bin_y1<1) bin_y1=1;
-    Int_t bin_y2 = FindBin(fYaxis,y2);
+    int bin_y2 = FindBin(fYaxis,y2);
     if(bin_y2>fYaxis->GetNbins()) bin_y2=fYaxis->GetNbins();
 
-    Double_t q11;
-    Double_t q12;
-    Double_t q21;
-    Double_t q22;
+    double q11;
+    double q12;
+    double q21;
+    double q22;
     if (otherDimBin > 0)
     {
         // X,Y variable and Z fixed
@@ -207,7 +207,7 @@ double JetHelpers::Interpolate2D(const TH1* histo, const double x, const double 
         }
     }
     
-    Double_t d = 1.0*(x2-x1)*(y2-y1);
+    double d = 1.0*(x2-x1)*(y2-y1);
     f = 1.0*q11/d*(x2-x)*(y2-y)+1.0*q21/d*(x-x1)*(y2-y)+1.0*q12/d*(x2-x)*(y-y1)+1.0*q22/d*(x-x1)*(y-y1);
     return f;
 }
@@ -222,9 +222,9 @@ double JetHelpers::Interpolate(const TH1* histo, const double x, const double y,
     const TAxis* fZaxis = histo->GetZaxis();
 
     // Find the bin by bin edges
-    Int_t ubx = FindBin(fXaxis,x);
-    Int_t uby = FindBin(fYaxis,y);
-    Int_t ubz = FindBin(fZaxis,z);
+    int ubx = FindBin(fXaxis,x);
+    int uby = FindBin(fYaxis,y);
+    int ubz = FindBin(fZaxis,z);
     
     // Check if the value(s) are outside of the bin range(s)
     if ( ubx < 1 || ubx > histo->GetNbinsX() || uby < 1 || uby > histo->GetNbinsY() || ubz < 1 || ubz > histo->GetNbinsZ() )
@@ -237,9 +237,9 @@ double JetHelpers::Interpolate(const TH1* histo, const double x, const double y,
     // Note that we want to support edge cases, so it is possible that ub* == ob*
     // This functionality is not in original ROOT TH3::Interpolate()
     // This functionality is inspired by TH2::Interpolate()
-    Int_t obx = ubx + 1;
-    Int_t oby = uby + 1;
-    Int_t obz = ubz + 1;
+    int obx = ubx + 1;
+    int oby = uby + 1;
+    int obz = ubz + 1;
     
     // Calculate distance weights before checking under/overflow bins
     // No longer here, see note below
@@ -275,46 +275,46 @@ double JetHelpers::Interpolate(const TH1* histo, const double x, const double y,
     // Moved from the point which says "see note below" to better handle non-uniform bins
     // Particularly important for logarithmic bins, which are commonly used in this tool
     // Done following studies/suggestion by P-A Delsart
-    Double_t xw = fXaxis->GetBinCenter(obx) - fXaxis->GetBinCenter(ubx);
-    Double_t yw = fYaxis->GetBinCenter(oby) - fYaxis->GetBinCenter(uby);
-    Double_t zw = fZaxis->GetBinCenter(obz) - fZaxis->GetBinCenter(ubz);
+    double xw = fXaxis->GetBinCenter(obx) - fXaxis->GetBinCenter(ubx);
+    double yw = fYaxis->GetBinCenter(oby) - fYaxis->GetBinCenter(uby);
+    double zw = fZaxis->GetBinCenter(obz) - fZaxis->GetBinCenter(ubz);
     
     // Not a boundary case, resume normal ROOT::TH3::Interpolate()
-    Double_t xd = (x - fXaxis->GetBinCenter(ubx)) / xw;
-    Double_t yd = (y - fYaxis->GetBinCenter(uby)) / yw;
-    Double_t zd = (z - fZaxis->GetBinCenter(ubz)) / zw;
+    double xd = (x - fXaxis->GetBinCenter(ubx)) / xw;
+    double yd = (y - fYaxis->GetBinCenter(uby)) / yw;
+    double zd = (z - fZaxis->GetBinCenter(ubz)) / zw;
     
     
-    Double_t v[] = { histo->GetBinContent( ubx, uby, ubz ), histo->GetBinContent( ubx, uby, obz ),
+    double v[] = { histo->GetBinContent( ubx, uby, ubz ), histo->GetBinContent( ubx, uby, obz ),
                      histo->GetBinContent( ubx, oby, ubz ), histo->GetBinContent( ubx, oby, obz ),
                      histo->GetBinContent( obx, uby, ubz ), histo->GetBinContent( obx, uby, obz ),
                      histo->GetBinContent( obx, oby, ubz ), histo->GetBinContent( obx, oby, obz ) };
     
     
-    Double_t i1 = v[0] * (1 - zd) + v[1] * zd;
-    Double_t i2 = v[2] * (1 - zd) + v[3] * zd;
-    Double_t j1 = v[4] * (1 - zd) + v[5] * zd;
-    Double_t j2 = v[6] * (1 - zd) + v[7] * zd;
+    double i1 = v[0] * (1 - zd) + v[1] * zd;
+    double i2 = v[2] * (1 - zd) + v[3] * zd;
+    double j1 = v[4] * (1 - zd) + v[5] * zd;
+    double j2 = v[6] * (1 - zd) + v[7] * zd;
     
     
-    Double_t w1 = i1 * (1 - yd) + i2 * yd;
-    Double_t w2 = j1 * (1 - yd) + j2 * yd;
+    double w1 = i1 * (1 - yd) + i2 * yd;
+    double w2 = j1 * (1 - yd) + j2 * yd;
     
     
-    Double_t result = w1 * (1 - xd) + w2 * xd;
+    double result = w1 * (1 - xd) + w2 * xd;
     
     return result;
 }
 
-Int_t JetHelpers::FindBin(const TAxis* axis, const double x)
+int JetHelpers::FindBin(const TAxis* axis, const double x)
 {
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TAxis FindBin method
     // This is done because I want a const version of bin finding (no expanding on under/overflow)
     const double fXmin = axis->GetXmin();
     const double fXmax = axis->GetXmax();
-    const Int_t fNbins = axis->GetNbins();
+    const int fNbins = axis->GetNbins();
     const TArrayD* fXbins = axis->GetXbins();
-    Int_t bin;
+    int bin;
     if (x < fXmin) {              //*-* underflow
        bin = 0;
     } else  if ( !(x < fXmax)) {     //*-* overflow  (note the way to catch NaN
@@ -329,4 +329,3 @@ Int_t JetHelpers::FindBin(const TAxis* axis, const double x)
     }
     return bin;
 }
-
