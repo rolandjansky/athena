@@ -1,6 +1,28 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+def getRun3EFexParameterSelection( parameter ):
+    if parameter == 'reta':
+        return str({
+            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }],
+            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }],
+            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }]
+        })
+    elif parameter == 'rhad':
+        return str({
+            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.16, "maxEt" : 60 }],
+            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.16, "maxEt" : 60 }],
+            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.16, "maxEt" : 60 }]
+        })
+    elif parameter == 'wstot':
+        return str({
+            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }],
+            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }],
+            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }]
+        })
+    else:
+        raise RuntimeError("No Run3 EFex settings available for parameter %s" % parameter )
 
 class CaloDef:
 
