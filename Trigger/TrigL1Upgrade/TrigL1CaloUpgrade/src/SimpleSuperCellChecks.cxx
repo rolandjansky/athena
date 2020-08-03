@@ -33,8 +33,7 @@ SimpleSuperCellChecks::~SimpleSuperCellChecks(){}
 
 StatusCode SimpleSuperCellChecks::initialize(){
 	
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing SimpleSuperCellChecks" << endreq;
+	ATH_MSG_DEBUG("initializing SimpleSuperCellChecks" );
 	std::string filename=name();
 	filename+=".BasicCheck.root";
         counter=0;
@@ -362,15 +361,14 @@ StatusCode SimpleSuperCellChecks::initialize(){
 
 	// for cell <-> SCell comparison
 	if ( m_scidtool.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between cell and SuperCells" << endreq;
+		ATH_MSG_ERROR( "cannot perform comparisons between cell and SuperCells" );
 	}
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode SimpleSuperCellChecks::finalize(){
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing SimpleSuperCellChecks" << endreq;
+	ATH_MSG_DEBUG("finalizing SimpleSuperCellChecks" );
 	m_file->Write();
 	m_file->Close();
 	return StatusCode::SUCCESS;
@@ -378,11 +376,10 @@ StatusCode SimpleSuperCellChecks::finalize(){
 
 StatusCode SimpleSuperCellChecks::execute(){
 	
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute SimpleSuperCellChecks" << endreq;
+	ATH_MSG_DEBUG("execute SimpleSuperCellChecks" );
 	const xAOD::EventInfo* evt(0);
 	if ( evtStore()->retrieve(evt,"EventInfo").isFailure() ){
-		msg << MSG::WARNING << "did not find EventInfo container" << endreq;
+		ATH_MSG_WARNING( "did not find EventInfo container" );
 	}
 	long bunch_crossing(-1);
 	long bunch_crossingNor(-1);
@@ -393,16 +390,16 @@ StatusCode SimpleSuperCellChecks::execute(){
         const CaloCellContainer* scells;
         const CaloCellContainer* allcalo(NULL);
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container" << endreq;
+		ATH_MSG_WARNING( "did not find cell container" );
 		return StatusCode::SUCCESS;
 	}
 	if ( evtStore()->retrieve(allcalo,"AllCalo").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container for regular cells, no resolution test possible" << endreq;
+		ATH_MSG_WARNING( "did not find cell container for regular cells, no resolution test possible" );
 	}
 
 	const xAOD::TruthParticleContainer* truth;
         if ( evtStore()->retrieve(truth,"TruthParticles").isFailure() ) {
-                msg << MSG::WARNING << "did not find truth particle container" << endreq;
+                ATH_MSG_WARNING( "did not find truth particle container" );
                 return StatusCode::SUCCESS;
         }
 	std::vector<float> el_etas, el_phis;
@@ -423,7 +420,7 @@ StatusCode SimpleSuperCellChecks::execute(){
 	const xAOD::VertexContainer* nvtx(NULL);
 	int nvtxs=0;
 	if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
-		msg << MSG::WARNING << "did not find Vectices container" << endreq;
+		ATH_MSG_WARNING( "did not find Vectices container" );
 		return StatusCode::SUCCESS;
 	}
 	if ( nvtx != NULL) nvtxs = nvtx->size();
@@ -517,12 +514,12 @@ StatusCode SimpleSuperCellChecks::execute(){
 	m_nSCells_perLayer[11]->Fill ( count_sCells_Layer11 );
 
 	if ( !allcalo || !m_scidtool ) { // VERY IMPORTANT
-		msg << MSG::ERROR << "Nothing more to be done, finish here" << endreq;
+		ATH_MSG_ERROR( "Nothing more to be done, finish here" );
 		return StatusCode::SUCCESS;
 	}
 	const CaloIdManager* m_calo_id_manager;
 	if ( (detStore()->retrieve(m_calo_id_manager,"CaloIdManager")).isFailure() ){
-		msg << MSG::ERROR << "Not able to map Calo IDs." << endreq;
+		ATH_MSG_ERROR( "Not able to map Calo IDs." );
 		return StatusCode::SUCCESS;
 	}
 	const CaloCell_SuperCell_ID* calo_sc_id = m_calo_id_manager->getCaloCell_SuperCell_ID();
@@ -531,7 +528,7 @@ StatusCode SimpleSuperCellChecks::execute(){
 	std::vector<std::vector<float> > sc_times; sc_times.resize(40000);
         for(auto cell : *allcalo) {
 		int idx = calo_sc_id->calo_cell_hash( m_scidtool->offlineToSuperCellID ( cell->ID() ) );
-		if ( idx < 0 or idx > 37000 ) { msg << MSG::DEBUG << "Problems with index : " << cell->ID().get_identifier32().get_compact() << " " << m_scidtool->offlineToSuperCellID ( cell->ID() ) << " " << idx << endreq; continue; }
+		if ( idx < 0 or idx > 37000 ) { ATH_MSG_DEBUG("Problems with index : " << cell->ID().get_identifier32().get_compact() << " " << m_scidtool->offlineToSuperCellID ( cell->ID() ) << " " << idx ); continue; }
 		sc_ets[idx] += cell->et();
 		sc_etsk[idx].push_back( cell->et() );
 		sc_times[idx].push_back( cell->time() );

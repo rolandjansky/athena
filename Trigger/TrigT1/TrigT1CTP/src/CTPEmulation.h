@@ -75,6 +75,19 @@ namespace LVL1CTP {
       virtual StatusCode bookHists();
 
    private:
+      struct eFEXParWP {
+         struct WPEntry {
+            int etamin {-49};
+            int etamax {49};
+            float value {0.0};
+            unsigned int maxEt {0};
+            int priority {1};
+         };
+         std::vector<WPEntry> entries;
+         const WPEntry & getWP(int ieta) const;
+      };
+
+   private:
 
       // private member functions
       StatusCode createInternalTriggerMap();
@@ -108,6 +121,8 @@ namespace LVL1CTP {
          return "/" + m_histStream + "/CTPEmulation";
       }
 
+      // fill eFEX selection cuts object
+      StatusCode setEFexConfig(const std::string & prop, std::map<unsigned int, eFEXParWP> & cfgMap);
 
       // member variables
 
@@ -123,16 +138,12 @@ namespace LVL1CTP {
       const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETRho;     //!< MET from gFEX
       const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETJwoJ;    //!< MET from gFEX
       const DataHandle< xAOD::JetRoIContainer > m_gJet;           //!< jets from gFEX 
-
       // eFEX
       const DataHandle< xAOD::TrigEMClusterContainer > m_eFEXCluster; //!< cluster from eFEX
       const DataHandle< xAOD::EmTauRoIContainer > m_eFEXTau; //!< taus from eFEX
-
       // jFEX
       const DataHandle< xAOD::JetRoIContainer > m_jJet;           //!< jets from jFEX 
       const DataHandle< xAOD::JetRoIContainer > m_jLJet;          //!< large jets from jFEX 
-
-
       // Inputs from old L1Calo and L1Muon
       // from MC
       const DataHandle< xAOD::MuonRoIContainer > m_muonRoIs;
@@ -142,7 +153,6 @@ namespace LVL1CTP {
       const DataHandle< LVL1::JetCTP >           m_jetCTP;           //!< Jet input
       const DataHandle< LVL1::EnergyCTP >        m_energyCTP;        //!< Energy input
       const DataHandle< LVL1::FrontPanelCTP >    m_topoCTP;          //!< Topo input
-
       // from data
       const ROIB::RoIBResult * m_roibResult { nullptr };
 
@@ -152,7 +162,6 @@ namespace LVL1CTP {
       BooleanProperty m_useROIBOutput { false };
 
       // name of input collections
-
       // new FEX collections
       StringProperty m_gFEXMETPufitLoc {"gXEPUFIT_MET"};
       StringProperty m_gFEXMETRhoLoc {"gXERHO_MET"};
@@ -162,20 +171,27 @@ namespace LVL1CTP {
       StringProperty m_jLJetLoc {"jRoundLargeRJets"};
       StringProperty m_eFEXClusterLoc {"SClusterCl"};
       StringProperty m_eFEXTauLoc {"SClusterTau"};
-
       // name of the CTP input words
       StringProperty m_muonCTPLoc   { LVL1MUCTPI::DEFAULT_MuonCTPLocation};
       StringProperty m_emtauCTPLoc  { LVL1::TrigT1CaloDefs::EmTauCTPLocation };
       StringProperty m_jetCTPLoc    { LVL1::TrigT1CaloDefs::JetCTPLocation };
       StringProperty m_energyCTPLoc { LVL1::TrigT1CaloDefs::EnergyCTPLocation };
       StringProperty m_topoCTPLoc   { LVL1::DEFAULT_L1TopoCTPLocation };
-
       // output locations and control
       BooleanProperty m_isData { false };
       StringProperty m_roiOutputLoc { LVL1CTP::DEFAULT_CTPSLinkLocation };
       StringProperty m_roiOutputLoc_Rerun { LVL1CTP::DEFAULT_CTPSLinkLocation_Rerun };
       StringProperty m_rdoOutputLoc { LVL1CTP::DEFAULT_RDOOutputLocation };
       StringProperty m_rdoOutputLoc_Rerun { LVL1CTP::DEFAULT_RDOOutputLocation_Rerun };
+
+      // property defining the eFEX parameters
+      StringProperty m_eFEXREta { "" };
+      StringProperty m_eFEXRHad { "" };
+      StringProperty m_eFEXWStot { "" };
+      std::map<unsigned int, eFEXParWP> m_reta;
+      std::map<unsigned int, eFEXParWP> m_rhad;
+      std::map<unsigned int, eFEXParWP> m_wstot;
+
 
       std::string m_histStream {"EXPERT"};
 
