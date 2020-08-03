@@ -125,6 +125,7 @@ def main():
       opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
       opts.skip += ["Trig.*CaloCellMaker.*/TCRec_"] # timing histograms in TrigCaloCellMaker
       opts.skip += ["HLTFramework/ROBDataProviderSvc"] # RDP histograms differ in MT due to caching
+      opts.skip += ["HLTFramework/ByteStreamCnvSvc/ResultSizeByStream"] # ROOT bug, see ATR-21755, ROOT-10944 
 
    # Default thresholds
    if not opts.threshold:

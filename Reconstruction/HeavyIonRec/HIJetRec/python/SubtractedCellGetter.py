@@ -26,19 +26,22 @@ class SubtractedCellGetter ( Configured )  :
 
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += cellCopyTool
-        
+
         from HIJetRec.HIJetRecConf import HISubtractedCellMakerTool
         cellSubtrTool=HISubtractedCellMakerTool()
         from HIJetRec.HIJetRecFlags import HIJetFlags
         cellSubtrTool.EventShapeKey=HIJetFlags.IteratedEventShapeKey()
         from HIJetRec.HIJetRecTools import jtm
         cellSubtrTool.Modulator=jtm.modulator
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        theMapTool=HIEventShapeMapTool()
+        cellSubtrTool.EventShapeMapTool=theMapTool
         ToolSvc += cellSubtrTool
-        
+
         from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
         cellFinalizerTool = CaloCellContainerFinalizerTool("HICaloCellFinalizerTool")
         ToolSvc += cellFinalizerTool
-        
+
         cellMaker.CaloCellMakerToolNames = [cellCopyTool,cellSubtrTool,cellFinalizerTool]
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
@@ -48,9 +51,6 @@ class SubtractedCellGetter ( Configured )  :
 
     def outputKey(self):
         return self._output[self._outputType]
-    
+
     def outputType(self):
         return self._outputType
- 
-
-

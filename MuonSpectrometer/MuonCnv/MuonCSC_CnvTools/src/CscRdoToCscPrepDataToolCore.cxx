@@ -7,6 +7,7 @@
 
 /// algorithm to decode RDO into PrepRawData
 
+#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
@@ -69,7 +70,8 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(std::vector<IdentifierHash>&, std
 
 //*****************************************
 //************** Process for the givenId EF Filter case...
-StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {  
+/// This decode function is for single-thread running only
+StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {  
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
@@ -257,7 +259,8 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
 
 
 //************** Process for all in case of Offline
-StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
+/// This decode function is for single-thread running only
+StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
 {
   
   typedef CscRawDataContainer::const_iterator collection_iterator;

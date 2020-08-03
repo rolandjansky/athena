@@ -20,6 +20,8 @@
 
 #include "RPC_Hid2RESrcID.h"
 
+#include "CxxUtils/checker_macros.h"
+
 /** This class provides conversion from BS to ROD format. 
    * @author H. Ma
    * @version  0-0-1 , Oct 7, 2002
@@ -82,7 +84,7 @@ private:
 	std::vector<const RpcPad*> m_vRpcPad;  
 
 
-	mutable Athena::MsgStreamMember m_msg;
+	mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 } ; 
 
 #endif

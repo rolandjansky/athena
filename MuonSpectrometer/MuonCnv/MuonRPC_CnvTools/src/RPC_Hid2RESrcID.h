@@ -14,6 +14,8 @@
 #include <stdint.h> 
 #include <map>
 
+#include "CxxUtils/checker_macros.h"
+
 class RPC_Hid2RESrcID {
 
 public:
@@ -44,7 +46,7 @@ private:
 
   int m_specialROBNumber;
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
   
 };
 

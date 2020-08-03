@@ -25,7 +25,7 @@
  *
  */
 
-/// This enables -ftree-vectorize in gcc (we compile with O2)
+/// This enables -ftree-vectorize in gcc (since we compile with -O2)
 ATH_ENABLE_VECTORIZATION;
 
 namespace {
@@ -222,9 +222,7 @@ findMerges(Component1D* componentsIn,
   int32_t numberOfComponentsLeft = n;
   while (numberOfComponentsLeft > reducedSize) {
     // see if we have the next already
-    const std::pair<int32_t, float> minDis =
-      findMinimumIndex(distances.buffer(), nn2);
-    const int32_t minIndex = minDis.first;
+    const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
     const triangularToIJ conversion = convert[minIndex];
     const int32_t mini = conversion.I;
     const int32_t minj = conversion.J;
@@ -284,7 +282,8 @@ findMerges(Component1D* componentsIn,
  * Blend packed 8-bit integers from a and b using mask, and store the results
  * in dst.
  */
-__attribute__((target("avx2"))) std::pair<int32_t, float>
+__attribute__((target("avx2")))
+int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -317,7 +316,7 @@ findMinimumIndex(const float* distancesIn, const int n)
       minDistance = distances[i];
     }
   }
-  return { minIndex, minDistance };
+  return minIndex;
 }
 /*
  * SSE intrinsics used
@@ -346,7 +345,8 @@ findMinimumIndex(const float* distancesIn, const int n)
  * for compilation and does not generate any instructions, thus it has zero
  * latency.
  */
-__attribute__((target("sse4.1"))) std::pair<int32_t, float>
+__attribute__((target("sse4.1")))
+int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -394,7 +394,7 @@ findMinimumIndex(const float* distancesIn, const int n)
       minDistance = distances[i];
     }
   }
-  return { minIndex, minDistance };
+  return minIndex;
 }
 /*
  * SSE2 does not have a blend/select instruction.
@@ -409,7 +409,8 @@ SSE2_mm_blendv_epi8(__m128i a, __m128i b, __m128i mask)
 {
   return _mm_or_si128(_mm_andnot_si128(mask, a), _mm_and_si128(mask, b));
 }
-__attribute__((target("sse2"))) std::pair<int32_t, float>
+__attribute__((target("sse2")))
+int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -458,13 +459,13 @@ findMinimumIndex(const float* distancesIn, const int n)
     }
   }
 
-  return { minIndex, minDistance };
+  return minIndex;
 }
 #endif // end of x86_64 versions
 // Always fall back to a simple default version with no intrinsics
 __attribute__((target("default")))
 #endif // HAVE_FUNCTION_MULTIVERSIONING
-std::pair<int32_t, float>
+int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -477,6 +478,6 @@ findMinimumIndex(const float* distancesIn, const int n)
       minDistance = value;
     }
   }
-  return { minIndex, minDistance };
+  return minIndex;
 }
 } // end namespace GSFUtils

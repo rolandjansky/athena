@@ -12,7 +12,7 @@
 //--------------------------------------------------------------
 
 //load relevant libraries
-ApplicationMgr.DLLs += { "SGTutorial" };
+ApplicationMgr.Dlls += { "SGTutorial" };
 
 //top algorithms to be run
 ApplicationMgr.TopAlg = { "SGWrite", "SGRead" };

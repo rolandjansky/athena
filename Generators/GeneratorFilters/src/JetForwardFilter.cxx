@@ -176,8 +176,8 @@ double JetForwardFilter::evaluatePDF(double x, double y, int gausIndex) {
 
   // Split up bits of the exponential exp((-1/valA)*(valB+valC-valD))
   double valA = 2.0*(1-rho*rho);
-  double valB = pow(x-muX, 2)/pow(sigmaX, 2);
-  double valC = pow(y-muY, 2)/pow(sigmaY, 2);
+  double valB = std::pow(x-muX, 2)/std::pow(sigmaX, 2);
+  double valC = std::pow(y-muY, 2)/std::pow(sigmaY, 2);
   double valD = 2.0*rho*(x-muX)*(y-muY)/(sigmaX*sigmaY);
 
   double pdf = normFactor*exp( (-1.0/valA)*(valB+valC-valD)  );

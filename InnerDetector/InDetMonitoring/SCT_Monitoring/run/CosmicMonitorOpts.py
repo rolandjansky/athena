@@ -182,7 +182,7 @@ if CosmicMonitorFlags.doMonitoring:
 theApp.Dlls += [ "CBNT_Utils","CBNT_Athena" ]
 
 if CosmicMonitorFlags.makeAlignNtp:
-    theApp.DLLs += ["HbookCnv"]
+    theApp.Dlls += ["HbookCnv"]
     theApp.HistogramPersistency = "HBOOK"
 else:    
     theApp.Dlls += [ "RootHistCnv" ]

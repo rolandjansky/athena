@@ -160,6 +160,8 @@ else:   # athenaHLT
     rec.RunNumber =_run_number
     del _run_number
 
+ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
+
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
@@ -433,11 +435,11 @@ TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
-generateL1Menu()
-createL1PrescalesFileFromMenu()
+generateL1Menu(ConfigFlags)
+createL1PrescalesFileFromMenu(ConfigFlags)
 
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
-CAtoGlobalWrapper(L1ConfigSvcCfg,None)
+CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 
 # ---------------------------------------------------------------
 # HLT prep: RoIBResult and L1Decoder
@@ -448,33 +450,16 @@ from AthenaCommon.CFElements import seqOR,parOR
 hltTop = seqOR("HLTTop")
 hltBeginSeq = parOR("HLTBeginSeq")
 hltTop += hltBeginSeq
+topSequence += hltTop
 
-l1decoder = None
 if opt.doL1Unpacking:
-    if globalflags.InputFormat.is_bytestream():
-        # Create inputs for L1Decoder from ByteStream
-        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-        L1ByteStreamDecodersRecExSetup()
     if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
-        # TODO: replace with L1DecoderCfg
-        from L1Decoder.L1DecoderConfig import L1Decoder
-        l1decoder = L1Decoder("L1Decoder")
-        l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
-        l1decoder.RoIBResult = "RoIBResult" if opt.enableL1CaloLegacy or not opt.enableL1Phase1 else ""
-        l1decoder.L1TriggerResult = "L1TriggerResult" if opt.enableL1Phase1 else ""
-        if opt.enableL1Phase1:
-            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
-            hltBeginSeq += conf2toConfigurable(getL1TriggerResultMaker())
-        if TriggerFlags.doTransientByteStream():
-            transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
-            l1decoder.ExtraInputs += [transTypeKey]
-
-        hltBeginSeq += conf2toConfigurable(l1decoder)
+        ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
+        from L1Decoder.L1DecoderConfig import L1DecoderCfg
+        CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
-
-topSequence += hltTop
 
 # ---------------------------------------------------------------
 # Level 1 simulation
@@ -519,9 +504,8 @@ svcMgr.MessageSvc.infoLimit=10000
 
 
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc() )
-setupHLTPrescaleCondAlg()
 
 if not opt.createHLTMenuExternally:
     # the generation of the prescale set file from the menu (with all prescales set to 1)
@@ -596,8 +580,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
-    if not summaryMakerAlg:
-        log.warning("Failed to find DecisionSummaryMakerAlg")
+    l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
     if l1decoder and summaryMakerAlg:
         decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryMakerAlg )
@@ -605,7 +588,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
         log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
         log.debug(decObj)
     else:
-        log.warning("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
+        log.error("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
     CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)

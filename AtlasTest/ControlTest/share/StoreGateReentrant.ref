@@ -21,7 +21,6 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 AthDictLoaderSvc     INFO in initialize...[m
 AthDictLoaderSvc     INFO acquired Dso-registry[m
 ClassIDSvc           INFO  getRegistryEntries: read 7027 CLIDRegistry entries for module ALL[m
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)[m
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) [m
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00[m
 ClassIDSvc           INFO  getRegistryEntries: read 1095 CLIDRegistry entries for module ALL[m

@@ -24,7 +24,7 @@ namespace TrigCompositeUtils {
 
   /**
    * @brief Creates and right away records the Container CONT with the key.
-   * With Aux store.
+   * With Aux store. 
    * Returns the WriteHandle. 
    * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/
@@ -42,8 +42,18 @@ namespace TrigCompositeUtils {
 
   template<typename T>
   void
-  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour) {
+  findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* visitedCache) {
+    if (visitedCache != nullptr) {
+      // We only need to recursivly explore back from each node in the graph once.
+      // We can keep a record of nodes which we have already explored, these we can safely skip over.
+      if (visitedCache->count(start) == 1) {
+        return; // Early exit
+      } else {
+        visitedCache->insert(start);
+      }
+    }
     ElementLinkVector<T> featureLinks;
+    //
     if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
       featureLinks = start->objectCollectionLinks<T>(linkName);
     }
@@ -90,16 +100,23 @@ namespace TrigCompositeUtils {
 
   template<typename T>
   std::vector<LinkInfo<T>>
-  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, unsigned int behaviour) {
+  findLinks(const Decision* start, const std::string& linkName, unsigned int behaviour) {
     std::vector<LinkInfo<T>> links;
-    findLinks(start, linkName, links, behaviour);
+    std::set<const Decision*> visitedCache;
+    findLinks(start, linkName, links, behaviour, &visitedCache);
     return links;
   }
 
   template<typename T>
   LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName, const bool suppressMultipleLinksWarning) {
-    std::vector<LinkInfo<T>> links = findLinks<T>(start, linkName);
+  findLink(const Decision* start, const std::string& linkName, const bool suppressMultipleLinksWarning) {
+    // We use findLink in cases where there is only one link to be found, or if there are multiple then we 
+    // only want the most recent.
+    // Hence we can supply TrigDefs::lastFeatureOfType.                                                         /--> parent3(link)
+    // We can still have more then one link found if there is a branch in the navigation. E.g. start --> parent1 --> parent2(link)
+    // If both parent2 and parent3 posessed an admisable ElementLink, then the warning below will trigger, and only one of the
+    // links will be returned (whichever of parent2 or parent3 happened to be the first seed of parent1).
+    std::vector<LinkInfo<T>> links = findLinks<T>(start, linkName, TrigDefs::lastFeatureOfType);
     if (links.size() > 1 && !suppressMultipleLinksWarning) {
       MsgStream(Athena::getMessageSvc(), "TrigCompositeUtils::findLink") << MSG::WARNING
         << links.size() << " links found for " << linkName

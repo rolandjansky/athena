@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ CompetingMuonClustersOnTrackCnv_p2::transToPers( const Muon::CompetingMuonCluste
     persObj->m_containedChildRots.push_back( toPersistent(&rotCnv, p, log) );
   }
     
-  persObj->m_associatedSurface     = toPersistent(&m_surfCnv, &transObj->associatedSurfaceRaw(), log);
+  persObj->m_associatedSurface     = toPersistent(&m_surfCnv, transObj->associatedSurfaceRaw(), log);
 }
 
 

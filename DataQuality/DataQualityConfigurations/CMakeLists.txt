@@ -54,7 +54,7 @@ foreach( hanfile collisions_run collisions_minutes10
       ${CMAKE_CURRENT_SOURCE_DIR}/config ${configOutputFile}
       # Build binary config
       COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
-      han-config-gen ${configOutputFile}
+      han-config-gen ${configOutputFile} -b true
       # Deploy binary config
       COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${hanfile}.hcfg

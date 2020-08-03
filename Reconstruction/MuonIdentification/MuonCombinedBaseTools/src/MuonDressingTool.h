@@ -29,7 +29,7 @@ namespace MuonCombined {
     void addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSummary* summary = 0 ) const ;
 
   private:
-    ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool;
+    ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool {this, "MuonHitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   };
   
