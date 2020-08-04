@@ -30,10 +30,10 @@ myMonGroup = helper.addGroup(
     "SCT/GENERAL/"
 )
 
-### STEP 5 ###
+
 # Configure histograms
 
-from ROOT import SCT_Monitoring as sctMon
+from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 
 nProfileBins = 360
 nSides = 2 # 0: Side 0, 1: Side 1
