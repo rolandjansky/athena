@@ -154,17 +154,18 @@ def LArOutputCfg(flags):
     acc = ComponentAccumulator()
     if flags.Output.doWriteRDO:
         ItemList = []
-        if flags.Digitization.PileUpPremixing:
-            ItemList += ["LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitContainer_MC"]
+        if flags.Digitization.AddCaloDigi:
+            ItemList.append("LArDigitContainer#*")
+        elif flags.Digitization.PileUpPremixing:
+            ItemList.append("LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
         else:
-            ItemList += [
-                "LArRawChannelContainer#LArRawChannels",
-                "LArDigitContainer#LArDigitContainer_MC_Thinned"
-            ]
+            ItemList.append("LArDigitContainer#LArDigitContainer_MC_Thinned")
+        if not flags.Digitization.PileUpPremixing:
+            ItemList.append("LArRawChannelContainer#LArRawChannels")
         if flags.Detector.SimulateHGTD:
-            ItemList += ["LArHitContainer#HGTDDigitContainer_MC"]
+            ItemList.append("LArHitContainer#HGTDDigitContainer_MC")
         if flags.Digitization.TruthOutput:
-            ItemList += ["CaloCalibrationHitContainer#*"]
+            ItemList.append("CaloCalibrationHitContainer#*")
             acc.merge(TruthDigitizationOutputCfg(flags))
         acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
