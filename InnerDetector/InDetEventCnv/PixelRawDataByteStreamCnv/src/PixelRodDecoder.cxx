@@ -122,6 +122,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   ATH_MSG_DEBUG("Entering PixelRodDecoder");
 #endif
 
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK1" << std::endl;
+
   const Identifier invalidPixelId = Identifier(); // used by Cabling for an invalid entry
   Identifier pixelId;
   uint64_t onlineId(0);
@@ -136,6 +138,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     generalwarning("Discrepancy in IBL SourceId: ROBID 0x" << std::hex << robId << " unequal to RODID 0x" << rodId);
   }
 
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK2" << std::endl;
+
   SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
   std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData> > pixHitDiscCnfg;
 
@@ -145,6 +149,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   uint32_t serviceCodeCounter = 0;  // frequency of the serviceCode (with the exceptions of serviceCode = 14,15 or 16)
   uint32_t serviceCode = 0;         // is a code. the corresponding meaning is listed in the table in the FE-I4 manual, pag. 105
 
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK3" << std::endl;
 
   // Check ROD status
   if (robFrag->nstatus()!=0) {
@@ -183,6 +188,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     }
   }
 
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK4" << std::endl;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -246,6 +252,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
   int hitDiscCnfg = 3;    // FE-I4 hit discrimination setting
 
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK5" << std::endl;
 
   // Do a check on IBL Slink ID
   eformat::helper::SourceIdentifier sid_rob(robId);
@@ -261,6 +268,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
   // To check duplicated pixels
   Identifier previousPixelId;
+
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK6" << std::endl;
 
   // ============== ============== ============== ============== ============== ============== ============== ============== //
   // loop over the data in the fragment
@@ -281,6 +290,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
       //-------------------------------------------------------------------------------------------- HEADER WORD FOUND
       case PRB_LINKHEADER:   // link (module) header found
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK7" << std::endl;
 
         ATH_MSG_DEBUG("Header word found");
 
@@ -415,10 +426,15 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           link_start = false;   // resetting link (module) header found flag
           continue;   // skip this word and process next one
         }
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK8" << std::endl;
+
         break;
 
         //-------------------------------------------------------------------------------------------- HIT DATA WORD FOUND
       case PRB_DATAWORD: // hit data found
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK9" << std::endl;
 
         if (link_start) {   // if header found before hit -> expected
 
@@ -766,11 +782,16 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
           continue;
         }
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK10" << std::endl;
+
         break;
 
 
       //-------------------------------------------------------------------------------------------- TRAILER WORD FOUND
       case PRB_LINKTRAILER:  // link (module) trailer found
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK11" << std::endl;
 
         if (link_start) {   // if header found before trailer -> expected
           ATH_MSG_DEBUG( "link trailer found" );   // trailer found debug message
@@ -833,10 +854,15 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             checkTrailerErrors( bsErrCode, trailerError);
           }
         }
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK12" << std::endl;
+
         break;
 
         //-------------------------------------------------------------------------------------------- FE ERROR TYPE 2 WORD FOUND
       case PRB_FEERROR2 :    // type 2 flag found
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK13" << std::endl;
 
         are_4condensed_words = false;
         if (isIBLModule || isDBMModule) { // IBL flag found
@@ -918,6 +944,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
           }
         }
+
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK14" << std::endl;
+
         break;
 
         //-------------------------------------------------------------------------------------------- RAWDATA WORD FOUND
@@ -935,7 +964,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     } // end of switch
 
+    std::cout << "STSTST PixelRodDecoder::fillCollection OK15" << std::endl;
+
     if (offlineIdHash!=0xffffffff) { // now write the error word to the service
+
+      std::cout << "STSTST PixelRodDecoder::fillCollection OK16" << std::endl;
 
       int chFE = 0;
       if (isIBLModule || isDBMModule) {   // get FE channel id for IBL
@@ -946,12 +979,17 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         chFE = decodeFE(rawDataWord);
       }
 
+      std::cout << "STSTST PixelRodDecoder::fillCollection OK17" << std::endl;
+
       if (bsErrCode) {
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK18" << std::endl;
         int indexFE = (1+chFE)*m_pixel_id->wafer_hash_max()+(int)offlineIdHash;  // index for IDCInDetBSErrContainer
         decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
         decodingErrors.setOrDrop( indexFE,       bsErrCode );
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK19" << std::endl;
       }
       if (isIBLModule) {
+        std::cout << "STSTST PixelRodDecoder::fillCollection OK20" << std::endl;
         if (serviceCode>0 && serviceCode<32) {
           if (serviceCode!=14) {
             int indexOffset = 17*m_pixel_id->wafer_hash_max();
@@ -960,17 +998,24 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           }
         }
       }
+      std::cout << "STSTST PixelRodDecoder::fillCollection OK21" << std::endl;
+
     }
 
   }   // end of loop over ROD
 
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK22" << std::endl;
+
   ATH_CHECK( updateEventInfoIfEventCorruted( corruptionError ) );
 
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK23" << std::endl;
 
   // Verify that all active IBL FEs sent the same number of headers
   if (isIBLModule || isDBMModule) {
     checkUnequalNumberOfHeaders( nFragmentsPerFE, robId );
   }
+
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK24" << std::endl;
 
   if (sc == StatusCode::RECOVERABLE) {
 
@@ -981,6 +1026,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     ATH_MSG_DEBUG( "Recoverable errors found in PixelRodDecoder, errorcode: " << errorcode );
   }
+  std::cout << "STSTST PixelRodDecoder::fillCollection OK25" << std::endl;
   return sc;
 }
 
