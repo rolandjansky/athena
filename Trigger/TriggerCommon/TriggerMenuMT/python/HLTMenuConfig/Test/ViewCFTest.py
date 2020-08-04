@@ -1,13 +1,17 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import findViewAlgs, checkVDV
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.CFElements import seqOR
 import AthenaCommon.CfgMgr as CfgMgr
+import six
 
 import unittest
 
 class ViewCFTest( unittest.TestCase ):
+    if six.PY2:
+        assertRaisesRegex = unittest.TestCase.assertRaisesRegexp        
+
     def runTest( self ):
 
         topSequence = AlgSequence()
@@ -47,10 +51,10 @@ class ViewCFTest( unittest.TestCase ):
         # Check misconfigured EVCA
         evca1.ViewNodeName = "aFakeNode"
 
-        with self.assertRaisesRegexp( RuntimeError, "no corresponding upstream EventViewCreatorAlgorithm" ):
+        with self.assertRaisesRegex( RuntimeError, "no corresponding upstream EventViewCreatorAlgorithm" ):
             checkVDV( topSequence, [topSequence.name()], {} )
         evca1.ViewNodeName = "viewSequence"
-        with self.assertRaisesRegexp( RuntimeError, "no external data" ):
+        with self.assertRaisesRegex( RuntimeError, "no external data" ):
             checkVDV( topSequence, [topSequence.name()], {} )
         evca1.RequireParentView = True
         checkVDV( topSequence, [topSequence.name()], {} )
@@ -65,6 +69,6 @@ class ViewCFTest( unittest.TestCase ):
         topSequence.makeViewSequence += evca2
         checkVDV( topSequence, [topSequence.name()], {} )
         evca2.ViewNodeName = "viewSequence"
-        with self.assertRaisesRegexp( RuntimeError, "Found duplicate view node name" ):
+        with self.assertRaisesRegex( RuntimeError, "Found duplicate view node name" ):
             checkVDV( topSequence, [topSequence.name()], {} )
 

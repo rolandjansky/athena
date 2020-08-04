@@ -88,14 +88,14 @@ if ((not exclude) or postproc ):
 
 # Now the comparitor steps
 comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF'
-comp.output_dir = 'HLT-plots-FTF'
+comp.chains = 'HLT_mu24_idperf:HLT_IDTrack_Muon_FTF'
+comp.output_dir = 'HLTL2-plots-muon'
 test.check_steps.append(comp)
  
  
 comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig'
-comp2.output_dir = 'HLT-plots-IDTrig'
+comp2.chains='HLT_mu24_idperf:HLT_IDTrack_Muon_FTF HLT_mu24_idperf:HLT_IDTrack_Muon_IDTrig'
+comp2.output_dir = 'HLTEF-plots-muon'
 test.check_steps.append(comp2)
 
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')

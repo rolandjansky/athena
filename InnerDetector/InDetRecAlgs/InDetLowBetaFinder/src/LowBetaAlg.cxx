@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -639,7 +639,7 @@ namespace InDet
 	if (tegap>0.&& hont>1.0) tegap = tegap/(hont-1.0); // average TE gap for a track
 	
 
-	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track), !m_mcswitch, true, true);
+	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track));
 	else 	dEdx =  -999.0;
       }
       else{

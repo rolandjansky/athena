@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================================================================
 
@@ -13,8 +13,6 @@ __doc__     = "Fast Rate plotter from COOL database"
 from PyCool import cool
 from multiprocessing import Queue, cpu_count, Process
 from time import sleep
-import random
-import copy
 import argparse,sys,logging,time,os
 from math import log10
 import signal
@@ -45,7 +43,7 @@ if __name__=='__main__':
 	parser.add_argument('-m','--processes',dest='PROCESSES',default=2,type=int,help='Sets number of processes for multiprocessing retrieval of COOL data')	
 	args = parser.parse_args()
 
-from ROOT import gDirectory, TDatime, TProfile, TH1F, TCanvas, TLegend, TGaxis, gROOT, gStyle, SetOwnership, TColor, TLatex
+from ROOT import TDatime, TProfile, TCanvas, TLegend, TGaxis, gROOT, SetOwnership, TColor, TLatex
 
 #====================================================================================================================
 
@@ -145,7 +143,7 @@ class COOLQueryWorker():
 					break
 				resultBundle = self.processQuery(queryBundle)
 				queueOut.put(resultBundle)
-		except Exception,exception:
+		except Exception as exception:
 			logger.critical(exception)
 		
 		self.close()
@@ -265,7 +263,7 @@ class QueryBundle():
 		self.IoVEnd = IoVEnd
 		for request in payloadRequests:
 			if not len(request)==3:
-				print payloadRequests
+				print(payloadRequests)
 				sys.exit(0)
 		self.payloadRequests = payloadRequests
 		self.payloadRequirements = payloadRequirements
@@ -315,7 +313,7 @@ def rateNameInfo(runLbRanges,mySignal,numProc=1):
 			except Empty:
 				sleep(.001)
 				continue
-			if run == True:
+			if run is True:
 				break
 			runLbStart=run<<32
 			runLbEnd=runLbStart+1
@@ -400,7 +398,7 @@ def rateNameInfo(runLbRanges,mySignal,numProc=1):
 			except Empty:
 				time.sleep(.001)
 				continue
-			if result == True:
+			if result is True:
 				finished+=1
 				if finished==numProc: break
 				continue
@@ -561,7 +559,7 @@ def timeRangeToRunLbRange(timeRange):
 	try:
 		timeStart = time.strptime(timeStart,'%Y-%m-%d:%H:%M:%S')
 		timeEnd = time.strptime(timeEnd,'%Y-%m-%d:%H:%M:%S')
-	except:
+	except Exception:
 		logger.critical('Time range "{0}" does not match YYYY-MM-DD:HH:mm:ss;YYYY-MM-DD:HH:mm:ss'.format(timeRange))
 		sys.exit(0)
 
@@ -600,7 +598,6 @@ def nanoTimeRangesToRunLbRanges(nanoTimeRanges):
 #====================================================================================================================
 
 def fillNumberToRunLbRange(fillNumbers):
-	runLbRanges = []
 	minFill = min(fillNumbers)-1
 	worker = COOLQueryWorker()
 	result = {}
@@ -874,7 +871,7 @@ def getNiceCanvas(name,aliases,textSize=25):
 	canvas.SetBorderSize(0)
 	canvas.SetFrameFillColor(0)
 	#Stretch width and add subpad for legend
-	width = int(max([len(name) for name in aliases])*textSize*.50)+70
+	width = int(max([len(nm) for nm in aliases])*textSize*.50)+70
 	oldWidth = canvas.GetWindowWidth()
 	newWidth = oldWidth+width
 	canvas.SetCanvasSize(newWidth,canvas.GetWindowHeight())

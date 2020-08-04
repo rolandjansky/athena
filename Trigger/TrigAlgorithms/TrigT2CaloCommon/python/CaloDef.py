@@ -48,7 +48,7 @@ def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix
    algo.OutputLevel=OutputLevel
    return algo
 
-def _algoL2Egamma(inputEDM="",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_FastCaloRinger"):
+def _algoL2Egamma(inputEDM="",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
     if not inputEDM:
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         inputEDM = mapThresholdToL1RoICollection("EM")
@@ -57,7 +57,7 @@ def _algoL2Egamma(inputEDM="",OutputLevel=ERROR,doRinger=False, ClustersName="HL
     algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
     algo.RoIs=inputEDM
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    algo.ClustersName=recordable("HLT_L2CaloEMClusters")
+    algo.ClustersName=recordable("HLT_FastCaloEMClusters")
     algo.OutputLevel=OutputLevel
     return algo
 
@@ -66,19 +66,13 @@ def _algoL2Egamma(inputEDM="",OutputLevel=ERROR,doRinger=False, ClustersName="HL
 ##### SEQUENCES
 ####################################
 
-def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_FastCaloRinger"):
+def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
     fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
 
     import AthenaCommon.CfgMgr as CfgMgr
     fastCaloVDV = CfgMgr.AthViews__ViewDataVerifier("fastCaloVDV")
     fastCaloVDV.DataObjects = [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMCaloRoIs' )]
-
-    # Make sure BCID average still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloVDV, fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
@@ -97,7 +91,7 @@ def fastCaloEVCreator():
     return (fastCaloViewsMaker, InViewRoIs)
 
 
-def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_FastCaloRinger"):
+def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
     """Used for standalone testing"""
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
     # connect to RoIs
@@ -151,8 +145,6 @@ def HLTRoITopoRecoSequence(RoIs):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")

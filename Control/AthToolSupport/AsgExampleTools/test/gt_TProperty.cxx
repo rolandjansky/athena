@@ -229,6 +229,13 @@ namespace asg
       ASSERT_EQ (0, value);
     }
 
+    TEST (SetStringHelperTest, set_bool)
+    {
+      bool value = true;
+      ASSERT_SUCCESS (SetStringHelper<bool>::set ("1", value));
+      ASSERT_EQ (true, value);
+    }
+
     TEST (SetStringHelperTest, set_enum)
     {
       MSG::Level value = MSG::Level::INFO;

@@ -9,44 +9,6 @@ from __future__ import print_function
 import sys
 import os
 import os.path
-from TrigValTools.TrigRootUtils import lsroot
-
-
-def diffFiles(ref,file,opts):
-   """Compare the keys in both files"""
-
-   import ROOT   
-   tref = ROOT.TFile(ref)
-   tfile = ROOT.TFile(file)
-   if tref.IsZombie() or tfile.IsZombie(): return
-   
-   lsref = lsroot(tref.GetDirectory(opts.refBaseDir))
-   lsfile = lsroot(tfile.GetDirectory(opts.fileBaseDir))
-   tref.Close()
-   tfile.Close()
-   del tref
-   del tfile
-
-   diff = list(set(lsref).difference(set(lsfile)))
-
-   import re
-   selection = lambda x: True
-
-   # Only show diffs that are not on the skip list ...
-   if len(opts.skip)>0:
-      selection = lambda x : not reduce(lambda a,b:a|b,[re.search(pat,x)!=None for pat in opts.skip])
-   # ... or pass the selection
-   elif len(opts.select)>0:
-      selection = lambda x : reduce(lambda a,b:a|b,[re.search(pat,x)!=None for pat in opts.select])
-      
-   refonly = filter(selection,filter(lambda s:s[0]=='-',diff))
-
-   if len(refonly)>0:
-      print("\nHistograms only found in reference:")
-      for s in refonly: print(s)
-
-   return
-
 
 def main():
       
@@ -163,6 +125,7 @@ def main():
       opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
       opts.skip += ["Trig.*CaloCellMaker.*/TCRec_"] # timing histograms in TrigCaloCellMaker
       opts.skip += ["HLTFramework/ROBDataProviderSvc"] # RDP histograms differ in MT due to caching
+      opts.skip += ["HLTFramework/ByteStreamCnvSvc/ResultSizeByStream"] # ROOT bug, see ATR-21755, ROOT-10944 
 
    # Default thresholds
    if not opts.threshold:
@@ -184,12 +147,12 @@ def main():
 
 
    # Now import ROOT
-   import cppyy
+   import cppyy  # noqa: F401
    try:
       from PerfMonAna import PyRootLib
       ROOT = PyRootLib.importRoot( batch=True )
    except ImportError:
-      import ROOT
+      import ROOT   # noqa: F401
 
    sys.stdout.flush()
    sys.stderr.flush()
@@ -246,9 +209,6 @@ def main():
    if opts.zip and not opts.pdf:
       print("GZipping postscript file -> %s.ps.gz" % opts.outFile)
       os.system("gzip -f %s.ps" % (opts.outFile))
-
-   # List histograms that are only found in reference
-   #diffFiles(args[0],args[1],opts)  # this is quite slow, disable it
 
    if rc != 0:
       result = 255

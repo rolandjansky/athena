@@ -108,7 +108,7 @@ if __name__=='__main__':
 
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
-    cfg.merge( ByteStreamReadCfg(ConfigFlags, typeNames = tileTypeNames) )
+    cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
 
     cfg.merge( TileDigiNoiseMonitoringConfig(ConfigFlags, TriggerChain = '') )
 

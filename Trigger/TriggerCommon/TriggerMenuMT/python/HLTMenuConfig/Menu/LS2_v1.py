@@ -31,12 +31,17 @@ def setupMenu():
 
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
-        #ART-19985
+        #ATR-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),        
         ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
 
         #ATR-20049
+        ChainProp(name='HLT_mu22_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu20_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu10_ivarmedium_mu10_10invm70_L12MU10', groups=MultiMuonGroup),
+
+        #test chains
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
@@ -58,11 +63,21 @@ def setupMenu():
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
 
-        # Additional intermediate thresholds for validation comparisons
+        # Additional intermediate thresholds for validation comparisons to match with Physics_pp_v7_primaries menu
         ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
         ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu80_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu60_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu26_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu28_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu22_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name="HLT_mu10_L1MU10", groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu4_L12MU4',  groups=MultiMuonGroup),
 
        # ATR-19452
         ChainProp(name='HLT_2mu4_muonqual_L12MU4',  groups=MultiMuonGroup),
@@ -253,6 +268,13 @@ def setupMenu():
     ]
 
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
+        # L1 calo streamers
+        ChainProp(name='HLT_noalg_bkg_L1Bkg',      l1SeedThresholds=['FSNOSEED'], stream=['Background'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Standby',      l1SeedThresholds=['FSNOSEED'], stream=['Standby'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Calo',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Calo_EMPTY',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_l1calo_L1J400',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+
         ChainProp(name='HLT_noalg_mb_L1RD2_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup),
         ChainProp(name='HLT_noalg_zb_L1ZB', l1SeedThresholds=['FSNOSEED'], stream=['ZeroBias'], groups=ZeroBiasGroup),
     ]

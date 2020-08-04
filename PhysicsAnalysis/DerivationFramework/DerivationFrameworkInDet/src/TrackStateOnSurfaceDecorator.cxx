@@ -340,10 +340,10 @@ namespace DerivationFramework {
 
       if ( m_storeTRT && m_TRTdEdxTool.isEnabled() ) {
 	// for dEdx studies
-        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
-        trackTRTFloatDecorators[kTRTusedHitsDecor] (*track)             = m_TRTdEdxTool->usedHits( trkTrack, true, true);
-        trackTRTFloatDecorators[kTRTdEdx_noHT_divByLDecor] (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
-        trackTRTFloatDecorators[kTRTusedHits_noHT_divByLDecor] (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
+        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx(trkTrack);
+        trackTRTFloatDecorators[kTRTusedHitsDecor] (*track)             = m_TRTdEdxTool->usedHits(trkTrack);
+        trackTRTFloatDecorators[kTRTdEdx_noHT_divByLDecor] (*track)     = m_TRTdEdxTool->dEdx(trkTrack, false);
+        trackTRTFloatDecorators[kTRTusedHits_noHT_divByLDecor] (*track) = m_TRTdEdxTool->usedHits(trkTrack, false);
       }
 
       // Track extrapolation

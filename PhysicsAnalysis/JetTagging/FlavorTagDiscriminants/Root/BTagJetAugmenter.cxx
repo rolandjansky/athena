@@ -112,138 +112,49 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
   m_rnnip_isDefaults(rnn(f) + "_isDefaults")
 {
-  using namespace FlavorTagDiscriminants;
-  typedef SG::AuxElement::Decorator<float> ADF;
-  typedef SG::AuxElement::Decorator<double> ADD;
-  typedef SG::AuxElement::Decorator<char> ADC;
-  typedef SG::AuxElement::Decorator<int> ADI;
 }
 
 BTagJetAugmenter::~BTagJetAugmenter() = default;
 BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
-std::string BTagJetAugmenter::get_pt_uncalib_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_pt_uncalib.auxid() );
-}
-
-std::string BTagJetAugmenter::get_eta_uncalib_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_eta_uncalib.auxid() );
-}
-
-std::string BTagJetAugmenter:: get_abs_eta_uncalib_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_abs_eta_uncalib.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_nTrks_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_nTrks.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_cu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_cu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_bu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_bu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_bc_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_bc.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_nTrks_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_nTrks.auxid() );
-} 
-
-std::string BTagJetAugmenter::get_ip3d_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_cu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_cu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_bu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_bu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_bc_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_bc.auxid() );
-}
-
-std::string BTagJetAugmenter::get_jf_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_jf_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_jf_deltaR_key()  {
-  return SG::AuxTypeRegistry::instance().getName( m_jf_deltaR.auxid() );
-}
-
-std::string BTagJetAugmenter::get_sv1_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_sv1_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_nTrks_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_nTrks.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_m_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_m.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_E_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_E.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_EFrac_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_EFrac.auxid() );
-}
-  
-std::string BTagJetAugmenter::get_secondaryVtx_L3d_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_L3d.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_Lxy_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_Lxy.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_min_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_min_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_max_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_max_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_avg_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_avg_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_min_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_min_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_max_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_max_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_avg_trk_flightDirRelEta_key()  {
-  return SG::AuxTypeRegistry::instance().getName( m_avg_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_smt_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_smt_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_rnnip_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_rnnip_isDefaults.auxid() );
+std::vector<std::string> BTagJetAugmenter::getDecoratorKeys() const {
+  const auto& type_registry = SG::AuxTypeRegistry::instance();
+  std::vector<std::string> keys;
+  for (const auto& auxid: {
+      m_pt_uncalib.auxid(),
+        m_eta_uncalib.auxid(),
+        m_abs_eta_uncalib.auxid(),
+        m_ip2d_nTrks.auxid(),
+        m_ip2d_isDefaults.auxid(),
+        m_ip2d_cu.auxid(),
+        m_ip2d_bu.auxid(),
+        m_ip2d_bc.auxid(),
+        m_ip3d_nTrks.auxid(),
+        m_ip3d_isDefaults.auxid(),
+        m_ip3d_cu.auxid(),
+        m_ip3d_bu.auxid(),
+        m_ip3d_bc.auxid(),
+        m_jf_isDefaults.auxid(),
+        m_jf_deltaR.auxid(),
+        m_sv1_isDefaults.auxid(),
+        m_secondaryVtx_isDefaults.auxid(),
+        m_secondaryVtx_nTrks.auxid(),
+        m_secondaryVtx_m.auxid(),
+        m_secondaryVtx_E.auxid(),
+        m_secondaryVtx_EFrac.auxid(),
+        m_secondaryVtx_L3d.auxid(),
+        m_secondaryVtx_Lxy.auxid(),
+        m_secondaryVtx_min_trk_flightDirRelEta.auxid(),
+        m_secondaryVtx_max_trk_flightDirRelEta.auxid(),
+        m_secondaryVtx_avg_trk_flightDirRelEta.auxid(),
+        m_min_trk_flightDirRelEta.auxid(),
+        m_max_trk_flightDirRelEta.auxid(),
+        m_avg_trk_flightDirRelEta.auxid(),
+        m_smt_isDefaults.auxid(),
+        m_rnnip_isDefaults.auxid()}) {
+    keys.push_back(type_registry.getName(auxid));
+  }
+  return keys;
 }
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
@@ -402,12 +313,14 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     track_number++;
     track_E_total += track_particle.e();
 
-    TVector3 track_flightDirRelVect = track_particle.p4().Vect();
-    track_flightDirRelVect.SetTheta(track_flightDirRelVect.Angle(flightDir));
 
     double track_flightDirRelEta = NAN;
-    if (track_flightDirRelVect.Perp() != 0) {
-      track_flightDirRelEta = track_flightDirRelVect.PseudoRapidity();
+    if (!std::isnan(jf_phi)) {
+      TVector3 track_flightDirRelVect = track_particle.p4().Vect();
+      if (track_flightDirRelVect.Perp()) {
+        track_flightDirRelVect.SetTheta(track_flightDirRelVect.Angle(flightDir));
+        track_flightDirRelEta = track_flightDirRelVect.PseudoRapidity();
+      }
     }
 
     track_flightDirRelEta_total += track_flightDirRelEta;
@@ -418,7 +331,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
       max_track_flightDirRelEta = track_flightDirRelEta;
     }
     if (secondary_jf_vtx_index >= 0) {
-      for (const ElementLink<xAOD::TrackParticleContainer> vertex_track_particle : (**m_jf_vertices(btag).at(secondary_jf_vtx_index)).track_links()) {
+      for (const ElementLink<xAOD::TrackParticleContainer>& vertex_track_particle : (**m_jf_vertices(btag).at(secondary_jf_vtx_index)).track_links()) {
         if (*vertex_track_particle == &track_particle) {
           secondaryVtx_track_number++;
           TLorentzVector track_fourVector;

@@ -383,7 +383,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
 
 
 def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
-    # Get the list from TriggerEDM
+    # Get the list of output collections from TriggerEDM
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMDecodingVersion)
 
@@ -400,6 +400,10 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
         itemsToRecord.append('xAOD::TrigCompositeContainer#{:s}'.format(item))
         itemsToRecord.append('xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic))
 
+    # Add EventInfo
+    itemsToRecord.append('xAOD::EventInfo#EventInfo')
+    itemsToRecord.append('xAOD::EventAuxInfo#EventInfoAux.')
+
     # Create OutputStream
     outputType = ''
     if flags.Output.doWriteRDO:
@@ -410,19 +414,15 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
         outputType = 'AOD'
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord, disableEventTag=True)
-
-    # OutputStream has a data dependency on xTrigDecision
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [
-      ("xAOD::TrigDecision", "xTrigDecision"),
-      ("xAOD::TrigConfKeys", "TrigConfKeys")]
 
-    # Produce the trigger bits
-    #from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg
-    #from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+    # Keep input RDO objects in the output RDO_TRIG file
+    if flags.Output.doWriteRDO:
+        streamAlg.TakeItemsFromInput = True
+
+    # Produce trigger bits
     bitsmaker = CompFactory.TriggerBitsMakerTool()
     decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT", BitsMakerTool = bitsmaker)
-
     acc.addEventAlgo( decmaker )
 
     # Produce trigger metadata
@@ -430,6 +430,21 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
     acc.addEventAlgo( menuwriter )
+
+    # Add metadata to the output stream
+    streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
+
+    # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
+    streamAlg.ExtraInputs += [
+        ("xAOD::TrigDecision", decmaker.TrigDecisionKey),
+        ("xAOD::TrigConfKeys", menuwriter.EventObjectName)]
+
+    # Produce xAOD L1 RoIs from RoIBResult
+    from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+    xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags, acc.getSequence().name)
+    acc.merge(xRoIBResultAcc)
+    # Ensure outputs are produced before streamAlg runs
+    streamAlg.ExtraInputs += xRoIBResultOutputs
 
     return acc
 
@@ -458,6 +473,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
             attrInView.append( collName )
             attrName.append( collName )
             #
+
             setattr(mergingTool, collType+"Views", attrView )
             setattr(mergingTool, collType+"InViews", attrInView )
             setattr(mergingTool, collType, attrName )
@@ -484,6 +500,15 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
             collType, collName = el[0].split("#")
             if "Aux" in collType: # the GapFiller crates appropriate Aux obejcts
                 continue
+            if len(el) >= 4: # see if there is an alias
+                aliases = [ x for x in el[3:]  if "alias:" in x ] # assume that the description can be: (.... , [alias:Blah | inViews:XYZ | inViews:XYZ, alias:Blah])
+                if len(aliases) == 1:
+                    alias = aliases[0].split(":")[1]
+                    __log.info("GapFiller configuration found an aliased type '{}' for '{}'".format( alias, collType))
+                    collType = alias
+                elif len(aliases) > 1:
+                    __log.error("GapFiller configuration found inconsistent '{}' (to many aliases?)".format(el[3:]))
+
             groupedByType[collType].append( collName )
 
         for collType, collNameList in six.iteritems (groupedByType):
@@ -526,11 +551,9 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
+    l1DecoderAcc = L1DecoderCfg( flags, seqName =  "HLTBeginSeq")
     # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
-    acc.merge( l1DecoderAcc, sequenceName="HLTBeginSeq" )
-    acc.addEventAlgo( l1DecoderAlg, sequenceName="HLTBeginSeq")
-
+    acc.merge( l1DecoderAcc )
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
@@ -550,6 +573,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
 
     #once menu is included we should configure monitoring here as below
+    l1DecoderAlg = l1DecoderAcc.getEventAlgo("L1Decoder")
 
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc, sequenceName="HLTEndSeq" )

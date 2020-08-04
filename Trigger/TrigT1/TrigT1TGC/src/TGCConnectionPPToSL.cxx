@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCConnectionPPToSL.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCConnectionPPToSL.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

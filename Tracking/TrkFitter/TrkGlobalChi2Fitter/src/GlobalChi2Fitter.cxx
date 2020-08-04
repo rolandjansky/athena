@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
 #include "TrkGlobalChi2Fitter/GlobalChi2Fitter.h"
 #include "TrkGlobalChi2Fitter/GXFMaterialEffects.h"
@@ -71,6 +70,9 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include <exception>
 #include <memory>
+
+#include <Eigen/Dense>
+#include <Eigen/StdVector>
 
 using CLHEP::MeV;
 using CLHEP::mm;
@@ -1882,7 +1884,7 @@ namespace Trk {
     if (
       !firstismuon && 
       trajectory.converged() &&
-      std::abs(trajectory.residuals().back() / trajectory.errors().back()) > 10
+      std::abs(trajectory.residuals().tail<1>()(0) / trajectory.errors().tail<1>()(0)) > 10
     ) {
       return nullptr;
     }
@@ -5493,7 +5495,8 @@ namespace Trk {
       }
     }
     
-    Track *track = nullptr;
+    std::unique_ptr<Track> track = nullptr;
+
     if (finaltrajectory->prefit() > 0) {
       if (finaltrajectory != &trajectory) {
         delete finaltrajectory;
@@ -5517,8 +5520,7 @@ namespace Trk {
         track->fitQuality()->chiSquared() / track->fitQuality()->numberDoF() > cut
       )
     ) {
-      delete track;
-      track = nullptr;
+      track.reset(nullptr);
       incrementFitStatus(S_HIGH_CHI2);
     }
     
@@ -5530,7 +5532,7 @@ namespace Trk {
       delete finaltrajectory;
     }
     
-    return track;
+    return track.release();
   }
 
   void GlobalChi2Fitter::fillResiduals(
@@ -5552,22 +5554,21 @@ namespace Trk {
     int nbrem = trajectory.numberOfBrems();
     int nperpars = trajectory.numberOfPerigeeParameters();
     int nfitpars = trajectory.numberOfFitParameters();
-    std::vector < double >&res = trajectory.residuals();
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
+
+    Amg::VectorX & res = trajectory.residuals();
+    Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
     int nidhits = trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits();
     int nsihits = trajectory.numberOfSiliconHits();
     int ntrthits = trajectory.numberOfTRTHits();
     int nhits = trajectory.numberOfHits();
     int nmeas = (int) res.size();
-    std::vector < double >&error = trajectory.errors();
+    Amg::VectorX & error = trajectory.errors();
     ParamDefsAccessor paraccessor;
     bool scatwasupdated = false;
 
     GXFTrackState *state_maxbrempull = nullptr;
     int bremno_maxbrempull = 0;
     double maxbrempull = 0;
-
-    std::vector < double >residuals;
 
     for (int hitno = 0; hitno < (int) states.size(); hitno++) {
       GXFTrackState *state = states[hitno];
@@ -5602,6 +5603,8 @@ namespace Trk {
         }
         
         double *errors = state->measurementErrors();
+
+        std::vector<double> residuals;
         m_residualPullCalculator->residuals(residuals, measbase, currenttrackpar, ResidualPull::Biased, hittype);
         
         for (int i = 0; i < 5; i++) {
@@ -5825,7 +5828,7 @@ namespace Trk {
       }
 
       for (int i = 0; i < nfitpars; i++) {
-        if (weightderiv[nmeas - nbrem + bremno_maxbrempull][i] == 0) {
+        if (weightderiv(nmeas - nbrem + bremno_maxbrempull, i) == 0) {
           continue;
         }
 
@@ -5833,14 +5836,13 @@ namespace Trk {
           a.fillSymmetric(
             i, j,
             a(i, j) - (
-              weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *
-              weightderiv[nmeas - nbrem + bremno_maxbrempull][j] * 
+              weightderiv(nmeas - nbrem + bremno_maxbrempull, i) *
+              weightderiv(nmeas - nbrem + bremno_maxbrempull, j) * 
               (1 - olderror * olderror / (newerror * newerror))
             )
           );
         }
-        
-        weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *= olderror / newerror;
+        weightderiv(nmeas - nbrem + bremno_maxbrempull, i) *= olderror / newerror;
       }
       lu_m = a;
       trajectory.setChi2(1e15);
@@ -5864,10 +5866,10 @@ namespace Trk {
     int nbrem = trajectory.numberOfBrems();
     int nperparams = trajectory.numberOfPerigeeParameters();
 
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
-    std::vector < double >&error = trajectory.errors();
+    Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
+    Amg::VectorX & error = trajectory.errors();
 
-    int nmeas = (int) weightderiv.size();
+    int nmeas = (int) weightderiv.rows();
 
     ParamDefsAccessor paraccessor;
     
@@ -5907,24 +5909,12 @@ namespace Trk {
           }
           
           if (trajectory.numberOfPerigeeParameters() > 0) {
-            if (i == 0 && sinstereo != 0) {
-              weightderiv[measno][0] = (derivatives(0, 0) * cosstereo + sinstereo * derivatives(1, 0)) / error[measno];
-              weightderiv[measno][1] = (derivatives(0, 1) * cosstereo + sinstereo * derivatives(1, 1)) / error[measno];
-              weightderiv[measno][2] = (derivatives(0, 2) * cosstereo + sinstereo * derivatives(1, 2)) / error[measno];
-              weightderiv[measno][3] = (derivatives(0, 3) * cosstereo + sinstereo * derivatives(1, 3)) / error[measno];
-              
-              if (!trajectory.m_straightline) {
-                weightderiv[measno][4] = (derivatives(0, 4) * cosstereo + sinstereo * derivatives(1, 4)) / error[measno];
-              }
+            int cols = trajectory.m_straightline ? 4 : 5;
+
+            if (i == 0) {
+              weightderiv.row(measno).head(cols) = (derivatives.row(0).head(cols) * cosstereo + sinstereo * derivatives.row(1).head(cols)) / error[measno];
             } else {
-              weightderiv[measno][0] = derivatives(i, 0) / error[measno];
-              weightderiv[measno][1] = derivatives(i, 1) / error[measno];
-              weightderiv[measno][2] = derivatives(i, 2) / error[measno];
-              weightderiv[measno][3] = derivatives(i, 3) / error[measno];
-              
-              if (!trajectory.m_straightline) {
-                weightderiv[measno][4] = derivatives(i, 4) / error[measno];
-              }
+              weightderiv.row(measno).head(cols) = derivatives.row(i).head(cols) / error[measno];
             }
           }
           
@@ -5940,7 +5930,7 @@ namespace Trk {
               thisderiv = sign * derivatives(i, index);
             }
             
-            weightderiv[measno][index] = thisderiv / error[measno];
+            weightderiv(measno, index) = thisderiv / error[measno];
             
             if (trajectory.prefit() != 1) {
               index++;
@@ -5951,7 +5941,7 @@ namespace Trk {
                 thisderiv = sign * derivatives(i, index);
               }
               
-              weightderiv[measno][index] = thisderiv / error[measno];
+              weightderiv(measno, index) = thisderiv / error[measno];
             }
           }
           
@@ -5965,7 +5955,7 @@ namespace Trk {
               thisderiv = derivatives(i, index);
             }
             
-            weightderiv[measno][index] = thisderiv / error[measno];
+            weightderiv(measno, index) = thisderiv / error[measno];
           }
           
           measno++;
@@ -5995,7 +5985,7 @@ namespace Trk {
         double mass = .001 * trajectory.mass();
         
         if (trajectory.numberOfPerigeeParameters() > 0) {
-          weightderiv[nmeas - nbrem + bremno][4] = (
+          weightderiv(nmeas - nbrem + bremno, 4) = (
             (
               -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) + 
               sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
@@ -6004,13 +5994,13 @@ namespace Trk {
         }
         
         if (bremno < nbremupstream) {
-          weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno] = (
+          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
             (sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp))) /
             error[nmeas - nbrem + bremno]
           );
           
           for (int bremno2 = bremno + 1; bremno2 < nbremupstream; bremno2++) {
-            weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno2] = (
+            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
               -(
                 -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) +
                 sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
@@ -6018,13 +6008,13 @@ namespace Trk {
             );
           }
         } else {
-          weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno] = (
+          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
             (sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))) / 
             error[nmeas - nbrem + bremno]
           );
           
           for (int bremno2 = nbremupstream; bremno2 < bremno; bremno2++) {
-            weightderiv[nmeas - nbrem + bremno][nperparams + 2 * nscat + bremno2] = (
+            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
               (
                 -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) +
                 sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
@@ -6083,13 +6073,13 @@ namespace Trk {
       return FitterStatusCode::Success;
     }
 
-    std::vector < double >&res = trajectory.residuals();
-    std::vector < double >&error = trajectory.errors();
+    Amg::VectorX & res = trajectory.residuals();
+    Amg::VectorX & error = trajectory.errors();
     std::vector < std::pair < double, double >>&scatsigmas = trajectory.scatteringSigmas();
 
     int nmeas = (int) res.size();
 
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
+    const Amg::MatrixX & weight_deriv = trajectory.weightedResidualDerivatives();
 
     if (doderiv) {
       calculateDerivatives(trajectory);
@@ -6157,13 +6147,13 @@ namespace Trk {
 
       for (measno = minmeas; measno < maxmeas; measno++) {
         double tmp =
-          res[measno] * (1. / error[measno]) * weightderiv[measno][k];
+          res[measno] * (1. / error[measno]) * weight_deriv(measno, k);
         b[k] += tmp;
       }
 
       if (k == 4 || k >= nperpars + scatpars) {
         for (measno = nmeas - nbrem; measno < nmeas; measno++) {
-          b[k] += res[measno] * (1. / error[measno]) * weightderiv[measno][k];
+          b[k] += res[measno] * (1. / error[measno]) * weight_deriv(measno, k);
         }
       }
       
@@ -6176,7 +6166,7 @@ namespace Trk {
                      cache.m_firstmeasurement[l]);
           double tmp = 0;
           for (measno = minmeas; measno < maxmeas; measno++) {
-            tmp += weightderiv[measno][k] * weightderiv[measno][l];
+            tmp += weight_deriv(measno, k) * weight_deriv(measno, l);
           }
           a.fillSymmetric(l, k, tmp);
         }
@@ -6202,7 +6192,7 @@ namespace Trk {
             if (l == 5) {
               l = nperpars + scatpars;
             }
-            double tmp = a(l, k) + weightderiv[measno][k] * weightderiv[measno][l];
+            double tmp = a(l, k) + weight_deriv(measno, k) * weight_deriv(measno, l);
             a.fillSymmetric(l, k, tmp);
           }
         }
@@ -6297,7 +6287,7 @@ namespace Trk {
       for (measno = 0; measno < nmeas; measno++) {
         for (int k = 0; k < nfitpars; k++) {
           ATH_MSG_VERBOSE(
-            "deriv[" << measno << "][" << k << "]=" << weightderiv[measno][k] * error[measno] << 
+            "deriv[" << measno << "][" << k << "]=" << weight_deriv(measno, k) * error[measno] << 
             " error: " << error[measno]
           );
         }
@@ -6433,9 +6423,9 @@ namespace Trk {
     }
     
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
-    std::vector < double >&res = trajectory.residuals();
-    std::vector < double >&err = trajectory.errors();
-    std::vector < std::vector < double >>&weightderiv = trajectory.weightedResidualDerivatives();
+    Amg::VectorX & res = trajectory.residuals();
+    Amg::VectorX & err = trajectory.errors();
+    Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
     int nfitpars = trajectory.numberOfFitParameters();
     
     if (a.cols() != nfitpars) {
@@ -6470,16 +6460,19 @@ namespace Trk {
             double olderror = errors[0];
             
             for (int i = 0; i < nfitpars; i++) {
-              if (weightderiv[measno][i] == 0) {
+              if (weightderiv(measno, i) == 0) {
                 continue;
               }
               
-              b[i] -= res[measno] * weightderiv[measno][i] / olderror;
+              b[i] -= res[measno] * weightderiv(measno, i) / olderror;
               
               for (int j = i; j < nfitpars; j++) {
-                a.fillSymmetric(i, j, a(i, j) - weightderiv[measno][i] * weightderiv[measno][j]);
+                a.fillSymmetric(
+                  i, j,
+                  a(i, j) - weightderiv(measno, i) * weightderiv(measno, j)
+                );
               }
-              weightderiv[measno][i] = 0;
+              weightderiv(measno, i) = 0;
             }
             
             res[measno] = 0;
@@ -6528,13 +6521,11 @@ namespace Trk {
                 state->setMeasurement(newrot);
 
                 for (int i = 0; i < nfitpars; i++) {
-                  if (weightderiv[measno][i] == 0) {
+                  if (weightderiv(measno, i) == 0) {
                     continue;
                   }
 
-                  b[i] -= weightderiv[measno][i] * (
-                    oldres / olderror - (newres * olderror) / (newerror * newerror)
-                  );
+                  b[i] -= weightderiv(measno, i) * (oldres / olderror - (newres * olderror) / (newerror * newerror));
                   
                   for (int j = i; j < nfitpars; j++) {
                     double weight = 1;
@@ -6551,11 +6542,10 @@ namespace Trk {
                     
                     a.fillSymmetric(
                       i, j,
-                      a(i, j) + weightderiv[measno][i] * weightderiv[measno][j] * ((olderror * olderror) / (newerror * newerror) - 1) * weight
+                      a(i, j) + weightderiv(measno, i) * weightderiv(measno, j) * ((olderror * olderror) / (newerror * newerror) - 1) * weight
                     );
                   }
-                  
-                  weightderiv[measno][i] *= olderror / newerror;
+                  weightderiv(measno, i) *= olderror / newerror;
                 }
                 
                 res[measno] = newres;
@@ -6610,9 +6600,9 @@ namespace Trk {
     while (!trackok && oldtrajectory->nDOF() > 0) {
       trackok = true;
       std::vector < GXFTrackState * >&states = oldtrajectory->trackStates();
-      std::vector < double >&res = oldtrajectory->residuals();
-      std::vector < double >&err = oldtrajectory->errors();
-      std::vector < std::vector < double >>&weightderiv = oldtrajectory->weightedResidualDerivatives();
+      Amg::VectorX & res = oldtrajectory->residuals();
+      Amg::VectorX & err = oldtrajectory->errors();
+      Amg::MatrixX & weightderiv = oldtrajectory->weightedResidualDerivatives();
       int nfitpars = oldtrajectory->numberOfFitParameters();
       int nhits = oldtrajectory->numberOfHits();
       int nsihits = oldtrajectory->numberOfSiliconHits();
@@ -6822,21 +6812,23 @@ namespace Trk {
           err[measno_maxsipull] = newerror[0];
           
           for (int i = 0; i < nfitpars; i++) {
-            if (weightderiv[measno_maxsipull][i] == 0) {
+            if (weightderiv(measno_maxsipull, i) == 0) {
               continue;
             }
             
-            b[i] -= weightderiv[measno_maxsipull][i] * (oldres1 / olderror[0] - (newres1 * olderror[0]) / (newerror[0] * newerror[0]));
+            b[i] -= weightderiv(measno_maxsipull, i) * (oldres1 / olderror[0] - (newres1 * olderror[0]) / (newerror[0] * newerror[0]));
             
             for (int j = i; j < nfitpars; j++) {
               a.fillSymmetric(
                 i, j,
-                a(i, j) + weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j] *
-                ((olderror[0] * olderror[0]) / (newerror[0] * newerror[0]) - 1)
+                a(i, j) + (
+                  weightderiv(measno_maxsipull, i) *
+                  weightderiv(measno_maxsipull, j) *
+                  ((olderror[0] * olderror[0]) / (newerror[0] * newerror[0]) - 1)
+                )
               );
             }
-            
-            weightderiv[measno_maxsipull][i] *= olderror[0] / newerror[0];
+            weightderiv(measno_maxsipull, i) *= olderror[0] / newerror[0];
           }
           
           if (hittype_maxsipull == TrackState::Pixel) {
@@ -6845,21 +6837,24 @@ namespace Trk {
             err[measno_maxsipull + 1] = newerror[1];
             
             for (int i = 0; i < nfitpars; i++) {
-              if (weightderiv[measno_maxsipull + 1][i] == 0) {
+              if (weightderiv(measno_maxsipull + 1, i) == 0) {
                 continue;
               }
               
-              b[i] -= weightderiv[measno_maxsipull + 1][i] * (oldres2 / olderror[1] - (newres2 * olderror[1]) / (newerror[1] * newerror[1]));
+              b[i] -= weightderiv(measno_maxsipull + 1, i) * (oldres2 / olderror[1] - (newres2 * olderror[1]) / (newerror[1] * newerror[1]));
               
               for (int j = i; j < nfitpars; j++) {
                 a.fillSymmetric(
                   i, j,
-                  a(i, j) + weightderiv[measno_maxsipull + 1][i] * weightderiv[measno_maxsipull + 1][j] * 
-                  ((olderror[1] * olderror[1]) / (newerror[1] * newerror[1]) - 1)
+                  a(i, j) + (
+                    weightderiv(measno_maxsipull + 1, i) *
+                    weightderiv(measno_maxsipull + 1, j) * 
+                    ((olderror[1] * olderror[1]) / (newerror[1] * newerror[1]) - 1)
+                  )
                 );
               }
               
-              weightderiv[measno_maxsipull + 1][i] *= olderror[1] / newerror[1];
+              weightderiv(measno_maxsipull + 1, i) *= olderror[1] / newerror[1];
             }
           }
           
@@ -6901,9 +6896,8 @@ namespace Trk {
             ATH_MSG_ERROR("Your assumption is wrong!!!!");
           }
 
-          std::vector < double >&newres = newtrajectory->residuals();
-          std::vector < std::vector < double >>&newweightderiv = newtrajectory->weightedResidualDerivatives();
-          
+          Amg::VectorX & newres = newtrajectory->residuals();
+          Amg::MatrixX & newweightderiv = newtrajectory->weightedResidualDerivatives();
           if ((measno_maxsipull < 0) or(measno_maxsipull >= (int) res.size())) {
             throw std::runtime_error(
               "'res' array index out of range in TrkGlobalChi2Fitter/src/GlobalChi2Fitter.cxx:" + std::to_string(__LINE__)
@@ -6914,20 +6908,22 @@ namespace Trk {
           newres[measno_maxsipull] = 0;
           
           for (int i = 0; i < nfitpars; i++) {
-            if (weightderiv[measno_maxsipull][i] == 0) {
+            if (weightderiv(measno_maxsipull, i) == 0) {
               continue;
             }
             
-            newb[i] -= weightderiv[measno_maxsipull][i] * oldres1 / olderror[0];
+            newb[i] -= weightderiv(measno_maxsipull, i) * oldres1 / olderror[0];
             
             for (int j = i; j < nfitpars; j++) {
               newa.fillSymmetric(
                 i, j,
-                newa(i, j) - weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j]
+                newa(i, j) - (
+                  weightderiv(measno_maxsipull, i) *
+                  weightderiv(measno_maxsipull, j)
+                )
               );
             }
-            
-            newweightderiv[measno_maxsipull][i] = 0;
+            newweightderiv(measno_maxsipull, i) = 0;
           }
           
           if (hittype_maxsipull == TrackState::Pixel) {
@@ -6935,24 +6931,26 @@ namespace Trk {
             newres[measno_maxsipull + 1] = 0;
             
             for (int i = 0; i < nfitpars; i++) {
-              if (weightderiv[measno_maxsipull + 1][i] == 0) {
+              if (weightderiv(measno_maxsipull + 1, i) == 0) {
                 continue;
               }
               
-              newb[i] -= weightderiv[measno_maxsipull + 1][i] * oldres2 / olderror[1];
+              newb[i] -= weightderiv(measno_maxsipull + 1, i) * oldres2 / olderror[1];
               
               for (int j = i; j < nfitpars; j++) {
-                if (weightderiv[measno_maxsipull + 1][j] == 0) {
+                if (weightderiv(measno_maxsipull + 1, j) == 0) {
                   continue;
                 }
                 
                 newa.fillSymmetric(
                   i, j,
-                  newa(i, j) - weightderiv[measno_maxsipull + 1][i] * weightderiv[measno_maxsipull + 1][j]
+                  newa(i, j) - (
+                    weightderiv(measno_maxsipull + 1, i) *
+                    weightderiv(measno_maxsipull + 1, j)
+                  )
                 );
               }
-              
-              newweightderiv[measno_maxsipull + 1][i] = 0;
+              newweightderiv(measno_maxsipull + 1, i) = 0;
             }
           }
           
@@ -7137,125 +7135,68 @@ namespace Trk {
     return new TrackStateOnSurface(measurement, trackpar, fitQual, mateff, typePattern);
   }
 
-  Track *GlobalChi2Fitter::makeTrack(
-    const EventContext& ctx,
-    Cache & cache,
-    GXFTrajectory & oldtrajectory,
-    ParticleHypothesis matEffects
+  void GlobalChi2Fitter::makeTrackFillDerivativeMatrix(
+    Cache &cache,
+    GXFTrajectory &oldtrajectory
   ) const {
-    // Convert internal trajectory into track
-    DataVector<const TrackStateOnSurface> *trajectory = new DataVector<const TrackStateOnSurface>;
-    std::vector<GXFTrackState *> & states = oldtrajectory.trackStates();
+    Amg::MatrixX & derivs = oldtrajectory.weightedResidualDerivatives();
+    Amg::VectorX & errors = oldtrajectory.errors();
+    int nrealmeas = 0;
     
-    if (m_fillderivmatrix) {
-      std::vector < std::vector < double >>&derivs = oldtrajectory.weightedResidualDerivatives();
-      std::vector < double >&errors = oldtrajectory.errors();
-      int nrealmeas = 0;
-     
-      for (auto & hit : states) {
-        if (
-          hit->trackStateType() == TrackState::Fittable && (
-            (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
-            (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
-          )
-        ) {
-          nrealmeas += hit->numberOfMeasuredParameters();
-        }
-      } 
-      
-      cache.m_derivmat.resize(nrealmeas, oldtrajectory.numberOfFitParameters());
-      cache.m_derivmat.setZero();
+    for (auto & hit : oldtrajectory.trackStates()) {
+      if (
+        hit->trackStateType() == TrackState::Fittable && (
+          (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
+          (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
+        )
+      ) {
+        nrealmeas += hit->numberOfMeasuredParameters();
+      }
+    } 
+    
+    cache.m_derivmat.resize(nrealmeas, oldtrajectory.numberOfFitParameters());
+    cache.m_derivmat.setZero();
 
-      int measindex = 0;
-      int measindex2 = 0;
-      int nperpars = oldtrajectory.numberOfPerigeeParameters();
-      int nscat = oldtrajectory.numberOfScatterers();
-     
-      for (auto & hit : states) {
-        if (
-          hit->trackStateType() == TrackState::Fittable && (
-            (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
-            (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
-          )
-        ) {
-          for (int i = measindex; i < measindex + hit->numberOfMeasuredParameters(); i++) {
-            for (int j = 0; j < oldtrajectory.numberOfFitParameters(); j++) {
-              cache.m_derivmat(i, j) = derivs[measindex2][j] * errors[measindex2];
-              if ((j == 4 && !oldtrajectory.m_straightline) || j >= nperpars + 2 * nscat) {
-                cache.m_derivmat(i, j) *= 1000;
-              }
+    int measindex = 0;
+    int measindex2 = 0;
+    int nperpars = oldtrajectory.numberOfPerigeeParameters();
+    int nscat = oldtrajectory.numberOfScatterers();
+    
+    for (auto & hit : oldtrajectory.trackStates()) {
+      if (
+        hit->trackStateType() == TrackState::Fittable && (
+          (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
+          (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
+        )
+      ) {
+        for (int i = measindex; i < measindex + hit->numberOfMeasuredParameters(); i++) {
+          for (int j = 0; j < oldtrajectory.numberOfFitParameters(); j++) {
+            cache.m_derivmat(i, j) = derivs(measindex2, j) * errors[measindex2];
+            if ((j == 4 && !oldtrajectory.m_straightline) || j >= nperpars + 2 * nscat) {
+              cache.m_derivmat(i, j) *= 1000;
             }
-            
-            measindex2++;
           }
           
-          measindex += hit->numberOfMeasuredParameters();
-        } else if (hit->materialEffects() == nullptr) {
-          measindex2 += hit->numberOfMeasuredParameters();
+          measindex2++;
         }
+        
+        measindex += hit->numberOfMeasuredParameters();
+      } else if (hit->materialEffects() == nullptr) {
+        measindex2 += hit->numberOfMeasuredParameters();
       }
     }
-    
-    GXFTrackState *firstmeasstate = nullptr;
-    GXFTrackState *lastmeasstate = nullptr;
-    bool foundbrem = false;
-    
-    for (auto & hit : states) {
-      if (
-        hit->measurementType() == TrackState::Pseudo &&
-        hit->trackStateType() == TrackState::GeneralOutlier
-      ) {
-        if (hit->trackCovariance() != nullptr) {
-          hit->setTrackCovariance(nullptr);
-        }
-        continue;
-      }
-      
-      if (
-        matEffects == electron && 
-        (hit->materialEffects() != nullptr) && 
-        hit->materialEffects()->isKink()
-      ) {
-        foundbrem = true;
-      }
-      
-      const TrackStateOnSurface *trackState = makeTSOS(hit, matEffects);
-      trajectory->push_back(trackState);
-      
-      if (trackState->measurementOnTrack() != nullptr) {
-        if (firstmeasstate == nullptr) {
-          firstmeasstate = hit;
-        }
-        lastmeasstate = hit;
-      }
-    }
+  }
 
-    const FitQuality *qual = new FitQuality(oldtrajectory.chi2(), oldtrajectory.nDOF());
-
-    ATH_MSG_VERBOSE("making Trk::Track...");
-    
-    TrackInfo info;
-    
-    if (matEffects != electron) {
-      info = TrackInfo(TrackInfo::GlobalChi2Fitter, matEffects);
-    } else {
-      info = TrackInfo(TrackInfo::GlobalChi2Fitter, Trk::electron);
-      info.setTrackProperties(TrackInfo::BremFit);
-      if (foundbrem) {
-        info.setTrackProperties(TrackInfo::BremFitSuccessful);
-      }
-    }
-    
-    if (oldtrajectory.m_straightline) {
-      info.setTrackProperties(TrackInfo::StraightTrack);
-    }
-
-    if (firstmeasstate == nullptr) {
-      throw std::logic_error("no first measurement.");
-    }
-    
+  std::unique_ptr<const TrackParameters> GlobalChi2Fitter::makeTrackFindPerigeeParameters(
+    const EventContext & ctx,
+    Cache &cache,
+    GXFTrajectory &oldtrajectory,
+    const ParticleHypothesis matEffects
+  ) const {
+    GXFTrackState *firstmeasstate, *lastmeasstate;
+    std::tie(firstmeasstate, lastmeasstate) = oldtrajectory.findFirstLastMeasurement();
     const TrackParameters *per = nullptr;
-    
+
     if (cache.m_acceleration && !m_matupdator.empty()) {
       const TrackParameters *prevpar = firstmeasstate->trackParameters();
       const TrackParameters *tmppar = firstmeasstate->trackParameters();
@@ -7378,14 +7319,9 @@ namespace Trk {
       }
       
       if (per == nullptr) {
-        delete trajectory;
-        delete qual;
-        
         ATH_MSG_DEBUG("Failed to extrapolate to perigee, returning 0");
-        
-        cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
-
         incrementFitStatus(S_PROPAGATION_FAIL);
+        cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
         return nullptr;
       }
     } else if (cache.m_acceleration && (firstmeasstate->trackParameters() != nullptr)) {
@@ -7400,21 +7336,91 @@ namespace Trk {
       per = oldtrajectory.referenceParameters(true);
     }
 
-    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-    typePattern.set(TrackStateOnSurface::Perigee);
-    const TrackStateOnSurface *pertsos = new TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
-    
-    ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
-    
-    if (!cache.m_acceleration) {
-      trajectory->insert(trajectory->begin() + oldtrajectory.numberOfUpstreamStates(), pertsos);
-    } else {
-      trajectory->insert(trajectory->begin(), pertsos);
+    return std::unique_ptr<const TrackParameters>(per);
+  }
+
+  std::unique_ptr<const TrackStateOnSurface> GlobalChi2Fitter::makeTrackFindPerigee(
+    const EventContext & ctx,
+    Cache &cache,
+    GXFTrajectory &oldtrajectory,
+    const ParticleHypothesis matEffects
+  ) const {
+    std::unique_ptr<const TrackParameters> per = makeTrackFindPerigeeParameters(ctx, cache, oldtrajectory, matEffects);
+
+    if (per == nullptr) {
+      return nullptr;
     }
 
-    Track *track = new Track(info, trajectory, qual);
+    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+    typePattern.set(TrackStateOnSurface::Perigee);
 
-    return track;
+    ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
+
+    return std::make_unique<const TrackStateOnSurface>(nullptr, per.release(), nullptr, nullptr, typePattern);
+  }
+
+  std::unique_ptr<Track> GlobalChi2Fitter::makeTrack(
+    const EventContext & ctx,
+    Cache & cache,
+    GXFTrajectory & oldtrajectory,
+    ParticleHypothesis matEffects
+  ) const {
+    // Convert internal trajectory into track
+    std::unique_ptr<DataVector<const TrackStateOnSurface>> trajectory = std::make_unique<DataVector<const TrackStateOnSurface>>();
+    
+    if (m_fillderivmatrix) {
+      makeTrackFillDerivativeMatrix(cache, oldtrajectory);
+    }
+        
+    for (auto & hit : oldtrajectory.trackStates()) {
+      if (
+        hit->measurementType() == TrackState::Pseudo &&
+        hit->trackStateType() == TrackState::GeneralOutlier
+      ) {
+        if (hit->trackCovariance() != nullptr) {
+          hit->setTrackCovariance(nullptr);
+        }
+        continue;
+      }
+      
+      const TrackStateOnSurface *trackState = makeTSOS(hit, matEffects);
+      trajectory->push_back(trackState);
+    }
+
+    std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(oldtrajectory.chi2(), oldtrajectory.nDOF());
+
+    ATH_MSG_VERBOSE("making Trk::Track...");
+    
+    TrackInfo info;
+    
+    if (matEffects != electron) {
+      info = TrackInfo(TrackInfo::GlobalChi2Fitter, matEffects);
+    } else {
+      info = TrackInfo(TrackInfo::GlobalChi2Fitter, Trk::electron);
+      info.setTrackProperties(TrackInfo::BremFit);
+
+      if (matEffects == electron && oldtrajectory.hasKink()) {
+        info.setTrackProperties(TrackInfo::BremFitSuccessful);
+      }
+    }
+    
+    if (oldtrajectory.m_straightline) {
+      info.setTrackProperties(TrackInfo::StraightTrack);
+    }
+    
+    std::unique_ptr<const TrackStateOnSurface> pertsos = makeTrackFindPerigee(ctx, cache, oldtrajectory, matEffects);
+
+    if (pertsos == nullptr) {
+      return nullptr;
+    }
+        
+    if (!cache.m_acceleration) {
+      trajectory->insert(trajectory->begin() + oldtrajectory.numberOfUpstreamStates(), pertsos.release());
+    } else {
+      trajectory->insert(trajectory->begin(), pertsos.release());
+    }
+
+    return std::make_unique<Track>(info, trajectory.release(), qual.release());
   }
 
   GlobalChi2Fitter::~GlobalChi2Fitter() {
@@ -7819,330 +7825,181 @@ namespace Trk {
     return FitterStatusCode::Success;
   }
 
-  void
-    GlobalChi2Fitter::calculateDerivatives(GXFTrajectory & trajectory) const {
-    ATH_MSG_DEBUG("CalculateDerivatives");
+  void GlobalChi2Fitter::calculateJac(
+    Eigen::Matrix<double, 5, 5> & jac,
+    Eigen::Matrix<double, 5, 5> & out,
+    int jmin, int jmax
+  ) const {
+    out = (jac * out);
+    
+    if (jmin > 0) {
+      out.block(0, 0, 4, jmin).setZero();
+    }
 
-    std::vector < GXFTrackState * >&states = trajectory.trackStates();
-    int scatno = trajectory.numberOfUpstreamScatterers() - 1;
-    int bremno = trajectory.numberOfUpstreamBrems() - 1;
+    if (jmax < 4) {
+      out.block(0, jmax + 1, 4, 5 - (jmax + 1)).setZero();
+    }
+
+    out(4, 4) = jac(4, 4);
+  }
+
+  void GlobalChi2Fitter::calculateDerivatives(GXFTrajectory & trajectory) const { 
     int nstatesupstream = trajectory.numberOfUpstreamStates();
     int nscatupstream = trajectory.numberOfUpstreamScatterers();
     int nbremupstream = trajectory.numberOfUpstreamBrems();
     int nscats = trajectory.numberOfScatterers();
-    int nperpars = trajectory.numberOfPerigeeParameters();
-    // int nfitpars=trajectory.numberOfFitParameters();
+    int nperpars = trajectory.numberOfPerigeeParameters(); 
+    int nfitpars = trajectory.numberOfFitParameters();
 
-    // A bit of a nightmare here SMatris is Row major
-    // Storage in eigen is normally column major
-    // change stuff around so that indicies dont need to worked out;
-    // Intruth what follows is impossible to follow and needs to be clearly documented
+    typedef Eigen::Matrix<double, 5, 5> Matrix55;
 
-    typedef Eigen::Matrix < double, 5, 5, Eigen::RowMajor > EigenRM55;
-    EigenRM55 initialjac;
-      initialjac.setZero();
-      initialjac(4, 4) = 1;
-    EigenRM55 jacvertex(initialjac);
-      std::vector < EigenRM55 > jacscat(trajectory.numberOfScatterers(),
-                                        initialjac);
-    int maxk[5] = {
-      4, 4, 4, 4, 5
-    };
-    std::vector < EigenRM55 > jacbrem(trajectory.numberOfBrems(), initialjac);
-    GXFTrackState *prevstate = nullptr;
-    GXFTrackState *state = nullptr;
-    for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
-      state = states[hitno];
-      bool fillderivmat = false;
-      TrackState::TrackStateType tstype = state->trackStateType();
-      if (tstype != TrackState::Scatterer && tstype != TrackState::Brem) {
-        fillderivmat = true;
-      }
-      int jmin = 0;
-      int jmax = 4;
-      int jminbrem = 0;
-      int jmaxbrem = 4;
-      if (hitno == 0) {
-        if (!fillderivmat) {
-          break;
-        }
-        jmin = 2;
-        jmax = 3;
-        jminbrem = 4;
-      }
-      double (*jac)[5] = state->jacobian();
-      if (hitno == nstatesupstream - 1) {
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            jacvertex(i, j) = jac[i][j];
-          }
-        }
-        jacvertex(4, 4) = jac[4][4];
+    Matrix55 initialjac;
+    initialjac.setZero();
+    initialjac(4, 4) = 1;
+    
+    Matrix55 jacvertex(initialjac);
+    
+    std::vector<Matrix55, Eigen::aligned_allocator<Matrix55>> jacscat(trajectory.numberOfScatterers(), initialjac);
+    std::vector<Matrix55, Eigen::aligned_allocator<Matrix55>> jacbrem(trajectory.numberOfBrems(), initialjac);
+
+    std::vector<GXFTrackState*> & states = trajectory.trackStates(); 
+    GXFTrackState *prevstate = nullptr, *state = nullptr;
+
+    int hit_begin, hit_end, scatno, bremno;
+
+    for (bool forward : {false, true}) {
+      if (forward) {
+        hit_begin = nstatesupstream;
+        hit_end = (int) states.size();  
+        scatno = nscatupstream;
+        bremno = nbremupstream;
       } else {
-        for (int scatindex = nscatupstream - 1; scatindex > scatno;
-             scatindex--) {
-          if ((prevstate != nullptr)
-              && prevstate->trackStateType() == TrackState::Scatterer
-              && scatindex == scatno + 1 && ((trajectory.prefit() == 0)
-                                             || prevstate->materialEffects()->
-                                             deltaE() == 0)) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jmin; j <= jmax; j++) {
-                jacscat[scatindex] (i, j) = jac[i][j];
-              }
-            }
-            jacscat[scatindex] (4, 4) = jac[4][4];
-          } else {
-            EigenRM55 & tmpjac2 = jacscat[scatindex];
-            EigenRM55 & tmpjac = initialjac;
-            double *myarray = tmpjac2.data();
-            for (int i = 0; i < 4; i++) {
-              int myindex;
-              for (int j = jmin; j <= jmax; j++) {
-                double tmp = 0;
-                myindex = j;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * myarray[myindex];
-                  myindex += 5;
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacscat[scatindex] = tmpjac;
-            jacscat[scatindex] (4, 4) = jac[4][4] * jacscat[scatindex] (4, 4);
-          }
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * scatindex;
-            for (int i = 0; i < 4; i++) {
-              derivmat(i, scatterPos) = -jacscat[scatindex] (i, 2);
-              derivmat(i, scatterPos + 1) = -jacscat[scatindex] (i, 3);
-            }
-          }
-        }
-        for (int bremindex = nbremupstream - 1; bremindex > bremno;
-             bremindex--) {
-          if ((prevstate != nullptr) && (prevstate->materialEffects() != nullptr)
-              && prevstate->materialEffects()->sigmaDeltaE() > 0
-              && bremindex == bremno + 1) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                jacbrem[bremindex] (i, j) = jac[i][j];
-              }
-            }
-            jacbrem[bremindex] (4, 4) = jac[4][4];
-          } else {
-            EigenRM55 & tmpjac = initialjac;
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                double tmp = 0;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * jacbrem[bremindex] (k, j);
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacbrem[bremindex] = tmpjac;
-            jacbrem[bremindex] (4, 4) = jac[4][4] * jacbrem[bremindex] (4, 4);
-          }
-
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * nscats + bremindex;
-            for (int i = 0; i < 5; i++) {
-              derivmat(i, scatterPos) = -0.001 * jacbrem[bremindex] (i, 4);
-            }
-          }
+        hit_begin = nstatesupstream - 1;
+        hit_end = 0;
+        scatno = trajectory.numberOfUpstreamScatterers() - 1;
+        bremno = trajectory.numberOfUpstreamBrems() - 1;
+      }      
+      
+      for (
+        int hitno = hit_begin;
+        forward ? (hitno < hit_end) : (hitno >= hit_end); 
+        hitno += (forward ? 1 : -1)
+      ) {
+        state = states[hitno];
+        
+        TrackState::TrackStateType tstype = state->trackStateType();
+        bool fillderivmat = (tstype != TrackState::Scatterer && tstype != TrackState::Brem);
+       
+        if (fillderivmat && state->derivatives().cols() != nfitpars) {
+          state->derivatives().resize(5, nfitpars);
+          state->derivatives().setZero();
         }
 
-        EigenRM55 & tmpjac = initialjac;
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            double tmp = 0;
-            for (int k = 0; k < maxk[j]; k++) {
-              tmp += jac[i][k] * jacvertex(k, j);
-            }
-            tmpjac(i, j) = tmp;
+        int jminscat = 0, jmaxscat = 4, jminbrem = 0, jmaxbrem = 4;
+        
+        if (hitno == (forward ? hit_end - 1 : 0)) {
+          if (!fillderivmat) {
+            break;
           }
+          jminscat = 2;
+          jmaxscat = 3;
+          jminbrem = 4;
         }
-        jacvertex = tmpjac;
-        jacvertex(4, 4) = jac[4][4] * jacvertex(4, 4);
-      }
+        
+        Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
 
-      if (fillderivmat) {
-        Amg::MatrixX & derivmat = state->derivatives();
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < nperpars; j++) {
-            derivmat(i, j) = jacvertex(i, j);
+        if (hitno == nstatesupstream + (forward ? 0 : -1)) {
+          jacvertex.block<4, 5>(0, 0) = jac.block<4, 5>(0, 0);
+          jacvertex(4, 4) = jac(4, 4);
+        } else {
+          int jmin, jmax, jcnt;
+          int lp_bgn, lp_end;
+
+          jmin = jminscat;
+          jmax = jmaxscat;
+          jcnt = jmax - jmin + 1;
+
+          lp_bgn = forward ? nscatupstream : nscatupstream - 1;
+          lp_end = scatno;
+
+          for (int i = lp_bgn; forward ? (i < lp_end) : (i > lp_end); i += (forward ? 1 : -1)) {
+            if (
+              i == scatno + (forward ? -1 : 1) &&
+              prevstate != nullptr && 
+              prevstate->trackStateType() == TrackState::Scatterer && 
+              (!trajectory.prefit() || prevstate->materialEffects()->deltaE() == 0)
+            ) {
+              jacscat[i].block(0, jmin, 4, jcnt) = jac.block(0, jmin, 4, jcnt);
+              jacscat[i](4, 4) = jac(4, 4);
+            } else {
+              calculateJac(jac, jacscat[i], jmin, jmax);
+            }
+
+            if (fillderivmat) {
+              Eigen::MatrixXd & derivmat = state->derivatives();
+              int scatterPos = nperpars + 2 * i;
+            
+              derivmat.block<4, 2>(0, scatterPos) = (forward ? 1 : -1) * jacscat[i].block<4, 2>(0, 2);
+            }
           }
+
+          jmin = jminbrem;
+          jmax = jmaxbrem;
+          jcnt = jmax - jmin + 1;
+
+          lp_bgn = forward ? nbremupstream : nbremupstream - 1;
+          lp_end = bremno;
+
+          for (int i = lp_bgn; forward ? (i < lp_end) : (i > lp_end); i += (forward ? 1 : -1)) {
+            if (
+              i == bremno + (forward ? -1 : 1) &&
+              prevstate && 
+              prevstate->materialEffects() && 
+              prevstate->materialEffects()->sigmaDeltaE() > 0 
+            ) {
+              jacbrem[i].block(0, jmin, 4, jcnt) = jac.block(0, jmin, 4, jcnt);
+              jacbrem[i](4, 4) = jac(4, 4);
+            } else {
+              calculateJac(jac, jacbrem[i], jmin, jmax);
+            }
+
+            if (fillderivmat) {
+              Eigen::MatrixXd & derivmat = state->derivatives();
+              int scatterPos = nperpars + 2 * nscats + i;
+
+              derivmat.block<5, 1>(0, scatterPos) = (forward ? .001 : -.001) * jacbrem[i].block<5, 1>(0, 4);
+            }
+          }
+
+          calculateJac(jac, jacvertex, 0, 4);
+        }
+
+        if (fillderivmat) {
+          Eigen::MatrixXd & derivmat = state->derivatives();
+          derivmat.block(0, 0, 4, nperpars) = jacvertex.block(0, 0, 4, nperpars);
+
           if (nperpars == 5) {
-            derivmat(i, 4) *= .001;
-          }
-        }
-        if (nperpars == 5) {
-          derivmat(4, 4) = .001 * jacvertex(4, 4);
-        }
-      }
-
-      if (tstype == TrackState::Scatterer &&
-          ((trajectory.prefit() == 0)
-           || states[hitno]->materialEffects()->deltaE() == 0)) {
-        scatno--;
-      }
-      if ((states[hitno]->materialEffects() != nullptr)
-          && states[hitno]->materialEffects()->sigmaDeltaE() > 0) {
-        bremno--;
-      }
-      prevstate = states[hitno];
-    }
-
-    scatno = nscatupstream;
-    bremno = nbremupstream;
-    prevstate = nullptr;
-
-    for (int hitno = nstatesupstream; hitno < (int) states.size(); hitno++) {
-      state = states[hitno];
-      bool fillderivmat = false;
-      TrackState::TrackStateType tstype = state->trackStateType();
-      int imax = 3;
-      if (tstype != TrackState::Scatterer && tstype != TrackState::Brem) {
-        fillderivmat = true;
-      }
-      int jmin = 0;
-      int jmax = 4;
-      int jminbrem = 0;
-      int jmaxbrem = 4;
-      if (hitno == (int) states.size() - 1) {
-        if (!fillderivmat) {
-          break;
-        }
-        jmin = 2;
-        jmax = 3;
-        jminbrem = 4;
-      }
-      double (*jac)[5] = state->jacobian();
-
-      if (hitno == nstatesupstream) {
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            jacvertex(i, j) = jac[i][j];
-          }
-        }
-        jacvertex(4, 4) = jac[4][4];
-      } else {
-        for (int scatindex = nscatupstream; scatindex < scatno; scatindex++) {
-          if ((prevstate != nullptr)
-              && prevstate->trackStateType() == TrackState::Scatterer
-              && scatindex == scatno - 1 && ((trajectory.prefit() == 0)
-                                             || prevstate->materialEffects()->
-                                             deltaE() == 0)) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jmin; j <= jmax; j++) {
-                jacscat[scatindex] (i, j) = jac[i][j];
-              }
-            }
-            jacscat[scatindex] (4, 4) = jac[4][4];
-          } else {
-            EigenRM55 & tmpjac2 = jacscat[scatindex];
-            EigenRM55 & tmpjac = initialjac;
-            double *myarray = tmpjac2.data();
-            for (int i = 0; i < 4; i++) {
-              int myindex;
-              for (int j = jmin; j <= jmax; j++) {
-                double tmp = 0;
-                myindex = j;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * myarray[myindex];
-                  myindex += 5;
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacscat[scatindex] = tmpjac;
-            jacscat[scatindex] (4, 4) = jacscat[scatindex] (4, 4) * jac[4][4];
-          }
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * scatindex;
-            for (int i = 0; i <= imax; i++) {
-              derivmat(i, scatterPos) = jacscat[scatindex] (i, 2);
-              derivmat(i, scatterPos + 1) = jacscat[scatindex] (i, 3);
-            }
-          }
-        }
-        for (int bremindex = nbremupstream; bremindex < bremno; bremindex++) {
-          if ((prevstate != nullptr) && (prevstate->materialEffects() != nullptr)
-              && prevstate->materialEffects()->sigmaDeltaE() > 0
-              && bremindex == bremno - 1) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                jacbrem[bremindex] (i, j) = jac[i][j];
-              }
-            }
-            jacbrem[bremindex] (4, 4) = jac[4][4];
-          } else {
-            EigenRM55 & tmpjac = initialjac;
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                double tmp = 0;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * jacbrem[bremindex] (k, j);
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacbrem[bremindex] = tmpjac;
-            jacbrem[bremindex] (4, 4) = jacbrem[bremindex] (4, 4) * jac[4][4];
-          }
-
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * nscats + bremindex;
-            for (int i = 0; i <= 4; i++) {
-              derivmat(i, scatterPos) = .001 * jacbrem[bremindex] (i, 4);
-            }
+            derivmat.col(4).segment(0, 4) *= .001;
+            derivmat(4, 4) = .001 * jacvertex(4, 4);
           }
         }
 
-        EigenRM55 & tmpjac = initialjac;
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            double tmp = 0;
-            for (int k = 0; k < maxk[j]; k++) {
-              tmp += jac[i][k] * jacvertex(k, j);
-            }
-            tmpjac(i, j) = tmp;
-          }
+        if (
+          tstype == TrackState::Scatterer &&
+          (!trajectory.prefit() || states[hitno]->materialEffects()->deltaE() == 0)
+        ) {
+          scatno += (forward ? 1 : -1);
         }
-        jacvertex = tmpjac;
-        jacvertex(4, 4) = jacvertex(4, 4) * jac[4][4];
-      }
-
-      if (fillderivmat) {
-        Amg::MatrixX & derivmat = state->derivatives();
-        for (int i = 0; i <= imax; i++) {
-          for (int j = 0; j < nperpars; j++) {
-            derivmat(i, j) = jacvertex(i, j);
-          }
-          if (nperpars == 5) {
-            derivmat(i, 4) *= .001;
-          }
+        
+        if (
+          states[hitno]->materialEffects() && 
+          states[hitno]->materialEffects()->sigmaDeltaE() > 0
+        ) {
+          bremno += (forward ? 1 : -1);
         }
-        if (nperpars == 5) {
-          derivmat(4, 4) = 0.001 * jacvertex(4, 4);
-        }
+        
+        prevstate = states[hitno];
       }
-
-      if (tstype == TrackState::Scatterer &&
-          ((trajectory.prefit() == 0)
-           || states[hitno]->materialEffects()->deltaE() == 0)) {
-        scatno++;
-      }
-      if ((states[hitno]->materialEffects() != nullptr)
-          && states[hitno]->materialEffects()->sigmaDeltaE() > 0) {
-        bremno++;
-      }
-      prevstate = states[hitno];
     }
   }
 
@@ -8160,9 +8017,6 @@ namespace Trk {
     int nstatesupstream = trajectory.numberOfUpstreamStates();
     int nscatupstream = trajectory.numberOfUpstreamScatterers();
     int nbremupstream = trajectory.numberOfUpstreamBrems();
-    int nfitpars = trajectory.numberOfFitParameters();
-    int nscats = trajectory.numberOfScatterers();
-    int nperpars = trajectory.numberOfPerigeeParameters();
     int hitno = 0;
     int scatno = nscatupstream;
     int bremno = nbremupstream;
@@ -8176,10 +8030,6 @@ namespace Trk {
       } else {
         indices[j] = j;
       }
-    }
-    std::vector < int >rowindices[5];
-    for (auto & rowindice : rowindices) {
-      rowindice.reserve(nfitpars);
     }
     for (int stateno = 0; stateno < (int) states.size(); stateno++) {
       if (stateno == 0 || stateno == nstatesupstream) {
@@ -8219,56 +8069,14 @@ namespace Trk {
           (prevstate->trackStateType() == TrackState::Fittable ||
            prevstate->trackStateType() == TrackState::GeneralOutlier)
           && !onlylocal) {
-        double (*jac)[5] = state->jacobian();
-        AmgMatrix(5, 5) & prevcov =
-          *states[indices[stateno - 1]]->trackCovariance();
-        errors1(jac, prevcov, trackerrmat, onlylocal);
+        Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
+        AmgMatrix(5, 5) & prevcov = *states[indices[stateno - 1]]->trackCovariance();
+      
+        trackerrmat = jac * prevcov * jac.transpose();
       } else {
-        int maxl = trajectory.m_straightline ? 3 : 4;
-        int minm[5] = {
-          0, 0, 0, 0, 0
-        };
-        if (onlylocal) {
-          TrackState::MeasurementType hittype = state->measurementType();
-          if (hittype == TrackState::Pixel || state->sinStereo() != 0) {
-            maxl = 1;
-          } else {
-            maxl = 0;
-          }
-          if (hittype == TrackState::Pixel) {
-            minm[1] = 1;
-          }
-        }
         Amg::MatrixX & derivatives = state->derivatives();
-        // Only consider scatterers and brems which give non-zero derivatives
-        int scatmin = (scatno < nscatupstream) ? scatno : nscatupstream;
-        int scatmax = (scatno < nscatupstream) ? nscatupstream : scatno;
-        int bremmin = (bremno < nbremupstream) ? bremno : nbremupstream;
-        int bremmax = (bremno < nbremupstream) ? nbremupstream : bremno;
-        for (int i = 0; i < 4; i++) {
-          rowindices[i].clear();
-          for (int j = 0; j < nperpars; j++) {
-            rowindices[i].push_back(j);
-          }
-          for (int j = nperpars + 2 * scatmin; j < nperpars + 2 * scatmax;
-               j++) {
-            rowindices[i].push_back(j);
-          }
-          for (int j = nperpars + 2 * nscats + bremmin;
-               j < nperpars + 2 * nscats + bremmax; j++) {
-            rowindices[i].push_back(j);
-          }
-        }
-        if (!trajectory.m_straightline) {
-          rowindices[4].clear();
-          rowindices[4].push_back(4);
-          for (int j = nperpars + 2 * nscats + bremmin;
-               j < nperpars + 2 * nscats + bremmax; j++) {
-            rowindices[4].push_back(j);
-          }
-        }
-        errors2(derivatives, trackerrmat, fullcovmat.data(), rowindices, maxl,
-                minm, onlylocal, nfitpars);
+        
+        trackerrmat = derivatives * fullcovmat * derivatives.transpose();
       }
 
       if (!onlylocal) {
@@ -8530,98 +8338,6 @@ namespace Trk {
       phi += 2 * M_PI;
     }
     return !(theta < 0 || theta > M_PI || phi < -M_PI || phi > M_PI);
-  }
-
-  void
-   
-    GlobalChi2Fitter::errors1(double (*jac)[5], AmgSymMatrix(5) & prevcov,
-                              AmgSymMatrix(5) & trackerrmat,
-                              bool onlylocal) const {
-    // propagate error from previous state to current state
-
-    double tmp3 = 0;
-
-    for (int l = 0; l < 4; l++) {
-      for (int m = 0; m < l; m++) {
-        if (!onlylocal && trackerrmat(l, m) != 0) {
-          continue;
-        }
-        tmp3 = 0;
-        for (int j = 0; j < 5; j++) {
-          for (int k = 0; k < 5; k++) {
-            tmp3 += jac[l][j] * prevcov(j, k) * jac[m][k];
-          }
-        }
-        trackerrmat(l, m) = trackerrmat(m, l) = tmp3;
-      }
-
-      tmp3 = 0;
-      for (int k = 0; k < 5; k++) {
-        tmp3 += prevcov(4, k) * jac[l][k];
-      }
-      trackerrmat(4, l) = trackerrmat(l, 4) = tmp3;
-      if (!onlylocal && trackerrmat(l, l) != 0) {
-        continue;
-      }
-      tmp3 = 0;
-      for (int j = 0; j < 5; j++) {
-        for (int k = 0; k < j; k++) {
-          tmp3 += 2 * jac[l][j] * prevcov(j, k) * jac[l][k];
-        }
-        tmp3 += jac[l][j] * prevcov(j, j) * jac[l][j];
-      }
-      trackerrmat(l, l) = tmp3;
-    }
-    trackerrmat(4, 4) = prevcov(4, 4);
-  }
-
-  void
-   
-    GlobalChi2Fitter::errors2(Amg::MatrixX & derivatives,
-                              AmgSymMatrix(5) & trackerrmat, double *myarray,
-                              std::vector < int >*rowindices, int &maxl,
-                              int *minm, bool onlylocal, int nfitpars) const {
-    // Project global error matrix onto current state
-
-    double tmp3 = 0;
-    int j;
-    int k;
-    int rowindex;
-
-    for (int l = 0; l <= maxl; l++) {
-      for (int m = minm[l]; m < l; m++) {
-        if (!onlylocal && trackerrmat(l, m) != 0) {
-          continue;
-        }
-        tmp3 = 0;
-        for (int j2 = 0; j2 < (int) rowindices[l].size(); j2++) {
-          j = rowindices[l][j2];
-          rowindex = j * nfitpars;
-          for (int k2 = 0; k2 < (int) rowindices[m].size(); k2++) {
-            k = rowindices[m][k2];
-            tmp3 +=
-              derivatives(l, j) * myarray[rowindex + k] * derivatives(m, k);
-          }
-        }
-        trackerrmat(l, m) = trackerrmat(m, l) = tmp3;
-      }
-
-      if (!onlylocal && trackerrmat(l, l) != 0) {
-        continue;
-      }
-      tmp3 = 0;
-      for (int j2 = 0; j2 < (int) rowindices[l].size(); j2++) {
-        j = rowindices[l][j2];
-        rowindex = j * nfitpars;
-        for (int k2 = 0; k2 < j2; k2++) {
-          k = rowindices[l][k2];
-          tmp3 +=
-            2 * derivatives(l, j) * myarray[rowindex + k] * derivatives(l, k);
-        }
-        tmp3 += derivatives(l, j) * myarray[rowindex + j] * derivatives(l, j);
-      }
-      trackerrmat(l, l) = tmp3;
-    }
   }
 
   bool Trk::GlobalChi2Fitter::isMuonTrack(const Track & intrk1) const {

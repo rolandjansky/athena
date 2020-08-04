@@ -20,6 +20,7 @@
 #include "xAODPFlow/TrackCaloCluster.h"
 #include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODPFlow/TrackCaloClusterAuxContainer.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   asg::AsgTool(name),
@@ -44,6 +45,8 @@ StatusCode JetConstituentModSequence::initialize() {
 
   ATH_CHECK( m_modifiers.retrieve() );
 
+  ATH_CHECK( m_monTool.retrieve( DisableTool{m_monTool.empty()} ) );
+  
   // Set and initialise DataHandleKeys only for the correct input type
   // Die if the input type is unsupported
   switch(m_inputType) {
@@ -90,6 +93,12 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
 
+  // Define monitored quantities							
+  auto t_exec     = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute"  );	
+  auto t_subtract = Monitored::Timer<std::chrono::milliseconds>( "TIME_subtract" );	
+  // Explicitly start/stop the timer around the subtraction tool calls			
+  t_subtract.start();
+
   // Create the shallow copy according to the input type
   switch(m_inputType){
 
@@ -128,7 +137,12 @@ int JetConstituentModSequence::execute() const {
   }
     
   }
-  
+
+  //Explicitly start/stop the timer around the subtraction tool calls
+  t_subtract.stop();
+
+  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract);
+
   return 0;
 }
 

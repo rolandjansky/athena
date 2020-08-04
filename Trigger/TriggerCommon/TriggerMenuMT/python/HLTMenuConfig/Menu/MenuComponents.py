@@ -883,7 +883,16 @@ class ChainStep(object):
         if not self.isCombo:
             return "--- ChainStep %s ---\n , multiplicity = %d  ChainDict = %s \n + MenuSequences = %s "%(self.name,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
         else:
-            return "--- ChainStep %s ---\n + isCombo, multiplicity = %d  ChainDict = %s \n + MenuSequences = %s  \n + ComboHypo = %s,  ComboHypoTools = %s"%(self.name,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ), self.combo.Alg.name(),  ' '.join(map(str, [tool.__name__ for tool in self.comboToolConfs]))) 
+            if self.combo:
+                calg = self.combo.Alg.name()
+            else:
+                calg = 'NONE'
+            return "--- ChainStep %s ---\n + isCombo, multiplicity = %d  ChainDict = %s \n + MenuSequences = %s  \n + ComboHypo = %s,  ComboHypoTools = %s" %\
+                   (self.name,  sum(self.multiplicity),
+                    ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])),
+                    ' '.join(map(str, [seq.name for seq in self.sequences]) ),
+                    calg,
+                    ' '.join(map(str, [tool.__name__ for tool in self.comboToolConfs])))
 
 
 def createComboAlg(dummyFlags, name, multiplicity, comboHypoCfg):

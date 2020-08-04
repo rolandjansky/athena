@@ -12,7 +12,7 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include <atomic>
@@ -24,7 +24,6 @@ static const InterfaceID IID_MuonTrackSelectorTool("Muon::MuonTrackSelectorTool"
 
 namespace Trk {
   class Track;
-  class ITrackSummaryHelperTool;
 }
 
 namespace Muon {
@@ -69,11 +68,11 @@ namespace Muon {
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
-    ToolHandle<Trk::ITrackSummaryHelperTool>         m_trackSummaryTool; //<! muon id helper
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "helper to nicely print out tracks"};
+    ToolHandle<Trk::ITrackSummaryHelperTool> m_trackSummaryTool {this, "TrackSummaryHelperTool", "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"};
 
     double m_holeHitRatioCutPerStation;
     double m_chi2NDofCut;

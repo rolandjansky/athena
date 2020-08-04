@@ -70,7 +70,7 @@ Use and configuration in ATHENA:
 
     * Load and use the required DLL module with the following command lines:
 
-       ApplicationMgr.DLLs += { "TrigT1RPClogic" };
+       ApplicationMgr.Dlls += { "TrigT1RPClogic" };
 
     * The logic package needs the TrigT1RPChardware package to be built.
 

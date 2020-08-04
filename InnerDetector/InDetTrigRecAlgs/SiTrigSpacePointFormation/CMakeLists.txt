@@ -31,7 +31,7 @@ include_directories(src)
 atlas_add_component( SiTrigSpacePointFormation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaBaseComps IRegionSelector EventPrimitives InDetIdentifier InDetReadoutGeometry SiSpacePointFormationLib SiSpacePointToolLib TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib )
+                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaBaseComps IRegionSelector EventPrimitives InDetIdentifier InDetReadoutGeometry SiSpacePointFormationLib SiSpacePointToolLib TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib InDetTrigToolInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( SiTrigSpacePointFormation )

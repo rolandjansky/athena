@@ -1,20 +1,7 @@
-################################################################################
-# Package: ByteStreamCnvSvcBase
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamCnvSvcBase )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Event/ByteStreamData
-                          GaudiKernel
-                          PRIVATE
-                          Control/SGTools
-			  AtlasTest/TestTools )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat eformat_write )
@@ -29,15 +16,12 @@ atlas_add_library( ByteStreamCnvSvcBaseLib
 
 atlas_add_component( ByteStreamCnvSvcBase
                      src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamData ByteStreamData_test GaudiKernel SGTools ByteStreamCnvSvcBaseLib )
-
-
-atlas_add_test( ROBDataProviderSvcMT		 
-		SCRIPT test/test_ROBDataProviderSvcMT.sh		
-		PROPERTIES TIMEOUT 1200 )
-#
+                     LINK_LIBRARIES ByteStreamCnvSvcBaseLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
+# Tests in the package:
+atlas_add_test( ROBDataProviderSvcMT
+		SCRIPT test/test_ROBDataProviderSvcMT.sh
+		PROPERTIES TIMEOUT 1200 )

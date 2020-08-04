@@ -2,6 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
+
 #include "MDT_RawDataProviderTool.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -72,7 +74,8 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
   return convert(vecRobs);
 }
 
-StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs)
+/// This decode function is for single-thread running only
+StatusCode Muon::MDT_RawDataProviderTool::convert ATLAS_NOT_THREAD_SAFE ( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs)
 {
   ATH_MSG_VERBOSE("convert(): " << vecRobs.size()<<" ROBFragments.");
     

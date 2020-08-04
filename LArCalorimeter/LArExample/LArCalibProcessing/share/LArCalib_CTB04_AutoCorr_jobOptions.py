@@ -41,7 +41,7 @@ theApp.HistogramPersistency="HBOOK"
 NTupleSvc = Service( "NTupleSvc" )
 NTupleSvc.Output  = [ "FILE1 DATAFILE='autocorr.ntp' OPT='NEW'"]
 # To output ROOT file
-#ApplicationMgr.DLLs += { "RootHistCnv" };
+#ApplicationMgr.Dlls += { "RootHistCnv" };
 #HistogramPersistencySvc.OutputFile  = "";
 #ApplicationMgr.HistogramPersistency="ROOT";
 #NTupleSvc.Output  = { "FILE1 DATAFILE='autocorr.root' OPT='NEW'"};

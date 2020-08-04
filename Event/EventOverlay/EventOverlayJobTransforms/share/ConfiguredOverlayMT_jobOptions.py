@@ -27,12 +27,14 @@ try:
     from RecAlgs.RecAlgsConf import TimingAlg
     job += TimingAlg("OverlayTimerBegin",
                      TimingObjOutputName="HITStoRDO_timings")
-except:
-    OverlayLog.warning('Could not add TimingAlg, no timing info will be written out.')
+except Exception:
+    from AthenaCommon.Logging import logging
+    logOverlay = logging.getLogger('Overlay')
+    logOverlay.warning('Could not add TimingAlg, no timing info will be written out.')
 
 # Copy over timings if needed
-job += CfgGetter.getAlgorithm("CopyTimings")
-
+if not overlayFlags.isDataOverlay():
+    job += CfgGetter.getAlgorithm("CopyTimings")
 
 #-------------------------
 # Double event selector
@@ -40,8 +42,13 @@ job += CfgGetter.getAlgorithm("CopyTimings")
 import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-ServiceMgr.DoubleEventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
-ServiceMgr.SecondaryEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
+if overlayFlags.isDataOverlay():
+    ServiceMgr.DoubleEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
+    ServiceMgr.SecondaryEventSelector.Input = athenaCommonFlags.FilesInput()
+    ServiceMgr.SecondaryEventSelector.ProcessBadEvent = True
+else:
+    ServiceMgr.DoubleEventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
+    ServiceMgr.SecondaryEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
 if athenaCommonFlags.SkipEvents.statusOn:
     ServiceMgr.DoubleEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
@@ -91,3 +98,7 @@ if overlayFlags.processLegacyEventInfo() and not hasattr(job, "xAODMaker::EventI
 
 # Run the xAOD::EventInfo overlay
 job += CfgGetter.getAlgorithm("EventInfoOverlay")
+
+# Setup BS conversion for data overlay
+if overlayFlags.isDataOverlay():
+    include("RecExCommon/BSRead_config.py")

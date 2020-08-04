@@ -191,11 +191,26 @@ _knownHistos = [
     HistoSpec('ShowerDeconstructionW', (100, -100, 100), title='ShowerDeconstructionW;ShowerDeconstructionW;', ),
     HistoSpec('ShowerDeconstructionTop', (100, -100, 100), title='ShowerDeconstructionTop;ShowerDeconstructionTop;', ),
 
+
+    HistoSpec( 'JetConstitScaleMomentum_eta',  (50,-5,5) , title='ConstitScale #eta;ConstitScale #eta;Entries'),
+    HistoSpec( 'JetConstitScaleMomentum_phi',  (50,-3.3,3.3) , title='ConstitScale #phi;ConstitScale #phi;Entries'),
+    HistoSpec( 'JetConstitScaleMomentum_pt:GeV',  (100,0,200) , title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetConstitScaleMomentum_m:GeV',  (100,0,300) , title='ConstitScale mass;ConstitScale mass [GeV];Entries'),
     
+    HistoSpec( 'JetEMScaleMomentum_eta',  (50,-5,5) , title='EMScale #eta;EMScale #eta;Entries'),
+    HistoSpec( 'JetEMScaleMomentum_phi',  (50,-3.3,3.3) , title='EMScale #phi;EMScale #phi;Entries'),
+    HistoSpec( 'JetEMScaleMomentum_pt:GeV',  (100,0,200) , title='EMScale p_{T};EMScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEMScaleMomentum_m:GeV',  (100,0,300) , title='EMScale mass;EMScale mass [GeV];Entries'),
 
+    HistoSpec( 'JetPileupScaleMomentum_eta',  (50,-5,5) , title='PileupScale #eta;PileupScale #eta;Entries'),
+    HistoSpec( 'JetPileupScaleMomentum_phi',  (50,-3.3,3.3) , title='PileupScale #phi;PileupScale #phi;Entries'),
+    HistoSpec( 'JetPileupScaleMomentum_pt:GeV',  (100,0,200) , title='PileupScale p_{T};PileupScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetPileupScaleMomentum_m:GeV',  (100,0,300) , title='PileupScale mass;PileupScale mass [GeV];Entries'),
 
-    
-
+    HistoSpec( 'JetEtaJESScaleMomentum_eta',  (50,-5,5) , title='EtaJESScale #eta;EtaJESScale #eta;Entries'),
+    HistoSpec( 'JetEtaJESScaleMomentum_phi',  (50,-3.3,3.3) , title='EtaJESScale #phi;EtaJESScale #phi;Entries'),
+    HistoSpec( 'JetEtaJESScaleMomentum_pt:GeV',  (100,0,200) , title='EtaJESScale p_{T};EtaJESScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEtaJESScaleMomentum_m:GeV',  (100,0,300) , title='EtaJESScale mass;EtaJESScale mass [GeV];Entries'),
     # ---------------------
     # 2D histogram (x and y vars are separated by ';' )
     HistoSpec( 'pt:GeV;m:GeV',  (100,0,1000, 100,0,300) , title='mass vs p_{T};p_{T};mass [GeV];'),

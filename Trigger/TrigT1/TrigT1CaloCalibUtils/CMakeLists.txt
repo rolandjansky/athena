@@ -16,7 +16,7 @@ atlas_add_library( TrigT1CaloCalibUtilsLib
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloIdentifier CaloTriggerToolLib EventInfo GaudiKernel Identifier LArCablingLib LArElecCalib RegistrationServicesLib StoreGateLib TrigConfHLTData TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolsLib TrigT1CaloCondSvcLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib xAODTrigL1Calo
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloIdentifier CaloTriggerToolLib CxxUtils EventInfo GaudiKernel Identifier LArCablingLib LArElecCalib RegistrationServicesLib StoreGateLib TrigConfHLTData TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolsLib TrigT1CaloCondSvcLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib xAODTrigL1Calo
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloDetDescrLib CaloEvent TrigT1CaloToolInterfaces TrigT1Interfaces xAODEventInfo )
 
 atlas_add_component( TrigT1CaloCalibUtils

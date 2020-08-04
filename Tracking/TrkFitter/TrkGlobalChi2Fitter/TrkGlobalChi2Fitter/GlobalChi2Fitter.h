@@ -23,9 +23,6 @@
 
 class AtlasDetectorID;
 
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Trk {
   class Track;
@@ -42,7 +39,6 @@ namespace Trk {
   class ITrackingGeometrySvc;
   class TrackFitInputPreparator;
   class IMagneticFieldTool;
-  class IMagFieldSvc;
   class MeasuredPerigee;
   class PrepRawDataComparisonFunction;
   class MeasurementBaseComparisonFunction;
@@ -88,11 +84,11 @@ namespace Trk {
       std::vector<double> m_phiweight;
       std::vector<int> m_firstmeasurement;
       std::vector<int> m_lastmeasurement;
-      
+
       std::vector < const Trk::Layer * >m_negdiscs;
       std::vector < const Trk::Layer * >m_posdiscs;
       std::vector < const Trk::Layer * >m_barrelcylinders;
-      
+
       bool m_fastmat = true;
 
       int m_lastiter;
@@ -101,7 +97,7 @@ namespace Trk {
       #ifdef GXFDEBUGCODE
       int m_iterations = 0;
       #endif
-      
+
       Amg::MatrixX m_derivmat;
       Amg::SymMatrixX m_fullcovmat;
 
@@ -211,20 +207,12 @@ namespace Trk {
       const RunOutlierRemoval  runOutlier=false,
       const ParticleHypothesis matEffects=Trk::nonInteracting
     ) const override;
-  
+
   private:
     void calculateJac(
       Eigen::Matrix<double, 5, 5> &,
       Eigen::Matrix<double, 5, 5> &,
       int, int
-    ) const;
-
-    void processStates(
-      GXFTrajectory &,
-      bool,
-      Eigen::Matrix<double, 5, 5> &,
-      std::vector<Eigen::Matrix<double, 5, 5>> &,
-      std::vector<Eigen::Matrix<double, 5, 5>> &
     ) const;
 
     Track * fitIm(
@@ -291,7 +279,7 @@ namespace Trk {
       Cache &,
       const Trk::TrackingVolume * tvol
     ) const;
-    
+
     /**
      * @brief Find the intersection of a set of track parameters onto a disc
      * surface.
@@ -447,7 +435,26 @@ namespace Trk {
       const ParticleHypothesis
     ) const;
 
-    Track *makeTrack(
+    void makeTrackFillDerivativeMatrix(
+      Cache &,
+      GXFTrajectory &
+    ) const;
+
+    std::unique_ptr<const TrackParameters> makeTrackFindPerigeeParameters(
+      const EventContext &,
+      Cache &,
+      GXFTrajectory &,
+      const ParticleHypothesis
+    ) const;
+
+    std::unique_ptr<const TrackStateOnSurface> makeTrackFindPerigee(
+      const EventContext &,
+      Cache &,
+      GXFTrajectory &,
+      const ParticleHypothesis
+    ) const;
+
+    std::unique_ptr<Track> makeTrack(
       const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
@@ -533,24 +540,6 @@ namespace Trk {
 
     bool correctAngles(double &, double &) const;
 
-    void errors1(
-      double (*jac)[5], 
-      AmgSymMatrix(5) & prevcov,
-      AmgSymMatrix(5) & trackerrmat, 
-      bool onlylocal
-    ) const;
-
-    void errors2(
-      Amg::MatrixX & derivatives, 
-      AmgSymMatrix(5) & trackerrmat,
-      double *myarray, 
-      std::vector<int> *rowindices, 
-      int &maxl,
-      int *minm, 
-      bool onlylocal, 
-      int nfitpars
-    ) const;
-     
     bool isMuonTrack(const Track &) const;
 
     void incrementFitStatus(enum FitterStatusType) const;

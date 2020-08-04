@@ -27,6 +27,9 @@ def LArCellMonConfigOld(inputFlags):
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
         LuminosityCondAlgDefault()
 
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg()
+
     LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, isMC)
 
     from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool

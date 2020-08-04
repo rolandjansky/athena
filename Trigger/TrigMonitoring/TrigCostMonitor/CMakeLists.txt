@@ -6,7 +6,7 @@ atlas_subdir( TrigCostMonitor )
 # External dependencies:
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel )
-find_package( ROOT COMPONENTS Core Tree )
+find_package( ROOT COMPONENTS Core Tree XMLIO XMLParser )
 find_package( tdaq-common COMPONENTS CTPfragment )
 
 # Component(s) in the package:

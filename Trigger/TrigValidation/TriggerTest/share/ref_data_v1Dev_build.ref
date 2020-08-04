@@ -1,3 +1,5 @@
+TrigSignatureMoniMT                            0    INFO The L1 seed to multi-item-seeded chain HLT_noalg_L1Standby could not be completely resolved. This is currently OK. Exception from menu access: L1Item L1_2EM13VH does not exist in the menu
+TrigSignatureMoniMT                            0    INFO The L1 seed to multi-item-seeded chain HLT_noalg_L1Calo could not be completely resolved. This is currently OK. Exception from menu access: L1Item L1_2EM13VH does not exist in the menu
 TrigSignatureMoniMT                                 INFO HLT_2e17_etcut_L12EM15VH #3136730292
 TrigSignatureMoniMT                                 INFO -- #3136730292 Events         20         20         0          0          0          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #3136730292 Features                             0          0          0          -          -          -          
@@ -37,6 +39,9 @@ TrigSignatureMoniMT                                 INFO -- #2619091790 Features
 TrigSignatureMoniMT                                 INFO HLT_2mu15_L12MU10 #557204938
 TrigSignatureMoniMT                                 INFO -- #557204938 Events          20         20         0          0          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #557204938 Features                              0          0          0          0          -          -          
+TrigSignatureMoniMT                                 INFO HLT_2mu4_L12MU4 #2999632714
+TrigSignatureMoniMT                                 INFO -- #2999632714 Events         20         20         1          0          0          0          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #2999632714 Features                             4          0          0          0          -          -          
 TrigSignatureMoniMT                                 INFO HLT_2mu4_bDimu_L12MU4 #1730084172
 TrigSignatureMoniMT                                 INFO -- #1730084172 Events         20         20         1          1          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #1730084172 Features                             4          2          0          0          -          -          
@@ -328,6 +333,12 @@ TrigSignatureMoniMT                                 INFO -- #997163309 Features 
 TrigSignatureMoniMT                                 INFO HLT_mu0_muoncalib_L1MU4_EMPTY #782182242
 TrigSignatureMoniMT                                 INFO -- #782182242 Events          20         20         0          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #782182242 Features                              0          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu10_L1MU10 #209090273
+TrigSignatureMoniMT                                 INFO -- #209090273 Events          20         20         1          1          0          0          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #209090273 Features                              1          1          0          0          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu10_ivarmedium_mu10_10invm70_L12MU10 #2386882549
+TrigSignatureMoniMT                                 INFO -- #2386882549 Events         20         20         0          0          0          0          0          -          0          
+TrigSignatureMoniMT                                 INFO -- #2386882549 Features                             0          0          0          0          0          -          
 TrigSignatureMoniMT                                 INFO HLT_mu10_lateMu_L1MU10 #48780310
 TrigSignatureMoniMT                                 INFO -- #48780310 Events           20         20         0          0          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #48780310 Features                               0          0          -          -          -          -          
@@ -340,24 +351,48 @@ TrigSignatureMoniMT                                 INFO -- #1171632195 Features
 TrigSignatureMoniMT                                 INFO HLT_mu14_L1MU10 #1696906927
 TrigSignatureMoniMT                                 INFO -- #1696906927 Events         20         20         1          1          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #1696906927 Features                             1          1          0          0          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu20_2mu4noL1_L1MU20 #1029128679
+TrigSignatureMoniMT                                 INFO -- #1029128679 Events         20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #1029128679 Features                             1          1          0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_mu20_ivar_L1MU6 #2083734526
 TrigSignatureMoniMT                                 INFO -- #2083734526 Events         20         20         1          1          1          -          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #2083734526 Features                             1          1          1          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu22_2mu4noL1_L1MU20 #3427670100
+TrigSignatureMoniMT                                 INFO -- #3427670100 Events         20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #3427670100 Features                             1          1          0          0          0          0          
+TrigSignatureMoniMT                                 INFO HLT_mu22_mu8noL1_L1MU20 #3165652409
+TrigSignatureMoniMT                                 INFO -- #3165652409 Events         20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #3165652409 Features                             1          1          0          0          0          0          
+TrigSignatureMoniMT                                 INFO HLT_mu24_2mu4noL1_L1MU20 #3233544630
+TrigSignatureMoniMT                                 INFO -- #3233544630 Events         20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #3233544630 Features                             1          1          0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_mu24_L1MU20 #417425162
 TrigSignatureMoniMT                                 INFO -- #417425162 Events          20         20         1          1          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #417425162 Features                              1          1          0          0          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu24_idperf_L1MU20 #677658909
 TrigSignatureMoniMT                                 INFO -- #677658909 Events          20         20         1          1          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #677658909 Features                              1          1          0          0          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu24_mu10noL1_L1MU20 #2563354236
+TrigSignatureMoniMT                                 INFO -- #2563354236 Events         20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #2563354236 Features                             1          1          0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_mu26_L1MU20 #311138376
 TrigSignatureMoniMT                                 INFO -- #311138376 Events          20         20         1          1          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #311138376 Features                              1          1          0          0          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu26_ivarmedium_L1MU20 #3411723090
 TrigSignatureMoniMT                                 INFO -- #3411723090 Events         20         20         1          1          0          0          0          -          0          
 TrigSignatureMoniMT                                 INFO -- #3411723090 Features                             1          1          0          0          0          -          
+TrigSignatureMoniMT                                 INFO HLT_mu26_mu10noL1_L1MU20 #2318302287
+TrigSignatureMoniMT                                 INFO -- #2318302287 Events         20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #2318302287 Features                             1          1          0          0          0          0          
+TrigSignatureMoniMT                                 INFO HLT_mu26_mu8noL1_L1MU20 #2233067926
+TrigSignatureMoniMT                                 INFO -- #2233067926 Events         20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #2233067926 Features                             1          1          0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_mu28_ivarmedium_L1MU20 #1963262787
 TrigSignatureMoniMT                                 INFO -- #1963262787 Events         20         20         1          1          0          0          0          -          0          
 TrigSignatureMoniMT                                 INFO -- #1963262787 Features                             1          1          0          0          0          -          
+TrigSignatureMoniMT                                 INFO HLT_mu28_mu8noL1_L1MU20 #86648125
+TrigSignatureMoniMT                                 INFO -- #86648125 Events           20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #86648125 Features                               1          1          0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_mu35_ivarmedium_L1MU20 #597064890
 TrigSignatureMoniMT                                 INFO -- #597064890 Events          20         20         1          1          0          0          0          -          0          
 TrigSignatureMoniMT                                 INFO -- #597064890 Features                              1          1          0          0          0          -          
@@ -370,6 +405,9 @@ TrigSignatureMoniMT                                 INFO -- #827327262 Features 
 TrigSignatureMoniMT                                 INFO HLT_mu60_0eta105_msonly_L1MU20 #1642591450
 TrigSignatureMoniMT                                 INFO -- #1642591450 Events         20         20         0          0          0          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #1642591450 Features                             0          0          0          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu60_L1MU20 #2871837722
+TrigSignatureMoniMT                                 INFO -- #2871837722 Events         20         20         1          1          0          0          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #2871837722 Features                             1          1          0          0          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu6Comb_L1MU6 #996392590
 TrigSignatureMoniMT                                 INFO -- #996392590 Events          20         20         1          1          -          -          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #996392590 Features                              1          1          -          -          -          -          
@@ -394,12 +432,21 @@ TrigSignatureMoniMT                                 INFO -- #451489897 Features 
 TrigSignatureMoniMT                                 INFO HLT_mu6fast_L1MU6 #3518031697
 TrigSignatureMoniMT                                 INFO -- #3518031697 Events         20         20         1          -          -          -          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #3518031697 Features                             1          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu80_L1MU20 #387900377
+TrigSignatureMoniMT                                 INFO -- #387900377 Events          20         20         1          1          0          0          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #387900377 Features                              1          1          0          0          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu80_msonly_3layersEC_L1MU20 #761101109
 TrigSignatureMoniMT                                 INFO -- #761101109 Events          20         20         1          0          0          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #761101109 Features                              1          0          0          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu8_L1MU6 #1467711434
 TrigSignatureMoniMT                                 INFO -- #1467711434 Events         20         20         1          1          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #1467711434 Features                             1          1          0          0          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_L1Calo #355689512
+TrigSignatureMoniMT                                 INFO -- #355689512 Events          20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #355689512 Features                              -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_L1Calo_EMPTY #3717801557
+TrigSignatureMoniMT                                 INFO -- #3717801557 Events         20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #3717801557 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_L1EM10VH #314199913
 TrigSignatureMoniMT                                 INFO -- #314199913 Events          20         20         -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #314199913 Features                              -          -          -          -          -          -          
@@ -469,6 +516,9 @@ TrigSignatureMoniMT                                 INFO -- #914660695 Features 
 TrigSignatureMoniMT                                 INFO HLT_noalg_L1RD0_FILLED #211699639
 TrigSignatureMoniMT                                 INFO -- #211699639 Events          20         20         -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #211699639 Features                              -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_L1Standby #420861540
+TrigSignatureMoniMT                                 INFO -- #420861540 Events          20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #420861540 Features                              -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_L1TAU12 #4248050338
 TrigSignatureMoniMT                                 INFO -- #4248050338 Events         20         20         -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #4248050338 Features                             -          -          -          -          -          -          
@@ -526,6 +576,9 @@ TrigSignatureMoniMT                                 INFO -- #3765216228 Features
 TrigSignatureMoniMT                                 INFO HLT_noalg_L1XE80 #2742079961
 TrigSignatureMoniMT                                 INFO -- #2742079961 Events         20         20         -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #2742079961 Features                             -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_bkg_L1Bkg #2032528907
+TrigSignatureMoniMT                                 INFO -- #2032528907 Events         20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #2032528907 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1EM3_EMPTY #2458124284
 TrigSignatureMoniMT                                 INFO -- #2458124284 Events         20         20         -          -          -          -          -          -          15         
 TrigSignatureMoniMT                                 INFO -- #2458124284 Features                             -          -          -          -          -          -          
@@ -562,6 +615,9 @@ TrigSignatureMoniMT                                 INFO -- #1198298874 Features
 TrigSignatureMoniMT                                 INFO HLT_noalg_idmon_L1RD0_UNPAIRED_ISO #2536676873
 TrigSignatureMoniMT                                 INFO -- #2536676873 Events         20         20         -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #2536676873 Features                             -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_l1calo_L1J400 #1694511185
+TrigSignatureMoniMT                                 INFO -- #1694511185 Events         20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #1694511185 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_mb_L1RD2_EMPTY #3788962163
 TrigSignatureMoniMT                                 INFO -- #3788962163 Events         20         20         -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #3788962163 Features                             -          -          -          -          -          -          

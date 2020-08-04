@@ -1,66 +1,43 @@
-################################################################################
-# Package: AthenaDBTestRec
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaDBTestRec )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          GaudiKernel
-                          PRIVATE
-                          Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
-                          Database/APR/FileCatalog
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/CoraCool
-                          Database/PersistentDataModel
-                          Event/EventInfo )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 include_directories(src)
 
 # Component(s) in the package:
 atlas_add_library( AthenaDBTestRecLib
                    src/lib/*.cxx
-                   PUBLIC_HEADERS AthenaDBTestRec
-                   PRIVATE_INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib
-                   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CollectionBase CollectionUtilities PersistencySvc StorageSvc CoraCool PersistentDataModel EventInfo )
+                   NO_PUBLIC_HEADERS
+                   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthenaPoolUtilities GaudiKernel StoreGateLib
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} )
 
 atlas_add_component( AthenaDBTestRec
                      src/components/*.cxx
-                     INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel CollectionBase CollectionUtilities PersistencySvc StorageSvc AthenaPoolCnvSvcLib CoraCool PersistentDataModel EventInfo AthenaDBTestRecLib )
+                     LINK_LIBRARIES AthenaDBTestRecLib )
 
 atlas_add_poolcnv_library( AthenaDBTestRecPoolCnv
                            src/*.cxx
                            FILES AthenaDBTestRec/TestCoolRecPoolData.h AthenaDBTestRec/TestCoolRecPoolDataColl.h
                            MULT_CHAN_TYPES TestCoolRecPoolDataColl
-                           INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel CollectionBase CollectionUtilities PersistencySvc StorageSvc AthenaPoolCnvSvcLib CoraCool PersistentDataModel EventInfo AthenaDBTestRecLib )
+                           INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                           LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} AthenaDBTestRecLib AthenaPoolCnvSvcLib CoraCool PersistentDataModel )
 
 atlas_add_dictionary( AthenaDBTestRecDataDict
                       AthenaDBTestRec/AthenaDBTestRecDataDict.h
                       AthenaDBTestRec/selection.xml
-                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel CollectionBase CollectionUtilities PersistencySvc StorageSvc AthenaPoolCnvSvcLib CoraCool PersistentDataModel EventInfo AthenaDBTestRecLib )
+                      LINK_LIBRARIES AthenaDBTestRecLib )
 
 atlas_add_executable( TestCoolRecWriter
                       src/app/*.cxx
-                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel CollectionBase CollectionUtilities PersistencySvc StorageSvc AthenaPoolCnvSvcLib CoraCool PersistentDataModel EventInfo AthenaDBTestRecLib )
+                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} AthenaDBTestRecLib CoraCool FileCatalog PersistencySvc PersistentDataModel StorageSvc )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

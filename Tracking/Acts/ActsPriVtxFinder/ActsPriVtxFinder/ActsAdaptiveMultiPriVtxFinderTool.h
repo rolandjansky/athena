@@ -19,6 +19,7 @@
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
+#include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 
@@ -26,7 +27,6 @@
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/Navigator.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
@@ -42,10 +42,6 @@
 #include <boost/variant/static_visitor.hpp>
 
 #include <cmath>
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Acts {
 class Surface;
@@ -114,10 +110,11 @@ private:
 
   std::shared_ptr<VertexFinder> m_vertexFinder = nullptr;
 
-  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "", "ActsTrackingGeometryTool"};
+  ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "", "ActsExtrapolationTool"};
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{this, "TrackSelector", "", "InDetTrackSelectionTool"};
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+
 
   // Configuration variables
   // For details check ACTS documentation

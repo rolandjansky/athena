@@ -52,11 +52,10 @@ def mergeParallel(chainDefList, offset):
         from itertools import izip_longest as zip_longest
     # Use zip_longest so that we get None in case one chain has more steps than the other
     orderedSteps = list(zip_longest(*allSteps))
-    myOrderedSteps = deepcopy(orderedSteps)
 
     combChainSteps =[]
-    log.debug("len(myOrderedSteps): %d", len(myOrderedSteps))
-    for step_index, steps in enumerate(myOrderedSteps):        
+    log.debug("len(orderedSteps): %d", len(orderedSteps))
+    for step_index, steps in enumerate(orderedSteps):
         mySteps = list(steps)
         log.debug("Merging step counter %d", step_index+1)
         combStep = makeCombinedStep(mySteps, step_index+1, chainDefList)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test of P1+Tier0 workflow, runs athenaHLT with PhysicsP1_pp_run3_v1 menu followed by offline reco and monitoring
 # art-type: grid
@@ -32,7 +33,7 @@ hlt.args += ' -o output'
 # Extract the physics_Main stream out of the BS file with many streams
 filter_bs = ExecStep.ExecStep('FilterBS')
 filter_bs.type = 'other'
-filter_bs.executable = 'athenaHLT-select-PEB-stream.py'
+filter_bs.executable = 'trigbs_extractStream.py'
 filter_bs.input = ''
 filter_bs.args = '-s Main ' + findFile('*_HLTMPPy_output.*.data')
 

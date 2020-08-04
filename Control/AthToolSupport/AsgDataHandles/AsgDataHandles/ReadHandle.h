@@ -140,6 +140,11 @@ private:
    * Throws ExcNullReadHandle on failure.
    */
   const_pointer_type checkedCPtr();
+
+  /**
+   * @brief Helper: dereference the pointer.
+   */
+  const_pointer_type getCPtr() const;
 }; 
 
 

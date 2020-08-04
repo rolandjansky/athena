@@ -61,7 +61,8 @@ StatusCode Muon::TGC_RawDataProviderToolCore::initialize()
 StatusCode Muon::TGC_RawDataProviderToolCore::convertIntoContainer(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, TgcRdoContainer& tgcRdoContainer) 
 {    
 
-  static int DecodeErrCount = 0;
+  /// Static variables are not thread safe
+  static thread_local int DecodeErrCount = 0;
 
   // Update to range based loop
   for(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* fragment : vecRobs){

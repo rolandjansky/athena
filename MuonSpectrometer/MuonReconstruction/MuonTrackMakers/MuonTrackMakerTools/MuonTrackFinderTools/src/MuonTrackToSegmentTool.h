@@ -70,13 +70,14 @@ namespace Muon {
 	"MuonDetectorManager", 
 	"Key of input MuonDetectorManager condition data"};    
 
-    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;  //<! pointer to hole search service
-    ToolHandle<Trk::IPropagator>        m_propagator;       //<! propagator
+    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc {this, "MuonStationIntersectSvc", "MuonStationIntersectSvc", "pointer to hole search service"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>    m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //<! multipurpose helper tool
-    ToolHandle<MuonEDMPrinterTool>      m_printer;          //<! tool to print out EDM objects
+    
+    ToolHandle<MuonEDMPrinterTool> m_printer {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "helper to nicely print out tracks"};
+    ToolHandle<Trk::IPropagator> m_propagator {this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
 
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 

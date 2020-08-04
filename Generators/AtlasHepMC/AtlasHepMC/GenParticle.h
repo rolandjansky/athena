@@ -16,9 +16,6 @@ typedef HepMC3::ConstGenParticlePtr ConstGenParticlePtr;
 inline GenParticlePtr newGenParticlePtr(const HepMC3::FourVector &mom = HepMC3::FourVector::ZERO_VECTOR(), int pid = 0, int status = 0) {
   return std::make_shared<HepMC3::GenParticle>(mom,pid,status);
 }
-inline GenParticlePtr newGenParticlePtr(const HepMC3::FourVector &mom, int pid , int status , HepMC::Flow fl, HepMC::Polarization pol) {
-  return std::make_shared<HepMC3::GenParticle>(mom,pid,status);
-}
 inline int barcode(GenParticlePtr p){ 
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
 		 return barcode?(barcode->value()):0;

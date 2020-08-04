@@ -10,7 +10,7 @@ DetDescrCnvSvc.DetectorManagers += { "CaloMgr" };
 //
 //---- EMTB-Files input --------------------
 //
-ApplicationMgr.DLLs += {"LArTBCnv"};
+ApplicationMgr.Dlls += {"LArTBCnv"};
 ApplicationMgr.ExtSvc += { "LArTBCnvSvc" , "LArTBEventSelector/EventSelector"};
 ApplicationMgr.EvtSel = "EventSelector";
 
@@ -18,11 +18,11 @@ EventPersistencySvc.CnvServices     += { "LArTBCnvSvc" };
 EventSelector.InputFiles = {"/afs/cern.ch/user/r/rmcphers/w0/data/rd13_run220113.dat"};
 
 //--- LArMonitoring ---------------------------
-ApplicationMgr.DLLs += { "AthenaMonitoring"};
+ApplicationMgr.Dlls += { "AthenaMonitoring"};
 
 ApplicationMgr.TopAlg += { "AthenaMon/athenamon" };
 
-ApplicationMgr.DLLs += { "TBMonitoring" };
+ApplicationMgr.Dlls += { "TBMonitoring" };
 
 
 athenamon.AthenaMonTools = {"BeamDetectorMonTool/beamdetmon"};
@@ -54,12 +54,12 @@ ToolSvc.beamdetmon.TDCMin = 0;
 ToolSvc.beamdetmon.TriggFlags = {1,2,4,8,16,32};
 
 // -- use root histos --
-ApplicationMgr.DLLs += { "RootHistCnv" };
+ApplicationMgr.Dlls += { "RootHistCnv" };
 ApplicationMgr.HistogramPersistency = "ROOT";
 HistogramPersistencySvc.OutputFile  = "test.root";
 
 // -- Use auditors --
-ApplicationMgr.DLLs += { "GaudiAud" };
+ApplicationMgr.Dlls += { "GaudiAud" };
 
 // write out a summary of the time spent
 //
