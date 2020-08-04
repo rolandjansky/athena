@@ -376,7 +376,7 @@ vbroadcast(VEC& v, T x)
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   // This may look inefficient, but the loop goes away when we
   // compile with optimization.
-  const size_t N = CxxUtils::vec_size<VEC>();
+  constexpr size_t N = CxxUtils::vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     v[i] = x;
   }
