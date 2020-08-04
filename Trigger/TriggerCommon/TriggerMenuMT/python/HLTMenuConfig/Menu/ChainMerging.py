@@ -6,7 +6,7 @@ log = logging.getLogger( __name__ )
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
 from copy import deepcopy
-
+import re
 
 def mergeChainDefs(listOfChainDefs, chainDict):
 
@@ -70,7 +70,11 @@ def mergeParallel(chainDefList, offset):
     return combinedChainDef
 
 def getEmptySeqName(stepName, chain_index, step_number):
-    seqName = stepName  +  '_leg' + str(chain_index) + '_EmptySeqStep' + str(step_number)
+    #remove redundant instances of StepN
+    if re.search('^Step[0-9]_',stepName):
+        stepName = stepName[6:]
+
+    seqName = 'EmptySeq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
     return seqName
 
 
@@ -95,7 +99,7 @@ def serial_zip(allSteps, chainName):
             for step_index2, emptyStep in enumerate(stepList):
                 if emptyStep is None:
                     seqName = getEmptySeqName(step.name, chain_index, step_index+1)
-                    emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
+                    emptySeq =  RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
                     stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)            
             
             newsteps.append(stepList)
@@ -148,9 +152,8 @@ def mergeSerial(chainDefList):
 
 
 def makeCombinedStep(steps, stepNumber, chainDefList):
-    from copy import deepcopy
     from TrigCompositeUtils.TrigCompositeUtils import legName
-    stepName = 'merged_Step' + str(stepNumber)
+    stepName = 'merged' #we will renumber all steps after chains are aligned #Step' + str(stepNumber)
     stepSeq = []
     stepMult = []
     log.verbose(" steps %s ", steps)
@@ -164,10 +167,12 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
     for chain_index, step in enumerate(steps):
         if step is None:
             # this happens for merging chains with different numbers of steps, we need to "pad" out with empty sequences to propogate the decisions
-            currentStep = "Step" + str(stepNumber) + "_Empty" + str(chain_index)
-            seqName = getEmptySeqName(currentStep, chain_index, stepNumber)
-            log.info("  step %s,  empty sequence %s", currentStep, seqName)
+            currentStepName = "Step" + str(stepNumber) + "_Empty" + str(chain_index)
+            seqName = getEmptySeqName(currentStepName, chain_index, stepNumber)
+            log.info("  step %s,  empty sequence %s", currentStepName, seqName)
             emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
+
+
             stepSeq.append(emptySeq)
             stepMult.append(1)
             # we need a chain dict here, use the one corresponding to this leg of the chain
@@ -182,7 +187,10 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             if len(step.sequences) > 1:
                 log.error("More than one menu sequence found in combined chain!!")
             comboHypo = step.comboHypoCfg
-            currentStep = step.name
+            currentStepName = step.name
+            #remove redundant instances of StepN_
+            if re.search('^Step[0-9]_',currentStepName):
+                currentStepName = currentStepName[6:]
 
             if len(step.sequences):
                 seq = step.sequences[0]
@@ -192,10 +200,10 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             comboHypoTools.extend(step.comboToolConfs)
             # update the chain dict list for the combined step with the chain dict from this step
             stepDicts += deepcopy(step.chainDicts)
- 
-        # the step naming for combined chains needs to be revisted!!
-        stepName += '_' + currentStep
 
+
+        # the step naming for combined chains needs to be revisted!!
+        stepName += '_' + currentStepName
         # for merged steps, we need to update the name to add the leg name
         stepDicts[-1]['chainName'] = legName(stepDicts[-1]['chainName'], chain_index)
         
