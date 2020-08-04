@@ -253,13 +253,11 @@ namespace Trk {
     }
 
     ATH_MSG_INFO("fixed momentum: " << m_p);
-    m_inputPreparator = new TrackFitInputPreparator;
 
     return StatusCode::SUCCESS;
   }
 
   StatusCode GlobalChi2Fitter::finalize() {
-    delete m_inputPreparator;
 
     ATH_MSG_INFO("finalize()");
     ATH_MSG_INFO(m_fit_status[S_FITS] << " attempted track fits");

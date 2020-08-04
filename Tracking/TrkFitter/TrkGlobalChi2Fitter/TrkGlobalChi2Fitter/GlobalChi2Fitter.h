@@ -604,7 +604,6 @@ namespace Trk {
     double m_scalefactor;
     bool m_redoderivs;
     bool m_reintoutl;
-    TrackFitInputPreparator *m_inputPreparator;
     int m_maxit;
     bool m_acceleration;
     bool m_numderiv;
