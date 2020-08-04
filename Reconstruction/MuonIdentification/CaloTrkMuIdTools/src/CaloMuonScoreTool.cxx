@@ -140,6 +140,14 @@ void CaloMuonScoreTool::fillInputVectors(std::unique_ptr<const Rec::ParticleCell
 float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {  
   ATH_MSG_DEBUG("in CaloMuonScoreTool::getMuonScore()");
 
+  double track_eta = trk->eta();
+
+  if(std::abs(track_eta) > m_caloMuonEtaCut){
+    ATH_MSG_INFO("Skip calculation of muon score for track particle due to failed eta cut of " << m_caloMuonEtaCut << "(eta="<<track_eta<<")");
+    return -1;
+  }
+
+  ATH_MSG_INFO("Calculating muon score for track particle with eta="<<track_eta);
   // - associate calocells to trackparticle, cone size 0.2, use cache
   std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,0.2,nullptr);
   if(!association){
@@ -156,6 +164,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   // create tensor from vectors
   std::vector<float> inputTensor = getInputTensor(eta, phi, energy, sampling);
 
+  ATH_MSG_INFO("Have input tensor of size " << inputTensor.size());
   // run inference on input tensor
   float outputScore = runOnnxInference(inputTensor);
   ATH_MSG_INFO("Computed CaloMuonScore: " << outputScore);
@@ -271,14 +280,19 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
   float median_eta = getMedian(eta);
   float median_phi = getMedian(phi);
 
-  ATH_MSG_DEBUG("Median eta value: " << median_eta << ", median phi value: " << median_phi);
+  ATH_MSG_INFO("Median eta value: " << median_eta << ", median phi value: " << median_phi);
 
   // initialise output matrix of zeros
   std::vector<float> tensor(m_etaBins * m_phiBins * m_nChannels, 0.);
+
   
+
   std::vector<float> eta_bins = getLinearlySpacedBins(-m_etaCut, m_etaCut, m_etaBins);
   std::vector<float> phi_bins = getLinearlySpacedBins(-m_phiCut, m_phiCut, m_phiBins);
-  
+
+  ATH_MSG_INFO("Eta bins " << m_etaBins << " " << m_etaCut << " " <<eta_bins[0] << " " << eta_bins.size());
+  ATH_MSG_INFO("Phi bins " << m_phiBins << " " << m_phiCut << " " <<phi_bins[0] << " " << phi_bins.size());
+
   int skipped_cells = 0;
 
   for(int i = 0; i < n_cells; i++ ){
@@ -286,6 +300,8 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
     float shifted_eta = eta[i] - median_eta;
     float shifted_phi = phi[i] - median_phi;
 
+    //    ATH_MSG_INFO("Getting bin for eta " << eta_bins[0] << " " << shifted_eta);
+    //    ATH_MSG_INFO("Getting bin for phi " << phi_bins[0] << " " << shifted_phi);
     int eta_bin = getBin(eta_bins, shifted_eta); 
     int phi_bin = getBin(phi_bins, shifted_phi);
 
@@ -313,7 +329,7 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
     tensor[tensor_idx] += energy[i];
   }
 
-  ATH_MSG_DEBUG("Skipped " << skipped_cells << " out of " << n_cells << " cells");
+  ATH_MSG_INFO("Skipped " << skipped_cells << " out of " << n_cells << " cells");
   
   return tensor;
 }

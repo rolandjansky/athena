@@ -52,7 +52,7 @@ public:
   float getMedian(std::vector<float> v) const;
 
   // Get a linearly spaced vector of size `nBins`, ranging from `min` to `max` (both values included)
-  std::vector<float> getLinearlySpacedBins(float min, float max, int nNins) const;
+  std::vector<float> getLinearlySpacedBins(float min, float max, int nBins) const;
 
   // Given a vector of bins, return the index of the matching bin
   int getBin(std::vector<float> &bins, float &val) const;
@@ -71,19 +71,22 @@ public:
 
 private:
   // Number of bins in eta
-  int m_etaBins;
+  int m_etaBins = 30;
 
   // Number of bins in phi
-  int m_phiBins;
+  int m_phiBins = 30;
 
   // window in terms of abs(eta) to consider around the median eta value
-  float m_etaCut;
+  float m_etaCut = 0.25;
 
   // window in terms of abs(phi) to consider around the median phi value
-  float m_phiCut;
+  float m_phiCut = 0.25;
 
   // Number of colour channels to consider in the convolutional neural network
-  int m_nChannels;
+  int m_nChannels = 7;
+
+  // Eta cut (absolute value) up to which a track particle's muon score will be calculated  
+  float m_caloMuonEtaCut = 0.1;
 
   // name of the model to use
   std::string m_modelFileName;
