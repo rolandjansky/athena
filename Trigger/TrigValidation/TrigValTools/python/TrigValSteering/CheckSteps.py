@@ -6,7 +6,6 @@
 Definitions of post-exec check steps in Trigger ART tests
 '''
 
-import sys
 import os
 import re
 import subprocess
@@ -29,9 +28,7 @@ class RefComparisonStep(Step):
 
     def configure(self, test):
         if self.reference and self.ref_test_name:
-            self.log.error('%s: Misconfiguration, both options "reference" and "ref_test_name" used. Use at most one of them.')
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('Both options "reference" and "ref_test_name" used. Use at most one of them.')
 
         if not self.ref_test_name:
             self.ref_test_name = test.name
@@ -56,10 +53,7 @@ class RefComparisonStep(Step):
                 return super(RefComparisonStep, self).configure(test)
 
         if self.input_file is None:
-            self.log.error('Cannot configure %s because input_file not specified',
-                           self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('input_file not specified')
 
         branch = os.environ.get('AtlasBuildBranch')  # Available after asetup
         if branch is None:
@@ -132,10 +126,9 @@ class LogMergeStep(Step):
                 self.log_files.append(step.name)
         # Protect against infinite loop
         if self.merged_name in self.log_files:
-            self.log.error('%s output log name %s is same as one of the input log names.'\
-                           ' This will lead to infinite loop, aborting.', self.name, self.merged_name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort(
+                'output log name %s is same as one of the input log names.'
+                ' This will lead to infinite loop, aborting.', self.merged_name)
         super(LogMergeStep, self).configure(test)
 
     def process_extra_regex(self):
