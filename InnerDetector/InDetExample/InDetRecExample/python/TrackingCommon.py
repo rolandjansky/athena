@@ -1280,6 +1280,50 @@ def getInDetAmbiScoringTool(NewTrackingCuts, name='InDetAmbiScoringTool', **kwar
                                                       maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
                                                       maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
 
+@makePublicTool
+def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
+    NewTrackingCuts = kwargs.pop("NewTrackingCuts")
+    the_name=makeName(name,kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    from AthenaCommon.DetFlags              import DetFlags
+    have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
+    if have_calo_rois :
+        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
+        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetNNScoringTool
+    return InDet__InDetNNScoringTool(the_name,
+                                       **setDefaults(kwargs,
+                                                     nnCutConfig             = "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json",
+                                                     nnCutThreshold          = InDetFlags.nnCutLargeD0Threshold(),
+                                                     Extrapolator            = getInDetExtrapolator(),
+                                                     SummaryTool             = getInDetTrackSummaryTool(),
+                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
+                                                     useAmbigFcn             = True,  # this is NewTracking
+                                                     useTRT_AmbigFcn         = False,
+                                                     maxZImp                 = NewTrackingCuts.maxZImpact(),
+                                                     maxEta                  = NewTrackingCuts.maxEta(),
+                                                     usePixel                = NewTrackingCuts.usePixel(),
+                                                     useSCT                  = NewTrackingCuts.useSCT(),
+                                                     doEmCaloSeed            = have_calo_rois)
+                                       )
+
+def getInDetNNScoringTool(NewTrackingCuts, name='InDetNNScoringTool', **kwargs) :
+    return getInDetNNScoringToolBase(name+NewTrackingCuts.extension(),
+                                       **setDefaults( kwargs,
+                                                      NewTrackingCuts         = NewTrackingCuts,
+                                                      useAmbigFcn             = True,  # this is NewTracking
+                                                      useTRT_AmbigFcn         = False,
+                                                      minTRTonTrk             = 0,
+                                                      minTRTPrecisionFraction = 0,
+                                                      minPt                   = NewTrackingCuts.minPT(),
+                                                      maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
+                                                      minSiClusters           = NewTrackingCuts.minClusters(),
+                                                      minPixel                = NewTrackingCuts.minPixel(),
+                                                      maxSiHoles              = NewTrackingCuts.maxHoles(),
+                                                      maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
+                                                      maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
+                                                      maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
+
 def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringTool',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
     return getInDetAmbiScoringToolBase('InDetTRT_SeededScoringTool',
