@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.SystemOfUnits import GeV
 from ISF_SimulationSelectors import SimulationFlavor
-from ISF_Services.ISF_ServicesConfigNew import ParticleKillerSvcCfg
+from ISF_Services.ISF_ServicesCoreConfigNew import ParticleKillerSvcCfg
 from ISF_Geant4Services.ISF_Geant4ServicesConfigNew import (
     Geant4SimCfg, AFIIGeant4SimCfg, LongLivedGeant4SimCfg, AFII_QS_Geant4SimCfg,
     FullGeant4SimCfg, PassBackGeant4SimCfg,
@@ -293,6 +293,56 @@ def PionAFIIGeant4SelectorCfg(flags, name="ISF_PionAFIIGeant4Selector", **kwargs
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
+    acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
+    return acc
+
+
+def PionG4FastCaloGeant4Selector(flags, name="ISF_PionG4FastCaloGeant4Selector", **kwargs):
+    acc = AFIIGeant4SimCfg(flags)
+    kwargs.setdefault("MaxEkin", 200)
+    kwargs.setdefault("ParticlePDG", 211)
+    if flags.Concurrency.NumThreads == 0:
+        kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
+    acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
+    return acc
+
+
+def ProtonG4FastCaloGeant4Selector(flags, name="ISF_ProtonG4FastCaloGeant4Selector", **kwargs):
+    acc = AFIIGeant4SimCfg(flags)
+    kwargs.setdefault("MaxEkin", 400)
+    kwargs.setdefault("ParticlePDG", 2212)
+    if flags.Concurrency.NumThreads == 0:
+        kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
+    acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
+    return acc
+
+
+def NeutronG4FastCaloGeant4Selector(flags, name="ISF_NeutronG4FastCaloGeant4Selector", **kwargs):
+    acc = AFIIGeant4SimCfg(flags)
+    kwargs.setdefault("MaxEkin", 400)
+    kwargs.setdefault("ParticlePDG", 2112)
+    if flags.Concurrency.NumThreads == 0:
+        kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
+    acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
+    return acc
+
+
+def ChargedKaonG4FastCaloGeant4Selector(flags, name="ISF_ChargedKaonG4FastCaloGeant4Selector", **kwargs):
+    acc = AFIIGeant4SimCfg(flags)
+    kwargs.setdefault("MaxEkin", 400)
+    kwargs.setdefault("ParticlePDG", 321)
+    if flags.Concurrency.NumThreads == 0:
+        kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
+    acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
+    return acc
+
+
+def KLongG4FastCaloGeant4Selector(flags, name="ISF_KLongG4FastCaloGeant4Selector", **kwargs):
+    acc = AFIIGeant4SimCfg(flags)
+    kwargs.setdefault("MaxEkin", 400)
+    kwargs.setdefault("ParticlePDG", 130)
+    if flags.Concurrency.NumThreads == 0:
+        kwargs.setdefault("Simulator", acc.getService("ISF_AFIIGeant4SimSvc"))
     acc.setPrivateTools(CompFactory.ISF.KinematicSimSelector(name, **kwargs))
     return acc
 
