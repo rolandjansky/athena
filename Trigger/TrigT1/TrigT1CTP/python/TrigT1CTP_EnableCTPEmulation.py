@@ -21,6 +21,11 @@ def enableCTPEmulation(athSequence, setupOutput=False):
                                           RDOOutputLocation = "CTP_RDO_L1Run3",
                                           IsData = isData )
 
+    from TriggerMenu.l1menu.CaloDef import getRun3EFexParameterSelection
+    ctpEmulation.eFEXREta  = getRun3EFexParameterSelection('reta')
+    ctpEmulation.eFEXRHad  = getRun3EFexParameterSelection('rhad')
+    ctpEmulation.eFEXWStot = getRun3EFexParameterSelection('wstot')
+
     from AthenaCommon.Constants import DEBUG
     if simflags.EnableDebugOutput():
         ctpEmulation.OutputLevel = DEBUG

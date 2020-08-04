@@ -32,8 +32,7 @@ SimpleLArDigitsChecks::~SimpleLArDigitsChecks(){}
 
 StatusCode SimpleLArDigitsChecks::initialize(){
 	
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing SimpleLArDigitsChecks" << endreq;
+	ATH_MSG_DEBUG("initializing SimpleLArDigitsChecks" );
 	std::string filename=name();
 	filename+=".BasicCheck.root";
         counter=0;
@@ -122,15 +121,14 @@ StatusCode SimpleLArDigitsChecks::initialize(){
 
 	// for cell <-> SCell comparison
 	if ( m_cabling.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endreq;
+		ATH_MSG_ERROR( "cannot perform comparisons between SuperCells and digits" );
 	}
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode SimpleLArDigitsChecks::finalize(){
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing SimpleLArDigitsChecks" << endreq;
+	ATH_MSG_DEBUG("finalizing SimpleLArDigitsChecks" );
 	m_file->Write();
 	m_file->Close();
 	return StatusCode::SUCCESS;
@@ -138,21 +136,20 @@ StatusCode SimpleLArDigitsChecks::finalize(){
 
 StatusCode SimpleLArDigitsChecks::execute(){
 	
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute SimpleLArDigitsChecks" << endreq;
+	ATH_MSG_DEBUG("execute SimpleLArDigitsChecks" );
         const CaloCellContainer* scells;
         const LArDigitContainer* allcalo(NULL);
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container" << endreq;
+		ATH_MSG_WARNING( "did not find cell container" );
 		return StatusCode::SUCCESS;
 	}
 	if ( evtStore()->retrieve(allcalo,"LArDigitSCL1").isFailure() ){
-		msg << MSG::WARNING << "did not find lardigit container for regular cells" << endreq;
+		ATH_MSG_WARNING( "did not find lardigit container for regular cells" );
 		return StatusCode::SUCCESS;
 	}
 	const xAOD::VertexContainer* nvtx(NULL);
 	if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
-		msg << MSG::WARNING << "did not find Vectices container" << endreq;
+		ATH_MSG_WARNING( "did not find Vectices container" );
 		return StatusCode::SUCCESS;
 	}
 	unsigned int count_sCells=0;

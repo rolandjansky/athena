@@ -49,8 +49,7 @@ TrigT1CaloRun3TauFex::~TrigT1CaloRun3TauFex(){
 StatusCode TrigT1CaloRun3TauFex::initialize(){
 	
 	if ( TrigT1CaloBaseFex::initialize().isFailure() ) return StatusCode::FAILURE;
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing TrigT1CaloRun3TauFex" << endreq;
+	ATH_MSG_DEBUG( "initializing TrigT1CaloRun3TauFex");
 	std::string histoName(name());
 	histoName+="Algo.root";
 	m_histFile = new TFile(histoName.c_str(),"RECREATE");
@@ -89,8 +88,7 @@ StatusCode TrigT1CaloRun3TauFex::initialize(){
 
 StatusCode TrigT1CaloRun3TauFex::finalize(){
 	if ( TrigT1CaloBaseFex::finalize().isFailure() ) return StatusCode::FAILURE;
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloRun3TauFex" << endreq;
+	ATH_MSG_DEBUG( "finalizing TrigT1CaloRun3TauFex");
 	if ( m_enableMon ) {
 		m_histFile->Write();
 		m_histFile->Close();
@@ -109,15 +107,14 @@ StatusCode TrigT1CaloRun3TauFex::finalize(){
 }
 
 StatusCode TrigT1CaloRun3TauFex::execute(){
-        MsgStream msg(msgSvc(), name());
 #ifndef NDEBUG
-	msg << MSG::DEBUG << "execute TrigT1CaloRun3TauFex" << endreq;
+	ATH_MSG_DEBUG( "execute TrigT1CaloRun3TauFex");
 #endif
 
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
 	if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
-		msg << MSG::WARNING << " Could not get containers" << endreq;
+		ATH_MSG_WARNING( " Could not get containers");
 		return StatusCode::SUCCESS;
 	}
 
@@ -128,11 +125,11 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	clustersForTau->reserve(100);
 	std::string clusterName(m_outputClusterName);
 	if ( evtStore()->record(clustersForTau,clusterName).isFailure() ){
-		msg << MSG::ERROR  << "recording was not possible" << endreq;
+		ATH_MSG_ERROR( "recording was not possible");
 		return StatusCode::FAILURE;
 	}
 	if ( evtStore()->record(auxclustersForTau,clusterName+"Aux.").isFailure() ){
-		msg << MSG::ERROR << "recording Aux was not possible" << endreq;
+		ATH_MSG_ERROR( "recording Aux was not possible");
 		return StatusCode::FAILURE;
 	}
 
@@ -264,10 +261,10 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	if (msgLvl(MSG::DEBUG)){
 	  for (int i=1;i<m_SupercellMapEM1_coarse->GetNbinsX()+1;i++){
 	    for (int j=1;j<m_SupercellMapEM1_coarse->GetNbinsY()+1;j++){
-	      msg << MSG::DEBUG <<"m_SupercellMapEM1_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM1_coarse->GetBinContent(i, j) << endmsg;
-	      msg << MSG::DEBUG <<"m_SupercellMapEM2_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM2_coarse->GetBinContent(i, j) << endmsg;
-	      msg << MSG::DEBUG <<"m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter("<< i<<") "<< m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(i) << endmsg;
-	      msg << MSG::DEBUG <<"m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter("<< j<<") "<< m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter(j) << endmsg;
+	      ATH_MSG_DEBUG("m_SupercellMapEM1_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM1_coarse->GetBinContent(i, j) );
+	      ATH_MSG_DEBUG("m_SupercellMapEM2_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM2_coarse->GetBinContent(i, j) );
+	      ATH_MSG_DEBUG("m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter("<< i<<") "<< m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(i) );
+	      ATH_MSG_DEBUG("m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter("<< j<<") "<< m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter(j) );
 	      }
 	    }
 	  }
