@@ -897,6 +897,9 @@ void RD53BEncodingTool::fillDataRates() {
 StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float > > barrel_z,
                                              std::vector < std::vector < float > > endcap_z) {
   
+  // caching z values of barrel and endcap modules
+  // accordingly to layer index and eta module index
+  // they are used in the code to fill histograms
   m_module_z_layer[BARREL]=barrel_z;
   m_module_z_layer[ENDCAP]=endcap_z;
   
@@ -907,6 +910,9 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
   m_bins[ENDCAP]={{200.,}, {200.,}, {1000.,}, {1000.,}, {1000.,}};
   
   for (unsigned int layer = 0; layer<5 ; layer++) {
+    // sorting the z values before calculating the bin ranges
+    std::sort(barrel_z.at(layer).begin(), barrel_z.at(layer).end());
+    std::sort(endcap_z.at(layer).begin(), endcap_z.at(layer).end());
     // skipping first bin since it is 0. for the barrel
     for (unsigned int z_bin = 1; z_bin<(barrel_z.at(layer).size()-1); z_bin++) {
       m_bins[BARREL].at(layer).push_back(0.5*(barrel_z.at(layer).at(z_bin)+barrel_z.at(layer).at(z_bin+1)));
