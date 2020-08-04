@@ -11,6 +11,7 @@
 #include "ParticleJetTools/JetPartonTruthLabel.h"
 #include "ParticleJetTools/CopyTruthJetParticles.h"
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
+#include "ParticleJetTools/ParticleJetGhostLabelTool.h"
 #include "src/JetModifierAlg.h"
 #include "src/JetAssocConstAlg.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
@@ -33,6 +34,7 @@ DECLARE_TOOL_FACTORY( CopyBosonTopLabelTruthParticles )
 DECLARE_TOOL_FACTORY( CopyTruthPartons )
 DECLARE_TOOL_FACTORY( CopyTruthJetParticles )
 DECLARE_TOOL_FACTORY( ParticleJetDeltaRLabelTool )
+DECLARE_TOOL_FACTORY( ParticleJetGhostLabelTool )
 DECLARE_TOOL_FACTORY( JetParticleShrinkingConeAssociation )
 DECLARE_TOOL_FACTORY( JetParticleFixedConeAssociation )
 DECLARE_TOOL_FACTORY( JetParticleCenterOfMassAssociation )
@@ -55,6 +57,7 @@ DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
     DECLARE_TOOL( CopyTruthPartons )
     DECLARE_TOOL( CopyTruthJetParticles )
     DECLARE_TOOL( ParticleJetDeltaRLabelTool )
+    DECLARE_TOOL( ParticleJetGhostLabelTool )
     DECLARE_TOOL( JetParticleShrinkingConeAssociation )
     DECLARE_TOOL( JetParticleFixedConeAssociation )
     DECLARE_TOOL( JetParticleCenterOfMassAssociation )

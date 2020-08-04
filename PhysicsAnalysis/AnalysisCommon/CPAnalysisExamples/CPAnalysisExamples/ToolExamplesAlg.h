@@ -33,7 +33,7 @@
 ///Jets
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "JetInterface/IJetSelector.h"
 
 

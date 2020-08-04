@@ -210,7 +210,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
-  if (!m_muIso_WP.empty() && m_muIso_WP=="PLVTight") ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
+  if (!m_muIso_WP.empty() && m_muIso_WP.find("PLV")!=std::string::npos) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
   if (!m_muIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   if (!m_muIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
   dec_passSignalID(input) = m_muonSelectionTool->accept(input);
@@ -233,7 +233,7 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
   else if ( fabs(input.eta()) > etacut ) return false;
 
   if (z0cut > 0.0 && fabs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
-  if (dec_d0sig(input) != 0) {
+  if (acc_d0sig(input) != 0) {
     if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 

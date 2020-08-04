@@ -26,6 +26,7 @@ namespace xAOD {
     AUX_VARIABLE(goodJets);
     AUX_VARIABLE(goodLargeRJets);
     AUX_VARIABLE(goodTrackJets);
+    AUX_VARIABLE(goodTracks);
   }
 
   /// Interface class
@@ -45,5 +46,6 @@ namespace xAOD {
   AUXSTORE_OBJECT_SETTER_AND_GETTER(SystematicEvent, std::vector<unsigned int>, goodJets, setGoodJets)
   AUXSTORE_OBJECT_SETTER_AND_GETTER(SystematicEvent, std::vector<unsigned int>, goodLargeRJets, setGoodLargeRJets)
   AUXSTORE_OBJECT_SETTER_AND_GETTER(SystematicEvent, std::vector<unsigned int>, goodTrackJets, setGoodTrackJets)
+  AUXSTORE_OBJECT_SETTER_AND_GETTER(SystematicEvent, std::vector<unsigned int>, goodTracks, setGoodTracks)
 }
 ADD_NS_DV_PROXY(xAOD, SystematicEventContainer);

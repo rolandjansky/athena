@@ -346,6 +346,10 @@ SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel(
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY19)
 
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                   
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY19, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY19, algname='JetForwardJvtToolBDTAlg')
+
 
 #==============================================================================
 # Augment after skim

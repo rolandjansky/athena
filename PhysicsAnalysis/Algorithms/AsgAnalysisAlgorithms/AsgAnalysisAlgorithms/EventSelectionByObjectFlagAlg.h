@@ -40,7 +40,7 @@ class EventSelectionByObjectFlagAlg final : public EL::AnaAlgorithm {
 
     /// \brief the filter reporter
   private:
-    SysFilterReporterParams m_filterParams {this};
+    SysFilterReporterParams m_filterParams {this, "object flag selection"};
 
     /// \brief the particle collection we run on
   private:

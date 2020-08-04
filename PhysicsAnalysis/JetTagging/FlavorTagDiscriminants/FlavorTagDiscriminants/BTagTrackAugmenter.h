@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,6 +8,7 @@
 
 
 #include <vector>
+#include <set>
 
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
@@ -27,7 +28,7 @@ struct BTagSignedIP {
 
 class BTagTrackAugmenter {
 public:
-  BTagTrackAugmenter();
+  BTagTrackAugmenter(const std::string& prefix = "btagIp_" );
   void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
 
   // NOTE: this should be called in the derivations if possible,
@@ -48,6 +49,7 @@ public:
   double z0SinThetaUncertainty(const xAOD::TrackParticle &track) const;
 
   BTagSignedIP get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
+  std::set<std::string> getTrackIpDataDependencyNames() const;
 private:
   typedef SG::AuxElement AE;
 
@@ -68,6 +70,8 @@ private:
   AE::Decorator<float> m_ip3d_signed_z0_significance;
   AE::Decorator<int> m_ip2d_grade;
   AE::Decorator<int> m_ip3d_grade;
+
+  std::string m_prefix;
 };
 
 #endif

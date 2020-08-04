@@ -19,9 +19,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-#include <TFile.h>
 #include <TF1.h>
-#include <TH2.h>
 
 #include <fstream>
 
@@ -46,10 +44,7 @@ class JSSWTopTaggerANN:  public JSSTaggerBase {
   double getScore(const xAOD::Jet& jet) const;
   
   // Get scale factor
-  double getWeight(const xAOD::Jet& jet) const;
-  
-  // Write the decoration to the jet
-  void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const; 
+  std::pair<double,double> getWeight(const xAOD::Jet& jet) const;
   
   // Update the jet substructure variables for each jet to use in ANN
   std::map<std::string, std::map<std::string,double>> getJetProperties(const xAOD::Jet& jet) const;
@@ -65,8 +60,6 @@ private:
     std::unique_ptr<lwt::LightweightGraph> m_lwnn;
     std::map<std::string, std::map<std::string,double>> m_ANN_inputValues;   // variables for ANN
 
-    std::string m_weightConfigPath;
-  
     // for internal usage
     mutable TAGCLASS m_TagClass;
 
@@ -83,28 +76,17 @@ private:
     TF1* m_funcMassCutHigh;
     TF1* m_funcScoreCut;
 
-    // histograms for scale factors
-    std::unique_ptr<TFile> m_weightConfig;
-    std::map<std::string, std::unique_ptr<TH2D>> m_weightHistograms;
- 
     // internal stuff to keep track of the output node for the NN
     std::vector<std::string> m_out_names;
        
     // truth labeling tool
     asg::AnaToolHandle<JetTruthLabelingTool> m_JetTruthLabelingTool; //!
 
-    // string for scale factors
-    std::string m_weightdecorationName;
-    std::string m_weightFileName;
-    std::string m_weightHistogramName;
-    std::string m_weightFlavors;
-
     // decorators
     SG::AuxElement::Decorator<float> m_dec_mcutL;
     SG::AuxElement::Decorator<float> m_dec_mcutH;
     SG::AuxElement::Decorator<float> m_dec_scoreCut;
     SG::AuxElement::Decorator<float> m_dec_scoreValue;
-    SG::AuxElement::Decorator<float> m_dec_weight;
 };
 
 #endif

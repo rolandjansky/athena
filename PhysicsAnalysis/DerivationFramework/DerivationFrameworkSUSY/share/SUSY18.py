@@ -287,6 +287,13 @@ SeqSUSY18 += CfgMgr.DerivationFramework__DerivationKernel(
 if DerivationFrameworkIsMonteCarlo:
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
+
+#==============================================================================                                                                                                                            # Jet building                                                                                                                                                                                             #==============================================================================                                                                                                                            #re-tag PFlow jets so they have b-tagging info.                                                                                                                                                            
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY18)
+
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                  
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY18, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY18, algname='JetForwardJvtToolBDTAlg')
 #==============================================================================
 # Augment after skim
 #==============================================================================
@@ -318,7 +325,12 @@ SUSY18SlimmingHelper.SmartCollections = ["Electrons",
                                          "InDetTrackParticles",
                                          "PrimaryVertices",
                                          "AntiKt4TruthJets",
-                                         "AntiKt4TruthWZJets"]
+                                         "AntiKt4TruthWZJets",
+                                         "AntiKt4EMPFlowJets",
+                                         "MET_Reference_AntiKt4EMPFlow",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "BTagging_AntiKt4EMPFlow_201903"
+]
 
 #all variables
 SUSY18SlimmingHelper.AllVariables = [ "LVL1JetRoIs", #for L1 jet ROI matching (tau trigs)

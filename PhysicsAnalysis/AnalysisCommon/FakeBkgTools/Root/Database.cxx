@@ -954,7 +954,7 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
     for(int y=1;y<ymax;++y)
     for(int z=1;z<zmax;++z)
     {
-        if (fabs ((float)eff->nominal - (float)hist->GetBinContent(x, y, z)) < 0.001 ){ syst_central_equal_nom_central = false;}
+        if (fabs ((float)eff->nominal - (float)hist->GetBinContent(x, y, z)) > 0.001 ){ syst_central_equal_nom_central = false;}
         if ( hist->GetBinError(x, y, z) != 0 ) { syst_errors_equal_zero = false;}
         float stat_up = 0;
         for(auto& kv : eff->uncertainties)
@@ -962,7 +962,7 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
            if(!isStatUID(kv.first)) continue;
            stat_up = kv.second.up; break;
         }
-        if ( fabs((float) hist->GetBinError(x, y, z) - (float) stat_up ) < 0.001) { syst_errors_equal_nom_errors = false;}
+        if ( fabs((float) hist->GetBinError(x, y, z) - (float) stat_up ) > 0.001) { syst_errors_equal_nom_errors = false;}
         ++eff;
     }
 

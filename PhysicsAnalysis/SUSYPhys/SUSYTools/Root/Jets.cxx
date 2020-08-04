@@ -41,6 +41,8 @@ namespace ST {
 
   const static SG::AuxElement::Decorator<float> dec_jvt("Jvt");
   const static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
+  const static SG::AuxElement::Decorator<float> dec_fjvt("fJvt");
+  const static SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
 
   const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
   const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
@@ -49,6 +51,9 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_bjet_loose("bjet_loose");
 
   const static SG::AuxElement::Decorator<double> dec_btag_weight("btag_weight");
+  const static SG::AuxElement::Decorator<double> dec_btag_dl1pb("btag_dl1pb"); // added for dl1 components
+  const static SG::AuxElement::Decorator<double> dec_btag_dl1pc("btag_dl1pc");
+  const static SG::AuxElement::Decorator<double> dec_btag_dl1pu("btag_dl1pu");
 
   const static SG::AuxElement::Decorator<float> dec_VRradius("VRradius");
   const static SG::AuxElement::ConstAccessor<float> acc_VRradius("VRradius");
@@ -116,7 +121,7 @@ namespace ST {
       jets = copy;
     }
     // Copy btagging links
-    if(!jetkey_tmp_btag.empty()){
+    if(m_useBtagging && !jetkey_tmp_btag.empty()){
       ATH_CHECK(BendBTaggingLinks(copy, jetkey_tmp_btag));
     }
     // Update the jets
@@ -131,8 +136,9 @@ namespace ST {
 
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fJvtEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
+        dec_fjvt(*jet) = acc_fjvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object
         if ( acc_baseline(*jet) ){
@@ -148,6 +154,8 @@ namespace ST {
       if (!isData())this->IsTruthBJet(*jet);
     }
     if (recordSG) {
+      std::string auxname = copyaux->name();
+      if (auxname.compare("UNKNOWN")==0) copyaux->setName(std::string("STCalib" + jetkey_tmp + m_currentSyst.name() + "AuxCopy").c_str());
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
       ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
     }
@@ -161,37 +169,35 @@ namespace ST {
       return StatusCode::FAILURE;
     }
 
+    // ! no specific btagging collection key is required for trackjets
+    // because the btagging info doesn't need to be linked from a different container
+    // 
     ATH_MSG_DEBUG("Default jetkey (trkjet):           " << m_defaultTrackJets);
     ATH_MSG_DEBUG("Function argument jetkey (trkjet): " << jetkey);
     ATH_MSG_DEBUG("Config Btag.TimeStamp (trkjet):    " << m_BtagTimeStamp_trkJet);
     ATH_MSG_DEBUG("Config Btag.KeyOverride (trkjet):  " << m_BtagKeyOverride);
 
     // load default regular & btag jet keys
-    std::string jetkey_tmp = m_defaultTrackJets;                                                  // use default for regular jetkey_tmp
-    std::string jetkey_tmp_btag = jetkey_tmp;                                                     // as well as btag jetkey_tmp_btag
-    if (!m_BtagTimeStamp_trkJet.empty()) jetkey_tmp_btag += "_BTagging"+m_BtagTimeStamp_trkJet;   // add default Btag.TimeStamp for jetkey_tmp_btag if given
+    std::string jetkey_tmp = m_defaultTrackJets;                                                  // use default for jetkey_tmp
+    if (!m_BtagTimeStamp_trkJet.empty()) jetkey_tmp += "_BTagging"+m_BtagTimeStamp_trkJet;        // add default Btag.TimeStamp for jetkey_tmp if given
 
     // override default if user is passing a jetkey
     if (!jetkey.empty()) {
       jetkey_tmp = jetkey;
-      jetkey_tmp_btag = "";
-      if (jetkey_tmp.find("_BTagging")!=std::string::npos) {
-        ATH_MSG_WARNING("Time-stamped container key " << jetkey_tmp << " is given. These containers only contain b-tagging information and cannot be used for calibration. " <<
-        "Will remove the time stamp and use the key to attach the b-tagging information to the actual container");
-        if (m_BtagTimeStamp_trkJet.empty()) jetkey_tmp_btag = jetkey_tmp;                              // copy time-stamped jetkey to jetkey_tmp_btag if no Btag.TimeStamp given
-        jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging"));                               // remove time stamp from regular jetkey_tmp
-        if (jetkey_tmp_btag.empty()) jetkey_tmp_btag = jetkey_tmp+"_BTagging"+m_BtagTimeStamp_trkJet;  // use default Btag.TimeStamp for jetkey_tmp_btag if given
+      if (jetkey_tmp.find("_BTagging")==std::string::npos && !m_BtagTimeStamp_trkJet.empty()) {
+        ATH_MSG_WARNING("Non time-stamped container key " << jetkey_tmp << " is given for trk jets, but central timestamp " << m_BtagTimeStamp_trkJet << " is defined." << 
+              "Will add the time stamp and use the key to collect container and b-tagging information.");
+        jetkey_tmp += "_BTagging"+m_BtagTimeStamp_trkJet;                               // timestamped jetkey_tmp
       }
     }
     // override if user has set a Btag.KeyOverride
     if (!m_BtagKeyOverride.empty()) {
-       jetkey_tmp_btag = m_BtagKeyOverride;
+       jetkey_tmp = m_BtagKeyOverride;
        ATH_MSG_DEBUG("B-tagging jetkey override active: " << m_BtagKeyOverride);
     }
 
     // final settings
-    ATH_MSG_DEBUG("Key for retrieving trkjet collection:             jetkey      = " << jetkey_tmp);
-    ATH_MSG_DEBUG("Key for retrieving trkjet collection (bjet info): jetkey_btag = " << jetkey_tmp_btag);
+    ATH_MSG_DEBUG("Key for retrieving trkjet collection (as well as bjet info):      jetkey      = " << jetkey_tmp);
 
     const xAOD::JetContainer* jets(0);
     if (copy==NULL) { // empty container provided
@@ -210,13 +216,8 @@ namespace ST {
         ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
       }
     } else { // use the user-supplied collection instead
-      ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
+      ATH_MSG_DEBUG("Not retrieving jet collection, using existing one provided by user");
       jets = copy;
-    }
-
-    // Copy btagging links
-    if(!jetkey_tmp_btag.empty()){
-      ATH_CHECK(BendBTaggingLinks(copy, jetkey_tmp_btag));
     }
 
     // Update the jets
@@ -281,7 +282,7 @@ namespace ST {
         ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
       }
     } else { // use the user-supplied collection instead
-      ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
+      ATH_MSG_DEBUG("Not retrieving jet collection, using existing one provided by user");
       jets=copy;
     }
 
@@ -306,6 +307,8 @@ namespace ST {
       else{
         dec_selected(*jet) = 0;
       }
+      // Truth Labeling (MC only)
+      m_jetTruthLabelingTool->modifyJet(*jet);
     }
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
@@ -358,7 +361,7 @@ namespace ST {
 
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fJvtEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object
@@ -460,8 +463,26 @@ namespace ST {
     }
 
     if ( (input.pt() > m_jetPt) || (input.pt() > 15e3) ) {
-      if(!isFat){
-        CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
+      if(!isFat && m_currentSyst.name().find("__2") == std::string::npos){
+	// Use the normal jet uncertainties tool for this systematic and do not use the PDSmeared initialised tool
+	CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
+	switch (result) {
+        case CP::CorrectionCode::Error:
+          ATH_MSG_ERROR( "Failed to apply JES correction" );
+          break;
+        case CP::CorrectionCode::OutOfValidityRange:
+          ATH_MSG_WARNING( "JES correction OutOfValidity range."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
+          break;
+        default:
+	  break;
+        }
+      }
+    }
+
+    if ( (input.pt() > m_jetPt) || (input.pt() > 15e3) ) {
+      if(!isFat && m_currentSyst.name().find("__2") != std::string::npos){
+	// Use the PDSmeared uncertainties tool on the systematic with PDsmear in the name
+	CP::CorrectionCode result = m_jetUncertaintiesPDSmearTool->applyCorrection(input);
         switch (result) {
         case CP::CorrectionCode::Error:
           ATH_MSG_ERROR( "Failed to apply JES correction" );
@@ -474,6 +495,7 @@ namespace ST {
         }
       }
     }
+
 
     ATH_MSG_VERBOSE(  "jet (pt,eta,phi) after JES correction " << input.pt() << " " << input.eta() << " " << input.phi() );
 
@@ -534,7 +556,7 @@ namespace ST {
       dec_signal(input) = acc_baseline(input);
     }
 
-    if (m_useBtagging) {
+    if (m_useBtagging_trkJet) {
       if (m_BtagWP_trkJet != "Continuous") this->IsTrackBJet(input);
       else this->IsTrackBJetContinuous(input);
     }
@@ -654,12 +676,7 @@ namespace ST {
     bool isbjet = m_btagSelTool->accept(input);
     dec_bjet(input) = isbjet;
 
-    double weight = 0.;
-    if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
-      ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
-    }
-    dec_btag_weight(input) = weight;
-    ATH_MSG_VERBOSE( "b-tag weight?: " << weight );
+    ATH_CHECK( SetBtagWeightDecorations(input, m_btagSelTool, m_BtagTagger) );
 
     return isbjet;
   }
@@ -669,12 +686,7 @@ namespace ST {
     bool isbjet = m_btagSelTool_trkJet->accept(input);
     dec_bjet(input) = isbjet;
 
-    double weight = 0.;
-    if ( m_btagSelTool_trkJet->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
-      ATH_MSG_ERROR ("btagSelTool_trkJet:: could not retrieve b-tag weight.");
-    }
-    dec_btag_weight(input) = weight;
-    ATH_MSG_VERBOSE( "b-tag weight (track jets)?: " << weight );
+    ATH_CHECK( SetBtagWeightDecorations(input, m_btagSelTool_trkJet, m_BtagTagger_trkJet) );
 
     return isbjet;
   }
@@ -694,6 +706,8 @@ namespace ST {
     int isbjet = m_btagSelTool->getQuantile(input);
     dec_bjet(input) = isbjet;
 
+    ATH_CHECK( SetBtagWeightDecorations(input, m_btagSelTool, m_BtagTagger) );
+
     return isbjet;
   }
 
@@ -701,6 +715,8 @@ namespace ST {
 
     int isbjet = m_btagSelTool_trkJet->getQuantile(input);
     dec_bjet(input) = isbjet;
+
+    ATH_CHECK( SetBtagWeightDecorations(input, m_btagSelTool_trkJet, m_BtagTagger_trkJet) );
 
     return isbjet;
   }
@@ -939,12 +955,12 @@ namespace ST {
     ConstDataVector<xAOD::JetContainer> fjvtjets(SG::VIEW_ELEMENTS);
     for (const xAOD::Jet* jet : *jets) {
       // Only jets that were good for every cut except JVT
-      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fwdjetEtaMin) {
+      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fJvtEtaMin) {
         fjvtjets.push_back(jet);
       }
     }
 
-    CP::CorrectionCode ret = m_jetFJvtEfficiencyTool->applyAllEfficiencyScaleFactor( fjvtjets.asDataVector() , totalSF );
+    CP::CorrectionCode ret = m_jetFwdJvtEfficiencyTool->applyAllEfficiencyScaleFactor( fjvtjets.asDataVector() , totalSF );
 
     switch (ret) {
     case CP::CorrectionCode::Error:
@@ -969,7 +985,7 @@ namespace ST {
     float totalSF = 1.;
 
     //Set the new systematic variation
-    CP::SystematicCode ret = m_jetFJvtEfficiencyTool->applySystematicVariation(systConfig);
+    CP::SystematicCode ret = m_jetFwdJvtEfficiencyTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
     }
@@ -978,7 +994,7 @@ namespace ST {
     totalSF = SUSYObjDef_xAOD::FJVT_SF( jets );
 
     if (m_applyJVTCut) {
-      ret = m_jetFJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
+      ret = m_jetFwdJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
       if ( ret != CP::SystematicCode::Ok) {
         ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
       }
@@ -1014,21 +1030,44 @@ namespace ST {
   }
 
   StatusCode SUSYObjDef_xAOD::BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const {
-        const xAOD::JetContainer* b_tag_jets = nullptr;
-        ATH_CHECK(evtStore()->retrieve(b_tag_jets,bTagKey));
-        if (b_tag_jets->size() != to_container->size()){
-            ATH_MSG_FATAL("Size of the original jet container and of the btagg container do not match");
-            return StatusCode::FAILURE;
-        }
-        xAOD::JetContainer::const_iterator btag_begin = b_tag_jets->begin();
-        xAOD::JetContainer::const_iterator btag_end   = b_tag_jets->end();
+    const xAOD::JetContainer* b_tag_jets = nullptr;
+    ATH_CHECK(evtStore()->retrieve(b_tag_jets,bTagKey));
+    if (b_tag_jets->size() != to_container->size()) {
+      ATH_MSG_FATAL("Size of the original jet container and of the btagg container do not match");
+      return StatusCode::FAILURE;
+    }
+    xAOD::JetContainer::const_iterator btag_begin = b_tag_jets->begin();
+    xAOD::JetContainer::const_iterator btag_end   = b_tag_jets->end();
 
-        xAOD::JetContainer::iterator to_begin = to_container->begin();
-        xAOD::JetContainer::iterator to_end   = to_container->end();
-        for (  ; to_begin != to_end && btag_begin != btag_end ; ++to_begin, ++btag_begin){
-             (*to_begin)->setBTaggingLink((*btag_begin)->btaggingLink());
-        }
-        return StatusCode::SUCCESS;
+    xAOD::JetContainer::iterator to_begin = to_container->begin();
+    xAOD::JetContainer::iterator to_end   = to_container->end();
+    for (  ; to_begin != to_end && btag_begin != btag_end ; ++to_begin, ++btag_begin) {
+      (*to_begin)->setBTaggingLink((*btag_begin)->btaggingLink());
+    }
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode SUSYObjDef_xAOD::SetBtagWeightDecorations(const xAOD::Jet& input, const asg::AnaToolHandle<IBTaggingSelectionTool>& btagSelTool, std::string btagTagger) const {
+    double weight = 0.;
+    if ( btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
+      ATH_MSG_ERROR( btagSelTool->name() << ": could not retrieve b-tag weight (" << btagTagger << ")." );
+    }
+    dec_btag_weight(input) = weight;
+    ATH_MSG_DEBUG( btagSelTool->name() << " b-tag weight: " << weight );
+
+    if ( btagSelTool->name().find("DL1")!=std::string::npos ) {
+       double dl1_pb(-10), dl1_pc(-10), dl1_pu(-10);
+       input.btagging()->pb(btagTagger, dl1_pb);
+       input.btagging()->pc(btagTagger, dl1_pc);
+       input.btagging()->pu(btagTagger, dl1_pu);
+       dec_btag_dl1pb(input) = dl1_pb;
+       dec_btag_dl1pc(input) = dl1_pc;
+       dec_btag_dl1pu(input) = dl1_pu;
+       ATH_MSG_DEBUG( btagSelTool->name() << " b-tag dl1-type pb: " << dl1_pb );
+       ATH_MSG_DEBUG( btagSelTool->name() << " b-tag dl1-type pc: " << dl1_pc );
+       ATH_MSG_DEBUG( btagSelTool->name() << " b-tag dl1-type pu: " << dl1_pu );
+    }
+    return StatusCode::SUCCESS;
   }
 
 }

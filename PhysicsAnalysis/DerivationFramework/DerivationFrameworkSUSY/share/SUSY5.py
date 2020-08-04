@@ -38,6 +38,10 @@ SeqSUSY5 = CfgMgr.AthSequencer("SeqSUSY5")
 DerivationFrameworkJob += SeqSUSY5
 applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY5)
 
+# make Pixel and SCT conditions available
+include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include ("InDetRecExample/SCTConditionsAccess.py")
+
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
@@ -201,6 +205,10 @@ SeqSUSY5 += CfgMgr.DerivationFramework__DerivationKernel(
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY5)
 
+## Adding decorations for fJVT PFlow jets
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY5, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY5, algname='JetForwardJvtToolBDTAlg')
+
 #==============================================================================
 OutputJets["SUSY5"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets" ]
@@ -240,6 +248,8 @@ addRecommendedXbbTaggers(SeqSUSY5, ToolSvc)
 # Prompt Lepton Tagger
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+
 
 # simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY5, "SUSY5")
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
@@ -247,6 +257,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
 # add decoration
 SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY5 += JetTagConfig.GetDecoratePromptTauAlgs()
+SeqSUSY5 += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
 # CONTENT LIST
@@ -302,6 +313,7 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discrim
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+SUSY5SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
 
 SUSY5SlimmingHelper.IncludeMuonTriggerContent   = True
 SUSY5SlimmingHelper.IncludeEGammaTriggerContent = True

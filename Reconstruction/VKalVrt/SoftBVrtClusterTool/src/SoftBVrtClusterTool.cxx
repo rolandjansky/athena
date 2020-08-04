@@ -111,7 +111,17 @@ namespace SoftBVrt {
       m_trackjetveto = false;
       m_jetveto = true;
     }
-        
+
+    if (m_operatingPoint == "MSVTight") {
+      m_seed_d0_significance = 0.9;
+      m_cluster_d0_significance = 0.9;
+      m_cluster_distance = 0.8;
+      m_cluster_dr = 0.8;
+      m_seed_pt = 2000.;
+      m_trackjetveto = false;
+      m_jetveto = false;
+    }
+    
     ATH_MSG_INFO ("SeedPt initialised to " << m_seed_pt );
     ATH_MSG_INFO ("SeedD0Significance initialised to " << m_seed_d0_significance );
     ATH_MSG_INFO ("ClusterDistance initialised to " << m_cluster_distance );

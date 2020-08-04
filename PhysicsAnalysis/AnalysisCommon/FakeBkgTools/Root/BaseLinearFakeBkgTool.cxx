@@ -16,6 +16,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 
 using namespace FakeBkgTools;
 using namespace CP;
@@ -116,6 +117,11 @@ StatusCode BaseLinearFakeBkgTool::incrementTotalYield()
         unsigned index = m_histogramYieldsRange.at(kv.first).first + kv.first->FindBin(*kv.second.first, *kv.second.second);
         m_yields.at(index).add(eventWeight, m_externalWeight);
     }
+    for(auto& kv : m_values_3dhisto_map)
+    {
+      unsigned index = m_histogramYieldsRange.at(kv.first).first + kv.first->FindBin(*std::get<0>(kv.second), *std::get<1>(kv.second), *std::get<2>(kv.second));
+        m_yields.at(index).add(eventWeight, m_externalWeight);
+    }
     return StatusCode::SUCCESS;
 }
 
@@ -133,6 +139,13 @@ StatusCode BaseLinearFakeBkgTool::register2DHistogram(TH2* h2, const float *xval
     return assignYieldRange(h2);
 }
 
+StatusCode BaseLinearFakeBkgTool::register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval)
+{
+  auto sc = BaseFakeBkgTool::register3DHistogram(h3, xval, yval, zval);
+    if(sc != StatusCode::SUCCESS) return sc;
+    return assignYieldRange(h3);
+}
+
 StatusCode BaseLinearFakeBkgTool::assignYieldRange(TH1* h)
 {
     const std::string histname = h->GetName();
@@ -148,6 +161,7 @@ StatusCode BaseLinearFakeBkgTool::assignYieldRange(TH1* h)
     range.first = m_yields.size();
     m_yields.insert(m_yields.end(), std::max(1, h->GetNcells()), FakeBkgTools::Yield{});
     range.second = m_yields.size() - 1;
+    m_histogramYieldsRange.emplace(h, range);
     return StatusCode::SUCCESS;
 }
 

@@ -58,7 +58,6 @@ PerfStats No
 ### Systematics configuration
 Systematics All
 JetUncertainties_NPModel CategoryReduction
-JetUncertainties_BunchSpacing 25ns
 LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration

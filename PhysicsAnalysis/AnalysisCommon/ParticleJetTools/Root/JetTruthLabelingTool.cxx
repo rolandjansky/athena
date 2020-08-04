@@ -63,9 +63,14 @@ void JetTruthLabelingTool::print() const {
 
   ATH_MSG_INFO("xAOD information:");
   ATH_MSG_INFO("TruthLabelName:               " << m_truthLabelName);
-  ATH_MSG_INFO("TruthParticleContainerName:   " << m_truthParticleContainerName);
-  ATH_MSG_INFO("TruthBosonContainerName:      " << m_truthBosonContainerName);
-  ATH_MSG_INFO("TruthTopQuarkContainerName:   " << m_truthTopQuarkContainerName);
+  ATH_MSG_INFO("UseTRUTH3:                    " << ( m_useTRUTH3 ? "True" : "False"));
+  if(m_useTRUTH3) {
+    ATH_MSG_INFO("TruthBosonContainerName:      " << m_truthBosonContainerName);
+    ATH_MSG_INFO("TruthTopQuarkContainerName:   " << m_truthTopQuarkContainerName);
+  }
+  else {
+    ATH_MSG_INFO("TruthParticleContainerName:   " << m_truthParticleContainerName);
+  }
   if(m_truthLabelName == "R10TruthLabel_R21Consolidated") {
     ATH_MSG_INFO("dRTruthJet:    " << std::to_string(m_dRTruthJet));
     ATH_MSG_INFO("dRTruthPart:   " << std::to_string(m_dRTruthPart));
@@ -248,11 +253,11 @@ int JetTruthLabelingTool::labelRecoJet(const xAOD::Jet& jet, const xAOD::JetCont
   if ( matchTruthJet ) {
     label = (*acc_label)(*matchTruthJet);
     if(m_truthLabelName == "R10TruthLabel_R21Consolidated") {
-      dR_truthJet_W = (*acc_dR_W)(*matchTruthJet);
-      dR_truthJet_Z = (*acc_dR_Z)(*matchTruthJet);
-      dR_truthJet_H = (*acc_dR_H)(*matchTruthJet);
-      dR_truthJet_Top = (*acc_dR_Top)(*matchTruthJet);
-      truthJetNB = (*acc_NB)(*matchTruthJet);
+      if(acc_dR_W->isAvailable(*matchTruthJet)) dR_truthJet_W = (*acc_dR_W)(*matchTruthJet);
+      if(acc_dR_Z->isAvailable(*matchTruthJet)) dR_truthJet_Z = (*acc_dR_Z)(*matchTruthJet);
+      if(acc_dR_H->isAvailable(*matchTruthJet)) dR_truthJet_H = (*acc_dR_H)(*matchTruthJet);
+      if(acc_dR_Top->isAvailable(*matchTruthJet)) dR_truthJet_Top = (*acc_dR_Top)(*matchTruthJet);
+      if(acc_NB->isAvailable(*matchTruthJet)) truthJetNB = (*acc_NB)(*matchTruthJet);
       truthJetMass = matchTruthJet->m();
     }
   }
@@ -324,13 +329,10 @@ StatusCode JetTruthLabelingTool::labelTruthJets(const xAOD::JetContainer &truthJ
   // Check if it is a Sherpa sample
   bool isSherpa = getIsSherpa(channelNumber);
 
-  // This is temporarily removed for validation purposes.  It will be added back in for the final MR
-  /*
   if(m_useTRUTH3 && isSherpa) {
     ATH_MSG_ERROR("Cannot apply truth labels to Sherpa 2.2.1 samples using TRUTH3 containers");
     return StatusCode::FAILURE;
   }
-  */
 
   int label = LargeRJetTruthLabel::enumToInt(LargeRJetTruthLabel::notruth);
   const xAOD::TruthParticleContainer* truthPartsBoson = nullptr;

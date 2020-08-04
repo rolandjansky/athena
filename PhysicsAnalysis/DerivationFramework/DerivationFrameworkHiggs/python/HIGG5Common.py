@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # commont content for Hbb DAODs
@@ -44,13 +43,18 @@ def getHIGG5Common() :
             ".Width"),
         ("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.constituentLinks"
             ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
-            ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
+        ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
             ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
             ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
             ".Width"),
         ("AntiKt10TrackCaloClusterJets"
          ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
+         "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
+         "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag",
+         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",
+         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag",
+
         # "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant.MV2cl100_discriminant",
         # "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
         getBTagEMTopoName()+".MV2cl100_discriminant"]
@@ -149,6 +153,8 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                "TauJets",
                                "MET_Reference_AntiKt4EMTopo",
                                "MET_Reference_AntiKt4EMPFlow",
+                               "AntiKt4EMTopoJets",
+                               "AntiKt4EMPFlowJets",
                                getJetEMTopoName()]
     if BTaggingFlags.Do2019Retraining:
         common_smart_collections+=["AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903"]
@@ -167,6 +173,8 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                #  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
+                               "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",
+                               "BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag",
                                "InDetTrackParticles",
                                "PrimaryVertices"]
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
@@ -231,8 +239,10 @@ def getTruth3Collections(kernel) :
     addBosonsAndDownstreamParticles(kernel,1)
     #STEP5 INCLUDE special top collection with 1 generation below (custom)
     addTopQuarkAndDownstreamParticles(kernel,1)
-     #STEP6 hard scatter information (only one generation, so really ME...)
-    addHardScatterCollection(kernel)
+     #STEP6 hard scatter information 
+     ### generation=1 (only one generation, so really ME...)
+     ### generation=2 add both two VBF/VBS quarks in final state
+    addHardScatterCollection(kernel, 2)
      #STEP7 add PV information (up to ~60 vertices per event)
     addPVCollection(kernel)
      #STEP8 add custom tau collection with 1 generation below (custom)
@@ -255,9 +265,10 @@ def getTruthThinningTool(tool_prefix, thinning_helper) :
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     # truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
     truth_cond_Top_Quark  = "((abs(TruthParticles.pdgId) == 6))"
-    # truth_cond_BC_Quark  = "((abs(TruthParticles.pdgId) ==  5))||((abs(TruthParticles.pdgId) ==  4))" # C quark and Bottom quark
-    # truth_cond_Hadrons = "((abs(TruthParticles.pdgId) >=  400)&&(abs(TruthParticles.pdgId)<600))||((abs(TruthParticles.pdgId) >=  4000)&&(abs(TruthParticles.pdgId)<6000))||((abs(TruthParticles.pdgId) >=  10400)&&(abs(TruthParticles.pdgId)<10600))||((abs(TruthParticles.pdgId) >=  20400)&&(abs(TruthParticles.pdgId)<20600))"
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Top_Quark+')'
+    truth_cond_BC_Quark  = "((abs(TruthParticles.pdgId) ==  5))||((abs(TruthParticles.pdgId) ==  4))" # C quark and Bottom quark
+    truth_cond_Hadrons = "((abs(TruthParticles.pdgId) >=  400)&&(abs(TruthParticles.pdgId)<600))||((abs(TruthParticles.pdgId) >=  4000)&&(abs(TruthParticles.pdgId)<6000))||((abs(TruthParticles.pdgId) >=  10400)&&(abs(TruthParticles.pdgId)<10600))||((abs(TruthParticles.pdgId) >=  20400)&&(abs(TruthParticles.pdgId)<20600))"
+    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Top_Quark+') || (('+ truth_cond_Hadrons+')&&(sqrt(TruthParticles.px*TruthParticles.px+TruthParticles.py*TruthParticles.py)>5000))'
+
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     MCThinningTool = DerivationFramework__GenericTruthThinning(

@@ -14,7 +14,8 @@ HIGG3D1ExtraVariables = [ "GSFTrackParticles.z0.vz",
                           "JetETMissChargedParticleFlowObjects.pt.eta.phi.m",
                           "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m",
                           "MuonClusterCollection.eta_sampl.phi_sampl",
-                          "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.NumTrkPt1000.NumTrkPt500"
+                          "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.NumTrkPt1000.NumTrkPt500",
+                          "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.NumTrkPt1000.NumTrkPt500"
                           ]
 
 HIGG3D1ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLink.bkgTruthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthParticleLink.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.firstEgMotherTruthParticleLink",

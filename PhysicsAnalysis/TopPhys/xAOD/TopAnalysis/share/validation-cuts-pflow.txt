@@ -31,6 +31,9 @@ PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_2
 #PRWActualMu_AF GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
 #PRWLumiCalcFiles GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
 
+#setup of TDP file, comment the following line to use the default one instead
+TDPPath dev/AnalysisTop/TopDataPreparation/CI-XSection-MC16-13TeV.data
+
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
@@ -75,13 +78,12 @@ PerfStats No
 ### Systematics configuration
 Systematics Nominal
 JetUncertainties_NPModel CategoryReduction
-JetUncertainties_BunchSpacing 25ns
 LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration
 ElectronID TightLH
 ElectronIDLoose LooseAndBLayerLH
-ElectronIsolation Gradient
+ElectronIsolation FCTight
 ElectronIsolationLoose None
 
 ### Photon configuration
@@ -95,14 +97,20 @@ PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium
+MuonUseMVALowPt False
+MuonUse2stationHighPt True
+MuonIsolation PflowTight_FixedRad
 MuonQualityLoose Medium
-MuonIsolation FCTight_FixedRad
+MuonUseMVALowPtLoose False
+MuonUse2stationHighPtLoose True
 MuonIsolationLoose None
+MuonDoExtraSmearingHighPt False
+MuonDoSmearing2stationHighPt True
 
 ### Tau configuration
 TauPt 25000
-TauJetIDWP Medium
-TauJetIDWPLoose Medium
+TauJetIDWP RNNMedium
+TauJetIDWPLoose RNNLoose
 TauEleBDTWP Loose
 TauEleBDTWPLoose Loose
 TauEleOLR False

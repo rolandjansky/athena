@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopGhostTrackCPTools.h"
@@ -41,6 +41,7 @@ namespace top {
       return StatusCode::SUCCESS;
     }
 
+    
     // This defines the run period (ranges) that are used by the
     // InDet::InDetTrackBiasingTool. The following inputs are possible:
     //     - No / empty input: Use the maximum range, that is [0;
@@ -65,10 +66,26 @@ namespace top {
     top::check(setupBiasingTools(), "Failed to setup track biasing tools");
     top::check(setupTruthFilterTool(), "Failed to setup truth filter tools");
     top::check(setupJetTrackFilterTool(), "Failed to setup track filter tools");
+    top::check(setupSelectionTool(), "Failed to setup track selection tools");
 
     return StatusCode::SUCCESS;
   }
 
+  StatusCode GhostTrackCPTools::setupSelectionTool() {
+   
+    if (asg::ToolStore::contains<InDet::InDetTrackSelectionTool>(m_TrkSelName)) {
+      m_trackseltool = asg::ToolStore::get<InDet::InDetTrackSelectionTool>(m_TrkSelName);
+    } else {
+      auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelName ,m_config->ghostTracksQuality());    
+      top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool for GA tracks");
+      m_trackseltool = selTool.release();
+      ATH_MSG_INFO("Creating selection tool " + m_TrkSelName);
+    }
+    
+    return StatusCode::SUCCESS;
+    
+  }
+  
   StatusCode GhostTrackCPTools::setupSmearingTool() {
     if (asg::ToolStore::contains<InDet::InDetTrackSmearingTool>(m_smearingToolName)) {
       m_smearingTool = asg::ToolStore::get<InDet::InDetTrackSmearingTool>(m_smearingToolName);

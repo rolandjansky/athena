@@ -15,6 +15,7 @@ if DerivationFrameworkIsMonteCarlo:
     addStandardTruthContents()
 
 
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -239,6 +240,8 @@ if DerivationFrameworkIsMonteCarlo:
   ToolSvc += CfgMgr.DerivationFramework__GenFilterTool("EXOT0GenFilt",SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
   AugmentationTools.append(ToolSvc.EXOT0GenFilt)
 
+#fJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqEXOT0, algname='JetForwardPFlowJvtToolAlg')
   
 #====================================================================
 # Add the containers to the output stream - slimming done here

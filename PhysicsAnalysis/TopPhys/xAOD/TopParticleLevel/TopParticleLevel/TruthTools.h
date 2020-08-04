@@ -17,42 +17,43 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "TopEvent/EventTools.h"
+#include "TopDataPreparation/SampleXsection.h"
 
 namespace top {
   namespace truth {
-    
-    //function to decorate a muon with information on its history. doPartonHistory->to store additional history up to the parton-level (note this is designed mostly for top events)
-    //the following decorations will be added to the muon
+    //Functions to decorate a muon with information on its truth-origin. Particle-level origin added on softmuons if config options SoftMuonAdditionalTruthInfo is True.
+    //Its output should be regarded as experimental and thoroughly tested by analyzers before officially including it in the analysis.
+    //It is strongly suggested to check its output against the true_origin (calculated by the MCTruthClassifier) to ensure behaviour is as expected.
+    //Parton-level added if SoftMuonAdditionalTruthInfo is True and SoftMuonAdditionalTruthInfoCheckPartonOrigin is True.
+    //Parton-level currently only usable on pythia8 and herwig7, will be automatically disabled for other PS generators.
+    //Some decorations are already written in the default output ntuple, check EventSaverFlatNtuple.cxx
+    //Some other are available for usage in custom savers:
     //<const xAOD::TruthParticle*>("truthMuonLink") -> link to the truth muon associated with reco (can be null if not found)
-    //<top::LepExtOriginFlag>("originExtFlag") -> flag defined in TopEvent/EventTools.h
-    //<const xAOD::TruthParticle*>("truthMotherLink") -> direct mother of the muon (can be null if not found)
-    //<const xAOD::TruthParticle*>("truthBMotherLink") -> first bottom hadron encountered when going through ancestors (can be null if not found)
-    //<const xAOD::TruthParticle*>("truthCMotherLink") -> first charmed hadron encountered when going through ancestors (can be null if not found)
-    //auxdecor<const xAOD::TruthParticle*>("truthDirectBosonMotherLink") -> this will hold leptonic bosons e.g. W->mu or W->tau->mu decays, BUT NOT W->hadrons->mu decays! (can be null if not found)
-    //if doPartonHistory is set to true, the following additional decorations  will be added:
-    //<const xAOD::TruthParticle*>("truthPartonMotherLink") -> first parton encountered when going trhough ancestors; in case of muons coming from W/Z/h/gamma*->mu or W/Z/h/gamma*->tau->mu, this pointer will be actually to the boson (can be null if not found)
-    //<const xAOD::TruthParticle*>("truthTopMotherLink") -> link to the top that originated the particles from which the muon is coming (can be null if not found; note that in case of light hadrons decays to muons, this will not be filled)
-    //<top::FromTopOrigin>("fromTopOrigin") -> flag defined in TopEvent/EventTools.h
-    void getTruthMuonHistory(const xAOD::TruthParticle* truth_muon, bool doPartonHistory, bool verbose=false);
+    //<top::LepParticleOriginFlag>("LepParticleOriginFlag") -> flag defined in TopEvent/EventTools.h
+    //<top::LepPartonOriginFlag>("LepPartonOriginFlag") -> flag defined in TopEvent/EventTools.h
+    //Then several <const xAOD::TruthParticle*>(...) decorations are also added (pointers are 0 when corresponding particle is not available):
+    //truthMotherLink -> first direct mother of the truth muon
+    //truthFirstNonLeptonMotherLink -> self-explanatory, will be different from truthMotherLink if the muon is from a Tau
+    //truthBMotherLink -> first B-hadron encountered when going back through the chain of ancestors
+    //truthCMotherLink -> first C-hadron encountered when going back through the chain of ancestors
+    //The following are added when using the parton-level flag
+    //truthPartonMotherLink -> link to first b/c quark encountered when going back through the chain of ancestors for muons from Heavy Flavour hadrons decays
+    //truthTopMotherLink, truthWMotherLink, truthZMotherLink, truthPhotonMotherLink, truthHiggsMotherLink, truthBSMMotherLink -> link to first Top/W/Z/gamma*/Higgs/BSM-particle encountered when going back through the chain of ancestors
+
+    void getTruthMuonHistory(const xAOD::TruthParticle* truth_muon, bool doPartonHistory, SampleXsection::showering shAlgo, bool verbose=false);
+    void getTruthMuonPartonHistory(const xAOD::TruthParticle* truthmu, top::LepParticleOriginFlag lepParticleOriginFlag, const xAOD::TruthParticle* truthmu_Bmother, const xAOD::TruthParticle* truthmu_Cmother,  const xAOD::TruthParticle* truthmu_firstNonLeptonMother, SampleXsection::showering shAlgo, bool verbose=false);
     //helper methods
-    top::LepPartonOriginFlag getTruthMuonPartonHistory(const xAOD::TruthParticle* truthmu, top::LepParticleOriginFlag lepParticleOriginFlag, const xAOD::TruthParticle* truthmu_mother, const xAOD::TruthParticle* truthmu_Bmother, const xAOD::TruthParticle* truthmu_Cmother,  const xAOD::TruthParticle* truthmu_DirectBosonMother, bool verbose=false);
-    top::LepParticleOriginFlag getTruthMuonFromTauHistory(const xAOD::TruthParticle* tauMother, const xAOD::TruthParticle* &truthmu_Bmother, const xAOD::TruthParticle* &truthmu_Cmother, const xAOD::TruthParticle* &truthmu_DirectBosonMother, bool verbose=false);
+    top::LepParticleOriginFlag getTruthMuonFromTauHistory(const xAOD::TruthParticle* tauMother, const xAOD::TruthParticle* &truthmu_Bmother, const xAOD::TruthParticle* &truthmu_Cmother, const xAOD::TruthParticle* &truthmu_firstNonLeptonMother, bool verbose=false);
     top::LepParticleOriginFlag getTruthMuonFromCharmHistory(const xAOD::TruthParticle* &truthmu_Bmother, const xAOD::TruthParticle* truthmu_Cmother, bool verbose=false);
+    
     //function that gets the truth muon associated from a reco muon, runs getTruthMuonHistory on it, and then takes care of propagating the decorations
-    void getRecoMuonHistory(const xAOD::Muon* muon, bool doPartonHistory, bool verbose=false);
-    //go back throurg ancestors, return the first one encountered which has a pdgId different from truthParticle
-    const xAOD::TruthParticle* getFirstDifferentParent(const xAOD::TruthParticle* truthParticle, bool verbose=false);
-    //go back through ancestors, return the first one encountered which has a pdgId different from truthParticle, exclude hadrons
-    //-1->exclude all hadrons, 4->exclude charm-hadrons, 5->exclude bottom-hadrons, 45->exclude bottom and charm hadrons
-    const xAOD::TruthParticle* getFirstDifferentParentExcludingHadrons(const xAOD::TruthParticle* truthParticle, int whichHadrons=-1, bool verbose=false);     
-    //go back through ancestors, return the first parton encountered 
-    const xAOD::TruthParticle* getFirstPartonParent(const xAOD::TruthParticle* truthParticle, bool verbose=false);
-    //go back through ancestors, return the first one with pdgId encountered; absolute to determine if the comparison is cone on abs(pdgId) or on (pdgId)
-    const xAOD::TruthParticle* getFirstSpecificParent(const xAOD::TruthParticle* truthParticle, int pdgId, bool absolute, bool verbose=false);
-    //go back through ancestors, return the first one with one of the pdgIds encountered; absolute to determine if the comparison is cone on abs(pdgId) or on (pdgId)
-    const xAOD::TruthParticle* getFirstParentAmongList(const xAOD::TruthParticle* truthParticle, std::vector<int> &pdgIds, bool absolute, bool verbose=false);
-    //go back throurg ancestors, return the first one encountered which is not a lepton
-    const xAOD::TruthParticle* getFirstNonLeptonParent(const xAOD::TruthParticle* truthParticle, bool verbose=false);
+    void getRecoMuonHistory(const xAOD::Muon* muon, bool doPartonHistory, SampleXsection::showering shAlgo, bool verbose=false);
+    
+    //helper methods
+    const xAOD::TruthParticle* getInitialStateParticle(const xAOD::TruthParticle* truthParticle, bool verbose=false);
+    const xAOD::TruthParticle* getFirstHFHadronOfSameFlavour(const xAOD::TruthParticle* truthParticle, bool verbose=false);
+    const xAOD::TruthParticle* getTruthMuonAssociatedToRecoMuon(const xAOD::Muon* muon);
+    
     /*!
      * @brief Prints the decay chain leading up to a certain particle to a
      *  std::ostream.

@@ -75,7 +75,7 @@ namespace VKalVrtAthena {
           
           // filling the parameters to the corresponding container
           ip_wrtSV.at( k_ip_d0 )    .emplace_back( impactParameters.at(k_d0) );
-          ip_wrtSV.at( k_ip_z0 )    .emplace_back( impactParameters.at(k_d0) );
+          ip_wrtSV.at( k_ip_z0 )    .emplace_back( impactParameters.at(k_z0) );
           ip_wrtSV.at( k_ip_pt )    .emplace_back( pt );
           ip_wrtSV.at( k_ip_eta )   .emplace_back( eta );
           ip_wrtSV.at( k_ip_phi )   .emplace_back( phi );

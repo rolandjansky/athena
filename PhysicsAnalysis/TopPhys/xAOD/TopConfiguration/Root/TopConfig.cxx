@@ -39,7 +39,7 @@ namespace top {
     m_useRCJets(false),
     m_useVarRCJets(false),
     m_useJetGhostTrack(false),
-
+    m_useTracks(false),
     m_useTruthParticles(false),
     m_useTruthElectrons(false),
     m_useTruthMuons(false),
@@ -64,6 +64,7 @@ namespace top {
 
     m_DSID(-1),
     m_MapIndex(0),
+    m_showeringAlgo(SampleXsection::unknown),
     // Is MC
     m_isMC(false),
     // Is AFII
@@ -114,9 +115,11 @@ namespace top {
     m_nominalWeightName("SetMe"),
     m_nominalWeightIndex(-1),
     m_MCweightsSize(-1),
+    m_forceWeightIndex(false),
     // Top Parton History
     m_doTopPartonHistory(false),
     m_isTopPartonHistoryRegisteredInNtuple(false),
+    m_doTopPartonLevel(true),
 
     m_doTopParticleLevel(false),
     m_doParticleLevelOverlapRemovalMuJet(true),
@@ -154,7 +157,6 @@ namespace top {
     m_sgKeyTrackJetsType("SetMe"),
     m_sgKeyMissingEt("MET"),
     m_sgKeyMissingEtLoose("LooseMET"),
-    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
 
     m_sgKeyTruthEvent("TruthEvents"),
     m_sgKeyMCParticle("SetMe"),
@@ -171,6 +173,11 @@ namespace top {
     m_sgKeyTopSystematicEventsLoose("TopSystematicEventsLoose"),
     m_passEventSelectionDecoration("passEventSelection"),
     m_decoKeyJetGhostTrack("GhostTrack"),
+    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
+    m_sgKeyTracks("SetMe"),
+
+
+    m_jetResponseMatchingDeltaR(-1),
 
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     m_dumpBtagSystsInSystTrees(false),
@@ -195,6 +202,7 @@ namespace top {
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
     m_useEgammaLeakageCorrection(true),
+    m_enablePromptLeptonImprovedVetoStudies(false),
 
     // Fwd electron configuration
     m_fwdElectronPtcut(25000.),
@@ -209,17 +217,25 @@ namespace top {
     m_muonPtcut(25000.),
     m_muonEtacut(2.5),
     m_muonQuality("SetMe"),
+    m_muonUseMVALowPt(false),
+    m_muonUse2stationMuonsHighPt(true),
     m_muonQualityLoose("SetMe"),
+    m_muonUseMVALowPtLoose(false),
+    m_muonUse2stationMuonsHighPtLoose(true),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    m_muonMuonDoSmearing2stationHighPt(true),
+    m_muonMuonDoExtraSmearingHighPt(false),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
     m_softmuonEtacut(2.5),
     m_softmuonQuality("SetMe"),
+    m_softmuonUseMVALowPt(false),
     m_softmuonDRJetcut(0.4),
+    m_softmuonDRJetcutUseRapidity(false),
     m_softmuonAdditionalTruthInfo(false),
     m_softmuonAdditionalTruthInfoCheckPartonOrigin(false),
     m_softmuonAdditionalTruthInfoDoVerbose(false),
@@ -227,9 +243,8 @@ namespace top {
     // Jet configuration
     m_jetPtcut(25000.),
     m_jetEtacut(2.5),
-    m_fwdJetAndMET("Default"),
-    m_jetPtGhostTracks(19000.),
-    m_jetUncertainties_BunchSpacing("25ns"),
+    m_jetPtGhostTracks(30000.),
+    m_jetEtaGhostTracks(2.5),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
     m_jetUncertainties_QGHistPatterns(),
@@ -240,14 +255,46 @@ namespace top {
     m_doJVTInMETCalculation(true),
     m_saveFailJVTJets(false),
     m_JVTWP("Default"),
+    m_doForwardJVTInMETCalculation(false),
+    m_saveFailForwardJVTJets(false),
+    m_fJVTWP("None"),
+
+    // MET configuration
+    m_METUncertaintiesConfigDir("SetMe"),
+    
+    // Ghost Track Configuration
+    m_ghostTrackspT(500.),
+    m_ghostTracksVertexAssociation("nominal"),
+    m_ghostTracksQuality("TightPrimary"),
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
     m_largeRJetUncertainties_NPModel("CategoryReduction"),
+    m_largeRJetUncertaintiesConfigDir("SetMe"),
     m_largeRJESJMSConfig("SetMe"),
 
     m_trackJetPtcut(7000.0),
     m_trackJetEtacut(2.5),
+    
+    m_RCJetPtcut(100000.),
+    m_RCJetEtacut(2.0),
+    m_RCInputJetPtMin(0.),
+    m_RCInputJetEtaMax(999.),
+    m_RCJetTrimcut(0.05),
+    m_RCJetRadius(1.0),
+    m_useRCJetSubstructure(false),
+    m_useRCJetAdditionalSubstructure(false),
+
+    m_VarRCJetPtcut(100000.),
+    m_VarRCJetEtacut(2.0),
+    m_VarRCJetTrimcut(0.05),
+    m_VarRCJetMaxRadius(1.0),
+    m_VarRCJetRho("2"),
+    m_VarRCJetMassScale("m_w,m_z,m_h,m_t"),
+    m_useVarRCJetSubstructure(false),
+    m_useVarRCJetAdditionalSubstructure(false),
+
+    m_trackQuality("SetMe"),
 
     m_JSF(1.0),
     m_bJSF(1.0),
@@ -320,6 +367,7 @@ namespace top {
     m_systHashJets(nullptr),
     m_systHashLargeRJets(nullptr),
     m_systHashTrackJets(nullptr),
+    m_systHashTracks(nullptr),
     m_systHashMET(nullptr),
 
     m_systHashAll(nullptr),
@@ -337,6 +385,7 @@ namespace top {
     m_systMapJets(nullptr),
     m_systMapLargeRJets(nullptr),
     m_systMapTrackJets(nullptr),
+    m_systMapTracks(nullptr),
     m_systMapMET(nullptr),
 
     m_systSgKeyMapPhotons(nullptr),
@@ -350,6 +399,7 @@ namespace top {
     m_systSgKeyMapJetsLoose_electronInJetSubtraction(nullptr),
     m_systSgKeyMapLargeRJets(nullptr),
     m_systSgKeyMapTrackJets(nullptr),
+    m_systSgKeyMapTracks(nullptr),
     m_systSgKeyMapMET(nullptr),
 
     m_systAllSgKeyMapPhotons(nullptr),
@@ -361,6 +411,7 @@ namespace top {
     m_systAllSgKeyMapJets(nullptr),
     m_systAllSgKeyMapLargeRJets(nullptr),
     m_systAllSgKeyMapTrackJets(nullptr),
+    m_systAllSgKeyMapTracks(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtraction(nullptr),
     m_systAllSgKeyMapJets_electronInJetSubtraction(nullptr),
     m_systAllSgKeyMapJetsLoose_electronInJetSubtraction(nullptr),
@@ -383,6 +434,8 @@ namespace top {
     m_systAllSgKeyMapLargeRJetsTDSAux(nullptr),
     m_systAllSgKeyMapTrackJetsTDS(nullptr),
     m_systAllSgKeyMapTrackJetsTDSAux(nullptr),
+    m_systAllSgKeyMapTracksTDS(nullptr),
+    m_systAllSgKeyMapTracksTDSAux(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDSAux(nullptr),
     m_systAllSgKeyMapJets_electronInJetSubtractionTDS(nullptr),
@@ -412,7 +465,8 @@ namespace top {
     m_useBadBatmanCleaning(true),
     m_badBatmanCleaningMin(276262),
     m_badBatmanCleaningMax(311481),
-    m_useEventLevelJetCleaningTool(false) {
+    m_useEventLevelJetCleaningTool(false),
+    m_year("UNKNOWN") {
     m_allSelectionNames = std::shared_ptr<std::vector<std::string> > (new std::vector<std::string> );
 
     m_systHashPhotons = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
@@ -424,6 +478,7 @@ namespace top {
     m_systHashJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashLargeRJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashTrackJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
+    m_systHashTracks = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashMET = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
 
     m_systHashAll = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
@@ -458,6 +513,12 @@ namespace top {
     m_systMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
                                                                                                    CP::SystematicSet> );
+     m_systMapTracks =
+       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
+									     CP::SystematicSet> );
+     
+
+
     m_systMapMET =
       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
                                                                                                    CP::SystematicSet> );
@@ -493,6 +554,12 @@ namespace top {
     m_systSgKeyMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
+
+    m_systSgKeyMapTracks =
+      std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
+								                             std::string> );
+
+    
     m_systSgKeyMapMET =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
@@ -522,6 +589,9 @@ namespace top {
     m_systAllSgKeyMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
+    m_systAllSgKeyMapTracks =
+      std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
+								                             std::string> );
 
     m_systAllSgKeyMapElectrons_electronInJetSubtraction
       = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
@@ -572,6 +642,11 @@ namespace top {
       new std::unordered_map<std::size_t, std::string> );
     m_systAllSgKeyMapTrackJetsTDSAux = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
       new std::unordered_map<std::size_t, std::string> );
+    m_systAllSgKeyMapTracksTDS = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
+      new std::unordered_map<std::size_t, std::string> );
+    m_systAllSgKeyMapTracksTDSAux = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
+      new std::unordered_map<std::size_t, std::string> );
+
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
@@ -613,6 +688,7 @@ namespace top {
       new std::unordered_map<std::size_t, CP::SystematicSet> );
     m_systDecoKeyMapJetGhostTrack = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
       new std::unordered_map<std::size_t, std::string> );
+
 
     m_systAllTTreeNames =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
@@ -664,6 +740,7 @@ namespace top {
     this->sgKeyJets(settings->value("JetCollectionName"));
     this->sgKeyLargeRJets(settings->value("LargeJetCollectionName"));
     this->sgKeyTrackJets(settings->value("TrackJetCollectionName"));
+    this->sgKeyTracks(settings->value("TrackCollectionName"));
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
 
@@ -703,13 +780,20 @@ namespace top {
               }
             }
           }
+	  // check derivation version due to fJVT info needed at derivation level for PFlow
+	  if (this->useParticleFlowJets() && (settings->retrieve("ForwardJVTinMETCalculation") || settings->value("ForwardJVTWP") != "None")){ //fJVT requested for PFlow
+	    if (deriv_rel_name < "21.2.97.0") { 
+	      throw std::runtime_error(
+			"TopConfig: You are using derivation with release 21.2.96.0 or older and requested fJVT for particle-flow jets. The necessary information for PFlow fjvt is only present from release 21.2.97.0 and newer, you will need to switch to newer derivations or turn off fJVT (ForwardJVTWP = \"None\" && ForwardJVTinMETCalculation = \"False\")");
+	    }
+	  }
         } else {
-          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
+          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging, or that a new enough derivation is used for PFlow fJVT. You are on your own.");
         }
         // try to parse the derivation release, we need the release number
       } catch (std::logic_error& e) {
         ATH_MSG_WARNING(e.what());
-        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
+        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging, or that a new enough derivation is used for PFlow fJVT. You are on your own.");
       }
     }
 
@@ -791,13 +875,21 @@ namespace top {
         throw;
       }
 
-      // Save the Top Parton History
-      if (this->useTruthParticles() && settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
+      settings->retrieve("ForceNominalWeightFallbackIndex", m_forceWeightIndex);
 
+      // Save the Top Parton History
+      if (settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
+      
+      // Perform parton-level selection and save particle level objects
+      bool topPartonLevel=true;
+      settings->retrieve("TopPartonLevel",topPartonLevel);
+      this->setTopPartonLevel(topPartonLevel);
+      
       // Perform particle-level selection and save particle level objects
-      if (settings->value("TopParticleLevel") == "True") {
-        this->setTopParticleLevel();
-      }
+      bool topParticleLevel=true;
+      settings->retrieve("TopParticleLevel",topParticleLevel);
+      this->setTopParticleLevel(topParticleLevel);
+
       // Particle-level OR
       if (settings->value("DoParticleLevelOverlapRemoval") == "True") {
         // Value True -> Do all ORs
@@ -868,9 +960,31 @@ namespace top {
       tokenize(settings->value("FilterBranches"), branches, ",");
 
       if (branches.size() == 0) {
-        ATH_MSG_WARNING("You provided \"Filterbranches\" option but you did not provide any meaningful values. Ignoring");
+        ATH_MSG_WARNING("You provided \"FilterBranches\" option but you did not provide any meaningful values. Ignoring");
       }
       this->setFilterBranches(branches);
+    }
+    
+    // Get list of PartonLevel branches to be filtered
+    if (settings->value("FilterPartonLevelBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterPartonLevelBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterPartonLevelBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterPartonLevelBranches(branches);
+    }
+    
+    // Get list of ParticleLevel branches to be filtered
+    if (settings->value("FilterParticleLevelBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterParticleLevelBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterParticleLevelBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterParticleLevelBranches(branches);
     }
 
     // Force recomputation of CP variables?
@@ -1017,6 +1131,7 @@ namespace top {
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
     this->useEgammaLeakageCorrection(settings->value("UseEgammaLeakageCorrection"));
     this->electronPtcut(std::stof(settings->value("ElectronPt")));
+    this->enablePromptLeptonImprovedVetoStudies(settings->value("EnablePromptLeptonImprovedVetoStudies"));
 
 
 
@@ -1084,7 +1199,6 @@ namespace top {
     this->photonIdentificationLoose(settings->value("PhotonIDLoose"));
     this->photonIsolation(settings->value("PhotonIsolation"));
     this->photonIsolationLoose(settings->value("PhotonIsolationLoose"));
-    if (settings->value("PhotonUseRadiativeZ") == "True") this->m_photon_configuration.useRadiativeZ = true;
 
     // Muon configuration
     this->muonPtcut(std::stof(settings->value("MuonPt")));
@@ -1097,12 +1211,49 @@ namespace top {
       this->muonIsolation(cut_wp);
       this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
     }
+    bool muonUse2stationHighPt = true;
+    settings->retrieve("MuonUse2stationHighPt", muonUse2stationHighPt);
+    if (settings->value("MuonQuality") != "HighPt") muonUse2stationHighPt = false;
+    this->muonUse2stationMuonsHighPt(muonUse2stationHighPt);
+    bool muonUseMVALowPt = false;
+    settings->retrieve("MuonUseMVALowPt", muonUseMVALowPt);
+    if (settings->value("MuonQuality") != "LowPt" && muonUseMVALowPt) {
+      ATH_MSG_WARNING("Could not set MuonUseMVALowPt True without using the LowPt muon WP. MuonUseMVALowPt is now setted to the default value (False)");
+      muonUseMVALowPt = false;
+    }
+    this->muonUseMVALowPt(muonUseMVALowPt);
+    bool muonUse2stationHighPtLoose = true;
+    settings->retrieve("MuonUse2stationHighPtLoose", muonUse2stationHighPtLoose);
+    if (settings->value("MuonQualityLoose") != "HighPt") muonUse2stationHighPtLoose = false;
+    this->muonUse2stationMuonsHighPtLoose(muonUse2stationHighPtLoose);
+    bool muonUseMVALowPtLoose = false;
+    settings->retrieve("MuonUseMVALowPtLoose", muonUseMVALowPtLoose);
+    if (settings->value("MuonQualityLoose") != "LowPt" && muonUseMVALowPtLoose) {
+      ATH_MSG_WARNING("Could not set MuonUseMVALowPtLoose True without using the LowPt muon WP. MuonUseMVALowPtLoose is now setted to the default value (False)");
+      muonUseMVALowPtLoose = false;
+    }
+    this->muonUseMVALowPtLoose(muonUseMVALowPtLoose);
     {
       std::string const& cut_wp = settings->value("MuonIsolationLoose");
       std::string const& sf_wp = settings->value("MuonIsolationSFLoose");
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
+    bool muonDoSmearing2stationHighPt = false;
+    settings->retrieve("MuonDoSmearing2stationHighPt", muonDoSmearing2stationHighPt);
+    if (settings->value("MuonQuality") != "HighPt" ) muonDoSmearing2stationHighPt = false;
+    else if ( !muonUse2stationHighPt && muonDoSmearing2stationHighPt ) {
+      ATH_MSG_WARNING("Could not set MuonDoSmearing2stationHighPt True without MuonUse2stationHighPt. MuonDoSmearing2stationHighPt is now setted to False");
+      muonDoSmearing2stationHighPt = false;
+    }
+    this->muonMuonDoSmearing2stationHighPt(muonDoSmearing2stationHighPt);
+    bool muonDoExtraSmearingHighPt = false;
+    settings->retrieve("MuonDoExtraSmearingHighPt", muonDoExtraSmearingHighPt);
+    if ( settings->value("MuonQuality") != "HighPt" && muonDoExtraSmearingHighPt ) {
+      ATH_MSG_WARNING("Could not set MuonDoExtraSmearingHighPt True without using the HighPt muon WP. MuonDoExtraSmearingHighPt is now setted to the default value (False)");
+      muonDoExtraSmearingHighPt = false;
+    }
+    this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
@@ -1110,13 +1261,18 @@ namespace top {
     this->softmuonPtcut(readFloatOption(settings, "SoftMuonPt"));
     this->softmuonEtacut(readFloatOption(settings, "SoftMuonEta"));
     this->softmuonQuality(settings->value("SoftMuonQuality"));
+    bool softmuonUseMVALowPtSoftMuon = false;
+    settings->retrieve("SoftMuonUseMVALowPt", softmuonUseMVALowPtSoftMuon);
+    if (settings->value("SoftMuonQuality") != "LowPt" && softmuonUseMVALowPtSoftMuon) {
+      ATH_MSG_WARNING("Could not set SoftMuonUseMVALowPt True without using the LowPt softmuon WP. SoftMuonUseMVALowPt is now setted to the default value (False)");
+      softmuonUseMVALowPtSoftMuon = false;
+    }
+    this->softmuonUseMVALowPt(softmuonUseMVALowPtSoftMuon);
     this->softmuonDRJetcut(readFloatOption(settings, "SoftMuonDRJet"));
-    if (settings->value("SoftMuonAdditionalTruthInfo") == "True") this->softmuonAdditionalTruthInfo(true);
-    else this->softmuonAdditionalTruthInfo(false);
-    if (settings->value("SoftMuonAdditionalTruthInfoCheckPartonOrigin") == "True") this->softmuonAdditionalTruthInfoCheckPartonOrigin(true);
-    else this->softmuonAdditionalTruthInfoCheckPartonOrigin(false);
-    if (settings->value("SoftMuonAdditionalTruthInfoDoVerbose") == "True") this->softmuonAdditionalTruthInfoDoVerbose(true);
-    else this->softmuonAdditionalTruthInfoDoVerbose(false);
+    this->softmuonDRJetcutUseRapidity(settings->retrieve("SoftMuonDRJetUseRapidity"));
+    this->softmuonAdditionalTruthInfo(settings->retrieve("SoftMuonAdditionalTruthInfo"));
+    this->softmuonAdditionalTruthInfoCheckPartonOrigin(settings->retrieve("SoftMuonAdditionalTruthInfoCheckPartonOrigin"));
+    this->softmuonAdditionalTruthInfoDoVerbose(settings->retrieve("SoftMuonAdditionalTruthInfoDoVerbose") );
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));
@@ -1137,30 +1293,50 @@ namespace top {
     // Jet configuration
     this->jetPtcut(std::stof(settings->value("JetPt")));
     this->jetEtacut(std::stof(settings->value("JetEta")));
-    this->fwdJetAndMET(settings->value("FwdJetAndMET"));
-    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
-    this->jetUncertainties_BunchSpacing(settings->value("JetUncertainties_BunchSpacing"));
+    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")),std::stof(settings->value("JetPt")));
+    if ( m_jetPtcut <= std::stof(settings->value("JetPtGhostTracks"))+5000){  
+        ATH_MSG_WARNING("jetPtGhostTracks set to " << m_jetPtGhostTracks <<" to ensure that all the selected jets have the ghost tracks associated");
+    }
+    this->jetEtaGhostTracks(std::stof(settings->value("JetEtaGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
     this->jetJERSmearingModel(settings->value("JetJERSmearingModel"));
     this->jetCalibSequence(settings->value("JetCalibSequence"));
-    this->doJVTinMET((settings->value("JVTinMETCalculation") == "True" ? true : false));
-    this->saveFailJVTJets((settings->value("SaveFailJVTJets") == "True" ? true : false));
+    this->doJVTinMET(settings->retrieve("JVTinMETCalculation"));
+    this->saveFailJVTJets(settings->retrieve("SaveFailJVTJets"));
     this->setJVTWP(settings->value("JVTWP"));
-    this->m_largeRSmallRCorrelations = settings->value("LargeRSmallRCorrelations") == "True" ? true : false;
+    this->doForwardJVTinMET(settings->retrieve("ForwardJVTinMETCalculation"));
+    this->saveFailForwardJVTJets(settings->retrieve("SaveFailForwardJVTJets"));
+    this->setfJVTWP(settings->value("ForwardJVTWP"));
+    if (settings->value("ForwardJVTWP") == "Medium" && settings->retrieve("ForwardJVTinMETCalculation")){
+      ATH_MSG_WARNING("TopConfig::setConfigSettings: fJVT WP set to Medium and fJVT in MET requested, MET working point will be changed to Tenacious to maintain compatibility with fJVT!!!");
+    }
+
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
+    this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));
 
     this->trackJetPtcut(std::stof(settings->value("TrackJetPt")));
     this->trackJetEtacut(std::stof(settings->value("TrackJetEta")));
+    
+    //Ghost track associated to jets quality
+    this->ghostTrackspT(std::stof(settings->value("GhostTrackspT")));
+    this->ghostTracksVertexAssociation(settings->value("GhostTracksVertexAssociation"));
+    this->ghostTracksQuality(settings->value("GhostTracksQuality"));
+
+    this->trackPtcut(std::stof(settings->value("TrackPt")));
+    this->trackEtacut(std::stof(settings->value("TrackEta")));
+    this->trackQuality(settings->value("TrackQuality"));
 
     // Jet configuration reclustered jets
     this->RCJetPtcut(std::stof(settings->value("RCJetPt")));
     this->RCJetEtacut(std::stof(settings->value("RCJetEta")));
+    this->RCInputJetPtMin(std::stof(settings->value("RCInputJetPtMin")));
+    this->RCInputJetEtaMax(std::stof(settings->value("RCInputJetEtaMax")));
     this->RCJetTrimcut(std::stof(settings->value("RCJetTrim")));
     this->RCJetRadius(std::stof(settings->value("RCJetRadius")));
     if (settings->value("UseRCJets") == "True" || settings->value("UseRCJets") == "true") this->m_useRCJets = true;
@@ -1196,6 +1372,9 @@ namespace top {
       ATH_MSG_WARNING("TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True");
       this->jetStoreTruthLabels(true);
     }
+
+    // MET Configuration
+    this->METUncertaintiesConfigDir(settings->value("AdvancedUsage_METUncertaintiesConfigDir"));
 
     // for top mass analysis, per default set to 1.0!
     m_JSF = std::stof(settings->value("JSF"));
@@ -1771,6 +1950,15 @@ namespace top {
     }
   }
 
+  void TopConfig::sgKeyTracks(const std::string& s) {
+    
+    if (!m_configFixed) {
+      m_useTracks = false;
+      if (s != "None") m_useTracks = true;
+      m_sgKeyTracks = s;
+    }
+  }
+
   void TopConfig::sgKeyTruthElectrons(const std::string& s) {
     if (!m_configFixed) {
       m_useTruthElectrons = false;
@@ -1850,6 +2038,13 @@ namespace top {
   void TopConfig::runPeriodJetGhostTrack(const std::vector<std::uint32_t>& vect) {
     if (m_useJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
   }
+
+  // setting the run periods for tracks                                                                                                                                                             
+  // even if configuration is fixed - could be changed later                                                                                                                                             
+  void TopConfig::runPeriodTrack(const std::vector<std::uint32_t>& vect) {
+    if (m_useTracks) m_trackRunPeriods = vect;
+  }
+
 
   void TopConfig::setBTaggingSFSysts(std::string WP, const std::set<std::string>& btagging_SF_names, bool isTrackJet) {
     //this avoids code duplication
@@ -2120,6 +2315,26 @@ namespace top {
     }
   }
 
+  void TopConfig::systematicsTracks(const std::list<CP::SystematicSet>& syst) {
+
+    if (!m_configFixed) {
+
+      for (auto s : syst) {
+        m_systHashTracks->insert(s.hash());
+	m_list_systHashAll->push_back(s.hash());
+        m_systMapTracks->insert(std::make_pair(s.hash(), s));
+
+        m_systSgKeyMapTracks->insert(std::make_pair(s.hash(), m_sgKeyTracks + "_" + s.name()));
+
+      }
+      
+      m_list_systHashAll->sort();
+      m_list_systHashAll->unique();
+    }
+    
+  }
+
+
   void TopConfig::fixConfiguration() {
     ATH_MSG_INFO("TopConfig::fixConfiguration()");
     // Prevent the user from changing anything
@@ -2150,6 +2365,7 @@ namespace top {
     std::string nominalJets("SetMe");
     std::string nominalLargeRJets("SetMe");
     std::string nominalTrackJets("SetMe");
+    std::string nominalTracks("SetMe");
     std::string nominal("nominal");
     std::string tds("TDS");
     std::string tdsAux("TDSAux.");
@@ -2203,6 +2419,11 @@ namespace top {
     if (trackJet != m_systSgKeyMapTrackJets->end()) {
       nominalTrackJets = (*trackJet).second;
     }
+    std::unordered_map<std::size_t, std::string>::const_iterator tracks = m_systSgKeyMapTracks->find(m_nominalHashValue);
+    if (tracks != m_systSgKeyMapTracks->end()) {
+      nominalTracks = (*tracks).second;
+    }
+
 
     for (std::unordered_set<std::size_t>::const_iterator i = m_systHashAll->begin(); i != m_systHashAll->end(); ++i) {
       std::unordered_map<std::size_t, std::string>::const_iterator ph = m_systSgKeyMapPhotons->find(*i);
@@ -2276,6 +2497,16 @@ namespace top {
       if (trackJet == m_systSgKeyMapTrackJets->end()) {
         m_systAllSgKeyMapTrackJets->insert(std::make_pair((*i), nominalTrackJets));
       }
+
+      std::unordered_map<std::size_t, std::string>::const_iterator tracks = m_systSgKeyMapTracks->find(*i);
+      if (tracks != m_systSgKeyMapTracks->end()) {
+        m_systAllSgKeyMapTracks->insert(std::make_pair((*i), (*tracks).second));
+      }
+      if (tracks == m_systSgKeyMapTracks->end()) {
+	m_systAllSgKeyMapTracks->insert(std::make_pair((*i), nominalTracks));
+      }
+
+
     } // Loop over all systematic hash values
 
 
@@ -2405,6 +2636,11 @@ namespace top {
       m_systAllSgKeyMapTrackJetsTDSAux->insert(std::make_pair((*i).first, (*i).second + tdsAux));
     }
 
+    for (Itr2 i = m_systAllSgKeyMapTracks->begin(); i != m_systAllSgKeyMapTracks->end(); ++i) {
+      m_systAllSgKeyMapTracksTDS->insert(std::make_pair((*i).first, (*i).second + tds));
+      m_systAllSgKeyMapTracksTDSAux->insert(std::make_pair((*i).first, (*i).second + tdsAux));
+    }
+
     for (Itr2 i = m_systAllSgKeyMapJets_electronInJetSubtraction->begin();
          i != m_systAllSgKeyMapJets_electronInJetSubtraction->end(); ++i) {
       m_systAllSgKeyMapJets_electronInJetSubtractionTDS->insert(std::make_pair((*i).first, (*i).second + tds));
@@ -2465,6 +2701,11 @@ namespace top {
     }
     if (m_useTrackJets) {
       for (Itr i = m_systMapTrackJets->begin(); i != m_systMapTrackJets->end(); ++i) {
+        m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
+      }
+    }
+    if (m_useTracks) {
+      for (Itr i = m_systMapTracks->begin(); i != m_systMapTracks->end(); ++i) {
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
       }
     }
@@ -2874,6 +3115,30 @@ namespace top {
     return m_sgKeyDummy;
   }
 
+  const std::string& TopConfig::sgKeyTracks(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracks->find(hash);
+    if (key != m_systAllSgKeyMapTracks->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyTracksTDS(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracksTDS->find(hash);
+    if (key != m_systAllSgKeyMapTracksTDS->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyTracksTDSAux(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracksTDSAux->find(hash);
+    if (key != m_systAllSgKeyMapTracksTDSAux->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
   const std::string& TopConfig::sgKeyMissingEt(const std::size_t hash) const {
     std::unordered_map<std::size_t, std::string>::const_iterator key = m_systSgKeyMapMissingET->find(hash);
     if (key != m_systSgKeyMapMissingET->end()) {
@@ -3081,6 +3346,7 @@ namespace top {
     out->m_sgKeyJets = m_sgKeyJets;
     out->m_sgKeyLargeRJets = m_sgKeyLargeRJets;
     out->m_sgKeyTrackJets = m_sgKeyTrackJets;
+    out->m_sgKeyTracks = m_sgKeyTracks;
     out->m_sgKeyMissingEt = m_sgKeyMissingEt;
     out->m_sgKeyMissingEtLoose = m_sgKeyMissingEtLoose;
 
@@ -3090,6 +3356,7 @@ namespace top {
     out->m_electronIsolationLoose = m_electronIsolationLoose;
     out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
     out->m_useEgammaLeakageCorrection = m_useEgammaLeakageCorrection;
+    out->m_enablePromptLeptonImprovedVetoStudies = m_enablePromptLeptonImprovedVetoStudies;
 
     out->m_fwdElectronID = m_fwdElectronID;
 
@@ -3100,6 +3367,8 @@ namespace top {
     out->m_muonIsolationLoose = m_muonIsolationLoose;
 
     out->m_softmuonQuality = m_softmuonQuality;
+
+    out->m_trackQuality = m_trackQuality;
 
     typedef std::unordered_map<std::size_t, std::string>::const_iterator Itr;
 
@@ -3141,6 +3410,9 @@ namespace top {
 
     for (Itr i = m_systSgKeyMapTrackJets->begin(); i != m_systSgKeyMapTrackJets->end(); ++i)
       out->m_systSgKeyMapTrackJets.insert(std::make_pair((*i).first, (*i).second));
+
+    for (Itr i = m_systSgKeyMapTracks->begin(); i != m_systSgKeyMapTracks->end(); ++i)
+      out->m_systSgKeyMapTracks.insert(std::make_pair((*i).first, (*i).second));
 
     for (Itr i = m_systSgKeyMapMissingET->begin(); i != m_systSgKeyMapMissingET->end(); ++i)
       out->m_systSgKeyMapMissingET.insert(std::make_pair((*i).first, (*i).second));
@@ -3228,6 +3500,7 @@ namespace top {
     sgKeyJets(settings->m_sgKeyJets);
     sgKeyLargeRJets(settings->m_sgKeyLargeRJets);
     sgKeyTrackJets(settings->m_sgKeyTrackJets);
+    sgKeyTracks(settings->m_sgKeyTracks);
     m_sgKeyMissingEt = settings->m_sgKeyMissingEt;
     m_sgKeyMissingEtLoose = settings->m_sgKeyMissingEtLoose;
 
@@ -3237,6 +3510,7 @@ namespace top {
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
     m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
     m_useEgammaLeakageCorrection = settings->m_useEgammaLeakageCorrection;
+    m_enablePromptLeptonImprovedVetoStudies = settings->m_enablePromptLeptonImprovedVetoStudies;
 
     m_fwdElectronID = settings->m_fwdElectronID;
 
@@ -3288,6 +3562,9 @@ namespace top {
 
     for (Itr i = settings->m_systSgKeyMapTrackJets.begin(); i != settings->m_systSgKeyMapTrackJets.end(); ++i)
       m_systSgKeyMapTrackJets->insert(std::make_pair((*i).first, (*i).second));
+
+    for (Itr i = settings->m_systSgKeyMapTracks.begin(); i != settings->m_systSgKeyMapTracks.end(); ++i)
+      m_systSgKeyMapTracks->insert(std::make_pair((*i).first, (*i).second));
 
     for (Itr i = settings->m_systSgKeyMapMissingET.begin(); i != settings->m_systSgKeyMapMissingET.end(); ++i)
       m_systSgKeyMapMissingET->insert(std::make_pair((*i).first, (*i).second));
@@ -3422,17 +3699,57 @@ namespace top {
   }
 
   // Function to return the year of data taking based on either run number (data) or random run number (MC)
-  const std::string TopConfig::getYear(unsigned int runnumber) {
+  std::string TopConfig::getYear(unsigned int runnumber, const bool isMC) {
+
+    if (isMC) {
+      // mc16a - returning only 2015 but is really a mix of 15 + 16
+      if (runnumber == 284500) return "2015";
+      
+      // mc16d
+      if (runnumber == 300000) return "2017";
+      
+      // mc16e
+      if (runnumber == 310000) return "2018";
+
+      return "UNKNOWN";
+    }
+    
+    // Set of runNumbers for data
     // 2015 : 266904 - 284484
     if (runnumber >= 266904 && runnumber <= 284484) return "2015";
 
     // 2016 : 296939 - 311481
     if (runnumber >= 296939 && runnumber <= 311481) return "2016";
 
-    // 2017 : 324320 - 999999
-    if (runnumber >= 324320) return "2017";
+    // 2017 : 324320 - 348835
+    if (runnumber >= 324320 && runnumber <= 348835) return "2017";
 
-    return "ERROR";
+    // 2018 : > 348835 
+    if (runnumber > 348835 && runnumber < 999999) return "2018";
+    
+    return "UNKNOWN";
+  }
+
+  void TopConfig::SetTriggersToYear(const bool isMC) {
+    if (m_year == "UNKNOWN") return;
+
+    std::string year2("");
+    if (isMC && m_year == "2015") year2 = "2016";
+    if (isMC && m_year == "2016") year2 = "2015";
+
+    auto removeYears = [](std::unordered_map<std::string,std::vector<std::string> >& trig, const std::string& year1, const std::string& year2) {
+      auto itr = trig.begin();
+      while (itr != trig.end()) {
+        if ((*itr).first != year1 && (*itr).first != year2) {
+          itr = trig.erase(itr);
+        } else {
+          itr++;
+        }
+      }
+    };
+
+    removeYears(m_trigGlobalConfiguration.trigger, m_year, year2);
+    removeYears(m_trigGlobalConfiguration.trigger_loose, m_year, year2);
   }
 
   void TopConfig::setGlobalTriggerConfiguration(std::vector<std::string> electron_trigger_systematics,

@@ -35,6 +35,19 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
+#ifndef XAOD_STANDALONE
+    if (!m_cutFlowSvc.empty())
+    {
+      ANA_CHECK (m_cutFlowSvc.retrieve());
+      m_cutID = m_cutFlowSvc->registerFilter (m_cutFlowSvc.parentName(), m_filterDescription + " (nominal only)");
+      if (m_cutID == 0)
+      {
+        ANA_MSG_ERROR ("problem registering myself with cutflow-svc");
+        return StatusCode::FAILURE;
+      }
+    }
+#endif
+
     m_isInitialized = true;
     return StatusCode::SUCCESS;
   }
@@ -50,8 +63,9 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_INFO ("Events passing selection for at least one systematic: " << m_passedOne << " / " << m_total);
-    ATH_MSG_INFO ("Events passing selection for all systematics: " << m_passedAll << " / " << m_total);
+    ATH_MSG_INFO ("Events passing selection for at least one systematic: " << m_passedOne << " / " << m_total << " for " << m_filterDescription);
+    ATH_MSG_INFO ("Events passing selection for at nominal: " << m_passedNominal << " / " << m_total << " for " << m_filterDescription);
+    ATH_MSG_INFO ("Events passing selection for all systematics: " << m_passedAll << " / " << m_total << " for " << m_filterDescription);
     return StatusCode::SUCCESS;
   }
 }

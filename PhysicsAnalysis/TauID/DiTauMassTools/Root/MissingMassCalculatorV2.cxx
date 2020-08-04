@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=8 sw=2
@@ -2449,6 +2449,7 @@ void MissingMassCalculatorV2::SpaceWalkerInit() {
   // precompute some quantities and store in m_ data members
   precomputeCache();
   if (m_MMCCalibrationSet == MMCCalibrationSetV2::MMC2019) {
+    if (Prob->GetUseMnuProbability() == true && (preparedInput.m_tauTypes == TauTypes::ll || preparedInput.m_tauTypes == TauTypes::lh) ) Prob->setParamNuMass();
     Prob->setParamAngle(m_tauVec1, 1, preparedInput.type_visTau1);
     Prob->setParamAngle(m_tauVec2, 2, preparedInput.type_visTau2);
     Prob->setParamRatio(1, preparedInput.type_visTau1);

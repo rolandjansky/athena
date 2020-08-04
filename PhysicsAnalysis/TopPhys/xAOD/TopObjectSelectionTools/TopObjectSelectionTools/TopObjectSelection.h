@@ -26,6 +26,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "AssociationUtils/IOverlapRemovalTool.h"
 
 // Top include(s):
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
@@ -33,8 +34,10 @@
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
 #include "TopObjectSelectionTools/SoftMuonSelectionBase.h"
 #include "TopObjectSelectionTools/JetSelectionBase.h"
+#include "TopObjectSelectionTools/JetGhostTrackSelectionBase.h"
 #include "TopObjectSelectionTools/TauSelectionBase.h"
 #include "TopObjectSelectionTools/PhotonSelectionBase.h"
+#include "TopObjectSelectionTools/TrackSelectionBase.h"
 #include "TopObjectSelectionTools/OverlapRemovalBase.h"
 #include "TopSystematicObjectMaker/ElectronInJetSubtractionCollectionMaker.h"
 
@@ -192,6 +195,29 @@ namespace top {
      * TopObjectSelectionTools).
      */
     void trackJetSelection(JetSelectionBase* ptr);
+    
+    /**
+     * @brief Set the code used to select tracks ghost associated to small-R jets.
+     *
+     * Note that nullptr means that no selection will be applied (so all
+     * tracks associated to jets will be accepted) a part from the one during the thinning.
+     *
+     * @param ptr The code used to perform the ghost track selection (see
+     * TopObjectSelectionTools).
+     */
+    void jetGhostTrackSelection(JetGhostTrackSelectionBase* ptr);
+
+    /**                                                                                                                                                                                                 
+     * @brief Set the code used to select tracks.                                                                                                                                                         
+     *                                                                                                                                                                                                    
+     * Note that nullptr means that no selection will be applied (so all                                                                                                                                  
+     * tracks will be accepted).                                                                                                                                                                          
+     *                                                                                                                                                                                                    
+     * @param ptr The code used to perform the track selection (see                                                                                                                                       
+     * TopObjectSelectionTools).                                                                                                                                                                          
+     **/
+    void trackSelection(TrackSelectionBase* ptr);
+
 
     /**
      * @brief Set the code used to perform the overlap removal.  At the moment
@@ -226,6 +252,8 @@ namespace top {
     void applySelectionPreOverlapRemovalJets();
     void applySelectionPreOverlapRemovalLargeRJets();
     void applySelectionPreOverlapRemovalTrackJets();
+    void applySelectionPreOverlapRemovalJetGhostTracks();
+    void applySelectionPreOverlapRemovalTracks();
 
     virtual StatusCode applyOverlapRemoval();
     virtual StatusCode applyOverlapRemoval(const bool isLoose, const std::string& sgKey);
@@ -239,11 +267,9 @@ namespace top {
                                 std::vector<unsigned int>& goodElectrons,
                                 std::vector<unsigned int>& goodMuons,
                                 std::vector<unsigned int>& goodTrackJets);
-
-    void decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-                                         const xAOD::JetContainer* xaod_jet,
-                                         std::vector<unsigned int>& goodMuons,
-                                         std::vector<unsigned int>& goodJets);
+                                         
+    void decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,
+                                         std::vector<unsigned int>& goodMuons);
 
     /**
      * @brief Pointer to the configuration object so we can check which objects
@@ -278,6 +304,12 @@ namespace top {
 
     ///Track jet selection code - can load user defined classes
     std::unique_ptr<top::JetSelectionBase> m_trackJetSelection;
+    
+    ///Ghost Track associated to small-R jets selection code - can load user defined classes   
+    std::unique_ptr<top::JetGhostTrackSelectionBase> m_jetGhostTrackSelection;
+
+    ///Track selection code - can load user defined classes   
+    std::unique_ptr<top::TrackSelectionBase> m_trackSelection;
 
     ///Overlap removal that runs after all object selection
     std::unique_ptr<top::OverlapRemovalBase> m_overlapRemovalToolPostSelection;
@@ -288,7 +320,7 @@ namespace top {
     // Pass selection strings
     const std::string m_passPreORSelection;
     const std::string m_passPreORSelectionLoose;
-    // the following two are used to give failing JVT jets a lower priority in the OR
+    // the following two are used to give failing JVT and failing fJVT jets a lower priority in the OR
     const std::string m_ORToolDecoration;
     const std::string m_ORToolDecorationLoose;
 
@@ -298,13 +330,17 @@ namespace top {
     // do decorate the jets with the b-tagging flags
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_trkjet_btagSelTools;
-
+    
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;
+    
+    //helper OR tool for soft muons
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_PFjets;
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_Alljets;
+
     // Function to decorate event info
     void decorateEventInfoPostOverlapRemoval(int, bool);
-    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
-                                std::vector<unsigned int>& goodJets);
+    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets, bool useRapidity=false);
   };
 }
 #endif

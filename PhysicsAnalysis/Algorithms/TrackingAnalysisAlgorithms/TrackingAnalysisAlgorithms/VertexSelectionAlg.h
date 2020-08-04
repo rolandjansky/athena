@@ -53,7 +53,7 @@ namespace CP {
       /// Number of track particles required per vertex
       unsigned m_minTracks;
 
-     EL::FilterReporterParams m_filterParams {this};
+     EL::FilterReporterParams m_filterParams {this, "vertex selection"};
 
       /// @}
 

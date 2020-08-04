@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -53,7 +53,7 @@ namespace VKalVrtAthena {
     
     // Services
     m_pixelCondSummarySvc          ( "PixelConditionsSummarySvc", "VrtSecInclusive" ),
-    m_sctCondSummarySvc            ( "SCT_ConditionsSummarySvc", "VrtSecInclusive" ),
+    m_sctCondSummarySvc            ( "InDetSCT_ConditionsSummarySvc", "VrtSecInclusive" ),
     
     m_checkPatternStrategy         ( "Classical" ),
     
@@ -144,6 +144,9 @@ namespace VKalVrtAthena {
     if( detStore()->retrieve(m_atlasId, "AtlasID").isFailure() ) return StatusCode::SUCCESS;
     if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) return StatusCode::SUCCESS;
     if( detStore()->retrieve(m_sctId,   "SCT_ID") .isFailure() ) return StatusCode::SUCCESS;
+
+    ATH_CHECK( m_pixelCondSummarySvc.retrieve() );
+    ATH_CHECK( m_sctCondSummarySvc.retrieve() );
     
     ATH_CHECK( m_extrapolator.retrieve() );
     
@@ -274,6 +277,7 @@ namespace VKalVrtAthena {
     if( m_jp.FillNtuple ) {
       ATH_CHECK( clearNtupleVariables() );
     }
+
     
     ATH_MSG_DEBUG("initEvent: from initEvent ");
     return StatusCode::SUCCESS;
@@ -296,11 +300,13 @@ namespace VKalVrtAthena {
     
     // add event level info to ntuple
     if( m_jp.FillNtuple ) sc = addEventInfo();
-    
+
     if (sc.isFailure() ) {
       ATH_MSG_WARNING("Failure in getEventInfo() ");
       return StatusCode::SUCCESS;
     }
+
+    m_vertexingStatus = 0;
     
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -401,11 +407,13 @@ namespace VKalVrtAthena {
     // Skip the event if the number of selected tracks is more than m_jp.SelTrkMaxCutoff
     if( m_selectedTracks->size() < 2 ) {
       ATH_MSG_DEBUG( "execute: Too few (<2) selected reco tracks. Terminated reconstruction." );
+      m_vertexingStatus = 1;
       return StatusCode::SUCCESS;   
     }
       
     if( m_selectedTracks->size() > m_jp.SelTrkMaxCutoff ) {
       ATH_MSG_INFO( "execute: Too many selected reco tracks. Terminated reconstruction." );
+      m_vertexingStatus = 2;
       return StatusCode::SUCCESS;   
     }
       
@@ -456,11 +464,19 @@ namespace VKalVrtAthena {
     } catch(...) {
       
       ATH_MSG_WARNING( " > " << __FUNCTION__ << ": some other error is detected in the vertexing scope."  );
-      
+      m_vertexingStatus = 4;
+            
       return StatusCode::SUCCESS;
       
     }
     
+    const xAOD::EventInfo* eventInfo { nullptr };
+    sc = evtStore()->retrieve(eventInfo, "EventInfo");
+    if( sc.isFailure() ) { 
+      ATH_MSG_WARNING("Failure to retrieve EventInfo ");
+      return StatusCode::SUCCESS;
+    }
+    eventInfo->auxdecor<int>("VrtSecInclusive_"+ m_jp.secondaryVerticesContainerName + m_jp.augVerString + "_status")=m_vertexingStatus;
     
     // Fill AANT
     if( m_jp.FillNtuple ) {

@@ -54,7 +54,7 @@ namespace FlavorTagDiscriminants {
     fs::path nn_path = config.input_file_path;
     if (!fs::exists(nn_path)) {
       nn_path = PathResolverFindCalibFile(nn_path.string());
-      if (nn_path.empty() == 0) {
+      if (nn_path.empty()) {
         throw std::runtime_error(
           "no file found at '" + config.input_file_path.string() + "'");
       }
@@ -87,6 +87,7 @@ namespace FlavorTagDiscriminants {
       m_outputs.emplace_back(node_name, node_writer);
     }
   }
+  HbbTag::~HbbTag() {}
 
   void HbbTag::decorate(const xAOD::Jet& jet) const {
     namespace hk = hbb_key;

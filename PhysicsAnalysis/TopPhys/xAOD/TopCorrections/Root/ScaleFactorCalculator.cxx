@@ -102,6 +102,15 @@ namespace top {
   }
 
   StatusCode ScaleFactorCalculator::initialize_nominal_MC_weight() {
+    // check if user force-requested to use plain MC weights vector index
+    // in that case ignore all the additional checks if metadata broken
+    // as well as the method to determine nominal weight by name
+    if (m_config->forceNominalWeightFallbackIndex()) {
+      ATH_MSG_WARNING("ForceNominalWeightFallbackIndex option was set to true."
+          << "\nWill use weight with index: " << m_config->nominalWeightIndex()
+          << " instead of determining it from metadata!");
+      return StatusCode::SUCCESS;
+    }
     ///-- Start using the PMG tool to get the nominal event weights --///
     // in case PMGTruthWeightTool init fails, e.g. due to broken metadata
     if (!m_pmg_truth_weight_tool.retrieve()) {
@@ -260,21 +269,14 @@ namespace top {
     if (eventInfo->isAvailable<float>("AnalysisTop_eventWeight")) return eventInfo->auxdataConst<float>(
         "AnalysisTop_eventWeight");
 
-    if (m_sample_multiple_MCweights) {
-      sf = m_pmg_truth_weight_tool->getWeight(m_nominal_weight_name);
-      ///-- Decorate the event info with this weight and return --///
+    try {
+      sf = eventInfo->mcEventWeights().at(m_config->nominalWeightIndex());
       eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
-      return sf;
-    } else { // either only one weight in sample, or something wrong with PMGTruthWeightTool setup
-      try {
-        sf = eventInfo->mcEventWeights().at(m_config->nominalWeightIndex());
-        eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
-      } catch (std::out_of_range &e) {
-        ATH_MSG_ERROR("MC weight specified by index " << m_config->nominalWeightIndex()
-            << " does not exist: ");
-        throw;
-      }
-      return sf;
+    } catch (std::out_of_range &e) {
+      ATH_MSG_ERROR("MC weight specified by index " << m_config->nominalWeightIndex()
+          << " does not exist: ");
+      throw;
     }
+    return sf;
   }
 }  // namespace top

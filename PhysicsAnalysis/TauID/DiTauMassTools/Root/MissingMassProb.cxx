@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class handling the probability calculation of the MissingMassCalculator
@@ -142,7 +142,7 @@ double MissingMassProb::MnuProbabilityNewWrapper( MissingMassProb* prob, Missing
 
 void MissingMassProb::setParamNuMass() {
   if (paramVectorNuMass.size() > 0){
-    for(int i=0; formulaNuMass->GetNpar(); i++){
+    for(int i=0; i<formulaNuMass->GetNpar(); i++){
       formulaNuMass->SetParameter(i, paramVectorNuMass[0]->GetParameter(i));
     }
   }

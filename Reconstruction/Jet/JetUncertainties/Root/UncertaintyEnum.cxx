@@ -392,6 +392,7 @@ namespace CompFlavorLabelVar
 	    case V_qq:          return "V_qq";
     	    case W_qq:          return "W_qq";
     	    case Z_qq:          return "Z_qq";
+   	    case W_qq_From_t:   return "W_qq_From_t";
 	    case t_other:       return "t_other";
 	    case q:             return "q";
             default:            return "UNKNOWN";
@@ -410,6 +411,8 @@ namespace CompFlavorLabelVar
 	  return W_qq;
 	if (type=="Z_qq")
 	  return Z_qq;
+	if (type=="W_qq_From_t")
+	  return W_qq_From_t;
 	if (type=="t_other")
 	  return t_other;
 	if (type=="q")

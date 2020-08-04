@@ -138,7 +138,7 @@ public:
       Error("MuonTriggerSFRootCoreTest", "Could not extract threshold for trigger %s", m_trigger.c_str());
       return 1;
     }
-    if (muon.pt() < threshold or fabs(muon.eta()) > 2.5)
+    if (muon.pt() < threshold || std::abs(muon.eta()) > 2.5)
       return 1;
 
     bool displayWarning = false;
@@ -195,7 +195,7 @@ public:
       bool displayWarning = false;
       xAOD::MuonContainer::const_iterator mu_end = muons->end();
       for (xAOD::MuonContainer::const_iterator mu_itr = muons->begin(); mu_itr != mu_end; ++mu_itr) {
-	if ((**mu_itr).pt() >= threshold and fabs((**mu_itr).eta()) < 2.5) displayWarning = true;
+	if ((**mu_itr).pt() >= threshold && std::abs((**mu_itr).eta()) < 2.5) displayWarning = true;
       }
                         
       if (displayWarning) {
@@ -253,7 +253,7 @@ public:
       bool displayWarning = false;
       xAOD::MuonContainer::const_iterator mu_end = muons->end();
       for (xAOD::MuonContainer::const_iterator mu_itr = muons->begin(); mu_itr != mu_end; ++mu_itr) {
-	if ((**mu_itr).pt() >= threshold and fabs((**mu_itr).eta()) < 2.5) displayWarning = true;
+	if ((**mu_itr).pt() >= threshold && std::abs((**mu_itr).eta()) < 2.5) displayWarning = true;
       }
                         
       if (displayWarning) {
@@ -285,7 +285,7 @@ public:
 	  Error("MuonTriggerSFRootCoreTest", "Could not extract threshold for trigger %s", m_trigger.c_str());
 	  return 1;
 	}
-	if(muon->pt() >= threshold and fabs(muon->eta()) < 2.5)
+	if(muon->pt() >= threshold && std::abs(muon->eta()) < 2.5)
 	  Warning(m_appName, "Retrieved single muon trigger scale factor %.3f is outside of expected range from 0.2 to 1.2. Parameters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s \n muon pt: %f  \n  eta: %f \n phi: %f", scaleFactor, static_cast<int>(ei->eventNumber()), qualities[iquality].c_str(), binnings[ibin].c_str(), m_systematics[isystematic].name().c_str(), muon->pt(), muon->eta(), muon->phi());
       }
       tmpEffData *= 1.-effData;
@@ -294,7 +294,6 @@ public:
     auto sfSingleCalc = (1. - tmpEffData)/(1. - tmpEffMC);
     if ( triggerSF > 0.2 && (sfSingleCalc - triggerSF) / triggerSF > 0.02) {
 
-      // Warning(m_appName, "Invalid single muon SF result. Parameters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s \n Systematic = %s \n single SF: %f \n combined SF %f \n ", static_cast<int>(ei->eventNumber()), qualities[iquality].c_str(), binnings[ibin].c_str(), systematics[isystematic].name().c_str(), sfSingleCalc, triggerSFrSF);
       m_warningsCount++;
     }
     return 0;

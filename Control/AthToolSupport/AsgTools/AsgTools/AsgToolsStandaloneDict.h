@@ -12,6 +12,7 @@
 // Local include(s):
 #include "AsgTools/AsgComponent.h"
 #include "AsgTools/AsgComponentConfig.h"
+#include "AsgTools/AsgToolConfig.h"
 
 // The following is only needed for standalone usage. In Athena the
 // setProperty(...) function(s) come(s) from the AlgTool base class, with all

@@ -162,15 +162,18 @@ namespace ORUtils
       const float eta2 = clus2.etaBE(layer);
       const float phi1 = clus1.phiBE(layer);
       const float phi2 = clus2.phiBE(layer);
-
+      
       // Check validity of the eta/phi (no dummy -999 values)
       if(isDummyVal(eta1) || isDummyVal(eta2) ||
          isDummyVal(phi1) || isDummyVal(phi2)) {
         throw DummyValError();
       }
-
-      if( std::abs(clus1.etaBE(layer) - clus2.etaBE(layer)) < m_clusterDeltaEta &&
-          deltaPhi(clus1.phiBE(layer),  clus2.phiBE(layer)) < m_clusterDeltaPhi )
+      
+      const float dEta = clus1.etaBE(layer) - clus2.etaBE(layer);
+      const float dPhi = deltaPhi(clus1.phiBE(layer), clus2.phiBE(layer));
+      
+      if( std::abs(dEta) < m_clusterDeltaEta &&
+          std::abs(dPhi) < m_clusterDeltaPhi )
       {
         return true;
       }

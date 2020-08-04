@@ -9,6 +9,7 @@
 #include "AsgTools/AsgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "TFile.h"
+#include "TF1.h"
 #include "TH2D.h"
 #include "TSystem.h" // Replace with PathResolver
 #include "TMVA/Reader.h"
@@ -95,11 +96,15 @@ namespace CP {
       bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const override;
       bool passedLowPtEfficiencyMVACut(const xAOD::Muon&) const;
 
-      /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
+      /// Returns true if a CB muon passes a pt- and eta-dependent cut on the relative CB q/p error
       bool passedErrorCutCB(const xAOD::Muon&) const override;
 
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
       bool isBadMuon(const xAOD::Muon&) const override;
+
+      /// Returns true if the muon passes a cut which mimics the effect of the combined error cut
+      /// This is necessary only when the resolution is very optimistic in the MC such that a large smearing is applied
+      bool passedBMVmimicCut(const xAOD::Muon&) const;
 
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
       xAOD::Muon::Quality getQuality( const xAOD::Muon& mu ) const override;
@@ -139,13 +144,16 @@ namespace CP {
      bool m_useAllAuthors;
      bool m_use2stationMuonsHighPt;
      bool m_useMVALowPt;
-     
+     bool m_doBadMuonVetoMimic;
+
      std::string m_eventInfoContName;
 
      std::string m_MVAreaderFile_EVEN_MuidCB;
      std::string m_MVAreaderFile_ODD_MuidCB;
      std::string m_MVAreaderFile_EVEN_MuGirl;
      std::string m_MVAreaderFile_ODD_MuGirl;
+
+     std::string m_BMVcutFile;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
@@ -155,6 +163,9 @@ namespace CP {
      TH2D* m_tightWP_lowPt_qOverPCuts;
      TH2D* m_tightWP_mediumPt_rhoCuts;
      TH2D* m_tightWP_highPt_rhoCuts;
+     //
+     std::unique_ptr<TF1> m_BMVcutFunction_barrel;
+     std::unique_ptr<TF1> m_BMVcutFunction_endcap;
 
      // subfolder to load from the calibration db
      std::string m_calibration_version;

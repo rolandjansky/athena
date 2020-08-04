@@ -34,6 +34,8 @@ StatusCode CP::TrigEventSelectionAlg::initialize()
     }
   }
 
+  ANA_CHECK (m_filterParams.initialize());
+
   return StatusCode::SUCCESS;
 }
 

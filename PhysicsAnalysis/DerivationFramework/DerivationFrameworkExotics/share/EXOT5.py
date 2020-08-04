@@ -548,7 +548,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot5Seq)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT5"] = []
 reducedJetList = [
-    "AntiKt4TruthJets"]
+    "AntiKt4TruthWZJets", "AntiKt4TruthJets" ]
 replaceAODReducedJets(reducedJetList,exot5Seq,"EXOT5")
 
 #jet calibration
@@ -636,6 +636,7 @@ EXOT5SlimmingHelper.SmartCollections = [
     'AntiKt4EMPFlowJets',
     'AntiKt4EMPFlowJets_BTagging201810',
     'AntiKt4EMPFlowJets_BTagging201903',
+    'AntiKt4TruthWZJets',
     ]
 
 EXOT5SlimmingHelper.ExtraVariables = [
@@ -663,6 +664,8 @@ if DerivationFrameworkIsMonteCarlo:
         'xAOD::TruthParticleAuxContainer#EXOT5TruthMuonsAux.',
         'xAOD::TruthParticleContainer#EXOT5TruthElectrons',
         'xAOD::TruthParticleAuxContainer#EXOT5TruthElectronsAux.',
+        'xAOD::TruthParticleContainer#EXOT5TruthPhotons',
+        'xAOD::TruthParticleAuxContainer#EXOT5TruthPhotonsAux.',
         'xAOD::TruthParticleContainer#EXOT5TruthNeutrinos',
         'xAOD::TruthParticleAuxContainer#EXOT5TruthNeutrinosAux.',
         'xAOD::TruthParticleContainer#TruthTaus',

@@ -35,7 +35,7 @@ namespace CP
     std::vector<std::unique_ptr<ISelectionAccessor>> m_accessors;
 
     /// \brief the filter reporter parameters
-    EL::FilterReporterParams m_filterParams {this};
+    EL::FilterReporterParams m_filterParams {this, "event flag selection"};
   };
 }
 

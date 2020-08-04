@@ -27,7 +27,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
                           Reconstruction/PFlow/PFlowUtils
                           Tools/PathResolver 
-			  InnerDetector/InDetRecTools/InDetTrackSelectionTool # QGTaggerTool for nTracks ###
+                          InnerDetector/InDetRecTools/InDetTrackSelectionTool # QGTaggerTool for nTracks ###
+                          InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
 			  Reconstruction/Jet/JetMomentTools
 			  )
@@ -44,6 +45,7 @@ atlas_add_library( DerivationFrameworkJetEtMissLib
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils AssociationUtilsLib JetMomentToolsLib
 InDetTrackSelectionToolLib # QGTaggerTool for nTracks ### 
 ParticleJetToolsLib # JetTruthLabelingTool ###
+TrackVertexAssociationToolLib
 			   )
 
 atlas_add_component( DerivationFrameworkJetEtMiss

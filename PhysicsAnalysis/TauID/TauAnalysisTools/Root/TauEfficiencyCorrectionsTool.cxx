@@ -4,7 +4,6 @@
 
 // EDM include(s):
 #include "PATInterfaces/SystematicRegistry.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODMetaData/FileMetaData.h"
 
 // Local include(s):
@@ -1806,7 +1805,6 @@ StatusCode TauEfficiencyCorrectionsTool::beginInputFile()
   if (m_iOLRLevel != OLRNONE && (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM)) setup_eveto = true;
   if (m_sRecommendationTag == "2019-summer" && (setup_tau_id || setup_eveto) )
   {
-    std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/EfficiencyCorrections/";
     std::string simType("");
     if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData"))
     {

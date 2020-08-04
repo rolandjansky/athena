@@ -554,8 +554,6 @@ namespace AtlasRoot {
 
     std::unique_ptr<TH1>         m_wstot_slope_A_data;
     std::unique_ptr<TH1>         m_wstot_slope_B_MC;
-    std::unique_ptr<TH1>         m_wstot_40GeV_data;
-    std::unique_ptr<TH1>         m_wstot_40GeV_MC;
     std::unique_ptr<TH1>         m_wstot_pT_data_p0_electrons;
     std::unique_ptr<TH1>         m_wstot_pT_data_p1_electrons;
     std::unique_ptr<TH1>         m_wstot_pT_data_p0_unconverted_photons;

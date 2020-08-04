@@ -566,6 +566,9 @@ class SlimmingHelper:
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903":
                         from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent
                         items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903GhostTag":
+                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903GhostTagCPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903GhostTagCPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent)
                 elif collectionName=="BTagging_AntiKt4EMTopo_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMTopoJets_BTagging201810"))
@@ -596,6 +599,9 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903GhostTag"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
@@ -650,13 +656,18 @@ class SlimmingHelper:
                 elif collectionName=="InDetTrackParticles":
                         from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)
+                elif collectionName=="LowPtRoITrackParticles":
+                        from DerivationFrameworkInDet.LowPtRoITrackParticlesCPContent import LowPtRoITrackParticlesCPContent
+                        items.extend(LowPtRoITrackParticlesCPContent)
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
+                elif collectionName=="LowPtRoIVertexContainer":
+                        from DerivationFrameworkInDet.LowPtRoIVertexContainerCPContent import LowPtRoIVertexContainerCPContent
+                        items.extend(LowPtRoIVertexContainerCPContent)
                 elif self.IncludeAdditionalTriggerContent == True:
                         from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
                         items.extend(AdditionalTriggerContent)
-
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)

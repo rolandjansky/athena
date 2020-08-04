@@ -52,6 +52,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCutFlow
    Event/xAOD/xAODPrimitives
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
+   PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
@@ -93,7 +94,7 @@ atlas_add_library( SUSYToolsLib
    xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTruth
    AssociationUtilsLib PATInterfaces TrigDecisionToolLib 
    MCTruthClassifierLib JetJvtEfficiencyLib JetSubStructureUtils
-   AnaAlgorithmLib
+   ParticleJetToolsLib AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives BoostedJetTaggersLib EgammaAnalysisInterfacesLib

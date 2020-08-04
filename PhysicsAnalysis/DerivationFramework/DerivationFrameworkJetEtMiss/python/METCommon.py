@@ -189,8 +189,8 @@ def addHadRecoilMETMap(sequence, stream, outGroup):
     from METReconstruction.METAssocConfig import getMETAssocAlg
 
     # Add PFlow jets
-    from DerivationFrameworkJetEtMiss.JetCommon import *
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+    from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
     addCHSPFlowObjects()
     addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="CHS", ptmin=5000, ptminFilter=10000, 
                      mods="pflow_ungroomed", algseq=sequence, outputGroup=outGroup,calibOpt="ar:pflow")

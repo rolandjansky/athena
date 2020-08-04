@@ -152,6 +152,10 @@ softTagAlgTight.OperatingPoint = 'Tight'
 
 FTAG4Seq += softTagAlgTight
 
+# make Pixel and SCT conditions available
+include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include ("InDetRecExample/SCTConditionsAccess.py")
+
 applySoftBtagging("softBtag", FTAG4Seq ) # SV tagger in VrtSecInclusive
 
 #===================================================================

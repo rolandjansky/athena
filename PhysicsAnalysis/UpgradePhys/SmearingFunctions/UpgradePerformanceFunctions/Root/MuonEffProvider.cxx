@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "UpgradePerformanceFunctions/MuonEffProvider.h"
@@ -26,6 +26,8 @@ bool MuonEffProvider::initialize(const std::string & effi_dir, const std::string
     m_dummy_eventInfoCont->setStore(m_dummy_eventInfoAux.get());
     m_dummy_eventInfo = new xAOD::EventInfo();
     m_dummy_eventInfoCont->push_back(m_dummy_eventInfo);
+
+    m_dummy_eventInfo->setEventTypeBitmask(xAOD::EventInfo::IS_SIMULATION);
 
     SG::AuxElement::Decorator<unsigned int> dec_rnd("RandomRunNumber");
     dec_rnd(*m_dummy_eventInfo) = 999999;
@@ -54,7 +56,7 @@ float MuonEffProvider::getEfficiency (double pt, double eta, double phi) {
     else {
         updateMuon(pt < 14e6 ?  pt : 13.9e6 , eta, phi);
         if (m_reco_MESF->getMCEfficiency(*m_auxMuon, aux_eff, m_dummy_eventInfo) != CP::CorrectionCode::Ok) {
-            //ATH_MSG_WARNING("had a problem retrieving the efficiency for a muon with pt "<<pt<<", eta "<< eta<<", phi --> returning Eff==0");
+            ATH_MSG_WARNING("had a problem retrieving the efficiency for a muon with pt "<<pt<<", eta "<< eta<<", phi --> returning Eff==0");
             return 0;
         }
         return aux_eff;

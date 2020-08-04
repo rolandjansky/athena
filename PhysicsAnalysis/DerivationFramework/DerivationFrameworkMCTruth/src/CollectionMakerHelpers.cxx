@@ -55,6 +55,8 @@ int DerivationFramework::CollectionMakerHelpers::addTruthParticle( const xAOD::T
     // See if we've seen it - note, could also do this with a unary function on the container itself
     if (std::find(seenParticles.begin(),seenParticles.end(),oldPart.barcode())!=seenParticles.end()){
       for (size_t p=0;p<partCont->size();++p){
+        // Safety check
+        if (!(*partCont)[p]) continue;
         // Was it a hit?
         if ((*partCont)[p]->barcode()==oldPart.barcode()) return p;
       } // Look through the old container

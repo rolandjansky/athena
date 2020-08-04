@@ -1,3 +1,5 @@
+###  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #********************************************************************
 # SUSY15.py
 # reductionConf flag SUSY15 in Reco_tf.py
@@ -15,6 +17,7 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+from VrtSecInclusive.VrtSecInclusive_Configuration import setupVSI
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY15Stream.StreamName
@@ -34,60 +37,10 @@ DerivationFrameworkJob += SeqSUSY15
 
 
 #====================================================================
-# Vertex dissolving (variation of VrtSecInclusive)
+# Rerun VrtSecInclusive in derivation step 
 #====================================================================
 from VrtSecInclusive.TrackRandomizer import TrackRandomizer
 from VrtSecInclusive.VrtSecInclusive import VrtSecInclusive
-
-def setupVSI( vsiInstance ):
-    vsiInstance.OutputLevel                            = INFO
-    vsiInstance.do_PVvetoCut                           = True
-    vsiInstance.do_d0Cut                               = False
-    vsiInstance.do_z0Cut                               = False
-    vsiInstance.do_d0errCut                            = False
-    vsiInstance.do_z0errCut                            = False
-    vsiInstance.do_d0signifCut                         = False
-    vsiInstance.do_z0signifCut                         = False
-    vsiInstance.doTRTPixCut                            = True
-    vsiInstance.DoSAloneTRT                            = False
-    vsiInstance.ImpactWrtBL                            = True
-    vsiInstance.doPVcompatibilityCut                   = False
-    vsiInstance.RemoveFake2TrkVrt                      = True
-    vsiInstance.CheckHitPatternStrategy                = 'ExtrapolationAssist' # Either 'Classical', 'Extrapolation' or 'ExtrapolationAssist'
-    vsiInstance.doReassembleVertices                   = True
-    vsiInstance.doMergeByShuffling                     = True
-    vsiInstance.doMergeFinalVerticesDistance           = True
-    vsiInstance.doAssociateNonSelectedTracks           = True
-    vsiInstance.doFinalImproveChi2                     = False
-    vsiInstance.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
-    vsiInstance.FillHist                               = True
-    vsiInstance.FillIntermediateVertices               = False
-    vsiInstance.CutPixelHits                           = 0
-    vsiInstance.CutSctHits                             = 2
-    vsiInstance.TrkA0ErrCut                            = 200000
-    vsiInstance.TrkZErrCut                             = 200000
-    vsiInstance.a0TrkPVDstMinCut                       = 2.0    # track d0 min
-    vsiInstance.a0TrkPVDstMaxCut                       = 300.0  # track d0 max: default is 1000.0
-    vsiInstance.zTrkPVDstMinCut                        = 0.0    # track z0 min: default is 0.0, just for clarification
-    vsiInstance.zTrkPVDstMaxCut                        = 1500.0 # track z0 max: default is 1000.0
-    vsiInstance.twoTrkVtxFormingD0Cut                  = 2.0
-    vsiInstance.TrkPtCut                               = 1000
-    vsiInstance.SelVrtChi2Cut                          = 5.
-    vsiInstance.CutSharedHits                          = 2
-    vsiInstance.TrkChi2Cut                             = 50
-    vsiInstance.TruthTrkLen                            = 1
-    vsiInstance.SelTrkMaxCutoff                        = 2000
-    vsiInstance.mergeByShufflingAllowance              = 10.
-    vsiInstance.associatePtCut                         = 1000.
-    vsiInstance.associateMinDistanceToPV               = 2.
-    vsiInstance.associateMaxD0Signif                   = 5.
-    vsiInstance.associateMaxZ0Signif                   = 5.
-    vsiInstance.MergeFinalVerticesDist                 = 1.
-    vsiInstance.MergeFinalVerticesScaling              = 0.
-    vsiInstance.improveChi2ProbThreshold               = 0.0001
-    vsiInstance.doAugmentDVimpactParametersToMuons     = False
-    vsiInstance.doAugmentDVimpactParametersToElectrons = False
-    return
 
 # set options related to the vertex fitter
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
@@ -102,28 +55,53 @@ InclusiveVxFitterTool.OutputLevel = INFO
 TrackRandomizingSuffices = [ "0p5", "1p0", "2p0", "3p0", "4p0" ]
 RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
 
-# Temporary flag
 
+# steer whether we want to do dissolved vertexing (for bg estimation) or re-run the vertexing (e.g. during derivation production),
+# both options will write out (additional) vertex container(s), each with a suffix added to their names 
 doDissolvedVertexing = False
+rerunVertexing = True
+newVertexContainerSuffix = "fixedExtrapolator"
+keepOriginalVertexContainer = False
+
+#------------------------------------------------------------------------------
+if rerunVertexing:
+
+  # make Pixel and SCT conditions available
+  include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+  include ("InDetRecExample/SCTConditionsAccess.py")
+
+  vsi_2 = setupVSI( newVertexContainerSuffix )
+  vsi_2.VertexFitterTool        = InclusiveVxFitterTool
+  vsi_2.Extrapolator            = ToolSvc.AtlasExtrapolator
+
+  SeqSUSY15 += vsi_2
+
+  MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
+                                                  'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
+                                                  'xAOD::VertexContainer#VrtSecInclusive*'+newVertexContainerSuffix+'*',
+                                                  'xAOD::VertexAuxContainer#VrtSecInclusive*'+newVertexContainerSuffix+'*'] )
+  print "List of items for the DAOD_RPVLL output stream:"
+  print MSMgr.GetStream("StreamDAOD_SUSY15").GetItems()
+
+  # end of vertex rerunning
+#------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 if doDissolvedVertexing:
-
   for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
     randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
-    vsi        = VrtSecInclusive("VrtSecInclusive_Random_" + suffix)
 
     randomizer.outputContainerName = suffix
     randomizer.shuffleStrength = sigma
 
-    setupVSI( vsi )
-    vsi.TrackLocation           = "InDetTrackParticlesRandomized" + suffix
-    vsi.AugmentingVersionString = "_Randomized" + suffix
-    vsi.VertexFitterTool        = InclusiveVxFitterTool
-    vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
+    vsi_random = setupVSI( "Random_"+suffix )
+    vsi_random.TrackLocation           = "InDetTrackParticlesRandomized" + suffix
+    vsi_random.AugmentingVersionString = "_Randomized" + suffix
+    vsi_random.VertexFitterTool        = InclusiveVxFitterTool
+    vsi_random.Extrapolator            = ToolSvc.AtlasExtrapolator
 
     SeqSUSY15 += randomizer
-    SeqSUSY15 += vsi
+    SeqSUSY15 += vsi_random
 
   MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
                                                   'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
@@ -134,7 +112,6 @@ if doDissolvedVertexing:
 
 # end of vertex dissolving
 #------------------------------------------------------------------------------
-
 
 from DerivationFrameworkSUSY.SUSY15TriggerList import triggers_met, triggers_jet, triggers_lep, triggers_photon
 
@@ -175,19 +152,19 @@ thinningTools.append(SUSY15MuonTPThinningTool)
 
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-SUSY15ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                 	= "SUSY15ElectronTPThinningTool",
+SUSY15ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                  = "SUSY15ElectronTPThinningTool",
                                                                                  ThinningService        = SUSY15ThinningHelper.ThinningSvc(),
-                                                                                 SGKey             	= "Electrons",
+                                                                                 SGKey              = "Electrons",
                                                                                  BestMatchOnly          = False,
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += SUSY15ElectronTPThinningTool
 thinningTools.append(SUSY15ElectronTPThinningTool)
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-SUSY15PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY15PhotonTPThinningTool",
-										 ThinningService	 = SUSY15ThinningHelper.ThinningSvc(),
-										 SGKey			 = "Photons",
-										 InDetTrackParticlesKey  = "InDetTrackParticles")
+SUSY15PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name       = "SUSY15PhotonTPThinningTool",
+                     ThinningService   = SUSY15ThinningHelper.ThinningSvc(),
+                     SGKey       = "Photons",
+                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY15PhotonTPThinningTool
 thinningTools.append(SUSY15PhotonTPThinningTool)
 
@@ -388,6 +365,10 @@ SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel(
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY15)
 
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                   
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY15, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY15, algname='JetForwardJvtToolBDTAlg')
+
 #==============================================================================
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
@@ -453,23 +434,29 @@ SUSY15SlimmingHelper.AllVariables = [
                                      "MET_Truth",
                                      # additions for DV specific content
                                      "PrimaryVertices",
-                                     "VrtSecInclusive_SecondaryVertices",
                                      "VrtSecInclusive_SecondaryVertices_Leptons",
                                      "VrtSecInclusive_All2TrksVertices", # only filled for debug, by default off
                                      ]
 
+if (not rerunVertexing or keepOriginalVertexContainer):
+  SUSY15SlimmingHelper.AllVariables += [
+                                        "VrtSecInclusive_SecondaryVertices"
+                                       ]
+
+
 SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant.BTagTrackToJetAssociator",
                                         "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
-					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing.DFCommonJets_jetClean_LooseBadLLP.DFCommonJets_jetClean_VeryLooseBadLLP.DFCommonJets_jetClean_SuperLooseBadLLP",
-					"GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY",
-					"InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY.radiusOfFirstHit",
-					"CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-					"ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-					"TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
-					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.decayVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType.charge",
-					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
+                                        "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing.DFCommonJets_jetClean_LooseBadLLP.DFCommonJets_jetClean_VeryLooseBadLLP.DFCommonJets_jetClean_SuperLooseBadLLP",
+                                        "GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY.radiusOfFirstHit.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
+                                        "InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY.radiusOfFirstHit",
+                                        "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                        "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                        "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
+                                        "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.decayVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType.charge",
+                                        "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                                         "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType",
-					"Electrons.bkgMotherPdgId.bkgTruthOrigin",
+                                        "Electrons.bkgMotherPdgId.bkgTruthOrigin",
+                                        "InDetTrackParticles.is_selected_2.is_associated_2.is_svtrk_final_2.pt_wrtSV_2.eta_wrtSV_2.phi_wrtSV_2.d0_wrtSV_2.z0_wrtSV_2.errP_wrtSV_2.errd0_wrtSV_2.errz0_wrtSV_2.chi2_toSV_2",
                                         "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                         "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
                                         "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",

@@ -1,0 +1,285 @@
+#this is an example configuration file for AnalysisTop; refer to https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21 for a guide on most common options
+#IMPORTANT: THIS IS ONLY AN EXAMPLE AND NOT A RECOMMENDATION OF THE BEST CONFIGURATION TO BE USED (because there is no single configuration optimal for all cases)
+#the values used for all the possible config options are printed at the beginning of the execution of top-xaod
+#all options not explicitely configured in the file use the default values
+#all available options and their default values can be seen here https://gitlab.cern.ch/atlas/athena/-/blob/21.2/PhysicsAnalysis/TopPhys/xAOD/TopConfiguration/Root/ConfigurationSettings.cxx
+#(this is the default link for the HEAD version, if you're using a specific release, search e.g. "21.2.XXX" from the drop-down release menu to see the one relative to your version)
+
+############General setup###########
+#these are the libraries included for the execution. Update if you add a package (e.g. if you add MyCustomSaver, you have to add libMyCustomSaver to the list below)
+LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
+
+#use this to run on a limited number of events; comment to run on all events in the input files provided via the filelist
+#NEvents 500
+
+#if you want to use a custom object selection, in case existing configurable options are not enough, change this (see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#5_Extend_AnalysisTop_for_your_ow )
+ObjectSelectionName top::ObjectLoaderStandardCuts
+#if you want to use a custom event saver, change this (see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#5_Extend_AnalysisTop_for_your_ow )
+OutputFormat top::EventSaverFlatNtuple
+OutputEvents SelectedEvents # AllEvents-> store all events, SelectedEvents -> store events passing at least one of the event-level selections (defined below)
+OutputFilename output.root
+
+# DoTight/DoLoose to activate the loose and tight trees, can be: Data, MC, Both, False. Loose trees are tipically used for multijetestimation in data, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#Systematics
+DoTight Both
+DoLoose Data
+
+### Systematics you want to run
+Systematics Nominal #Nominal->only nominal. All -> all systematics (will be much slower). You can also use AllMuons, AllJets... see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#Systematics
+
+#If you use MedaData (as you usually should) IsAFII (needed for fast simulation) is automatically set, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#FullSim_vs_AFII
+UseAodMetaData True
+#IsAFII False
+
+############GRL and PRW#############
+#here Good Run List and Pileup Reweighting settings are provided, see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TopGroupDataDerivationList#Lumicalc_GRL_and_PRW_files for the most update settings
+
+##these are the settings for MC16a
+GRLDir GoodRunsLists
+GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20180129/physics_25ns_21.0.19.xml
+PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.FS.v2/prw.merged.root
+PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.AF.v2/prw.merged.root
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root
+
+###########Reco-level object definitions (i.e. object-level selection)##########
+
+### Global lepton trigger scale factor example
+UseGlobalLeptonTriggerSF True
+GlobalTriggers 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,mu20_iloose_L1MU15_OR_mu50 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50
+GlobalTriggersLoose 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,mu20_iloose_L1MU15_OR_mu50 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50
+
+### Object container names
+ElectronCollectionName Electrons
+MuonCollectionName Muons
+JetCollectionName AntiKt4EMPFlowJets_BTagging201903
+LargeJetCollectionName None # can be e.g. AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
+TauCollectionName None #can be e.g. TauJets
+PhotonCollectionName None #can be e.g. Photons
+TrackJetCollectionName None #can be e.g. AntiKtVR30Rmax4Rmin02TrackJets
+JetGhostTrackDecoName None # can be e.g. GhostTrack
+
+### Electron configuration
+ElectronPt 25000
+ElectronID TightLH
+ElectronIDLoose LooseAndBLayerLH
+ElectronIsolation FCTight
+ElectronIsolationLoose None
+
+### Muon configuration
+MuonPt 25000
+MuonQuality Medium
+MuonQualityLoose Medium
+MuonIsolation FCTight_FixedRad
+MuonIsolationLoose None
+doExtraSmearing False
+do2StationsHighPt False
+
+### Jet configuration
+JetPt 25000
+JVTWP Default
+
+### B-tagging configuration
+BTaggingWP DL1r:FixedCutBEff_77
+
+###########Reco-level systematics models##########
+ElectronEfficiencySystematicModel TOTAL
+EgammaSystematicModel 1NP_v1 #egamma calibration uncertainties model
+JetUncertainties_NPModel CategoryReduction #JES
+JetJERSmearingModel Simple #JER
+
+###########Truth-level settings##########
+#see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#Truth_options for more info
+TruthCollectionName TruthParticles
+TruthJetCollectionName AntiKt4TruthDressedWZJets
+TruthLargeRJetCollectionName None # can be AntiKt10TruthTrimmedPtFrac5SmallR20Jets
+TopPartonHistory False # can be e.g. ttbar
+TopPartonLevel False #this option only exists for recent releases; it switches on/off writing the "truth" partol-level tree
+TopParticleLevel False #this switches on/off writing the "particleLevel" tree
+TruthBlockInfo False
+PDFInfo True
+
+##############################################
+#############Event-level selections###########
+##############################################
+###more info here https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#Which_event_level_cuts_can_I_use
+###see https://gitlab.cern.ch/atlas/athena/-/blob/21.2/PhysicsAnalysis/TopPhys/xAOD/TopAnalysis/share/validation-cuts-pflow.txt for some more complicated examples
+### here we have just very simple selections for ttbar e+jets/mu+jets channels
+### these should be considered as a simple example AND NOT as suggestions for real analyses, that should carefully evaluate the selections applied
+
+#####General definition of periods#####
+
+SUB period_2015
+RUN_NUMBER >= 276262
+RUN_NUMBER <= 284484
+
+SUB period_2016
+RUN_NUMBER >= 296939
+RUN_NUMBER <= 311481
+
+SUB period_2017
+RUN_NUMBER >= 324320
+RUN_NUMBER <= 341649
+
+SUB period_2018
+RUN_NUMBER >= 348197
+
+#####Reco-level definitions######
+
+### basic sub-selections with mandatory cuts for reco level
+
+SUB BASIC
+INITIAL
+GRL
+GOODCALO
+PRIVTX
+RECO_LEVEL
+
+### lepton trigger and offline cuts sub-selections
+
+SUB EL_2015
+. BASIC
+. period_2015
+GTRIGDEC
+EL_N 25000 >= 1
+
+SUB EL_2016
+. BASIC
+. period_2016
+GTRIGDEC
+EL_N 27000 >= 1
+
+SUB EL_2017
+. BASIC
+. period_2017
+GTRIGDEC
+EL_N 27000 >= 1
+
+SUB EL_2018
+. BASIC
+. period_2018
+GTRIGDEC
+EL_N 27000 >= 1
+
+SUB MU_2015
+. BASIC
+. period_2015
+GTRIGDEC
+MU_N 25000 >= 1
+
+SUB MU_2016
+. BASIC
+. period_2016
+GTRIGDEC
+MU_N 27000 >= 1
+
+SUB MU_2017
+. BASIC
+. period_2017
+GTRIGDEC
+MU_N 27000 >= 1
+
+SUB MU_2018
+. BASIC
+. period_2018
+GTRIGDEC
+MU_N 27000 >= 1
+
+### e+jets selections
+
+SUB ejets_basic
+EL_N 25000 == 1
+MU_N 25000 == 0
+GTRIGMATCH
+JETCLEAN LooseBad
+JET_N 25000 >= 1
+JET_N 25000 >= 2
+JET_N 25000 >= 3
+JET_N 25000 >= 4
+MET > 30000
+MWT > 30000
+#RECO::KLFITTERRUN kElectron KLFitterBTaggingWP:DL1r:FixedCutBEff_77
+#KLFITTER > -50.0
+EXAMPLEPLOTS
+#PRINT
+NOBADMUON
+
+SELECTION ejets_DL1r_2015
+. EL_2015
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2016
+. EL_2016
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2017
+. EL_2017
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2018
+. EL_2018
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+### mu+jets selections
+
+SUB mujets_basic
+MU_N 25000 == 1
+EL_N 25000 == 0
+GTRIGMATCH
+JETCLEAN LooseBad
+JET_N 25000 >= 1
+JET_N 25000 >= 2
+JET_N 25000 >= 3
+JET_N 25000 >= 4
+MET+MWT > 60000
+#RECO::KLFITTERRUN kMuon KLFitterBTaggingWP:DL1r:FixedCutBEff_77
+#KLFITTER > -50.0
+EXAMPLEPLOTS
+#PRINT
+NOBADMUON
+
+SELECTION mujets_DL1r_2015
+. MU_2015
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2016
+. MU_2016
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2017
+. MU_2017
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2018
+. MU_2018
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+##### particle-level selection #####
+
+SELECTION ejets_particle
+PRIVTX
+PARTICLE_LEVEL
+EL_N 27000 >= 1
+. ejets_basic
+SAVE
+
+SELECTION mujets_particle
+PRIVTX
+PARTICLE_LEVEL
+MU_N 27000 >= 1
+. mujets_basic
+SAVE

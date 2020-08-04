@@ -213,7 +213,8 @@ higg3d1PreSeq = CfgMgr.AthSequencer("HIGG3d1PreSelectionSequence")
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
 OutputJets["HIGG3D1"] = ["AntiKt4EMPFlowJets",
-                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]
+                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -234,6 +235,7 @@ applyJetCalibration_xAODColl("AntiKt4EMPFlow", higg3d1Seq)
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 #====================================================================
 addVRJets(higg3d1Seq)
+addVRJets(higg3d1Seq, training='201903')
 
 #addVRJets(higg3d1Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
 #          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
@@ -251,10 +253,14 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Add flavor tagging to the PFlow Jet collections
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d1Seq)
 
-#===================================================================
 # Hbb tagger
-#===================================================================
 addHbbTagger(higg3d1Seq, ToolSvc)
+
+#====================================================================
+# fJVT for PFlow jets
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=higg3d1Seq, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # QG tagging
@@ -299,18 +305,21 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "AntiKt4EMPFlowJets",
                                           "AntiKt4EMPFlowJets_BTagging201810",
                                           "AntiKt4EMPFlowJets_BTagging201903",
+                                          "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                          "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                           "BTagging_AntiKt4EMTopo_201810",
                                           "BTagging_AntiKt4EMPFlow_201810",
                                           "BTagging_AntiKt4EMPFlow_201903",
                                           "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
+                                          "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
 HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
 HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
 HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
-HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD() 
+HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
 
 # needed to calculate electron LH downstream
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import ElectronsCPDetailedContent, GSFTracksCPDetailedContent

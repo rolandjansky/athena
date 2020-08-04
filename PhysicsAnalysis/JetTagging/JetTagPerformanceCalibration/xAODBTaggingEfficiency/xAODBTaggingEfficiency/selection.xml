@@ -3,4 +3,5 @@
   <class name="BTaggingEfficiencyTool" />
   <class name="BTaggingSelectionTool" />
   <class name="BTaggingTruthTaggingTool" />
+  <class name="BTaggingEigenVectorRecompositionTool" />
 </lcgdict>

@@ -48,7 +48,7 @@ namespace top {
     m_jetUncertaintiesToolLargeR("JetUncertaintiesToolLargeR"),
 
     m_jetUpdateJvtTool("JetUpdateJvtTool"),
-    m_fjvtTool("fJVTTool"),
+    m_jetSelectfJvtTool("JetSelectfJvtTool"),
 
     m_jetSubstructure(nullptr),
 
@@ -144,8 +144,10 @@ namespace top {
 
 
     top::check(m_jetUpdateJvtTool.retrieve(), "Failed to retrieve JetUpdateJvtTool");
-    top::check(m_fjvtTool.retrieve(), "Failed to retrieve fJVTTool");
-
+    //fJVT tool isn't setup unless requested
+    if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
+      top::check(m_jetSelectfJvtTool.retrieve(), "Failed to retrieve JetSelectfJvtTool");
+    }
     // Take this from the TopConfiguration
     // A blank vector will setup all systematics
 
@@ -205,7 +207,7 @@ namespace top {
       }
     }
     ///-- Large-R JES systematics --///
-    std::string largeR(m_config->largeRJetUncertainties_NPModel() + "_");
+    std::string largeRModName = getLargeRModName(m_config->largeRJetUncertainties_NPModel());
     CP::SystematicSet largeRsysts;
     if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
       if ((m_config->largeRJESJMSConfig() == "CombMass") || (m_config->largeRJESJMSConfig() == "TCCMass")) { //TA mass
@@ -235,7 +237,7 @@ namespace top {
     }
 
     // add the merged set of systematics for large-R jets including the tagging SF systs
-    addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeR, true);
+    addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeRModName, true);
 
     ///-- Large R jet substructure --///
     if (m_config->jetSubstructureName() == "Trimmer") m_jetSubstructure.reset(new top::LargeJetTrimmer);
@@ -309,6 +311,9 @@ namespace top {
         top::check(
           decorateHSJets(),
           "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
+        if (m_isMC && m_config->jetResponseMatchingDeltaR() > 0) {
+          top::check(decorateMatchedTruth(), "Failed to decorate matched jet");
+        }
       }
 
       // Decorate the DL1 variable
@@ -447,20 +452,20 @@ namespace top {
     // Check if the derivation we are running on contains
     // MET_Track (once), if so apply the fJVT decoration
     // if not then don't
-    static bool checked_track_MET = false;
-    if (!checked_track_MET) {
-      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
-        m_do_fjvt = true;
-      } else {
-        if (m_config->fwdJetAndMET() == "fJVT") ATH_MSG_ERROR(
-            " Cannot retrieve MET_Track while fJVT is to be applied on forward jets");
-        else ATH_MSG_WARNING(" Cannot retrieve MET_Track, so fJVT information will probably be wrong in output");
+    if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None")) {
+      static bool checked_track_MET = false;
+      if (!checked_track_MET) {
+	if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
+	  m_do_fjvt = true;
+	} else {
+	  ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
+	  return StatusCode::FAILURE; 
+	}
+	checked_track_MET = true;
       }
-      checked_track_MET = true;
     }
-
     if (m_do_fjvt) {
-      top::check(!m_fjvtTool->modify(*shallow_xaod_copy.first),
+      top::check(!m_jetSelectfJvtTool->modify(*shallow_xaod_copy.first),
                  "Failed to apply fJVT decoration");
     }
 
@@ -560,6 +565,27 @@ namespace top {
           }
           ///-- Update JVT --///
           if (!isLargeR) jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt(*jet);
+	  
+          ///-- Decorate fJVT for systematics too --///
+	  // Check if the derivation we are running on contains
+	  // MET_Track (once) before applying the fJVT decoration
+	  if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None")) {
+	    static bool checked_track_MET = false;
+	    if (!checked_track_MET) {
+	      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
+		m_do_fjvt = true;
+	      } else {
+		ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
+		return StatusCode::FAILURE;
+	      }
+	      checked_track_MET = true;
+	    }
+	  }
+	  if (m_do_fjvt) {
+	    top::check(!m_jetSelectfJvtTool->modify(*shallow_xaod_copy.first),
+		       "Failed to apply fJVT decoration");
+	  }
+
 
           ///-- Apply large-R jet tagging SF uncertainties --///
           if (isLargeR && m_config->isMC()) {
@@ -603,6 +629,7 @@ namespace top {
     if (!executeNominal) return StatusCode::SUCCESS;
 
     top::check(decorateDL1(true), "Failed to decorate track jets with DL1 b-tagging discriminant");
+
 
     ///-- Just make a shallow copy to keep these in line with everything else --///
 
@@ -655,6 +682,11 @@ namespace top {
     }
 
     return StatusCode::SUCCESS;
+  }
+
+  std::string JetObjectCollectionMaker::getLargeRModName(const std::string& NPModel) const {
+    if (NPModel.find("CategoryReduction")!=std::string::npos) return "CategoryReduction_";
+    return NPModel+"_"; 
   }
 
   void JetObjectCollectionMaker::addSystematics(const std::set<std::string>& specifiedSystematics,
@@ -769,6 +801,52 @@ namespace top {
 
     return StatusCode::SUCCESS;
   }
+  
+  StatusCode JetObjectCollectionMaker::decorateMatchedTruth() {
+    static const SG::AuxElement::Decorator<float> matchedPt("AnalysisTop_MatchedTruthJetPt");
+    // retrieve small-R jets collection
+    const xAOD::JetContainer* jets(nullptr);
+
+    top::check(evtStore()->retrieve(jets,
+                                    m_config->sgKeyJets()),
+               "Failed to retrieve small-R jet collection" + m_config->sgKeyJets());
+
+    const xAOD::JetContainer* truthJets = nullptr;
+    top::check(asg::AsgTool::evtStore()->retrieve(truthJets, m_config->sgKeyTruthJets()), "Failed to retrieve the truth jets");
+
+    const xAOD::Jet* matchedTruthJet = nullptr;
+    double deltaR(9999);
+    
+    for (const auto& jet : *jets) {
+      // loop over truth jets
+      for (const auto& iTruthJet : *truthJets) {
+        TLorentzVector truthJetTLV;
+        truthJetTLV.SetPtEtaPhiE(iTruthJet->pt(),iTruthJet->eta(),iTruthJet->phi(),iTruthJet->e());
+
+        // do the matching
+        if(!matchedTruthJet) {
+          matchedTruthJet = iTruthJet;
+        } else {
+          const double newdR = jet->p4().DeltaR(iTruthJet->p4());
+          if(newdR < deltaR) {
+            deltaR = newdR;
+            matchedTruthJet = iTruthJet;
+          }
+        }
+      }
+      if (deltaR > m_config->jetResponseMatchingDeltaR()) {
+        matchedPt(*jet) = -9999;
+        continue;
+      }
+      if (!matchedTruthJet) {
+        matchedPt(*jet) = -9999;
+        continue;
+      }
+      matchedPt(*jet) = matchedTruthJet->pt(); 
+    }
+
+    return StatusCode::SUCCESS;
+  }
 
   StatusCode JetObjectCollectionMaker::decorateDL1(bool trackJets) {
     // initialise decorators
@@ -856,42 +934,4 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  void JetObjectCollectionMaker::addCorrelation(const std::string& name,
-                                                systMap& map_one,
-                                                const std::string& syst_one_name,
-                                                systMap& map_two,
-                                                const std::string& syst_two_name) {
-    std::vector<std::string> directions = {
-      "__1up", "__1down"
-    };
-    for (const std::string& d : directions) {
-      std::string tree_name = name + d;
-      map_one.insert(std::make_pair(CP::SystematicSet(tree_name),
-                                    CP::SystematicSet(syst_one_name + d)));
-      map_two.insert(std::make_pair(CP::SystematicSet(tree_name),
-                                    CP::SystematicSet(syst_two_name + d)));
-
-      m_specifiedSystematics.push_back(tree_name);
-      m_specifiedSystematicsLargeR.push_back(tree_name);
-    }  // loop through up and down
-
-    m_specifiedSystematics.sort();
-    m_specifiedSystematics.unique();
-
-    m_specifiedSystematicsLargeR.sort();
-    m_specifiedSystematicsLargeR.unique();
-  }
-
-  void JetObjectCollectionMaker::addCorrelation(const std::string& name,
-                                                systMap& map_one,
-                                                const std::string& syst_one_name,
-                                                std::list<CP::SystematicSet>& jet_specified) {
-    map_one.insert(std::make_pair(CP::SystematicSet(name),
-                                  CP::SystematicSet(syst_one_name)));
-
-    jet_specified.push_back(name);
-
-    jet_specified.sort();
-    jet_specified.unique();
-  }
 }  // namespace top

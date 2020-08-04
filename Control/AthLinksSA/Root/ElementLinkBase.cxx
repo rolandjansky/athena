@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // Local include(s):
@@ -44,4 +44,8 @@ void ElementLinkBase::setPersIndex( uint32_t index ) {
    toTransient();
 
    return;
+}
+
+bool ElementLinkBase::isDefault() const {
+  return m_persIndex == ElementLinkBase::INVALID;
 }
