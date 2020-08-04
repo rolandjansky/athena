@@ -32,6 +32,7 @@
 
     @author ricardo.wolker@cern.ch
 */
+
 class CaloMuonScoreTool : public AthAlgTool, virtual public ICaloMuonScoreTool {
 public:
   CaloMuonScoreTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -63,12 +64,6 @@ public:
   // for a given particle, consume vectors for eta, phi, energy, sampling ID, and return the input tensor to be used in ONNX
   std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const;
 
-  std::vector<const char*> input_node_names;
-
-  std::vector<const char*> output_node_names;
-
-  std::vector<int64_t> input_node_dims;
-
 private:
   // Number of bins in eta
   int m_etaBins = 30;
@@ -95,7 +90,22 @@ private:
 
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
 
+  /// Handle to @c AthONNX::IONNXRuntimeSvc
+  ServiceHandle< AthONNX::ICaloMuonScoreONNXRuntimeSvc > m_svc{ this, "CaloMuonScoreONNXRuntimeSvc",
+      "CaloMuonScoreONNXRuntimeSvc",
+      "Name of the service to use" };
+
   std::unique_ptr< Ort::Session > m_session;
+
+  std::vector<const char*> m_input_node_names;
+  //  std::unique_ptr<std::vector<const char*> > m_input_node_names;
+
+  std::vector<const char*> m_output_node_names;
+  //  std::unique_ptr<std::vector<const char*> > m_output_node_names;
+
+  std::vector<int64_t> m_input_node_dims;
+  //  std::unique_ptr<std::vector<int64_t> > m_input_node_dims;
+
 };
 
 #endif

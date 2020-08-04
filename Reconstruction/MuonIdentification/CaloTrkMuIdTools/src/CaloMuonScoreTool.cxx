@@ -35,6 +35,9 @@ CaloMuonScoreTool::CaloMuonScoreTool(const std::string& type, const std::string&
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode CaloMuonScoreTool::initialize() {
   ATH_MSG_INFO("Initializing " << name());
+  
+  // Access the service.
+  ATH_CHECK( m_svc.retrieve() );
 
   ATH_CHECK(m_caloExtensionTool.retrieve());
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
@@ -45,29 +48,29 @@ StatusCode CaloMuonScoreTool::initialize() {
   }
 
   // initialise session
-  Ort::Env env(ORT_LOGGING_LEVEL_INFO, "CaloMuonScoreTool ONNX inference session");
+
   Ort::SessionOptions session_options;
   Ort::AllocatorWithDefaultOptions allocator;  
   session_options.SetIntraOpNumThreads(1);
-  session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-
+  session_options.SetGraphOptimizationLevel( ORT_ENABLE_BASIC );
   // declared in header, so we should not need this
   //  std::unique_ptr<Ort::Session> m_session;
 
   const std::string model_file_name = PathResolverFindDataFile( m_modelFileName );
 
-  m_session = std::make_unique< Ort::Session > (env, model_file_name.c_str(), session_options);
+  m_session = std::make_unique< Ort::Session > (m_svc->env(), model_file_name.c_str(), session_options);
 
   ATH_MSG_INFO("Created ONNX runtime session with model " << model_file_name);
   
-  std::vector<int64_t> input_node_dims;
+  //  std::vector<int64_t> m_input_node_dims;
   size_t num_input_nodes = m_session->GetInputCount();
-  std::vector<const char*> input_node_names(num_input_nodes);
+  m_input_node_names.resize(num_input_nodes);
+  ATH_MSG_INFO("Have input nodes " << num_input_nodes << " " << m_input_node_dims.size() << " " << m_input_node_names.size());
   for( std::size_t i = 0; i < num_input_nodes; i++ ) {
     // print input node names
     char* input_name = m_session->GetInputName(i, allocator);
     ATH_MSG_INFO("Input "<<i<<" : "<<" name= "<<input_name);
-    input_node_names[i] = input_name;
+    m_input_node_names[i] = input_name;
     // print input node types
     Ort::TypeInfo type_info = m_session->GetInputTypeInfo(i);
     auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
@@ -75,25 +78,28 @@ StatusCode CaloMuonScoreTool::initialize() {
     ATH_MSG_INFO("Input "<<i<<" : "<<" type= "<<type);
     
     // print input shapes/dims
-    input_node_dims = tensor_info.GetShape();
-    ATH_MSG_INFO("Input "<<i<<" : num_dims= "<<input_node_dims.size());
-    for (std::size_t j = 0; j < input_node_dims.size(); j++){
-      if(input_node_dims[j]<0)
-	input_node_dims[j] =1;
-      ATH_MSG_INFO("Input "<<i<<" : dim "<<j<<"= "<<input_node_dims[j]);
+    m_input_node_dims = tensor_info.GetShape();
+    ATH_MSG_INFO("Input "<<i<<" : num_dims= "<<m_input_node_dims.size());
+    for (std::size_t j = 0; j < m_input_node_dims.size(); j++){
+      if(m_input_node_dims[j]<0)
+	m_input_node_dims[j] =1;
+      ATH_MSG_INFO("Input "<<i<<" : dim "<<j<<"= "<<m_input_node_dims[j]);
     }  
   }
+
 
   //output nodes
   std::vector<int64_t> output_node_dims;
   size_t num_output_nodes = m_session->GetOutputCount();
-  std::vector<const char*> output_node_names(num_output_nodes);
-  
+  //std::vector<const char*> m_output_node_names(num_output_nodes);
+  ATH_MSG_INFO("Have output nodes " << num_output_nodes);
+  m_output_node_names.resize(num_output_nodes);
+  //m_output_node_names = std::make_unique<std::vector<const char*>(num_output_nodes);
   for( std::size_t i = 0; i < num_output_nodes; i++ ) {
     // print output node names
     char* output_name = m_session->GetOutputName(i, allocator);
     ATH_MSG_INFO("Output "<<i<<" : "<<" name= "<<output_name);
-    output_node_names[i] = output_name;
+    m_output_node_names[i] = output_name;
     
     Ort::TypeInfo type_info = m_session->GetOutputTypeInfo(i);
     auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
@@ -109,7 +115,8 @@ StatusCode CaloMuonScoreTool::initialize() {
       ATH_MSG_INFO("Output"<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
     }  
   }
-
+  ATH_MSG_INFO("After loop " << m_input_node_dims.size() << " " <<m_input_node_names.size() << " " << m_input_node_names[0]);
+  ATH_MSG_INFO("After loop " << output_node_dims.size() << " " <<m_output_node_names.size() << " " << m_output_node_names[0]);
   return StatusCode::SUCCESS;
 }
 
@@ -143,7 +150,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   double track_eta = trk->eta();
 
   if(std::abs(track_eta) > m_caloMuonEtaCut){
-    ATH_MSG_INFO("Skip calculation of muon score for track particle due to failed eta cut of " << m_caloMuonEtaCut << "(eta="<<track_eta<<")");
+    ATH_MSG_INFO("Skip calculation of muon score for track particle due to failed eta cut of " << m_caloMuonEtaCut << " (eta="<<track_eta<<")");
     return -1;
   }
 
@@ -177,22 +184,33 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 ///////////////////////////////////////////////////////////////////////////////
 float CaloMuonScoreTool::runOnnxInference( std::vector<float> &tensor ) const {  
   // create input tensor object from data values
+  ATH_MSG_INFO("In runOnnxInference");
+  ATH_MSG_INFO("In runONNX input node dims " << m_input_node_dims.size() << " " <<m_input_node_names.size() << " " << m_input_node_names[0]);
+  ATH_MSG_INFO("and output node dims " << m_output_node_names.size() << " " << m_output_node_names[0]);
   auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-  int input_tensor_size(m_etaBins * m_phiBins * m_nChannels);
+
+  ATH_MSG_INFO("Have memory info");
   
-  Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, tensor.data(), input_tensor_size, input_node_dims.data(), input_node_dims.size());
+  int input_tensor_size(m_etaBins * m_phiBins * m_nChannels);
+  ATH_MSG_INFO("Have input tensor size " << input_tensor_size);
+  std::cout << *(m_input_node_names.data()) << " " << *(m_output_node_names.data()) << std::endl;
+  Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, tensor.data(), input_tensor_size, m_input_node_dims.data(), m_input_node_dims.size());
+  ATH_MSG_INFO("Asserting is tensor " << input_tensor.IsTensor());
   assert(input_tensor.IsTensor());
 
   // score model & input tensor, get back output tensor
-  auto output_tensors = m_session->Run(Ort::RunOptions{nullptr}, input_node_names.data(), &input_tensor, input_node_names.size(), output_node_names.data(), output_node_names.size());
+  ATH_MSG_INFO(*(m_input_node_names.data()) << " " << *(m_output_node_names.data()));
+  ATH_MSG_INFO("check session Run options " << m_input_node_names.data() << " " << m_input_node_names.size() << " " << m_output_node_names.data() << " " << m_output_node_names.size());
+  auto output_tensors = m_session->Run(Ort::RunOptions{nullptr}, m_input_node_names.data(), &input_tensor, m_input_node_names.size(), m_output_node_names.data(), m_output_node_names.size());
+  ATH_MSG_INFO("Have output tensors "<<output_tensors.size() << " " << output_tensors.front().IsTensor());
   assert(output_tensors.size() == 1 && output_tensors.front().IsTensor());
 
   // Get pointer to output tensor float values
   float* output_score_array = output_tensors.front().GetTensorMutableData<float>();
-
+  ATH_MSG_INFO("Have array");
   // Binary classification - the score is just the first element of the output tensor
   float output_score = output_score_array[0];
-  
+  ATH_MSG_INFO("Havev output score: " << output_score);
   ATH_MSG_DEBUG("Have output score: " << output_score);
   
   return output_score;
