@@ -64,7 +64,7 @@ class SimSkeleton(object):
         ## only changing it in Hive.
         as_alg = is_hive
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
-        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg)
+        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg, noTag=True)
 
         ## Write geometry tag info - move to main method
         #import EventInfoMgt.EventInfoMgtInit
