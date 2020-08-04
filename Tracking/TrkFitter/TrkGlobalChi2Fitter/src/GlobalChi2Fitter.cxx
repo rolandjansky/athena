@@ -145,9 +145,7 @@ namespace Trk {
     m_calotool("Rec::MuidMaterialEffectsOnTrackProvider/MuidMaterialEffectsOnTrackProvider"),
     m_calotoolparam(""), 
     m_trackingGeometrySvc("", n), 
-    m_DetID(nullptr), 
-    m_fieldpropnofield(new MagneticFieldProperties(Trk::NoField)),
-    m_fieldpropfullfield(new MagneticFieldProperties(Trk::FullField))
+    m_DetID(nullptr)
   {
     declareProperty("ExtrapolationTool", m_extrapolator);
     declareProperty("MeasurementUpdateTool", m_updator);
@@ -299,7 +297,7 @@ namespace Trk {
       );
     }
     
-    trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
+    trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
 
     bool firstismuon = isMuonTrack(intrk1);
   
@@ -728,7 +726,7 @@ namespace Trk {
           *matsurf,
           propdir, 
           false,
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting
         );
         
@@ -740,7 +738,7 @@ namespace Trk {
             *matsurf,
             propdir, 
             false,
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             Trk::nonInteracting
           );
         }
@@ -865,7 +863,7 @@ namespace Trk {
       calomeots[0].associatedSurface(),
       Trk::alongMomentum, 
       false, 
-      *trajectory.m_fieldprop,
+      trajectory.m_fieldprop,
       Trk::nonInteracting
     );
     
@@ -888,7 +886,7 @@ namespace Trk {
       calomeots[2].associatedSurface(),
       Trk::oppositeMomentum, 
       false,
-      *trajectory.m_fieldprop, 
+      trajectory.m_fieldprop,
       Trk::nonInteracting
     );
 
@@ -950,7 +948,7 @@ namespace Trk {
         associatedSurface(),
         propdir, 
         false,
-        *trajectory.m_fieldprop,
+        trajectory.m_fieldprop,
         jac1,
         Trk::nonInteracting
       );
@@ -1002,7 +1000,7 @@ namespace Trk {
         calomeots[2].associatedSurface(), 
         propdir, 
         false,
-        *trajectory.m_fieldprop, 
+        trajectory.m_fieldprop,
         jac2,
         Trk::nonInteracting
       );
@@ -1430,7 +1428,7 @@ namespace Trk {
         calomeots[0].associatedSurface(),
         Trk::alongMomentum,
         false,
-        *trajectory.m_fieldprop,
+        trajectory.m_fieldprop,
         Trk::nonInteracting));
 
       delete lastidpar;
@@ -1446,7 +1444,7 @@ namespace Trk {
           calomeots[1].associatedSurface(),
           Trk::alongMomentum,
           false,
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting));
 
       if (!tmppar) {
@@ -1481,7 +1479,7 @@ namespace Trk {
         calomeots[2].associatedSurface(),
         Trk::alongMomentum,
         false,
-        *trajectory.m_fieldprop,
+        trajectory.m_fieldprop,
         Trk::nonInteracting));
 
       if (!lastscatpar) {
@@ -1495,7 +1493,7 @@ namespace Trk {
           calomeots[2].associatedSurface(),
           Trk::oppositeMomentum, 
           false,
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting
         )
       );
@@ -1511,7 +1509,7 @@ namespace Trk {
           calomeots[1].associatedSurface(),
           Trk::oppositeMomentum, 
           false,
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting
         )
       );
@@ -1540,7 +1538,7 @@ namespace Trk {
           calomeots[0].associatedSurface(),
           Trk::oppositeMomentum, 
           false,
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting
         )
       );
@@ -1752,7 +1750,7 @@ namespace Trk {
               (*itStates2)->measurementOnTrack()->associatedSurface(),
               alongMomentum, 
               false,
-              *trajectory.m_fieldprop,
+              trajectory.m_fieldprop,
               Trk::nonInteracting
             )
           );
@@ -1963,8 +1961,7 @@ namespace Trk {
       trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
 
-    trajectory.m_fieldprop =
-      trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
+    trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
 
     return std::unique_ptr<Track>(
       fitIm(ctx, cache, inputTrack, runOutlier, matEffects));
@@ -2017,7 +2014,7 @@ namespace Trk {
       trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
     
-    trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
+    trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
 
     if (inputTrack.trackStateOnSurfaces()->empty()) {
       ATH_MSG_WARNING("Track with zero track states, cannot perform fit");
@@ -2455,7 +2452,7 @@ namespace Trk {
       trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
     
-    trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
+    trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
 
     const TrackParameters *minpar = inputTrack.perigeeParameters();
     
@@ -2604,7 +2601,7 @@ namespace Trk {
       trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
     
-    trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
+    trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
 
     MeasurementSet rots;
 
@@ -3978,7 +3975,7 @@ namespace Trk {
               *oldstates[i]->surface(), 
               alongMomentum, 
               false, 
-              *trajectory.m_fieldprop, 
+              trajectory.m_fieldprop,
               Trk::nonInteracting
             ));
             
@@ -4011,7 +4008,7 @@ namespace Trk {
         *refpar,
         *lastsistate->surface(),
         alongMomentum, false,
-        *trajectory.m_fieldprop,
+        trajectory.m_fieldprop,
         Trk::nonInteracting
       ));
       
@@ -4474,7 +4471,7 @@ namespace Trk {
             calomeots[i].associatedSurface(), 
             propdir,
             false,
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             nonInteracting
           );
 
@@ -4532,7 +4529,7 @@ namespace Trk {
             calomeots[i].associatedSurface(), 
             propdir,
             false,
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             nonInteracting
           );
           
@@ -4685,7 +4682,7 @@ namespace Trk {
               firstmuonhit->associatedSurface(),
               oppositeMomentum, 
               false,
-              *trajectory.m_fieldprop,
+              trajectory.m_fieldprop,
               nonInteracting
             );
 
@@ -5005,7 +5002,7 @@ namespace Trk {
       }
     }
     
-    trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
+    trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
     cache.m_lastiter = 0;
 
     Amg::SymMatrixX lu;
@@ -5184,7 +5181,7 @@ namespace Trk {
           *matsurf, 
           propdir,
           false,
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting
         );
         
@@ -5196,7 +5193,7 @@ namespace Trk {
             *matsurf, 
             propdir,
             false, 
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             Trk::nonInteracting
           );
           
@@ -5245,7 +5242,7 @@ namespace Trk {
         persurf,
         Trk::anyDirection, 
         false,
-        *trajectory.m_fieldprop,
+        trajectory.m_fieldprop,
         Trk::nonInteracting
       );
 
@@ -7246,7 +7243,7 @@ namespace Trk {
           layer->surfaceRepresentation(), 
           propdir,
           true,
-          *oldtrajectory.m_fieldprop,
+          oldtrajectory.m_fieldprop,
           nonInteracting
         );
         
@@ -7317,7 +7314,7 @@ namespace Trk {
           PerigeeSurface(Amg::Vector3D(0, 0, 0)),
           oppositeMomentum, 
           false,
-          *oldtrajectory.m_fieldprop, 
+          oldtrajectory.m_fieldprop,
           nonInteracting
         );
       }
@@ -7432,8 +7429,6 @@ namespace Trk {
   }
 
   GlobalChi2Fitter::~GlobalChi2Fitter() {
-    delete m_fieldpropnofield;
-    delete m_fieldpropfullfield;
   }
 
   FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(
@@ -7479,7 +7474,7 @@ namespace Trk {
           *surf, 
           propdir,
           false, 
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           jac, 
           Trk::nonInteracting,
           curvpar
@@ -7491,7 +7486,7 @@ namespace Trk {
           *surf, 
           propdir,
           false, 
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting, 
           curvpar
         );
@@ -7516,7 +7511,7 @@ namespace Trk {
             *surf, 
             propdir,
             false, 
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             jac, 
             Trk::nonInteracting,
             curvpar
@@ -7528,7 +7523,7 @@ namespace Trk {
             *surf, 
             propdir,
             false, 
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             Trk::nonInteracting, 
             curvpar
           );
@@ -7666,7 +7661,7 @@ namespace Trk {
           *surf, 
           propdir,
           false, 
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           jac, 
           Trk::nonInteracting,
           curvpar
@@ -7678,7 +7673,7 @@ namespace Trk {
           *surf, 
           propdir,
           false, 
-          *trajectory.m_fieldprop,
+          trajectory.m_fieldprop,
           Trk::nonInteracting,
           curvpar
         );
@@ -7703,7 +7698,7 @@ namespace Trk {
             *surf, 
             propdir,
             false, 
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             jac, 
             Trk::nonInteracting,
             curvpar
@@ -7715,7 +7710,7 @@ namespace Trk {
             *surf, 
             propdir,
             false, 
-            *trajectory.m_fieldprop,
+            trajectory.m_fieldprop,
             Trk::nonInteracting, 
             curvpar
           );
@@ -8174,7 +8169,7 @@ namespace Trk {
     const TrackParameters* prevpar,
     const Surface* surf,
     PropDirection propdir,
-    const MagneticFieldProperties* fieldprop) const
+    const MagneticFieldProperties fieldprop) const
   {
     ParamDefsAccessor paraccessor;
     double J[25] = {
@@ -8246,7 +8241,7 @@ namespace Trk {
         *surf,
         propdir,
         false,
-        *fieldprop,
+        fieldprop,
         Trk::nonInteracting);
       const TrackParameters* newparminuseps = m_propagator->propagateParameters(
         ctx,
@@ -8254,7 +8249,7 @@ namespace Trk {
         *surf,
         propdir,
         false,
-        *fieldprop,
+        fieldprop,
         Trk::nonInteracting);
       PropDirection propdir2 =
         (propdir ==
@@ -8266,7 +8261,7 @@ namespace Trk {
           *surf,
           propdir2,
           false,
-          *fieldprop,
+          fieldprop,
           Trk::nonInteracting);
       }
       if (newparminuseps == nullptr) {
@@ -8276,7 +8271,7 @@ namespace Trk {
           *surf,
           propdir2,
           false,
-          *fieldprop,
+          fieldprop,
           Trk::nonInteracting);
       }
       delete parpluseps;

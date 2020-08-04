@@ -531,7 +531,7 @@ namespace Trk {
       const TrackParameters *,
       const Surface *,
       PropDirection,
-      const MagneticFieldProperties *
+      const MagneticFieldProperties
     ) const;
 
     virtual int iterationsOfLastFit() const;
@@ -615,8 +615,6 @@ namespace Trk {
     bool m_useCaloTG = false;
     bool m_rejectLargeNScat = false;
 
-    MagneticFieldProperties *m_fieldpropnofield;
-    MagneticFieldProperties *m_fieldpropfullfield;
     ParticleMasses m_particleMasses;
 
     /*

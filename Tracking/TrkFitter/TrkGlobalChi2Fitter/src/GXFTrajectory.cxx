@@ -15,7 +15,6 @@ using CLHEP::HepVector;
 namespace Trk {
   GXFTrajectory::GXFTrajectory() {
     m_straightline = true;
-    m_fieldprop = nullptr;
     m_ndof = 0;
     m_nperpars = -1;
     m_nscatterers = 0;

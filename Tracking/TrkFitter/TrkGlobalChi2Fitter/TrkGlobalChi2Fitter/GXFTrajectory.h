@@ -6,6 +6,7 @@
 #define TRK_GXFTRAJECTORY_H
 
 #include "TrkGlobalChi2Fitter/GXFTrackState.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
 
 namespace Trk {
   class MeasurementBase;
@@ -93,7 +94,7 @@ namespace Trk {
     std::unique_ptr<const FitQuality> quality(void) const;
 
     bool m_straightline;
-    MagneticFieldProperties *m_fieldprop;
+    MagneticFieldProperties m_fieldprop = Trk::FullField;
 
   private:
     std::vector < GXFTrackState * >m_states;  //!< The vector of track states, i.e. measurements, scatterers, brem points, and holes
