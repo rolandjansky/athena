@@ -98,6 +98,31 @@ namespace Analysis {
       return StatusCode::FAILURE;
     }
 
+    SG::WriteHandle<xAOD::VertexContainer> h_BTagSVCollectionName;
+    SG::WriteHandle<xAOD::BTagVertexContainer> h_BTagJFVtxCollectionName;
+
+    std::string basename =  m_secVertexFinderBaseName;
+    /* Record the BTagging JF Vertex  output container */
+    if (basename == "JetFitter") {
+      ATH_MSG_DEBUG("#BTAG# Record the BTagging JF Vertex  output container");
+      h_BTagJFVtxCollectionName = SG::WriteHandle<xAOD::BTagVertexContainer>(m_BTagJFVtxCollectionName);
+      ATH_CHECK( h_BTagJFVtxCollectionName.record(std::make_unique<xAOD::BTagVertexContainer>(),
+                                        std::make_unique<xAOD::BTagVertexAuxContainer>()) );
+    }
+
+    /* Record the BTagging Secondary Vertex output container */
+    if ((basename == "SV1") || (basename == "MSV")) {
+      ATH_MSG_DEBUG("#BTAG# Record the BTagging Secondary Vertex output container");
+      h_BTagSVCollectionName = SG::WriteHandle<xAOD::VertexContainer>(m_BTagSVCollectionName);
+      ATH_CHECK( h_BTagSVCollectionName.record(std::make_unique<xAOD::VertexContainer>(),
+                                        std::make_unique<xAOD::VertexAuxContainer>()) );
+    }
+
+    if (h_JetCollectionName->size() == 0) {
+     ATH_MSG_DEBUG("#BTAG# Empty Jet collection");
+     return StatusCode::SUCCESS;
+    }
+
     SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
     if (!h_jetParticleLinkName.isAvailable()) {
       ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << m_jetParticleLinkName.key()  );
@@ -138,7 +163,6 @@ namespace Analysis {
       }
     }
 
-
     if (! primaryVertex) {
       ATH_MSG_DEBUG("#BTAG#  No vertex labeled as VxType::PriVtx!");
       xAOD::VertexContainer::const_iterator fz = h_VertexCollectionName->begin();
@@ -149,26 +173,6 @@ namespace Analysis {
     }
 
     const xAOD::Vertex& PrimaryVtx = *primaryVertex;
-    std::string basename =  m_secVertexFinderBaseName;
-
-    SG::WriteHandle<xAOD::VertexContainer> h_BTagSVCollectionName;
-    SG::WriteHandle<xAOD::BTagVertexContainer> h_BTagJFVtxCollectionName;
-
-    /* Record the BTagging JF Vertex  output container */
-    if (basename == "JetFitter") {
-      ATH_MSG_DEBUG("#BTAG# Record the BTagging JF Vertex  output container");
-      h_BTagJFVtxCollectionName = SG::WriteHandle<xAOD::BTagVertexContainer>(m_BTagJFVtxCollectionName);
-      ATH_CHECK( h_BTagJFVtxCollectionName.record(std::make_unique<xAOD::BTagVertexContainer>(),
-                                        std::make_unique<xAOD::BTagVertexAuxContainer>()) );
-    }
-
-    /* Record the BTagging Secondary Vertex output container */
-    if ((basename == "SV1") || (basename == "MSV")) {
-      ATH_MSG_DEBUG("#BTAG# Record the BTagging Secondary Vertex output container");
-      h_BTagSVCollectionName = SG::WriteHandle<xAOD::VertexContainer>(m_BTagSVCollectionName);
-      ATH_CHECK( h_BTagSVCollectionName.record(std::make_unique<xAOD::VertexContainer>(),
-                                        std::make_unique<xAOD::VertexAuxContainer>()) );
-    }
 
     Trk::VxSecVertexInfoContainer::const_iterator infoSVIter = h_VxSecVertexInfoName->begin();
     for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter, ++infoSVIter) {
