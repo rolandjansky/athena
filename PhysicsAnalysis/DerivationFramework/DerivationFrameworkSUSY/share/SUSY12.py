@@ -14,6 +14,7 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY12Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_SUSY12Stream )
@@ -291,6 +292,8 @@ SUSY12SlimmingHelper.SmartCollections = ["AntiKt4EMPFlowJets",
                                          "MET_Reference_AntiKt4EMPFlow",
                                          "AntiKt4EMPFlowJets_BTagging201903",
                                          "BTagging_AntiKt4EMPFlow_201903",
+                                         "AntiKt4EMPFlowJets_BTagging201810",
+                                         "BTagging_AntiKt4EMPFlow_201810",
                                          "AntiKt4EMTopoJets",
                                          #"AntiKt4LCTopoJets",
                                          "Electrons",
