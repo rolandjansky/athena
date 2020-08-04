@@ -766,18 +766,18 @@ class Chain(object):
 
             if len(step.chainDicts) > 0:
                 # new way to configure hypo tools, works if the chain dictionaries have been attached to the steps
-                log.info('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
-                log.info("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.chainDicts))
+                log.debug('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
+                log.debug("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.chainDicts))
                 assert len(step.sequences)==len(step.chainDicts), "createHypoTools only makes sense if number of sequences == number of chain dicts"
                 for seq, onePartChainDict in zip(step.sequences, step.chainDicts):
-                    log.info('    seq: %s, onePartChainDict:', seq.name)
-                    log.info('    ' + str(onePartChainDict))
+                    log.debug('    seq: %s, onePartChainDict:', seq.name)
+                    log.debug('    ' + str(onePartChainDict))
                     seq.createHypoTools( onePartChainDict )              
 
             else:
                 # legacy way, to be removed once all signatures pass the chainDicts to the steps
                 step_mult = [str(m) for m in step.multiplicity]
-                log.info('%s in old hypo tool creation method', self.name)
+                log.debug('%s in old hypo tool creation method', self.name)
                 menu_mult = [ part['chainParts'][0]['multiplicity'] for part in listOfChainDictsLegs ]
                 if step_mult != menu_mult:
                     # Probably this shouldn't happen, but it currently does

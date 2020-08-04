@@ -63,9 +63,9 @@ def mergeParallel(chainDefList, offset):
                                   
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
 
-    log.info("Parallel merged chain %s with these steps:", chainName)
+    log.debug("Parallel merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
-        log.info('\n   %s', step)
+        log.debug('\n   %s', step)
 
     return combinedChainDef
 
@@ -87,13 +87,13 @@ def serial_zip(allSteps, chainName):
     newsteps = []
     for chain_index, chainsteps in enumerate(allSteps):
         for step_index, step in enumerate(chainsteps):
-            log.info('chain_index: ' + str(chain_index) + " step_index: " + str(step_index))
+            log.debug('chain_index: ' + str(chain_index) + " step_index: " + str(step_index))
             # create list of correct length
             stepList = [None]*n_chains
             
             # put the step from the current sub-chain into the right place
             stepList[chain_index] = step
-            log.info('Put step: ' + str(step.name))
+            log.debug('Put step: ' + str(step.name))
 
             # all other steps should contain an empty sequence
             for step_index2, emptyStep in enumerate(stepList):
@@ -114,8 +114,8 @@ def mergeSerial(chainDefList):
     chainName = ''
     l1Thresholds = []
 
-    log.info('Merge chainDefList:')
-    log.info(chainDefList)
+    log.debug('Merge chainDefList:')
+    log.debug(chainDefList)
 
     for cConfig in chainDefList:
         if chainName == '':
@@ -144,9 +144,9 @@ def mergeSerial(chainDefList):
                                   
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
 
-    log.info("Serial merged chain %s with these steps:", chainName)
+    log.debug("Serial merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
-        log.info('   %s', step)
+        log.debug('   %s', step)
 
     return combinedChainDef
 
@@ -169,7 +169,7 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             # this happens for merging chains with different numbers of steps, we need to "pad" out with empty sequences to propogate the decisions
             currentStepName = "Step" + str(stepNumber) + "_Empty" + str(chain_index)
             seqName = getEmptySeqName(currentStepName, chain_index, stepNumber)
-            log.info("  step %s,  empty sequence %s", currentStepName, seqName)
+            log.debug("  step %s,  empty sequence %s", currentStepName, seqName)
             emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
 
 
@@ -179,9 +179,9 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             stepDicts.append(deepcopy(chainDefList[chain_index].steps[-1].chainDicts[-1]))
         else:
             # Standard step, append it to the combined step
-            log.info("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
+            log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
             if len(step.sequences):
-                log.info("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
+                log.debug("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
 
             # this function only works if the input chains are single-object chains (one menu seuqnce)
             if len(step.sequences) > 1:
