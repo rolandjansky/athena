@@ -239,9 +239,9 @@ else:           # More data modifiers
                      'forceTileRODMap',
     ]
 
-TriggerFlags.doID = opt.doID
-TriggerFlags.doMuon = opt.doMuon
-TriggerFlags.doCalo = opt.doCalo
+TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
+TriggerFlags.doMuon = ConfigFlags.Trigger.doMuon = opt.doMuon
+TriggerFlags.doCalo = ConfigFlags.Trigger.doCalo = opt.doCalo
 
 #-------------------------------------------------------------
 # Modifiers

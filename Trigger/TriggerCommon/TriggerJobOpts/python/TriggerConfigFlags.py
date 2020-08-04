@@ -34,6 +34,15 @@ def createTriggerFlags():
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
+    # Enable Inner Detector
+    flags.addFlag('Trigger.doID', True)
+
+    # Enable muon system
+    flags.addFlag('Trigger.doMuon', True)
+
+    # Enable calorimeters
+    flags.addFlag('Trigger.doCalo', True)
+
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
     def EDMDecodingVersion(flags):
         log.debug("Attempting to determine EDMDecodingVersion.")
