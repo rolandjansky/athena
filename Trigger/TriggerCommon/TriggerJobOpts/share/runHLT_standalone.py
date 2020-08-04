@@ -72,6 +72,7 @@ from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toC
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
+from AthenaCommon import Constants
 log = logging.getLogger('runHLT_standalone.py')
 
 #-------------------------------------------------------------
@@ -534,7 +535,7 @@ if len(opt.condOverride)>0:
         log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
 
-if svcMgr.MessageSvc.OutputLevel < logging.INFO:
+if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print(svcMgr)
