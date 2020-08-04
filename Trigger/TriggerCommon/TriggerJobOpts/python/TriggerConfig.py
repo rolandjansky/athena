@@ -218,7 +218,9 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
         return acc, mon
     allChains = set() # collects the last decision obj for each chain
 
-    for stepName, stepHypos in sorted( hypos.items() ):
+    # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
+    # to Step10 Step11 Step1 Step2
+    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : int(x[0].split('_')[0][4:]) ):
         stepDecisionKeys = []
         for hypo in stepHypos:
             hypoChains, hypoOutputKey  = __decisionsFromHypo( hypo )

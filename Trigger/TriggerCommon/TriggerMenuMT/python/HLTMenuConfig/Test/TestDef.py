@@ -120,9 +120,6 @@ class TestChainConfiguration(ChainConfigurationBase):
         }
         return stepDictionary
 
-
-    
-
     ## Muons    
     
     def Step_mu11(self):
