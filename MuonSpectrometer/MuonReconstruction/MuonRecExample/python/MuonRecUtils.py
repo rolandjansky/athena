@@ -19,9 +19,6 @@ import os,sys,copy,re,subprocess
 # for backwards compat of clients. TO BE REMOVED !!!
 from AthenaCommon.ConfiguredFactory import getProperty
 
-# for backwards compat of clients. TO BE REMOVED !!!
-from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
-
 # logger to use for normal output
 logMuon = logging.getLogger("MuonRec")
 # logger to use for resilience output
