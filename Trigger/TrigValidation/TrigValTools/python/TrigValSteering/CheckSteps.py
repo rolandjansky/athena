@@ -23,10 +23,19 @@ class RefComparisonStep(Step):
     def __init__(self, name):
         super(RefComparisonStep, self).__init__(name)
         self.reference = None
+        self.ref_test_name = None
         self.input_file = None
         self.explicit_reference = False  # True if reference doesn't exist at configuration time
 
     def configure(self, test):
+        if self.reference and self.ref_test_name:
+            self.log.error('%s: Misconfiguration, both options "reference" and "ref_test_name" used. Use at most one of them.')
+            self.report_result(1, 'TestConfig')
+            sys.exit(1)
+
+        if not self.ref_test_name:
+            self.ref_test_name = test.name
+
         if self.reference is not None:
             # Do nothing if the reference will be produced later
             if self.explicit_reference:
@@ -61,7 +70,7 @@ class RefComparisonStep(Step):
             branch = 'UNKNOWN_BRANCH'
 
         sub_path = '{}/ref/{}/test_{}/'.format(
-            test.package_name, branch, test.name)
+            test.package_name, branch, self.ref_test_name)
         ref_eos = art_input_eos + sub_path + self.input_file
         ref_cvmfs = art_input_cvmfs + sub_path + self.input_file
         if os.path.isfile(ref_eos):
