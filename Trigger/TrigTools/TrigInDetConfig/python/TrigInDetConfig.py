@@ -438,8 +438,7 @@ if __name__ == "__main__":
     #from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     #acc.merge( MainServicesCfg( ConfigFlags ) )
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
-    acc.addEventAlgo(l1DecoderAlg)
+    l1DecoderAcc = L1DecoderCfg( ConfigFlags )
     acc.merge(l1DecoderAcc)
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))

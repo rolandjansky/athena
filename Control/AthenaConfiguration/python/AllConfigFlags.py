@@ -198,6 +198,11 @@ def _createCfgFlags():
         return dqf
     _addFlagsCategory(acf, "DQ", __dq, 'AthenaMonitoring' )
 
+    def __perfmon():
+        from PerfMonComps.PerfMonConfigFlags import createPerfMonConfigFlags
+        return createPerfMonConfigFlags()
+    _addFlagsCategory(acf, "PerfMon", __perfmon, 'PerfMonComps')
+
     return acf
 
 

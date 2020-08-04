@@ -123,7 +123,7 @@ if DetFlags.writeRDOPool.any_on():
         eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"
     else:
         eventInfoKey = "EventInfo"
-    streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, noTag=not premixing, eventInfoKey=eventInfoKey)
+    streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, eventInfoKey=eventInfoKey)
     from Digitization.DigiOutput import getStreamRDO_ItemList
     streamRDO.ItemList = getStreamRDO_ItemList(logDigitization_flags)
     streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]

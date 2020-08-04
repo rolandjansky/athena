@@ -49,6 +49,7 @@ class IJobOptionsSvc;
 class IScheduler;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
+class TrigSORFromPtreeHelper;
 class IIoComponentMgr;
 
 namespace coral {
@@ -81,6 +82,7 @@ public:
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
+  virtual StatusCode prepareForStart (const boost::property_tree::ptree &) override;
   virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt) override;
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt) override;
   ///@}
@@ -122,9 +124,6 @@ private:
 
   /// Read DataFlow configuration properties
   void updateDFProps();
-
-  /// Do whatever is necessary with RunParams (prepare) ptree
-  StatusCode processRunParams(const boost::property_tree::ptree& pt);
 
   // Update internally kept data from new sor
   void updateInternal(const coral::AttributeList & sor_attrlist);
@@ -190,6 +189,8 @@ private:
   SmartIF<IAlgResourcePool> m_algResourcePool;
   SmartIF<IAlgExecStateSvc> m_aess;
   SmartIF<IScheduler> m_schedulerSvc;
+
+  std::unique_ptr<TrigSORFromPtreeHelper> m_sorHelper;
 
   // ------------------------- Other properties --------------------------------------
   Gaudi::Property<std::string> m_schedulerName{
