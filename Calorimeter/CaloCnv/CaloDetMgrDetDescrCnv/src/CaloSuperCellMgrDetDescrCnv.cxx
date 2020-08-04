@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,7 @@
 #undef NDEBUG
 
 
-#include "CaloDetMgrDetDescrCnv/CaloSuperCellMgrDetDescrCnv.h"
+#include "CaloSuperCellMgrDetDescrCnv.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"

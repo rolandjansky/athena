@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloDetMgrDetDescrCnv/CaloMgrDetDescrCnv.h"
-#include "CaloDetMgrDetDescrCnv/CaloCellVolumes.h"
+#include "CaloMgrDetDescrCnv.h"
+#include "CaloCellVolumes.h"
 
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
