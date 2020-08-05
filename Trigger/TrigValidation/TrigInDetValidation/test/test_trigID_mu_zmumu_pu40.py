@@ -25,8 +25,8 @@
 # art-output: *.dat 
 
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
+from TrigValTools.TrigValSteering import Test, CheckSteps
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 import sys,getopt
 
@@ -51,60 +51,19 @@ for opt,arg in opts:
         postproc=True
 
 
-
-
-chains = [
-    'HLT_mu6_idperf_L1MU6',
-    'HLT_mu24_idperf_L1MU20'
-]
-
-preexec_trig = ';'.join([
-    'doEmptyMenu=True',
-    'doMuonSlice=True',
-    'selectChains='+str(chains)
-])
-
-
-preexec_reco = ';'.join([
-    'from RecExConfig.RecFlags import rec',
-    'rec.doForwardDet=False',
-    'rec.doEgamma=False',
-    'rec.doMuonCombined=False',
-    'rec.doJetMissingETTag=False',
-    'rec.doTau=False'
-])
-
-preexec_aod = ';'.join([
-     preexec_reco,
-     'from ParticleBuilderOptions.AODFlags import AODFlags',
-     'AODFlags.ThinGeantTruth.set_Value_and_Lock(False)',
-     'AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False)',
-     'AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)',
-     'AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)'
-])
-
-
-
-preexec_all = ';'.join([
-    'from TriggerJobOpts.TriggerFlags import TriggerFlags',
-    'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
-])
-
-rdo2aod = ExecStep.ExecStep()
-rdo2aod.type = 'Reco_tf'
+rdo2aod = TrigInDetReco()
+rdo2aod.slices = ['muon']
 rdo2aod.max_events = 2000 # TODO: 2000 events
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
-rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
+rdo2aod.timeout = 18*3600
 if local:
     rdo2aod.input = 'Zmumu_pu40'
 else:
     rdo2aod.input = ''
     rdo2aod.args += '--inputRDOFile=$ArtInFile '
 
-rdo2aod.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
-    preexec_trig, preexec_all, preexec_reco, preexec_aod)
 
 test = Test.Test()
 test.art_type = 'grid'
