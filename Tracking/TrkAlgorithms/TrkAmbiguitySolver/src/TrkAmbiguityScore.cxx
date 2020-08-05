@@ -6,7 +6,7 @@
 #include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
 
 Trk::TrkAmbiguityScore::TrkAmbiguityScore(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm (name, pSvcLocator),
+  AthReentrantAlgorithm (name, pSvcLocator),
   m_originTracksKey{""},
   m_scoredTracksKey("Tracks"),
   m_scoreTool("",this)
@@ -36,9 +36,9 @@ Trk::TrkAmbiguityScore::initialize()
 
 //-------------------------------------------------------------------------
 StatusCode
-Trk::TrkAmbiguityScore::execute()
+Trk::TrkAmbiguityScore::execute(const EventContext& ctx) const
 {
-  std::vector<SG::ReadHandle<TrackCollection>> handles = m_originTracksKey.makeHandles();
+  std::vector<SG::ReadHandle<TrackCollection>> handles = m_originTracksKey.makeHandles(ctx);
   size_t totalsize = 0;
   for (SG::ReadHandle<TrackCollection>& trackColHandle : handles) {
      if (!trackColHandle.isValid())
@@ -66,7 +66,7 @@ Trk::TrkAmbiguityScore::execute()
     }
   }
 
-  SG::WriteHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey);
+  SG::WriteHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey, ctx);
   ATH_CHECK(scoredTracksHandle.record(std::move(scoredTracks)));
   return StatusCode::SUCCESS;
 }
