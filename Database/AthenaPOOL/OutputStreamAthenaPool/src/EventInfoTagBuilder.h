@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTTAGALGS_EVENTINFOTAGBUILDER_H
@@ -14,8 +14,8 @@ Updated : February 2006
 
 DESCRIPTION:
 
-Retrieves event tag data from an AOD file, stores this data in an attribute 
-list object and records the attribute list object in the TDS for subsequent 
+Retrieves event tag data from an AOD file, stores this data in an attribute
+list object and records the attribute list object in the TDS for subsequent
 inclusion in an event tag database.
 
 *****************************************************************************/
@@ -27,37 +27,39 @@ inclusion in an event tag database.
 
 */
 
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "EventInfoAttListTool.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "PersistentDataModel/AthenaAttributeList.h"
-#include "GaudiKernel/ToolHandle.h"
+#include <AthenaBaseComps/AthAlgorithm.h>
+#include <GaudiKernel/ToolHandle.h>
+#include <PersistentDataModel/AthenaAttributeList.h>
+#include <StoreGate/ReadHandleKey.h>
+#include <StoreGate/WriteHandleKey.h>
+#include <xAODEventInfo/EventInfo.h>
 
-class EventInfoTagBuilder : public AthAlgorithm {
+#include "EventInfoAttListTool.h"
+
+class EventInfoTagBuilder : public AthAlgorithm
+{
 public:
 
   /// Standard constructor.
   EventInfoTagBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-  
+
   /// Destructor.
-  ~EventInfoTagBuilder();
-  
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  ~EventInfoTagBuilder() = default;
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
 private:
-  
-  /// Global Event Tag Tool
-  ToolHandle<EventInfoAttListTool> m_tool;
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_evtKey;
-  SG::ReadHandleKey<AthenaAttributeList> m_inputAttList;
-  SG::WriteHandleKey<AthenaAttributeList> m_attributeListName;
-  bool m_propInput;
-  std::string m_filter;
+  /// Global Event Tag Tool
+  ToolHandle<EventInfoAttListTool> m_tool{this, "Tool", "EventInfoAttListTool/EventInfoAttListTool", "EventInfoAttListTool used"};
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtKey{this, "EventInfoKey", "EventInfo", "xAOD::EventInfo ReadHandleKey"};
+  SG::ReadHandleKey<AthenaAttributeList> m_inputAttList{this, "InputList", "Input", "Input Athena attribute list ReadHandleKey"};
+  SG::WriteHandleKey<AthenaAttributeList> m_attributeListName{this, "AttributeList", "SimpleTag", "Output Athena attribute list WriteHandleKey"};
+
+  Gaudi::Property<bool> m_propInput{this, "PropagateInput", true, "Propagate input attribute list to the output"};
+  Gaudi::Property<std::string> m_filter{this, "FilterString", "", "Filter input attribute list when propagating to the output"};
 
 };
 
