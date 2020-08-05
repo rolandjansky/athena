@@ -452,8 +452,8 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     for (size_t side : {0, 1}) {
         for (size_t module : {0, 1, 2, 3}) {
-            fixTau1Arr[side][module] = m_fixTau1;
-            fixTau2Arr[side][module] = m_fixTau2;
+            fixTau1Arr[side][module] = true;
+            fixTau2Arr[side][module] = true;
 
             peak2ndDerivMinSamples[side][module] = peakSample;
             peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
