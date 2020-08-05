@@ -122,6 +122,14 @@ public:
   void setVetoed (const std::string& key,
                   const CxxUtils::ConcurrentBitset& vetoed);
 
+  /**
+   * @brief Set lossy float compression information for the object.
+   * @param key SG string key of the object being added.
+   * @param compression Map of compression levels to variables
+   *                    for this object.
+   */
+  void setCompression(const std::string& key,
+                      const ThinningInfo::compression_map_t& compression);
 
   /**
    * @brief Return thinning information for @c key.
