@@ -5,15 +5,15 @@
 */
 
 // $Id: FloatCompressor.h 789425 2016-12-13 10:50:12Z krasznaa $
-#ifndef XAODCORE_TOOLS_FLOATCOMPRESSOR_H
-#define XAODCORE_TOOLS_FLOATCOMPRESSOR_H
+#ifndef CXXUTILS_FLOATCOMPRESSOR_H
+#define CXXUTILS_FLOATCOMPRESSOR_H
 
 // System include(s):
 extern "C" {
 #   include <stdint.h>
 }
 
-namespace xAOD {
+namespace CxxUtils {
 
    /// Class implementing a lossy float compression
    ///
@@ -60,6 +60,6 @@ namespace xAOD {
 
    }; // class FloatCompressor
 
-} // namespace xAOD
+} // namespace CxxUtils
 
-#endif // XAODCORE_TOOLS_FLOATCOMPRESSOR_H
+#endif // CXXUTILS_FLOATCOMPRESSOR_H
