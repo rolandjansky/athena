@@ -37,8 +37,6 @@ def setupMenu():
         ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
 
         #ATR-20049
-        ChainProp(name='HLT_mu22_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu20_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_mu10_ivarmedium_mu10_10invm70_L12MU10', groups=MultiMuonGroup),
 
         #test chains
@@ -55,7 +53,6 @@ def setupMenu():
         ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu10_lateMu_L1MU10', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
         # this is for test only
         ChainProp(name='HLT_2mu6_Dr_L12MU4',  groups=MultiMuonGroup),
@@ -66,26 +63,12 @@ def setupMenu():
         # Additional intermediate thresholds for validation comparisons to match with Physics_pp_v7_primaries menu
         ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu80_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu60_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu28_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu22_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu24_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name="HLT_mu10_L1MU10", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU4',  groups=MultiMuonGroup),
 
        # ATR-19452
         ChainProp(name='HLT_2mu4_muonqual_L12MU4',  groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_muonqual_L12MU6',  groups=MultiMuonGroup),
-
-       # ATR-20650
-        ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
 
         # Unisolated single muons for monitoring isolated muons
         ChainProp(name="HLT_mu8_L1MU6", groups=SingleMuonGroup),
