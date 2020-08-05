@@ -56,7 +56,6 @@ def setupMenu():
         ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu50_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu14_L12MU10', groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu6Comb_L12MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         #ATR-21822
         ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
