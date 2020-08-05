@@ -60,9 +60,7 @@ class Step(object):
             if self.result is not None:
                 result = self.result
             else:
-                self.log.error('report_result was called but result is None')
-                self.report_result(1, 'TestConfig')
-                sys.exit(1)
+                self.misconfig_abort('report_result was called but result is None')
 
         if name is None:
             if self.name is not None:
@@ -71,6 +69,15 @@ class Step(object):
                 name = 'UnnamedStep'
 
         art_result(result, name)
+
+    def misconfig_abort(self, error_msg, *args, **kwargs):
+        '''
+        Print an error message (arguments passed to logging.error),
+        report non-zero art-result and exit the process with non-zero code
+        '''
+        self.log.error('Misconfiguration in %s: '+error_msg, self.name, *args, **kwargs)
+        self.report_result(1, 'TestConfig')
+        sys.exit(1)
 
     def __trace_and_kill(self, pid, signal, backtrace_list):
         '''
