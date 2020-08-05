@@ -1318,8 +1318,9 @@ namespace top {
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     
     
-    // now get all Boosted jet taggers from the config file.
+    // now get all substructure variables from the config file.
     std::string strSubstructure = settings->value("LargeRJetSubstructureVariables");
+    // Making vector of strings with "," used as separator
     std::vector<std::string> helpvecStr;
     tokenize(strSubstructure, helpvecStr, ",");
 
