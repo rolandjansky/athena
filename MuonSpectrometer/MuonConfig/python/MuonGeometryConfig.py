@@ -8,6 +8,17 @@ Muon__MuonIdHelperSvc=CompFactory.Muon.MuonIdHelperSvc
 AGDDtoGeoSvc=CompFactory.AGDDtoGeoSvc
 MuonAGDDTool, NSWAGDDTool=CompFactory.getComps("MuonAGDDTool","NSWAGDDTool",)
 
+
+def MuonIdHelperSvcCfg(flags):
+    acc = ComponentAccumulator()
+    acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
+        HasCSC=flags.Detector.GeometryCSC,
+        HasSTgc=flags.Detector.GeometrysTGC,
+        HasMM=flags.Detector.GeometryMM
+        ) )
+    return acc
+
+
 def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
 
@@ -30,7 +41,7 @@ def MuonGeoModelCfg(flags):
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         MuonAlignmentCondAlg=CompFactory.MuonAlignmentCondAlg
-        if (flags.Common.isOnline and not flags.Input.isMC):                
+        if (flags.Common.isOnline and not flags.Input.isMC):
             acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/BARREL'], 'MUONALIGN', className='CondAttrListCollection'))
             acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/ENDCAP/SIDEA'], 'MUONALIGN', className='CondAttrListCollection'))
             acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/ENDCAP/SIDEC'], 'MUONALIGN', className='CondAttrListCollection'))
@@ -68,7 +79,7 @@ def MuonGeoModelCfg(flags):
 
 
         # here define if I-lines (CSC internal alignment) are enabled
-        if flags.Muon.Align.UseILines: 
+        if flags.Muon.Align.UseILines:
             if 'HLT' in flags.IOVDb.GlobalTag:
                 #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
                 MuonAlign.ILinesFromCondDB = False
@@ -76,12 +87,12 @@ def MuonGeoModelCfg(flags):
                 detTool.EnableCscInternalAlignment = False
             else :
                 #logMuon.info("Reading CSC I-Lines from conditions database.")
-                if (flags.Common.isOnline and not flags.Input.isMC):                
+                if (flags.Common.isOnline and not flags.Input.isMC):
                     acc.merge(addFolders( flags, ['/MUONALIGN/Onl/CSC/ILINES'], 'MUONALIGN', className='CondAttrListCollection'))
                     detTool.EnableCscInternalAlignment = True
                 else:
-                    acc.merge(addFolders( flags, ['/MUONALIGN/CSC/ILINES'], 'MUONALIGN_OFL', className='CondAttrListCollection'))                
-                    
+                    acc.merge(addFolders( flags, ['/MUONALIGN/CSC/ILINES'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
+
                     MuonAlign.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
                     MuonAlign.ILinesFromCondDB = True
                     detTool.UseIlinesFromGM = False
@@ -118,7 +129,7 @@ def MuonGeoModelCfg(flags):
         AGDD2Geo.Builders += [ nswAGDDTool ]
     #create=True is needed for the service to be initialised in the new style
     acc.addService(AGDD2Geo, create=True)
-    
+
     # call fill cache of MuonDetectorTool such that all MdtReadoutElement caches are filled
     # already during initialize() -> this will increase memory -> needs to be measured
     detTool.FillCacheInitTime = 1
@@ -132,11 +143,7 @@ def MuonGeoModelCfg(flags):
         acc.addCondAlgo(MuonDetectorManagerCond)
 
     gms.DetectorTools += [ detTool ]
-    
-    acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
-        HasCSC=flags.Detector.GeometryCSC,
-        HasSTgc=flags.Detector.GeometrysTGC,
-        HasMM=flags.Detector.GeometryMM
-        ) )
+
+    acc.merge(MuonIdHelperSvcCfg(flags)) # This line can be removed once the configuration methods for all 258 components which directly use this service are updated!!
 
     return acc
