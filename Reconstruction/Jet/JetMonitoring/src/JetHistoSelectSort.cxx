@@ -18,7 +18,6 @@ JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::str
   declareProperty("Selector",m_selectTool);
   declareProperty("EventSelector",m_eventSelTool);
   declareProperty("SortVariable",m_sortVar);
-//  declareProperty("InverseJetSel",m_inverseJetSel);
 }
 
 
@@ -38,7 +37,7 @@ StatusCode JetHistoSelectSort::initialize() {
     ATH_MSG_INFO( " Selecting with "<< m_selectTool->name() );
   }
   if(m_inverseJetSel){
-    ATH_MSG_INFO( "   inverse Jet Selection will be applied" );
+    ATH_MSG_DEBUG( "   inverse Jet Selection will be applied" );
   }
 
   if(m_eventSelTool.isEnabled()){
