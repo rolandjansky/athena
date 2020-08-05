@@ -412,11 +412,19 @@ namespace top {
         float tau3 = jet->getAttribute<float>("Tau3_wta");
         float tau2 = jet->getAttribute<float>("Tau2_wta");
         float tau1 = jet->getAttribute<float>("Tau1_wta");
+        float ECF1 = jet->getAttribute<float>("ECF1");
+        float ECF2 = jet->getAttribute<float>("ECF2");
+        float ECF3 = jet->getAttribute<float>("ECF3");
 
         jet->auxdecor<float>("Tau32_wta") = fabs(tau2) > 1.e-6 ? (tau3 / tau2) : -999;  // 999 to match
                                                                                         // JetSubStructureMomentTools/NSubjettinessRatiosTool
         jet->auxdecor<float>("Tau21_wta") = fabs(tau1) > 1.e-6 ? (tau2 / tau1) : -999;  // 999 to match
                                                                                         // JetSubStructureMomentTools/NSubjettinessRatiosTool
+        // Same definition as in JetSubStructureMomentTools/Root/EnergyCorrelatorRatiosTool.cxx
+        jet->auxdecor<float>("D2") = (ECF2 > 1e-8) ? (ECF3*ECF1*ECF1*ECF1) / (ECF2*ECF2*ECF2) : -999;
+        jet->auxdecor<float>("C2") = (ECF2 > 1e-8) ? (ECF3*ECF1) / (ECF2*ECF2) : -999;
+        jet->auxdecor<float>("E3") = (ECF1 > 1e-8) ? ECF3 / (ECF1*ECF1*ECF1) : -999;
+                                                                                      
 
         top::check(m_jetCalibrationToolLargeR->applyCalibration(*jet), "Failed to applyCalibration");
 

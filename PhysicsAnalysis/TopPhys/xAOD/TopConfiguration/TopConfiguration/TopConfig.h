@@ -1129,6 +1129,7 @@ namespace top {
 
     inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
+    inline virtual const std::map<std::string,std::string> largeRJetSubstructureVariables() const {return m_largeRJetSubstructureVariables;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
     inline virtual const std::string& largeRJetUncertaintiesConfigDir() const {return m_largeRJetUncertaintiesConfigDir;}
     inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
@@ -2243,6 +2244,7 @@ namespace top {
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
+    std::map<std::string,std::string> m_largeRJetSubstructureVariables;
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
     std::string m_largeRJetUncertaintiesConfigDir; //Relative path to directory with large R JES config
                                                   // file

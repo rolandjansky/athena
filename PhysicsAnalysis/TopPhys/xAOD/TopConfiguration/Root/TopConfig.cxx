@@ -1317,6 +1317,32 @@ namespace top {
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
+    
+    
+    // now get all substructure variables from the config file.
+    std::string strSubstructure = settings->value("LargeRJetSubstructureVariables");
+    // Making vector of strings with "," used as separator
+    std::vector<std::string> helpvecStr;
+    tokenize(strSubstructure, helpvecStr, ",");
+
+    std::vector<std::string> vecSubstructure;
+    // Removing empty spaces
+    for (const std::string& x : helpvecStr) {
+      std::istringstream istrSubstructure(x);
+      std::copy(std::istream_iterator<std::string>(istrSubstructure),
+                std::istream_iterator<std::string>(), std::back_inserter(vecSubstructure));
+    }
+    // Making map
+    for (const std::string&  key: vecSubstructure) {
+      std::vector<std::string> pairs;
+      tokenize(key,pairs,":");
+      if(pairs.size() == 1) m_largeRJetSubstructureVariables[pairs[0]]=pairs[0];
+      else if(pairs.size() == 2) m_largeRJetSubstructureVariables[pairs[0]]=pairs[1];
+      else throw std::runtime_error {
+        "TopConfig: Options in LargeRJetSubstructureVariables should be of the form \'x:y\' or \'y\'."
+      };
+    }
+
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
     this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));

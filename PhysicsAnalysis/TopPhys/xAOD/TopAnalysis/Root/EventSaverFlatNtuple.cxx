@@ -1048,7 +1048,10 @@ namespace top {
         systematicTree->makeOutputVariable(m_ljet_phi, "ljet_phi");
         systematicTree->makeOutputVariable(m_ljet_e, "ljet_e");
         systematicTree->makeOutputVariable(m_ljet_m, "ljet_m");
-        systematicTree->makeOutputVariable(m_ljet_sd12, "ljet_sd12");
+
+	for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
+	  systematicTree->makeOutputVariable(m_ljet_substructure[it.first],"ljet_"+it.first);
+	} 
 
         for (const std::string& taggerName : m_boostedJetTaggersNames) {
           systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName], "ljet_isTagged_" + taggerName);
@@ -3091,7 +3094,10 @@ namespace top {
       m_ljet_phi.resize(nLargeRJets);
       m_ljet_e.resize(nLargeRJets);
       m_ljet_m.resize(nLargeRJets);
-      m_ljet_sd12.resize(nLargeRJets);
+
+      for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
+	m_ljet_substructure[it.first].resize(nLargeRJets);
+      }
 
       for (const std::string& taggerName : m_boostedJetTaggersNames)
         m_ljet_isTagged[taggerName].resize(nLargeRJets);
@@ -3107,10 +3113,10 @@ namespace top {
         m_ljet_phi[i] = jetPtr->phi();
         m_ljet_e[i] = jetPtr->e();
         m_ljet_m[i] = jetPtr->m();
-        m_ljet_sd12[i] = 0;
-        float Split12 = 0;
-        jetPtr->getAttribute("Split12", Split12);
-        m_ljet_sd12[i] = Split12;
+
+	for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
+	  m_ljet_substructure[it.first][i] = jetPtr->isAvailable<float>(it.second) ? jetPtr->auxdata<float>(it.second) : -999;
+	}
 
         for (const std::string& taggerName : m_boostedJetTaggersNames) {
           m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_" + taggerName);
