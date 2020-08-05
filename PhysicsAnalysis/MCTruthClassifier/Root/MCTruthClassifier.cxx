@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************************
@@ -10,13 +10,17 @@ PACKAGE:  atlasoff/PhysicsAnalysis/MCTruthClassifier
 AUTHORS:  O. Fedin
 CREATED:  Sep 2007
 
+MODIFIED: 02/07/2020 
+AUTHOR: Sukanya Sinha (sukanya.sinha@cern.ch) 
+
 PURPOSE:  to classify  truth particles according to their origin. Based on
           the truth particle classification the tool provide classification of
           ID and combined muon tracks, egamma electrons (including forward
           electrons) and egamma photons. Both AOD and ESD files can be used.
           See  for details:
     https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaMCTruthClassifier
-Updated:
+
+Updated: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MonteCarloTruthClassifier
 ********************************************************************************/
 
 //
@@ -50,6 +54,7 @@ Updated:
 //
 //std includes
 #include <cmath>
+
 
 using namespace MCTruthPartClassifier;
 using std::abs;
@@ -158,6 +163,26 @@ StatusCode  MCTruthClassifier::finalize(){
 StatusCode MCTruthClassifier::execute(){
   return StatusCode::SUCCESS;
 }
+
+//---------------------------------------------------------------------------------------
+unsigned int MCTruthClassifier::classify(const xAOD::TruthParticle  *thePart){
+  //---------------------------------------------------------------------------------------                                                                
+
+  ATH_MSG_DEBUG( "Executing classify" );
+  
+  //retrieve collection and get a pointer                                                                                                                  
+  if(!thePart){ATH_MSG_WARNING( "Not the primary particle" );}
+  const xAOD::TruthParticleContainer  * xTruthParticleContainer;
+  StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
+  if (sc.isFailure()||!xTruthParticleContainer){
+    ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" );
+    return 0;}
+  
+  ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
+
+  return defOrigOfParticle(thePart);
+}
+
 
 //---------------------------------------------------------------------------------------
 std::pair<ParticleType,ParticleOrigin>
@@ -807,6 +832,97 @@ const xAOD::TruthParticle* MCTruthClassifier::getGenPart(const xAOD::TrackPartic
 
   ATH_MSG_DEBUG( "getGenPart  succeeded " );
   return(theGenParticle);
+}
+
+//-------------------------------------------------------------------------------   
+unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *thePart){
+//-------------------------------------------------------------------------------  
+
+
+  ATH_MSG_DEBUG( "Executing DefOrigOfParticle " ); 
+
+  m_MotherPDG           = 0;
+  m_MotherStatus        = 0;
+  m_MotherBarcode       = 0;
+
+  int iParticlePDG = std::abs(thePart->pdgId());
+  int iParticleStat = std::abs(thePart->status());
+
+  unsigned int outputvalue;
+
+  bool isStable=0; bool fromhad = 0; bool uncat = 0; bool isHadTau=0; bool mybeam=0; bool fromTau=0; bool fromBSM=0; bool isGeant=0; bool isBSM=0;
+ 
+  if(iParticleStat == 1 || iParticleStat == 2){ 
+    isStable = 1;
+  }
+
+  if(isStable == 1){
+   const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():0;
+   if( partOriVert!=0 ) {
+    for (unsigned int ipIn=0; ipIn<partOriVert->nIncomingParticles(); ++ipIn) {
+      const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(ipIn);
+      if(!theMother) continue;
+
+      if(std::abs(thePart->barcode()) >= m_barcodeG4Shift){
+	  isGeant = 1; break;
+	}
+	if(MC::PID::isBSM(iParticlePDG) && abs(iParticleStat) == 1){
+	  isBSM=1;
+	}
+
+	while (mybeam==0){
+	  const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():0;
+	  if( partOriVert!=0 ) { 
+	   const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
+	    if(!theMother) continue;
+
+	    if(std::abs(theMother->pdgId()) == 2212){ 
+	      mybeam = 1; break;
+	    }
+	    if(MC::PID::isTau(theMother->pdgId()) && theMother->status() == 2 ){
+	      fromTau = 1; isHadTau =0;
+	    }
+	    if(isHadron(theMother) == true && theMother->status() == 2 ) {
+	      fromhad = 1;
+	      if(fromTau == 1){
+		isHadTau = 1;
+	      } 
+	    }
+	    if(MC::PID::isBSM(theMother->pdgId())){
+	      fromBSM = 1;
+	    }
+
+	    thePart = theMother;
+	  }
+ 	  else{break;}
+	}
+    }
+   }
+   else{
+     uncat=1;
+   }
+	
+   std::bitset<MCTC_bits::totalBits> status;
+	
+   status[MCTC_bits::stable] = isStable;
+   status[MCTC_bits::isgeant] = isGeant;
+   status[MCTC_bits::isbsm] = isBSM;
+   status[MCTC_bits::uncat] = uncat;
+   status[MCTC_bits::frombsm] = fromBSM;
+   status[MCTC_bits::hadron] = fromhad;                                             
+   status[MCTC_bits::Tau] = fromTau;                                                                                              
+   status[MCTC_bits::HadTau] = isHadTau;
+
+   outputvalue = static_cast<unsigned int>(status.to_ulong());
+  }
+  else {
+    std::bitset<MCTC_bits::totalBits> unclass;
+    unclass[MCTC_bits::stable] = isStable;
+    
+    outputvalue = static_cast<unsigned int>(unclass.to_ulong());
+  }
+
+ return outputvalue;
 }
 
 //-------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
   Interface for the PhysicsAnalysis/MCTruthClassifier/MCTruthclassifier
   @author Frederic Derue derue@lpnhe.in2p3.fr
 CREATED : 01/09/2008
-MODIFIED :
+MODIFIED : 02/07/2020 [Sukanya Sinha (sukanya.sinha@cern.ch)]
 */
 
 #include "AsgTools/IAsgTool.h"
@@ -59,6 +59,12 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::Muon* )= 0; 
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::CaloCluster* )=0;
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::Jet*, bool DR )= 0;
+
+  /// \brief main function used in \ref MCTruthClassifier returning the value from defOrigofParticle to \ref TruthClassificationDecorator 
+  virtual unsigned int classify(const xAOD::TruthParticle *) = 0; 
+
+  /// \brief function used in \ref MCTruthClassifier classifying truth particles with HepMC status 1 & 2 
+  virtual unsigned int defOrigOfParticle(const xAOD::TruthParticle*) = 0;
 
   virtual float getProbTrktoTruth() = 0;
 
