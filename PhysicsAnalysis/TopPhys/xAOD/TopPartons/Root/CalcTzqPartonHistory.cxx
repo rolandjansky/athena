@@ -56,6 +56,7 @@ namespace top {
     bool has_tau2_neutrino = false;
     bool hadr_tau1 = false;
     bool hadr_tau2 = false;
+    Int_t nZChildren = 0;
 
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != start || particle->nChildren() != 2) {
@@ -64,8 +65,9 @@ namespace top {
       tZ.Z_p4 = particle->p4();
       has_Z = true;
       for (size_t k = 0; k < particle->nChildren(); k++) {
+		
         const xAOD::TruthParticle* ZChildren = particle->child(k);
-        
+        nZChildren++;
         if (fabs(ZChildren->pdgId()) == 11) {// demanding electrons as childen
           const xAOD::TruthParticle* electron = CalcTzqPartonHistory::findAfterGamma(ZChildren);
           if (k == 0) {
@@ -140,6 +142,7 @@ namespace top {
         }//else if
       } //for
     }
+    std::cout << "Z has exactly ..." << nZChildren << std::endl;
     if (has_Z && has_tau1_neutrino && has_tau2_neutrino) {
       if (hadr_tau1) { //convention: store hadr. decaying W-Boson as Wdecay1, set all parameters of Wdecay2 to 0.
         tZ.W_decay1_from_Tau1_p4 = tZ.Tau1_from_Z_p4 - tZ.nu_from_Tau1_p4;
