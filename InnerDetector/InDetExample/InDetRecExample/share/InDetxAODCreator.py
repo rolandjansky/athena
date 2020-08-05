@@ -213,11 +213,11 @@ if InDetFlags.doPseudoTracking():
                               topSequence)
 
 
-if InDetFlags.doR3LargeD0(): # TODO: Should this include the flag doLargeD0? Will this simple be converted to doLargeD0 once incorporated?
+if InDetFlags.doR3LargeD0(): # TODO: Should this include the flag doLargeD0? Will this simple be converted to doLargeD0 once incorporated? -RN
     if doCreation :
-        createTrackParticles(InDetKeys.ResolvedLargeD0Tracks(), InDetKeys.ResolvedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
+        createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
     if doConversion :
-        convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.ResolvedLargeD0TrackParticles()), # Not sure if this should be ResolvedLargeD0TrackParticles or ResolvedLargeD0Tracks
+        convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.ResolvedLargeD0TrackParticles()), # TODO: Not sure if this should be ResolvedLargeD0TrackParticles or ResolvedLargeD0Tracks -RN
                               InDetKeys.ResolvedLargeD0TrackParticlesTruth(),
                               InDetKeys.xAODLargeD0TrackParticleContainer(),
                               topSequence)

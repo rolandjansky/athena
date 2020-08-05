@@ -457,8 +457,10 @@ else:
       #     processing case, those tracks are not part of the re-tracking procedure)
       if InDetFlags.useExistingTracksAsInput():
           _dummy = InputCombinedInDetTracks.pop()
+
       # --- add into list for combination
-      InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
+      # Don't add LRT tracks into combined collection. They will be in a separate collection
+      # InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
     
 
@@ -685,7 +687,9 @@ else:
       InputPixelInDetTracks = []
       InputPixelInDetTracks += InputCombinedInDetTracks
       if InDetFlags.doForwardTracks(): 
+        # Add tracks that are not saved to the InputCombinedInDetTracks
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
+        InputPixelInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()] # TODO: Should this be .SiTrackCollection()? RN
       # --- load cuts for pixel segment finding
       if ('InDetNewTrackingCutsDisappearing' not in dir()):
         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now")

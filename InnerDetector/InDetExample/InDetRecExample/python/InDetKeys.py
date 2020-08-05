@@ -470,6 +470,12 @@ class ExtendedLargeD0Tracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ExtendedLargeD0Tracks'
 
+class ExtendedLargeD0TracksTruth(JobProperty):
+    """ Storegate key for new-tracking extended high-d0 tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedLargeD0TracksTruthCollection'
+
 class ProcessedESDTracks(JobProperty):
     """ Storegate key for already processed tracks from ESD"""
     statusOn     = True
@@ -1116,6 +1122,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(ExtendedSLHCTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLowPtTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedBeamGasTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLargeD0Tracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLargeD0TracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ProcessedESDTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksTruth)
