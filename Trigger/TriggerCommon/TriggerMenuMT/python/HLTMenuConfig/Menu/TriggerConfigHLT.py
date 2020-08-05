@@ -35,6 +35,12 @@ class TriggerConfigHLT(object):
         log.debug("Registered chain %s", chainConfig.name ) 
 
     @classmethod
+    def isChainRegistered(cls, chainName):
+        if chainName in cls.__allChainDicts:
+            return True
+        return False
+
+    @classmethod
     def dicts(cls):
         return cls.__allChainDicts
 

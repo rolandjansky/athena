@@ -1,35 +1,17 @@
-################################################################################
-# Package: StoreGate
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( StoreGate )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthAllocators
-   Control/AthContainersInterfaces
-   Control/AthContainers
-   Control/AthenaKernel
-   Control/SGTools
-   Control/CxxUtils
-   Database/PersistentDataModel
-   GaudiKernel
-   PRIVATE
-   AtlasTest/TestTools )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralBase )
-find_package( TBB )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( StoreGateLib src/*.cxx
    PUBLIC_HEADERS StoreGate
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${CORAL_LIBRARIES} AthAllocators AthenaKernel AthContainers
-   SGTools GaudiKernel PersistentDataModel
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} AthAllocators AthenaKernel AthContainers
+   AthContainersInterfaces SGTools GaudiKernel PersistentDataModel
    PRIVATE_LINK_LIBRARIES CxxUtils TestTools )
 
 atlas_add_component( StoreGate src/components/*.cxx
@@ -38,7 +20,7 @@ atlas_add_component( StoreGate src/components/*.cxx
 # Test library used by the package's unit tests:
 atlas_add_library( SGtests test/SGtests.cxx
    NO_PUBLIC_HEADERS
-   LINK_LIBRARIES StoreGateLib TestTools )
+   LINK_LIBRARIES CxxUtils StoreGateLib TestTools )
 
 # Declare the package's tests:o
 atlas_add_test( ActiveStore_test

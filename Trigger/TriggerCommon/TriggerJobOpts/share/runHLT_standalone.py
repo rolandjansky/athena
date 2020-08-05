@@ -72,6 +72,7 @@ from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toC
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
+from AthenaCommon import Constants
 log = logging.getLogger('runHLT_standalone.py')
 
 #-------------------------------------------------------------
@@ -239,9 +240,9 @@ else:           # More data modifiers
                      'forceTileRODMap',
     ]
 
-TriggerFlags.doID = opt.doID
-TriggerFlags.doMuon = opt.doMuon
-TriggerFlags.doCalo = opt.doCalo
+TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
+TriggerFlags.doMuon = ConfigFlags.Trigger.doMuon = opt.doMuon
+TriggerFlags.doCalo = ConfigFlags.Trigger.doCalo = opt.doCalo
 
 #-------------------------------------------------------------
 # Modifiers
@@ -534,7 +535,7 @@ if len(opt.condOverride)>0:
         log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
 
-if svcMgr.MessageSvc.OutputLevel < logging.INFO:
+if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print(svcMgr)

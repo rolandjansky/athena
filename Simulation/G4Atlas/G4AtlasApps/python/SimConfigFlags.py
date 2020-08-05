@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
@@ -80,6 +80,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ISF.HITSMergingRequired", True)
     scf.addFlag("Sim.ISF.Simulator", "ATLFASTII")
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
+    scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
 
     scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
