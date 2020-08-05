@@ -707,6 +707,12 @@ class ResolvedForwardTracksTruth(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ResolvedForwardTracksTruthCollection'
 
+class ResolvedLargeD0TracksTruth(JobProperty):
+    """ Storegate key for new-tracking resolved high-d0 tracks tracks truth"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedLargeD0TracksTruthCollection'
+
 class ResolvedForwardTrackParticles(JobProperty):
     """ Storegate key for new-tracking resolved very forward tracks"""
     statusOn     = True
@@ -718,6 +724,18 @@ class ResolvedForwardTrackParticlesTruth(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ResolvedForwardTrackParticlesTruthCollection'
+
+class ResolvedLargeD0TrackParticles(JobProperty):
+    """ Storegate key for new-tracking resolved high-d0 tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedLargeD0TrackParticles'
+
+class ResolvedLargeD0TrackParticlesTruth(JobProperty):
+    """ Storegate key for new-tracking resolved high-d0 tracks truth"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedLargeD0TrackParticlesTruthCollection'
 
 class ResolvedVeryLowPtTracks(JobProperty):
     """ Storegate key for new-tracking resolved very low Pt tracks"""
@@ -963,6 +981,12 @@ class xAODForwardTrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "InDetForwardTrackParticles"
 
+class xAODLargeD0TrackParticleContainer(JobProperty):
+    """xAOD TrackParticle from Forward Tracking"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetLargeD0TrackParticles"
+
 class xAODLowBetaTrackParticleContainer(JobProperty):
     """xAOD TrackParticle from Low Beta Finder"""
     statusOn = True
@@ -1135,8 +1159,11 @@ jobproperties.InDetContainerKeys.add_JobProperty(ResolvedVeryLowPtTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTrackParticles)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedLargeD0TracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedLargeD0TrackParticles)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedSLHCConversionFindingTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTrackParticlesTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedLargeD0TrackParticlesTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedBeamGasTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedLargeD0Tracks)
 jobproperties.InDetContainerKeys.add_JobProperty(HaloTracks)
@@ -1176,6 +1203,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODKshortVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdaVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdabarVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLargeD0TrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)
