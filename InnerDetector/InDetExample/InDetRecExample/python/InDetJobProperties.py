@@ -1181,6 +1181,11 @@ class doDigitalROTCreation(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class nnCutLargeD0Threshold(InDetFlagsJobProperty):
+  """ Threshold for NN cut in large D0 tracking for tracks in ambi"""
+  statusOn     = True
+  allowedTypes = ['float']
+  StoredValue  = -1.0
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2761,6 +2766,7 @@ _list_InDetJobProperties = [Enabled,
                             doHIP300,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
+                            nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling
                            ]
 for j in _list_InDetJobProperties: 

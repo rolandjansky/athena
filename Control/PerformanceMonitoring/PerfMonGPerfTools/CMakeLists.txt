@@ -1,16 +1,7 @@
-################################################################################
-# Package: PerfMonGPerfTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PerfMonGPerfTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel )
 
 # External dependencies:
 find_package( gperftools COMPONENTS profiler )
@@ -29,8 +20,7 @@ atlas_add_component( PerfMonGPerfTools
                      LINK_LIBRARIES ${GPERFTOOLS_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel )
 
 # Install files from the package:
-atlas_install_headers( PerfMonGPerfTools )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/*.py scripts/gathena )
 

@@ -279,7 +279,7 @@ StatusCode CheckFlow_New::execute() {
 
   // Iterate over all MC particles
   GenAll ifs;
-  MCParticleCollection particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
@@ -295,13 +295,13 @@ StatusCode CheckFlow_New::execute() {
 	   << " PID = " << pid << " Status = " << p_stat
 	   << " Eta = " << rapid << "  Phi = " << phi<< endmsg;
 
-    if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
+    if( (std::abs(rapid) >= m_rapcut_min) && (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt) >= m_ptcut_min) && (std::abs(pt) <= m_ptcut_max) ) {
 
       for(int ihar=0;ihar<6;ihar++){
         float temp=(ihar+1)*(phi-Psi_n[ihar]);
 
-        int ieta= (int)(fabs(rapid)*n_etabin/eta_bin_max);
+        int ieta= (int)(std::abs(rapid)*n_etabin/eta_bin_max);
         if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep [ihar][ieta]->Fill(pt/1000,cos(temp));
 
 

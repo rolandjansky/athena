@@ -8,9 +8,6 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
-#include "MuonStationIntersectSvc/MuonStationIntersect.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -18,7 +15,6 @@
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
-// New Small Wheel
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 
@@ -36,43 +32,16 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include <map>
 
 namespace Muon {
 
   MuonChamberHoleRecoveryTool::MuonChamberHoleRecoveryTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa),
-      m_intersectSvc("MuonStationIntersectSvc",name()),
-      m_extrapolator("Trk::Extrapolator/MuonExtrapolator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-      m_clusRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-      m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    : AthAlgTool(ty,na,pa)
   {
     declareInterface<IMuonHoleRecoveryTool>(this);
     declareInterface<MuonChamberHoleRecoveryTool>(this);
-
-    declareProperty("MuonStationIntersectSvc", m_intersectSvc);
-    declareProperty("Extrapolator",            m_extrapolator);
-    declareProperty("MdtRotCreator",           m_mdtRotCreator);
-    declareProperty("CscRotCreator",           m_cscRotCreator);
-    declareProperty("ClusterRotCreator",       m_clusRotCreator);
-    declareProperty("PullCalculator",          m_pullCalculator);
-    declareProperty("EDMPrinter",              m_printer);
-
-    declareProperty("AddMeasurements",       m_addMeasurements = true);
-    declareProperty("AssociationPullCutEta", m_associationPullCutEta = 3.  );
-    declareProperty("AssociationPullCutPhi", m_associationPullCutPhi = 10. );
-    declareProperty("DetectBadSorting", m_detectBadSort = false );
-    declareProperty("AdcCut", m_adcCut = 50 );
   }
-
-
-  MuonChamberHoleRecoveryTool::~MuonChamberHoleRecoveryTool() {}
-
 
   StatusCode MuonChamberHoleRecoveryTool::initialize()
   {
@@ -105,11 +74,7 @@ namespace Muon {
     
     return StatusCode::SUCCESS;
   }
-  StatusCode MuonChamberHoleRecoveryTool::finalize()
-  {
-    return StatusCode::SUCCESS;
-  }
-  
+
   Trk::Track* MuonChamberHoleRecoveryTool::recover( const Trk::Track& track ) const {
         
     // call actual recovery routine

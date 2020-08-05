@@ -212,21 +212,21 @@ class trigRecoExecutor(athenaExecutor):
                     matchedOutputFileNames.append(file)
         return matchedOutputFileNames
 
-    #run athenaHLT-select-PEB-stream.py to split a stream out of the BS file
+    #run trigbs_extractStream.py to split a stream out of the BS file
     #renames the split file afterwards
     def _splitBSfile(self, outputStream, allStreamsFileName, splitFileName):
         msg.info('Splitting stream %s from BS file' % outputStream)
         splitStreamFailure=0
         try:
-            cmd = 'athenaHLT-select-PEB-stream.py -s ' + outputStream + ' ' + allStreamsFileName
+            cmd = 'trigbs_extractStream.py -s ' + outputStream + ' ' + allStreamsFileName
             msg.info('running command for splitting (in original asetup env): %s' % cmd)
             splitStreamFailure = subprocess.call(cmd, shell=True)
-            msg.debug('athenaHLT-select-PEB-stream.py splitting return code %s' % (splitStreamFailure) )
+            msg.debug('trigbs_extractStream.py splitting return code %s' % (splitStreamFailure) )
         except OSError as e:
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                'Exception raised when selecting stream with athenaHLT-select-PEB-stream.py in file {0}: {1}'.format(allStreamsFileName, e))
+                'Exception raised when selecting stream with trigbs_extractStream.py in file {0}: {1}'.format(allStreamsFileName, e))
         if splitStreamFailure != 0:
-            msg.error('athenaHLT-select-PEB-stream.py returned error (%s) no split BS file created' % splitStreamFailure)
+            msg.error('trigbs_extractStream.py returned error (%s) no split BS file created' % splitStreamFailure)
             return 1
         else:
             #know that the format will be of the form ####._athenaHLT.####.data
@@ -237,7 +237,7 @@ class trigRecoExecutor(athenaExecutor):
                 self._renamefile(matchedOutputFileName[0], splitFileName)
                 return 0
             else:
-                msg.error('athenaHLT-select-PEB-stream.py did not created expected file (%s)' % expectedStreamFileName)
+                msg.error('trigbs_extractStream.py did not created expected file (%s)' % expectedStreamFileName)
                 return 1
 
     #rename a created file - used to overwrite filenames from athenaHLT into the requested argument name
@@ -366,14 +366,14 @@ class trigRecoExecutor(athenaExecutor):
                 #    splitFailed = self._splitBSfile('Cost', matchedOutputFileNames[0],self.conf.dataDictionary['COST'].value[0])
                 #    if(splitFailed):
                 #        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                #            'Did not produce any BS file when selecting stream with athenaHLT-select-PEB-stream.py in file')
+                #            'Did not produce any BS file when selecting stream with trigbs_extractStream.py in file')
 
                 # If a stream (not All) is selected then slim the output to the particular stream out of the original BS file with many streams
                 if 'streamSelection' in self.conf.argdict and self.conf.argdict['streamSelection'].value != "All":
                     splitFailed = self._splitBSfile(self.conf.argdict['streamSelection'].value, matchedOutputFileNames[0], argInDict.value[0])
                     if(splitFailed):
                         raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                            'Did not produce any BS file when selecting stream with athenaHLT-select-PEB-stream.py in file')
+                            'Did not produce any BS file when selecting stream with trigbs_extractStream.py in file')
                 else:
                     msg.info('Stream "All" requested, so not splitting BS file')
                     self._renamefile(matchedOutputFileNames[0], argInDict.value[0])

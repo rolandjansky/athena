@@ -94,7 +94,7 @@ public:
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
 
   /**Destructor*/
-  virtual ~DiscSurface();
+  virtual ~DiscSurface() = default;
 
   /**Assignement operator*/
   DiscSurface& operator=(const DiscSurface& dsf);

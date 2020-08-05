@@ -1,21 +1,7 @@
-################################################################################
-# Package: IOVDbTestAlg
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IOVDbTestAlg )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          AtlasTest/DatabaseTest/IOVDbTestConditions
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          GaudiKernel
-                          PRIVATE
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/RegistrationServices
-                          Event/EventInfo )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -26,7 +12,7 @@ atlas_add_component( IOVDbTestAlg
                      src/IOVDbTestCoolDCS.cxx
                      src/IOVDbTestAlg_entries.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} IOVDbTestConditions AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities EventInfo RegistrationServicesLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} IOVDbTestConditions AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel AthenaPoolUtilities RegistrationServicesLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
@@ -45,7 +31,6 @@ function (iovdbtestalg_run_test testName jo)
                           PROPERTIES DEPENDS IOVDbTestAlg_${ARG_DEPENDS}_ctest )
   endif()
 endfunction (iovdbtestalg_run_test)
-
 
 # Write out some simple objects and register them in IOVDb - COOL version:
 iovdbtestalg_run_test( IOVDbTestWriteCool IOVDbTestAlgWriteCool )

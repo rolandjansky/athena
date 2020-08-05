@@ -89,7 +89,7 @@ StatusCode HTFilter::filterEvent() {
   double HT = -1;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
-    if ( (*it_truth)->pt()>m_MinJetPt*CLHEP::GeV && fabs((*it_truth)->eta())<m_MaxJetEta ) {
+    if ( (*it_truth)->pt()>m_MinJetPt*CLHEP::GeV && std::abs((*it_truth)->eta())<m_MaxJetEta ) {
       ATH_MSG_VERBOSE("Adding truth jet with pt " << (*it_truth)->pt()
 		      << ", eta " << (*it_truth)->eta()
 		      << ", phi " << (*it_truth)->phi()

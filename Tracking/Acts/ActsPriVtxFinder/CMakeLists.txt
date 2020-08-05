@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventInfo
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
+                          MagFieldElements MagFieldConditions
                           Calorimeter/CaloDetDescr
                           Tracking/Acts/ActsInterop
                           Tracking/TrkEvent/TrkTrackLink
@@ -68,7 +68,8 @@ atlas_add_library( ActsPriVtxFinderLib
                    VxVertex
                    TrkVertexFitterInterfaces
                    AthenaMonitoringKernelLib
-                   InDetRecToolInterfaces )
+                   InDetRecToolInterfaces 
+                   MagFieldElements MagFieldConditions)
 
 atlas_add_component( ActsPriVtxFinder
                      src/*.cxx

@@ -105,7 +105,7 @@ namespace TrigConf {
       // load the internal members
       void load();
 
-      unsigned int m_resolutionMeV;
+      unsigned int m_resolutionMeV { 1000 }; // default resolution is 1 GeV
    };
 
 

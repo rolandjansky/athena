@@ -73,7 +73,7 @@ else:
     # Configure the job to access G3 data
     #-----------------------------------------------------------
     include ("AthenaCommon/Atlas_ZebraTDR.UnixStandardJob.py")
-    theApp.DLLs += [ "MuonZebraCnvTest", "MuonDigitZebraCnv" ]
+    theApp.Dlls += [ "MuonZebraCnvTest", "MuonDigitZebraCnv" ]
     
 
     #-----------------------------------------------------------
@@ -92,7 +92,7 @@ else:
         DetDescrCnvSvc.MuonIDFileName  = "IdDictMuonSpectrometer_P.03.xml" 
 
     # Genzkine->HepMc converter
-    theApp.DLLs += [ "GenzModule" ]
+    theApp.Dlls += [ "GenzModule" ]
     theApp.TopAlg += [ "GenzModule" ]
     
 
@@ -103,9 +103,9 @@ include ("AmdcAth/AmdcAth_jobOptions.py")
 
     
 # Configure the LVL1 RPC simulation
-theApp.DLLs += [ "RPCgeometry" ]
-theApp.DLLs += [ "RPCcabling" ]
-theApp.DLLs += [ "TrigT1RPCsteering" ]
+theApp.Dlls += [ "RPCgeometry" ]
+theApp.Dlls += [ "RPCcabling" ]
+theApp.Dlls += [ "TrigT1RPCsteering" ]
 
 theApp.ExtSvc += [ "RPCgeometrySvc" ]
 theApp.ExtSvc += [ "RPCcablingSvc" ]

@@ -61,7 +61,7 @@ StatusCode TauShotFinder::finalize()
 }
 
 StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer,
-					    xAOD::PFOContainer& tauShotPFOContainer) {
+					    xAOD::PFOContainer& tauShotPFOContainer) const {
 
     ATH_MSG_DEBUG("execute");
     // Any tau needs to have shot PFO vectors. Set empty vectors before nTrack cut
@@ -103,7 +103,7 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
         if( !( samp == CaloCell_ID::EMB1 || samp == CaloCell_ID::EME1 ) ) continue;
         cells.push_back(*cellItr);
     }
-    // sort cells in descending pt 
+    // sort cells in descending pt    
     std::sort(cells.begin(),cells.end(),ptSort(*this));
     
     //---------------------------------------------------------------------
@@ -268,8 +268,8 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
 }
 
 std::vector<const CaloCell*> TauShotFinder::getNeighbours(const CaloCellContainer* pCellContainer, 
-                                           const CaloCell* cell, 
-                                           int maxDepth)
+							  const CaloCell* cell, 
+							  int maxDepth) const
 {
     std::vector<const CaloCell*> cells;
     this->addNeighbours(pCellContainer,cell,cells,0,maxDepth,true);  //next
@@ -282,7 +282,7 @@ void TauShotFinder::addNeighbours(const CaloCellContainer* pCellContainer,
                                   std::vector<const CaloCell*>& cells,
                                   int depth,
                                   int maxDepth,
-                                  bool next)
+                                  bool next) const
 {
     depth++; 
     if( depth > maxDepth ) return;
@@ -306,7 +306,7 @@ void TauShotFinder::addNeighbours(const CaloCellContainer* pCellContainer,
     } 
 }
 
-bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell2Hash, bool next){
+bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell2Hash, bool next) const{
     std::vector<IdentifierHash> neigHashes;
     if( next ) m_calo_id->get_neighbours(cell1Hash,LArNeighbours::nextInPhi,neigHashes);
     else       m_calo_id->get_neighbours(cell1Hash,LArNeighbours::prevInPhi,neigHashes);
@@ -317,7 +317,7 @@ bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell
     return false;
 }
 
-float TauShotFinder::getEtaBin(float seedEta){
+float TauShotFinder::getEtaBin(float seedEta) const {
     float absSeedEta=std::abs(seedEta);
     if(absSeedEta < 0.80)      return 0; // Central Barrel
     else if(absSeedEta<1.39) return 1; // Outer Barrel
@@ -326,7 +326,7 @@ float TauShotFinder::getEtaBin(float seedEta){
     else return 4;                           // endcap, coarse granularity
 }
 
-float TauShotFinder::getNPhotons(int etaBin, float seedEnergy) {
+float TauShotFinder::getNPhotons(int etaBin, float seedEnergy) const {
     // no photon counting in crack region, e.g. [1.39, 1.51]
     if(etaBin==2) return 0;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKDEPOSITINCALOTOOL_H
@@ -49,10 +49,9 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
   */  
   public:
     TrackDepositInCaloTool(const std::string& type, const std::string& name, const IInterface* pInterface);
-    virtual ~TrackDepositInCaloTool();
+    virtual ~TrackDepositInCaloTool()=default;
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize(); 
 
     /** 
        Deprecated method, do not use. This method will be removed soon.
@@ -162,13 +161,13 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
   private:
 
     // Services & Tools
-    ITHistSvc*                          m_histSvc{};                             //!< Pointer to THistSvc
-     ToolHandle<Trk::IExtrapolator>     m_extrapolator{this, "ExtrapolatorHandle", ""};     //!< Extrapolator tool
+    ITHistSvc*                          m_histSvc{};
+    ToolHandle<Trk::IExtrapolator>     m_extrapolator{this, "ExtrapolatorHandle", ""};
     const CaloDetDescrManager*          m_caloDDM{};                             //!< Calorimeter detector description manager
     const TileDetDescrManager*          m_tileDDM{};
     
-    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""}; //!< Tool to make the step-wise extrapolation
-    ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; //!< Tool to make the step-wise extrapolation
+    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", "", "Tool to make the step-wise extrapolation"};
+    ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""};
     
     // Members
     const CaloCellContainer*    m_cellContainer;                       //!< CaloCell container.

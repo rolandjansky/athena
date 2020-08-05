@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCStripHighPtBoard.hh"
+#include "TrigT1TGC/TGCStripHighPtBoard.h"
 #include <iostream>
 #include <cstdlib>
 

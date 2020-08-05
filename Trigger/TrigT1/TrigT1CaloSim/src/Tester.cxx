@@ -18,7 +18,7 @@
 //
 
 // This algorithm includes
-#include "TrigT1CaloSim/Tester.h"
+#include "Tester.h"
 #include <fstream>
 #include <algorithm>
 // #include "CaloGeoHelpers/CaloSampling.h"

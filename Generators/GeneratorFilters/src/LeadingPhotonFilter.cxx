@@ -18,7 +18,7 @@ StatusCode LeadingPhotonFilter::filterEvent() {
   double ptmax = 0;
   for (auto p: *genEvt) {
     if (p->pdg_id() != 22 || p->status() != 1) continue;
-    if (fabs(p->momentum().pseudoRapidity()) > m_EtaRange) continue;
+    if (std::abs(p->momentum().pseudoRapidity()) > m_EtaRange) continue;
     ptmax = std::max(p->momentum().perp(), ptmax);
   }
   setFilterPassed(ptmax >= m_Ptmin && ptmax < m_Ptmax);

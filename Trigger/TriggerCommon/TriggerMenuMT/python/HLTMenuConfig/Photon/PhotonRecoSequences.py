@@ -84,8 +84,8 @@ def l2PhotonAlgCfg( flags ):
 
     photonFex= CompFactory.TrigEgammaFastPhotonFexMT("EgammaFastPhotonFex_1")
     #photonFex= L2PhotonFex_1()
-    photonFex.TrigEMClusterName = recordable("HLT_L2CaloEMClusters")
-    photonFex.PhotonsName = recordable("HLT_L2Photons")
+    photonFex.TrigEMClusterName = recordable("HLT_FastCaloEMClusters")
+    photonFex.PhotonsName = recordable("HLT_FastPhotons")
     photonFex.RoIs = "L2PhotonRecoRoIs"
 
     return acc, photonFex
@@ -93,8 +93,9 @@ def l2PhotonAlgCfg( flags ):
 
 def photonViewDataVerifierCfg():
     from AthenaConfiguration.ComponentFactory import CompFactory
-    moveClusters = CompFactory.getComp("AthViews::ViewDataVerifier")("photonViewDataVerifier")
-    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_L2CaloEMClusters') ]
+    moveClusters = CompFactory.AthViews.ViewDataVerifier("VDVFastPhoton")
+    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_FastCaloEMClusters'),
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2PhotonRecoRoIs' )]
 
     result = ComponentAccumulator()
     result.addEventAlgo(moveClusters)

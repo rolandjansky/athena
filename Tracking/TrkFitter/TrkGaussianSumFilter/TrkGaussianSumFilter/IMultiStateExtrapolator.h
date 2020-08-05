@@ -75,6 +75,8 @@ public:
    *  
    *  The is owned by the tools that call the extrapolatator (Currently the GSFSmoother or Forward fitter)
    *  and it not exposed to the caller of the track fitter.
+   *  Caller of the GSF Extrapolator is needs to ensure that there is one cache per thread 
+   *  to ensure thread safety.
    *                 */
   struct Cache
   {

@@ -1,0 +1,90 @@
+The script 
+
+trigbs_extractStream.py
+
+allows to select from a bytestream file events which belong to a given stream and to write them to a bytestream output file which
+obeys the same conventions as the files produced in P1.
+
+trigbs_extractStream.py -h
+
+gives a list of options which can be used:
+
+./trigbs_extractStream.py -h
+global "./trigbs_extractStream.py" options: -[DFPadhlnpsv] | --[dump-options,help,lumi-block,max-events,option-file,output-dir,progress-bar,project-tag,start-event,stream-name,verbosity] [arguments]+
+
+ [Global options]
+
+ --dump-options|-D    dumps the current default options to stdout
+ --help|-h            prints this usage message
+ --option-file|-F     loads options from an option file (defaults to <empty>)
+
+
+ [Run mode options]
+
+ --max-events|-n      Maximum number of events in the output file. 0 means, al
+                       l useful events from the input. (defaults to 0)
+ --output-dir|-d      Directory in which the output file should be written (de
+                       faults to .)
+ --progress-bar|-P    Show progress bar when running interactively
+ --start-event|-a     Number of events which should be skipped from the begin
+                        (defaults to 0)
+ --verbosity|-v       Log verbosity (defaults to 20)
+
+
+ [Stream Tag options]
+
+ --lumi-block|-l     Lumiblock number used for the output file. Use 0 if multi
+                      ple LB in file. (defaults to 0)
+ --project-tag|-p    Project tag which should be used for the output file (def
+                      aults to data18_13Tev)
+ --stream-name|-s    Name of stream which should be written out (defaults to None)
+
+Typical workflow for developers:
+--------------------------------
+ 
+1) Develop new selection code for a new stream and integrate it with the menu
+
+2) run athenaHLT with the new code and write a bytestream output file 
+
+> athenaHLT <options> -f <input-file> -o <athenaHLT-output-file> <job-options-file>
+
+The <athenaHLT-output-file> will contain all events which have triggered, including also DataScouting events.
+
+3) Generate a P1 stream file with "trigbs_extractStream.py" from the athenaHLT output file
+
+> trigbs_extractStream.py -s <my-preferred-stream> <athenaHLT-output-file>
+
+There will be an output file produced of the form
+
+<project tag>.<run number>.<stream_type>_<stream_name>.merge.RAW._<LB number>._<production step>._<file sequence number>.data
+
+example:
+
+data18_13Tev.00349335.calibration_DataScouting_05_Jets.merge.RAW._lb0000._athenaHLT._0001.data
+
+All input events have to be for the same run number, but can have different lumi block numbers (LB=0 is used for output file).
+
+4) run over the produced stream file the standard T0 reco programs
+
+Some Remarks:
+-------------
+
+1) trigbs_extractStream.py allows to read multiple input files
+
+> trigbs_extractStream.py <file1> <file2> ... <fileN>
+
+All events have to be however from the same run. Events from different runs are skipped and an ERROR message is printed.
+
+2) the option "--lumi-block|-l " should be only used if all event are from the same LB, otherwise use 0 (default).
+
+3) the option "--project-tag|-p" is set per default set to 2018 data.
+
+4) For repeated running with the same options a standard option file can be generated:
+
+trigbs_extractStream.py -D <various options> <input files>  > my-opt-file.py
+
+and the run can be repeated with
+
+trigbs_extractStream.py -F my-opt-file.py
+
+The file my-opt-file.py can be also edited and modified with Python commands.

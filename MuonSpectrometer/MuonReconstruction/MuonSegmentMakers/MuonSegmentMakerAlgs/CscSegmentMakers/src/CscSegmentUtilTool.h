@@ -6,25 +6,25 @@
 #define CscSegmentUtilTool_H
 
 // Utilities for building segments.
-#include <string>
-#include <vector>
+#include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-#include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
 #include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "MuonCondData/CscCondDbData.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
+#include <string>
+#include <vector>
+
 namespace Trk {
-  class RIO_OnTrack;
   class PlaneSurface;
 }
 namespace Muon {
@@ -32,7 +32,6 @@ namespace Muon {
   class CscPrepData;
 }
 class ICscSegmentFinder;
-class CscCondDbData;
 
 class CscSegmentUtilTool : virtual public ICscSegmentUtilTool, public AthAlgTool {
 
@@ -43,7 +42,7 @@ public:
                  const IInterface* parent );
 
   // Destructor.
-  virtual ~CscSegmentUtilTool() {};
+  virtual ~CscSegmentUtilTool()=default;
   
   virtual StatusCode initialize();
 
@@ -88,28 +87,31 @@ public:
                         ) const;
   
 
-private:  // data
+private:
+  Gaudi::Property<double> m_max_chisquare_tight {this, "max_chisquare_tight", 16, "for outlier removal"};
+  Gaudi::Property<double> m_max_chisquare_loose {this, "max_chisquare_loose", 2000, "for outlier removal"};
+  Gaudi::Property<double> m_max_chisquare {this, "max_chisquare", 25};
+  Gaudi::Property<double> m_max_slope_r {this, "max_slope_r", 0.2};
+  Gaudi::Property<double> m_max_slope_phi {this, "max_slope_phi", 0.2};
+  Gaudi::Property<double> m_min_xylike {this, "min_xylike", -1, "Minimum value used for xy matching of 4D segments"};
+  Gaudi::Property<double> m_fitsegment_tantheta_tolerance {this, "tantheta_update_tolerance", 0.0001};
+  Gaudi::Property<double> m_IPerror {this, "IPerror", 250};
 
-  double m_max_chisquare_tight;
-  double m_max_chisquare_loose;
-  double m_max_chisquare;
-  double m_max_slope_r;
-  double m_max_slope_phi;
-  double m_min_xylike; // Minimum value used for xy matching of 4D segments.
-  float  m_cluster_error_scaler;
-  bool   m_x5data;
-  unsigned int m_max_seg_per_chamber;
-  int m_max_3hitseg_sharehit;
-  double m_fitsegment_tantheta_tolerance;
-  bool m_zshift;
-  bool m_IPconstraint; 
-  double m_IPerror; 
-  bool m_allEtaPhiMatches; 
-  bool m_TightenChi2; 
-  bool m_remove4Overlap; 
-  bool m_remove3Overlap; 
-  int  m_nunspoil;
- 
+  Gaudi::Property<float> m_cluster_error_scaler {this, "cluster_error_scaler", 1};
+
+  Gaudi::Property<int> m_nunspoil {this, "UnspoiledHits", -1};
+  Gaudi::Property<int> m_max_3hitseg_sharehit {this, "max_3hitseg_sharedhit", 0};
+
+  Gaudi::Property<unsigned int> m_max_seg_per_chamber {this, "max_seg_per_chamber", 50};
+
+  Gaudi::Property<bool> m_x5data {this, "X5data", false};
+  Gaudi::Property<bool> m_zshift {this, "zshift", true};
+  Gaudi::Property<bool> m_IPconstraint {this, "IPconstraint", true};
+  Gaudi::Property<bool> m_allEtaPhiMatches {this, "allEtaPhiMatches", true};
+  Gaudi::Property<bool> m_TightenChi2 {this, "TightenChi2", true};
+  Gaudi::Property<bool> m_remove4Overlap {this, "Remove4Overlap", true};
+  Gaudi::Property<bool> m_remove3Overlap {this, "Remove3Overlap", true};
+
   ToolHandle<Muon::ICscClusterOnTrackCreator> m_rotCreator{this, "rot_creator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
@@ -218,16 +220,16 @@ private:  // data
   double matchLikelihood(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg) const;
 
   // pdf distribution function for signal events.
-  double pdf_sig(double x) const;
+  double pdf_sig(const double x) const;
 
   // pdf distribution function for background events.
-  double pdf_bkg(double x) const;
+  double pdf_bkg(const double x) const;
 
   // Likelihood function = psig/(psig +pbkg)
-  double qratio_like(double pdf_sig, double pdf_bkg) const;
+  double qratio_like(const double pdf_sig, const double pdf_bkg) const;
 
-  bool isGood(uint32_t stripHashId) const;
-  int stripStatusBit(uint32_t stripHashId) const;
+  bool isGood(const uint32_t stripHashId) const;
+  int stripStatusBit(const uint32_t stripHashId) const;
 
 };
 

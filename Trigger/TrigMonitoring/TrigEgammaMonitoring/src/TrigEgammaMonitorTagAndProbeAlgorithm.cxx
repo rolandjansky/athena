@@ -52,7 +52,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
     ATH_MSG_INFO("Now configuring chains for analysis: " << name() );
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
-    for(const auto trigName:m_trigInputList)
+    for(const auto& trigName:m_trigInputList)
     {
       if(getTrigInfoMap().count(trigName) != 0){
         ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);

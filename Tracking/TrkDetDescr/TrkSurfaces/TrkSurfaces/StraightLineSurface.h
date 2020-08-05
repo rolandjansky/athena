@@ -69,7 +69,7 @@ public:
                       const Amg::Transform3D& transf);
 
   /**Destructor*/
-  virtual ~StraightLineSurface();
+  virtual ~StraightLineSurface() = default;
 
   /**Assignment operator*/
   StraightLineSurface& operator=(const StraightLineSurface& slsf);

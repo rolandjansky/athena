@@ -163,7 +163,7 @@ StatusCode LeptonPairFilter::filterEvent() {
 	      ((*pitr)->pdg_id() ==  13)  || 
 	      ((*pitr)->pdg_id() == -13) ){
 	      	//only consider leptons which satisfy  pt and eta requirements
-	        if( ((*pitr)->momentum().perp() >= m_Ptmin) && fabs((*pitr)->momentum().pseudoRapidity()) <=m_EtaRange){
+	        if( ((*pitr)->momentum().perp() >= m_Ptmin) && std::abs((*pitr)->momentum().pseudoRapidity()) <=m_EtaRange){
 			  if(m_onlyMassiveParents)
 			  {
 				  auto p = *pitr;

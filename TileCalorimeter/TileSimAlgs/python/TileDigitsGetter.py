@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileDigits creation from TileHit
@@ -64,7 +64,10 @@ class TileDigitsGetter ( Configured )  :
         theTileDigitsMaker.CalibrationRun=False
 
         # Save integer numbers in digits vector if not pile-up premixing
-        theTileDigitsMaker.IntegerDigits = not digitizationFlags.PileUpPremixing() 
+        theTileDigitsMaker.IntegerDigits = not digitizationFlags.PileUpPremixing()
+
+        from TileConditions.TileConditionsConf import TileCondToolNoiseSample
+        theTileDigitsMaker.TileCondToolNoiseSample = TileCondToolNoiseSample (TileOnlineSampleNoise = '')
 
         # sets output key  
         if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():

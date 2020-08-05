@@ -8,7 +8,9 @@
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/XMLStorageMgr.h"
 
-#include "boost/algorithm/string/case_conv.hpp"
+#include "PathResolver/PathResolver.h"
+
+#include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
 
 using namespace std;
@@ -123,8 +125,13 @@ ConfigSvcBase::initStorageMgr() {
          ATH_MSG_ERROR("If you need the configuration and ConfigSource is 'XML', you need to specify a menu xml file");
          return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("XML file: " << m_xmlFile);
-      m_storageMgr = new XMLStorageMgr( { m_xmlFile } );
+      std::string resolvedXMLfile(m_xmlFile);
+      if( boost::algorithm::ends_with(m_xmlFile, ".xml") && ! boost::algorithm::starts_with(m_xmlFile, "./")  ) {
+         resolvedXMLfile = PathResolver::find_file( m_xmlFile, "XMLPATH" );
+      }
+      ATH_MSG_INFO("Unresolved XML file: " << m_xmlFile);
+      ATH_MSG_INFO("Resolved XML file: " << resolvedXMLfile);
+      m_storageMgr = new XMLStorageMgr( { resolvedXMLfile } );
    }
    return StatusCode::SUCCESS;
 }

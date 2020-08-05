@@ -16,13 +16,13 @@ StatusCode SCT_SensorsCondAlg::initialize()
   ATH_MSG_DEBUG("initialize " << name());
 
   // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
+  ATH_CHECK(m_condSvc.retrieve());
 
   // Read Cond Handle
-  ATH_CHECK( m_readKey.initialize() );
+  ATH_CHECK(m_readKey.initialize());
 
   // Write Cond Handle
-  ATH_CHECK( m_writeKey.initialize() );
+  ATH_CHECK(m_writeKey.initialize());
   // Register write handle
   if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");

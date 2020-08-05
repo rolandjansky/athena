@@ -35,7 +35,6 @@
 
 class ITrigL2LayerNumberTool;
 class ITrigSpacePointConversionTool;
-class ITrigL2ResidualCalculator;
 class ITrigInDetTrackFitter;
 class ITrigZFinder;
 class TrigRoiDescriptor;
@@ -100,7 +99,6 @@ protected:
 
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
   ToolHandle<ITrigSpacePointConversionTool> m_spacePointTool;
-  ToolHandle<ITrigL2ResidualCalculator> m_trigL2ResidualCalculator;
   ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker 
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
@@ -153,7 +151,7 @@ protected:
   // Monitoring member functions 
 
   void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi, const EventContext& ctx) const;
-  void runResidualMonitoring(const Trk::Track& track) const;
+  void runResidualMonitoring(const Trk::Track& track, const EventContext&) const;
 
   //Setup functions
   void getBeamSpot(float&, float&, const EventContext&) const;

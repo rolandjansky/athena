@@ -88,12 +88,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
 
     if( m_detailedHists ){
       
-      for( const auto pid : m_isemname ){
+      for( const auto& pid : m_isemname ){
         fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec );
         fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec );
       }
 
-      for( const auto pid : m_lhname ){
+      for( const auto& pid : m_lhname ){
         fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec );
         fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec );
       }

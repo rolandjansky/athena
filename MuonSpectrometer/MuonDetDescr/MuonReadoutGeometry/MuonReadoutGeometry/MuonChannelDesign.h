@@ -140,7 +140,7 @@ namespace MuonGM {
     //to introduce the correction for the stereo angle in the distance
     //Patrick Scholer March 18 2020
     Amg::Vector2D chLoc( (pos.x()-pos.y()*tan(sAngle))-chPos.x() , pos.y()-chPos.y());
-    if ( validMode && fabs(chLoc.x()) > 0.5*channelWidth( pos) ) {
+    if ( validMode && std::abs(chLoc.x()) > 0.5*channelWidth( pos) ) {
       MsgStream log(Athena::getMessageSvc(),"MuonChannelDesign");
       if (log.level()<=MSG::INFO) log << MSG::INFO << "Problem in identification of the channel: distance to nearest channel, channel width: "
                                       << chLoc.x()<< ", " << channelWidth(pos) << " for channel number " << chNum << endmsg;
@@ -270,9 +270,9 @@ namespace MuonGM {
 
       double locX = 0.;
 
-      if (fabs(locY)>0.5*(minYSize-deadS)) {
+      if (std::abs(locY)>0.5*(minYSize-deadS)) {
          
-        locX = 0.5*(xSize-deadO-deadI)*( 1. - (0.5*(maxYSize-deadS) -fabs(locY))/dY )+0.5*(deadI-deadO) ;
+        locX = 0.5*(xSize-deadO-deadI)*( 1. - (0.5*(maxYSize-deadS) -std::abs(locY))/dY )+0.5*(deadI-deadO) ;
 
       }
 
@@ -379,9 +379,9 @@ namespace MuonGM {
 
       double gangLength = xSize-deadO-deadI ;
 
-      if (fabs(locY)>0.5*minYSize-deadS) {
+      if (std::abs(locY)>0.5*minYSize-deadS) {
          
-        gangLength = (0.5*maxYSize-deadS - fabs(locY))/dY * (xSize-deadI-deadO);
+        gangLength = (0.5*maxYSize-deadS - std::abs(locY))/dY * (xSize-deadI-deadO);
 
       }
  

@@ -10,6 +10,7 @@
 
 
 #undef NDEBUG
+#include "../src/SelectionVetoes.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthContainers/DataVector.h"
@@ -81,7 +82,7 @@ void test1()
   ServiceHandle<StoreGateSvc> sg ("StoreGateSvc", "test");
   assert (sg.retrieve().isSuccess());
 
-  assert (tool->preExecute().isSuccess());
+  assert (tool->preStream().isSuccess());
   assert (SG::getThinningCache() == nullptr);
   assert (tool->postExecute().isSuccess());
   assert (SG::getThinningCache() == nullptr);
@@ -105,7 +106,7 @@ void test1()
   assert( sg->record (std::move (d2), "v2_THINNED_MyStream.a", false).isSuccess() );
   assert( sg->record (std::move (d3), "v2_THINNED_MyStream.b", false).isSuccess() );
 
-  assert (tool->preExecute().isSuccess());
+  assert (tool->preStream().isSuccess());
   assert (SG::getThinningCache() != nullptr);
 
   assert (SG::getThinningDecision ("v1") == d1p);
@@ -122,8 +123,40 @@ void test1()
 
   assert (SG::getThinningCache()->trigNavigationThinningSvc() == nullptr);
 
+  auto vetoes = std::make_unique<SG::SelectionVetoes>();
+  SG::auxid_set_t s1;
+  s1.set (10);
+  s1.set (11);
+  SG::auxid_set_t s3;
+  s3.set (11);
+  s3.set (12);
+  (*vetoes).emplace ("v1", s1);
+  (*vetoes).emplace ("v3", s3);
+  assert (sg->record (std::move (vetoes), "SelectionVetoes_MyStream").isSuccess());
+
+  assert (tool->preStream().isSuccess());
+  assert (SG::getThinningCache() != nullptr);
+
+  assert (SG::getThinningInfo ("v1") != nullptr);
+  assert (SG::getThinningInfo ("v2") != nullptr);
+  assert (SG::getThinningInfo ("v3") != nullptr);
+  assert (SG::getThinningInfo ("xx") == nullptr);
+
+  assert (SG::getThinningInfo ("v1")->m_vetoed.size() == 2);
+  assert (SG::getThinningInfo ("v2")->m_vetoed.size() == 0);
+  assert (SG::getThinningInfo ("v3")->m_vetoed.size() == 2);
+
+  assert (SG::getThinningInfo ("v1")->vetoed (10));
+  assert (SG::getThinningInfo ("v1")->vetoed (11));
+  assert (!SG::getThinningInfo ("v1")->vetoed (12));
+  assert (!SG::getThinningInfo ("v3")->vetoed (10));
+  assert (SG::getThinningInfo ("v3")->vetoed (11));
+  assert (SG::getThinningInfo ("v3")->vetoed (12));
+  
   assert (tool->postExecute().isSuccess());
   assert (SG::getThinningCache() == nullptr);
+
+  assert (sg->clearStore().isSuccess());
 }
 
 
@@ -137,7 +170,7 @@ void test2()
   ServiceHandle<ITrigNavigationThinningSvc> tsvc ("TestTNThinningSvc", "test");
   assert (tsvc.retrieve().isSuccess());
 
-  assert (tool->preExecute().isSuccess());
+  assert (tool->preStream().isSuccess());
   assert (SG::getThinningCache() != nullptr);
   assert (SG::getThinningCache()->trigNavigationThinningSvc() == tsvc.get());
   assert (tool->postExecute().isSuccess());

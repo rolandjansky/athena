@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file EventCommonTPCnv/test/INav4MomAssocsCnv_p3_test.cxx
@@ -80,6 +80,7 @@ void test1()
   // Get proxies created.
   ElementLink<INavigable4MomentumCollection> dum1 ("in", 3);
   ElementLink<INavigable4MomentumCollection> dum2 ("xn", 2);
+  INavigable4MomentumCollection::dvlinfo();
 
   Athena_test::Leakcheck check;
 

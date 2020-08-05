@@ -148,15 +148,12 @@ def getL1ConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaCommon.Logging import log
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from AthenaCommon.Configurable import Configurable
-    print("HERE importing as {}".format(Configurable.configurableRun3Behavior))
     # generate menu file
     generatedFile = generateL1Menu( flags=flags )
 
     # configure config svc
-
     TrigConf__LVL1ConfigSvc = CompFactory.getComp("TrigConf::LVL1ConfigSvc")
-    l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
+    l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
 
     l1ConfigSvc.ConfigSource = "XML"
     l1XMLFile = TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile
@@ -187,8 +184,8 @@ def getL1ConfigSvc( flags = None ):
 @memoize
 def getHLTConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    HLTConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")
-    hltConfigSvc = HLTConfigSvc("HLTConfigSvc")
+    TrigConf__HLTConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")
+    hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvc")
 
     hltXMLFile = "None"
     hltConfigSvc.ConfigSource = "None"
@@ -209,7 +206,7 @@ def getHLTConfigSvc( flags = None ):
 def setupHLTPrescaleCondAlg( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
     TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
-    hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg( "HLTPrescaleCondAlg" )
+    hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlg")
 
     tc = getTrigConfigFromFlag( flags )
     hltPrescaleCondAlg.Source = tc["source"]

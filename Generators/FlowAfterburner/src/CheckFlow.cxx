@@ -203,7 +203,7 @@ StatusCode CheckFlow::execute() {
   // Iterate over MC particles  We are using the IsGenStable predicate from
   // IsGenStable ifs;
   GenAll ifs;
-  MCParticleCollection particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
@@ -221,8 +221,8 @@ StatusCode CheckFlow::execute() {
 	   << " Eta = " << rapid << "  Phi = " << phi 
 	   << " PhiR = " << phiR << endmsg;
     
-    if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
+    if( (std::abs(rapid) >= m_rapcut_min) && (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt) >= m_ptcut_min) && (std::abs(pt) <= m_ptcut_max) ) {
       ngenerated++;
       m_phi->Fill(phi, 1.);
       double phi_corr = phi - phiR;

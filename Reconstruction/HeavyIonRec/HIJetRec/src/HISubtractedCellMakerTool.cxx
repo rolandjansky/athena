@@ -43,7 +43,7 @@ StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
   SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey , ctx);
   shape = readHandleEvtShape.cptr();
 
-  const HIEventShapeIndex* index=HIEventShapeMap::getIndex(m_eventShapeKey.key());
+  const HIEventShapeIndex* index=m_eventShapeMapTool->getIndexFromShape( shape );
   if(index==nullptr)
   {
     ATH_MSG_ERROR("Could not retrieve HIEventShapeIndex for key " << m_eventShapeKey.key());

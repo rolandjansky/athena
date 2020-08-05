@@ -3,6 +3,7 @@
 */
 
 #include "Geo2G4Svc.h"
+#include "Geo2G4AssemblyVolume.h"
 #include "ExtParameterisedVolumeBuilder.h"
 
 // separate function not part of this class (why?)

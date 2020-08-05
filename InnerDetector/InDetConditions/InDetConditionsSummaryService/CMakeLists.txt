@@ -13,7 +13,3 @@ atlas_add_library( InDetConditionsSummaryService
                    INTERFACE
                    PUBLIC_HEADERS InDetConditionsSummaryService
                    LINK_LIBRARIES GaudiKernel )
-
-# Install files from the package:
-atlas_install_headers( InDetConditionsSummaryService )
-

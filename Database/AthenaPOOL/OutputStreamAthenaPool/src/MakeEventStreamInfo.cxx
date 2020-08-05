@@ -23,13 +23,10 @@
 //___________________________________________________________________________
 MakeEventStreamInfo::MakeEventStreamInfo(const std::string& type,
 	const std::string& name,
-	const IInterface* parent) : ::AthAlgTool(type, name, parent),
+	const IInterface* parent) : base_class(type, name, parent),
 		m_metaDataSvc("MetaDataSvc", name),
                 m_eventStore("StoreGateSvc", name)
 {
-   // Declare IAthenaOutputStreamTool interface
-   declareInterface<IAthenaOutputTool>(this);
-
    // Declare the properties
    declareProperty("Key", m_key = "");
    declareProperty("EventInfoKey", m_eventInfoKey = "EventInfo");
@@ -65,6 +62,10 @@ StatusCode MakeEventStreamInfo::postInitialize() {
 }
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::preExecute() {
+   return(StatusCode::SUCCESS);
+}
+//___________________________________________________________________________
+StatusCode MakeEventStreamInfo::preStream() {
    return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________

@@ -18,18 +18,9 @@ namespace MuonCombined {
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCandidateTool::MuonCandidateTool (const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", this),
-      m_trackBuilder("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder", this),
-      m_trackExtrapolationTool("ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool", this),
-      m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor", this)
+    : AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCandidateTool>(this);
-    declareProperty("Printer",m_printer );
-    declareProperty("ExtrapolationStrategy", m_extrapolationStrategy = 0 );
-    declareProperty("TrackBuilder",m_trackBuilder );
-    declareProperty("TrackExtrapolationTool",m_trackExtrapolationTool );
-    declareProperty("AmbiguityProcessor",m_ambiguityProcessor );
   }
 
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -41,6 +32,7 @@ namespace MuonCombined {
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
+    ATH_CHECK(m_trackSummaryTool.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
@@ -111,7 +103,14 @@ namespace MuonCombined {
 	//If these are not successfully extrapolated, they are too low quality to be useful
 	//So only make candidates from un-extrapolated tracks if they are not EM-only
 	bool skipTrack=true;
-	for(auto& chs : msTrack.trackSummary()->muonTrackSummary()->chamberHitSummary()){
+	const Trk::MuonTrackSummary* msMuonTrackSummary=nullptr;
+	//If reading from an ESD, the track will not have a track summary yet
+	if(!msTrack.trackSummary()){
+	  std::unique_ptr<Trk::TrackSummary> msTrackSummary=m_trackSummaryTool->summary(msTrack, nullptr);
+	  msMuonTrackSummary=msTrackSummary->muonTrackSummary();
+	}
+	else msMuonTrackSummary=msTrack.trackSummary()->muonTrackSummary();
+	for(auto& chs : msMuonTrackSummary->chamberHitSummary()){
 	  if(chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId())!=Muon::MuonStationIndex::EM){
 	    skipTrack=false;
 	    break;

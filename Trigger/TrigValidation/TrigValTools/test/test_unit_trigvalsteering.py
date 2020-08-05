@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # This is not an ART test. This is a unit test of the framework used for
 # steering Trigger ART tests.
 

@@ -192,6 +192,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
         # \__ AthAlgSeq (seq: PAR AND)
         #    \__ seq1 (seq: SEQ AND)
         #       \__ seq1 (seq: SEQ AND)
+        print("")
         def selfSequence():
             from AthenaCommon.CFElements import seqAND
             accTop = ComponentAccumulator()
@@ -228,13 +229,14 @@ class ForbidRecursiveSequences( unittest.TestCase ):
         def selfGrandParentSequence():
             from AthenaCommon.CFElements import seqAND
             accTop = ComponentAccumulator()
+            accTop.wasMerged()
             seq1 = seqAND("seq1")
             seq2 = seqAND("seq2")
             seq1_again = seqAND("seq1")
             accTop.addSequence(seq1)
             accTop.addSequence(seq2, parentName = "seq1")
             accTop.addSequence(seq1_again, parentName = "seq2")
-            accTop.wasMerged()
+
 
         #Can't merge sequences with the same name two steps below itself, e.g.
         # \__ AthAlgSeq (seq: PAR AND)
@@ -246,15 +248,24 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             acc1=ComponentAccumulator()
             acc1.wasMerged()
             acc1.addSequence(seqAND("seq1"))
+
             acc2=ComponentAccumulator()
             acc2.wasMerged()
             acc2.addSequence(seqAND("seq2"))
-            acc2.addSequence(seqAND("seq1"), "seq2")
-            acc1.merge(acc2)
+            acc2.addSequence(seqAND("seq1"), parentName = "seq2")
+            acc1.merge(acc2, sequenceName="seq1")
 
+        print("selfSequence")
         self.assertRaises(RuntimeError, selfSequence )
+        print("selfSequence done")
+
+        print("selfGrandParentSequence")
         self.assertRaises(RuntimeError, selfGrandParentSequence )
+        print("selfGrandParentSequence done")
+
+        print("selfMergedGrandParentSequence")
         self.assertRaises(RuntimeError, selfMergedGrandParentSequence )
+        print("selfMergedGrandParentSequence done")
 
 class FailedMerging( unittest.TestCase ):
     def runTest( self ):

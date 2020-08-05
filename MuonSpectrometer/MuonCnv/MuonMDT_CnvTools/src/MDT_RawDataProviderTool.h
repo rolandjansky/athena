@@ -4,6 +4,8 @@
 
 #ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOL_H
 #define MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOL_H
+   
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -21,8 +23,8 @@ namespace Muon
     @author  Edward Moyse <Edward.Moyse@cern.ch>
     @author  Mark Owen <markowen@cern.ch>
 */  
-
-class MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public MDT_RawDataProviderToolCore
+/// This class is only used in a single-thread mode
+class ATLAS_NOT_THREAD_SAFE MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public MDT_RawDataProviderToolCore
 {
   public:    
   MDT_RawDataProviderTool(const std::string&,const std::string&,const IInterface*);

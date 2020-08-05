@@ -18,6 +18,7 @@ double LArG4BirksLaw::operator () (double dE, double dX, double EField) const {
   double dEdX = dE/dX;
 
   const double kOverField = m_BirksLawK/EField;
+  // NB For a MIP in LAr 1.51 == dEdX/m_LArDensity, so dEcorr1==dE
   double dEcorr1 = dE * (1 + kOverField*1.51) / (1 + kOverField*dEdX/m_LArDensity);  // original corrections
 
   if (dEdX > 12000.0) dEdX = 12000.0;   // The experimental data is available only until dE/dX ~ 12000 MeV/cm

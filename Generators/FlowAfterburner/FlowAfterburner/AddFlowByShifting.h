@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/AddFlowByShifting.h
@@ -27,6 +27,7 @@
 #include <CLHEP/Random/RandomEngine.h>
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "AtlasHepMC/Relatives.h"
 
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>

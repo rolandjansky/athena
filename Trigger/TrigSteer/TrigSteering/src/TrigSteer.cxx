@@ -67,6 +67,8 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 
@@ -1290,21 +1292,22 @@ bool TrigSteer::canContinueJob() {
 
 HLT::ErrorCode TrigSteer::setEvent() {
 
-  const EventInfo* einfo(0);
-  StatusCode sc =  m_config->getStoreGate()->retrieve(einfo);
-  if(sc.isFailure()){
-    ATH_MSG_FATAL("Can't get EventInfo object for update event information" );
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  if (!ctx.valid()) {
+    ATH_MSG_FATAL("No valid EventContext to update event information" );
     return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_1, SteeringInternalReason::UNKNOWN);
   } else {
-    if ( einfo->event_ID() ) {
-      m_config->setLumiBlockNumber( einfo->event_ID()->lumi_block() );
+    if ( ctx.eventID().isValid() ) {
+      ATH_MSG_DEBUG("Setting event information from eventID " << ctx.eventID());
+
+      m_config->setLumiBlockNumber( ctx.eventID().lumi_block() );
       
       ITrigLBNHist::set_lbn( m_config->getLumiBlockNumber() ); // this is setting LBN for all trigger monitoring tools
 
-      m_config->setLvl1Id( einfo->event_ID()->event_number() );
+      m_config->setLvl1Id(ctx.eventID().event_number() );
 
       // request the config service to set the correct prescales for the lumiblock
-      StatusCode sc = m_configSvc->assignPrescalesToChains( einfo->event_ID()->lumi_block() );
+      StatusCode sc = m_configSvc->assignPrescalesToChains( ctx.eventID().lumi_block() );
       if (sc.isFailure()) {
         ATH_MSG_FATAL("ConfigSvc failed to assign HLT prescales to chains.");
         return HLT::ErrorCode(Action::ABORT_JOB, Reason::USERDEF_1, SteeringInternalReason::BAD_JOB_SETUP);        
@@ -1318,7 +1321,7 @@ HLT::ErrorCode TrigSteer::setEvent() {
       m_lvlCnvTool->setConfigurationKeys(m_configSvc->masterKey(), m_configSvc->hltPrescaleKey());
       
     } else {
-      ATH_MSG_ERROR("EventNumber&LBN not possible because missing event_ID");
+      ATH_MSG_ERROR("EventNumber&LBN not possible because missing eventID");
       return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_2, SteeringInternalReason::UNKNOWN);
     }
   }

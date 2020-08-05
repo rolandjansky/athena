@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # ************************* WARNING ***************************
 #
@@ -252,8 +252,8 @@ TriggerEFList = [
     ('CaloCellContainer#HLT_TrigCaloCellLoF',                             'BS ESD',                  'Calo')         # category?
     #
 
-		# examples for the configuration of a collection that goes *only* into a data-scouting streams
-		# but not into the full event (flag with 'DS')
+    # examples for the configuration of a collection that goes *only* into a data-scouting streams
+    # but not into the full event (flag with 'DS')
     # ('TrackCollection#HLT_InDetTrigTracksIDCalib',                      'DS ESD AODFULL AODSLIM',  'EgammaDS'), 
     # ('TrigRoiDescriptor#HLT_secondaryRoI_EF',                            'DS ESD AODFULL AODSLIM',  'EgammaDS'),
     ]

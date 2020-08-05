@@ -14,7 +14,7 @@
 #include <string>
 
 namespace lwt {
-  class GraphConfig;
+  struct GraphConfig;
 }
 
 namespace FlavorTagDiscriminants {

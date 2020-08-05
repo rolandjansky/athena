@@ -1,12 +1,7 @@
-################################################################################
-# Package: Identifier
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Identifier )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC GaudiKernel )
 
 # External dependencies:
 find_package( Boost )

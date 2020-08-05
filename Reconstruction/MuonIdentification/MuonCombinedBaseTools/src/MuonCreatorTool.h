@@ -5,13 +5,13 @@
 #ifndef MUONCOMBINEDBASETOOLS_MUONCREATORTOOL_H
 #define MUONCOMBINEDBASETOOLS_MUONCREATORTOOL_H
 
+#include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
+
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
-
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
@@ -39,28 +39,17 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-
 #include "TrackSegmentAssociationTool.h"
-
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrackToCalo/CaloCellCollector.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloConditions/CaloNoise.h"
-
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
-namespace Muon {
-  class MuonSegment;
-}
-namespace Trk
-{
-  class IExtendedTrackSummaryTool;
-}
 namespace MuonCombined {
   class StacoTag;
   class CombinedFitTag;
@@ -156,70 +145,45 @@ namespace MuonCombined {
     void addSegmentsOnTrack( xAOD::Muon& muon ) const;
     void addAlignmentEffectsOnTrack( xAOD::TrackParticleContainer* trkCont ) const;
 
-    /// flag to decide whether or not to make link to MS track before extrapolation
-    bool m_makeMSPreExtrapLink;
-
-    /// flag to decide whether to build stau or not
-    bool m_buildStauContainer;
-    
-    /// Decide whether to try to extract the calo energy loss from tracks 
-    bool m_fillEnergyLossFromTrack;
-
-    /// Decide whether to add alignment effects on track to the muon (available for CB and SA tracks)
-    bool m_fillAlignmentEffectsOnTrack;
-    
-    /// Can enabled this for debugging - will add extra information not for production
-    bool m_fillExtraELossInfo;
-    
-    /// configure whether to use the updated extrapolated track for a combined fit or not
-    bool m_useUpdatedExtrapolatedTrack;
-
-    /// Number of sigma for calo cell noise cut
-    float m_sigmaCaloNoiseCut;
-
-    /// flag to print muon edm
-    bool m_printSummary;
-    
-    /// enable filling of timing information
-    bool m_fillTimingInformation;
-    bool m_fillTimingInformationOnMuon;
-
-    //associate segments to MuGirlLowBeta muons;
-    bool m_segLowBeta;
-
-    //use calo cells
-    bool m_useCaloCells;
-
-    //flag for SA muons
-    bool m_doSA;
-
-    /// copy truth links from primary track particle (or put dummy link if this is missing)
-    //bool m_fillMuonTruthLinks;
-    
-    // helpers, managers, tools
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ToolHandle<Muon::MuonEDMPrinterTool>          m_printer;
-    ServiceHandle<Muon::IMuonEDMHelperSvc>        m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
-    ToolHandle<Trk::IParticleCaloExtensionTool>   m_caloExtTool;
-    ToolHandle<Trk::ITrackParticleCreatorTool>    m_particleCreator;
-    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
-    ToolHandle<Trk::IPropagator>                  m_propagator;
-    ToolHandle<xAOD::IMuonDressingTool>           m_muonDressingTool;
-    ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool;
-    ToolHandle<Rec::IMuonScatteringAngleSignificance> m_scatteringAngleTool; 
-    ToolHandle<CP::IMuonSelectionTool>            m_selectorTool; 
-    ToolHandle<xAODMaker::IMuonSegmentConverterTool>  m_muonSegmentConverterTool;
-    ToolHandle<Rec::IMuonMeanMDTdADCFiller>       m_meanMDTdADCTool;
-    ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
-    ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
-    ToolHandle<Rec::IMuonTrackQuery>              m_trackQuery;
-    ToolHandle<Trk::IExtendedTrackSummaryTool>    m_trackSummaryTool;
-    Rec::CaloCellCollector                        m_cellCollector;
-    SG::ReadHandleKey<CaloCellContainer>          m_cellContainerName{this,"CaloCellContainer","AllCalo","calo cells"};
-    SG::ReadCondHandleKey<CaloNoise>              m_caloNoiseKey{this,"CaloNoise","","CaloNoise object to use, or blank."};
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface" };
+
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter {this, "MuonPrinter", "Rec::MuonPrintingTool/MuonPrintingTool"};
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtTool {this, "ParticleCaloExtensionTool", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"};
+    ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator {this, "TrackParticleCreator", "Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"};
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor {this, "AmbiguityProcessor", "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
+    ToolHandle<Trk::IPropagator> m_propagator {this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
+    ToolHandle<xAOD::IMuonDressingTool> m_muonDressingTool {this, "MuonDressingTool", "MuonCombined::MuonDressingTool/MuonDressingTool"};
+    ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool {this, "MomentumBalanceTool", "Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignificanceTool"};
+    ToolHandle<Rec::IMuonScatteringAngleSignificance> m_scatteringAngleTool {this, "ScatteringAngleTool", "Rec::MuonScatteringAngleSignificanceTool/MuonScatteringAngleSignificanceTool"};
+    ToolHandle<CP::IMuonSelectionTool> m_selectorTool {this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"};
+    ToolHandle<xAODMaker::IMuonSegmentConverterTool> m_muonSegmentConverterTool {this, "MuonSegmentConverterTool", "Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"};
+    ToolHandle<Rec::IMuonMeanMDTdADCFiller> m_meanMDTdADCTool {this, "MeanMDTdADCTool", "Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"};
+    ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider {this, "CaloMaterialProvider", "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"};
+    ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool {this, "TrackSegmentAssociationTool", "Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
+    ToolHandle<Rec::IMuonTrackQuery> m_trackQuery {this, "TrackQuery", "Rec::MuonTrackQuery/MuonTrackQuery"};
+    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
+
+    Rec::CaloCellCollector m_cellCollector;
+
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerName{this,"CaloCellContainer","AllCalo","calo cells"};
+    SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey{this,"CaloNoise","","CaloNoise object to use, or blank."};
+
+    Gaudi::Property<bool> m_makeMSPreExtrapLink {this, "MakeTrackAtMSLink", false, "flag to decide whether or not to make link to MS track before extrapolation"};
+    Gaudi::Property<bool> m_buildStauContainer {this, "BuildStauContainer", false, "flag to decide whether to build stau or not"};
+    Gaudi::Property<bool> m_fillEnergyLossFromTrack {this, "FillEnergyLossFromTrack", true, "Decide whether to try to extract the calo energy loss from tracks "};
+    Gaudi::Property<bool> m_fillAlignmentEffectsOnTrack {this, "FillAlignmentEffectsOnTrack", true, "Decide whether to add alignment effects on track to the muon (available for CB and SA tracks)"};
+    Gaudi::Property<bool> m_fillExtraELossInfo {this, "FillExtraELossInfo", true, "Can enabled this for debugging - will add extra information not for production"};
+    Gaudi::Property<bool> m_printSummary {this, "PrintSummary", false, "flag to print muon edm"};
+    Gaudi::Property<bool> m_useUpdatedExtrapolatedTrack {this, "UseUpdatedExtrapolatedTrack", true, "configure whether to use the updated extrapolated track for a combined fit or not"};
+    Gaudi::Property<bool> m_fillTimingInformation {this, "FillTimingInformation", true, "enable filling of timing information"};
+    Gaudi::Property<bool> m_fillTimingInformationOnMuon {this, "FillTimingInformationOnMuon", false, "enable filling of timing information"};
+    Gaudi::Property<bool> m_segLowBeta {this, "AssociateSegmentsToLowBetaMuons", false, "associate segments to MuGirlLowBeta muons"};
+    Gaudi::Property<bool> m_useCaloCells {this, "UseCaloCells", true};
+    Gaudi::Property<bool> m_doSA {this, "MakeSAMuons", false};
+
+    Gaudi::Property<float> m_sigmaCaloNoiseCut {this, "SigmaCaloNoiseCut", 3.4};
   };
 
   inline void MuonCreatorTool::setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const {

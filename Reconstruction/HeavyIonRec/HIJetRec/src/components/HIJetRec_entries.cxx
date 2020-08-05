@@ -5,15 +5,15 @@
 #include "../HISubtractedCellMakerTool.h"
 #endif
 
-#include "HIJetRec/HIEventShapeJetIteration.h"
-#include "HIJetRec/HIJetClusterSubtractorTool.h"
-#include "HIJetRec/HIJetConstituentSubtractionTool.h"
-#include "HIJetRec/HIJetConstituentModifierTool.h"
-#include "HIJetRec/HIJetDRAssociationTool.h"
-#include "HIJetRec/HIJetMaxOverMeanTool.h"
-#include "HIJetRec/HIJetDiscriminatorTool.h"
-#include "HIJetRec/HIJetSignificanceTool.h"
-#include "HIJetRec/HIUEModulatorTool.h"
+#include "../../Root/HIEventShapeJetIteration.h"
+#include "../../Root/HIJetClusterSubtractorTool.h"
+#include "../../Root/HIJetConstituentSubtractionTool.h"
+#include "../../Root/HIJetConstituentModifierTool.h"
+#include "../../Root/HIJetDRAssociationTool.h"
+#include "../../Root/HIJetMaxOverMeanTool.h"
+#include "../../Root/HIJetDiscriminatorTool.h"
+#include "../../Root/HIJetSignificanceTool.h"
+#include "../../Root/HIUEModulatorTool.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( HIClusterMaker )
@@ -31,4 +31,3 @@ DECLARE_COMPONENT( HIJetMaxOverMeanTool )
 DECLARE_COMPONENT( HIJetDiscriminatorTool )
 DECLARE_COMPONENT( HIJetSignificanceTool )
 DECLARE_COMPONENT( HIUEModulatorTool )
-

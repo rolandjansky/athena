@@ -102,9 +102,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
-		//		m_provider->msg(MSG::INFO) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endmsg;
+		m_provider->msg(MSG::VERBOSE) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endmsg;
 		for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-		  //  m_provider->msg(MSG::INFO) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endmsg;
+		  //  m_provider->msg(MSG::VERBOSE) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endmsg;
 		  configuredHLTChains.insert( configuredChains[i] );
 		  
 		}
@@ -528,6 +528,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_provider->msg(MSG::INFO) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
 
 	  xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
+
 	  for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
 
 	    /// useful debug information - leave in 
@@ -568,11 +569,13 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// useful debug information - leave in  
 	//	std::cout << "SUTT Nvertices " << vertices.size() << "\ttype 101 " << vertices_full.size() << std::endl;
 
+#if 0
+	/// don;t add them to the event - since now we store them in the Vertex chain ...
 	for ( unsigned i=0 ; i<vertices.size() ; i++ )  { 
 	  m_provider->msg(MSG::DEBUG) << "vertex " << i << " " << vertices[i] << endmsg;
 	  m_event->addVertex(vertices[i]);
 	}
-	
+#endif	
 
 	/// offline object counters 
 
@@ -628,11 +631,16 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	  /// get the chain, collection and TE names and track index 
 
-	  const std::string& chainname      = m_chainNames[ichain].head();
-	  const std::string& collectionname = m_chainNames[ichain].tail();
+	  std::string chainname      = m_chainNames[ichain].head();
+	  std::string collectionname = m_chainNames[ichain].tail();
+	  std::string vtx_name       = m_chainNames[ichain].vtx();
+
 
 	  if ( chainname!="" )      continue;
 	  if ( collectionname=="" ) continue;
+
+	  chainname = collectionname;
+	  if ( vtx_name!="" ) chainname += ":" + vtx_name; 
 
 	  /// useful debug information - leave this here
 
@@ -668,12 +676,72 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    m_provider->msg(MSG::WARNING) << "\tcollection " << collectionname << " not found" << endmsg;
 	  }
 	  
+
+	  /// now retrieve any verttices for the analysis
+
+	  std::vector<TIDA::Vertex> tidavertices;
+
+	  m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
+	    
+	  if ( vtx_name!="" ) { 
+	        
+	    m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
+	        
+	    /// MT Vertex access
+	        
+	    const xAOD::VertexContainer* xaodVtxCollection = 0;
+	    
+	    if ( m_provider->evtStore()->retrieve( xaodVtxCollection, vtx_name ).isFailure() ) {
+	      m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << vtx_name <<  endmsg;
+	    }
+	    
+	    if ( xaodVtxCollection!=0 ) { 
+	            
+	      m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodVtxCollection->size()
+					 << "\t" << vtx_name << endmsg;
+	            
+	      xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin(); 
+	            
+	      for (  ; vtxitr!=xaodVtxCollection->end()  ;  vtxitr++ ) {
+		
+		/// leave this code commented so that we have a record of the change - as soon as we can 
+		/// fix the missing track multiplicity from the vertex this will need to go back  
+		//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+
+		// useful debug comment, left for debugging purposes ...
+		//		std::cout << "SUTT  xAOD::Vertex::type() " << (*vtxitr)->type() 
+		//			  << "\tvtxtype " << (*vtxitr)->vertexType() 
+		//			  << "\tntrax "   << (*vtxitr)->nTrackParticles() 
+		//			  << "\tz "       << (*vtxitr)->z() << std::endl; 
+
+		if ( (*vtxitr)->vertexType()!=0  || vtx_name=="EFHistoPrmVtx" ) {
+		  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+							(*vtxitr)->y(),
+							(*vtxitr)->z(),
+							/// variances
+							(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+							(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+							(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+							(*vtxitr)->nTrackParticles(),
+							/// quality
+							(*vtxitr)->chiSquared(),
+							(*vtxitr)->numberDoF() ) );
+		}
+	      }
+	            
+	    }
+	        
+	  }
+
+
+
 	  if ( found ) { 
 	    
-	    m_event->addChain( collectionname );
+	    m_event->addChain( chainname );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
+	    if ( vtx_name!="" ) m_event->back().back().addVertices( tidavertices );
 	    m_event->back().back().addTracks(selectorTest.tracks());
-	    
+
 	    if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
 	      std::vector<double> beamline_;
 	      beamline_.push_back( selectorTest.getBeamX() );

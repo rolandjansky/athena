@@ -12,6 +12,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "HIEventUtils/HITowerWeightTool.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 #include <NavFourMom/INavigable4MomentumCollection.h>
 
 #include "StoreGate/ReadHandleKey.h"
@@ -49,6 +50,8 @@ class HIEventShapeFillerTool : public asg::AsgTool, virtual public IHIEventShape
    void updateShape(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg=false) const;
 
    ToolHandle<IHITowerWeightTool> m_towerWeightTool { this, "TowerWeightTool", "HITowerWeightTool", "Handle to Tower Weight Tool"};
+
+   ToolHandle<IHIEventShapeMapTool> m_eventShapeMapTool { this, "EventShapeMapTool", "HIEventShapeMapTool", "Handle to Event Shape Map Tool"};
 
    Gaudi::Property< bool > m_useClusters { this, "UseClusters", false, "use Clusters boolean switch" }  ;
 

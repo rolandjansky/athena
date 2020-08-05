@@ -3,7 +3,7 @@
 */
 
 #include "GeneratorFilters/TTbarPlusHeavyFlavorFilter.h"
-
+#include "AtlasHepMC/Relatives.h"
 #include "GaudiKernel/MsgStream.h"
 
 //--------------------------------------------------------------------------
@@ -160,7 +160,7 @@ bool TTbarPlusHeavyFlavorFilter::passBSelection(HepMC::ConstGenParticlePtr part)
 
   const HepMC::FourVector& p4 = part->momentum();
   double pt = p4.perp();
-  double eta = fabs(p4.eta());
+  double eta = std::abs(p4.eta());
 
   if(pt<m_bPtMinCut) return false;
   if(eta>m_bEtaMaxCut) return false;
@@ -173,7 +173,7 @@ bool TTbarPlusHeavyFlavorFilter::passCSelection(HepMC::ConstGenParticlePtr part)
 
   const HepMC::FourVector& p4 = part->momentum();
   double pt = p4.perp();
-  double eta = fabs(p4.eta());
+  double eta = std::abs(p4.eta());
 
   if(pt<m_cPtMinCut) return false;
   if(eta>m_cEtaMaxCut) return false;
@@ -226,6 +226,15 @@ bool TTbarPlusHeavyFlavorFilter::isInitialHadron(HepMC::ConstGenParticlePtr part
   auto prod = part->production_vertex();
   if(prod){
     int type = hadronType(part->pdg_id());
+#ifdef HEPMC3
+    for(auto firstParent: prod->particles_in()){
+      if( HepMC::barcode(part) < HepMC::barcode(firstParent) ) continue; /// protection for sherpa
+      int mothertype = hadronType( firstParent->pdg_id() );
+      if( mothertype == type ){
+	return false;
+      }
+    }
+#else
     HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
     HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
     for(;firstParent!=endParent; ++firstParent){
@@ -235,6 +244,7 @@ bool TTbarPlusHeavyFlavorFilter::isInitialHadron(HepMC::ConstGenParticlePtr part
 	return false;
       }
     }
+#endif
 
   }
 
@@ -247,6 +257,15 @@ bool TTbarPlusHeavyFlavorFilter::isFinalHadron(HepMC::ConstGenParticlePtr part) 
   auto end = part->end_vertex();
   if(end){
     int type = hadronType(part->pdg_id());
+#ifdef HEPMC3
+    for(auto firstChild: end->particles_in()){
+      if( HepMC::barcode(part) > HepMC::barcode(firstChild) ) continue; /// protection for sherpa
+      int childtype = hadronType( firstChild->pdg_id() );
+      if( childtype == type ){
+	return false;
+      }
+    }
+#else
     HepMC::GenVertex::particle_iterator firstChild = end->particles_begin(HepMC::children);
     HepMC::GenVertex::particle_iterator endChild = end->particles_end(HepMC::children);
     for(;firstChild!=endChild; ++firstChild){
@@ -256,6 +275,7 @@ bool TTbarPlusHeavyFlavorFilter::isFinalHadron(HepMC::ConstGenParticlePtr part) 
 	return false;
       }
     }
+#endif
 
   }
 
@@ -269,6 +289,15 @@ bool TTbarPlusHeavyFlavorFilter::isQuarkFromHadron(HepMC::ConstGenParticlePtr pa
 
   auto prod = part->production_vertex();
   if(prod){
+#ifdef HEPMC3
+    for(auto firstParent: HepMC::ancestor_particles(prod)){
+      if( HepMC::barcode(part) < HepMC::barcode(firstParent) ) continue; /// protection for sherpa
+      int mothertype = hadronType( firstParent->pdg_id() );
+      if( 4 == mothertype || 5 == mothertype ){
+	return true;
+      }
+    }
+#else	  
     HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::ancestors);
     HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::ancestors);
     for(;firstParent!=endParent; ++firstParent){
@@ -278,6 +307,7 @@ bool TTbarPlusHeavyFlavorFilter::isQuarkFromHadron(HepMC::ConstGenParticlePtr pa
 	return true;
       }
     }
+#endif
 
   }
 
@@ -291,6 +321,14 @@ bool TTbarPlusHeavyFlavorFilter::isCHadronFromB(HepMC::ConstGenParticlePtr part)
 
   auto prod = part->production_vertex();
   if(prod){
+#ifdef HEPMC3
+    for(auto firstParent:HepMC::ancestor_particles(prod)){
+      if( HepMC::barcode(part) < HepMC::barcode(firstParent) ) continue; /// protection for sherpa
+      if( isBHadron(firstParent) ){
+	return true;
+      }
+    }
+#else
     HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::ancestors);
     HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::ancestors);
     for(;firstParent!=endParent; ++firstParent){
@@ -299,6 +337,7 @@ bool TTbarPlusHeavyFlavorFilter::isCHadronFromB(HepMC::ConstGenParticlePtr part)
 	return true;
       }
     }
+#endif
 
   }
 
@@ -314,12 +353,19 @@ bool TTbarPlusHeavyFlavorFilter::isLooping(HepMC::ConstGenParticlePtr part, std:
 
   init_part.insert(part);
 
+#ifdef HEPMC3
+  for(auto firstParent: prod->particles_in()){
+    if( init_part.find(firstParent) != init_part.end() ) return true;
+    if( isLooping(firstParent, init_part) ) return true;
+  }
+#else
   HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;firstParent!=endParent; ++firstParent){
     if( init_part.find(*firstParent) != init_part.end() ) return true;
     if( isLooping(*firstParent, init_part) ) return true;
   }
+#endif
 
   return false;
 
@@ -333,6 +379,14 @@ HepMC::ConstGenParticlePtr  TTbarPlusHeavyFlavorFilter::findInitial(HepMC::Const
 
   if(!prod) return part;
 
+#ifdef HEPMC3
+  for(auto firstParent: prod->particles_in()){
+    if( HepMC::barcode(part) < HepMC::barcode(firstParent) &&  looping) continue; /// protection for sherpa
+    if( part->pdg_id() == firstParent->pdg_id() ){
+      return findInitial(firstParent, looping);
+    }
+  }
+#else
   HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;firstParent!=endParent; ++firstParent){
@@ -341,6 +395,7 @@ HepMC::ConstGenParticlePtr  TTbarPlusHeavyFlavorFilter::findInitial(HepMC::Const
       return findInitial(*firstParent, looping);
     }
   }
+#endif
    
   return part;
 
@@ -359,12 +414,19 @@ bool TTbarPlusHeavyFlavorFilter::isDirectlyFromTop(HepMC::ConstGenParticlePtr pa
 
   if(!prod) return false;
 
+#ifdef HEPMC3
+  for( auto firstParent: prod->particles_in()){
+    if( HepMC::barcode(part) < HepMC::barcode(firstParent) &&  looping ) continue; /// protection for sherpa
+    if( std::abs( firstParent->pdg_id() ) == 6 ) return true;
+  }
+#else
   HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;firstParent!=endParent; ++firstParent){
     if( part->barcode() < (*firstParent)->barcode() &&  looping ) continue; /// protection for sherpa
     if( abs( (*firstParent)->pdg_id() ) == 6 ) return true;
   }
+#endif 
    
   return false;
 }
@@ -377,6 +439,14 @@ bool TTbarPlusHeavyFlavorFilter::isDirectlyFromWTop(HepMC::ConstGenParticlePtr p
 
   if(!prod) return false;
 
+#ifdef HEPMC3
+  for(auto firstParent: prod->particles_in()){
+    if( HepMC::barcode(part) < HepMC::barcode(firstParent) && looping  ) continue; /// protection for sherpa
+    if( abs( firstParent->pdg_id() ) == 24 ){
+      if( isFromTop(firstParent, looping) ) return true;
+    }
+  }
+#else
   HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;firstParent!=endParent; ++firstParent){
@@ -385,6 +455,7 @@ bool TTbarPlusHeavyFlavorFilter::isDirectlyFromWTop(HepMC::ConstGenParticlePtr p
       if( isFromTop(*firstParent, looping) ) return true;
     }
   }
+#endif   
    
   return false;
 
