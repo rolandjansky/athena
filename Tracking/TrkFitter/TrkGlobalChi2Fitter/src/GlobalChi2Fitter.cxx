@@ -894,8 +894,7 @@ namespace Trk {
       return nullptr;
     }
 
-    TransportJacobian *jac1 = nullptr;
-    TransportJacobian *jac2 = nullptr;
+    std::unique_ptr<TransportJacobian> jac1, jac2;
     std::unique_ptr<const TrackParameters> elosspar;
     
     double firstscatphi = 0;
@@ -939,6 +938,7 @@ namespace Trk {
       
       PropDirection propdir = !firstismuon ? oppositeMomentum : alongMomentum;
       
+      TransportJacobian *tmp_jac1 = jac1.get();
       tmpelosspar = m_propagator->propagateParameters(
         ctx,
         *tmppar1,
@@ -947,12 +947,12 @@ namespace Trk {
         propdir, 
         false,
         trajectory.m_fieldprop,
-        jac1,
+        tmp_jac1,
         Trk::nonInteracting
       );
+      if (jac1.get() != tmp_jac1) jac1.reset(tmp_jac1);
       
       if (m_numderiv) {
-        delete jac1;
         jac1 = numericalDerivatives(
           ctx,
           firstscatpar,
@@ -964,7 +964,6 @@ namespace Trk {
       delete tmppar1;
 
       if ((tmpelosspar == nullptr) || (jac1 == nullptr)) {
-        delete jac1;
         delete tp_closestmuon;
         delete firstscatpar;
         delete lastscatpar;
@@ -990,6 +989,7 @@ namespace Trk {
         delete tmpelosspar;
       }
       
+      TransportJacobian * tmp_jac2 = jac2.get();
       const TrackParameters *scat2 = m_propagator->propagateParameters(
         ctx,
         *elosspar2,
@@ -999,12 +999,12 @@ namespace Trk {
         propdir, 
         false,
         trajectory.m_fieldprop,
-        jac2,
+        tmp_jac2,
         Trk::nonInteracting
       );
+      if (jac2.get() != tmp_jac2) jac2.reset(tmp_jac2);
       
       if (m_numderiv) {
-        delete jac2;
         jac2 = numericalDerivatives(
           ctx,
           elosspar2,
@@ -1021,8 +1021,6 @@ namespace Trk {
       delete elosspar2;
       if ((scat2 == nullptr) || (jac2 == nullptr)) {
         delete scat2;
-        delete jac1;
-        delete jac2;
         delete tp_closestmuon;
         delete firstscatpar;
         delete lastscatpar;
@@ -1039,10 +1037,8 @@ namespace Trk {
         }
       }
       
-      delete jac1;
-      delete jac2;
-      
-      jac1 = jac2 = nullptr;
+      jac1.reset(nullptr);
+      jac2.reset(nullptr);
       Amg::MatrixX jac4(2, 2);
       
       jac4(0, 0) = jac3[0][2];
@@ -7445,7 +7441,7 @@ namespace Trk {
     
     for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
       TrackState::TrackStateType prevtstype = prevstate != nullptr ? prevstate->trackStateType() : TrackState::AnyState;
-      TransportJacobian *jac = nullptr;
+      std::unique_ptr<TransportJacobian> jac;
       const Surface *surf = states[hitno]->surface();
       const TrackParameters *currenttrackpar = nullptr;
       Trk::PropDirection propdir = Trk::oppositeMomentum;
@@ -7466,6 +7462,7 @@ namespace Trk {
 
       bool curvpar = false;
       if (calcderiv && !m_numderiv) {
+        TransportJacobian * tmp_jac = jac.get();
         currenttrackpar = m_propagator->propagateParameters(
           ctx,
           *prevtrackpar, 
@@ -7473,10 +7470,11 @@ namespace Trk {
           propdir,
           false, 
           trajectory.m_fieldprop,
-          jac, 
+          tmp_jac,
           Trk::nonInteracting,
           curvpar
         );
+        if (jac.get() != tmp_jac) jac.reset(tmp_jac);
       } else {
         currenttrackpar = m_propagator->propagateParameters(
           ctx,
@@ -7491,11 +7489,8 @@ namespace Trk {
       }
 
       if (currenttrackpar == nullptr) {
-        if (jac != nullptr) {
-          delete jac;
-          jac = nullptr;
-        }
-        
+        jac.reset(nullptr);
+
         propdir = (
           propdir == Trk::oppositeMomentum ? 
           Trk::alongMomentum : 
@@ -7503,6 +7498,7 @@ namespace Trk {
         );
         
         if (calcderiv && !m_numderiv) {
+          TransportJacobian * tmp_jac = jac.get();
           currenttrackpar = m_propagator->propagateParameters(
             ctx,
             *prevtrackpar, 
@@ -7510,10 +7506,11 @@ namespace Trk {
             propdir,
             false, 
             trajectory.m_fieldprop,
-            jac, 
+            tmp_jac,
             Trk::nonInteracting,
             curvpar
           );
+          if (jac.get() != tmp_jac) jac.reset(tmp_jac);
         } else {
           currenttrackpar = m_propagator->propagateParameters(
             ctx,
@@ -7529,9 +7526,7 @@ namespace Trk {
       }
 
       if ((currenttrackpar != nullptr) && m_numderiv && calcderiv) {
-        delete jac;
-        jac = numericalDerivatives(
-          ctx, prevtrackpar, surf, propdir, trajectory.m_fieldprop);
+        jac = numericalDerivatives(ctx, prevtrackpar, surf, propdir, trajectory.m_fieldprop);
       }
 
       if (
@@ -7547,11 +7542,6 @@ namespace Trk {
       if (currenttrackpar == nullptr) {
         ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
           " pos: " << prevtrackpar->position() << " destination surface: " << *surf);
-        
-        
-          delete jac;
-        
-        
         if (
           hitno != nstatesupstream - 1 && 
           (prevtstype == TrackState::Scatterer || prevtstype == TrackState::Brem)
@@ -7589,7 +7579,6 @@ namespace Trk {
         }
         
         states[hitno]->setJacobian(*jac);
-        delete jac;
       }
       
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
@@ -7638,7 +7627,7 @@ namespace Trk {
     bremno = trajectory.numberOfUpstreamBrems();
     
     for (int hitno = nstatesupstream; hitno < (int) states.size(); hitno++) {
-      TransportJacobian *jac = nullptr;
+      std::unique_ptr<TransportJacobian> jac;
       const Surface *surf = states[hitno]->surface();
       const TrackParameters *currenttrackpar = nullptr;
       Trk::PropDirection propdir = Trk::alongMomentum;
@@ -7653,6 +7642,7 @@ namespace Trk {
       bool curvpar = false;
 
       if (calcderiv && !m_numderiv) {
+        TransportJacobian * tmp_jac = jac.get();
         currenttrackpar = m_propagator->propagateParameters(
           ctx,
           *prevtrackpar, 
@@ -7660,10 +7650,11 @@ namespace Trk {
           propdir,
           false, 
           trajectory.m_fieldprop,
-          jac, 
+          tmp_jac,
           Trk::nonInteracting,
           curvpar
         );
+        if (jac.get() != tmp_jac) jac.reset(tmp_jac);
       } else {
         currenttrackpar = m_propagator->propagateParameters(
           ctx,
@@ -7683,13 +7674,11 @@ namespace Trk {
           Trk::alongMomentum : 
           Trk::oppositeMomentum
         );
-        
-        if (jac != nullptr) {
-          delete jac;
-          jac = nullptr;
-        }
+
+        jac.reset(nullptr);
         
         if (calcderiv && !m_numderiv) {
+          TransportJacobian * tmp_jac = jac.get();
           currenttrackpar = m_propagator->propagateParameters(
             ctx,
             *prevtrackpar, 
@@ -7697,10 +7686,11 @@ namespace Trk {
             propdir,
             false, 
             trajectory.m_fieldprop,
-            jac, 
+            tmp_jac,
             Trk::nonInteracting,
             curvpar
           );
+          if (jac.get() != tmp_jac) jac.reset(tmp_jac);
         } else {
           currenttrackpar = m_propagator->propagateParameters(
             ctx,
@@ -7716,7 +7706,6 @@ namespace Trk {
       }
       
       if ((currenttrackpar != nullptr) && m_numderiv && calcderiv) {
-        delete jac;
         jac = numericalDerivatives(ctx, prevtrackpar, surf, propdir, trajectory.m_fieldprop);
       }
 
@@ -7736,10 +7725,6 @@ namespace Trk {
         ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
           " pos: " << prevtrackpar->
           position() << " destination surface: " << *surf);
-        
-          delete jac;
-        
-
         return FitterStatusCode::ExtrapolationFailure;
       }
 
@@ -7760,7 +7745,6 @@ namespace Trk {
         }
         
         states[hitno]->setJacobian(*jac);
-        delete jac;
       }
 
       if (calcderiv && (jac == nullptr)) {
@@ -8161,7 +8145,7 @@ namespace Trk {
     }
   }
 
-  TransportJacobian*
+  std::unique_ptr<TransportJacobian>
   GlobalChi2Fitter::numericalDerivatives(
     const EventContext& ctx,
     const TrackParameters* prevpar,
@@ -8177,7 +8161,7 @@ namespace Trk {
       0, 0, 0, 1, 0,
       0, 0, 0, 0, 1
     };
-    TransportJacobian *jac = new TransportJacobian(J);
+    std::unique_ptr<TransportJacobian> jac = std::make_unique<TransportJacobian>(J);
     const TrackParameters *tmpprevpar = prevpar;
     double eps[5] = {
       0.01, 0.01, 0.00001, 0.00001, 0.000000001
@@ -8219,68 +8203,80 @@ namespace Trk {
       correctAngles(vecminuseps[Trk::phi], vecminuseps[Trk::theta]);
       correctAngles(vecpluseps[Trk::phi], vecpluseps[Trk::theta]);
 
-      const TrackParameters *parpluseps =
-        tmpprevpar->associatedSurface().createTrackParameters(vecpluseps[0],
-                                                              vecpluseps[1],
-                                                              vecpluseps[2],
-                                                              vecpluseps[3],
-                                                              vecpluseps[4],
-                                                              nullptr);
-      const TrackParameters *parminuseps =
-        tmpprevpar->associatedSurface().createTrackParameters(vecminuseps[0],
-                                                              vecminuseps[1],
-                                                              vecminuseps[2],
-                                                              vecminuseps[3],
-                                                              vecminuseps[4],
-                                                              nullptr);
-      const TrackParameters* newparpluseps = m_propagator->propagateParameters(
-        ctx,
-        *parpluseps,
-        *surf,
-        propdir,
-        false,
-        fieldprop,
-        Trk::nonInteracting);
-      const TrackParameters* newparminuseps = m_propagator->propagateParameters(
-        ctx,
-        *parminuseps,
-        *surf,
-        propdir,
-        false,
-        fieldprop,
-        Trk::nonInteracting);
+      std::unique_ptr<const TrackParameters> parpluseps(
+        tmpprevpar->associatedSurface().createTrackParameters(
+          vecpluseps[0],
+          vecpluseps[1],
+          vecpluseps[2],
+          vecpluseps[3],
+          vecpluseps[4],
+          nullptr
+        )
+      );
+      std::unique_ptr<const TrackParameters> parminuseps(
+        tmpprevpar->associatedSurface().createTrackParameters(
+          vecminuseps[0],
+          vecminuseps[1],
+          vecminuseps[2],
+          vecminuseps[3],
+          vecminuseps[4],
+          nullptr
+        )
+      );
+
+      std::unique_ptr<const TrackParameters> newparpluseps(
+        m_propagator->propagateParameters(
+          ctx,
+          *parpluseps,
+          *surf,
+          propdir,
+          false,
+          fieldprop,
+          Trk::nonInteracting
+        )
+      );
+      std::unique_ptr<const TrackParameters> newparminuseps(
+        m_propagator->propagateParameters(
+          ctx,
+          *parminuseps,
+          *surf,
+          propdir,
+          false,
+          fieldprop,
+          Trk::nonInteracting
+        )
+      );
+
       PropDirection propdir2 =
         (propdir ==
          Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
       if (newparpluseps == nullptr) {
-        newparpluseps = m_propagator->propagateParameters(
-          ctx,
-          *parpluseps,
-          *surf,
-          propdir2,
-          false,
-          fieldprop,
-          Trk::nonInteracting);
+        newparpluseps.reset(
+          m_propagator->propagateParameters(
+            ctx,
+            *parpluseps,
+            *surf,
+            propdir2,
+            false,
+            fieldprop,
+            Trk::nonInteracting
+          )
+        );
       }
       if (newparminuseps == nullptr) {
-        newparminuseps = m_propagator->propagateParameters(
-          ctx,
-          *parminuseps,
-          *surf,
-          propdir2,
-          false,
-          fieldprop,
-          Trk::nonInteracting);
+        newparminuseps.reset(
+          m_propagator->propagateParameters(
+            ctx,
+            *parminuseps,
+            *surf,
+            propdir2,
+            false,
+            fieldprop,
+            Trk::nonInteracting
+          )
+        );
       }
-      delete parpluseps;
-      delete parminuseps;
       if ((newparpluseps == nullptr) || (newparminuseps == nullptr)) {
-        delete newparpluseps;
-        delete newparminuseps;
-        delete jac;
-        if (tmpprevpar != prevpar) {
-          delete tmpprevpar;
-        }
         return nullptr;
       }
 
@@ -8310,11 +8306,6 @@ namespace Trk {
         (*jac) (j, i) = diff / (2 * eps[i]);
       }
 
-      delete newparpluseps;
-      delete newparminuseps;
-    }
-    if (tmpprevpar != prevpar) {
-      delete tmpprevpar;
     }
     return jac;
   }

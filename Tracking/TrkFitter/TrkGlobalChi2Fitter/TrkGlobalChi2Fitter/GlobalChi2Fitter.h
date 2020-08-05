@@ -526,7 +526,7 @@ namespace Trk {
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
-    TransportJacobian *numericalDerivatives(
+    std::unique_ptr<TransportJacobian> numericalDerivatives(
       const EventContext& ctx,
       const TrackParameters *,
       const Surface *,
