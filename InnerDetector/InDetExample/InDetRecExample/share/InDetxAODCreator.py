@@ -217,8 +217,8 @@ if InDetFlags.doR3LargeD0(): # TODO: Should this include the flag doLargeD0? Wil
     if doCreation :
         createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
     if doConversion :
-        convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.ResolvedLargeD0TrackParticles()), # TODO: Not sure if this should be ResolvedLargeD0TrackParticles or ResolvedLargeD0Tracks -RN
-                              InDetKeys.ResolvedLargeD0TrackParticlesTruth(),
+        convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.ExtendedLargeD0TrackParticles()), # TODO: Not sure if this should be ExtendedLargeD0TrackParticles or ExtendedLargeD0Tracks -RN
+                              InDetKeys.ExtendedLargeD0TrackParticlesTruth(),
                               InDetKeys.xAODLargeD0TrackParticleContainer(),
                               topSequence)
 
