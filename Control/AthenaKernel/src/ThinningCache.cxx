@@ -151,6 +151,17 @@ void ThinningCache::setVetoed (const std::string& key,
   m_map[key].m_vetoed = vetoed;
 }
 
+/**
+ * @brief Set lossy float compression information for the object.
+ * @param key SG string key of the object being added.
+ * @param compression Map of compression levels to variables
+ *                    for this object.
+ */
+void ThinningCache::setCompression(const std::string& key,
+                                   const ThinningInfo::compression_map_t& compression)
+{
+  m_map[key].m_compression = compression;
+}
 
 /**
  * @brief Return thinning information for @c key.
