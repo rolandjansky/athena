@@ -738,9 +738,9 @@ namespace top {
     std::vector<float> m_ljet_phi;
     std::vector<float> m_ljet_e;
     std::vector<float> m_ljet_m;
-    std::vector<float> m_ljet_sd12;
     std::vector<int> m_ljet_truthLabel;
 
+    std::unordered_map<std::string, std::vector<float> > m_ljet_substructure;
     std::unordered_map<std::string, std::vector<char> > m_ljet_isTagged;
     std::unordered_map<std::string, std::vector<float> > m_ljet_tagSF;
 
@@ -1402,9 +1402,9 @@ namespace top {
     const std::vector<float>& ljet_phi() const {return m_ljet_phi;}
     const std::vector<float>& ljet_e() const {return m_ljet_e;}
     const std::vector<float>& ljet_m() const {return m_ljet_m;}
-    const std::vector<float>& ljet_sd12() const {return m_ljet_sd12;}
     const std::vector<int>& ljet_truthLabel() const {return m_ljet_truthLabel;}
 
+    const std::unordered_map<std::string, std::vector<float> >& ljet_substructure() const {return m_ljet_substructure;}
     const std::unordered_map<std::string, std::vector<char> >& ljet_isTagged() const {return m_ljet_isTagged;}
     const std::vector<char>& ljet_isTagged(const std::string& taggerName) {return m_ljet_isTagged[taggerName];}
 

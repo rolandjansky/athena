@@ -1316,6 +1316,29 @@ namespace top {
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
+    
+    std::istringstream str_substructure(settings->value("LargeRJetSubstructureVariables"));
+
+    std::vector<std::string> vecSubstructure;
+    std::copy(std::istream_iterator<std::string>(str_substructure),
+              std::istream_iterator<std::string>(),
+              std::back_inserter(vecSubstructure));
+
+    // loop through all btagging WPs requested
+    for (const std::string&  key: vecSubstructure) {
+      
+      std::vector<std::string> pairs;
+      boost::split(pairs, key, boost::is_any_of(":"));
+      if(pairs.size() == 1) m_largeRJetSubstructureVariables[pairs[0]]=pairs[0];
+      else if(pairs.size() == 2) m_largeRJetSubstructureVariables[pairs[0]]=pairs[1];
+      else throw std::runtime_error {
+        "TopConfig: Options in LargeRJetSubstructureVariables should be of the form \'x:y\' or \'y\'."
+      };
+    }
+    
+    
+    
+    
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
     this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));
