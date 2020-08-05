@@ -1,0 +1,363 @@
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+ 
+__author__ = "Mark Sutton"
+__doc__    = "InDetTrigConfigSettings"
+__all__    = [ "getInDetTrigConfig", "printDefinedSlices" ]
+
+
+# overall access for ID Trigger configuration cuts
+#  
+#    tau = getInDetTrigConfig("tau")
+#    pTmin        = tau.pTmin()
+#    etaHalfWidth = tau.etaHalfWidth()
+#    phiHalfWidth = getInDetConfig("tau").phiHalfWidth()
+#
+# and so on
+#
+# take care to only use defined signature types or it
+# will throw an exception 
+
+# this dictionary will get filled after all the classes 
+# are definied 
+_ConfigSettings = {} 
+
+def getInDetTrigConfig( name ) :
+    if name in _ConfigSettings :
+        return _ConfigSettings[name]
+    else : 
+        #       don't just return None, and do nothing as this 
+        #       will just hide the error until people try to use 
+        #       the bad slice configuration
+        raise Exception( "getInDetTrigConfig() called with incorrectnon existent slice: "+name )
+        return None         
+
+
+def printDefinedSlices() :
+    for name in _ConfigSettings :
+        print(name)
+
+
+from AthenaCommon.SystemOfUnits import GeV
+
+
+class _Settings : 
+  def __init__(self, name="") :
+        if name == "" :
+            self._name = "Settings"
+        else :
+            self._name = name
+        # default values 
+        self._pTmin               = 1.*GeV
+        self._d0SeedMax           = 4.0
+        self._d0SeedPPSMax        = 1.7
+        self._doZFinder           = False
+        self._doResMon            = False
+        self._doSpPhiFiltering    = True
+        self._doCloneRemoval      = True
+        self._checkRedundantSeeds = False
+        self._dRdoubletMax        = 270 
+        self._seedRadBinWidth     = 2
+        self._etaHalfWidth        = 0.1
+        self._phiHalfWidth        = 0.1
+        self._doFullScan          = False
+        self._monPS               = 1
+        self._monPtMin            = 1*GeV
+        self._roiName             = ""
+        self._trackCollection     = ""
+
+        self._doTRT               = False
+
+  def _name(self) :
+   return self._name
+
+  def pTmin(self) :
+   return self._pTmin 
+
+  def d0SeedMax(self) :
+   return self._d0SeedMax
+
+  def d0SeedPPSMax(self) :
+   return self._d0SeedPPSMax
+
+  def doZFinder(self) :
+   return self._doZFinder
+
+  def doResMon(self) :
+   return self._doResMon
+
+  def doSpPhiFiltering(self) :
+   return self._doSpPhiFiltering
+
+  def doCloneRemoval(self) :
+   return self._doCloneRemoval
+
+  def checkRedundantSeeds(self) :
+   return self._checkRedundantSeeds
+
+  def dRdoubletMax(self) :
+   return self._dRdoubletMax 
+
+  def seedRadBinWidth(self) :
+   return self._seedRadBinWidth
+
+  def etaHalfWidth(self) :
+   return self._etaHalfWidth
+
+  def phiHalfWidth(self) :
+   return self._phiHalfWidth
+
+  def doFullScan(self) :
+   return self._doFullScan
+
+  def monPS(self) :
+   return self._monPS
+
+  def monPtMin(self) :
+   return self._monPtMin
+
+  def roiName(self) :
+   return self._roiName
+
+  def trackCollection(self) :
+   return self._trackCollection
+
+  def doTRT(self) :
+   return self._doTRT
+
+
+  def printout(self): 
+       print( self._name, " :")
+       print( "   pTmin                : ", self._pTmin )
+       print( "   d0SeedMax            : ", self._d0SeedMax )
+       print( "   d0SeedPPSMax         : ", self._d0SeedPPSMax ) 
+       print( "   doZFinder            : ", self._doZFinder )
+       print( "   doResMon             : ", self._doResMon )
+       print( "   doSpPhiFiltering     : ", self._doSpPhiFiltering ) 
+       print( "   doCloneRemoval       : ", self._doCloneRemoval )
+       print( "   checkRedundantSeeds  : ", self._checkRedundantSeeds )
+       print( "   dRdoubletMax         : ", self._dRdoubletMax )
+       print( "   seedRadBinWidth      : ", self._seedRadBinWidth )
+       print( "   etaHalfWidth         : ", self._etaHalfWidth )
+       print( "   phiHalfWidth         : ", self._phiHalfWidth ) 
+       print( "   doFullScan           : ", self._doFullScan )
+       print( "   monPS                : ", self._monPS )
+       print( "   monPtMin             : ", self._monPtMin )
+       print( "   roiName              : ", self._roiName ) 
+       print( "   trackCollectiom      : ", self._trackCollection ) 
+
+# electron configuration ...
+
+class _Settings_electron( _Settings ) : 
+    def __init__( self ) : 
+        self._name = "electron"
+        self._doCloneRemoval      = False
+        self._checkRedundantSeeds = True
+        self._roiName             = "HLT_Roi_Electron"
+        self._trackCollection     = "HLT_IDTrack_Electron"
+
+        self._doTRT               = True
+
+
+# muon configuration ...
+
+class _Settings_muon( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "muon"
+        self._d0SeedMax           = 10.0
+        self._doResMon            = True
+        self._doSpPhiFiltering    = False
+        self._checkRedundantSeeds = True
+        self._monPtMin            = 12*GeV
+        self._roiName             = "HLT_Roi_Muon"
+        self._trackCollection     = "HLT_IDTrack_Muon"
+
+        self._doTRT               = False
+
+class _Settings_muonCore( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "muonCore"
+        self._d0SeedMax           = 10.0
+        self._doSpPhiFiltering    = False
+        self._checkRedundantSeeds = True
+        self._roiName             = "HLT_Roi_MuonCore"
+        self._trackCollection     = "HLT_IDTrack_MuonCore"
+
+        self._doTRT               = False
+
+
+class _Settings_muonIso( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "muonIso"
+        self._etaHalfWidth = 0.35
+        self._phiHalfWidth = 0.35
+        self._roiName         = "HLT_Roi_MuonIso"
+        self._trackCollection = "HLT_IDTrack_MuonIso"
+
+        self._doTRT               = False
+
+
+# bjet 
+
+class _Settings_bjet( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "bjet"
+        self._etaHalfWidth    = 0.4
+        self._phiHalfWidth    = 0.4
+        self._roiName         = "HLT_Roi_Bjet"
+        self._trackCollection = "HLT_IDTrack_Bjet"
+
+        self._doTRT               = False
+
+class _Settings_bjetVtx( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "bjetVtx"
+        self._pTmin           = 5.*GeV
+        self._etaHalfWidth    = 0.1
+        self._phiHalfWidth    = 0.1
+        self._roiName         = "HLT_Roi_BjetVtx"
+        self._trackCollection = "HLT_IDTrack_BjetVtx"
+
+        self._doTRT               = False
+
+# fullscan 
+
+class _Settings_fullScan( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "fullScan"
+        self._doFullScan      = True
+        self._etaHalfWidth    = 3
+        self._phiHalfWidth    = 3.14159
+        self._roiName         = "HLT_Roi_FS"
+        self._trackCollection = "HLT_IDTrack_FS"
+
+        self._doTRT               = False
+
+# beamspot 
+
+class _Settings_beamSpot( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "beamSpot"
+        self._doFullScan      = True
+        self._doZFinder       = True
+        self._dRdoubletMax    = 200 
+        self._seedRadBinWidth = 10
+        self._etaHalfWidth    = 3
+        self._phiHalfWidth    = 3.14159
+        self._roiName         = "HLT_Roi_Beamspot"
+        self._trackCollection = "HLT_IDTrack_Beamspot"
+
+        self._doTRT               = False
+
+
+# minBias
+
+class _Settings_minBias( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "minBias"
+        self._doFullScan      = True
+        self._pTmin           = 0.2*GeV # You have to be fucking kidding me !
+        self._etaHalfWidth    = 3
+        self._phiHalfWidth    = 3.14159
+        self._roiName         = "HLT_Roi_MinBias"
+        self._trackCollection = "HLT_IDTrack_MinBias"
+
+        self._doTRT               = False
+
+# cosmic(s) need to change this to just "cosmic" 
+# singlular rahter than cosmicS plural
+
+class _Settings_cosmic( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "cosmic"
+        self._doFullScan      = True
+        self._d0SeedMax       = 1000.0
+        self._d0SeedPPSMax    = 1000.0
+        self._etaHalfWidth    = 3
+        self._phiHalfWidth    = 3.14159
+        self._roiName         = "HLT_Roi_Cosmic"
+        self._trackCollection = "HLT_IDTrack_cosmic"
+
+        self._doTRT           = False
+
+# bphysics
+
+class _Settings_bphysics( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "bphysics"
+        self._d0SeedMax        = 10. 
+        self._doSpPhiFiltering = False
+        self._etaHalfWidth     = 0.75
+        self._phiHalfWidth     = 0.75
+        self._checkRedundantSeeds = True
+        self._roiName           = "HLT_Roi_Bphys"
+        self._trackCollection   = "HLT_IDTrack_Bphys"
+
+
+        self._doTRT               = False
+
+# tau configuration ...
+
+class _Settings_tauCore( _Settings ) : 
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "tauCore"
+        self._roiName         = "HLT_Roi_TauCore"
+        self._trackCollection = "HLT_IDTrack_TauCore"
+
+        self._doTRT               = True
+
+class _Settings_tauIso( _Settings ) : 
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "tauIso"
+        self._etaHalfWidth    = 0.4
+        self._phiHalfWidth    = 0.4
+        self._roiName         = "HLT_Roi_TauIso"
+        self._trackCollection = "HLT_IDTrack_TauIso"
+
+        self._doTRT               = True
+
+class _Settings_tau( _Settings ) : 
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "tau"
+        self._pTmin           = 0.8*GeV 
+        self._etaHalfWidth    = 0.4
+        self._phiHalfWidth    = 0.4
+        self._roiName         = "HLT_Roi_Tau"
+        self._trackCollection = "HLT_IDTrack_Tau"
+
+        self._doTRT               = True
+
+# overall map for use, ie 
+
+_ConfigSettings = { 
+    "muon"     : _Settings_muon(),
+    "muonIso"  : _Settings_muonIso(),
+    "muonCore" : _Settings_muonCore(),
+    
+    "electron"  : _Settings_electron(),
+    "photon"    : _Settings(name="photon"),
+    
+    "tau"       : _Settings_tau(),
+    "tauCore"   : _Settings_tauCore(),
+    "tauIso"    : _Settings_tauIso(),
+
+    "bjet"      : _Settings_bjet(),
+    "bjetVtx"   : _Settings_bjetVtx(),
+    
+    "cosmics"   : _Settings_cosmic(),
+    "fullScan"  : _Settings_fullScan(),
+    "minBias"   : _Settings_minBias(),
+    "bphysics"  : _Settings_bphysics() }

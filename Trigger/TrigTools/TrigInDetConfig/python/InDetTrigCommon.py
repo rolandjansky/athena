@@ -3,9 +3,16 @@
 #     Contains algs/tools used by Inner Detector Trigger
   
 #Global keys/names for collections 
-from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
+#from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
 
 from InDetRecExample.TrackingCommon import setDefaults
+
+def get_name_prefix():
+   #Too long? Do we need this to separate from InDet?
+   return 'InDetTrigMT_'
+
+def get_name_suffix(signature):
+   return '_%s'%signature
 
 #TODO 
 #need to implement this in both FTF and PT
@@ -56,7 +63,7 @@ def getTrackParticleCnv( prefix, suffix, outPTTracks, outPTTrackParticles ):
   monTool = TrigInDetTrackCnvMonitoring( name = '%sParticleCreatorCnv%s'%( prefix, suffix ) )
 
   #Now pass this tool to the Track Monitoring tool
-  from TrigInDetMonitoringTools.TrigInDetTrackMonitoringToolConf import TrigInDetTrackMonitoringTool
+  from TrigInDetMonitoringTools.TrigInDetMonitoringToolsConf import TrigInDetTrackMonitoringTool
   monTrackCnv = TrigInDetTrackMonitoringTool( name = '%sParticleCreatorCnv%s'%( prefix, suffix ),
                                              MonitoringTool = monTool
                                             )
@@ -269,7 +276,7 @@ class TrackSummaryTool_builder(Trk__TrackSummaryTool):
    #Configure and loads track summary helper tool 
    def load_summary_tool_helper(self, **kwargs):
 
-      from AthenaCommon.AppMgr import ToolSvc
+      #from AthenaCommon.AppMgr import ToolSvc
       #TODO: Go through each tool loaded in here and create getter/ use offline getter
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool, InDetTrigPrdAssociationTool, InDetTrigTRTStrawStatusSummaryTool,  InDetTrigTestBLayerTool 
 
@@ -329,14 +336,18 @@ class TrackSummaryTool_builder(Trk__TrackSummaryTool):
 ## Scoring tools
 
 #Maybe this bit can be adapted using just offline getters
-def get_ambiScoringToolBase( name='AmbiScoringTool', signature='', **kwargs) :
-    print "Working on signature: %s" %signature
-    from InDetRecExample.TrackingCommon import makeName
+def get_ambiScoringToolBase( config, **kwargs) :
+    signature = config.name
+    #print "Working on signature: %s" %signature
+    #from InDetRecExample.TrackingCommon import makeName
     #NewTrackingCuts = kwargs.pop("NewTrackingCuts")
     #TODO: add InDetTrigMT to offline common tracking naming functions/make our own
     #the_name=makeName(name,kwargs)
-    
+    #TODO will have to switch probably for specific scoring tool names
+    name = '%s%s%s' %( get_name_prefix(), 'AmbScoringTool', get_name_suffix( config.name ) )
 
+
+    #TODO adapt cuts below based on the configuration settings
     #Some specific pT cut settings for signatures
     from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
     ptintcut = InDetTrigSliceSettings[('pTmin',signature)]
@@ -377,16 +388,16 @@ def get_ambiScoringToolBase( name='AmbiScoringTool', signature='', **kwargs) :
 
 
    
-def get_ambiScoringTool(name='AmbiScoringTool', signature='', **kwargs):
+def get_ambiScoringTool(config, **kwargs):
     #Retrieve base tool
-    ambScoringTool =  get_ambiScoringToolBase(name, signature,
+    ambScoringTool =  get_ambiScoringToolBase(config,
                                        **setDefaults( kwargs,
                                                       useTRT_AmbigFcn= True,
                                                       minTRTonTrk  = 0,    # no TRT here
                                                     )
                                              )
     #Is this still needed?
-    if signature=='beamgas':
+    if config.name=='beamgas':
         from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
         ambScoringTool.minPt          = EFIDTrackingCutsBeamGas.minPT()
         ambScoringTool.maxRPhiImp     = EFIDTrackingCutsBeamGas.maxPrimaryImpact()
@@ -401,7 +412,7 @@ def get_ambiScoringTool(name='AmbiScoringTool', signature='', **kwargs):
 
 
 
-def get_extScoringTool(name='ExtScoringTool', signature='', **kwargs) :
+def get_extScoringTool(config, **kwargs) :
     #This seems to be run2 cuts setting, should we not have different for each signature/slice? 
     from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
     #Shouldn't this be based on the signature? 
@@ -412,33 +423,38 @@ def get_extScoringTool(name='ExtScoringTool', signature='', **kwargs) :
     #    kwargs=setDefaults(kwargs, minTRTPrecisionFraction = 0.2)
 
     #Retrieve base tool
-    return get_ambiScoringToolBase(    name, signature,
+    return get_ambiScoringToolBase(  config,
                                        **setDefaults( kwargs,
                                                       minTRTonTrk  = InDetTrigCutValues.minTRTonTrk(),
                                                       minTRTPrecisionFraction = InDetTrigCutValues.minTRTPrecFrac() #Note! Used in offline but not in run2 online
                                                      )
                                    )
 
+
+
+#Temporary function before trk sum tool builder is ready
+def get_trk_summary_tool(config):
+   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool  
+   from TrigInDetConf.TrigInDetRecCommonTools           import InDetTrigTrackSummaryToolSharedHitsWithTRTPid  
+
+   #Load shared hits with Ele PID if TRT specified
+   if config.doTRT:
+      return InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+   else:
+      return InDetTrigTrackSummaryTool
+
 #--------------------------------------------------------------------------
 #                    Track Ambiguity algs/tools
-
-def get_name_prefix():
-   #Too long? Do we need this to separate from InDet?
-   return 'InDetTrigMT_'
-
-def get_name_suffix(signature):
-   return '_%s'%signature
 
 from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool 
 class TrkAmbiguityProcessor_builder(Trk__SimpleAmbiguityProcessorTool):
    """ 
       @TODO add more description
    """
-   def __init__(self, name="AmbiguityProcessor", signature=''):
+   def __init__(self, config):
 
-      self.prefix = get_name_prefix( )
-      self.suffix = get_name_suffix( signature )
-      super(Trk__SimpleAmbiguityProcessorTool, self ).__init__( '%s%s%s'%(self.prefix,name,self.suffix) )
+      name = '%s%s%s' %( get_name_prefix(), 'TrkAmbiguityProcessor', get_name_suffix( config.name ) )
+      super(Trk__SimpleAmbiguityProcessorTool, self ).__init__( name )
 
       #-----------------------
       #Set alg/tool parameters
@@ -450,9 +466,9 @@ class TrkAmbiguityProcessor_builder(Trk__SimpleAmbiguityProcessorTool):
 
       self.load_association_tool()
 
-      self.load_trk_summary_tool(signature)
+      self.load_trk_summary_tool(config)
 
-      self.load_scoring_tool(signature)
+      self.load_scoring_tool(config)
 
       self.load_trk_selection_tool()
       
@@ -464,22 +480,22 @@ class TrkAmbiguityProcessor_builder(Trk__SimpleAmbiguityProcessorTool):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter 
       self.Fitter =  InDetTrigTrackFitter
 
-   def load_trk_summary_tool(self,signature):
+   def load_trk_summary_tool(self,config):
       #Is this going to pick the same instance of TST as in scoring tool? Should we pass it as an arg instead?
-      trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature = signature )
-      self.TrackSummaryTool = trkSummaryTool
+      #trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature = signature )
+      self.TrackSummaryTool = get_trk_summary_tool(config)
    
 
-   def load_scoring_tool(self,signature):
+   def load_scoring_tool(self,config):
 
       from AthenaCommon.AppMgr import ToolSvc
-      trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature = signature )
+      #trkSummaryTool =  #TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature = signature )
 
       #TODO: Here based on some parameter (for instance name/signature) we should get different type of scoring tool (for cosmic, collision physics)
-      scoreTool = get_ambiScoringTool( name = '%sAmbiScoringTool%s'%(self.prefix, self.suffix),
-                                              signature = signature,
+      scoreTool = get_ambiScoringTool( 
+                                              config = config,
                                               #Extrapolator = InDetTrigExtrapolator #This is default
-                                              SummaryTool  =  trkSummaryTool,
+                                              SummaryTool  =  get_trk_summary_tool(config) #trkSummaryTool,
                                      )
 
       ToolSvc  += scoreTool #Should turn in the private?
@@ -510,22 +526,21 @@ class TrkAmbiguitySolver_builder(Trk__TrkAmbiguitySolver):
       Requires ambiguity processor tool
       @TODO add more description
    """
-   def __init__(self, name="AmbiguitySolver", signature=''):
+   def __init__(self, config):
 
-      prefix = get_name_prefix( )
-      suffix = get_name_suffix( signature )
-      super(Trk__TrkAmbiguitySolver, self ).__init__( '%s%s%s'%(prefix,name,suffix) )
+      name = '%s%s%s' %( get_name_prefix(), 'TrkAmbiguitySolver', get_name_suffix( config.name ) )
+      super(Trk__TrkAmbiguitySolver, self ).__init__( name ) 
 
       #-----------------------
       #Set alg/tool parameters
 
       #Set input/output names
-      self.set_track_collections( signature )
+      self.set_track_collections( config.name )
 
       #-----------------------
       #Set subtools
 
-      self.load_ambi_processor(signature)
+      self.load_ambi_processor(config.name)
       
 
    #------------------------------------------------------------------
@@ -542,10 +557,11 @@ class TrkAmbiguitySolver_builder(Trk__TrkAmbiguitySolver):
 
    #------------------------------------------------------------------
    # Loading subtools
-   def load_ambi_processor(self, signature):
-      ambiguityProcessor = TrkAmbiguityProcessor_builder( name = 'AmbiguityProcessor' ,signature = signature ) 
-      ToolSvc += ambiguityProcessor #Should this be private ?
-      self.AmbiguityProcessor = ambiguityProcessor
+   def load_ambi_processor(self, config):
+      from AthenaCommon.AppMgr import ToolSvc
+      #ToolSvc += ambiguityProcessor #Should this be private ?
+      self.AmbiguityProcessor = TrkAmbiguityProcessor_builder( config = config ) 
+      ToolSvc += self.AmbiguityProcessor
       
 
 
@@ -558,13 +574,12 @@ class TrkAmbiguityScoreProcessor_builder(Trk__DenseEnvironmentsAmbiguityScorePro
    """ 
       @TODO add more description
    """
-   def __init__(self, name="AmbiguityScoreProcessor", signature=''):
-      self.signature = signature #str Parameter (muon, bjet, etc) that helps to determine specific settings of the tool
+   def __init__(self, config):
+      self.signature = config.name #str Parameter (muon, bjet, etc) that helps to determine specific settings of the tool
 
       #Building name of the class from prefix + name + suffix
-      self.prefix = get_name_prefix( )
-      self.suffix = get_name_suffix( signature )
-      super(Trk__DenseEnvironmentsAmbiguityScoreProcessorTool, self ).__init__( '%s%s%s'%(self.prefix,name,self.suffix) )
+      name = '%s%s%s' %( get_name_prefix(), 'AmbiguityScoreProcessor', get_name_suffix( config.name ) )
+      super(Trk__DenseEnvironmentsAmbiguityScoreProcessorTool, self ).__init__( name )
 
       #print 'Signature in processor: %s' %signature
 
@@ -575,20 +590,20 @@ class TrkAmbiguityScoreProcessor_builder(Trk__DenseEnvironmentsAmbiguityScorePro
       #Set subtools
       self.load_association_tool()
 
-      self.load_scoring_tool()
+      self.load_scoring_tool(config)
 
       self.load_trk_selection_tool()
       
 
-   def load_scoring_tool(self):
-      trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature= self.signature )
+   def load_scoring_tool(self, config):
+      #trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature= self.signature )
 
       from AthenaCommon.AppMgr import ToolSvc
       #TODO: Here based on some parameter (for instance name/signature) we should get different type of scoring tool (for cosmic, collision physics)
-      scoreTool = get_ambiScoringTool( name = '%sAmbiScoringTool%s'%(self.prefix, self.suffix),
-                                              signature = self.signature,
+      scoreTool = get_ambiScoringTool( 
+                                              config       = config,
                                               #Extrapolator = InDetTrigExtrapolator #This is default
-                                              SummaryTool  =  trkSummaryTool,
+                                              SummaryTool  =  get_trk_summary_tool(config)#trkSummaryTool,
                                       )
 
       ToolSvc  += scoreTool #Should turn in the private?
@@ -613,13 +628,12 @@ class TrkAmbiguityScore_builder(Trk__TrkAmbiguityScore):
    """ 
       @TODO add more description
    """
-   def __init__(self, name="AmbiguityScore", signature=''):
-      self.signature = signature #str Parameter (muon, bjet, etc) that helps to determine specific settings of the tool
+   def __init__(self, config):
+      self.signature = config.name #str Parameter (muon, bjet, etc) that helps to determine specific settings of the tool
 
       #Building name of the class from prefix + name + suffix
-      prefix = get_name_prefix( )
-      suffix = get_name_suffix( signature )
-      super(Trk__TrkAmbiguityScore, self ).__init__( '%s%s%s'%(prefix,name,suffix) )
+      name = '%s%s%s' %( get_name_prefix(), 'TrkAmbiguityScore', get_name_suffix( config.name ) )
+      super(Trk__TrkAmbiguityScore, self ).__init__( name )
 
       #print 'Signature in builder: %s' %signature
 
@@ -631,7 +645,7 @@ class TrkAmbiguityScore_builder(Trk__TrkAmbiguityScore):
 
       #-----------------------
       #Set subtools
-      self.load_ambi_score_processor()
+      self.load_ambi_score_processor( config )
       
 
    #------------------------------------------------------------------
@@ -648,13 +662,10 @@ class TrkAmbiguityScore_builder(Trk__TrkAmbiguityScore):
 
    #------------------------------------------------------------------
    # Loading subtools
-   def load_ambi_score_processor(self):
+   def load_ambi_score_processor(self,config):
       from AthenaCommon.AppMgr import ToolSvc
-      ambiguityScoreProcessor = TrkAmbiguityScoreProcessor_builder( name = "AmbiguityScoreProcessor", signature = self.signature)
-      ToolSvc += ambiguityScoreProcessor #Should this be private ?
-      self.AmbiguityScoreProcessor = ambiguityScoreProcessor
-
-
-
-
+      #ambiguityScoreProcessor = TrkAmbiguityScoreProcessor_builder( name = "AmbiguityScoreProcessor", config = config )
+      #ToolSvc += ambiguityScoreProcessor 
+      self.AmbiguityScoreProcessor = TrkAmbiguityScoreProcessor_builder( config = config )
+      ToolSvc +=  self.AmbiguityScoreProcessor #Make private?
 

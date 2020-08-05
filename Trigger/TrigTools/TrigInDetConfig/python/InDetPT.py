@@ -76,16 +76,18 @@ def makeInDetPrecisionTracking( whichSignature,
   outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
   outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
 
+  #Load signature configuration (containing cut values, names of collections, etc)
+  from .InDetTrigConfigSettings import _ConfigSettings     
+  configSetting = _ConfigSettings[whichSignature]
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
   #e.g InDetTrigPT_Tracks_electron
-  if doTRTextension is True :
+  if configSetting.doTRT:
      nameExtTrackCollection = outPTTracks
   else:
      nameAmbiTrackCollection = outPTTracks
 
-     
 
 
   #-----------------------------------------------------------------------------
@@ -109,7 +111,8 @@ def makeInDetPrecisionTracking( whichSignature,
                                                 doSharedHits           = InDetTrigFlags.doSharedHits(),
                                                 doHolesInDet           = True )
   
-  if doTRTextension:
+  #OBSOLETE but keep Parameter_config
+  if configSetting.doTRT:
       if "electron" in whichSignature  or "tau" in whichSignature :
          trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
@@ -176,14 +179,15 @@ def makeInDetPrecisionTracking( whichSignature,
  #                                                      AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
 
 
-  from .InDetTrigCommon import TrkAmbiguityScore_builder, TrkAmbiguitySolver_builder
-  ambiguityScore  = TrkAmbiguityScore_builder( signature )
+  from .InDetTrigCommon import TrkAmbiguityScore_builder
+  ambiguityScore  = TrkAmbiguityScore_builder( config = configSetting )
 
-  ambiguitySolver = TrkAmbiguitySolver_builder( signature )
+  from .InDetTrigCommon import  TrkAmbiguitySolver_builder
+  ambiguitySolver = TrkAmbiguitySolver_builder( config = configSetting )
 
   #ptAlgs.extend( [ InDetTrigAmbiguityScore, InDetTrigMTAmbiguitySolver] )
   ptAlgs.extend( [ ambiguityScore, ambiguitySolver ] )
-  if doTRTextension:
+  if configSetting.doTRT:
 
             proxySignature = whichSignature
             if "tau" in whichSignature :
