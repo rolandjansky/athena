@@ -126,7 +126,7 @@ namespace top {
 
                                   if (s == "OldMedium") return TauAnalysisTools::ELEIDBDTOLDMEDIUM;
 
-                                  // If we haven't found the correct WP, then return -1
+                                  // If we haven't found the correct WP, then return 0
                                   return TauAnalysisTools::ELEIDNONEUNCONFIGURED;
                                 };
 
@@ -138,9 +138,6 @@ namespace top {
     int tauEleBDTWPLoose = tau_EleBDTWP_to_enum(m_config->tauEleBDTWPLoose());
     top::check(tauEleBDTWPLoose >= 0, m_config->tauEleBDTWPLoose() + " is not a valid tau WP");
 
-    const std::vector<float> absEtaRegion = {
-      0., 1.37, 1.37, 1.52, 1.52, 2.5
-    };
     const double absCharge = 1.;
     const std::vector<size_t> nTracks = {
       1, 3
@@ -173,6 +170,17 @@ namespace top {
     int iSelectionCutsLoose = iSelectionCuts;
     if (m_config->tauEleOLR()) iSelectionCuts |= TauAnalysisTools::CutEleOLR;
     if (m_config->tauEleOLRLoose()) iSelectionCutsLoose |= TauAnalysisTools::CutEleOLR;
+
+    //add warning for special case of using EleIDBDT AND ELEOLR outdated->can just use oldBDT
+
+    if (m_config->tauEleOLR()&& tauEleBDTWP >=2 && !(tauEleBDTWP==TauAnalysisTools::ELEIDBDTOLDLOOSE || tauEleBDTWP==TauAnalysisTools::ELEIDBDTOLDMEDIUM)){
+    	ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options"
+    			"use OldLoose or OldMedium if you really want to use both (outdated)");
+    }
+    if (m_config->tauEleOLRLoose() && tauEleBDTWPLoose >=2 && !(tauEleBDTWPLoose==TauAnalysisTools::ELEIDBDTOLDLOOSE || tauEleBDTWPLoose==TauAnalysisTools::ELEIDBDTOLDMEDIUM)){
+      ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options. "
+          "Use OldLoose or OldMedium if you really want to use both (outdated)");
+        }
 
     //============================================================
     // Nominal Tau Selection
@@ -207,7 +215,7 @@ namespace top {
                    "Failed to set tau SelectionCuts");
         top::check(asg::setProperty(tauSelectionTool, "PtMin", static_cast<double>(m_config->tauPtcut() / 1e3)),
                    "Failed to set tau pT cut");
-        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", absEtaRegion),
+        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", m_config->tauEtaRegions() ),
                    "Failed to set tau AbsEtaRegion");
         top::check(asg::setProperty(tauSelectionTool, "AbsCharge", absCharge),
                    "Failed to set tau AbsCharge");
@@ -276,7 +284,7 @@ namespace top {
                    "Failed to set tau SelectionCuts");
         top::check(asg::setProperty(tauSelectionTool, "PtMin", static_cast<double>(m_config->tauPtcut() / 1e3)),
                    "Failed to set tau pT cut");
-        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", absEtaRegion),
+        top::check(asg::setProperty(tauSelectionTool, "AbsEtaRegion", m_config->tauEtaRegions()),
                    "Failed to set loose tau AbsEtaRegion");
         top::check(asg::setProperty(tauSelectionTool, "AbsCharge", absCharge),
                    "Failed to set loose tau AbsCharge");

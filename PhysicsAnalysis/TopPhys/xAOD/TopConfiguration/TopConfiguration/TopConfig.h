@@ -1379,6 +1379,13 @@ namespace top {
       }
     }
 
+    inline virtual void tauEtaRegions(const std::string& etaRegions) {
+      if (!m_configFixed) {
+        m_tau_configuration.etaRegions = etaRegions;
+        m_tau_configuration_loose.etaRegions = etaRegions;
+      }
+    }
+
     inline virtual void tauJetIDWP(const std::string& s) {
       if (!m_configFixed) m_tau_configuration.jetIDWP = s;
     }
@@ -1430,6 +1437,10 @@ namespace top {
     // Tau configuration getters
     inline virtual float tauPtcut() const {
       return m_tau_configuration.pt;
+    }
+
+    inline const std::string& tauEtaRegions() const {
+       return m_tau_configuration.etaRegions;
     }
 
     inline const std::string& tauJetIDWP() const {
@@ -2291,6 +2302,7 @@ namespace top {
       bool eleOLR = false;
       // pT cut on taus
       float pt = 20000;
+      std::string etaRegions="[0., 1.37, 1.52, 2.5]";
     } m_tau_configuration, m_tau_configuration_loose;
 
     // photon configuration
