@@ -344,9 +344,9 @@ namespace InDet {
 
 
       StatusCode CutTrkRelax(std::unordered_map<std::string,double> TrkVarDouble,
-                             std::unordered_map<std::string,long int> TrkVarLongInt) const;
+                             std::unordered_map<std::string,int> TrkVarInt) const;
       StatusCode CutTrk(std::unordered_map<std::string,double> TrkVarDouble,
-                        std::unordered_map<std::string,long int> TrkVarLongInt) const;
+                        std::unordered_map<std::string,int> TrkVarInt) const;
       double ConeDist(const AmgVector(5) & , const TLorentzVector & ) const;
 //
 // Gives correct mass assignment in case of nonequal masses

@@ -11,7 +11,7 @@
 namespace InDet{
 
   StatusCode InDetVKalVxInJetTool::CutTrkRelax(std::unordered_map<std::string,double> TrkVarDouble,
-                                               std::unordered_map<std::string,long int> TrkVarLongInt)
+                                               std::unordered_map<std::string,int> TrkVarInt)
   const
   {
 
@@ -21,8 +21,8 @@ namespace InDet{
     double ZVert     = TrkVarDouble["ZVert"];
     double ConeDist  = TrkVarDouble["ConeDist"];
 
-    long int PixelHits = TrkVarLongInt["PixelHits"];
-    long int SctHits   = TrkVarLongInt["SctHits"];
+    int PixelHits = TrkVarInt["PixelHits"];
+    int SctHits   = TrkVarInt["SctHits"];
 
     if ( ConeDist > m_ConeForTag )                        return StatusCode::FAILURE;
 
@@ -48,7 +48,7 @@ namespace InDet{
 
 
   StatusCode InDetVKalVxInJetTool::CutTrk(std::unordered_map<std::string,double> TrkVarDouble,
-                                          std::unordered_map<std::string,long int> TrkVarLongInt)
+                                          std::unordered_map<std::string,int> TrkVarInt)
   const
   {
 
@@ -64,10 +64,10 @@ namespace InDet{
     double trkP        = TrkVarDouble["trkP"];
     double trkPErr     = TrkVarDouble["trkPErr"];
 
-    long int PixelHits = TrkVarLongInt["PixelHits"];
-    long int SctHits   = TrkVarLongInt["SctHits"];
-    long int BLayHits  = TrkVarLongInt["BLayHits"];
-    long int badHits   = TrkVarLongInt["badHits"];
+    int PixelHits = TrkVarInt["PixelHits"];
+    int SctHits   = TrkVarInt["SctHits"];
+    int BLayHits  = TrkVarInt["BLayHits"];
+    int badHits   = TrkVarInt["badHits"];
 
     if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  return StatusCode::FAILURE;
     if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    return StatusCode::FAILURE;
@@ -149,9 +149,9 @@ namespace InDet{
 
           //----------------------------------- Summary tools
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
-          long int PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
-          long int SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-          long int BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+          int PixelHits = testSum->get(Trk::numberOfPixelHits);
+          int SctHits   = testSum->get(Trk::numberOfSCTHits);
+          int BLayHits  = testSum->get(Trk::numberOfBLayerHits);
 	  if(PixelHits < 0 ) PixelHits=0; 
 	  if(SctHits   < 0 ) SctHits=0; 
 	  if(BLayHits  < 0 ) BLayHits=0; 
@@ -160,10 +160,10 @@ namespace InDet{
           double ImpactA0=Impact[0];
           double ImpactZ=Impact[1];
 
-          long int splSCTHits = (long int) testSum->get(Trk::numberOfSCTSpoiltHits);
-          long int outSCTHits = (long int) testSum->get(Trk::numberOfSCTOutliers);
-          long int splPixHits = (long int) testSum->get(Trk::numberOfPixelSpoiltHits);
-          long int outPixHits = (long int) testSum->get(Trk::numberOfPixelOutliers);
+          int splSCTHits = testSum->get(Trk::numberOfSCTSpoiltHits);
+          int outSCTHits = testSum->get(Trk::numberOfSCTOutliers);
+          int splPixHits = testSum->get(Trk::numberOfPixelSpoiltHits);
+          int outPixHits = testSum->get(Trk::numberOfPixelOutliers);
           if(splSCTHits < 0 ) splSCTHits = 0;
           if(outSCTHits < 0 ) outSCTHits = 0;
           if(splPixHits < 0 ) splPixHits = 0;
@@ -173,7 +173,7 @@ namespace InDet{
           double eta = (*i_ntrk)->eta();
 
 	  std::unordered_map<std::string,double> TrkVarDouble;
-	  std::unordered_map<std::string,long int> TrkVarLongInt;
+	  std::unordered_map<std::string,int> TrkVarInt;
 
 	  TrkVarDouble["eta"]         = eta;
 	  TrkVarDouble["PInvVert"]    = VectPerig[4];
@@ -187,12 +187,12 @@ namespace InDet{
 	  TrkVarDouble["trkP"]        = trkP;
 	  TrkVarDouble["trkPErr"]     = trkPErr;
 
-	  TrkVarLongInt["PixelHits"] = PixelHits;
-	  TrkVarLongInt["SctHits"]   = SctHits;
-	  TrkVarLongInt["BLayHits"]  = BLayHits;
-	  TrkVarLongInt["badHits"]   = (long int) badHits;
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
+	  TrkVarInt["BLayHits"]  = BLayHits;
+	  TrkVarInt["badHits"]   = badHits;
 
-          StatusCode sc = CutTrk(TrkVarDouble, TrkVarLongInt);
+          StatusCode sc = CutTrk(TrkVarDouble, TrkVarInt);
           if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
@@ -227,8 +227,8 @@ namespace InDet{
 
           //----------------------------------- Summary tools
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
-          long int PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
-          long int SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
+          int PixelHits = testSum->get(Trk::numberOfPixelHits);
+          int SctHits   = testSum->get(Trk::numberOfSCTHits);
 	  if(PixelHits < 0 ) PixelHits=0; 
 	  if(SctHits   < 0 ) SctHits=0; 
 
@@ -239,7 +239,7 @@ namespace InDet{
           double eta = (*i_ntrk)->eta();
 
 	  std::unordered_map<std::string,double> TrkVarDouble;
-	  std::unordered_map<std::string,long int> TrkVarLongInt;
+	  std::unordered_map<std::string,int> TrkVarInt;
 
 	  TrkVarDouble["eta"]         = eta;
 	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
@@ -247,10 +247,10 @@ namespace InDet{
 	  TrkVarDouble["ZVert"]       = ImpactZ;
 	  TrkVarDouble["ConeDist"]    = coneDist;
 
-	  TrkVarLongInt["PixelHits"] = PixelHits;
-	  TrkVarLongInt["SctHits"]   = SctHits;
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
 
-          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarLongInt);
+          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarInt);
           if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
@@ -309,7 +309,7 @@ namespace InDet{
 	  double eta = (*i_ntrk)->eta();
 
 	  std::unordered_map<std::string,double> TrkVarDouble;
-	  std::unordered_map<std::string,long int> TrkVarLongInt;
+	  std::unordered_map<std::string,int> TrkVarInt;
 
 	  TrkVarDouble["eta"]         = eta;
 	  TrkVarDouble["PInvVert"]    = VectPerig[4];
@@ -323,12 +323,12 @@ namespace InDet{
 	  TrkVarDouble["trkP"]        = trkP;
 	  TrkVarDouble["trkPErr"]     = trkPErr;
 
-	  TrkVarLongInt["PixelHits"] = PixelHits;
-	  TrkVarLongInt["SctHits"]   = SctHits;
-	  TrkVarLongInt["BLayHits"]  = BLayHits;
-	  TrkVarLongInt["badHits"]   = (long int) badHits;
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
+	  TrkVarInt["BLayHits"]  = BLayHits;
+	  TrkVarInt["badHits"]   = badHits;
 
-          StatusCode sc = CutTrk(TrkVarDouble, TrkVarLongInt);
+          StatusCode sc = CutTrk(TrkVarDouble, TrkVarInt);
           if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
@@ -370,7 +370,7 @@ namespace InDet{
           double eta = (*i_ntrk)->eta();
 
 	  std::unordered_map<std::string,double> TrkVarDouble;
-	  std::unordered_map<std::string,long int> TrkVarLongInt;
+	  std::unordered_map<std::string,int> TrkVarInt;
 
 	  TrkVarDouble["eta"]         = eta;
 	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
@@ -378,10 +378,10 @@ namespace InDet{
 	  TrkVarDouble["ZVert"]       = ImpactZ;
 	  TrkVarDouble["ConeDist"]    = coneDist;
 
-	  TrkVarLongInt["PixelHits"] = PixelHits;
-	  TrkVarLongInt["SctHits"]   = SctHits;
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
 
-          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarLongInt);
+          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarInt);
 	  if( sc.isFailure() )                 continue;
 
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
