@@ -8,7 +8,7 @@
 
 /// Constructor
 MuonPRDCacheCreator::MuonPRDCacheCreator(const std::string &name,ISvcLocator *pSvcLocator):
-  AthReentrantAlgorithm(name,pSvcLocator),
+  IDCCacheCreatorBase(name,pSvcLocator),
    m_CscCacheKey(""),
    m_CscStripCacheKey(""),
    m_MdtCacheKey(""),
@@ -32,15 +32,15 @@ MuonPRDCacheCreator::MuonPRDCacheCreator(const std::string &name,ISvcLocator *pS
 }
 
 StatusCode MuonPRDCacheCreator::initialize() {
-  ATH_CHECK( m_CscCacheKey.initialize( !m_CscCacheKey.key().empty() ));
-  ATH_CHECK( m_CscStripCacheKey.initialize( !m_CscStripCacheKey.key().empty() ));
-  ATH_CHECK( m_MdtCacheKey.initialize( !m_MdtCacheKey.key().empty() ));
-  ATH_CHECK( m_RpcCacheKey.initialize( !m_RpcCacheKey.key().empty() ));
-  ATH_CHECK( m_TgcCacheKey.initialize( !m_TgcCacheKey.key().empty() ));
-  ATH_CHECK( m_sTgcCacheKey.initialize( !m_sTgcCacheKey.key().empty() ));
-  ATH_CHECK( m_MmCacheKey.initialize( !m_MmCacheKey.key().empty() ));
-  ATH_CHECK( m_RpcCoinCacheKey.initialize( !m_RpcCoinCacheKey.key().empty() ));
-  ATH_CHECK( m_TgcCoinCacheKey.initialize( !m_TgcCoinCacheKey.key().empty() ));
+  ATH_CHECK( m_CscCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_CscStripCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_MdtCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_RpcCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_TgcCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_sTgcCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_MmCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_RpcCoinCacheKey.initialize( SG::AllowEmpty ));
+  ATH_CHECK( m_TgcCoinCacheKey.initialize( SG::AllowEmpty ));
 
   ATH_CHECK(m_idHelperSvc.retrieve());
 
@@ -63,26 +63,13 @@ StatusCode MuonPRDCacheCreator::initialize() {
   if( !m_idHelperSvc->hasMM() && !m_MmCacheKey.key().empty() ){
     ATH_MSG_WARNING("MM ID Helper is not available and MM PRD cache was requested - This will not be created");
   }
-
+  if(m_disableWarning) m_disableWarningCheck.store(true, std::memory_order_relaxed);
   return StatusCode::SUCCESS;
-}
-
-bool MuonPRDCacheCreator::isInsideView(const EventContext& context) const
-{
-   const IProxyDict* proxy = Atlas::getExtendedEventContext(context).proxy();
-   const SG::View* view = dynamic_cast<const SG::View*>(proxy);
-   return view != nullptr;
 }
 
 StatusCode MuonPRDCacheCreator::execute (const EventContext& ctx) const {
 
-  if(!m_disableWarning){
-     if(isInsideView(ctx)){
-        ATH_MSG_ERROR("CacheCreator is running inside a view, this is probably a misconfiguration");
-        return StatusCode::FAILURE;
-     }
-     m_disableWarning = true; //only check once
-  }
+  ATH_CHECK(checkInsideViewOnce(ctx));
 
   // Create all the cache containers (if the tools are available)
   // CSC
