@@ -618,6 +618,12 @@ if opt.reverseViews or opt.filterViews:
 include("TriggerTest/disableChronoStatSvcPrintout.py")
 
 #-------------------------------------------------------------
+# Disable spurious warnings from HepMcParticleLink, ATR-21838
+#-------------------------------------------------------------
+if ConfigFlags.Input.isMC:
+    svcMgr.MessageSvc.setError += ['HepMcParticleLink']
+
+#-------------------------------------------------------------
 # Enable xAOD::EventInfo decorations for pileup values
 #-------------------------------------------------------------
 include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
