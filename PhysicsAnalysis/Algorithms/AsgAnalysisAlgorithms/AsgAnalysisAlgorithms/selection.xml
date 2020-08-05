@@ -1,5 +1,6 @@
 <lcgdict>
 
+   <class name="CP::AsgIntValueSelectionTool" />
    <class name="CP::AsgFlagSelectionTool" />
    <class name="CP::AsgPtEtaSelectionTool" />
 

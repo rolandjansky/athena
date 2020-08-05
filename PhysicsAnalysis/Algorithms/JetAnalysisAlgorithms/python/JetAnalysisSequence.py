@@ -109,6 +109,27 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
             'JetGhostMuonAssociationAlg'+postfix )
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
 
+    # IsBtag decoration for Jet Flavour Uncertainties
+    # (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR)
+    if dataType != 'data':
+        # Step 1: pt and eta selection
+        alg = createAlgorithm('CP::AsgSelectionAlg', 'JetIsBtagPtEtaSelectionAlg'+postfix)
+        addPrivateTool(alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool')
+        alg.selectionTool.minPt = 20
+        alg.selectionTool.maxEta = 2.5
+        alg.selectionDecoration = 'kinematicSelectionBtag,as_char'
+        seq.append(alg, inputPropName='particles',
+                stageName='selection')
+        # Step 2: truth selection using HadronConeExclTruthLabelID
+        alg = createAlgorithm('CP::AsgSelectionAlg', 'JetIsBtagTruthSelectionAlg'+postfix)
+        alg.preselection = 'kinematicSelectionBtag,as_char'
+        addPrivateTool(alg, 'selectionTool', 'CP::AsgIntValueSelectionTool')
+        alg.selectionTool.selectionFlag = 'HadronConeExclTruthLabelID'
+        alg.selectionTool.acceptedValues = [5]
+        alg.selectionDecoration = 'IsBjet,as_char'
+        seq.append(alg, inputPropName='particles',
+                stageName='selection')
+
     # record all the selections each subfunction makes
     seq.addMetaConfigDefault ("selectionDecorNames", [])
     seq.addMetaConfigDefault ("selectionDecorCount", [])
