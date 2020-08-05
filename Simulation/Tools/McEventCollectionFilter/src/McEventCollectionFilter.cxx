@@ -42,6 +42,7 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
  declareProperty("UseCSCHits"        , m_UseCSCHits   = true);  // If symmetric RUN3, CSCs are turned off, otherwise default to on
  declareProperty("UseSTGCHits"       , m_UseSTGCHits   = false);  // Both NSW technologies are turned off by default. They are turned automatically if RUN3 geometry is used.
  declareProperty("UseMMHits"         , m_UseMMHits   = false);  //
+ declareProperty("UseBCMHits"        , m_useBCMHits = true); // for Upgrade may not be present
 
  m_RefBarcode=0;
 }
@@ -231,8 +232,7 @@ StatusCode McEventCollectionFilter::SiHitsTruthRelink(){
   std::vector <std::string> m_HitContainer;
   m_HitContainer.push_back("PixelHits");
   m_HitContainer.push_back("SCT_Hits");
-  m_HitContainer.push_back("BCMHits");
-  //??? m_HitContainer.push_back("BLMHits");
+  if(m_useBCMHits) m_HitContainer.push_back("BCMHits");
 
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++){
 

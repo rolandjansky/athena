@@ -42,6 +42,7 @@ public:
    bool m_UseCSCHits;
    bool m_UseSTGCHits;
    bool m_UseMMHits;
+   bool m_useBCMHits;
    //---------------------
    std::string   m_HitName;
    int m_RefBarcode;
