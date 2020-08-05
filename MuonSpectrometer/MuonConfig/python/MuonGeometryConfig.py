@@ -35,7 +35,7 @@ def MuonGeoModelCfg(flags):
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
 
-    enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not flags.Detector.OverlayMuon
+    enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not (flags.Detector.OverlayMuon and flags.Input.isMC)
     if enableAlignment:
         # This is all migrated from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py
 
