@@ -9,7 +9,7 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,addOnlineChains
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
@@ -264,6 +264,7 @@ def setupMenu():
 
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
+    #addOnlineChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale)
 
 Prescales = mc_menu.Prescales
 
@@ -272,10 +273,12 @@ ps_online_list=[
     'HLT_timeburner_L1All'
 ]
 
-
 Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
 #for HLT only need to store any chains that have a prescale different from 1
 Prescales.HLTPrescales_trigvalid_mc_prescale = {}
+
 disable_chain_list=ps_online_list
+#disable_chain_list=[]
+#addOnlineChains(TriggerFlags, disable_chain_list)
 Prescales.HLTPrescales_trigvalid_mc_prescale.update(zip(disable_chain_list,len(disable_chain_list)*[ [-1, 0,-1] ]))
 

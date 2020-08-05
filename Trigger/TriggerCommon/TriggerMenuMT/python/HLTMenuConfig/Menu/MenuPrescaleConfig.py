@@ -158,6 +158,28 @@ def addSliceChainsToPrescales(flags, cosmic_prescales):
     from copy import deepcopy
     cosmic_prescales = deepcopy(combined)
 
+def addOnlineChains(flags, trigvalid_prescales):
+    signatures = []
+    slice_props = [prop for prop in dir(flags) if prop.endswith("Slice")]
+    for slice_prop in slice_props:
+        slice = getattr(flags, slice_prop)
+        if slice.signatures():
+            signatures.extend(slice.signatures())
+        else:
+            log.debug('SKIPPING ' + str(slice_prop))
+
+    s_online_list=[]
+
+    for s in signatures:
+        if s.groups=='Online':
+            print(s.name)
+            s_online_list.extend(s.name)
+
+    trigvalid_prescales.update(zip(s_online_list,len(s_online_list)*[ [-1, 0,-1] ]))
+
+    
+    #return s_online_list
+
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale, signaturesOverwritten):
     for item, prescales in iteritems(HLTPrescale):
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
