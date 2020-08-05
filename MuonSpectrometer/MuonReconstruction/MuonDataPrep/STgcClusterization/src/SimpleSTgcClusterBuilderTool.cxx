@@ -158,7 +158,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         //
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
-        ATH_MSG_INFO("error on cluster " << sqrt((*covN)(0,0)) << " added error " <<  m_addError); 
+        ATH_MSG_DEBUG("error on cluster " << sqrt((*covN)(0,0)) << " added error " <<  m_addError); 
         
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
             rdoList, covN, cluster.at(0).detectorElement(),
