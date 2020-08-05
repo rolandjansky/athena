@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# art-description: art job for bjet_pu40
+# art-description: art job for bjet_olddata_pu40
 # art-type: grid
 # art-include: master/Athena
+# art-input: mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193
 # art-input-nfiles: 3
 # art-athena-mt: 4
 # art-output: *.txt
@@ -59,7 +60,13 @@ rdo2aod.threads = 1
 rdo2aod.concurrent_events = 1 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+if local:
+    rdo2aod.input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+    print ('WARNING not using same datafile locally as grid test')
+else:
+    rdo2aod.input = ''
+    rdo2aod.args += '--inputRDOFile=$ArtInFile '
+
 
 
 test = Test.Test()

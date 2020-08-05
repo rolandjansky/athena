@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-# art-description: art job for bjet_pu40
+# art-description: art job for mu_ztautau_pu46
 # art-type: grid
 # art-include: master/Athena
-# art-input-nfiles: 3
 # art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
@@ -26,7 +25,6 @@
 
 from TrigValTools.TrigValSteering import Test, CheckSteps
 from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
-
 
 import sys,getopt
 
@@ -51,15 +49,14 @@ for opt,arg in opts:
         postproc=True
 
 
-
 rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['bjet']
-rdo2aod.max_events = 2000 
-rdo2aod.threads = 1 
-rdo2aod.concurrent_events = 1 
+rdo2aod.slices = ['muon']
+rdo2aod.max_events = 6000 
+rdo2aod.threads = 1 # TODO: change to 4
+rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+rdo2aod.input = 'Ztautau_pu46'    # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -69,32 +66,31 @@ if (not exclude):
     test.exec_steps.append(TrigInDetAna()) # Run analysis to produce TrkNtuple
     test.check_steps = CheckSteps.default_check_steps(test)
 
+ 
 # Run Tidardict
 if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
-    rdict.args='TIDAdata-run3.dat  -f data-hists.root -b Test_bin.dat '
+    rdict.args='TIDAdata-run3.dat -f data-hists.root -b Test_bin.dat '
     test.check_steps.append(rdict)
 
  
 # Now the comparitor steps
-comp1=TrigInDetCompStep('Comp_L2bjet')
-comp1.flag = 'L2bjet'
-test.check_steps.append(comp1)
-
-comp2=TrigInDetCompStep('Comp_EFbjet')
-comp2.flag = 'EFbjet'
+comp=TrigInDetCompStep('Comp_L2tau')
+comp.flag = 'L2tau'
+test.check_steps.append(comp)
+  
+comp2=TrigInDetCompStep('Comp_EFtau')
+comp2.flag = 'EFtau'
 test.check_steps.append(comp2)
 
-
-# CPU cost steps
+# CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
 test.check_steps.append(cpucost)
-
+ 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
 cpucost2.args += '  -p FastTrack'
 cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
-
 
 import sys
 sys.exit(test.run())
