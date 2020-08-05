@@ -961,7 +961,7 @@ class GenerateMenu:
 
         # print all chain counters
         if log.isEnabledFor(logging.DEBUG):
-            for name, chains in self.triggerPythonConfig.allChains.iteritems():
+            for name, chains in self.triggerPythonConfig.allChains.items():
                 for c in chains:
                     log.debug('Registered chain  %04d %s',
                               int(c.chain_counter), c.chain_name)
