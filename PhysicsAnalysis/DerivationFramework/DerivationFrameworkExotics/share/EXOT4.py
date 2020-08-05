@@ -412,20 +412,6 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(EXOT4MCGenThinningTool)
 
 
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================
-
-# set up the lepton skimming in the kernel
-# note that the reason it is done here is to veto events on which
-# no lepton is found
-# this way the code below it is only executed if
-# the event passed the lepton requirement, reducing RAM consumption
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot4Seq
-exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel_lep", SkimmingTools = [EXOT4StringSkimmingTool_lep])
-
-
 from DerivationFrameworkExotics.JetDefinitions import *
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecConf import JetAlgorithm
@@ -520,6 +506,19 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo", exot4Seq)
 applyJetCalibration_xAODColl("AntiKt4EMPFlow", exot4Seq)
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot4Seq)
 
+
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM
+#=======================================
+
+# set up the lepton skimming in the kernel
+# note that the reason it is done here is to veto events on which
+# no lepton is found
+# this way the code below it is only executed if
+# the event passed the lepton requirement, reducing RAM consumption
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+DerivationFrameworkJob += exot4Seq
+exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel_lep", SkimmingTools = [EXOT4StringSkimmingTool_lep])
 
 
 #=======================================
