@@ -158,35 +158,18 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
 OutputJets["JETM3"] = []
 
 #=======================================
-# BUILD UFO INPUTS
-#=======================================
-
-# Add PFlow constituents
-from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-    DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-# Add UFO constituents
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm3Seq,ToolSvc, PFOPrefix="CHS")
-emcsskufoAlg = runUFOReconstruction(jetm3Seq, ToolSvc, PFOPrefix="CSSK")
-
-#=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt4TruthJets",
-                  "AntiKt10TruthJets",
-                  "AntiKt10UFOCSSKJets",
-                  "AntiKt10UFOCHSJets",
+                  "AntiKt10TruthJets"
                   ]
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
 
 addDefaultTrimmedJets(jetm3Seq,"JETM3")
+# Ungroomed UFO jets
+addDefaultUFOJets(jetm3Seq,"JETM3",doCHS=True)
 # UFO Trimmed jets
 addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")
 addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")

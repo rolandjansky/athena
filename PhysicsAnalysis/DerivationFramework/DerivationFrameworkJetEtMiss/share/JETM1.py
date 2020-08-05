@@ -141,21 +141,6 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
                                                          SkimmingTools = [JETM1ORTool],
                                                          ThinningTools = thinningTools)
 
-#====================================================================
-# Special jets
-#====================================================================
-
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm1Seq,ToolSvc, PFOPrefix="CHS")
-emcsskufoAlg = runUFOReconstruction(jetm1Seq,ToolSvc, PFOPrefix="CSSK")
-
-from JetRec.JetRecConf import PseudoJetGetter
-
-csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="UFO", SkipNegativeEnergy=True)
-jtm+=csskufopjgetter
-
-ufopjgetter     = PseudoJetGetter("ufoPJGetter",     InputContainer="CHSUFO",     OutputContainer="CHSUFOPJ",     Label="UFO", SkipNegativeEnergy=True)
-jtm+=ufopjgetter
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
@@ -185,12 +170,8 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 
 
 #############################################################################################################################################
-addCHSPFlowObjects()
-addConstModJets("AntiKt", 1.0, "EMPFlow", ["CS", "SK"], jetm1Seq, "JETM1", ptmin=40000, ptminFilter=50000)
-csskufogetters = [csskufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
-chsufogetters = [ufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
-addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=jetm1Seq, outputGroup="JETM1", customGetters = csskufogetters, constmods=["CSSK"])
-addStandardJets("AntiKt", 1.0, "UFOCHS", ptmin=40000, ptminFilter=50000, algseq=jetm1Seq, outputGroup="JETM1", customGetters = chsufogetters, constmods=["CHS"])
+# Ungroomed UFO jets
+addDefaultUFOJets(jetm1Seq,"JETM1",doCHS=True)
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
@@ -202,8 +183,6 @@ if DerivationFrameworkIsMonteCarlo:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
   addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
-
-
 
 addSoftDropJets("AntiKt", 1.0, "UFOCHS", beta=1.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=False, mods="tcc_groomed")
 addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=False, mods="tcc_groomed")
