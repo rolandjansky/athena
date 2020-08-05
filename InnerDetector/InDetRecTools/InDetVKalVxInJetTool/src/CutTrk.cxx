@@ -27,17 +27,17 @@ namespace InDet{
     if ( ConeDist > m_ConeForTag )                        return StatusCode::FAILURE;
 
     double z0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxZImpactAtEta(eta) : m_CutZVrt;
-    if(fabs(ZVert*sin(ThetaVert)) > z0_cut)	return StatusCode::FAILURE;
+    if(std::abs(ZVert*sin(ThetaVert)) > z0_cut)	return StatusCode::FAILURE;
 
     double d0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta) : m_CutA0;
-    if(fabs(A0Vert) > d0_cut) 		        return StatusCode::FAILURE;
+    if(std::abs(A0Vert) > d0_cut) 		        return StatusCode::FAILURE;
 
     int pix_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPixelHitsAtEta(eta) : m_CutPixelHits;
-    if(!m_useEtaDependentCuts && fabs(eta)>2. && !m_IsPhase2) pix_cut++;
+    if(!m_useEtaDependentCuts && std::abs(eta)>2. && !m_IsPhase2) pix_cut++;
     if(PixelHits < pix_cut) 		        return StatusCode::FAILURE;
 
     int strip_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinStripHitsAtEta(eta) : m_CutSctHits;
-    if(!m_useEtaDependentCuts && fabs(eta)>1.65 && !m_IsPhase2) strip_cut++;
+    if(!m_useEtaDependentCuts && std::abs(eta)>1.65 && !m_IsPhase2) strip_cut++;
     if(SctHits < strip_cut)              	return StatusCode::FAILURE;
 
     int si_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinSiHitsAtEta(eta) : m_CutSiHits;
@@ -77,7 +77,7 @@ namespace InDet{
       if(trkPErr>0.5) return StatusCode::FAILURE;
     }
 
-     double Pt = sin(ThetaVert)/fabs(PInvVert);
+     double Pt = sin(ThetaVert)/std::abs(PInvVert);
      //- Track quality
 
      double pT_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPtAtEta(eta) : m_CutPt;
@@ -85,23 +85,23 @@ namespace InDet{
 
      if(!m_MultiWithPrimary){           //Must not be used for primary vertex search
        double z0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxZImpactAtEta(eta) : m_CutZVrt;
-       if(fabs(ZVert*sin(ThetaVert)) > z0_cut)	return StatusCode::FAILURE;
+       if(std::abs(ZVert*sin(ThetaVert)) > z0_cut)	return StatusCode::FAILURE;
      }
 
      double chi2_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxChi2AtEta(eta) : m_CutChi2;
      if(Chi2 	         > chi2_cut) 		return StatusCode::FAILURE;
 
      double d0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta) : m_CutA0;
-     if(fabs(A0Vert)     > d0_cut) 		return StatusCode::FAILURE;
+     if(std::abs(A0Vert)     > d0_cut) 		return StatusCode::FAILURE;
 
      int pix_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPixelHitsAtEta(eta) : m_CutPixelHits;
-     if(!m_useEtaDependentCuts && fabs(eta)>2. && !m_IsPhase2) pix_cut++;
+     if(!m_useEtaDependentCuts && std::abs(eta)>2. && !m_IsPhase2) pix_cut++;
      if(PixelHits	    < pix_cut) 		return StatusCode::FAILURE;
-     if(fabs(eta)>2 && !m_IsPhase2 && badHits && PixelHits<=3) return StatusCode::FAILURE;
+     if(std::abs(eta)>2 && !m_IsPhase2 && badHits && PixelHits<=3) return StatusCode::FAILURE;
 
      int strip_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinStripHitsAtEta(eta) : m_CutSctHits;
-     if(!m_useEtaDependentCuts && fabs(eta)>2. && !m_IsPhase2 && m_existIBL) strip_cut++;
-     if(!m_useEtaDependentCuts && fabs(eta)>1.65 && !m_IsPhase2) strip_cut++;
+     if(!m_useEtaDependentCuts && std::abs(eta)>2. && !m_IsPhase2 && m_existIBL) strip_cut++;
+     if(!m_useEtaDependentCuts && std::abs(eta)>1.65 && !m_IsPhase2) strip_cut++;
      if(SctHits		    < strip_cut) 	return StatusCode::FAILURE;
 
      int si_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinSiHitsAtEta(eta) : m_CutSiHits;
@@ -143,7 +143,7 @@ namespace InDet{
           double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
           double coneDist = ConeDist(VectPerig,JetDir);
 
-          double trkP=1./fabs(VectPerig[4]);         
+          double trkP=1./std::abs(VectPerig[4]);
           double CovTrkMtx55 = (*(mPer->covariance()))(4,4);
           double trkPErr=sqrt(CovTrkMtx55)*trkP;
 
@@ -287,7 +287,7 @@ namespace InDet{
           double CovTrkMtx22 = (*i_ntrk)->definingParametersCovMatrix()(1,1);
           double CovTrkMtx55 = (*i_ntrk)->definingParametersCovMatrix()(4,4);
 
-          double trkP=1./fabs(VectPerig[4]);         
+          double trkP=1./std::abs(VectPerig[4]);
           double trkPErr=sqrt(CovTrkMtx55)*trkP;
 
           uint8_t PixelHits,SctHits,BLayHits;
