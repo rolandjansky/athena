@@ -909,12 +909,16 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     else:
       from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool
       from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+      actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
+      actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
+      actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
       InDetPriVxFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool",
                                                                TrackSelector     = InDetTrackSelectorTool,
                                                                useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                tracksMaxZinterval = 3,#mm 
                                                                do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
-                                                               TrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool"))
+                                                               TrackingGeometryTool = actsTrackingGeometryTool,
+                                                               ExtrapolationTool = actsExtrapolationTool)
 
   else:
     #
