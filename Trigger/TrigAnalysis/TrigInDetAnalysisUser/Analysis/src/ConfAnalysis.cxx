@@ -649,7 +649,7 @@ void ConfAnalysis::initialiseInternal() {
   // hit occupancies
 
   int   NHits = 40;
-  int Ntracks = 1000;
+  int Ntracks = 10000;
 
   addHistogram( new TH1F( "nsct",     "nsct",     NHits, -0.5, float(NHits-0.5) ) );
   addHistogram( new TH1F( "nsct_rec", "nsct_rec", NHits, -0.5, float(NHits-0.5) ) );
