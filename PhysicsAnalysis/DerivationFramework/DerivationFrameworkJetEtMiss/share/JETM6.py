@@ -252,23 +252,6 @@ jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel(name = "JETM6TrigSkimKe
 
 
 #=======================================
-# BUILD UFO INPUTS
-#=======================================
-
-## Add PFlow constituents
-from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-# Add UFO constituents
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CHS")
-emcsskufoAlg = runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CSSK")
-
-#=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
 
@@ -278,12 +261,12 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt2LCTopoJets",
                   "AntiKt4TruthJets",
                   "AntiKt10TruthJets",
-                  "AntiKt10LCTopoJets",
-                  "AntiKt10UFOCSSKJets",
-                  "AntiKt10UFOCHSJets"
-                  ]
+                  "AntiKt10LCTopoJets"]
 
 replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
+
+#build ungroomed large-R UFO jets
+addDefaultUFOJets(jetm6Seq,"JETM6",doCHS=True)
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM6MainKernel",

@@ -70,24 +70,11 @@ if DerivationFrameworkIsMonteCarlo:
 jetm13Seq = CfgMgr.AthSequencer("JETM13Sequence")
 DerivationFrameworkJob += jetm13Seq
 
-
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 runTCCReconstruction(jetm13Seq,ToolSvc, "LCOriginTopoClusters", outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-
 # Add the necessary constituents for UFOs
-from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-addCHSPFlowObjects()
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-# Finally we can run the UFO building taking our unified PFlow container as input
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CHS",caloClusterName="LCOriginTopoClusters")
-emcsskufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
+addUFOs(jetm13Seq,"JETM13",doCHS=True)
 
 
 #=======================================
@@ -132,13 +119,13 @@ JETM13SlimmingHelper.ExtraVariables = [
   ]
 
 
-JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
-JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.m.taste' ]
+JETM13SlimmingHelper.AppendToDictionary["UFOCHS"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['UFOCHSAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'UFOCHS.pt.eta.phi.m.taste' ]
 
-JETM13SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
-JETM13SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.m.taste' ]
+JETM13SlimmingHelper.AppendToDictionary["UFOCSSK"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['UFOCSSKAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'UFOCSSK.pt.eta.phi.m.taste' ]
 
 
 for truthc in [

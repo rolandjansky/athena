@@ -178,7 +178,7 @@ def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="Ca
     )
 
     tccAlg = TrackCaloClusterAlg(name = "TrackCaloClusterAlgUFO"+PFOPrefix,
-                                 OutputTCCName = PFOPrefix+"UFO",
+                                 OutputTCCName = "UFO"+PFOPrefix,
                                  TCCInfo = tccInfoAlg.TCCInfoName,
                                  TCCTools = [tccUFO,]
     )
