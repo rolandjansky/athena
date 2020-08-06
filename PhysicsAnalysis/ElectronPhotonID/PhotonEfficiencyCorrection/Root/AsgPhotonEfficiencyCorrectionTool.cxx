@@ -93,10 +93,6 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
 // =============================================================================
 AsgPhotonEfficiencyCorrectionTool::~AsgPhotonEfficiencyCorrectionTool()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgPhotonEfficiencyCorrectionTool finalize()");
-  }
-
   if ( m_rootTool_unc ) delete m_rootTool_unc;
   if ( m_rootTool_con ) delete m_rootTool_con;
 }
@@ -180,21 +176,6 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
     return StatusCode::FAILURE;
   }
   
-  return StatusCode::SUCCESS ;
-}
-
-
-// =============================================================================
-// Athena finalize method
-// =============================================================================
-StatusCode AsgPhotonEfficiencyCorrectionTool::finalize()
-{
-  if ( !(m_rootTool_con->finalize()) || !(m_rootTool_unc->finalize()) )
-    {
-      ATH_MSG_ERROR("Something went wrong at finalize!");
-      return StatusCode::FAILURE;
-    }
-
   return StatusCode::SUCCESS ;
 }
 
