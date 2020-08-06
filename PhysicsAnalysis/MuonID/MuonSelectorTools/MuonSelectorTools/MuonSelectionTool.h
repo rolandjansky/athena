@@ -182,10 +182,10 @@ namespace CP {
      bool isBMG(const float eta, const float phi) const;
 
      //TMVA readers for low-pT working point
-     TMVA::Reader* readerE_MUID;
-     TMVA::Reader* readerO_MUID;
-     TMVA::Reader* readerE_MUGIRL;
-     TMVA::Reader* readerO_MUGIRL;
+     std::unique_ptr<TMVA::Reader> readerE_MUID;
+     std::unique_ptr<TMVA::Reader> readerO_MUID;
+     std::unique_ptr<TMVA::Reader> readerE_MUGIRL;
+     std::unique_ptr<TMVA::Reader> readerO_MUGIRL;
 
      //TMVA initialize function
      void PrepareReader(TMVA::Reader* reader);

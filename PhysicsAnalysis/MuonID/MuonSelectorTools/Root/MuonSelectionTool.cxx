@@ -61,11 +61,6 @@ namespace CP {
     declareProperty( "SiHolesCutOff", m_SiHolesCutOff = false );
     declareProperty( "UseAllAuthors", m_useAllAuthors = true );
     //
-    readerE_MUID = 0;
-    readerO_MUID = 0;
-    readerE_MUGIRL = 0;
-    readerO_MUGIRL = 0;
-    //
     lowPTmva_middleHoles = new Float_t; lowPTmva_muonSeg1ChamberIdx = new Float_t;
     lowPTmva_muonSeg2ChamberIdx = new Float_t; lowPTmva_momentumBalanceSig = new Float_t;
     lowPTmva_scatteringCurvatureSig = new Float_t; lowPTmva_scatteringNeighbourSig = new Float_t;
@@ -102,11 +97,6 @@ namespace CP {
       m_custom_dir( toCopy.m_custom_dir )
   {
     //
-    readerE_MUID = 0;
-    readerO_MUID = 0;
-    readerE_MUGIRL = 0;
-    readerO_MUGIRL = 0;
-    //
     lowPTmva_middleHoles = new Float_t; lowPTmva_muonSeg1ChamberIdx = new Float_t;
     lowPTmva_muonSeg2ChamberIdx = new Float_t; lowPTmva_momentumBalanceSig = new Float_t;
     lowPTmva_scatteringCurvatureSig = new Float_t; lowPTmva_scatteringNeighbourSig = new Float_t;
@@ -117,23 +107,6 @@ namespace CP {
   
   MuonSelectionTool::~MuonSelectionTool(){
     ATH_MSG_DEBUG(Form("Deleting MuonSelectionTool named %s",m_name.c_str()));
-    //
-    if( readerE_MUID ){
-      delete readerE_MUID;
-      readerE_MUID = 0;
-    }
-    if( readerO_MUID ){
-      delete readerO_MUID;
-      readerO_MUID = 0;
-    }
-    if( readerE_MUGIRL ){
-      delete readerE_MUGIRL;
-      readerE_MUGIRL = 0;
-    }
-    if( readerO_MUGIRL ){
-      delete readerO_MUGIRL;
-      readerO_MUGIRL = 0;
-    }
     //
     delete lowPTmva_middleHoles; delete lowPTmva_muonSeg1ChamberIdx; delete lowPTmva_muonSeg2ChamberIdx; delete lowPTmva_momentumBalanceSig;
     delete lowPTmva_scatteringCurvatureSig; delete lowPTmva_scatteringNeighbourSig; delete lowPTmva_energyLoss; delete lowPTmva_muonSegmentDeltaEta;
@@ -236,20 +209,20 @@ namespace CP {
     TString weightPath_EVEN_MuGirl = PathResolverFindCalibFile(m_MVAreaderFile_EVEN_MuGirl);
     TString weightPath_ODD_MuGirl = PathResolverFindCalibFile(m_MVAreaderFile_ODD_MuGirl);
 
-    readerE_MUID = new TMVA::Reader();
-    PrepareReader( readerE_MUID );
+    readerE_MUID = std::make_unique<TMVA::Reader>();
+    PrepareReader( readerE_MUID.get() );
     readerE_MUID->BookMVA("BDTG", weightPath_EVEN_MuidCB);
 
-    readerO_MUID = new TMVA::Reader();
-    PrepareReader( readerO_MUID );
+    readerO_MUID = std::make_unique<TMVA::Reader>();
+    PrepareReader( readerO_MUID.get() );
     readerO_MUID->BookMVA("BDTG", weightPath_ODD_MuidCB);
 
-    readerE_MUGIRL = new TMVA::Reader();
-    PrepareReader( readerE_MUGIRL );
+    readerE_MUGIRL = std::make_unique<TMVA::Reader>();
+    PrepareReader( readerE_MUGIRL.get() );
     readerE_MUGIRL->BookMVA("BDTG", weightPath_EVEN_MuGirl);
 
-    readerO_MUGIRL = new TMVA::Reader();
-    PrepareReader( readerO_MUGIRL );
+    readerO_MUGIRL = std::make_unique<TMVA::Reader>();
+    PrepareReader( readerO_MUGIRL.get() );
     readerO_MUGIRL->BookMVA("BDTG", weightPath_ODD_MuGirl);
 
     // Return gracefully:
@@ -902,12 +875,12 @@ namespace CP {
     //use different trainings for even/odd numbered events
     TMVA::Reader *reader_MUID, *reader_MUGIRL;
     if( info->eventNumber() % 2 == 1) {
-      reader_MUID = readerE_MUID;
-      reader_MUGIRL = readerE_MUGIRL;
+      reader_MUID = readerE_MUID.get();
+      reader_MUGIRL = readerE_MUGIRL.get();
     } 
     else {
-      reader_MUID = readerO_MUID;
-      reader_MUGIRL = readerO_MUGIRL;
+      reader_MUID = readerO_MUID.get();
+      reader_MUGIRL = readerO_MUGIRL.get();
     }
 
     // get the BDT discriminant response
