@@ -46,19 +46,12 @@ namespace Trk
       SG::ReadHandleKey<TracksScores> m_scoredTracksKey;
       SG::WriteHandleKey<TrackCollection> m_resolvedTracksKey;//!<where to save the resolved tracks
       ToolHandle<ITrackAmbiguityProcessorTool> m_ambiTool;
-      
-      /** decides whether ambi processing actually occurs 
-	  (if not, the tracks are just resaved). 
-	  Default=false.*/
-      bool              m_applySolve; 
-      
+
       /**Number of tracks input. Useful for debugging*/
        mutable std::atomic<long int>          m_trackInCount;
       /**Number of tracks passing Ambi solving. Useful for debugging*/
        mutable std::atomic<long int>          m_trackOutCount;
       
-      /** Save the processed tracks. If ambiguity process has not been called then they will 
-	  still be the original converted tracks */
     };
 
 }
