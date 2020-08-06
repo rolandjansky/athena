@@ -155,12 +155,12 @@ namespace CP {
      std::string m_BMVcutFile;
 
      /// Checks for each histogram  
-     StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
+     StatusCode getHist( TFile* file, const char* histName, std::unique_ptr<TH2D>& hist );
      // 
-     TH2D* m_tightWP_lowPt_rhoCuts;
-     TH2D* m_tightWP_lowPt_qOverPCuts;
-     TH2D* m_tightWP_mediumPt_rhoCuts;
-     TH2D* m_tightWP_highPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_lowPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_lowPt_qOverPCuts;
+     std::unique_ptr<TH2D> m_tightWP_mediumPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_highPt_rhoCuts;
      //
      std::unique_ptr<TF1> m_BMVcutFunction_barrel;
      std::unique_ptr<TF1> m_BMVcutFunction_endcap;

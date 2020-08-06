@@ -61,11 +61,6 @@ namespace CP {
     declareProperty( "SiHolesCutOff", m_SiHolesCutOff = false );
     declareProperty( "UseAllAuthors", m_useAllAuthors = true );
     //
-    m_tightWP_lowPt_rhoCuts = 0;
-    m_tightWP_lowPt_qOverPCuts = 0;
-    m_tightWP_mediumPt_rhoCuts = 0;
-    m_tightWP_highPt_rhoCuts = 0;
-    //
     readerE_MUID = 0;
     readerO_MUID = 0;
     readerE_MUGIRL = 0;
@@ -107,11 +102,6 @@ namespace CP {
       m_custom_dir( toCopy.m_custom_dir )
   {
     //
-    m_tightWP_lowPt_rhoCuts = 0;
-    m_tightWP_lowPt_qOverPCuts = 0;
-    m_tightWP_mediumPt_rhoCuts = 0;
-    m_tightWP_highPt_rhoCuts = 0;
-    //
     readerE_MUID = 0;
     readerO_MUID = 0;
     readerE_MUGIRL = 0;
@@ -127,23 +117,6 @@ namespace CP {
   
   MuonSelectionTool::~MuonSelectionTool(){
     ATH_MSG_DEBUG(Form("Deleting MuonSelectionTool named %s",m_name.c_str()));
-    //
-    if( m_tightWP_lowPt_rhoCuts ){
-      delete m_tightWP_lowPt_rhoCuts;
-      m_tightWP_lowPt_rhoCuts = 0;
-    }
-    if( m_tightWP_lowPt_qOverPCuts ){
-      delete m_tightWP_lowPt_qOverPCuts;
-      m_tightWP_lowPt_qOverPCuts = 0;
-    }
-    if( m_tightWP_mediumPt_rhoCuts ){
-      delete m_tightWP_mediumPt_rhoCuts;
-      m_tightWP_mediumPt_rhoCuts = 0;
-    }
-    if( m_tightWP_highPt_rhoCuts ){
-      delete m_tightWP_highPt_rhoCuts;
-      m_tightWP_highPt_rhoCuts = 0;
-    }
     //
     if( readerE_MUID ){
       delete readerE_MUID;
@@ -283,14 +256,14 @@ namespace CP {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonSelectionTool::getHist( TFile* file, const char* histName, TH2D*& hist ){
+  StatusCode MuonSelectionTool::getHist( TFile* file, const char* histName, std::unique_ptr<TH2D>& hist ){
     //
     if( !file ) {
       ATH_MSG_ERROR(" getHist(...) TFile is nullptr! Check that the Tight cut map is loaded correctly");
       return StatusCode::FAILURE;
     }
     //
-    hist = dynamic_cast<TH2D*>( file->Get( histName ) );
+    hist = std::unique_ptr<TH2D>( (TH2D*)file->Get( histName ) );
     //
     if( !hist ){
       ATH_MSG_ERROR( "Cannot retrieve histogram " << histName  );
