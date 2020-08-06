@@ -161,7 +161,7 @@ namespace Trk {
     m_sinstereo = sinstereo;
   }
 
-  const Surface *GXFTrackState::surface() {
+  const Surface *GXFTrackState::surface() const {
     if (m_measurement != nullptr) {
       return &m_measurement->associatedSurface();
     } if (m_trackpar != nullptr) {
