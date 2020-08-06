@@ -4,15 +4,23 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
+from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
 
+def MdtRDO_DecoderCfg(flags, name="Muon::MdtRDO_Decoder"):
+    acc = MuonIdHelperSvcCfg(flags)
+    acc.merge(MDTCablingConfigCfg(flags)) # To provide the Cabling map
+    Muon_MdtRDO_Decoder = CompFactory.Muon.MdtRDO_Decoder
+    mdtRDO_Decoder = Muon_MdtRDO_Decoder(name)
+    mdtRDO_Decoder.MuonIdHelperSvc = acc.getService("MuonIdHelperSvc")
+    acc.setPrivateTools(mdtRDO_Decoder)
+    return acc
 
 def MdtRdoToMdtDigitCfg(flags, name="MdtRdoToMdtDigitAlg", **kwargs):
     """Return ComponentAccumulator with configured MdtRdoToMdtDigit algorithm"""
-    acc = ComponentAccumulator()
-    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
-    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
-    acc.merge(MDTCablingConfigCfg(flags))
-    acc.merge(MdtCalibDbAlgCfg(flags))
+    acc = MuonIdHelperSvcCfg(flags)
+    decoderTool = acc.popToolsAndMerge(MdtRDO_DecoderCfg(flags))
+    kwargs.setdefault("mdtRdoDecoderTool", decoderTool)
     if flags.Detector.OverlayMDT:
         kwargs.setdefault("MdtRdoContainer", flags.Overlay.BkgPrefix + "MDTCSM")
         kwargs.setdefault("MdtDigitContainer", flags.Overlay.BkgPrefix + "MDT_DIGITS")
