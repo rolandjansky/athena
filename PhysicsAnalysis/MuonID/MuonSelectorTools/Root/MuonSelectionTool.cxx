@@ -71,8 +71,8 @@ namespace CP {
   }
     
   MuonSelectionTool::MuonSelectionTool( const MuonSelectionTool& toCopy  )
-    : asg::AsgTool(toCopy.m_name+"_copy"),
-      m_name(toCopy.m_name+"_copy"),
+    : asg::AsgTool( toCopy.m_name+"_copy" ),
+      m_name( toCopy.m_name+"_copy" ),
       m_maxEta( toCopy.m_maxEta ),
       m_quality( toCopy.m_quality ),
       m_accept( toCopy.m_accept ),
@@ -82,11 +82,11 @@ namespace CP {
       m_SctCutOff( toCopy.m_SctCutOff ),
       m_PixCutOff( toCopy.m_PixCutOff ),
       m_SiHolesCutOff( toCopy.m_SiHolesCutOff ),
-      m_TurnOffMomCorr(  toCopy.m_TurnOffMomCorr ),
-      m_useAllAuthors(  toCopy.m_useAllAuthors ),
-      m_use2stationMuonsHighPt( toCopy.m_use2stationMuonsHighPt),
-      m_useMVALowPt(  toCopy.m_useMVALowPt ),
-      m_doBadMuonVetoMimic(  toCopy.m_doBadMuonVetoMimic ),
+      m_TurnOffMomCorr( toCopy.m_TurnOffMomCorr ),
+      m_useAllAuthors( toCopy.m_useAllAuthors ),
+      m_use2stationMuonsHighPt( toCopy.m_use2stationMuonsHighPt ),
+      m_useMVALowPt( toCopy.m_useMVALowPt ),
+      m_doBadMuonVetoMimic( toCopy.m_doBadMuonVetoMimic ),
       m_eventInfoContName( toCopy.m_eventInfoContName ),
       m_MVAreaderFile_EVEN_MuidCB( toCopy.m_MVAreaderFile_EVEN_MuidCB ),
       m_MVAreaderFile_ODD_MuidCB( toCopy.m_MVAreaderFile_ODD_MuidCB ),
