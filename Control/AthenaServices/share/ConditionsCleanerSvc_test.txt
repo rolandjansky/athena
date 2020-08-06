@@ -2,7 +2,7 @@
 
 // $Id$
 
-ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.Dlls += { "AthenaServices" };
 ApplicationMgr.ExtSvc += { "Athena::ConditionsCleanerSvc/ConditionsCleanerSvc1" };
 ApplicationMgr.ExtSvc += { "Athena::ConditionsCleanerSvc/ConditionsCleanerSvc2" };
 ConditionsCleanerSvc2.CleanerSvc = "ConditionsCleanerTest";

@@ -307,7 +307,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
     ParentPDG=0;
     if( child->hasProdVtx() ){
        if( child->prodVtx()->nIncomingParticles()==1 ){
-            ParentPDG = abs((*(child->prodVtx()->incomingParticleLinks())[0])->pdgId());
+            ParentPDG = std::abs((*(child->prodVtx()->incomingParticleLinks())[0])->pdgId());
             return *(child->prodVtx()->incomingParticleLinks())[0];
        }
     }

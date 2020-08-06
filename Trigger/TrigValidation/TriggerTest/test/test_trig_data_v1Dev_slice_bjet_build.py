@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger RDO->RDO_TRIG athena test of the b-jet slice in Dev_pp_run3_v1 menu, data input
 # art-type: build
@@ -11,7 +12,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'data'
+ex.input = 'data_Main'
 ex.max_events = 500
 ex.threads = 1
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1

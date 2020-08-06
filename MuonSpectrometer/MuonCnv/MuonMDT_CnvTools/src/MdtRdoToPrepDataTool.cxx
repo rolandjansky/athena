@@ -1,6 +1,8 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+           
+#include "CxxUtils/checker_macros.h"
 
 #include "MdtRdoToPrepDataTool.h"
 
@@ -19,7 +21,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer()
+Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer ATLAS_NOT_THREAD_SAFE()
 {
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;

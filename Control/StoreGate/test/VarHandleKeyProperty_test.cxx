@@ -187,12 +187,12 @@ public:
   virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
   { std::abort(); }
 
-  virtual StatusCode setProperty( const Property& p ) override
-  { return mgr.setProperty(p); }
   virtual StatusCode setProperty( const std::string& s ) override
   { return mgr.setProperty(s); }
-  virtual StatusCode setProperty( const std::string& n, const std::string& v ) override
-  { return mgr.setProperty(n, v); }
+  virtual StatusCode setProperty( const std::string& n, const Gaudi::Details::PropertyBase& p ) override
+  { return mgr.setProperty(n, p); }
+  virtual StatusCode setPropertyRepr( const std::string& n, const std::string& r ) override
+  { return mgr.setPropertyRepr(n,r); }
   virtual StatusCode getProperty( Property* p ) const override
   { return mgr.getProperty (p); }
   virtual const Property& getProperty( const std::string& name) const override

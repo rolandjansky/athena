@@ -544,9 +544,25 @@ void PerfMonMTSvc::report2JsonFile() {
     report2JsonFile_EventLevel(j);  // Event-level
   }
 
-  // Write
+  // Write and close the JSON file
   std::ofstream o(m_jsonFileName);
   o << std::setw(4) << j << std::endl;
+  o.close();
+
+  // Compress the JSON file into tar.gz
+  auto cmd = "tar -czf " + m_jsonFileName + ".tar.gz " + m_jsonFileName + ";";
+  int rc = std::system(cmd.c_str());
+  if(rc!=0) {
+    ATH_MSG_WARNING("Couldn't compress the JSON file...");
+    return;
+  }
+
+  // Remove the uncompressed JSON file to save disk-space
+  rc = std::remove(m_jsonFileName.toString().c_str());
+  if(rc!=0) {
+    ATH_MSG_WARNING("Couldn't remove the uncompressed JSON file...");
+    return;
+  }
 }
 
 /*

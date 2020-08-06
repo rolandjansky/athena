@@ -29,10 +29,6 @@
 
 #include <cmath>
 
-namespace MagField {
-  class IMagFieldSvc;
-}
-
 namespace Acts {
 class Surface;
 class BoundaryCheck;
@@ -102,10 +98,16 @@ public:
   }
 
 
+  virtual
+  Acts::MagneticFieldContext
+  getMagneticFieldContext(const EventContext& ctx) const override;
+
+
 private:
   std::unique_ptr<ActsExtrapolationDetail::VariantPropagator> m_varProp;
 
-  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
   Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS", "Either ATLAS or Constant"};

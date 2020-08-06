@@ -92,7 +92,7 @@ class RingerReFex : public IReAlgToolCalo
 
     ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool"};
     SG::WriteHandleKey<xAOD::TrigRingerRingsContainer> m_ringerContainerKey {this, "RingerKey", "HLT_FastCaloRinger", "TrigRingerRings container key"};
-    SG::ReadHandleKey<xAOD::TrigEMClusterContainer>    m_clusterContainerKey {this, "ClustersName", "HLT_L2CaloEMClusters", "TrigEMCluster container key"};
+    SG::ReadHandleKey<xAOD::TrigEMClusterContainer>    m_clusterContainerKey {this, "ClustersName", "HLT_FastCaloEMClusters", "TrigEMCluster container key"};
     Gaudi::Property<std::vector<float>>  m_etaBins  {this, "EtaBins", {}, "Eta bins range cover by the ringer reconstruction."};
     Gaudi::Property<bool>  m_global_center  {this, "GlobalCenter", false,  ""};
     Gaudi::Property<bool>  m_useHad  {this, "UseHad", true,  ""};

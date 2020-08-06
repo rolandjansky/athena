@@ -2,5 +2,5 @@
 
 // $Id: FPEControlSvc_test.txt,v 1.1 2007-11-09 05:05:09 ssnyder Exp $
 
-ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.Dlls += { "AthenaServices" };
 ApplicationMgr.ExtSvc += { "FPEControlSvc" };

@@ -33,28 +33,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-
-/* /\* */
-/*  * Cool Headers */
-/*  *\/ */
-/* // COOL API include files (CoolKernel) */
-/* #include "CoolKernel/DatabaseId.h" */
-/* #include "CoolKernel/Exception.h" */
-/* #include "CoolKernel/IDatabaseSvc.h" */
-/* #include "CoolKernel/IDatabase.h" */
-/* #include "CoolKernel/IFolder.h" */
-/* #include "CoolKernel/IObject.h" */
-/* #include "CoolKernel/IObjectIterator.h" */
-/* #include "CoolKernel/Record.h" */
-/* #include "CoolKernel/RecordSpecification.h" */
-/* #include "CoolApplication/DatabaseSvcFactory.h" */
-/* // COOL API include files (CoolApplication) */
-/* #include "CoolApplication/Application.h" */
-
-/* /\* */
-/*  * Coral Headers */
-/*  *\/ */
-/* #include "CoralBase/Attribute.h" */
+#include "CoralBase/Attribute.h"
 
 /*
  * Identifier
@@ -124,10 +103,7 @@ public:
    bool m_loadCompressTableFile;
    bool m_loadCompressTableDB;
    std::vector<int> m_LoadCompressTableVersions;
-   std::string m_compressTableFolder;
-   //   std::string m_compressTableFile;
    const int m_maxCompressionVersion;
-   //   bool m_compressTableLoaded[16];
    bool m_compressTableLoaded[256];
    int m_forceRodVersion;
 

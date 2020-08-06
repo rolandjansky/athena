@@ -46,6 +46,10 @@ TrigConf::DataStructure::setData(ptree&& data)
    update();
 }
 
+void TrigConf::DataStructure::setName(const std::string& n) {
+  m_name = n;
+}
+
 
 void
 TrigConf::DataStructure::clear()

@@ -34,6 +34,15 @@ def createTriggerFlags():
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
+    # Enable Inner Detector
+    flags.addFlag('Trigger.doID', True)
+
+    # Enable muon system
+    flags.addFlag('Trigger.doMuon', True)
+
+    # Enable calorimeters
+    flags.addFlag('Trigger.doCalo', True)
+
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
     def EDMDecodingVersion(flags):
         log.debug("Attempting to determine EDMDecodingVersion.")
@@ -92,7 +101,7 @@ def createTriggerFlags():
                 version = 2
             elif "HLTNav_Summary" in flags.Input.Collections:
                 version = 3
-            elif flags.Input.Format == "RDO":
+            elif flags.Input.Format == "POOL":
                 # If running Trigger on RDO input (without previous trigger result), choose Run-3
                 version = 3
         log.info("Determined EDMDecodingVersion to be {}.".format({1:"Run 1", 2:"Run 2", 3:"AthenaMT"}[version]))
@@ -249,7 +258,7 @@ def createTriggerFlags():
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         return createMuonConfigFlags()
-    flags.addFlagsCategory('Trigger.Offline', __muon)
+    flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
 
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags

@@ -60,6 +60,9 @@ namespace TrigConf {
       void setData(const ptree & data);
       void setData(ptree && data);
 
+      /** @brief Setting the configuration element name */
+      void setName(const std::string& n);
+
       /** A string that is the name of the class */
       virtual std::string className() const;
 

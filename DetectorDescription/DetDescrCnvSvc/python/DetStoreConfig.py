@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Joboptions for bootstrapping the loading of the DetectorStore with
@@ -6,11 +6,10 @@
 #
 
 def _setupDetStoreConfig():
-    from AthenaCommon.AppMgr import theApp
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
     # first, make sure we create a DetectorStore
-    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
     #theApp.CreateSvc += [ svcMgr.DetectorStore.getFullName() ]
 
     # now configure the Detector Description converter service

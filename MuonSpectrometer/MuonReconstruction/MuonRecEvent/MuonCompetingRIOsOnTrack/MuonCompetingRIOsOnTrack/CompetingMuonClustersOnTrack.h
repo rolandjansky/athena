@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ namespace Muon {
     /** returns the surface for the local to global transformation .
         - interface from MeasurementBase */
     const Trk::Surface& associatedSurface() const;
-    const Trk::Surface& associatedSurfaceRaw() const;
+    const Trk::Surface* associatedSurfaceRaw() const;
 
     /**Interface method to get the global Position.
        - interface from MeasurementBase */
@@ -159,9 +159,9 @@ namespace Muon {
     return ((*(m_containedChildRots->begin()))->associatedSurface());
   }
   
-  inline const Trk::Surface& CompetingMuonClustersOnTrack::associatedSurfaceRaw() const
+  inline const Trk::Surface* CompetingMuonClustersOnTrack::associatedSurfaceRaw() const
   {
-    return *m_associatedSurface;
+    return m_associatedSurface;
   }
   
   inline unsigned int CompetingMuonClustersOnTrack::numberOfContainedROTs() const {

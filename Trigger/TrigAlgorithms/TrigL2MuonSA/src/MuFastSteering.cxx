@@ -1340,14 +1340,18 @@ bool MuFastSteering::storeMSRoiDescriptor(const TrigRoiDescriptor*              
   // store TrigRoiDescriptor
   if (fabs(muonSA->pt()) > ZERO_LIMIT ) {
 
+    // set width of 0.1 so that ID tracking monitoring works
+    const float phiHalfWidth = 0.1;
+    const float etaHalfWidth = 0.1;
+
     TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
                                                                roids->roiId(),
                                                                pattern.etaMap,
-                                                               pattern.etaMap,
-                                                               pattern.etaMap,
+                                                               pattern.etaMap - etaHalfWidth,
+                                                               pattern.etaMap + etaHalfWidth,
                                                                pattern.phiMS,
-                                                               pattern.phiMS,
-                                                               pattern.phiMS);
+                                                               pattern.phiMS - phiHalfWidth,
+                                                               pattern.phiMS + phiHalfWidth);
 
     ATH_MSG_VERBOSE("...TrigRoiDescriptor for MS "
       	    << "pattern.etaMap/pattern.phiMS="

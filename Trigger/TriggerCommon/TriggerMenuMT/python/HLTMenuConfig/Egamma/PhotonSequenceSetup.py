@@ -24,7 +24,7 @@ def fastPhotonMenuSequence():
     from TrigEgammaHypo.TrigEgammaFastPhotonFexMTConfig import EgammaFastPhotonFex_1
     thePhotonFex= EgammaFastPhotonFex_1()
     thePhotonFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
-    thePhotonFex.PhotonsName=recordable("HLT_L2Photons")
+    thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")
     #thePhotonFex.RoIs="EMIDRoIs"
 
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")

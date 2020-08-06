@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -33,7 +33,7 @@ static const float  M_PIF = float(M_PI);
 /// overall configuration - perhaps by an RoiBuilder class  
 const double RoiDescriptor::s_zedWidthDefault = 225;
 
-static int RoiVersion = 4;
+static const int RoiVersion = 4;
 
 RoiDescriptor::RoiDescriptor( bool fullscan )
   : m_phi(0), m_eta(0), m_zed(0), 

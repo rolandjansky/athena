@@ -9,13 +9,13 @@ main()
 {
 
   //
-  //32 bit int has size 4 bytes 
+  //32 bit int has size 4 bytes
   using testType = int32_t;
-  constexpr size_t alignement = 32; //32 byte alignment 
+  constexpr size_t alignement = 32; //32 byte alignment
   constexpr size_t n = 100;
 
-   //begin should be aligned at 32 boundary 
-   //end (32+100*4)%32 ==> 16 
+   //begin should be aligned at 32 boundary
+   //end (32+100*4)%32 ==> 16
 
 
   std::cout << "\n ==> Test ctor with default init of elements " << '\n';

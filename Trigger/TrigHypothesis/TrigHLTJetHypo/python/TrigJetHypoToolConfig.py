@@ -82,7 +82,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
-    log.info('trigJetHypoToolFromDictc chainDict %s', str(chain_dict))
+    log.debug('trigJetHypoToolFromDictc chainDict %s', str(chain_dict))
 
     try:
         chain_label = chainDict2jetLabel(chain_dict)
@@ -113,7 +113,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 def  trigJetHypoToolFromDict(chain_dict):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
-    log.info('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
+    log.debug('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
 
     chain_name = chain_dict['chainName']
     tool = CompFactory.TrigJetHypoToolMT(name=chain_name)

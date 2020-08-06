@@ -56,9 +56,9 @@ namespace Pythia8 {
       if(mFrac > 0.6) return breitWignerDenom(0.6);
       
       if(mFrac < 0.0425) return 1e-12/(-1.293+1.098e+2*mFrac-2.800e+3*mFrac*mFrac+2.345e+4*mFrac*mFrac*mFrac);
-      if(mFrac < 0.073) return 1.248e-12*(exp(1.158+18.34*mFrac));
+      if(mFrac < 0.073) return 1.248e-12*(std::exp(1.158+18.34*mFrac));
       
-      return 5.733e-10*pow(mFrac,-3.798-0.6555*log(mFrac))/pow(1.427-mFrac,30.017);
+      return 5.733e-10*std::pow(mFrac,-3.798-0.6555*std::log(mFrac))/std::pow(1.427-mFrac,30.017);
     }
     
   };  

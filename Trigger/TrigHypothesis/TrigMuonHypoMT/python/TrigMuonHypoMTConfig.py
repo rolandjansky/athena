@@ -243,10 +243,7 @@ def getThresholdsFromDict( chainDict ):
 
 def TrigMufastHypoToolFromDict( chainDict ):
 
-    if 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
-       thresholds = ['passthrough']
-    else:
-        thresholds = getThresholdsFromDict( chainDict )
+    thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     # Setup MonTool for monitored variables in AthenaMonitoring package
@@ -395,7 +392,7 @@ class TrigL2MuonOverlapRemoverMucombConfig(object):
 
 def TrigmuCombHypoToolFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName'] or 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )

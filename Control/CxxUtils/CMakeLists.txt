@@ -1,13 +1,7 @@
-################################################################################
-# Package: CxxUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CxxUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS program_options regex filesystem thread system timer unit_test_framework )
@@ -122,7 +116,6 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
 endforeach()
 # Needed because this executable directly uses multiversioned functions.
 set_property( TARGET CxxUtils_crc64_test PROPERTY POSITION_INDEPENDENT_CODE ON )
-
 
 # If we are in release rebuilding mode, stop here:
 if( ATLAS_RELEASE_MODE )

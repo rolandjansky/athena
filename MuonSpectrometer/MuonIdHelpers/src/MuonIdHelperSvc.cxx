@@ -199,6 +199,18 @@ namespace Muon {
     return m_stgcIdHelper->is_stgc(id);
   }
 
+  bool MuonIdHelperSvc::hasHPTDC( const Identifier& id ) const {
+    if (!isMdt(id)) return false;
+    else if (!m_rpcIdHelper) return false; // there must be RPCs in the layout
+    else if (m_mdtIdHelper->isBMG(id)) return true; // all BMG sMDTs have an HPTDC
+    else if (m_mdtIdHelper->isEndcap(id)) return false; // there are no HPTDCs in the endcaps
+    else if (m_mdtIdHelper->stationNameString(stationName(id)).find("BI")!=0) return false; // outside the inner barrel layer there are no HPTDCs
+    // now try to retrieve RPC identifier with the same station name/eta/phi and check if it is valid
+    bool isValid = false;
+    m_rpcIdHelper->elementID(stationName(id), stationEta(id), stationPhi(id), 1, true, &isValid); // last 3 arguments are: doubletR, check, isValid
+    if (isValid) return true; // there is a BI RPC in the same station, thus, this station was already upgraded and the sMDT must have an HPTDC
+    return false;
+  }
 
   bool MuonIdHelperSvc::measuresPhi( const Identifier& id ) const {
     if( isRpc(id) ) {

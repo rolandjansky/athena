@@ -46,9 +46,9 @@ StatusCode TrigEgammaMatchingToolMT::initialize()
   m_keys[ "Photon"]     = "HLT_egamma_Photons" ;
   m_keys[ "Track"]      = "";
   m_keys[ "EFCalo"]     = "HLT_CaloEMClusters" ;
-  m_keys[ "L2Electron"] = "HLT_L2Electrons" ;
-  m_keys[ "L2Photon"]   = "HLT_L2Photons" ;
-  m_keys[ "L2Calo"]     = "HLT_L2CaloEMClusters" ;
+  m_keys[ "L2Electron"] = "HLT_FastElectrons" ;
+  m_keys[ "L2Photon"]   = "HLT_FastPhotons" ;
+  m_keys[ "L2Calo"]     = "HLT_FastCaloEMClusters" ;
   m_keys[ "L1Calo"]     = "LVL1EmTauRoIs" ;
 
   return StatusCode::SUCCESS;

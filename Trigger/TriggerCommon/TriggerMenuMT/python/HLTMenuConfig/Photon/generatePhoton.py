@@ -31,7 +31,7 @@ def generateChains(flags, chainDict):
 
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
-                                CaloClusters = recordable('HLT_L2CaloEMClusters') )
+                                CaloClusters = recordable('HLT_FastCaloEMClusters') )
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
@@ -54,7 +54,7 @@ def generateChains(flags, chainDict):
     accPhoton.merge(l2PhotonReco, sequenceName=stepReco.getName())
 
     l2PhotonHypo = l2PhotonHypoCfg( flags,
-                                    Photons = 'HLT_L2Photons',
+                                    Photons = 'HLT_FastPhotons',
                                     RunInView = True )
 
     accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())

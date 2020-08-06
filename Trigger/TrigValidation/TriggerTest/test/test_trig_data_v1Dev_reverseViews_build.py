@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test with reversed order of views to check their independence
 # art-type: build
@@ -34,6 +35,9 @@ refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Ev
 refcomp.reference = 'TriggerTest/ref_data_v1Dev_build.ref'
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
+
+# Use RootComp reference from test_trig_data_v1Dev_build
+test.get_step('RootComp').ref_test_name = 'trig_data_v1Dev_build'
 
 import sys
 sys.exit(test.run())

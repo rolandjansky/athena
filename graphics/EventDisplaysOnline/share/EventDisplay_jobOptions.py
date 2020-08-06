@@ -32,8 +32,7 @@ useAtlantisEmon   = False
 
 ## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)                    
 partitionName   = 'ATLAS'
-#Current test partition looping through 2015 data if you want to test when no run is ongoing.
-#partitionName   = 'GMTestPartition_lshi_tdaq6'
+#partitionName   = 'GMTestPartition' #Test partition serving events from a raw data file if you want to test when no run is ongoing.
 publishName     = 'EventDisplays'
 
 if (partitionName == 'ATLAS'):
@@ -51,12 +50,12 @@ pickleconfigfile  = './ami_recotrf.pickle'
 DataSource        = 'data'
 InputFormat       = 'bytestream'
 fileName          = './0.data'
+beamType          = 'collisions'
 #beamType          = 'cosmics'
-#beamType          = 'collisions'
 
 #COND tag and GEO are needed for running over a test partition online
 #Previous COND tag
-ConditionsTag     = 'CONDBR2-HLTP-2017-03' #Removed 07/04
+ConditionsTag     = 'CONDBR2-HLTP-2018-01'
 #Swapped to this following AMI tag for current reco. Swap back if not in release
 #ConditionsTag     = 'CONDBR2-ES1PA-2016-01' #Different
 #Current DetDesc
@@ -125,9 +124,9 @@ jobproperties.CaloCellFlags.doLArHVCorr=False
 jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False)
 jobproperties.CaloCellFlags.doLArCreateMissingCells=False
 
-#Work around to stop crash in pixel cluster splitting 
+#Work around to stop crash in pixel cluster splitting (Updated by lshi 23 July 2020, ATLASRECTS-5496)
 from InDetRecExample.InDetJobProperties import InDetFlags#All OK
-InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True)
+InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
 
 from JetRec.JetRecFlags import jetFlags
 jetFlags.useTracks.set_Value_and_Lock(False)
