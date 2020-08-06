@@ -32,7 +32,6 @@ def dump( buf, stdout = sys.stdout ):
     fname = None
     if isinstance(buf, str):
         fname = buf
-    from builtins import file
     if six.PY3:
         import io
         file = io.IOBase # noqa: F811
