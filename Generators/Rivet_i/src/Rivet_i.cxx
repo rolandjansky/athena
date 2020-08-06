@@ -50,8 +50,8 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   // Options
   declareProperty("McEventKey", m_genEventKey="GEN_EVENT");
   declareProperty("Analyses", m_analysisNames);
-  declareProperty("CrossSection", m_crossSection=-1.0);
-  declareProperty("CrossSectionUncertainty", m_crossSection_uncert=-1.0);
+  declareProperty("CrossSection", m_crossSection=0.0);
+  declareProperty("CrossSectionUncertainty", m_crossSection_uncert=0.0);
   declareProperty("Stream", m_stream="/Rivet");
   declareProperty("RunName", m_runname="");
   declareProperty("HistoFile", m_file="Rivet.yoda");
@@ -225,10 +225,11 @@ StatusCode Rivet_i::execute() {
 StatusCode Rivet_i::finalize() {
   ATH_MSG_INFO("Rivet_i finalizing");
 
-  // Set xsec in Rivet
-  double custom_xs = m_crossSection > 0 ? m_crossSection : 1.0;
-  double custom_xserr = m_crossSection_uncert > 0 ? m_crossSection_uncert : 0.0; 
-  m_analysisHandler->setCrossSection({custom_xs, custom_xserr});
+  // Setting cross-section in Rivet
+  // If no user-specified cross-section available,
+  // set AMI cross-section at plotting time 
+  double custom_xs = m_crossSection != 0 ? m_crossSection : 1.0;
+  m_analysisHandler->setCrossSection({custom_xs, m_crossSection_uncert});
   
   m_analysisHandler->finalize();
 
