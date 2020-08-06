@@ -104,7 +104,7 @@ namespace top {
     if (nZChildren != 2){
     ATH_MSG_ERROR("Z does not have exactly 2 children!");
     }
-    return false;
+    return true;
   }
 
   void CalcTzqPartonHistory::TZHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
