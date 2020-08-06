@@ -163,7 +163,9 @@ Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
       StatusCode sc = m_assoTool->addPRDs(prdToTrackMap,*atrack);
       if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
       // add to output list
-      result.push_back( const_cast<Track*>(atrack.track()) );
+      Track *track_view ATLAS_THREAD_SAFE = const_cast<Track*>(atrack.track()); // ok, becasue the destination container is just a view on elements stored in  the input track collection.
+      result.push_back( track_view );
+
     } else if ( !cleanedTrack ) {
       // track should be discarded
       ATH_MSG_DEBUG ("Track "<< atrack.track() << " doesn't meet the cuts of the AmbiTrack Selection tool");
