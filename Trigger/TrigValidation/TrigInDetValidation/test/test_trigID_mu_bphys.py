@@ -56,8 +56,7 @@ rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
-#rdo2aod.input = 'Bphys_JpsiPhi'    # defined in TrigValTools/share/TrigValInputs.json  
+rdo2aod.input = 'Bphys_JpsiPhi'    # defined in TrigValTools/share/TrigValInputs.json  
 
 test = Test.Test()
 test.art_type = 'grid'
