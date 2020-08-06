@@ -1,5 +1,7 @@
 EgEfficiencyCorr_testE... INFO    Environment initialised for data access
 EgEfficiencyCorr_testE...INFO    Opening file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/DAOD_PHYSVAL/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.DAOD_PHYSVAL.e5458_s3126_r9364_r9315_AthDerivation-21.2.1.0.root
+ElEffCorrectionTool      WARNING Unknown incident type received: 1
+ElEffCorrectionTool      WARNING Unknown incident type received: 4
 EgEfficiencyCorr_testE...INFO    Number of available events to read in:  10000
 EgEfficiencyCorr_testE...INFO    Number actual events to read in:  40
 EgEfficiencyCorr_testE...INFO     
