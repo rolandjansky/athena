@@ -55,3 +55,4 @@ Simulation/*
 data16_hip8TeV_00313187_87z4
 data2018
 ZDCTreeAnalysis
+ZdcAnalysis/tools/*.C

@@ -11,9 +11,23 @@
 #include "ZdcAnalysis/ZDCMsg.h"
 #include "TStopwatch.h"
 
-std::string calibFileName = "";
-bool doECalib      = false;
-bool doT0Calib     = false;
+std::string _calibFile = "";
+bool _doECalib = false;
+bool _doTCalib = false;
+
+void EnableCalibrations(std::string file, bool doECalib, bool doTCalib)
+{
+    if (doECalib || doTCalib) {
+        _calibFile = file;
+        _doTCalib = doTCalib;
+        _doECalib = doECalib;
+    }
+    else {
+        _calibFile = "";
+        _doTCalib = false;
+        _doECalib = false;
+    }
+}
 
 void PrintConfig(ZDCDataAnalyzer::ZDCModuleFloatArray array, std::string name, ofstream &file)
 {
@@ -74,41 +88,66 @@ void LoadCalibrations(ZDCTreeAnalysis* ana, std::string filename, int runNumber,
     file->Close();
 }
 
-ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq80MHz, bool useDelayed, bool fixTau1, bool fixTau2, bool doSlew)
+ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq80MHz, bool useTwoPass, bool useDelayed, bool fixTau1, bool fixTau2, bool doSlew)
 {
     ZDCDataAnalyzer::ZDCModuleFloatArray tau1, tau2, t0HG, t0LG, peak2ndDerivMinSamples;
 
-    if (year == 1111) peak2ndDerivMinSamples = {4, 4, 4, 4,
-                                                    4, 4, 4, 4
-                                                   };
-    if (year == 2016 || year == 2018) peak2ndDerivMinSamples = {5, 5, 5, 5,
-                                                                    5, 5, 5, 5
-                                                                   };
+    if (year == 1111) {
+        peak2ndDerivMinSamples = {4, 4, 4, 4,
+                                  4, 4, 4, 4
+                                 };
+    }
+    if (year == 2016 || year == 2018) {
+        peak2ndDerivMinSamples = {5, 5, 5, 5,
+                                  5, 5, 5, 5
+                                 };
+    }
 
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG = { -12, -12, -12, -12,
-                                                                         -12, -12, -12, -12,
+                                                                         -12, -12, -12, -12
                                                                        };
 
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsLG = { -10, -10, -10, -10,
-                                                                         -10, -10, -10, -10,
+                                                                         -10, -10, -10, -10
                                                                        };
 
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinRepassHG = { -10, -10, -10, -10,
+                                                                     -10, -10, -10, -10
+                                                                   };
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinRepassLG = { -6, -6, -6, -6,
+                                                                     -6, -6, -6, -6
+                                                                   };
+
+    if (useTwoPass) {
+        peak2ndDerivMinThresholdsHG = { -35, -35, -35, -35,
+                                        -35, -35, -35, -35
+                                      };
+
+        peak2ndDerivMinThresholdsLG = { -20, -20, -20, -20,
+                                        -20, -20, -20, -20
+                                      };
+    }
 
     float deltaT = 25;
     if (frq80MHz) deltaT = 12.5;
 
     // ComplexPrePulse, FermiExpLinear, GeneralPulse, FermiExp
     ZDCTreeAnalysis* ana;
-    if      (year == 2016) {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "GeneralPulse", peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
-    else if (year == 2018) {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "GeneralPulse", peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
+    if      (year == 2016) {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "FermiExpLinear", peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
+    else if (year == 2018) {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "FermiExpLinear", peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
     else                   {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "FermiExp"      , peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
 
     ana->SetDebugLevel(5);
 
+    if (useTwoPass) {
+        ana->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
+    }
+
+    if (year == 1111) ana->enableMCBranches(1);
     if (year == 2016) ana->DisableModule(0, 0);
 
     if (useDelayed) {
-        // ZDCDataAnalyzer::ZDCModuleFloatArray delayUndelPedestalDiff = {0, 0, 0, 0, 3.22, -0.77, -25.85, -28.68};
         ZDCDataAnalyzer::ZDCModuleFloatArray delayUndelPedestalDiff = {0, 0, 0, 0, 0, 0, 0, 0};
         if (year == 2016) ana->EnableDelayed(-12.5, delayUndelPedestalDiff);
         if (year == 2018) {
@@ -139,18 +178,6 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
 
     if (year == 1111) {
         // -------------------------------------
-        // fix tau1 and tau2 value for MC
-        // tau1 = {3.000, 3.000, 3.000, 3.000,
-        //         3.000, 3.000, 3.000, 3.000
-        //        };
-        // tau1 = {3.500, 3.500, 3.500, 3.500,
-        //         3.500, 3.500, 3.500, 3.500
-        //        };
-
-        // tau1 = {4.500, 4.500, 4.500, 4.500,
-        //         4.500, 4.500, 4.500, 4.500
-        //        };
-
         // tau1 = 4.0
         tau1 = {4.000, 4.000, 4.000, 4.000,
                 4.000, 4.000, 4.000, 4.000
@@ -215,29 +242,6 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
     if (doSlew) {
 
         std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG, slew2ndHG, slew2ndLG;
-
-        // ---------------------
-        // 2016 GeneralPulse
-        //
-        // slewingParamsHG[0][0] = {0, -7.904e-02, 4.686e-02, 1.530e-03 };
-        // slewingParamsHG[0][1] = { -0.517444, -0.0644051, 0.0496465, 0.0012064};
-        // slewingParamsHG[0][2] = { -0.575125, -0.0473179, 0.0564227, 0.0025134};
-        // slewingParamsHG[0][3] = { -0.600446, -0.0574149, 0.0467646, 0.0017492};
-
-        // slewingParamsHG[1][0] = {  0.670605, -0.0454974, 0.0878822, 0.0110132};
-        // slewingParamsHG[1][1] = { -0.016475, -0.0076705, 0.0868254, 0.0078555};
-        // slewingParamsHG[1][2] = { -0.006359, -0.0284119, 0.0626615, 0.0038606};
-        // slewingParamsHG[1][3] = {  0.169817, -0.0304877, 0.0674829, 0.005483};
-
-        // slewingParamsLG[0][0] = { 0, 1.708e-02, 7.929e-02, 5.079e-03   };
-        // slewingParamsLG[0][1] = { -1.44148, -0.214415, -0.03659, -0.0133405};
-        // slewingParamsLG[0][2] = { -9.71674, -7.580210, -2.23929, -0.233969};
-        // slewingParamsLG[0][3] = { -22.8444, -18.7901 , -5.36434, -0.517689};
-
-        // slewingParamsLG[1][0] = {  0.08029, -0.0406899,  0.100793, -0.0033816};
-        // slewingParamsLG[1][1] = { -0.60508, -0.0184704,  0.085549, -0.0047334};
-        // slewingParamsLG[1][2] = { -0.76608, -0.0250434,  0.083663, -0.0053537};
-        // slewingParamsLG[1][3] = { -1.4581 , -0.503884 , -0.161387, -0.0379136};
 
         // ---------------------
         // 2016 FermiExpLinear
@@ -319,7 +323,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
 
     ana->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
 
-    if (doECalib || doT0Calib) LoadCalibrations(ana, calibFileName, runNumber, doECalib, doT0Calib);
+    if (_doECalib || _doTCalib) LoadCalibrations(ana, _calibFile, runNumber, _doECalib, _doTCalib);
 
     return ana;
 }
@@ -328,33 +332,19 @@ TChain *inputFiles(int year)
 {
     TChain *chain = new TChain("zdcTree");
 
-    // if (year == 1111) {
-    //     // chain->Add("ZDC_10kNeutrons_Merged_157TeV_80MHz.root");
-    //     chain->Add("ZDC_10kNeutrons_Merged_251TeV_80MHz.root");
-    // }
-    // else if (year == 2016) {
-    //     chain->Add("data16_hip8TeV_00313187_87z4/user.steinber.17047360._000001.ANALYSIS.root");
-    //     chain->Add("data16_hip8TeV_00313187_87z4/user.steinber.17047360._000002.ANALYSIS.root");
-    // }
-    // else if (year == 2018) {
-    //     chain->Add("data2018/data18_hi.00367365.calibration_zdcCalib.merge.AOD.c1319_m2048.89_ANALYSIS.root");
-    //     chain->Add("data2018/user.steinber.18605473._000006.ANALYSIS.root");
-    // }
-    // else throw;
-
-    chain->Add("debug.root");
+    chain->Add("file_path");    // add data file path here.
 
     return chain;
 }
 
 void RunZDCAnalysis(std::string outputFile, int nevent = -1, int year = 2016,
-                    int nsamples = 7, bool freq80Mhz = false, bool useDelayed = false, bool fixTau1 = true, bool fixTau2 = true, bool doSlew = false, float FitTMax = 162.5)
+                    int nsamples = 7, bool freq80Mhz = false, bool useTwoPass = false, bool useDelayed = false, bool fixTau1 = true, bool fixTau2 = true, bool doSlew = false, float FitTMax = 162.5)
 {
     TStopwatch timer;
     timer.Start();
     TChain *chain = inputFiles(year);
 
-    ZDCTreeAnalysis* ana = InitZDCAnalysis(chain, year, nsamples, freq80Mhz, useDelayed, fixTau1, fixTau2, doSlew);
+    ZDCTreeAnalysis* ana = InitZDCAnalysis(chain, year, nsamples, freq80Mhz, useTwoPass, useDelayed, fixTau1, fixTau2, doSlew);
 
     ana->SetFitTimeMax(FitTMax);
     ana->SetSaveFitFunc(false);
