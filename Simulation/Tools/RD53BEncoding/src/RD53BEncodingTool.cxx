@@ -922,7 +922,6 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
     if (last_value<1500.)
       m_bins[BARREL].at(layer).push_back(last_value);
     m_bins[BARREL].at(layer).push_back(1500.);
-    std::sort(m_bins[BARREL].at(layer).begin(), m_bins[BARREL].at(layer).end());
     
     for (unsigned int z_bin = 0; z_bin<(endcap_z.at(layer).size()-1); z_bin++) {
       m_bins[ENDCAP].at(layer).push_back(0.5*(endcap_z.at(layer).at(z_bin)+endcap_z.at(layer).at(z_bin+1)));
@@ -932,7 +931,6 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
     if (last_value<3000.)
       m_bins[ENDCAP].at(layer).push_back(last_value);
     m_bins[ENDCAP].at(layer).push_back(3000.);
-    std::sort(m_bins[ENDCAP].at(layer).begin(), m_bins[ENDCAP].at(layer).end());
   }
   
   for (int region=0; region<N_REGIONS; region++) {
