@@ -12,9 +12,6 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "InDetRawData/InDetTimeCollection.h"
 
-// NEW
-#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
-
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -55,8 +52,6 @@ private:
 
   SG::WriteHandleKey<InDetTimeCollection> m_LVL1CollectionKey{this, "LVL1CollectionName", "PixelLVL1ID"};
   SG::WriteHandleKey<InDetTimeCollection> m_BCIDCollectionKey{this, "BCIDCollectionName", "PixelBCID"};
-
-  SG::UpdateHandleKey<IDCInDetBSErrContainer_Cache> m_bsErrorsCacheKey;
 
   mutable std::atomic_int m_DecodeErrCount;
   bool m_checkLVL1ID;

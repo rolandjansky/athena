@@ -112,7 +112,7 @@ namespace InDet {
     }
 
     if( !evtStore()->transientContains<IDCInDetBSErrContainer>(m_decodingErrorsKey) ) {
-      m_decodingErrors = new IDCInDetBSErrContainer(m_id->wafer_hash_max(),  std::numeric_limits<int>::min());
+      m_decodingErrors = new IDCInDetBSErrContainer(m_rawDataTool->SizeOfIDCInDetBSErrContainer(),  std::numeric_limits<int>::min());
       ATH_CHECK(evtStore()->record(m_decodingErrors, m_decodingErrorsKey));
     } else {
       ATH_CHECK(evtStore()->retrieve(m_decodingErrors, m_decodingErrorsKey));

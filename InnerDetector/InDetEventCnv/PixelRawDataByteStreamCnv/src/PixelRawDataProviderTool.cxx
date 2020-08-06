@@ -19,10 +19,6 @@ PixelRawDataProviderTool::PixelRawDataProviderTool(const std::string& type, cons
 {
   declareProperty("checkLVL1ID", m_checkLVL1ID = true);
   declareInterface<IPixelRawDataProviderTool>(this);   
-
-  // NEW
-  declareProperty("BSErrorsCacheKey", m_bsErrorsCacheKey);
-
 }
 
 PixelRawDataProviderTool::~PixelRawDataProviderTool() {}
@@ -36,8 +32,6 @@ StatusCode PixelRawDataProviderTool::initialize() {
   ATH_CHECK(m_LVL1CollectionKey.initialize());
   ATH_CHECK(m_BCIDCollectionKey.initialize());
 
-  ATH_CHECK( m_bsErrorsCacheKey.initialize( SG::AllowEmpty ) );
-
   return StatusCode::SUCCESS;
 }
 
@@ -47,7 +41,7 @@ StatusCode PixelRawDataProviderTool::finalize() {
 }
 
 StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc,
-					     IDCInDetBSErrContainer& xdecodingErrors ) const {
+					     IDCInDetBSErrContainer& decodingErrors ) const {
   if (vecRobs.size()==0) { return StatusCode::SUCCESS; }
 
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
@@ -93,14 +87,6 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 
   }
 
-  std::unique_ptr<IDCInDetBSErrContainer> decodingErrors;
-  if ( not m_bsErrorsCacheKey.empty() ) {
-    SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey, ctx);
-    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( bsErrorsCacheHandle.ptr() );
-  } else {
-    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( SizeOfIDCInDetBSErrContainer(), std::numeric_limits<int>::min() );
-  }
-
   // loop over the ROB fragments
   for (; rob_it!=vecRobs.end(); ++rob_it) {
     uint32_t robid = (*rob_it)->rob_source_id();
@@ -122,9 +108,7 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 
     // here the code for the timing monitoring should be reinserted
     // using 1 container per event and subdetector
-    StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc, *decodingErrors);
-
-    xdecodingErrors = *decodingErrors;
+    StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc, decodingErrors);
 
     const int issuesMessageCountLimit = 100;
     if (sc==StatusCode::FAILURE) {
