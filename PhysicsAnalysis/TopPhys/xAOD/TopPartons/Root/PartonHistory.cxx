@@ -632,85 +632,23 @@ namespace xAOD {
     this->auxdecor< float >("MC_Z_pt") = -1000;
     this->auxdecor< float >("MC_Z_eta") = -1000;
     this->auxdecor< float >("MC_Z_phi") = -1000;
-    
-    this->auxdecor< float >("MC_El1_from_Z_m") = -1000;
-    this->auxdecor< float >("MC_El1_from_Z_pt") = -1000;
-    this->auxdecor< float >("MC_El1_from_Z_eta") = -1000;
-    this->auxdecor< float >("MC_El1_from_Z_phi") = -1000;
-    this->auxdecor< int >("MC_El1_from_Z_pdgId") = -9999;
-    this->auxdecor< int >("MC_El1_from_Z_status") = -9999;
-    
-    
-    this->auxdecor< float >("MC_El2_from_Z_m") = -1000;
-    this->auxdecor< float >("MC_El2_from_Z_pt") = -1000;
-    this->auxdecor< float >("MC_El2_from_Z_eta") = -1000;
-    this->auxdecor< float >("MC_El2_from_Z_phi") = -1000;
-    this->auxdecor< int >("MC_El2_from_Z_pdgId") = -9999;
-    this->auxdecor< int >("MC_El2_from_Z_status") = -9999;
-    
-    this->auxdecor< float >("MC_mu1_from_Z_m") = -1000;
-    this->auxdecor< float >("MC_mu1_from_Z_pt") = -1000;
-    this->auxdecor< float >("MC_mu1_from_Z_eta") = -1000;
-    this->auxdecor< float >("MC_mu1_from_Z_phi") = -1000;
-    this->auxdecor< int >("MC_mu1_from_Z_pdgId") = -9999;
-    
-    this->auxdecor< float >("MC_mu2_from_Z_m") = -1000;
-    this->auxdecor< float >("MC_mu2_from_Z_pt") = -1000;
-    this->auxdecor< float >("MC_mu2_from_Z_eta") = -1000;
-    this->auxdecor< float >("MC_mu2_from_Z_phi") = -1000;
-    this->auxdecor< int >("MC_mu2_from_Z_pdgId") = -9999;
-    
-    this->auxdecor< float >("MC_Tau1_from_Z_m") = -1000;
-    this->auxdecor< float >("MC_Tau1_from_Z_pt") = -1000;
-    this->auxdecor< float >("MC_Tau1_from_Z_eta") = -1000;
-    this->auxdecor< float >("MC_Tau1_from_Z_phi") = -1000;
-    this->auxdecor< int >("MC_Tau1_from_Z_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Tau2_from_Z_m") = -1000;
-    this->auxdecor< float >("MC_Tau2_from_Z_pt") = -1000;
-    this->auxdecor< float >("MC_Tau2_from_Z_eta") = -1000;
-    this->auxdecor< float >("MC_Tau2_from_Z_phi") = -1000;
-    this->auxdecor< int >("MC_Tau2_from_Z_pdgId") = -9999;
-
-
-    this->auxdecor< float >("MC_nu_from_Tau1_m") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau1_pt") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau1_eta") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau1_phi") = -1000;
-    this->auxdecor< int >("MC_nu_from_Tau1_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_nu_from_Tau2_m") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau2_pt") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau2_eta") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau2_phi") = -1000;
-    this->auxdecor< int >("MC_nu_from_Tau2_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay1_from_Tau1_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay2_from_Tau1_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay1_from_Tau2_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay2_from_Tau2_pdgId") = -9999;
    
-    this->auxdecor< int >("MC_hadr_Tau_Jet1") = 0;
-    this->auxdecor< int >("MC_hadr_Tau_Jet2") = 0;
+    
+    this->auxdecor< float >("MC_Zdecay1_m") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_pt") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_eta") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_phi") = -1000;
+    this->auxdecor< int >("MC_Zdecay1_pdgId") = -9999;
+    this->auxdecor< int >("MC_Zdecay1_status") = -9999;
+    
+    this->auxdecor< float >("MC_Zdecay2_m") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_pt") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_eta") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_phi") = -1000;
+    this->auxdecor< int >("MC_Zdecay2_pdgId") = -9999;
+    this->auxdecor< int >("MC_Zdecay2_status") = -9999;
+    
+    
  }
 }
 ADD_NS_DV_PROXY(xAOD, PartonHistoryContainer);

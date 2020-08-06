@@ -25,38 +25,13 @@ namespace top {
     struct tZ_values {
       //Z boson
       TLorentzVector Z_p4;
-      TLorentzVector El1_from_Z_p4;
-      int El1_from_Z_pdgId;
-      int El1_from_Z_status;
-      char El1_from_Z_energyunit;
-      TLorentzVector El2_from_Z_p4;
-      int El2_from_Z_pdgId;
-      int El2_from_Z_status;
-      TLorentzVector mu1_from_Z_p4;
-      int mu1_from_Z_pdgId;
-      TLorentzVector mu2_from_Z_p4;
-      int mu2_from_Z_pdgId;
+      TLorentzVector Zdecay1_p4;
+      int Zdecay1_pdgId;
+      int Zdecay1_status;
+      TLorentzVector Zdecay2_p4;
+      int Zdecay2_pdgId;
+      int Zdecay2_status;
       
-      TLorentzVector Tau1_from_Z_p4;
-      int Tau1_from_Z_pdgId;
-      TLorentzVector Tau2_from_Z_p4;
-      int Tau2_from_Z_pdgId;
-      TLorentzVector nu_from_Tau1_p4;
-      int nu_from_Tau1_pdgId;
-      TLorentzVector nu_from_Tau2_p4;
-      int nu_from_Tau2_pdgId;
-      TLorentzVector W_decay1_from_Tau1_p4;
-      int W_decay1_from_Tau1_pdgId;
-      TLorentzVector W_decay2_from_Tau1_p4;
-      int W_decay2_from_Tau1_pdgId;
-      TLorentzVector W_decay1_from_Tau2_p4;
-      int W_decay1_from_Tau2_pdgId;
-      TLorentzVector W_decay2_from_Tau2_p4;
-      int W_decay2_from_Tau2_pdgId;
-
-      //Bools
-      int TauJets1;
-      int TauJets2;
 
 
 
