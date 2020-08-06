@@ -21,7 +21,6 @@ StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3286 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 846 CLIDRegistry entries for module ALL
 ReadData            DEBUG Property update for OutputLevel : new value = 2

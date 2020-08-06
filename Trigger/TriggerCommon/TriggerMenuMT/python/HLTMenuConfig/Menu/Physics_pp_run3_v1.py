@@ -116,7 +116,7 @@ def setupMenu():
         ChainProp(name='HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6', groups=BphysicsGroup),
     ]
     TriggerFlags.CombinedSlice.signatures = [
-        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
+        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], mergingStrategy='serial',stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []

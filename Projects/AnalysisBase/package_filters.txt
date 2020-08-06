@@ -19,7 +19,6 @@
 - PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 - PhysicsAnalysis/ElectronPhotonID/egammaMVACalibAnalysis
-- Reconstruction/Jet/JetCalibTools
 - Reconstruction/Jet/JetMomentTools
 - Reconstruction/Jet/JetRec
 - Reconstruction/Jet/JetSubStructureMomentTools

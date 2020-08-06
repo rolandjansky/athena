@@ -112,14 +112,11 @@ namespace Trk
     const double d0SignificanceCut = m_d0MaxSignificance * m_d0MaxSignificance;
     const double z0SignificanceCut = m_z0MaxSignificance * m_z0MaxSignificance;
 
-    for (const TrackParameters* iparam : perigeeList)
-    {
-      const Perigee* itrk = dynamic_cast<const Perigee*>(iparam);
-      if (itrk != nullptr)
-      {
-        density.addTrack (*itrk,
-                          d0SignificanceCut,
-                          z0SignificanceCut);
+    for (const TrackParameters* iparam : perigeeList) {
+      if (iparam && iparam->surfaceType() == Trk::Surface::Perigee) {
+        density.addTrack(*(static_cast<const Perigee*>(iparam)),
+                         d0SignificanceCut,
+                         z0SignificanceCut);
       }
     }
   }
@@ -129,12 +126,12 @@ namespace Trk
 
 
   GaussianTrackDensity::TrackEntry::TrackEntry(double c0, double c1, double c2,
-                                               double zMin, double zMax) 
+                                               double zMin, double zMax)
     : c_0(c0), c_1(c1), c_2(c2), lowerBound(zMin), upperBound(zMax)
   { }
 
   // Dummy constructor for binary search
-  GaussianTrackDensity::TrackEntry::TrackEntry(double z) 
+  GaussianTrackDensity::TrackEntry::TrackEntry(double z)
     : c_0(0), c_1(0), c_2(0), lowerBound(z), upperBound(z)
   { }
 
@@ -149,10 +146,10 @@ namespace Trk
   double GaussianTrackDensity::TrackDensity::trackDensity (double z) const
   {
     double firstDeriv, secondDeriv = 0;  // unused in this case
-    double density = 0; 
+    double density = 0;
     // use the existing trackDensity method to avoid duplication of logic
-    trackDensity(z,density,firstDeriv,secondDeriv); 
-    return density; 
+    trackDensity(z,density,firstDeriv,secondDeriv);
+    return density;
   }
 
 
@@ -168,14 +165,14 @@ namespace Trk
   {
     TrackDensityEval densityResult(z);
     for (const auto & trackAndPerigeePair : m_lowerMap){
-      densityResult.addTrack(trackAndPerigeePair.first); 
+      densityResult.addTrack(trackAndPerigeePair.first);
     }
     density = densityResult.density();
     firstDerivative = densityResult.firstDerivative();
-    secondDerivative = densityResult.secondDerivative(); 
+    secondDerivative = densityResult.secondDerivative();
   }
 
-  std::pair<double,double> 
+  std::pair<double,double>
   GaussianTrackDensity::TrackDensity::globalMaximumWithWidth (MsgStream& msg) const
   {
     // strategy:
@@ -200,7 +197,7 @@ namespace Trk
       double slope     = 0.0;
       double curvature = 0.0;
       trackDensity( trialZ, density, slope, curvature );
-      if ( curvature >= 0.0 || density <= 0.0 ) continue; 
+      if ( curvature >= 0.0 || density <= 0.0 ) continue;
       updateMaximum( trialZ, density, curvature, maximumPosition, maximumDensity, maxCurvature);
       trialZ += stepSize( density, slope, curvature );
       trackDensity( trialZ, density, slope, curvature );

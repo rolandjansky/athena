@@ -34,7 +34,7 @@ def jetAthSequence(dummyFlags, **jetRecoDict):
 # Dummy flag arg needed so that each reco sequence is held separately
 # in the RecoFragmentsPool -- only the kwargs are used to distinguish
 # different sequences. New convention is just to pass "None" for flags
-def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
+def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDict):
 
     jetDefString = jetRecoDictToString(jetRecoDict)
     recoSeq = parOR( "JetRecSeq_"+jetDefString, [])
@@ -143,12 +143,23 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
             jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey)
         useConstitMods = ["sktc","cssktc", "pf", "csskpf"]
         doConstitMods = jetRecoDict["dataType"] in useConstitMods
+
+        # chosen jet collection
+        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
+        if jetRecoDict["trkopt"] != "notrk":
+            jetsFullName += "_{}".format(jetRecoDict["trkopt"])
+        sequenceOut = recordable(jetsFullName)
+
         if doConstitMods:
+            # Get online monitoring jet rec tool
+            from JetRecTools import OnlineMon                                                  
+            monJetRecTool = OnlineMon.getMonTool_Algorithm("HLTJets/"+jetsFullName+"/")
+
             from JetRecConfig.ConstModHelpers import getConstitModAlg
             if jetRecoDict["trkopt"] == "notrk":
-                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT")
+                recoSeq += getConstitModAlg(jetDef.inputdef,suffix="HLT",tvaKey="JetTrackVtxAssoc",vtxKey="PrimaryVertices",monTool=monJetRecTool)
             else:
-                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT",tvaKey=trkcolls["TVA"],vtxKey=trkcolls["Vertices"])
+                recoSeq += getConstitModAlg(jetDef.inputdef,suffix="HLT",tvaKey=trkcolls["TVA"],vtxKey=trkcolls["Vertices"],monTool=monJetRecTool)
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
@@ -159,12 +170,6 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         pjs = [constitPJKey]
         if trkcolls:
             pjs.append(trkcolls["GhostTracks"])
-        
-        # chosen jet collection
-        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
-        if jetRecoDict["trkopt"] != "notrk":
-            jetsFullName += "_{}".format(jetRecoDict["trkopt"])
-        sequenceOut = recordable(jetsFullName)
 
         from JetRecConfig import JetRecConfig
         jetModList = []

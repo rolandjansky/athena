@@ -233,8 +233,8 @@ def setupMenu():
         ChainProp(name="HLT_tau160_perf_tracktwo_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_perf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
-
     ]
+
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
         #ATR-20603
         ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4', groups=BphysicsGroup),
@@ -242,16 +242,26 @@ def setupMenu():
         #ATR-20839
         ChainProp(name='HLT_2mu4_bDimu_L12MU4', groups=BphysicsGroup),
     ]
+
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
         # groups need to be properly assigned here later
 
-        # Test chain that is using parallel merging with different number of steps
-        ChainProp(name='HLT_e3_etcut1step_mu26_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        # Test chain that was using parallel merging with different number of steps, now serial merged with new menu
+        ChainProp(name='HLT_e3_etcut1step_mu26_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         # Primary e-mu chains
-        ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         # Test photon-muon chain (isolation is there to have different number of steps)
-        ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
+
+        # electron + photon stay in the same step - these need to be parallel merged!
+        ChainProp(name='HLT_e3_etcut1step_g5_etcut_L12EM3',l1SeedThresholds=['EM3','EM3'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup),
+
+        # Test chains for muon + jet/MET merging/aligning
+        ChainProp(name='HLT_mu6fast_xe30_mht_L1XE10', l1SeedThresholds=['MU6','XE10'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),
+        ChainProp(name='HLT_mu6fast_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),
+
+
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
@@ -268,6 +278,13 @@ def setupMenu():
     ]
 
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
+        # L1 calo streamers
+        ChainProp(name='HLT_noalg_bkg_L1Bkg',      l1SeedThresholds=['FSNOSEED'], stream=['Background'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Standby',      l1SeedThresholds=['FSNOSEED'], stream=['Standby'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Calo',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Calo_EMPTY',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_l1calo_L1J400',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+
         ChainProp(name='HLT_noalg_mb_L1RD2_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup),
         ChainProp(name='HLT_noalg_zb_L1ZB', l1SeedThresholds=['FSNOSEED'], stream=['ZeroBias'], groups=ZeroBiasGroup),
     ]
@@ -276,6 +293,7 @@ def setupMenu():
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
+
 
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 

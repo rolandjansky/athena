@@ -148,8 +148,10 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
             tileDigitsContainer = tileDigitsMaker.getDefaultProperty('TileFilteredContainer')
 
     tileDigitsContainer = tileDigitsContainer.split('+').pop()
-    outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
-    
+    if flags.Digitization.AddCaloDigi:
+        outputItemList = ['TileDigitsContainer#*']
+    else:
+        outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
 
     if flags.Output.doWriteRDO:
         if flags.Digitization.TruthOutput:

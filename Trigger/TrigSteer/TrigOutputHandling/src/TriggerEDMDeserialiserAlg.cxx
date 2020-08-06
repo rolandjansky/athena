@@ -147,7 +147,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       ATH_MSG_ERROR( "Deserialisation of object of CLID " << clid << " and transientTypeName " << transientTypeName << " # " << key << " failed" );
       ATH_CHECK(false);
     }
-    const bool isxAODInterfaceContainer = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") == std::string::npos;
+    const bool isxAODInterfaceContainer = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") == std::string::npos and transientTypeName.find("ElementLink") == std::string::npos;
     const bool isxAODAuxContainer       = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") != std::string::npos;
     const bool isxAODDecoration	        = transientTypeName.find("vector") != std::string::npos;
     const bool isTPContainer	        = persistentTypeName.find("_p")	   != std::string::npos;
@@ -215,7 +215,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialiseDynAux( const std::string& tran
   SG::AuxTypeRegistry& registry = SG::AuxTypeRegistry::instance();     
   SG::auxid_t id = registry.findAuxID ( decorationName );
   if (id != SG::null_auxid ) {
-    if ( stripStdVec( registry.getVecTypeName(id) ) != stripStdVec(transientTypeName) ) {
+    if ( stripStdVec( registry.getVecTypeName(id) ) != stripStdVec(transientTypeName) and transientTypeName.find("ElementLink") == std::string::npos ) {
       ATH_MSG_INFO( "Schema evolution required for decoration \"" << decorationName << "\" from " << transientTypeName << " to "  <<  registry.getVecTypeName( id ) << " not handled yet"); 
       return StatusCode::SUCCESS;
     }

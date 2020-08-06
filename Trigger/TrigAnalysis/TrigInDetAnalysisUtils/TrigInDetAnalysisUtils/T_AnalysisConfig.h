@@ -327,7 +327,115 @@ protected:
     return itrpair;
   }
 
+ 
 
+
+
+
+
+
+
+
+
+
+  
+  bool select( std::vector<TIDA::Vertex>& vertices, 
+	       xAOD::VertexContainer::const_iterator vtx_start, 
+	       xAOD::VertexContainer::const_iterator vtx_end ) { 
+    
+    xAOD::VertexContainer::const_iterator vtxitr = vtx_start;
+ 
+    for (  ; vtxitr!=vtx_end  ;  vtxitr++ ) {
+      if ( (*vtxitr)->vertexType()!=0 ) {
+	m_provider->msg(MSG::VERBOSE) << "\tvertex " << (*vtxitr)->z() << endmsg;
+
+	vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+					  (*vtxitr)->y(),
+					  (*vtxitr)->z(),
+					  /// variances                                                                                                                                                  
+					  (*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+					  (*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+					  (*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+					  (*vtxitr)->nTrackParticles(),
+					  /// quality                                                                                                                                                    
+					  (*vtxitr)->chiSquared(),
+					  (*vtxitr)->numberDoF() ) );
+	
+      }
+    }
+    
+    return true;
+  }
+
+
+  bool select( std::vector<TIDA::Vertex>& vertices,
+	       const ElementLink<TrigRoiDescriptorCollection>& roi_link,  
+	       const std::string& key="" ) {
+    
+    m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer for key: " << key << endmsg;
+
+    std::pair< xAOD::VertexContainer::const_iterator,
+	       xAOD::VertexContainer::const_iterator > vtx_itrpair = this->template getCollection<xAOD::VertexContainer>( roi_link, key );
+    
+    if ( vtx_itrpair.first == vtx_itrpair.second ) {
+      m_provider->msg(MSG::WARNING) << "\tNo xAOD::Vertex collection for key " << key << endmsg;
+      return false;
+    }
+
+    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first)
+			       << "\t:" << key << endmsg;
+
+    return select( vertices, vtx_itrpair.first, vtx_itrpair.second );
+  }
+  
+
+
+ 
+  bool select( std::vector<TIDA::Vertex>& vertices, const std::string& key="" ) {
+
+    m_provider->msg(MSG::VERBOSE) << "fetching AOD vertex container" << endmsg;
+    
+    const xAOD::VertexContainer* xaodVtxCollection = 0;
+
+    if ( m_provider->evtStore()->retrieve( xaodVtxCollection, key ).isFailure()) {
+      m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << key <<  endmsg;
+      return false;
+    }
+    
+    if ( xaodVtxCollection!=0 ) {
+      
+      m_provider->msg(MSG::VERBOSE) << "xAOD vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
+      
+      return select( vertices, xaodVtxCollection->begin(), xaodVtxCollection->end() ); 
+
+#if 0
+
+      xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
+  
+      for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
+	if ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) {
+          vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+                                            (*vtxitr)->y(),
+                                            (*vtxitr)->z(),
+                                            /// variances                                                                                                     
+                                            (*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+                                            (*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+                                            (*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+                                            (*vtxitr)->nTrackParticles(),
+                                            /// quality                                                                                                       
+                                            (*vtxitr)->chiSquared(),
+                                            (*vtxitr)->numberDoF() ) );
+        }
+      }
+
+#endif
+ 
+    }
+
+    return true;
+  }
+
+ 
 
   template<class Collection>
   bool selectTracks( TrigTrackSelector* selector,

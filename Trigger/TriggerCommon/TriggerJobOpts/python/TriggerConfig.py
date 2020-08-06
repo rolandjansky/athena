@@ -27,10 +27,10 @@ def collectHypos( steps ):
             continue
         
         if "filter" in stepSeq.getName():
-            __log.info("Skipping filtering steps " +stepSeq.getName() )
+            __log.debug("Skipping filtering steps " +stepSeq.getName() )
             continue
 
-        __log.info( "collecting hypos from step " + stepSeq.getName() )
+        __log.debug( "collecting hypos from step " + stepSeq.getName() )
 #        start = {}
         for seq,algs in six.iteritems (flatAlgorithmSequences( stepSeq )):
             for alg in algs:
@@ -38,9 +38,9 @@ def collectHypos( steps ):
                     continue
                 # will replace by function once dependencies are sorted
                 if hasProp( alg, 'HypoInputDecisions'):
-                    __log.info( "found hypo " + alg.getName() + " in " +stepSeq.getName() )
+                    __log.debug( "found hypo " + alg.getName() + " in " +stepSeq.getName() )
                     if __isCombo( alg ) and len(alg.ComboHypoTools):
-                        __log.info( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.getName() for  tool in alg.ComboHypoTools])))
+                        __log.debug( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.getName() for  tool in alg.ComboHypoTools])))
                     hypos[stepSeq.getName()].append( alg )
                 else:
                     __log.verbose("Not a hypo" + alg.getName())
@@ -93,7 +93,7 @@ def collectFilters( steps ):
     for stepSeq in getSequenceChildren( steps ):
         if "filter" in stepSeq.getName():
             filters[stepSeq.getName()] = getSequenceChildren( stepSeq )
-            __log.info("Found Filters in Step {} : {}".format(stepSeq.getName(), getSequenceChildren( stepSeq )))
+            __log.debug("Found Filters in Step {} : {}".format(stepSeq.getName(), getSequenceChildren( stepSeq )))
 
     return filters
 
@@ -187,7 +187,7 @@ def triggerSummaryCfg(flags, hypos):
     else:
         for chainName, chainDict in six.iteritems (TriggerConfigHLT.dicts()):
             if chainName not in allChains:
-                __log.warn("The chain %s is not mentioned in any step", chainName)
+                __log.debug("The chain %s is not mentioned in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here
                 assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
@@ -218,7 +218,9 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
         return acc, mon
     allChains = set() # collects the last decision obj for each chain
 
-    for stepName, stepHypos in sorted( hypos.items() ):
+    # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
+    # to Step10 Step11 Step1 Step2
+    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : int(x[0].split('_')[0][4:]) ):
         stepDecisionKeys = []
         for hypo in stepHypos:
             hypoChains, hypoOutputKey  = __decisionsFromHypo( hypo )
@@ -439,13 +441,12 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
         ("xAOD::TrigDecision", decmaker.TrigDecisionKey),
         ("xAOD::TrigConfKeys", menuwriter.EventObjectName)]
 
-    # Produce xAOD L1 RoIs from RoIBResult (unless running with exclusively Phase-I L1)
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
-        from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
-        xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags, acc.getSequence().name)
-        acc.merge(xRoIBResultAcc)
-        # Ensure outputs are produced before streamAlg runs
-        streamAlg.ExtraInputs += xRoIBResultOutputs
+    # Produce xAOD L1 RoIs from RoIBResult
+    from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+    xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags, acc.getSequence().name)
+    acc.merge(xRoIBResultAcc)
+    # Ensure outputs are produced before streamAlg runs
+    streamAlg.ExtraInputs += xRoIBResultOutputs
 
     return acc
 
@@ -552,11 +553,9 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
+    l1DecoderAcc = L1DecoderCfg( flags, seqName =  "HLTBeginSeq")
     # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
-    acc.merge( l1DecoderAcc, sequenceName="HLTBeginSeq" )
-    acc.addEventAlgo( l1DecoderAlg, sequenceName="HLTBeginSeq")
-
+    acc.merge( l1DecoderAcc )
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
@@ -576,6 +575,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
 
     #once menu is included we should configure monitoring here as below
+    l1DecoderAlg = l1DecoderAcc.getEventAlgo("L1Decoder")
 
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc, sequenceName="HLTEndSeq" )

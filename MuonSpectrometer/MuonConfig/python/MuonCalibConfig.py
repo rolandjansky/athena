@@ -3,6 +3,7 @@
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
 from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
+from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
@@ -99,7 +100,7 @@ def MdtCalibrationDbToolCfg(flags, **kwargs):
     return result
     
 def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
-    result = ComponentAccumulator()
+    result = MuonDetectorCondAlgCfg(flags)
 
     # setup COOL folders
     acc, mdt_folder_name_appendix = _setupMdtCondDB(flags)

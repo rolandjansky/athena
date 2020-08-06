@@ -3,7 +3,7 @@ ConditionsCleanerSvc_test
 
 Initializing Gaudi ApplicationMgr using job opts ../share/ConditionsCleanerSvc_test.txt
 JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/ConditionsCleanerSvc_test.txt
-JobOptionsSvc        INFO # (5,1): ApplicationMgr.DLLs += ["AthenaServices"]
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.Dlls += ["AthenaServices"]
 JobOptionsSvc        INFO # (6,1): ApplicationMgr.ExtSvc += ["Athena::ConditionsCleanerSvc/ConditionsCleanerSvc1"]
 JobOptionsSvc        INFO # (7,1): ApplicationMgr.ExtSvc += ["Athena::ConditionsCleanerSvc/ConditionsCleanerSvc2"]
 JobOptionsSvc        INFO # (8,1): ConditionsCleanerSvc2.CleanerSvc = "ConditionsCleanerTest"

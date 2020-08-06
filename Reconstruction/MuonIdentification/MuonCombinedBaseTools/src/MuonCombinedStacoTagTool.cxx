@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -10,51 +10,27 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonCombinedStacoTagTool.h"
 
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/StacoTag.h"
-#include "MuonCombinedStacoTagTool.h"
 
 namespace MuonCombined {
- 
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
-  MuonCombinedStacoTagTool::MuonCombinedStacoTagTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",this),
-	m_tagTool("MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool",this),
-        m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-	m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",this)
+  MuonCombinedStacoTagTool::MuonCombinedStacoTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCombinedTagTool>(this);
-    declareProperty("Printer",m_printer );
-    declareProperty("TagTool",m_tagTool );
-    declareProperty("Extrapolator",m_extrapolator );
-    declareProperty("ParticleCaloExtensionTool", m_caloExtTool);
   }
-
-  MuonCombinedStacoTagTool::~MuonCombinedStacoTagTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCombinedStacoTagTool::initialize() {
     ATH_MSG_INFO( "Initializing MuonCombinedStacoTagTool - package version " << PACKAGE_VERSION );
-
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_tagTool.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(m_caloExtTool.retrieve());
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCombinedStacoTagTool::finalize() {
     return StatusCode::SUCCESS;
   }
 

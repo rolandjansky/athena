@@ -20,7 +20,10 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             job += CfgGetter.getAlgorithm("PixelSDOOverlay")
 
         if overlayFlags.isDataOverlay():
-            job.InDetPixelRawDataProvider.RDOKey = overlayFlags.dataStore()+"+PixelRDOs"
+            if overlayFlags.isOverlayMT():
+                job.InDetPixelRawDataProvider.RDOKey = overlayFlags.bkgPrefix()+"PixelRDOs"
+            else:
+                job.InDetPixelRawDataProvider.RDOKey = overlayFlags.dataStore()+"+PixelRDOs"
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
         else:
@@ -51,9 +54,14 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         if overlayFlags.isDataOverlay():
             include("InDetRecExample/InDetRecConditionsAccess.py")
 
-            job.InDetSCTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+SCT_RDOs"
-            job.InDetSCTRawDataProvider.LVL1IDKey = overlayFlags.dataStore()+"+SCT_LVL1ID"
-            job.InDetSCTRawDataProvider.BCIDKey = overlayFlags.dataStore()+"+SCT_BCID"
+            if overlayFlags.isOverlayMT():
+                job.InDetSCTRawDataProvider.RDOKey = overlayFlags.bkgPrefix()+"SCT_RDOs"
+                job.InDetSCTRawDataProvider.LVL1IDKey = overlayFlags.bkgPrefix()+"SCT_LVL1ID"
+                job.InDetSCTRawDataProvider.BCIDKey = overlayFlags.bkgPrefix()+"SCT_BCID"
+            else:
+                job.InDetSCTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+SCT_RDOs"
+                job.InDetSCTRawDataProvider.LVL1IDKey = overlayFlags.dataStore()+"+SCT_LVL1ID"
+                job.InDetSCTRawDataProvider.BCIDKey = overlayFlags.dataStore()+"+SCT_BCID"
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::SCT_ClusterContainer/SCT_OnlineClusters" ]
 
@@ -77,7 +85,10 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         include("InDetRecExample/InDetRecConditionsAccess.py")
         
         if overlayFlags.isDataOverlay():
-            job.InDetTRTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+TRT_RDOs"
+            if overlayFlags.isOverlayMT():
+                job.InDetTRTRawDataProvider.RDOKey = overlayFlags.bkgPrefix()+"TRT_RDOs"
+            else:
+                job.InDetTRTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+TRT_RDOs"
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
 
             #from IOVDbSvc.CondDB import conddb

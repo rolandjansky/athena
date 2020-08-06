@@ -10,11 +10,11 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
     result = ComponentAccumulator()
     verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVFSCaloJet',
-                                                    DataObjects = [('TrigRoiDescriptorCollection', 'StoreGateSvc+FSJETRoI'),
+                                                    DataObjects = [('TrigRoiDescriptorCollection', 'StoreGateSvc+HLT_FSJETRoI'),
                                                                   ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage') ])
     result.addEventAlgo( verifier )
     cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
-    cellmaker.RoIs = "FSJETRoI"
+    cellmaker.RoIs = "HLT_FSJETRoI"
     cellmaker.TrigDataAccessMT = cdaSvc
     cellmaker.CellsName = cellsname
 

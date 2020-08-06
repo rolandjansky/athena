@@ -198,7 +198,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     # Cabling parameters
     useCablingConditions = False
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-    if flags.Input.isMC:
+    if flags.Input.isMC or flags.Overlay.DataOverlay:
         # ITk:
         if flags.GeoModel.Run == "RUN4":
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
@@ -296,7 +296,7 @@ def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
 def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelCablingCondAlg"""
     acc = ComponentAccumulator()
-    if not flags.Input.isMC:
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
         kwargs.setdefault("ReadKey", "/PIXEL/CablingMap")
     else:
@@ -305,7 +305,7 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     # Cabling parameters
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     rodIDForSingleLink40=0
-    if flags.Input.isMC:
+    if flags.Input.isMC or flags.Overlay.DataOverlay:
         # ITk:
         if flags.GeoModel.Run == "RUN4":
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
@@ -396,7 +396,7 @@ def PixelDCSCondHVAlgCfg(flags, name="PixelDCSCondHVAlg", **kwargs):
 def PixelDCSCondStateAlgCfg(flags, name="PixelDCSCondStateAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondStateAlg"""
     acc = ComponentAccumulator()
-    if not flags.Input.isMC:
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATE", "DCS_OFL", className="CondAttrListCollection"))
         kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
     else:
@@ -409,7 +409,7 @@ def PixelDCSCondStateAlgCfg(flags, name="PixelDCSCondStateAlg", **kwargs):
 def PixelDCSCondStatusAlgCfg(flags, name="PixelDCSCondStatusAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondStatusAlg"""
     acc = ComponentAccumulator()
-    if not flags.Input.isMC:
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATUS", "DCS_OFL", className="CondAttrListCollection"))
         kwargs.setdefault("ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS")
     else:

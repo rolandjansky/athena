@@ -21,9 +21,6 @@ muonRecFlags.setDefaults()
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 muonStandaloneFlags.setDefaults()
 
-from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
-mdtCalibFlags.setDefaults()
-
 from RecExConfig.RecFlags import rec
 
 
@@ -80,9 +77,11 @@ def CscBroadClusterOnTrackCreator(name="CscBroadClusterOnTrackCreator",**kwargs)
 
 def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
+    from MuonRecExample import MuonAlignConfig
     from MuonCnvExample import MuonCalibConfig
     MuonCalibConfig.setupMdtCondDB()
-    
+    from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
+    mdtCalibFlags.setDefaults()
     kwargs.setdefault("DoMagneticFieldCorrection", mdtCalibFlags.correctMdtRtForBField())
     kwargs.setdefault("DoWireSag", muonRecFlags.useWireSagCorrections())
     kwargs.setdefault("DoSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
@@ -351,6 +350,7 @@ def MuonSegmentMomentum(name="MuonSegmentMomentum",**kwargs):
 
 def MdtSegmentT0Fitter(name="MdtSegmentT0Fitter",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
+    from MuonRecExample import MuonAlignConfig
     from MuonCnvExample import MuonCalibConfig
     MuonCalibConfig.setupMdtCondDB()
     return CfgMgr.TrkDriftCircleMath__MdtSegmentT0Fitter(name,**kwargs)
