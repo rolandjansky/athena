@@ -596,7 +596,7 @@ else:
       InputForwardInDetTracks = []
       InputForwardInDetTracks += InputCombinedInDetTracks
       if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        InputForwardInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()] # TODO: Should this be .SiTrackCollection()? RN
+        InputForwardInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
     if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
       if InDetFlags.doSLHCVeryForward(): 
@@ -698,7 +698,7 @@ else:
       if InDetFlags.doForwardTracks(): 
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
       if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        InputPixelInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()] # TODO: Should this be .SiTrackCollection()? RN
+        InputPixelInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
       # --- load cuts for pixel segment finding
       if ('InDetNewTrackingCutsDisappearing' not in dir()):
         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now")

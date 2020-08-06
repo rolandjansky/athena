@@ -476,18 +476,6 @@ class ExtendedLargeD0TracksTruth(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ExtendedLargeD0TracksTruthCollection'
 
-class ExtendedLargeD0TrackParticles(JobProperty):
-    """ Storegate key for new-tracking extended high-d0 tracks"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ExtendedLargeD0TrackParticles'
-
-class ExtendedLargeD0TrackParticlesTruth(JobProperty):
-    """ Storegate key for new-tracking extended high-d0 tracks"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ExtendedLargeD0TrackParticlesTruthCollection'
-
 class ProcessedESDTracks(JobProperty):
     """ Storegate key for already processed tracks from ESD"""
     statusOn     = True
@@ -1162,8 +1150,6 @@ jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTrackParticles)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedSLHCConversionFindingTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTrackParticlesTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLargeD0TrackParticles)
-jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLargeD0TrackParticlesTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedBeamGasTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedLargeD0Tracks)
 jobproperties.InDetContainerKeys.add_JobProperty(HaloTracks)
