@@ -3,7 +3,8 @@
 from AthenaCommon import CfgMgr
 def getCharginosPhysicsTool(name="CharginosPhysicsTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.SystemOfUnits import MeV,ns
+    from AthenaCommon.SystemOfUnits import MeV, ns, GeV # noqa: F401
+    # Example specialConfiguration: {'AMSBC1Mass': '1200.16*GeV', 'AMSBN1Mass': '1200.0*GeV', 'AMSBC1Lifetime': '0.2*ns'}
     C1Mass = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1Mass", None))
     N1Mass = eval(simFlags.specialConfiguration.get_Value().get("AMSBN1Mass", None))
     C1Lifetime = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1Lifetime", "-1.0"))
