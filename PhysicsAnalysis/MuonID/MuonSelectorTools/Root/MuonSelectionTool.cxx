@@ -93,6 +93,16 @@ namespace CP {
       m_PixCutOff( toCopy.m_PixCutOff ),
       m_SiHolesCutOff( toCopy.m_SiHolesCutOff ),
       m_TurnOffMomCorr(  toCopy.m_TurnOffMomCorr ),
+      m_useAllAuthors(  toCopy.m_useAllAuthors ),
+      m_use2stationMuonsHighPt( toCopy.m_use2stationMuonsHighPt),
+      m_useMVALowPt(  toCopy.m_useMVALowPt ),
+      m_doBadMuonVetoMimic(  toCopy.m_doBadMuonVetoMimic ),
+      m_eventInfoContName( toCopy.m_eventInfoContName ),
+      m_MVAreaderFile_EVEN_MuidCB( toCopy.m_MVAreaderFile_EVEN_MuidCB ),
+      m_MVAreaderFile_ODD_MuidCB( toCopy.m_MVAreaderFile_ODD_MuidCB ),
+      m_MVAreaderFile_EVEN_MuGirl( toCopy.m_MVAreaderFile_EVEN_MuGirl ),
+      m_MVAreaderFile_ODD_MuGirl( toCopy.m_MVAreaderFile_ODD_MuGirl ),
+      m_BMVcutFile( toCopy.m_BMVcutFile ),
       m_calibration_version( toCopy.m_calibration_version ),
       m_custom_dir( toCopy.m_custom_dir )
   {
@@ -204,11 +214,6 @@ namespace CP {
     	tightWP_rootFile_fullPath = PathResolverFindCalibFile(Form("MuonSelectorTools/%s/muonSelection_tightWPHisto.root",
     			m_calibration_version.c_str()));
     }
-    // HARD-CODED (TESTING ONLY) !!!
-    /*std::string tightWP_rootFile_fullPath = gSystem->ExpandPathName("$ROOTCOREBIN/data/MuonSelectorTools/");
-    m_tightWP_rootFile = "muonSelection_tightWPHisto_2016_03_15.root";
-    tightWP_rootFile_fullPath.append( m_tightWP_rootFile );*/
-    // ! HARD-CODED END
 
     ATH_MSG_INFO( "Reading muon tight working point histograms from " << tightWP_rootFile_fullPath  );
     // 

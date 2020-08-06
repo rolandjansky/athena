@@ -129,7 +129,6 @@ namespace CP {
      double m_maxEta;
      /// xAOD::Muon::Quality m_quality;
      int  m_quality;
-     bool m_isSimulation;
      
      /// Object used to store the last decision
      mutable Root::TAccept m_accept;
@@ -158,7 +157,6 @@ namespace CP {
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
      // 
-     std::string m_tightWP_rootFile;
      TH2D* m_tightWP_lowPt_rhoCuts;
      TH2D* m_tightWP_lowPt_qOverPCuts;
      TH2D* m_tightWP_mediumPt_rhoCuts;
