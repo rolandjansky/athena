@@ -179,6 +179,11 @@ class TrigInDetCompStep(RefComparisonStep):
             self.output_dir = 'HLTEF-plots'
             if (self.test=='ttbar'):
                 self.output_dir = self.output_dir+'-electron'
+        elif (self.flag == 'L2FS'):
+            self.chains = 'HLT_IDTrack_FS_FTF'
+            self.output_dir = 'HLTL2-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-FS'
         else:
             print('Unknown flag for comparitor step ', self.flag) 
 
