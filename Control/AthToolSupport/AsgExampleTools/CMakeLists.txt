@@ -93,14 +93,21 @@ if( XAOD_STANDALONE )
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
    set_tests_properties (AsgExampleTools_gt_asgtools_toolhandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
+endif()
+
+if (NOT SIMULATIONBASE)
+   if (NOT XAOD_STANDALONE)
+     set (extra_libs POOLRootAccessLib)
+   else()
+     set (extra_libs )
+   endif()
+
    atlas_add_test( gt_DataHandlesTest
       SOURCES test/gt_DataHandlesTest.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib ${extra_libs})
    set_tests_properties (AsgExampleTools_gt_DataHandlesTest_ctest PROPERTIES LABELS "AsgDataHandles;AsgExampleTools" )
-
 endif()
-
 
 atlas_add_test( gt_AnaCheck
    SOURCES test/gt_AnaCheck.cxx

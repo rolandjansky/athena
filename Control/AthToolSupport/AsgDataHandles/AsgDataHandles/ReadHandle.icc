@@ -145,8 +145,7 @@ template <class T>
 inline
 bool ReadHandle<T>::isValid()
 {
-  const T *result = nullptr;
-  return xAOD::TActiveEvent::event()->retrieve (result, key(), true);
+  return isPresent_impl(key());
 }
 
 
@@ -172,6 +171,20 @@ typename ReadHandle<T>::const_pointer_type
 ReadHandle<T>::get (const EventContext& /*ctx*/) const
 {
   return cptr();
+}
+
+
+/**
+ * @brief Is the referenced object present in SG?
+ * @param key SG key to test.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T>
+bool ReadHandle<T>::isPresent_impl (const std::string& key) const
+{
+  const T *result = nullptr;
+  return xAOD::TActiveEvent::event()->retrieve (result, key, true);
 }
 
 

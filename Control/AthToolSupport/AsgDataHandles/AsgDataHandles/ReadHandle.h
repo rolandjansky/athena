@@ -134,6 +134,15 @@ public:
   const_pointer_type get (const EventContext& ctx) const;
 
 
+  /**
+   * @brief Is the referenced object present in SG?
+   * @param key SG key to test.
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool isPresent_impl (const std::string& key) const;
+
+
 private:
   /**
    * @brief Helper: dereference the pointer.

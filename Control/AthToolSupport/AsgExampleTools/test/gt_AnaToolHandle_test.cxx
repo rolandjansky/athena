@@ -410,7 +410,11 @@ namespace asg
   }
 
   // check setProperty<int>()
+#ifdef XAOD_STANDALONE
   TEST_F (AnaToolHandleMakeTest, setPropertyInt_failure)
+#else
+  TEST_F (AnaToolHandleMakeTest, DISABLED_setPropertyInt_failure)
+#endif
   {
     ASSERT_SUCCESS (tool.setProperty<int> ("UNKNOWN_PROPERTY", 42));
     ASSERT_FAILURE (tool.initialize ());
@@ -435,7 +439,11 @@ namespace asg
   }
 
   // check setProperty(const char*)
+#ifdef XAOD_STANDALONE
   TEST_F (AnaToolHandleMakeTest, setPropertyString_failure)
+#else
+  TEST_F (AnaToolHandleMakeTest, DISABLED_setPropertyString_failure)
+#endif
   {
     ASSERT_SUCCESS (tool.setProperty ("UNKNOWN_PROPERTY", "42"));
     ASSERT_FAILURE (tool.initialize ());
@@ -890,7 +898,7 @@ namespace asg
     EXPECT_EQ (57, handle->getPropertyInt ());
   }
 
-  TEST (AnaToolHandleTest, athena_job_options_misspelled)
+  TEST (AnaToolHandleTest, DISABLED_athena_job_options_misspelled)
   {
     std::string name = makeUniqueName();
     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
