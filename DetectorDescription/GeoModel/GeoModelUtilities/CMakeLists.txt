@@ -1,6 +1,4 @@
-################################################################################
-# Package: GeoModelUtilities
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GeoModelUtilities )
@@ -15,8 +13,7 @@ atlas_add_library( GeoModelUtilities
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelUtilities
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps SGTools GeoModelInterfaces
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel GeoModelInterfaces RDBAccessSvcLib )
 
 atlas_add_test( GeoGetIds_test
   SOURCES test/GeoGetIds_test.cxx
@@ -28,12 +25,8 @@ atlas_add_test( GeoVisitVolumes_test
 
 endif()
 if(BUILDVP1LIGHT)
-# Declare the package's dependencies:
-#atlas_depends_on_subdirs( PUBLIC
-#                          DetectorDescription/GeoModel/GeoModelKernel )
                           
 # External dependencies:
-find_package( CLHEP )
 find_package( GeoModelCore )
 find_package( Eigen )
 
@@ -53,7 +46,7 @@ atlas_add_library( GeoModelUtilities
                    ${SOURCES}
                    PUBLIC_HEADERS GeoModelUtilities
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} )
 endif()
 
 # Code in this file makes heavy use of eigen and runs orders of magnitude
