@@ -79,7 +79,7 @@ namespace { // utility functions used here
   passJetCuts(const xAOD::Jet& jet) {
     const float absEtaMax = 2.5;
     const float jetPtMin = 100.0;  // in GeV
-    const float jetPtMax = 1000.0; // in GeV
+    const float jetPtMax = 5000.0; // in GeV
     const float jetPt = jet.pt() / Gaudi::Units::GeV; // GeV
     const float jetEta = jet.eta();
 
@@ -134,6 +134,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("useVertexTruthMatchTool", m_useVertexTruthMatchTool);
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
   declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
+  declareProperty("FillTrackInBJetPlots", m_doBjetPlots);
   declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
   declareProperty("DirName", m_dirName = "SquirrelPlots/");
   declareProperty("SubFolder", m_folder);
@@ -176,6 +177,7 @@ InDetPhysValMonitoringTool::initialize() {
   std::vector<std::string> required_int_track_decorations {};
   std::vector<std::string> required_float_truth_decorations {"d0"};
   std::vector<std::string> required_int_truth_decorations {};
+  std::vector<std::string> required_int_jet_decorations {"HadronConeExclTruthLabelID"};
 
   std::string empty_prefix;
   IDPVM::addReadDecoratorHandleKeys(*this, m_trkParticleName, empty_prefix, required_float_track_decorations, m_floatTrkDecor);
@@ -183,6 +185,9 @@ InDetPhysValMonitoringTool::initialize() {
   if (!m_truthParticleName.key().empty()) {
     IDPVM::addReadDecoratorHandleKeys(*this, m_truthParticleName, empty_prefix, required_float_truth_decorations, m_floatTruthDecor);
     IDPVM::addReadDecoratorHandleKeys(*this, m_truthParticleName, empty_prefix, required_int_truth_decorations,   m_intTruthDecor);
+  }
+  if (m_doTrackInJetPlots && m_doBjetPlots){
+    IDPVM::addReadDecoratorHandleKeys(*this, m_jetContainerName, empty_prefix, required_int_jet_decorations, m_intJetDecor);
   }
   return StatusCode::SUCCESS;
 }
@@ -212,8 +217,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
   }
 
   ATH_MSG_DEBUG("Getting number of pu interactings per event");
-
-//  std::cout << puEvents << "  " << pie->averageInteractionsPerCrossing() << " " << pie->actualInteractionsPerCrossing() << "  " << std::endl;
 
   ATH_MSG_DEBUG("Filling vertex plots");
   SG::ReadHandle<xAOD::VertexContainer>  vertices(m_vertexContainerName);
@@ -399,6 +402,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
   SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerName);
   SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > ghosttruth("GhostTruth");
+  SG::AuxElement::ConstAccessor<int> btagLabel("HadronConeExclTruthLabelID");
   
   if (not jets.isValid() or truthParticlesVec.empty()) {
     ATH_MSG_WARNING(
@@ -408,6 +412,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
     for (const auto& thisJet: *jets) {         // The big jets loop
       if (not passJetCuts(*thisJet)) {
         continue;
+      }
+      bool isBjet = false; 
+      if (!btagLabel.isAvailable(*thisJet)){
+           ATH_MSG_WARNING("Failed to extract b-tag truth label from jet");
+      }
+      else{
+        isBjet = (btagLabel(*thisJet) == 5); 
       }
       if(!ghosttruth.isAvailable(*thisJet)) {
            ATH_MSG_WARNING("Failed to extract ghost truth particles from jet");
@@ -437,7 +448,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
                 }
               }
             }
-            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient);
+            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient,isBjet);
           }
         }
       }
@@ -451,7 +462,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         }
         float prob = getMatchingProbability(*thisTrack);
         if(std::isnan(prob)) prob = 0.0;
-        m_monPlots->fill(*thisTrack, *thisJet);
+        m_monPlots->fill(*thisTrack, *thisJet,isBjet);
       
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
                                                                                          
@@ -459,7 +470,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
           if(m_truthSelectionTool->accept(associatedTruth) and prob < m_lowProb ) {
             isFakeJet = true;
           } 
-          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFakeJet);
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFakeJet,isBjet);
        }
       }
     }

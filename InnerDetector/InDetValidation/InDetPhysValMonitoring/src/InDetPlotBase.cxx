@@ -117,7 +117,10 @@ InDetPlotBase::book(TEfficiency*& pHisto, const std::string& histoIdentifier, co
   if (hd.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
   }
-  book(pHisto, hd);
+  if (hd.isValid()) {
+    pHisto = BookTEfficiency(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
+  }
+//  book(pHisto, hd);
   return;
 }
 

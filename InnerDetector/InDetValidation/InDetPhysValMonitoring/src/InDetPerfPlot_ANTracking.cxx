@@ -155,9 +155,9 @@ InDetPerfPlot_ANTracking::initializePlots() {
   book(m_nSCTHolesSTD_vs_eta, "nSCTHoles_vs_eta","nSCTHolesBAT_vs_eta");
   book(m_nSCTHolesBAT_vs_eta, "nSCTHoles_vs_eta","nSCTHolesSTD_vs_eta");
 
-  book(m_nTRTHolesANT_vs_eta, "nTRTHoles_vs_eta","nTRTHolesANT_vs_eta");
-  book(m_nTRTHolesSTD_vs_eta, "nTRTHoles_vs_eta","nTRTHolesBAT_vs_eta");
-  book(m_nTRTHolesBAT_vs_eta, "nTRTHoles_vs_eta","nTRTHolesSTD_vs_eta");
+  book(m_nTRTHTHitsANT_vs_eta, "nTRTHighThresholdHits_vs_eta","nTRTHTHitsANT_vs_eta");
+  book(m_nTRTHTHitsSTD_vs_eta, "nTRTHighThresholdHits_vs_eta","nTRTHTHitsBAT_vs_eta");
+  book(m_nTRTHTHitsBAT_vs_eta, "nTRTHighThresholdHits_vs_eta","nTRTHTHitsSTD_vs_eta");
 
 
   book(m_nPixelSharedHitsANT_vs_eta, "nPixelSharedHits_vs_eta","nPixelSharedHitsANT_vs_eta");
@@ -167,10 +167,6 @@ InDetPerfPlot_ANTracking::initializePlots() {
   book(m_nSCTSharedHitsANT_vs_eta, "nSCTSharedHits_vs_eta","nSCTSharedHitsANT_vs_eta");
   book(m_nSCTSharedHitsSTD_vs_eta, "nSCTSharedHits_vs_eta","nSCTSharedHitsBAT_vs_eta");
   book(m_nSCTSharedHitsBAT_vs_eta, "nSCTSharedHits_vs_eta","nSCTSharedHitsSTD_vs_eta");
-
-  book(m_nTRTSharedHitsANT_vs_eta, "nTRTSharedHits_vs_eta","nTRTSharedHitsANT_vs_eta");
-  book(m_nTRTSharedHitsSTD_vs_eta, "nTRTSharedHits_vs_eta","nTRTSharedHitsBAT_vs_eta");
-  book(m_nTRTSharedHitsBAT_vs_eta, "nTRTSharedHits_vs_eta","nTRTSharedHitsSTD_vs_eta");
 
 
 
@@ -354,6 +350,52 @@ InDetPerfPlot_ANTracking::fill(const xAOD::TrackParticle& track) {
   bool isBAT = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTSeededTrackFinder);
   bool isANT = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_LargeD0);
   bool isSTD = not isBAT and not isANT;
+
+  uint8_t iPixHits(0), iSctHits(0), iTrtHits(0);
+  uint8_t iPixHoles(0), iSCTHoles(0), iTrtHTHits(0);
+  uint8_t iPixelShared(0), iSCTShared(0);
+
+  if (track.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
+    if(isANT) fillHisto(m_nPixelHitsANT_vs_eta, eta, iPixHits);
+    if(isSTD) fillHisto(m_nPixelHitsSTD_vs_eta, eta, iPixHits);
+    if(isBAT) fillHisto(m_nPixelHitsBAT_vs_eta, eta, iPixHits);
+  }
+  if (track.summaryValue(iSctHits, xAOD::numberOfSCTHits)) {
+    if(isANT) fillHisto(m_nSCTHitsANT_vs_eta, eta, iSctHits);
+    if(isSTD) fillHisto(m_nSCTHitsSTD_vs_eta, eta, iSctHits);
+    if(isBAT) fillHisto(m_nSCTHitsBAT_vs_eta, eta, iSctHits);
+  }
+  if (track.summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
+    if(isANT) fillHisto(m_nTRTHitsANT_vs_eta, eta, iTrtHits);
+    if(isSTD) fillHisto(m_nTRTHitsSTD_vs_eta, eta, iTrtHits);
+    if(isBAT) fillHisto(m_nTRTHitsBAT_vs_eta, eta, iTrtHits);
+  }
+  if (track.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
+    if(isANT) fillHisto(m_nPixelHolesANT_vs_eta, eta, iPixHoles);
+    if(isSTD) fillHisto(m_nPixelHolesSTD_vs_eta, eta, iPixHoles);
+    if(isBAT) fillHisto(m_nPixelHolesBAT_vs_eta, eta, iPixHoles);
+  }
+  if (track.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
+    if(isANT) fillHisto(m_nSCTHolesANT_vs_eta, eta, iSCTHoles);
+    if(isSTD) fillHisto(m_nSCTHolesSTD_vs_eta, eta, iSCTHoles);
+    if(isBAT) fillHisto(m_nSCTHolesBAT_vs_eta, eta, iSCTHoles);
+  }
+  if (track.summaryValue(iTrtHTHits, xAOD::numberOfTRTHighThresholdHits)) {
+    if(isANT) fillHisto(m_nTRTHTHitsANT_vs_eta, eta, iTrtHTHits);
+    if(isSTD) fillHisto(m_nTRTHTHitsSTD_vs_eta, eta, iTrtHTHits);
+    if(isBAT) fillHisto(m_nTRTHTHitsBAT_vs_eta, eta, iTrtHTHits);
+  }
+  if (track.summaryValue(iPixelShared, xAOD::numberOfPixelSharedHits)) {
+    if(isANT) fillHisto(m_nPixelSharedHitsANT_vs_eta, eta, iPixelShared);
+    if(isSTD) fillHisto(m_nPixelSharedHitsSTD_vs_eta, eta, iPixelShared);
+    if(isBAT) fillHisto(m_nPixelSharedHitsBAT_vs_eta, eta, iPixelShared);
+  }
+  if (track.summaryValue(iSCTShared, xAOD::numberOfSCTSharedHits)) {
+    if(isANT) fillHisto(m_nSCTSharedHitsANT_vs_eta, eta, iSCTShared);
+    if(isSTD) fillHisto(m_nSCTSharedHitsSTD_vs_eta, eta, iSCTShared);
+    if(isBAT) fillHisto(m_nSCTSharedHitsBAT_vs_eta, eta, iSCTShared);
+  }
+
 
   if(isANT){
     fillHisto(m_trkpropANT_eta, eta);

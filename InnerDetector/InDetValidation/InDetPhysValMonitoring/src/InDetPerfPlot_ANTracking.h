@@ -157,9 +157,9 @@ private:
   TProfile* m_nSCTHolesSTD_vs_eta;
   TProfile* m_nSCTHolesBAT_vs_eta;
 
-  TProfile* m_nTRTHolesANT_vs_eta;
-  TProfile* m_nTRTHolesSTD_vs_eta;
-  TProfile* m_nTRTHolesBAT_vs_eta;
+  TProfile* m_nTRTHTHitsANT_vs_eta;
+  TProfile* m_nTRTHTHitsSTD_vs_eta;
+  TProfile* m_nTRTHTHitsBAT_vs_eta;
 
   TProfile* m_nPixelSharedHitsANT_vs_eta;
   TProfile* m_nPixelSharedHitsSTD_vs_eta;
@@ -169,9 +169,6 @@ private:
   TProfile* m_nSCTSharedHitsSTD_vs_eta;
   TProfile* m_nSCTSharedHitsBAT_vs_eta;
 
-  TProfile* m_nTRTSharedHitsANT_vs_eta;
-  TProfile* m_nTRTSharedHitsSTD_vs_eta;
-  TProfile* m_nTRTSharedHitsBAT_vs_eta;
 
 };
 

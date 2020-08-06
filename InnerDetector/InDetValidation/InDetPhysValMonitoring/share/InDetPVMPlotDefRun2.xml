@@ -363,7 +363,7 @@
 </h>
 
 <h id="efficiencySplit_vs_pt" type="TEfficiency" title="Efficiency">
-  <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
+  <x title="p_{T} [GeV]" n="100" lo="0" hi="50"/>
   <y title="Efficiency" lo="0" hi="2.0"/>
 </h>
 
