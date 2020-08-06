@@ -92,146 +92,7 @@ def getTrackParticleCnv( prefix, suffix, outPTTracks, outPTTrackParticles ):
 
   return InDetTrigMTxAODTrackParticleCnvAlg
 
-
-
-
-
-#-----------------------------------------------------------------------------
-#                        Choose track summary helper tool
-#
-#
-#
-#  from AthenaCommon.GlobalFlags import globalflags
-#  
-#  from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
-#  
-#  from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-#  from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
-#  InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
-#                                                                       HoleSearch    = InDetTrigHoleSearchTool,
-#                                                                       AssoTool      = InDetTrigPrdAssociationTool,
-#                                                                       TestBLayerTool = None,
-#                                                                       PixelToTPIDTool= InDetTrigPixelToTPIDTool,
-#                                                                       DoSharedHits  = False,
-#                                                                       TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
-#                                                                       usePixel      = DetFlags.haveRIO.pixel_on(),
-#                                                                       useSCT        = DetFlags.haveRIO.SCT_on(),
-#                                                                       useTRT        = DetFlags.haveRIO.TRT_on())
-#    
-#  ToolSvc += InDetTrigTrackSummaryHelperTool
-#  if (InDetTrigFlags.doPrintConfigurables()):
-#    print (     InDetTrigTrackSummaryHelperTool)
-#
-#   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-#    from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
-#    InDetTrigTrackSummaryHelperToolSharedHits = InDet__InDetTrackSummaryHelperTool(name         = "InDetTrigSummaryHelperSharedHits",
-#                                                                                   AssoTool     = InDetTrigPrdAssociationTool,
-#                                                                                   DoSharedHits = InDetTrigFlags.doSharedHits(),
-#                                                                                   HoleSearch   = InDetTrigHoleSearchTool,
-#                                                                                   TestBLayerTool=InDetTrigTestBLayerTool,
-#                                                                                   PixelToTPIDTool=InDetTrigPixelToTPIDTool,
-#                                                                                   TRTStrawSummarySvc = InDetTrigTRTStrawStatusSummaryTool)
-#
-#
-
-
-#def getInDetTrigTrackSummaryToolBase(slice, name='InDetTrigTrackSummaryTool', **kwargs) :
-#  the_name=makeName(name,kwargs)
-#
-#  from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-#  return Trk__TrackSummaryTool(the_name,
-#                                       **setDefaults(kwargs,
-#                                                    InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-#                                                    doSharedHits           = False,
-#                                                    doHolesInDet           = True,
-#                                                    #this may be temporary #61512 (and used within egamma later)
-#                                                    #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
-#                                                    TRT_ElectronPidTool    = None, 
-#                                                    )
-#
-#def getInDetTrigTrackSummaryTool(slice, name='InDetTrigTrackSummaryTool', **kwargs) :
-#  the_name=makeName(name,kwargs)
-#  return getInDetTrigTrackSummaryToolBase(name = the_name,
-#                                       **setDefaults(kwargs,
-#                                                    InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-#                                                    doSharedHits           = False,
-#                                                    doHolesInDet           = True,
-#                                                    #this may be temporary #61512 (and used within egamma later)
-#                                                    #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
-#                                                    TRT_ElectronPidTool    = None, 
-#                                                    )
-#
-#
-#
-#   
-#def trackExtrapolatorTool_builder(signature):
-#   #TODO: create a new instance of this tool 
-#   #if InDetTrigFlags.loadExtrapolator():
-#   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
-#   return InDetTrigExtrapolator
-#
-#def associationTool_builder(signature):
-#   #Shielded by trigger flag? Are there instances where this is not necessary?
-#   #if InDetTrigFlags.loadAssoTool():
-#  from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
-#  return = InDet__InDetPRD_AssociationToolGangedPixels( name                           = "InDetTrigPrdAssociationTool_" + signature,
-#                                                        PixelClusterAmbiguitiesMapName = TrigPixelKeys.PixelClusterAmbiguitiesMap )
-#
-#def holeSearchTool_builder(signature, extrapolator):
-#
-#  #Retrieve extrapolator
-#  #extrapolator = trackExtrapolatorTool_builder(signature)
-#  sctCondSummaryTool = sctCondSummaryTool_builder(signature)
-#  pixelLayerTool     = pixelLayerTool_builder(signature)
-#
-#  from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-#  InDetTrigHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetTrigHoleSearchTool_"+signature ,
-#                                                            Extrapolator   = extrapolator,
-#                                                            usePixel       = DetFlags.haveRIO.pixel_on(),
-#                                                            useSCT         = DetFlags.haveRIO.SCT_on(),
-#                                                            SctSummaryTool = sctCondSummaryTool,
-#                                                            PixelLayerTool = pixelLayerTool,
-#                                                            )
-#
-#
-#   
-#def trackSummaryHelperTool_builder(signature):
-#
-#   if signature == "electron" or "tau" in signature: 
-#      doSharedHits = True
-#
-#   extrapolator    = trackExtrapolatorTool_builder(signature)
-#
-#   associationTool = associationTool_builder(signature)
-#
-#   holeSearchTool  = holeSearchTool_builder(signature, extrapolator) 
-#
-#   bLayerTool      = bLayerTool_builder(signature)
-#
-#   pixelToTPIDTool  = pixelToTPIDTool_builder(signature)
-#
-#   trtStrawStatusTool  = trtStrawStatusTool_builder(signature)
-#
-#
-#  from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-#  #from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
-#  return  InDet__InDetTrackSummaryHelperTool(name                 = "InDetTrigSummaryHelper",
-#                                             HoleSearch           = holeSearchTool,
-#                                             AssoTool             = associationTool,
-#                                             TestBLayerTool       = bLayerTool,
-#                                             PixelToTPIDTool      = pixelToPIDTool,
-#                                             TRTStrawSummarySvc   = trtStrawStatusTool, 
-#                                             DoSharedHits         = doSharedHits,
-#                                             usePixel             = DetFlags.haveRIO.pixel_on(),
-#                                             useSCT               = DetFlags.haveRIO.SCT_on(),
-#                                             useTRT               = DetFlags.haveRIO.TRT_on())
-
-
-
-
    
-
-
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 class TrackSummaryTool_builder(Trk__TrackSummaryTool):
    """ 
@@ -334,22 +195,12 @@ class TrackSummaryTool_builder(Trk__TrackSummaryTool):
 
 #--------------------------------------------------------------------------------------
 ## Scoring tools
+def get_ambiguityScoringTool(config):
 
-#Maybe this bit can be adapted using just offline getters
-def get_ambiScoringToolBase( config, **kwargs) :
-    signature = config.name
-    #print "Working on signature: %s" %signature
-    #from InDetRecExample.TrackingCommon import makeName
-    #NewTrackingCuts = kwargs.pop("NewTrackingCuts")
-    #TODO: add InDetTrigMT to offline common tracking naming functions/make our own
-    #the_name=makeName(name,kwargs)
-    #TODO will have to switch probably for specific scoring tool names
-    name = '%s%s%s' %( get_name_prefix(), 'AmbScoringTool', get_name_suffix( config.name ) )
-
+    from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
 
     #TODO adapt cuts below based on the configuration settings
-    #Some specific pT cut settings for signatures
-    from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+    #TODO put into signature settings!
     ptintcut = InDetTrigSliceSettings[('pTmin',signature)]
     if signature=='minBias':
       ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',signature)]
@@ -367,49 +218,26 @@ def get_ambiScoringToolBase( config, **kwargs) :
 
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
     return InDet__InDetAmbiScoringTool(name,
-                                       **setDefaults(kwargs,
-                                                     Extrapolator        = InDetTrigExtrapolator, #TODO: getInDetExtrapolator(),
-                                                     DriftCircleCutTool  = InDetTrigTRTDriftCircleCut, #TODO: getInDetTRTDriftCircleCutForPatternReco(),
-                                                     #to have a steeper turn-n curve
-                                                     minPt               = ptintcut,
-                                                     maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
-                                                     maxZImp             = InDetTrigCutValues.maxZImpact(),
-                                                     maxEta              = InDetTrigCutValues.maxEta(),
-                                                     minSiClusters       = InDetTrigCutValues.minClusters(),
-                                                     maxSiHoles          = InDetTrigCutValues.maxHoles(),
-                                                     maxPixelHoles       = InDetTrigCutValues.maxPixelHoles(),
-                                                     maxSCTHoles         = InDetTrigCutValues.maxSCTHoles(),
-                                                     maxDoubleHoles      = InDetTrigCutValues.maxDoubleHoles(),
-                                                     usePixel            = InDetTrigCutValues.usePixel(),
-                                                     useSCT              = InDetTrigCutValues.useSCT(),
-                                                     doEmCaloSeed        = False
-                                                     )
-                                       )
-
-
-   
-def get_ambiScoringTool(config, **kwargs):
-    #Retrieve base tool
-    ambScoringTool =  get_ambiScoringToolBase(config,
-                                       **setDefaults( kwargs,
-                                                      useTRT_AmbigFcn= True,
-                                                      minTRTonTrk  = 0,    # no TRT here
-                                                    )
-                                             )
-    #Is this still needed?
-    if config.name=='beamgas':
-        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
-        ambScoringTool.minPt          = EFIDTrackingCutsBeamGas.minPT()
-        ambScoringTool.maxRPhiImp     = EFIDTrackingCutsBeamGas.maxPrimaryImpact()
-        ambScoringTool.maxZImp        = EFIDTrackingCutsBeamGas.maxZImpact()
-        ambScoringTool.minSiClusters  = EFIDTrackingCutsBeamGas.minClusters()
-        ambScoringTool.maxSiHoles     = EFIDTrackingCutsBeamGas.maxHoles()
-        ambScoringTool.useTRT_AmbigFcn= False
-        ambScoringTool.useSigmaChi2   = True
-
-    return ambScoringTool
-
-
+                                       Extrapolator        = InDetTrigExtrapolator, #TODO: getInDetExtrapolator(),
+                                       DriftCircleCutTool  = InDetTrigTRTDriftCircleCut, #TODO: getInDetTRTDriftCircleCutForPatternReco(),
+                                       #to have a steeper turn-n curve
+                                       minPt               = ptintcut,
+                                       maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
+                                       maxZImp             = InDetTrigCutValues.maxZImpact(),
+                                       maxEta              = InDetTrigCutValues.maxEta(),
+                                       minSiClusters       = InDetTrigCutValues.minClusters(),
+                                       maxSiHoles          = InDetTrigCutValues.maxHoles(),
+                                       maxPixelHoles       = InDetTrigCutValues.maxPixelHoles(),
+                                       maxSCTHoles         = InDetTrigCutValues.maxSCTHoles(),
+                                       maxDoubleHoles      = InDetTrigCutValues.maxDoubleHoles(),
+                                       usePixel            = InDetTrigCutValues.usePixel(),
+                                       useSCT              = InDetTrigCutValues.useSCT(),
+                                       doEmCaloSeed        = False
+                                       SummaryTool         = get_trk_summary_tool(config),
+                                       ###
+                                       useTRT_AmbigFcn= True,
+                                       minTRTonTrk  = 0    # no TRT here
+                                      )
 
 
 def get_extScoringTool(config, **kwargs) :
@@ -492,11 +320,7 @@ class TrkAmbiguityProcessor_builder(Trk__SimpleAmbiguityProcessorTool):
       #trkSummaryTool =  #TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature = signature )
 
       #TODO: Here based on some parameter (for instance name/signature) we should get different type of scoring tool (for cosmic, collision physics)
-      scoreTool = get_ambiScoringTool( 
-                                              config = config,
-                                              #Extrapolator = InDetTrigExtrapolator #This is default
-                                              SummaryTool  =  get_trk_summary_tool(config) #trkSummaryTool,
-                                     )
+      scoreTool = get_ambiguityScoringTool(config)
 
       ToolSvc  += scoreTool #Should turn in the private?
       self.ScoringTool = scoreTool
@@ -600,11 +424,7 @@ class TrkAmbiguityScoreProcessor_builder(Trk__DenseEnvironmentsAmbiguityScorePro
 
       from AthenaCommon.AppMgr import ToolSvc
       #TODO: Here based on some parameter (for instance name/signature) we should get different type of scoring tool (for cosmic, collision physics)
-      scoreTool = get_ambiScoringTool( 
-                                              config       = config,
-                                              #Extrapolator = InDetTrigExtrapolator #This is default
-                                              SummaryTool  =  get_trk_summary_tool(config)#trkSummaryTool,
-                                      )
+      scoreTool = get_ambiguityScoringTool( config ) 
 
       ToolSvc  += scoreTool #Should turn in the private?
       self.ScoringTool = scoreTool
