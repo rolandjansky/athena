@@ -108,18 +108,18 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
 
 bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const {
   if (!m_useByteStream) { return false; }
-
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::TimeOut))         { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::BCID))            { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::LVL1ID))          { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::Preamble))        { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::Trailer))         { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::Decoding))        { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::Invalid))         { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::LinkMaskedByPPC)) { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::Limit))           { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::TruncatedROB))    { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::MaskedROB))       { return true; }
+  uint64_t word = getBSErrorWord(moduleHash,ctx);
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))         { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))            { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))          { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))        { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))         { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Decoding))        { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Invalid))         { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LinkMaskedByPPC)) { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Limit))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TruncatedROB))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MaskedROB))       { return true; }
 
   return false;
 }
@@ -134,17 +134,18 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
   int chFE = m_pixelCabling->getFE(&pixid,moduleID);
 
   int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::TimeOut))         { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::BCID))            { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::LVL1ID))          { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Preamble))        { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Trailer))         { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Decoding))        { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Invalid))         { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::LinkMaskedByPPC)) { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Limit))           { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::TruncatedROB))    { return true; }
-  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::MaskedROB))       { return true; }
+  uint64_t word = getBSErrorWord(indexFE,ctx);
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))         { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))            { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))          { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))        { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))         { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Decoding))        { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Invalid))         { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LinkMaskedByPPC)) { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Limit))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TruncatedROB))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MaskedROB))       { return true; }
 
   return false;
 }

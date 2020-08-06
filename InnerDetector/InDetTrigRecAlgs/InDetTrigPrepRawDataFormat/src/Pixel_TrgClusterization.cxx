@@ -388,19 +388,14 @@ namespace InDet{
 	//check for recoverable errors
 	
 	int n_err_total = 0;
-
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK1" << std::endl;
-
+	
 	int bsErrors[IPixelByteStreamErrorsTool::AllPixErrTypes.size()];
-
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK2" << std::endl;
 	
 	for (const auto idx : IPixelByteStreamErrorsTool::AllPixErrTypes ){
 	  int n_errors = m_bsError->getNumberOfErrors(idx);
 	  n_err_total += n_errors;
 	  bsErrors[idx] = n_errors;
 	}
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK3" << std::endl;
 	
 	ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
 	
@@ -413,14 +408,11 @@ namespace InDet{
 	  }
 	}	     
 	ATH_MSG_DEBUG( "" );
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK4" << std::endl;
 	
       } else {
 	ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK5" << std::endl;
       }
     }
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK6" << std::endl;
     
     if(doTiming()) m_timerSGate->resume();
     
@@ -440,7 +432,6 @@ namespace InDet{
 		     << m_pixelRDOContainerName );
     }
     if(doTiming()) m_timerSGate->pause();
-    std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK7" << std::endl;
 
     ATH_MSG_VERBOSE("Size of " << m_pixelRDOContainerName << ":" << p_pixelRDOContainer->size());
 
@@ -454,13 +445,11 @@ namespace InDet{
 	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
-    std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK8" << std::endl;
  
 	const InDetRawDataCollection<PixelRDORawData>* RDO_Collection (p_pixelRDOContainer->indexFindPtr(m_listOfPixIds[i]));
       
 	if (!RDO_Collection) continue;
       
-    std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK9" << std::endl;
 
 	ATH_MSG_VERBOSE( "RDO collection size="
 			 << RDO_Collection->size()
@@ -470,13 +459,11 @@ namespace InDet{
       
       
 	if (RDO_Collection->size() != 0){
-    std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK10" << std::endl;
 	
 	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_idHelper);
 	
 	  if (m_clusterCollection && m_clusterCollection->size()!=0){ 
 	  
-      std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK11" << std::endl;
 	  
 	    m_numPixClusters+= m_clusterCollection->size();
 	  
@@ -515,8 +502,6 @@ namespace InDet{
       //p_pixelRDOContainer->clID(); 	// anything to dereference the DataHandle
       // will trigger the converter
     
-      std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK12" << std::endl;
-
       PixelRDO_Container::const_iterator rdoCollections      = p_pixelRDOContainer->begin();
       PixelRDO_Container::const_iterator rdoCollectionsEnd   = p_pixelRDOContainer->end();
     
@@ -538,7 +523,6 @@ namespace InDet{
 	ATH_MSG_VERBOSE( "Ambiguities map: " 
 			 << AmbiguitiesMap->size() << " elements" );
 
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK13" << std::endl;
 
 	if (RDO_Collection->size() != 0){
 	  // Use one of the specific clustering AlgTools to make clusters
@@ -593,7 +577,6 @@ namespace InDet{
     ATH_MSG_DEBUG( " REGTEST: Number of reconstructed clusters = " 
 		   << m_numPixClusters );
   
-  std::cout << "STSTST Pixel_TrgClusterization::hltExecute OK14" << std::endl;
 
     return HLT::OK;
   }
