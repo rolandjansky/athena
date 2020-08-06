@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from AthenaCommon.SystemOfUnits import GeV,ns # noqa: F401
+# Example specialConfiguration {'GMSBSlepton': '100.0*GeV', 'GMSBGravitino': '1e-07*GeV', 'GMSBSleptonTime': '0.01*ns'}
 
 """
 Defining default settings for slepton/staus. Possible options are:
