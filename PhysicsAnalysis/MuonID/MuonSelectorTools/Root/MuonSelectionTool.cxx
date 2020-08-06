@@ -364,7 +364,6 @@ namespace CP {
   }
   
   xAOD::Muon::Quality MuonSelectionTool::getQuality( const xAOD::Muon& mu ) const {
-    using namespace xAOD;
     
     ATH_MSG_VERBOSE( "Evaluating muon quality..." );
 
@@ -652,7 +651,7 @@ namespace CP {
     }*/
   
   bool MuonSelectionTool::passedIDCuts( const xAOD::Muon& mu ) const {
-    //using namespace xAOD;
+
     //do not apply the ID hit requirements for SA muons for |eta| > 2.5
     if ( mu.author()==xAOD::Muon::MuidSA && std::abs(mu.eta())>2.5 ) {
       return true;
@@ -908,7 +907,6 @@ namespace CP {
 
 
   bool MuonSelectionTool::passedHighPtCuts( const xAOD::Muon& mu ) const {
-    using namespace xAOD;
 
     ATH_MSG_VERBOSE( "Checking whether muon passes high-pT selection..." );
     
@@ -1269,7 +1267,7 @@ namespace CP {
   }
   
   bool MuonSelectionTool::passedIDCuts( const xAOD::TrackParticle & track ) const {
-    using namespace xAOD;    
+
     uint8_t value1=0;
     uint8_t value2=0;
 
