@@ -57,7 +57,15 @@ Trk::TrkAmbiguityScore::execute(const EventContext& ctx) const
   }
 
   std::unique_ptr<TracksScores> scoredTracks(new TracksScores);
-  m_scoreTool->process(&originTracks, scoredTracks.get());
+  if (m_scoreTool.isEnabled()){
+    m_scoreTool->process(&originTracks, scoredTracks.get());
+  }
+  else{
+    scoredTracks->reserve(originTracks.size());
+    for(const Track* trk: originTracks ){
+      scoredTracks->push_back( std::pair<const Track*, float>(trk, 0));//TODO: logpT
+    }
+  }
 
   SG::WriteHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey, ctx);
   ATH_CHECK(scoredTracksHandle.record(std::move(scoredTracks)));
