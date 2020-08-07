@@ -150,7 +150,19 @@ vector< Vec4 > Suep_shower::generate_shower(){
   // finally, ballance the total energy, without destroying momentum conservation
   tolerance tol = 0.00001;
   double p_scale;
-  p_scale = (bisect(boost::bind(&Suep_shower::reballance_func, this, _1, event),0.0,2.0, tol)).first;
+  try {
+    p_scale = (bisect(boost::bind(&Suep_shower::reballance_func, this, _1, event),0.0,2.0, tol)).first;
+  } catch (std::exception &e) {
+    //in some rare circumstances, this balancing might fail
+    std::cout << "[SUEP_SHOWER] WARNING: Failed to rebalance the following event; Printing for debug and throw exception" << std::endl;
+    std::cout << e.what() << std::endl;
+    std::cout << "N. Particle, px, py, pz, E" << std::endl;
+    for (size_t jj=0; jj < event.size(); jj++) {
+      //print out event
+      std::cout << jj << ": " << event[jj].px() << ", " << event[jj].py() << ", " << event[jj].pz() << ", " << event[jj].e() << std::endl;
+    }
+    throw e;
+  }
   
   for(int n=0;n<len;n++){
     event[n].px(p_scale*event[n].px());

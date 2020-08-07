@@ -128,7 +128,22 @@ namespace Pythia8{
 
 	// Generate the shower, output are 4 vectors in the rest frame of the shower
 	higgs4mom=process[ii].p();
-	suep_shower4momenta=suep_shower.generate_shower();
+	int nShowerAttempts=0;
+	do {
+	  try {
+	    nShowerAttempts++;
+	    suep_shower4momenta=suep_shower.generate_shower();
+	    nShowerAttempts = -1; //exit condition
+	  } catch (std::exception &e) {
+	    //Failed to generate the shower!
+	    //Can happen in some rare circumstances, try again
+	  }
+	} while ((nShowerAttempts > 0) && (nShowerAttempts < 3));
+	if (nShowerAttempts >= 3) {
+	  //Something is seriously wrong then, print warning and skip to next event
+	  std::cout << "[SUEP] ERROR: Something went terribly wrong in generating the shower. Skipping the event." << std::endl;
+	  return true; //veto the event!
+	}
 
 	// Loop over hidden sector mesons and append to the event	
 	for (unsigned j = 0; j < suep_shower4momenta.size(); ++j){
