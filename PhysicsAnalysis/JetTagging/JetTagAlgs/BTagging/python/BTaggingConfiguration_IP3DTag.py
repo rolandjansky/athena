@@ -218,6 +218,14 @@ def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
                      'usepTDepTrackSel'       : False }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
+        if(commonGeoFlags.Run()=="RUN4"):
+            from BTagging.BTaggingConfiguration_InDetEtaDependentCutsSvc import IDEtaDepCutsSvc_IPXD
+            InDetEtaDependentCutsSvc = IDEtaDepCutsSvc_IPXD( "IDEtaDepCutsSvc_" + name )
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr += InDetEtaDependentCutsSvc
+            options['InDetEtaDependentCutsSvc'] = InDetEtaDependentCutsSvc
+
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
     return Analysis__TrackSelector(**options)

@@ -28,10 +28,13 @@ namespace Analysis {
     m_primaryVertex(Amg::Vector3D()),
     m_ntri(0),
     m_ntrf(0),
-    m_trackToVertexTool("Reco::TrackToVertex") {
+    m_trackToVertexTool("Reco::TrackToVertex"),
+    m_useEtaDependentCuts(false),
+    m_etaDependentCutsSvc("",name) {
 
     declareInterface<TrackSelector>(this);
     declareProperty("trackToVertexTool", m_trackToVertexTool);
+    declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc );
     declareProperty("useBLayerHitPrediction", m_useBLayerHitPrediction = false);
     declareProperty("usePerigeeParameters", m_usePerigeeParameters = false);
     declareProperty("pTMin", m_pTMin = 1.*Gaudi::Units::GeV);
@@ -90,6 +93,15 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_trackToVertexTool);
     }
 
+    m_useEtaDependentCuts = !(m_etaDependentCutsSvc.name().empty());
+    if (m_useEtaDependentCuts){
+       ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+       ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Track selections from config not used");
+     }
+     else{
+       ATH_MSG_INFO("Using track selections from config");
+     }
+
     if (m_useTrackingTightDefinition){
       m_d0Max = 2*Gaudi::Units::mm;
       m_z0Max = 3*Gaudi::Units::mm;
@@ -99,10 +111,12 @@ namespace Analysis {
     /** dump cuts: */
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "#BTAG# TrackSelector " << name() << " cuts: " << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - pT >= " << m_pTMin << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |eta| <= " << m_etaMax << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |d0| <= " << m_d0Max << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |z0| <= " << m_z0Max << endmsg;
+      if(!m_useEtaDependentCuts){
+	msg(MSG::DEBUG) << "#BTAG#     - pT >= " << m_pTMin << endmsg;
+	msg(MSG::DEBUG) << "#BTAG#     - |eta| <= " << m_etaMax << endmsg;
+	msg(MSG::DEBUG) << "#BTAG#     - |d0| <= " << m_d0Max << endmsg;
+	msg(MSG::DEBUG) << "#BTAG#     - |z0| <= " << m_z0Max << endmsg;
+      }
       msg(MSG::DEBUG) << "#BTAG#     - |sigd0| <= " << m_sigd0Max << endmsg;
       msg(MSG::DEBUG) << "#BTAG#     - |sigz0| <= " << m_sigz0Max << endmsg;
       if(m_useAntiPileUpCuts) {
@@ -110,33 +124,35 @@ namespace Analysis {
                         << " when |sigd0| < " << m_antiPileUpSigD0Cut << endmsg;
       }
       if(m_useTrackSummaryInfo) {
-	msg(MSG::DEBUG) << "#BTAG#     - nbHitsBLayer >= " << m_nHitBLayer << endmsg;
-	if(m_useDeadPixInfo) {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix+nbDeadPix >= " << m_nHitPix << endmsg;
-	} else {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix >= " << m_nHitPix << endmsg;
-	}
-	if(m_useBLayerHitPrediction)
-	  msg(MSG::DEBUG) << "#BTAG#     using conddb for b-layer hit requirements " << endmsg;
-	  
-	if(m_useDeadSctInfo) {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct+nbDeadSct >= " << m_nHitSct << endmsg;
-	} else {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct >= " << m_nHitSct << endmsg;
-	}
-	int nhsi = m_nHitSi;
-	if(m_useAntiPileUpCuts) nhsi = m_antiPileUpNHitSiCut;
-	if(m_useDeadPixInfo) {
-	  if(m_useDeadSctInfo) {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix+nbDeadSct >= " << nhsi << endmsg;
+	if(!m_useEtaDependentCuts){
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsBLayer >= " << m_nHitBLayer << endmsg;
+	  if(m_useDeadPixInfo) {
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix+nbDeadPix >= " << m_nHitPix << endmsg;
 	  } else {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix >= " << nhsi << endmsg;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix >= " << m_nHitPix << endmsg;
 	  }
-	} else {
+	  if(m_useBLayerHitPrediction)
+	    msg(MSG::DEBUG) << "#BTAG#     using conddb for b-layer hit requirements " << endmsg;
+	  
 	  if(m_useDeadSctInfo) {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadSct >= " << nhsi << endmsg;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct+nbDeadSct >= " << m_nHitSct << endmsg;
 	  } else {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi >= " << nhsi << endmsg;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct >= " << m_nHitSct << endmsg;
+	  }
+	  int nhsi = m_nHitSi;
+	  if(m_useAntiPileUpCuts) nhsi = m_antiPileUpNHitSiCut;
+	  if(m_useDeadPixInfo) {
+	    if(m_useDeadSctInfo) {
+	      msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix+nbDeadSct >= " << nhsi << endmsg;
+	    } else {
+	      msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix >= " << nhsi << endmsg;
+	    }
+	  } else {
+	    if(m_useDeadSctInfo) {
+	      msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadSct >= " << nhsi << endmsg;
+	    } else {
+	      msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi >= " << nhsi << endmsg;
+	    }
 	  }
 	}
 	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrt >= " << m_nHitTrt << endmsg;
@@ -196,22 +212,29 @@ namespace Analysis {
     // }
 
     /** apply cuts: */
+    double eta = track->eta();
     bool pass = true;
-    if(track->pt() < m_pTMin) {
+    double pTMin_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPtAtEta(eta) : m_pTMin;
+    if(track->pt() < pTMin_cut) {
       pass = false;
       failedCuts.set(pTMin);
     } else if (refPt > 0 && m_usepTDepTrackSel && track->pt() < m_pTMinOffset + m_pTMinSlope*refPt) {
       pass = false;
       failedCuts.set(pTMin);
     }
-    if(fabs(trackD0)>m_d0Max) {
+
+    double d0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta) : m_d0Max;
+    if(std::abs(trackD0)>d0_cut) {
       pass = false;
       failedCuts.set(d0Max);
     }
-    if(fabs(trackZ0*sin(track->theta()))>m_z0Max) {
+
+    double z0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxZImpactAtEta(eta) : m_z0Max;
+    if(std::abs(trackZ0*sin(track->theta()))>z0_cut) {
       pass = false;
       failedCuts.set(z0Max);
     }
+
     if (tracksigD0>m_sigd0Max) {
       pass = false;
       failedCuts.set(sigd0Max);
@@ -221,20 +244,23 @@ namespace Analysis {
       failedCuts.set(sigz0Max);
     }
     if(m_useAntiPileUpCuts) {
-      if(fabs(trackZ0/tracksigZ0)>m_antiPileUpSigZ0Cut && fabs(trackD0/tracksigD0)<m_antiPileUpSigD0Cut) {
+      if(std::abs(trackZ0/tracksigZ0)>m_antiPileUpSigZ0Cut && std::abs(trackD0/tracksigD0)<m_antiPileUpSigD0Cut) {
         pass = false;
         failedCuts.set(sigz0Max);
         failedCuts.set(sigd0Max);
       }
     }
-    if(fabs(track->eta())>m_etaMax) {
+
+    double eta_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxEta() : m_etaMax;
+    if(std::abs(track->eta())>eta_cut) {
       pass = false;
       failedCuts.set(etaMax);
     }
     if(m_useTrackSummaryInfo) {
       uint8_t nb=0;
-      track->summaryValue(nb, xAOD::numberOfBLayerHits); 
-      if(nb < m_nHitBLayer) {
+      track->summaryValue(nb, xAOD::numberOfBLayerHits);
+      int InPix_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinInnermostPixelHitsAtEta(eta) : m_nHitBLayer;
+      if(nb < InPix_cut) {
 	failedCuts.set(nHitBLayer);
 	if(!m_useBLayerHitPrediction) { 
 	  pass = false;
@@ -251,10 +277,12 @@ namespace Analysis {
 	  }
 	}
       }
+
       uint8_t nhp=0;
       track->summaryValue(nhp, xAOD::numberOfPixelHoles);
       if(m_useAntiPileUpCuts) {
-	if(nhp>=m_antiPileUpNHolePixCut) {
+	int PixHole_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxPixelHolesAtEta(eta) : m_antiPileUpNHolePixCut;
+	if(nhp>=PixHole_cut) {
 	  pass = false;
 	}
       }
@@ -266,10 +294,13 @@ namespace Analysis {
 	track->summaryValue(ndead, xAOD::numberOfPixelDeadSensors);
 	np += std::max((int)ndead, 0);
       }
-      if(np < m_nHitPix) {
+
+      int Pix_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPixelHitsAtEta(eta) : m_nHitPix;
+      if(np < Pix_cut) {
 	pass = false;
 	failedCuts.set(nHitPix);
       }
+
       uint8_t ns=0;
       track->summaryValue(ns, xAOD::numberOfSCTHits);
       if(m_useDeadSctInfo)
@@ -278,11 +309,14 @@ namespace Analysis {
         track->summaryValue(ndead, xAOD::numberOfSCTDeadSensors);
 	ns += std::max((int)ndead,0);
       }
-      if(ns < m_nHitSct) {
+      int Strip_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinStripHitsAtEta(eta) : m_nHitSct;
+      if(ns < Strip_cut) {
 	pass = false;
 	failedCuts.set(nHitSct);
       }
-      if((np+ns) < m_nHitSi) {
+
+      int Si_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinSiHitsAtEta(eta) : m_nHitSi;
+      if((np+ns) < Si_cut) {
 	pass = false;
 	failedCuts.set(nHitSi);
       }
@@ -310,8 +344,8 @@ namespace Analysis {
 	track->summaryValue(nibl , xAOD::numberOfPixelHits);
 	track->summaryValue(nnibl, xAOD::numberOfPixelHits);
 	bool innerHitsCrit = ((nibl+nnibl)>0);
-	bool lowetaCrit  = fabs(track->eta())> 1.65 && (ns+np)>=11;
-	bool highetaCrit = fabs(track->eta())<=1.65 && (ns+np)>=9 ;
+	bool lowetaCrit  = std::abs(track->eta())> 1.65 && (ns+np)>=11;
+	bool highetaCrit = std::abs(track->eta())<=1.65 && (ns+np)>=9 ;
 	bool pixholeCrit = (nhp==0) ;
 	bool isTight = innerHitsCrit && pixholeCrit && (lowetaCrit || highetaCrit);
 	if (!isTight){

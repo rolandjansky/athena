@@ -29,6 +29,7 @@ atlas_depends_on_subdirs(
     Control/AthenaKernel
     Control/Navigation
     Event/xAOD/xAODMuon
+    InnerDetector/InDetRecTools/InDetRecToolInterfaces
     InnerDetector/InDetRecTools/InDetTrackSelectionTool
     InnerDetector/InDetRecTools/TrackVertexAssociationTool
     PhysicsAnalysis/AnalysisCommon/ParticleJetTools
@@ -98,7 +99,7 @@ atlas_add_library(
     JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtils
     TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib
     MuonSelectorToolsLib MuonMomentumCorrectionsLib TrkNeuralNetworkUtilsLib
-    InDetSVWithMuonToolLib
+    InDetSVWithMuonToolLib InDetRecToolInterfaces
 
     PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
     Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives

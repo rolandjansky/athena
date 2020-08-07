@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef INDETETADEPENDENTCUTS_INDETETADEPENDENTCUTSSVC_H
 #define INDETETADEPENDENTCUTS_INDETETADEPENDENTCUTSSVC_H
@@ -49,7 +49,7 @@ namespace InDet {
       double  getMinPtAtEta           (double eta);
       double  getMaxZImpactAtEta      (double eta);
       double  getMaxPrimaryImpactAtEta(double eta);
-      
+      double  getMaxChi2AtEta         (double eta);
       
       int     getMinSiHitsAtEta       (double eta);
       int     getMinSiNotSharedAtEta  (double eta);
@@ -59,7 +59,10 @@ namespace InDet {
       int     getMaxPixelHolesAtEta   (double eta);
       int     getMaxSctHolesAtEta     (double eta);
       int     getMaxDoubleHolesAtEta  (double eta);
-      
+
+      int     getMinInnermostPixelHitsAtEta (double eta);
+      int     getMinStripHitsAtEta     (double eta);
+
       
     /////////////////////////////////////////////////////////////////// 
     // Private data: 
@@ -94,7 +97,14 @@ namespace InDet {
       std::vector<int>     m_maxHolesGapPattern   ; // max holes gap in pattern
       std::vector<int>     m_maxHolesPattern      ; // max holes in pattern
       std::vector<int>     m_nWeightedClustersMin ; // nWeightedClustersMin
+
+      std::vector<int>     m_minInPixelHits       ; // min number of pixel hits in the innermost layer
+      std::vector<int>     m_minStripHits         ; // min number of strip hits
       
+      std::unordered_map< InDet::CutName, std::vector<double> > m_mapDoubleCuts; // double min/max stored in a single object
+      std::unordered_map< InDet::CutName, std::vector<int> >    m_mapIntCuts; // int min/max stored in a single object
+
+
     }; 
 
     
