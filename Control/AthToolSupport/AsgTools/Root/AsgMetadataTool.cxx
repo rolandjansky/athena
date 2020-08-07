@@ -143,15 +143,15 @@ namespace asg {
 
       // Call the appropriate member function:
       if( inc.type() == IncidentType::BeginInputFile ) {
-         m_beginInputFileCalled = true;
-         if( beginInputFile().isFailure() ) {
-            ATH_MSG_FATAL( "Failed to call beginInputFile()" );
-            throw std::runtime_error( "Couldn't call beginInputFile()" );
+        m_beginInputFileCalled = true;
+        if( beginInputFile().isFailure() ) {
+          ATH_MSG_FATAL( "Failed to call beginInputFile()" );
+          throw std::runtime_error( "Couldn't call beginInputFile()" );
          }
       } else if( inc.type() == IncidentType::EndInputFile ) {
-         if( endInputFile().isFailure() ) {
-            ATH_MSG_FATAL( "Failed to call endInputFile()" );
-            throw std::runtime_error( "Couldn't call endInputFile()" );
+        if( endInputFile().isFailure() ) {
+          ATH_MSG_FATAL( "Failed to call endInputFile()" );
+          throw std::runtime_error( "Couldn't call endInputFile()" );
          }
       } else if( inc.type() == IncidentType::BeginEvent ) {
          // If the tool didn't catch the begin input file incident for the
@@ -174,7 +174,7 @@ namespace asg {
             throw std::runtime_error( "Couldn't call metaDataStop()" );
          }
       } else {
-         ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
+         ATH_MSG_WARNING( "Unknown incident type received in AsgMetaDataTool: " << inc.type() );
       }
 
       return;
