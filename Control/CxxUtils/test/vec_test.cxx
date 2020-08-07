@@ -330,6 +330,22 @@ test_min(const VEC& v1)
   }
 }
 
+template<class VEC>
+void
+test_max(const VEC& v1)
+{
+
+  const VEC v2 = v1 + 1;
+
+  VEC max;
+  CxxUtils::vmax(max, v1, v2);
+  size_t N = CxxUtils::vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    assert(max[i] == v2[i]);
+  }
+}
+
+
 template <template <class T, size_t N> class VEC>
 void test1a()
 {
@@ -345,10 +361,11 @@ void test1a()
   do {                                                                  \
     test_arith (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
     test_relops (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
-    test_broadcast (VEC<T, N> INITN(N, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5)); \
+    test_broadcast (VEC<T, N> INITN(N, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)); \
     test_storeload (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
     test_select (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
     test_min (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
+    test_max (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
   } while(0)
 
   TEST_FLOAT(float, 1);
@@ -365,10 +382,11 @@ void test1a()
   do {                                                                  \
     test_arith (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_relops (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
-    test_broadcast (VEC<T, N> INITN(N, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)); \
+    test_broadcast (VEC<T, N> INITN(N, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)); \
     test_storeload (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_select (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_min (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
+    test_max (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_int (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_logops (VEC<T, N> INITN(N, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1)); \
   } while(0)

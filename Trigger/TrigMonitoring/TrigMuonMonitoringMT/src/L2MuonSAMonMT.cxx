@@ -44,7 +44,7 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     roiPhi = (*muEL)->roiPhi();
 
     ATH_MSG_DEBUG("saPt = " << saPt << ", saEta =" << saEta << ", saPhi = " << saPhi << ", saddr = " << saddr);
-    if(fabs(saPt) < ZERO_LIMIT) mf_failure = true;
+    if(std::abs(saPt) < ZERO_LIMIT) mf_failure = true;
 
     fill(m_group, roiEta, roiPhi, mf_failure);
     if( mf_failure ) continue;
@@ -91,12 +91,12 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     if(isBarrel){
       if( nRPC > 0 ) isL1hitThere = true;
       float rpcFitMidSlope = (*muEL)->rpcFitMidSlope();
-      if( fabs(rpcFitMidSlope) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
+      if( std::abs(rpcFitMidSlope) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
     }
     else {
       if( nTGCMidRho > 0 && nTGCMidPhi > 0 ) isL1hitThere = true;
       float TGCMid1Z  = (*muEL)->tgcMid1Z();
-      if( fabs(TGCMid1Z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
+      if( std::abs(TGCMid1Z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
     }
 
 
@@ -127,15 +127,15 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     auto mon_sp_r= Monitored::Collection(m_group+"_MDTpoints_r", sp_r);
     auto mon_sp_z= Monitored::Collection(m_group+"_MDTpoints_z", sp_z);
 
-    if( fabs((*muEL)->superPointR(inner)) > ZERO_LIMIT ) {
+    if( std::abs((*muEL)->superPointR(inner)) > ZERO_LIMIT ) {
       sp_r.push_back( sign * (*muEL)->superPointR(inner) );
       sp_z.push_back( (*muEL)->superPointZ(inner) );
     }
-    if( fabs((*muEL)->superPointR(middle)) > ZERO_LIMIT ) {
+    if( std::abs((*muEL)->superPointR(middle)) > ZERO_LIMIT ) {
       sp_r.push_back( sign * (*muEL)->superPointR(middle) );
       sp_z.push_back( (*muEL)->superPointZ(middle) );
     }
-    if( fabs((*muEL)->superPointR(outer)) > ZERO_LIMIT ) {
+    if( std::abs((*muEL)->superPointR(outer)) > ZERO_LIMIT ) {
       sp_r.push_back( sign * (*muEL)->superPointR(outer) );
       sp_z.push_back( (*muEL)->superPointZ(outer) );
     }
@@ -210,7 +210,7 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
 
 
     // matching to offline
-    const xAOD::Muon* RecMuonCB = m_matchTool->matchL2SAtoOff(ctx, saEta, saPhi);
+    const xAOD::Muon* RecMuonCB = m_matchTool->matchL2SAtoOff(ctx, (*muEL));
     if(RecMuonCB == nullptr) continue;
 
     std::vector<float> res_inn_OffMatch = res_inn;
@@ -281,8 +281,8 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
   // pt resolution, inverse pt resolution
   auto ptresol = Monitored::Scalar<float>(m_group+"_ptresol",-999.);
   auto invptresol = Monitored::Scalar<float>(m_group+"_invptresol",-999.);
-  if ( fabs(offPt) > ZERO_LIMIT && fabs(saPt) > ZERO_LIMIT ) {
-    ptresol = fabs(saPt)/fabs(offPt) - 1.;
+  if ( std::abs(offPt) > ZERO_LIMIT && std::abs(saPt) > ZERO_LIMIT ) {
+    ptresol = std::abs(saPt)/std::abs(offPt) - 1.;
     invptresol = (1./(offPt * offCharge) - 1./saPt) / (1./(offPt * offCharge));
   }
 
@@ -327,7 +327,7 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
 
 
   // define region
-  if( fabs(offEta) < ETA_OF_BARREL ) {
+  if( std::abs(offEta) < ETA_OF_BARREL ) {
     if( offEta > 0. ) isBarrelA = true;
     else isBarrelC = true;
   }
@@ -337,31 +337,31 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
   }
 
 
-  if( fabs(offEta) < ETA_OF_BARREL ){
+  if( std::abs(offEta) < ETA_OF_BARREL ){
     isBarrel = true;
     if( offEta > 0. ) isBarrelA = true;
     else isBarrelC = true;
   }
-  else if ( fabs(offEta) < ETA_OF_ENDCAP1 ){
+  else if ( std::abs(offEta) < ETA_OF_ENDCAP1 ){
     isEndcap1 = true;
     if( offEta > 0. ) isEndcap1A = true;
     else isEndcap1C = true;
   }
-  else if ( fabs(offEta) < ETA_OF_ENDCAP2 ){
+  else if ( std::abs(offEta) < ETA_OF_ENDCAP2 ){
     isEndcap2 = true;
     if( offEta > 0. ) isEndcap2A = true;
     else isEndcap2C = true;
   }
-  else if ( fabs(offEta) < ETA_OF_ENDCAP3 ){
+  else if ( std::abs(offEta) < ETA_OF_ENDCAP3 ){
     isEndcap3 = true;
     if( offEta > 0. ) isEndcap3A = true;
     else isEndcap3C = true;
   }
 
 
-  if( fabs(offPt) > 4 ){
-    if( fabs(offPt) < 6 ) pt4to6 = true;
-    else if( fabs(offPt) < 8 ) pt6to8 = true;
+  if( std::abs(offPt) > 4 ){
+    if( std::abs(offPt) < 6 ) pt4to6 = true;
+    else if( std::abs(offPt) < 8 ) pt6to8 = true;
     else ptover8 = true;
   }
 
