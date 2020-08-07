@@ -22,7 +22,7 @@
 //#include "FadsActions/TrackingAction.h"
 
 // MCTruth includes
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/TrackHelper.h"
 
@@ -101,8 +101,8 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
 
     AtlasDetDescr::AtlasRegion geoID = baseIsp->nextGeoID();
 
-    auto* eventInfo = ISFG4Helper::getEventInformation();
-    iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, eventInfo);
+    auto* atlasG4EvtUserInfo = ISFG4Helper::getAtlasG4EventUserInfo();
+    iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, atlasG4EvtUserInfo);
 
     if (m_truthRecordSvcQuick) {
       m_truthRecordSvcQuick->registerTruthIncident(truth);
@@ -113,7 +113,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
         // make sure that the TruthBinding of the ISFParticle points to the newest
         // HepMC::GenParticle instance in case it got updated by the
         // ITruthSvc::registerTruthIncident call above
-        auto* currentGenPart = eventInfo->GetCurrentlyTraced();
+        auto* currentGenPart = atlasG4EvtUserInfo->GetCurrentlyTraced();
         baseIsp->getTruthBinding()->setTruthParticle( currentGenPart );
         Barcode::ParticleBarcode newBarcode = HepMC::barcode(currentGenPart);
         baseIsp->setBarcode( newBarcode );
