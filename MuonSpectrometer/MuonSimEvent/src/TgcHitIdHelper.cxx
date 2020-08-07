@@ -27,11 +27,6 @@ TgcHitIdHelper* TgcHitIdHelper::GetHelper()
   return m_help;
 }
 
-// static char v1[4] = {'B','E','T','C'};
-// static char v2[9] = {'I','M','O','E','1','2','3','4','S'};
-// static char v3[6] = {'S','L','E','R','F','G'};
-
-
 void TgcHitIdHelper::Initialize()
 {
   InitializeField("StationPhi",1,48);
