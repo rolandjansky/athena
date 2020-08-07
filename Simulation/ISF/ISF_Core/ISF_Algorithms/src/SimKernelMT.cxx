@@ -18,6 +18,7 @@
 
 // STL
 #include <queue>
+#include <utility>
 
 
 ISF::SimKernelMT::SimKernelMT( const std::string& name, ISvcLocator* pSvcLocator ) :
@@ -30,6 +31,8 @@ ISF::SimKernelMT::SimKernelMT( const std::string& name, ISvcLocator* pSvcLocator
     declareProperty("CaloSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasCalo] );
     declareProperty("MSSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasMS] );
     declareProperty("CavernSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasCavern] );
+    // tuning parameters
+    declareProperty("MaximumParticleVectorSize"  , m_maxParticleVectorSize             );
 }
 
 
@@ -183,13 +186,17 @@ StatusCode ISF::SimKernelMT::execute() {
     particleQueue.push( particle );
   }
 
+  unsigned int loopCounter{0};
   // loop until there are no more particles to simulate
   ISF::ConstISFParticleVector particles{};
   const ISimulatorTool* lastSimulator{};
   ISFParticleContainer newSecondaries{};
   while ( particleQueue.size() ) {
-
+    ++loopCounter;
+    ATH_MSG_VERBOSE("Main Loop pass no. " << loopCounter);
+    ATH_MSG_VERBOSE("Queue starts with " << particleQueue.size() << " particles.");
     // Create a vector of particles with the same simulator
+    ISFParticleOrderedQueue tempQueue;
     while ( particleQueue.size() ) {
       auto particlePtr = particleQueue.top();
       ISFParticle& curParticle( *particlePtr );
@@ -207,19 +214,19 @@ StatusCode ISF::SimKernelMT::execute() {
         particles.push_back(particlePtr);
         lastSimulator=&simTool;
       }
-      else if (&simTool==lastSimulator) {
-        particles.push_back(particlePtr);
+      else if (&simTool!=lastSimulator || particles.size() >= m_maxParticleVectorSize ) {
+        // Change of simulator, end the current vector
+        tempQueue.push(particlePtr);
       }
       else {
-        // Change of simulator, end the current vector
-        particleQueue.push(particlePtr);
-        break;
+        particles.push_back(particlePtr);
       }
     }
-
+    particleQueue = std::move(tempQueue);
+    ATH_MSG_VERBOSE("Selected " << particles.size() << " particles to be processed by " << lastSimulator->name());
     // Run the simulation
     ATH_CHECK( lastSimulator->simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
-
+    ATH_MSG_VERBOSE(lastSimulator->name() << " returned " << newSecondaries.size() << " new particles to be added to the queue." );
     // Register returned particles with the entry layer tool, set their order and enqueue them
     for ( auto* secondary : newSecondaries ) {
       m_entryLayerTool->registerParticle( *secondary );
@@ -242,6 +249,7 @@ StatusCode ISF::SimKernelMT::execute() {
     }
     particles.clear();
   }
+  ATH_MSG_VERBOSE("Final status: queue contains " << particleQueue.size() << " particles.");
 
   // Release the event from all simulators (TODO: make the tools do this)
   for (auto& curSimTool: m_simulationTools) {
