@@ -16,12 +16,6 @@ AGDDPositioner::AGDDPositioner(std::string n,HepGeom::Transform3D t):m_isSensiti
 	AGDDPositionerStore::GetPositionerStore()->RegisterPositioner(this);
 	m_theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
 }
-AGDDPositioner::AGDDPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v):m_isSensitiveDetector(false),m_volume(n)
-{
-	AGDDPositionerStore::GetPositionerStore()->RegisterPositioner(this);
-	m_transform=HepGeom::Transform3D(r,v);
-	m_theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
-}
 std::string AGDDPositioner::Volume() 
 {
 	return m_volume;
