@@ -51,9 +51,6 @@ class TrigInDetReco(ExecStep):
             'from TriggerJobOpts.TriggerFlags import TriggerFlags',
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
-        self.postexec_all = ';'.join([
-            'CfgMgr.MessageSvc().setError+=[\'HepMcParticleLink\']'
-        ])
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 
 
@@ -80,7 +77,6 @@ class TrigInDetReco(ExecStep):
 
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
-        self.args += ' --postExec "all:{:s};"'.format(self.postexec_all)
         super(TrigInDetReco, self).configure(test)
 
 
