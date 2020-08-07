@@ -11,9 +11,11 @@
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHit.h"
-
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include "TRandom3.h"
+
+class BunchCrossingCondData;
 
 class AFPSiLayerAlgorithm : public AthMonitorAlgorithm {
 public:
@@ -21,12 +23,18 @@ public:
 	virtual ~AFPSiLayerAlgorithm();
 	virtual StatusCode initialize() override;
 	virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
-
+	virtual StatusCode execute(const EventContext& ctx) const override;
+	
 private:
 	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
 	std::map<std::string,int> m_TrackGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
-	ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+	SG::ReadCondHandleKey<BunchCrossingCondData>  m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
+	//BunchCrossingCondData m_bunchCrossingCondTool;
+	
+	//SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingCondTool {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
+	//SG::ReadHandleKey<BunchCrossingCondData> m_bunchCrossingCondTool;
+	//ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 	//ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool",""};
 	
 
