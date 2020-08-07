@@ -526,12 +526,12 @@ namespace Trk {
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
-    TransportJacobian *numericalDerivatives(
+    std::unique_ptr<TransportJacobian> numericalDerivatives(
       const EventContext& ctx,
       const TrackParameters *,
       const Surface *,
       PropDirection,
-      const MagneticFieldProperties *
+      const MagneticFieldProperties
     ) const;
 
     virtual int iterationsOfLastFit() const;
@@ -604,7 +604,6 @@ namespace Trk {
     double m_scalefactor;
     bool m_redoderivs;
     bool m_reintoutl;
-    TrackFitInputPreparator *m_inputPreparator;
     int m_maxit;
     bool m_acceleration;
     bool m_numderiv;
@@ -615,8 +614,6 @@ namespace Trk {
     bool m_useCaloTG = false;
     bool m_rejectLargeNScat = false;
 
-    MagneticFieldProperties *m_fieldpropnofield;
-    MagneticFieldProperties *m_fieldpropfullfield;
     ParticleMasses m_particleMasses;
 
     /*

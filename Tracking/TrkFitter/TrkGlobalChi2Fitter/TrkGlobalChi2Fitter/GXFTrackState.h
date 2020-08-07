@@ -28,32 +28,41 @@ namespace Trk {
 
   class GXFTrackState {
   public:
-    GXFTrackState();
+    GXFTrackState() = delete;
     GXFTrackState(GXFTrackState &);
-    ~GXFTrackState();
 
-    GXFTrackState(const MeasurementBase *, const TrackParameters * trackpar = nullptr, bool ownmb = false);
-    GXFTrackState(const TrackParameters *);
-    GXFTrackState(GXFMaterialEffects *, const TrackParameters * trackpar = nullptr);
-    GXFTrackState & operator=(GXFTrackState & rhs);
+    GXFTrackState(std::unique_ptr<const MeasurementBase>, std::unique_ptr<const TrackParameters>);
+    GXFTrackState(const TrackParameters *, TrackState::TrackStateType = TrackState::Hole);
+    GXFTrackState(GXFMaterialEffects *, const TrackParameters * trackpar);
+    GXFTrackState & operator=(GXFTrackState &) = delete;
 
-    void setMeasurement(const MeasurementBase *);
-    const MeasurementBase *measurement(bool takeownership = false);
+    void setMeasurement(std::unique_ptr<const MeasurementBase>);
+    const MeasurementBase *measurement(void);
+    const MeasurementBase *takeMeasurement(void);
+
     TrackState::TrackStateType trackStateType();
     void setTrackStateType(TrackState::TrackStateType);
-    void setTrackParameters(const TrackParameters *);
-    const TrackParameters *trackParameters(bool takeownership = false);
-    void setMaterialEffects(GXFMaterialEffects *);
+    
+    void setTrackParameters(std::unique_ptr<const TrackParameters>);
+    const TrackParameters *trackParameters(void);
+    const TrackParameters *takeTrackParameters(void);
+    
     GXFMaterialEffects *materialEffects();
     const Surface *surface();
-    void setJacobian(TransportJacobian *);
+    void setJacobian(TransportJacobian &);
     Eigen::Matrix<double, 5, 5> & jacobian();
     Amg::MatrixX & derivatives();
     void setDerivatives(Amg::MatrixX &);
-    AmgSymMatrix(5) * trackCovariance(bool takeownership = false);
+
     void setTrackCovariance(AmgSymMatrix(5) *);
-    const FitQualityOnSurface *fitQuality(bool takeownership = false);
-    void setFitQuality(const FitQualityOnSurface *);
+    AmgSymMatrix(5) & trackCovariance(void);
+    bool hasTrackCovariance(void);
+    void zeroTrackCovariance(void);
+
+    void setFitQuality(std::unique_ptr<const FitQualityOnSurface>);
+    const FitQualityOnSurface *fitQuality(void);
+    const FitQualityOnSurface *takeFitQuality(void);
+
     TrackState::MeasurementType measurementType();
     void setMeasurementType(TrackState::MeasurementType);
 
@@ -75,24 +84,26 @@ namespace Trk {
     void setMeasuresPhi(bool);
 
   private:
-    const MeasurementBase *m_measurement;       //!< The measurement defining the track state
+    std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
     TrackState::TrackStateType m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
-    const TrackParameters *m_trackpar;  //!< track parameters
-    GXFMaterialEffects *m_materialEffects;      //!< Material effects on track (ie scatterer, brem)
+    std::unique_ptr<const TrackParameters> m_trackpar;  //!< track parameters
+    std::unique_ptr<GXFMaterialEffects> m_materialEffects;      //!< Material effects on track (ie scatterer, brem)
     Eigen::Matrix<double, 5, 5> m_jacobian;    //!< Transport jacobian wrt previous state
-    Amg::MatrixX * m_derivs;  //!< Derivatives of local parameters wrt fit parameters
-    AmgSymMatrix(5) * m_covariancematrix;     //!< Covariance matrix of track parameters at this surface
-    const FitQualityOnSurface *m_fitqual;
+    Amg::MatrixX m_derivs;  //!< Derivatives of local parameters wrt fit parameters
+
+    AmgSymMatrix(5) m_covariancematrix;     //!< Covariance matrix of track parameters at this surface
+    bool m_covariance_set;
+
+    std::unique_ptr<const FitQualityOnSurface> m_fitqual;
     double m_measerror[5];      //!< Measurement errors (corrected for stereo angle)
     double m_sinstereo;         //!< stereo angle
     TrackState::MeasurementType m_mType;      //!< Measurement type, eg pixel, SCT, ...
     bool m_recalib;             //!< Has this measurement already been recalibrated?
-    bool m_owntp;
-    bool m_ownmb;
-    bool m_ownfq;
-    bool m_owncov;
     bool m_measphi;
     Amg::Vector3D m_globpos;
+
+  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   inline Eigen::Matrix<double, 5, 5> & GXFTrackState::jacobian() {
@@ -100,25 +111,23 @@ namespace Trk {
   } 
   
   inline Amg::MatrixX & GXFTrackState::derivatives() {
-    return *m_derivs;
+    return m_derivs;
   }
 
-  inline AmgSymMatrix(5) * GXFTrackState::trackCovariance(bool takeownership) {
-    AmgSymMatrix(5) * tmpcov = m_covariancematrix;
-    if (takeownership) {
-      m_owncov = false;
-    }
-    return tmpcov;
+  inline AmgSymMatrix(5) & GXFTrackState::trackCovariance(void) {
+    return m_covariancematrix;
   }
 
-  inline const TrackParameters *GXFTrackState::trackParameters(bool takeownership) {
-    if (takeownership)
-      m_owntp = false;
-    return m_trackpar;
+  inline const TrackParameters *GXFTrackState::trackParameters(void) {
+    return m_trackpar.get();
+  }
+  
+  inline const TrackParameters *GXFTrackState::takeTrackParameters(void) {
+    return m_trackpar.get();
   }
 
   inline GXFMaterialEffects *GXFTrackState::materialEffects() {
-    return m_materialEffects;
+    return m_materialEffects.get();
   }
 
   inline TrackState::MeasurementType GXFTrackState::measurementType() {
