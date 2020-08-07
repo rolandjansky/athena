@@ -1,16 +1,9 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # $Id: CMakeLists.txt 744450 2016-05-03 12:38:18Z krasznaa $
-################################################################################
-# Package: GeoPrimitives
-################################################################################
 
 # Declare the package name:
 atlas_subdir( GeoPrimitives )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/CxxUtils
-   Event/EventPrimitives )
 
 # External dependencies:
 find_package( CLHEP QUIET )
