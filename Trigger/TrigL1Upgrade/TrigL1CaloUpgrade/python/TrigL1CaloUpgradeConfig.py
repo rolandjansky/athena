@@ -49,9 +49,9 @@ def enableEfexAlgorithms( algSequence,
     if doTau:
         from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloRun3TauFex
         algSequence += TrigT1CaloRun3TauFex( name="TrigT1CaloEFexTau",
-                                             CleanCellContainer=False,#Not currently properly enabled for Tau's
-                                             CleanCellContainerSkim=True,#Should work with new implementation
-                                             #EnableMonitoring=True,
+                                             CleanCellContainer=ApplySCQual,
+                                             CleanCellContainerSkim=False,
+                                             QualBitMask=SCBitMask,
                                              SuperCellContainer=SuperCellContainer,
                                              OutputClusterName="SClusterTau" )
 
