@@ -83,8 +83,9 @@ addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTagLoose","CaloMuonTagLo
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTag","CaloMuonTag")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonLikelihoodTool","CaloMuonLikelihoodTool")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreTool","CaloMuonScoreTool")
-addService("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreTool.CaloMuonScoreONNXRuntimeSvc","CaloMuonScoreONNXRuntimeSvc")
-
+#print("adding service")
+#addService("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreONNXRuntimeSvc","CaloMuonScoreONNXRuntimeSvc")
+#print("added service")
 ####### muid tools
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMatchQuality","MuonMatchQuality")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidMuonRecovery","MuidMuonRecovery")
