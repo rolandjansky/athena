@@ -126,9 +126,9 @@ namespace CP {
     if (m_custom_dir!="") ATH_MSG_WARNING("!! SETTING UP WITH USER SPECIFIED INPUT LOCATION \""<<m_custom_dir<<"\"!! FOR DEVELOPMENT USE ONLY !! ");
     if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable as currently missing in many derivations; LowPtEfficiency working point will always return false, but this is expected at the moment. Have a look here: https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionToolR21#New_LowPtEfficiency_working_poin");
 
-    //Print warning to ensure that users including 2-station muons in the high-pT selection are aware of this
-    if (!m_use2stationMuonsHighPt) ATH_MSG_INFO("You have opted select 3-station muons in the high-pT selection! "<<
-        "Please feed 'HighPt3Layers' to the 'WorkingPoint'  property to retrieve the appropiate scale-factors");
+    //Print message to ensure that users excluding 2-station muons in the high-pT selection are aware of this
+    if (!m_use2stationMuonsHighPt) ATH_MSG_INFO("You have opted to select only 3-station muons in the high-pT selection! "<<
+        "Please feed 'HighPt3Layers' to the 'WorkingPoint' property to retrieve the appropriate scale-factors");
 
 
     // Set up the TAccept object:
