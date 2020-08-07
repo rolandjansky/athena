@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef OVERLAYBYTESTREAMALGS_BSFILTER_H
-#define OVERLAYBYTESTREAMALGS_BSFILTER_H
+#ifndef OVERLAYBYTESTREAMUTILS_BSFILTER_H
+#define OVERLAYBYTESTREAMUTILS_BSFILTER_H
 
 #include <string>
 #include <map>
@@ -37,4 +37,4 @@ class BSFilter : public AthAlgorithm
 
   ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConf;
 };
-#endif //OVERLAYBYTESTREAMALGS_BSFILTER_H
+#endif // OVERLAYBYTESTREAMUTILS_BSFILTER_H
