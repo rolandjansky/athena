@@ -73,11 +73,14 @@
  * In terms of expected performance it is advantageous to
  * use vector types that fit the size of the ISA.
  * e.g 128 bit wide for SSE, 256 wide for AVX.
- * Therefore one should conside using Function Multiversioning
- * (CxxUtils/features.h).
+ *
+ * Consider using Function Multiversioning
+ * (CxxUtils/features.h) if you want to target
+ * multiple ISA.
  *
  * Furthemore, for GCC one should  1st/or consider enabling
- * the optimizations provided by vectorize.h
+ * the auto-vectorization optimizations,
+ * see vectorize.h
  */
 
 #ifndef CXXUTILS_VEC_H
