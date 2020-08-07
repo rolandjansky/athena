@@ -45,6 +45,6 @@ void posXYZHandler::ElementHandle()
 		if (rotRet) std::cout<<" rot= ("<<rot[0]<<";"<<rot[1]<<";"<<rot[2]<<")";
 		std::cout<<std::endl;
 	}
-	AGDDPositioner *p=new AGDDPositioner(volume,crot,cvec);
+	AGDDPositioner *p=new AGDDPositioner(volume,HepGeom::Transform3D(crot,cvec));
 	globals::currentPositioner=p;
 }

@@ -14,7 +14,3 @@
 AGDDDetectorPositioner::AGDDDetectorPositioner(std::string n,HepGeom::Transform3D t):AGDDPositioner(n,t),theDetector(0),theVolume(0)
 {
 }
-AGDDDetectorPositioner::AGDDDetectorPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v):AGDDPositioner(n,r,v),theDetector(0),theVolume(0)
-{
-}
-
