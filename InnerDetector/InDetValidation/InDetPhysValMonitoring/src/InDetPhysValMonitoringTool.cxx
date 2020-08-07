@@ -322,7 +322,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
       if ((prob > m_lowProb) and passed) {
         nSelectedMatchedTracks++; 
         m_monPlots->fill(*thisTrack, *associatedTruth); // Make plots requiring matched truth
-        m_monPlots->fill(*thisTrack, *associatedTruth, puEvents, nVertices); //fill mu dependent plots
       }
     }
 

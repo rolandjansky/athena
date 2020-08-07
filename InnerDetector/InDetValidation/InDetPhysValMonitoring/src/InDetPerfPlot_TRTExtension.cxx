@@ -193,10 +193,6 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD
 
 }
 
-void
-InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, const float mu, const unsigned int nvertices) {
-
-}
 
 void
 InDetPerfPlot_TRTExtension::finalizePlots() {

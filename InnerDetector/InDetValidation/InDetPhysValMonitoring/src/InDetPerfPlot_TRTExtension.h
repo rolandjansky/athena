@@ -28,7 +28,6 @@ public:
   void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx);
 
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthie);
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthie, const float mu, const unsigned int nVtx);
 
 private:
 

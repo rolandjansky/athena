@@ -50,7 +50,6 @@ public:
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, const float mu, const unsigned int nVtx);
 
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
