@@ -48,6 +48,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+// CLHEP
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <iostream>
 
 // Charges and hits
@@ -104,10 +107,10 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   bool chargeIsTrapped(double spess, const InDetDD::SiDetectorElement* element, double& trap_pos, double& drift_time) const;
 
   IntegerProperty m_numberOfCharges{this, "NumberOfCharges", 1, "number of charges"};
-  FloatProperty m_smallStepLength{this, "SmallStepLength", 5, "max internal step along the larger G4 step"};
+  FloatProperty m_smallStepLength{this, "SmallStepLength", 5 * CLHEP::micrometer, "max internal step along the larger G4 step"};
 
   /** related to the surface drift */
-  FloatProperty m_tSurfaceDrift{this, "SurfaceDriftTime", 10, "max surface drift time"};
+  FloatProperty m_tSurfaceDrift{this, "SurfaceDriftTime", 10 * CLHEP::ns, "max surface drift time"};
 
   FloatProperty m_tfix{this, "FixedTime", -999., "fixed time"};
   FloatProperty m_tsubtract{this, "SubtractTime", -999., "subtract drift time from mid gap"};

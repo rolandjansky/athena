@@ -698,7 +698,10 @@ namespace Muon {
         vxtracks.clear();
         trkp[k].clear();
         int tmpnTrks(0);
-        float tmpzLoF(0),tmpzpossigma(0),tmpchi2(0),posWeight(0);
+        float tmpzLoF(0);
+        float tmpzpossigma(0);
+        float tmpchi2(0);
+        float posWeight(0);
         float worstdelz(0);      
         unsigned int iworst(0xC0FFEE);
 	//loop on the tracklets, find the chi^2 contribution from each tracklet
@@ -892,7 +895,8 @@ namespace Muon {
 
     std::vector<Tracklet> tracklets = getTracklets(trks, *prelim_vx_max);
     // use tracklets to estimate the line of flight of decaying particle
-    float aveX(0),aveY(0);
+    float aveX(0);
+    float aveY(0);
     for(std::vector<Tracklet>::iterator trkItr=tracklets.begin(); trkItr!=tracklets.end(); ++trkItr) {
       aveX += ((Tracklet)*trkItr).globalPosition().x();
       aveY += ((Tracklet)*trkItr).globalPosition().y();
@@ -901,14 +905,12 @@ namespace Muon {
     Amg::Vector3D MyVx = VxMinQuad(tracklets);
     float vxtheta = std::atan2(MyVx.x(),MyVx.z());
     float vxphi = vxPhiFinder(std::abs(vxtheta),tracklet_vxphi, ctx);
-      
     Amg::Vector3D vxpos(MyVx.x()*std::cos(vxphi),MyVx.x()*std::sin(vxphi),MyVx.z());
     std::vector<xAOD::TrackParticle*> vxTrkTracks; 
     for(std::vector<Tracklet>::iterator tracklet = tracklets.begin(); tracklet != tracklets.end(); tracklet++) {
 
       AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(((Tracklet)*tracklet).errorMatrix());
       Trk::Perigee* myPerigee = new Trk::Perigee(vxpos,((Tracklet)*tracklet).momentum(),0,vxpos,covariance);
-
       xAOD::TrackParticle* myTrack = new xAOD::TrackParticle();
 
       myTrack->makePrivateStore();
@@ -1137,10 +1139,23 @@ namespace Muon {
 
   
   //vertex phi location -- determined from the RPC/TGC hits
-  float MSVertexRecoTool::vxPhiFinder(float theta,float phi, const EventContext &ctx) const {
+  float MSVertexRecoTool::vxPhiFinder(const float theta, const float phi, const EventContext &ctx) const {
     float nmeas(0);
-    float sinphi(0),cosphi(0);
-    float eta = -1*std::log(std::tan(0.5*theta));
+    float sinphi(0);
+    float cosphi(0);
+    if (theta==0) {
+      ATH_MSG_WARNING("vxPhiFinder() called with theta="<<theta<<" and phi="<<phi<<", return 0");
+      return 0;
+    } else if (theta>M_PI) {
+      ATH_MSG_WARNING("vxPhiFinder() called with theta="<<std::setprecision(15)<<theta<<" and phi="<<phi<<", (theta>M_PI), return 0");
+      return 0;
+    }
+    float tanThetaHalf = std::tan(0.5*theta);
+    if (tanThetaHalf<=0) {
+      ATH_MSG_WARNING("vxPhiFinder() called with theta="<<std::setprecision(15)<<theta<<" and phi="<<phi<<", resulting in tan(0.5*theta)<=0, return 0");
+      return 0;
+    }
+    float eta = -std::log(tanThetaHalf);
     if(std::abs(eta) < 1.5) {
       SG::ReadHandle<Muon::RpcPrepDataContainer> rpcTES(m_rpcTESKey, ctx);
       if(!rpcTES.isValid()) {

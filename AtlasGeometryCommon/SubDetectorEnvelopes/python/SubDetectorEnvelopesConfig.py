@@ -1,16 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 SubDetectorEnvelopes configurations for AtlasGeometryCommon
 Elmar Ritsch, 27/09/2013
 """
-
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-        getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.DetFlags import DetFlags
 
 def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     kwargs.setdefault("DBInDetNode"       , 'InDetEnvelope'    )
@@ -273,7 +266,6 @@ def EnvelopeDefSvc(flags,  **kwargs):
     Cavern.addRZ(     0.0 , 26046.0 ) #
 
     # the outer dimesions differ between collision and cosmics jobs
-    from AthenaCommon.BeamFlags import jobproperties
     if flags.Beam.Type != 'cosmics':
       #  -> for collision jobs the 'cavern' envelope is much smaller
       Cavern.addRZ(      0.0 , 500000.0 ) # z= +500m

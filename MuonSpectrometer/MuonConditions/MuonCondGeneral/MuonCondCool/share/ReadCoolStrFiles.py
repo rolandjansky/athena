@@ -7,7 +7,7 @@
 #
 # define two instances of the ReadWriteCoolStrFile algorithm to read the data
 
-theApp.DLLs+=["DetDescrCondTools","DetDescrCondExample"]
+theApp.Dlls+=["DetDescrCondTools","DetDescrCondExample"]
 theApp.TopAlg+=["ReadWriteCoolStrFile/RWInstA","ReadWriteCoolStrFile/RWInstB"]
 
 # parameters for first instance - reads from channel 1 in folder /TEST/COOLSTR

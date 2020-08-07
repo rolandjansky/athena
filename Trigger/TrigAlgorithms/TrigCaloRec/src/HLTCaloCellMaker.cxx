@@ -67,7 +67,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
   // datahandle 
   if ( m_roiMode ) {
     if ( roiCollection->size() > 1 ) 
-      ATH_MSG_INFO ( "roiMode but multiple rois found, will only use the first one");
+      ATH_MSG_DEBUG ( "roiMode but multiple rois found, will only use the first one");
 
     SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
     auto cdv = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
@@ -75,7 +75,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
     auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
     auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
-      ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
+      ATH_MSG_DEBUG ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
         ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *cdv ));
 	cdv->setHasCalo(CaloCell_ID::LAREM);

@@ -24,15 +24,36 @@
  * attribute is supported or a fallback C++ class intended to be
  * (mostly) functionally equivalent.
  *
- * We also support these additional operations:
+ * We also support some additional operations.
  *
+ * Deducing useful types:
  *  - @c CxxUtils::vec_type_t<VEC> is the element type of @c VEC.
+ *  - @c CxxUtils::mask_type_t<VEC> is the vector type return by relational
+ *                                  operations.
+ *
+ * Deducing the num of elements in a vectorized type:
  *  - @c CxxUtils::vec_size<VEC>() is the number of elements in @c VEC.
  *  - @c CxxUtils::vec_size(const VEC&) is the number of elements in @c VEC.
+ *
+ * Methods providing similar functionality to certain x86-64 SIMD intrinsics:
  *  - @c CxxUtils::vbroadcast (VEC& v, T x) initializes each element of
  *                                          @c v with @c x.
+ *  - @c CxxUtils::vload (VEC& dst, vec_type_t<VEC>* mem_addr)
+ *                                          loads elements from @c mem_addr
+ *                                          to @c dst
+ *  - @c CxxUtils::vstore (vec_type_t<VEC>* mem_addr, VEC& src)
+ *                                          stores elements from @c src
+ *                                          to @c mem_addr
+ *  - @c CxxUtils::vselect (VEC& dst, const VEC& a, const VEC& b, const
+ *                          mask_type_t<VEC>& mask)
+ *                          copies elements from @c a or @c b, depending
+ *                          on the value of @c  mask to @c dst.
+ *                          dst[i] = mask[i] ? a[i] : b[i]
+ *  - @c CxxUtils::vmin   (VEC& dst, const VEC& a, const VEC& b)
+ *                         copies to @c dst[i]  the min(a[i],b[i])
+ *  - @c CxxUtils::vmax   (VEC& dst, const VEC& a, const VEC& b)
+ *                         copies to @c dst[i]  the max(a[i],b[i])
  */
-
 
 #ifndef CXXUTILS_VEC_H
 #define CXXUTILS_VEC_H
@@ -41,6 +62,7 @@
 #include "CxxUtils/features.h"
 #include "boost/integer.hpp"
 #include <cstdlib>
+#include <cstring>
 #include <initializer_list>
 #include <algorithm>
 #include <type_traits>
@@ -177,7 +199,7 @@ UNOP(~)
 
 
 #undef UNOP
-  
+
 
 // Define relational operations.
 
@@ -269,19 +291,15 @@ ivec<T, N> operator|| (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
 
 #if HAVE_VECTOR_SIZE_ATTRIBUTE
 
-
 /// Define a nice alias for a built-in vectorized type.
 template <typename T, size_t N>
 using vec  __attribute__ ((vector_size(N*sizeof(T)))) = T;
 
-
 #else
-
 
 /// Define alias for the vectorized fallback type.
 template <typename T, size_t N>
 using vec = vec_fb<T, N>;
-
 
 #endif
 
@@ -330,22 +348,126 @@ constexpr size_t vec_size(const VEC&)
   return sizeof(VEC) / sizeof(ELT);
 }
 
+/**
+ * brief Deduce the type of a mask , type returned by relational operations,
+ * for a vectorized type.
+ */
+template<class VEC>
+struct mask_type
+{
+  static auto maskt(const VEC& v1, const VEC& v2) -> decltype(v1 < v2);
+  typedef
+    typename std::invoke_result<decltype(maskt), const VEC&, const VEC&>::type
+      type1;
+  typedef std::remove_cv_t<std::remove_reference_t<type1>> type;
+};
+template<class VEC>
+/// Deduce the mask type for a vectorized type.
+using mask_type_t = typename mask_type<VEC>::type;
 
 /**
  * brief Copy a scalar to each element of a vectorized type.
+ * Similar functionality to _mm_set/_mm_broadcast x86-64 intrinsics.
  */
-template <typename VEC, typename T>
-inline
-void vbroadcast (VEC& v, T x)
+template<typename VEC, typename T>
+inline void
+vbroadcast(VEC& v, T x)
 {
+#if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   // This may look inefficient, but the loop goes away when we
   // compile with optimization.
-  const size_t N = CxxUtils::vec_size<VEC>();
+  constexpr size_t N = CxxUtils::vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     v[i] = x;
   }
+#else
+  // using  - to avoid sign conversions.
+  // using + adds  extra instructions due to float arithmetic.
+  v = x - VEC{ 0 };
+#endif
 }
 
+/*
+ * @brief load elements from  memory address (C-array)
+ * to a vectorized type. Similar to _mm_load intrinsics
+ */
+template<typename VEC>
+inline void
+vload(VEC& dst, vec_type_t<VEC>* mem_addr)
+{
+  std::memcpy(&dst, mem_addr, sizeof(VEC));
+}
+
+/*
+ * @brief load elements from a vectorized type to
+ * a memory address (C-array).
+ * Similar to _mm_store intrinsics
+ */
+template<typename VEC>
+inline void
+vstore(vec_type_t<VEC>* mem_addr, VEC& src)
+{
+  std::memcpy(mem_addr, &src, sizeof(VEC));
+}
+
+/*
+ * @brief select/blend function.
+ * Similar to _mm_blend X86-64 intrinsics
+ */
+template<typename VEC>
+inline void
+vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
+{
+// clang supports the ternary operator for vectorized types
+// only for llvm version 10 and above.
+#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
+  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+  constexpr size_t N = vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    dst[i] = mask[i] ? a[i] : b[i];
+  }
+#else
+  dst = mask ? a : b;
+#endif
+}
+
+/*
+ * @brief vectorized min.
+ * Similar to _mm_min  X86-64 intrinsics
+ */
+template<typename VEC>
+inline void
+vmin(VEC& dst, const VEC& a, const VEC& b)
+{
+#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
+  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+  constexpr size_t N = vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    dst[i] = a[i] < b[i] ? a[i] : b[i];
+  }
+#else
+  dst = a < b ? a : b;
+#endif
+}
+
+/*
+ * @brief vectorized max.
+ * Similar to _mm_max X86-64 intrinsics
+ */
+template<typename VEC>
+inline void
+vmax(VEC& dst, const VEC& a, const VEC& b)
+{
+#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
+  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+  constexpr size_t N = vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    dst[i] = a[i] > b[i] ? a[i] : b[i];
+  }
+#else
+  dst = a > b ? a : b;
+#endif
+}
 
 } // namespace CxxUtils
 

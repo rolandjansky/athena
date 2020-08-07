@@ -46,18 +46,5 @@ atlas_add_test( ut_static_bunch_tool_test
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTrigger
    TrigConfL1Data TrigAnalysisInterfaces )
 
-atlas_add_test( ut_web_bunch_tool_test
-   SOURCES
-   test/ut_web_bunch_tool_test.cxx
-   Root/BunchCrossing.cxx
-   Root/BunchTrain.cxx
-   Root/BunchCrossingToolBase.cxx
-   Root/WebBunchCrossingTool.cxx
-   Root/count_bunch_neighbors.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTrigger
-   TrigConfL1Data TrigAnalysisInterfaces
-   PROPERTIES TIMEOUT 300 )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

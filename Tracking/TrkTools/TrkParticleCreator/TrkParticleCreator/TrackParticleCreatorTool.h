@@ -190,8 +190,6 @@ private:
                                                           "MuonSummaryTool",
                                                           "Muon::MuonHitSummaryTool/MuonHitSummaryTool" };
 
-  /** to query magnetic field configuration */
-  // ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
 
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{

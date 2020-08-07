@@ -2,7 +2,7 @@
 
 // $Id$
 
-ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.Dlls += { "AthenaServices" };
 ApplicationMgr.ExtSvc += { "AthenaEventLoopMgr/AthenaEventLoopMgr1" };
 ApplicationMgr.ExtSvc += { "AthenaEventLoopMgr/AthenaEventLoopMgr2" };
 ApplicationMgr.ExtSvc += { "TestEvtSelector" };

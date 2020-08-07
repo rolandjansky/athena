@@ -70,7 +70,7 @@ def splitInterSignatureChainDict(chainDict):
     if "mergingOrder" not in chainDict:
         log.debug("No merging order given for chain %s.", chainDict['chainName'])
     elif chainDict["mergingOrder"] == []:
-        log.info("No merging order given for chain %s.", chainDict['chainName'])
+        log.debug("No merging order given for chain %s.", chainDict['chainName'])
     else:
         for chainPartName in chainDict["mergingOrder"]:
             for splitChainDict in listOfSplitChainDicts:                

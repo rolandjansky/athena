@@ -13,9 +13,9 @@
 #include "AthenaBaseComps/AthService.h"
 #include "CaloInterface/IxAODClusterCompressor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCore/tools/FloatCompressor.h"
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/FloatCompressor.h"
 
 class ATLAS_CHECK_THREAD_SAFETY xAODClusterCompressor : 
   virtual public IxAODClusterCompressor, public AthService { 
@@ -45,8 +45,8 @@ class ATLAS_CHECK_THREAD_SAFETY xAODClusterCompressor :
   typedef std::array< xAOD::CaloCluster::MomentType,60> momentList_t;
   momentList_t m_allMoments;
 
-  //Use Float compressor from xAODCore
-  xAOD::FloatCompressor m_compressor;
+  //Use Float compressor from CxxUtils
+  CxxUtils::FloatCompressor m_compressor;
  
   //JobO-driven flag to turn compression on/off
   bool m_isEnabled;

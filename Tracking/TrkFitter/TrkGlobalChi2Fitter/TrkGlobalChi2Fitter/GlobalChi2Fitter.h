@@ -23,9 +23,6 @@
 
 class AtlasDetectorID;
 
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Trk {
   class Track;
@@ -42,7 +39,6 @@ namespace Trk {
   class ITrackingGeometrySvc;
   class TrackFitInputPreparator;
   class IMagneticFieldTool;
-  class IMagFieldSvc;
   class MeasuredPerigee;
   class PrepRawDataComparisonFunction;
   class MeasurementBaseComparisonFunction;
@@ -88,11 +84,11 @@ namespace Trk {
       std::vector<double> m_phiweight;
       std::vector<int> m_firstmeasurement;
       std::vector<int> m_lastmeasurement;
-      
+
       std::vector < const Trk::Layer * >m_negdiscs;
       std::vector < const Trk::Layer * >m_posdiscs;
       std::vector < const Trk::Layer * >m_barrelcylinders;
-      
+
       bool m_fastmat = true;
 
       int m_lastiter;
@@ -101,7 +97,7 @@ namespace Trk {
       #ifdef GXFDEBUGCODE
       int m_iterations = 0;
       #endif
-      
+
       Amg::MatrixX m_derivmat;
       Amg::SymMatrixX m_fullcovmat;
 
@@ -211,7 +207,7 @@ namespace Trk {
       const RunOutlierRemoval  runOutlier=false,
       const ParticleHypothesis matEffects=Trk::nonInteracting
     ) const override;
-  
+
   private:
     void calculateJac(
       Eigen::Matrix<double, 5, 5> &,
@@ -283,7 +279,7 @@ namespace Trk {
       Cache &,
       const Trk::TrackingVolume * tvol
     ) const;
-    
+
     /**
      * @brief Find the intersection of a set of track parameters onto a disc
      * surface.
@@ -530,12 +526,12 @@ namespace Trk {
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
-    TransportJacobian *numericalDerivatives(
+    std::unique_ptr<TransportJacobian> numericalDerivatives(
       const EventContext& ctx,
       const TrackParameters *,
       const Surface *,
       PropDirection,
-      const MagneticFieldProperties *
+      const MagneticFieldProperties
     ) const;
 
     virtual int iterationsOfLastFit() const;
@@ -608,7 +604,6 @@ namespace Trk {
     double m_scalefactor;
     bool m_redoderivs;
     bool m_reintoutl;
-    TrackFitInputPreparator *m_inputPreparator;
     int m_maxit;
     bool m_acceleration;
     bool m_numderiv;
@@ -619,8 +614,6 @@ namespace Trk {
     bool m_useCaloTG = false;
     bool m_rejectLargeNScat = false;
 
-    MagneticFieldProperties *m_fieldpropnofield;
-    MagneticFieldProperties *m_fieldpropfullfield;
     ParticleMasses m_particleMasses;
 
     /*

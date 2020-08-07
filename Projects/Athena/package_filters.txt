@@ -43,7 +43,6 @@
 - PhysicsAnalysis/TauID/DiTauMassTools
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
-- PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
@@ -63,3 +62,4 @@
 # Old packages that don't work with AthenaMT
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
+

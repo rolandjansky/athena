@@ -37,3 +37,6 @@ if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource == 'da
     from LArMonitoring.LArCoverageAlg import LArCoverageConfigOld
     topSequence +=LArCoverageConfigOld(DQMonFlags)
 
+    from LArMonitoring.LArCosmicsMonAlg import LArCosmicsMonConfigOld
+    topSequence +=LArCosmicsMonConfigOld(DQMonFlags)
+

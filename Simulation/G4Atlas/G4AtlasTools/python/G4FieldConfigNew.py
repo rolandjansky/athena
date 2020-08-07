@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # ComponentAccumulator based configuration
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 GlobalFieldManagerTool, DetectorFieldManagerTool=CompFactory.getComps("GlobalFieldManagerTool","DetectorFieldManagerTool",)
-from G4AtlasServices.G4AtlasFieldServices import StandardFieldSvcCfg, ForwardFieldSvcCfg, Q1FwdG4FieldSvcCfg, Q2FwdG4FieldSvcCfg, Q3FwdG4FieldSvcCfg, D1FwdG4FieldSvcCfg, D2FwdG4FieldSvcCfg, Q4FwdG4FieldSvcCfg, Q5FwdG4FieldSvcCfg, Q6FwdG4FieldSvcCfg, Q7FwdG4FieldSvcCfg, Q1HKickFwdG4FieldSvcCfg, Q1VKickFwdG4FieldSvcCfg, Q2HKickFwdG4FieldSvcCfg, Q2VKickFwdG4FieldSvcCfg, Q3HKickFwdG4FieldSvcCfg, Q3VKickFwdG4FieldSvcCfg, Q4VKickAFwdG4FieldSvcCfg, Q4HKickFwdG4FieldSvcCfg, Q4VKickBFwdG4FieldSvcCfg, Q5HKickFwdG4FieldSvcCfg, Q6VKickFwdG4FieldSvcCfg
+from G4AtlasServices.G4AtlasFieldServices import StandardFieldSvcCfg, Q1FwdG4FieldSvcCfg, Q2FwdG4FieldSvcCfg, Q3FwdG4FieldSvcCfg, D1FwdG4FieldSvcCfg, D2FwdG4FieldSvcCfg, Q4FwdG4FieldSvcCfg, Q5FwdG4FieldSvcCfg, Q6FwdG4FieldSvcCfg, Q7FwdG4FieldSvcCfg, Q1HKickFwdG4FieldSvcCfg, Q1VKickFwdG4FieldSvcCfg, Q2HKickFwdG4FieldSvcCfg, Q2VKickFwdG4FieldSvcCfg, Q3HKickFwdG4FieldSvcCfg, Q3VKickFwdG4FieldSvcCfg, Q4VKickAFwdG4FieldSvcCfg, Q4HKickFwdG4FieldSvcCfg, Q4VKickBFwdG4FieldSvcCfg, Q5HKickFwdG4FieldSvcCfg, Q6VKickFwdG4FieldSvcCfg
 
 # Field Managers
 def ATLASFieldManagerToolCfg(ConfigFlags, name='ATLASFieldManager', **kwargs):
@@ -31,11 +32,12 @@ def ClassicFieldManagerToolCfg(ConfigFlags, name='ClassicFieldManager', **kwargs
     kwargs.setdefault("IntegratorStepper", "ClassicalRK4")
     return ATLASFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
-#not used in G4AtlasServicesConfigNew?
 def BasicDetectorFieldManagerToolCfg(ConfigFlags, name='BasicDetectorFieldManager', **kwargs):
-    result = StandardFieldSvcCfg(ConfigFlags)
+    result = ComponentAccumulator()
+    if 'FieldSvc' not in kwargs: # don't create the StandardFieldSvc if it is not required by this tool.
+        result.merge(StandardFieldSvcCfg(ConfigFlags))
+        kwargs.setdefault("FieldSvc", result.getService("StandardField"))
     kwargs.setdefault("IntegratorStepper", ConfigFlags.Sim.G4Stepper)
-    kwargs.setdefault("FieldSvc", result.getService("StandardField"))
     kwargs.setdefault('MuonOnlyField',     False)
     if len(ConfigFlags.Sim.G4EquationOfMotion)>0:
         kwargs.setdefault("EquationOfMotion", ConfigFlags.Sim.G4EquationOfMotion )
@@ -81,23 +83,17 @@ def MuonFieldManagerToolCfg(ConfigFlags, name='MuonFieldManager', **kwargs):
 
 #not used in G4AtlasServicesConfigNew?
 def BasicFwdFieldManagerToolCfg(ConfigFlags, name='FwdFieldManagerTool', **kwargs):
-    result = ForwardFieldSvcCfg(ConfigFlags)
     #kwargs.setdefault('DeltaChord',         0.00000002)
     kwargs.setdefault('DeltaIntersection',  1e-9)
     kwargs.setdefault('DeltaOneStep',       1e-8)
     kwargs.setdefault('MaximumEpsilonStep', 1e-8)
     kwargs.setdefault('MinimumEpsilonStep', 1e-9)
-    #kwargs.setdefault("FieldSvc", ForwardFieldSvcCfg(ConfigFlags))
-    kwargs.setdefault("FieldSvc", result.getService("ForwardField")) #accessing the right service?
     #from G4AtlasApps.SimFlags import simFlags
     #if simFlags.FwdStepLimitation.statusOn:
     #    kwargs.setdefault("MaximumStep", simFlags.FwdStepLimitation())
     if False:
         kwargs.setdefault("MaximumStep", 1000.)
-    acc = BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
-    tool = result.popToolsAndMerge(acc)
-    result.setPrivateTools(tool)
-    return result
+    return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
 def Q1FwdFieldManagerToolCfg(ConfigFlags, name='Q1FwdFieldManager', **kwargs):
     result = Q1FwdG4FieldSvcCfg(ConfigFlags)

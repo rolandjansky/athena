@@ -1,3 +1,4 @@
+from __future__ import print_function
 #=================================================================
 #Run the Full Reconstruction -> XML converter
 #=================================================================
@@ -12,4 +13,4 @@ include ("AnalysisJiveXML/AnalysisJiveXML_DataTypes.py")
 include ("TruthJiveXML/TruthJiveXML_DataTypes.py")
 include ("xAODJiveXML/xAODJiveXML_DataTypes.py")
 
-print theEventData2XML
+print(theEventData2XML)

@@ -1,17 +1,7 @@
-################################################################################
-# Package: xAODTrigBphysAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODTrigBphysAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthContainers
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/xAOD/xAODTrigBphys )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODTrigBphysAthenaPoolPoolCnv
@@ -19,5 +9,4 @@ atlas_add_poolcnv_library( xAODTrigBphysAthenaPoolPoolCnv
                            FILES xAODTrigBphys/TrigBphysContainer.h xAODTrigBphys/TrigBphysAuxContainer.h
                            TYPES_WITH_NAMESPACE xAOD::TrigBphysContainer xAOD::TrigBphysAuxContainer
                            CNV_PFX xAOD
-                           LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTrigBphys )
-
+                           LINK_LIBRARIES AthenaPoolCnvSvcLib xAODTrigBphys )

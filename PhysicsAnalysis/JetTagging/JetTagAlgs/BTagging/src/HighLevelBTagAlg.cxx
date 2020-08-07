@@ -68,11 +68,17 @@ namespace Analysis {
   StatusCode HighLevelBTagAlg::execute() {
     //retrieve the BTagging container
     SG::ReadHandle< xAOD::BTaggingContainer > h_btagContainer( m_BTagCollectionName);
-    SG::ReadDecorHandle<xAOD::BTaggingContainer, ElementLink< xAOD::JetContainer > > h_btagJetLinkName (m_btagJetLinkName);
     if (!h_btagContainer.isValid()) {
       ATH_MSG_ERROR( " cannot retrieve BTagging container with key " << m_BTagCollectionName.key()  );
       return StatusCode::FAILURE;
     }
+
+    if (h_btagContainer->size() == 0) {
+     ATH_MSG_DEBUG("#BTAG# Empty BTagging collection");
+     return StatusCode::SUCCESS;
+    }
+
+    SG::ReadDecorHandle<xAOD::BTaggingContainer, ElementLink< xAOD::JetContainer > > h_btagJetLinkName (m_btagJetLinkName);
     if (!h_btagJetLinkName.isAvailable()) {
       ATH_MSG_ERROR( " cannot retrieve Jet container EL decoration with key " << m_btagJetLinkName.key()  );
       return StatusCode::FAILURE;

@@ -28,6 +28,7 @@
 #include "CxxUtils/ubsan_suppress.h"
 
 #include "../src/AthenaOutputStream.h"
+#include "../src/SelectionVetoes.h"
 #include "TInterpreter.h"
 
 using std::cerr;
@@ -73,18 +74,30 @@ int main() {
   assert( (pStore->record(new Bar(), "cinque")).isSuccess() );
   assert( (pStore->symLink(8107, "quattro", 8108)).isSuccess() );
   assert( (pStore->symLink(8107, "cinque", 8108)).isSuccess() );
+
+  auto baz = std::make_unique<Baz>();
+  auto bazaux = std::make_unique<BazAuxContainer>();
+  baz->setStore (bazaux.get());
+  SG::AuxElement::Accessor<int> aaa ("aaa");
+  SG::AuxElement::Accessor<int> bbb ("bbb");
+  SG::AuxElement::Accessor<int> ccc ("ccc");
+  aaa (*baz);
+  bbb (*baz);
+  ccc (*baz);
+  assert( (pStore->record(std::move(baz), "sei")).isSuccess() );
+  assert( (pStore->record(std::move(bazaux), "seiAux.")).isSuccess() );
   
   AthenaOutputStream* pStream(dynamic_cast<AthenaOutputStream*>(pAlg));
   assert( pStream );
 
   //fill the vector of selected objects
-  pStream->collectAllObjects();
+  assert( pStream->collectAllObjects().isSuccess() );
 
   //  cout << pStream->selectedObjects()->end() - 
   //    pStream->selectedObjects()->begin() <<endl;
   // verify that we got the right objects in the list
   //  this of course depends on AthenaOutputStream_test.txt
-  assert( 6 == (pStream->selectedObjects()->end() - 
+  assert( 8 == (pStream->selectedObjects()->end() - 
   		pStream->selectedObjects()->begin()) );
 
   for (DataObject* obj : *pStream->selectedObjects()) {
@@ -93,6 +106,15 @@ int main() {
     const SG::DataProxy* proxy = pStore->proxy (dbb->object());
     std::cout << dbb->clID() << " " << proxy->name() << "\n";
   }
+
+  const SG::SelectionVetoes* selvetoes = nullptr;
+  assert (pStore->retrieve (selvetoes, "SelectionVetoes_AthenaOutputStream").isSuccess());
+  assert (selvetoes->size() == 1);
+  auto it = selvetoes->find("sei");
+  assert (it != selvetoes->end());
+  assert (!it->second.test (aaa.auxid()));
+  assert ( it->second.test (bbb.auxid()));
+  assert (!it->second.test (ccc.auxid()));
   
   pStream->clearSelection();
   assert( 0 == (pStream->selectedObjects()->end() - 

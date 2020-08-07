@@ -731,10 +731,10 @@ def muEFCBRecoSequence( RoIs, name ):
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-  ToolSvc.AtlasHoleSearchTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+  ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
-  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
+  ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
 
   #MS ID combination
   candidatesName = "MuonCandidates"
@@ -821,7 +821,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
     from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-    ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
 
     efAlgs.append(theIndetCandidateAlg)
 

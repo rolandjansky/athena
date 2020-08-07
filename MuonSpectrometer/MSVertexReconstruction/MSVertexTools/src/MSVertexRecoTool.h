@@ -90,7 +90,7 @@ namespace Muon {
     void MSStraightLineVx(const std::vector<Tracklet> &trks, std::unique_ptr<MSVertex>& vtx, const EventContext &ctx) const;
     void MSStraightLineVx_oldMethod(const std::vector<Tracklet> &trks, std::unique_ptr<MSVertex>& vtx, const EventContext &ctx )const;
     void MakeDummyVertex(MSVertex*&) const;
-    float vxPhiFinder(float theta,float phi, const EventContext &ctx) const;//vertex phi location reco algorithm
+    float vxPhiFinder(const float theta, const float phi, const EventContext &ctx) const;//vertex phi location reco algorithm
     void HitCounter(MSVertex* MSRecoVx, const EventContext &ctx) const;//counts MDT, RPC & TGC around a reco'd vertex
     std::vector<TrkCluster> findTrackClusters(const std::vector<Tracklet>& tracklets) const;//group tracklets into clusters -- vertex reco runs on each cluster of tracklets
     TrkCluster ClusterizeTracks(std::vector<Tracklet>& tracks) const;//core algorithm for creating the clusters
