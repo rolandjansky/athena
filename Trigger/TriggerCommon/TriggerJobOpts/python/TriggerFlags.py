@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+import re
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
@@ -699,12 +700,22 @@ class inputLVL1configFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "LVL1config_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            return "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
         
 _flags.append(inputLVL1configFile)
 
+# remove prescale suffixes
+def _getMenuBaseName( menuName):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    pattern = re.compile(r'_v\d+|DC14')
+    patternPos = pattern.search(menuName)
+    if patternPos:
+        menuName=menuName[:patternPos.end()]
+    else:
+        log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+    return menuName
 
 
 class inputHLTconfigFile(JobProperty):
