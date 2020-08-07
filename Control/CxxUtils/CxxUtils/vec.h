@@ -5,6 +5,7 @@
 /**
  * @file CxxUtils/vec.h
  * @author scott snyder <snyder@bnl.gov>
+ * @author Christos Anastopoulos (additional helper methods)
  * @date Mar, 2020
  * @brief Vectorization helpers.
  *
@@ -13,6 +14,7 @@
  * that is much easier to read and more portable than one would get
  * using intrinsics directly.  However, it is still non-standard,
  * and there are some operations which are kind of awkward.
+ *
  * This file provides some helpers for writing vectorized code
  * in C++, as well as a standard-compliant fallback that can be used
  * if the vector types are not available.
@@ -24,6 +26,12 @@
  * attribute is supported or a fallback C++ class intended to be
  * (mostly) functionally equivalent.
  *
+ *
+ *
+ * The GCC (implemented also in clang) vector types support:
+ * ++, --, +,-,*,/,%, =, &,|,^,~, >>,<<, !, &&, ||,
+ * ==, !=, >, <, >=, <=, =, sizeof, :?
+ *
  * We also support some additional operations.
  *
  * Deducing useful types:
@@ -32,10 +40,12 @@
  *                                  operations.
  *
  * Deducing the num of elements in a vectorized type:
+ *
  *  - @c CxxUtils::vec_size<VEC>() is the number of elements in @c VEC.
  *  - @c CxxUtils::vec_size(const VEC&) is the number of elements in @c VEC.
  *
  * Methods providing similar functionality to certain x86-64 SIMD intrinsics:
+ *
  *  - @c CxxUtils::vbroadcast (VEC& v, T x) initializes each element of
  *                                          @c v with @c x.
  *  - @c CxxUtils::vload (VEC& dst, vec_type_t<VEC>* mem_addr)
@@ -45,14 +55,29 @@
  *                                          stores elements from @c src
  *                                          to @c mem_addr
  *  - @c CxxUtils::vselect (VEC& dst, const VEC& a, const VEC& b, const
- *                          mask_type_t<VEC>& mask)
- *                          copies elements from @c a or @c b, depending
+ *                          mask_type_t<VEC>& mask) copies elements
+ *                          from @c a or @c b, depending
  *                          on the value of @c  mask to @c dst.
  *                          dst[i] = mask[i] ? a[i] : b[i]
- *  - @c CxxUtils::vmin   (VEC& dst, const VEC& a, const VEC& b)
+ *  - @c CxxUtils::vmin     (VEC& dst, const VEC& a, const VEC& b)
  *                         copies to @c dst[i]  the min(a[i],b[i])
- *  - @c CxxUtils::vmax   (VEC& dst, const VEC& a, const VEC& b)
+ *  - @c CxxUtils::vmax    (VEC& dst, const VEC& a, const VEC& b)
  *                         copies to @c dst[i]  the max(a[i],b[i])
+ *  - @c CxxUtils::vpermute (VEC& dst, const VEC& src,
+ *                          const mask_type_t<VEC>& mask)
+ *                          Fills dst with permutation of src
+ *                          according to
+ *                          dst[i] = src[mask[i] % N];
+ *
+ *
+ * In terms of expected performance it is advantageous to
+ * use vector types that fit the size of the ISA.
+ * e.g 128 bit wide for SSE, 256 wide for AVX.
+ * Therefore one should conside using Function Multiversioning
+ * (CxxUtils/features.h).
+ *
+ * Furthemore, for GCC one should  1st/or consider enabling
+ * the optimizations provided by vectorize.h
  */
 
 #ifndef CXXUTILS_VEC_H
@@ -285,7 +310,6 @@ ivec<T, N> operator|| (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
   return c;
 }
 
-
 #endif // !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
 
 
@@ -418,7 +442,7 @@ template<typename VEC>
 inline void
 vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
 {
-// clang supports the ternary operator for vectorized types
+// clang supports the ternary operator (:?)for GCC vector types
 // only for llvm version 10 and above.
 #if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
   !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
@@ -466,6 +490,27 @@ vmax(VEC& dst, const VEC& a, const VEC& b)
   }
 #else
   dst = a > b ? a : b;
+#endif
+}
+
+/**
+ * @brief vpermute function.
+ * move any element of a vector src into any or multiple position inside dst,
+ * Follows the GCC __builtin_shuffle(vec,mask) conventions,
+ * therefore the elements of mask are considered modulo N
+ */
+template<typename VEC>
+inline void
+vpermute(VEC& dst, const VEC& src, const mask_type_t<VEC>& mask)
+{
+#if defined(__clang__) || !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+  // clang can vectorize this at 02
+  constexpr size_t N = vec_size<VEC>();
+  for (size_t i = 0; i < N; ++i) {
+    dst[i] = src[mask[i] % N];
+  }
+#else // gcc
+  dst = __builtin_shuffle(src, mask);
 #endif
 }
 
