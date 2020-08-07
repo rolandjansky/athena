@@ -137,4 +137,5 @@ def createDetectorConfigFlags():
     # TODO: can these replace other (more fine-grained) flags that only turned off subdetector systems for certain tasks (e.g. DCS)?
     dcf.addFlag('Detector.PixelOn', True)
     dcf.addFlag('Detector.SCTOn', True)
+    dcf.addFlag('Detector.TRTOn', True)
     return dcf
