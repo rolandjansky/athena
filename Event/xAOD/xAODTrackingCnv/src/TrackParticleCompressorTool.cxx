@@ -41,7 +41,7 @@ namespace xAODMaker {
 
       // Create the helper objects:
       m_diagCovMatrixCompressor.reset(
-               new xAOD::FloatCompressor( m_diagCovMatrixBits ) );
+               new CxxUtils::FloatCompressor( m_diagCovMatrixBits ) );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -69,7 +69,7 @@ namespace xAODMaker {
      tp.setDefiningParametersCovMatrixDiagVec( diagVecCompr );
 
      auto compressOffDiag = []( const std::vector< float >& offDiagVec, int bits ) -> std::vector< float > {
-       xAOD::FloatCompressor fc( bits );
+       CxxUtils::FloatCompressor fc( bits );
        std::vector< float > offDiagVecCompr;
        offDiagVecCompr.reserve( offDiagVec.size() );
        for( float element : offDiagVec ) {
