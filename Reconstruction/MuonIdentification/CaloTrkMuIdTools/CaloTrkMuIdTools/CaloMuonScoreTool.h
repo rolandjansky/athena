@@ -90,8 +90,8 @@ private:
 
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
 
-  /// Handle to @c AthONNX::IONNXRuntimeSvc
-  ServiceHandle< AthONNX::ICaloMuonScoreONNXRuntimeSvc > m_svc{ this, "CaloMuonScoreONNXRuntimeSvc",
+  /// Handle to @c IONNXRuntimeSvc
+  ServiceHandle< ICaloMuonScoreONNXRuntimeSvc > m_svc{ this, "CaloMuonScoreONNXRuntimeSvc",
       "CaloMuonScoreONNXRuntimeSvc",
       "Name of the service to use" };
 

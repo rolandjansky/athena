@@ -20,6 +20,11 @@
 	Builds likelihood ratio discriminant using distribution 
 	of energy ratios for muons and pions.
 
+@section CaloTrkMuIdTools_CaloMuonScoreONNXRuntimeSvcIntroduction CaloMuonScoreONNXRuntimeSvc
+	AlgTool for Muon Identification in the Calorimeter.
+	Builds likelihood ratio discriminant using distribution 
+	of energy ratios for muons and pions.
+
 @section CaloTrkMuIdTools_CaloMuonTagIntroduction CaloMuonTag
 	Muon tagger using calorimeter deposits.
 	A track is tagged when deposits above the noise treshold are found in the 

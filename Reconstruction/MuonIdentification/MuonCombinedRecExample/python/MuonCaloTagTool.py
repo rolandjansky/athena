@@ -4,10 +4,6 @@
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool,getService, getPrivateTool
-from AthenaConfiguration.ComponentFactory import CompFactory
-
-###logfile
-from AthenaCommon.Logging import log
 
 ###############################################################################
 ## Helper function for defining THistSvc inputs
@@ -17,7 +13,6 @@ from AthenaCommon.Logging import log
 
 ### Track Selector for CaloTrkMuIdAlg
 def CaloTrkMuIdAlgTrackSelectorTool( name='CaloTrkMuIdAlgTrackSelectorTool', **kwargs ):
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("pTMin", 5000.)
     kwargs.setdefault("IPd0Max", 7.)
@@ -44,12 +39,12 @@ def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
+def CaloMuonScoreONNXRuntimeSvc(name='CaloMuonScoreONNXRuntimeSvc', **kwargs):
+    return CfgMgr.CaloMuonScoreONNXRuntimeSvc(name, **kwargs)
+
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
-
-def CaloMuonONNXRuntimeSvc(name='CaloMuonONNXRuntimeSvc', **kwargs):
-    return CfgMgr.CaloMuonONNXRuntimeSvc(name, **kwargs)
 
 def CaloMuonScoreTool(name='CaloMuonScoreTool', **kwargs ):
     from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
@@ -57,9 +52,8 @@ def CaloMuonScoreTool(name='CaloMuonScoreTool', **kwargs ):
     kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
     kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
 
-    t = CfgMgr.CaloMuonScoreTool(name,**kwargs)
-    print("returning this tool!!!")
-    return t
+    kwargs.setdefault("CaloMuonScoreONNXRuntimeSvc", getService("CaloMuonScoreONNXRuntimeSvc") )
+    return CfgMgr.CaloMuonScoreTool(name,**kwargs)
 
 def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):  
     from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
@@ -69,7 +63,7 @@ def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):
     kwargs.setdefault("CaloMuonTagLoose",       CaloMuonTagLoose )
     kwargs.setdefault("CaloMuonTagTight",       CaloMuonTagTight )
     kwargs.setdefault("CaloMuonLikelihoodTool", getPrivateTool("CaloMuonLikelihoodTool") )
-    kwargs.setdefault("CaloMuonScoreTool", getPrivateTool("CaloMuonScoreTool") )
+    kwargs.setdefault("CaloMuonScoreTool",      getPrivateTool("CaloMuonScoreTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )
     kwargs.setdefault("doCaloLR",               True )
