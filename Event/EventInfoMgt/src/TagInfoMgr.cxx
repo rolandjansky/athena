@@ -123,10 +123,10 @@ StatusCode TagInfoMgr::initialize()
     ATH_MSG_DEBUG( "TagInfoKey              " << m_tagInfoKey);
     
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) <<  "ExtraTagValuePairs " << endmsg;
-      for (auto& tv : m_extraTagValuePairs) {
-	msg(MSG::DEBUG) << " Value/tag pair: " << tv.first << " " << tv.second << endmsg;
-      }
+        ATH_MSG_DEBUG( "ExtraTagValuePairs " );
+        for (auto& tv : m_extraTagValuePairs) {
+            ATH_MSG_DEBUG( " Value/tag pair: " << tv.first << " " << tv.second );
+        }
     }
 
     // To copy TagInfo to EventInfo, we set listener to the
@@ -288,13 +288,11 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
             EventType::NameTagPairVec pairs1;
             evtH->event_type()->get_detdescr_tags(pairs1);
 
-            if (msgLvl(MSG::DEBUG)) {
-                if(pairs1.size()) {
-                    ATH_MSG_DEBUG( "fillTagInfo: Pairs from EventType:");
-                }
-                else {
-                    ATH_MSG_DEBUG( "fillTagInfo: EventInfo/EventType has no tags");
-                }
+            if(pairs1.size()) {
+                ATH_MSG_DEBUG( "fillTagInfo: Pairs from EventType:");
+            }
+            else {
+                ATH_MSG_DEBUG( "fillTagInfo: EventInfo/EventType has no tags");
             }
             for (unsigned int i = 0; i < pairs1.size(); ++i) {
                 ATH_MSG_DEBUG( "fillTagInfo: " << pairs1[i].first << " : "
@@ -342,10 +340,8 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
     }
     
     // Dump out contents of TagInfo
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG( "fillTagInfo: print out tags before adding extra tags");
-        ATH_MSG_DEBUG(tagInfo->str());
-    }
+    ATH_MSG_DEBUG( "fillTagInfo: print out tags before adding extra tags");
+    ATH_MSG_DEBUG(tagInfo->str());
 
 
     // Add in any extra tag value pairs if specified
@@ -364,10 +360,8 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
     }
 
     // Dump out contents of TagInfo
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG( "fillTagInfo: print out tags");
-        ATH_MSG_DEBUG(tagInfo->str());
-    }
+    ATH_MSG_DEBUG( "fillTagInfo: print out tags");
+    ATH_MSG_DEBUG(tagInfo->str());
     
     return StatusCode::SUCCESS;
 
@@ -845,13 +839,8 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // most likely not used anymore. RDS 08/2012).
     if (attrListColl && attrListColl->size() == 0) {
         tagInfo = std::make_unique<TagInfo>(m_lastTagInfo);
-        if (msgLvl(MSG::DEBUG)) {
-            ATH_MSG_DEBUG( "createObj: recreate tagInfo from saved info"); 
-            if (msgLevel()>=MSG::DEBUG) {
-              MsgStream log1(Athena::getMessageSvc(), "TagInfo");
-              tagInfo->printTags(log1);
-            }
-        }
+        ATH_MSG_DEBUG( "createObj: recreate tagInfo from saved info"); 
+        ATH_MSG_DEBUG(tagInfo->str());
     }
     else {
         tagInfo = std::make_unique<TagInfo>();
@@ -859,10 +848,8 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
             ATH_MSG_DEBUG( "createObj: Unable to fill TagInfo !");
             return StatusCode::FAILURE;
         } 
-        if (msgLvl(MSG::DEBUG)) {
-            if (attrListColl) ATH_MSG_DEBUG( "createObj: Filled TagInfo from file meta data ");
-            else ATH_MSG_DEBUG( "createObj: Filled TagInfo from input event ");
-        }
+        if (attrListColl) ATH_MSG_DEBUG( "createObj: Filled TagInfo from file meta data ");
+        else ATH_MSG_DEBUG( "createObj: Filled TagInfo from input event ");
     }
     
     // Copy TagInfo to meta data store for writing to file meta data
@@ -877,9 +864,8 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // Do standard conversion to data object
     dataObj = SG::asStorable(std::move(tagInfo));
 
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG( "createObj:  created new TagInfo object ");
-    }
+    ATH_MSG_DEBUG( "createObj:  created new TagInfo object ");
+
     return StatusCode::SUCCESS;
 
 }

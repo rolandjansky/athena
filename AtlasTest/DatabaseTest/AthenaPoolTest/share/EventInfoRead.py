@@ -93,8 +93,8 @@ AthenaEventLoopMgr.OutputLevel = INFO
 
 EventInfoReader.OutputLevel   = DEBUG
 svcMgr.TagInfoMgr.OutputLevel = DEBUG
-svcMgr.IOVDbSvc.OutputLevel   = DEBUG
-svcMgr.IOVSvc.OutputLevel   = DEBUG
+# svcMgr.IOVDbSvc.OutputLevel   = DEBUG
+# svcMgr.IOVSvc.OutputLevel   = DEBUG
 #svcMgr.DetectorStore.Dump = TRUE
 
 
