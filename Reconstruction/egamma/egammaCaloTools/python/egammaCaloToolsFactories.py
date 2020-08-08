@@ -1,38 +1,40 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "ToolFactories to instantiate all egammaCaloTools with default configuration"
+from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
+__doc__ = """ToolFactories to instantiate all
+egammaCaloTools with default configuration"""
 __author__ = "Bruno Lenzi"
 
-from egammaRec.Factories import FcnWrapper, ToolFactory
+from egammaRec.Factories import ToolFactory
 from egammaCaloTools import egammaCaloToolsConf
 from egammaRec import egammaKeys
 
-#---------------------------------------
+# ---------------------------------------
 
-egammaShowerShape = ToolFactory(egammaCaloToolsConf.egammaShowerShape,
-                                # Samplings to execute
-                                ExecAllVariables   = True,
-                                ExecPreSampler     = True,
-                                ExecEMFirst        = True,
-                                ExecEMSecond       = True,
-                                ExecEMThird        = True,
-                                ExecEMCombined     = True)
-
-            
-from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
-CaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster, 
-                                          name = "egamma_CaloFillRectangularCluster",
-                                          eta_size = 5,
-                                          phi_size = 7,
-                                          cells_name = egammaKeys.caloCellKey() )
+egammaShowerShape = ToolFactory(
+    egammaCaloToolsConf.egammaShowerShape,
+    # Samplings to execute
+    ExecAllVariables=True,
+    ExecPreSampler=True,
+    ExecEMFirst=True,
+    ExecEMSecond=True,
+    ExecEMThird=True,
+    ExecEMCombined=True)
 
 
+CaloFillRectangularCluster = ToolFactory(
+    Cccc.CaloFillRectangularCluster,
+    name="egamma_CaloFillRectangularCluster",
+    eta_size=5,
+    phi_size=7,
+    cells_name=egammaKeys.caloCellKey())
 
 
-egammaIso = ToolFactory(egammaCaloToolsConf.egammaIso)
+egammaIso = ToolFactory(
+    egammaCaloToolsConf.egammaIso)
 
-egammaCheckEnergyDepositTool = ToolFactory(egammaCaloToolsConf.egammaCheckEnergyDepositTool)
+egammaCheckEnergyDepositTool = ToolFactory(
+    egammaCaloToolsConf.egammaCheckEnergyDepositTool)
 
 
-#---------------------------------------
-
+# ---------------------------------------
