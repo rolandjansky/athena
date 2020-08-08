@@ -11,5 +11,7 @@ AthenaOutputStream.ItemList={"Bar#uno", "Bar#due", "Bar#tre" ,
 			     "8101#*",
                              "Fee#quattro",
                              "Fee!#cinque",
+                             "Baz#sei",
+                             "BazAuxContainer#seiAux.aaa.ccc",
                              "13#*"};       
 AthenaOutputStream.AcceptAlgs={"AthenaOutputStream", "aSFQS"};

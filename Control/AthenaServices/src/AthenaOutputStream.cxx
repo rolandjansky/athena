@@ -22,17 +22,20 @@
 #include "AthenaKernel/IItemListSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandle.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
 #include "AthenaKernel/CLIDRegistry.h"
+#include "xAODCore/AuxSelection.h"
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "OutputStreamSequencerSvc.h"
 #include "MetaDataSvc.h"
+#include "SelectionVetoes.h"
 
 #include <boost/tokenizer.hpp>
 #include <cassert>
@@ -306,6 +309,16 @@ StatusCode AthenaOutputStream::initialize() {
                   "low compression will use " << m_compressionBitsLow << " mantissa bits.");
    }
 
+   /// Set SG key for selected variable information.
+   // For CreateOutputStream.py, the algorithm name is the same as the stream
+   // name.  But OutputStreamConfig.py adds `OutputStream' to the front.
+   std::string streamName = this->name();
+   if (streamName.substr (0, 12) == "OutputStream") {
+     streamName.erase (0, 12);
+   }
+   m_selVetoesKey = "SelectionVetoes_" + streamName;
+   ATH_CHECK( m_selVetoesKey.initialize() );
+
    ATH_MSG_DEBUG("End initialize");
    return StatusCode::SUCCESS;
 }
@@ -516,7 +529,7 @@ StatusCode AthenaOutputStream::write() {
    
    // Clear any previously existing item list
    clearSelection();
-   collectAllObjects();
+   ATH_CHECK( collectAllObjects() );
 
    // keep a local copy of the object lists so they are not overwritten when we release the lock
    IDataSelector objects = std::move( m_objects );
@@ -602,18 +615,21 @@ void AthenaOutputStream::clearSelection()     {
    m_altObjects.clear();
 }
 
-void AthenaOutputStream::collectAllObjects() {
+StatusCode AthenaOutputStream::collectAllObjects() {
    if (m_itemListFromTool) {
       if (!m_streamer->getInputItemList(&*m_p2BWritten).isSuccess()) {
          ATH_MSG_WARNING("collectAllObjects() could not get ItemList from Tool.");
       }
    }
+
+   auto vetoes = std::make_unique<SG::SelectionVetoes>();
+
    m_p2BWritten->updateItemList(true);
    std::vector<CLID> folderclids;
    // Collect all objects that need to be persistified:
    //FIXME refactor: move this in folder. Treat as composite
    for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; i++) {
-      addItemObjects(*i);
+     addItemObjects(*i, *vetoes);
       folderclids.push_back(i->id());
    }
 
@@ -639,10 +655,18 @@ void AthenaOutputStream::collectAllObjects() {
          m_objects.push_back(*it);  // then copy others new into previous
       }
    }
+
+   // If there were any variable selections, record the information in SG.
+   if (!vetoes->empty()) {
+     ATH_CHECK( SG::makeHandle (m_selVetoesKey).record (std::move (vetoes)) );
+   }
+
+   return StatusCode::SUCCESS;
 }
 
 //FIXME refactor: move this in folder. Treat as composite
-void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
+void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
+                                        SG::SelectionVetoes& vetoes)
 {
    // anything after a dot is a list of dynamic Aux attrubutes, separated by dots
    size_t dotpos = item.key().find('.');
@@ -856,11 +880,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   tns << tn;
                }
 
-               // Make the decision whether to try to call
-               // SG::IAuxStoreIO::selectAux(...) based on the SG key of the
-               // object. Because even if aux_attr is empty, we may need to
-               // reset an auxiliary store back to not being slimmed, after
-               // a previous stream slimmed it.
+               /// Handle variable selections.
                if (item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
                   SG::IAuxStoreIO* auxio(nullptr);
                   try {
@@ -871,29 +891,13 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                                     << itemProxy->clID() << " to SG::IAuxStoreIO*" );
                      auxio = nullptr;
                   }
-                  if( auxio ) {
-                     // collect dynamic Aux selection (parse the line, attributes separated by dot)
-                     std::set<std::string> attributes;
-                     if( aux_attr.size() ) {
-                        std::stringstream ss(aux_attr);
-                        std::string attr;
-                        while( std::getline(ss, attr, '.') ) {
-                           attributes.insert(attr);
-                           std::stringstream temp;
-                           temp << tns.str() << attr;
-                           if (m_itemSvc->addStreamItem(this->name(),temp.str()).isFailure()) {
-                              ATH_MSG_WARNING("Unable to record item " << temp.str() << " in Svc");
-                           }
-                        }
-                        // don't let keys with wildcard overwrite existing selections
-                        // MN: TODO: this condition was always true - need a better check
-                        //if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
-                        //    || item_key.find('*') == string::npos )
-                        //   auxio->selectAux(attributes);
-                     }
-                     // Reset selection even if empty - in case we write multiple streams 
-                     auxio->selectAux( attributes );
+
+                  if (auxio) {
+                    handleVariableSelection (*auxio, *itemProxy,
+                                             tns.str(), aux_attr,
+                                             vetoes);
                   }
+
                   // Here comes the compression logic using SG::IAuxStoreCompression
                   // similar to that of SG::IAuxStoreIO above
                   SG::IAuxStoreCompression* auxcomp( nullptr );
@@ -941,6 +945,53 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
               << item_id << ",\"" << item_key  << "\". Skipping");
    }
 }
+
+
+void AthenaOutputStream::handleVariableSelection (SG::IAuxStoreIO& auxio,
+                                                  SG::DataProxy& itemProxy,
+                                                  const std::string& tns,
+                                                  const std::string& aux_attr,
+                                                  SG::SelectionVetoes& vetoes) const
+{
+  // collect dynamic Aux selection (parse the line, attributes separated by dot)
+  std::set<std::string> attributes;
+  if( aux_attr.size() ) {
+    std::stringstream ss(aux_attr);
+    std::string attr;
+    while( std::getline(ss, attr, '.') ) {
+      attributes.insert(attr);
+      std::stringstream temp;
+      temp << tns << attr;
+      if (m_itemSvc->addStreamItem(this->name(),temp.str()).isFailure()) {
+        ATH_MSG_WARNING("Unable to record item " << temp.str() << " in Svc");
+      }
+    }
+  }
+
+  // Return early if there's no selection.
+  if (attributes.empty()) {
+    return;
+  }
+
+  std::string key = itemProxy.name();
+  if (key.size() >= 4 && key.substr (key.size()-4, 4) == "Aux.")
+  {
+    key.erase (key.size()-4, 4);
+  }
+
+  SG::auxid_set_t dynVars = auxio.getSelectedAuxIDs();
+
+  // Find the entry for the selection.
+  SG::auxid_set_t& vset = vetoes[key];
+
+  // Form the veto mask for this object.
+  xAOD::AuxSelection sel;
+  sel.selectAux (attributes);
+  vset = sel.getSelectedAuxIDs (dynVars);
+
+  vset.flip();
+}
+
 
 void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
    // Assuming concrete SG::Folder also has an itemList property

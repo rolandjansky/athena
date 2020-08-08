@@ -63,6 +63,3 @@
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
 
-# remove unused mdt calibration package 
-- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibITools
-

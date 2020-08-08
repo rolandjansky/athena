@@ -44,12 +44,19 @@ CountDeadModulesAfterLastHit=False
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+BoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on(),
+    CheckBadSCT = InDetFlags.checkDeadElementsOnTrack()
+)
+ToolSvc += BoundaryCheckTool
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                       Extrapolator = InDetExtrapolator,
-                                                      usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                      useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                      checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
+                                                      BoundaryCheckTool=BoundaryCheckTool,
                                                       #Commissioning = rec.Commissioning())
 						      CountDeadModulesAfterLastHit = CountDeadModulesAfterLastHit)	
 ToolSvc += InDetHoleSearchTool

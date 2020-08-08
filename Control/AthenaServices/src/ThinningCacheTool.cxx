@@ -15,6 +15,7 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "SelectionVetoes.h"
 
 
 namespace Athena {
@@ -92,6 +93,16 @@ StatusCode ThinningCacheTool::preStream()
 
       // Add it to the cache.
       m_cache.addThinning (key, sgkeys, &*beg);
+    }
+  }
+
+  // Look for any selection vetoes.
+  const std::string selVetoesKey = "SelectionVetoes_" + m_streamName;
+  const SG::SelectionVetoes* vetoes = nullptr;
+  if (evtStore()->contains<SG::SelectionVetoes> (selVetoesKey)) {
+    ATH_CHECK( evtStore()->retrieve (vetoes, selVetoesKey) );
+    for (const auto& p : *vetoes) {
+      m_cache.setVetoed (p.first, p.second);
     }
   }
 

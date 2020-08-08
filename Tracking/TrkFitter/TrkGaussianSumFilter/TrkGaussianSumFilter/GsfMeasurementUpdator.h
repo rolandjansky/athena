@@ -13,12 +13,10 @@
 #ifndef TrkGsfMeasurementUpdator_H
 #define TrkGsfMeasurementUpdator_H
 
-#include "TrkEventPrimitives/FitQualityOnSurface.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
-
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
-#include "TrkToolInterfaces/IUpdator.h"
-
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
+#include "TrkEventPrimitives/FitQualityOnSurface.h"
+#include "KalmanParameterUpdator/KalmanParameterUpdator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -32,15 +30,6 @@ class GsfMeasurementUpdator
   : public AthAlgTool
   , virtual public IMultiStateMeasurementUpdator
 {
-
-private:
-  /** Private typedef for calling the correct updator member function depending
-   * of direction of fitting */
-  typedef Trk::TrackParameters* (Trk::IUpdator::*Updator)(
-    const Trk::TrackParameters&,
-    const LocalParameters&,
-    const Amg::MatrixX&,
-    FitQualityOnSurface*&)const;
 
 public:
   /** Constructor with parameters to be passed to AlgTool */
@@ -69,22 +58,17 @@ public:
     const Trk::MeasurementBase&,
     std::unique_ptr<FitQualityOnSurface>& fitQoS) const override final;
 
-  /** Method for GSF smoother to calculate unbiased parameters of the
-   * multi-component state */
-  virtual MultiComponentState getUnbiasedTrackParameters(
-    MultiComponentState&&,
-    const MeasurementBase&) const override final;
 
   /** Method for determining the chi2 of the multi-component state and the
    * number of degrees of freedom */
   virtual const FitQualityOnSurface* fitQuality(
     const MultiComponentState&,
-    const MeasurementBase&) const override;
+    const MeasurementBase&) const override final;
 
 private:
   MultiComponentState calculateFilterStep(MultiComponentState&&,
                                           const MeasurementBase&,
-                                          const Updator) const;
+                                          int addRemoveFlag) const;
 
   MultiComponentState calculateFilterStep(
     MultiComponentState&&,
@@ -97,10 +81,7 @@ private:
     Trk::MultiComponentState&& stateBeforeUpdate) const;
 
 private:
-  ToolHandle<IUpdator> m_updator{ this,
-                                  "Updator",
-                                  "Trk::KalmanUpdator/KalmanUpdator",
-                                  "" };
+  KalmanParameterUpdator  m_updator;
 };
 }
 
