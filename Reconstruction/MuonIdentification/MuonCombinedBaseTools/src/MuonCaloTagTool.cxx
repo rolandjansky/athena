@@ -371,9 +371,7 @@ namespace MuonCombined {
     }
 
     if (muonScore > -1) {
-      ATH_MSG_INFO("Assigning author 3");
       caloTag->set_author3(xAOD::Muon::CaloScore);
-      ATH_MSG_INFO("assigned author 3");
     }
 
   }
