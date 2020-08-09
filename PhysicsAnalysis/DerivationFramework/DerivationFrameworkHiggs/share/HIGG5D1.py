@@ -6,7 +6,6 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import (
   addRecommendedXbbTaggers, xbbTaggerExtraVariables
@@ -56,9 +55,12 @@ thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D1
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D1',HIGG5D1ThinningHelper) )
 # thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
+thinningTools.append( HIGG5Common.getUFOTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
 
 #Track Particles + CaloCluster thinning
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
+#UFO thinning
+thinningTools.append( HIGG5Common.getAntiKt10UFOCSSKSoftDropBeta100Zcut10Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
 
 #calocluster thinning
 thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D1',HIGG5D1ThinningHelper) )
@@ -227,9 +229,26 @@ if not "HIGG5D1Jets" in OutputJets:
     include("RecExCond/AllDet_detDescr.py")
     runTCCReconstruction(higg5d1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
+    #=======================================
+    # BUILD UFO INPUTS ###
+    #=======================================
+
+    ## Add PFlow constituents
+    from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
+    pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
+
+    # add the pflow cssk sequence to the main jetalg if not already there :
+    if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
+      DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
+
+    # Add UFO constituents
+    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+    emcsskufoAlg = runUFOReconstruction(higg5d1Seq, ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
+
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets', 'AntiKt10UFOCSSKJets']
+
     if jetFlags.useTruth:
-        reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
+        reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthDressedWZJets']
     replaceAODReducedJets(reducedJetList, higg5d1Seq, "HIGG5D1Jets")
 
     addDefaultTrimmedJets(higg5d1Seq,"HIGG5D1Jets");
@@ -239,13 +258,16 @@ if not "HIGG5D1Jets" in OutputJets:
     # TCC trimmed jets
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg5d1Seq, "HIGG5D1Jets")
-
-HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg5d1Seq)
+    # add UFO soft drop jets
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addSoftDropJets
+    addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=higg5d1Seq, outputGroup="HIGG5D1", writeUngroomed=False, mods="tcc_groomed")
+    if DerivationFrameworkIsMonteCarlo:
+      addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=higg5d1Seq, outputGroup="HIGG5D1", writeUngroomed=False)
 
 #====================================================================
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
+# Create variable-R trackjets and dress AntiKt10LCTopo and UFO with ghost VR-trkjet
 #====================================================================
-
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKJets"]
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg5d1Seq)
 addVRJets(higg5d1Seq, do_ghost=True)
@@ -336,7 +358,7 @@ slimmed_content=["HIGG5D1Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 if DerivationFrameworkIsMonteCarlo :
     slimmed_content+=[
              "AntiKt4TruthJets",
-             "AntiKt4TruthWZJets"
+             "AntiKt4TruthDressedWZJets"
              ]
 
 # AntiKt4PV0TrackJets are needed in conjunction with AntiKt10LCTopoJets, but the can be removed from the
@@ -347,7 +369,6 @@ addOriginCorrectedClusters(HIGG5D1SlimmingHelper, writeLC=True, writeEM=False)
 # if not DerivationFrameworkIsMonteCarlo : # for very early data
 #   HIGG5D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D1SlimmingHelper.IncludeEGammaTriggerContent = True
-HIGG5D1SlimmingHelper.IncludeBJetTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeBPhysTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 HIGG5D1SlimmingHelper.IncludeEtMissTriggerContent = True
