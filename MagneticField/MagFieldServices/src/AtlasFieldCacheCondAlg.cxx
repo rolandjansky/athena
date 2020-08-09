@@ -252,7 +252,7 @@ MagField::AtlasFieldCacheCondAlg::updateCurrentFromParameters(Cache& cache) cons
     cache.m_solenoidCurrent = solcur;
     cache.m_toroidCurrent   = torcur;
     ATH_MSG_INFO("updateCurrentFromParameters: Update from job options: Range of input/output is " <<  cache.m_condObjOutputRange);
-    ATH_MSG_INFO("updateCurrentFromParameters: Currents taken for jobOption parameters " );
+    ATH_MSG_INFO("updateCurrentFromParameters: Currents taken from jobOption parameters " );
     return StatusCode::SUCCESS;
 }
 
@@ -260,24 +260,38 @@ MagField::AtlasFieldCacheCondAlg::updateCurrentFromParameters(Cache& cache) cons
 void
 MagField::AtlasFieldCacheCondAlg::scaleField(Cache& cache, const MagField::AtlasFieldMap* fieldMap) const
 {
-    //
+    // Calculate the scale factor for solenoid and toroid
+    // For each current, if it is 0, either from conditions or jobOpt, set the corresponding SF to 0
+
     if ( cache.m_solenoidCurrent > 0.0 ) {
-        if ( fieldMap->solenoidCurrent() > 0.0 &&
+        if ( fieldMap && fieldMap->solenoidCurrent() > 0.0 &&
              std::abs( cache.m_solenoidCurrent/fieldMap->solenoidCurrent() - 1.0 ) > 0.001 ){
             cache.m_solScaleFactor = cache.m_solenoidCurrent/fieldMap->solenoidCurrent(); 
         }
         ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Solenoid and map currents: "
                       << cache.m_solenoidCurrent << "," << fieldMap->solenoidCurrent());
     }
+    else {
+        // No SF set, set it to 0 - current was set to zero either here or for the map, or the map was not read in
+        cache.m_solScaleFactor = 0;
+        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Solenoid and map currents: "
+                      << cache.m_solenoidCurrent << "," << ((fieldMap) ? fieldMap->solenoidCurrent() : 0));
+    }
+    
     //
-    if (cache.m_toroidCurrent ) {
-        if ( fieldMap->toroidCurrent() > 0.0 &&
+    if (cache.m_toroidCurrent > 0.0 ) {
+        if ( fieldMap && fieldMap->toroidCurrent() > 0.0 &&
              std::abs(cache.m_toroidCurrent/fieldMap->toroidCurrent() - 1.0 ) > 0.001 ) {
             // scale the field in all zones except for the solenoid zone
             cache.m_torScaleFactor = cache.m_toroidCurrent/fieldMap->toroidCurrent();
         }
         ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Toroid and map currents: "
                       << cache.m_toroidCurrent << "," << fieldMap->toroidCurrent());
+    }
+    else {
+        cache.m_torScaleFactor = 0;
+        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Toroid and map currents: "
+                      << cache.m_toroidCurrent << "," << ((fieldMap) ? fieldMap->toroidCurrent() : 0));
     }
 }
 

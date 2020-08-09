@@ -71,10 +71,11 @@ StatusCode
 MagField::AtlasFieldMapCondAlg::start() {
     ATH_MSG_DEBUG ( "start: entering  ");
 
-    // If we want to build the map at start, this can be done without access to conditions db
-    // This is needed for online operation
-    if (!m_useMapsFromCOOL) return(execute(Gaudi::Hive::currentContext()));
-
+    // Load map on start, we assume that the current context is valid
+    if (m_loadMapOnStart) {
+        return(execute(Gaudi::Hive::currentContext()));
+    }
+    
     return StatusCode::SUCCESS;
 }
 
