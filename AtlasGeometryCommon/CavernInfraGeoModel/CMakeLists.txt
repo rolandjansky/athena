@@ -1,33 +1,20 @@
-################################################################################
-# Package: CavernInfraGeoModel
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CavernInfraGeoModel )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          GaudiKernel )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( Eigen )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( GeoModelCore )
 
 # Component(s) in the package:
+atlas_add_library( CavernInfraGeoModelLib
+                   CavernInfraGeoModel/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS CavernInfraGeoModel
+                   INCLUDE_DIRS ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel )
+
 atlas_add_component( CavernInfraGeoModel
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelUtilities StoreGateLib SGtests GaudiKernel RDBAccessSvcLib )
-
-# Install files from the package:
-atlas_install_headers( CavernInfraGeoModel )
-
+                     LINK_LIBRARIES CavernInfraGeoModelLib GaudiKernel GeoModelInterfaces GeoModelUtilities RDBAccessSvcLib StoreGateLib )

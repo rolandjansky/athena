@@ -330,7 +330,7 @@ def createDataFlow(chains, allDicts):
 
     # loop over chains
     for chain in chains:
-        log.info("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
+        log.debug("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
 
         lastCFseq = None
         for nstep, chainStep in enumerate( chain.steps ):

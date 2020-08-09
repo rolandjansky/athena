@@ -19,7 +19,7 @@ def filterBS(stream_name):
     '''Extract ByteStream data for a given stream from a file with multiple streams'''
     filterStep = ExecStep.ExecStep('FilterBS_'+stream_name)
     filterStep.type = 'other'
-    filterStep.executable = 'athenaHLT-select-PEB-stream.py'
+    filterStep.executable = 'trigbs_extractStream.py'
     filterStep.input = ''
     filterStep.args = '-s ' + stream_name + ' ' + findFile('*_HLTMPPy_output.*.data')
     return filterStep

@@ -98,7 +98,13 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto phiTT_1d_HAD = Monitored::Collection("phiTT_1d_HAD", vecMonTT_HAD, []( const auto &hadTower ){return hadTower.phi1d;});
   variables.push_back(phiTT_1d_HAD);
 
-  // Cutmasks
+  auto cpET_HAD = Monitored::Collection("cpET_HAD", vecMonTT_HAD, []( const auto &hadTower ){return hadTower.tower->cpET();});
+  variables.push_back(cpET_HAD);
+
+  auto jepET_HAD = Monitored::Collection("jepET_HAD", vecMonTT_HAD, []( const auto &hadTower ){return hadTower.jepET;});
+  variables.push_back(jepET_HAD);
+
+  // Cutmasks (EM)
   std::vector<int> vec_EM_timeslice = {};
   std::vector<int> vec_EM_cpET_0 = {};             // includes "duplicate" towers for phi maps
   std::vector<int> vec_EM_cpET_0_noDuplicates = {}; // no duplicates: for plots not binned in phi
@@ -115,8 +121,6 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
   for (auto& emTower : vecMonTT_EM) {
   
-  
-    
     // -------- LUT --------
     int cpET = (emTower.tower)->cpET();
     int jepET = emTower.jepET;
@@ -155,15 +159,41 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
    
   } // End loop over vector of EM towers 
 
-  // HAD cutmasks 
+  // Cutmasks (HAD)
   std::vector<int> vec_HAD_timeslice = {};
+  std::vector<int> vec_HAD_cpET_0 = {};             // includes "duplicate" towers for phi maps
+  std::vector<int> vec_HAD_cpET_0_noDuplicates = {}; // no duplicates: for plots not binned in phi
+  std::vector<int> vec_HAD_cpET_5 = {};
+  std::vector<int> vec_HAD_cpET_5_noDuplicates = {};
+  std::vector<int> vec_HAD_jepET_0 = {};
+  std::vector<int> vec_HAD_jepET_0_noDuplicates = {};
+  std::vector<int> vec_HAD_jepET_5 = {};
+  std::vector<int> vec_HAD_jepET_5_noDuplicates = {};
+
 
   // HAD weights 
   std::vector<int> vec_HAD_ADC = {};
 
   for (auto& hadTower : vecMonTT_HAD) {
 
-    // Timeslice 
+    // -------- LUT --------
+    int cpET = (hadTower.tower)->cpET();
+    int jepET = hadTower.jepET;
+    bool isDuplicate = hadTower.isDuplicate;
+
+    if (cpET > 0) ATH_MSG_DEBUG("HAD tower cpET: " << cpET << " jepET: " << jepET);
+
+    // Fill the cutmasks for HAD LUT-CP and LUT-JEP energy distributions 
+    vec_HAD_cpET_0.push_back(cpET > 0);                                  // For phi distributions / maps
+    vec_HAD_cpET_0_noDuplicates.push_back((cpET > 0) && !isDuplicate);   // For plots not binned in phi
+    vec_HAD_cpET_5.push_back(cpET > 5);
+    vec_HAD_cpET_5_noDuplicates.push_back((cpET > 5) && !isDuplicate);
+    vec_HAD_jepET_0.push_back(jepET > 0);
+    vec_HAD_jepET_0_noDuplicates.push_back((jepET > 0) && !isDuplicate);
+    vec_HAD_jepET_5.push_back(jepET > 5);
+    vec_HAD_jepET_5_noDuplicates.push_back((jepET > 5) && !isDuplicate);
+
+    // -------- ADC hitmaps per timeslice -------- 
     unsigned int tslice = (hadTower.tower)->adcPeak();
     unsigned int adcSize = ((hadTower.tower)->adc()).size();
 
@@ -222,6 +252,31 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
   auto hadTT_ADC = Monitored::Collection("hadTT_ADC", vec_HAD_ADC);
   variables.push_back(hadTT_ADC);
+
+  auto mask_HAD_cpET_0_phiBins = Monitored::Collection("mask_HAD_cpET_0_phiBins", vec_HAD_cpET_0);
+  variables.push_back(mask_HAD_cpET_0_phiBins);
+
+  auto mask_HAD_cpET_0_noPhi = Monitored::Collection("mask_HAD_cpET_0_noPhi", vec_HAD_cpET_0_noDuplicates);
+  variables.push_back(mask_HAD_cpET_0_noPhi);
+
+  auto mask_HAD_cpET_5_phiBins = Monitored::Collection("mask_HAD_cpET_5_phiBins", vec_HAD_cpET_5);
+  variables.push_back(mask_HAD_cpET_5_phiBins);
+
+  auto mask_HAD_cpET_5_noPhi = Monitored::Collection("mask_HAD_cpET_5_noPhi", vec_HAD_cpET_5_noDuplicates);
+  variables.push_back(mask_HAD_cpET_5_noPhi);
+
+  auto mask_HAD_jepET_0_phiBins = Monitored::Collection("mask_HAD_jepET_0_phiBins", vec_HAD_jepET_0);
+  variables.push_back(mask_HAD_jepET_0_phiBins);
+
+  auto mask_HAD_jepET_0_noPhi = Monitored::Collection("mask_HAD_jepET_0_noPhi", vec_HAD_jepET_0_noDuplicates);
+  variables.push_back(mask_HAD_jepET_0_noPhi);
+
+  auto mask_HAD_jepET_5_phiBins = Monitored::Collection("mask_HAD_jepET_5_phiBins", vec_HAD_jepET_5);
+  variables.push_back(mask_HAD_jepET_5_phiBins);
+
+  auto mask_HAD_jepET_5_noPhi = Monitored::Collection("mask_HAD_jepET_5_noPhi", vec_HAD_jepET_5_noDuplicates);
+  variables.push_back(mask_HAD_jepET_5_noPhi);
+
 
   fill(m_packageName, variables);
   variables.clear();

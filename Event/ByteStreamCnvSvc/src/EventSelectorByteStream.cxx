@@ -1014,7 +1014,7 @@ void EventSelectorByteStream::syncEventCount(int count) const
 }
 
 //__________________________________________________________________________
-bool EventSelectorByteStream::disconnectIfFinished(SG::SourceID /* fid */) const
+bool EventSelectorByteStream::disconnectIfFinished(const SG::SourceID &/* fid */) const
 {
    return true;
 }

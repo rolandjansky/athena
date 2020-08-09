@@ -463,9 +463,12 @@ class  ConfiguredNewTrackingSiPattern:
          #
          if InDetFlags.doCosmics() and NewTrackingCuts.mode() != "DBM":
             InDetAmbiScoringTool = TrackingCommon.getInDetCosmicsScoringTool(NewTrackingCuts)
+         elif(NewTrackingCuts.mode() == "R3LargeD0" and InDetFlags.nnCutLargeD0Threshold > 0):
+            # Set up NN config
+            InDetAmbiScoringTool = TrackingCommon.getInDetNNScoringTool(NewTrackingCuts)
          else:
             InDetAmbiScoringTool = TrackingCommon.getInDetAmbiScoringTool(NewTrackingCuts)
-
+  
          #
          # --- load Ambiguity Processor
          #

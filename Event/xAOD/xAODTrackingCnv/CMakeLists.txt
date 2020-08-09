@@ -40,4 +40,5 @@ atlas_add_component( xAODTrackingCnv
    LINK_LIBRARIES xAODTracking TrkTrack AthenaBaseComps AthenaKernel
    EventPrimitives GaudiKernel GeneratorObjects MCTruthClassifierLib Particle
    ParticleTruth TrkLinks TrkParticleBase TrkTruthData VxVertex 
-   TrkToolInterfaces xAODCore xAODTrackingCnvLib )
+   TrkToolInterfaces xAODCore xAODTrackingCnvLib
+   PRIVATE_LINK_LIBRARIES CxxUtils )

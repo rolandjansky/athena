@@ -179,13 +179,15 @@ def L1DecoderCfg(flags, seqName = None):
     decoderAlg.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
                                   OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
 
-    unpackers, rerunUnpackers = createCaloRoIUnpackers()
-    decoderAlg.roiUnpackers += unpackers
-    decoderAlg.rerunRoiUnpackers += rerunUnpackers
+    if flags.Trigger.doCalo:
+        unpackers, rerunUnpackers = createCaloRoIUnpackers()
+        decoderAlg.roiUnpackers += unpackers
+        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
-    unpackers, rerunUnpackers = createMuonRoIUnpackers()
-    decoderAlg.roiUnpackers += unpackers
-    decoderAlg.rerunRoiUnpackers += rerunUnpackers
+    if flags.Trigger.doMuon:
+        unpackers, rerunUnpackers = createMuonRoIUnpackers()
+        decoderAlg.roiUnpackers += unpackers
+        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
     decoderAlg.prescaler = createPrescalingTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring

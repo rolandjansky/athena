@@ -72,6 +72,10 @@ atlas_add_test( bitscan_test_portable
    SOURCES test/bitscan_test.cxx
    LINK_LIBRARIES CxxUtils )
 
+atlas_add_test( ut_cxxutils_floatcompression_test
+   SOURCES test/ut_cxxutils_floatcompression_test.cxx
+   LINK_LIBRARIES CxxUtils )
+
 if( TARGET CxxUtils_bitscan_test_portable )
   target_compile_definitions(CxxUtils_bitscan_test_portable
     PRIVATE "-DTEST_PORTABLE" )

@@ -664,6 +664,16 @@ if InDetTrigFlags.loadSummaryTool():
   if (InDetTrigFlags.doPrintConfigurables()):
     print ( InDetTrigTestPixelLayerTool)
 
+  from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+  InDetTrigBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetTrigBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on(),
+    SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
+    PixelLayerTool=InDetTrigTestPixelLayerTool
+  )
+  ToolSvc += InDetTrigBoundaryCheckTool
+
 
    #
    # Loading Configurable HoleSearchTool
@@ -672,10 +682,7 @@ if InDetTrigFlags.loadSummaryTool():
 
   InDetTrigHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetTrigHoleSearchTool",
                                                             Extrapolator = InDetTrigExtrapolator,
-                                                            usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                            useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                            SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
-                                                            PixelLayerTool=InDetTrigTestPixelLayerTool,
+                                                            BoundaryCheckTool=InDetTrigBoundaryCheckTool
                                                             )
                                                             #Commissioning = InDetTrigFlags.doCommissioning()) #renamed
   InDetTrigHoleSearchTool.CountDeadModulesAfterLastHit = True  

@@ -72,6 +72,7 @@ from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toC
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
+from AthenaCommon import Constants
 log = logging.getLogger('runHLT_standalone.py')
 
 #-------------------------------------------------------------
@@ -239,9 +240,9 @@ else:           # More data modifiers
                      'forceTileRODMap',
     ]
 
-TriggerFlags.doID = opt.doID
-TriggerFlags.doMuon = opt.doMuon
-TriggerFlags.doCalo = opt.doCalo
+TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
+TriggerFlags.doMuon = ConfigFlags.Trigger.doMuon = opt.doMuon
+TriggerFlags.doCalo = ConfigFlags.Trigger.doCalo = opt.doCalo
 
 #-------------------------------------------------------------
 # Modifiers
@@ -430,7 +431,7 @@ elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-TriggerFlags.triggerMenuSetup = opt.setMenu
+ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = opt.setMenu
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
@@ -505,14 +506,14 @@ svcMgr.MessageSvc.infoLimit=10000
 
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-svcMgr += conf2toConfigurable( getHLTConfigSvc() )
+svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 
 if not opt.createHLTMenuExternally:
     # the generation of the prescale set file from the menu (with all prescales set to 1)
     # is not really needed. If no file is provided all chains are either enabled or disabled,
     # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
     from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
-    createHLTPrescalesFileFromMenu()
+    createHLTPrescalesFileFromMenu(ConfigFlags)
 
 
 
@@ -534,7 +535,7 @@ if len(opt.condOverride)>0:
         log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
 
-if svcMgr.MessageSvc.OutputLevel < logging.INFO:
+if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print(svcMgr)
@@ -615,6 +616,12 @@ if opt.reverseViews or opt.filterViews:
 # Disable overly verbose and problematic ChronoStatSvc print-out
 #-------------------------------------------------------------
 include("TriggerTest/disableChronoStatSvcPrintout.py")
+
+#-------------------------------------------------------------
+# Disable spurious warnings from HepMcParticleLink, ATR-21838
+#-------------------------------------------------------------
+if ConfigFlags.Input.isMC:
+    svcMgr.MessageSvc.setError += ['HepMcParticleLink']
 
 #-------------------------------------------------------------
 # Enable xAOD::EventInfo decorations for pileup values

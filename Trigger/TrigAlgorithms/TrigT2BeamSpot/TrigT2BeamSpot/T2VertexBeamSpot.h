@@ -104,7 +104,7 @@ namespace PESA {
       virtual StatusCode initialize() final;
 
       
-      SG::ReadHandleKeyArray<TrackCollection> m_trackCollections;   /*Input list of track collection names which should be used for the algorithms*/
+      SG::ReadHandleKey<TrackCollection> m_trackCollectionKey;   /*track collection name which should be used for the algorithms*/
 
       //The same as in Run2 (m_vertexCollName)
       SG::WriteHandleKey<TrigVertexCollection> m_outputVertexCollectionKey;
