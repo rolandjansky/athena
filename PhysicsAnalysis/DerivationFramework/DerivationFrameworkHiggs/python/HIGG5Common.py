@@ -24,6 +24,117 @@ def getJetEMTopoName() :
     else:
         return 'AntiKt4EMTopoJets'
 
+def addVRSmallJets(sequence, largeRColls = None, do_ghost=False, logger=None, doFlipTagger=False, training='201810', *pos_opts, **opts):
+    from AthenaCommon import Logging
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+    addCHSPFlowObjects()
+
+    if logger is None:
+        logger = Logging.logging.getLogger('VRLogger')
+    #
+    if opts or pos_opts:
+        logger.warning('Options specified for VR jets, they will be ignored')
+
+    if largeRColls is None:
+      largeRColls = ["AntiKt4EMPFlowJets"]
+    import DerivationFrameworkFlavourTag.HbbCommon as HbbCommon
+    VRName, ghostLab = HbbCommon.buildVRJets(sequence, do_ghost, logger, doFlipTagger, training)
+    toAssociate = {
+        ghostLab : ghostLab.lower()
+        }
+    #
+    ungroomedNames = []
+    for collection in largeRColls:
+        ungroomedName, getters = linkVRJetsToSmallRJets(sequence, collection, toAssociate)
+        ungroomedNames.append(ungroomedName)
+
+    return ungroomedNames
+#
+def getJetRecTool(collection, getParent=True):
+    from JetRec.JetRecStandardToolManager import jtm
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+    addCHSPFlowObjects()
+    if "AntiKt4EMPFlowJets" not in jtm.tools:
+        jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 10000, calibOpt="arj:pflow")
+    try:
+      jetRecTool = jtm[collection]
+    except KeyError as e:
+        raise KeyError("JetRecTool {0} not present in jtm".format(collection) )
+    if getParent and hasattr(jetRecTool, "InputContainer") and jetRecTool.InputContainer:
+        jetRecTool = getJetRecTool(jetRecTool.InputContainer, True)
+    return jetRecTool
+#
+def linkVRJetsToSmallRJets(
+    sequence, collection, getters):
+    from JetRec.JetRecStandardToolManager import jtm
+    import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
+    from AthenaCommon import Logging
+    logger = Logging.logging.getLogger('HbbTaggerLog')
+    #
+    originalJetRecTool = getJetRecTool(collection, getParent = True)
+    originalUngroomedName = originalJetRecTool.name()
+    ungroomedJetAlg = originalUngroomedName
+    if ungroomedJetAlg.endswith("Jets"):
+      ungroomedJetAlg = ungroomedJetAlg[:-4]
+    originalFinder = jtm[originalJetRecTool.JetFinder.getName()]
+    originalGetters = [jtm[g.getName()] for g in originalJetRecTool.PseudoJetGetters]
+    newGetters = [jtm[g] for g in getters.values()]
+    #
+    comb_name = "_".join(getters.keys() )
+    LargeRJetFindingAlg = "jfind_{0}_{1}".format(collection, comb_name).lower()
+    LargeRJetPrefix     = "{0}_{1}".format(collection, comb_name)
+    LargeRJets = nameJetsFromAlg(LargeRJetPrefix)
+    LinkTransferAlg     = "LinkTransfer_{0}_{1}".format(collection, comb_name)
+    # Check to see if this large R jet collection is already known to JetCommon                                                                                                                               
+    if LargeRJetFindingAlg in JetCommon.DFJetAlgs:
+      logger.info("Found {0} in DFJetAlgs".format(LargeRJetFindingAlg) )
+      # Is it in our sequence?                                                                                                                                                             
+      if hasattr(sequence, LargeRJetFindingAlg):
+        logger.info("Algorithm already exists in the input sequence. Will not "
+                    "add again")
+      else:
+          logger.info("Adding algorithm into the sequence {0}".format(sequence) )
+          sequence += JetCommon.DFJetAlgs[LargeRJetFindingAlg]
+    else:
+    # Check to see if the corresponding JetRecTool already exists                                                                                                                           
+        if hasattr(jtm, LargeRJets):
+            logger.info("JetRecTool {0} already exists in jtm".format(LargeRJets) )
+        else:
+            logger.info("Create a new JetRecTool {0}".format(LargeRJets) )
+            JetCommon.OutputJets.setdefault("CustomJets", []).append(LargeRJets)
+            originalModifiers = [jtm[m.getName()] for m in originalJetRecTool.JetModifiers]
+            jtm.addJetFinder(
+                output = LargeRJets,
+                alg = originalFinder.JetAlgorithm,
+                radius = originalFinder.JetRadius,
+                gettersin = originalGetters + newGetters,
+                modifiersin = originalModifiers,
+                ghostArea = 0.01,
+                ptmin = originalFinder.PtMin,
+                variableRMinRadius = originalFinder.VariableRMinRadius,
+                variableRMassScale = originalFinder.VariableRMassScale,
+                calibOpt = "none")
+        from JetRec.JetRecConf import JetAlgorithm
+        logger.info(
+            "Creating new jet algorithm {0} and adding it to sequence {1}".format(
+                LargeRJetFindingAlg, sequence) )
+        theJetAlg = JetAlgorithm(LargeRJetFindingAlg, Tools = [jtm[LargeRJets] ])
+        sequence += theJetAlg
+        JetCommon.DFJetAlgs[LargeRJetFindingAlg] = theJetAlg
+    
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getJetExternalAssocTool, applyJetAugmentation
+    assocTool = getJetExternalAssocTool(
+        ungroomedJetAlg,
+        LargeRJetPrefix,
+        MomentPrefix = '',
+        ListOfOldLinkNames=[g.Label for g in newGetters]
+        )
+    applyJetAugmentation(
+      ungroomedJetAlg, LinkTransferAlg, sequence, assocTool)
+
+    return originalUngroomedName, [g.Label for g in newGetters]
+
 def getHIGG5Common() :
     from BTagging.BTaggingFlags import BTaggingFlags
     Common = [
@@ -37,6 +148,9 @@ def getHIGG5Common() :
         #    ".-constituentLinks.-constituentWeight.-ConstituentScale"),
         ("AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"),
+        ("AntiKt4EMPFlowJets"
+            ".GhostVR30Rmax4Rmin02TrackJet_BTagging201810"
+            ".GhostVR30Rmax4Rmin02TrackJet_BTagging201903"),
         ("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
             ".PlanarFlow.Angularity.Aplanarity.FoxWolfram0.FoxWolfram2.KtDR.ZCut12"
             ".GhostTrack.GhostTrackCount.GhostVR30Rmax4Rmin02TrackJet"
@@ -48,6 +162,13 @@ def getHIGG5Common() :
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
             ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
             ".Width"),
+        ("AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.pt.eta.phi.m.constituentLinks"
+         ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
+        ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
+         ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
+         ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
+         ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
+         ".Width"),
         ("AntiKt10TrackCaloClusterJets"
          ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
          "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
@@ -64,15 +185,9 @@ def getHIGG5Common() :
         Common += ["BTagging_AntiKt4EMPFlow.MV2cl100_discriminant"]
     Common += [
         "BTagging_AntiKt4PV0Track.MV2cl100_discriminant",
-        "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
+     "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
         "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity",
         "TrackCaloClustersCombinedAndNeutral.pt.eta.phi.m.taste.trackParticleLink.caloClusterLinks"
-        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.ExCoM2SubJets",
-        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.pt.eta.phi.m",
-        ("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.btaggingLink.m_persKey.m_persIndex.Parent"
-             ".GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt"
-             ".GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt"),
-        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
         ]
     return Common
 
@@ -87,7 +202,6 @@ def getHIGG5CommonTruth() :
         #"TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
         "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
         "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType",
-        'AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
         'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
         'AntiKt10LCTopoJetsJets.PartonTruthLabelID',
         'AntiKt10TrackCaloClusterJets.PartonTruthLabelID'
@@ -135,10 +249,6 @@ def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903Aux"                  : "xAOD::JetAuxContainer"     ,
       "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"                        : "xAOD::BTaggingContainer"   ,
       "BTagging_AntiKtVR30Rmax4Rmin02Track_201903Aux"                     : "xAOD::BTaggingAuxContainer",
-      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 : "xAOD::JetContainer"        ,
-      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              : "xAOD::JetAuxContainer"     ,
-      "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            : "xAOD::BTaggingContainer"   ,
-      "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         : "xAOD::BTaggingAuxContainer"
       }
   from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
   if add_truth_if_mc and DerivationFrameworkIsMonteCarlo:
@@ -162,6 +272,7 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
         common_smart_collections+=["AntiKt4EMPFlowJets"]
     common_smart_collections+= [
                                "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                               "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                # "AntiKtVR30Rmax4Rmin02Track",
                                getBTagEMTopoName()]
     if BTaggingFlags.Do2019Retraining:
@@ -181,7 +292,7 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
     if add_truth_if_mc and DerivationFrameworkIsMonteCarlo :
         common_smart_collections += [
             "AntiKt4TruthJets",
-            "AntiKt4TruthWZJets"
+            "AntiKt4TruthDressedWZJets"
             #          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
             ]
     return common_smart_collections
@@ -305,6 +416,30 @@ def getMuonTrackParticleThinning(tool_prefix, thinning_helper) :
     ToolSvc += thinning_tool
     return thinning_tool
 
+def getMuonCaloClusterThinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+    thinning_tool = DerivationFramework__CaloClusterThinning(name                   = tool_prefix + "MuonCCThinningTool",
+                                                             ThinningService        = thinning_helper.ThinningSvc(),
+                                                             SGKey                  = "Muons",
+                                                             TopoClCollectionSGKey  = "CaloCalTopoClusters",
+                                                             SelectionString        = "Muons.pt > 6*GeV",
+                                                             ConeSize               = 0.4)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += thinning_tool
+    return thinning_tool
+
+def getElectronCaloClusterThinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+    thinning_tool = DerivationFramework__CaloClusterThinning(name                   = tool_prefix + "ElectronCCThinningTool",
+                                                             ThinningService        = thinning_helper.ThinningSvc(),
+                                                             SGKey                  = "Electrons",
+                                                             TopoClCollectionSGKey  = "CaloCalTopoClusters",
+                                                             # SelectionString        = "Electrons.pt > 6*GeV",
+                                                             ConeSize               = 0.4)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += thinning_tool
+    return thinning_tool
+
 def getEgammaTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
     kwargs.setdefault( 'name',                  tool_prefix + "ElectronTPThinningTool")
@@ -378,6 +513,20 @@ def getTCCTrackParticleThinning(tool_prefix, thinning_helper) :
     ToolSvc+= thinning_tool
     return thinning_tool
 
+def getUFOTrackParticleThinning(tool_prefix, thinning_helper) :
+    # Tracks and CaloClusters associated with UFOs
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UFOTrackParticleThinning
+    thinning_tool = DerivationFramework__UFOTrackParticleThinning(name                   = tool_prefix + "CSSKUFOTPThinningTool",
+                                                                  ThinningService        = thinning_helper.ThinningSvc(),
+                                                                  JetKey                 = "AntiKt10UFOCSSKJets",
+                                                                  UFOKey                 = "CSSKUFO",
+                                                                  InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                  PFOCollectionSGKey     = "JetETMiss",
+                                                                  AdditionalPFOKey       = ["CSSK"])
+
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc+= thinning_tool
+    return thinning_tool
 
 def getTauTrackParticleThinning(tool_prefix, thinning_helper) :
     # Tracks associated with taus
@@ -429,6 +578,17 @@ def getAntiKt10LCTopoCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
     kwargs.setdefault('AdditionalClustersKey', ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
     return getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
 
+def getAntiKt10UFOCSSKSoftDropBeta100Zcut10Thinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+    thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "UFOJetThinningTool",
+                                                               ThinningService  = thinning_helper.ThinningSvc(),
+                                                               ContainerName    = "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
+                                                               SelectionString  = "(AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.pt > 150*GeV && abs(AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.eta)<2.6)",
+                                                               ApplyAnd         = False)
+
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc+= thinning_tool
+    return thinning_tool
 
 def getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
@@ -517,7 +677,7 @@ def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):
             if add_item :
                 dfjetlog.info( "Add full jet collection "+item )
                 slimhelper.AllVariables.append(item)
-
+"""
 def addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(sequence) :
     ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
     #  doTrackJet = False
@@ -536,3 +696,4 @@ def addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(sequence) :
     from BTagging.BTaggingFlags import BTaggingFlags
     BTaggingFlags.CalibrationChannelAliases += [
                    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+"""
