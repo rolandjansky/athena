@@ -41,6 +41,8 @@
 
 namespace MuonCombined {
   MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent) :
+
+
     AthAlgTool(type, name, parent),
     m_nTrueMuons(0),
     m_nTracksTagged(0),
@@ -196,7 +198,7 @@ namespace MuonCombined {
 
       // --- Muon tagging ---
       float likelihood = 0;                                                                                                                                                    
-      float muon_score = 0;
+      float muon_score = -1;
       int tag = 0;
       std::vector<DepositInCalo> deposits;
       if (m_doCaloMuonTag) {
@@ -211,7 +213,7 @@ namespace MuonCombined {
       if(m_doCaloLR){
 	likelihood = m_caloMuonLikelihood->getLHR(tp, caloClusterCont);
       }
-      if(m_doCaloMuonScore || 1){
+      if(m_doCaloMuonScore){
 	muon_score = m_caloMuonScoreTool->getMuonScore(tp);
       }
       ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and muon score " << muon_score);
@@ -352,7 +354,7 @@ namespace MuonCombined {
     CaloTag* caloTag = 0;
     for(; deposit != depositE; deposit++)
       eLoss+=deposit->energyDeposited();
-    
+
     if (tag>0) {
       caloTag = new CaloTag(xAOD::Muon::CaloTag, eLoss, 0); //set eLoss, sigmaEloss is set to 0.
       if(likelihood > m_CaloLRlikelihoodCut)
@@ -367,6 +369,11 @@ namespace MuonCombined {
       caloTag->set_caloMuonScore(muonScore);
       tagMap->addEntry(&muonCandidate,caloTag);
     }
+
+    if (muonScore > -1) {
+      caloTag->set_author3(xAOD::Muon::CaloScore);
+    }
+
   }
 
 

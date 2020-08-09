@@ -15,6 +15,8 @@
 /// time, this service is used to manage the objects that must only
 /// be created once in the Athena process.
 ///
+/// Ported from  Control/AthenaExamples/AthExOnnxRuntime (Ricardo Woelker <ricardo.woelker@cern.ch>)
+///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
 class ICaloMuonScoreONNXRuntimeSvc : public virtual IService {

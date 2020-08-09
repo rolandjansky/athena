@@ -62,7 +62,6 @@ ToolSvc += CaloMuonLikelihoodTool
 
 ### Configure CaloMuonScoreTool ###
 from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonScoreTool as ConfiguredCaloMuonScoreTool
-print("Configuring this!!!")
 CaloMuonScoreTool = ConfiguredCaloMuonScoreTool(TrackEnergyInCaloTool = TrackEnergyInCaloTool)
 ToolSvc += CaloMuonScoreTool
 

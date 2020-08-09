@@ -49,9 +49,7 @@ def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
 def CaloMuonScoreTool(name='CaloMuonScoreTool', **kwargs ):
     from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
     caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
-    kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
     kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
-
     kwargs.setdefault("CaloMuonScoreONNXRuntimeSvc", getService("CaloMuonScoreONNXRuntimeSvc") )
     return CfgMgr.CaloMuonScoreTool(name,**kwargs)
 

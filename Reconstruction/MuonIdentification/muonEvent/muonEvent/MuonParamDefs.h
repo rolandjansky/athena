@@ -43,7 +43,7 @@ namespace MuonParameters {
      MuGirlLowBeta=15,
      CaloTag=16,
      CaloLikelihood=17,
-     CaloMuonScore=18,
+     CaloScore=18,
      MuTagIMO=19,
      MuonCombinedRefit=20,
      ExtrapolateMuonToIP=21,

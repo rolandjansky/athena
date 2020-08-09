@@ -19,6 +19,8 @@
 /// This is a very simple implementation, just managing the lifetime
 /// of some ONNX Runtime C++ objects.
 ///
+/// Ported from  Control/AthenaExamples/AthExOnnxRuntime (Ricardo Woelker <ricardo.woelker@cern.ch>)
+///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
 class CaloMuonScoreONNXRuntimeSvc : public extends< AthService, ICaloMuonScoreONNXRuntimeSvc > {

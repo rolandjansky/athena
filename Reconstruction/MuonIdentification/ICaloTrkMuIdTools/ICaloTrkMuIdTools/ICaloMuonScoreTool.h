@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 
 static const InterfaceID IID_ICaloMuonScoreTool("ICaloMuonScoreTool",1,0);
 

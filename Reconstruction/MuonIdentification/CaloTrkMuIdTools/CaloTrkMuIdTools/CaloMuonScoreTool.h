@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 #include <vector>
@@ -19,18 +18,21 @@
 
 /** @class CaloMuonScoreTool
 
-    Fetch the calorimeter cells around a track particle and compute the muon score.
+    Fetch the calorimeter cells around a track particle and compute the muon 
+    score.
  
-    The muon score is computed by doing inference on a 7-colour-channel convolutional neural 
-    network. The inputs to the convolutional neural network are the energy deposits in 30 eta 
-    and 30 phi bins around the track particle. Seven colour channels are considered, 
-    corresponding to the seven calorimeter layers (CaloSamplingIDs) in the low-eta region 
-    (eta < 0.1).
+    The muon score is computed by doing inference on a 7-colour-channel 
+    convolutional neural network. The inputs to the convolutional 
+    neural network are the energy deposits in 30 eta 
+    and 30 phi bins around the track particle. Seven colour channels are 
+    considered, corresponding to the seven calorimeter layers 
+    (CaloSamplingIDs) in the low-eta region (eta < 0.1).
 
-    The convolutional neural network was trained using tensorflow. Inference on this model 
-    is done using ONNX (the tensorflow model having been converted to ONNX format).
+    The convolutional neural network was trained using tensorflow. 
+    Inference on this model is done using ONNX (the tensorflow model 
+    having been converted to ONNX format).
 
-    @author ricardo.wolker@cern.ch
+    @author Ricardo Woelker <ricardo.woelker@cern.ch>
 */
 
 class CaloMuonScoreTool : public AthAlgTool, virtual public ICaloMuonScoreTool {
@@ -86,8 +88,6 @@ private:
   // name of the model to use
   std::string m_modelFileName;
 
-  ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
-
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
 
   /// Handle to @c IONNXRuntimeSvc
@@ -98,13 +98,10 @@ private:
   std::unique_ptr< Ort::Session > m_session;
 
   std::vector<const char*> m_input_node_names;
-  //  std::unique_ptr<std::vector<const char*> > m_input_node_names;
 
   std::vector<const char*> m_output_node_names;
-  //  std::unique_ptr<std::vector<const char*> > m_output_node_names;
 
   std::vector<int64_t> m_input_node_dims;
-  //  std::unique_ptr<std::vector<int64_t> > m_input_node_dims;
 
 };
 

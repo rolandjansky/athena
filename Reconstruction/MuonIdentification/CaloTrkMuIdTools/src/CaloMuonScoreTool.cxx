@@ -9,8 +9,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "TrkCaloExtension/CaloExtension.h"
-#include "TrkCaloExtension/CaloExtensionHelpers.h"
 #include "TrkParameters/TrackParameters.h"
 #include "ParticleCaloExtension/ParticleCellAssociationCollection.h"
 
@@ -36,10 +34,7 @@ CaloMuonScoreTool::CaloMuonScoreTool(const std::string& type, const std::string&
 StatusCode CaloMuonScoreTool::initialize() {
   ATH_MSG_INFO("Initializing " << name());
   
-  // Access the service.
   ATH_CHECK( m_svc.retrieve() );
-
-  ATH_CHECK(m_caloExtensionTool.retrieve());
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
   
   if (m_modelFileName.empty()) {
@@ -48,24 +43,20 @@ StatusCode CaloMuonScoreTool::initialize() {
   }
 
   // initialise session
-
   Ort::SessionOptions session_options;
   Ort::AllocatorWithDefaultOptions allocator;  
   session_options.SetIntraOpNumThreads(1);
   session_options.SetGraphOptimizationLevel( ORT_ENABLE_BASIC );
-  // declared in header, so we should not need this
-  //  std::unique_ptr<Ort::Session> m_session;
 
   const std::string model_file_name = PathResolverFindDataFile( m_modelFileName );
 
   m_session = std::make_unique< Ort::Session > (m_svc->env(), model_file_name.c_str(), session_options);
 
   ATH_MSG_INFO("Created ONNX runtime session with model " << model_file_name);
-  
-  //  std::vector<int64_t> m_input_node_dims;
+
   size_t num_input_nodes = m_session->GetInputCount();
   m_input_node_names.resize(num_input_nodes);
-  ATH_MSG_INFO("Have input nodes " << num_input_nodes << " " << m_input_node_dims.size() << " " << m_input_node_names.size());
+
   for( std::size_t i = 0; i < num_input_nodes; i++ ) {
     // print input node names
     char* input_name = m_session->GetInputName(i, allocator);
@@ -91,10 +82,9 @@ StatusCode CaloMuonScoreTool::initialize() {
   //output nodes
   std::vector<int64_t> output_node_dims;
   size_t num_output_nodes = m_session->GetOutputCount();
-  //std::vector<const char*> m_output_node_names(num_output_nodes);
   ATH_MSG_INFO("Have output nodes " << num_output_nodes);
   m_output_node_names.resize(num_output_nodes);
-  //m_output_node_names = std::make_unique<std::vector<const char*>(num_output_nodes);
+
   for( std::size_t i = 0; i < num_output_nodes; i++ ) {
     // print output node names
     char* output_name = m_session->GetOutputName(i, allocator);
@@ -115,8 +105,7 @@ StatusCode CaloMuonScoreTool::initialize() {
       ATH_MSG_INFO("Output"<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
     }  
   }
-  ATH_MSG_INFO("After loop " << m_input_node_dims.size() << " " <<m_input_node_names.size() << " " << m_input_node_names[0]);
-  ATH_MSG_INFO("After loop " << output_node_dims.size() << " " <<m_output_node_names.size() << " " << m_output_node_names[0]);
+
   return StatusCode::SUCCESS;
 }
 
@@ -155,6 +144,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   }
 
   ATH_MSG_INFO("Calculating muon score for track particle with eta="<<track_eta);
+
   // - associate calocells to trackparticle, cone size 0.2, use cache
   std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,0.2,nullptr);
   if(!association){
@@ -171,7 +161,6 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   // create tensor from vectors
   std::vector<float> inputTensor = getInputTensor(eta, phi, energy, sampling);
 
-  ATH_MSG_INFO("Have input tensor of size " << inputTensor.size());
   // run inference on input tensor
   float outputScore = runOnnxInference(inputTensor);
   ATH_MSG_INFO("Computed CaloMuonScore: " << outputScore);
@@ -184,34 +173,21 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 ///////////////////////////////////////////////////////////////////////////////
 float CaloMuonScoreTool::runOnnxInference( std::vector<float> &tensor ) const {  
   // create input tensor object from data values
-  ATH_MSG_INFO("In runOnnxInference");
-  ATH_MSG_INFO("In runONNX input node dims " << m_input_node_dims.size() << " " <<m_input_node_names.size() << " " << m_input_node_names[0]);
-  ATH_MSG_INFO("and output node dims " << m_output_node_names.size() << " " << m_output_node_names[0]);
-  auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-
-  ATH_MSG_INFO("Have memory info");
+  ATH_MSG_INFO("in CaloMuonScoreTool::runOnnxInference()");
   
+  auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
   int input_tensor_size(m_etaBins * m_phiBins * m_nChannels);
-  ATH_MSG_INFO("Have input tensor size " << input_tensor_size);
-  std::cout << *(m_input_node_names.data()) << " " << *(m_output_node_names.data()) << std::endl;
   Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, tensor.data(), input_tensor_size, m_input_node_dims.data(), m_input_node_dims.size());
-  ATH_MSG_INFO("Asserting is tensor " << input_tensor.IsTensor());
-  assert(input_tensor.IsTensor());
 
   // score model & input tensor, get back output tensor
-  ATH_MSG_INFO(*(m_input_node_names.data()) << " " << *(m_output_node_names.data()));
-  ATH_MSG_INFO("check session Run options " << m_input_node_names.data() << " " << m_input_node_names.size() << " " << m_output_node_names.data() << " " << m_output_node_names.size());
+
   auto output_tensors = m_session->Run(Ort::RunOptions{nullptr}, m_input_node_names.data(), &input_tensor, m_input_node_names.size(), m_output_node_names.data(), m_output_node_names.size());
-  ATH_MSG_INFO("Have output tensors "<<output_tensors.size() << " " << output_tensors.front().IsTensor());
-  assert(output_tensors.size() == 1 && output_tensors.front().IsTensor());
 
   // Get pointer to output tensor float values
   float* output_score_array = output_tensors.front().GetTensorMutableData<float>();
-  ATH_MSG_INFO("Have array");
+
   // Binary classification - the score is just the first element of the output tensor
   float output_score = output_score_array[0];
-  ATH_MSG_INFO("Havev output score: " << output_score);
-  ATH_MSG_DEBUG("Have output score: " << output_score);
   
   return output_score;
 }
@@ -221,7 +197,7 @@ float CaloMuonScoreTool::runOnnxInference( std::vector<float> &tensor ) const {
 // CaloMuonScoreTool::channelForSamplingId
 ///////////////////////////////////////////////////////////////////////////////
 int CaloMuonScoreTool::channelForSamplingId(int &samplingId) const{
-  //[0,1,2,3,12,13,14]
+  //List of 7 central calo sampling IDs: [0,1,2,3,12,13,14]
   switch(samplingId){
   case 0: return 0;
   case 1: return 1;
@@ -298,18 +274,11 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
   float median_eta = getMedian(eta);
   float median_phi = getMedian(phi);
 
-  ATH_MSG_INFO("Median eta value: " << median_eta << ", median phi value: " << median_phi);
-
   // initialise output matrix of zeros
   std::vector<float> tensor(m_etaBins * m_phiBins * m_nChannels, 0.);
 
-  
-
   std::vector<float> eta_bins = getLinearlySpacedBins(-m_etaCut, m_etaCut, m_etaBins);
   std::vector<float> phi_bins = getLinearlySpacedBins(-m_phiCut, m_phiCut, m_phiBins);
-
-  ATH_MSG_INFO("Eta bins " << m_etaBins << " " << m_etaCut << " " <<eta_bins[0] << " " << eta_bins.size());
-  ATH_MSG_INFO("Phi bins " << m_phiBins << " " << m_phiCut << " " <<phi_bins[0] << " " << phi_bins.size());
 
   int skipped_cells = 0;
 
@@ -318,8 +287,6 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
     float shifted_eta = eta[i] - median_eta;
     float shifted_phi = phi[i] - median_phi;
 
-    //    ATH_MSG_INFO("Getting bin for eta " << eta_bins[0] << " " << shifted_eta);
-    //    ATH_MSG_INFO("Getting bin for phi " << phi_bins[0] << " " << shifted_phi);
     int eta_bin = getBin(eta_bins, shifted_eta); 
     int phi_bin = getBin(phi_bins, shifted_phi);
 
@@ -327,8 +294,6 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
     if(eta_bin == -1 || phi_bin == -1){
       skipped_cells++;
       ATH_MSG_DEBUG("Skipping cell because eta or phi bin lies outside of range. Eta bin: " << eta_bin << " phi bin: " << phi_bin);
-      ATH_MSG_DEBUG("eta value: " << eta[i] << ", phi value: " << phi[i]);
-      ATH_MSG_DEBUG("Median-shifted eta value: " << shifted_eta << ", median-shifted phi value: " << shifted_phi);
       continue;
     }
 
@@ -347,7 +312,7 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
     tensor[tensor_idx] += energy[i];
   }
 
-  ATH_MSG_INFO("Skipped " << skipped_cells << " out of " << n_cells << " cells");
+  ATH_MSG_DEBUG("Skipped " << skipped_cells << " out of " << n_cells << " cells");
   
   return tensor;
 }
