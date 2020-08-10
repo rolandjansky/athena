@@ -12,6 +12,7 @@
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 posXYZHandler::posXYZHandler(std::string s):XMLHandler(s)
 {
@@ -45,6 +46,6 @@ void posXYZHandler::ElementHandle()
 		if (rotRet) std::cout<<" rot= ("<<rot[0]<<";"<<rot[1]<<";"<<rot[2]<<")";
 		std::cout<<std::endl;
 	}
-	AGDDPositioner *p=new AGDDPositioner(volume,HepGeom::Transform3D(crot,cvec));
+	AGDDPositioner *p=new AGDDPositioner(volume,Amg::CLHEPTransformToEigen(HepGeom::Transform3D(crot,cvec)));
 	globals::currentPositioner=p;
 }

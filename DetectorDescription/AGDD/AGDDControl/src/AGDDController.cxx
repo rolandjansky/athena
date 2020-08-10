@@ -3,6 +3,7 @@
 */
 
 #include "AGDDControl/AGDDController.h"
+
 #include "AGDDKernel/AGDDBuilder.h"
 #include "AGDDControl/IAGDDParser.h"
 #include "AGDDControl/XercesParser.h"
@@ -12,21 +13,21 @@
 #include "AGDDKernel/AGDDVolume.h"
 #include "AGDDKernel/AGDDPositioner.h"
 #include "AGDDKernel/AliasStore.h"
-
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
-
 #include "StoreGate/StoreGateSvc.h"
+
 #include <map>
 #include <vector>
 #include <string>
 #include <fstream>
 #include <ctime>
 #include <TString.h> // for Form
+#include <iostream>
 
 std::vector<const GeoLogVol*> volumeMap;
 
