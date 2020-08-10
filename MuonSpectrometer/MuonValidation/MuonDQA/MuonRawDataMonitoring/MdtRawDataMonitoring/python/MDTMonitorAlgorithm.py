@@ -377,9 +377,6 @@ def MdtMonitoringConfig(inputFlags):
                      maxy=103 # outer sideA
                 if(iregion=="EC"):
                      maxy=127 # outer sideA
-            #elif(ilayer=="Outer"):
-            #    titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer+"PlusExtra"
-            #    var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
             else :
                 labelsY=getMDTLabelx("labelY_OccupancyVsLB_"+iregion+"_"+ilayer)
                 if(ilayer=="Inner"):
