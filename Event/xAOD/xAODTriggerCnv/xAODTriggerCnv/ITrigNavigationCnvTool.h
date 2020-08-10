@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: $
@@ -42,7 +42,7 @@ namespace xAODMaker {
    public:
       /// Function filling an xAOD::TrigNavigation object with information
      virtual StatusCode convert( const HLT::HLTResult* aod,
-                                  xAOD::TrigNavigation* xaod ) = 0;
+                                  xAOD::TrigNavigation* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {
