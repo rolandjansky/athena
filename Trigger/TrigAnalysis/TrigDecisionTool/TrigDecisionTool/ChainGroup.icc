@@ -16,7 +16,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     ATH_MSG_ERROR("featureCollectionMode may only be called with: "
       "TrigDefs::lastFeatureOfType - stop exploring each route through the navigation once a feature matching all requirements is found. "
       "TrigDefs::allFeaturesOfType - always fully explore each route throught the navigation graph and collect all matching features.");
-    errState = true;
+    errState = true; 
   }
 
   // TODO when we decide what happens to CacheGlobalMemory - this needs to be updated to use a ReadHandle
@@ -47,7 +47,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   }
 
   // For each chain, collect Navigation information
-  std::vector< ElementLinkVector<TrigCompositeUtils::DecisionContainer> > allLinearNavigationPaths;
+  TrigCompositeUtils::NavGraph navGraph;
 
   // Loop over HLT chains
   TrigCompositeUtils::DecisionIDContainer chainIDs;
@@ -59,10 +59,10 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
 
       // Obtain navigation routes for passed chains
       // Final parameter TRUE as the chain passed (has its ID in terminusNode)
-      TrigCompositeUtils::recursiveGetDecisions(terminusNode, allLinearNavigationPaths, fchain->getChainHashId(), true);
+      TrigCompositeUtils::recursiveGetDecisions(terminusNode, navGraph, fchain->getChainHashId(), true);
 
-      ATH_MSG_DEBUG("Added all passed navigation paths for chain " << fchain->getChainName() 
-        << ", total paths:" << allLinearNavigationPaths.size());
+      ATH_MSG_DEBUG("Added all passed navigation data for chain " << fchain->getChainName() 
+        << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges());
 
       if (condition == TrigDefs::includeFailedDecisions) {
         std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
@@ -73,11 +73,11 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
 
         for (const TrigCompositeUtils::Decision* rejectedNode : rejectedDecisionNodes) {
           // Final parameter FALSE as the chain failed here (its ID was removed from rejectedNode)
-          TrigCompositeUtils::recursiveGetDecisions(rejectedNode, allLinearNavigationPaths, fchain->getChainHashId(), false);
+          TrigCompositeUtils::recursiveGetDecisions(rejectedNode, navGraph, fchain->getChainHashId(), false);
         }
 
-        ATH_MSG_DEBUG("Added all failed navigation paths for chain " << fchain->getChainName() 
-          << ", total paths:" << allLinearNavigationPaths.size());
+        ATH_MSG_DEBUG("Added all failed navigation data for chain " << fchain->getChainName() 
+          << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges());
       }
 
     } else {
@@ -85,23 +85,19 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     }
   }
 
-  if (allLinearNavigationPaths.size() == 0) {
-    ATH_MSG_DEBUG("No navigation paths found for this chain group of " << names().size() << " chains.");
+  if (navGraph.edges() == 0) {
+    ATH_MSG_DEBUG("No navigation path data found for this chain group of " << names().size() << " chains. "
+      << "Total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges());
   }
 
   if (msg().level() <= MSG::VERBOSE) {
-    size_t count = 0;
-    for (const ElementLinkVector<TrigCompositeUtils::DecisionContainer>& path : allLinearNavigationPaths) {
-      ATH_MSG_VERBOSE("Printing path " << ++count << " of " << allLinearNavigationPaths.size() << ", path has " << path.size() << " elements.");
-      for (const ElementLink<TrigCompositeUtils::DecisionContainer>& node : path) {
-        ATH_MSG_VERBOSE("  -- " << node.dataID() << " #" << node.index());
-      }
-    }
+    navGraph.printAllPaths(msg(), MSG::VERBOSE);
   }
 
   const bool lastFeatureOfTypeFlag = (featureCollectionMode == TrigDefs::lastFeatureOfType);
+
   std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
-    TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, chainIDs);
+    TrigCompositeUtils::recursiveGetFeaturesOfType<CONTAINER>(navGraph, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, chainIDs);
 
   // Check for missing navigation data if requesting the default "feature" links
   if (navElementLinkKey == TrigCompositeUtils::featureString()) {

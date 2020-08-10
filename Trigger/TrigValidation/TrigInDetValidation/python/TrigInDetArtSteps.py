@@ -9,12 +9,79 @@ The main common check steps are defined in the TrigValSteering.CheckSteps module
 
 import os
 
+from TrigValTools.TrigValSteering.ExecStep import ExecStep
 from TrigAnalysisTest.TrigAnalysisSteps import AthenaCheckerStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
 
 ##################################################
-# Additional exec (athena) steps
+# Exec (athena) steps for Reco_tf
+##################################################
+
+class TrigInDetReco(ExecStep):
+    def __init__(self, name='TrigInDetReco'):
+        ExecStep.__init__(self, name)
+##        super(TrigInDetReco, self).__init__(name)
+        self.type = 'Reco_tf'
+        self.max_events=-1
+        self.required = True
+        self.threads = 1 # TODO: change to 4
+        self.concurrent_events = 1 # TODO: change to 4
+        self.perfmon = False
+        self.timeout = 18*3600
+        self.slices = []
+        self.preexec_trig = ' '
+        self.preexec_reco =  ';'.join([
+            'from RecExConfig.RecFlags import rec',
+            'rec.doForwardDet=False',
+            'rec.doEgamma=False',
+            'rec.doMuonCombined=False',
+            'rec.doJetMissingETTag=False',
+            'rec.doTau=False'
+        ])
+        self.preexec_aod = ';'.join([
+            self.preexec_reco,
+            'from ParticleBuilderOptions.AODFlags import AODFlags',
+            'AODFlags.ThinGeantTruth.set_Value_and_Lock(False)',
+            'AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False)',
+            'AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)',
+            'AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)'
+        ])
+        self.preexec_all = ';'.join([
+            'from TriggerJobOpts.TriggerFlags import TriggerFlags',
+            'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+        ])
+        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
+
+
+    def configure(self, test):
+        chains = '['
+        flags = ''
+        for i in self.slices:
+            if (i=='muon') :
+                chains += "'HLT_mu6_idperf_L1MU6',"
+                chains += "'HLT_mu24_idperf_L1MU20',"
+                flags += 'doMuonSlice=True;'
+            if (i=='electron') :
+                chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
+                flags += 'doEgammaSlice=True;'
+            if (i=='tau') :
+                chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
+                flags += 'doTauSlice=True;'
+            if (i=='bjet') :
+                chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20',"
+                flags += 'doBjetSlice=true;'
+
+        chains += ']'
+        self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
+
+        self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
+            self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
+        super(TrigInDetReco, self).configure(test)
+
+
+##################################################
+# Additional exec (athena) steps - AOD to TrkNtuple
 ##################################################
 
 class TrigInDetAna(AthenaCheckerStep):

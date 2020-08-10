@@ -97,15 +97,20 @@ MagField::AtlasFieldMapCondAlg::execute(const EventContext& ctx) const {
 
     ATH_CHECK( updateFieldMap(ctx, cache) );
 
-
-    ATH_MSG_INFO ( "execute: solenoid zone id  " << cache.m_fieldMap->solenoidZoneId());
+    if (cache.m_fieldMap) {
+        ATH_MSG_INFO ( "execute: solenoid zone id  " << cache.m_fieldMap->solenoidZoneId());
+    }
+    else {
+        ATH_MSG_INFO ( "execute: no map read (currents == 0");
+    }
+    
     
     
     // Save newly created map in conditions object, and record it in the conditions store, with its
     // own range
     auto fieldMapCondObj = std::make_unique<AtlasFieldMapCondObj>();
     // move ownership of the field map to the fieldMapCondObj
-    fieldMapCondObj->setFieldMap(std::move(cache.m_fieldMap));
+    if (cache.m_fieldMap) fieldMapCondObj->setFieldMap(std::move(cache.m_fieldMap));
     if(mapWriteHandle.record(cache.m_mapCondObjOutputRange, std::move(fieldMapCondObj)).isFailure()) {
         ATH_MSG_ERROR("execute: Could not record AtlasFieldMapCondObj object with " 
                       << mapWriteHandle.key() 
@@ -202,7 +207,7 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
         cache.m_mapCondObjOutputRange = rangeW;
         ATH_MSG_INFO("updateFieldMap: useMapsFromCOOL == false, using default range " << rangeW);
     }
-        
+
     // We allow to set currents via the TagInfoMgr which adds tags to the TagInfo object - only allowed for offline
 
     if (m_useMapsFromCOOL) {
@@ -235,7 +240,7 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
             ATH_MSG_INFO("updateFieldMap: tagInfoH " << tagInfoH.fullKey() << " is NOT valid. ");
         }
     }
-    
+
     // Select map file according to the value of the currents which indicate which map is 'on'
 
     // determine the map to load

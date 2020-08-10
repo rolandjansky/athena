@@ -17,6 +17,11 @@
 #include "TrkTrack/LinkToTrack.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 
+// Need to include this early; otherwise, we run into errors with
+// ReferenceWrapperAnyCompat in clang builds due the is_constructable
+// specialization defined there getting implicitly instantiated earlier.
+#include "Acts/Propagator/Propagator.hpp"
+
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"

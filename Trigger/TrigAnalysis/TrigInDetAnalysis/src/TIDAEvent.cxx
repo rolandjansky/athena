@@ -52,3 +52,9 @@ void TIDA::Event::erase( const std::string& name ) {
 
 
 
+
+const TIDA::Chain* TIDA::Event::chain( const std::string& s ) const {
+  /// could use std::find(), but would need to define an equality operator or lambda
+  for( size_t i=m_chains.size() ; i-- ;  ) if ( m_chains[i].name()==s ) return &m_chains[i]; 
+  return 0;
+}

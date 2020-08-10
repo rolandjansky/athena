@@ -21,7 +21,7 @@ TIDA::Roi::~Roi() { }
 
 
 void TIDA::Roi::addTracks( const std::vector<TIDA::Track*>& trackp) { 
-   clear();
+   m_tracks.clear();
    m_tracks.reserve(trackp.size());
    for ( unsigned i=0 ; i<trackp.size() ; i++ )  m_tracks.push_back(*trackp[i]);
 }

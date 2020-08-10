@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -15,7 +16,7 @@
 #include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
 #include "LArReadoutGeometry/EMECDetDescr.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "LArHV/LArHVManager.h"
 // Class EMECDetectorManager 
 
@@ -130,7 +131,7 @@ const EMECHVManager& EMECDetectorManager::getHVManager (EMECHVManager::IOType io
 {
   if(!m_HVManager[io]) {
     //Support lazy initialization for testbeams
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
     const LArHVManager *manager{nullptr};
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
       m_HVManager[io]=&(manager->getEMECHVManager(io));
@@ -142,7 +143,7 @@ const EMECHVManager& EMECDetectorManager::getHVManager (EMECHVManager::IOType io
 const EMECPresamplerHVManager& EMECDetectorManager::getPresamplerHVManager () const
 {
   if (!m_presamplerHVManager) {
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
     const LArHVManager *manager{nullptr};
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
       m_presamplerHVManager=&(manager->getEMECPresamplerHVManager());

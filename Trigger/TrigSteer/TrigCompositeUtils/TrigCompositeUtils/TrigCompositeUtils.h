@@ -17,6 +17,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "AthContainers/AuxElement.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -25,6 +26,7 @@
 #include "TrigDecisionInterface/Conditions.h"
 
 #include "HLTIdentifier.h"
+#include "NavGraph.h"
 
 namespace TrigCompositeUtils {
 
@@ -251,17 +253,20 @@ namespace TrigCompositeUtils {
    **/
   std::vector<const Decision*> getRejectedDecisionNodes(StoreGateSvc* eventStore, const DecisionID id = 0);
   
+
+
+
   /**
-   * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
-   * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTNav_Summary (regular or rerun).
-   * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
+   * @brief Search back in time from "node" and locate all paths back through Decision objects for a given chain.
+   * @param[in] node The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTNav_Summary.
+   * @param[inout] navPaths Holds a sub-graph of the full navigation graph, filtered by DecisionID. An already partially populated graph may be provided as input.
    * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
    * @param[in] enforceDecisionOnStartNode If the check of DecisionID should be carried out on the start node.
    * enforceDecisionOnStartNode should be true if navigating for a trigger which passed (e.g. starting from HLTPassRaw)
    * enforceDecisionOnStartNode should be false if navigating for a trigger which failed but whose failing start node(s) were recovered via getRejectedDecisionNodes
    **/
-  void recursiveGetDecisions(const Decision* start, 
-    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+  void recursiveGetDecisions(const Decision* node, 
+    NavGraph& navGraph, 
     const DecisionID id = 0,
     const bool enforceDecisionOnStartNode = true);
 
@@ -269,12 +274,13 @@ namespace TrigCompositeUtils {
   /**
    * @brief Used by recursiveGetDecisions
    * @see recursiveGetDecisions
+   * @param comingFrom The parent node which has a link in the navigation to this "node"
    **/
-  void recursiveGetDecisionsInternal(const Decision* start, 
-    const size_t location, 
-    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
-    const DecisionID id = 0,
-    const bool enforceDecisionOnNode = true);
+  void recursiveGetDecisionsInternal(const Decision* node, 
+    const Decision* comingFrom,
+    NavGraph& navGraph,
+    const DecisionID id,
+    const bool enforceDecisionOnNode);
 
   /**
    * @brief Additional information returned by the TrigerDecisionTool's feature retrieval, contained within the LinkInfo.
@@ -330,19 +336,36 @@ namespace TrigCompositeUtils {
 
   /**
    * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
-   * @param[in] linkVector Vector of paths through the navigation which are to be considered.
+   * @param[in] navPaths Sub-graph of the trigger navigation which is to be considered.
    * @param[in] lastFeatureOfType True for TrigDefs::lastFeatureOfType. stops at the first feature (of the correct type) found per path through the navigation.
    * @param[in] featureName Optional name of feature link as saved online. The "feature" link is enforced, others may have been added. 
    * @param[in] chains Optional set of Chain IDs which features are being requested for. Used to set the ActiveState of returned LinkInfo objects.
    * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
    **/
   template<class CONTAINER>
-  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( 
-    const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+  const std::vector< LinkInfo<CONTAINER> > recursiveGetFeaturesOfType( 
+    const NavGraph& navGraph, 
     const std::string containerSGKey = "",
     const bool lastFeatureOfType = true,
     const std::string& navElementLinkKey = featureString(),
     const DecisionIDContainer chainIDs = DecisionIDContainer());
+
+  /**
+   * @see recursiveGetFeaturesOfType
+   * @brief Internal implimentation called by recursiveGetFeaturesOfType, and by itself
+   * @param[inout] features The untimate return vector. New links are to be appended.
+   * @param[inout] fullyExploredFrom Cache of graph nodes which have been fully explored, and hence don't need exploring again should they show up.
+   * @param[in] navGraphNode The current node in the navGraph which is being explored.
+   **/
+  template<class CONTAINER>
+  void recursiveGetFeaturesOfTypeInternal(
+    std::vector< LinkInfo<CONTAINER> >& features, 
+    std::set<const NavGraphNode*>& fullyExploredFrom,
+    const NavGraphNode* navGraphNode, 
+    const std::string containerSGKey,
+    const bool lastFeatureOfType,
+    const std::string& navElementLinkKey,
+    const DecisionIDContainer chainIDs);
 
   /**
    * @brief Perform a recursive search for ElementLinks of type T and name 'linkName', starting from Decision object 'start' 
@@ -399,11 +422,6 @@ namespace TrigCompositeUtils {
    * @warnign expensive call
    **/  
   std::string dump( const Decision*  tc, std::function< std::string( const Decision* )> printerFnc );
-
-
-  
-
-
 
 }
 

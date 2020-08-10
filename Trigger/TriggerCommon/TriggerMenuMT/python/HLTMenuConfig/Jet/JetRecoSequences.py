@@ -34,7 +34,7 @@ def jetAthSequence(dummyFlags, **jetRecoDict):
 # Dummy flag arg needed so that each reco sequence is held separately
 # in the RecoFragmentsPool -- only the kwargs are used to distinguish
 # different sequences. New convention is just to pass "None" for flags
-def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
+def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDict):
 
     jetDefString = jetRecoDictToString(jetRecoDict)
     recoSeq = parOR( "JetRecSeq_"+jetDefString, [])

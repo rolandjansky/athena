@@ -110,7 +110,7 @@ def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_Fas
 
 def clusterFSInputMaker( ):
   """Creates the inputMaker for FS in menu"""
-  RoIs = 'FSJETRoI'
+  RoIs = 'HLT_FSJETRoI'
   from AthenaConfiguration.ComponentFactory import CompFactory
   InputMakerAlg = CompFactory.InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
   InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool()
@@ -118,11 +118,11 @@ def clusterFSInputMaker( ):
   return InputMakerAlg
 
 
-def HLTCellMaker(RoIs='FSJETRoI', outputName="CaloCells", algSuffix=""):
+def HLTCellMaker(RoIs='HLT_FSJETRoI', outputName="CaloCells", algSuffix=""):
     cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker"+algSuffix, inputEDM=RoIs, outputEDM=outputName, RoIMode=True)
     return cellMakerAlgo
 
-def HLTFSCellMakerRecoSequence(RoIs='FSJETRoI'):
+def HLTFSCellMakerRecoSequence(RoIs='HLT_FSJETRoI'):
     cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
     RecoSequence = parOR("ClusterRecoSequenceFS", [cellMaker])
     return (RecoSequence, cellMaker.CellsName)

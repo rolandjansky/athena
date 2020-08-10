@@ -12,6 +12,11 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/EventContext.h"
 
+// Need to include this early; otherwise, we run into errors with
+// ReferenceWrapperAnyCompat in clang builds due the is_constructable
+// specialization defined there getting implicitly instantiated earlier.
+#include "Acts/Propagator/Propagator.hpp"
+
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
