@@ -26,7 +26,7 @@
 class AtlasDetectorID;
 class GeoVFullPhysVol;
 
-namespace HGTDGeo {
+namespace InDetDD {
 
 /**
 
@@ -138,6 +138,6 @@ inline void HGTD_DetectorElement::updateAllCaches() const
     if (!m_surface) surface();
 }
 
-} // namespace HGTDGeo
+} // namespace InDetDD
 
 #endif // HGTD_READOUTGEOMETRY_HGTD_DETECTORELEMENT_H

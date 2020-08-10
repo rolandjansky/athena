@@ -3,6 +3,7 @@
 */
 
 #include "HGTD_ReadoutGeometry/HGTD_DetectorElement.h"
+#include "HGTD_Identifier/HGTD_ID.h"
 
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -21,7 +22,7 @@
 // #include <cassert>
 // #include <limits>
 
-namespace HGTDGeo {
+namespace InDetDD {
 
 // Constructor with parameters:
 HGTD_DetectorElement::HGTD_DetectorElement(const Identifier &id,
@@ -29,7 +30,7 @@ HGTD_DetectorElement::HGTD_DetectorElement(const Identifier &id,
                                            const GeoVFullPhysVol *geophysvol,
                                            SiCommonItems * commonItems) :
   SolidStateDetectorElementBase(id, design, geophysvol, commonItems),
-  m_cacheValid(false),
+  m_cacheValid(false)
 {
     const HGTD_ID* hgtdId = dynamic_cast<const HGTD_ID *>(getIdHelper());
     m_idHash = hgtdId->wafer_hash(m_id); // TODO: implement method in HGTD_ID for returning hash
@@ -88,4 +89,4 @@ double HGTD_DetectorElement::get_rz() const
     return center().z();
 }
 
-} // namespace HGTDGeo
+} // namespace InDetDD

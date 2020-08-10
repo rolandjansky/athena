@@ -7,7 +7,7 @@
 #include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "TrkSurfaces/RectangleBounds.h"
 
-namespace HGTDGeo {
+namespace InDetDD {
 
 // Constructor with parameters:
 HGTD_DetectorDesign::HGTD_DetectorDesign(const double thickness,
@@ -165,4 +165,4 @@ HGTD_DetectorDesign::cellIdInRange(const SiCellId & cellId) const
     return m_diodeMap.cellIdInRange(cellId);
 }
 
-} // namespace HGTDGeo
+} // namespace InDetDD

@@ -27,9 +27,6 @@ namespace Trk{
 namespace InDetDD {
     class SiLocalPosition;
     class PixelDiodeMatrix;
-}
-
-namespace HGTDGeo {
 
 /**
 
@@ -69,7 +66,7 @@ public:
                         const int cellRowsPerCircuit,
                         const int diodeColumnsPerCircuit,
                         const int diodeRowsPerCircuit,
-                        const PixelDiodeMatrix * matrix,
+                        const InDetDD::PixelDiodeMatrix * matrix,
                         InDetDD::CarrierType carrierType,
                         int readoutSide);
 
@@ -269,6 +266,6 @@ inline double HGTD_DetectorDesign::intersectionLength(const SiCellId &diode1,
     return m_diodeMap.intersectionLength(diode1, diode2);
 }
 
-} // namespace HGTDGeo
+} // namespace InDetDD
 
 #endif // HGTD_READOUTGEOMETRY_HGTD_DETECTORDESIGN_H

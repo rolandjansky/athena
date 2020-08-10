@@ -6,6 +6,9 @@
 // HGTD_ID.h, (c) ATLAS Detector software
 //////////////////////////////////////////////////////////
 
+#ifndef HGTD_IDENTIFIER_HGTD_ID_H
+#define HGTD_IDENTIFIER_HGTD_ID_H
+
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/Identifier32.h"
@@ -76,8 +79,8 @@ public:
     /// @name Creators for wafer ids and pixel ids
     //@{
     /// For a single crystal
-    Identifier  wafer_id ( int endcap,  
-                           int disk, 
+    Identifier  wafer_id ( int endcap,
+                           int disk,
                            int side,
                            int quadrant,
                            int row,
@@ -146,7 +149,7 @@ public:
     /// @name navigation
     //@{
     /// To check for when quadrant wrap around may be needed
-    bool is_phi_module_max (const Identifier& id) const;
+    bool is_quadrant_max (const Identifier& id) const;
     //@}
 
     /// @name contexts to distinguish wafer id from pixel id
@@ -167,6 +170,8 @@ public:
                                          IdentifierHash& hash_id,
                                          const IdContext* context = 0) const;
     //@}
+
+    // TODO: see if these commented out methods ported from PixelID class are needed
 
     // /// Create a compact id from a value (e.g., from a persistent object).
     // /// This repacks fields in case it's a special pixel channel id.
@@ -274,3 +279,271 @@ private:
     IdDictFieldImplementation   m_eta_index_impl;
 
 };
+
+//using the macros below we can assign an identifier (and a version)
+//This is required and checked at compile time when you try to record/retrieve
+// TODO: find out what number to put here - also for HGTD_DetectorManager
+// CLASS_DEF(HGTD_ID, 2516, 1)
+
+///////////////////////////////////////////////////////////////////
+// Inline methods:
+///////////////////////////////////////////////////////////////////
+
+//----------------------------------------------------------------------------
+inline Identifier
+HGTD_ID::wafer_id ( int endcap,
+                    int disk,
+                    int side,
+                    int quadrant,
+                    int row,
+                    int module ) const
+{
+
+    // Build identifier
+    Identifier result((Identifier::value_type)0);
+
+    // // Pack fields independently
+    // m_indet_impl.pack    (indet_field_value(), result);
+    // m_pixel_impl.pack    (pixel_field_value(), result);
+    // m_bec_impl.pack      (barrel_ec,           result);
+    // m_lay_disk_impl.pack (layer_disk,          result);
+    // m_phi_mod_impl.pack  (phi_module,          result);
+    // m_eta_mod_impl.pack  (eta_module,          result);
+
+    // // Do checks
+    // if(m_do_checks) {
+    //     wafer_id_checks ( barrel_ec, layer_disk, phi_module, eta_module );
+    // }
+
+    return result;
+}
+
+//----------------------------------------------------------------------------
+inline Identifier  
+HGTD_ID::wafer_id ( const Identifier& pixel_id ) const
+{
+    Identifier result(pixel_id);
+    m_phi_index_impl.reset      (result);
+    m_eta_index_impl.reset      (result);
+    return (result);
+}
+
+//----------------------------------------------------------------------------
+inline Identifier
+HGTD_ID::wafer_id ( IdentifierHash wafer_hash ) const
+{
+    return (m_wafer_vec[wafer_hash]);
+}
+
+//----------------------------------------------------------------------------
+inline Identifier
+HGTD_ID::pixel_id ( int endcap,
+                    int disk,
+                    int side,
+                    int quadrant,
+                    int row,
+                    int module,
+                    int phi_index,
+                    int eta_index) const
+{
+
+    // Build identifier
+    Identifier result((Identifier::value_type)0);
+    // m_indet_impl.pack          (indet_field_value(), result);
+    // m_pixel_impl.pack          (pixel_field_value(), result);
+    // m_bec_impl.pack            (barrel_ec,   result);
+    // m_lay_disk_impl.pack       (layer_disk,  result);
+    // m_phi_mod_impl.pack        (phi_module,  result);
+    // m_eta_mod_impl.pack        (eta_module,  result);
+    // m_phi_index_impl.pack      (phi_index,   result);
+    // m_eta_index_impl.pack      (eta_index,   result);
+
+    // if(m_do_checks) {
+
+    //     pixel_id_checks ( barrel_ec, 
+    //                       layer_disk, 
+    //                       phi_module, 
+    //                       eta_module, 
+    //                       phi_index,
+    //                       eta_index);
+    // }
+    
+    return result;
+}
+
+/// Create pixel Identifier from expanded id, which is returned by the
+/// id_iterators
+//----------------------------------------------------------------------------
+inline Identifier
+HGTD_ID::pixel_id       (const ExpandedIdentifier& id) const
+{
+    Identifier result;
+    result = pixel_id(id[m_ENDCAP_INDEX],
+                      id[m_DISK_INDEX],
+                      id[m_SIDE_INDEX],
+                      id[m_QUADRANT_INDEX],
+                      id[m_ROW_INDEX],
+                      id[m_MODULE_INDEX],
+                      id[m_PHI_INDEX_INDEX],
+                      id[m_ETA_INDEX_INDEX]);
+
+    if(m_do_checks) {
+        pixel_id_checks (id[m_ENDCAP_INDEX],
+                         id[m_DISK_INDEX],
+                         id[m_SIDE_INDEX],
+                         id[m_QUADRANT_INDEX],
+                         id[m_ROW_INDEX],
+                         id[m_MODULE_INDEX],
+                         id[m_PHI_INDEX_INDEX],
+                         id[m_ETA_INDEX_INDEX]);
+    }
+
+    return (result);
+}
+
+//----------------------------------------------------------------------------
+inline Identifier  
+HGTD_ID::pixel_id ( const Identifier& wafer_id, 
+                    int phi_index,
+                    int eta_index) const
+{
+    Identifier result(wafer_id);
+    // m_phi_index_impl.reset     (result);
+    // m_eta_index_impl.reset     (result);
+    // m_phi_index_impl.pack      (phi_index,   result);
+    // m_eta_index_impl.pack      (eta_index, result);
+    return (result);
+}
+
+//----------------------------------------------------------------------------
+inline IdentifierHash      HGTD_ID::wafer_hash      (Identifier wafer_id) const
+{
+    id_vec_it it = std::lower_bound(m_wafer_vec.begin(), 
+                                    m_wafer_vec.end(), 
+                                    wafer_id);
+    // Require that wafer_id matches the one in vector
+    if (it != m_wafer_vec.end() && wafer_id == (*it)) {
+        return (it - m_wafer_vec.begin());
+    }
+    IdentifierHash result;
+    return (result); // return hash in invalid state
+}
+
+//----------------------------------------------------------------------------
+inline Identifier::diff_type
+HGTD_ID::calc_offset(const Identifier& base, const Identifier& target) const
+{
+  Identifier::diff_type tval = static_cast<Identifier::diff_type>(target.get_compact() >> base_bit());
+  Identifier::diff_type bval = static_cast<Identifier::diff_type>(base.get_compact() >> base_bit());
+  return (tval - bval);
+}
+
+//----------------------------------------------------------------------------
+inline Identifier
+HGTD_ID::pixel_id_offset(const Identifier& base,
+                         Identifier::diff_type offset) const
+{
+  Identifier::value_type bval = base.get_compact() >> base_bit();
+  return Identifier((bval + offset) << base_bit());
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::base_bit ( void ) const
+{
+    // TODO: determine if anything needs to change here (implementation ported from PixelID)
+    // TODO: e.g. m_eta_index_impl is still lowest field base, but where does the 32 come from? 32 bits?
+    // TODO: also understand what's happening
+    int base = static_cast<int>(m_eta_index_impl.shift()); // lowest field base
+    return (base > 32) ? 32 : base;
+    // max base is 32 so we can still read old strip id's and differences
+    // from non-SLHC releases.
+}
+
+//----------------------------------------------------------------------------
+inline IdContext
+HGTD_ID::wafer_context          (void) const
+{
+    ExpandedIdentifier id;
+    // return (IdContext(id, 0, m_ETA_MODULE_INDEX));
+    // TODO: figure out what needs to go in this constructor
+    return (IdContext(id, 0, 0));
+}
+
+//----------------------------------------------------------------------------
+inline IdContext
+HGTD_ID::pixel_context  (void) const
+{
+    // For pixel only, the prefix is the first two levels
+    ExpandedIdentifier id;
+    // id << indet_field_value() << pixel_field_value(); // TODO: add hgtd_field_value() method to AtlasDetectorID base class
+    // return (IdContext(id, m_BARREL_EC_INDEX, m_ETA_INDEX_INDEX));
+    // TODO: figure out what needs to go in this constructor
+    return (IdContext(id, 0, 0));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::endcap       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_ec_impl.unpack(id));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::disk       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_disk_impl.unpack(id));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::side       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_side_impl.unpack(id));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::quadrant       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_quad_impl.unpack(id));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::row       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_row_impl.unpack(id));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::module       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_mod_impl.unpack(id));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::phi_index       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_phi_index_impl.unpack(id));
+}
+
+//----------------------------------------------------------------------------
+inline int
+HGTD_ID::eta_index       (const Identifier& id) const
+{
+    // Normal unshifted id
+    return (m_eta_index_impl.unpack(id));
+}
+
+#endif // HGTD_IDENTIFIER_HGTD_ID_H
