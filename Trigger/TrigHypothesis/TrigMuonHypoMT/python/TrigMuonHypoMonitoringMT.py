@@ -136,3 +136,5 @@ class TrigMuonEFInvMassHypoMonitoring(GenericMonitoringTool):
 
         self.defineHistogram('Mass', type='TH1F', path='EXPERT', title="Dimuon mass from #TrigMuonEFInvMHypo; Mass (GeV)",
                              xbins=200, xmin=0, xmax=200)
+        self.defineHistogram('Mass_sel', type='TH1F', path='EXPERT', title="Dimuon mass for selected events from #TrigMuonEFInvMHypo; Mass (GeV)",
+                             xbins=200, xmin=0, xmax=200)
