@@ -22,12 +22,6 @@ public:
 };
 
 
-//class SeedMakingWorkContext {//base class
-//public:
-//  SeedMakingWorkContext() {};
-//  SeedMakingWorkContext(const SeedMakingWorkContext& c) {};
-//};
-
 struct SeedMakingDeviceContext {
 public:
   SeedMakingDeviceContext() : m_deviceId(-1), h_spacepoints(0), d_spacepoints(0), d_size(0), h_size(0) {};
