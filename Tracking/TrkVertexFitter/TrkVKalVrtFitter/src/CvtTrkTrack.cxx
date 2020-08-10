@@ -141,7 +141,8 @@ namespace Trk{
                                            const std::vector<double>& VKCov,
                                            const IVKalState& istate) const
   {
-    const State& state = dynamic_cast<const State&> (istate);
+    assert(dynamic_cast<const State*> (&istate)!=nullptr);
+    const State& state = static_cast<const State&> (istate);
     const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov, state);
 				      
     const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
