@@ -1,5 +1,5 @@
-/*  
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZDCTriggerEfficiency.h"
@@ -33,9 +33,9 @@ std::pair<double, double> ZDCTriggerEfficiency::GetEfficiencyAndError(MsgStream&
 	double betaErr = _currentParamErrors[side][1];
 	double thetaErr = _currentParamErrors[side][2];
 
-	double corr_alpha_beta = _currentCorrCoefff[side][0]; 
+	double corr_alpha_beta = _currentCorrCoefff[side][0];
 	double corr_alpha_theta = _currentCorrCoefff[side][1];
-	double corr_beta_theta = _currentCorrCoefff[side][2]; 
+	double corr_beta_theta = _currentCorrCoefff[side][2];
 
 	double m = exp(-ADCSum/theta);
 	double p = exp(-(ADCSum - alpha) / beta);
@@ -46,12 +46,12 @@ std::pair<double, double> ZDCTriggerEfficiency::GetEfficiencyAndError(MsgStream&
 
 	double efficiencyErr = sqrt(
 			alphaErr * alphaErr * dda * dda +
-			betaErr * betaErr * ddb * ddb + 
-			thetaErr * thetaErr * ddt * ddt + 
-			2 * corr_alpha_beta*alphaErr*betaErr * dda * ddb + 
-			2 * corr_alpha_theta*alphaErr*thetaErr * dda * ddt + 
-			2 * corr_beta_theta*betaErr*thetaErr * ddb * ddt); 
-       
+			betaErr * betaErr * ddb * ddb +
+			thetaErr * thetaErr * ddt * ddt +
+			2 * corr_alpha_beta*alphaErr*betaErr * dda * ddb +
+			2 * corr_alpha_theta*alphaErr*thetaErr * dda * ddt +
+			2 * corr_beta_theta*betaErr*thetaErr * ddb * ddt);
+
 	if (efficiencyErr<0)
 	  {
 	    efficiencyErr = 0;

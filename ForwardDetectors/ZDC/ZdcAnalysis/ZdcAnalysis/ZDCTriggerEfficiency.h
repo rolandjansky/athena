@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCTRIGGEREFFICIENCY_H
@@ -31,13 +31,13 @@ class ZDCTriggerEfficiency{
   std::array<std::vector<double>, 2> _currentParamErrors;
   std::array<std::vector<double>, 2> _currentCorrCoefff;
 
-	void UpdatelumiBlock(unsigned int lumiBlock) 
+	void UpdatelumiBlock(unsigned int lumiBlock)
 	{
 		if (!_haveParams) throw;
 
 		if (lumiBlock != _currentLB) {
 			int newLB = std::max(std::min(lumiBlock, _maxLB), _minLB);
-			for (int side : {0, 1}) { 
+			for (int side : {0, 1}) {
 				_currentParams[side].clear();
 				_currentParamErrors[side].clear();
 				_currentCorrCoefff[side].clear();
@@ -60,13 +60,13 @@ public:
   _haveParams(false), _haveCorrCoeffs(false),
     _minLB(0), _maxLB(0), _currentLB(0)
     {
-      
+
 	}
 
-  void SetEffParamsAndErrors(std::array<std::vector<TSpline3*>, 2> effParams, 
+  void SetEffParamsAndErrors(std::array<std::vector<TSpline3*>, 2> effParams,
 			     std::array<std::vector<TSpline3*>, 2> effParamErrors)
   {
-    for (int side : {0, 1}) { 
+    for (int side : {0, 1}) {
       _effParams[side] = effParams[side];
       _effParamErrors[side] = effParamErrors[side];
       //for (int iarr=0;iarr<3;iarr++)
@@ -81,9 +81,9 @@ public:
     _haveParams = true;
   }
 
-  void SetEffParamCorrCoeffs(std::array<std::vector<TSpline3*>, 2> effParamsCorrCoeffs) 
+  void SetEffParamCorrCoeffs(std::array<std::vector<TSpline3*>, 2> effParamsCorrCoeffs)
   {
-    for (int side : {0, 1}) { 
+    for (int side : {0, 1}) {
       _effParamCorrCoeffs[side] = effParamsCorrCoeffs[side];
       //for (int iarr=0;iarr<3;iarr++)
 	//{
@@ -95,7 +95,7 @@ public:
   }
 
   double GetEfficiency(int side, float ADCSum);
-  
+
   std::pair<double, double> GetEfficiencyAndError(MsgStream& msg, int side, float ADCSum);
 
 };

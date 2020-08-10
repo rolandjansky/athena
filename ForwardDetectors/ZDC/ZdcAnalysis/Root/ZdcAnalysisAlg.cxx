@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZdcAnalysisAlg.h"
 
 namespace ZDC
 {
-  
+
   ZdcAnalysisAlg ::
   ZdcAnalysisAlg (const std::string& name, ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)

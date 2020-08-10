@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef _ZDCMsg_h
 #define _ZDCMsg_h
 
