@@ -14,7 +14,7 @@ StatusCode PseudoJetMerger::initialize() {
 
   // Ugly check but no other good way of testing at initialisation
   auto add_if_ghost = [](unsigned int sum_ghosts, const SG::ReadHandleKey<PseudoJetContainer>& pjckey) {
-    return sum_ghosts + pjckey.key().find("Ghost")!=std::string::npos;
+      return sum_ghosts + (pjckey.key().find("Ghost")!=std::string::npos);
   };
   unsigned int N_ghosts = std::accumulate(m_inputPJC.begin(), m_inputPJC.end(), 0, add_if_ghost);
   if(m_inputPJC.size()-N_ghosts!=1) {

@@ -36,7 +36,8 @@ namespace Trk{
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
                                          IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 //
 //------ Variables and arrays needed for fitting kernel
 //
@@ -82,7 +83,8 @@ namespace Trk{
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
                                          IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 //
 //------ Variables and arrays needed for fitting kernel
 //

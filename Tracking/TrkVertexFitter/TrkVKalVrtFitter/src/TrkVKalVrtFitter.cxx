@@ -421,7 +421,8 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                                      const Amg::Vector3D & startingPoint,
                                      IVKalState& istate) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 
     xAOD::Vertex * tmpVertex = nullptr;
     setApproximateVertex(startingPoint.x(),
@@ -505,7 +506,8 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                                      const xAOD::Vertex & constraint,
                                      IVKalState& istate) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
     xAOD::Vertex * tmpVertex = nullptr;

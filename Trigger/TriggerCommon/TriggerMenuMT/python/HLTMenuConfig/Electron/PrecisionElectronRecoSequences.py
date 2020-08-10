@@ -33,7 +33,6 @@ def precisionElectronRecoSequence(RoIs):
     
     ViewVerifyTrk.DataObjects = [( 'TrackCollection' , 'StoreGateSvc+' + TrackCollection ),
                                  ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
-                                 ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
@@ -43,7 +42,6 @@ def precisionElectronRecoSequence(RoIs):
     # These objects must be loaded from SGIL if not from CondInputLoader
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
       ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),

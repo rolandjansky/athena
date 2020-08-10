@@ -8,9 +8,9 @@
 #include <cmath>
 
 // Local include(s):
-#include "xAODCore/tools/FloatCompressor.h"
+#include "CxxUtils/FloatCompressor.h"
 
-namespace xAOD {
+namespace CxxUtils {
 
    /// Total number of total mantissa bits
    static const unsigned int NMANTISSA = 23;
@@ -122,4 +122,4 @@ namespace xAOD {
       return fi.fvalue;
    }
 
-} // namespace xAOD
+} // namespace CxxUtils

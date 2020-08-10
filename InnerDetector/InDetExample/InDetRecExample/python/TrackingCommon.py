@@ -840,6 +840,27 @@ def getInDetSCT_ConditionsSummaryTool() :
     return def_InDetSCT_ConditionsSummaryTool
 
 @makePublicTool
+def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
+    the_name = makeName(name, kwargs)
+    from AthenaCommon.DetFlags import DetFlags
+    from InDetRecExample.InDetJobProperties import InDetFlags
+
+    if 'SctSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
+
+    if 'PixelLayerTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelLayerTool   = getInDetTestPixelLayerTool())
+
+    kwargs = setDefaults(
+        kwargs,
+        UsePixel=DetFlags.haveRIO.pixel_on(),
+        UseSCT=DetFlags.haveRIO.SCT_on(),
+    )
+
+    from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+    return InDet__InDetBoundaryCheckTool(name=the_name, **kwargs)
+
+@makePublicTool
 def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     the_name = makeName( name, kwargs)
     from AthenaCommon.DetFlags    import DetFlags
@@ -848,18 +869,13 @@ def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     if 'Extrapolator' not in kwargs :
         kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
 
-    if 'SctSummaryTool' not in kwargs :
-        kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
-
-    if 'PixelLayerTool' not in kwargs :
-        kwargs = setDefaults( kwargs, PixelLayerTool   = getInDetTestPixelLayerTool())
+    if 'BoundaryCheckTool' not in kwargs :
+        kwargs = setDefaults( kwargs, BoundaryCheckTool= getInDetBoundaryCheckTool())
 
     if InDetFlags.doCosmics :
         kwargs = setDefaults( kwargs, Cosmics = True)
 
     kwargs = setDefaults( kwargs,
-                          usePixel                     = DetFlags.haveRIO.pixel_on(),
-                          useSCT                       = DetFlags.haveRIO.SCT_on(),
                           CountDeadModulesAfterLastHit = True)
 
     from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool

@@ -40,9 +40,9 @@
 #include <cmath>
 
 namespace MuonCombined {
- 
-
   MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent) :
+
+
     AthAlgTool(type, name, parent),
     m_nTrueMuons(0),
     m_nTracksTagged(0),
@@ -63,6 +63,10 @@ namespace MuonCombined {
     // --- Get an Identifier helper object ---
     if( m_doCaloLR ) ATH_CHECK( m_caloMuonLikelihood.retrieve() );
     else m_caloMuonLikelihood.disable();
+
+    if( m_doCaloMuonScore ) ATH_CHECK( m_caloMuonScoreTool.retrieve() );
+    else m_caloMuonScoreTool.disable();
+
     ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
     ATH_CHECK( m_caloMuonTagTight.retrieve()   );
     ATH_CHECK( m_trkDepositInCalo.retrieve()   );
@@ -194,6 +198,7 @@ namespace MuonCombined {
 
       // --- Muon tagging ---
       float likelihood = 0;                                                                                                                                                    
+      float muon_score = -1;
       int tag = 0;
       std::vector<DepositInCalo> deposits;
       if (m_doCaloMuonTag) {
@@ -205,9 +210,13 @@ namespace MuonCombined {
 	tag = m_caloMuonTagLoose->caloMuonTag(deposits, par->eta(), par->pT());
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
       }
-      if(m_doCaloLR)
+      if(m_doCaloLR){
 	likelihood = m_caloMuonLikelihood->getLHR(tp, caloClusterCont);
-	ATH_MSG_DEBUG("Track found with tag " << tag << " and LHR " << likelihood);
+      }
+      if(m_doCaloMuonScore){
+	muon_score = m_caloMuonScoreTool->getMuonScore(tp);
+      }
+      ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and muon score " << muon_score);
       // --- If both the taggers do not think it's a muon, forget about it ---
       if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut) {
 	continue;                                                                                                                                                            
@@ -218,7 +227,7 @@ namespace MuonCombined {
       }
       
       // FIXME const-cast  changes object passed in as const
-      createMuon(*idTP,  deposits, tag, likelihood, tagMap);
+      createMuon(*idTP,  deposits, tag, likelihood, muon_score, tagMap);
 
       // --- Count number of muons written to container 
       if ( abs(pdgId) == 13 )  m_nMuonsTagged++;
@@ -337,7 +346,7 @@ namespace MuonCombined {
   }
   
   void MuonCaloTagTool::createMuon(const InDetCandidate& muonCandidate,
-                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const {
+                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood, float muonScore, InDetCandidateToTagMap* tagMap) const {
     
     std::vector<DepositInCalo>::const_iterator deposit  = deposits.begin();
     std::vector<DepositInCalo>::const_iterator depositE = deposits.end();
@@ -345,7 +354,7 @@ namespace MuonCombined {
     CaloTag* caloTag = 0;
     for(; deposit != depositE; deposit++)
       eLoss+=deposit->energyDeposited();
-    
+
     if (tag>0) {
       caloTag = new CaloTag(xAOD::Muon::CaloTag, eLoss, 0); //set eLoss, sigmaEloss is set to 0.
       if(likelihood > m_CaloLRlikelihoodCut)
@@ -357,9 +366,14 @@ namespace MuonCombined {
       caloTag->set_deposits(deposits);
       caloTag->set_caloMuonIdTag(tag);
       caloTag->set_caloLRLikelihood(likelihood);
-      
+      caloTag->set_caloMuonScore(muonScore);
       tagMap->addEntry(&muonCandidate,caloTag);
     }
+
+    if (muonScore > -1) {
+      caloTag->set_author3(xAOD::Muon::CaloScore);
+    }
+
   }
 
 

@@ -77,9 +77,9 @@ int main() {
 
    // Verbose level setting:
 #ifdef XAOD_STANDALONE
-   static const MSG::Level verboseLevel = MSG::VERBOSE;
+   static const MSG::Level verboseLevel = MSG::INFO;
 #else
-   static const int verboseLevel = 1;
+   static const int verboseLevel = 3;
 #endif // XAOD_STANDALONE
 
    asg::AnaToolHandle<IObservableTool> myTool("ParticleScaleFactorTool/tool1");

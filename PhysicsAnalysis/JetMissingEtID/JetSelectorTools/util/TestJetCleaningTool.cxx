@@ -18,7 +18,7 @@
 #include "TString.h"
 #include "TSystem.h"
 
-const char* parseResult(const Root::TAccept& result, const char* selection="Cleaning")
+const char* parseResult(const asg::AcceptData& result, const char* selection="Cleaning")
 {
     return result.getCutResult(selection)==true?"true":"false";
 }

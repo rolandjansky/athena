@@ -9,7 +9,7 @@
 #include "ISF_Geant4Event/ISFG4Helper.h"
 
 // Atlas G4 Helpers
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
@@ -51,7 +51,7 @@
   - retrives information from a G4Step (via StepHelper)
   Simulation/G4Sim/MCTruth/MCTruth/TruthStrategy.h
   - common base for different truth strategies
-  Simulation/G4Sim/MCTruth/src/EventInformation.cxx
+  Simulation/G4Sim/MCTruth/src/AtlasG4EventUserInfo.cxx
   - stores HepMCevent in G4
   Simulation/G4Sim/MCTruth/src/TrackInformation.cxx
   Simulation/G4Sim/MCTruth/src/TrackHelper.cxx
@@ -62,13 +62,13 @@
 iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
                                                const ISF::ISFParticle& baseISP,
                                                AtlasDetDescr::AtlasRegion geoID,
-                                               EventInformation *eventInfo) :
+                                               AtlasG4EventUserInfo *atlasG4EvtUserInfo) :
   ITruthIncident(geoID, step->GetSecondaryInCurrentStep()->size()), // switch to G4Step::GetNumberOfSecondariesInCurrentStep() once we're using G4 10.2 or later
   m_positionSet(false),
   m_position(),
   m_step(step),
   m_baseISP(baseISP),
-  m_eventInfo(eventInfo),
+  m_atlasG4EvtUserInfo(atlasG4EvtUserInfo),
   m_childrenPrepared(false),
   m_children(),
   m_parentParticleAfterIncident(nullptr)
@@ -125,7 +125,7 @@ Barcode::ParticleBarcode iGeant4::Geant4TruthIncident::parentBarcode() const {
 }
 
 HepMC::GenParticlePtr iGeant4::Geant4TruthIncident::parentParticle() const {
-  HepMC::GenParticlePtr hepParticle = m_eventInfo->GetCurrentlyTraced();
+  HepMC::GenParticlePtr hepParticle = m_atlasG4EvtUserInfo->GetCurrentlyTraced();
 
   return hepParticle;
 }
@@ -161,14 +161,14 @@ HepMC::GenParticlePtr iGeant4::Geant4TruthIncident::parentParticleAfterIncident(
     // from G4DynamicParticle (which should be equivalent to postStep)
     m_parentParticleAfterIncident = convert(track, newBarcode, false);
     
-    m_eventInfo->SetCurrentlyTraced( m_parentParticleAfterIncident );
+    m_atlasG4EvtUserInfo->SetCurrentlyTraced( m_parentParticleAfterIncident );
     
     // store (new) hepmc particle in track's UserInformation
     TrackHelper       tHelper(track);
     TrackInformation *tInfo = tHelper.GetTrackInformation();
     if (tInfo) {
       // do NOT update the TrackInformation for regenerated particles!
-      // (most recent truth info is kept in EventInformation)
+      // (most recent truth info is kept in AtlasG4EventUserInfo)
       //tInfo->SetParticle( m_parentParticleAfterIncident );
       int regenerationNr = tInfo->GetRegenerationNr();
       regenerationNr++;

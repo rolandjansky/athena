@@ -128,6 +128,7 @@ StatusCode HLTBjetMonTool::init() {
   ATH_CHECK( m_offlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineTrackContainerKey.initialize() );
+  ATH_CHECK( m_onlineBTaggingContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -1083,6 +1084,8 @@ StatusCode HLTBjetMonTool::book(){
 	  if(HistJet) hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(jet->eta(),jet->phi());
 	  // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	  if (ijet == 0) {
+
+	    // Fetch and plot PV
 	    std::string vtxname = m_onlineVertexContainerKey.key();
 	    if ( vtxname.find("HLT_")==0 ) vtxname.erase(0,4);
 	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120 & MS 290620
@@ -1090,7 +1093,70 @@ StatusCode HLTBjetMonTool::book(){
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	    ATH_MSG_DEBUG("        PVz_jet from jet link info: " << vtx->z());
 	    // if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
-	  }
+
+	    // Fetch and plot BTagging information
+
+	    std::string btagname = m_onlineBTaggingContainerKey.key();
+	    if ( btagname.find("HLT_")==0 ) btagname.erase(0,4);
+	    auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, btagname );
+	    ATH_CHECK( btaggingLinkInfo.isValid() ) ;
+	    const xAOD::BTagging* btag = *(btaggingLinkInfo.link);
+
+	    double wIP3D, wSV1, wCOMB, wMV2c10  = 0.; // discriminant variables
+	    float svp_efrc, svp_mass = -1.; int svp_n2t = -1; // SV1 variables
+	    btag->loglikelihoodratio("IP3D", wIP3D);
+	    btag->loglikelihoodratio("SV1", wSV1);
+	    double SV1_loglikelihoodratioLZ = btag->SV1_loglikelihoodratio();
+	    wCOMB = wIP3D+wSV1;
+
+	    wMV2c10 = btag->auxdata<double>("MV2c10_discriminant");
+
+	    // Suggestion of LZ
+	    btag->variable<float>("SV1", "masssvx", svp_mass);
+	    btag->variable<float>("SV1", "efracsvx", svp_efrc);
+	    btag->variable<int>("SV1", "N2Tpair", svp_n2t);
+	    ATH_MSG_DEBUG("                 -   Before SV1 check - MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
+	    if (HistBjet) hist("xNVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
+	    if ( svp_n2t > 0 ) {
+	      if (HistBjet) hist("xMVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass * 1.e-3 );
+	      if (HistBjet) hist("xEVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
+	    } // if svp_n2t
+	      // end of suggestion of LZ
+	    ATH_MSG_DEBUG("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << btag->IP3D_pu() << " / " << btag->IP3D_pb() << " / " << btag->IP3D_pc() );
+	    if (HistBjet) hist("IP3D_pu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(btag->IP3D_pu());
+	    if (HistBjet) hist("IP3D_pb_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(btag->IP3D_pb());
+	    if (HistBjet) hist("IP3D_pc_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(btag->IP3D_pc());
+	    ATH_MSG_DEBUG("                 -   IP3D / SV1 / IP3D+SV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB );
+	    ATH_MSG_DEBUG("                 -   SV1 LZ: " << SV1_loglikelihoodratioLZ );
+	    ATH_MSG_DEBUG("                 -   MV2c10 : " << wMV2c10 );
+	    if (HistBjet) hist("wIP3D_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wIP3D);
+	    if (HistBjet) hist("wSV1_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wSV1);
+	    if (HistBjet) hist("wCOMB_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wCOMB);
+	    if (HistBjet) hist("wMV2c10_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c10);
+	    
+	    // Get SV1 secondary vtx information, see:
+	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/MV2Tag.cxx#0486 and
+	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/GaiaNNTool.cxx#0349
+	    std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
+	    ATH_MSG_DEBUG("    SV1 info source name before calling VertexContainer: " << m_sv1_infosource ) ;
+	    btag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices);
+	    ATH_MSG_DEBUG("    SV1 info source name after calling VertexContainer: " << m_sv1_infosource ) ;
+	    if ( myVertices.size() > 0 && myVertices[0].isValid() ) {
+	      ATH_MSG_DEBUG("    SV1 vertex size: " << myVertices.size() << " is it valid? " << myVertices[0].isValid() ) ;
+	      btag->variable<float>(m_sv1_infosource, "masssvx", svp_mass);
+	      btag->variable<float>(m_sv1_infosource, "efracsvx", svp_efrc);
+	      btag->variable<int>(m_sv1_infosource, "N2Tpair", svp_n2t);
+	      ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
+	      if ( svp_n2t > 0 ) {
+	      } // if svp_n2t
+	    } else {
+	      ATH_MSG_DEBUG("  No valid SV1 vertex found --  SV1 vertex size: " << myVertices.size() );
+	      if ( myVertices.size() > 0 ) ATH_MSG_DEBUG("  No valid SV1 vertex found -- myVertices[0].isValid(): " << myVertices[0].isValid() ) ;
+	    } // if vertex valid
+
+ 
+	  } // if (ijet == 0)
+
 	  ijet++;
 
 	  // Tracks associated to triggered jets ( featurs = onlinejets ) courtesy of Tim Martin on 12/05/2020

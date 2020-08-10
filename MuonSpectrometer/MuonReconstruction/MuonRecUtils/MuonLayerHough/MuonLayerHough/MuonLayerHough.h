@@ -8,6 +8,7 @@
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "MuonLayerHough/Hit.h"
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
+
 #include <vector>
 #include <iostream>
 #include <string>
@@ -132,7 +133,7 @@ namespace MuonHough {
     void associateHitsToMaximum( Maximum& maximum, const std::vector<Hit*>& hits ) const;
 
     /// calculates the first and last bin the hit should be filled in for a given theta bin
-    std::pair<int,int> range( float x, float y1, float y2, int bintheta ) const;
+    std::pair<int,int> range(const float x, const float y1, const float y2, const int bintheta) const;
 
     /// returns a pair with the position and angle corresponing to the input x,y values
     std::pair<float,float> maximum( float x, float y, int& posbin, int& thetabin ) const;

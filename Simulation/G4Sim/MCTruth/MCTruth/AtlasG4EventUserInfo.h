@@ -2,17 +2,17 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EventInformation_H
-#define EventInformation_H
+#ifndef MCTRUTH_ATLASG4EVENTUSERINFO_H
+#define MCTRUTH_ATLASG4EVENTUSERINFO_H
 
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "G4ThreeVector.hh"
 #include "G4VUserEventInformation.hh"
 
-class EventInformation: public G4VUserEventInformation {
+class AtlasG4EventUserInfo: public G4VUserEventInformation {
 public:
-        EventInformation(): G4VUserEventInformation(),m_nrOfPrimaryParticles(0),
+        AtlasG4EventUserInfo(): G4VUserEventInformation(),m_nrOfPrimaryParticles(0),
                         m_nrOfPrimaryVertices(0),m_secondaryParticleBarCode(200000),
                         m_secondaryVertexBarCode(-200000),m_theEvent(0),
                         m_currentPrimary(0),m_currentlyTraced(0),
@@ -59,4 +59,4 @@ private:
         int m_last_processed_step;
 };
 
-#endif
+#endif // MCTRUTH_ATLASG4EVENTUSERINFO_H

@@ -16,7 +16,7 @@ The MCTruth package includes the following classes:
 
  - AtlasTrajectory : An ATLAS-specific Geant4 trajectory, used as a helper (i.e. including some additional information for us)
  - CosmicTRSD : The track recording sensitive detector used by the cosmic simulation.  This sensitive detector stores cosmic rays at the entrance to the cavern so that they can be resimulated beginning from that point later on.
- - EventInformation : The ATLAS implementation of G4UserEventInformation.  Includes some helpful information about the event.
+ - AtlasG4EventUserInfo : The ATLAS implementation of G4UserEventInformation.  Includes some helpful information about the event.
  - MCTruthSteppingAction : A piece of code that tests, at every step, whether a particle (or vertex, more accurately) is to be saved in the truth tree.  It decides based on the Truth Strategies enabled in the TruthStrategyManager
  - PrimaryParticleInformation : The ATLAS implementation of user information for a particle.  This stores additional information for those particles coming from the generator for use later in the simulation.
  - TrackHelper : Provides several useful functions for dealing with G4Tracks

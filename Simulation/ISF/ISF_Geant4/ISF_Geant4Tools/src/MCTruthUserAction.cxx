@@ -23,7 +23,7 @@
 
 // Athena includes
 #include "MCTruth/TrackInformation.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackHelper.h"
 
 #include "G4EventManager.hh"

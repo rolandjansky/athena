@@ -42,7 +42,6 @@ struct DetectorPositionParameters {
 class AGDDDetectorPositioner:public AGDDPositioner {
 public:
 	AGDDDetectorPositioner(std::string n,HepGeom::Transform3D t);
-	AGDDDetectorPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v);
 
 	Identifiers ID;
 
