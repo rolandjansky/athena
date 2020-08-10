@@ -4,32 +4,11 @@
 
 #include "TopPartons/CalcThqPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
+#include "TopPartons/PartonHistoryUtils.h"
 #include "TopConfiguration/TopConfig.h"
-
 
 namespace top {
   CalcThqPartonHistory::CalcThqPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
-  const xAOD::TruthParticle* CalcThqPartonHistory::findAfterGamma(const xAOD::TruthParticle* particle) {
-    bool isAfterGamma(false);
-    const int particle_ID = particle->pdgId();
-    int forLoop;
-
-    while (!isAfterGamma) {
-      forLoop = 0;
-      for (size_t j = 0; j < particle->nChildren(); j++) {
-        const xAOD::TruthParticle* tmp_children = particle->child(j);
-        if (tmp_children && tmp_children->pdgId() == particle_ID && tmp_children->pdgId() != 22) {
-          particle = particle->child(j);
-          forLoop++;
-          break;
-        }//if
-      }//for
-
-      if (forLoop == 0) isAfterGamma = true;
-    }//while
-    return particle;
-  }
-
   int CalcThqPartonHistory::sign(int a) {
     if (a < 0) {
       return -1;
@@ -64,7 +43,7 @@ namespace top {
       for (size_t k = 0; k < particle->nChildren(); k++) {
         const xAOD::TruthParticle* HiggsChildren = particle->child(k);
         if (fabs(HiggsChildren->pdgId()) == 15) {// demanding tau-leptons as childen
-          const xAOD::TruthParticle* tau = CalcThqPartonHistory::findAfterGamma(HiggsChildren);
+          const xAOD::TruthParticle* tau = PartonHistoryUtils::findAfterFSR(HiggsChildren);
           if (k == 0) {
             tH.Tau1_from_Higgs_p4 = tau->p4();
             tH.Tau1_from_Higgs_pdgId = tau->pdgId();

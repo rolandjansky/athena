@@ -7,6 +7,7 @@
 #include "TopPartons/PartonHistory.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopPartons/CalcTtbarPartonHistory.h"
+#include "TopPartons/PartonHistoryUtils.h"
 #include "xAODTruth/TruthVertex.h"
 
 namespace top {
@@ -167,7 +168,7 @@ namespace top {
       if (skipit) continue;
 
       b_beforeFSR = particle->p4();
-      b_afterFSR = findAfterFSR(particle)->p4();
+      b_afterFSR = PartonHistoryUtils::findAfterFSR(particle)->p4();
 
       return true;
     }
@@ -190,13 +191,13 @@ namespace top {
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != start) continue;
 
-      if (hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
+      if (PartonHistoryUtils::hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
 
       t_beforeFSR_p4 = particle->p4(); // top before FSR
       hasT = true;
 
       // demanding the last tops after FSR
-      particle = findAfterFSR(particle);
+      particle = PartonHistoryUtils::findAfterFSR(particle);
       t_afterFSR_p4 = particle->p4(); // top after FSR
 
       for (size_t k = 0; k < particle->nChildren(); k++) {
@@ -207,7 +208,7 @@ namespace top {
           hasW = true;
           
           // demanding the last W after FSR
-          topChildren = findAfterFSR(topChildren);
+          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
           
           //for DAOD_PHYS we have to use a special procedure to associate W bosons linked from the top to those in the TruthBosonsWithDecayParticles collection, which have the correct links for their decay products
           //this is better explained in the head; this will work only if the class calling this function has called linkBosonCollections() before
@@ -254,13 +255,13 @@ namespace top {
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != start) continue;
 
-      if (hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
+      if (PartonHistoryUtils::hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
 
       t_beforeFSR_p4 = particle->p4(); // top before FSR
       hasT = true;
 
       // demanding the last tops after FSR
-      particle = findAfterFSR(particle);
+      particle = PartonHistoryUtils::findAfterFSR(particle);
       t_afterFSR_p4 = particle->p4(); // top after FSR
 
       for (size_t k = 0; k < particle->nChildren(); k++) {
@@ -271,7 +272,7 @@ namespace top {
           hasW = true;
 
           // demanding the last W after FSR
-          topChildren = findAfterFSR(topChildren);
+          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
 
           for (size_t q = 0; q < topChildren->nChildren(); ++q) {
             const xAOD::TruthParticle* WChildren = topChildren->child(q);
@@ -312,7 +313,7 @@ namespace top {
       //std::cout << "PDGID: " << particle->pdgId() << std::endl;
 
       // demanding the last W after FSR
-      particle = findAfterFSR(particle);
+      particle = PartonHistoryUtils::findAfterFSR(particle);
       W_p4 = particle->p4();  // W boson after FSR
       hasW = true;
 
@@ -353,7 +354,7 @@ namespace top {
       // need to check if the W is from top
       // identify the first in chain and check
       // if that particle has top as parent
-      if (hasParticleIdenticalParent(particle)) continue; // kepping only W before FSR
+      if (PartonHistoryUtils::hasParticleIdenticalParent(particle)) continue; // kepping only W before FSR
 
       bool isFromTop = false;
       // now we should have only the first W in chain
@@ -367,7 +368,7 @@ namespace top {
 
       if (isFromTop) continue;
       else {
-        particle = findAfterFSR(particle);
+        particle = PartonHistoryUtils::findAfterFSR(particle);
         W_p4 = particle->p4();
         W_pdgId = particle->pdgId();
         hasW = true;
@@ -430,7 +431,7 @@ namespace top {
         b_pdgId = particle->pdgId();
 
         // find after FSR
-        particle = findAfterFSR(particle);
+        particle = PartonHistoryUtils::findAfterFSR(particle);
         b_afterFSR = particle->p4();
       }
     }
@@ -465,7 +466,7 @@ namespace top {
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != topId) continue;
 
-      if (hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
+      if (PartonHistoryUtils::hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
       BranchType = -1;// 10(50): leptonic(hadronic), 12(52):topRad, 14(54):Wrad, 15(55):ISR, 18(58):b
       IniPartonType = -1;
 
@@ -480,7 +481,7 @@ namespace top {
 
         for (size_t ichild = 0; ichild < particle->parent(iparent)->nChildren(); ichild++) {
           if (particle->parent(iparent)->child(ichild)->pdgId() == 22) {
-            const xAOD::TruthParticle* photon = findAfterFSR(particle->parent(iparent)->child(ichild));
+            const xAOD::TruthParticle* photon = PartonHistoryUtils::findAfterFSR(particle->parent(iparent)->child(ichild));
             Ph_p4 = photon->p4();
             has_ph = true;
             ph_ISR = true;
@@ -496,7 +497,7 @@ namespace top {
       t_beforeFSR_p4 = particle->p4(); // top before FSR
       hasT = true;
       // demanding the last tops after FSR
-      particle = findAfterFSR(particle);
+      particle = PartonHistoryUtils::findAfterFSR(particle);
       t_afterFSR_p4 = particle->p4(); // top after FSR
 
       for (size_t k = 0; k < particle->nChildren(); k++) {// top children
@@ -507,7 +508,7 @@ namespace top {
           hasW = true;
 
           // demanding the last W after FSR
-          topChildren = findAfterFSR(topChildren);
+          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
 
           for (size_t q = 0; q < topChildren->nChildren(); q++) {// W children
             const xAOD::TruthParticle* WChildren = topChildren->child(q);
@@ -519,12 +520,12 @@ namespace top {
                 BranchType = 10;
               }// leptonic
               if (WChildren->pdgId() > 0) {
-                WChildren = findAfterFSR(WChildren);
+                WChildren = PartonHistoryUtils::findAfterFSR(WChildren);
                 Wdecay1_p4 = WChildren->p4();
                 Wdecay1_pdgId = WChildren->pdgId();
                 hasWdecayProd1 = true;
               } else {
-                WChildren = findAfterFSR(WChildren);
+                WChildren = PartonHistoryUtils::findAfterFSR(WChildren);
                 Wdecay2_p4 = WChildren->p4();
                 Wdecay2_pdgId = WChildren->pdgId();
                 hasWdecayProd2 = true;
@@ -540,20 +541,20 @@ namespace top {
                   ph_ISR = false;
                   ph_Top = false;
                   ph_b = false;
-                  WChildren = findAfterFSR(WChildren);
+                  WChildren = PartonHistoryUtils::findAfterFSR(WChildren);
                   Ph_p4 = WChildren->p4();
                 }
               } else {
                 has_ph = true;
                 ph_W = true;
-                WChildren = findAfterFSR(WChildren);
+                WChildren = PartonHistoryUtils::findAfterFSR(WChildren);
                 Ph_p4 = WChildren->p4();
               }
             }
           }// W children
         } else if (abs(topChildren->pdgId()) == 5) { // b
           hasB = true;
-          topChildren = findAfterFSR(topChildren);// b After FSR
+          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);// b After FSR
           b_p4 = topChildren->p4();
           // In MG5 generation of ttgamma it is not expected to have any b radiation 'recorded'
           for (size_t b = 0; b < topChildren->nChildren(); b++) {// b Children
@@ -566,13 +567,13 @@ namespace top {
                   ph_ISR = false;
                   ph_Top = false;
                   ph_W = false;
-                  bChildren = findAfterFSR(bChildren);
+                  bChildren = PartonHistoryUtils::findAfterFSR(bChildren);
                   Ph_p4 = bChildren->p4();
                 }
               } else {
                 has_ph = true;
                 ph_b = true;
-                bChildren = findAfterFSR(bChildren);
+                bChildren = PartonHistoryUtils::findAfterFSR(bChildren);
                 Ph_p4 = bChildren->p4();
               }
             }
@@ -581,12 +582,12 @@ namespace top {
           // JUST FOR EXTRA SAFETY (not necessary)
           if (has_ph) {
             if (topChildren->p4().Pt() > Ph_p4.Pt()) {
-              topChildren = findAfterFSR(topChildren);
+              topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
               Ph_p4 = topChildren->p4();
               ph_Top = true;
             }
           } else {
-            topChildren = findAfterFSR(topChildren);
+            topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
             Ph_p4 = topChildren->p4();
             has_ph = true;
             ph_Top = true;
@@ -606,12 +607,12 @@ namespace top {
             BranchType = 10;
           }// leptonic
           if (topChildren->pdgId() > 0) {
-            topChildren = findAfterFSR(topChildren);
+            topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
             Wdecay1_p4 = topChildren->p4();
             Wdecay1_pdgId = topChildren->pdgId();
             hasWdecayProd1 = true;
           } else {
-            topChildren = findAfterFSR(topChildren);
+            topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
             Wdecay2_p4 = topChildren->p4();
             Wdecay2_pdgId = topChildren->pdgId();
             hasWdecayProd2 = true;
@@ -642,40 +643,6 @@ namespace top {
     }// particle
 
     return false;
-  }
-
-  const xAOD::TruthParticle* CalcTopPartonHistory::findAfterFSR(const xAOD::TruthParticle* particle) {
-    bool isAfterFSR(false);
-    const int particle_ID = particle->pdgId();
-    int forLoop = 0;
-
-    while (!isAfterFSR) {
-      forLoop = 0;
-      for (size_t j = 0; j < particle->nChildren(); j++) {
-        const xAOD::TruthParticle* tmp_children = particle->child(j);
-        if (tmp_children && tmp_children->pdgId() == particle_ID) {
-          particle = particle->child(j);
-          forLoop++;
-          break;
-        }//if
-      }//for
-
-      if (forLoop == 0) isAfterFSR = true;
-    }//while
-    return particle;
-  }
-
-  bool CalcTopPartonHistory::hasParticleIdenticalParent(const xAOD::TruthParticle* particle) {
-    bool skipit(false);
-
-    for (size_t i = 0; i < particle->nParents(); i++) {
-      const xAOD::TruthParticle* parent = particle->parent(i);
-      if (parent && parent->pdgId() == particle->pdgId()) {
-        skipit = true;
-        break;
-      }//if
-    }//for
-    return skipit;
   }
 
   StatusCode CalcTopPartonHistory::execute() {

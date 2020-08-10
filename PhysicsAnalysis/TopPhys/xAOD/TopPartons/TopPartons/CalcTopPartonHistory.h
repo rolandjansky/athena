@@ -82,12 +82,6 @@ namespace top {
                  TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId,
                  bool& has_ph, int& BranchType, int& IniPartonType, bool& missingTop);
 
-    ///Return particle after FSR (before the decay vertex)
-    const xAOD::TruthParticle* findAfterFSR(const xAOD::TruthParticle* particle);
-
-    ///Return true when particle is a top before FSR
-    bool hasParticleIdenticalParent(const xAOD::TruthParticle* particle);
-    
     virtual StatusCode execute();
   protected:
     std::shared_ptr<top::TopConfig> m_config;

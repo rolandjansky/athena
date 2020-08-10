@@ -57,9 +57,6 @@ namespace top {
 
     void THHistorySaver(const xAOD::TruthParticleContainer* truthParticles, xAOD::PartonHistory* ThqPartonHistory);
 
-    //handle gamma radiation of taus
-    const xAOD::TruthParticle* findAfterGamma(const xAOD::TruthParticle* particle);
-
     ///Store the four-momentum of several particles in the Higgs decay chain
     bool Higgstautau(const xAOD::TruthParticleContainer* truthParticles, int start);
 
