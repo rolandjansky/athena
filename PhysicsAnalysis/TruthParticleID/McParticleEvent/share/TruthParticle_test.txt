@@ -1,7 +1,7 @@
 // common job opts for SG unit tests
 
 #pragma print off
-ApplicationMgr.DLLs += { "StoreGate" };
+ApplicationMgr.Dlls += { "StoreGate" };
 ApplicationMgr.ExtSvc += { "StoreGateSvc", 
 			   "StoreGateSvc/DetectorStore", 
 			   "StoreGateSvc/HistoryStore" };

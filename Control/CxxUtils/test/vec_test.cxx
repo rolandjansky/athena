@@ -22,7 +22,7 @@
 #include <type_traits>
 #include <limits>
 
-
+#include <array>
 #include <valarray>
 
 
@@ -269,6 +269,82 @@ void test_broadcast (const VEC& v1)
   }
 }
 
+template<class VEC>
+void
+test_storeload(const VEC& v1)
+{
+
+  std::array<CxxUtils::vec_type_t<VEC>, CxxUtils::vec_size<VEC>()> buffer{};
+  CxxUtils::vec_type_t<VEC>* mem_addr = buffer.data();
+
+  CxxUtils::vstore(mem_addr, v1);
+  size_t N = CxxUtils::vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    assert(v1[i] == mem_addr[i]);
+  }
+
+  VEC v2;
+  CxxUtils::vload(v2, mem_addr);
+  for (size_t i = 0; i < N; i++) {
+    assert(v2[i] == mem_addr[i]);
+  }
+}
+
+template<class VEC>
+void
+test_select(const VEC& v1)
+{
+
+  const VEC v2 = 2 * v1;
+  CxxUtils::mask_type_t<VEC> greater;
+  CxxUtils::mask_type_t<VEC> less;
+  size_t N = CxxUtils::vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    greater[i] = v1[i] > v2[i];
+    less[i] = v1[i] < v2[i];
+  }
+
+  VEC selectGreater;
+  CxxUtils::vselect(selectGreater, v1, v2, greater);
+  VEC selectLess;
+  CxxUtils::vselect(selectLess, v1, v2, less);
+
+  for (size_t i = 0; i < N; i++) {
+    assert(selectGreater[i] == v2[i]);
+    assert(selectLess[i] == v1[i]);
+  }
+}
+
+template<class VEC>
+void
+test_min(const VEC& v1)
+{
+
+  const VEC v2 = v1 + 1;
+
+  VEC min;
+  CxxUtils::vmin(min, v1, v2);
+  size_t N = CxxUtils::vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    assert(min[i] == v1[i]);
+  }
+}
+
+template<class VEC>
+void
+test_max(const VEC& v1)
+{
+
+  const VEC v2 = v1 + 1;
+
+  VEC max;
+  CxxUtils::vmax(max, v1, v2);
+  size_t N = CxxUtils::vec_size<VEC>();
+  for (size_t i = 0; i < N; i++) {
+    assert(max[i] == v2[i]);
+  }
+}
+
 
 template <template <class T, size_t N> class VEC>
 void test1a()
@@ -279,13 +355,17 @@ void test1a()
   assert (CxxUtils::vec_size(v) == 4);
 
 #define ELT(r,data,elem) elem,
-#define INITN(N, ...) { BOOST_PP_LIST_FOR_EACH(ELT, _, BOOST_PP_LIST_FIRST_N(N, BOOST_PP_VARIADIC_TO_LIST(__VA_ARGS__)))  } 
+#define INITN(N, ...) { BOOST_PP_LIST_FOR_EACH(ELT, _, BOOST_PP_LIST_FIRST_N(N, BOOST_PP_VARIADIC_TO_LIST(__VA_ARGS__)))  }
 
 #define TEST_FLOAT(T, N)                                                \
   do {                                                                  \
     test_arith (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
     test_relops (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
-    test_broadcast (VEC<T, N> INITN(N, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5)); \
+    test_broadcast (VEC<T, N> INITN(N, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)); \
+    test_storeload (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
+    test_select (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
+    test_min (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
+    test_max (VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5)); \
   } while(0)
 
   TEST_FLOAT(float, 1);
@@ -302,7 +382,11 @@ void test1a()
   do {                                                                  \
     test_arith (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_relops (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
-    test_broadcast (VEC<T, N> INITN(N, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)); \
+    test_broadcast (VEC<T, N> INITN(N, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)); \
+    test_storeload (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
+    test_select (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
+    test_min (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
+    test_max (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_int (VEC<T, N> INITN(N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)); \
     test_logops (VEC<T, N> INITN(N, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1)); \
   } while(0)

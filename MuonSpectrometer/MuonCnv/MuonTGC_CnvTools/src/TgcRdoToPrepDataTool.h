@@ -4,6 +4,8 @@
 
 #ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
 #define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
+      
+#include "CxxUtils/checker_macros.h"
 
 #include "TgcRdoToPrepDataToolCore.h"
 
@@ -17,8 +19,8 @@ namespace Muon
    * 
    * This class was developed by Takashi Kubota. 
    */  
-
-  class TgcRdoToPrepDataTool : virtual public TgcRdoToPrepDataToolCore
+  /// This class is only used in a single-thread mode
+  class ATLAS_NOT_THREAD_SAFE TgcRdoToPrepDataTool : virtual public TgcRdoToPrepDataToolCore
   {
     public:
       /** Constructor */

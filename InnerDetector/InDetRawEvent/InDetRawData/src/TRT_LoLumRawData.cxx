@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,9 +14,13 @@
 // Implementation provided by A. Zalite, February 2003
 ///////////////////////////////////////////////////////////////////
 
-#include <new>
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/TRT_RDORawData.h"
+
+// static member variables
+const double TRT_LoLumRawData::m_driftTimeBinWidth = 3.125;
+const unsigned int TRT_LoLumRawData::m_maskFourLastBits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
+const unsigned int TRT_LoLumRawData::m_maskThreeLastBits=0xFFFFFF8;  // 1 1 11111111 1 11111111 1 11111000
 
 // default constructor
 TRT_LoLumRawData::TRT_LoLumRawData() :
@@ -34,126 +38,65 @@ TRT_LoLumRawData::TRT_LoLumRawData(const Identifier rdoId,
 TRT_LoLumRawData::~TRT_LoLumRawData()
 {}
 
-
-  // Time over threshold in ns:
-double TRT_LoLumRawData::timeOverThreshold() const
-{
-  double binWidth = 3.125;
-
-  int LE = driftTimeBin( );
-  int TE = trailingEdge( );
-
-  if ( (0 == LE) || (24 == LE) || (24 == TE) || (0 == TE) || (23 == LE) )
-    {
-      return 0;
-    }
-
-  double time = (double) (TE - LE + 1) * binWidth;
-  
-  return time;
-
+unsigned int TRT_LoLumRawData::driftTimeBin(unsigned int word) {
+  unsigned int leadingEdge=0, trailingEdge=0;
+  findLargestIsland(word, leadingEdge, trailingEdge);
+  return leadingEdge;
 }
 
-// Position of first low-to-high bit transition
-int TRT_LoLumRawData::driftTimeBin() const
-{
-  unsigned  mask = 0x02000000;
-  unsigned  word_LE = m_word>>6;
-  word_LE = word_LE<<6;
- 
-  mask >>=1;
+unsigned int TRT_LoLumRawData::trailingEdge(unsigned int word) {
+  unsigned int leadingEdge=0, trailingEdge=0;
+  findLargestIsland(word, leadingEdge, trailingEdge);
+  return trailingEdge;
+}
+
+double TRT_LoLumRawData::timeOverThreshold(unsigned int word) {
+  unsigned int leadingEdge=0, trailingEdge=0;
+  if (findLargestIsland(word, leadingEdge, trailingEdge)) {
+    return (trailingEdge - leadingEdge + 1) * m_driftTimeBinWidth;
+  };
+  return 0.;
+}
+
+bool TRT_LoLumRawData::findLargestIsland(unsigned int word, unsigned int& leadingEdge, unsigned int& trailingEdge) {
+  unsigned long mask = 0x02000000;  // 0 0 10000000 0 00000000 0 00000000
+  unsigned int bestLength = 0;
+  unsigned int currentLength = 0;
+
+  // set 4 last bits to zero (to match data and MC bitmasks)
+  unsigned int wordLE = word & m_maskFourLastBits;
+
+  mask >>=1;  // 0 0 01000000 0 00000000 0 00000000
   bool SawZero = false;
-  int i;
-  for(i=1;i<18;++i)
-  { 
-    if      (  (word_LE & mask) && SawZero) break;
-    else if ( !(word_LE & mask) ) SawZero = true; 
-    mask>>=1;
-    if(i==7 || i==15) mask>>=1;
-  }
-  if(i==18) i=0;
-  return i;
-}
+  unsigned int k = 1;
+  leadingEdge=0, trailingEdge=0;
+  unsigned int currentLeadingEdge=0, currentTrailingEdge=0;
 
-// Position of first low-to-high bit transition moving from the right
-// or 24 if no transition is found
-int TRT_LoLumRawData::trailingEdge() const
-{
-  unsigned mask = 0x00000001;
-  unsigned mask_word = 0x0001fff0; // 11111111 1 11110000   
-  unsigned mask_last_bit =0x10; //10000
-  
-  unsigned word_TE = m_word & mask_word;
-  
-  bool SawZero=true;
-  bool SawZero1=false;
-  bool SawZero2=false;
-  bool SawUnit1=false;
-  int i=0;
-  int j=0;
-  int k=0;
-  
-  if(word_TE & mask_last_bit) 
-  {
-  
-	for (j = 0; j < 11; ++j)
-	{
-		mask_last_bit=mask_last_bit<<1;
-		
-		if(j==3) mask_last_bit=mask_last_bit<<1;
-		
-		if ( !(word_TE & mask_last_bit) )
-		{
-			SawZero2 = true;
-			break;			
-		}
-	}
-	
-	if(SawZero2 == false) return 19;
-
-	if(SawZero2 == true){
-		for (k = j+1; k < 11; ++k)
-		{
-			mask_last_bit=mask_last_bit<<1;
-
-			if(k==3) mask_last_bit=mask_last_bit<<1;
-
-			if ( word_TE & mask_last_bit )
-			{
-				SawUnit1 = true;
-				break;					
-			}
-		} 
-	}
-	
-	if(SawUnit1 == false && SawZero2 == true) return 19;
-	
-  }
-  
-  //+++++++++++++++++++++++++++++++++++++
-  
-  for (i = 0; i < 24; ++i)
-  {
-  
-	if(!(word_TE & mask) && i>3)
-	{
-	  SawZero1 = true;
-	}
-    if(SawZero1){  
-		if ( (word_TE & mask) && SawZero )
-			break;
-		else if ( !(word_TE & mask) )
-			SawZero = true;
+  // shift bitmask to the right until end
+  while (true) {
+    if (!(wordLE & mask) && !SawZero) SawZero = true; // search for the first 0 to 1 transition
+    if (SawZero) {
+      if (wordLE & mask){
+        if (currentLength==0) currentLeadingEdge=k;
+        currentTrailingEdge=k;
+        ++currentLength;
+      } else { // remember longest island, ignore islands of length 1 which are very likely noise
+        if (currentLength >= bestLength && currentLeadingEdge<18 && currentLength > 1) {
+          bestLength = currentLength;
+          leadingEdge = currentLeadingEdge;
+          trailingEdge = currentTrailingEdge;
+        }
+        currentLength = 0;
+      }
     }
-    mask <<= 1;
-    if (i == 7 || i == 15)
-      mask <<= 1;
+    mask >>= 1;
+    if (!(mask & m_maskThreeLastBits)) break; // stop after checking 20 LT bits
+    if (k == 7 || k == 15) mask >>= 1; // ignore HT bits
+    assert(k < 20);
+    ++k;
   }
- 
-  if ( 24 == i )
-    return i;
-
-  return (23 - i);
-
+  assert(k == 20);
+  // avoid very early TE, most likely from previous BX. Hit will still be used for tracking if it has a valid LE
+  if (trailingEdge < 8) trailingEdge = 0;
+  return leadingEdge && trailingEdge;
 }
-

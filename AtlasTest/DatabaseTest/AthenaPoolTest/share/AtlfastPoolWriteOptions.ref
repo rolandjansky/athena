@@ -467,7 +467,7 @@ ApplicationMgr       INFO Successfully loaded modules: AthenaPoolTest
 # load converter and append to event object ItemList
 # For example, LArAthenaPool should include
 #
-# ApplicationMgr.DLLs += { "LArAthenaPool" };
+# ApplicationMgr.Dlls += { "LArAthenaPool" };
 # Stream1.ItemList += { "2701#*", "2731#*" };
 theApp.Dlls += [ "PoolSvc", "AthenaPoolCnvSvc", "AthenaPoolCnvSvcPoolCnv" ]
 theApp.ExtSvc += [ "PoolSvc", "AthenaPoolCnvSvc" ]

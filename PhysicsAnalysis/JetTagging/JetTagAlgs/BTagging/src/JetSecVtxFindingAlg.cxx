@@ -58,6 +58,15 @@ namespace Analysis {
       return StatusCode::FAILURE;
     }
 
+    /* Record the VxSecVertexInfo output container */
+    SG::WriteHandle<Trk::VxSecVertexInfoContainer> h_VxSecVertexInfoName (m_VxSecVertexInfoName);
+    ATH_CHECK( h_VxSecVertexInfoName.record(std::make_unique<Trk::VxSecVertexInfoContainer>()));
+
+    if (h_JetCollectionName->size() == 0) {
+      ATH_MSG_DEBUG("#BTAG# Empty Jet collection");
+      return StatusCode::SUCCESS;
+    }
+
     SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
     if (!h_jetParticleLinkName.isAvailable()) {
       ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << m_jetParticleLinkName.key()  );
@@ -95,10 +104,6 @@ namespace Analysis {
     }
 
     const xAOD::Vertex& PrimaryVtx = *primaryVertex;
-
-    /* Record the VxSecVertexInfo output container */
-    SG::WriteHandle<Trk::VxSecVertexInfoContainer> h_VxSecVertexInfoName (m_VxSecVertexInfoName);
-    ATH_CHECK( h_VxSecVertexInfoName.record(std::make_unique<Trk::VxSecVertexInfoContainer>()));
 
     for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter) {
       const xAOD::Jet& jetToTag = **jetIter;

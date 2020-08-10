@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <optional>
 //#include <algorithm>
 
 #include "boost/algorithm/string/case_conv.hpp"
@@ -74,19 +75,19 @@ MiniConfig::
 ReadFile( std::string fileName )
 {
   bool success(true);
-  
+
   delete m_tree;
   m_tree = new MiniConfigTreeNode( "global", 0 );
   m_tree->SetAttribKeywordPropagateDown( m_propagateDown );
   MiniConfigTreeNode* node = m_tree;
-  
+
   std::ifstream file( fileName.c_str() );
   if( !file ) {
     std::cerr << "MiniConfig::ReadFile(): "
               << "cannot read from file: " << fileName << "\n";
     return false;
   }
-  
+
   std::string line;
   char c;
   std::string key;
@@ -96,31 +97,31 @@ ReadFile( std::string fileName )
   std::string val;
   int skipCount(0);
   int lineNumber = 0;
-  
+
   while( getline(file,line) ) {
     ++lineNumber;
     std::istringstream linestream(line);
     c = 0;
-    
+
     while( linestream.get(c) ) {
       // ignore leading whitespace
       if( !isspace(c) ) {
         break;
       }
     }
-    
+
     // ignore empty lines
     if( c == 0 || isspace(c) ) {
       continue;
     }
-    
+
     // ignore comments
     if( c == '#' ) {
       continue;
     }
-    
+
     linestream.putback(c);
-    
+
     // check for: }
     linestream >> sep;
     if( !linestream ) {
@@ -144,10 +145,10 @@ ReadFile( std::string fileName )
       }
       continue;
     }
-    
+
     // check for: <att> = <val>
     att = sep;
-    linestream >> sep;    
+    linestream >> sep;
     if( !linestream ) {
       std::cerr << "MiniConfig::ReadFile(): "
                 << "badly formatted line: \"" << line << "\", line number " << lineNumber << "\n";
@@ -165,11 +166,11 @@ ReadFile( std::string fileName )
         continue;
       }
       if( skipCount == 0 ) {
-	node->SetAttribute( att, val, false );
+        node->SetAttribute( att, val, false );
       }
       continue;
     }
-    
+
     // check for: keyword <identifier> {
     key = att;
     const std::string& lokey = boost::algorithm::to_lower_copy(key);
@@ -183,7 +184,7 @@ ReadFile( std::string fileName )
       continue;
     }
     if( sep == "{" ) {
-      if( m_keywords.find(key) != m_keywords.end() 
+      if( m_keywords.find(key) != m_keywords.end()
 	  || m_keywords.find(lokey) != m_keywords.end() ) {
         node = node->GetNewDaughter( id );
       }
@@ -197,12 +198,12 @@ ReadFile( std::string fileName )
       }
       continue;
     }
-    
+
     std::cerr << "MiniConfig::ReadFile(): "
               << "badly formatted line: \"" << line << "\", line number " << lineNumber << "\n";
     success = false;
   }
-  
+
   return success;
 }
 
@@ -216,7 +217,7 @@ GetStringAttribute( std::string objName, std::string attName ) const
               << "not configured (no file has been read)\n";
     return std::string("");
   }
-  
+
   const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetStringAttribute(): "
@@ -236,14 +237,14 @@ GetIntAttribute( std::string objName, std::string attName ) const
               << "not configured (no file has been read)\n";
     return 0;
   }
-  
+
   const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetIntAttribute(): "
               << "\"" << objName << "\" does not exist\n";
     return 0;
   }
-  
+
   int val;
   std::string valstring = node->GetAttribute( attName );
   std::istringstream valstream(valstring);
@@ -253,7 +254,7 @@ GetIntAttribute( std::string objName, std::string attName ) const
               << "\"" << attName << "\" not an integer type\n";
     return 0;
   }
-  
+
   return val;
 }
 
@@ -267,14 +268,14 @@ GetFloatAttribute( std::string objName, std::string attName ) const
               << "not configured (no file has been read)\n";
     return 0;
   }
-  
+
   const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetFloatAttribute(): "
               << "\"" << objName << "\" does not exist\n";
     return 0;
   }
-  
+
   float val;
   std::string valstring = node->GetAttribute( attName );
   std::istringstream valstream(valstring);
@@ -284,7 +285,7 @@ GetFloatAttribute( std::string objName, std::string attName ) const
               << ": \"" << attName << "\" not a floating-point type\n";
     return 0;
   }
-  
+
   return val;
 }
 
@@ -294,20 +295,20 @@ MiniConfig::
 GetAttributeNames( std::string objName, std::set<std::string>& attSet ) const
 {
   attSet.clear();
-  
+
   if( m_tree == 0 ) {
     std::cerr << "MiniConfig::GetAttributeNames(): "
               << "not configured (no file has been read)\n";
     return;
   }
-  
+
   const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetAttributeNames(): "
               << "\"" << objName << "\" does not exist\n";
     return;
   }
-  
+
   node->GetAttributeNames( attSet );
 }
 
@@ -324,6 +325,17 @@ SendVisitor( const MiniConfigTreeNode::Visitor& visitor ) const
   }
 }
 
+void
+MiniConfig::
+SendWriter(MiniConfigTreeNode::Writer& writer)
+{
+  if( m_tree == 0 ) {
+    std::cerr << "MiniConfig::SendWriter(): "
+              << "not configured (no file has been read)\n";
+  } else {
+    m_tree->Accept(writer);
+  }
+}
+
 
 } // namespace dqi
-

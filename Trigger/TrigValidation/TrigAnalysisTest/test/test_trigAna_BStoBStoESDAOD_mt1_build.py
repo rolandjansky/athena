@@ -30,7 +30,7 @@ BStoBS.args = ' -c "{:s}"'.format(BStoBSPreExec)
 # Extract the Main stream data
 filterBS = ExecStep.ExecStep('FilterBS')
 filterBS.type = 'other'
-filterBS.executable = 'athenaHLT-select-PEB-stream.py'
+filterBS.executable = 'trigbs_extractStream.py'
 filterBS.input = ''
 filterBS.args = '-s Main ' + findFile('data_test.*.Single_Stream.daq.RAW.*.data')
 

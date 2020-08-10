@@ -33,7 +33,7 @@ hlt.args += ' -o output'
 # Extract the physics_Main stream out of the BS file with many streams
 filter_bs = ExecStep.ExecStep('FilterBS')
 filter_bs.type = 'other'
-filter_bs.executable = 'athenaHLT-select-PEB-stream.py'
+filter_bs.executable = 'trigbs_extractStream.py'
 filter_bs.input = ''
 filter_bs.args = '-s Main ' + findFile('*_HLTMPPy_output.*.data')
 

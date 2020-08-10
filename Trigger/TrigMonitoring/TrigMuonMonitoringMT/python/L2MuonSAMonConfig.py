@@ -72,7 +72,7 @@ def L2MuonSAMonConfig(helper):
         # L1 RoI eta vs. phi in case mF failed
         histGroup.defineHistogram(GroupName+'_roiEta,'+GroupName+'_roiPhi;L2MuonSA_failed_L1_eta_vs_phi',
                                   title='L1 RoI Eta vs. Phi in case of L2MuonSA failure '+chain+';#eta;#phi', 
-                                  cutmask=GroupName+'mf_failure',
+                                  cutmask=GroupName+'_mf_failure',
                                   type='TH2F', path='',xbins=108,xmin=-2.7,xmax=2.7, ybins=96,ymin=-ROOT.TMath.Pi(),ymax=ROOT.TMath.Pi())
 
 

@@ -5,6 +5,8 @@
 #ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOL_H
 #define MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOL_H 
 
+#include "CxxUtils/checker_macros.h"
+
 #include "CscRdoToCscPrepDataToolCore.h"
 
 #include <string>
@@ -22,7 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Muon {
-  class CscRdoToCscPrepDataTool : public CscRdoToCscPrepDataToolCore {
+  class ATLAS_NOT_THREAD_SAFE CscRdoToCscPrepDataTool : public CscRdoToCscPrepDataToolCore {
 
   public:
     

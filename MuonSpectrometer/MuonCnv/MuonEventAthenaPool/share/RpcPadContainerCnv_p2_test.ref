@@ -2,7 +2,7 @@
 
 Initializing Gaudi ApplicationMgr using job opts ../share/MuonEventAthenaPool_test.txt
 JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/MuonSpectrometer/MuonCnv/MuonEventAthenaPool/share/../share/MuonEventAthenaPool_test.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.Dlls += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO # (3,1): TGCcablingServerSvc.forcedUse = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/MuonEventAthenaPool_test.txt

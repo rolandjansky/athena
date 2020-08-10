@@ -1,4 +1,4 @@
-theApp.DLLs += ["CommissionUtils"] 
+theApp.Dlls += ["CommissionUtils"] 
 
 # jamie boyd - 1/6/2012 removing all references to CBNT but not testing!
 #CBNT_Athena.Members += [ "CBNT_TTR" ]

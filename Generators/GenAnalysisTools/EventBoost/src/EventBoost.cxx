@@ -174,7 +174,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 
   std::vector<HepMC::GenParticlePtr> particles_needing_modification;
 
-  for(auto p: *genEvt)  particles_needing_modification.push_back(p);
+  for(auto p: *((HepMC::GenEvent*)genEvt))  particles_needing_modification.push_back(p);
 
   m_pxsum=0.;
   for (auto it: particles_needing_modification) {
@@ -191,11 +191,15 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 
     std::vector<HepMC::GenVertexPtr> vertices_needing_modification;
 
+#ifdef HEPMC3
+  for(auto v: ((HepMC::GenEvent*)genEvt)->vertices())  vertices_needing_modification.push_back(v);
+#else      
     HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();    
     for(; v != vEnd; ++v ) {
       vertices_needing_modification.push_back(*v);
     }
+#endif
 
 
     Rndm::Numbers GaussVertexModifier_x(randSvc(), Rndm::Gauss(m_gaussian_mean[0],m_gaussian_width[0]));
