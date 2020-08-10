@@ -10,13 +10,10 @@
 #include "InDetPerformanceMonitoring/FourMuonEvent.h"
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 
-//#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODTruth/TruthParticle.h"
-//#include "xAODTruth/xAODTruthHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "ITrackToVertex/ITrackToVertex.h"
-
 
 #include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -37,7 +34,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-
 
 class IegammaTrkRefitterTool;
 class IBeamCondSvc;
@@ -139,10 +135,10 @@ class IDPerfMonZmumu : public AthAlgorithm
   std::string                     m_refit1TreeName;        //Refit ID Tracks
   std::string                     m_refit2TreeName;        //Refit ID Tracks
   std::string                     m_truthTreeName;         //Truth Tracks
-  //  std::string                     m_meStacoTreeName;       //Extrapolated Staco not existent in xAOD anymore
-  std::string                     m_combTreeName;     //Combined Staco
+  std::string                     m_combTreeName;          //Combined Staco
   std::string                     m_combMuidTreeName;      //Combined Muid
-  std::string                     m_FourMuTreeName;      //Combined Muid
+  std::string                     m_FourMuTreeName;        //Four lepton tree
+
   //!< validation tree description - second argument in TTree
   std::string                     m_ValidationTreeDescription;
   //!< stream/folder to for the TTree to be written out
@@ -151,7 +147,6 @@ class IDPerfMonZmumu : public AthAlgorithm
   std::string                     m_refit1TreeFolder;
   std::string                     m_refit2TreeFolder;
   std::string                     m_truthTreeFolder;
-  //  std::string                     m_meStacoTreeFolder; // not existent in xAOD anymore
   std::string                     m_combTreeFolder;
   std::string                     m_combMuidTreeFolder;
   std::string                     m_FourMuTreeFolder;
@@ -166,7 +161,6 @@ class IDPerfMonZmumu : public AthAlgorithm
   TTree*                          m_refit1Tree;
   TTree*                          m_refit2Tree;
   TTree*                          m_truthTree;
-  TTree*                          m_meStacoTree;
   TTree*                          m_combTree;
   TTree*                          m_combMuidTree;
   TTree*                          m_FourMuTree;

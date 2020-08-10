@@ -34,7 +34,7 @@ if (CommonGeometryFlags.Run() == "RUN4"):
     taujp.tauRecFlags.tauRecJetBDTConfig = [ ["JetBDTScore1P.root",0,1], ["JetBDTScore3P.root",2,1000] ]
     taujp.tauRecFlags.tauRecMVATrackClassificationConfig = [ ["TMVAClassification_BDT_l1.weights.root", -0.0168], ["TMVAClassification_BDT_l2.weights.root", -0.0386], ["TMVAClassification_BDT_l3.weights.root", -0.0916] ]
     taujp.tauRecFlags.tauRecEleBDTConfig = [ ["EleBDT1PBar.root", 1, 1.37], ["EleBDT1PEnd1.root", 1, 1.37, 2.0], ["EleBDT1PEnd23.root", 1, 2.0, 4.0] ] # only changes maxAbsTrackEta for TauEleBDT_end23
-    taujp.tauRecFlags.tauRecWPDecoratorJetBDTConfig = ["FlatJetBDT1P.root", "FlatJetBDT3P.root"]
+    taujp.tauRecFlags.tauRecWPDecoratorJetBDTConfig = ["FlatJetBDT1P_200522.root", "FlatJetBDT3P_200522.root"]
 
 # the TauCoreBuilder
 from tauRec.TauRecBuilder import TauRecCoreBuilder

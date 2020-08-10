@@ -45,6 +45,11 @@ class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder
   double getMaterialFudgeSvcEc(int iLayer) const;
   double getMaterialFudgeGeneric(const std::string& Layer, const std::string& node) const;
 
+  int       getNumSectors(int index) const;
+  double getPhiRefFirstSector(int index) const;
+  double getSectorVolumeWidth(int index) const;
+  bool     splitLayersInPhi(int index) const;
+ 
  private:
 
 };

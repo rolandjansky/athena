@@ -25,13 +25,13 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
 
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
-    BeamPipe.addRZ(   34.3,   3475.0 )
     from AthenaCommon.DetFlags import DetFlags
-    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
-        BeamPipe.addRZ(   47.0,   3475.0 )
-        BeamPipe.addRZ(   47.0,   3535.0 )
-        BeamPipe.addRZ(  120.0,   3535.0 )
+    if DetFlags.simulate.HGTD_on():
+        BeamPipe.addRZ(   34.3,   3420.0 )
+        BeamPipe.addRZ(   34.3,   3545.0 )
+        BeamPipe.addRZ(  120.0,   3545.0 )
     else:
+        BeamPipe.addRZ(   34.3,   3475.0 )
         BeamPipe.addRZ(  120.0,   3475.0 )
     BeamPipe.addRZ(  120.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   4185.0 )
@@ -45,28 +45,29 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     BeamPipe.addRZ( 1050.0,  22030.0 )
     BeamPipe.addRZ( 1050.0,  26046.0 )
     BeamPipe.addRZ(    0.0,  26046.0 )
-
     kwargs.setdefault("FallbackBeamPipeR"    ,  BeamPipe.getRs()        )
     kwargs.setdefault("FallbackBeamPipeZ"    ,  BeamPipe.getZs()        )
 
-
     # setup fallback IDEnvelope
     InDet = Volume()
-    InDet.addRZ( 1148.,  3475. )
-    InDet.addRZ(  34.3,  3475. )
+    # InDet should include HGTD when it's turned on, otherwise leave the space where MBTS is to Calo
+    if DetFlags.simulate.HGTD_on():
+        InDet.addRZ( 1148.,  3545. )
+        InDet.addRZ(  34.3,  3545. )
+    else:
+        InDet.addRZ( 1148.,  3475. )
+        InDet.addRZ(  34.3,  3475. )
     kwargs.setdefault("FallbackInDetR"  , InDet.getRs()        )
     kwargs.setdefault("FallbackInDetZ"  , InDet.getZs()        )
 
-
     # setup fallback CaloEnvelope
     Calo = Volume()
-    Calo.addRZ( 1148.0,  3475.0 )
-    from AthenaCommon.DetFlags import DetFlags
-    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
-        Calo.addRZ(   47.0,  3475.0 )
-        Calo.addRZ(   47.0,  3535.0 )
-        Calo.addRZ(  120.0,  3535.0 )
+    # InDet includes HGTD when it's turned on, otherwise Calo should include the space where MBTS is
+    if DetFlags.simulate.HGTD_on(): 
+        Calo.addRZ( 1148.0,  3545.0 )
+        Calo.addRZ(  120.0,  3545.0 )
     else:
+        Calo.addRZ( 1148.0,  3475.0 )
         Calo.addRZ(  120.0,  3475.0 )
     Calo.addRZ(  120.0,  4185.0 )
     Calo.addRZ(   41.0,  4185.0 )
@@ -79,7 +80,6 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
 
     kwargs.setdefault("FallbackCaloR"   , Calo.getRs()        )
     kwargs.setdefault("FallbackCaloZ"   , Calo.getZs()        )
-
 
     # setup fallback MuonEnvelope
     Muon = Volume()
@@ -110,7 +110,6 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     Muon.addRZ( 13000.0 ,  4000.0 )
     kwargs.setdefault("FallbackMuonR"   , Muon.getRs()        )
     kwargs.setdefault("FallbackMuonZ"   , Muon.getZs()        )
-
 
     # setup fallback CavernEnvelope
     Cavern = Volume()

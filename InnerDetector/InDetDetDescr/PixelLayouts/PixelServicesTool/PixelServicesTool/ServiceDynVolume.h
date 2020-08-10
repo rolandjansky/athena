@@ -24,7 +24,7 @@ public:
 
  ServiceDynVolume( Shape sh, Routing routing, double rmin, double rmax, double zmin, double zmax, const std::string& name) :
   m_shape(sh), m_routing(routing), m_rMin( rmin), m_rMax(rmax), m_zMin(zmin), m_zMax(zmax), m_name(name),
-    m_layers(), m_endingLayer(0), m_previous(0), m_next(0) {}
+    m_layers(), m_endingLayer(0), m_previous(0), m_next(0),m_nSectors(1),m_refPhiSector(0.),m_sectorWidth(2*M_PI),m_splitLayersInPhi(false) {}
 
   /// Add a layer the services of which are routed through this volume
   void addLayer( const ServicesDynLayer* l) {
@@ -100,6 +100,18 @@ public:
     return false;
   }
 
+  void splitIntoSectors( int nSect, double phiRef, double sectorWidth, bool splitLayersInPhi) {
+    m_nSectors = nSect;
+    m_refPhiSector = phiRef;
+    m_sectorWidth = sectorWidth;
+    m_splitLayersInPhi = splitLayersInPhi;
+  }
+
+  int getNumSectors() const {return m_nSectors;}
+  float getRefPhiSector() const {return m_refPhiSector; }
+  float getSectorWidth() const {return m_sectorWidth; }
+  bool splitLayersInPhi() const {return m_splitLayersInPhi; }
+
 private:
 
   Shape m_shape;
@@ -117,6 +129,11 @@ private:
   ServiceDynVolume* m_next;
 
   std::vector<ServiceDynMaterial> m_materials;
+
+  int m_nSectors;
+  float  m_refPhiSector;
+  float  m_sectorWidth;
+  bool m_splitLayersInPhi; 
 
 };
 

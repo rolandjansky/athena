@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -82,9 +82,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_TrackDetachCut(6.),
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
     m_trackToVertexIP("Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator"),
-    m_trkPartCreator("Trk::TrackParticleCreatorTool/InDetParticleCreatorTool")
-//    m_materialMap ("InDet::InDetMaterialRejTool", this)
-//    m_fitSvc("Trk::TrkVKalVrtFitter/VKalVrtFitter",this)
+    m_trkPartCreator("Trk::TrackParticleCreatorTool/InDetParticleCreatorTool"),
+    m_useEtaDependentCuts(false),
+    m_etaDependentCutsSvc("",name)
    {
 //
 // Declare additional interface
@@ -93,6 +93,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 // Properties
 //
 //
+    declareProperty("InDetEtaDependentCutsSvc", m_etaDependentCutsSvc);
     declareProperty("CutSctHits",    m_CutSctHits ,  "Remove track is it has less SCT hits" );
     declareProperty("CutPixelHits",  m_CutPixelHits, "Remove track is it has less Pixel hits");
     declareProperty("CutSiHits",     m_CutSiHits,    "Remove track is it has less Pixel+SCT hits"  );
@@ -175,8 +176,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 //Destructor---------------------------------------------------------------
     InDetVKalVxInJetTool::~InDetVKalVxInJetTool(){
-     //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool destructor called" << endmsg;
      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool destructor called" << endmsg;
      if(m_WorkArray) delete m_WorkArray;
      if(m_compatibilityGraph)delete m_compatibilityGraph;
@@ -184,18 +183,19 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 //Initialize---------------------------------------------------------------
    StatusCode InDetVKalVxInJetTool::initialize(){
-     //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool initialize() called" << endmsg;
+
      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool initialize() called" << endmsg;
      m_WorkArray = new VKalVxInJetTemp;
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
 
-//     IToolSvc* toolSvc;                    //needed for old style TrkVKalVrtFitter retrieval
-//     StatusCode sc = service("ToolSvc",toolSvc);
-//     if (sc.isFailure()) { 
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No ToolSvc for InDetVKalVxInJetTool !" << endmsg;
-//        return StatusCode::SUCCESS;
-//     }
+     m_useEtaDependentCuts = !(m_etaDependentCutsSvc.name().empty());
+     if (m_useEtaDependentCuts){
+       ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+       ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Individual inclusive track selections from config not used");
+     }
+     else{
+       ATH_MSG_INFO("Using individual inclusive track selections from config");
+     }
 
  
      if (m_fitterSvc.retrieve().isFailure()) {

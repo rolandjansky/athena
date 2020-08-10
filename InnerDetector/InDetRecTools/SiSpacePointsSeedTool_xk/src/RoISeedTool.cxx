@@ -121,7 +121,7 @@ std::vector<Amg::Vector3D> InDet::RoISeedTool::getRoIs()
   if( m_doVtxMethod ){
     getVtxSeeds(ROISeeds);
   }
-
+  
   return ROISeeds;
 
 }

@@ -38,10 +38,9 @@ LArFex::~LArFex(){}
 
 StatusCode LArFex::initialize(){
 	
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing LArFex" << endreq;
+	ATH_MSG_DEBUG("initializing LArFex" );
         if ( (m_etInSigma > 0 ) && ( m_et > 0 ) )
-        msg << MSG::WARNING << "Configuration issue" << endreq;
+        ATH_MSG_WARNING( "Configuration issue" );
         if ( m_etInSigma > 0 ) m_noiseTool.retrieve().ignore();
         m_counter = 0;
 	if ( m_enableMon ) {
@@ -54,7 +53,7 @@ StatusCode LArFex::initialize(){
 
 	// for cell <-> SCell comparison
 	if ( m_cabling.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endreq;
+		ATH_MSG_ERROR( "cannot perform comparisons between SuperCells and digits" );
 	}
 
 	if ( m_enableMon ) {
@@ -72,8 +71,7 @@ StatusCode LArFex::initialize(){
 }
 
 StatusCode LArFex::finalize(){
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing SimpleLArDigitsChecks" << endreq;
+	ATH_MSG_DEBUG("finalizing SimpleLArDigitsChecks" );
 	if ( m_enableMon ) {
 	  m_file->Write();
 	  m_file->Close();
@@ -83,14 +81,13 @@ StatusCode LArFex::finalize(){
 
 StatusCode LArFex::execute(){
 
-        MsgStream msg(msgSvc(), name());
 #ifndef NDEBUG
-	msg << MSG::DEBUG << "execute LArFex" << endreq;
+	ATH_MSG_DEBUG("execute LArFex" );
 #endif
 
 	const CaloCellContainer* allcalocells;
         if ( evtStore()->retrieve(allcalocells,"AllCalo").isFailure() ) {
-                msg << MSG::WARNING << "did not find allcalo container" << endreq;
+                ATH_MSG_WARNING( "did not find allcalo container" );
 		return StatusCode::SUCCESS;
         }
 	CaloCellContainer allcalo(SG::VIEW_ELEMENTS);
@@ -150,11 +147,11 @@ StatusCode LArFex::execute(){
 	clusters->reserve(seeds.size());
         std::string clusterName(m_outputClusterName);
         if ( evtStore()->record(clusters,clusterName).isFailure() ){
-                msg << MSG::ERROR  << "recording was not possible" << endreq;
+                ATH_MSG_ERROR( "recording was not possible" );
                 return StatusCode::FAILURE;
         }
         if ( evtStore()->record(auxclusters,clusterName+"Aux.").isFailure() ){
-                msg << MSG::ERROR << "recording Aux was not possible" << endreq;
+                ATH_MSG_ERROR( "recording Aux was not possible" );
                 return StatusCode::FAILURE;
         }
 	std::vector<float> etasG;

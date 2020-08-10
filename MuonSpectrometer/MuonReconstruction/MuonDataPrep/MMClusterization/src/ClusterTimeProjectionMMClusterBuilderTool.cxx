@@ -21,6 +21,7 @@ Muon::ClusterTimeProjectionMMClusterBuilderTool::ClusterTimeProjectionMMClusterB
                     m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool") {
     declareInterface<IMMClusterBuilderTool>(this);
     declareProperty("MuonIdHelperTool", m_muonIdHelperTool);
+    declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
     declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
@@ -31,7 +32,7 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::initialize() {
 
 StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusters(
                 std::vector<Muon::MMPrepData>& MMprds,
-                std::vector<Muon::MMPrepData*>& clustersVec) const {
+                std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const {
     std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8, std::vector<Muon::MMPrepData>(0));
     ATH_CHECK(sortHitsToLayer(MMprds, prdsPerLayer));
     for (const auto& prdsOfLayer : prdsPerLayer) {
@@ -193,31 +194,42 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
                            const std::vector<uint> &idxCluster,
                            const double &clusterPosition,
                            const double &clusterPositionErrorSq,
-                           std::vector<Muon::MMPrepData*>& clustersVec) const {
+                           std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const {
     std::vector<Identifier> rdoList;
     std::vector<int> stripCharges;
     std::vector<short int> stripTimes;
     std::vector<uint16_t> stripNumbers;
+    std::vector<float> stripDriftDists;
+    std::vector<Amg::MatrixX> stripDriftDistErrors;
 
     rdoList.reserve(idxCluster.size());
-    stripCharges.reserve(idxCluster.size());
-    stripTimes.reserve(idxCluster.size());
-    stripNumbers.reserve(idxCluster.size());
+    if(m_writeStripProperties) {
+        stripCharges.reserve(idxCluster.size());
+        stripTimes.reserve(idxCluster.size());
+        stripNumbers.reserve(idxCluster.size());
+    }
+    stripDriftDists.reserve(idxCluster.size());
+    stripDriftDistErrors.reserve(idxCluster.size());
 
     for (auto &idx : idxCluster) {
         Identifier id = MMPrdsOfLayer.at(idx).identify();
         rdoList.push_back(id);
-        stripCharges.push_back(MMPrdsOfLayer.at(idx).charge());
-        stripTimes.push_back(MMPrdsOfLayer.at(idx).time());
-        stripNumbers.push_back(channel(id));
+        if(m_writeStripProperties) {
+            stripCharges.push_back(MMPrdsOfLayer.at(idx).charge());
+            stripTimes.push_back(MMPrdsOfLayer.at(idx).time());
+            stripNumbers.push_back(channel(id));
+        }
+        stripDriftDists.push_back(MMPrdsOfLayer.at(idx).driftDist());
+        stripDriftDistErrors.push_back(MMPrdsOfLayer.at(idx).localCovariance());
     }
+
     Amg::MatrixX* covN = new Amg::MatrixX(1, 1);
     covN -> coeffRef(0, 0) = clusterPositionErrorSq;
     Amg::Vector2D localClusterPositionV(clusterPosition,
             MMPrdsOfLayer.at(idxCluster.at(0)).localPosition().y());
     Identifier idStrip0 = MMPrdsOfLayer.at(idxCluster.at(0)).identify();
 
-    MMPrepData* prdN = new MMPrepData(idStrip0,
+    std::unique_ptr<MMPrepData> prdN = std::make_unique<MMPrepData>(idStrip0,
                    MMPrdsOfLayer.at(idxCluster.at(0)).collectionHash(),
                    localClusterPositionV, rdoList, covN,
                    MMPrdsOfLayer.at(idxCluster.at(0)).detectorElement(),
@@ -226,6 +238,9 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
                    0.0/*drift dist*/,
                    stripNumbers, stripTimes, stripCharges);
 
-    clustersVec.push_back(prdN);
+    prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
+    prdN->setAuthor(Muon::MMPrepData::Author::ClusterTimeProjectionClusterBuilder);
+
+    clustersVec.push_back(std::move(prdN));
     return StatusCode::SUCCESS;
 }

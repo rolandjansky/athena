@@ -23,6 +23,8 @@ atlas_depends_on_subdirs(
 find_package( CLHEP )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Matrix Physics )
+find_package( lwtnn REQUIRED )
+find_package( LibXml2 )
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
@@ -45,7 +47,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCS2DFunction.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h 
-                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationExpHistogram.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
@@ -64,6 +67,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSEnergyParametrization.h 
                            ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h 
                            ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h
+                           ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
@@ -92,9 +96,9 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx
    PUBLIC_HEADERS ISF_FastCaloSimEvent
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools AthenaKernel AthenaBaseComps CaloDetDescrLib
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools AthenaKernel AthenaBaseComps CaloDetDescrLib ${LWTNN_LIBRARIES} ${LIBXML2_LIBRARIES}
    CaloGeoHelpers TileSimEvent
    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

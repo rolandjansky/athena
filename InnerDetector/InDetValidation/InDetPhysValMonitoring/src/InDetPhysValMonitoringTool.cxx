@@ -546,9 +546,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         // count duplicates
         float prev = matches[0].first;
         int nduplicates = 0;
-        const std::array<int*, 5> matchedEProbs = {
-          nullptr, nullptr, &m_twoMatchedEProb, &m_threeMatchedEProb, &m_fourMatchedEProb
-        };
+      
         for (int i = 1; i < deg_count; i++) {
           bool duplicate = std::fabs(matches[i].first - prev) < 1.e-9;
           if (duplicate) {
@@ -556,7 +554,12 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
           if (!duplicate || i == deg_count - 1) {
             if (nduplicates > 1) {
-              (*(matchedEProbs[deg_count]))++;
+                if (deg_count==2) 
+                    m_twoMatchedEProb++;
+                else if (deg_count ==3)   
+                    m_threeMatchedEProb++;  
+                else 
+                    m_fourMatchedEProb++; 
             }
             nduplicates = 0;
             prev = matches[i].first;
@@ -700,6 +703,10 @@ InDetPhysValMonitoringTool::getTruthParticles() {
       const auto& links = event->truthParticleLinks();
       tempVec.reserve(event->nTruthParticles());
       for (const auto& link : links) {
+        if (link == nullptr) {
+            ATH_MSG_WARNING("Broken link to truth in HardScatter configuration");
+            continue;
+        }
         tempVec.push_back(*link);
       }
     } else if (m_pileupSwitch == "PileUp") {
@@ -720,6 +727,10 @@ InDetPhysValMonitoringTool::getTruthParticles() {
           ATH_MSG_VERBOSE("Adding " << ntruth << " truth particles from TruthPileupEvents container");
           const auto& links = eventPileup->truthParticleLinks();
           for (const auto& link : links) {
+            if (link == nullptr) {
+                ATH_MSG_WARNING("Broken link to truth in PileUp configuration");
+                continue;
+            }
             tempVec.push_back(*link);
           }
         }

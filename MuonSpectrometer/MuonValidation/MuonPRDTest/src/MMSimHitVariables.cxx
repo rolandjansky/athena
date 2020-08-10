@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMSimHitVariables.h"
@@ -13,6 +13,7 @@
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 
+#include <TString.h> // for Form
 #include "TTree.h"
 
 StatusCode MMSimHitVariables::fillVariables() 
@@ -133,10 +134,7 @@ StatusCode MMSimHitVariables::fillVariables()
                   << " phi " << m_MmIdHelper->stationPhi(offId) << " ml " << m_MmIdHelper->multilayer(offId) );
 
     const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(offId);
-
-    if( !detEl ){
-      ATH_MSG_WARNING("MicroMegas geometry, failed to retrieve detector element for: " << m_MmIdHelper->print_to_string(offId) );
-    }
+    if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nMMSimHitVariables::fillVariables() - Failed to retrieve MMReadoutElement for %s", __FILE__, __LINE__, m_MmIdHelper->print_to_string(offId).c_str()));
 
     // surface
     const Trk::PlaneSurface& surf = detEl->surface(offId);

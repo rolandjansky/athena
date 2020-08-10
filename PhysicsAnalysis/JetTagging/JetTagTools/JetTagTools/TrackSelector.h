@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_TRACKSELECTOR_H
@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include <string>
@@ -113,6 +114,10 @@ private:
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 
   std::bitset<numCuts> m_passedCuts;
+
+  bool m_useEtaDependentCuts;
+  /** service to get cut values depending on different variable */
+  ServiceHandle<InDet::IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc;
 
 };
 

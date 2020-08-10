@@ -102,6 +102,8 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   m_ringPos.clear();
   m_ringListF.clear();
   m_ringListB.clear();
+  m_ringFBzshift.clear();     
+
   
   InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(m_layer); 
 
@@ -124,6 +126,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   std::vector<double> v_ringRadius = discTmp->innerRadius;
   std::vector<double> v_ringOuterRadius = discTmp->outerRadius;
   std::vector<double> v_zOffset = discTmp->zoffset;
+  std::vector<double> v_rOffset = discTmp->roffset;
   std::vector<double> v_phiOffset = discTmp->phioffset;
   std::vector<int> v_numModules = discTmp->nsectors;
   std::vector<std::string> v_moduleType = discTmp->modtype;
@@ -152,6 +155,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     double ringRadius = getValueFromVector(v_ringRadius, iRing); 
     double ringOuterRadius = getValueFromVector(v_ringOuterRadius, iRing); 
     double zOffset = getValueFromVector(v_zOffset, iRing); 
+    double rOffset = getValueFromVector(v_rOffset, iRing); 
     double phiOffset = getValueFromVector(v_phiOffset, iRing);
     int numModules = getValueFromVector(v_numModules, iRing);
     std::string moduleType = getValueFromVector(v_moduleType, iRing);
@@ -170,29 +174,30 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     
     int iSide = getValueFromVector(v_discSide,iRing);
 
+
     // Forward ring
-    GeoPixelRingECRingRef ringF(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, 1, splitMode, inclination);
+    GeoPixelRingECRingRef ringF(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, rOffset,phiOffset, iSide, numModules, moduleType, discNumber, 1, splitMode, inclination);
     ringF.preBuild(basics);
     ringF.readoutId(roRegion,roLayer,roEta);
     m_ringListF.push_back(ringF);
     m_ringPos.push_back(ringPosition-halfZoffset+ringF.getRingZShift());
     m_ringFBzshift.push_back(-halfZoffset+ringF.getRingZShift()); 
 
-    rLayerMin = std::min(rLayerMin,ringF.getRingRMin());
-    rLayerMax = std::max(rLayerMax,ringF.getRingRMax());
+    rLayerMin = std::min(rLayerMin,ringF.getRingRMin()-fabs(0.5*rOffset));
+    rLayerMax = std::max(rLayerMax,ringF.getRingRMax()+fabs(0.5*rOffset));
     zLayerMin = std::min(zLayerMin,ringPosition-halfZoffset-halfSplitOffset + ringF.getRingZMin()  );
     zLayerMax = std::max(zLayerMax,ringPosition-halfZoffset+halfSplitOffset + ringF.getRingZMax()  );
 
     // Backward ring
-    GeoPixelRingECRingRef ringB(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, -1, splitMode, inclination);
+    GeoPixelRingECRingRef ringB(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, rOffset, phiOffset, iSide, numModules, moduleType, discNumber, -1, splitMode, inclination);
     ringB.preBuild(basics);
     ringB.readoutId(roRegion,roLayer,roEta);
     m_ringListB.push_back(ringB);
     m_ringPos.push_back(ringPosition+halfZoffset-ringB.getRingZShift());
     m_ringFBzshift.push_back(+halfZoffset-ringB.getRingZShift()); 
-    
-    rLayerMin = std::min(rLayerMin,ringB.getRingRMin());
-    rLayerMax = std::max(rLayerMax,ringB.getRingRMax());
+
+    rLayerMin = std::min(rLayerMin,ringB.getRingRMin()-fabs(0.5*rOffset));
+    rLayerMax = std::max(rLayerMax,ringB.getRingRMax()+fabs(0.5*rOffset));
     zLayerMin = std::min(zLayerMin,ringPosition+halfZoffset-halfSplitOffset + ringB.getRingZMin() );
     zLayerMax = std::max(zLayerMax,ringPosition+halfZoffset+halfSplitOffset + ringB.getRingZMax() );
   }
@@ -236,12 +241,11 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
 GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics* basics, int layer, int side) 
 {
 
- // Check that the prebuild phase is done
-  if(layer!=m_layer) preBuild(basics,layer);
+ // Check that the prebuild phase is done coherently
+  if(layer!=m_layer || m_endcapSide!=side ) preBuild(basics,layer);   
 
   m_layer = layer;
   m_endcapSide = side;
-
 
   InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(m_layer); 
 
@@ -250,6 +254,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   std::vector<double> v_ringPosition = discTmp->ringpos;
   int nrings = (int)v_ringPosition.size();
   std::vector<int> v_numModules = discTmp->nsectors;
+  std::vector<double> v_rOffset = discTmp->roffset;
   std::vector<std::string> v_splitMode = discTmp->splitMode;
   std::vector<double> v_splitOffset    = discTmp->splitOffset;
   std::vector<double> v_inclination    = discTmp->inclination;
@@ -265,15 +270,16 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
     
     SplitMode splitMode  = getSplitMode(getValueFromVector(v_splitMode,iRing));
     double inclination = getValueFromVector(v_inclination, iRing);
+    double rOffset = getValueFromVector(v_rOffset, iRing); 
     
     if (splitMode==NONE) {
       // strategy for common envelope for inclined F+B+ring support : build it while building inclined Forward ring, pass an an argument 
       ATH_MSG_DEBUG("**** BUILD ENTIRE ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   ");
       double zshift = (inclination !=0) ? m_ringFBzshift[2*iRing] : 0;
-      GeoFullPhysVol* envelope = m_ringListF[iRing].Build(basics,m_endcapSide,0,zshift);
+      GeoFullPhysVol* envelope = m_ringListF[iRing].Build(basics,m_endcapSide,0,zshift,-0.5*rOffset);
       if (inclination==0) { ringList_PV.push_back(envelope); envelope=0; }
       zshift = (inclination !=0) ? m_ringFBzshift[2*iRing+1] : 0;
-      ringList_PV.push_back(m_ringListB[iRing].Build(basics,m_endcapSide, envelope,zshift));
+      ringList_PV.push_back(m_ringListB[iRing].Build(basics,m_endcapSide, envelope,zshift,0.5*rOffset));
     
     } else {
       if (inclination !=0) {
@@ -377,8 +383,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	    ihalfr +=iTwdAway;
 	    bool isTwdBSShift=(0==iTwdAway);
 	    double zPos = m_ringPos[i]-zMiddle;
-	    zPos += (isTwdBSShift) ? -halfSplitOffset : halfSplitOffset;
-	    
+	     zPos += (isTwdBSShift) ? halfSplitOffset : -halfSplitOffset;  
 	    bool swap = false;
 	    if (halfIsEven && (splitMode==MIDDLE || splitMode==GOOD) && !isTwdBSShift) 
 	      swap = true;
@@ -492,9 +497,9 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	    GeoLogVol* _supLogAwayBS = new GeoLogVol("supLogAwayBS",supTubsAwayBS,supMatA);
 	    GeoPhysVol* supPhysAwayBS = new GeoPhysVol(_supLogAwayBS);
 	    
-	    GeoTransform* xformTwdBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle-halfSplitOffset));
-	    GeoTransform* xformAwayBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle+halfSplitOffset));
-	    
+	     GeoTransform* xformTwdBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle+halfSplitOffset));
+            GeoTransform* xformAwayBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle-halfSplitOffset));
+
 	    ecPhys->add(xformTwdBS);
 	    ecPhys->add(supPhysTwdBS);
 	    
@@ -577,89 +582,24 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
       ATH_MSG_DEBUG(" placing layer support for layer:"<<m_layer<<":"<<r[0]<<","<<r[1]<<":"<<z[0]<<":"<<z[1]<<":"<<matName);
     }
 
-    std::vector<int> shells = ringHelper.getNbShellSupportIndex(m_layer);
-    if (!shells.size()  || shells[0]<0) {
-      ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
-      return ecPhys;
-    }
-
     // Place the shell supports
-    std::vector<double> zShell; zShell.push_back(m_layerZMin);  zShell.push_back(m_layerZMax); 
     std::vector<double> rShell = ringHelper.getLayerShellRadius(m_layer);
     if (!rShell.size()) return ecPhys;    // no shell defined
-    double sTh =  ringHelper.getLayerShellThickness(m_layer);
-    if (sTh<=0 && rShell.size()>1) sTh=fabs(rShell[1]-rShell[0]);  
+    double sTh =  rShell.size()<2 ? ringHelper.getLayerShellThickness(m_layer) :  rShell[1]-rShell[0];  
     if (sTh<=0) ATH_MSG_WARNING("shell support wrongly defined for layer "<<m_layer<<", thickness ="<<sTh);
+    std::vector<double> zShell = ringHelper.getLayerShellZBounds(m_layer);
+    if (!zShell.size()) { zShell.push_back(m_layerZMin);  zShell.push_back(m_layerZMax); }
     std::string shellMatName = ringHelper.getLayerShellMaterial(m_layer);
- 
-    std::vector<double> z_corr = ringHelper.getCorrugatedShellZClearance(m_layer);
-    if (!z_corr.size()) { // simple shell
-      const GeoTube* supTube = new GeoTube(rShell[0]-0.5*sTh,rShell[0]+0.5*sTh,(zShell[1]-zShell[0])*.5);
-      const GeoMaterial* supMat = basics->matMgr()->getMaterial(shellMatName);
-      GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
-      GeoPhysVol* supPhys = new GeoPhysVol(_supLog);      
-      GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zShell[0]+zShell[1])*0.5-zMiddle));
-      ecPhys->add(xform);
-      ecPhys->add(supPhys);
+       
+    const GeoTube* supTube = new GeoTube(rShell[0]-0.5*sTh,rShell[0]+0.5*sTh,(zShell[1]-zShell[0])*.5);
+    const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(shellMatName,supTube->volume());
+    GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
+    GeoPhysVol* supPhys = new GeoPhysVol(_supLog);      
+    GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zShell[0]+zShell[1])*0.5-zMiddle));
+    ecPhys->add(xform);
+    ecPhys->add(supPhys);
 
-      ATH_MSG_DEBUG("placing simple shell support for layer:"<<m_layer<<":"<<rShell[0]<<","<<rShell[1]<<":"<<zShell[0]<<":"<<zShell[1]<<":"<<shellMatName);       
-   } else {
-      double zLow = zShell[0];
-      const GeoMaterial* shellMat = basics->matMgr()->getMaterial(shellMatName);
-
-      ATH_MSG_DEBUG("placing corrugated shell support for layer:"<<m_layer<<":"<<rShell[0]<<","<<rShell[1]<<":"<<zShell[0]<<":"<<zShell[1]<<":"<<shellMat);
-
-      double d =  ringHelper.getCorrugatedShellDepth(m_layer);
-      for (unsigned int ir=0; ir<v_ringPosition.size(); ir++) {
-        double ringPos = v_ringPosition[ir];
-        if (ir>0) {
-	  const GeoTube* botTube=new GeoTube(rShell[0]-0.5*sTh+d,rShell[0]+0.5*sTh+d,(ringPos+z_corr[0]-zLow+sTh)*.5);
-	  std::ostringstream shellstrBot;
-	  shellstrBot << "shellBotLog_L"<<m_layer;
-	  GeoLogVol* _botLog = new GeoLogVol(shellstrBot.str(),botTube,shellMat);
-	  GeoPhysVol* botPhys = new GeoPhysVol(_botLog);      
-	  GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zLow+ringPos+z_corr[0])*0.5-zMiddle));
-	  ecPhys->add(xform);
-	  ecPhys->add(botPhys);
-	  zLow = ringPos+z_corr[0];
-	  const GeoTube* w2=new GeoTube(rShell[0]+0.5*sTh+d,rShell[0]-0.5*sTh,sTh*.5);
-	  std::ostringstream shellstrWall;
-	  shellstrWall << "shellWallLog_L"<<m_layer;
-	  GeoLogVol* _w2Log = new GeoLogVol(shellstrWall.str(),w2,shellMat);
-	  GeoPhysVol* w2Phys = new GeoPhysVol(_w2Log);      
-	  xform = new GeoTransform( HepGeom::Translate3D(0., 0., zLow-zMiddle));
-	  ecPhys->add(xform);
-	  ecPhys->add(w2Phys);
-	}
-	const GeoTube* supTube=new GeoTube(rShell[0]-0.5*sTh,rShell[0]+0.5*sTh,(ringPos+z_corr[1]-zLow+sTh)*.5);
-	std::ostringstream shellstrSup;
-	shellstrSup << "shellSupLog_L"<<m_layer;
-	GeoLogVol* _supLog = new GeoLogVol(shellstrSup.str(),supTube,shellMat);
-	GeoPhysVol* supPhys = new GeoPhysVol(_supLog);      
-	GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zLow+ringPos+z_corr[1])*0.5-zMiddle));
-	ecPhys->add(xform);
-	ecPhys->add(supPhys);
-        zLow = ringPos+z_corr[1];
-	const GeoTube* w1=new GeoTube(rShell[0]+0.5*sTh+d,rShell[0]-0.5*sTh,sTh*.5);
-	std::ostringstream shellstrW;
-	shellstrW << "shellWallLog_L"<<m_layer;
-	GeoLogVol* _w1Log = new GeoLogVol(shellstrW.str(),w1,shellMat);
-	GeoPhysVol* w1Phys = new GeoPhysVol(_w1Log);      
-	xform = new GeoTransform( HepGeom::Translate3D(0., 0., zLow-zMiddle));
-	ecPhys->add(xform);
-	ecPhys->add(w1Phys);
-       }
-      if (zLow < zShell[1]) {
-	const GeoTube* botTube=new GeoTube(rShell[0]-0.5*sTh+d,rShell[0]+0.5*sTh+d,(zShell[1]-zLow)*.5);
-	std::ostringstream shellstrB;
-	shellstrB << "shellBotLog_L"<<m_layer;
-	GeoLogVol* _botLog = new GeoLogVol(shellstrB.str(),botTube,shellMat);
-	GeoPhysVol* botPhys = new GeoPhysVol(_botLog);      
-	GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zLow+zShell[1])*0.5-zMiddle));
-	ecPhys->add(xform);
-	ecPhys->add(botPhys);
-      }
-    }
+    ATH_MSG_DEBUG("placing simple shell support for layer:"<<m_layer<<":"<<rShell[0]<<","<<rShell[1]<<":"<<zShell[0]<<":"<<zShell[1]<<":"<<shellMatName);       
      
     ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
     return ecPhys;

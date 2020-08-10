@@ -109,7 +109,7 @@ histSvc("THistSvc",name){
   declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=false); 
   declareProperty("gFEX_pTcone_cut", m_gFEX_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
   
-  declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200302.r11364.root");  //correction file for jXERHO
+  declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200510.r11881.root");  //correction file for jXERHO
   declareProperty("jXERHO_fixed_noise_cut"  , m_jXERHO_fixed_noise_cut=0.0);  
   declareProperty("jXERHO_rho_up_threshold" , m_jXERHO_rho_up_threshold=1000.0);
   declareProperty("jXERHO_min_noise_cut"    , m_jXERHO_min_noise_cut=100.0);  

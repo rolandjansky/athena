@@ -73,6 +73,10 @@ def getCavernInfraGeoDetectorTool(name='CavernInfra', **kwargs):
     kwargs.setdefault("DetectorName", "CavernInfra")
     return CfgMgr.GeoDetectorTool(name, **kwargs)
 
+def getHGTDGeoDetectorTool(name='HGTD', **kwargs):
+    kwargs.setdefault("DetectorName", "HGTD")
+    return CfgMgr.GeoDetectorTool(name, **kwargs)
+
 def getIDETEnvelope(name="IDET", **kwargs):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
@@ -94,7 +98,12 @@ def getIDETEnvelope(name="IDET", **kwargs):
       innerRadius = rin*10.*mm # The factor 10 is needed for converting in mm the DB entry
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    kwargs.setdefault("dZ", 347.5*cm)
+    # IDET should include the HGTD (3420 mm < |z| < 3545 mm) when turned on, otherwise leave room for MBTS from |z| = 3475 mm since it is placed inside CALO
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.geometry.HGTD_on():
+        kwargs.setdefault("dZ", 354.5*cm)        
+    else:
+        kwargs.setdefault("dZ", 347.5*cm)
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.pixel_on():
@@ -105,21 +114,30 @@ def getIDETEnvelope(name="IDET", **kwargs):
         SubDetectorList += ['TRT']
     if not isUpgrade:
         SubDetectorList += ['IDetServicesMat']
+    if DetFlags.simulate.HGTD_on():
+        SubDetectorList += ['HGTD']
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
 
 def getCALOEnvelope(name="CALO", **kwargs):
+    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
+    calolim = 6735.
+    try:
+        if LArDetectorToolNV.ActivateFeedThrougs:
+            calolim = 6747.
+    except AttributeError:
+        pass
     kwargs.setdefault("DetectorName", "CALO")
     nSurfaces = 18
-    innerRadii = [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.] #FIXME Units?
-    outerRadii = [415.,415,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.] #FIXME Units?
-    zSurfaces  = [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6735.,6735.,6781.] #FIXME Units?
+    innerRadii = [   41.,   41.,   41.,  41.,    41.,   41.,  120., 120.,  1148.,1148., 120., 120.,  41.,  41.,  41.,  41.,  41.,  41.] #FIXME Units?
+    outerRadii = [  415.,  415., 3795., 3795., 4251., 4251., 4251., 4251., 4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795., 415., 415.] #FIXME Units?
+    zSurfaces  = [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.] #FIXME Units?
     from AthenaCommon.DetFlags import DetFlags
+    # if HGTD is on, the calo envelope should *not* include it (changed from 20.20 to 21.9)
     if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
-        nSurfaces = 22
-        innerRadii = [41.,41.,41.,41.,41.,41.,120.,120.,47.,47.,1148.,1148.,47.,47.,120.,120.,41.,41.,41.,41.,41.,41.] #FIXME Units?
-        outerRadii = [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.] #FIXME Units?
-        zSurfaces  = [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3535.,-3535.,-3475.,-3475., 3475., 3475., 3535, 3535,4587.,4587.,6530.,6530.,6735.,6735.,6781.] #FIXME Units?
+        innerRadii = [   41.,   41.,   41.,   41.,   41.,   41.,  120.,  120., 1148.,1148., 120., 120.,  41.,  41.,  41.,  41.,  41.,  41.] #FIXME Units?
+        outerRadii = [  415.,  415., 3795., 3795., 4251., 4251., 4251., 4251., 4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795., 415., 415.] #FIXME Units?
+        zSurfaces  = [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,calolim,calolim,6781.] #FIXME Units?
     kwargs.setdefault("NSurfaces", nSurfaces)
     kwargs.setdefault("InnerRadii", innerRadii)
     kwargs.setdefault("OuterRadii", outerRadii)
@@ -152,11 +170,18 @@ def getForwardRegionEnvelope(name='ForwardRegion', **kwargs):
     return CfgMgr.GeoDetectorTool(name, **kwargs) ##FIXME Should this really be a GeoDetectorTool???
 
 def getMUONEnvelope(name="MUONQ02", **kwargs): #FIXME rename to MUON when safe
+    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
+    calolim = 6736.
+    try:
+        if LArDetectorToolNV.ActivateFeedThrougs:
+            calolim = 6748.
+    except AttributeError:
+        pass
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6736.,-6736.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6736.,6736.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.Muon_on():

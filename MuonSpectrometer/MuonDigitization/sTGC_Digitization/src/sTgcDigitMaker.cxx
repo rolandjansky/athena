@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 #include "MuonDigitContainer/sTgcDigitCollection.h"
 #include "MuonSimEvent/sTGCSimHit.h"
@@ -39,7 +40,6 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TF1.h" 
-#include "TMath.h"
 
 //---------------------------------------------------
 //  Constructor and Destructor
@@ -288,10 +288,18 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   int NumberOfStrips = detEl->numberOfStrips(newId); 
   double stripHalfWidth = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
 
+  //************************************ conversion of energy to charge **************************************
+
+  // Constant determined from ionization study within Garfield
+  // Note titled Charge Energy Relation which outlines conversion can be found here https://cernbox.cern.ch/index.php/apps/files/?dir=/__myshares/Documents (id:274113) 
+  double ionized_charge = (5.65E-6)*energyDeposit/CLHEP::keV; // initial ionized charge in pC per keV deposited
+  double gain = 1.6E5; // mean value for total gain due to E field; needs to be verified; statistical flucuation calculation incoming
+  double total_charge = gain*ionized_charge; // total charge after avalanche using average gain of 2E5
+
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution
   float charge_width = CLHEP::RandGauss::shoot(m_engine, m_GausMean, m_GausSigma);
-  float norm = 1000. * energyDeposit/(charge_width*TMath::Sqrt(2.*TMath::Pi())); //normalization: 1Kev --> Intergral=1
+  float norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI)); // each readout plane reads about half the total charge produced on the wire
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
   
@@ -322,11 +330,11 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
           for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
             if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
             if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
           }// end of introduce cross talk
       } // end isValid
@@ -352,11 +360,11 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
           for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
             if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-             if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+             if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
             if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
           }// end of introduce cross talk
       } // end isValid

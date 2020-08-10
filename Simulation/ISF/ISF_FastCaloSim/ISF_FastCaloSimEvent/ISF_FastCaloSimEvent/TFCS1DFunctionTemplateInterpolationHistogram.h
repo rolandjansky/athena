@@ -73,7 +73,7 @@ template <typename Txvec, typename Ty,typename Trandom=float> class TFCS1DFuncti
       } else m=0;
       
       //std::cout<<"fbin="<<ibin<<" fx="<<m_HistoBorders.GetBinLowEdge(ibin)<<" frac="<<m_HistoContents.get_fraction(ibin)<<" dfracprev="<<dfracprev<<" dfrac="<<dfrac<<" dfracnext="<<dfracnext<<" dfracprev-dfrac="<<dfracprev-dfrac<<" dfracnext-dfrac="<<dfracnext-dfrac<<" m="<<m<<" residual_rnd="<<residual_rnd<<std::endl;
-      return m_HistoBorders.position(ibin,m,residual_rnd);
+      return m_HistoBorders.position_lin(ibin,m,residual_rnd);
     }
 
   ClassDef(TFCS1DFunctionTemplateInterpolationHistogram,1)  //TFCS1DFunctionTemplateInterpolationHistogram
@@ -110,5 +110,19 @@ class TFCS1DFunctionInt16Int32InterpolationHistogram: public TFCS1DFunctionTempl
 
   ClassDef(TFCS1DFunctionInt16Int32InterpolationHistogram,1)  //TFCS1DFunctionInt16Int32InterpolationHistogram
 };
+
+
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>+;
+#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>+;
+#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>+;
+#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>+;
+
+#pragma link C++ class TFCS1DFunctionInt8Int8InterpolationHistogram+;
+#pragma link C++ class TFCS1DFunctionInt8Int16InterpolationHistogram+;
+#pragma link C++ class TFCS1DFunctionInt16Int16InterpolationHistogram+;
+#pragma link C++ class TFCS1DFunctionInt16Int32InterpolationHistogram+;
+
+#endif
 
 #endif

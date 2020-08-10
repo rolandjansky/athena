@@ -37,6 +37,15 @@ def toolInDetVKalVxInJetTool(name, useBTagFlagsDefaults = True, **options):
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
+        if(commonGeoFlags.Run()=="RUN4"):
+            from BTagging.BTaggingConfiguration_InDetEtaDependentCutsSvc import IDEtaDepCutsSvc_InDetVKalVxInJetFinder
+            InDetEtaDependentCutsSvc = IDEtaDepCutsSvc_InDetVKalVxInJetFinder( "IDEtaDepCutsSvc_" + name )
+            InDetEtaDependentCutsSvc.minStripHits = [0]
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr += InDetEtaDependentCutsSvc
+            options['InDetEtaDependentCutsSvc'] = InDetEtaDependentCutsSvc
+
     options['name'] = name
     from InDetVKalVxInJetTool.InDetVKalVxInJetToolConf import InDet__InDetVKalVxInJetTool
     return InDet__InDetVKalVxInJetTool(**options)

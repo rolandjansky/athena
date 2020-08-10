@@ -32,6 +32,7 @@ Muon::ProjectionMMClusterBuilderTool::ProjectionMMClusterBuilderTool(const std::
   m_mmIdHelper(nullptr)
 {
   declareInterface<IMMClusterBuilderTool>(this);
+  declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
   declareProperty("tmin", m_tmin=0.0);
   declareProperty("tmax", m_tmax=5.0);
   declareProperty("tOffset", m_tOffset=0);
@@ -57,7 +58,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::initialize()
 
 
 StatusCode Muon::ProjectionMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-							 std::vector<Muon::MMPrepData*>& clustersVect) const 
+							 std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect) const 
 {
 
 std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
@@ -206,7 +207,7 @@ StatusCode  Muon::ProjectionMMClusterBuilderTool::doPositionCalculation(std::vec
   }
 
 
-StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer)const {
+StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<MMPrepData>& prdsOfLayer)const {
       Amg::MatrixX* covN = new Amg::MatrixX(1,1);
       covN->coeffRef(0,0)=xerr; // TODO set proper uncertainty
       ATH_MSG_VERBOSE("Did set covN Matrix");
@@ -219,12 +220,30 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
       std::vector<short int> stripsOfClusterDriftTime;
       std::vector<int> stripsOfClusterCharge;
       std::vector<uint16_t> stripsOfClusterStripNumber;
+      std::vector<float> stripsOfClusterDriftDists;
+      std::vector<Amg::MatrixX> stripsOfClusterDriftDistErrors;
+
+
+
+      stripsOfCluster.reserve(idx_selected.size());
+      if (m_writeStripProperties) {
+        stripsOfClusterDriftTime.reserve(idx_selected.size());
+        stripsOfClusterCharge.reserve(idx_selected.size());
+        stripsOfClusterStripNumber.reserve(idx_selected.size());
+      }
+      stripsOfClusterDriftDists.reserve(idx_selected.size());
+      stripsOfClusterDriftDistErrors.reserve(idx_selected.size());
+
       double meanTime=0;
       for(const auto& id_goodStrip:idx_selected){
         stripsOfCluster.push_back(prdsOfLayer.at(id_goodStrip).identify());
-        stripsOfClusterDriftTime.push_back(int(prdsOfLayer.at(id_goodStrip).time()));
-        stripsOfClusterCharge.push_back(int(prdsOfLayer.at(id_goodStrip).charge()));
-        stripsOfClusterStripNumber.push_back(m_mmIdHelper->channel(prdsOfLayer.at(id_goodStrip).identify()));
+        if (m_writeStripProperties) {
+          stripsOfClusterDriftTime.push_back(static_cast<short int>(prdsOfLayer.at(id_goodStrip).time()));
+          stripsOfClusterCharge.push_back(static_cast<int>(prdsOfLayer.at(id_goodStrip).charge()));
+          stripsOfClusterStripNumber.push_back(m_mmIdHelper->channel(prdsOfLayer.at(id_goodStrip).identify()));
+        }
+        stripsOfClusterDriftDists.push_back(prdsOfLayer.at(id_goodStrip).driftDist());
+        stripsOfClusterDriftDistErrors.push_back(prdsOfLayer.at(id_goodStrip).localCovariance());
 
 
         meanTime+=prdsOfLayer.at(id_goodStrip).time()*prdsOfLayer.at(id_goodStrip).charge();
@@ -234,13 +253,15 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
 
       float driftDist = 0.0;
 
-      MMPrepData* prdN=new MMPrepData(prdsOfLayer.at(idx).identify(),prdsOfLayer.at(idx).collectionHash(),
+      std::unique_ptr<Muon::MMPrepData> prdN =  std::make_unique<MMPrepData>(prdsOfLayer.at(idx).identify(),prdsOfLayer.at(idx).collectionHash(),
 				      localClusterPositionV,stripsOfCluster,
 				      covN,prdsOfLayer.at(idx).detectorElement(),
 				      (short int) int(meanTime),int(qtot), driftDist,
 				      stripsOfClusterStripNumber,stripsOfClusterDriftTime,stripsOfClusterCharge);
 
-      clustersVect.push_back(prdN);
+      prdN->setAuthor(Muon::MMPrepData::Author::ProjectionClusterBuilder);
+
+      clustersVect.push_back(std::move(prdN));
       ATH_MSG_VERBOSE("pushedBack  prdN");
       ATH_MSG_VERBOSE("pushedBack PRDs: stationEta: "<< m_mmIdHelper->stationEta(prdN->identify())
                        <<" stationPhi "<< m_mmIdHelper->stationPhi(prdN->identify()) 

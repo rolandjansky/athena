@@ -27,6 +27,7 @@ RUNPOST=-1
 DIRECTORY=
 LOCAL=0
 FORCE=0
+FORK=1
 
 while [ $# -ge 1 ]; do
     case "$1" in
@@ -57,9 +58,7 @@ function converttime {
     ((H=$totes/3600))
     ((M=($totes%3600)/60))
     ((S=$totes%60))
-    [ $M -lt 10 ] && M=0$M
-    [ $S -lt 10 ] && S=0$S
-    echo "$H:$M:$S"
+    printf "%d:%02d:%02d\n" $H $M $S
 }
 
 timestamp "starting"
@@ -133,7 +132,6 @@ function runathena {
 
      mkdir -p athena-$1
      cd  athena-$1
-     cp ../*.py .
 
      pwd
      echo "ARGS: $ARGS"
@@ -178,24 +176,56 @@ export RTTJOBNAME=@REPLACERTTJOBNAME
 jobList=
 
 if [ $LOCAL -eq 1 ]; then
+
       echo "running locally"
       # get number of files 
       NFILES=$(grep "^#[[:space:]]*art-input-nfiles:" $0 | sed 's|.*art-input-nfiles:[[:space:]]*||g')
       [ $NFILES -lt 1 ] && echo "not enough files: $NFILES" && exit -1
-      _jobList=$(TIDAdataset.py $RTTJOBNAME)
+      DATASET=$(grep "^#[[:space:]]*art-input:" $0 | sed 's|.*art-input:[[:space:]]*||g')
+      _jobList=$(\ls /eos/atlas/atlascerngroupdisk/proj-sit/trigindet/$DATASET/* )
       for git in $_jobList ; do [ $NFILES -gt 0 ] || break ; jobList="$jobList ARTConfig=['$git']" ; ((NFILES--)) ; echo "running over $git"  ; done
+
+elif [ -n "$ArtProcess" ]; then
+
+      # art-cores specified, so ART is already forking off subprocesses
+      FORK=0
+      case "$ArtProcess" in
+            start)
+                  timestamp "ART Starting (${ArtCores}-core)"
+                  exit 0   # nothing more to do this time round
+                  ;;
+            end)
+                  timestamp "ART Ending (${ArtCores}-core)"
+                  ;;       # skip to postprocessing
+            *)
+                  # runathena here and now, no forking
+                  timestamp "ART job $ArtProcess (${ArtCores}-core)"
+                  IFS=',' read -r -a file <<< "${ArtInFile}"
+                  file=${file[${ArtProcess}]}
+                  _jobList="'../$file'"
+                  echo "ART running over $_jobList"
+                  jobList="ARTConfig=[$_jobList]"
+                  if [ $RUNATHENA -eq 1 ]; then
+                      ARGS="$jobList;@REPLACECOMMAND"
+                      runathena "$ArtProcess"
+                  fi
+                  exit 0   # this thread is done
+                  ;;
+      esac
+
 else
+
       fileList="['${ArtInFile//,/', '}']"
       _jobList="'../${ArtInFile//,/' '../}'"
       echo "List of files = $fileList"
       for git in $_jobList ; do jobList="$jobList ARTConfig=[$git]" ; echo "ART running over $git"  ; done
+
 fi
 
 
 if [ $RUNATHENA -eq 1 ]; then 
 
-get_files -jo @REPLACEJOBOPTIONS
-
+if [ $FORK -eq 1 ]; then
 
 # run athena in separate directories
 
@@ -259,6 +289,8 @@ timestamp "waiting on athena jobs ..."
 # echo -e "\n\nwaiting on athena jobs...\n"
 
 waitonallproc
+
+fi
 
 echo "all done ! hooray !"
 

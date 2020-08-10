@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,6 +32,7 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
      m_TRT_Cor           ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"),
      m_MuonDriftCircleCor("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackTool"),
      m_MuonClusterCor    ("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackTool"),
+     m_MmClusterCor      ("Muon::MMClusterOnTrackCreator/MMClusterOnTrackTool"),
      m_doPixel(true),
      m_doSCT(true),
      m_doTRT(true)
@@ -44,6 +45,7 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
    declareProperty("ToolTRT_DriftCircle",m_TRT_Cor);
    declareProperty("ToolMuonDriftCircle",m_MuonDriftCircleCor);
    declareProperty("ToolMuonCluster"    ,m_MuonClusterCor);
+   declareProperty("ToolMuonMMCluster"  ,m_MmClusterCor);
    declareProperty("Mode"               ,m_mode);
  }
 
@@ -59,89 +61,67 @@ StatusCode Trk::RIO_OnTrackCreator::initialize()
   if (AlgTool::initialize().isFailure()) return StatusCode::FAILURE; 
 
   if (m_mode != "all" && m_mode != "indet" &&m_mode != "muon") {
-    msg(MSG::FATAL) << "Mode is set to wrong value " << m_mode << endreq;
+    ATH_MSG_FATAL("Mode is set to wrong value " << m_mode);
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << " RIO_OnTrackCreator job configuration:" << std::endl
-		 << std::endl << " (i) The following RIO correction "
-		 << "tools configured (depends on mode = "<< m_mode <<"):" << std::endl
-		 << "     Pixel      : " << m_PixClusCor << std::endl
-		 << "     SCT        : " << m_SctClusCor << std::endl
-		 << "     TRT        : " << m_TRT_Cor       << std::endl
-		 << "     MDT        : " << m_MuonDriftCircleCor << std::endl
-		 << "     CSC/RPC/TGC: " << m_MuonClusterCor << std::endl
-		 << endreq;
+  ATH_MSG_INFO("RIO_OnTrackCreator job configuration:" << std::endl
+     << std::endl << " (i) The following RIO correction "
+     << "tools configured (depends on mode = "<< m_mode <<"):" << std::endl
+     << "     Pixel      : " << m_PixClusCor << std::endl
+     << "     SCT        : " << m_SctClusCor << std::endl
+     << "     TRT        : " << m_TRT_Cor       << std::endl
+     << "     MDT        : " << m_MuonDriftCircleCor << std::endl
+     << "     CSC/RPC/TGC/sTGC: " << m_MuonClusterCor << std::endl
+     << "     MM: " << m_MmClusterCor);
 
   // Get the correction tool to create Pixel/SCT/TRT RIO_onTrack
 
   if (m_mode == "all" || m_mode == "indet") {
-
     if (!m_PixClusCor.empty()) {
-      if ( m_PixClusCor.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_PixClusCor << endreq;
-	return StatusCode::FAILURE;
-      } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_PixClusCor << endreq;
-      }
+      ATH_CHECK(m_PixClusCor.retrieve());
+      ATH_MSG_INFO("Retrieved tool " << m_PixClusCor);
     } else {
       m_doPixel = false;
     }
 
     if (!m_SctClusCor.empty()) {
-      if ( m_SctClusCor.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_SctClusCor << endreq;
-	return StatusCode::FAILURE;
-      } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_SctClusCor << endreq;
-      }
+      ATH_CHECK(m_SctClusCor.retrieve());
+      ATH_MSG_INFO("Retrieved tool " << m_SctClusCor);
     } else {
       m_doSCT = false;
     }
 
     if (!m_TRT_Cor.empty()) {
-      if ( m_TRT_Cor.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_TRT_Cor << endreq;
-	return StatusCode::FAILURE;
-      } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_TRT_Cor << endreq;
-      }
+      ATH_CHECK(m_TRT_Cor.retrieve());
+      ATH_MSG_INFO("Retrieved tool " << m_TRT_Cor);
     } else {
       m_doTRT = false;
     }
   }
-  
+
   if (m_mode == "all" || m_mode == "muon") {
+    ATH_CHECK(m_MuonDriftCircleCor.retrieve());
+    ATH_MSG_INFO("Retrieved tool " << m_MuonDriftCircleCor);
 
-    if ( m_MuonDriftCircleCor.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_MuonDriftCircleCor << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_MuonDriftCircleCor << endreq;
-    }
+    ATH_CHECK(m_MuonClusterCor.retrieve());
+    ATH_MSG_INFO("Retrieved tool " << m_MuonClusterCor);
 
-    if ( m_MuonClusterCor.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_MuonClusterCor << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_MuonClusterCor << endreq;
-    }
+    ATH_CHECK(m_MmClusterCor.retrieve());
+    ATH_MSG_INFO("Retrieved tool " << m_MmClusterCor);
   }
-  
+
   // Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-  msg(MSG::INFO)  << "initialize() successful in " << name() << endreq;
+  ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 
 // finalise
 StatusCode Trk::RIO_OnTrackCreator::finalize()
 {
-  msg(MSG::INFO)  << "finalize() successful in " << name() << endreq;
+  ATH_MSG_INFO("finalize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -165,8 +145,8 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
 
   if (m_doPixel && m_idHelper->is_pixel(id)) {
     if (m_mode == "muon") {
-      msg(MSG::WARNING)<<"I have no tool to correct the current Pixel hit! - Giving back nil."<<endreq;
-      return 0;
+      ATH_MSG_WARNING("I have no tool to correct the current Pixel hit! - Giving back nil.");
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as PixelCluster.");
       return m_PixClusCor->correct(rio, trk);
@@ -175,8 +155,8 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
 
   if (m_doSCT && m_idHelper->is_sct(id)) {
     if (m_mode == "muon") {
-      msg(MSG::WARNING)<<"I have no tool to correct the current SCT hit! - Giving back nil."<<endreq;
-      return 0;
+      ATH_MSG_WARNING("I have no tool to correct the current SCT hit! - Giving back nil.");
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as SCT_Cluster.");
       return m_SctClusCor->correct(rio, trk);
@@ -185,8 +165,8 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
 
   if (m_doTRT && m_idHelper->is_trt(id)) {
     if (m_mode == "muon") {
-      msg(MSG::WARNING)<<"I have no tool to correct this TRT driftcircle! - Giving back nil."<<endreq;
-      return 0;
+      ATH_MSG_WARNING("I have no tool to correct this TRT driftcircle! - Giving back nil.");
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as TRT_DriftCircle.");
       return m_TRT_Cor->correct(rio, trk);
@@ -195,32 +175,41 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
 
   if (m_idHelper->is_mdt(id)){
     if (m_mode == "indet") {
-      msg(MSG::WARNING)<<"I have no tool to correct this MDT driftcircle! - Giving back nil."<<endreq;
-      return 0;
+      ATH_MSG_WARNING("I have no tool to correct this MDT driftcircle! - Giving back nil.");
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as MuonDriftCircle.");
       return m_MuonDriftCircleCor->correct(rio, trk);
     }
   }
   if ( (m_idHelper->is_csc(id)) || (m_idHelper->is_rpc(id))
-       || (m_idHelper->is_tgc(id)) || (m_idHelper->is_mm(id)) || (m_idHelper->is_stgc(id)) ) {
+       || (m_idHelper->is_tgc(id)) || (m_idHelper->is_stgc(id)) ) {
     if (m_mode == "indet") {
-      msg(MSG::WARNING)<<"I have no tool to correct a CSC/RPC/TGC hit! - Giving back nil."<<endreq;
-      return 0;
+      ATH_MSG_WARNING("I have no tool to correct a CSC/RPC/TGC/sTGC hit! - Giving back nil.");
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as MuonCluster.");
       return m_MuonClusterCor->correct(rio, trk);
+    }
+  }
+  if (m_idHelper->is_mm(id)) {
+    if (m_mode == "indet") {
+      ATH_MSG_WARNING("I have no tool to correct a MM hit! - Giving back nil.");
+      return nullptr;
+    } else {
+      ATH_MSG_DEBUG ("RIO identified as MMCluster.");
+      return m_MmClusterCor->correct(rio, trk);
     }
   }
 
   int ROTCreator_maxwarn = 50;
   if (*m_nwarning < 10*ROTCreator_maxwarn) (*m_nwarning)++;
   if (*m_nwarning <= ROTCreator_maxwarn) {
-    msg(MSG::ERROR) << "idHelper could not identify sub-detector! Return nil RIO_OnTrack*"<<endreq;
+    ATH_MSG_ERROR("idHelper could not identify sub-detector! Return nil RIO_OnTrack*");
     if ((*m_nwarning)==ROTCreator_maxwarn) {
-      msg(MSG::ERROR) << " --> will skip this warning in the future..."<<endreq;
+      ATH_MSG_ERROR(" --> will skip this warning in the future...");
     }
   }
 
-  return 0;
+  return nullptr;
 }

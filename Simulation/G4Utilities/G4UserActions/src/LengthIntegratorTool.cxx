@@ -19,7 +19,8 @@ namespace G4UA
     declareInterface<IG4EventActionTool>(this);
     declareInterface<IG4SteppingActionTool>(this);
     declareProperty("HistoSvc", m_hSvc);
-    declareProperty("isITk", m_config.isITk);
+    declareProperty("isPhaseII", m_config.isPhaseII);
+    declareProperty("isITk", m_config.isPhaseII); // support old naming of above config parameter
     declareProperty("doElements", m_config.doElements);
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -10,34 +10,109 @@
 //-------------------------------------------------
 namespace InDet{
 
-  StatusCode InDetVKalVxInJetTool::CutTrk(double PInvVert,double ThetaVert, 
-         double A0Vert, double ZVert, double Chi2, 
-         long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits)
+  StatusCode InDetVKalVxInJetTool::CutTrkRelax(std::unordered_map<std::string,double> TrkVarDouble,
+                                               std::unordered_map<std::string,int> TrkVarInt)
   const
   {
-     double Pt = sin(ThetaVert)/fabs(PInvVert);
-//- Track quality
-     if(Pt               < m_CutPt) 			return StatusCode::FAILURE;
-//std::cout<<" ZVert="<<ZVert<<", "<<sin(ThetaVert)<<'\n';
-//std::cout<<" Chi2="<<Chi2<<'\n';
-//std::cout<<" A0Vert="<<A0Vert<<'\n';
+
+    double eta       = TrkVarDouble["eta"];
+    double ThetaVert = TrkVarDouble["ThetaVert"];
+    double A0Vert    = TrkVarDouble["A0Vert"];
+    double ZVert     = TrkVarDouble["ZVert"];
+    double ConeDist  = TrkVarDouble["ConeDist"];
+
+    int PixelHits = TrkVarInt["PixelHits"];
+    int SctHits   = TrkVarInt["SctHits"];
+
+    if ( ConeDist > m_ConeForTag )                        return StatusCode::FAILURE;
+
+    double z0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxZImpactAtEta(eta) : m_CutZVrt;
+    if(std::abs(ZVert*sin(ThetaVert)) > z0_cut)	return StatusCode::FAILURE;
+
+    double d0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta) : m_CutA0;
+    if(std::abs(A0Vert) > d0_cut) 		        return StatusCode::FAILURE;
+
+    int pix_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPixelHitsAtEta(eta) : m_CutPixelHits;
+    if(!m_useEtaDependentCuts && std::abs(eta)>2. && !m_IsPhase2) pix_cut++;
+    if(PixelHits < pix_cut) 		        return StatusCode::FAILURE;
+
+    int strip_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinStripHitsAtEta(eta) : m_CutSctHits;
+    if(!m_useEtaDependentCuts && std::abs(eta)>1.65 && !m_IsPhase2) strip_cut++;
+    if(SctHits < strip_cut)              	return StatusCode::FAILURE;
+
+    int si_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinSiHitsAtEta(eta) : m_CutSiHits;
+    if((PixelHits+SctHits) < si_cut) 		return StatusCode::FAILURE;
+
+     return StatusCode::SUCCESS;
+  }
+
+
+  StatusCode InDetVKalVxInJetTool::CutTrk(std::unordered_map<std::string,double> TrkVarDouble,
+                                          std::unordered_map<std::string,int> TrkVarInt)
+  const
+  {
+
+    double eta         = TrkVarDouble["eta"];
+    double PInvVert    = TrkVarDouble["PInvVert"];
+    double ThetaVert   = TrkVarDouble["ThetaVert"];
+    double A0Vert      = TrkVarDouble["A0Vert"];
+    double ZVert       = TrkVarDouble["ZVert"];
+    double Chi2        = TrkVarDouble["Chi2"];
+    double ConeDist    = TrkVarDouble["ConeDist"];
+    double CovTrkMtx11 = TrkVarDouble["CovTrkMtx11"];
+    double CovTrkMtx22 = TrkVarDouble["CovTrkMtx22"];
+    double trkP        = TrkVarDouble["trkP"];
+    double trkPErr     = TrkVarDouble["trkPErr"];
+
+    int PixelHits = TrkVarInt["PixelHits"];
+    int SctHits   = TrkVarInt["SctHits"];
+    int BLayHits  = TrkVarInt["BLayHits"];
+    int badHits   = TrkVarInt["badHits"];
+
+    if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  return StatusCode::FAILURE;
+    if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    return StatusCode::FAILURE;
+    if ( ConeDist > m_ConeForTag )                        return StatusCode::FAILURE;
+    if(trkP>10000.){
+      if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);
+      if(trkPErr>0.5) return StatusCode::FAILURE;
+    }
+
+     double Pt = sin(ThetaVert)/std::abs(PInvVert);
+     //- Track quality
+
+     double pT_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPtAtEta(eta) : m_CutPt;
+     if(Pt               < pT_cut) 		return StatusCode::FAILURE;
+
      if(!m_MultiWithPrimary){           //Must not be used for primary vertex search
-       if(fabs(ZVert)      > m_CutZVrt/sin(ThetaVert))	return StatusCode::FAILURE;
+       double z0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxZImpactAtEta(eta) : m_CutZVrt;
+       if(std::abs(ZVert*sin(ThetaVert)) > z0_cut)	return StatusCode::FAILURE;
      }
-     if(Chi2 	         > m_CutChi2) 			return StatusCode::FAILURE;
-     if(fabs(A0Vert)     > m_CutA0) 			return StatusCode::FAILURE;
 
+     double chi2_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxChi2AtEta(eta) : m_CutChi2;
+     if(Chi2 	         > chi2_cut) 		return StatusCode::FAILURE;
 
-     if(PixelHits	    < m_CutPixelHits) 		return StatusCode::FAILURE;
-     if(SctHits		    < m_CutSctHits) 		return StatusCode::FAILURE;
-     if((PixelHits+SctHits) < m_CutSiHits) 		return StatusCode::FAILURE;
-     if(BLayHits	    < m_CutBLayHits) 		return StatusCode::FAILURE;
-     if(SharedHits	    > m_CutSharedHits) 		return StatusCode::FAILURE;
+     double d0_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta) : m_CutA0;
+     if(std::abs(A0Vert)     > d0_cut) 		return StatusCode::FAILURE;
+
+     int pix_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinPixelHitsAtEta(eta) : m_CutPixelHits;
+     if(!m_useEtaDependentCuts && std::abs(eta)>2. && !m_IsPhase2) pix_cut++;
+     if(PixelHits	    < pix_cut) 		return StatusCode::FAILURE;
+     if(std::abs(eta)>2 && !m_IsPhase2 && badHits && PixelHits<=3) return StatusCode::FAILURE;
+
+     int strip_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinStripHitsAtEta(eta) : m_CutSctHits;
+     if(!m_useEtaDependentCuts && std::abs(eta)>2. && !m_IsPhase2 && m_existIBL) strip_cut++;
+     if(!m_useEtaDependentCuts && std::abs(eta)>1.65 && !m_IsPhase2) strip_cut++;
+     if(SctHits		    < strip_cut) 	return StatusCode::FAILURE;
+
+     int si_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinSiHitsAtEta(eta) : m_CutSiHits;
+     if((PixelHits+SctHits) < si_cut) 		return StatusCode::FAILURE;
+
+     int inpix_cut = m_useEtaDependentCuts ? m_etaDependentCutsSvc->getMinInnermostPixelHitsAtEta(eta) : m_CutBLayHits;
+     if(BLayHits	    < inpix_cut) 	return StatusCode::FAILURE;
 
      return StatusCode::SUCCESS;
   }
  
-
 
 
 
@@ -66,42 +141,60 @@ namespace InDet{
           double trkChi2=1.; if(TrkQual) trkChi2=TrkQual->chiSquared() / TrkQual->numberDoF();
           double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
           double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
+          double coneDist = ConeDist(VectPerig,JetDir);
 
-	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
-	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
-	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
-
-          double trkP=1./fabs(VectPerig[4]);         
+          double trkP=1./std::abs(VectPerig[4]);
           double CovTrkMtx55 = (*(mPer->covariance()))(4,4);
-          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
-	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
-                            if(trkPErr>0.5) continue;   }
+          double trkPErr=sqrt(CovTrkMtx55)*trkP;
 
-          long int PixelHits     = 3;
-          long int SctHits       = 9; 
-          long int SharedHits    = 0; //Always 0 now
-          long int BLayHits      = 1;
-//----------------------------------- Summary tools
+          //----------------------------------- Summary tools
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
-          PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
-          SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-          BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+          int PixelHits = testSum->get(Trk::numberOfPixelHits);
+          int SctHits   = testSum->get(Trk::numberOfSCTHits);
+          int BLayHits  = testSum->get(Trk::numberOfBLayerHits);
 	  if(PixelHits < 0 ) PixelHits=0; 
 	  if(SctHits   < 0 ) SctHits=0; 
 	  if(BLayHits  < 0 ) BLayHits=0; 
-//std::cout<<"NwTrkSummary="<<PixelHits<<", "<<SctHits<<", "<<BLayHits<<", fitter="<<'\n';
-          double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
-          double ImpactA0=VectPerig[0];                         // Temporary
-          double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
-	  ImpactA0=Impact[0];  
-	  ImpactZ=Impact[1];   
-//----
-          StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
-                       ImpactA0 , ImpactZ, trkChi2,
-		       PixelHits, SctHits, SharedHits, BLayHits);
 
-					  
+          double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
+          double ImpactA0=Impact[0];
+          double ImpactZ=Impact[1];
+
+          int splSCTHits = testSum->get(Trk::numberOfSCTSpoiltHits);
+          int outSCTHits = testSum->get(Trk::numberOfSCTOutliers);
+          int splPixHits = testSum->get(Trk::numberOfPixelSpoiltHits);
+          int outPixHits = testSum->get(Trk::numberOfPixelOutliers);
+          if(splSCTHits < 0 ) splSCTHits = 0;
+          if(outSCTHits < 0 ) outSCTHits = 0;
+          if(splPixHits < 0 ) splPixHits = 0;
+          if(outPixHits < 0 ) outPixHits = 0;
+          bool badHits = ( splSCTHits || outSCTHits || outPixHits || splPixHits );
+
+          double eta = (*i_ntrk)->eta();
+
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,int> TrkVarInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["PInvVert"]    = VectPerig[4];
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["Chi2"]        = trkChi2;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+	  TrkVarDouble["CovTrkMtx11"] = CovTrkMtx11;
+	  TrkVarDouble["CovTrkMtx22"] = CovTrkMtx22;
+	  TrkVarDouble["trkP"]        = trkP;
+	  TrkVarDouble["trkPErr"]     = trkPErr;
+
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
+	  TrkVarInt["BLayHits"]  = BLayHits;
+	  TrkVarInt["badHits"]   = badHits;
+
+          StatusCode sc = CutTrk(TrkVarDouble, TrkVarInt);
           if( sc.isFailure() )                 continue;
+
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
 	  SelectedTracks.push_back(*i_ntrk);
       }
@@ -130,21 +223,36 @@ namespace InDet{
           mPer=GetPerigee( (*i_ntrk) ) ;
           if( mPer == NULL ){ continue; } 
           VectPerig = mPer->parameters(); 
-	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
-//----------------------------------- Summary tools
+          double coneDist = ConeDist(VectPerig,JetDir);
+
+          //----------------------------------- Summary tools
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
-          long int PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
-          long int SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
+          int PixelHits = testSum->get(Trk::numberOfPixelHits);
+          int SctHits   = testSum->get(Trk::numberOfSCTHits);
 	  if(PixelHits < 0 ) PixelHits=0; 
 	  if(SctHits   < 0 ) SctHits=0; 
 
           double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
-          if(fabs(Impact[0])     > m_CutA0)			continue;
-          if(fabs(Impact[1])     > m_CutZVrt/sin(VectPerig[3]))	continue;
+          double ImpactA0=Impact[0];
+          double ImpactZ=Impact[1];
 
-          if(PixelHits	< m_CutPixelHits) 	continue;
-          if(SctHits	< m_CutSctHits) 	continue;
-          if((PixelHits+SctHits) < m_CutSiHits) continue;
+          double eta = (*i_ntrk)->eta();
+
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,int> TrkVarInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
+
+          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarInt);
+          if( sc.isFailure() )                 continue;
+
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
 	  SelectedTracks.push_back(*i_ntrk);
       }
@@ -169,8 +277,8 @@ namespace InDet{
 //-- Perigee in TrackParticle
 //
           const Trk::Perigee mPer=(*i_ntrk)->perigeeParameters() ;
-          AmgVector(5) VectPerig = mPer.parameters(); 
-
+          AmgVector(5) VectPerig = mPer.parameters();
+          double coneDist = ConeDist(VectPerig,JetDir);
 
           if((*i_ntrk)->numberDoF() == 0) continue; //Protection
           double trkChi2 = (*i_ntrk)->chiSquared() / (*i_ntrk)->numberDoF();
@@ -179,63 +287,50 @@ namespace InDet{
           double CovTrkMtx22 = (*i_ntrk)->definingParametersCovMatrix()(1,1);
           double CovTrkMtx55 = (*i_ntrk)->definingParametersCovMatrix()(4,4);
 
-
-
-	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
-	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
-	  if ( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
-
-          double trkP=1./fabs(VectPerig[4]);         
-          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
-	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
-                            if(trkPErr>0.5) continue;   }
+          double trkP=1./std::abs(VectPerig[4]);
+          double trkPErr=sqrt(CovTrkMtx55)*trkP;
 
           uint8_t PixelHits,SctHits,BLayHits;
           if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) )   continue; // Track is 
-          if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   continue; // definitely  
-	  if( SctHits<3 && !m_IsPhase2)                                         continue; 
+          if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   continue; // definitely
           if( !((*i_ntrk)->summaryValue(BLayHits,xAOD::numberOfInnermostPixelLayerHits)))  BLayHits=0;
-          //if( !((*i_ntrk)->summaryValue(sctSharedHits,xAOD::numberOfSCTSharedHits)))  sctSharedHits=0;  //VK Bad for high Pt
-          //if( !((*i_ntrk)->summaryValue(pixSharedHits,xAOD::numberOfPixelSharedHits)))pixSharedHits=0;  //and many tracks
-          //long int SharedHits = sctSharedHits+pixSharedHits; 
-          long int SharedHits = 0;  //VK Should always be
 
           uint8_t splSCTHits,outSCTHits,splPixHits,outPixHits;
           if( !((*i_ntrk)->summaryValue(splSCTHits,xAOD::numberOfSCTSpoiltHits)))  splSCTHits=0;
           if( !((*i_ntrk)->summaryValue(outSCTHits,xAOD::numberOfSCTOutliers)))    outSCTHits=0;
           if( !((*i_ntrk)->summaryValue(splPixHits,xAOD::numberOfPixelSpoiltHits)))splPixHits=0;
           if( !((*i_ntrk)->summaryValue(outPixHits,xAOD::numberOfPixelOutliers)))  outPixHits=0;
-          //uint8_t BLaySharedH,BLaySplitH,BLayOutlier;
-          //if( !((*i_ntrk)->summaryValue(BLaySharedH,xAOD::numberOfBLayerSharedHits)) )  BLaySharedH=-1;
-          //if( !((*i_ntrk)->summaryValue(BLaySplitH ,xAOD::numberOfBLayerSplitHits))  )  BLaySplitH=-1;
-          //if( !((*i_ntrk)->summaryValue(BLayOutlier,xAOD::numberOfBLayerOutliers))   )  BLayOutlier=-1;
-//std::cout<<"NwBlayer="<<(long int)BLaySharedH<<", "<<(long int)BLaySplitH<<", "<<(long int)BLayOutlier<<'\n';
-          //uint8_t InmHits,InmSharedH,InmSplitH,InmOutlier;
-          //if( !((*i_ntrk)->summaryValue(InmHits,   xAOD::numberOfInnermostHits)) )        InmHits=-1;
-          //if( !((*i_ntrk)->summaryValue(InmSharedH,xAOD::numberOfInnermostSharedHits)) )  InmSharedH=-1;
-          //if( !((*i_ntrk)->summaryValue(InmSplitH ,xAOD::numberOfInnermostSplitHits))  )  InmSplitH=-1;
-          //if( !((*i_ntrk)->summaryValue(InmOutlier,xAOD::numberOfInnermostOutliers))   )  InmOutlier=-1;
-//std::cout<<"NwInnerM="<<(long int)InmHits<<", "<<(long int)InmSharedH<<", "<<(long int)InmSplitH<<", "<<(long int)InmOutlier<<'\n';
-
+          bool badHits = ( splSCTHits || outSCTHits || outPixHits || splPixHits );
 
           double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
-          double ImpactA0=VectPerig[0];                         // Temporary
-          double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
-	  ImpactA0=Impact[0];  
-	  ImpactZ=Impact[1];   
-//---- Improved cleaning
-/////          if(PixelHits<=2 && ( outPixHits || splPixHits )) continue;  //VK Bad idea at high Pt!
-	  if(fabs((*i_ntrk)->eta())>2. && !m_IsPhase2 ) {
-            if( PixelHits<=3 && ( splSCTHits || outSCTHits || outPixHits || splPixHits ))continue;
-            if(m_existIBL){PixelHits -=1; SctHits   -=1;}             // 4-layer pixel detector
-            else          {PixelHits -=1;}                            // 3-layer pixel detector
-          }
-          if(fabs((*i_ntrk)->eta())>1.65 && !m_IsPhase2)  SctHits   -=1;
-//----
-          StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
-                          ImpactA0 , ImpactZ, trkChi2,
-		          PixelHits, SctHits, SharedHits, BLayHits);  //
+	  double ImpactA0=Impact[0];
+	  double ImpactZ=Impact[1];
+
+	  double eta = (*i_ntrk)->eta();
+
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,int> TrkVarInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["PInvVert"]    = VectPerig[4];
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["Chi2"]        = trkChi2;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+	  TrkVarDouble["CovTrkMtx11"] = CovTrkMtx11;
+	  TrkVarDouble["CovTrkMtx22"] = CovTrkMtx22;
+	  TrkVarDouble["trkP"]        = trkP;
+	  TrkVarDouble["trkPErr"]     = trkPErr;
+
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
+	  TrkVarInt["BLayHits"]  = BLayHits;
+	  TrkVarInt["badHits"]   = badHits;
+
+          StatusCode sc = CutTrk(TrkVarDouble, TrkVarInt);
           if( sc.isFailure() )                 continue;
+
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
 	  SelectedTracks.push_back(*i_ntrk);
       }
@@ -259,24 +354,36 @@ namespace InDet{
 //-- MeasuredPerigee in xAOD::TrackParticle
 //
           const Trk::Perigee mPer=(*i_ntrk)->perigeeParameters() ;
-          AmgVector(5) VectPerig = mPer.parameters(); 
-	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
-//----------------------------------- Summary tools
+          AmgVector(5) VectPerig = mPer.parameters();
+          double coneDist = ConeDist(VectPerig,JetDir);
+
+	  //----------------------------------- Summary tools
           uint8_t PixelHits,SctHits;
           if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) ) PixelHits=0;
           if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   SctHits=0;
  
 
           double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
-          if(fabs(Impact[0])     > m_CutA0)			continue;
-          if(fabs(Impact[1])     > m_CutZVrt/sin(VectPerig[3]))	continue;
+          double ImpactA0=Impact[0];
+          double ImpactZ=Impact[1];
 
-          int currCutPixelHits=m_CutPixelHits; if(fabs((*i_ntrk)->eta())>2.  )currCutPixelHits +=1;
-          int currCutSctHits  =m_CutSctHits;   if(fabs((*i_ntrk)->eta())>1.65)currCutSctHits   +=1;
- 
-          if(PixelHits 	         < currCutPixelHits) continue;
-          if(SctHits	         < currCutSctHits)   continue;
-          if((PixelHits+SctHits) < m_CutSiHits)	     continue;
+          double eta = (*i_ntrk)->eta();
+
+	  std::unordered_map<std::string,double> TrkVarDouble;
+	  std::unordered_map<std::string,int> TrkVarInt;
+
+	  TrkVarDouble["eta"]         = eta;
+	  TrkVarDouble["ThetaVert"]   = VectPerig[3];
+	  TrkVarDouble["A0Vert"]      = ImpactA0;
+	  TrkVarDouble["ZVert"]       = ImpactZ;
+	  TrkVarDouble["ConeDist"]    = coneDist;
+
+	  TrkVarInt["PixelHits"] = PixelHits;
+	  TrkVarInt["SctHits"]   = SctHits;
+
+          StatusCode sc = CutTrkRelax(TrkVarDouble, TrkVarInt);
+	  if( sc.isFailure() )                 continue;
+
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
 	  SelectedTracks.push_back(*i_ntrk);
       }

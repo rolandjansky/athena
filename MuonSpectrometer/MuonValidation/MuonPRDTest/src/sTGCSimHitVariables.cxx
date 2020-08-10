@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSimHitVariables.h"
@@ -11,6 +11,7 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
 StatusCode sTGCSimHitVariables::fillVariables() 
 {
@@ -88,10 +89,7 @@ StatusCode sTGCSimHitVariables::fillVariables()
       }
 
       const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcReadoutElement(offId);
-      if( !detEl ){
-        ATH_MSG_WARNING("sTGC geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
-                        << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
-      }
+      if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCSimHitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for %s", __FILE__, __LINE__, m_sTgcIdHelper->print_to_string(offId).c_str()));
 
       if( !m_sTgcIdHelper->is_stgc(offId) ){
           ATH_MSG_WARNING("sTgc id is not a stgc id! " << m_sTgcIdHelper->print_to_string(offId));

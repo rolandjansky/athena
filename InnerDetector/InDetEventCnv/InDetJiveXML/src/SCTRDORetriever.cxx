@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/SCTRDORetriever.h"
@@ -10,7 +10,6 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/SCT_ID.h"
-//#include "TrkEventPrimitives/LocalPosition.h"
 
 #include "JiveXML/DataType.h"
 
@@ -105,7 +104,10 @@ namespace JiveXML {
         }
 
         //Get the local position and store it
-	Amg::Vector2D localPos = element->localPositionOfCell(id);
+	//Using "corrected" version including lorentz correction for consistency with previous version
+	//Not clear if this is exactly what is wanted, since endsOfStrip typically doesn't assume any lorentz shift
+	//Therefore strip ends returned may not be exactly the strip correspoding to the intial Identifier... (ATLSWUPGR-103)
+	Amg::Vector2D localPos = element->correctedLocalPositionOfCell(id);
         const std::pair<Amg::Vector3D, Amg::Vector3D > endsOfStrip = element->endsOfStrip(localPos);
         ident.push_back(DataType( id.get_compact() ));
         x0.push_back(DataType( endsOfStrip.first.x()*CLHEP::mm/CLHEP::cm));

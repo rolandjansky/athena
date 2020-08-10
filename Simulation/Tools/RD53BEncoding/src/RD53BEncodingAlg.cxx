@@ -21,43 +21,14 @@ RD53BEncodingAlg::RD53BEncodingAlg(const std::string& name, ISvcLocator *pSvcLoc
   m_pixIdHelper(nullptr),
   m_path("/ValidationPlots/"),
   m_thistSvc("THistSvc", name),
-  m_use50x50(true),
   m_event(0)
   {
     declareProperty("RD53BEncodingTools",m_encodingTools);
-    declareProperty("Use50x50",m_use50x50);
     declareProperty("Path", m_path);  
   }
   
 StatusCode RD53BEncodingAlg::initialize() {  
   ATH_MSG_DEBUG( "Initializing RD53BEncodingAlg" );
-  
-  // TODO: TEMPORARELY
-  // QUAD CHIP MODULES ARE SIMULATED AS BIG SINGLE-CHIP MODULES
-  // THESE GLOBAL PARAMETERS SHOULD DISAPPEAR ONCE THE IMPLEMENTATION 
-  // IS DONE PROPERLY, AS THE CHIP QUANTITIES ARE OBTAINED USING
-  // design->numberOfCircuits(), design->rowsPerCircuit(), design->columnsPerCircuit()
-    
-  m_cols         = 400;
-  m_rows         = 384;  
-  m_cols_core    =   8;
-  m_rows_core    =   2;
-  m_colsbtwchips =   4;
-  m_rowsbtwchips =   4;
-  m_split_chip_eta = m_cols+m_colsbtwchips*0.5;
-  m_split_chip_phi = m_rows+m_rowsbtwchips*0.5;
-  
-  if (not m_use50x50) {
-    // define parameters for 25x100 pixel pitches
-    m_cols         = 200;
-    m_rows         = 768;  
-    m_cols_core    =   4;
-    m_rows_core    =   4;
-    m_colsbtwchips =   2;
-    m_rowsbtwchips =   8;
-    m_split_chip_eta = m_cols+m_colsbtwchips*0.5;
-    m_split_chip_phi = m_rows+m_rowsbtwchips*0.5;
-  }
   
   // Grab Ntuple and histogramming service for tree
   CHECK(m_thistSvc.retrieve());
@@ -74,7 +45,9 @@ StatusCode RD53BEncodingAlg::initialize() {
   // initialize stream maps
   CHECK( initializeStreams(m_encodingTools) );
   
-  return bookHistograms();
+  CHECK ( bookHistograms() );
+  
+  return StatusCode::SUCCESS;
   
 }
 
@@ -94,47 +67,26 @@ StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncod
     
     // get the element indices      
     const Identifier Id((*element)->identify());
-    int pixBrlEc(m_pixIdHelper->barrel_ec(Id));
-    int pixLayerDisk(m_pixIdHelper->layer_disk(Id));
-    int pixEtaMod(m_pixIdHelper->eta_module(Id));
-    int pixPhiMod(m_pixIdHelper->phi_module(Id));
+    const int pixBrlEc(m_pixIdHelper->barrel_ec(Id));
+    const int pixLayerDisk(m_pixIdHelper->layer_disk(Id));
+    const int pixEtaMod(m_pixIdHelper->eta_module(Id));
+    const int pixPhiMod(m_pixIdHelper->phi_module(Id));
     
     // skip the elements you don't want to process
-    if (pixBrlEc==0 and pixEtaMod<=0) continue;
+    if (pixBrlEc==0 and pixEtaMod<0) continue;
     if (pixBrlEc<0) continue; 
     
     const InDetDD::PixelModuleDesign *design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&((*element)->design()));
     
-    // TODO: TEMPORARELY
-    // QUAD CHIP MODULES ARE SIMULATED AS BIG SINGLE-CHIP MODULES
-    // THE RIGHT CALL IS
-    // int chips = design->numberOfCircuits();
-    // BUT IT IS CURRENTLY RETURNING 1 FOR ALL MODULES
-    // THEREFORE WE CHECK THE NUMBERS OF ROWS
-        
-    int chips = (design->rowsPerCircuit() == m_rows) ? 1 : 4;
-    
-    // TODO: TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
-    // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
-    // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
-    if (pixBrlEc==2) {
-      if (pixLayerDisk>29) {
-        pixLayerDisk = pixLayerDisk-28;          
-      }
-      else if (pixLayerDisk>16) {
-        pixEtaMod=pixLayerDisk;
-        pixLayerDisk=1;
-      } else {
-        std::swap(pixLayerDisk, pixEtaMod);
-      }
-    }
+    // get the number of chips per module
+    int chips = design->numberOfCircuits();
     
     // use one module to save the z location:
     // using phi_module == 0 is an arbitrary choice
     if (pixPhiMod==0) {
       float module_z = (*element)->center().z();
       (*element)->isBarrel() ? barrel_module_z.at(pixLayerDisk).push_back(module_z) : endcap_module_z.at(pixLayerDisk).push_back(module_z);  
-      ATH_MSG_DEBUG("--> MODULES: " << pixBrlEc << "/" << pixLayerDisk << "/" << pixEtaMod << "/" << pixPhiMod << " --> " << module_z);
+      ATH_MSG_DEBUG("--> MODULES: " << pixBrlEc << "/" << pixLayerDisk << "/" << pixEtaMod << "/" << pixPhiMod << " --> " << module_z << "| chips: " << chips << " --> rows/cols: " << design->rowsPerCircuit() << "/" << design->columnsPerCircuit());
     }
     
     for (const ToolHandle<RD53BEncodingTool>& encodingTool : encondingTools) {
@@ -159,22 +111,6 @@ StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncod
   
   return StatusCode::SUCCESS;
   
-}
-
-// TODO: TEMPORARELY
-// QUAD CHIP MODULES ARE SIMULATED AS BIG SINGLE-CHIP MODULES
-// THIS FINCTION NEED TO BE REMOVED WHEN A PROPER IMPLEMENTATION IS THERE
-int RD53BEncodingAlg::findChip(int eta, int phi) {
-  if (eta<m_split_chip_eta and phi<m_split_chip_phi)
-    return 0;
-  else if (eta>=m_split_chip_eta and phi<m_split_chip_phi)
-    return 1;
-  else if (eta<m_split_chip_eta and phi>=m_split_chip_phi)
-    return 2;
-  else 
-    return 3;
-  
-  return 0;
 }
 
 StatusCode RD53BEncodingAlg::execute() {
@@ -217,39 +153,30 @@ void RD53BEncodingAlg::fillChipMaps() {
 
       // get the element indices      
       const Identifier rdoCollID((*element)->identify());
-      int pixBrlEc(m_pixIdHelper->barrel_ec(rdoCollID));
-      int pixLayerDisk(m_pixIdHelper->layer_disk(rdoCollID));
-      int pixEtaMod(m_pixIdHelper->eta_module(rdoCollID));
+      const int pixBrlEc(m_pixIdHelper->barrel_ec(rdoCollID));
+      const int pixLayerDisk(m_pixIdHelper->layer_disk(rdoCollID));
+      const int pixEtaMod(m_pixIdHelper->eta_module(rdoCollID));
+      const int pixPhiMod(m_pixIdHelper->phi_module(rdoCollID));
       
       // skip the elements you don't want to process
-      if (pixBrlEc==0 and pixEtaMod<=0) continue;
+      if (pixBrlEc==0 and pixEtaMod<0) continue;
       if (pixBrlEc<0) continue; 
-      
-      // TODO: TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
-      // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
-      // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
-      if (pixBrlEc==2) {
-        if (pixLayerDisk>29) {
-          pixLayerDisk = pixLayerDisk-28;          
-        }
-        else if (pixLayerDisk>16) {
-          pixEtaMod=pixLayerDisk;
-          pixLayerDisk=1;
-        } else {
-          std::swap(pixLayerDisk, pixEtaMod);
-        }
-      }
       
       const InDetDD::PixelModuleDesign *design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&((*element)->design()));
       
-      // TODO: TEMPORARELY
-      // QUAD CHIP MODULES ARE SIMULATED AS BIG SINGLE-CHIP MODULES
-      // THESE GLOBAL PARAMETERS SHOULD DISAPPEAR ONCE THE IMPLEMENTATION 
-      // IS DONE PROPERLY, AS THE CHIP QUANTITIES ARE OBTAINED USING
-      // design->numberOfCircuits(), design->rowsPerCircuit(), design->columnsPerCircuit()
-      int chips = (design->rowsPerCircuit() == m_rows) ? 1 : 4;
+      // get the module and chip definitions
+      const int chips = design->numberOfCircuits();            
+      const int rowsPerChip = design->rowsPerCircuit();
+      const int columnsPerChip = design->columnsPerCircuit();
+      const int chipsInPhi = design->rows()/rowsPerChip;
+      const int chipsinEta = design->columns()/columnsPerChip;
       
-      std::vector<ChipMap> chip_maps = std::vector<ChipMap>(chips, ChipMap(m_cols, m_rows, m_cols_core, m_rows_core, m_colsbtwchips, m_rowsbtwchips, m_use50x50));
+      const float phiPitch = design->phiPitch();
+      bool use50x50 = true;
+      if (phiPitch < s_pitch50x50)
+        use50x50 = false;        
+      
+      std::vector<ChipMap> chip_maps = std::vector<ChipMap>(chips, ChipMap(columnsPerChip, rowsPerChip, use50x50));
             
       // get the RDO collection associated to the detector element
       PixelRDO_Container::const_iterator rdoCont_itr(p_pixelRDO_cont->indexFind(IdHash));
@@ -262,6 +189,8 @@ void RD53BEncodingAlg::fillChipMaps() {
       
       // if the collection is filled, fill the chip map, otherwise leave it empty       
       if (rdoCont_itr!=p_pixelRDO_cont->end()) {        
+        
+        ATH_MSG_DEBUG("Element: " << pixBrlEc << "/" << pixLayerDisk << "/" << pixEtaMod <<"/" << pixPhiMod << " --> " << chips << "/" << columnsPerChip << "/" << rowsPerChip << " (" << design->columns() << "," << design->rows() << ")  -  (" << chipsinEta << "," << chipsInPhi << ")" << " - is50x50 = " << use50x50 << " --- " << design->phiPitch() << ", " << design->etaPitch());
         
         PixelRDO_Collection::const_iterator rdo_itr((*rdoCont_itr)->begin());
         const PixelRDO_Collection::const_iterator rdo_end((*rdoCont_itr)->end());
@@ -277,21 +206,39 @@ void RD53BEncodingAlg::fillChipMaps() {
         else 
           ltype = OUTER;
         
+        ChipType ctype = (chips==1) ? SINGLE : QUAD;
+        
         for ( ; rdo_itr != rdo_end; ++rdo_itr ) {          
           const Identifier rdoID((*rdo_itr)->identify());
-          const int pixPhiIx(m_pixIdHelper->phi_index(rdoID));
-          const int pixEtaIx(m_pixIdHelper->eta_index(rdoID));
+          int pixPhiIx(m_pixIdHelper->phi_index(rdoID));
+          int pixEtaIx(m_pixIdHelper->eta_index(rdoID));
           const int tot((*rdo_itr)->getToT());
-             
-          int chip = this->findChip(pixEtaIx, pixPhiIx);
           
-          chip_maps.at(chip).fillChipMap(pixEtaIx, pixPhiIx, tot);
+          // evaluating the chip number considering the number of rows and columns per chip and
+          // the total number of rows and columns on the sensor
+          int chip = std::ceil(pixEtaIx/columnsPerChip) + chipsInPhi*std::ceil(pixPhiIx/rowsPerChip);
+                    
+          ATH_MSG_VERBOSE("            --> " << pixEtaIx << "(" << std::ceil(pixEtaIx/columnsPerChip) << ")/" << pixPhiIx << "(" << std::ceil(pixPhiIx/rowsPerChip) << ") - " << chip); 
+          
+          // takle the case where the chips are rotated. You need to swap the phi/eta indices for the pixel
+          // since the front-end as well is rotated and the chip map has to get the right coordinates
+          // It happens for all the single chip modules in the endcap:
+          // - innermost layer
+          // - shorties in the next-to-innermost layer          
+          if (region==ENDCAP and chips==1)
+            std::swap(pixEtaIx,pixPhiIx);
+          
+          // get the eta/phi index wrt to the chip, not the module
+          int pixEta = pixEtaIx - std::ceil(pixEtaIx/columnsPerChip)*columnsPerChip;
+          int pixPhi = pixPhiIx - std::ceil(pixPhiIx/rowsPerChip)*rowsPerChip;
+             
+          chip_maps.at(chip).fillChipMap(pixEta, pixPhi, tot);
           
           // filling histograms only for the first events to keep them small
           if (m_event<10) {
-            m_chips[region][ltype]->SetBinContent(pixEtaIx, pixPhiIx, chip+1);
-            int core = chip_maps.at(chip).getCoreIndex(pixEtaIx, pixPhiIx);
-            m_cores_on_chip[region][ltype]->SetBinContent(pixEtaIx, pixPhiIx, core);
+            m_chips[region][ltype][ctype]->SetBinContent(pixEtaIx, pixPhiIx, chip+1);
+            int core = chip_maps.at(chip).getCoreIndex(pixEta, pixPhi);
+            m_cores_on_chip[region][ltype][ctype]->SetBinContent(pixEtaIx, pixPhiIx, core);
           }
         }        
       }
@@ -312,18 +259,34 @@ StatusCode RD53BEncodingAlg::bookHistograms() {
   float min_eta = 0; float max_eta =  820; int bin_eta =  820;
   float min_phi = 0; float max_phi = 1600; int bin_phi = 1600;
   
+  std::vector< int > chipTypes;
+  chipTypes.reserve(2);
+  
   for (int region=0; region<N_REGIONS; region++) {
     for (int ltype=0; ltype<N_TYPES; ltype++) {
-      m_chips[region][ltype] = new TH2F(("m_chips_"+m_layerTypeLabels[ltype]+"_"+m_regionLabels[region]).c_str(), (m_layerTypeLabels[ltype]+" Layer(s) - "+m_regionLabels[region]+"; Eta Index; Phi Index").c_str(), bin_eta, min_eta, max_eta, bin_phi, min_phi, max_phi);
-      m_chips[region][ltype]->StatOverflows();
-      CHECK(m_thistSvc->regHist(m_path + m_chips[region][ltype]->GetName(), m_chips[region][ltype]));
       
-      m_cores_on_chip[region][ltype] = new TH2F(("m_cores_on_chip_"+m_layerTypeLabels[ltype]+"_"+m_regionLabels[region]).c_str(), (m_layerTypeLabels[ltype]+" Layer(s) - "+m_regionLabels[region]+"; Eta Index; Phi Index").c_str(), bin_eta, min_eta, max_eta, bin_phi, min_phi, max_phi);
-      m_cores_on_chip[region][ltype]->StatOverflows();
-      CHECK(m_thistSvc->regHist(m_path + m_cores_on_chip[region][ltype]->GetName(), m_cores_on_chip[region][ltype]));
+      chipTypes.clear();      
+      // for the innermost layer you have always single modules, both in the barrel and in the endcap
+      // for the next-to-innermost layer, you have quads in the barrel and quads and singles in the endcap
+      // you only have quads for the outer system
+      if (ltype == INNERMOST)
+        chipTypes = {SINGLE};
+      else if (ltype == NEXT_TO_INNERMOST and region == ENDCAP)
+        chipTypes = {SINGLE, QUAD};
+      else 
+        chipTypes = {QUAD};
+      
+      for (auto& ctype : chipTypes) {
+        m_chips[region][ltype][ctype] = new TH2F(("m_chips_"+m_layerTypeLabels[ltype]+"_"+m_regionLabels[region]+"_"+m_chipLabels[ctype]).c_str(), (m_layerTypeLabels[ltype]+" Layer(s) - "+m_regionLabels[region]+" - "+m_chipLabels[ctype]+"; Eta Index; Phi Index").c_str(), bin_eta, min_eta, max_eta, bin_phi, min_phi, max_phi);
+        m_chips[region][ltype][ctype]->StatOverflows();
+        CHECK(m_thistSvc->regHist(m_path + m_chips[region][ltype][ctype]->GetName(), m_chips[region][ltype][ctype]));
+        
+        m_cores_on_chip[region][ltype][ctype] = new TH2F(("m_cores_on_chip_"+m_layerTypeLabels[ltype]+"_"+m_regionLabels[region]+"_"+m_chipLabels[ctype]).c_str(), (m_layerTypeLabels[ltype]+" Layer(s) - "+m_regionLabels[region]+" - "+m_chipLabels[ctype]+"; Eta Index; Phi Index").c_str(), bin_eta, min_eta, max_eta, bin_phi, min_phi, max_phi);
+        m_cores_on_chip[region][ltype][ctype]->StatOverflows();
+        CHECK(m_thistSvc->regHist(m_path + m_cores_on_chip[region][ltype][ctype]->GetName(), m_cores_on_chip[region][ltype][ctype]));
+      }
     }
   }
-  
   return StatusCode::SUCCESS;
   
 }

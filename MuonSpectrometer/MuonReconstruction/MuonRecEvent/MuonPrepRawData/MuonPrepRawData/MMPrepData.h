@@ -100,6 +100,9 @@ namespace Muon
     /** @brief set drift distances and uncertainties */
     void setDriftDist(const std::vector<float>& driftDist, const std::vector<Amg::MatrixX>& driftDistErrors);
 
+    // setter functions for the EventTPConverters
+    void setDriftDist(const std::vector<float>& driftDist, const std::vector<float>& stripDriftErrors_0_0, const std::vector<float>& stripDriftErrors_1_1);
+
     /** @brief Returns the global position*/
     const Amg::Vector3D& globalPosition() const;
 
@@ -136,12 +139,29 @@ namespace Muon
 
     /** @brief returns the list of drift distances */
     const std::vector<Amg::MatrixX>& stripDriftErrors() const;
+     
+    // getter functions for the EventTPConverters
+    const std::vector<float> stripDriftErrors_0_0() const;
+    const std::vector<float> stripDriftErrors_1_1() const;
     
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
 
     /** @brief Dumps information about the PRD*/
     std::ostream& dump( std::ostream& stream) const;
+
+
+    enum Author{
+      RDOTOPRDConverter = -1,
+      SimpleClusterBuilder,
+      ProjectionClusterBuilder,
+      ClusterTimeProjectionClusterBuilder,
+      ConstraintuTPCClusterBuilder,
+      uTPCClusterBuilder,
+    };
+
+    Author author() const;
+    void setAuthor(Author author);
 
   private:
 
@@ -169,6 +189,8 @@ namespace Muon
     std::vector<int> m_stripCharges;
     std::vector<float> m_stripDriftDist;
     std::vector<Amg::MatrixX>  m_stripDriftErrors;
+    
+    Author m_author;
 
   };
 
@@ -233,6 +255,10 @@ namespace Muon
   inline const std::vector<Amg::MatrixX>& MMPrepData::stripDriftErrors() const
   {
     return m_stripDriftErrors;
+  }
+
+  inline MMPrepData::Author MMPrepData::author() const {
+    return m_author;
   }
 
 }

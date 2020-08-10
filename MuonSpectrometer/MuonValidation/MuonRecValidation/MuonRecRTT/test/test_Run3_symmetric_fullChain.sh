@@ -7,10 +7,13 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-output: OUT_HITS.root
+# art-output: log_diff_HITS.log
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
+# art-output: NSWDigiCheck.txt
 # art-output: OUT_ESD.root
 # art-output: NSWPRDValAlg.reco.ntuple.root
+# art-output: NSWRecoCheck.txt
 
 #####################################################################
 # run simulation on 25 events using the symmetric Run3 layout
@@ -33,7 +36,7 @@ NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
 # check differences wrt reference HITS file
-acmd.py diff-root OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/SymmetricLayout_HITS_v1.root --ignore-leaves timings &> log_diff_HITS.log
+acmd.py diff-root --ignore-leaves timings --mode semi-detailed --error-mode resilient OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/SymmetricLayout_HITS_v1.root &> log_diff_HITS.log
 exit_code=$?
 echo  "art-result: ${exit_code} diff-root_sim"
 if [ ${exit_code} -ne 0 ]
@@ -63,6 +66,15 @@ NERROR="$(cat ${LOG_DIGI} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_DIGI} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_DIGI}"
 #####################################################################
+# check the NSW validation ntuple
+python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.digi.ntuple.root &> NSWDigiCheck.txt
+exit_code=$?
+echo  "art-result: ${exit_code} NSWDigiCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
 
 #####################################################################
 # now use the produced RDO file and run reconstruction
@@ -86,6 +98,15 @@ NWARNING="$(cat ${LOG_RECO} | grep WARNING | wc -l)"
 NERROR="$(cat ${LOG_RECO} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_RECO} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_RECO}"
+#####################################################################
+# check the NSW validation ntuple
+python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root --checkPRD &> NSWRecoCheck.txt
+exit_code=$?
+echo  "art-result: ${exit_code} NSWRecoCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
 #####################################################################
 
 echo "art-result: $?"

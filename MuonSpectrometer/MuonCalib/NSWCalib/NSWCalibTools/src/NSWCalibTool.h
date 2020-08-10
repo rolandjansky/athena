@@ -4,6 +4,9 @@
 #ifndef NSWCalibTool_h
 #define NSWCalibTool_h
 
+#include <map>
+#include <string>
+
 #include "NSWCalibTools/INSWCalibTool.h"
 
 
@@ -21,8 +24,6 @@
 
 #include "TRandom3.h"
 #include "TTree.h"
-#include "TF1.h"
-#include <vector>
 
 namespace Muon {
 
@@ -34,28 +35,37 @@ namespace Muon {
 
     virtual ~NSWCalibTool() = default;
     
-    StatusCode calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const;
-
+    StatusCode calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const;
+    StatusCode calibrateStrip(const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const;
+    StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const;
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
+    StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const override;
   private:
 
     ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+    const MuonGM::MuonDetectorManager * m_muonMgr;
     
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-   
+
+    StatusCode initializeGasProperties();
 
     TF1* m_lorentzAngleFunction;
-     
+    
     float m_vDrift;
     float m_timeRes;
     float m_longDiff;
     float m_transDiff;
+    float m_interactionDensitySigma;
+    float m_interactionDensityMean;
     float m_ionUncertainty;
     double m_timeOffset;
+
+    std::string m_gasMixture;
   };
-  
-}
+
+
+}  // namespace Muon
 
 #endif

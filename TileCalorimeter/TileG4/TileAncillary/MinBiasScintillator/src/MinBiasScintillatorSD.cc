@@ -312,8 +312,6 @@ G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const {
   // RKB = 0.013  g/(MeV*cm**2)  and  C = 9.6e-6  g**2/((MeV**2)(cm**4))
   //
   const G4String myMaterial("Scintillator");
-  const G4double birk1(0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
-  const G4double birk2(9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
 
   const G4double destep(aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight());
   //  doesn't work with shower parameterization
@@ -326,14 +324,14 @@ G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const {
   // ---  and materials other than scintillator  ---
   if ( (charge != 0.) && (material->GetName() == myMaterial)) { //FIXME checking for non-equality for a floating point number
 
-    G4double rkb = birk1;
+    G4double rkb = m_options.birk1;
     // --- correction for particles with more than 1 charge unit ---
     // --- based on alpha particle data (only apply for MODEL=1) ---
     if (fabs(charge) > 1.0) {
       rkb *= 7.2 / 12.6;
     }
     const G4double dedx = destep / (aStep->GetStepLength()) / (material->GetDensity());
-    const G4double response = destep / (1. + rkb * dedx + birk2 * dedx * dedx);
+    const G4double response = destep / (1. + rkb * dedx + m_options.birk2 * dedx * dedx);
     if (-2 == verboseLevel) {
       G4cout << " Destep: " << destep / CLHEP::keV << " keV" << " response after Birk: " << response / CLHEP::keV
              << " keV" << G4endl;

@@ -152,6 +152,8 @@ namespace LVL1CTP {
       bool        m_doRNDM;                                    //!< property, see @link CTPSimulation::CTPSimulation @endlink
       bool        m_doPSCL;                                    //!< property, see @link CTPSimulation::CTPSimulation @endlink
       bool        m_IsData;                                   //!< property, see @link CTPSimulation::CTPSimulation @endlink
+      bool        m_forceUsingBCIDforBunchGroupEval { false };//!< property, if true will force to use the bcid from event to evaluate the bunchgroup
+                                                              // this is also done for data, but not for MC
       IntegerProperty m_prescaleMode;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink
       // Properties: StoreGate location of input
       std::string m_jetEnergyConfLoc;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink

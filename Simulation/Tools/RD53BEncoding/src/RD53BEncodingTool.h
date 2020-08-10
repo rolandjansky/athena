@@ -91,11 +91,12 @@ private:
   
   StreamMap m_stream_map;
   
-  bool m_addresscompression;
-  bool m_compression;
+  bool m_addressCompression;
+  bool m_bitTreeCompression;
   bool m_suppressToT;
   float m_auroraFactor;
-  int  m_eventsPerStream;
+  float m_safetyFactor;
+  int m_eventsPerStream;
   int m_testevent;
   
   // this is now a bunch of histograms we need to add
@@ -114,14 +115,14 @@ private:
   std::ofstream m_testChipFile;
   std::ofstream m_testStreamFile; 
   
-  bool m_doExpertPlots;
-  
+  bool m_doExpertPlots;  
   bool m_debug;
   
   std::vector < std::vector < float > > m_module_z_layer[N_REGIONS];  
   
   // datarates and stream information  
   TProfile* m_p_datarate[N_LAYERS][N_REGIONS];    
+  TProfile* m_p_datarate_w_safety_factor[N_LAYERS][N_REGIONS];    
   TProfile* m_p_streamlength_per_stream[N_LAYERS][N_REGIONS];    
   TProfile* m_p_streamlength_per_stream_incl_prot[N_LAYERS][N_REGIONS];  
   TProfile* m_p_cores_per_stream[N_LAYERS][N_REGIONS];    

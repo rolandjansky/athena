@@ -314,8 +314,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-        const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
-        const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
+        const InDetDD::SiLocalPosition localPos = sielement->correctedLocalPositionOfCell(rdoId);
+        const InDetDD::SiLocalPosition rawPos = sielement->localPositionOfCell(rdoId);
         const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
         // update map between pixel identifier and event-unique hit index.
         // ganged pixels (nCells==2) get two entries.
@@ -464,8 +464,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           Identifier rdoId = (*iRDO)->identify();
           // get the det element from the det element collection
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-          const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
-          const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
+          const InDetDD::SiLocalPosition localPos = sielement->correctedLocalPositionOfCell(rdoId);
+          const InDetDD::SiLocalPosition rawPos = sielement->localPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
           if(m_dooutFileRawHits){
             (*oflraw) << "# S\t"
@@ -744,7 +744,7 @@ if (m_dooutFileRawHits) {
             rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter);
           assert( sielement);
-          const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
+          const InDetDD::SiLocalPosition rawPos = sielement->localPositionOfCell(*rdoIter);
           const int nCells = sielement->numberOfConnectedCells( sielement->cellIdOfPosition(rawPos) );
           InDetSimDataCollection::const_iterator iter( pixelSimDataMap->find(*rdoIter) );
           // this might be the ganged pixel copy.

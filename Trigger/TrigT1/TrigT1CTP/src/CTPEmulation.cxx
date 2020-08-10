@@ -26,8 +26,38 @@
 #include <iomanip>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+
 
 using namespace TrigConf;
+
+const LVL1CTP::CTPEmulation::eFEXParWP::WPEntry &
+LVL1CTP::CTPEmulation::eFEXParWP::getWP(int ieta) const {
+   int current_priority = -1;
+   const WPEntry * retVal { nullptr };
+   for( const auto & rv : entries ) {
+      if( ieta >= rv.etamax or ieta < rv.etamin ) // outside the window
+         continue;
+      if(int(rv.priority) < current_priority)
+         continue;
+      if(int(rv.priority) == current_priority) {
+         throw std::runtime_error("CTPEmulation: found two eFEX WP with the same priority " + std::to_string(rv.priority)
+                                  + " for eta = " + std::to_string(ieta));
+      }
+      current_priority = (int)rv.priority;
+      retVal = & rv;
+   }
+   if( retVal == nullptr ) {
+      throw std::runtime_error("CTPEmulation: no eFEX WP found with eta = " + std::to_string(ieta));
+   }
+   return * retVal;
+}
+
+
 
 LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcLocator ) :
    AthAlgorithm ( name, pSvcLocator ), 
@@ -44,7 +74,7 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger configuration service");
 
    declareProperty( "UseCTPInputFromData", m_useCTPInput, "Set true if using CTP input objects from the various L1 simulations");
-   declareProperty( "UseCTPInputFromData", m_useROIBOutput, "Set to true the ROIBResult should be used for Run 2 data (not likely)");
+   declareProperty( "UseROIBOutput", m_useROIBOutput, "Set to true the ROIBResult should be used for Run 2 data (not likely)");
 
    // input data
    declareProperty( "gFEXMETPufitInput", m_gFEXMETPufitLoc, "StoreGate location of gFEX PUfit MET input" );
@@ -69,6 +99,10 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    declareProperty( "RDOOutputLocation", m_rdoOutputLoc, "StoreGate location of CTP RDO (sim)" );
    declareProperty( "RDOOutputRerunLocation", m_rdoOutputLoc_Rerun, "StoreGate location of rerun CTP RDO (data)" );
 
+   declareProperty( "eFEXREta", m_eFEXREta , "Defines the eEM shower parameter R_eta  selection " );
+   declareProperty( "eFEXRHad", m_eFEXRHad , "Defines the eEM shower parameter R_had selection" );
+   declareProperty( "eFEXWStot", m_eFEXWStot, "Defines the eEM shower parameter W_Stot selection" );
+
    m_decoder = new LVL1::CPRoIDecoder();
    m_jetDecoder = new LVL1::JEPRoIDecoder();
 }
@@ -77,11 +111,62 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
 LVL1CTP::CTPEmulation::~CTPEmulation()
 {}
 
+StatusCode
+LVL1CTP::CTPEmulation::setEFexConfig(const std::string & prop, std::map<unsigned int, eFEXParWP> & cfgMap) {
+   // fill eFEX selection cuts object
+   cfgMap.clear();
+
+   boost::property_tree::ptree data;
+   std::string _prop(prop);
+   std::replace( _prop.begin(), _prop.end(), '\'', '"');
+   try {
+      std::istringstream is(_prop);
+      boost::property_tree::read_json(is, data);
+   }
+   catch(std::exception & ex) {
+      ATH_MSG_FATAL("Could not read property " << _prop  << ".  "  << ex.what());
+      return StatusCode::FAILURE;
+   }
+
+   try {
+      for( auto & wp : data ) {
+         unsigned int index = 0;
+         
+         if( wp.first == "LOOSE" ) {
+            index = 1;
+         } else if( wp.first == "MEDIUM" ) {
+            index = 2;
+         } else if( wp.first == "TIGHT" ) {
+            index = 3;
+         } else {
+            ATH_MSG_ERROR("WP name must be LOOSE, MEDIUM or TIGHT, but got " << wp.first);
+            return StatusCode::FAILURE;
+         }
+         for( auto & entry : wp.second ) {
+            eFEXParWP::WPEntry e;
+            e.etamin = entry.second.get<int>("etamin");
+            e.etamax = entry.second.get<int>("etamax");
+            e.value = entry.second.get<float>("value");
+            e.maxEt = entry.second.get<unsigned int>("maxEt");
+            cfgMap[index].entries.push_back(e);
+         }
+      }
+   }
+   catch(std::exception & ex) {
+      ATH_MSG_FATAL("Could not interpret property " << _prop  << ".  "  << ex.what());
+      return StatusCode::FAILURE;
+   }
+   return StatusCode::SUCCESS;
+}
 
 StatusCode
 LVL1CTP::CTPEmulation::initialize() {
 
    CHECK(m_configSvc.retrieve());
+
+   CHECK( setEFexConfig(m_eFEXREta , m_reta ) );
+   CHECK( setEFexConfig(m_eFEXRHad , m_rhad ) );
+   CHECK( setEFexConfig(m_eFEXWStot, m_wstot) );
    
    if ( m_useROIBOutput ) {
       CHECK(m_lvl1Tool.retrieve());
@@ -264,16 +349,28 @@ LVL1CTP::CTPEmulation::bookHists() {
    histpath = histBasePath() + "/input/MET/";
    CHECK ( m_histSvc->regHist( histpath + "Pufit",    new TH1I("MET_Pufit","Missing ET from algorithm pufit", 40, 0, 80)) );
    CHECK ( m_histSvc->regHist( histpath + "PufitPhi", new TH1I("MET_PufitPhi","Missing ET PUfit phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "Rho",      new TH1I("MET_Rho","Missing ET from algorithm rhosub", 40, 0, 80)) );
+   CHECK ( m_histSvc->regHist( histpath + "Rho",      new TH1I("MET_Rho","Missing ET from algorithm rhosub", 40, 0, 80)) ); 
    CHECK ( m_histSvc->regHist( histpath + "RhoPhi",   new TH1I("MET_RhoPhi","Missing ET rhosub phi", 64, -3.2, 3.2)) );
    CHECK ( m_histSvc->regHist( histpath + "JwoJ",     new TH1I("MET_JwoJ","Missing ET from algorithm jet without jets", 40, 0, 80)) );
    CHECK ( m_histSvc->regHist( histpath + "JwoJPhi",  new TH1I("MET_JwoJPhi","Missing ET jet without jet phi", 64, -3.2, 3.2)) );
 
    // cluster
    histpath = histBasePath() + "/input/em/";
-   CHECK ( m_histSvc->regHist( histpath + "et",  new TH1I("et","Cluster et", 40, 0, 40)) );
-   CHECK ( m_histSvc->regHist( histpath + "eta", new TH1I("eta","Cluster eta ", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "phi", new TH1I("phi","Cluster phi", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "et",  new TH1I("et","eFEX cluster et", 40, 0, 40)) );
+   CHECK ( m_histSvc->regHist( histpath + "eta", new TH1I("eta","eFEX cluster eta ", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "phi", new TH1I("phi","eFEX cluster phi", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "reta", new TH1I("reta","eFEX Cluster R_{#eta}", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "rhad", new TH1I("rhad","eFEX cluster R_{had}", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "wstot", new TH1I("wstot","eFEX cluster W_{Stot}", 40, 0, 10)) );
+   CHECK ( m_histSvc->regHist( histpath + "retaloose", new TH1I("retaloose","eFEX Cluster R_{#eta} passing loose R_{#eta} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "rhadloose", new TH1I("rhadloose","eFEX cluster R_{had} passing loose R_{had} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "wstotloose", new TH1I("wstotloose","eFEX cluster W_{Stot} passing loose W_{Stot} selection", 40, 0, 10)) );
+   CHECK ( m_histSvc->regHist( histpath + "retamedium", new TH1I("retamedium","eFEX Cluster R_{#eta} passing medium R_{#eta} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "rhadmedium", new TH1I("rhadmedium","eFEX cluster R_{had} passing medium R_{had} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "wstotmedium", new TH1I("wstotmedium","eFEX cluster W_{Stot} passing medium W_{Stot} selection", 40, 0, 10)) );
+   CHECK ( m_histSvc->regHist( histpath + "retatight", new TH1I("retatight","eFEX Cluster R_{#eta} passing tight R_{#eta} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "rhadtight", new TH1I("rhadtight","eFEX cluster R_{had} passing tight R_{had} selection", 44, 0, 1.1)) );
+   CHECK ( m_histSvc->regHist( histpath + "wstottight", new TH1I("wstottight","eFEX cluster W_{Stot} passing tight W_{Stot} selection", 40, 0, 10)) );
 
    // tau
    histpath = histBasePath() + "/input/tau/";
@@ -528,14 +625,79 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/JwoJ", h) ); if(h) h->Fill(m_gFEXMETJwoJ->energyT()/1000.);
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/JwoJPhi", h) ); if(h) h->Fill(atan2(m_gFEXMETJwoJ->energyX(), m_gFEXMETJwoJ->energyY()));
 
-   // EM cluster
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/et", h1) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/eta", h2) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/phi", h3) );
-   for( const auto & cl : *m_eFEXCluster ) {
-      h1->Fill(cl->et());
-      h2->Fill(cl->eta());
-      h3->Fill(cl->phi());
+   // eFEX EM cluster
+   {
+      static const size_t LOOSE = 1;
+      static const size_t MEDIUM = 2;
+      static const size_t TIGHT = 3;
+      TH1 *hl1 (nullptr ), *hl2 ( nullptr ),  *hl3 ( nullptr ),
+         *hm1 ( nullptr ), *hm2 ( nullptr ), *hm3 ( nullptr ),
+         *ht1 ( nullptr ),  *ht2 ( nullptr ), *ht3 ( nullptr );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/et", h1) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/eta", h2) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/phi", h3) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/reta", h4) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/rhad", h5) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/wstot", h6) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/retaloose", hl1) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/rhadloose", hl2) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/wstotloose", hl3) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/retamedium", hm1) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/rhadmedium", hm2) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/wstotmedium", hm3) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/retatight", ht1) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/rhadtight", ht2) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/em/wstottight", ht3) );
+      const static SG::AuxElement::ConstAccessor<float> retaAcc ("Run3REta");
+      const static SG::AuxElement::ConstAccessor<float> rhadAcc ("Run3RHad");
+      for( const auto & cl : *m_eFEXCluster ) {
+         float reta = retaAcc(*cl);
+         float rhad = rhadAcc(*cl);
+         float eta = cl->eta();
+         int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
+         h1->Fill(cl->et());
+         h2->Fill(cl->eta());
+         h3->Fill(cl->phi());
+         h4->Fill(reta);
+         h5->Fill(rhad);
+         h6->Fill(cl->wstot());
+         {
+            auto & wp = m_reta.at(LOOSE).getWP(ieta);
+            if( reta >= wp.value or cl->et() >= wp.maxEt ) { hl1->Fill(reta); }
+         }
+         {
+            auto & wp = m_reta.at(MEDIUM).getWP(ieta);
+            if( reta >= wp.value or cl->et() >= wp.maxEt ) { hm1->Fill(reta); }
+         }
+         {
+            auto & wp = m_reta.at(TIGHT).getWP(ieta);
+            if( reta >= wp.value or cl->et() >= wp.maxEt ) { ht1->Fill(reta); }
+         }
+         {
+            auto & wp = m_rhad.at(LOOSE).getWP(ieta);
+            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { hl2->Fill(rhad); }
+         }
+         {
+            auto & wp = m_rhad.at(MEDIUM).getWP(ieta);
+            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { hm2->Fill(rhad); }
+         }
+         {
+            auto & wp = m_rhad.at(TIGHT).getWP(ieta);
+            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { ht2->Fill(rhad); }
+         }
+         {
+            auto & wp = m_wstot.at(LOOSE).getWP(ieta);
+            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { hl3->Fill(cl->wstot()); }
+         }
+         {
+            auto & wp = m_wstot.at(MEDIUM).getWP(ieta);
+            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { hm3->Fill(cl->wstot()); }
+         }
+         {
+            auto & wp = m_wstot.at(TIGHT).getWP(ieta);
+            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { ht3->Fill(cl->wstot()); }
+         }
+      }
    }
 
    // eFEX Tau
@@ -842,6 +1004,9 @@ unsigned int
 LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold * confThr ) const {
    unsigned int multiplicity = 0;
 
+   const static SG::AuxElement::ConstAccessor<float> reta ("Run3REta");
+   const static SG::AuxElement::ConstAccessor<float> rhad ("Run3RHad");
+
    if ( confThr->name()[0]=='e' ) { 
       // new EM threshold from eFEX
       for ( const auto & cl : * m_eFEXCluster ) {
@@ -850,10 +1015,53 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
          int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
          int iphi = 0;
          const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue( ieta, iphi );
-         const ClusterThresholdValue *ctv = dynamic_cast<const ClusterThresholdValue *>(thrV);
-         float scale = ctv->caloInfo().globalEmScale();
+
+         float scale = 1; // eFEX clusters in 21.3 have an energy scale of 1 GeV
 
          bool clusterPasses = ( ((unsigned int) cl->et()) > thrV->ptcut()*scale ); // need to add cut on isolation and other variables, once available
+         if(clusterPasses) {
+            const TrigConf::ClusterThresholdValue * clThrV = dynamic_cast<const TrigConf::ClusterThresholdValue*> ( thrV );
+            // now check the isolation
+            if ( clThrV && clThrV->isolationMask() > 0) {
+               auto isoMask = clThrV->isolationMask();
+               static const uint16_t BITMASK_OFFSET_RETA = 4; // this is a convetion which is adapted only for 21.3 based studies of the new eFEX EM thresholds
+               static const uint16_t BITMASK_OFFSET_RHAD = 2;
+               static const uint16_t BITMASK_OFFSET_WSTOT = 0;
+
+               unsigned int selection_reta = ((isoMask >> BITMASK_OFFSET_RETA) & 0x3);
+               unsigned int selection_rhad = ((isoMask >> BITMASK_OFFSET_RHAD) & 0x3);
+               unsigned int selection_wstot = ((isoMask >> BITMASK_OFFSET_WSTOT) & 0x3);
+               std::cout << "JOERG new thr " << confThr->name() << " has isolation defined: " << clThrV->isolationMask()
+                         << " reta " << selection_reta << ", rhad " << selection_rhad << ", wstot " << selection_wstot << std::endl;
+               if( selection_reta>0 ) {
+                  auto & wp = m_reta.at(selection_reta).getWP(ieta);
+                  if( (cl->et() < wp.maxEt) && reta(*cl) < wp.value) {
+                     clusterPasses = false;
+                     std::cout << "JOERG Fails reta" << std::endl;
+                  } else {
+                     std::cout << "JOERG Passes reta" << std::endl;
+                  }
+               }
+               if( clusterPasses && selection_rhad>0 ) {
+                  auto & wp = m_rhad.at(selection_rhad).getWP(ieta);
+                  if( (cl->et() < wp.maxEt) && rhad(*cl) < wp.value) {
+                     clusterPasses = false;
+                     std::cout << "JOERG Fails rhad" << std::endl;
+                  } else {
+                     std::cout << "JOERG Passes rhad" << std::endl;
+                  }
+               }
+               if( clusterPasses && selection_wstot>0 ) {
+                  auto & wp = m_wstot.at(selection_wstot).getWP(ieta);
+                  if( (cl->et() < wp.maxEt) && cl->wstot() < wp.value) {
+                     clusterPasses = false;
+                     std::cout << "JOERG Fails wstot" << std::endl;
+                  } else {
+                     std::cout << "JOERG Passes wstot" << std::endl;
+                  }
+               }
+            }
+         }
          multiplicity +=  clusterPasses ? 1 : 0;
       }
    } else {

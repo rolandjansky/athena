@@ -96,6 +96,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("useConvSeeded"           ,m_useConvSeeded       );
   declareProperty("doFastTracking"          ,m_doFastTracking      );
   declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc );
+  declareProperty("RegSelSvc"               ,m_regionSelector      );
 }
 
 ///////////////////////////////////////////////////////////////////

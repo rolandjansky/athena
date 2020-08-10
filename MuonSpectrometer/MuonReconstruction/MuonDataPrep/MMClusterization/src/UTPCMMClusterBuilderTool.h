@@ -51,13 +51,14 @@ namespace Muon
     //virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-	 		   std::vector<Muon::MMPrepData*>& clustersVec)const ;
+	 		   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)const ;
 
   private: 
 
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MmIdHelper* m_mmIdHelper;
+    bool m_writeStripProperties;
 
 
     // params for the hough trafo

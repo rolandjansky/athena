@@ -538,11 +538,11 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    long long int currentFileSize = m_poolSvc->getFileSize(m_outputConnectionSpec, m_dbType.type(), IPoolSvc::kOutputStream);
    if (m_databaseMaxFileSize.find(m_outputConnectionSpec) != m_databaseMaxFileSize.end()) {
       if (currentFileSize > m_databaseMaxFileSize[m_outputConnectionSpec]) {
-         ATH_MSG_WARNING("FileSize > MaxFileSize for " << m_outputConnectionSpec);
+         ATH_MSG_WARNING("FileSize > " << m_databaseMaxFileSize[m_outputConnectionSpec] << " for " << m_outputConnectionSpec);
          return(StatusCode::RECOVERABLE);
       }
    } else if (currentFileSize > m_domainMaxFileSize) {
-      ATH_MSG_WARNING("FileSize > domMaxFileSize for " << m_outputConnectionSpec);
+      ATH_MSG_WARNING("FileSize > " << m_domainMaxFileSize <<  " for " << m_outputConnectionSpec);
       return(StatusCode::RECOVERABLE);
    }
    // For "safety" we reset the output file and the technology type

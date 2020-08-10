@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##################################################################################
 # The AtlasTrackingGeometry Svc fragment
@@ -12,6 +12,7 @@
 ##################################################################################
 # import the DetFlags for the setting
 from AthenaCommon.DetFlags import DetFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 
 #################################################################################
 # Material for the Geometry comes from COOL or local database
@@ -140,10 +141,15 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
                 if TrkDetFlags.ConfigurationOutputLevel() < 3 :
                     print '[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection        
                 # make sure that the pool files are in the catalog
-            elif TrkDetFlags.SLHC_Geometry() :
+            elif TrkDetFlags.SLHC_Geometry() or (CommonGeometryFlags.Run() == "RUN4"):
                 # set the folder to the SLHC location        
                 CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialITK'
                 ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
+                if (TrkDetFlags.MaterialMagicTag == "DEFAULT"):
+                 ctag = "AtlasLayerMat_v20_ATLAS-P2-ITK-22-00-00"
+                 print '[ TrackingGeometrySvc ] TrkDetFlags not set for ITk!' 
+                 print '[ TrackingGeometrySvc ] Using a default ("AtlasLayerMat_v20_ATLAS-P2-ITK-22-00-00")'  
+                 #In case tag hasn't been set, give an existing default
                 cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
                 conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
             else :

@@ -78,6 +78,7 @@ Muon::ConstraintAngleMMClusterBuilderTool::ConstraintAngleMMClusterBuilderTool(c
 {
     declareInterface<IMMClusterBuilderTool>(this);
     declareProperty("MuonIdHelperTool", m_muonIdHelperTool);
+    declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
     declareProperty("nSigmaSelection",m_nSigmaSelection = 3);
     declareProperty("sTheta",m_sigmaTheta = 3);
     declareProperty("fitAngleCut",m_fitAngleCut = 10);  //degree 
@@ -90,7 +91,7 @@ StatusCode Muon::ConstraintAngleMMClusterBuilderTool::initialize(){
 
 
 StatusCode Muon::ConstraintAngleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds,
-                                                     std::vector<Muon::MMPrepData*>& clustersVec) const
+                                                     std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const
 {
     ATH_MSG_DEBUG("Running constraint angle MM cluster builder with: "<< MMprds.size() <<" MMprds");
     std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
@@ -237,7 +238,7 @@ const{
 } // end of scan layer
 
 
-StatusCode Muon::ConstraintAngleMMClusterBuilderTool::fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer, const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<Muon::MMPrepData*>& clustersVec)
+StatusCode Muon::ConstraintAngleMMClusterBuilderTool::fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer, const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)
 const{
     std::vector<std::vector<double>> pts;
     std::unique_ptr<TGraphErrors> fitGraph = std::unique_ptr<TGraphErrors>(new TGraphErrors());
@@ -258,12 +259,20 @@ const{
     std::vector<int> stripsOfClusterCharges;
     std::vector<short int> stripsOfClusterTimes;
     std::vector<uint16_t> stripsOfClusterChannels;
+    std::vector<float> stripDriftDists;
+    std::vector<Amg::MatrixX> stripDriftDistErrors;
 
     uint nStrips = idxCluster.size();
+
     stripsOfCluster.reserve(nStrips);
-    stripsOfClusterCharges.reserve(nStrips);
-    stripsOfClusterTimes.reserve(nStrips);
-    stripsOfClusterChannels.reserve(nStrips);
+
+    if (m_writeStripProperties) {
+        stripsOfClusterCharges.reserve(nStrips);
+        stripsOfClusterTimes.reserve(nStrips);
+        stripsOfClusterChannels.reserve(nStrips);
+    }
+    stripDriftDists.reserve(nStrips);
+    stripDriftDistErrors.reserve(nStrips);
 
     
     for(uint i_strip=0; i_strip < idxCluster.size(); i_strip++){
@@ -276,9 +285,13 @@ const{
         fitFunc.addPoint(x,y,xerror,yerror);
 
         stripsOfCluster.push_back(prdPerLayer.at(idxCluster.at(i_strip)).identify());
-        stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
-        stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
-        stripsOfClusterChannels.push_back(m_muonIdHelperTool->mmIdHelper().channel(prdPerLayer.at(idxCluster.at(i_strip)).identify()));
+        if (m_writeStripProperties) {
+            stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
+            stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
+            stripsOfClusterChannels.push_back(m_muonIdHelperTool->mmIdHelper().channel(prdPerLayer.at(idxCluster.at(i_strip)).identify()));
+        }
+        stripDriftDists.push_back(prdPerLayer.at(i_strip).driftDist());
+        stripDriftDistErrors.push_back(prdPerLayer.at(i_strip).localCovariance());
 
 
     }
@@ -306,7 +319,7 @@ const{
     covN->coeffRef(0,0)=0.3*0.3;
     Amg::Vector2D localClusterPositionV(clusterPos,prdPerLayer.at(idxCluster.at(0)).localPosition().y()); // y position is the same for all strips
 
-    MMPrepData* prdN=new MMPrepData(prdPerLayer.at(idxCluster.at(0)).identify(),
+    std::unique_ptr<MMPrepData> prdN=std::make_unique<MMPrepData>(prdPerLayer.at(idxCluster.at(0)).identify(),
 		prdPerLayer.at(idxCluster.at(0)).collectionHash(),
 		localClusterPositionV,stripsOfCluster,
 		covN,prdPerLayer.at(0).detectorElement(),
@@ -315,14 +328,17 @@ const{
 		  stripsOfClusterCharges.end(),0),
 		driftDist,
 		stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
-	    
+
+
+     prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
+     prdN->setAuthor(Muon::MMPrepData::Author::ConstraintuTPCClusterBuilder);
      ATH_MSG_DEBUG("Did create new prd");
-     
+
      ATH_MSG_DEBUG("Setting prd angle: "<< fitResults[0] <<" chi2 Prob: "<<0);
 
      prdN->setMicroTPC(fitResults[0],0);
      ATH_MSG_DEBUG("Reading back prd angle: "<< prdN->angle() <<" chi2 Prob: "<<prdN->chisqProb());
-     clustersVec.push_back(prdN);
+     clustersVec.push_back(std::move(prdN));
      ATH_MSG_DEBUG("pushedBack  prdN");
 
 

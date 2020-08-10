@@ -67,8 +67,7 @@ TrigT1CaloTauFex::~TrigT1CaloTauFex(){
 
 StatusCode TrigT1CaloTauFex::initialize(){
 	
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::INFO << "initialing TrigT1CaloTauFex" << endreq;
+	ATH_MSG_INFO( "initialing TrigT1CaloTauFex" );
 	if ( TrigT1CaloBaseFex::initialize().isFailure() ) return StatusCode::FAILURE;
 	if ( m_enableMon ){
 		std::string histoName(name());
@@ -78,15 +77,15 @@ StatusCode TrigT1CaloTauFex::initialize(){
 		// TODO: add here initialisation of other histos ...
 	}
 
-	msg << MSG::INFO << " REGTEST: TrigT1CaloTauFex configurations: " <<endreq;
-	msg << MSG::INFO << " REGTEST: EnableMonitoring			" << m_enableMon  <<endreq;
-        msg << MSG::INFO << " REGTEST: CellsEtThreholdGeV        	" << m_cellsEtThrehold  << " GeV" << endreq;
-	msg << MSG::INFO << " REGTEST: DoTruth	        		" << m_doTruth  <<endreq;
-	msg << MSG::INFO << " REGTEST: TruthMaxEta          		" << m_truth_maxEta_thr  <<endreq;
-        msg << MSG::INFO << " REGTEST: TruthMinPtGeV                    " << m_truth_minPt_thr << " GeV"  <<endreq;
-	msg << MSG::INFO << " REGTEST: NoiseSignificanceCore  " << m_NoiseSignificanceCore <<endreq;
-	msg << MSG::INFO << " REGTEST: NoiseSignificanceIso   " << m_NoiseSignificanceIso <<endreq;
-	msg << MSG::INFO << " REGTEST: OutputClusterName      " << m_outputClusterName <<endreq;
+	ATH_MSG_INFO( " REGTEST: TrigT1CaloTauFex configurations: ");
+	ATH_MSG_INFO( " REGTEST: EnableMonitoring			" << m_enableMon );
+        ATH_MSG_INFO( " REGTEST: CellsEtThreholdGeV        	" << m_cellsEtThrehold  << " GeV" );
+	ATH_MSG_INFO( " REGTEST: DoTruth	        		" << m_doTruth );
+	ATH_MSG_INFO( " REGTEST: TruthMaxEta          		" << m_truth_maxEta_thr );
+        ATH_MSG_INFO( " REGTEST: TruthMinPtGeV                    " << m_truth_minPt_thr << " GeV" );
+	ATH_MSG_INFO( " REGTEST: NoiseSignificanceCore  " << m_NoiseSignificanceCore);
+	ATH_MSG_INFO( " REGTEST: NoiseSignificanceIso   " << m_NoiseSignificanceIso);
+	ATH_MSG_INFO( " REGTEST: OutputClusterName      " << m_outputClusterName);
 
 	if(m_doTruth){
 	        m_true_nprong.reserve(200);
@@ -99,8 +98,7 @@ StatusCode TrigT1CaloTauFex::initialize(){
 }
 
 StatusCode TrigT1CaloTauFex::finalize(){
-        MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloTauFex" << endreq;
+	ATH_MSG_DEBUG( "finalizing TrigT1CaloTauFex" );
 	if ( TrigT1CaloBaseFex::finalize().isFailure() ) return StatusCode::FAILURE;
 	if ( m_enableMon ) {
 		m_histFile->Write();
@@ -119,9 +117,8 @@ StatusCode TrigT1CaloTauFex::finalize(){
 
 StatusCode TrigT1CaloTauFex::execute(){
 	
-        MsgStream msg(msgSvc(), name());
 #ifndef NDEBUG
-	msg << MSG::DEBUG << "execute TrigT1CaloTauFex" << endreq;
+	ATH_MSG_DEBUG( "execute TrigT1CaloTauFex" );
 #endif
 
 	CaloCellContainer* scells(0);
@@ -129,18 +126,18 @@ StatusCode TrigT1CaloTauFex::execute(){
 	const xAOD::TruthParticleContainer *truthContainer(0);
 
 	if ( getContainers(scells, TTs, m_cellsEtThrehold).isFailure() || (TTs==0) || (scells==0) ) {
-		msg << MSG::WARNING << " Could not get scell or TT containers" << endreq;
+		ATH_MSG_WARNING( " Could not get scell or TT containers" );
 		return StatusCode::SUCCESS;
 	}
 
 	if(m_doTruth){ 
 		if ( getContainers(truthContainer).isFailure() || (truthContainer==0) ) {
-                	msg << MSG::WARNING << " Could not get truth containers" << endreq;
+                	ATH_MSG_WARNING( " Could not get truth containers" );
                 	return StatusCode::SUCCESS;
 		}	
         	Truth(truthContainer);
   		if(m_true_vistau.size()!=2){
-        		msg << MSG::WARNING << "Found " << m_true_vistau.size() << " instead of 2, skipping event" << endreq;
+        		ATH_MSG_WARNING( "Found " << m_true_vistau.size() << " instead of 2, skipping event" );
         		return StatusCode::SUCCESS;
   		}
         }
@@ -175,12 +172,12 @@ StatusCode TrigT1CaloTauFex::execute(){
 		// do this check before)
 		///if ( ! isCellEmMaximum ( m_cellsAround, cellAbove ) ) continue;
 		///float et = sumEmCells( m_cellsAround )/TMath::CosH(cellAbove->eta());
-		///msg << MSG::INFO << "Tau found at (eta,phi)=(" << etaCluster << "," << phiCluster << ") with ET of : " << et << endreq;
+		///ATH_MSG_INFO( "Tau found at (eta,phi)=(" << etaCluster << "," << phiCluster << ") with ET of : " << et );
 	}
 #ifndef NDEBUG
 	for (unsigned int i=0; i<m_RoI.size(); i++) {
 	//for( auto RoI : m_RoI ) {
-	  msg << MSG::INFO << "RoI in the loop=" << m_RoI.at(0).at(0) << endreq;
+	  ATH_MSG_INFO( "RoI in the loop=" << m_RoI.at(0).at(0) );
 	}
 #endif
 	return StatusCode::SUCCESS;
@@ -238,7 +235,6 @@ void TrigT1CaloTauFex::ExamineTruthTau(const xAOD::TruthParticle& xTruthParticle
 
 void TrigT1CaloTauFex::Truth(const xAOD::TruthParticleContainer *truthContainer) {
 
-  MsgStream msg(msgSvc(), name());
  
   m_true_vistau.clear();
   m_true_nprong.clear();

@@ -180,7 +180,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_Cosmic::finalize()
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
 {
-  if(!m_pixel && !m_sct) return; 
+  if(!m_pixel && !m_sct) return;
   erase();
   i_spforseed   = l_spforseed.begin();
 
@@ -288,7 +288,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
 
-  if(!m_pixel && !m_sct) return; 
+  if(!m_pixel && !m_sct) return;
   erase();
   i_spforseed = l_spforseed.begin();
 
@@ -482,8 +482,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp (const std::list<Trk::Vertex>
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dump( MsgStream& out ) const
 {
-  if(m_nprint)  
-    return dumpEvent(out); 
+  if(m_nprint) return dumpEvent(out);
   return dumpConditions(out);
 }
 
@@ -766,7 +765,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists()
   
   for(int i=0; i!= r_size;  ++i) {
 
-    if(!r_map[i]) continue; 
+    if(!r_map[i]) continue;
     r = r_Sorted[i].begin();
 
     while(r!=r_Sorted[i].end()) {
@@ -1000,7 +999,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
     }
   breakb:
 
-    if(!Nb || Nb==m_maxsizeSP) continue;  
+    if(!Nb || Nb==m_maxsizeSP) continue;
     int Nt = Nb;
     
     // Top   links production
@@ -1132,7 +1131,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
     }
   breakb:
 
-    if(!Nb || Nb==m_maxsizeSP) continue;  
+    if(!Nb || Nb==m_maxsizeSP) continue;
     int Nt = Nb;
     
     // Top   links production

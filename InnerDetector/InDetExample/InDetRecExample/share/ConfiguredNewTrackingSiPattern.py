@@ -1,4 +1,3 @@
-
 # Blocking the include for after first inclusion
 include.block ('InDetRecExample/ConfiguredNewTrackingSiPattern.py')
 
@@ -24,7 +23,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "PixelThreeLayer" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "ROIConv"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LowPtRoI" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "PixelThreeLayer" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "ROIConv"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -59,13 +58,12 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_HeavyIon as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_LowMomentum as SiSpacePointsSeedMaker
+         elif NewTrackingCuts.mode() == "LowPtRoI" :
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ROIConv" :
-            if InDetFlags.doFastTracking():
-              from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITkTrigger as SiSpacePointsSeedMaker
-            else:
-              from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "DisplacedSoftPion" :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_TrkSeeded as SiSpacePointsSeedMaker
          else:
@@ -97,6 +95,9 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
+         if NewTrackingCuts.mode() == "R3LargeD0":
+            InDetSiSpacePointsSeedMaker.usePixel = False
+            InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
          if usePrdAssociationTool:
             # not all classes have that property !!!
             InDetSiSpacePointsSeedMaker.UseAssociationTool = True
@@ -111,6 +112,12 @@ class  ConfiguredNewTrackingSiPattern:
             except:
                pass 
             InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
+         if NewTrackingCuts.mode() == "LowPtRoI" :
+            try :
+               InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
+            except:
+               pass
+            InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
          if NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.checkEta           = True
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
@@ -124,6 +131,11 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.DeltaThetaRoISP       = 0.8
             InDetSiSpacePointsSeedMaker.DeltaPhiRoISP         = 0.8
             InDetSiSpacePointsSeedMaker.RoISeedTool           = RoISeedTool
+         if InDetFlags.doFastTracking() :
+            InDetSiSpacePointsSeedMaker.useFastTracking       = True
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
+
+
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
@@ -152,6 +164,55 @@ class  ConfiguredNewTrackingSiPattern:
 
          else:
             InDetZvertexMaker = None
+
+
+         # ------------------------------------------------------------
+         #
+         # ----------- Loading of ZWindowRoISeedTool for LowPtRoI
+         #
+         # ------------------------------------------------------------
+
+         if NewTrackingCuts.mode() == "LowPtRoI" :
+
+            # ZWindowRoI Tool needed for InDet__SiSpacePointsSeeded tool            
+            if (len(InputCollections) == 0) :
+               InputZWindowTracks = ""
+               print "InputCollections is empty, ZWindowRoI tool needs at least one"
+            else :
+               InputZWindowTracks = InputCollections[0] ##list(InputCollections)
+               print "InputCollections is not empty, ZWindowRoI tool will use the first track colletion in the list"
+               print "Size of the track collection ",len(InputCollections)," The collection is ",InputCollections
+
+            if InDetFlags.LowPtRoIStrategy() == 1:
+               from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
+               ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
+                                                               InputTracksCollection     = InputZWindowTracks,
+                                                               LeadingMinTrackPt         = 18.*Units.GeV,
+                                                               SubleadingMinTrackPt      = 12.5*Units.GeV,
+                                                               TracksMaxEta              = 2.5,
+                                                               TracksMaxD0               = 9999.,
+                                                               MaxDeltaZTracksPair       = 1.0,
+                                                               TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
+            elif InDetFlags.LowPtRoIStrategy() == 2:
+               from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__TruthHSRoISeedTool
+               ZWindowRoISeedTool = InDet__TruthHSRoISeedTool (name = "InDetZWindowRoISeedTool",
+                                                               InputTruthEventsCollection = "TruthEvents",
+                                                               TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
+            elif InDetFlags.LowPtRoIStrategy() == 3:
+               from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__FileRoISeedTool
+               ZWindowRoISeedTool = InDet__FileRoISeedTool (name = "InDetZWindowRoISeedTool",
+                                                               InputFileName = InDetFlags.LowPtRoIFile(),
+                                                               TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
+            ToolSvc += ZWindowRoISeedTool
+
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__RandomRoISeedTool
+            RandomRoISeedTool = InDet__RandomRoISeedTool(name = "RandomRoISeedTool",
+                                                         TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
+            ToolSvc += RandomRoISeedTool
+
+            #ZWindowRoISeedTool.OutputLevel = VERBOSE
+            #ServiceMgr.MessageSvc.debugLimit = 1000000
+            #ServiceMgr.MessageSvc.verboseLimit = 1000000
 
          #
          # --- SCT and Pixel detector elements road builder
@@ -250,6 +311,9 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "LowPt":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LowMomentum'
 
+         elif NewTrackingCuts.mode() == "LowPtRoI":
+           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LowMomentum'
+
          elif NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryLowMomentum'           
 
@@ -262,7 +326,7 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "ROIConv":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ROIConvTracks'
 
-         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
+         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
 
          elif NewTrackingCuts.mode() == "DisplacedSoftPion":
@@ -271,11 +335,12 @@ class  ConfiguredNewTrackingSiPattern:
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
            
-         if InDetFlags. doStoreTrackSeeds():
+         if InDetFlags. doStoreTrackSeeds() and not NewTrackingCuts.mode() == "LowPtRoI":
               InDetSiTrackMaker.SeedSegmentsWrite=True
               InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversion
-         #InDetSiTrackMaker.OutputLevel = VERBOSE				  
-         
+         if InDetFlags. doStoreTrackSeeds() and NewTrackingCuts.mode() == "LowPtRoI":
+              InDetSiTrackMaker.SeedSegmentsWrite=True
+              InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversionLowPtRoI         #InDetSiTrackMaker.OutputLevel = VERBOSE				  
          ToolSvc += InDetSiTrackMaker
          
          if (InDetFlags.doPrintConfigurables()):
@@ -292,6 +357,16 @@ class  ConfiguredNewTrackingSiPattern:
 
          if NewTrackingCuts.mode() == "ROIConv":
 
+            from AthenaCommon.AppMgr import ServiceMgr
+            from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+            InDetRegSelSvc             = RegSelSvcDefault()
+            InDetRegSelSvc.enablePixel = DetFlags.pixel_on()
+            InDetRegSelSvc.enableSCT   = DetFlags.SCT_on()
+            ServiceMgr += InDetRegSelSvc
+            if (InDetFlags.doPrintConfigurables()):
+               print InDetRegSelSvc
+
+
             InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                       TrackTool      = InDetSiTrackMaker,
                                                                       TracksLocation = self.__SiTrackCollection,
@@ -300,10 +375,11 @@ class  ConfiguredNewTrackingSiPattern:
                                                                       ZvertexTool    = InDetZvertexMaker,
                                                                       useConvSeeded = True,
                                                                       useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
-                                                                      useZBoundFinding = True)
+                                                                      useZBoundFinding = True,
+                                                                      RegSelSvc        = InDetRegSelSvc)
 
 
-         if NewTrackingCuts.mode() == "ForwardTracks":
+         elif NewTrackingCuts.mode() == "ForwardTracks":
 
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
@@ -316,7 +392,19 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     useZBoundFinding = False)
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
-         
+
+         elif NewTrackingCuts.mode() == "LowPtRoI" :
+          from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinderRoI
+          InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinderRoI(name            = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
+                                                                    TrackTool          = InDetSiTrackMaker,
+                                                                    TracksLocation     = self.__SiTrackCollection,
+                                                                    SeedsTool          = InDetSiSpacePointsSeedMaker,
+                                                                    VxOutputName    = InDetKeys.xAODLowPtRoIVertexContainer(),
+                                                                    ZWindowRoISeedTool = ZWindowRoISeedTool,
+                                                                    RandomRoISeedTool = RandomRoISeedTool,
+                                                                    RoIWidth = InDetFlags.LowPtRoIWindow())
+          #InDetSiSpSeededTrackFinder.OutputLevel = DEBUG
+
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
@@ -494,7 +582,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityProcessorTool as ProcessorTool
-           use_low_pt_fitter =  True if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) else False
+           use_low_pt_fitter =  True if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LowPtRoI" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) else False
            fitter_list=[( InDetTrackFitter if not use_low_pt_fitter else InDetTrackFitterLowPt )]
            if InDetFlags.doRefitInvalidCov() :
               from AthenaCommon import CfgGetter
@@ -535,7 +623,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":
             InDetAmbiguityProcessor.SuppressHoleSearch = True
-         if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
+         if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LowPtRoI" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
             if InDetAmbiguityProcessor.getName().find('Dense') :
                pass
             else :
@@ -596,12 +684,12 @@ class  ConfiguredNewTrackingSiPattern:
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
        
-      elif InDetFlags.doFastTracking():         
+      elif InDetFlags.doFastTracking() and NewTrackingCuts.mode() == "SLHC":
        #
        # defining setup without ambiguity solving for fast tracking reconstuction
        #
        from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
-       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi",
+       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi"+NewTrackingCuts.extension(),
                                                          CollectionName   = self.__SiTrackCollection,
                                                          AliasName        = ResolvedTrackCollectionKey) 
        topSequence += InDetCopyAlgForAmbi

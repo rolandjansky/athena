@@ -441,6 +441,8 @@ StatusCode SCT_RDOAnalysis::execute() {
 
         const InDetDD::SiDetectorElement *detEl = m_SCT_Manager->getDetectorElement(rdoID);
 
+	//NB in contrast to PixelRDOAnalysis, this is the "uncorrected" local position
+	//Using lorentz-angle corrected version here will result in inconsistencies (ATLSWUPGR-103)
         Amg::Vector2D localPos = detEl->localPositionOfCell(rdoID);
         std::pair<Amg::Vector3D, Amg::Vector3D> endsOfStrip = detEl->endsOfStrip(localPos);
         

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -470,7 +470,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
               warningPrinted = true;
             }
           } else {
-            ATH_MSG_WARNING("No match found!");
+            ATH_MSG_DEBUG("No match found!");
           }
         }
      }

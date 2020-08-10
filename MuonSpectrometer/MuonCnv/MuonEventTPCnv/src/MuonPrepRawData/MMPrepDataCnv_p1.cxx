@@ -27,6 +27,7 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
     rdoList.push_back(rdoId);
   }
 
+
   auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
   (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
 
@@ -46,7 +47,8 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
   // se the microTPC parameters
   data.setMicroTPC(persObj->m_angle, persObj->m_chisqProb);
   // set the drift distances
-  data.setDriftDist(persObj->m_stripDriftDist,persObj->m_stripDriftErrors);
+  data.setDriftDist(persObj->m_stripDriftDist,persObj->m_stripDriftErrors_0_0, persObj->m_stripDriftErrors_1_1);
+  data.setAuthor(static_cast<Muon::MMPrepData::Author>(persObj->m_author));
 
   return data;
 }
@@ -78,7 +80,10 @@ transToPers( const Muon::MMPrepData *transObj, Muon::MMPrepData_p1 *persObj, Msg
     persObj->m_stripCharges = transObj->stripCharges();
 
     persObj->m_stripDriftDist   = transObj->stripDriftDist();
-    persObj->m_stripDriftErrors = transObj->stripDriftErrors();
+    persObj->m_stripDriftErrors_0_0 = transObj->stripDriftErrors_0_0();
+    persObj->m_stripDriftErrors_1_1 = transObj->stripDriftErrors_1_1();
+
+    persObj->m_author = static_cast<int>(transObj->author());
 
     /// store the rdoList in a vector with the difference with respect to the 32-bit cluster identifier
     Identifier32::value_type clusIdCompact = transObj->identify().get_identifier32().get_compact(); // unsigned int

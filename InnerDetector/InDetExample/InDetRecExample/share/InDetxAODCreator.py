@@ -1,9 +1,9 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0() or InDetFlags.doDisplacedSoftPion() ) \
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0() or InDetFlags.doDisplacedSoftPion() ) \
                     and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() \
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0() \
                     and not InDetFlags.doLowPtLargeD0() and not InDetFlags.doDisplacedSoftPion() and InDetFlags.doParticleConversion()
 
 if doCreation:
@@ -280,3 +280,49 @@ if InDetFlags.doStoreTrackCandidates() and InDetFlags.doParticleCreation():
  #xAODSeedsTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODTrkCanTrackParticleCnvAlg
 
+# Store track candidates created if InDetFlags.doLowPtRoI() into separate collection
+if InDetFlags.doLowPtRoI() and InDetFlags.doParticleCreation():
+ from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+ xAODLowPtRoITrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( InDetKeys.xAODLowPtRoITrackParticleContainer() ) 
+ xAODLowPtRoITrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODLowPtRoITrackParticleContainer()
+ xAODLowPtRoITrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODLowPtRoITrackParticleContainer()
+ xAODLowPtRoITrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
+ xAODLowPtRoITrackParticleCnvAlg.TrackContainerName = InDetKeys.LowPtRoITracks()
+ xAODLowPtRoITrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.LowPtRoITracksTruth()
+ xAODLowPtRoITrackParticleCnvAlg.ConvertTrackParticles = False
+ xAODLowPtRoITrackParticleCnvAlg.ConvertTracks = True
+ xAODLowPtRoITrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
+ xAODLowPtRoITrackParticleCnvAlg.PrintIDSummaryInfo = True
+ #xAODLowPtRoITrackParticleCnvAlg.OutputLevel = VERBOSE
+ topSequence += xAODLowPtRoITrackParticleCnvAlg
+
+if InDetFlags.doStoreTrackSeeds() and InDetFlags.doLowPtRoI() and InDetFlags.doParticleCreation():
+ from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+ xAODLowPtRoISeedsTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( InDetKeys.SiSPLowPtRoISeedSegments()+"TrackParticle" )
+ xAODLowPtRoISeedsTrackParticleCnvAlg.xAODContainerName = InDetKeys.SiSPLowPtRoISeedSegments()+"TrackParticle"
+ xAODLowPtRoISeedsTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.SiSPLowPtRoISeedSegments()+"TrackParticle"
+ xAODLowPtRoISeedsTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
+ xAODLowPtRoISeedsTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSPLowPtRoISeedSegments()
+ xAODLowPtRoISeedsTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSPLowPtRoISeedSegments()+'TruthCollection'
+ xAODLowPtRoISeedsTrackParticleCnvAlg.ConvertTrackParticles = False
+ xAODLowPtRoISeedsTrackParticleCnvAlg.ConvertTracks = True
+ xAODLowPtRoISeedsTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
+ xAODLowPtRoISeedsTrackParticleCnvAlg.PrintIDSummaryInfo = True
+ #xAODLowPtRoISeedsTrackParticleCnvAlg.OutputLevel = VERBOSE
+ topSequence += xAODLowPtRoISeedsTrackParticleCnvAlg
+
+# Store track candidates when requested
+if InDetFlags.doStoreTrackCandidates() and InDetFlags.doLowPtRoI() and InDetFlags.doParticleCreation():
+ from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+ xAODLowPtRoITrkCanTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( InDetKeys.xAODSiSPLowPtRoITrackCandidates()+"TrackParticle" )
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODSiSPLowPtRoITrackCandidates()+"TrackParticle"
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODSiSPLowPtRoITrackCandidates()+"TrackParticle"
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededLowPtRoITracks()
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededLowPtRoITracks()+'TruthCollection'
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.ConvertTrackParticles = False
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.ConvertTracks = True
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
+ xAODLowPtRoITrkCanTrackParticleCnvAlg.PrintIDSummaryInfo = True
+ #xAODLowPtRoITrkCanTrackParticleCnvAlg.OutputLevel = VERBOSE
+ topSequence += xAODLowPtRoITrkCanTrackParticleCnvAlg

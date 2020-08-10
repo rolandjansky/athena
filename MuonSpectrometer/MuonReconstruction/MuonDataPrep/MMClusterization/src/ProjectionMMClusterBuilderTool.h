@@ -40,13 +40,14 @@ namespace Muon
     virtual StatusCode initialize() override;
     
     /**Interface fuction to IMMClusterBuilderTool; calling function manages the pointers inside clustersVec  */
-    StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVec) const;
+    StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const;
 
   private: 
 
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MmIdHelper* m_mmIdHelper;
+    bool m_writeStripProperties;
 
     double m_tmin,m_tmax,m_tOffset;
     double m_p0,m_p1,m_p2; //correction factors for charge dependence
@@ -60,7 +61,7 @@ namespace Muon
     StatusCode doFineScan(std::vector<int>& flag,const std::vector<double>& v_posxc, const std::vector<double>& v_cor, std::vector<int>& idx_selected) const ;   
     StatusCode doPositionCalculation(std::vector<double>& v_posxc, const std::vector<double>& v_cor, const std::vector<int> idx_selected,double& xmean, double& xmeanErr, double &  qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer) const;
     
-    StatusCode writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer) const ;
+    StatusCode writeNewPrd(std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer) const ;
     
     double getSigma(double correction)const;
 

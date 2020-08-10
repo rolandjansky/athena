@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IINDETETADEPENDENTCUTSSVC_H
@@ -14,7 +14,7 @@ namespace InDet {
   enum CutName {  
     etaBins, etaWidthBrem, maxdImpactSSSSeeds, maxDoubleHoles,
     maxHoles, maxPixelHoles, maxPrimaryImpact, maxSctHoles, 
-    maxShared, maxZImpact, minClusters, minPixelHits, minPT,
+    maxShared, maxZImpact, minClusters, minPixelHits, minInPixelHits, minStripHits, minPT,
     minPTBrem, minSiNotShared, maxHolesGapPattern, maxHolesPattern,
     nWeightedClustersMin, phiWidthBrem, Xi2max, Xi2maxNoAdd
   };
@@ -42,6 +42,7 @@ namespace InDet {
     virtual double  getMinPtAtEta           (double eta) = 0;
     virtual double  getMaxZImpactAtEta      (double eta) = 0;
     virtual double  getMaxPrimaryImpactAtEta(double eta) = 0;
+    virtual double  getMaxChi2AtEta         (double eta) = 0;
     virtual int     getMinSiHitsAtEta       (double eta) = 0;
     virtual int     getMinSiNotSharedAtEta  (double eta) = 0;
     virtual int     getMaxSharedAtEta       (double eta) = 0;
@@ -50,6 +51,8 @@ namespace InDet {
     virtual int     getMaxPixelHolesAtEta   (double eta) = 0;
     virtual int     getMaxSctHolesAtEta     (double eta) = 0;
     virtual int     getMaxDoubleHolesAtEta  (double eta) = 0;
+    virtual int     getMinInnermostPixelHitsAtEta(double eta) = 0;
+    virtual int     getMinStripHitsAtEta    (double eta) = 0;
       
   };
   

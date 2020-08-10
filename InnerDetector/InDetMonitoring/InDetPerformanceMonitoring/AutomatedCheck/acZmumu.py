@@ -534,6 +534,9 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     if (m_userFilesPerJob > 0 ):
         theOptions = "%s --nFilesPerJob %d" % (theOptions, m_userFilesPerJob)
 
+    if (m_userFiles > 0 ):
+        theOptions = "%s --nFiles %d" % (theOptions, m_userFiles)
+
     theExtraOptions = "" 
     if (len(m_workDirPlatform)>0): 
         theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 

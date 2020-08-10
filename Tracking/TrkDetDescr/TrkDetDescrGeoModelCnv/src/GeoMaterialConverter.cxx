@@ -90,9 +90,12 @@ void Trk::GeoMaterialConverter::decodeMaterialContent(const GeoPVConstLink pv, T
   bool found = lv->getName()=="AssemblyLV" ? true : false;    // don't save dummy assembly volume  
   if (!found) { 
     for (unsigned int ig=0; ig<geoContent.size(); ig++) {
-      // check both name and size
+      // check name, volume, material
       if (geoContent[ig]->name==newElement->name ) {
 	if (fabs(newElement->volumeSize-geoContent[ig]->volumeSize)<1.e-2*geoContent[ig]->volumeSize) found=true; 
+        if (found && geoContent[ig]->material ) {
+	  if (geoContent[ig]->material->getName()!=lv->getMaterial()->getName()) found=false; 
+	}
       }
       if (found) {
         geoContent[ig]->addClone(transf);

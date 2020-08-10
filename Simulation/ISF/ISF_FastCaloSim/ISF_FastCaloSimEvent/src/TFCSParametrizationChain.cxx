@@ -1,9 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationChain.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h"
+#include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+#include "ISF_FastCaloSimEvent/TFCSTruthState.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include <algorithm>
 #include <iterator>
 #include "TBuffer.h"
@@ -130,11 +134,31 @@ bool TFCSParametrizationChain::is_match_calosample(int calosample) const
 
 FCSReturnCode TFCSParametrizationChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  for(const auto& param: m_chain) {
-    if (simulate_and_retry(param, simulstate, truth, extrapol) != FCSSuccess) {
-      return FCSFatal;
+  Int_t retry=0;
+  Int_t retry_warning=1;
+
+  FCSReturnCode status = FCSSuccess;
+  for (int i = 0; i <= retry; i++) {
+    if (i >= retry_warning) ATH_MSG_WARNING("TFCSParametrizationChain::simulate(): Retry simulate call " << i << "/" << retry);
+    for(const auto& param: m_chain) {
+      status = simulate_and_retry(param, simulstate, truth, extrapol);
+      
+      if (status >= FCSRetry) {
+        retry=status-FCSRetry;
+        retry_warning=retry>>1;
+        if(retry_warning<1) retry_warning=1;
+        break;
+      }
+      if (status == FCSFatal) return FCSFatal;
     }
-  }
+    
+    if(status==FCSSuccess) break;
+  }  
+
+  if(status != FCSSuccess) {
+    ATH_MSG_FATAL("TFCSParametrizationChain::simulate(): Simulate call failed after " << retry << " retries");
+    return FCSFatal;
+  }  
 
   return FCSSuccess;
 }
@@ -245,4 +269,39 @@ void TFCSParametrizationChain::Streamer(TBuffer &R__b)
       R__b.SetByteCount(R__c, kTRUE);
    }
 }
+
+void TFCSParametrizationChain::unit_test(TFCSSimulationState* simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+{
+  if(!simulstate) simulstate=new TFCSSimulationState();
+  if(!truth) truth=new TFCSTruthState();
+  if(!extrapol) extrapol=new TFCSExtrapolationState();
+
+  TFCSParametrizationChain chain("chain","chain");
+  chain.setLevel(MSG::DEBUG);
+
+  std::cout<<"====         Chain setup       ===="<<std::endl;
+  chain.Print();
+  std::cout<<"==== Simulate with empty chain ===="<<std::endl;
+  chain.simulate(*simulstate,truth,extrapol);
+  std::cout<<"==================================="<<std::endl<<std::endl;
+
+  TFCSParametrizationBase* param;
+  param=new TFCSInvisibleParametrization("A begin all","A begin all");
+  param->setLevel(MSG::VERBOSE);
+  chain.push_back(param);
+  param=new TFCSParametrization("A end all","A end all");
+  param->setLevel(MSG::DEBUG);
+  chain.push_back(param);
+
+  std::cout<<"====         Chain setup       ===="<<std::endl;
+  chain.Print();
+  std::cout<<"==== Simulate only begin/end all ===="<<std::endl;
+  chain.simulate(*simulstate,truth,extrapol);
+  std::cout<<"==== Simulate only begin/end all with chain retry===="<<std::endl;
+  chain.set_RetryChainFromStart();
+  chain.simulate(*simulstate,truth,extrapol);
+  chain.reset_RetryChainFromStart();
+  std::cout<<"==================================="<<std::endl<<std::endl;
+}
+
 
