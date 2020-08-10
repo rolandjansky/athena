@@ -63,7 +63,7 @@ Chain2JetCollDict['Legacy'] = {
   'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
 }
 
-from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec, VarSpec
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec #VarSpec can be added to define specific/custom variables
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def TrigJetMonConfig(inputFlags):
