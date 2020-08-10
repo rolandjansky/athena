@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatTool.h"
@@ -7,7 +7,6 @@
 #include "InDetServMatGeoModel/InDetServMatFactoryDC2.h"
 #include "InDetServMatGeoModel/InDetServMatFactoryDC3.h"
 #include "InDetServMatGeoModel/InDetServMatFactoryFS.h"
-#include "InDetServMatGeoModel/InDetServMatFactorySLHC.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 #include "InDetServMatGeoModel/InDetServMatAthenaComps.h"
 
@@ -142,23 +141,6 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
   m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
-
-  // Retrieve builder tool (SLHC only)
-  if (versionName == "SLHC") {
-    if (!m_builderTool.empty()) {
-      sc = m_builderTool.retrieve(); 
-      if (!sc.isFailure()) {
-	msg(MSG::INFO) << "Service builder tool retrieved: " << m_builderTool << endreq;
-	m_athenaComps->setBuilderTool(&*m_builderTool);
-      } else {
-	msg(MSG::ERROR) << "Could not retrieve " <<  m_builderTool << ",  some services will not be built." << endreq;
-      }
-    } else {
-      // This will become an error once the tool is ready.
-      //msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endreq;
-      msg(MSG::INFO) << "Service builder tool not specified." << endreq; 
-    }
-  }
   
   if ( 0 == m_detector ) {
     // Create the InDetServMatNode instance
@@ -192,14 +174,6 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 	    InDetServMatFactory theIDSM(m_athenaComps);
 	    theIDSM.create(world);
 	    m_manager=theIDSM.getDetectorManager();
-	  } else if (versionName == "SLHC") {
-	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory SLHC version " << endreq;
-	    InDetServMatFactorySLHC theIDSM(m_athenaComps);
-	    if(descrName.compare("TrackingGeometry")!=0)
-	      theIDSM.create(world);
-	    else
-	      msg(MSG::INFO) << "InDetServices - TrackingGeometry tag - no geometry built" << endreq; 
-	    m_manager=theIDSM.getDetectorManager();    
 	  } else {
 	    // Unrecognized name.
 	    msg(MSG::ERROR) << " Unrecognized VersionName: " << versionName << endreq;
