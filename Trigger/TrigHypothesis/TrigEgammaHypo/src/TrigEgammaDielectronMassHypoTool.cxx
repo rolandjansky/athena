@@ -31,7 +31,7 @@ TrigEgammaDielectronMassHypoTool::TrigEgammaDielectronMassHypoTool(const std::st
 
 StatusCode TrigEgammaDielectronMassHypoTool::initialize()
 {
-  ATH_MSG_DEBUG("AcceptAll            = " << (m_acceptAll==true ? "True" : "False") );
+  ATH_MSG_DEBUG("AcceptAll            = " << m_acceptAll );
   ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassElectronClusterCut );
   ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassElectronClusterCut );
 
@@ -51,8 +51,7 @@ bool TrigEgammaDielectronMassHypoTool::executeAlg(std::vector<LegDecision> &comb
   std::vector<ElementLink<xAOD::ElectronContainer>> selected_electrons;
   for (auto el: combination){
     auto EL= el.second;    
-    auto dec= (*EL);
-    auto electronLink = TrigCompositeUtils::findLink<xAOD::ElectronContainer>( dec, featureString() ).link;
+    auto electronLink = TrigCompositeUtils::findLink<xAOD::ElectronContainer>( *EL, featureString() ).link;
     selected_electrons.push_back(electronLink);
   }
   auto electronLink1=selected_electrons[0];
