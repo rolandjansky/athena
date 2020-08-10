@@ -69,41 +69,6 @@ namespace CP {
 
     ATH_MSG_DEBUG("Creating MuonSelectionTool named "<<m_name);
   }
-    
-  MuonSelectionTool::MuonSelectionTool( const MuonSelectionTool& toCopy  )
-    : asg::AsgTool( toCopy.m_name+"_copy" ),
-      m_name( toCopy.m_name+"_copy" ),
-      m_maxEta( toCopy.m_maxEta ),
-      m_quality( toCopy.m_quality ),
-      m_accept( toCopy.m_accept ),
-      m_toroidOff( toCopy.m_toroidOff ),
-      m_developMode( toCopy.m_developMode ),
-      m_TrtCutOff( toCopy.m_TrtCutOff ),
-      m_SctCutOff( toCopy.m_SctCutOff ),
-      m_PixCutOff( toCopy.m_PixCutOff ),
-      m_SiHolesCutOff( toCopy.m_SiHolesCutOff ),
-      m_TurnOffMomCorr( toCopy.m_TurnOffMomCorr ),
-      m_useAllAuthors( toCopy.m_useAllAuthors ),
-      m_use2stationMuonsHighPt( toCopy.m_use2stationMuonsHighPt ),
-      m_useMVALowPt( toCopy.m_useMVALowPt ),
-      m_doBadMuonVetoMimic( toCopy.m_doBadMuonVetoMimic ),
-      m_eventInfoContName( toCopy.m_eventInfoContName ),
-      m_MVAreaderFile_EVEN_MuidCB( toCopy.m_MVAreaderFile_EVEN_MuidCB ),
-      m_MVAreaderFile_ODD_MuidCB( toCopy.m_MVAreaderFile_ODD_MuidCB ),
-      m_MVAreaderFile_EVEN_MuGirl( toCopy.m_MVAreaderFile_EVEN_MuGirl ),
-      m_MVAreaderFile_ODD_MuGirl( toCopy.m_MVAreaderFile_ODD_MuGirl ),
-      m_BMVcutFile( toCopy.m_BMVcutFile ),
-      m_calibration_version( toCopy.m_calibration_version ),
-      m_custom_dir( toCopy.m_custom_dir )
-  {
-    //
-    lowPTmva_middleHoles = new Float_t; lowPTmva_muonSeg1ChamberIdx = new Float_t;
-    lowPTmva_muonSeg2ChamberIdx = new Float_t; lowPTmva_momentumBalanceSig = new Float_t;
-    lowPTmva_scatteringCurvatureSig = new Float_t; lowPTmva_scatteringNeighbourSig = new Float_t;
-    lowPTmva_energyLoss = new Float_t; lowPTmva_muonSegmentDeltaEta = new Float_t;
-
-    ATH_MSG_DEBUG("Creating copy of MuonSelectionTool named "<<m_name);
-  }
   
   MuonSelectionTool::~MuonSelectionTool(){
     ATH_MSG_DEBUG(Form("Deleting MuonSelectionTool named %s",m_name.c_str()));

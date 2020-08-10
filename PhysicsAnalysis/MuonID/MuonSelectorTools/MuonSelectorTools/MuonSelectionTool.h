@@ -123,7 +123,7 @@ namespace CP {
    private:
 
      MuonSelectionTool & operator=(const MuonSelectionTool &right);
-     MuonSelectionTool( const MuonSelectionTool& toCopy );
+
      const std::string m_name;
       /// Maximum pseudorapidity for the selected muons
      double m_maxEta;
