@@ -806,7 +806,7 @@ namespace MuonCombined {
       return; 
     }
     
-    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
+    ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", LHR " << tag->caloLRLikelihood() << ", CaloMuonScore " << tag->caloMuonScore() );
     mu.setParameter(static_cast<float>( tag->caloLRLikelihood() ), xAOD::Muon::CaloLRLikelihood);
     mu.setParameter(static_cast<float>( tag->caloMuonScore() ), xAOD::Muon::CaloMuonScore);
     mu.setParameter(static_cast<int>( tag->caloMuonIdTag() ), xAOD::Muon::CaloMuonIDTag); 
