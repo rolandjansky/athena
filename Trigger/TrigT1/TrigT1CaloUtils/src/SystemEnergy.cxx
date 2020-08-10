@@ -144,73 +144,73 @@ SystemEnergy::~SystemEnergy()
 }
 
 /** return crate Et */
-int SystemEnergy::et()
+int SystemEnergy::et() const
 {
   return m_systemEt;
 }
 
 /** return crate Ex */
-int SystemEnergy::ex()
+int SystemEnergy::ex() const
 {
   return m_systemEx;
 }
 
 /** return crate Ey */
-int SystemEnergy::ey()
+int SystemEnergy::ey() const
 {
   return m_systemEy;
 }
 
 /** return Et overflow bit */
-unsigned int SystemEnergy::etOverflow()
+unsigned int SystemEnergy::etOverflow() const
 {
   return m_overflowT & 0x1;
 }
 
 /** return Ex overflow bit */
-unsigned int SystemEnergy::exOverflow()
+unsigned int SystemEnergy::exOverflow() const
 {
   return m_overflowX & 0x1;
 }
 
 /** return Ey overflow bit */
-unsigned int SystemEnergy::eyOverflow()
+unsigned int SystemEnergy::eyOverflow() const
 {
   return m_overflowY & 0x1;
 }
 
 /** return crate Ex in 15-bit twos-complement format (hardware format) */
-unsigned int SystemEnergy::exTC()
+unsigned int SystemEnergy::exTC() const
 {
   return encodeTC(m_systemEx);
 }
 
 /** return crate Ey in 15-bit twos-complement format (hardware format) */
-unsigned int SystemEnergy::eyTC()
+unsigned int SystemEnergy::eyTC() const
 {
   return encodeTC(m_systemEy);
 }
 
 /** return EtMiss hits */
-unsigned int SystemEnergy::etMissHits()
+unsigned int SystemEnergy::etMissHits() const
 {
   return m_etMissHits;
 }
 
 /** return EtSum hits */
-unsigned int SystemEnergy::etSumHits()
+unsigned int SystemEnergy::etSumHits() const
 {
   return m_etSumHits;
 }
 
 /** return MEtSig hits */
-unsigned int SystemEnergy::metSigHits()
+unsigned int SystemEnergy::metSigHits() const
 {
   return m_metSigHits;
 }
 
 /** return RoI word 0 (Ex value & overflow) */
-unsigned int SystemEnergy::roiWord0()
+unsigned int SystemEnergy::roiWord0() const
 {
   // Start by setting up header
   unsigned int word = TrigT1CaloDefs::energyRoIType << 30;
@@ -227,7 +227,7 @@ unsigned int SystemEnergy::roiWord0()
 }
 
 /** return RoI word 1 (Ey value & overflow, EtSum hits) */
-unsigned int SystemEnergy::roiWord1()
+unsigned int SystemEnergy::roiWord1() const
 {
   // Start by setting up header
   unsigned int word = TrigT1CaloDefs::energyRoIType << 30;
@@ -244,7 +244,7 @@ unsigned int SystemEnergy::roiWord1()
 }
 
 /** return RoI word 2 (Et value & overflow, EtMiss hits) */
-unsigned int SystemEnergy::roiWord2()
+unsigned int SystemEnergy::roiWord2() const
 {
   // Start by setting up header
   unsigned int word = TrigT1CaloDefs::energyRoIType << 30;
@@ -426,7 +426,7 @@ void SystemEnergy::metSigTrigger()
 }
 
 /** encode int as 15-bit twos-complement format (hardware Ex/Ey format) */
-unsigned int SystemEnergy::encodeTC(int input)
+unsigned int SystemEnergy::encodeTC(int input) const
 {
   unsigned int value;
 
@@ -444,7 +444,7 @@ unsigned int SystemEnergy::encodeTC(int input)
 }
 
 /** decode 15-bit twos-complement format (hardware Ex/Ey format) as int */
-int SystemEnergy::decodeTC(unsigned int input)
+int SystemEnergy::decodeTC(unsigned int input) const
 {
 
   int mask = (1 << m_sumBits) - 1;
