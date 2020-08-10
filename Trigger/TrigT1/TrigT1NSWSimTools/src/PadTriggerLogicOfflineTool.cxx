@@ -175,7 +175,7 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<st
 {
     ATH_MSG_DEBUG(" <N> receiving "<<pads.size()<<" pad data");
     ATH_MSG_DEBUG("calling compute_pad_triggers() (pads.size() "<<pads.size()<<")");
-    for(const auto pad : pads){
+    for(const auto& pad : pads){
         ATH_MSG_DEBUG(" <N> building trig from pad "
                       <<" side "<<pad->sideId()<<""
                       <<", sector "<<pad->sectorId()

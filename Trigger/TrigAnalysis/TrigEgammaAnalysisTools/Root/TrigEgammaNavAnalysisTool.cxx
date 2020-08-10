@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavAnalysisTool.h"
@@ -27,7 +27,7 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
     m_dir=plot()->getBasePath();
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
 
-    for(const auto trigName:m_trigInputList){
+    for(const auto& trigName:m_trigInputList){
         if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){ 
             if(plot()->getTrigInfoMap().count(trigName) != 0)
                 ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -111,7 +111,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         return StatusCode::SUCCESS; 
     }
     int ilist=0;
-    for(const auto trigger : m_trigList){
+    for(const auto& trigger : m_trigList){
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger 
                 << " " << getTrigInfo(trigger).trigName); 
         // Trigger counts

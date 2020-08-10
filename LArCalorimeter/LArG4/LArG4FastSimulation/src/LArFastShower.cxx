@@ -161,7 +161,7 @@ void LArFastShower::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 #endif
 
   if ( m_generate_starting_points ) {
-    if ((float)rand()/RAND_MAX <= m_configuration.m_generated_starting_points_ratio) {
+    if ((float)rand()/static_cast<float>(RAND_MAX) <= m_configuration.m_generated_starting_points_ratio) {
       HepMC::GenEvent * ge = GetGenEvent(fastTrack);
       generateFSStartingPoint(ge);
       delete ge;

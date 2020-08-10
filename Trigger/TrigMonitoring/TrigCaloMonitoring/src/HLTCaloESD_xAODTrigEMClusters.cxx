@@ -16,7 +16,7 @@ HLTCaloESD_xAODTrigEMClusters::HLTCaloESD_xAODTrigEMClusters(const std::string &
 //m_ShowerShapeTool("egammaShowerShape/egammashowershape")
 {
   declareProperty("HLTContainerRun2", m_HLT_cont_name_run2 = "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma");
-  declareProperty("HLTContainerRun3", m_HLT_cont_name_run3 = "HLT_L2CaloEMClusters");
+  declareProperty("HLTContainerRun3", m_HLT_cont_name_run3 = "HLT_FastCaloEMClusters");
   declareProperty("OFFContainer", m_OFF_cont_name = "egammaClusters");
   declareProperty("MonGroupName", m_mongroup_name = "");
 

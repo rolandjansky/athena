@@ -9,21 +9,12 @@
 // tdaq-common includes for format definition
 #include "CTPfragment/CTPdataformat.h"
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
-CTP_Decoder::CTP_Decoder(){
-}
-
-CTP_Decoder::~CTP_Decoder(){
-}
-
-MsgStream & getlog(){
-  static MsgStream msg(Athena::getMessageSvc( ), "CTP_Decoder");
-  return msg;
+CTP_Decoder::CTP_Decoder() :
+  AthMessaging(Athena::getMessageSvc(), "CTP_Decoder")
+{
 }
 
 void CTP_Decoder::setRDO(const CTP_RDO* rdo)
@@ -33,12 +24,8 @@ void CTP_Decoder::setRDO(const CTP_RDO* rdo)
    CTPdataformatVersion ctpVersion(ctpVersionNumber);
   
    unsigned int nBunches = rdo->getNumberOfBunches();
-   if( getlog().level() <= MSG::DEBUG ) {
-      getlog() << MSG::DEBUG << "setRDO> #bunches: " << nBunches << ", ctp version (found in RDO): " << ctpVersionNumber << endmsg;
-   }
-   if( getlog().level() <= MSG::VERBOSE ) {
-      getlog() << MSG::VERBOSE << ctpVersion.dump() << endmsg;
-   }
+   ATH_MSG_DEBUG("setRDO> #bunches: " << nBunches << ", ctp version (found in RDO): " << ctpVersionNumber);
+   ATH_MSG_VERBOSE(ctpVersion.dump());
 
    m_BCs.clear();
    m_BCs.resize(nBunches);
@@ -54,41 +41,35 @@ void CTP_Decoder::setRDO(const CTP_RDO* rdo)
    const std::vector<uint32_t> & TAVs = rdo->getTAVWords();
   
    if( nBunches * ctpVersion.getTIPwords() != TIPs.size() ) {
-      getlog() << MSG::FATAL << "Expected " << nBunches * ctpVersion.getTIPwords() << " TIP words, but TIP vector has size " << TIPs.size() << endmsg;
+     ATH_MSG_FATAL("Expected " << nBunches * ctpVersion.getTIPwords() << " TIP words, but TIP vector has size " << TIPs.size());
    } else {
-      if( getlog().level() <= MSG::DEBUG )
-         getlog() << MSG::DEBUG <<"Found " << TIPs.size() << " TIP words as expected" << endmsg;
+     ATH_MSG_DEBUG(TIPs.size() << " TIP words as expected");
    }
    if( nBunches * ctpVersion.getTBPwords() != TBPs.size() ) {
-      getlog() << MSG::FATAL <<"Expected " << nBunches * ctpVersion.getTBPwords() << " TBP words, but TBP vector has size " << TBPs.size() << endmsg;
+     ATH_MSG_FATAL(nBunches * ctpVersion.getTBPwords() << " TBP words, but TBP vector has size " << TBPs.size());
    } else {
-      if( getlog().level() <= MSG::DEBUG )
-         getlog() << MSG::DEBUG <<"Found " << TBPs.size() << " TBP words as expected" << endmsg;
+     ATH_MSG_DEBUG(TBPs.size() << " TBP words as expected");
    }
    if( nBunches * ctpVersion.getTAPwords() != TAPs.size() ) {
-      getlog() << MSG::FATAL <<"Expected " << nBunches * ctpVersion.getTAPwords() << " TAP words, but TAP vector has size " << TAPs.size() << endmsg;
+     ATH_MSG_FATAL(nBunches * ctpVersion.getTAPwords() << " TAP words, but TAP vector has size " << TAPs.size());
    } else {
-      if( getlog().level() <= MSG::DEBUG )
-         getlog() << MSG::DEBUG <<"Found " << TAPs.size() << " TAP words as expected" << endmsg;
+     ATH_MSG_DEBUG(TAPs.size() << " TAP words as expected");
    }
    if( nBunches * ctpVersion.getTAVwords() != TAVs.size() ) {
-      getlog() << MSG::FATAL <<"Expected " << nBunches * ctpVersion.getTAVwords() << " TAV words, but TAV vector has size " << TAVs.size() << endmsg;
+     ATH_MSG_FATAL(nBunches * ctpVersion.getTAVwords() << " TAV words, but TAV vector has size " << TAVs.size());
    } else {
-      if( getlog().level() <= MSG::DEBUG )
-         getlog() << MSG::DEBUG <<"Found " << TAVs.size() << " TAV words as expected" << endmsg;
+     ATH_MSG_DEBUG(TAVs.size() << " TAV words as expected");
    }
   
 
    for(unsigned int i = 0 ; i < nBunches ; ++i) {
 
-      if( getlog().level() <= MSG::DEBUG )
-         getlog() << MSG::DEBUG <<"Copying words for bunch " << i << " from CTP_RDO to internal bitsets" << endmsg;
-      
+      ATH_MSG_DEBUG(i << " from CTP_RDO to internal bitsets");
 
       for(unsigned int tip = 0; tip < ctpVersion.getTIPwords(); ++tip) {
          unsigned int index = i*ctpVersion.getTIPwords() + tip;
          if(index >= TIPs.size()) {
-            getlog() << MSG::FATAL <<"Invalid TIP position " << index << endmsg;
+            ATH_MSG_FATAL("Invalid TIP position " << index);
             return;
          }
          m_BCs[i].setTIPWord(TIPs[index],tip); //sets m_tip
@@ -97,7 +78,7 @@ void CTP_Decoder::setRDO(const CTP_RDO* rdo)
       for(unsigned int tbp = 0; tbp < ctpVersion.getTBPwords(); ++tbp) {
          unsigned int index = i * ctpVersion.getTBPwords() + tbp;
          if(index >= TBPs.size()) {
-            getlog() << MSG::FATAL <<"Invalid TBP position " << index << endmsg;
+            ATH_MSG_FATAL("Invalid TBP position " << index);
             return;
          }
          m_BCs[i].setTBPWord(TBPs[index],tbp); //sets m_tbp
@@ -106,7 +87,7 @@ void CTP_Decoder::setRDO(const CTP_RDO* rdo)
       for(unsigned int tap = 0; tap < ctpVersion.getTAPwords(); ++tap) {
          unsigned int index = i * ctpVersion.getTAPwords() + tap;
          if(index >= TAPs.size()) {
-            getlog() << MSG::FATAL <<"Invalid TAP position " << index << endmsg;
+            ATH_MSG_FATAL("Invalid TAP position " << index);
             return;
          }
          m_BCs[i].setTAPWord(TAPs[index],tap); //sets m_tap
@@ -115,7 +96,7 @@ void CTP_Decoder::setRDO(const CTP_RDO* rdo)
       for(unsigned int tav = 0; tav < ctpVersion.getTAVwords(); ++tav) {
          unsigned int index = i * ctpVersion.getTAVwords() + tav;
          if(index >= TAVs.size()) {
-            getlog() << MSG::FATAL <<"Invalid TAV position " << index << endmsg;
+            ATH_MSG_FATAL("Invalid TAV position " << index);
             return;
          }
          m_BCs[i].setTAVWord(TAVs[index],tav); //set m_tav
@@ -125,48 +106,36 @@ void CTP_Decoder::setRDO(const CTP_RDO* rdo)
 
 void CTP_Decoder::dumpData() const
 {
-  dumpData(getlog());
-}
-
-void CTP_Decoder::dumpData(MsgStream& msglog) const
-{
-   if( msglog.level() <= MSG::DEBUG ){
-      msglog << MSG::DEBUG << "CTP Decoder dumpData>" << endmsg;
-   }
-
    unsigned int nBunches = m_rdo->getNumberOfBunches();
    unsigned int vecSize = m_BCs.size();
   
    if(nBunches == 0) {
-      if( msglog.level() <= MSG::DEBUG )
-         msglog << MSG::DEBUG << "CTP_RDO empty" << endmsg;
+      ATH_MSG_DEBUG("CTP_RDO empty");
       return;
    }
   
    if(nBunches != vecSize) {
-      msglog << MSG::ERROR << "mismatch: " << nBunches 
-             << " bunches, but vector size is " << vecSize << endmsg;
+     ATH_MSG_ERROR("mismatch: " << nBunches << " bunches, but vector size is " << vecSize);
    }
   
-   if( msglog.level() <= MSG::DEBUG ){
-      msglog << MSG::DEBUG << "=================================================" << endmsg;
-      msglog << MSG::DEBUG << "Event dump" << endmsg;
-      msglog << MSG::DEBUG << "Time " << m_rdo->getTimeSec() << "s " 
-             << std::setw(10) << std::setiosflags(std::ios_base::right) << std::setfill(' ') 
-             << m_rdo->getTimeNanoSec() << std::resetiosflags(std::ios_base::right) 
-             << "ns" << endmsg;
-      msglog << MSG::DEBUG << "Number of bunches: " <<  nBunches 
-             << " (BC vector size " << vecSize << ")" << endmsg;
-      msglog << MSG::DEBUG << "L1A position: " << m_rdo->getL1AcceptBunchPosition() << endmsg;
+   if( msgLvl(MSG::DEBUG) ){
+      msg() << MSG::DEBUG << "=================================================" << endmsg;
+      msg() << MSG::DEBUG << "Event dump" << endmsg;
+      msg() << MSG::DEBUG << "Time " << m_rdo->getTimeSec() << "s "
+            << std::setw(10) << std::setiosflags(std::ios_base::right) << std::setfill(' ')
+            << m_rdo->getTimeNanoSec() << std::resetiosflags(std::ios_base::right)
+            << "ns" << endmsg;
+      msg() << MSG::DEBUG << "Number of bunches: " <<  nBunches
+            << " (BC vector size " << vecSize << ")" << endmsg;
+      msg() << MSG::DEBUG << "L1A position: " << m_rdo->getL1AcceptBunchPosition() << endmsg;
    }
    
    for(unsigned int i = 0; i<vecSize; ++i) {
-      msglog << MSG::DEBUG << "Now dumping BC " << i << endmsg;
-      m_BCs[i].dumpData(msglog);
+      ATH_MSG_DEBUG("Now dumping BC " << i);
+      m_BCs[i].dumpData(msg());
    }
 
-   if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << "=================================================" << endmsg;
+   ATH_MSG_DEBUG("=================================================");
 }
 
 
@@ -174,26 +143,26 @@ void CTP_Decoder::dumpData(MsgStream& msglog) const
 bool CTP_Decoder::checkTrigger(unsigned int itemNo,unsigned int pos)
 {
   if(pos >= m_BCs.size()) {
-    getlog() << MSG::WARNING << "Trying to access bunch crossing no "
-    << pos << ", but in the event are only " << m_BCs.size() << endmsg;
+    ATH_MSG_WARNING("Trying to access bunch crossing no "
+                    << pos << ", but in the event are only " << m_BCs.size());
   }
   if(itemNo >= getBunchCrossing(pos).getTAV().size()) {
-    getlog() << MSG::WARNING << "Checking item no " << itemNo 
-    << ", which is more than the maximum : " 
-    << getBunchCrossing(pos).getTAV().size() << endmsg;
+    ATH_MSG_WARNING("Checking item no " << itemNo
+                    << ", which is more than the maximum : "
+                    << getBunchCrossing(pos).getTAV().size());
   }
   return getBunchCrossing(pos).getTAV().test(itemNo);
 }
 
 bool CTP_Decoder::checkTriggerAfterPrescale(unsigned int itemNo,unsigned int pos) {
    if(pos >= m_BCs.size()) {
-      getlog() << MSG::WARNING << "Trying to access bunch crossing no "
-               << pos << ", but in the event are only " << m_BCs.size() << endmsg;
+     ATH_MSG_WARNING("Trying to access bunch crossing no "
+                     << pos << ", but in the event are only " << m_BCs.size());
    }
    if(itemNo >= getBunchCrossing(pos).getTAP().size()) {
-      getlog() << MSG::WARNING << "Checking item no " << itemNo 
-               << ", which is more than the maximum : " 
-               << getBunchCrossing(pos).getTAP().size() << endmsg;
+     ATH_MSG_WARNING("Checking item no " << itemNo
+                     << ", which is more than the maximum : "
+                     << getBunchCrossing(pos).getTAP().size());
    }
    return getBunchCrossing(pos).getTAP().test(itemNo);
 }
@@ -202,8 +171,8 @@ bool CTP_Decoder::checkTriggerAfterPrescale(unsigned int itemNo,unsigned int pos
 
 std::vector<unsigned int> CTP_Decoder::getAllTriggers(unsigned int pos) {
    if(pos >= m_BCs.size()) {
-      getlog() << MSG::WARNING << "Trying to access bunch crossing no "
-               << pos << ", but in the event are only " << m_BCs.size() << endmsg;
+      ATH_MSG_WARNING("Trying to access bunch crossing no "
+                      << pos << ", but in the event are only " << m_BCs.size());
       return std::vector<unsigned int>();
    }
    std::vector<unsigned int> triggers;
@@ -226,23 +195,6 @@ std::vector<unsigned int> CTP_Decoder::getAllTriggers(unsigned int pos) {
  *    class CTP BC
  *
  */
-
-/**
- * constructor
- */
-CTP_BC::CTP_BC() :
-   m_ctpVersion(0)
-{}
-
-
-CTP_BC::~CTP_BC()
-{}
-
-
-void CTP_BC::dumpData() const {
-   dumpData(getlog());
-}
-
 
 void CTP_BC::dumpData(MsgStream& msglog) const
 {
@@ -373,7 +325,6 @@ std::bitset<32> CTP_BC::getPrescaledClockBitSet() const
    std::bitset<32> prcl;
 	
    if (!m_ctpVersion.getNumPrescaledClocks()) {
-      //getlog() << MSG::WARNING << "Trying to get prescaled clocks but there are none in this data format version. 0's will be returned." << endmsg;
       return prcl;
    }
 	
@@ -394,132 +345,26 @@ std::string CTP_BC::printPrescaledClock() const
       std::char_traits<char>, std::allocator<char> >();
 }
 
-
-
-//void CTP_BC::setPITWord( uint32_t word, uint32_t pos) 
-//{
-//  if(pos >= m_ctpVersion.getPITwords()) {
-//    getlog() << MSG::ERROR <<"Invalid PIT position " << pos <<endmsg;
-//    return;
-//  }
-//  
-//  if( getlog().level() <= MSG::VERBOSE )
-//    getlog() << MSG::VERBOSE <<"PIT pos " << pos << " word 0x" << std::hex << word 
-//    << std::dec << " (" << word << ")" <<endmsg;
-//  
-//  std::bitset<320> bs = word;
-//  
-//  if( getlog().level() <= MSG::VERBOSE )
-//    getlog() << MSG::VERBOSE <<"bitset " 
-//    << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
-//    << std::endl << " (" << bs.to_ulong() << ")" <<endmsg;
-//  
-//  bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
-//  
-//  if( getlog().level() <= MSG::VERBOSE ){
-//    getlog() << MSG::VERBOSE <<"bitset shifted by " << (pos * CTP_RDO::SIZEOF_WORDS) << ": " << std::endl 
-//    << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
-//    <<endmsg;
-//    
-//    getlog() << MSG::VERBOSE <<"PIT before " << std::endl 
-//    << printPIT()
-//    <<endmsg;
-//  }
-//  
-//  //if( pos < (m_ctpVersion.getAuxTIPwordPos()-1) ) m_pit |= bs;
-//  if( pos < (m_ctpVersion.getPITwords()-1) ) m_pit |= bs;
-//  else setPITWordAux(word);
-//  
-//  if( getlog().level() <= MSG::VERBOSE )
-//    getlog() << MSG::VERBOSE <<"PIT after  " << std::endl 
-//    << printPIT()
-//    <<endmsg;
-//  
-//}
-//
-//void CTP_BC::setPIT(std::vector<uint32_t> words)
-//{
-//  for(uint32_t i = 0; i<words.size();++i) setPITWord(words[i],i);
-//}
-//
-//std::string CTP_BC::printPIT() const
-//{
-//  return m_pit.to_string<char, 
-//  std::char_traits<char>, std::allocator<char> >();
-//}
-
 std::string CTP_BC::printPITWordAux() const
 {
    return m_pitAux.to_string<char, 
       std::char_traits<char>, std::allocator<char> >();
 }
 
-
-
-//void CTP_BC::setFPIWord( uint32_t word, uint32_t pos) 
-//{
-//	if (!(m_ctpVersion.getFPIwords())) {
-//		getlog() << MSG::VERBOSE <<"No front panel inputs in this CTP version." <<endmsg;
-//		return;
-//	}else if(pos >= m_ctpVersion.getFPIwords()) {
-//    getlog() << MSG::ERROR <<"Invalid FPI position " << pos <<endmsg;
-//    return;
-//  }
-//  std::bitset<192> bs = word;
-//  bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
-//  m_fpi |= bs;
-//}
-//
-//void CTP_BC::setFPI(std::vector<uint32_t> words)
-//{
-//  for(uint32_t i = 0; i<words.size();++i) setFPIWord(words[i],i);
-//}
-//
-//std::string CTP_BC::printFPI() const
-//{
-//  return m_fpi.to_string<char, 
-//  std::char_traits<char>, std::allocator<char> >();
-//}
-
-
-void CTP_BC::setTIPWord( uint32_t word, uint32_t pos) 
+void CTP_BC::setTIPWord( uint32_t word, uint32_t pos)
 {
    if(pos >= m_ctpVersion.getTIPwords()) {
-      getlog() << MSG::ERROR <<"Invalid TIP position " << pos <<endmsg;
+      MsgStream log(Athena::getMessageSvc(), "CTP_Decoder");
+      log << MSG::ERROR <<"Invalid TIP position " << pos <<endmsg;
       return;
    }
-  
-   if( getlog().level() <= MSG::VERBOSE )
-      getlog() << MSG::VERBOSE <<"TIP pos " << pos << " word 0x" << std::hex << word 
-               << std::dec << " (" << word << ")" <<endmsg;
-  
+
    std::bitset<512> bs = word;
-  
-//    if( getlog().level() <= MSG::VERBOSE )
-//       getlog() << MSG::VERBOSE <<"bitset " 
-//                << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
-//                << std::endl << " (" << bs.to_ulong() << ")" <<endmsg;
   
    bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
   
-//    if( getlog().level() <= MSG::VERBOSE ){
-//       getlog() << MSG::VERBOSE <<"bitset shifted by " << (pos * CTP_RDO::SIZEOF_WORDS) << ": " << std::endl 
-//                << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
-//                <<endmsg;
-    
-//       getlog() << MSG::VERBOSE <<"TIP before " << std::endl 
-//                << printTIP()
-//                <<endmsg;
-//    }
-  
    if( pos < (m_ctpVersion.getTIPwords()-1) ) m_tip |= bs;
    else setPITWordAux(word);
-  
-//    if( getlog().level() <= MSG::VERBOSE )
-//       getlog() << MSG::VERBOSE <<"TIP after  " << std::endl 
-//                << printTIP()
-//                <<endmsg;
-  
 }
 
 void CTP_BC::setTIP(std::vector<uint32_t> words)
@@ -538,12 +383,11 @@ std::string CTP_BC::printTIP() const
 void CTP_BC::setTBPWord( uint32_t word, uint32_t pos) 
 {
   if(pos >= m_ctpVersion.getTBPwords()) {
-    getlog() << MSG::ERROR <<"Invalid TBP position " << pos <<endmsg;
+    MsgStream log(Athena::getMessageSvc(), "CTP_Decoder");
+    log << MSG::ERROR <<"Invalid TBP position " << pos <<endmsg;
     return;
   }
-  if( getlog().level() <= MSG::VERBOSE )
-     getlog() << MSG::VERBOSE <<"TBP pos " << pos << " word 0x" << std::hex << word 
-              << std::dec << " (" << word << ")" <<endmsg;
+
   std::bitset<512> bs = word;
   bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
   m_tbp |= bs;
@@ -563,12 +407,10 @@ std::string CTP_BC::printTBP() const
 void CTP_BC::setTAPWord( uint32_t word, uint32_t pos) 
 {
   if(pos >= m_ctpVersion.getTAPwords()) {
-    getlog() << MSG::ERROR <<"Invalid TAP position " << pos <<endmsg;
+    MsgStream log(Athena::getMessageSvc(), "CTP_Decoder");
+    log << MSG::ERROR <<"Invalid TAP position " << pos <<endmsg;
     return;
   }
-  if( getlog().level() <= MSG::VERBOSE )
-     getlog() << MSG::VERBOSE <<"TAP pos " << pos << " word 0x" << std::hex << word 
-              << std::dec << " (" << word << ")" <<endmsg;
   std::bitset<512> bs = word;
   bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
   m_tap |= bs;
@@ -589,12 +431,10 @@ std::string CTP_BC::printTAP() const
 void CTP_BC::setTAVWord( uint32_t word, uint32_t pos) 
 {
   if(pos >= m_ctpVersion.getTAVwords()) {
-    getlog() << MSG::ERROR <<"Invalid TAV position " << pos <<endmsg;
+    MsgStream log(Athena::getMessageSvc(), "CTP_Decoder");
+    log << MSG::ERROR <<"Invalid TAV position " << pos <<endmsg;
     return;
   }
-  if( getlog().level() <= MSG::VERBOSE )
-     getlog() << MSG::VERBOSE <<"TAV pos " << pos << " word 0x" << std::hex << word 
-              << std::dec << " (" << word << ")" <<endmsg;
   std::bitset<512> bs = word;
   bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
   m_tav |= bs;

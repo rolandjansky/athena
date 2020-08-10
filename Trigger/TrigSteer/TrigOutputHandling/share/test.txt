@@ -8,7 +8,7 @@ deserialised2.ModuleID=1;
 
 ToolSvc.serialiser.OutputLevel=1;
 ToolSvc.serialiser.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer#EMClusters;0",
-                                        "xAOD::TrigEMClusterAuxContainer#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat;0",
+                                        "xAOD::TrigEMClusterAuxContainer#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat.testTypedElementLink;0",
 					"xAOD::TrigCompositeContainer_v1#EMClustersDecisions;0,1",
 					"xAOD::TrigCompositeAuxContainer_v2#EMClustersDecisionsAux.detail1.detail2;0,1",
 					"TrigRoiDescriptorCollection_p3#RoIDescriptors;0"];
@@ -20,6 +20,6 @@ ToolSvc.serialiser.TrigSerTPTool.OutputLevel=1;
 ToolSvc.schemaTest.OutputLevel=1;
 ToolSvc.schemaTest.SaveDynamic=0;
 ToolSvc.schemaTest.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer#EMClusters;0",
-                                        "xAOD::TrigEMClusterAuxContainer#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat;0",
+                                        "xAOD::TrigEMClusterAuxContainer#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat.testTypedElementLink;0",
 					"xAOD::TrigCompositeContainer_v1#EMClustersDecisions;0,1",
 					"xAOD::TrigCompositeAuxContainer_v2#EMClustersDecisionsAux.detail1.detail2;0,1"];

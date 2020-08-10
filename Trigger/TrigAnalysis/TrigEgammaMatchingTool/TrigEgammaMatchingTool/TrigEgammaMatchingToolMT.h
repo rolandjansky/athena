@@ -51,7 +51,9 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
         
         const xAOD::EmTauRoI* getL1Feature( const TrigCompositeUtils::Decision * ) const;
     
-    
+   
+
+
     private:
         
         bool matchHLTElectron(const xAOD::Electron *,const std::string &, const TrigCompositeUtils::Decision *&) const;

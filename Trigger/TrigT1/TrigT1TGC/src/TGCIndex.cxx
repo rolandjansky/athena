@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ====================================================================
@@ -20,9 +20,9 @@ namespace LVL1TGCTrigger {
 //
 // ====================================================================
 
-static const char* strStation[5]= { "N/A", "T1", "T2", "T3", "TI" };
-static const char* strRegion[3]= { "N/A", "F", "E" };
-static const char* strModule[7]= { "N/A", "A", "B", "C", "D", "E", "F" };
+static const char* const strStation[5]= { "N/A", "T1", "T2", "T3", "TI" };
+static const char* const strRegion[3]= { "N/A", "F", "E" };
+static const char* const strModule[7]= { "N/A", "A", "B", "C", "D", "E", "F" };
 
 
 // ====================================================================

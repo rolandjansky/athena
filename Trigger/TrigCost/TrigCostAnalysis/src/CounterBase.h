@@ -96,7 +96,7 @@ class CounterBase {
     /**
      * @brief Called by the framework. Causes per-Event Variables to fill their histograms with their accumulated data.
      */
-    StatusCode endEvent();
+    virtual StatusCode endEvent(float weight = 1.0);
 
     /**
      * @brief Pure virtual interface called by Monitor to instruct this Counter to perform its analysis
@@ -104,7 +104,7 @@ class CounterBase {
      * @param[in] index Index within appropriate event data container which is to be analysed by this Counter
      * @param[in] weight Global event weight
      */
-    virtual StatusCode newEvent(const CostData& data, size_t index, const float weight = 1.) = 0;
+    virtual StatusCode newEvent(const CostData& data, size_t index, float weight = 1.0) = 0;
 
   protected:
 

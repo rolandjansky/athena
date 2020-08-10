@@ -19,9 +19,9 @@ class ExtParameterisedVolumeBuilder: public VolumeBuilder
 public:
   ExtParameterisedVolumeBuilder(std::string n, Geo2G4AssemblyFactory* G4AssemblyFactory);
   ///
-  G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0);
+  G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const;
   ///
-  Geo2G4AssemblyVolume* BuildAssembly(PVConstLink pv);
+  Geo2G4AssemblyVolume* BuildAssembly(PVConstLink pv) const;
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level

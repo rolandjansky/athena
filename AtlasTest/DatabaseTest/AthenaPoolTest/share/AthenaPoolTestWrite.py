@@ -23,9 +23,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
 
-# Set handler for traceback
-svcMgr.CoreDumpSvc.FatalHandler = 438
-
 #--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------

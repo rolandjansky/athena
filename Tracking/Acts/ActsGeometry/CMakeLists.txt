@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventInfo
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
+                          MagFieldElements MagFieldConditions
                           Calorimeter/CaloDetDescr
                           Tracking/Acts/ActsGeometryInterfaces
                           Tracking/Acts/ActsInterop
@@ -52,7 +52,8 @@ atlas_add_library( ActsGeometryLib
                    TrkGeometry
                    PixelReadoutGeometry
                    SCT_ReadoutGeometry
-                   TRT_ReadoutGeometry)
+                   TRT_ReadoutGeometry
+                   MagFieldElements MagFieldConditions)
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
@@ -86,6 +87,5 @@ atlas_add_component( ActsGeometry
                      ActsJsonPlugin)
 
 # Install files from the package:
-atlas_install_headers( ActsGeometry )
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )

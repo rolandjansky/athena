@@ -4,11 +4,18 @@
 
 #include "TrigBjetMonitorAlgorithm.h"
 
+#include "AthenaMonitoring/AthenaMonManager.h"
+#include "AthenaMonitoring/ManagedMonitorToolTest.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"   //EN
+
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
+
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
+
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "Particle/TrackParticleContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -48,6 +55,7 @@ StatusCode TrigBjetMonitorAlgorithm::initialize() {
   ATH_CHECK( m_offlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineTrackContainerKey.initialize() );
+  ATH_CHECK( m_onlineBTaggingContainerKey.initialize() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -348,7 +356,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	  auto nJet = Monitored::Scalar<int>(nJetH,0.0);
 	  nJet = onlinejets.size();
 	  fill("TrigBjetMonitor",nJet);
-	  for(const auto jetLinkInfo : onlinejets) {
+	  for(const auto& jetLinkInfo : onlinejets) {
 	    // jetPt
 	    const xAOD::Jet* jet = *(jetLinkInfo.link);
 	    std::string NameH = "jetPt_"+trigName;
@@ -370,10 +378,11 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	    if (ijet == 0) {
 
+	      // Fetch and plot PV
+
 	      std::string vtxname = m_onlineVertexContainerKey.key();
 	      if ( vtxname.find("HLT_")==0 ) vtxname.erase(0,4);
-
-	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120
+	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120 & MS 290620
 	      ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	      const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	      NameH = "PVz_jet_"+trigName;
@@ -394,7 +403,93 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	      PVy_jet = vtx->y();
 	      ATH_MSG_DEBUG("        PVy_jet: " << PVy_jet);
 	      fill("TrigBjetMonitor",PVy_jet);
-	    }
+
+	      // Fetch and plot BTagging information
+
+	      std::string btagname = m_onlineBTaggingContainerKey.key();
+	      if ( btagname.find("HLT_")==0 ) btagname.erase(0,4);
+	      auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, btagname );
+	      ATH_CHECK( btaggingLinkInfo.isValid() ) ;
+	      const xAOD::BTagging* btag = *(btaggingLinkInfo.link);
+
+	      // IP3D variables
+	      NameH = "IP3D_pu_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto IP3D_pu = Monitored::Scalar<float>(NameH,0.0);
+	      IP3D_pu = btag->IP3D_pu();
+	      ATH_MSG_DEBUG("        IP3D_pu: " << IP3D_pu);
+	      fill("TrigBjetMonitor",IP3D_pu);
+
+	      NameH = "IP3D_pb_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto IP3D_pb = Monitored::Scalar<float>(NameH,0.0);
+	      IP3D_pb = btag->IP3D_pb();
+	      ATH_MSG_DEBUG("        IP3D_pb: " << IP3D_pb);
+	      fill("TrigBjetMonitor",IP3D_pb);
+
+	      NameH = "IP3D_pc_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto IP3D_pc = Monitored::Scalar<float>(NameH,0.0);
+	      IP3D_pc = btag->IP3D_pc();
+	      ATH_MSG_DEBUG("        IP3D_pc: " << IP3D_pc);
+	      fill("TrigBjetMonitor",IP3D_pc);
+
+	      // LogLH variables
+	      NameH = "wIP3D_Rbu_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto wIP3D = Monitored::Scalar<double>(NameH,0.0);
+	      btag->loglikelihoodratio("IP3D", wIP3D);
+	      ATH_MSG_DEBUG("        wIP3D: " << wIP3D);
+	      fill("TrigBjetMonitor",wIP3D);
+
+	      NameH = "wSV1_Rbu_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto wSV1 = Monitored::Scalar<double>(NameH,0.0);
+	      btag->loglikelihoodratio("SV1", wSV1);
+	      ATH_MSG_DEBUG("        wSV1: " << wSV1);
+	      fill("TrigBjetMonitor",wSV1);
+
+	      NameH = "wCOMB_Rbu_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto wCOMB = Monitored::Scalar<double>(NameH,0.0);
+	      wCOMB = wIP3D+wSV1;
+	      ATH_MSG_DEBUG("        wCOMB: " << wCOMB);
+	      fill("TrigBjetMonitor",wCOMB);
+
+	      // Discriminants
+	      NameH = "wMV2c10_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto wMV2c10 = Monitored::Scalar<double>(NameH,0.0);
+	      wMV2c10 = btag->auxdata<double>("MV2c10_discriminant");
+	      ATH_MSG_DEBUG("        wMV2c10: " << wMV2c10);
+	      fill("TrigBjetMonitor",wMV2c10);
+
+	      // SV1 variables (credit LZ)
+	      NameH = "xNVtx_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto svp_n2t = Monitored::Scalar<int>(NameH,0.0);
+	      btag->variable<int>("SV1", "N2Tpair", svp_n2t);
+	      ATH_MSG_DEBUG("        svp_n2t: " << svp_n2t);
+	      fill("TrigBjetMonitor",svp_n2t);
+
+	      NameH = "xMVtx_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto svp_mass = Monitored::Scalar<float>(NameH,0.0);
+	      btag->variable<float>("SV1", "masssvx", svp_mass);
+	      ATH_MSG_DEBUG("        svp_mass: " << svp_mass );
+	      svp_mass *= 1.e-3;
+	      ATH_MSG_DEBUG("        svp_mass: " << svp_mass );
+	      fill("TrigBjetMonitor",svp_mass);
+
+	      NameH = "xEVtx_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto svp_efrc = Monitored::Scalar<float>(NameH,0.0);
+	      btag->variable<float>("SV1", "efracsvx", svp_efrc);
+	      ATH_MSG_DEBUG("        svp_efrc: " << svp_efrc);
+	      fill("TrigBjetMonitor",svp_efrc);
+
+	    } // if (ijet == 0)
+
 	    ijet++;
 
 	    // Tracks associated to triggered jets ( featurs = onlinejets ) courtesy of Tim Martin on 12/05/2020 

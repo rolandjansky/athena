@@ -30,8 +30,7 @@ namespace Trk
     declareInterface<INeutralParticleParameterCalculator>(this);
   }
   
-  NeutralParticleParameterCalculator::~NeutralParticleParameterCalculator() {
-  }
+  NeutralParticleParameterCalculator::~NeutralParticleParameterCalculator() = default;
   
   StatusCode NeutralParticleParameterCalculator::initialize() 
   { 
@@ -63,13 +62,13 @@ namespace Trk
     if (myVertex.nTrackParticles()!=2) 
     {
       msg(MSG::WARNING) <<  " More or less than 2 tracks in Vertex.  No Neutral Perigee could be created" << endmsg;
-      return 0;
+      return nullptr;
     }
 
     if ( !myVertex.trackParticleLinks()[0].isValid() || !myVertex.trackParticleLinks()[1].isValid() )
     {
       msg(MSG::WARNING) <<  " Track Particle Element link is not valid" << endmsg;
-      return 0;
+      return nullptr;
   
     }
     const xAOD::TrackParticle * myFirstTrack= myVertex.trackParticle( 0 );
@@ -78,7 +77,7 @@ namespace Trk
     const Trk::Perigee& myFirstPerigee  = myFirstTrack->perigeeParameters();
     const Trk::Perigee& mySecondPerigee = mySecondTrack->perigeeParameters();
 
-    AmgMatrix(3,3) vrt_cov = myVertex.covariancePosition();
+    const AmgMatrix(3,3)& vrt_cov = myVertex.covariancePosition();
     AmgMatrix(3,3) vrt_weight =  myVertex.covariancePosition().inverse().eval();
 
     //need to recalculate the refitted covariance matrix of the tracks (yes, we don't have it yet)
@@ -87,9 +86,9 @@ namespace Trk
 
 
     //check if the linearizedTrackFactory is available...
-    if (m_linearizedTrackFactoryIsAvailable==false) {
+    if (!m_linearizedTrackFactoryIsAvailable) {
       msg(MSG::ERROR) << " No LinearizedTrackFactory is defined and no ExtendedVxCandidate is provided. Cannot obtain covariance matrix of neutral particle. Failed... " << endmsg;
-      return 0;
+      return nullptr;
     }
 
 
@@ -98,12 +97,12 @@ namespace Trk
       const Trk::LinearizedTrack * myFirstLinearizedTrack = m_LinearizedTrackFactory->linearizedTrack(&myFirstPerigee, myVertex.position() );
       const Trk::LinearizedTrack * mySecondLinearizedTrack= m_LinearizedTrackFactory->linearizedTrack(&mySecondPerigee, myVertex.position() );
 
-      if (myFirstLinearizedTrack==0||mySecondLinearizedTrack==0)
+      if (myFirstLinearizedTrack==nullptr||mySecondLinearizedTrack==nullptr)
       {
         msg(MSG::WARNING) <<  " Could not find one of the linearized tracks.  No Neutral Perigee could be created" << endmsg;
         if (myFirstLinearizedTrack) delete myFirstLinearizedTrack;
         if (mySecondLinearizedTrack) delete mySecondLinearizedTrack;
-        return 0;
+        return nullptr;
       }
 
       PosMomAndMomCovFirstTrack=getPosMomentumAndMomentumCovMatrix(myFirstLinearizedTrack,
@@ -118,7 +117,7 @@ namespace Trk
       delete mySecondLinearizedTrack;                                                                    
     } else {
       msg(MSG::WARNING) <<  " getPosMomentumAndMomentumCovMatrix method failed " << endmsg;
-      return 0;
+      return nullptr;
     }
     
     const AmgVector(5) & myFirstPerigeeParameters=myFirstPerigee.parameters();

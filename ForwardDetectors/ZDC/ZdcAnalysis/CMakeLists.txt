@@ -24,5 +24,3 @@ atlas_add_library (ZdcAnalysisLib
                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
 		  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODForward xAODTrigL1Calo xAODEventInfo PathResolver
 		  )
-
-atlas_install_joboptions( share/*.py)

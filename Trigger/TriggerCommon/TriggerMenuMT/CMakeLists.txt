@@ -117,6 +117,7 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py )
 atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
 atlas_install_scripts( scripts/test_HLTmenu.sh )
 atlas_install_scripts( scripts/generateL1MenuRun3.py )
+atlas_install_scripts( scripts/trigCompareOldandNewL1Menus.py )
 atlas_install_scripts( scripts/verify_menu_config.py )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
@@ -130,6 +131,18 @@ atlas_add_test( ViewCFTest     SCRIPT python -m unittest -v TriggerMenuMT.HLTMen
 atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
                 PROPERTIES TIMEOUT 4000 
               )
+
+# prparing to move the emulation tests from TUT
+#atlas_add_test( emu_step_processing
+#		SCRIPT scripts/test_emu_step_processing.sh
+#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+#		)
+
+#atlas_add_test( emu_step_menu_processing
+#		SCRIPT scripts/test_emu_step_menu_processing.sh
+#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+#		) 
+
 
 #----------------------------------
 # List of menus to be created:

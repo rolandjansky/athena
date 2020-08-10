@@ -1,8 +1,12 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import optparse
 import os
+
+# Make sure getoutput() is in the subprocess module.
+from future import standard_library
+standard_library.install_aliases()
 
 import pm.project
 import pm.common

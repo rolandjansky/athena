@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -78,7 +78,6 @@ def getBasicFwdFieldMangerTool(name='FwdFieldManagerTool', **kwargs):
     kwargs.setdefault('DeltaOneStep',       1e-8)
     kwargs.setdefault('MaximumEpsilonStep', 1e-8)
     kwargs.setdefault('MinimumEpsilonStep', 1e-9)
-    kwargs.setdefault("FieldSvc",           "ForwardField")
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.FwdStepLimitation.statusOn:
         kwargs.setdefault("MaximumStep", simFlags.FwdStepLimitation())

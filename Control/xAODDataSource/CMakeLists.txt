@@ -3,13 +3,6 @@
 # Set the name of the package.
 atlas_subdir( xAODDataSource )
 
-# Set its dependencies on other packages.
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/CxxUtils
-   Control/RootUtils
-   Control/xAODRootAccess )
-
 # External dependencies. VDT is necessary because the DataFrame code has
 # a public dependency on it.
 find_package( ROOT COMPONENTS Core Tree TreePlayer RIO ROOTDataFrame )

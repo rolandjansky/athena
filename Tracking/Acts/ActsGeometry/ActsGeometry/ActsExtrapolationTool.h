@@ -12,6 +12,11 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/EventContext.h"
 
+// Need to include this early; otherwise, we run into errors with
+// ReferenceWrapperAnyCompat in clang builds due the is_constructable
+// specialization defined there getting implicitly instantiated earlier.
+#include "Acts/Propagator/Propagator.hpp"
+
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
@@ -28,10 +33,6 @@
 #include "Acts/Utilities/Helpers.hpp"
 
 #include <cmath>
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Acts {
 class Surface;
@@ -102,10 +103,16 @@ public:
   }
 
 
+  virtual
+  Acts::MagneticFieldContext
+  getMagneticFieldContext(const EventContext& ctx) const override;
+
+
 private:
   std::unique_ptr<ActsExtrapolationDetail::VariantPropagator> m_varProp;
 
-  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
   Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS", "Either ATLAS or Constant"};

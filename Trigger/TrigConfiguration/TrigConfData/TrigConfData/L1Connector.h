@@ -81,6 +81,8 @@ namespace TrigConf {
 
       const TrigConf::TriggerLine & triggerLine( const std::string & lineName ) const;
 
+      bool isLegacy() const { return m_isLegacy; }
+
    private:
 
       /** Update the internal members */
@@ -89,7 +91,8 @@ namespace TrigConf {
       ConnectorType m_type;
       std::vector<TrigConf::TriggerLine> m_triggerLines[2][2];
       std::map<std::string, TrigConf::TriggerLine*> m_lineByName;
-     
+
+      bool m_isLegacy;
    };
 
 }

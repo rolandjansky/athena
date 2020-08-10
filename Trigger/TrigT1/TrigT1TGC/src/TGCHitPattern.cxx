@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCHitPattern.hh"
+#include "TrigT1TGC/TGCHitPattern.h"
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -84,10 +84,6 @@ void TGCHitPattern::setLength(int lengthIn)
     if ( m_cPattern !=0) delete [] m_cPattern;
     m_cPattern = 0;
     m_pattern = new bool [m_length];
-    if ( !m_pattern ) {
-      std::cerr << "TGCHitPattern::setLength: Memory allocation failure." << std::endl;
-      exit(1);
-    }
   }
 }
 
@@ -238,10 +234,6 @@ void TGCHitPattern::push_back(TGCHitPattern* hp)
     bool* ptmp;
     ptmp = 0;
     ptmp = new bool [hp->getLength() + m_length];
-    if(!ptmp){
-        std::cerr << "TGCHitPattern::push_back: Memory allocation failure." << std::endl;
-        exit(1);
-    }
     int i;
     for(i=0; i<m_length ; i++){
         ptmp[i] = m_pattern[i];
@@ -262,10 +254,6 @@ void TGCHitPattern::resize(int size)
     if(m_pattern)delete [] m_pattern;
     m_pattern = new bool [size];
     m_length = size;
-    if ( !m_pattern ) {
-      std::cerr << "TGCHitPattern::resize: Memory allocation failure." << std::endl;
-      exit(1);
-    }
   } else {
     m_length = -1;
   }
@@ -280,10 +268,6 @@ void TGCHitPattern::del(int pos)
     bool* ptmp;
     ptmp = 0;
     ptmp = new bool [m_length-1];
-    if(!ptmp){
-        std::cerr << "TGCHitPattern::push_back: Memory allocation failure." << std::endl;
-        exit(1);
-    }
     int i;
     for(i=0; i<pos ; i++){
         ptmp[i] = m_pattern[i];
@@ -419,7 +403,7 @@ void TGCHitPattern::write(char* buf) const
     } 
 } 
 
-bool* TGCHitPattern::getPatad(void) const
+const bool* TGCHitPattern::getPatad(void) const
 {
     return m_pattern; 
 } 

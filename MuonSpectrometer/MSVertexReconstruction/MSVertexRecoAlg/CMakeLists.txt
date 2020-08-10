@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MSVertexRecoAlg
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MSVertexUtils )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MSVertexUtils MSVertexToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( MSVertexRecoAlg )

@@ -6,8 +6,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
-from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
+from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
+from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 import pprint
@@ -25,19 +25,21 @@ def generateChains(flags, chainDict):
     l2CaloReco = l2CaloRecoCfg(flags)
     accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
 
+    # this alg needs EventInfo decorated with the  pileup info
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    accCalo.merge( LumiBlockMuWriterCfg(flags) )
+
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
-                                CaloClusters = recordable('HLT_L2CaloEMClusters') )
+                                CaloClusters = recordable('HLT_FastCaloEMClusters') )
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
     fastCaloSequence = CAMenuSequence( Sequence = l2CaloReco.sequence(),
                                      Maker = l2CaloReco.inputMaker(),
                                      Hypo = l2CaloHypo,
-                                     HypoToolGen = TrigL2CaloHypoToolFromDict,
+                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict,
                                      CA = accCalo )
-
-    fastCaloSequence.createHypoTools(chainDict)
 
     fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
 
@@ -52,7 +54,7 @@ def generateChains(flags, chainDict):
     accPhoton.merge(l2PhotonReco, sequenceName=stepReco.getName())
 
     l2PhotonHypo = l2PhotonHypoCfg( flags,
-                                    Photons = 'HLT_L2Photons',
+                                    Photons = 'HLT_FastPhotons',
                                     RunInView = True )
 
     accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())
@@ -60,10 +62,8 @@ def generateChains(flags, chainDict):
     l2PhotonSequence = CAMenuSequence( Sequence = l2PhotonReco.sequence(),
                                      Maker = l2PhotonReco.inputMaker(),
                                      Hypo = l2PhotonHypo,
-                                     HypoToolGen = TrigL2PhotonHypoToolFromDict,
+                                     HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict,
                                      CA = accPhoton )
-
-    l2PhotonSequence.createHypoTools(chainDict)
 
     l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 

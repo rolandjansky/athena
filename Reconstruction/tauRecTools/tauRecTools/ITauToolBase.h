@@ -54,23 +54,28 @@ class ITauToolBase : virtual public asg::IAsgTool
   virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) const = 0;
   virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const = 0;
   virtual StatusCode executeRNNTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) = 0;
-  virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) = 0;
-#ifndef XAOD_ANALYSIS
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) = 0;
-#endif
+  virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) const = 0;
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
-					      xAOD::PFOContainer& hadronicPFOContainer, 
+  					      xAOD::PFOContainer& hadronicPFOContainer, 
 					      xAOD::CaloClusterContainer& caloClusterContainer, 
-					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) = 0;
+					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) const = 0;
   virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) const = 0;  
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) = 0;  
-  virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) = 0;
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) const = 0;  
+  virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const = 0;
   virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& particleContainer) =0;
 
+#ifdef XAOD_ANALYSIS
+  // non-const version is needed in THOR
+  virtual StatusCode executeDev(xAOD::TauJet& pTau) = 0;
+#else
+  // CaloCellContainer not available in AnalysisBase
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) = 0;
+#endif
+  
   //-----------------------------------------------------------------
   //! Event finalizer - called at the end of each event
   //-----------------------------------------------------------------
-  virtual StatusCode eventFinalize() const = 0;
+  virtual StatusCode eventFinalize() = 0;
 
   //-----------------------------------------------------------------
   //! Finalizer

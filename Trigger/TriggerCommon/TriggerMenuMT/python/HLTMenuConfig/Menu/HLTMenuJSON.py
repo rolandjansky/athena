@@ -109,7 +109,6 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
         chainName = chain["chainName"]
         menuDict["chains"][chainName] = odict([
             ("counter", chain["chainCounter"]),
-            ("name", chainName),
             ("nameHash", chain["chainNameHash"]),
             ("l1item", chain["L1item"]),
             ("l1thresholds", l1Thresholds),
@@ -129,7 +128,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
 
 def generateJSON():
     __log.info("Generating HLT Menu JSON in the rec-ex-common job")
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.CFElements import findSubSequence
@@ -137,8 +136,8 @@ def generateJSON():
     return __generateJSON( TriggerConfigHLT.dictsList(), 
                            TriggerConfigHLT.configsList(), 
                            findSubSequence(AlgSequence(), "HLTAllSteps"),
-                           TriggerFlags.triggerMenuSetup(),
-                           getHLTMenuFileName() )
+                           ConfigFlags.Trigger.triggerMenuSetup,
+                           getHLTMenuFileName(ConfigFlags) )
     
 def generateJSON_newJO( chainDicts, chainConfigs, HLTAllSteps ):
     __log.info("Generating HLT Menu JSON in the new JO")

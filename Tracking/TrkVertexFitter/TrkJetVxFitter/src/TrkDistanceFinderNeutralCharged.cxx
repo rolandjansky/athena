@@ -45,7 +45,7 @@ StatusCode TrkDistanceFinderNeutralCharged::finalize()
 }
 
 
-TrkDistanceFinderNeutralCharged::~TrkDistanceFinderNeutralCharged() { }
+TrkDistanceFinderNeutralCharged::~TrkDistanceFinderNeutralCharged() = default;
 
 std::pair<Amg::Vector3D,double>  
 TrkDistanceFinderNeutralCharged::getPointAndDistance(const Trk::NeutralTrack& neutraltrk,
@@ -229,11 +229,11 @@ TrkDistanceFinderNeutralCharged::getPointAndDistance(const Trk::NeutralTrack& ne
         b_sinphi=sin(b_phi);
         continue;
       }
-      else
-      {
+      
+      
         ATH_MSG_WARNING ("Hessian is negative: saddle point");
         throw Error::NewtonProblem("Hessian is negative");
-      }
+      
     }
     if (det>0&&d2da_lambda2<0) {
       ATH_MSG_WARNING("Hessian indicates a maximum: derivative will be zero but result incorrect");

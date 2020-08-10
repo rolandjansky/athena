@@ -114,13 +114,13 @@ public:
 	inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
 		p1.bstback(pt);
 		p2.bstback(pt);
-		return sqrt( 2*p1*p2*p2.e()/p1.e() );
+		return std::sqrt( 2*p1*p2*p2.e()/p1.e() );
 	}
 
 	inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
 		p1.bstback(pt);
 		p2.bstback(pt);		
-		return sqrt( 2*p1*p2*p1.e()*p2.e()/(pow(p1.e(),2)+pow(p2.e(),2)) );
+		return std::sqrt( 2*p1*p2*p1.e()*p2.e()/(std::pow(p1.e(),2)+std::pow(p2.e(),2)) );
 	}
 
 

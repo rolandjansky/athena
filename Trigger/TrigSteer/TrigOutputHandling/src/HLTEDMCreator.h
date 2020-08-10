@@ -17,7 +17,6 @@
 #include "AthViews/View.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
@@ -32,7 +31,7 @@
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
-// Ringer
+
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTrigRinger/TrigRingerRingsAuxContainer.h"
 
@@ -61,9 +60,12 @@
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODBTagging/BTagVertexAuxContainer.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
+#include "xAODCore/ShallowAuxContainer.h"
 
 /**
  * @class HLTEDMCreator
@@ -137,10 +139,16 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( JetContainer );
   DEF_XAOD_KEY( VertexContainer );
   DEF_XAOD_KEY( BTaggingContainer );
+  DEF_XAOD_KEY( BTagVertexContainer );
   DEF_XAOD_KEY( TrigBphysContainer );
 #undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY
+
+
+  // special cases coded by hand (container not in views
+  SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_CaloClusterContainerShallowCopy{ this, "CaloClusterContainerShallowCopy", {}, "Required collections of xAOD::CaloClusterContainer wiht Aux of type ShallowAuxContainer"};
+  SG::WriteHandleKeyArray<xAOD::CaloClusterContainer> m_CaloClusterContainerShallowCopyOut;
 
   template<typename T>
   struct HandlesGroup {

@@ -12,6 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkAlignment/TrkAlignEvent
                           Tracking/TrkEvent/TrkTrack )
 
-# Install files from the package:
-atlas_install_headers( TrkAlignInterfaces )
+atlas_add_library( TrkAlignInterfaces
+                   TrkAlignInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrkAlignInterfaces
+                   LINK_LIBRARIES GaudiKernel AthContainers TrkAlignEvent TrkTrack )
 

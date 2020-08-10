@@ -73,12 +73,19 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
 
   /**
    * @return The amount of online walltime contributed by this event 
-   * Fro data, this is based on the LB length and the number of events in the LB
+   * For data, this is based on the LB length and the number of events in the LB
    * For MC, this is fixed by the sample cross section, the inelastic cross section and the mu of the current event.
    * Retrieved from COOL and CVMFS XML or fetched from TRIG1 dAOD
    */
    virtual double getEBLiveTime(const xAOD::EventInfo* eventInfo) const override;
    virtual double getEBLiveTime(const EventContext& context) const override;
+
+  /**
+   * @return The length of the current LB in seconds. Only for data
+   * Retrieved from COOL, only for data
+   */
+   virtual double getLBLength(const xAOD::EventInfo* eventInfo) const override;
+   virtual double getLBLength(const EventContext& context) const override;
 
   /**
    * @return the instantaneous luminosity for the current event in units of cm-2s-1.
@@ -164,6 +171,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     ToolHandle<Trig::IBunchCrossingTool> m_bcTool; //!< Tool to get distance into bunch train
 
     Gaudi::Property<uint32_t> m_runNumber{this, "RunNumber", 0, "Run we're processing (if data), needed at initialize to locate and read in extra configuration."};
+    Gaudi::Property<bool> m_errorOnMissingEBWeights{this, "ErrorOnMissingEBWeights", false, "If true, Throws error if EB weights are missing."};
     Gaudi::Property<bool> m_calculateWeightingData{this, "CalculateWeightingData", true, "If true, read from COOL, CONDBR2 and XMLs. If false, read directly from decorated TRIG1 dAOD."};
     Gaudi::Property<bool> m_enforceEBGRL{this, "EnforceEBGRL", true, "Each Enhanced Bias run has a 'good run list' style veto on some LB. If this flag is true, events in these LB get weight 0"};
     Gaudi::Property<bool> m_useBunchCrossingTool{this, "UseBunchCrossingTool", true, "BunchCrossing tool requires CONDBR2 access. Can be disabled here if this is a problem."};
@@ -173,6 +181,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     Gaudi::Property<double> m_mcKFactor{this, "MCKFactor", 1.0, "If running over MC. The process filter efficiency (0.0-1.0)"}; 
     Gaudi::Property<bool> m_mcIgnoreGeneratorWeights{this, "MCIgnoreGeneratorWeights", false, "If running over MC. Flag to ignore the generator weight."}; 
     Gaudi::Property<double> m_inelasticCrossSection{this, "InelasticCrossSection", 8e-26, "Inelastic cross section in units cm^2. Default 80 mb at 13 TeV."}; 
+
 
     double m_deadtime; //!< Online deadtime to correct for in rate prediction. Currently a constant for the EB period
     uint32_t m_pairedBunches; //!< Online number of paired bunches.

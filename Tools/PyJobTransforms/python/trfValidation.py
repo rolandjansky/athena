@@ -1,10 +1,10 @@
 from future.utils import iteritems
 
-from past.builtins import basestring
 from builtins import zip
 from builtins import object
 from builtins import range
 from builtins import int
+import six
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
@@ -185,7 +185,7 @@ class logFileReport(object):
     def __init__(self, logfile=None, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR']):
 
         # We can have one logfile or a set
-        if isinstance(logfile, basestring):
+        if isinstance(logfile, six.string_types):
             self._logfile = [logfile, ]
         else:
             self._logfile = logfile

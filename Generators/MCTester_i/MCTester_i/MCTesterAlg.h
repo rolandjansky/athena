@@ -10,7 +10,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 //external MC-TESTER headers
+#ifdef HEPMC3
+#include "HepMC3Event.h"
+using HepMCEvent=HepMC3Event;
+using HepMCParticle=HepMC3Particle;
+#else
 #include "HepMCEvent.H"
+#endif
 #include "Generate.h"
 #include "Setup.H"
 

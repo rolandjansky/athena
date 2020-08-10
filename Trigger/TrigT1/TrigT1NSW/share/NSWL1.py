@@ -39,7 +39,9 @@ GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(
 #######################################
 # now the trigger related things
 #######################################
-include('RegionSelector/RegionSelector_jobOptions.py')
+from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+svcMgr += RegSelSvcDefault()
+
 include('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
 #Switch on and off trigger simulaton components sTGC / MicroMegas

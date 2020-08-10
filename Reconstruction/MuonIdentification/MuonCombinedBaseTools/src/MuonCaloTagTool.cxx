@@ -42,49 +42,13 @@
 namespace MuonCombined {
  
 
-  MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-	m_nTrueMuons(0),
-	m_nTracksTagged(0),
-	m_nMuonsTagged(0),
-	m_caloMuonLikelihood("CaloMuonLikelihoodTool/CaloMuonLikelihoodTool",this),
-        m_trkDepositInCalo("TrackDepositInCaloTool/TrackDepositInCaloTool"),
-	m_trackIsolationTool("xAOD::TrackIsolationTool"),
-        m_trkSelTool("InDet::InDetDetailedTrackSelectorTool/CaloTrkMuIdAlgTrackSelectorTool")
-  {
-    declareInterface<IMuonCombinedInDetExtensionTool>(this);
-    declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
-    
-    // --- Muon Dressing ---
-    declareProperty("doCosmicTrackSelection",            m_doCosmicTrackSelection  = false     );
-    
-    // --- Track Preselection Cuts ---
-    declareProperty("doTrkSelection",                    m_doTrkSelection            =  true   );
-    declareProperty("TrackEIsoBarrelCut",                m_eIsoBarrelCut             =  15000. );
-    declareProperty("TrackEIsoTransitionCut",            m_eIsoTransitionCut         =  8000.  );
-    declareProperty("TrackEIsoEndCapCut",                m_eIsoEndCapCut             =  12000. );
-    declareProperty("TrackPtIsoPtRatioCut",              m_ptIsoPtRatioCut           =  5.0    );
-    declareProperty("TrackEIsoPtRatioBarrelCut",         m_eIsoPtRatioBarrelCut      =  2.5    );
-    declareProperty("TrackEIsoPtRatioTransitionCut",     m_eIsoPtRatioTransitionCut  =  1.25   );
-    declareProperty("TrackEIsoPtRatioEndCapCut",         m_eIsoPtRatioEndCapCut      =  1.6    );
-    declareProperty("TrackIsoConeSize",                  m_trackIsoCone              =  0.45   );
-    declareProperty("EnergyIsoConeSize",                 m_energyIsoCone             =  0.4    );
-    
-    // --- Calorimeter ID Tools ---
-    declareProperty("doCaloMuonTag",                     m_doCaloMuonTag        =  true );
-    declareProperty("doCaloLR",                          m_doCaloLR             =  true );
-    declareProperty("ShowTruth",                         m_doTruth              =  true);
-    declareProperty("DebugMode",                         m_debugMode            =  false);
-    declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  false);
-    declareProperty("IgnoreSiAssociatedCandidates",      m_ignoreSiAssocated    =  true );
-    declareProperty("ShowCutFlow",                       m_showCutFlow          =  true);
-    declareProperty("CaloMuonLikelihoodTool",            m_caloMuonLikelihood           );
-    declareProperty("CaloLRLikelihoodCut",               m_CaloLRlikelihoodCut  =  0.5  );  //Likelihood ratio hard cut
-    
-    // --- Track in Calo Tools ---
-    declareProperty("TrackDepositInCaloTool",            m_trkDepositInCalo  );
-    declareProperty("TrackIsolationTool",                m_trackIsolationTool );
-    declareProperty("TrackSelectorTool",                 m_trkSelTool        );
+  MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent),
+    m_nTrueMuons(0),
+    m_nTracksTagged(0),
+    m_nMuonsTagged(0) {
+      declareInterface<IMuonCombinedInDetExtensionTool>(this);
+      declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
   }
 
   StatusCode MuonCaloTagTool::initialize() {
@@ -112,14 +76,10 @@ namespace MuonCombined {
   }
 
   StatusCode MuonCaloTagTool::finalize() {
-    
-    
     ATH_MSG_INFO("Number of true muons               : " << m_nTrueMuons);
     ATH_MSG_INFO("Number of tracks tagged            : " << m_nTracksTagged);
     ATH_MSG_INFO("Number of muons tagged             : " << m_nMuonsTagged);
-    
     return StatusCode::SUCCESS;
-  
   }
 
   void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,

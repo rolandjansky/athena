@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/DQEventFlagFilterTool.h"
+#include "DQEventFlagFilterTool.h"
 #include "AthenaKernel/errorcheck.h"
 
 DQEventFlagFilterTool::DQEventFlagFilterTool(const std::string& type,const std::string& name,const IInterface* parent)

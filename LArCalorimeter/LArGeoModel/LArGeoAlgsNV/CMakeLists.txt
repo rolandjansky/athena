@@ -1,20 +1,17 @@
-################################################################################
-# Package: LArGeoAlgsNV
-################################################################################
+#Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArGeoAlgsNV )
 
 # External dependencies:
-find_package( Eigen )
 find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_component( LArGeoAlgsNV
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} ${EIGEN_LIBRARIES} GeoModelUtilities LArReadoutGeometry SGTools StoreGateLib SGtests DetDescrConditions GaudiKernel LArGeoBarrel LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBBarrel LArHV RDBAccessSvcLib )
+                     INCLUDE_DIRS ${GEOMODELCORE_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoModelUtilities LArReadoutGeometry SGTools StoreGateLib SGtests DetDescrConditions GaudiKernel LArGeoBarrel LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBBarrel LArHV RDBAccessSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

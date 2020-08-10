@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of MdtROD_Encoder class 
@@ -11,8 +11,6 @@
 #include "MdtROD_Encoder.h" 
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "MDT_Hid2RESrcID.h"
@@ -24,12 +22,10 @@
 /** constructor 
 */ 
 
-MdtROD_Encoder::MdtROD_Encoder() : m_mdm(0), m_BMGid(-1)
+MdtROD_Encoder::MdtROD_Encoder (const MdtIdHelper& mdtIdHelper)
+  : m_mdtIdHelper (mdtIdHelper),
+    m_BMGid (mdtIdHelper.stationNameIndex("BMG"))
 {
-  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if(detStore->retrieve(m_mdm,"Muon").isSuccess())
-  m_mdtIdHelper = m_mdm->mdtIdHelper();
-  m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
 }
 
 /** destructor 
@@ -111,7 +107,7 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
   for ( ; it != it_end ; ++it) {
     const MdtCsm * csm = (*it);
     
-    bool isBMG = m_mdtIdHelper->stationName(csm->identify()) == m_BMGid;
+    bool isBMG = m_mdtIdHelper.stationName(csm->identify()) == m_BMGid;
 
     uint16_t ctwc = 0;     // Trailer word count initialized
     

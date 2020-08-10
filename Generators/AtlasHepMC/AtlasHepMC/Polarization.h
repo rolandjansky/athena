@@ -1,6 +1,8 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-   Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/* Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de */
+
 #ifndef ATLASHEPMC_POLARIZATION_H
 #define ATLASHEPMC_POLARIZATION_H
 #ifdef HEPMC3
@@ -20,6 +22,13 @@ double m_theta;
 double m_phi;
 };
 inline Polarization polarization(HepMC3::GenParticlePtr a){
+	std::shared_ptr<HepMC3::DoubleAttribute> phi_A =a->attribute<HepMC3::DoubleAttribute>("phi");
+	std::shared_ptr<HepMC3::DoubleAttribute> theta_A=a->attribute<HepMC3::DoubleAttribute>("theta");
+    double phi=(phi_A?phi_A->value():0.0);
+    double theta=(theta_A?theta_A->value():0.0);
+	return Polarization(theta,phi);
+}
+inline Polarization polarization(HepMC3::ConstGenParticlePtr a){
 	std::shared_ptr<HepMC3::DoubleAttribute> phi_A =a->attribute<HepMC3::DoubleAttribute>("phi");
 	std::shared_ptr<HepMC3::DoubleAttribute> theta_A=a->attribute<HepMC3::DoubleAttribute>("theta");
     double phi=(phi_A?phi_A->value():0.0);

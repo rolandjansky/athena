@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_USERLIMITSSVC_H
@@ -31,19 +31,19 @@ class UserLimitsSvc final : public extends<AthService, IUserLimitsSvc> {
   bool isMatch(const std::string& pattern, const std::string logicalVolume) const;
   bool contains(const std::string& pattern, const std::string logicalVolume) const;
   /** Maximum step length */
-  double m_MaxStep;
+  Gaudi::Property<double> m_MaxStep{this, "MaxStep", -1., "Maximum step length"};
   /** Minimum remaining kinetic energy for a track */
-  double m_MinEkine;
+  Gaudi::Property<double> m_MinEkine{this, "MinEkine", -1., "Minimum remaining kinetic energy for a track"};
   /** Maximum total track length */
-  double m_MaxTrackLength;
+  Gaudi::Property<double> m_MaxTrackLength{this, "MaxTrackLength", -1., "Maximum total track length"};
   /** Maximum global time for a track */
-  double m_MaxTime;
+  Gaudi::Property<double> m_MaxTime{this, "MaxTime", -1., "Maximum global time for a track"};
   /** Minimum remaining range for a track */
-  double m_MinRange;
+  Gaudi::Property<double> m_MinRange{this, "MinRange", -1., "Minimum remaining range for a track"};
   /** Use 'contains' or 'isMatch' function for string comparison */
-  std::string m_matchType;
+  Gaudi::Property<std::string> m_matchType{this, "MatchType", "isMatch", "Use 'contains' or 'isMatch' function for string comparison"};
   /** List of Logical volume to which these limits should be applied */
-  std::vector<std::string> m_logicalVolumes;
+  Gaudi::Property<std::vector<std::string> > m_logicalVolumes{this, "VolumeList" , {}, "List of Logical volume to which these limits should be applied"};
 };
 
 #endif //G4ATLASTOOLS_USERLIMITSSVC_H

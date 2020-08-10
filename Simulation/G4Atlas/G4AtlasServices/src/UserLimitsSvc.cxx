@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -15,20 +15,7 @@
 #include <limits>
 UserLimitsSvc::UserLimitsSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class(name,pSvcLocator)
-  , m_MaxStep(-1.)
-  , m_MinEkine(-1.)
-  , m_MaxTrackLength(-1.)
-  , m_MaxTime(-1.)
-  , m_MinRange(-1.)
-  , m_matchType("isMatch")
 {
-  declareProperty("MaxStep", m_MaxStep, "Maximum step length");
-  declareProperty("MinEkine", m_MinEkine, "Minimum remaining kinetic energy for a track");
-  declareProperty("MaxTrackLength", m_MaxTrackLength, "Maximum total track length");
-  declareProperty("MaxTime", m_MaxTime, "Maximum global time for a track");
-  declareProperty("MinRange", m_MinRange, "Minimum remaining range for a track");
-  declareProperty("VolumeList" , m_logicalVolumes , "List of Logical volume to which these limits should be applied" );
-  declareProperty("MatchType" , m_matchType , "Use 'contains' or 'isMatch' function for string comparison" );
 }
 
 // Athena method, called at initialization time
@@ -51,8 +38,8 @@ StatusCode UserLimitsSvc::initialize()
   funcMap.emplace("contains", &UserLimitsSvc::contains);
 
   // Call Limit setting methods here:
-  std::vector<std::string>::const_iterator volumeItr(m_logicalVolumes.begin());
-  const std::vector<std::string>::const_iterator endOfVolumesItr(m_logicalVolumes.end());
+  std::vector<std::string>::const_iterator volumeItr(m_logicalVolumes.value().begin());
+  const std::vector<std::string>::const_iterator endOfVolumesItr(m_logicalVolumes.value().end());
   while(volumeItr!=endOfVolumesItr)
     {
       const std::string& volName(*volumeItr);
@@ -61,7 +48,7 @@ StatusCode UserLimitsSvc::initialize()
         {
           G4LogicalVolume *lv=lvs[i];
           // Compare two strings with a configurable method...
-          if ( (this->*(funcMap[m_matchType]))(volName, lv->GetName()) ){
+          if ( (this->*(funcMap[m_matchType.value()]))(volName, lv->GetName()) ){
               G4UserLimits *ul=lv->GetUserLimits();
               if (!ul) ul=new G4UserLimits;
               if (-0.5 < m_MaxStep)        { ul->SetMaxAllowedStep(m_MaxStep); }

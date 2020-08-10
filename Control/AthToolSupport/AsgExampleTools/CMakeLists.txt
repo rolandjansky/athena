@@ -1,25 +1,13 @@
-################################################################################
-# Package: AsgExampleTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AsgExampleTools )
 
-# Extra dependencies based on the build environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
+if (SIMULATIONBASE)
+  set (extra_lib )
 else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+  set (extra_lib xAODMuon)
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   PRIVATE
-   Control/AthToolSupport/AsgTesting
-   ${extra_deps} )
 
 # External dependencies:
 find_package( GTest )
@@ -33,7 +21,7 @@ atlas_add_root_dictionary( AsgExampleToolsLib AsgExampleToolsCintDict
 atlas_add_library( AsgExampleToolsLib
    AsgExampleTools/*.h Root/*.cxx ${AsgExampleToolsCintDict}
    PUBLIC_HEADERS AsgExampleTools
-   LINK_LIBRARIES AsgTools AsgTestingLib )
+   LINK_LIBRARIES AsgTools AsgDataHandlesLib AsgTestingLib ${extra_lib} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( AsgExampleTools
@@ -103,6 +91,19 @@ if( XAOD_STANDALONE )
 
 endif()
 
+if (NOT SIMULATIONBASE)
+   if (NOT XAOD_STANDALONE)
+     set (extra_libs POOLRootAccessLib)
+   else()
+     set (extra_libs )
+   endif()
+
+   atlas_add_test( gt_DataHandlesTest
+      SOURCES test/gt_DataHandlesTest.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib ${extra_libs})
+   set_tests_properties (AsgExampleTools_gt_DataHandlesTest_ctest PROPERTIES LABELS "AsgDataHandles;AsgExampleTools" )
+endif()
 
 atlas_add_test( gt_AnaCheck
    SOURCES test/gt_AnaCheck.cxx

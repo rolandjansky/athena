@@ -102,9 +102,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
-		//		m_provider->msg(MSG::INFO) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endmsg;
+		m_provider->msg(MSG::VERBOSE) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endmsg;
 		for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-		  //  m_provider->msg(MSG::INFO) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endmsg;
+		  //  m_provider->msg(MSG::VERBOSE) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endmsg;
 		  configuredHLTChains.insert( configuredChains[i] );
 		  
 		}
@@ -141,6 +141,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 		      chainNames.push_back( ChainString(selectChains[iselected]) );
 
 		      m_provider->msg(MSG::INFO) << "[91;1m" << "Matching chain " << selectChains[iselected] << "[m" << endmsg;
+
+		      /// if this has a cosmic chain, set the fiducial radius to be very large to 
+		      /// allow the production vertex of the cosmic to be included
+		      if ( selectChains[iselected].find("cosmic")!=std::string::npos ) m_fiducial_radius = 1e10; 
 		     
 		  }
 		  
@@ -148,8 +152,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 		}
 		
 		m_chainNames = chainNames;
-	}
 
+	}
 
 	Filter_AcceptAll filter;
 	/// FIXME: should really have hardcoded limits encoded as 
@@ -163,7 +167,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	//tau filtering done separately to include mothers
 	if ( m_TruthPdgId!=0 && m_TruthPdgId!=15 ) truthFilter = &filter_pdgIdpTeta;
 
-	TrigTrackSelector selectorTruth( truthFilter ); 
+	TrigTrackSelector selectorTruth( truthFilter, m_fiducial_radius ); 
 
 	TrigTrackSelector selectorRef( &filter_etaPT ); 
 	TrigTrackSelector selectorTest( &filter ); 
@@ -306,11 +310,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 	if ( m_mcTruth && m_TruthPdgId!=15) { 
 		m_provider->msg(MSG::INFO) << "getting Truth" << endmsg; 
 		if ( m_provider->evtStore()->retrieve(truthMap, "TrigInDetTrackTruthMap").isFailure()) {
-		        // m_provider->msg(MSG::WARNING) << "TrigInDetTrackTruthMap not found" << endmsg;
 			m_hasTruthMap = false;
 		}
 		else {
-			m_provider->msg(MSG::INFO) << "TrigInDetTrackTruthMap found" << endmsg;
 			m_hasTruthMap = true;
 		}
 		if (m_provider->evtStore()->contains<TruthParticleContainer>("INav4MomTruthEvent")) {
@@ -331,6 +333,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("TruthParticles")) {
 			/// anything else?
 		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "TruthParticles" );
+			foundTruth = true;
+		}
+		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("")) {
+			/// anything else?
+		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "" );
 			foundTruth = true;
 		}
 		else { 
@@ -521,6 +528,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_provider->msg(MSG::INFO) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
 
 	  xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
+
 	  for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
 
 	    /// useful debug information - leave in 
@@ -561,11 +569,13 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// useful debug information - leave in  
 	//	std::cout << "SUTT Nvertices " << vertices.size() << "\ttype 101 " << vertices_full.size() << std::endl;
 
+#if 0
+	/// don;t add them to the event - since now we store them in the Vertex chain ...
 	for ( unsigned i=0 ; i<vertices.size() ; i++ )  { 
 	  m_provider->msg(MSG::DEBUG) << "vertex " << i << " " << vertices[i] << endmsg;
 	  m_event->addVertex(vertices[i]);
 	}
-	
+#endif	
 
 	/// offline object counters 
 
@@ -616,15 +626,21 @@ void AnalysisConfigMT_Ntuple::loop() {
 	
 	for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {  
 	  
-	  m_provider->msg(MSG::INFO)<< "chain:\t" << m_chainNames[ichain] << endmsg;
+	  /// keep this printout here, but commented for usefull debug purposes ...
+	  //	  m_provider->msg(MSG::INFO)<< "chain:\t" << m_chainNames[ichain] << endmsg;
 
 	  /// get the chain, collection and TE names and track index 
 
-	  const std::string& chainname      = m_chainNames[ichain].head();
-	  const std::string& collectionname = m_chainNames[ichain].tail();
+	  std::string chainname      = m_chainNames[ichain].head();
+	  std::string collectionname = m_chainNames[ichain].tail();
+	  std::string vtx_name       = m_chainNames[ichain].vtx();
+
 
 	  if ( chainname!="" )      continue;
 	  if ( collectionname=="" ) continue;
+
+	  chainname = collectionname;
+	  if ( vtx_name!="" ) chainname += ":" + vtx_name; 
 
 	  /// useful debug information - leave this here
 
@@ -660,12 +676,72 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    m_provider->msg(MSG::WARNING) << "\tcollection " << collectionname << " not found" << endmsg;
 	  }
 	  
+
+	  /// now retrieve any verttices for the analysis
+
+	  std::vector<TIDA::Vertex> tidavertices;
+
+	  m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
+	    
+	  if ( vtx_name!="" ) { 
+	        
+	    m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
+	        
+	    /// MT Vertex access
+	        
+	    const xAOD::VertexContainer* xaodVtxCollection = 0;
+	    
+	    if ( m_provider->evtStore()->retrieve( xaodVtxCollection, vtx_name ).isFailure() ) {
+	      m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << vtx_name <<  endmsg;
+	    }
+	    
+	    if ( xaodVtxCollection!=0 ) { 
+	            
+	      m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodVtxCollection->size()
+					 << "\t" << vtx_name << endmsg;
+	            
+	      xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin(); 
+	            
+	      for (  ; vtxitr!=xaodVtxCollection->end()  ;  vtxitr++ ) {
+		
+		/// leave this code commented so that we have a record of the change - as soon as we can 
+		/// fix the missing track multiplicity from the vertex this will need to go back  
+		//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+
+		// useful debug comment, left for debugging purposes ...
+		//		std::cout << "SUTT  xAOD::Vertex::type() " << (*vtxitr)->type() 
+		//			  << "\tvtxtype " << (*vtxitr)->vertexType() 
+		//			  << "\tntrax "   << (*vtxitr)->nTrackParticles() 
+		//			  << "\tz "       << (*vtxitr)->z() << std::endl; 
+
+		if ( (*vtxitr)->vertexType()!=0  || vtx_name=="EFHistoPrmVtx" ) {
+		  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+							(*vtxitr)->y(),
+							(*vtxitr)->z(),
+							/// variances
+							(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+							(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+							(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+							(*vtxitr)->nTrackParticles(),
+							/// quality
+							(*vtxitr)->chiSquared(),
+							(*vtxitr)->numberDoF() ) );
+		}
+	      }
+	            
+	    }
+	        
+	  }
+
+
+
 	  if ( found ) { 
 	    
-	    m_event->addChain( collectionname );
+	    m_event->addChain( chainname );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
+	    if ( vtx_name!="" ) m_event->back().back().addVertices( tidavertices );
 	    m_event->back().back().addTracks(selectorTest.tracks());
-	    
+
 	    if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
 	      std::vector<double> beamline_;
 	      beamline_.push_back( selectorTest.getBeamX() );
@@ -879,11 +955,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 		    chainName.find("HLT_")==std::string::npos ) continue;
 
 		
-		m_provider->msg(MSG::INFO) << "chain " << chainName 
-					   << "\tprescale " << (*m_tdt)->getPrescale(chainName)
-					   << "\tpass "     << (*m_tdt)->isPassed(chainName) << " physics " 
-					   << "  (req dec " << (*m_tdt)->isPassed(chainName, decisiontype_ ) << " dec type " << decisiontype_ << ")"
-					   << endmsg;
+		m_provider->msg(MSG::DEBUG) << "chain " << chainName 
+					    << "\tprescale " << (*m_tdt)->getPrescale(chainName)
+					    << "\tpass "     << (*m_tdt)->isPassed(chainName) << " physics " 
+					    << "  (req dec " << (*m_tdt)->isPassed(chainName, decisiontype_ ) << " dec type " << decisiontype_ << ")"
+					    << endmsg;
 		
 		/// now decide whether we want all the TEs for this chain, or just those 
 		/// that are still active

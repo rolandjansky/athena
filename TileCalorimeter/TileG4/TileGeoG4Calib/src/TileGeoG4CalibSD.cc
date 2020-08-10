@@ -356,7 +356,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
 
   int primary_id = 0;
   if (m_doCalibHitParticleID) {
-    if (m_event_info && m_event_info->GetCurrentPrimary()) primary_id = m_event_info->GetCurrentPrimary()->barcode();
+    if (m_event_info && m_event_info->GetCurrentPrimary()) primary_id = HepMC::barcode(m_event_info->GetCurrentPrimary());
     else throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
   }
 

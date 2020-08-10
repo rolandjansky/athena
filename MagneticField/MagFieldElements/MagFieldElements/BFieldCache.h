@@ -30,7 +30,6 @@ public:
     , m_phimin(0.0)
     , m_phimax(-1.0)
   {
-    ;
   }
   // make this cache invalid, so that inside() will fail
   void invalidate()

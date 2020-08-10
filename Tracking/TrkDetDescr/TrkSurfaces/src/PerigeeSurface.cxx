@@ -64,7 +64,6 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf, const Amg::Trans
     Surface::m_transform = std::make_unique<Amg::Transform3D>(shift * (*pesf.m_transform));
 }
 
-Trk::PerigeeSurface::~PerigeeSurface() = default;
 
 // assignment operator
 Trk::PerigeeSurface&
@@ -97,7 +96,7 @@ Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars) const
     Amg::Vector3D loc3Dframe(
       -locpars[Trk::d0] * sin(locpars[Trk::phi0]), locpars[Trk::d0] * cos(locpars[Trk::phi0]), locpars[Trk::z0]);
     return new Amg::Vector3D(transform() * loc3Dframe);
-  } 
+  }
     return new Amg::Vector3D(0., 0., locpars[Trk::z0] + (center().z()));
 }
 

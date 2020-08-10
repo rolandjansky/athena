@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           BinAndCoord.h  -  description
@@ -37,13 +37,13 @@ class BinAndCoord {
 public:
   BinAndCoord(int phiBin, int etaBin, Coordinate* centralCoords):
 	m_phiBin(phiBin), m_etaBin(etaBin), m_centralCoords(centralCoords){} ;
-  virtual ~BinAndCoord(){ delete m_centralCoords;};
+  ~BinAndCoord(){ delete m_centralCoords;};
 
 	
 public:	
 	int phiBin() const {return m_phiBin;};
 	int etaBin() const {return m_etaBin;};
-	Coordinate* coords() const {return m_centralCoords;};
+	const Coordinate* coords() const {return m_centralCoords;};
 
 private:
  	

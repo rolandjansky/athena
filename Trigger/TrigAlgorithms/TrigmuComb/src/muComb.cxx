@@ -35,6 +35,8 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
@@ -42,7 +44,6 @@ muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
    HLT::FexAlgo(name, pSvcLocator),
    m_pStoreGate(NULL),
    m_backExtrapolatorG4("Trk::Extrapolator/AtlasExtrapolator"),
-   m_MagFieldSvc(0),
    m_pTimerService(0)
 {
 
@@ -187,12 +188,14 @@ HLT::ErrorCode muComb::hltInitialize()
    }
 
    if (m_useAthenaFieldService) {
-      if (!m_MagFieldSvc) service("AtlasFieldSvc", m_MagFieldSvc, /*createIf=*/ false).ignore();
-      if (m_MagFieldSvc) {
-	ATH_MSG_INFO("Retrieved AtlasFieldSvc ");
-      } else {
-	ATH_MSG_ERROR("Could not retrieve AtlasFieldSvc");
+      // Read handle for AtlasFieldCacheCondObj
+      StatusCode sc = m_fieldCacheCondObjInputKey.initialize();
+
+      if (sc.isFailure()) {
+	 ATH_MSG_ERROR("Error initalizing AtlasFieldCacheCondObj");
          return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      } else {
+	 ATH_MSG_INFO("AtlasFieldCacheCondObj initialized ");
       }
    }
 
@@ -638,6 +641,8 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
                                   HLT::TriggerElement* outputTE)
 {
 
+   EventContext ctx = Gaudi::Hive::currentContext();
+
    // init monitoring variables
    m_ptMS        = -9999.;
    m_etaMS       = -9999.;
@@ -664,10 +669,17 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    bool toroidOn   = !m_assumeToroidOff;
    bool solenoidOn = !m_assumeSolenoidOff;
    if (m_useAthenaFieldService) {
-      if (m_MagFieldSvc) {
-         toroidOn  = m_MagFieldSvc->toroidOn() && !m_assumeToroidOff;
-         solenoidOn = m_MagFieldSvc->solenoidOn() && !m_assumeSolenoidOff;
-      }
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        if (fieldCondObj == nullptr) {
+            ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
+        }
+        MagField::AtlasFieldCache fieldCache;
+        fieldCondObj->getInitializedCache (fieldCache);
+
+        toroidOn   = fieldCache.toroidOn() && !m_assumeToroidOff;
+        solenoidOn = fieldCache.solenoidOn() && !m_assumeSolenoidOff;
    }
    ATH_MSG_DEBUG("=========== Magnetic Field Status ========== ");
    ATH_MSG_DEBUG(" B Fields read from AthenaFieldService:   " << (m_useAthenaFieldService ? "TRUE" : "FALSE"));
@@ -718,7 +730,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
          useL1 = true;
       } else {
 	ATH_MSG_ERROR(" L2StandAloneMuonContainer not found --> ABORT");
-         return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+        return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
       }
    }
    xAOD::L2StandAloneMuonContainer* muonColl = const_cast<xAOD::L2StandAloneMuonContainer*>(const_muonColl);

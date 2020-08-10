@@ -59,7 +59,7 @@ public:
   PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);
 
   /**Destructor*/
-  virtual ~PerigeeSurface();
+  virtual ~PerigeeSurface() = default;
 
   /**Virtual constructor*/
   virtual PerigeeSurface* clone() const override;

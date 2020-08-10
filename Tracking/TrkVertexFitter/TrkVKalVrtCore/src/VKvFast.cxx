@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
 #include "TrkVKalVrtCore/CommonPars.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {
@@ -19,8 +19,7 @@ namespace Trk {
 void vkvfast_(double *p1, double *p2, double *dbmag, double *out)
 {
     void vkvFastV(double*, double*, double* vRef, double, double *out);
-    vkvFastV(p1, p2, 0, (*dbmag), out);   return;
-}
+    vkvFastV(p1, p2, nullptr, (*dbmag), out);   }
 
 
 void vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)

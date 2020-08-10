@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
+#include "TrkVKalVrtCore/CommonPars.h"
+#include "TrkVKalVrtCore/ForCFT.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <thread>
-#include <algorithm>
-#include "TrkVKalVrtCore/ForCFT.h"
-#include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 
 namespace Trk {
 
@@ -433,7 +433,7 @@ namespace Trk {
     if ( !vk->passNearVertex ) {           /* No correction for these constraints */
 	                               /* because solution is calculated with full error matrix*/
 
-     if( vk->ConstraintList.size() == 0){
+     if( vk->ConstraintList.empty()){
         double EigThreshold = 1.e-9;         /* Def. for fit without constraints 5.e-8*/
         vkGetEigVal(wa, eigv, 3);
         if (eigv[0] < 0.) { wa[0] -= 1.*eigv[0];  wa[2] -= 1.*eigv[0]; wa[5] -= 1.*eigv[0]; }
@@ -555,7 +555,7 @@ namespace Trk {
 	dsinv(&NParam, vk->ader, vkalNTrkM*3+3, &IERR);
 	if ( IERR != 0) {
         std::cout << " Bad problem in CFIT inversion ierr="<<IERR<<", "<<eigv[2]<<'\n'; return IERR;
-	} else {
+	} 
             double *fortst = new double[vkalNTrkM*3+3];
 	    for (j = 0; j < 3; ++j) {
 		fortst[j] = stv[j];
@@ -584,7 +584,7 @@ namespace Trk {
 	    vk->fitVcov[4] = ader_ref(3, 2);
 	    vk->fitVcov[5] = ader_ref(3, 3);
 	    delete[]  fortst;
-	}
+	
         //std::cout<< "NVertex Full="<<vk->fitV[0]<<", "<<vk->fitV[1]<<", "<<vk->fitV[2]<<'\n';
         //std::cout<< "NVertex Full shft="<<dxyz[0]<<", "<<dxyz[1]<<", "<<dxyz[2]<<'\n';
         //double *tmpA=new double[3+3*NTRK+20];
@@ -597,7 +597,7 @@ namespace Trk {
 /*          Now constraints 					*/
 /* ------------------------------------------------------------ */
     double dCoefNorm = 0;
-    if ( vk->ConstraintList.size() > 0) {
+    if ( !vk->ConstraintList.empty()) {
         IERR =  vtcfitc( vk );
 	if (IERR != 0)   return IERR;
 ///* dxyz0 - shift of vertex           due to fit without constraints */
@@ -721,7 +721,7 @@ namespace Trk {
     vk->Chi2 = setLimitedFitVrt(vk,1.,0.,dCoefNorm,xyzt);// track parameters at intermediate vertex.
     vk->setCnstV(xyzt);                                  // Also save to cnstP for constraint
     vk->Chi2 += calcChi2Addition( vk, wgtvrtd, xyzt);    // Constraints of Chi2 type
-    if (vk->ConstraintList.size()) {                     // Restore initial derivatives 
+    if (!vk->ConstraintList.empty()) {                     // Restore initial derivatives 
       int NTRK=vk->TrackList.size();
       vk->setCnstV(vk->iniV); 
       for(int i=0; i<NTRK; ++i){ VKTrack* trk=vk->TrackList[i].get(); for (int j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}

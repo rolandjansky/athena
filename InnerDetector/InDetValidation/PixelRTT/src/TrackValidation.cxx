@@ -112,7 +112,7 @@ int CosmicTrackValidation::Read(){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-int CosmicTrackValidation::Write ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe MultiHisto<ht>::Write method is used.
+int CosmicTrackValidation::Write(){
 
 	TDirectory *current = gDirectory;
 	TDirectory *globaldir = current->mkdir(m_globaldirname.c_str());

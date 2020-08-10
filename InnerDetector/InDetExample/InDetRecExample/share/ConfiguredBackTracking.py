@@ -19,6 +19,7 @@ class ConfiguredBackTracking:
       # get ToolSvc and topSequence
       #
       from AthenaCommon.AppMgr                import ToolSvc
+      from AthenaCommon.AppMgr                import ServiceMgr
       from AthenaCommon.AlgSequence           import AlgSequence
       topSequence = AlgSequence()
 
@@ -157,7 +158,8 @@ class ConfiguredBackTracking:
          self.__TRTSeededTracks = InDetKeys.TRTSeededTracks()
          #
          # TRT seeded back tracking algorithm
-         #
+         
+
          from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
          import InDetRecExample.TrackingCommon as TrackingCommon
@@ -182,7 +184,13 @@ class ConfiguredBackTracking:
                                                                    FinalStatistics       = False,
                                                                    OutputSegments        = False,
                                                                    InputSegmentsLocation = InDetKeys.TRT_Segments(),
-                                                                   OutputTracksLocation  = self.__TRTSeededTracks)
+                                                                   OutputTracksLocation  = self.__TRTSeededTracks,
+                                                                   CaloClusterEt         = NewTrackingCuts.minRoIClusterEt())
+         
+         if (NewTrackingCuts.RoISeededBackTracking()):
+            from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+            InDetTRT_SeededTrackFinder.RegSelTool = makeRegSelTool_SCT()
+            InDetTRT_SeededTrackFinder.CaloSeededRoI = True
          # InDetTRT_SeededTrackFinder.OutputLevel = VERBOSE
          topSequence += InDetTRT_SeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):
@@ -223,8 +231,10 @@ class ConfiguredBackTracking:
          #
          if InDetFlags.doCosmics():
             InDetTRT_SeededScoringTool = TrackingCommon.getInDetCosmicScoringTool_TRT(NewTrackingCuts)
+            InDetTRT_SeededSummaryTool = TrackingCommon.getInDetTrackSummaryToolSharedHits()
          else:
             InDetTRT_SeededScoringTool = TrackingCommon.getInDetTRT_SeededScoringTool(NewTrackingCuts)
+            InDetTRT_SeededSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
 
          #
          # --- Load selection tool
@@ -254,7 +264,7 @@ class ConfiguredBackTracking:
          InDetTRT_SeededAmbiguityProcessor = Trk__SimpleAmbiguityProcessorTool(name               = 'InDetTRT_SeededAmbiguityProcessor',
                                                                                Fitter             = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                                AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
-                                                                               TrackSummaryTool   = TrackingCommon.getInDetTrackSummaryTool(),
+                                                                               TrackSummaryTool   = InDetTRT_SeededSummaryTool,
                                                                                SelectionTool      = InDetTRT_SeededAmbiTrackSelectionTool,
                                                                                RefitPrds          = not InDetFlags.refitROT(),
                                                                                SuppressTrackFit   = False,

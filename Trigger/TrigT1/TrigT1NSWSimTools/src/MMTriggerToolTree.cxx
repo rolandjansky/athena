@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -440,7 +440,7 @@ namespace NSWL1 {
       m_NSWMM_off_channel->clear();
 
     }
-    void MMTriggerTool::fillNtuple(MMLoadVariables loadedVariables){
+    void MMTriggerTool::fillNtuple(const MMLoadVariables& loadedVariables){
 
       *m_NSWMM_dig_stationEta  = loadedVariables.histVars.NSWMM_dig_stationEta;
       *m_NSWMM_dig_stationPhi  = loadedVariables.histVars.NSWMM_dig_stationPhi;

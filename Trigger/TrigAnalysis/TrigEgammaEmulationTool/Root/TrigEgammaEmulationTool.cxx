@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -168,7 +168,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     ATH_MSG_INFO("Initialising trigMap...");
     auto trigList = m_trigList;
 
-    for(const auto trigName : trigList){
+    for(const auto& trigName : trigList){
       ATH_MSG_DEBUG("Trigger " << trigName <<" to TrigInfo");
       if(m_trigInfo.count(trigName) != 0){
       }else{
@@ -183,12 +183,12 @@ StatusCode TrigEgammaEmulationTool::initialize() {
 
 
     ATH_MSG_INFO("Supporting trigger before cleaner...");
-    for(const auto trigName:m_supportingTrigList){
+    for(const auto& trigName:m_supportingTrigList){
       ATH_MSG_INFO("    Suppot: " << trigName);
     }
 
     // All support triggers must be inside of the xaod
-    for(const auto trigName:m_supportingTrigList){
+    for(const auto& trigName:m_supportingTrigList){
       if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){
         if(m_trigInfo.count(trigName) == 0){
           ATH_MSG_INFO("Append " << trigName << " as support trigger");
@@ -207,7 +207,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     m_supportingTrigList.insert(m_supportingTrigList.end(), supportingTrigList.begin(), supportingTrigList.end());
 
     ATH_MSG_INFO("Supporting trigger after cleaner...");
-    for(const auto trigName:m_supportingTrigList){
+    for(const auto& trigName:m_supportingTrigList){
       ATH_MSG_INFO("    Suppot: " << trigName);
     }
 

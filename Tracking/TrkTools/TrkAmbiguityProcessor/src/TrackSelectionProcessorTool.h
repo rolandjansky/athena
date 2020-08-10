@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKSELECTIONPROCESSORTOOL_H
@@ -23,7 +23,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <functional>
 
 
 namespace Trk {
@@ -51,22 +50,22 @@ namespace Trk {
       virtual StatusCode finalize  () override;
 
       /**Returns a processed TrackCollection from the passed 'tracks' WITHOUT copying or refitting the input tracks.
-	 The pointers of the tracks in the input collection are copied into the output collection which does NOT
-	 own the pointers. Clients must ensure that the Input Collection is not deleted before the output collection
-	 else all pointers in the output collection will be invalid!
+   The pointers of the tracks in the input collection are copied into the output collection which does NOT
+   own the pointers. Clients must ensure that the Input Collection is not deleted before the output collection
+   else all pointers in the output collection will be invalid!
 
-	 @param tracks collection of tracks which will have ambiguities resolved. Will not be
-	 modified.
-         @param prd_to_track_map on optional prd-to-track map being filled by the processor.
+   @param tracks collection of tracks which will have ambiguities resolved. Will not be
+   modified.
+         @param prdToTrackMap on optional prd-to-track map being filled by the processor.
 
-	 @return new collections of tracks, with ambiguities resolved.
-	  The returned track collection is a SG::VIEW_ELEMENTS container, meaning that it should NOT be written to disk.
-	  Ownership of the collection is passed on (i.e. client handles deletion)
+   @return new collections of tracks, with ambiguities resolved.
+    The returned track collection is a SG::VIEW_ELEMENTS container, meaning that it should NOT be written to disk.
+    Ownership of the collection is passed on (i.e. client handles deletion)
 
          If no prd-to-track map is given the processor might create one internally (for internal
          use only, or exported to storegate).
       */
-      virtual TrackCollection*  process(const TrackCollection* tracksCol,Trk::PRDtoTrackMap *prd_to_track_map) const override;
+      virtual TrackCollection*  process(const TrackCollection* tracksCol,Trk::PRDtoTrackMap *prdToTrackMap) const override;
 
       virtual TrackCollection*  process(const TracksScores* /*trackScoreTrackMap*/) const override { return nullptr; }
 
@@ -75,29 +74,29 @@ namespace Trk {
     private:
 
       /**Add passed TrackCollection, and Trk::PrepRawData from tracks to caches
-	 @param tracks the TrackCollection is looped over, 
-	 and each Trk::Track is added to the various caches. 
-	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prd_to_track_map, const std::vector<const Track*> &tracks ) const;
+   @param tracks the TrackCollection is looped over, 
+   and each Trk::Track is added to the various caches. 
+   The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
+      void addNewTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prdToTrackMap, const std::vector<const Track*> &tracks ) const;
 
 
-      void solveTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prd_to_track_map, TrackCollection &final_tracks) const;
+      void solveTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prdToTrackMap, TrackCollection &final_tracks) const;
 
       /** print out tracks and their scores for debugging*/
       void dumpTracks(const TrackCollection& tracks) const;
-	
+  
       // private data members
 
       /** by default drop double tracks before refit*/
       bool m_dropDouble;
    
       /**Scoring tool
-	 This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
-	 @todo The actual tool that is used should be configured through job options*/
+   This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
+   @todo The actual tool that is used should be configured through job options*/
       ToolHandle<ITrackScoringTool> m_scoringTool;
 
       /** selection tool - here the decision which hits remain on a track and
-	  which are removed are made
+    which are removed are made
       */
       ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
@@ -109,7 +108,7 @@ namespace Trk {
          {this,"AssociationMapName",""};  ///< the key given to the newly created association map
 
       /** option to disable sorting based on track score and 
-	  use the ordering provided externally*/
+    use the ordering provided externally*/
       bool m_disableSorting;
     };
 

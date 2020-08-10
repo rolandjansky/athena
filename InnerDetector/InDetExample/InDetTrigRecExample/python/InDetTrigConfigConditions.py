@@ -124,7 +124,7 @@ class PixelConditionsServicesSetup:
           elif (runNum >= 222222 and runNum < 289350): # 2015
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
           else:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                     UseDeadmapConditions=self.usePixMap,
@@ -189,16 +189,15 @@ class PixelConditionsServicesSetup:
     #########################
     # TDAQ Conditions Setup #
     #########################
-    TrigPixelTDAQConditionsTool = None
-    PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
     if self.useTDAQ:
+      PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
       PixelTDAQInstance = "TDAQ_ONL"
       if not conddb.folderRequested(PixelTDAQFolder):
         conddb.addFolder(PixelTDAQInstance, PixelTDAQFolder, className="CondAttrListCollection")
 
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-      condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
+      if not hasattr(condSeq, "PixelTDAQCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
 
     ############################
     # Conditions Summary Setup #

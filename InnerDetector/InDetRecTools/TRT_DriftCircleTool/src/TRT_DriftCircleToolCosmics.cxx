@@ -63,13 +63,7 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_low_gate(18.0*CLHEP::ns),
   m_low_gate_argon(18.0*CLHEP::ns),
   m_high_gate(38.0*CLHEP::ns),
-  m_high_gate_argon(38.0*CLHEP::ns),
-  m_mask_first_HT_bit(false),
-  m_mask_first_HT_bit_argon(false),
-  m_mask_middle_HT_bit(false),
-  m_mask_middle_HT_bit_argon(false),
-  m_mask_last_HT_bit(false),
-  m_mask_last_HT_bit_argon(false)
+  m_high_gate_argon(38.0*CLHEP::ns)
 
 {
   declareInterface<ITRT_DriftCircleTool>(this);
@@ -94,12 +88,6 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   declareProperty("LowGateArgon",m_low_gate_argon);
   declareProperty("HighGate",m_high_gate);
   declareProperty("HighGateArgon",m_high_gate_argon);
-  declareProperty("MaskFirstHTBit",m_mask_first_HT_bit);
-  declareProperty("MaskFirstHTBitArgon",m_mask_first_HT_bit_argon);
-  declareProperty("MaskMiddleHTBit",m_mask_middle_HT_bit);
-  declareProperty("MaskMiddleHTBitArgon",m_mask_middle_HT_bit_argon);
-  declareProperty("MaskLastHTBit",m_mask_last_HT_bit);
-  declareProperty("MaskLastHTBitArgon",m_mask_last_HT_bit_argon);
   declareProperty("GlobalPhaseOffset",m_global_offset);
 }
 
@@ -262,7 +250,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
       bool isArgonStraw=true;
       if (m_useToTCorrection) rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id, isArgonStraw);
-      if (m_useHTCorrection)  rawTime += m_driftFunctionTool->driftTimeHTCorrection(id, isArgonStraw);           
+      if (m_useHTCorrection && (*r)->highLevel())  rawTime += m_driftFunctionTool->driftTimeHTCorrection(id, isArgonStraw);           
 
       //make tube hit if first bin is high and no later LE appears
       if( LTbin==0 || LTbin==24 ) {

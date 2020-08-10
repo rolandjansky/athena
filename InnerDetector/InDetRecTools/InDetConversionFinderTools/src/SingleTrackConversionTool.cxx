@@ -40,7 +40,7 @@ namespace InDet {
   // athena interface definition
   // -------------------------------------------------------
   static const InterfaceID IID_ISingleTrackConversionTool("InDet::SingleTrackConversionTool", 1, 0);
-  
+
   // -------------------------------------------------------
   // constructor
   // -------------------------------------------------------
@@ -48,9 +48,6 @@ namespace InDet {
                                                        const std::string& name,
                                                        const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_helpertool("InDet::ConversionFinderUtils")
-    , m_trkSumTool("Trk::TrackSummaryTool")
-    , m_extrapolator("Trk::Extrapolator/InDetExtrapolator")
     , m_minInitR(70.)
     , m_minInitR_noBLay(120.)
     , m_singleThreshold(0.1)
@@ -58,9 +55,6 @@ namespace InDet {
   // m_maxPhiVtxTrk(0.2)
   {
     declareInterface<SingleTrackConversionTool>(this);
-    declareProperty("ConversionFinderHelperTool" , m_helpertool);
-    declareProperty("TrackSummaryTool"           , m_trkSumTool);
-    declareProperty("Extrapolator"               , m_extrapolator      ); //Extrapolator tool
     declareProperty("MinInitialHitRadius"        , m_minInitR);
     declareProperty("MinInitialHitRadius_noBlay" , m_minInitR_noBLay);
     declareProperty("MinRatioOfHLhits"           , m_singleThreshold);
@@ -69,7 +63,7 @@ namespace InDet {
     declareProperty("PIDonlyForXe"               , m_PIDonlyForXe = false,
       "Only check TRT PID if all hits are Xe hits");
   }
-  
+
   // -------------------------------------------------------
   // destructor
   // -------------------------------------------------------
@@ -91,17 +85,9 @@ namespace InDet {
     if ( m_helpertool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_helpertool);
       return StatusCode::FAILURE;
-    } 
+    }
       ATH_MSG_INFO("Retrieved tool " << m_helpertool);
-    
-    
-    /* Get the track summary tool from ToolSvc */
-    if ( m_trkSumTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSumTool);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved tool " << m_trkSumTool);
-    
+
 
     /* Get the extrapolator */
     if (m_extrapolator.retrieve().isFailure()) {
@@ -109,11 +95,11 @@ namespace InDet {
       return StatusCode::FAILURE;
     }
       ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-    
-    
+
+
     return StatusCode::SUCCESS;
   }
-  
+
   // -------------------------------------------------------
   // finalize method
   // -------------------------------------------------------
@@ -128,33 +114,33 @@ namespace InDet {
   SingleTrackConversionTool::buildSingleTrackConversion(
     const Trk::Track* track) const
   {
-    
+
     // some local variables
     const Trk::TrackParameters* tp = nullptr;
     AmgSymMatrix(5)  em ;
     em.setZero();
-    Amg::Vector3D  gp ; 
-    gp.setZero(); 
+    Amg::Vector3D  gp ;
+    gp.setZero();
     // double chi2 = 0.; int Ndf = 0;
-    
+
     // get track states on surface
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) return nullptr;
-    
+
     // iterate over them
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
     for(its=tsos->begin();its!=itse;++its) {
-      
+
       // check if this is the first measurement
       if((*its)->type(Trk::TrackStateOnSurface::Measurement)) {
-	
+
         // get the parameters at this surface
         tp = (*its)->trackParameters();
         if(!tp) {
           ATH_MSG_WARNING ("Require parameters at first measurement, conversion finder logic broken");
           return nullptr;
         }
-    
+
         em = *(tp->covariance());
         gp = (tp->position());
         break;
@@ -164,65 +150,65 @@ namespace InDet {
     if(!tp) {
       return nullptr;
     }
-    
+
     //
     // --- Need to compute a global position covariance matrix as J.C.JT
     //
 
     // get transform
     const Amg::Transform3D  T( tp->associatedSurface().transform());
-    
+
     // this will be the new transform
     AmgSymMatrix(3) nCovVtx;
-    
+
     // ME: use the surface to find out what we do, do not hardcode the geoemtry
-      
+
     if ( Trk::Surface::Plane == tp->associatedSurface().type() ){
-      
+
       ///The local position parameters covariance matrix C (2x2)
       double p11 = em(Trk::locX, Trk::locX);
       double p12 = em(Trk::locX, Trk::locY);
       double p21 = em(Trk::locY, Trk::locX);
       double p22 = em(Trk::locY, Trk::locY);
-      
+
       ///The Jacobian matrix J (3x2)
       double Ax[3] = {T(0,0),T(1,0),T(2,0)};
       double Ay[3] = {T(0,1),T(1,1),T(2,1)};
       double a11 = Ax[0]; double a12 = Ay[0];
       double a21 = Ax[1]; double a22 = Ay[1];
       double a31 = Ax[2]; double a32 = Ay[2];
-      
+
       ///The A = J.C (3x2)
       double A11 = a11*p11 + a12*p21; double A12 = a11*p12 + a12*p22;
       double A21 = a21*p11 + a22*p21; double A22 = a21*p12 + a22*p22;
       double A31 = a31*p11 + a32*p21; double A32 = a31*p12 + a32*p22;
-      
+
       ///The A.JT = J.C.JT (3x3)
       double P11 = a11*A11 + A12*a12; double P12 = A11*a21 + A12*a22; double P13 = A11*a31 + A12*a32;
       double P21 = A21*a11 + A22*a12; double P22 = A21*a21 + A22*a22; double P23 = A21*a31 + A22*a32;
       double P31 = A31*a11 + A32*a12; double P32 = A31*a21 + A32*a22; double P33 = A31*a31 + A32*a32;
-      
+
       ///Construct the new covariance matrix (3x3)
       nCovVtx(0,0) = P11; nCovVtx(0,1) = P12; nCovVtx(0,2) = P13;
       nCovVtx(1,0) = P21; nCovVtx(1,1) = P22; nCovVtx(1,2) = P23;
-      nCovVtx(2,0) = P31; nCovVtx(2,1) = P32; nCovVtx(2,2) = P33;  
-    } 
+      nCovVtx(2,0) = P31; nCovVtx(2,1) = P32; nCovVtx(2,2) = P33;
+    }
     else if (  Trk::Surface::Line == tp->associatedSurface().type()  ) {
-      
+
       //The local position parameters covariance matrix C (2x2)
       double p11 = em(Trk::locR, Trk::locR);
       double p12 = em(Trk::locR, Trk::locZ);
       double p21 = em(Trk::locZ, Trk::locR);
       double p22 = em(Trk::locZ, Trk::locZ);
-      
+
       ///The straight line surface (wire) global directions
       double A[3] = {T(0,2),T(1,2),T(2,2)};
-	
+
       ///The particle global direction
       double Px = tp->momentum().x();
       double Py = tp->momentum().y();
       double Pz = tp->momentum().z();
-      
+
       ///The Jacobian matrix J (3x2)
       double Bx = A[1]*Pz-A[2]*Py;
       double By = A[2]*Px-A[0]*Pz;
@@ -231,25 +217,25 @@ namespace InDet {
       double a11 = Bx; double a12 = A[0];
       double a21 = By; double a22 = A[1];
       double a31 = Bz; double a32 = A[2];
-      
+
       ///The A = J.C (3x2)
       double A11 = a11*p11 + a12*p21; double A12 = a11*p12 + a12*p22;
       double A21 = a21*p11 + a22*p21; double A22 = a21*p12 + a22*p22;
       double A31 = a31*p11 + a32*p21; double A32 = a31*p12 + a32*p22;
-      
+
       ///The A.JT = J.C.JT (3x3)
       double P11 = a11*A11 + A12*a12; double P12 = A11*a21 + A12*a22; double P13 = A11*a31 + A12*a32;
       double P21 = A21*a11 + A22*a12; double P22 = A21*a21 + A22*a22; double P23 = A21*a31 + A22*a32;
       double P31 = A31*a11 + A32*a12; double P32 = A31*a21 + A32*a22; double P33 = A31*a31 + A32*a32;
-      
+
       ///Construct the new covariance matrix (3x3)
       nCovVtx(0,0) = P11; nCovVtx(0,1) = P12; nCovVtx(0,2) = P13;
       nCovVtx(1,0) = P21; nCovVtx(1,1) = P22; nCovVtx(1,2) = P23;
       nCovVtx(2,0) = P31; nCovVtx(2,1) = P32; nCovVtx(2,2) = P33;
-    } 
+    }
     else {
       ATH_MSG_ERROR ("Wrong type of surface, not supported !");
-      return nullptr; 
+      return nullptr;
     }
 
     // Create the corresponding vector of tracks at that RecVertex. Contains one
@@ -269,13 +255,13 @@ namespace InDet {
     Trk::TrackParameters* pp = perpar->clone();
     delete perpar;
     Trk::VxTrackAtVertex trkV(1., pp);
-    
+
     Trk::LinkToTrack * linkTT = new Trk::LinkToTrack();
 
     linkTT->setElement(track);
     trkV.setOrigTrack(linkTT);
     tmpVTAV.push_back(trkV);
-    
+
     xAOD::Vertex* vertex = new xAOD::Vertex();
     vertex->makePrivateStore();
     vertex->setPosition(gp);
@@ -287,7 +273,7 @@ namespace InDet {
       vertex->vxTrackAtVertex().push_back(vtxTrack);
     }
 
-    return vertex;    
+    return vertex;
   }
 
   // -------------------------------------------------------
@@ -441,12 +427,12 @@ namespace InDet {
 
       ///The straight line surface (wire) global directions
       double A[3] = {T(0,2),T(1,2),T(2,2)};
-      
+
       ///The particle global direction
       double Px = trkPar.momentum().x();
       double Py = trkPar.momentum().y();
       double Pz = trkPar.momentum().z();
-      
+
       ///The Jacobian matrix J (3x2)
       double Bx = A[1]*Pz-A[2]*Py;
       double By = A[2]*Px-A[0]*Pz;
@@ -455,17 +441,17 @@ namespace InDet {
       double a11 = Bx; double a12 = A[0];
       double a21 = By; double a22 = A[1];
       double a31 = Bz; double a32 = A[2];
-      
+
       ///The A = J.C (3x2)
       double A11 = a11*p11 + a12*p21; double A12 = a11*p12 + a12*p22;
       double A21 = a21*p11 + a22*p21; double A22 = a21*p12 + a22*p22;
       double A31 = a31*p11 + a32*p21; double A32 = a31*p12 + a32*p22;
-      
+
       ///The A.JT = J.C.JT (3x3)
       double P11 = a11*A11 + A12*a12; double P12 = A11*a21 + A12*a22; double P13 = A11*a31 + A12*a32;
       double P21 = A21*a11 + A22*a12; double P22 = A21*a21 + A22*a22; double P23 = A21*a31 + A22*a32;
       double P31 = A31*a11 + A32*a12; double P32 = A31*a21 + A32*a22; double P33 = A31*a31 + A32*a32;
-      
+
       ///Construct the new covariance matrix (3x3)
       nCovVtx(0,0) = P11; nCovVtx(0,1) = P12; nCovVtx(0,2) = P13;
       nCovVtx(1,0) = P21; nCovVtx(1,1) = P22; nCovVtx(1,2) = P23;
@@ -473,8 +459,8 @@ namespace InDet {
     }
 
     // now construct the vertex from the global position, cov. put NdF and chi2 to zero (Markus)
-    
-    
+
+
     xAOD::Vertex* vertex = new xAOD::Vertex();
     container->push_back( vertex );
 
@@ -482,7 +468,7 @@ namespace InDet {
     vertex->setCovariancePosition(nCovVtx);
     vertex->setVertexType(xAOD::VxType::ConvVtx);
     vertex->setFitQuality( 0, 0);
-    
+
     return vertex;
   }
 
@@ -490,9 +476,9 @@ namespace InDet {
   // preselection cuts on track particles
   // -------------------------------------------------------
   bool SingleTrackConversionTool::selectSingleTrackParticleConversion(const xAOD::TrackParticle* track) const{
-   
+
      //Position of first hit in track particle
-    
+
     int index(-1);
     for(unsigned int i(0); i< track->numberOfParameters() ; ++i ){
       if( xAOD::FirstMeasurement == track->parameterPosition(i) ){
@@ -504,55 +490,55 @@ namespace InDet {
       ATH_MSG_WARNING("Track Particle does not contain first Measurement track parameters");
       return false;
     }
-  
+
     const Trk::CurvilinearParameters trk_meas = track->curvilinearParameters(index);
-    
+
     uint8_t dummy;
 
-    uint8_t expectedHitInBLayer(0); 
+    uint8_t expectedHitInBLayer(0);
     if( track->summaryValue(dummy,xAOD::expectInnermostPixelLayerHit) )
        expectedHitInBLayer = dummy;
 
-    float Rfirst = trk_meas.position().perp();    
-    if (expectedHitInBLayer) 
+    float Rfirst = trk_meas.position().perp();
+    if (expectedHitInBLayer)
     {
       // ME: cut on minInitR if blayer is ok
-      if (Rfirst < m_minInitR) 
+      if (Rfirst < m_minInitR)
       {
-        ATH_MSG_DEBUG("BLayer hit expected. Radius of first hit (" << 
+        ATH_MSG_DEBUG("BLayer hit expected. Radius of first hit (" <<
                       Rfirst << ") below minimum: " << m_minInitR);
         return false;
       }
-    } 
-    else 
+    }
+    else
     {
       // ME: cut on minInitR_NBLay if blayer is off
       if(Rfirst < m_minInitR_noBLay)
       {
-        ATH_MSG_DEBUG("No BLayer hit expected. Radius of first hit (" << 
+        ATH_MSG_DEBUG("No BLayer hit expected. Radius of first hit (" <<
                       Rfirst << ") below minimum: " << m_minInitR_noBLay);
         return false;
       }
     }
 
 
-    uint8_t nTrtHits(0);       
+    uint8_t nTrtHits(0);
     if( track->summaryValue(dummy, xAOD::numberOfTRTHits))
       nTrtHits = dummy;
-      
-    uint8_t nTrtOutliers(0);   
+
+    uint8_t nTrtOutliers(0);
     if(track->summaryValue(dummy, xAOD::numberOfTRTOutliers))
       nTrtOutliers = dummy;
-      
+
     uint8_t ntrt = nTrtHits + nTrtOutliers;
-    
+
     uint8_t nTrtXenonHits(0);
     if( track->summaryValue(dummy, xAOD::numberOfTRTXenonHits) )
        nTrtXenonHits = dummy;
-    
-    
 
-    if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) { 
+
+
+    if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) {
       // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
       float prob = 1.0;
       if( !track->summaryValue(prob,xAOD::eProbabilityHT) )
@@ -562,7 +548,7 @@ namespace InDet {
       }
       if (prob < m_singleThreshold)
       {
-        ATH_MSG_DEBUG("Probability (" << prob << ") below threshold: " 
+        ATH_MSG_DEBUG("Probability (" << prob << ") below threshold: "
                       << m_singleThreshold);
         return false;
       }
@@ -573,7 +559,7 @@ namespace InDet {
       nBLHits += dummy;
     if( track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerOutliers))
       nBLHits += dummy;
-    if(nBLHits > m_maxBLhits) 
+    if(nBLHits > m_maxBLhits)
     {
       ATH_MSG_DEBUG("BLayer hits (" << nBLHits << ") above maximum: " << m_maxBLhits);
       return false;

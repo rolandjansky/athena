@@ -286,7 +286,8 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "    -np, --noplots            \t do not actually make any plot\n";
   s << "    -q,  --quiet              \t make the plots but do not print them out\n\n";
 
-  s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (scaled by default)\n";
+  s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (unscaled by default)\n";
+  s << "         --scalepix           \t do scale the number of pixels by 0.5 (unscaled by default)\n";
   s << "         --yrange     min max \t use specified y axis range\n";  
   s << "    -xo, --xoffset      value \t relative x offset for the key\n"; 
   s << "    -yp, --ypos         value \t relative yposition for the key\n"; 
@@ -426,7 +427,7 @@ int main(int argc, char** argv) {
   bool notitle     = true;
   bool dochi2      = false;
   bool normref     = false;
-  bool scalepix    = true;
+  bool scalepix    = false;
   bool oldrms      = false;
   bool addchains   = false;
   bool usechainref = false;
@@ -523,6 +524,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="--unscalepix" ) { 
       scalepix = false;
+    }
+    else if ( arg=="--scalepix" ) { 
+      scalepix = true;
     }
     else if ( arg=="-ac" || arg=="--addchains" ) { 
       addchains = true;
@@ -1032,12 +1036,13 @@ int main(int argc, char** argv) {
 
   std::cout << "\n" << argv[0] << "\tconfigfile: " << configfile << std::endl;
 
+  bool use_file_config = false;
  
   if ( configfile!="" ) { 
 
     if ( exists(configfile) ) { 
 
-      std::cout << argv[0] << ":\treading histogram configuration from file " << configfile << std::endl; 
+      std::cout << argv[0] << ":\treading configuration file " << configfile << std::endl; 
     
       ReadCards rc(configfile);
 
@@ -1046,6 +1051,10 @@ int main(int argc, char** argv) {
       
       if ( rc.isTagDefined( "histos" ) ) { 
 	
+	std::cout << argv[0] << ":\treading histogram configuration from file " << configfile << std::endl; 
+
+	use_file_config = true;
+
 	std::vector<std::string> raw_input = rc.GetStringVector( "histos" );
 	
 	for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6) {
@@ -1063,6 +1072,10 @@ int main(int argc, char** argv) {
 
       if ( rc.isTagDefined( "panels" ) ) { 
 	
+	std::cout << argv[0] << ":\treading histogram panel configuration from file " << configfile << std::endl; 
+
+	use_file_config = true;
+
 	std::vector<std::string> panel_config = rc.GetStringVector( "panels" );
 	
 	for ( size_t ipanel=panel_config.size() ; ipanel-- ;  ) { 
@@ -1114,7 +1127,8 @@ int main(int argc, char** argv) {
     }
 
   }
-  else { 
+
+  if ( !use_file_config ) {
 
     std::cout << "using default panels" << std::endl;
 
@@ -1767,11 +1781,23 @@ int main(int argc, char** argv) {
 
 #if 1
 	if ( contains(histo.name(),"ntracks") ) {
-	  htest->Rebin(2);
-	  htest->Sumw2();
-	  if ( !noreftmp ) { 
-	    href->Rebin(2);
-	    href->Sumw2();
+
+	  double xm  = htest->GetMean();
+
+	  if ( xm>=10 ) { 
+	    double lxm = std::log10(xm);
+	    int newbins = int(0.5+xm/std::pow(10,int(lxm)))*pow(10,int(lxm));
+	    int nrebin   = int( (newbins+5)/10 );
+	    
+	    if ( nrebin>1 ) { 
+	      std::cout << "rebin: " << htest->GetName() << "\tbins: " << nrebin << std::endl;
+	      htest->Rebin(nrebin);
+	      htest->Sumw2();
+	      if ( !noreftmp ) { 
+		href->Rebin(nrebin);
+	      href->Sumw2();
+	      }
+	    }
 	  }
 	}
 #endif
@@ -1839,16 +1865,21 @@ int main(int argc, char** argv) {
 	std::cout << "actual chain:     " << actual_chain << std::endl;
 
 
-
+	if ( actual_chain.find("HLT_IDTrack_")!=std::string::npos )    actual_chain.erase( actual_chain.find("HLT_IDTrack_"), 12 );
 	if ( actual_chain.find("_idperf")!=std::string::npos )    actual_chain.erase( actual_chain.find("_idperf"), 7 );
 	if ( actual_chain.find("_bperf")!=std::string::npos )     actual_chain.erase( actual_chain.find("_bperf"), 6 );
 	if ( actual_chain.find("_boffperf")!=std::string::npos )  actual_chain.erase( actual_chain.find("_boffperf"), 9 );
+	if ( actual_chain.find("_HLT_")!=std::string::npos )      actual_chain.replace( actual_chain.find("_HLT_"), 5, " " );
+	if ( actual_chain.find("HLT_")!=std::string::npos )       actual_chain.erase( actual_chain.find("HLT_"), 4 );
 	if ( collection.find("_IDTrkNoCut")!=std::string::npos )  collection.erase( collection.find("_IDTrkNoCut"), 11 );
 	if ( collection.find("xAODCnv")!=std::string::npos )      collection.erase( collection.find("xAODCnv"), 7 );
+	if ( collection.find("HLT_IDTrack_")!=std::string::npos ) collection.erase( collection.find("HLT_IDTrack_"), 12 );
 	if ( collection.find("HLT_IDTrack")!=std::string::npos )  collection.erase( collection.find("HLT_IDTrack"), 11 );
 	if ( collection.find("Tracking")!=std::string::npos )     collection.replace( collection.find("Tracking"), 8, "Trk" );    
 	if ( collection.find("InDetTrigTrk_")!=std::string::npos ) collection.erase( collection.find("InDetTrigTrk_"), 13 );    
 	if ( collection.find("HLT_xAODTracks_")!=std::string::npos ) collection.erase( collection.find("HLT_xAODTracks_"), 15 );    
+	if ( collection.find("_HLT_")!=std::string::npos ) collection.replace( collection.find("_HLT_"), 5, " " );    
+	if ( collection.find("HLT_")!=std::string::npos )  collection.erase( collection.find("HLT_"), 4 );    
 
 	std::string c = actual_chain + " : " + collection;
 

@@ -48,34 +48,6 @@ Trk::CylinderBounds::CylinderBounds(double radius, double haphi, double averagep
   m_boundValues[CylinderBounds::bv_halfZ] = fabs(halez);
 }
 
-Trk::CylinderBounds::CylinderBounds(const Trk::CylinderBounds& cylbo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(cylbo.m_boundValues)
-  , m_checkPhi(cylbo.m_checkPhi)
-{}
-
-Trk::CylinderBounds::~CylinderBounds() = default;
-
-Trk::CylinderBounds&
-Trk::CylinderBounds::operator=(const Trk::CylinderBounds& cylbo)
-{
-  if (this != &cylbo) {
-    m_boundValues = cylbo.m_boundValues;
-    m_checkPhi = cylbo.m_checkPhi;
-  }
-  return *this;
-}
-
-Trk::CylinderBounds&
-Trk::CylinderBounds::operator=(Trk::CylinderBounds&& cylbo)
-{
-  if (this != &cylbo) {
-    m_boundValues = std::move(cylbo.m_boundValues);
-    m_checkPhi = cylbo.m_checkPhi;
-  }
-  return *this;
-}
-
 bool
 Trk::CylinderBounds::operator==(const SurfaceBounds& sbo) const
 {

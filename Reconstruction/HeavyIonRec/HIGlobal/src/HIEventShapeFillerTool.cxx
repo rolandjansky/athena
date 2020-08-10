@@ -7,7 +7,8 @@
 #include <CaloEvent/CaloCell.h>
 #include <CaloEvent/CaloCellContainer.h>
 #include <xAODHIEvent/HIEventShape.h>
-#include "HIEventUtils/HIEventShapeMap.h"
+#include "HIEventUtils/HIEventDefs.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
 #include <iostream>
 #include <iomanip>
@@ -32,9 +33,7 @@ StatusCode HIEventShapeFillerTool::initializeCollection(xAOD::HIEventShapeContai
    //tool is initialized only once
    if(!m_index)
    {
-     HIEventShapeIndex index;
-     index.setBinning(HIEventShapeIndex::COMPACT);
-     m_index=HIEventShapeMap::getMap()->insert(getContainerName(),index);
+     m_index=m_eventShapeMapTool->getIndex( HI::BinningScheme::COMPACT );
    }
    //fix this to have proper name passing
    //use tool to initialize event shape object

@@ -45,6 +45,7 @@ class TRootCompare : public TFileLooper {
   }
   void drawNormalized(Bool_t norm = kTRUE) { m_drawNormalized = norm; }
   void drawDiff(Bool_t diff = kTRUE) { m_drawDiff = diff; }
+  void sortLabels(Bool_t sort = kTRUE) { m_sortLabels = sort; }
   
   Int_t matchingHist() const { return m_histMatch; }
   Int_t totalHist() const { return m_histTotal; }
@@ -52,6 +53,7 @@ class TRootCompare : public TFileLooper {
   
  private:
   Bool_t compareHist(const TH1& h, const TH1& href);
+  void sortAndDeflate(TH1& h);
   void createDirectory(TFile* f, const char* dirpath);
   void printCanvas(const char* filename);
   
@@ -69,6 +71,7 @@ class TRootCompare : public TFileLooper {
   Int_t m_histMissing;
   Bool_t m_drawNormalized;
   Bool_t m_drawDiff;
+  Bool_t m_sortLabels;
   
   std::vector<std::string> m_noMatch;
  

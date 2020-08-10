@@ -16,7 +16,8 @@
 
 TrigConf::JobOptionsSvc::JobOptionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   base_class(name, pSvcLocator),
-  m_josvc("JobOptionsSvc/TrigConfWrapped_JobOptionsSvc", name)
+  m_josvc("JobOptionsSvc/TrigConfWrapped_JobOptionsSvc", name),
+  m_optsvc("JobOptionsSvc/TrigConfWrapped_JobOptionsSvc", name)
 {}
 
 StatusCode TrigConf::JobOptionsSvc::initialize()
@@ -28,6 +29,11 @@ StatusCode TrigConf::JobOptionsSvc::initialize()
   SmartIF<IProperty> joprop = &*m_josvc;
   ATH_CHECK(joprop->setProperty("TYPE", "NONE"));
 
+  //  m_optsvc = serviceLocator()->getOptsSvc();
+  ATH_CHECK(m_optsvc.retrieve());
+  m_optsvc->set( this->name() + ".TYPE" , "NONE" );
+
+  
   if (m_sourceType == "FILE") {
     ATH_MSG_INFO("Reading joboptions from " << m_sourcePath.value());
     ATH_CHECK(readOptions(m_sourcePath));
@@ -94,6 +100,7 @@ StatusCode TrigConf::JobOptionsSvc::readOptions(const std::string& file, const s
   for (const auto& [client, props] : json["properties"].items()) {
     for (const auto& [name, value] : props.items()) {
       ATH_CHECK(addPropertyToCatalogue(client, Gaudi::Property<std::string>(name, value.get<std::string>())));
+      // set(client + "." + name, value.get<std::string>());
     }
   }
 
@@ -114,6 +121,7 @@ StatusCode TrigConf::JobOptionsSvc::readOptionsDB(const std::string& db_server, 
       for( const auto & property : client.second ) {
         nProps++;
         ATH_CHECK(addPropertyToCatalogue(client.first, Gaudi::Property<std::string>(property.first, property.second.data())));
+        // set(client.first + "." + property.first, property.second.data());
       }
     }
     ATH_MSG_INFO("Loaded job options from " << nClients << " clients with " << nProps << " in total");

@@ -38,7 +38,7 @@ def allTE_trkfast( signature="FS" ):
         viewAlgs, viewVerify  = makeInDetAlgs( whichSignature=signature, rois=inputMakerAlg.InViewRoIs )
 
         vertexAlg = T2VertexBeamSpot_activeAllTE( "vertex_"+signature )
-        vertexAlg.TrackCollections = ["TrigFastTrackFinder_Tracks_"+signature]
+        vertexAlg.TrackCollection = "TrigFastTrackFinder_Tracks_"+signature
 
         viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+beamspotViewRoI_'+signature ),
                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
@@ -48,12 +48,6 @@ def allTE_trkfast( signature="FS" ):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence.SGInputLoader.Load += [( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
-
-        # These objects must be loaded from SGIL if not from CondInputLoader
-        from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
-          viewVerify.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
-          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
 
         beamspotSequence = seqAND( "beamspotSequence_"+signature, viewAlgs+[vertexAlg] )
         inputMakerAlg.ViewNodeName = beamspotSequence.name()

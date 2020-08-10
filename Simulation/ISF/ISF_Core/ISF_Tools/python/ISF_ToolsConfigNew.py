@@ -2,6 +2,7 @@
 
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.SystemOfUnits import MeV
 from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
@@ -10,12 +11,14 @@ from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
 def ParticleHelperCfg(flags, name="ISF_ParticleHelper", **kwargs):
     acc = BarcodeSvcCfg(flags)
     kwargs.setdefault("BarcodeSvc", acc.getPrimary())
-    acc.setPrivateTools(CompFactory.ISF.ParticleHelper(name, **kwargs))
+    acc.addPublicTool(CompFactory.ISF.ParticleHelper(name, **kwargs))
     return acc
 
 
 def MemoryMonitorToolCfg(flags, name="ISF_MemoryMonitor", **kwargs):
-    return CompFactory.ISF.MemoryMonitoringTool(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.ISF.MemoryMonitoringTool(name, **kwargs))
+    return acc
 
 
 def EntryLayerFilterCfg(ConfigFlags, **kwargs):
@@ -112,12 +115,16 @@ def CosmicEventFilterToolCfg(flags, name="ISF_CosmicEventFilter", **kwargs):
     kwargs.setdefault("PDG_ID", flags.Sim.CosmicFilterID)
     kwargs.setdefault("ptMin", flags.Sim.CosmicFilterPTmin)
     kwargs.setdefault("ptMax", flags.Sim.CosmicFilterPTmax)
-    return CompFactory.ISF.CosmicEventFilterTool(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.ISF.CosmicEventFilterTool(name, **kwargs))
+    return acc
 
 
 def StoppedParticleFilterToolCfg(flags, name="ISF_StoppedParticleFilter", **kwargs):
     kwargs.setdefault("VolumeNames", ["StoppingPositions"])
-    return CompFactory.ISF.CosmicEventFilterTool(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.ISF.CosmicEventFilterTool(name, **kwargs))
+    return acc
 
 
 def InToOutSubDetOrderingToolCfg(flags, name="ISF_InToOutSubDetOrderingTool", **kwargs):
@@ -127,7 +134,9 @@ def InToOutSubDetOrderingToolCfg(flags, name="ISF_InToOutSubDetOrderingTool", **
     kwargs.setdefault("OrderCalo"    , 10000    )
     kwargs.setdefault("OrderMS"      , 100      )
     kwargs.setdefault("OrderCavern"  , 1        )
-    return CompFactory.ISF.GenericParticleOrderingTool(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.ISF.GenericParticleOrderingTool(name, **kwargs))
+    return acc
 
 
 def ParticleOrderingToolCfg(flags, name="ISF_ParticleOrderingTool", **kwargs):
@@ -136,12 +145,18 @@ def ParticleOrderingToolCfg(flags, name="ISF_ParticleOrderingTool", **kwargs):
     kwargs.setdefault("OrderCalo"    , 1)
     kwargs.setdefault("OrderMS"      , 1)
     kwargs.setdefault("OrderCavern"  , 1)
-    return CompFactory.ISF.GenericParticleOrderingTool(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.ISF.GenericParticleOrderingTool(name, **kwargs))
+    return acc
 
 
 def EnergyParticleOrderingToolCfg(flags, name="ISF_EnergyParticleOrderingTool", **kwargs):
-    return CompFactory.ISF.EnergyParticleOrderingTool(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.ISF.EnergyParticleOrderingTool(name, **kwargs))
+    return acc
 
 
 def ParticleKillerToolCfg(flags, name="ISF_ParticleKillerTool", **kwargs):
-    return CompFactory.ISF.ParticleKillerSimTool(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.ISF.ParticleKillerSimTool(name, **kwargs))
+    return acc

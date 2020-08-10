@@ -232,7 +232,8 @@ class SlimmingHelper:
                 for item in mainEntries:
                         Stream.AddItem(item)
                 for item in auxEntries.keys():
-                        theDictionary = dict(self.NamesAndTypes.items() + self.AppendToDictionary.items())
+                        theDictionary = self.NamesAndTypes.copy()
+                        theDictionary.update (self.AppendToDictionary)
                         if item in theDictionary.keys():
                                 if (theDictionary[item]=='xAOD::JetAuxContainer'):
                                         entry = "xAOD::JetAuxContainer#"+item+"."
@@ -577,6 +578,9 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4EMPFlow_201903":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201903"))
+                elif collectionName=="BTagging_AntiKt4EMPFlow":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))
                 elif collectionName=="BTagging_AntiKt2Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt2PV0TrackJets"))

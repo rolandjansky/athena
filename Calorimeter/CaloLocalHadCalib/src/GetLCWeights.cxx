@@ -359,7 +359,7 @@ StatusCode GetLCWeights::execute()
   SG::ReadHandle<xAOD::CaloClusterContainer> cc (m_clusterCollName, ctx);
 
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_CalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_cchc.push_back(cchc.cptr());
   }

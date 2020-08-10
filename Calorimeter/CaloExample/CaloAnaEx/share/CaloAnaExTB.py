@@ -765,5 +765,3 @@ theApp.AuditAlgorithms=True
 #theApp.AuditServices=True
 #theApp.AuditTools=True # FIXME crash on finalisation 
 MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
-from __main__ import AtlasTrackingGeometrySvc
-AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False

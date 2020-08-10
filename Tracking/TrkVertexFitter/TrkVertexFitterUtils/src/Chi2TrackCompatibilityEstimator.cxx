@@ -15,7 +15,7 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkParametersBase/ParametersBase.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace Trk
 {
@@ -114,13 +114,13 @@ namespace Trk
   {
     const Trk::AtaPlane * myAtaPlane=vtxTrack.ImpactPoint3dAtaPlane();
 
-    if (myAtaPlane!=0 && myAtaPlane->covariance()!=0) //Looking for a AtaPlane object (track)
+    if (myAtaPlane!=nullptr && myAtaPlane->covariance()!=nullptr) //Looking for a AtaPlane object (track)
       return _compatibility(myAtaPlane, vertex);
-    else { //looking for a NeutralAtaPlane object (neutral)
+    //looking for a NeutralAtaPlane object (neutral)
       const Trk::NeutralAtaPlane * myNeutralAtaPlane=vtxTrack.ImpactPoint3dNeutralAtaPlane();
-      if (myNeutralAtaPlane!=0 && myNeutralAtaPlane->covariance()!=0)
+      if (myNeutralAtaPlane!=nullptr && myNeutralAtaPlane->covariance()!=nullptr)
         return _compatibility(myNeutralAtaPlane, vertex);
-    }
+    
 
     ATH_MSG_WARNING( " No compatibility plane attached to the VxTrackAtVertex. Compatibility couldn't be found... 0 compatibility returned."  );
     return 100;

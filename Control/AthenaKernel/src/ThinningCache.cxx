@@ -37,7 +37,7 @@ ThinningCache::thinning (const std::string& key) const
 {
   auto it = m_map.find (key);
   if (it != m_map.end()) {
-    return it->second;
+    return it->second.m_decision;
   }
   return nullptr;
 }
@@ -55,7 +55,7 @@ ThinningCache::thinning (const sgkey_t sgkey) const
 {
   auto it = m_sgmap.find (sgkey);
   if (it != m_sgmap.end()) {
-    return it->second;
+    return it->second.m_decision;
   }
   return nullptr;
 }
@@ -81,19 +81,26 @@ void ThinningCache::addThinning (const std::string& key,
 {
   if (!thinning) return;
 
-  auto pos = m_map.try_emplace (key, thinning);
-  if (!pos.second) {
-    if (!unique) {
-      merge (pos.first, sgkeys, *thinning);
-      return;
+  {
+    ThinningInfo& info = m_map[key];
+    if (info.m_decision) {
+      if (!unique) {
+        merge (info, sgkeys, *thinning);
+        return;
+      }
+      throw std::runtime_error ("Duplicated thinning definition");
     }
-    throw std::runtime_error ("Duplicated thinning definition");
+    else {
+      info.m_decision = thinning;
+    }
   }
 
   for (sgkey_t sgkey : sgkeys) {
-    if (!m_sgmap.try_emplace (sgkey, thinning).second) {
+    ThinningInfo& info = m_sgmap[sgkey];
+    if (info.m_decision) {
       throw std::runtime_error ("Duplicated thinning definition");
     }
+    info.m_decision = thinning;
   }
 }
 
@@ -133,6 +140,47 @@ void ThinningCache::lockOwned()
 
 
 /**
+ * @brief Set selected variable information one object.
+ * @param key SG string key of the object being added.
+ * @param sgkeys SG hashed keys of the object being added.
+ * @param vetoed Set of vetoed variables for this object.
+ */
+void ThinningCache::setVetoed (const std::string& key,
+                               const CxxUtils::ConcurrentBitset& vetoed)
+{
+  m_map[key].m_vetoed = vetoed;
+}
+
+/**
+ * @brief Set lossy float compression information for the object.
+ * @param key SG string key of the object being added.
+ * @param compression Map of compression levels to variables
+ *                    for this object.
+ */
+void ThinningCache::setCompression(const std::string& key,
+                                   const ThinningInfo::compression_map_t& compression)
+{
+  m_map[key].m_compression = compression;
+}
+
+/**
+ * @brief Return thinning information for @c key.
+ * @param key SG key for which to return selected variables.
+ *
+ * Return thinning information @c key, or nullptr.
+ */
+const ThinningInfo*
+ThinningCache::thinningInfo (const std::string& key) const
+{
+  auto it = m_map.find (key);
+  if (it != m_map.end()) {
+    return &it->second;
+  }
+  return nullptr;
+}
+
+
+/**
  * @brief Clear the cache.
  */
 void ThinningCache::clear()
@@ -146,13 +194,13 @@ void ThinningCache::clear()
 
 /**
  * @brief Merge a new thinning request into an existing one via AND.
- * @param oldThinningIt Iterator in @c m_map of the existing thinning decision.
+ * @param info @c ThinningInfo with existing decision.
  * @param sgkeys SG hashed keys of the object being added.
  * @param thinning New thinning decision.
  *
  * The new thinning decision will be combined with the old one via AND.
  */
-void ThinningCache::merge (map_t::iterator oldThinningIt,
+void ThinningCache::merge (ThinningInfo& info,
                            const std::vector<sgkey_t>& sgkeys,
                            const ThinningDecisionBase& thinning)
 {
@@ -165,7 +213,7 @@ void ThinningCache::merge (map_t::iterator oldThinningIt,
   // We expect this to be relatively rare and the number of such objects
   // to be small, so just use a linear search.
   auto ownedIt = std::find_if (m_owned.begin(), m_owned.end(),
-                               [old = oldThinningIt->second]
+                               [old = info.m_decision]
                                (const std::unique_ptr<SG::ThinningDecisionBase>& p)
                                { return p.get() == old; });
 
@@ -175,13 +223,13 @@ void ThinningCache::merge (map_t::iterator oldThinningIt,
   }
   else {
     // We need to make a copy of the existing decision and enter it into the maps.
-    m_owned.push_back (std::make_unique<SG::ThinningDecisionBase> (oldThinningIt->second->size()));
+    m_owned.push_back (std::make_unique<SG::ThinningDecisionBase> (info.m_decision->size()));
     oldThinning = m_owned.back().get();
-    oldThinning->thin (*oldThinningIt->second);
-    oldThinningIt->second = oldThinning;
+    oldThinning->thin (*info.m_decision);
+    info.m_decision = oldThinning;
 
     for (sgkey_t sgkey : sgkeys) {
-      m_sgmap[sgkey] = oldThinning;
+      m_sgmap[sgkey].m_decision = oldThinning;
     }
   }
 

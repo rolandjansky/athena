@@ -97,8 +97,6 @@ Trk::DiscSurface::DiscSurface(const Trk::TrkDetElementBase& detelement)
   , m_bounds()
   , m_referencePoint(nullptr)
 {}
-// destructor (will call destructor from base class which deletes objects)
-Trk::DiscSurface::~DiscSurface() = default;
 
 Trk::DiscSurface&
 Trk::DiscSurface::operator=(const DiscSurface& dsf)
@@ -237,9 +235,9 @@ Trk::DiscSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
   if (A == 0.) { // direction parallel to surface
     if (fabs(d) < tol) {
       return Trk::DistanceSolution(1, 0., true, 0.);
-    } 
+    }
       return Trk::DistanceSolution(0, d, true, 0.);
-    
+
   }
 
   double D = b * (S - (pos.dot(N))) / A;

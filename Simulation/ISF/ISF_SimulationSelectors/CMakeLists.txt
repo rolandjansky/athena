@@ -17,5 +17,5 @@ atlas_add_component( ISF_SimulationSelectors
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib GaudiKernel BarcodeServicesLib ISF_Event ISF_InterfacesLib ISF_TrackingInterfacesLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

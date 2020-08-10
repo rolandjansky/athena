@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorElectronAlgorithm.h"
-
 
 using namespace Trig;
 
@@ -24,7 +23,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::initialize()
   ATH_CHECK(m_offElectronKey.initialize());
  
 
-  for(const auto trigName:m_trigInputList)
+  for(const auto& trigName:m_trigInputList)
   {
     if(getTrigInfoMap().count(trigName) != 0){
       ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -53,7 +52,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 
     ATH_MSG_DEBUG("Chains for Analysis " << m_trigList);
 
-    for(const auto trigger : m_trigList){
+    for(const auto& trigger : m_trigList){
         
         const TrigInfo info = getTrigInfo(trigger);
         
@@ -61,7 +60,6 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
  
 
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjs;
-        
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType, pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
@@ -70,14 +68,13 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 
 
 
-
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
     } // End loop over trigger list
-    
     
     return StatusCode::SUCCESS;
 }

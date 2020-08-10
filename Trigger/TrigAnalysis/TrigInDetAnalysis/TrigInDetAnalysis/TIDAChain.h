@@ -60,6 +60,10 @@ public:
   TIDA::Roi& back() { return m_roi.back(); }
 
   TIDA::Roi& operator[](int i) { return m_roi.at(i); }
+  TIDA::Roi&         at(int i) { return m_roi.at(i); }
+
+  const TIDA::Roi& operator[](int i) const { return m_roi.at(i); }
+  const TIDA::Roi&         at(int i) const { return m_roi.at(i); }
 
 private:
 

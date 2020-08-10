@@ -33,5 +33,5 @@ atlas_add_component( MuonSegmentMatchingTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonRIO_OnTrack MuonCompetingRIOsOnTrack MuonSegment MuonRecHelperToolsLib TrkDetDescrUtils TrkGeometry TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonRIO_OnTrack MuonCompetingRIOsOnTrack MuonSegment MuonRecHelperToolsLib TrkDetDescrUtils TrkGeometry TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces MuonSegmentMakerToolInterfaces )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVPathologyDbCondAlg.h" 
@@ -264,7 +264,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
     }
   }
   // loop over all HEC Identifiers
-  for (auto const id: m_larhec_id->channel_ids()) {
+  for (auto const& id: m_larhec_id->channel_ids()) {
      hwlineId.clear();
      hvCabling->getHVLineInCell(id,hwlineId);
      if (const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(calodetdescrmgr->get_element(id))) {
@@ -285,7 +285,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
      }
   }
   // loop over all FCAL Identifiers
-  for (auto const id: m_larfcal_id->channel_ids()) {
+  for (auto const& id: m_larfcal_id->channel_ids()) {
      hwlineId.clear();
      hvCabling->getHVLineInCell(id,hwlineId);
      if (const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(calodetdescrmgr->get_element(id))) {

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Electron_v1.h 636327 2014-12-16 16:34:24Z christos $
 #ifndef XAODEGAMMA_VERSIONS_ELECTRON_V1_H
 #define XAODEGAMMA_VERSIONS_ELECTRON_V1_H
 	
@@ -19,6 +18,9 @@
 //TrackParticle Includes
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+
+//Already include the DataVector specialization for this type
+#include "xAODEgamma/ElectronContainerFwd.h"
 
 namespace xAOD {
 
@@ -131,7 +133,8 @@ namespace xAOD {
   }; // Electron Class
 
 }//  xAOD namespace
-
+//Finish declaration of Egamma as a base class of Electron
+DATAVECTOR_BASE_FIN(xAOD::Electron_v1, xAOD::Egamma);
 
 #endif // XAODEGAMMA_VERSIONS_ELECTRON_V1_H
 

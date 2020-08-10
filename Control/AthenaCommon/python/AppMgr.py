@@ -729,7 +729,7 @@ class AthAppMgr( AppMgr ):
       try:
          from AthenaCommon.Debugging import DbgStage
          if DbgStage.value == "exec":
-            from Debugging import hookDebugger
+            from .Debugging import hookDebugger
             hookDebugger()
       except ImportError:
          pass

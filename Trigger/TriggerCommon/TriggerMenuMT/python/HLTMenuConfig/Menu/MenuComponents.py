@@ -73,7 +73,7 @@ class AlgNode(Node):
     def addOutput(self, name):
         outputs = self.readOutputList()
         if name in outputs:
-            log.debug("Output DH not added in %s: %s already set!", self.name, name)
+            log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.outputProp != '':
                 self.setPar(self.outputProp,name)
@@ -96,7 +96,7 @@ class AlgNode(Node):
     def addInput(self, name):
         inputs = self.readInputList()
         if name in inputs:
-            log.debug("Input DH not added in %s: %s already set!", self.name, name)
+            log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.inputProp != '':
                 self.setPar(self.inputProp,name)
@@ -317,14 +317,14 @@ class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self, name):
-        self._name = name
-        Maker = CompFactory.InputMakerForRoI("IM"+name)
+    def __init__(self, the_name):
+        self._name = the_name
+        Maker = CompFactory.InputMakerForRoI("IM"+the_name)
         Maker.RoITool = CompFactory.ViewCreatorInitialROITool()
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
-        self._sequence    = Node( Alg = seqAND(name, [Maker]))
-        log.debug("Making EmptySequence %s",name)
+        self._sequence    = Node( Alg = seqAND(the_name, [Maker]))
+        log.debug("Made EmptySequence %s",the_name)
 
     @property
     def sequence(self):
@@ -338,16 +338,12 @@ class EmptyMenuSequence(object):
     def name(self):
         return self._name
 
-    @property
-    def __maker(self):
-        return self._maker
-
     def getOutputList(self):
-        return self.__maker.readOutputList() # Only one since it's merged
+        return self._maker.readOutputList() # Only one since it's merged
 
     def connectToFilter(self, outfilter):
         """ Connect filter to the InputMaker"""
-        self.__maker.addInput(outfilter)
+        self._maker.addInput(outfilter)
 
     def createHypoTools(self, chainDict):
         log.debug("This sequence is empty. No Hypo to conficure")
@@ -381,9 +377,7 @@ class EmptyMenuSequence(object):
 
     def __repr__(self):
         return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
-            %(self.name(), "Empty", self._maker.Alg.getName(), self.sequence.Alg.getName(), "None")
-
-
+            %(self.name, "Empty", self._maker.Alg.getName(), self.sequence.Alg.getName(), "None")
 
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
@@ -645,6 +639,7 @@ class Chain(object):
         """
         self.name = name
         self.steps=ChainSteps
+
         self.vseeds=L1Thresholds
 
         from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
@@ -662,6 +657,57 @@ class Chain(object):
 
         log.debug("Made %s Chain %s with seeds: %s ", "combo" if isCombo else "", name, self.L1decisions)
 
+    def numberAllSteps(self):
+        if len(self.steps)==0:
+            return
+        else:
+            import re
+            for stepID,step in enumerate(self.steps):
+                step_name = step.name
+                if re.search('^Step[0-9]_',step_name):
+                    step_name = step_name[6:]
+                step.name = 'Step%d_'%(stepID+1)+step_name
+        return
+
+    def insertEmptySteps(self, chainDict, empty_step_name, n_new_steps, start_position):
+        #start position indexed from 0. if start position is 3 and length is 2, it works like:
+        # [old1,old2,old3,old4,old5,old6] ==> [old1,old2,old3,empty1,empty2,old4,old5,old6]
+        import re
+
+        if len(self.steps) == 0 :
+            log.error("I can't insert empty steps because the chain doesn't have any steps yet!")
+
+        if len(self.steps) < start_position :
+            log.error("I can't insert empty steps at step %d because the chain doesn't have that many steps!", start_position)
+
+        
+        chain_steps_pre_split = self.steps[:start_position]
+        chain_steps_post_split = self.steps[start_position:]
+
+        next_step_name = ''
+        prev_step_name = ''
+        if start_position == 0:
+            next_step_name = chain_steps_post_split[0].name
+            if re.search('^Step[0-9]_',next_step_name):
+                next_step_name = next_step_name[6:]
+            prev_step_name = 'empty_'+str(len(self.L1decisions))+'L1in'
+        else:
+            if len(chain_steps_post_split) == 0:
+                log.error("Adding empty steps to the end of a chain - why would you do this?")
+            else:
+                prev_step_name = chain_steps_pre_split[-1].name
+                next_step_name = chain_steps_post_split[0].name
+
+        steps_to_add = []
+        for stepID in range(1,n_new_steps+1):
+            new_step_name =  prev_step_name+'_'+empty_step_name+'%d_'%stepID+next_step_name
+
+            log.debug("Configuring empty step " + new_step_name)
+            steps_to_add += [ChainStep(new_step_name, [], [], [chainDict], comboHypoCfg=ComboHypoCfg)]
+        
+        self.steps = chain_steps_pre_split + steps_to_add + chain_steps_post_split
+
+        return
 
     def checkMultiplicity(self):
         if len(self.steps) == 0:
@@ -720,18 +766,18 @@ class Chain(object):
 
             if len(step.chainDicts) > 0:
                 # new way to configure hypo tools, works if the chain dictionaries have been attached to the steps
-                log.info('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
-                log.info("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.chainDicts))
+                log.debug('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
+                log.debug("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.chainDicts))
                 assert len(step.sequences)==len(step.chainDicts), "createHypoTools only makes sense if number of sequences == number of chain dicts"
                 for seq, onePartChainDict in zip(step.sequences, step.chainDicts):
-                    log.info('    seq: %s, onePartChainDict:', seq.name)
-                    log.info('    ' + str(onePartChainDict))
+                    log.debug('    seq: %s, onePartChainDict:', seq.name)
+                    log.debug('    ' + str(onePartChainDict))
                     seq.createHypoTools( onePartChainDict )              
 
             else:
                 # legacy way, to be removed once all signatures pass the chainDicts to the steps
                 step_mult = [str(m) for m in step.multiplicity]
-                log.info('%s in old hypo tool creation method', self.name)
+                log.debug('%s in old hypo tool creation method', self.name)
                 menu_mult = [ part['chainParts'][0]['multiplicity'] for part in listOfChainDictsLegs ]
                 if step_mult != menu_mult:
                     # Probably this shouldn't happen, but it currently does
@@ -841,6 +887,10 @@ class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
 
+        # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
+        if sum(multiplicity)==0:
+            multiplicity=[]
+
         # sanity check on inputs
         if len(Sequences) != len(multiplicity):
             raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
@@ -883,7 +933,16 @@ class ChainStep(object):
         if not self.isCombo:
             return "--- ChainStep %s ---\n , multiplicity = %d  ChainDict = %s \n + MenuSequences = %s "%(self.name,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
         else:
-            return "--- ChainStep %s ---\n + isCombo, multiplicity = %d  ChainDict = %s \n + MenuSequences = %s  \n + ComboHypo = %s,  ComboHypoTools = %s"%(self.name,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ), self.combo.Alg.name(),  ' '.join(map(str, [tool.__name__ for tool in self.comboToolConfs]))) 
+            if self.combo:
+                calg = self.combo.Alg.name()
+            else:
+                calg = 'NONE'
+            return "--- ChainStep %s ---\n + isCombo, multiplicity = %d  ChainDict = %s \n + MenuSequences = %s  \n + ComboHypo = %s,  ComboHypoTools = %s" %\
+                   (self.name,  sum(self.multiplicity),
+                    ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])),
+                    ' '.join(map(str, [seq.name for seq in self.sequences]) ),
+                    calg,
+                    ' '.join(map(str, [tool.__name__ for tool in self.comboToolConfs])))
 
 
 def createComboAlg(dummyFlags, name, multiplicity, comboHypoCfg):
@@ -915,11 +974,6 @@ class InEventReco( ComponentAccumulator ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.recoSeq.getName() )
 
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per event"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.recoSeq.name )
-
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
 
@@ -933,7 +987,7 @@ class InEventReco( ComponentAccumulator ):
 
 class InViewReco( ComponentAccumulator ):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None):
+    def __init__(self, name, viewMaker=None, roisKey=None):
         super( InViewReco, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -948,7 +1002,7 @@ class InViewReco( ComponentAccumulator ):
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
-                                                          InViewRoIs      = name+'RoIs',
+                                                          InViewRoIs      = roisKey if roisKey else name+'RoIs',
                                                           Views           = name+'Views',
                                                           ViewNodeName    = name+"InView")
 
@@ -968,11 +1022,6 @@ class InViewReco( ComponentAccumulator ):
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.getName() )
-
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per view"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.viewsSeq.name )
 
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )

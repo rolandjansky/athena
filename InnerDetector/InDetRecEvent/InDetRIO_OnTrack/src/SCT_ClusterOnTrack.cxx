@@ -65,12 +65,9 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const ElementLinkToIDCSCT_Cluster
                      id,
                      isbroad),
     m_rio(RIO),
-    m_detEl((*RIO)->detectorElement()),
+    m_detEl(nullptr),
     m_positionAlongStrip (positionAlongStrip)
 {
-  // Set global position
-  Amg::Vector2D lpos(localParameters().get(Trk::locX), m_positionAlongStrip);
-  m_globalPosition = detectorElement()->surface(identify()).localToGlobalPos(lpos);
 }
 
 
@@ -91,8 +88,15 @@ const Trk::Surface& InDet::SCT_ClusterOnTrack::associatedSurface() const
 void InDet::SCT_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* )
 {
     m_detEl = dynamic_cast< const InDetDD::SiDetectorElement* >(detEl);
+    if (m_detEl) {
+      // Set global position after setting the detector element
+      Amg::Vector2D lpos(localParameters().get(Trk::locX),
+                         m_positionAlongStrip);
+      m_globalPosition =
+        detectorElement()->surface(identify()).localToGlobalPos(lpos);
+    }
 }
-  
+
 MsgStream& InDet::SCT_ClusterOnTrack::dump( MsgStream& sl ) const
 {
   SiClusterOnTrack::dump(sl);// use dump(...) from SiClusterOnTrack

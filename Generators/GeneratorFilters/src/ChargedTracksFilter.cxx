@@ -34,7 +34,7 @@ StatusCode ChargedTracksFilter::filterEvent() {
       // Count tracks in specified acceptance
       const double pT = part->momentum().perp();
       const double eta = part->momentum().pseudoRapidity();
-      if (pT >= m_Ptmin && fabs(eta) <= m_EtaRange && pCharge != 0) {
+      if (pT >= m_Ptmin && std::abs(eta) <= m_EtaRange && pCharge != 0) {
         ATH_MSG_DEBUG("Found particle, " <<
                       " pT = " << pT <<
                       " eta = " << eta <<

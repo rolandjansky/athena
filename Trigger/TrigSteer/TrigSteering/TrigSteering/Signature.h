@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -121,6 +121,7 @@ namespace HLT {
     */
     struct RequiredTEs{
       RequiredTEs(int mult, HLT::Sequence* seq): multiplicity(mult), sequence(seq) {}
+      RequiredTEs(const RequiredTEs& r) = default;
       RequiredTEs& operator=(const RequiredTEs& r) {
 	const_cast<unsigned int&>((this->multiplicity)) = r.multiplicity; 
 	sequence = r.sequence; 

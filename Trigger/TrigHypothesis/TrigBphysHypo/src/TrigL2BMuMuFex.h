@@ -15,8 +15,6 @@
 
 #include <string>
 
-#include "GaudiKernel/ToolHandle.h"
-
 #include "TrigInterfaces/ComboAlgo.h"
 
 #include "TrigInDetEvent/TrigVertexCollection.h"
@@ -24,9 +22,6 @@
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
 
 //#include "TrigParticle/TrigL2BphysContainer.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
-#include "xAODTrigBphys/TrigBphysAuxContainer.h"
-#include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 

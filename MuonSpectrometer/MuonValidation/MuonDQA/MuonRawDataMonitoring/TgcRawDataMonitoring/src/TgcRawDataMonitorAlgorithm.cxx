@@ -182,7 +182,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   for(auto mymuon : mymuons){
     mymuon.probeOK_any = false;
     mymuon.probeOK_Z = false;
-    for(const auto mu2 : mymuons){
+    for(const auto& mu2 : mymuons){
       if( mymuon.muon == mu2.muon )continue;
       if( !mu2.tagged )continue;
       mymuon.probeOK_any = true;
@@ -559,9 +559,9 @@ TgcRawDataMonitorAlgorithm::getError(const std::vector<double>& inputVec) const
   }
   const double mean = sum/nSize;
   for(int jj = 0; jj < nSize; jj++){
-    sum2 = sum2 + pow((inputVec.at(jj)-mean),2);
+    sum2 = sum2 + std::pow((inputVec.at(jj)-mean),2);
   }
-  const double stdDev = sqrt(sum2/nSize);
+  const double stdDev = std::sqrt(sum2/nSize);
   return stdDev;
 }
 

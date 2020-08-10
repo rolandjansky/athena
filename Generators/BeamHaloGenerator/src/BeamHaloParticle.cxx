@@ -155,7 +155,7 @@ int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *particleDataTable,
   m_fourVector.setY(flukaParticle->directionalCosines().y() * mod_p);
 
   // If the z component of the directional cosine has not been set recalculate it.
-  if(fabs(flukaParticle->directionalCosines().z()) < 0.0001) {
+  if(std::abs(flukaParticle->directionalCosines().z()) < 0.0001) {
     // Calculate pz from sqrt(p^2 - p_T^2)
     pz = std::sqrt(p_sq - m_fourVector.perp2());
     m_fourVector.setZ(pz);  // This is always +ve.  Corrected during conversion to HepParticle

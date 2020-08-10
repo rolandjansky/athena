@@ -4,8 +4,6 @@ from __future__ import print_function
 from future.utils import iteritems
 import six
 
-from past.builtins import basestring
-
 from builtins import zip
 from builtins import next
 from builtins import object
@@ -185,6 +183,7 @@ class transformExecutor(object):
         self._eventCount = None
         self._athenaMP = None
         self._athenaMT = None
+        self._athenaConcurrentEvents = None
         self._dbMonitor = None
         
         # Holder for execution information about any merges done by this executor in MP mode
@@ -863,7 +862,7 @@ class athenaExecutor(scriptExecutor):
             msg.debug("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
-        if isinstance(skeletonFile, basestring):
+        if isinstance(skeletonFile, six.string_types):
             self._skeleton = [skeletonFile]
         else:
             self._skeleton = skeletonFile
@@ -963,8 +962,8 @@ class athenaExecutor(scriptExecutor):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
                                                             'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
 
-        # Try to detect AthenaMT mode and number of threads
-        self._athenaMT = detectAthenaMTThreads(self.conf.argdict)
+        # Try to detect AthenaMT mode, number of threads and number of concurrent events
+        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict)
 
         # Try to detect AthenaMP mode and number of workers
         self._athenaMP = detectAthenaMPProcs(self.conf.argdict)

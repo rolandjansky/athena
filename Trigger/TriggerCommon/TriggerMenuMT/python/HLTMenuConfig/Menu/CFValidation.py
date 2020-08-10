@@ -116,5 +116,9 @@ def testHLTTree( inputSequence ):
             raise RuntimeError( viewAlgName + " is attached to an EventView node, but also runs in the whole event context" )
 
     # Make sure that VDVs are configured correctly
-    checkVDV( inputSequence.getChildren(), [inputSequence.name()], {} )
+    allEVCAs = {}
+    checkVDV( inputSequence.getChildren(), [inputSequence.name()], allEVCAs )
 
+    # Check for inconsistent view maker search results
+    if len( allEVCAs ) != originalLength:
+      raise RuntimeError( "EventView creator alg search found different results in structured search (" + str(originalLength) + ") versus naive search (" + str( len( allEVCAs ) ) + "). Implies menu structure error" )

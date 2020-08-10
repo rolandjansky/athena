@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: SGDataVectorGetterTool.cxx 790090 2016-12-16 05:31:29Z ssnyder $
@@ -75,6 +75,13 @@ StatusCode SGDataVectorGetterTool::initialize()
   if (!m_info) {
     TClass* cls = gROOT->GetClass (m_typename.c_str());
     TMethodCall meth (cls, "initHelper", "");
+    if (meth.IsValid())
+      meth.Execute();
+    m_info = getInfo (typeinfo());
+  }
+  if (!m_info) {
+    TClass* cls = gROOT->GetClass (m_typename.c_str());
+    TMethodCall meth (cls, "dvlinfo", "");
     if (meth.IsValid())
       meth.Execute();
     m_info = getInfo (typeinfo());

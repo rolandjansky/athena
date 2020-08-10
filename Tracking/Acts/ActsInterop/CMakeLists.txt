@@ -14,6 +14,3 @@ atlas_add_library( ActsInteropLib
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ActsCore GaudiKernel
    PRIVATE_LINK_LIBRARIES InDetIdentifier InDetReadoutGeometry )
-
-# Install files from the package.
-atlas_install_joboptions( share/*.py )

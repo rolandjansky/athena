@@ -51,4 +51,4 @@ atlas_add_component( MuonTruthTools
    MuonRecToolInterfaces MuonTrackMakerUtils MuonSimData TrkDetElementBase
    TrkSurfaces TrkMeasurementBase TrkParameters TrkPrepRawData
    TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkTruthData
-   TrkExInterfaces TrkFitterInterfaces TrackRecordLib )
+   TrkExInterfaces TrkFitterInterfaces TrackRecordLib TrkTruthTrackInterfaces )

@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from collections import defaultdict
 from .Sequence import Sequence
+import binascii
 
 # def _update_if_diagnostic_sequence(sequence):
 #     # diagnostic sequences monitor sequences. Ensure diagnostic
@@ -94,13 +95,18 @@ class SequenceTree(object):
             # sequence. Keep this for human readers
             toks = alias.split('_')
             # hash the rest to get a shorter name
-            ah = hash(alias)
+            # Don't use the builtin hash().  With py3, that changes run-to-run,
+            # which ultimately implies that the HLTResult objects
+            # we write will also vary from run to run.
+            ah = binascii.crc32 (alias.encode())
             alias = '%s_%d' % (toks[0], ah)
             
             
         if te_in:
             # te_out = te_in + '__' + alglist.alias
-            hash_in = ('%s' % hash(te_in)).replace('-', '_')
+            # Similarly, don't use builtin hash() here.
+            h = binascii.crc32 (te_in.encode())
+            hash_in = ('%s' % h).replace('-', '_')
             te_out = '%s_%s' % (hash_in, alias)
         else:
             te_out = alias

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -161,77 +161,95 @@ def getTB_RegionCreatorList():
 
 #########################################################################
 def getStandardFieldSvc(name="StandardField", **kwargs):
-    import MagFieldServices.SetupField  # noqa: F401
-    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc") # TODO This should probably be based on simFlags.MagneticField?
     #kwargs.setdefault("FieldOn", True)
     return CfgMgr.StandardFieldSvc(name, **kwargs)
 
 def getForwardFieldSvc(name="ForwardField", **kwargs):
-    #FIXME Once it exists this version should use the new MagField Service defined in ForwardRegionMgField
-    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc")
+    kwargs.setdefault("MagneticFieldSvc", "ForwardRegionFieldSvc")
     #kwargs.setdefault("FieldOn", True)
+    # Must switch on the use of a field svc to be able to have StandardFieldSvc use ForwardRegionFieldSvc
+    kwargs.setdefault("UseMagFieldSvc", True)
     return CfgMgr.StandardFieldSvc(name, **kwargs)
 
 def getQ1FwdG4FieldSvc(name='Q1FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q1")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ2FwdG4FieldSvc(name='Q2FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q2")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ3FwdG4FieldSvc(name='Q3FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q3")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getD1FwdG4FieldSvc(name='D1FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "D1")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getD2FwdG4FieldSvc(name='D2FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "D2")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ4FwdG4FieldSvc(name='Q4FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q4")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ5FwdG4FieldSvc(name='Q5FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q5")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ6FwdG4FieldSvc(name='Q6FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q6")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ7FwdG4FieldSvc(name='Q7FwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q7")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ1HKickFwdG4FieldSvc(name='Q1HKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q1HKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ1VKickFwdG4FieldSvc(name='Q1VKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q1VKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ2HKickFwdG4FieldSvc(name='Q2HKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q2HKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ2VKickFwdG4FieldSvc(name='Q2VKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q2VKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ3HKickFwdG4FieldSvc(name='Q3HKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q3HKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ3VKickFwdG4FieldSvc(name='Q3VKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q3VKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ4VKickAFwdG4FieldSvc(name='Q4VKickAFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q4VKickA")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ4HKickFwdG4FieldSvc(name='Q4HKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q4HKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ4VKickBFwdG4FieldSvc(name='Q4VKickBFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q4VKickB")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ5HKickFwdG4FieldSvc(name='Q5HKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q5HKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
+
 def getQ6VKickFwdG4FieldSvc(name='Q6VKickFwdG4FieldSvc', **kwargs):
     kwargs.setdefault("MagneticFieldSvc",           "Q6VKick")
-    return CfgMgr.StandardFieldSvc(name, **kwargs)
+    return getForwardFieldSvc(name, **kwargs)
 
 def getATLAS_FieldMgrList():
     fieldMgrList = []

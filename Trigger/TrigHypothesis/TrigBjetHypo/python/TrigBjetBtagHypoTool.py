@@ -79,7 +79,6 @@ def getBjetBtagHypoConfiguration( name,conf_dict ):
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoTool
     tool = TrigBjetBtagHypoTool( name )
-    tool.AcceptAll       = True # TMP
 
     # b-tagging
     [tagger,tb] = decodeThreshold( conf_dict['bTag'] )
