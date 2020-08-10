@@ -1006,7 +1006,8 @@ TriggerLvl1List=[
     ( 'xAOD::EnergySumRoIAuxInfo#gXENOISECUT_METAux.',              'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoI#jNOISECUT_MET',                         'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoIAuxInfo#jNOISECUT_METAux.',              'ESD AODFULL', 'L1'),
-
+    ( 'xAOD::EnergySumRoI#jXERHO_MET',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#jXERHO_METAux.',              'ESD AODFULL', 'L1'),
     # eFEX electrons
     ("xAOD::TrigEMClusterContainer#SClusterCl" ,               'ESD AODFULL', 'L1'),
     ("xAOD::TrigEMClusterAuxContainer#SClusterClAux." ,        'ESD AODFULL', 'L1'),
