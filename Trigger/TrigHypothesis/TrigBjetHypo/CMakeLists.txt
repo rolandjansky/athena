@@ -5,6 +5,7 @@ atlas_subdir( TrigBjetHypo )
 
 # External dependencies:
 find_package( ROOT COMPONENTS MathCore )
+find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_component( TrigBjetHypo
