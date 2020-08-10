@@ -36,14 +36,8 @@ namespace LVL1 {
 // Constructors and destructors
 //--------------------------------
 
-EnergyCMX::EnergyCMX
-  ( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthAlgorithm( name, pSvcLocator ), 
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
-      m_EtTool("LVL1::L1EtTools/L1EtTools"),
-      m_resultsFull(0),
-      m_resultsTrunc(0)
-{}
+EnergyCMX::EnergyCMX (const std::string& name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm( name, pSvcLocator ) {}
 
 
 //---------------------------------
@@ -81,12 +75,8 @@ StatusCode EnergyCMX::start()
 //
 
 
-StatusCode EnergyCMX::execute( )
+StatusCode EnergyCMX::execute(const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
-  //make a message logging stream
-
   ATH_MSG_DEBUG( "Executing" );
    
   // form module sums
@@ -96,8 +86,7 @@ StatusCode EnergyCMX::execute( )
   DataVector<CrateEnergy>* cratesFull  = new DataVector<CrateEnergy>;
   m_EtTool->crateSums(jemContainer.cptr(), cratesFull);
   // system summation and threshold tests
-  SystemEnergy resultsFull = m_EtTool->systemSums(cratesFull);
-  m_resultsFull = &resultsFull;
+  const SystemEnergy resultsFull = m_EtTool->systemSums(cratesFull);
   
   /** Find restructed eta range.
    *  This will use the min/max values for the first valid threshold in the range 9-16 to define the ranges
@@ -143,14 +132,13 @@ StatusCode EnergyCMX::execute( )
   DataVector<CrateEnergy>* cratesTrunc  = new DataVector<CrateEnergy>;
   m_EtTool->crateSums(jemContainer.cptr(), cratesTrunc, maskXE, maskTE, true);
   // system summation and threshold tests
-  SystemEnergy resultsTrunc = m_EtTool->systemSums(cratesTrunc);
-  m_resultsTrunc = &resultsTrunc;
+  const SystemEnergy resultsTrunc = m_EtTool->systemSums(cratesTrunc);
   
   // CTP Data
-  ATH_CHECK(saveCTPObjects(ctx));
+  ATH_CHECK(saveCTPObjects(resultsFull, resultsTrunc, ctx));
   
   // RoI output
-  ATH_CHECK(saveRoIs(ctx));
+  ATH_CHECK(saveRoIs(resultsFull, resultsTrunc, ctx));
   
   // Module readout simulation
   SG::WriteHandle<CMXEtSumsCollection> CMXSums = SG::makeHandle(m_cmxEtsumsLocation, ctx);
@@ -191,11 +179,11 @@ StatusCode EnergyCMX::execute( )
   }
   
   exVec.clear();
-  exVec.push_back(m_resultsFull->exTC());
+  exVec.push_back(resultsFull.exTC());
   eyVec.clear();
-  eyVec.push_back(m_resultsFull->eyTC());
+  eyVec.push_back(resultsFull.eyTC());
   etVec.clear();
-  etVec.push_back(m_resultsFull->et());
+  etVec.push_back(resultsFull.et());
   CMXEtSums* systemEtSumFull = new CMXEtSums(system_crate, LVL1::CMXEtSums::TOTAL_STANDARD,
 					     exVec, eyVec, etVec, exErr, eyErr, etErr, peak);
   CMXSums->push_back(systemEtSumFull); 
@@ -223,11 +211,11 @@ StatusCode EnergyCMX::execute( )
   }
   
   exVec.clear();
-  exVec.push_back(m_resultsTrunc->exTC());
+  exVec.push_back(resultsTrunc.exTC());
   eyVec.clear();
-  eyVec.push_back(m_resultsTrunc->eyTC());
+  eyVec.push_back(resultsTrunc.eyTC());
   etVec.clear();
-  etVec.push_back(m_resultsTrunc->et());
+  etVec.push_back(resultsTrunc.et());
   CMXEtSums* systemEtSumTrunc = new CMXEtSums(system_crate, LVL1::CMXEtSums::TOTAL_RESTRICTED,
 					      exVec, eyVec, etVec, exErr, eyErr, etErr, peak);
 
@@ -237,30 +225,23 @@ StatusCode EnergyCMX::execute( )
   SG::WriteHandle<EnergyTopoData> topoData = SG::makeHandle(m_energyTopoLocation, ctx);
   ATH_CHECK(topoData.record(std::make_unique<EnergyTopoData>()));
   
-  topoData->addEx(m_resultsFull->exTC(), m_resultsFull->exOverflow(), LVL1::EnergyTopoData::Normal);
-  topoData->addEy(m_resultsFull->eyTC(), m_resultsFull->eyOverflow(), LVL1::EnergyTopoData::Normal);
-  topoData->addEt(m_resultsFull->et(),   m_resultsFull->etOverflow(), LVL1::EnergyTopoData::Normal);
+  topoData->addEx(resultsFull.exTC(), resultsFull.exOverflow(), LVL1::EnergyTopoData::Normal);
+  topoData->addEy(resultsFull.eyTC(), resultsFull.eyOverflow(), LVL1::EnergyTopoData::Normal);
+  topoData->addEt(resultsFull.et(),   resultsFull.etOverflow(), LVL1::EnergyTopoData::Normal);
   
-  topoData->addEx(m_resultsTrunc->exTC(), m_resultsTrunc->exOverflow(), LVL1::EnergyTopoData::Restricted);
-  topoData->addEy(m_resultsTrunc->eyTC(), m_resultsTrunc->eyOverflow(), LVL1::EnergyTopoData::Restricted);
-  topoData->addEt(m_resultsTrunc->et(),   m_resultsTrunc->etOverflow(), LVL1::EnergyTopoData::Restricted);
+  topoData->addEx(resultsTrunc.exTC(), resultsTrunc.exOverflow(), LVL1::EnergyTopoData::Restricted);
+  topoData->addEy(resultsTrunc.eyTC(), resultsTrunc.eyOverflow(), LVL1::EnergyTopoData::Restricted);
+  topoData->addEt(resultsTrunc.et(),   resultsTrunc.etOverflow(), LVL1::EnergyTopoData::Restricted);
 
   // tidy up at end of event
   delete cratesFull;
   delete cratesTrunc;
-  cleanup();
  
   return StatusCode::SUCCESS ;
 }
 
-
 } // end of LVL1 namespace bracket
 
-
-/** delete pointers etc. */
-void LVL1::EnergyCMX::cleanup(){
-
-}
 
 /** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
 void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
@@ -289,18 +270,20 @@ void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
 }
 
 /** form CMXRoI & save in SG */
-StatusCode LVL1::EnergyCMX::saveRoIs(const EventContext& ctx) {
+StatusCode LVL1::EnergyCMX::saveRoIs(const SystemEnergy& resultsFull,
+                                     const SystemEnergy& resultsTrunc,
+                                     const EventContext& ctx) const {
   ATH_MSG_DEBUG("saveRoIs");
 
   // copy values into roi words
-  unsigned int roiWord0 = m_resultsFull->roiWord0();
-  unsigned int roiWord2 = m_resultsFull->roiWord1();
-  unsigned int roiWord4 = m_resultsFull->roiWord2();
+  unsigned int roiWord0 = resultsFull.roiWord0();
+  unsigned int roiWord2 = resultsFull.roiWord1();
+  unsigned int roiWord4 = resultsFull.roiWord2();
   
   // Truncated eta range
-  unsigned int roiWord1 = m_resultsTrunc->roiWord0();
-  unsigned int roiWord3 = m_resultsTrunc->roiWord1();
-  unsigned int roiWord5 = m_resultsTrunc->roiWord2();
+  unsigned int roiWord1 = resultsTrunc.roiWord0();
+  unsigned int roiWord3 = resultsTrunc.roiWord1();
+  unsigned int roiWord5 = resultsTrunc.roiWord2();
  
   // DAQ readout object. 
   SG::WriteHandle<CMXRoI> daqRoI = SG::makeHandle(m_cmxRoILocation, ctx);
@@ -324,22 +307,26 @@ StatusCode LVL1::EnergyCMX::saveRoIs(const EventContext& ctx) {
 }
 
 /** form CTP word from ETmiss and ETsum hits */
-unsigned int LVL1::EnergyCMX::ctpWord(unsigned int metSigPassed, unsigned int etMissPassed, unsigned int etSumPassed){
+unsigned int LVL1::EnergyCMX::ctpWord(unsigned int metSigPassed,
+                                      unsigned int etMissPassed,
+                                      unsigned int etSumPassed) const {
 
   return ( (metSigPassed<<(m_def.max_TE_Threshold_Number()+m_def.max_XE_Threshold_Number())) +
 	   (etMissPassed<<m_def.max_TE_Threshold_Number()) + etSumPassed );
 }
 
 /** form CTP objects and store them in SG. */
-StatusCode LVL1::EnergyCMX::saveCTPObjects(const EventContext& ctx) {
+StatusCode LVL1::EnergyCMX::saveCTPObjects(const SystemEnergy& resultsFull,
+                                           const SystemEnergy& resultsTrunc,
+                                           const EventContext& ctx) const {
   ATH_MSG_DEBUG("saveCTPObjects");
 
   // get bit words of thresholds passed
-  unsigned int etSumHitsFull   = m_resultsFull->etSumHits();
-  unsigned int etMissHitsFull  = m_resultsFull->etMissHits();
-  unsigned int metSigHitsFull  = m_resultsFull->metSigHits();
-  unsigned int etSumHitsTrunc  = m_resultsTrunc->etSumHits();
-  unsigned int etMissHitsTrunc = m_resultsTrunc->etMissHits();
+  unsigned int etSumHitsFull   = resultsFull.etSumHits();
+  unsigned int etMissHitsFull  = resultsFull.etMissHits();
+  unsigned int metSigHitsFull  = resultsFull.metSigHits();
+  unsigned int etSumHitsTrunc  = resultsTrunc.etSumHits();
+  unsigned int etMissHitsTrunc = resultsTrunc.etMissHits();
 
   // form CTP words
   unsigned int word0 = ctpWord(metSigHitsFull, etMissHitsFull, etSumHitsFull);

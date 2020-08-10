@@ -18,15 +18,12 @@
  #include <map>
 
  // Athena/Gaudi
- #include "AthenaBaseComps/AthAlgorithm.h"
+ #include "AthenaBaseComps/AthReentrantAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"  
  #include "GaudiKernel/ToolHandle.h"
  #include "AthContainers/DataVector.h"
  #include "StoreGate/ReadHandleKey.h"
  #include "StoreGate/WriteHandleKey.h"
-
- // Athena/Gaudi includes
- #include "GaudiKernel/DataSvc.h"
  
  // LVL1 Calo Trigger
  #include "TrigT1CaloUtils/CrateEnergy.h"
@@ -51,7 +48,7 @@
  EnergyCMX uses EnergyCrate and JetElement objects in order to closely follow
  the layout of the hardware.
    */
- class EnergyCMX : public AthAlgorithm
+ class EnergyCMX : public AthReentrantAlgorithm
  {
   typedef DataVector<EnergyCMXData> EnergyCMXDataCollection;
   typedef DataVector<CMXEtSums> CMXEtSumsCollection;
@@ -73,11 +70,14 @@
 
    virtual StatusCode initialize() override;
    virtual StatusCode start() override;
-   virtual StatusCode execute() override;
+   virtual StatusCode execute(const EventContext& ctx) const override;
 
 private: // Private attributes
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  ToolHandle<LVL1::IL1EtTools> m_EtTool;
+  /* Service and tool handles */
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
+    this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Service providing L1 menu thresholds"};
+  ToolHandle<LVL1::IL1EtTools> m_EtTool {
+    this, "L1EtTools", "LVL1::L1EtTools/L1EtTools", "Tool performing the simulation"};
 
   /* Input handles */
   SG::ReadHandleKey<EnergyCMXDataCollection> m_energyCMXDataLocation {
@@ -98,27 +98,26 @@ private: // Private attributes
     this, "CMXRoILocation", TrigT1CaloDefs::CMXRoILocation,
     "Write handle key for CMXRoI"};
 
-  /** SystemEnergy object returns results of ET trigger algorithms */
-  SystemEnergy* m_resultsFull;
-  SystemEnergy* m_resultsTrunc;
-
   TrigConf::L1DataDef m_def;
       
 private: // Private methods
-  
-  /** delete pointers etc. */
-  void cleanup();
   
   /** find Trigger Menu set by CTP, and set internal TM values from it*/
   void setupTriggerMenuFromCTP();
 
   /** form CTP objects and store them in SG. */
-  StatusCode saveCTPObjects(const EventContext& ctx);
+  StatusCode saveCTPObjects(const SystemEnergy& resultsFull,
+                            const SystemEnergy& resultsTrunc,
+                            const EventContext& ctx) const;
   /** put EnergyRoIs into SG */
-  StatusCode saveRoIs(const EventContext& ctx);
+  StatusCode saveRoIs(const SystemEnergy& resultsFull,
+                      const SystemEnergy& resultsTrunc,
+                      const EventContext& ctx) const;
   
   /** returns the Energy CTP word */
-  unsigned int ctpWord(unsigned int metSigPassed, unsigned int etMissPassed, unsigned int etSumPassed);
+  unsigned int ctpWord(unsigned int metSigPassed,
+                       unsigned int etMissPassed,
+                       unsigned int etSumPassed) const;
 };
 
 } // end of namespace bracket
