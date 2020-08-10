@@ -43,21 +43,7 @@ EnergyCMX::EnergyCMX
       m_EtTool("LVL1::L1EtTools/L1EtTools"),
       m_resultsFull(0),
       m_resultsTrunc(0)
-{
-  m_energyCMXDataLocation   = TrigT1CaloDefs::EnergyCMXDataLocation;
-  m_energyRoILocation       = TrigT1CaloDefs::EnergyROILocation ;
-  m_energyCTPLocation       = TrigT1CaloDefs::EnergyCTPLocation ;
-  m_energyTopoLocation      = TrigT1CaloDefs::EnergyTopoDataLocation ;
-  m_cmxEtsumsLocation       = TrigT1CaloDefs::CMXEtSumsLocation ;
-  m_cmxRoILocation          = TrigT1CaloDefs::CMXRoILocation ;
-  
-  // This is how you declare the paramembers to Gaudi so that
-  // they can be over-written via the job options file
-
-  declareProperty("EnergyRoILocation",       m_energyRoILocation );
-  declareProperty("EnergyCTPLocation",       m_energyCTPLocation );
-  declareProperty("EnergyCMXDataLocation",   m_energyCMXDataLocation );
-}
+{}
 
 
 //---------------------------------
@@ -68,6 +54,11 @@ StatusCode EnergyCMX::initialize()
 {
   ATH_CHECK( m_configSvc.retrieve() );
   ATH_CHECK( m_EtTool.retrieve() );
+  ATH_CHECK( m_energyCMXDataLocation.initialize() );
+  ATH_CHECK( m_energyCTPLocation.initialize() );
+  ATH_CHECK( m_energyTopoLocation.initialize() );
+  ATH_CHECK( m_cmxEtsumsLocation.initialize() );
+  ATH_CHECK( m_cmxRoILocation.initialize() );
   return StatusCode::SUCCESS ;
 }
 
@@ -92,17 +83,18 @@ StatusCode EnergyCMX::start()
 
 StatusCode EnergyCMX::execute( )
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   //make a message logging stream
 
   ATH_MSG_DEBUG( "Executing" );
    
   // form module sums
-  EnergyCMXDataCollection* jemContainer = 0;
-  ATH_CHECK(evtStore()->retrieve(jemContainer,m_energyCMXDataLocation));
+  SG::ReadHandle<EnergyCMXDataCollection> jemContainer = SG::makeHandle(m_energyCMXDataLocation, ctx);
       
   // form crate sums (full eta range)
   DataVector<CrateEnergy>* cratesFull  = new DataVector<CrateEnergy>;
-  m_EtTool->crateSums(jemContainer, cratesFull);
+  m_EtTool->crateSums(jemContainer.cptr(), cratesFull);
   // system summation and threshold tests
   SystemEnergy resultsFull = m_EtTool->systemSums(cratesFull);
   m_resultsFull = &resultsFull;
@@ -149,19 +141,21 @@ StatusCode EnergyCMX::execute( )
   
   // form crate sums (restricted eta range). Explicitly set restricted eta flag regardless of eta range
   DataVector<CrateEnergy>* cratesTrunc  = new DataVector<CrateEnergy>;
-  m_EtTool->crateSums(jemContainer, cratesTrunc, maskXE, maskTE, true);
+  m_EtTool->crateSums(jemContainer.cptr(), cratesTrunc, maskXE, maskTE, true);
   // system summation and threshold tests
   SystemEnergy resultsTrunc = m_EtTool->systemSums(cratesTrunc);
   m_resultsTrunc = &resultsTrunc;
   
   // CTP Data
-  saveCTPObjects();
+  ATH_CHECK(saveCTPObjects(ctx));
   
   // RoI output
-  saveRoIs();
+  ATH_CHECK(saveRoIs(ctx));
   
   // Module readout simulation
-  DataVector<CMXEtSums>* CMXSums = new DataVector<CMXEtSums>;
+  SG::WriteHandle<CMXEtSumsCollection> CMXSums = SG::makeHandle(m_cmxEtsumsLocation, ctx);
+  ATH_CHECK(CMXSums.record(std::make_unique<CMXEtSumsCollection>()));
+
   std::vector<unsigned int> exVec;
   std::vector<unsigned int> eyVec;
   std::vector<unsigned int> etVec;
@@ -238,13 +232,10 @@ StatusCode EnergyCMX::execute( )
 					      exVec, eyVec, etVec, exErr, eyErr, etErr, peak);
 
   CMXSums->push_back(systemEtSumTrunc); 
-  
-  // save Sums in SG
-  StatusCode sc1 = evtStore()->overwrite(CMXSums, m_cmxEtsumsLocation, true);
-  if (!sc1.isSuccess()) ATH_MSG_ERROR ( "Failed to store CMXEtsums" );
-  
+
   // Topo data
-  EnergyTopoData* topoData = new EnergyTopoData();
+  SG::WriteHandle<EnergyTopoData> topoData = SG::makeHandle(m_energyTopoLocation, ctx);
+  ATH_CHECK(topoData.record(std::make_unique<EnergyTopoData>()));
   
   topoData->addEx(m_resultsFull->exTC(), m_resultsFull->exOverflow(), LVL1::EnergyTopoData::Normal);
   topoData->addEy(m_resultsFull->eyTC(), m_resultsFull->eyOverflow(), LVL1::EnergyTopoData::Normal);
@@ -253,9 +244,6 @@ StatusCode EnergyCMX::execute( )
   topoData->addEx(m_resultsTrunc->exTC(), m_resultsTrunc->exOverflow(), LVL1::EnergyTopoData::Restricted);
   topoData->addEy(m_resultsTrunc->eyTC(), m_resultsTrunc->eyOverflow(), LVL1::EnergyTopoData::Restricted);
   topoData->addEt(m_resultsTrunc->et(),   m_resultsTrunc->etOverflow(), LVL1::EnergyTopoData::Restricted);
-
-  StatusCode sc2 = evtStore()->overwrite(topoData, m_energyTopoLocation, true);
-  if (!sc2.isSuccess()) ATH_MSG_ERROR ( "Failed to store EnergyTopoData" );
 
   // tidy up at end of event
   delete cratesFull;
@@ -301,7 +289,7 @@ void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
 }
 
 /** form CMXRoI & save in SG */
-void LVL1::EnergyCMX::saveRoIs(){
+StatusCode LVL1::EnergyCMX::saveRoIs(const EventContext& ctx) {
   ATH_MSG_DEBUG("saveRoIs");
 
   // copy values into roi words
@@ -315,8 +303,9 @@ void LVL1::EnergyCMX::saveRoIs(){
   unsigned int roiWord5 = m_resultsTrunc->roiWord2();
  
   // DAQ readout object. 
-  //CMXRoI* daqRoI = new CMXRoI(roiWord0, roiWord1, roiWord2, roiWord3, roiWord4, roiWord5);
-  CMXRoI* daqRoI = new CMXRoI();
+  SG::WriteHandle<CMXRoI> daqRoI = SG::makeHandle(m_cmxRoILocation, ctx);
+  ATH_CHECK(daqRoI.record(std::make_unique<CMXRoI>()));
+
   // Add data to RoI object. The object will perform format checks on inputs
   bool added = daqRoI->setRoiWord(roiWord0);
   if (!added) ATH_MSG_WARNING("Failed to add RoI Word 0: " << MSG::hex << roiWord0 << MSG::dec);
@@ -331,11 +320,7 @@ void LVL1::EnergyCMX::saveRoIs(){
   added = daqRoI->setRoiWord(roiWord5);
   if (!added) ATH_MSG_WARNING( "Failed to add RoI Word 5: " << MSG::hex << roiWord5 << MSG::dec );
 
-  // save RoIs in SG
-  StatusCode sc = evtStore()->overwrite(daqRoI, m_cmxRoILocation, true);
-  if (!sc.isSuccess()) ATH_MSG_ERROR ( "Failed to store CMXRoI object" );
-  
-  return;
+  return StatusCode::SUCCESS;
 }
 
 /** form CTP word from ETmiss and ETsum hits */
@@ -346,7 +331,7 @@ unsigned int LVL1::EnergyCMX::ctpWord(unsigned int metSigPassed, unsigned int et
 }
 
 /** form CTP objects and store them in SG. */
-void LVL1::EnergyCMX::saveCTPObjects(){
+StatusCode LVL1::EnergyCMX::saveCTPObjects(const EventContext& ctx) {
   ATH_MSG_DEBUG("saveCTPObjects");
 
   // get bit words of thresholds passed
@@ -364,18 +349,10 @@ void LVL1::EnergyCMX::saveCTPObjects(){
   //temp += (genParity.odd(temp)<<31);
 
   // form CTP object
-  EnergyCTP* energyCTP = new EnergyCTP( word0, word1 );
+  SG::WriteHandle<EnergyCTP> energyCTP = SG::makeHandle(m_energyCTPLocation, ctx);
+  ATH_CHECK(energyCTP.record(std::make_unique<EnergyCTP>(word0, word1)));
+  ATH_MSG_DEBUG( "Stored energy CTP object with words "<< std::hex
+    << (energyCTP->cableWord0()) << ", " <<  (energyCTP->cableWord1())<< std::dec);
 
-  // record in SG
-  StatusCode sc = evtStore()->overwrite(energyCTP, m_energyCTPLocation);
-  if (sc.isSuccess() ){
-    ATH_MSG_DEBUG( "Stored energy CTP object with words "<< std::hex
-       << (energyCTP->cableWord0()) << ", " <<  (energyCTP->cableWord1())<< std::dec);
-  }else{
-    ATH_MSG_ERROR("Failed to store energy CTP object ");
-  }
-  return;  
+  return StatusCode::SUCCESS;
 }
-
-
-

@@ -21,8 +21,9 @@
  #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"  
  #include "GaudiKernel/ToolHandle.h"
- 
  #include "AthContainers/DataVector.h"
+ #include "StoreGate/ReadHandleKey.h"
+ #include "StoreGate/WriteHandleKey.h"
 
  // Athena/Gaudi includes
  #include "GaudiKernel/DataSvc.h"
@@ -53,6 +54,7 @@
  class EnergyCMX : public AthAlgorithm
  {
   typedef DataVector<EnergyCMXData> EnergyCMXDataCollection;
+  typedef DataVector<CMXEtSums> CMXEtSumsCollection;
   public:
 
    //-------------------------
@@ -77,14 +79,25 @@ private: // Private attributes
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ToolHandle<LVL1::IL1EtTools> m_EtTool;
 
-  /* StoreGate keys */
-  std::string   m_energyCMXDataLocation ;
-  std::string   m_energyRoILocation ;
-  std::string   m_energyCTPLocation ;
-  std::string   m_energyTopoLocation ;
-  std::string   m_cmxEtsumsLocation ;
-  std::string   m_cmxRoILocation ;
-  
+  /* Input handles */
+  SG::ReadHandleKey<EnergyCMXDataCollection> m_energyCMXDataLocation {
+    this, "EnergyCMXDataLocation", TrigT1CaloDefs::EnergyCMXDataLocation,
+    "Read handle key for EnergyCMXDataCollection"};
+
+  /* Output handles */
+  SG::WriteHandleKey<EnergyCTP> m_energyCTPLocation {
+    this, "EnergyCTPLocation", TrigT1CaloDefs::EnergyCTPLocation,
+    "Write handle key for EnergyCTP"};
+  SG::WriteHandleKey<EnergyTopoData> m_energyTopoLocation {
+    this, "EnergyTopoDataLocation", TrigT1CaloDefs::EnergyTopoDataLocation,
+    "Write handle key for EnergyTopoData"};
+  SG::WriteHandleKey<CMXEtSumsCollection> m_cmxEtsumsLocation {
+    this, "CMXEtSumsLocation", TrigT1CaloDefs::CMXEtSumsLocation,
+    "Write handle key for CMXEtSumsCollection"};
+  SG::WriteHandleKey<CMXRoI> m_cmxRoILocation {
+    this, "CMXRoILocation", TrigT1CaloDefs::CMXRoILocation,
+    "Write handle key for CMXRoI"};
+
   /** SystemEnergy object returns results of ET trigger algorithms */
   SystemEnergy* m_resultsFull;
   SystemEnergy* m_resultsTrunc;
@@ -100,11 +113,9 @@ private: // Private methods
   void setupTriggerMenuFromCTP();
 
   /** form CTP objects and store them in SG. */
-  void saveCTPObjects();
+  StatusCode saveCTPObjects(const EventContext& ctx);
   /** put EnergyRoIs into SG */
-  void saveRoIs();
-  /** put EnergyRoIs into SG */
-  void saveJEMEtSums();
+  StatusCode saveRoIs(const EventContext& ctx);
   
   /** returns the Energy CTP word */
   unsigned int ctpWord(unsigned int metSigPassed, unsigned int etMissPassed, unsigned int etSumPassed);
