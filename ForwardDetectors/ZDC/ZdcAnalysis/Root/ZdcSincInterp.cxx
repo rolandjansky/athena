@@ -10,7 +10,7 @@ namespace ZDC
 {
   double SincInterp(double* xvec, double* pvec)
   {
-    // pvec are the sample values                                                         
+    // pvec are the sample values
     double ret = 0;
     double T = pvec[0]; // deltaT
     double t = xvec[0];

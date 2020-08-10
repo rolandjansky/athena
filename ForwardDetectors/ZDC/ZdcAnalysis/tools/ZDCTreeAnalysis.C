@@ -269,8 +269,6 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
             }
         }
 
-        // if (eventNumber == 1189883485) saveEvent = true;
-
         if (_outputplot) {
             if (!saveEvent) {
                 continue;
@@ -360,8 +358,6 @@ void ZDCTreeAnalysis::DoAnalysis()
 
             std::copy(zdc_raw + zdcrawLGOffset, zdc_raw + zdcrawLGOffset + _nSample,  LGADCSamples.begin());
             std::copy(zdc_raw + zdcrawHGOffset, zdc_raw + zdcrawHGOffset + _nSample,  HGADCSamples.begin());
-            // std::copy(&zdc_raw[side][module][0][0][0], &zdc_raw[side][module][0][0][0] + _nSample,  LGADCSamples.begin());
-            // std::copy(&zdc_raw[side][module][1][0][0], &zdc_raw[side][module][1][0][0] + _nSample,  HGADCSamples.begin());
 
             if (_useDelayed) {
                 static std::vector<float> HGADCSamplesDelay(_nSample);
@@ -372,15 +368,7 @@ void ZDCTreeAnalysis::DoAnalysis()
 
                 std::copy(zdc_raw + zdcrawLGOffset, zdc_raw + zdcrawLGOffset + _nSample,  LGADCSamplesDelay.begin());
                 std::copy(zdc_raw + zdcrawHGOffset, zdc_raw + zdcrawHGOffset + _nSample,  HGADCSamplesDelay.begin());
-                // std::copy(&zdc_raw[side][module][0][1][0], &zdc_raw[side][module][0][1][0] + _nSample,  LGADCSamples.begin());
-                // std::copy(&zdc_raw[side][module][1][1][0], &zdc_raw[side][module][1][1][0] + _nSample,  HGADCSamples.begin());
 
-                // if (_delayDeltaT > 0) {
-                //     _dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples, HGADCSamplesDelay, LGADCSamplesDelay);
-                // }
-                // else {
-                //     _dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamplesDelay, LGADCSamplesDelay, HGADCSamples, LGADCSamples);
-                // }
                 _dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples, HGADCSamplesDelay, LGADCSamplesDelay);
             }
             else {
@@ -473,20 +461,16 @@ void ZDCTreeAnalysis::DoAnalysis()
 
                 float leftExp  = zdc_FitExpAmp[side][module] * exp(-(zdc_FitT0[side][module] - 12.5) / zdc_FitTau2[side][module]);
                 float rightExp = zdc_FitExpAmp[side][module] * exp(-(zdc_FitT0[side][module] + 12.5) / zdc_FitTau2[side][module]);
-                float deltaExp = fabs(leftExp - rightExp);
+                float deltaExp = std::abs(leftExp - rightExp);
                 if (_preExpTail)                                    tempSum += deltaExp;
                 if (_prePulse  && !_excluEarlyLB)                   tempSum += zdc_FitPreAmp[side][module];
                 if (_postPulse && zdc_FitPostAmp[side][module] > 0) tempSum += zdc_FitPostAmp[side][module];
 
                 zdc_ModuleQuality[side][module] = zdc_Amp[side][module] / tempSum;
                 zdc_Quality[side] += zdc_ModuleQuality[side][module];
-
-                // if (side == 1) std::cout << "tempSum = " << tempSum << "    zdc_Amp[side][module] = " << zdc_Amp[side][module] << "    deltaExp = " << deltaExp << "    zdc_FitPreAmp[side][module] = " << zdc_FitPreAmp[side][module] << std::endl;
             }
 
             // ------------------------------------------------------------
-
-            // std::cout << "*************zdc_Amp[side][module]: " << zdc_Amp[side][module] << std::endl;
         }
 
         // ------------------------------------------------------------
@@ -513,8 +497,6 @@ void ZDCTreeAnalysis::DoAnalysis()
     zdc_ModuleMask = _dataAnalyzer_p->GetModuleMask();
     bitset<4> bs(zdc_ModuleMask >> 4);
     int countBits = bs.count();
-    // if (eventNumber == 1189883485) saveEvent = true;
-    // saveEvent = true;
     // -----------------------------------------------------
 
     if (_doOutput) {
@@ -571,8 +553,6 @@ void ZDCTreeAnalysis::PlotFits(int side)
         plotCanvases[side] = new TCanvas(canvasName.c_str(), canvasName.c_str(), 1000, 800);
 
         plotCanvases[side]->Divide(2, 2, 0.001, 0.0001);
-
-        //    firstSide[side] = false;
     }
 
 
@@ -586,8 +566,7 @@ void ZDCTreeAnalysis::PlotFits(int side)
 
         unsigned int status = pulseAna_p->GetStatusMask();
 
-        std::cout << "Side " << side << ", module " << module << ", pulseAana_p = " << (unsigned long) pulseAna_p
-                  << ", status = " << status << std::endl;
+        std::cout << "Side " << side << ", module " << module << ", pulseAana_p = " << (unsigned long) pulseAna_p << ", status = " << status << std::endl;
 
 
         if (!_useDelayed) {
@@ -603,15 +582,6 @@ void ZDCTreeAnalysis::PlotFits(int side)
             gStyle->SetOptTitle(0);
             TGraphErrors* graph_p = pulseAna_p->GetCombinedGraph();
             graph_p->Draw("ap");
-
-            // TGraphErrors* graph_undelayed = pulseAna_p->GetUndelayedGraph();
-            // graph_undelayed->Draw("ap");
-            // graph_undelayed->GetXaxis()->SetTitle("t [ns]");
-            // graph_undelayed->GetYaxis()->SetTitle("adjusted ADC value");
-
-            // TGraphErrors* graph_delayed   = pulseAna_p->GetDelayedGraph();
-            // graph_delayed  ->Draw("p, same");
-
 
             float funcMax = pulseAna_p->GetMaxADC();
             float funcMin = pulseAna_p->GetMinADC();

@@ -118,9 +118,6 @@ public :
   std::vector<std::vector<float> >* zdc_samplesDeriv;
   std::vector<std::vector<float> >* zdc_samplesDeriv2nd;
 
-  //  float zdc_samplesDeriv[2][4][6];
-  //  float zdc_samplesDeriv2nd[2][4][5];
-
   float  zdc_Presample[2][4];
 
   float  zdc_MaxADC[2][4];
@@ -390,10 +387,8 @@ public:
   void PlotFits(int side);
 
   virtual ~ZDCTreeAnalysis();
-  // virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  // virtual void     Init(TTree *tree);
   virtual void     Init(TChain *i_chain);
   virtual void     Loop(int numEntries = -1, int startEntry = 0);
   virtual Bool_t   Notify();
@@ -516,17 +511,13 @@ void ZDCTreeAnalysis::Init(TChain *i_chain)
   fChain->SetBranchAddress("eventNumber", &eventNumber);
   fChain->SetBranchAddress("lumiBlock"  , &lumiBlock  );
   fChain->SetBranchAddress("bcid"       , &bcid       );
-  fChain->SetBranchAddress("tbp"        , tbp         );//
-  fChain->SetBranchAddress("passBits"   , &passBits   );//
+  fChain->SetBranchAddress("tbp"        , tbp         );
+  fChain->SetBranchAddress("passBits"   , &passBits   );
   fChain->SetBranchAddress("zdc_raw"    , zdc_raw     );
   fChain->SetBranchAddress("L1_ZDC_A"   , &L1_ZDC_A   );
-  // fChain->SetBranchAddress("ps_L1_ZDC_A", &ps_L1_ZDC_A);
-  fChain->SetBranchAddress("L1_ZDC_C"   , &L1_ZDC_C   );//
-  // fChain->SetBranchAddress("ps_L1_ZDC_C", &ps_L1_ZDC_C);
-  fChain->SetBranchAddress("L1_ZDC_AND" , &L1_ZDC_AND );//
-  // fChain->SetBranchAddress("ps_L1_ZDC_AND", &ps_L1_ZDC_AND);
-  fChain->SetBranchAddress("L1_ZDC_A_C" , &L1_ZDC_A_C );//
-  // fChain->SetBranchAddress("ps_L1_ZDC_A_C", &ps_L1_ZDC_A_C);
+  fChain->SetBranchAddress("L1_ZDC_C"   , &L1_ZDC_C   );
+  fChain->SetBranchAddress("L1_ZDC_AND" , &L1_ZDC_AND );
+  fChain->SetBranchAddress("L1_ZDC_A_C" , &L1_ZDC_A_C );
   fChain->SetBranchAddress("zdc_TotalTruthEnergySum", &zdc_TotalTruthEnergySum);
 
   fChain->SetBranchStatus("*", 0);
@@ -535,19 +526,14 @@ void ZDCTreeAnalysis::Init(TChain *i_chain)
   fChain->SetBranchStatus("lumiBlock"  , 1);
   fChain->SetBranchStatus("bcid"       , 1);
   fChain->SetBranchStatus("zdc_raw"    , 1);
-  fChain->SetBranchStatus("tbp"        , 1);//
+  fChain->SetBranchStatus("tbp"        , 1);
 
-  fChain->SetBranchStatus("passBits"   , 1);//
+  fChain->SetBranchStatus("passBits"   , 1);
 
   fChain->SetBranchStatus("L1_ZDC_A"   , 1);
-  fChain->SetBranchStatus("L1_ZDC_C"   , 1);//
-  fChain->SetBranchStatus("L1_ZDC_AND" , 1);//
-  fChain->SetBranchStatus("L1_ZDC_A_C" , 1);//
-  // fChain->SetBranchStatus("uncalibC"   , 1);
-  // fChain->SetBranchStatus("calibC"     , 1);
-  // fChain->SetBranchStatus("zdc_ZdcModuleMask"  , 1);
-  // fChain->SetBranchStatus("zdc_ZdcModuleAmp"   , 1);
-  // fChain->SetBranchStatus("zdc_ZdcModuleStatus", 1);
+  fChain->SetBranchStatus("L1_ZDC_C"   , 1);
+  fChain->SetBranchStatus("L1_ZDC_AND" , 1);
+  fChain->SetBranchStatus("L1_ZDC_A_C" , 1);
 
   fChain->SetBranchStatus ("zdc_TotalTruthEnergySum", 1);
 
@@ -572,11 +558,5 @@ void ZDCTreeAnalysis::Show(Long64_t entry)
   if (!fChain) return;
   fChain->Show(entry);
 }
-// Int_t ZDCTreeAnalysis::Cut(Long64_t entry)
-// {
-// // This function may be called from Loop.
-// // returns  1 if entry is accepted.
-// // returns -1 otherwise.
-//     return 1;
-// }
+
 #endif // #ifdef ZDCTreeAnalysis_cxx

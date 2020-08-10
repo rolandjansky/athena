@@ -2,9 +2,6 @@
 #define _ZDCMsg_h
 
 namespace ZDCMsg {
-
-// typedef bool (*MessageFunctionPtr)(unsigned int, std::string);
-
     typedef std::function<bool(int, std::string)> MessageFunction;
 
     typedef std::shared_ptr<MessageFunction> MessageFunctionPtr;
