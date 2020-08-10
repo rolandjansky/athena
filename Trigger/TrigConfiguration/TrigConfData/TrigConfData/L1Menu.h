@@ -89,12 +89,35 @@ namespace TrigConf {
       /** Access to extra info for threshold types */
       const L1ThrExtraInfo & thrExtraInfo() const;
 
+      /** Access to topo algorithm names
+       * @param category must be one of "TOPO", "MUTOPO", "MULTTOPO", or "R2TOPO"
+       *
+       * TOPO     ... new topo algorithms,
+       * R2TOPO   ... Run-2 topo algorithms
+       * MUTOPO   ... MUCTPI topo algorithms
+       * MULTTOPO ... multiplicity algorithms 
+       */
+      std::vector<std::string> topoAlgorithmNames(const std::string & category) const;
+
+      /** Access to topo algoritm output names */
+      std::vector<std::string> topoAlgorithmOutputNames(const std::string & category) const;
+
       /** Access to topo algorithm by name */
-      const TrigConf::L1TopoAlgorithm & algorithm(const std::string & algoName) const;
+      const TrigConf::L1TopoAlgorithm & algorithm(const std::string & algoName, const std::string & category) const;
 
-      /** Access to topo algorithm by output */
-      const TrigConf::L1TopoAlgorithm & algorithmFromOutput(const std::string & outputName) const;
+      /** Access to topo algorithm by name of triggerline as given in topo connector specification
+       * @param triggerlineName string name of the triggerline 
+       * @return reference to the algorithm that produces this output
+       *
+       * The name of the triggerline starts with "TOPO_", "MUTOPO_", or "R2TOPO_", except in the case of multiplicity output lines which are just the threshold name
+       */
+      const TrigConf::L1TopoAlgorithm & algorithmFromTriggerline(const std::string & triggerlineName) const;
 
+      /** Access to topo algorithm by name of the output as given in the algorithm definition
+       * @param fullOutputName string name of the output prefixed with the category, e.g. ("HT150-J20s5.ETA31","TOPO") or ("0INVM9-EM7ab-EMab","R2TOPO")
+       * @return reference to the algorithm that produces this output
+       */
+      const TrigConf::L1TopoAlgorithm & algorithmFromOutput(const std::string & bareOutputName, const std::string & category) const;
 
       /** Access to boards by name */
       const TrigConf::L1Board & board(const std::string & boardName) const;
@@ -109,6 +132,8 @@ namespace TrigConf {
       /** Connector names */
       std::vector<std::string> connectorNames() const;
 
+      /** Name of connector from name of threshold or triggerline */
+      const std::string & connectorNameFromThreshold(const std::string & thresholdName) const;
 
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
@@ -121,19 +146,25 @@ namespace TrigConf {
       /** the supermasterkey */
       unsigned int m_smk {0};
 
+      /** connector by name */ 
       std::map<std::string, TrigConf::L1Connector> m_connectors{};
 
+      /** connector name by threshold name */ 
+      std::map<std::string, std::string> m_threshold2ConnectorName{};
+
+      /** board by name */
       std::map<std::string, TrigConf::L1Board> m_boards{};
 
+      /** threshold maps */
       std::map<std::string, std::vector<std::shared_ptr<TrigConf::L1Threshold>>> m_thresholdsByType{};
       std::map<std::string, std::shared_ptr<TrigConf::L1Threshold>> m_thresholdsByName{};
 
       TrigConf::L1ThrExtraInfo m_thrExtraInfo;
 
-
-      std::map<std::string, std::vector<TrigConf::L1TopoAlgorithm>> m_algorithmsByType{};
-      std::map<std::string, TrigConf::L1TopoAlgorithm*> m_algorithmsByName{};
-      std::map<std::string, TrigConf::L1TopoAlgorithm*> m_algorithmsByOutput{};
+      /** algorithm maps */
+      std::map<std::string, std::vector<TrigConf::L1TopoAlgorithm>> m_algorithmsByCategory{}; // primary set of vectors of algos, one per category (TOPO, R2TOPO, MUTOPO, MULTTOPO)
+      std::map<std::string, std::map<std::string, TrigConf::L1TopoAlgorithm*>> m_algorithmsByName{}; // map from category and algorithm name to algorithm 
+      std::map<std::string, std::map<std::string, TrigConf::L1TopoAlgorithm*>> m_algorithmsByOutput{}; // map from category and output name to algorithm
 
    };
 
