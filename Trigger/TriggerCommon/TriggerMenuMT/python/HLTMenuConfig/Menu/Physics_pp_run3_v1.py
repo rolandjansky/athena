@@ -48,8 +48,7 @@ def setupMenu():
 
     TriggerFlags.MuonSlice.signatures = [
         #ATR-20049
-        ChainProp(name='HLT_2mu6Comb_L12MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu6_L12MU6', l1SeedThresholds=['MU6'], groups=MultiMuonGroup),
         #Planned Primaries
         #-- 1 mu iso
         ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=SingleMuonGroup),
