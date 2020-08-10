@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AGDD/AGDDModel
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
-			              DetectorDescription/GeoPrimitives
                           GaudiKernel
                           Tools/PathResolver )
 
@@ -28,8 +27,8 @@ find_package( GeoModelCore )
 atlas_add_library( AGDDControl
                    src/*.cxx
                    PUBLIC_HEADERS AGDDControl
-                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR}
+                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AGDDKernel StoreGateLib SGtests
+                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AGDDKernel StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES AGDDModel GeoModelUtilities GaudiKernel PathResolver )
 

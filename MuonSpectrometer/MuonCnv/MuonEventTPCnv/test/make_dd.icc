@@ -320,7 +320,7 @@ const MuonGM::MuonDetectorManager& make_dd()
   ddsdet.roParameters.nWireGroups.push_back(0);
   ddsdet.roParameters.wireCutout.push_back(0);
 
-  HepGeom::Transform3D xform;
+  GeoTrf::Transform3D xform = GeoTrf::Transform3D::Identity();
   AGDDDetectorPositioner* spos2 = new AGDDDetectorPositioner ("psdum2", xform);
   deleter.add (spos2);
   spos2->theDetector = &ddsdet;

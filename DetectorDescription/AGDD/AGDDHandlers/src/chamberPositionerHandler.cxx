@@ -9,7 +9,6 @@
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include <iostream>
 
@@ -66,7 +65,7 @@ void chamberPositionerHandler::ElementHandle()
  			double zpos=zPos;
  			GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,zpos);
  			AGDDDetectorPositioner *p __attribute__((__unused__));
- 			p=new AGDDDetectorPositioner(volume,Amg::EigenTransformToCLHEP(GeoTrf::Translation3D(cvec)*crot));
+ 			p=new AGDDDetectorPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
 			p->SensitiveDetector(true);
 			p->ID.phiIndex=i;
 			p->ID.sideIndex=1;
@@ -96,7 +95,7 @@ void chamberPositionerHandler::ElementHandle()
             double zpos=zPos;
             GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,-zpos);
             AGDDDetectorPositioner *p __attribute__((__unused__));
-            p=new AGDDDetectorPositioner(volume,Amg::EigenTransformToCLHEP(GeoTrf::Translation3D(cvec)*crot));
+            p=new AGDDDetectorPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
 			p->SensitiveDetector(true);
 			p->ID.phiIndex=i;
 			p->ID.sideIndex=-1;
