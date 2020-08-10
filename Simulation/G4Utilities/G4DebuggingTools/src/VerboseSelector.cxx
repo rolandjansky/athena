@@ -4,7 +4,7 @@
 
 #include "VerboseSelector.h"
 
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackHelper.h"
 
 #include "G4EventManager.hh"
@@ -106,7 +106,7 @@ namespace G4UA
         G4Track *itr = const_cast<G4Track*>(aTrack);
         TrackHelper trackHelper(itr);
 
-        EventInformation* eventInfo = static_cast<EventInformation*>
+        AtlasG4EventUserInfo* atlasG4EvtUserInfo = static_cast<AtlasG4EventUserInfo*>
           (G4EventManager::GetEventManager()->GetConstCurrentEvent()->
            GetUserInformation());
 
@@ -114,9 +114,9 @@ namespace G4UA
 
         if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary()) {
           // FIXME: re-evaluate this comment below.
-          // ADS this code crashes in MT runs, since eventInfo->GetCurrentlyTraced()
+          // ADS this code crashes in MT runs, since atlasG4EvtUserInfo->GetCurrentlyTraced()
           // is NULL untill we migrate the truth
-          currentBarcode = HepMC::barcode(eventInfo->GetCurrentlyTraced());
+          currentBarcode = HepMC::barcode(atlasG4EvtUserInfo->GetCurrentlyTraced());
         }
 
         bool p1 = m_config.targetTrack<0 && m_config.targetBarcode<0;

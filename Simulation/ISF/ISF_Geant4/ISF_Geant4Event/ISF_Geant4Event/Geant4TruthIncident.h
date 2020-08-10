@@ -20,7 +20,7 @@
 // forward declarations
 class G4Step;
 class G4Track;
-class EventInformation;
+class AtlasG4EventUserInfo;
 
 namespace ISF {
   class ISFParticle;
@@ -41,7 +41,7 @@ namespace iGeant4 {
       Geant4TruthIncident( const G4Step*,
                            const ISF::ISFParticle& baseISP,
                            AtlasDetDescr::AtlasRegion geoID,
-                           EventInformation* eventInfo);
+                           AtlasG4EventUserInfo* atlasG4EvtUserInfo);
       virtual ~Geant4TruthIncident() {};
 
       /** Return HepMC position of the truth vertex */
@@ -121,7 +121,7 @@ namespace iGeant4 {
       const G4Step*                 m_step{};
       const ISF::ISFParticle&       m_baseISP;
 
-      EventInformation*             m_eventInfo{};
+      AtlasG4EventUserInfo*             m_atlasG4EvtUserInfo{};
       mutable bool                  m_childrenPrepared;
       mutable std::vector<const G4Track*> m_children;
 
