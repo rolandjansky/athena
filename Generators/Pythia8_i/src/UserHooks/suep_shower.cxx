@@ -146,6 +146,13 @@ vector< Vec4 > Suep_shower::generate_shower(){
       event[n][i] += correction;
     } 
   }
+
+  //Shield against an exception in the calculation of "p_scale" further down. If it fails, abort the event.
+  if(Suep_shower::reballance_func(2.0,event)<0.0){
+    // failed to balance energy. 
+    event.clear();
+    return event;
+  } 
   
   // finally, ballance the total energy, without destroying momentum conservation
   tolerance tol = 0.00001;

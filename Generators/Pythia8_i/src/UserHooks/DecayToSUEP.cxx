@@ -133,15 +133,22 @@ namespace Pythia8{
 	  try {
 	    nShowerAttempts++;
 	    suep_shower4momenta=suep_shower.generate_shower();
-	    nShowerAttempts = -1; //exit condition
+	    if( suep_shower4momenta.size()<3){
+	      //Failed to balance energy or less than 3 particles in the shower
+	      //Try again until nShowerAttempts >= 3
+	    } else {
+	      //All ok!
+	      nShowerAttempts = -1; //exit condition
+	    }
 	  } catch (std::exception &e) {
 	    //Failed to generate the shower!
-	    //Can happen in some rare circumstances, try again
+	    //Can happen in some rare circumstances, 
+	    //Try again until nShowerAttempts >= 3
 	  }
 	} while ((nShowerAttempts > 0) && (nShowerAttempts < 3));
 	if (nShowerAttempts >= 3) {
 	  //Something is seriously wrong then, print warning and skip to next event
-	  std::cout << "[SUEP] ERROR: Something went terribly wrong in generating the shower. Skipping the event." << std::endl;
+	  std::cout << "[SUEP] WARNING: Something went wrong in generating the shower. Skipping the event." << std::endl;
 	  return true; //veto the event!
 	}
 
