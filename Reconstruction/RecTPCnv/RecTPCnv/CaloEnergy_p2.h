@@ -41,6 +41,7 @@ public:
   CaloEnergy_p2()
     : m_energyLossType(0),
       m_caloLRLikelihood(0),
+      m_caloMuonScore(0),
       m_caloMuonIdTag(0),
       m_fsrCandidateEnergy(0),
       m_etCore(0)
@@ -69,6 +70,7 @@ private:
 
   int            m_energyLossType;
   float          m_caloLRLikelihood;
+  float          m_caloMuonScore;
   unsigned short m_caloMuonIdTag;
   float          m_fsrCandidateEnergy;
   std::vector<DepositInCalo_p2> m_deposits; 

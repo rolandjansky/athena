@@ -18,6 +18,7 @@ using namespace Trk;
 CaloEnergy::CaloEnergy (void)
     :	EnergyLoss(0,0,0,0),
         m_caloLRLikelihood      (0),
+        m_caloMuonScore         (0),
         m_caloMuonIdTag         (0),
         m_fsrCandidateEnergy    (0),
         m_deposits              (),
@@ -32,6 +33,7 @@ CaloEnergy::CaloEnergy (void)
 CaloEnergy::CaloEnergy (const Trk::EnergyLoss& eloss)
   :  EnergyLoss( eloss ),
      m_caloLRLikelihood      (0),
+     m_caloMuonScore         (0),
      m_caloMuonIdTag         (0),
      m_fsrCandidateEnergy    (0),
      m_deposits              (),
@@ -49,10 +51,12 @@ CaloEnergy::CaloEnergy (float   deltaE,
                         float   sigmaPlusDeltaE,
 			unsigned short energyLossType,
 		        float          likelihood,
+			float   muonScore,
 		        unsigned short tag)
 
     :   EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE ),	
         m_caloLRLikelihood      (likelihood),
+	m_caloMuonScore         (muonScore),
         m_caloMuonIdTag         (tag),
         m_deposits              (),
         m_etCore                (0.0),
@@ -72,12 +76,14 @@ CaloEnergy::CaloEnergy (float   deltaE,
                         float   sigmaPlusDeltaE,
 			unsigned short energyLossType,
 		        float          likelihood,
+		        float          muonScore,
 		        unsigned short tag,
 			const std::vector<DepositInCalo>& deposits)
 
     :   EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE ),
         m_energyLossType (static_cast<CaloEnergy::EnergyLossType>(energyLossType)),
         m_caloLRLikelihood      (likelihood),
+  	m_caloMuonScore         (muonScore),
         m_caloMuonIdTag         (tag),
 	m_fsrCandidateEnergy    (0.0),
         m_deposits              (deposits),
@@ -95,6 +101,7 @@ CaloEnergy::CaloEnergy (const CaloEnergy& caloEnergy)
     :   EnergyLoss ( caloEnergy ),
 	m_energyLossType	(caloEnergy.m_energyLossType),
         m_caloLRLikelihood      (caloEnergy.m_caloLRLikelihood),
+        m_caloMuonScore         (caloEnergy.m_caloMuonScore),
         m_caloMuonIdTag         (caloEnergy.m_caloMuonIdTag),
         m_fsrCandidateEnergy    (caloEnergy.m_fsrCandidateEnergy),
         m_deposits              (caloEnergy.m_deposits),
@@ -115,6 +122,7 @@ CaloEnergy& CaloEnergy::operator=(const CaloEnergy& rhs) {
      EnergyLoss::operator=( rhs );
      m_energyLossType     = rhs.m_energyLossType;
      m_caloLRLikelihood   = rhs.m_caloLRLikelihood;
+     m_caloMuonScore      = rhs.m_caloMuonScore;
      m_caloMuonIdTag      = rhs.m_caloMuonIdTag;
      m_fsrCandidateEnergy = rhs.m_fsrCandidateEnergy;
      m_deposits           = rhs.m_deposits; 
