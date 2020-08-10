@@ -587,8 +587,8 @@ namespace xAOD {
     this->auxdecor< int >("MC_hadr_Tau_Jet2") = 0;
   }
   
-  // Initialize variables for tZqee events
-  void PartonHistory::IniVarTzqee() {
+  // Initialize variables for tZq events
+  void PartonHistory::IniVarTzq() {
     //t variables
     this->auxdecor< float >("MC_t_beforeFSR_m") = -1000;
     this->auxdecor< float >("MC_t_beforeFSR_pt") = -1000;

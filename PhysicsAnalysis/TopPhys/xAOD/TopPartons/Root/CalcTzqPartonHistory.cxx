@@ -49,9 +49,7 @@ namespace top {
     return false;
   }
 
-  bool CalcTzqPartonHistory::Zee(const xAOD::TruthParticleContainer* truthParticles, int start) {
-    
-    Int_t nZChildren = 0;
+  bool CalcTzqPartonHistory::Zllqq(const xAOD::TruthParticleContainer* truthParticles, int start) {
 
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != start || particle->nChildren() != 2) {
@@ -62,54 +60,25 @@ namespace top {
       for (size_t k = 0; k < particle->nChildren(); k++) {
 		
         const xAOD::TruthParticle* ZChildren = particle->child(k);
-        nZChildren++;
-        if (std::abs(ZChildren->pdgId()) == 11) {// demanding electrons as childen
-          const xAOD::TruthParticle* electron = CalcTzqPartonHistory::findAfterGamma(ZChildren);
-          if (k == 0) {
-            tZ.Zdecay1_p4 = electron->p4();
-            tZ.Zdecay1_pdgId = electron->pdgId();
-            tZ.Zdecay1_status = electron->status();
-            
-                        
-          } else {
-            tZ.Zdecay2_p4 = electron->p4();
-            tZ.Zdecay2_pdgId = electron->pdgId();
-            tZ.Zdecay2_status = electron->status();
-            
-          }
-        } else if (std::abs(ZChildren->pdgId()) == 13) {// demanding muons as childen
-          const xAOD::TruthParticle* muon = CalcTzqPartonHistory::findAfterGamma(ZChildren);
-          if (k == 0) {
-            tZ.Zdecay1_p4 = muon->p4();
-            tZ.Zdecay1_pdgId = muon->pdgId();
-            tZ.Zdecay1_status = muon->status();
-          } else {
-            tZ.Zdecay2_p4 = muon->p4();
-            tZ.Zdecay2_pdgId = muon->pdgId();
-            tZ.Zdecay2_status = muon->status();
-          }
-        } else if (std::abs(ZChildren->pdgId()) == 15) {// demanding tau-leptons as childen
-          const xAOD::TruthParticle* tau = CalcTzqPartonHistory::findAfterGamma(ZChildren);
-          if (k == 0) {
-            tZ.Zdecay1_p4 = tau->p4();
-            tZ.Zdecay1_pdgId = tau->pdgId();
-          } else {
-            tZ.Zdecay2_p4 = tau->p4();
-            tZ.Zdecay2_pdgId = tau->pdgId();
-          }
-        }//else if
-      } //for
+        if (ZChildren->pdgId() > 0) {
+           tZ.Zdecay1_p4 = findAfterGamma(ZChildren)->p4();
+           tZ.Zdecay1_pdgId = ZChildren->pdgId();
+           tZ.Zdecay1_status = ZChildren->status();
+        } else {
+		   tZ.Zdecay2_p4 = findAfterGamma(ZChildren)->p4();
+           tZ.Zdecay2_pdgId = ZChildren->pdgId();
+           tZ.Zdecay1_status = ZChildren->status();
+        }
+       } //for  
+       // here we ask to return true if it identifies the particle and its children correctly.
+      return true; 
     }
-    //check to see Z has exactly 2 children
-    if (nZChildren != 2){
-    ATH_MSG_ERROR("Z does not have exactly 2 children!");
-    }
-    return true;
+    return false;
   }
 
   void CalcTzqPartonHistory::TZHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
                                             xAOD::PartonHistory* TzqPartonHistory) {
-    TzqPartonHistory->IniVarTzqee();
+    TzqPartonHistory->IniVarTzq();
     TLorentzVector t_before, t_after, t_after_SC;
     TLorentzVector Wp;
     TLorentzVector b;
@@ -124,7 +93,7 @@ namespace top {
     bool event_topbar = CalcTopPartonHistory::topWb(truthParticles, -6, t_before, t_after, Wp, b, WpDecay1,
                                                     WpDecay1_pdgId, WpDecay2, WpDecay2_pdgId);
     bool event_topbar_SC = CalcTopPartonHistory::topAfterFSR_SC(truthParticles, -6, t_after_SC);
-    bool event_Z = CalcTzqPartonHistory::Zee(truthParticles, 23);
+    bool event_Z = CalcTzqPartonHistory::Zllqq(truthParticles, 23);
     bool event_bottom = CalcTzqPartonHistory::bottom(truthParticles, 5);
     bool event_bottombar = CalcTzqPartonHistory::bottom(truthParticles, -5);
 

@@ -370,7 +370,7 @@ int main(int argc, char** argv) {
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcThqPartonHistory("top::CalcThqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
                "Failed to setProperty of top::CalcThqPartonHistory");
-  } else if (settings->value("TopPartonHistory") == "tZqll") {
+  } else if (settings->value("TopPartonHistory") == "tZq") {
     topPartonHistory =
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTzqPartonHistory("top::CalcTzqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),

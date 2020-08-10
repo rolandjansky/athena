@@ -50,7 +50,7 @@ namespace top {
     const xAOD::TruthParticle* findAfterGamma(const xAOD::TruthParticle* particle);
 
     ///Store the four-momentum of several particles in the Z decay chain
-    bool Zee(const xAOD::TruthParticleContainer* truthParticles, int start);
+    bool Zllqq(const xAOD::TruthParticleContainer* truthParticles, int start);
 
     //Store four-momentum of bottom quark
     bool bottom(const xAOD::TruthParticleContainer* truthParticles, int start);
