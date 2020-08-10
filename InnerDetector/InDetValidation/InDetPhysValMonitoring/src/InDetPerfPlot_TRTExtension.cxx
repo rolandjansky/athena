@@ -208,8 +208,4 @@ InDetPerfPlot_TRTExtension::finalizePlots() {
   m_resolutionHelper.makeResolutions(m_ptpullNoTRTExtensions_vs_eta, m_pullwidthNoTRTExtensions_vs_eta, m_pullmeanNoTRTExtensions_vs_eta, m_resolutionMethod);
   m_resolutionHelper.makeResolutions(m_ptpullNoTRTExtensions_vs_pt, m_pullwidthNoTRTExtensions_vs_pt, m_pullmeanNoTRTExtensions_vs_pt, m_resolutionMethod);
 
-  //
-  //Pie
-  //
-
 }
