@@ -47,6 +47,10 @@ DetailedIndividualChains = {
                   "HLT_mu11_mu6_bJpsimumu" : "HLT_mu11_mu6_bJpsimumu(_L1(?!BPH).*)?$",
                   "HLT_mu11_mu6_bUpsimumu" : "HLT_mu11_mu6_bUpsimumu(_L1(?!BPH).*)?$",
                   "HLT_mu11_mu6_bDimu"     : "HLT_mu11_mu6_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bBmumux_BsmumuPhi"     : "HLT_2mu4_bBmumux_BsmumuPhi(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bBmumux_BsmumuPhi"     : "HLT_mu6_mu4_bBmumux_BsmumuPhi(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bBmumux_BpmumuKp"     : "HLT_2mu4_bBmumux_BpmumuKp(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bBmumux_BpmumuKp"     : "HLT_mu6_mu4_bBmumux_BpmumuKp(_delayed)?(_L1(?!BPH).*)?$",
                  }
 EfficiencyChains = {
                     "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?",

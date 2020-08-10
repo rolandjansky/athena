@@ -38,6 +38,10 @@ monitoring_bphys = [
                     'HLT_mu11_mu6_bJpsimumu',
                     'HLT_mu11_mu6_bUpsimumu',
                     'HLT_mu11_mu6_bDimu',
+                    'HLT_2mu4_bBmumux_BsmumuPhi',
+                    'HLT_mu6_mu4_bBmumux_BsmumuPhi_delayed',
+                    'HLT_2mu4_bBmumux_BpmumuKp',
+                    'HLT_mu6_mu4_bBmumux_BpmumuKp',
                     ]
 
 primary_bphys = [ 
@@ -79,6 +83,10 @@ if TriggerFlags.EDMDecodingVersion == 3 :
                       'HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6',
                       'HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6',
                       'HLT_mu11_mu6_bDimu_L1MU11_2MU6',
+                      'HLT_2mu4_bBmumux_BsmumuPhi_L12MU4',
+                      'HLT_mu6_mu4_bBmumux_BsmumuPhi_L1MU6_2MU4',
+                      'HLT_2mu4_bBmumux_BpmumuKp_L12MU4',
+                      'HLT_mu6_mu4_bBmumux_BpmumuKp_L1MU6_2MU4',
                      ]
   primary_bphys = [
                     'HLT_2mu4_bDimu_L12MU4',
