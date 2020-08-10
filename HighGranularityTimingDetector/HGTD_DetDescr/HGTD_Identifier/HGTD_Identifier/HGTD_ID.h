@@ -282,8 +282,7 @@ private:
 
 //using the macros below we can assign an identifier (and a version)
 //This is required and checked at compile time when you try to record/retrieve
-// TODO: find out what number to put here - also for HGTD_DetectorManager
-// CLASS_DEF(HGTD_ID, 2516, 1)
+CLASS_DEF(HGTD_ID, 79264207, 1)
 
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
