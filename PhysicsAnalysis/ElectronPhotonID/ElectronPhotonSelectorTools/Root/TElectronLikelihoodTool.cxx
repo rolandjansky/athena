@@ -484,7 +484,6 @@ Root::TElectronLikelihoodTool::accept(LikeEnum::LHAcceptVars_t& vars_struct) con
   unsigned int etbinLH = getLikelihoodEtDiscBin(vars_struct.eT, true);
   unsigned int etbinOther = getLikelihoodEtDiscBin(vars_struct.eT, false);
   unsigned int etabin = getLikelihoodEtaBin(vars_struct.eta);
-  // unsigned int ipbin  = 0;
 
   // sanity
   if (etbinLH >= s_fnDiscEtBinsOneExtra) {
