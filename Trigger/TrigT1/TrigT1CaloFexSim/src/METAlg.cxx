@@ -162,6 +162,7 @@ StatusCode METAlg::NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString met
   
   float met_x=0;
   float met_y=0;
+  float sumET=0;
   
   for(unsigned t=0; t<towers->size(); t++){
     const xAOD::JGTower* tower = towers->at(t);
@@ -172,15 +173,16 @@ StatusCode METAlg::NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString met
     float phi=tower->phi();
     float et =tower->et();
     if(!useNegTowers && et < 0) continue;
+    sumET += et;
     met_x -= et*cos(phi);
     met_y -= et*sin(phi);
   }
   
-  float et_met = sqrt(met_x*met_x+met_y*met_y);
+  
   std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->ex=met_x; 
   met->ey=met_y; 
-  met->et = et_met;
+  met->et = sumET;
   met->rho = 0;
 
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
@@ -212,6 +214,7 @@ StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName,
     //Missing Et calculation for met and met_sub
     float MET_sub_x=0.0;
     float MET_sub_y=0.0;
+    float sumET_sub=0.0;
     
     std::vector < float > rho_tower_et;
     rho_tower_et.resize(7744,0.0);
@@ -226,6 +229,7 @@ StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName,
             if (Et_diff/jTowerArea[i]>min_noise_cut) {
                 Et_sub=Et_diff;
             }
+            sumET_sub += Et_sub;
             MET_sub_x -= Et_sub*cos(phi);
             MET_sub_y -= Et_sub*sin(phi);
             rho_tower_et[i]=Et_sub;
@@ -265,7 +269,7 @@ StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName,
     met->ex=MET_sub_x; 
     met->ey=MET_sub_y; 
     met->phi = phi_MET_sub;
-    met->et = et_MET_sub;;
+    met->et = sumET_sub;
 
 
     if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
@@ -515,7 +519,7 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vec
   float Ex = ax*(Et_values[1])+ bx*Et_values[3] + cx;
   float Ey = ay*(Et_values[2])+ by*Et_values[4] + cy;
 
-  float EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
+ 
 
   float mht_phi = 0;
   if(Et_values[5]>0) mht_phi = TMath::ACos(Et_values[1]/Et_values[5]);
@@ -527,7 +531,7 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vec
   std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->ex=Ex; 
   met->ey=Ey; 
-  met->et =EtMiss;
+  met->et =Et_values[0];
   //std::cout<<"Hard term = "<<Et_values[5]<<std::endl;
   //std::cout<<"Soft term = "<<Et_values[6]<<std::endl;
   met->mht_x = Et_values[1];
