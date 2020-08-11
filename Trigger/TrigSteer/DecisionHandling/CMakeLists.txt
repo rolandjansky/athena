@@ -9,6 +9,7 @@ atlas_add_library( DecisionHandlingLib
                    src/DumpDecisions.cxx
                    src/HypoBase.cxx
                    src/InputMakerBase.cxx
+		   src/ITestHypoTool.cxx		   
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES AthContainers AthViews xAODTrigger )
@@ -21,6 +22,10 @@ atlas_add_component( DecisionHandling
                      src/TriggerSummaryAlg.cxx
                      src/RoRSeqFilter.cxx
                      src/ViewCreator*.cxx
+		     src/TestRecoAlg.cxx
+		     src/TestInputMaker.cxx
+		     src/TestHypoTool.cxx
+		     src/TestHypoAlg.cxx
                      LINK_LIBRARIES DecisionHandlingLib xAODTrigCalo AthViews xAODTracking xAODJet )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

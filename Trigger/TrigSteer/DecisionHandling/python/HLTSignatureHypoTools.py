@@ -2,7 +2,7 @@
 # file to simulate the HypoTool configuration of the signatures
 
 def TestHypoTool(name, prop, threshold_value):
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+    from DecisionHandling.DecisionHandlingConf import HLTTest__TestHypoTool
     value  =  int(threshold_value)*1000
     UseThisLinkName="initialRoI"
     h = HLTTest__TestHypoTool(name, Threshold=value, Property=prop, LinkName=UseThisLinkName)

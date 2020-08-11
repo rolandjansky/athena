@@ -478,6 +478,7 @@ def getSplitNoMergeFFPileUpToolsList():
 
 def getStandardPileUpToolsAlg(name="StandardPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getStandardPileUpToolsList() )
+    kwargs.setdefault('ExtraInputs', [('xAOD::EventInfo', 'EventInfo')])
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doXingByXingPileUp():
         return CfgMgr.PileUpToolsAlg(name, **kwargs)
