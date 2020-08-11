@@ -67,8 +67,8 @@ else:
     modify_param_card(process_dir=process_dir,params={'MASS':masses,'DECAY':decays})
     param_card_old = process_dir+'/Cards/param_card.dat'
     ktdurham = -1
-    if '.tar' in runArgs.inputGeneratorFile or '.tgz' in runArgs.inputGeneratorFile:
-        import tarfile
+    import tarfile
+    if tarfile.is_tarfile(runArgs.inputGeneratorFile):
         myTarball = tarfile.open(runArgs.inputGeneratorFile)
         myEvents = None
         for afile in myTarball.getnames():
