@@ -12,12 +12,7 @@ from __future__ import print_function
 # import the DetFlags for the setting
 from AthenaCommon.DetFlags import DetFlags
 
-#################################################################################
-# Material for the Geometry comes from COOL or local database
-#################################################################################
-
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-
 
 # import the Extrapolator configurable
 from ActsGeometry.ActsGeometryConf import ActsTrackingGeometryTool
@@ -40,8 +35,6 @@ class ConfiguredActsTrackingGeometry( ActsTrackingGeometryTool ) :
     actsTrackingGeometrySvc = ActsTrackingGeometrySvc(name = "ActsTrackingGeometrySvc",
                                                       BuildSubDetectors = subDetectors)
     
-    #print (actsTrackingGeometrySvc)
-    
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += actsTrackingGeometrySvc
     
@@ -51,8 +44,6 @@ class ConfiguredActsTrackingGeometry( ActsTrackingGeometryTool ) :
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "NominalAlignmentCondAlg"):
       condSeq += NominalAlignmentCondAlg(name = "NominalAlignmentCondAlg")
-      
-    #print (condSeq)
     
     ActsTrackingGeometryTool.__init__(self,
                                       name,
