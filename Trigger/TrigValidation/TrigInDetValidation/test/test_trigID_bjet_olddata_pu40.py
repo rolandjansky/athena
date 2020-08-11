@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu80
+# art-description: art job for bjet_olddata_pu40
 # art-type: grid
 # art-include: master/Athena
+# art-input: mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193
 # art-input-nfiles: 3
 # art-athena-mt: 4
 # art-memory: 4096
@@ -52,14 +53,21 @@ for opt,arg in opts:
         postproc=True
 
 
+
 rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['muon','electron','tau','bjet']
+rdo2aod.slices = ['bjet']
 rdo2aod.max_events = 2000 
-rdo2aod.threads = 1 # TODO: change to 4
-rdo2aod.concurrent_events = 1 # TODO: change to 4
+rdo2aod.threads = 1 
+rdo2aod.concurrent_events = 1 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  
+if local:
+    rdo2aod.input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+    print ('WARNING not using same datafile locally as grid test')
+else:
+    rdo2aod.input = ''
+    rdo2aod.args += '--inputRDOFile=$ArtInFile '
+
 
 
 test = Test.Test()
@@ -72,54 +80,21 @@ if (not exclude):
 # Run Tidardict
 if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
-    rdict.args='TIDAdata-run3.dat -r Offline -f data-hists.root -b Test_bin.dat '
+    rdict.args='TIDAdata-run3.dat  -f data-hists.root -b Test_bin.dat '
     test.check_steps.append(rdict)
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon')
-comp.flag='L2muon'
-comp.test='ttbar'
-test.check_steps.append(comp)
- 
- 
-comp2=TrigInDetCompStep('Comp_EFmuon')
-comp2.flag='EFmuon'
-comp2.test='ttbar'
+comp1=TrigInDetCompStep('Comp_L2bjet')
+comp1.flag = 'L2bjet'
+test.check_steps.append(comp1)
+
+comp2=TrigInDetCompStep('Comp_EFbjet')
+comp2.flag = 'EFbjet'
 test.check_steps.append(comp2)
 
 
-comp3=TrigInDetCompStep('Comp_L2bjet')
-comp3.flag='L2bjet'
-comp3.test='ttbar'
-test.check_steps.append(comp3)
-
-comp4=TrigInDetCompStep('Comp_EFbjet')
-comp4.flag='EFbjet'
-comp4.test='ttbar'
-test.check_steps.append(comp4)
-
-comp5=TrigInDetCompStep('Comp_L2tau')
-comp5.flag='L2tau'
-comp5.test='ttbar'
-test.check_steps.append(comp5)
-
-comp6=TrigInDetCompStep('Comp_EFtau')
-comp6.flag='EFtau'
-comp6.test='ttbar'
-test.check_steps.append(comp6)
-
-comp7=TrigInDetCompStep('Comp_L2ele')
-comp7.flag='L2ele'
-comp7.test='ttbar'
-test.check_steps.append(comp7)
-
-comp8=TrigInDetCompStep('Comp_EFele')
-comp8.flag='EFele'
-comp8.test='ttbar'
-test.check_steps.append(comp8)
-
-# CPU cost steps
+# CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
 test.check_steps.append(cpucost)
 

@@ -6,6 +6,7 @@
 # art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
 # art-input-nfiles: 4
 # art-athena-mt: 4
+# art-memory: 4096
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -53,13 +54,13 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon']
-rdo2aod.max_events = 2000 # TODO: 2000 events
+rdo2aod.max_events = 2000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 if local:
-    rdo2aod.input = 'Zmumu_pu40'
+    rdo2aod.input = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json  
 else:
     rdo2aod.input = ''
     rdo2aod.args += '--inputRDOFile=$ArtInFile '
@@ -81,18 +82,15 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf:HLT_IDTrack_Muon_FTF'
-comp.output_dir = 'HLTL2-plots-muon'
+comp=TrigInDetCompStep('Comp_L2muon')
+comp.flag = 'L2muon'
 test.check_steps.append(comp)
- 
- 
-comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf:HLT_IDTrack_Muon_FTF HLT_mu24_idperf:HLT_IDTrack_Muon_IDTrig'
-comp2.output_dir = 'HLTEF-plots-muon'
+  
+comp2=TrigInDetCompStep('Comp_EFmuon')
+comp2.flag = 'EFmuon'
 test.check_steps.append(comp2)
 
-
+# CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
 test.check_steps.append(cpucost)
  
