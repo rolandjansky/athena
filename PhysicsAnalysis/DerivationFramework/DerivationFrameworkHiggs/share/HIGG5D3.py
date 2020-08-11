@@ -32,11 +32,22 @@ HIGG5D3Stream.AcceptAlgs(["HIGG5D3Kernel"])
 #====================================================================
 thinningTools=[]
 
+# from EXOT8
+# We have to turn off the trigger navigation thinning for 2018 data.
+# First, figure out whether we're in 2018 data. Thanks to Eirik for this code
+isData18 = False
+from RecExConfig.InputFilePeeker import inputFileSummary
+if inputFileSummary is not None:
+    if (inputFileSummary['tag_info']['project_name']=='data18_13TeV'): 
+        isData18 = True
+
 # Establish the thinning helper (which will set up the services behind the scenes) 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper 
 HIGG5D3ThinningHelper = ThinningHelper("HIGG5D3ThinningHelper") 
 #trigger navigation content
-HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*|HLT_2b.*' 
+if (globalflags.DataSource() is not "geant4") and (not isData18):
+  HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*|HLT_2b.*' 
+
 HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream) 
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
