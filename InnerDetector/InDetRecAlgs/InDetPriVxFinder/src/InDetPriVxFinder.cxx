@@ -14,6 +14,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 // normal includes
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
@@ -68,6 +69,7 @@ InDetPriVxFinder::InDetPriVxFinder
     } else {
       m_VertexCollectionSortingTool.disable();
     }
+    if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
    
     ATH_CHECK(m_trkTracksName.initialize(!m_useTrackParticles));
     ATH_CHECK(m_tracksName.initialize(m_useTrackParticles));
@@ -171,7 +173,7 @@ InDetPriVxFinder::InDetPriVxFinder
     return StatusCode::SUCCESS;
   }
 
-  void InDetPriVxFinder::monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ){
+  void InDetPriVxFinder::monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ) const {
      if (prefix == "allVertex"){
          auto x        = Monitored::Scalar<double>( "allVertexX",       vertex.x()               ); 
          auto y        = Monitored::Scalar<double>( "allVertexY",       vertex.y()               ); 

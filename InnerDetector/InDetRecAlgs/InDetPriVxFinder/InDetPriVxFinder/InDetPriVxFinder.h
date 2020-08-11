@@ -26,6 +26,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "TrkVertexFitterInterfaces/IVertexMergingTool.h"
@@ -52,6 +53,10 @@ namespace InDet
     virtual StatusCode finalize() override;
 
   private:
+
+    //Monitoring of the vertex variables
+    void monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ) const;
+
     SG::ReadHandleKey<TrackCollection> m_trkTracksName{this,"TrkTracksName","Tracks","Trk::Track Collection used in Vertexing"};
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksName{this,"TracksName","InDetTrackParticles","xAOD::TrackParticle Collection used in Vertexing"};
     SG::WriteHandleKey<xAOD::VertexContainer> m_vxCandidatesOutputName{this,"VxCandidatesOutputName","PrimaryVertices","Output Vertex Collection"};
@@ -59,7 +64,8 @@ namespace InDet
     ToolHandle< IVertexFinder > m_VertexFinderTool{this, "VertexFinderTool", "", "Primary vertex finder tool"};
     ToolHandle<Trk::IVertexMergingTool > m_VertexMergingTool{this, "VertexMergingTool", "", "Vertex merging tool"};
     ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool{this, "VertexCollectionSortingTool", "", "Vertex collection sorting tool"};
-    
+    ToolHandle<GenericMonitoringTool> m_monTool{this, "PriVxMonTool", "", "Monitoring tool"};
+
     BooleanProperty m_doVertexMerging{this, "doVertexMerging", false, "Do vertex merging"};
     BooleanProperty m_doVertexSorting{this, "doVertexSorting", false, "Do vertex sorting"};
     BooleanProperty m_useTrackParticles{this, "useTrackParticles", true, "Use track particles as input"};
