@@ -1,25 +1,7 @@
-# $Id: CMakeLists.txt 782308 2016-11-04 09:51:01Z krasznaa $
-################################################################################
-# Package: FourMomUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( FourMomUtils )
-
-# Extra dependencies:
-if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
-   set( extra_deps Event/EventKernel Event/NavFourMom
-      PRIVATE Event/FourMom )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/CxxUtils
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODMissingET
-   ${extra_deps} )
 
 # External dependencies:
 find_package( CLHEP QUIET )

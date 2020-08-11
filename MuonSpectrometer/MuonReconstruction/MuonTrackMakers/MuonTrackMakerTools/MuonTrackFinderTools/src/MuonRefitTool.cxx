@@ -56,7 +56,12 @@ namespace Muon {
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_idHelperSvc.retrieve() );
-    if( !m_alignErrorTool.empty() ) ATH_CHECK(m_alignErrorTool.retrieve());
+    if (m_alignmentErrors) {
+      if( !m_alignErrorTool.empty() ) ATH_CHECK(m_alignErrorTool.retrieve());
+    }
+    else {
+      m_alignErrorTool.disable();
+    }
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_CHECK( m_muonExtrapolator.retrieve() );
     ATH_CHECK( m_trackFitter.retrieve() );

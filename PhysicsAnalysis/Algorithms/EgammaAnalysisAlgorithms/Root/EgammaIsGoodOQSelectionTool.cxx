@@ -23,32 +23,32 @@ namespace CP {
                        "Mask to require passing object quality bits with" );
    }
 
-   const Root::TAccept& EgammaIsGoodOQSelectionTool::getTAccept() const {
+   const asg::AcceptInfo& EgammaIsGoodOQSelectionTool::getAcceptInfo() const {
 
       // Return the internal object.
       return m_accept;
    }
 
-   const Root::TAccept& EgammaIsGoodOQSelectionTool::
+  asg::AcceptData EgammaIsGoodOQSelectionTool::
    accept( const xAOD::IParticle* part ) const {
 
       // Reset the decision object.
-      m_accept.clear();
+      asg::AcceptData accept {&m_accept};
 
       // Cast the particle to an e/gamma type.
       const xAOD::Egamma* eg = nullptr;
       if( ( part->type() != xAOD::Type::Electron ) &&
           ( part->type() != xAOD::Type::Photon ) ) {
          ATH_MSG_WARNING( "Non-e/gamma object received" );
-         return m_accept;
+         return accept;
       }
       eg = static_cast< const xAOD::Egamma* >( part );
 
       // Calculate the decision.
-      m_accept.setCutResult( m_oqCutIndex, eg->isGoodOQ( m_mask ) );
+      accept.setCutResult( m_oqCutIndex, eg->isGoodOQ( m_mask ) );
 
       // Return the internal object.
-      return m_accept;
+      return accept;
    }
 
    StatusCode EgammaIsGoodOQSelectionTool::initialize() {

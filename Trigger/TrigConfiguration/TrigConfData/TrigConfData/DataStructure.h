@@ -106,7 +106,7 @@ namespace TrigConf {
        */
       bool hasAttribute(const std::string & key) const;
 
-      /** Check for attribute
+      /** Check if child exists
        * @param path The path to the child, relative to the current one in form "path.to.child"
        * @return true if path exists
        */

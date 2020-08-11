@@ -16,7 +16,7 @@
 #include "ISF_Event/ISFParticleContainer.h"
 
 // forward declarations
-class EventInformation;
+class AtlasG4EventUserInfo;
 
 #include "AtlasHepMC/GenParticle_fwd.h"
 
@@ -47,7 +47,7 @@ public:
   ISF::ISFParticleContainer ReturnSecondaries(ISF::ISFParticle const* parent);
 
 protected:
-  EventInformation* m_eventInfo;   //!< event-global G4 UserInformation
+  AtlasG4EventUserInfo* m_atlasG4EvtUserInfo;   //!< event-global G4 UserInformation
 
   ISF::ISFParticleContainer m_storedSecondaries;
 

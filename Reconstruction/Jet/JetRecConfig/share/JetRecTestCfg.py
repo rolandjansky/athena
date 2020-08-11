@@ -159,10 +159,6 @@ if __name__=="__main__":
     # Prevent the flags from being modified
     ConfigFlags.lock()
 
-    ########################################################################
-    # Define flags steering the jet reco config
-    jetdefs = DefineJetCollections(ConfigFlags)
-
     # Get a ComponentAccumulator setting up the fundamental Athena job
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     cfg=MainServicesCfg(ConfigFlags) 
@@ -180,6 +176,10 @@ if __name__=="__main__":
     muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="LuminosityCondData")
     cfg.addEventAlgo(muWriter,"AthAlgSeq")
 
+    ########################################################################
+    # Define flags steering the jet reco config
+    jetdefs = DefineJetCollections(ConfigFlags)
+
     # Add the components from our jet reconstruction job
     cfg.merge(JetRecTestCfg(jetdefs,ConfigFlags,args))
 
@@ -189,11 +189,11 @@ if __name__=="__main__":
     originaljets = ["AntiKt4EMPFlowJets","AntiKt4EMTopoJets"]
     for jetcoll in originaljets:
         outputlist += ["xAOD::JetContainer#"+jetcoll,
-                       "xAOD::JetAuxContainer#"+jetcoll+"Aux."]
+                       "xAOD::JetAuxContainer#"+jetcoll+"Aux.-PseudoJet"]
     for jetdef in jetdefs:
         key = "{0}{1}Jets".format("New",jetdef.basename)
         outputlist += ["xAOD::JetContainer#"+key,
-                       "xAOD::JetAuxContainer#"+key+"Aux."]
+                       "xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
 
     # Now get the output stream components
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

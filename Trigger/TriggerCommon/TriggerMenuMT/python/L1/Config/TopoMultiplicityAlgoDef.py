@@ -20,7 +20,7 @@ class TopoMultiplicityAlgoDef(object):
         ]
 
         for em in emThresholds:
-            alg = EMMultiplicityAlgo( name = "Mult_%s" % em,
+            alg = EMMultiplicityAlgo( name = em,
                                       algoId = currentAlgoId,
                                       threshold = em,
                                       nbits = 3)
@@ -30,7 +30,7 @@ class TopoMultiplicityAlgoDef(object):
         tauThresholds = [ "eTAU12", "eTAU12IM", "eTAU20", "eTAU20IM", "eTAU25IM", "eTAU40", "eTAU60", "eTAU100" ]
 
         for tau in tauThresholds:
-            alg = TauMultiplicityAlgo( name = "Mult_%s" % tau,
+            alg = TauMultiplicityAlgo( name = tau,
                                        algoId = currentAlgoId,
                                        threshold = tau,
                                        nbits = 3)
@@ -40,7 +40,7 @@ class TopoMultiplicityAlgoDef(object):
                          "jJ35.0ETA23", "jJ40.0ETA25", "jJ40", "jJ50", "jJ85", "jJ100", "jJ15.31ETA49", "jJ20.31ETA49", "jJ75.31ETA49" ]
 
         for jJet in jJThresholds:
-            alg = JetMultiplicityAlgo( name = "Mult_%s" % jJet,
+            alg = JetMultiplicityAlgo( name = jJet,
                                        algoId = currentAlgoId,
                                        threshold = jJet,
                                        nbits = 3)
@@ -50,7 +50,7 @@ class TopoMultiplicityAlgoDef(object):
         gXEThresholds = [ "gXERHO20", "gXERHO30", "gXERHO35", "gXERHO40", "gXERHO45", "gXERHO50", "gXEPUFIT20", "gXEPUFIT50", "gXE50" ]
 
         for gXE in gXEThresholds:
-            alg = XEMultiplicityAlgo( name = "Mult_%s" % gXE,
+            alg = XEMultiplicityAlgo( name = gXE,
                                       algoId = currentAlgoId,
                                       threshold = gXE,
                                       nbits = 1)
@@ -60,7 +60,7 @@ class TopoMultiplicityAlgoDef(object):
         jXEThresholds = [ "jXE50" ]
 
         for jXE in jXEThresholds:
-            alg = XEMultiplicityAlgo( name = "Mult_%s" % jXE,
+            alg = XEMultiplicityAlgo( name = jXE,
                                       algoId = currentAlgoId,
                                       threshold = jXE,
                                       nbits = 1)

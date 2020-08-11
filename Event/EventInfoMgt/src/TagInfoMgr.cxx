@@ -138,10 +138,9 @@ StatusCode TagInfoMgr::initialize()
     // file meta data
     incSvc->addListener( this, "BeginRun", pri);
 
-    // Add BeginInputFile to trigger refilling meta data store after a new input
-    // file - priority has to be < 50 to be run after IOVDbMetaDataTool, which
-    // has mergeing into the output file medat data the input meta data of the
-    // new file.
+    // Add BeginInputFile to trigger refilling meta data store after a new input file - priority has
+    // to be < 50 to be run after IOVDbMetaDataTool (triggered by MetaDataSvc), which has mergeing
+    // into the output file medat data the input meta data of the new file.
     incSvc->addListener(this, "BeginInputFile", 50); // 
 
     return StatusCode::SUCCESS;
@@ -388,23 +387,19 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     ATH_MSG_DEBUG( "entering fillMetaData");
 
     // Get run number for IOV
-    EventIDBase::number_type runNumber = 0;
-    const EventIDBase* evid = EventIDFromStore( m_storeGate );
-    if( evid ) {
-       runNumber = evid->run_number();
-    } else {
-       // For simulation, we may be in the initialization phase and
-       // must get the run number from the event selector
-       if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
-          // For HLT use the conditionsRun retrieved from the first BeginRun incident
-          if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
-             runNumber = m_conditionsRun;
-          } else {
-             ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror");      
-             return (StatusCode::FAILURE);
-          }
-       }
+    EventIDBase::number_type runNumber = EventIDBase::UNDEFNUM;
+
+    if( m_currentRun != EventIDBase::UNDEFNUM ) {
+        runNumber = m_currentRun;
     }
+    else if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+        // For HLT use the conditionsRun retrieved from the first BeginRun incident
+        runNumber = m_conditionsRun;
+    } else {
+        ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror");      
+        return (StatusCode::FAILURE);
+    }
+    
     // Copy tags to AttributeList
     coral::AttributeList attrList;
     EventType::NameTagPairVec pairs;
@@ -474,65 +469,6 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
 
 }
 
-StatusCode          
-TagInfoMgr::getRunNumber (unsigned int& runNumber)
-{
-    // check if EventSelector is being used to override run numbers if
-    // so, we return the runNumber from the properties of the
-    // EventSelector
-
-    // Get run number parameter from the EventSelector 
-    ATH_MSG_DEBUG( "getRunNumber: check if tag is set in jobOpts");
-    // Get name of event selector from the application manager to
-    // make sure we get the one for MC signal events
-    IProperty* propertyServer(0); 
-    StatusCode sc = serviceLocator()->service("ApplicationMgr", propertyServer); 
-    if (sc != StatusCode::SUCCESS ) {
-        ATH_MSG_ERROR( "getRunNumber: Cannot get ApplicationMgr "); 
-        return StatusCode::FAILURE;
-    }
-    StringProperty property("EvtSel", "");
-    sc = propertyServer->getProperty(&property);
-    if (!sc.isSuccess()) {
-        ATH_MSG_ERROR( "getRunNumber: unable to get EvtSel: found " << property.value());
-        return StatusCode::FAILURE;
-    }
-    // Get EventSelector for ApplicationMgr
-    std::string eventSelector = property.value();
-    sc = serviceLocator()->service(eventSelector, propertyServer); 
-    if (sc != StatusCode::SUCCESS ) {
-        ATH_MSG_ERROR( "getRunNumber: Cannot get EventSelector " << eventSelector); 
-        return StatusCode::FAILURE;
-    }
-    BooleanProperty overrideRunNumber = BooleanProperty("OverrideRunNumber", false);
-    sc = propertyServer->getProperty(&overrideRunNumber);
-    if (!sc.isSuccess()) {
-        // Not all EventSelectors have this property, but we should
-        // not get here if the ES is not one for simulation => return failure
-        ATH_MSG_WARNING( "getRunNumber: unable to get OverrideRunNumber property from EventSelector ");
-        return StatusCode::FAILURE;
-    }
-    if (overrideRunNumber.value()) {
-        IntegerProperty runNumberProp = IntegerProperty("RunNumber", 0);
-        sc = propertyServer->getProperty(&runNumberProp);
-        if (!sc.isSuccess()) {
-            ATH_MSG_ERROR( "getRunNumber: unable to get RunNumber from EventSelector: found " 
-                << runNumberProp.value());
-            return StatusCode::FAILURE;
-        }
-        else {
-            runNumber = runNumberProp.value();
-            ATH_MSG_DEBUG( "getRunNumber: Run number:  "
-                  << runNumber << " obtained from "
-                  << eventSelector);
-        }
-    }
-    else {
-        ATH_MSG_ERROR( "getRunNumber: OverrideRunNumber from EventSelector is false ");
-        return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
-}
 
 
 void 
@@ -543,7 +479,10 @@ TagInfoMgr::handle(const Incident& inc) {
     **
     **   1) For the first begin run, we retrieve the TagInfo and set
     **      up IOVDbSvc so that is can use TagInfo to define its
-    **      hierarchical tags.
+    **      hierarchical tags. 
+    **      The member m_currentRun is saved to be used for the IOV 
+    **      in fillMetaData.
+    **
     **      Note: the detector store 'retrieve' of the TagInfo will call 
     **      TagInfoMgr::createObj to do the first creation and filling it 
     **      accordingly. And this also fills the output file metadata with 
@@ -556,6 +495,10 @@ TagInfoMgr::handle(const Incident& inc) {
     **      IOVDbMetaDataTool has done this automatic merging, so that we 
     **      can safely overwrite with the desired TagInfo information for
     **      this job/run.
+    **      As well, if there is a second BeginRun during the processing, 
+    **      here we update m_currentRun and overried again the TagInfo meta
+    **      with the new run which will just extend the IOV of the TagInfo
+    **      meta data.
     **
     **/
 
@@ -581,15 +524,18 @@ TagInfoMgr::handle(const Incident& inc) {
         // can't use a ref here!
         const EventIDBase eventID =  inc.context().eventID();
 
-        if (msgLvl(MSG::DEBUG)) {
-            msg() << MSG::DEBUG << "handle: First BeginRun incident - Event ID: ["
-                  << eventID.run_number()   << ","
-                  << eventID.event_number() << ":"
-                  << eventID.time_stamp() << "] ";
-            if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
-               msg() << MSG::DEBUG <<"conditionsRun = " << m_conditionsRun;
-            }
-            msg() << MSG::DEBUG << endmsg;
+        // Set current run number to be used for fillMetaData
+        m_currentRun = eventID.run_number();
+        
+        ATH_MSG_DEBUG( "handle: First BeginRun incident - Event ID: ["
+                       << eventID.run_number()   << ","
+                       << eventID.lumi_block() << ":"
+                       << eventID.time_stamp() << "] ");
+        if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+            ATH_MSG_DEBUG( "handle: conditionsRun = " << m_conditionsRun);
+        }
+        if( m_currentRun != EventIDBase::UNDEFNUM ) {
+            ATH_MSG_DEBUG( "handle: currentRun = " << m_currentRun);
         }
 
         // For the moment, we must set IOVDbSvc into the BeginRun
@@ -640,40 +586,70 @@ TagInfoMgr::handle(const Incident& inc) {
             ATH_MSG_DEBUG( "handle: TagInfo successfully processed by IOVDbSvc to register callback");
         }
     }
-    else if (inc.type() == "BeginInputFile"  && !m_isFirstBeginRun) {
-        // For a new file incident, we must "refill" the
-        // meta data store with the current value of the TagInfo
-        // folder in the detector store.
+    else if ((inc.type() == IncidentType::BeginInputFile || inc.type() == IncidentType::BeginRun)
+             && !m_isFirstBeginRun) {
 
+        // For a new file incident or a subsequent begin run incident, we must "refill" the meta
+        // data store with the current value of the TagInfo folder in the detector store.
+
+        if (inc.type() == IncidentType::BeginRun) {
+            
+            // For begin run, reset the current run number
+        
+            // get conditionsRun from the Context - can be used if no EventID in the SG (for HLT) 
+            m_conditionsRun = Atlas::getExtendedEventContext(inc.context()).conditionsRun();
+
+            // Get current run number
+            const EventIDBase eventID =  inc.context().eventID();
+
+            // Set current run number to be used for fillMetaData
+            m_currentRun = eventID.run_number();
+        
+            ATH_MSG_DEBUG( "handle: secondary BeginRun incident - Event ID: ["
+                           << eventID.run_number()   << ","
+                           << eventID.lumi_block() << ":"
+                           << eventID.time_stamp() << "] ");
+            if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+                ATH_MSG_DEBUG( "handle: conditionsRun = " << m_conditionsRun);
+            }
+            if( m_currentRun != EventIDBase::UNDEFNUM ) {
+                ATH_MSG_DEBUG( "handle: currentRun = " << m_currentRun);
+            }
+        }
+        
+        
         // Return if /TagInfo does NOT exists
         const CondAttrListCollection* attrListColl = 0;
         if (m_detStore->contains<CondAttrListCollection>("/TagInfo")) { 
             if (m_detStore->retrieve( attrListColl, "/TagInfo" ).isFailure() ) {
-                ATH_MSG_ERROR( "handle - BeginInputFile: No TagInfo meta data in DetectorStore");
-                throw GaudiException( "BeginInputFile - No TagInfo meta data in DetectorStore", "TagInfoMgr::handle", StatusCode::FAILURE );
+                ATH_MSG_ERROR( "handle - " << inc.type() << ": No TagInfo meta data in DetectorStore");
+                std::string excStr { inc.type() + " - No TagInfo meta data in DetectorStore" };
+                throw GaudiException( excStr , "TagInfoMgr::handle", StatusCode::FAILURE );
             }
             else {
-                ATH_MSG_DEBUG( "handle - BeginInputFile: Retrieved TagInfo meta data from detStore");
+                ATH_MSG_DEBUG( "handle - " << inc.type() << ": Retrieved TagInfo meta data from detStore");
             } 
         }
         else {
-            ATH_MSG_DEBUG( "handle - BeginInputFile: det store does NOT contain AttrListColl for TagInfo"); 
+            ATH_MSG_DEBUG( "handle - " << inc.type() << ": det store does NOT contain AttrListColl for TagInfo"); 
             return;
         }
 
         const TagInfo* tagInfo = 0;
         if (m_detStore->retrieve( tagInfo, m_tagInfoKeyValue ).isFailure() ) {
-            ATH_MSG_ERROR( "handle - BeginInputFile: Could not retrieve TagInfo object from the detector store");      
-            throw GaudiException( "BeginInputFile - Could not retrieve TagInfo object from the detector store", "TagInfoMgr::handle", StatusCode::FAILURE );
+            ATH_MSG_ERROR( "handle - " << inc.type() << ": Could not retrieve TagInfo object from the detector store");
+            std::string excStr { inc.type() + " - Could not retrieve TagInfo object from the detector store" };
+            throw GaudiException( excStr, "TagInfoMgr::handle", StatusCode::FAILURE );
         }
 
         // Copy TagInfo to meta data store for writing to file meta data
         if (StatusCode::SUCCESS != fillMetaData(tagInfo, attrListColl)) {
-            ATH_MSG_ERROR( "handle - BeginInputFile: Unable to write TagInfo to MetaDataStore !");
-            throw GaudiException( "BeginInputFile - Unable to write TagInfo to MetaDataStore !", "TagInfoMgr::handle", StatusCode::FAILURE );
+            ATH_MSG_ERROR( "handle - " << inc.type() << ": Unable to write TagInfo to MetaDataStore !");
+            std::string excStr { inc.type() + " - Unable to write TagInfo to MetaDataStore !" };
+            throw GaudiException( excStr, "TagInfoMgr::handle", StatusCode::FAILURE );
         } 
         else {
-            ATH_MSG_DEBUG( "handle - BeginInputFile: Wrote TagInfo to MetaDataStore ");
+            ATH_MSG_DEBUG( "handle - " << inc.type() << ": Wrote TagInfo to MetaDataStore ");
         }
     }
 }

@@ -43,6 +43,7 @@ public:
       m_energySigmaPlus(0),
       m_energyLossType(0),
       m_caloLRLikelihood(0),
+      m_caloMuonScore(0),
       m_caloMuonIdTag(0),
       m_fsrCandidateEnergy(0)
   {}
@@ -69,6 +70,7 @@ public:
   float          m_energySigmaPlus;
   int            m_energyLossType;
   float          m_caloLRLikelihood;
+  float          m_caloMuonScore;
   unsigned short m_caloMuonIdTag;
   float          m_fsrCandidateEnergy;
   std::vector<DepositInCalo_p1> m_deposits; 

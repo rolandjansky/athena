@@ -1,17 +1,7 @@
-################################################################################
-# Package: GeoModelXml
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GeoModelXml )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          AtlasPolicy
-                          PRIVATE
-			  DetectorDescription/GeoModelInterfaces
-                          Control/StoreGate
-                          GaudiKernel )
 
 # External dependencies:
 find_package( XercesC )
@@ -25,7 +15,7 @@ atlas_add_library( GeoModelXml
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelXml
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS} ${GEOMODELTOOLS_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${EIGEN_LIBRARIES} ${ZLIB_LIBRARIES} ${GEOMODELCORE_LIBRARIES} ${GEOMODELTOOLS_LIBRARIES} StoreGateLib
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${ZLIB_LIBRARIES} ${GEOMODELCORE_LIBRARIES} ${GEOMODELTOOLS_LIBRARIES}
+                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel GeoModelInterfaces StoreGateLib )
 
 atlas_install_runtime( data/*.dtd )

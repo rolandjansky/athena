@@ -170,12 +170,17 @@ def dump_info(bsfile, args):
     input = eformat.istream(bsfile)
     offset = args.skip if args.skip else 0
     max_events = min(args.events, len(input)) if args.events else len(input)
-    events = input[offset:offset+max_events]
     event_count = 0
+    events = []
 
     # Loop over events
-    for event in events:
+    for event in input:
         event_count += 1
+        if event_count <= offset:
+            continue
+        if event_count > offset+max_events:
+            break
+        events.append(event)
 
         # Print header info
         print('{sep:s} Event: {:{width}d}, {:s} {sep:s}'.format(
