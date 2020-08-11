@@ -13,7 +13,6 @@
 */
 
 // Include this class's header
-#include "GaudiKernel/EventContext.h"
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TPhotonIsEMSelector.h"
@@ -22,6 +21,7 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -221,9 +221,6 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(const std::string& myname) :
 // =================================================================
 AsgPhotonIsEMSelector::~AsgPhotonIsEMSelector() 
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgPhotonIsEMSelector finalize()");
-  }
   delete m_rootTool;
 }
 

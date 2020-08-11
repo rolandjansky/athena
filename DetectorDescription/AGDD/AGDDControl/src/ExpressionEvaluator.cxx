@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//
 #include "AGDDControl/ExpressionEvaluator.h"
 #include "AGDDControl/AGDDTokenizer.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include <string>
-#include <vector>
+
 #include <cstdlib>
 #include <cctype>
 #include <cstring>
@@ -15,14 +12,10 @@
 #include <sstream>
 #include <algorithm>
 
-namespace CLHEP {}
-using namespace CLHEP;
-
 ExpressionEvaluator::ExpressionEvaluator()
 {
   m_calc.clear();
   m_calc.setStdMath();                 // set standard constants and functions
-  //m_calc.setSystemOfUnits();           // set SI units
   // Set Geant4 system of units
   m_calc.setSystemOfUnits(1.e+3, 1./1.60217733e-25, 1.e+9, 1./1.60217733e-10,1.0, 1.0, 1.0);
   m_fileCurrentlyParsed = "";
@@ -47,7 +40,6 @@ bool ExpressionEvaluator::RegisterConstant( std::string& c, double v )
     return false;
   }
 
-  //RegisterVariable( c->get_name(), c->get_value() );
   RegisterVariable( c, value );
   return true;
 }
@@ -61,7 +53,6 @@ bool ExpressionEvaluator::RegisterArray( std::string& c, std::vector<double> v)
     ss << i;
     ss >> index;
     std::string name = c+"_"+index+"_";
-//    std::cout << "setting variable: " << name << " with value: " << value << std::endl;
     RegisterVariable( name, value );       
    }
    return true;
@@ -102,8 +93,6 @@ bool ExpressionEvaluator::is_delimiter(char c)
 double ExpressionEvaluator::EvaluateString(const std::string& str)
 {
  std::string str_mod = str;
-// if(m_fileCurrentlyParsed != "")
-// {
   const char* c_str_mod = str.c_str(); //string to be modified with file namespace! 
   std::vector<int> variable_ends;  //variable names to be changed
   int cur_variable_end = 0;
@@ -139,7 +128,6 @@ double ExpressionEvaluator::EvaluateString(const std::string& str)
     c_str_mod++;
     cur_variable_end++;
    }
-//  }// variable ends stored in vector
   std::string::size_type shift = 0;
   std::string::size_type ns_length = m_fileCurrentlyParsed.size();
   for(unsigned int i=0; i<variable_ends.size(); i++)
@@ -164,10 +152,7 @@ bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, std::string valu
   expr += unit;
   expr += ")";
 
-  //std::cout << "Expression evaluator:: evaluating string: " << expr << std::endl;
-
   double dvalue      = EvaluateString( expr );
-//  double unit_value = EvaluateString( unit );
 
   if( m_calc.status() != HepTool::Evaluator::OK )
   {
@@ -178,7 +163,6 @@ bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, std::string valu
     return false;
   }
 
-  //RegisterVariable( physc->get_name(), expr );
   RegisterVariable( c, dvalue );
   return true;
 }
@@ -198,7 +182,6 @@ bool ExpressionEvaluator::RegisterExpression( std::string& name, std::string tex
     return false;
   }
 
-  //RegisterVariable( e->get_name(), e->get_text() );
   RegisterVariable( name, value );
   return true;
 }
@@ -217,9 +200,7 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
   while(true)
   {
    start_index = expr.find('[', start_index); 
-//   std::cout<<"*** start_index "<<start_index<<" "<<expr<<std::endl;  
    if(start_index == std::string::npos) break;
-//   std::cout << " start index "<<start_index<<std::endl;
    std::string::size_type boundary_index = expr.find(']', start_index);
    expr.replace(start_index,1,1,'_');
    end_index = expr.find(',', start_index);
@@ -228,7 +209,6 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
     start_index++;
     std::string var1 = expr.substr(start_index, end_index-start_index);
     double eval1 = EvaluateString( var1 );
-    //std::cout<<"Evaluated "<<var1<<" to: "<<eval1<<std::endl;
     std::stringstream ss1;
     std::string str1;
     ss1 << eval1;
@@ -238,19 +218,16 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
    else
    {
     end_index = boundary_index;
-//    std::cout << " end index "<<end_index<<std::endl;
     if(end_index != std::string::npos)
     {
      start_index++;
      std::string var1 = expr.substr(start_index, end_index-start_index);
      double eval1 = EvaluateString( var1 );
-     //std::cout<<"Evaluated "<<var1<<" to: "<<eval1<<std::endl;
      std::stringstream ss1;
      std::string str1;
      ss1 << eval1;
      ss1 >> str1;
      expr.replace(start_index, end_index-start_index, str1, 0, str1.size());
-//     std::cout <<" str1 "<<str1<<std::endl;
     }
    }
   }
@@ -265,7 +242,6 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
    start_index++;
    std::string var2 = expr.substr(start_index, end_index-start_index);
    double eval2 = EvaluateString( var2 );
-   //std::cout<<"Evaluated "<<var2<<" to: "<<eval2<<std::endl;
    std::stringstream ss2;
    std::string str2;
    ss2 << eval2;
@@ -280,12 +256,10 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
    if(start_index == std::string::npos) break;
    expr.replace(start_index,1,1,'_');
   }
-//  std::cout<<"***************** "<<expr<<std::endl;
   double result = EvaluateString( expr );
   if( m_calc.status() != HepTool::Evaluator::OK )
   {
     std::cerr << expr << std::endl;
-    //std::cerr << "------";
     for (int i=0; i<m_calc.error_position(); i++)
     {
       std::cerr << "-";

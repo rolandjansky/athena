@@ -34,10 +34,10 @@ namespace CP {
       /// @{
 
       /// Get the results for the last object processed
-      virtual const Root::TAccept& getTAccept() const override;
+      virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
       /// Get the results for a given particle
-      virtual const Root::TAccept&
+      virtual asg::AcceptData
       accept( const xAOD::IParticle* part ) const override;
 
       /// @}
@@ -60,7 +60,7 @@ namespace CP {
       /// @}
 
       /// Object handling the e/gamma selection decision
-      mutable Root::TAccept m_accept{ "EgammaOQ" };
+      asg::AcceptInfo m_accept{ "EgammaOQ" };
       /// Index of the object quality cut
       int m_oqCutIndex{ -1 };
 

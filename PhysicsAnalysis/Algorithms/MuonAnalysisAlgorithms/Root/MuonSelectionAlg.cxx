@@ -52,10 +52,7 @@ namespace CP
     ANA_CHECK (m_preselection.initialize());
 
     auto *selectionTool = dynamic_cast<IAsgSelectionTool *>(&*m_selectionTool);
-    Root::TAccept blankAccept = selectionTool->getTAccept();
-    // Just in case this isn't initially set up as a failure clear it this one
-    // time. This only calls reset on the bitset
-    blankAccept.clear();
+    asg::AcceptData blankAccept {&selectionTool->getAcceptInfo()};
     m_setOnFail = selectionFromAccept(blankAccept);
 
     return StatusCode::SUCCESS;

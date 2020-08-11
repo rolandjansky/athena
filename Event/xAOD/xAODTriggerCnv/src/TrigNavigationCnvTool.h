@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: $
@@ -46,13 +46,15 @@ namespace xAODMaker {
     /// Regular AlgTool constructor
     TrigNavigationCnvTool( const std::string& type, const std::string& name,
                            const IInterface* parent );
+
+    virtual ~TrigNavigationCnvTool();
     
     /// Function initialising the tool
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /// Function filling an xAOD::TrigNavigation object with information
     virtual StatusCode convert( const HLT::HLTResult* aod,
-				xAOD::TrigNavigation* xaod );    
+				xAOD::TrigNavigation* xaod ) const final;    
 
   private:
     

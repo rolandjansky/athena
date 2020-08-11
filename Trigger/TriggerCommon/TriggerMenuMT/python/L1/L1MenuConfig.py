@@ -109,25 +109,26 @@ class L1MenuConfig(object):
     def registerTopoAlgo(self, algo):
         """ Add a L1Topo algo to the set of algos which are registered for further use"""
 
-        if self.currentAlgoDef == "multi":
+        if self.currentAlgoDef == AlgCategory.MULTI:
+            algo.name = "Mult_" + algo.name
             if algo.name in self._definedTopoAlgos[AlgCategory.MULTI]:
                 raise RuntimeError('L1Topo multiplicity algo %s is already registered as such' % algo.name)
             self._definedTopoAlgos[AlgCategory.MULTI][algo.name] = algo
             log.debug("Added in the multiplicity topo algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
 
-        elif self.currentAlgoDef == "muctpi":
+        elif self.currentAlgoDef == AlgCategory.MUCTPI:
             if algo.name in self._definedTopoAlgos[AlgCategory.MUCTPI]:
                 raise RuntimeError('L1Topo MuCTPi algo %s is already registered as such' % algo.name)
             self._definedTopoAlgos[AlgCategory.MUCTPI][algo.name] = algo
             log.debug("Added in the MuCTPi topo algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
 
-        elif self.currentAlgoDef == "topo":
+        elif self.currentAlgoDef == AlgCategory.TOPO:
             if algo.name in self._definedTopoAlgos[AlgCategory.TOPO]:
                 raise RuntimeError('L1Topo algo %s is already registered as such' % algo.name)
             self._definedTopoAlgos[AlgCategory.TOPO][algo.name] = algo
             log.debug("Added in the topo algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
 
-        elif self.currentAlgoDef == "legacy":
+        elif self.currentAlgoDef == AlgCategory.LEGACY:
             if algo.name in self._definedTopoAlgos[AlgCategory.LEGACY]:
                 raise RuntimeError('L1Topo legacy algo %s is already registered as such' % algo.name)
             self._definedTopoAlgos[AlgCategory.LEGACY][algo.name] = algo
@@ -145,6 +146,7 @@ class L1MenuConfig(object):
             self._addThrToRegistry(thr)
         else:
             raise RuntimeError("For threshold %s the run (=2 or 3) was not set!" % thr.name)
+        return thr
 
     def _addThrToRegistry(self, thr):
         if self.thresholdExists(thr.name):
@@ -303,28 +305,28 @@ class L1MenuConfig(object):
         from .Base.Items import MenuItem
         MenuItem.setMenuConfig(self) # from now on all newly created MenuItems are automatically registered here
         from .Base.Thresholds import Threshold
-        Threshold.setMenuConfig(self) # from now on all newly created MenuItems are automatically registered here
+        Threshold.setMenuConfig(self) # from now on all newly created Thresholds definitions are automatically registered here
         
         log.info("Reading TriggerMenuMT.Config.TopoAlgoDef")
-        self.currentAlgoDef = "topo"
+        self.currentAlgoDef = AlgCategory.TOPO
         from .Config.TopoAlgoDef import TopoAlgoDef
         TopoAlgoDef.registerTopoAlgos(self)
         log.info("... registered %i defined topo algos for the new topo boards", len(self._definedTopoAlgos[AlgCategory.TOPO]))
 
         log.info("Reading TriggerMenuMT.Config.TopoAlgoDefMuctpi")
-        self.currentAlgoDef = "muctpi"
+        self.currentAlgoDef = AlgCategory.MUCTPI
         from .Config.TopoAlgoDefMuctpi import TopoAlgoDefMuctpi
         TopoAlgoDefMuctpi.registerTopoAlgos(self)
         log.info("... registered %i defined topo algos for the MuCTPi", len(self._definedTopoAlgos[AlgCategory.MUCTPI]))
 
         log.info("Reading TriggerMenuMT.Config.TopoMultiplicityAlgoDef")
-        self.currentAlgoDef = "multi"
+        self.currentAlgoDef = AlgCategory.MULTI
         from .Config.TopoMultiplicityAlgoDef import TopoMultiplicityAlgoDef
         TopoMultiplicityAlgoDef.registerTopoAlgos(self)
         log.info("... registered %i defined topo multiplicity algos for the new topo boards", len(self._definedTopoAlgos[AlgCategory.MULTI]))
 
         log.info("Reading TriggerMenuMT.Config.TopoAlgoDefLegacy")
-        self.currentAlgoDef = "legacy"
+        self.currentAlgoDef = AlgCategory.LEGACY
         from .Config.TopoAlgoDefLegacy import TopoAlgoDefLegacy
         TopoAlgoDefLegacy.registerTopoAlgos(self)
         log.info("... registered %i defined topo algos for the legacy topo boards", len(self._definedTopoAlgos[AlgCategory.LEGACY]))
@@ -356,17 +358,17 @@ class L1MenuConfig(object):
     def _getTopoAlgo(self, algoName, category):
         if algoName in self._definedTopoAlgos[category]:
             return self._definedTopoAlgos[category][algoName]
-        raise RuntimeError("Algorithm of name %s is not defined in category %s" % (algoName, category) )
+        raise RuntimeError("Algorithm of name %s is not defined in category %s\nAvailable are %r" % (algoName, category,self._definedTopoAlgos[category].keys()) )
 
 
-    def _getSortingAlgoThatProvides(self, input):
+    def _getSortingAlgoThatProvides(self, input, topoAlgCategory):
         """
         returns a list of all sorting algorithms that are needed to
         produce the required output. A missing input will raise a
         runtime exception
         """
         sortingAlgs = []
-        for name, alg in self._definedTopoAlgos[AlgCategory.TOPO].items():  # TODO: extend to legacy topo
+        for name, alg in self._definedTopoAlgos[topoAlgCategory].items():  # TODO: extend to legacy topo
             if type(alg.outputs)==list:
                 foundOutput = (input in alg.outputs)
             else:
@@ -436,6 +438,7 @@ class L1MenuConfig(object):
             AlgCategory.LEGACY : set()
         }
 
+        # loop over all topo boards and their connectors
         for (boardName, boardDef) in allBoardsWithTopo:
             for connDef in boardDef["connectors"]:
                 if ('muctpi' in boardName.lower()) and (connDef["format"]=='multiplicity'):
@@ -468,11 +471,11 @@ class L1MenuConfig(object):
         # now also add the sorting algorithms to the menu
         for cat in allRequiredSortedInputs:
             for input in allRequiredSortedInputs[cat]:
-                sortingAlgo = self._getSortingAlgoThatProvides(input)
+                searchCat = cat
+                if cat == AlgCategory.MUCTPI: 
+                    searchCat = AlgCategory.TOPO
+                sortingAlgo = self._getSortingAlgoThatProvides(input, searchCat)
                 self.l1menu.addTopoAlgo( sortingAlgo, category = cat )
-
-
-
 
 
     def _generateMenu(self):

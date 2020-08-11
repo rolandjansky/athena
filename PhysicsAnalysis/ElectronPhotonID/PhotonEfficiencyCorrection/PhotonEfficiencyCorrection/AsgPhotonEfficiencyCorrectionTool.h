@@ -52,10 +52,7 @@ public:
 
 public:
   /// Gaudi Service Interface method implementations
-  virtual StatusCode initialize();
-
-  /// Gaudi Service Interface method implementations
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
 
 
 
@@ -69,20 +66,20 @@ public:
   } // pass the Egamma obj by reference
 
   ///Add some method for now as a first step to move the tool to then new interface 
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Egamma& inputObject, double& efficiencyScaleFactor) const;
-  virtual CP::CorrectionCode getEfficiencyScaleFactorError(const xAOD::Egamma& inputObject, double& efficiencyScaleFactorError) const;
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(xAOD::Egamma& inputObject) const;
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Egamma& inputObject, double& efficiencyScaleFactor) const override;
+  virtual CP::CorrectionCode getEfficiencyScaleFactorError(const xAOD::Egamma& inputObject, double& efficiencyScaleFactorError) const override;
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(xAOD::Egamma& inputObject) const override;
 
   ///The methods below should notify the user of what is actually in the list , without him having to go in the wiki
 
   /// returns: whether this tool is affected by the given systematic
-  virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
+  virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const override;
   
   /// returns: the list of all systematics this tool can be affected by
-  virtual CP::SystematicSet affectingSystematics() const ;
+  virtual CP::SystematicSet affectingSystematics() const override;
   
   /// returns: the list of all systematics this tool recommends to use
-  virtual CP::SystematicSet recommendedSystematics() const ;
+  virtual CP::SystematicSet recommendedSystematics() const override;
   
   /// returns: the currently applied systematics
   const CP::SystematicSet& appliedSystematics() const {
@@ -91,7 +88,7 @@ public:
   }
   
   /// Configure this tool for the given systematics
-  virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig );
+  virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) override;
 
   CP::SystematicCode registerSystematics();
 

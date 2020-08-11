@@ -25,7 +25,7 @@
 // MCTruth includes
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/VTrackInformation.h"
 
@@ -175,7 +175,7 @@ namespace G4UA {
         //               " and is returned to ISF.");
 
         const ISF::ISFParticle*    parent = curISP;
-        HepMC::GenParticlePtr truthParticle = m_eventInfo->GetCurrentlyTraced();
+        HepMC::GenParticlePtr truthParticle = m_atlasG4EvtUserInfo->GetCurrentlyTraced();
         this->returnParticleToISF(aTrack, parent, truthParticle, nextGeoID);
       }
 

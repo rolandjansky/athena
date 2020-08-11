@@ -126,7 +126,6 @@ def defineInputsMenu():
         ]
     })
 
-
     topoBoards["Topo2"] = odict()
     topoBoards["Topo2"]["connectors"] = []
     topoBoards["Topo2"]["connectors"].append({
@@ -274,7 +273,6 @@ def defineInputsMenu():
         ]
 
     })
-
 
     muctpiBoard["MuCTPi"]["connectors"].append({
         "name" : "MuCTPiEl",
