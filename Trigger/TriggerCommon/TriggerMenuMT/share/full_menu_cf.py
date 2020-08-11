@@ -14,7 +14,7 @@
 
 def generateChains():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
-    from TrigUpgradeTest.TestUtils import makeChain
+    from DecisionHandling.TestUtils import makeChain
     
     testChains = []
     ##################################################################
@@ -119,7 +119,7 @@ def generateChains():
     # jet chains
     ##################################################################
     if opt.doJetSlice == True:
-        from TrigUpgradeTest.jetMenuHelper import jetMenuSequenceFromString
+        from DecisionHandling.jetMenuHelper import jetMenuSequenceFromString
 
         # small-R jets, different calibrations HLT_AntiKt4EMTopoJets_subjesIS
         jetSeq_a4_tc_em = jetMenuSequenceFromString("a4_tc_em_subjesIS")
@@ -161,7 +161,7 @@ def generateChains():
     # bjet chains
     ##################################################################
     if opt.doBjetSlice == True:
-        from TrigUpgradeTest.jetMenuHelper import jetMenuSequenceFromString
+        from DecisionHandling.jetMenuHelper import jetMenuSequenceFromString
         from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
         jetSequence = jetMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf")
@@ -271,10 +271,12 @@ def generateChains():
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 createHLTMenuExternally=True # menu will be build up explicitly here 
 doWriteRDOTrigger = False
 doWriteBS = False
 forceEnableAllChains=True
+TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 include("TriggerJobOpts/runHLT_standalone.py")
 
@@ -285,12 +287,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 generateChains()
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
-from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
-createHLTPrescalesFileFromMenu()
 
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
-    
+
+from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+createHLTPrescalesFileFromMenu(ConfigFlags)
+   
 from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
     

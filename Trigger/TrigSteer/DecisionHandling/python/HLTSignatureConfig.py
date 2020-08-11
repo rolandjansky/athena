@@ -2,7 +2,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
+from DecisionHandling.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
