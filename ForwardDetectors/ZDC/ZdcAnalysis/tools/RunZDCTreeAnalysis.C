@@ -11,21 +11,21 @@
 #include "ZdcAnalysis/ZDCMsg.h"
 #include "TStopwatch.h"
 
-std::string _calibFile = "";
-bool _doECalib = false;
-bool _doTCalib = false;
+std::string m_CalibFile = "";
+bool m_DoECalib = false;
+bool m_DoTCalib = false;
 
 void EnableCalibrations(std::string file, bool doECalib, bool doTCalib)
 {
     if (doECalib || doTCalib) {
-        _calibFile = file;
-        _doTCalib = doTCalib;
-        _doECalib = doECalib;
+        m_CalibFile = file;
+        m_DoTCalib = doTCalib;
+        m_DoECalib = doECalib;
     }
     else {
-        _calibFile = "";
-        _doTCalib = false;
-        _doECalib = false;
+        m_CalibFile = "";
+        m_DoTCalib = false;
+        m_DoECalib = false;
     }
 }
 
@@ -92,7 +92,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
 {
     ZDCDataAnalyzer::ZDCModuleFloatArray tau1, tau2, t0HG, t0LG, peak2ndDerivMinSamples;
 
-    if (year == 1111) {
+    if (year == 1111) { // year 1111 is for MC samples
         peak2ndDerivMinSamples = {4, 4, 4, 4,
                                   4, 4, 4, 4
                                  };
@@ -144,7 +144,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
         ana->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
     }
 
-    if (year == 1111) ana->enableMCBranches(1);
+    if (year == 1111) ana->enableMCBranches(1); // year 1111 is for MC samples
     if (year == 2016) ana->DisableModule(0, 0);
 
     if (useDelayed) {
@@ -176,7 +176,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
         }
     }
 
-    if (year == 1111) {
+    if (year == 1111) { // year 1111 is for MC samples
         // -------------------------------------
         // tau1 = 4.0
         tau1 = {4.000, 4.000, 4.000, 4.000,
@@ -302,7 +302,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
     // ----------------------
     // current one
     ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG;
-    if (year == 1111) {
+    if (year == 1111) { // year 1111 is for MC samples
         DeltaT0CutLowHG  = { -10, -10, -10, -10, -10, -10, -10, -10};
         DeltaT0CutHighHG = {  10,  10,  10,  10,  10,  10,  10,  10};
         DeltaT0CutLowLG  = { -10, -10, -10, -10, -10, -10, -10, -10};
@@ -323,7 +323,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
 
     ana->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
 
-    if (_doECalib || _doTCalib) LoadCalibrations(ana, _calibFile, runNumber, _doECalib, _doTCalib);
+    if (m_DoECalib || m_DoTCalib) LoadCalibrations(ana, m_CalibFile, runNumber, m_DoECalib, m_DoTCalib);
 
     return ana;
 }

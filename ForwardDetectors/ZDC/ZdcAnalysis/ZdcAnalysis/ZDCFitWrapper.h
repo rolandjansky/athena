@@ -28,7 +28,7 @@ class ZDCFitWrapper
   float m_tminAdjust;
 
 public:
-  ZDCFitWrapper(TF1* wrapperTF1) : m_wrapperTF1(wrapperTF1), //m_t0Min(t0Min), m_t0Max(t0Max)
+  ZDCFitWrapper(TF1* wrapperTF1) : m_wrapperTF1(wrapperTF1),
     m_ampMin(0),
     m_adjTLimitsEvent(true)  // true here forces a setting of T0 par limits on first event
   {
@@ -98,20 +98,20 @@ class ZDCPrePulseFitWrapper : public ZDCFitWrapper
 public:
   ZDCPrePulseFitWrapper(TF1* wrapperTF1) : ZDCFitWrapper(wrapperTF1) {}
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) = 0; // bill
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) = 0;
 
   virtual void SetPrePulseT0Range(float tmin, float tmax) = 0;
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) = 0; // bill
+  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) = 0;
 
   virtual unsigned int GetPreT0ParIndex() const = 0;
 
-  virtual float GetPreT0()  const = 0;  // bill
-  virtual float GetPreAmp() const = 0;  // bill
+  virtual float GetPreT0()  const = 0;
+  virtual float GetPreAmp() const = 0;
 
-  virtual float GetPostT0()  const = 0;  // bill
-  virtual float GetPostAmp() const = 0;  // bill
+  virtual float GetPostT0()  const = 0;
+  virtual float GetPostAmp() const = 0;
 
-  virtual float GetExpAmp()  const = 0;  // bill
+  virtual float GetExpAmp()  const = 0;
 };
 
 class ZDCFitExpFermiVariableTaus : public ZDCFitWrapper

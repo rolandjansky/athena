@@ -309,10 +309,10 @@ ZDCFitExpFermiLinearFixedTaus::ZDCFitExpFermiLinearFixedTaus(std::string tag, fl
 
 void ZDCFitExpFermiLinearFixedTaus::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
-  float _slope = 0.1 * initialAmp / initialT0;
-  float _const = 0.1 * initialAmp;
-  GetWrapperTF1()->SetParLimits(2, -_slope, _slope);
-  GetWrapperTF1()->SetParLimits(3, -_const, _const);
+  float slope     = 0.1 * initialAmp / initialT0;
+  float intercept = 0.1 * initialAmp;
+  GetWrapperTF1()->SetParLimits(2, -slope    , slope    );
+  GetWrapperTF1()->SetParLimits(3, -intercept, intercept);
 
   GetWrapperTF1()->SetParameter(0, initialAmp);
   GetWrapperTF1()->SetParameter(1, initialT0);
@@ -378,10 +378,10 @@ void ZDCFitExpFermiLinearPrePulse::SetPrePulseT0Range(float tmin, float tmax)
 
 void ZDCFitExpFermiLinearPrePulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
-  float _slope = initialAmp / initialT0;  // to be studied more ??? limit 0.1 0.05
-  float _const = 0.5 * initialAmp;
-  GetWrapperTF1()->SetParLimits(4, -_slope, _slope);
-  GetWrapperTF1()->SetParLimits(5, -_const, _const);
+  float slope     = initialAmp / initialT0;  // to be studied more ??? limit 0.1 0.05
+  float intercept = 0.5 * initialAmp;
+  GetWrapperTF1()->SetParLimits(4, -slope    , slope    );
+  GetWrapperTF1()->SetParLimits(5, -intercept, intercept);
 
   GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 
@@ -459,10 +459,10 @@ void ZDCFitComplexPrePulse::SetPrePulseT0Range(float tmin, float tmax)
 
 void ZDCFitComplexPrePulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
-  float _slope = std::abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
-  float _const = std::abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
-  GetWrapperTF1()->SetParLimits(4, -_slope, _slope);  // if the lower limit is set to 0, there will be some fit fail issue...
-  GetWrapperTF1()->SetParLimits(5, -_const, _const);
+  float slope     = std::abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
+  float intercept = std::abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
+  GetWrapperTF1()->SetParLimits(4, -slope    , slope    );  // if the lower limit is set to 0, there will be some fit fail issue...
+  GetWrapperTF1()->SetParLimits(5, -intercept, intercept);
 
   GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 
@@ -546,10 +546,10 @@ void ZDCFitGeneralPulse::SetPostPulseT0Range(float tmin, float tmax, float initi
 
 void ZDCFitGeneralPulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
-  float _slope = std::abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
-  float _const = std::abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
-  GetWrapperTF1()->SetParLimits(4, -_slope, _slope);  // if the lower limit is set to 0, there will be some fit fail issue...
-  GetWrapperTF1()->SetParLimits(5, -_const, _const);
+  float slope     = std::abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
+  float intercept = std::abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
+  GetWrapperTF1()->SetParLimits(4, -slope    , slope    );  // if the lower limit is set to 0, there will be some fit fail issue...
+  GetWrapperTF1()->SetParLimits(5, -intercept, intercept);
 
   GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 

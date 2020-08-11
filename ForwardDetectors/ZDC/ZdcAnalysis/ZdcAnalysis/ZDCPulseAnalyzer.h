@@ -207,7 +207,7 @@ private:
   int m_maxSampl;
   int m_minSampl;
 
-  float m_initialExpAmp;  // Bill
+  float m_initialExpAmp;
   float m_minDeriv2nd;
   int   m_minDeriv2ndIndex;
 
@@ -226,21 +226,21 @@ private:
   float m_fitTime;
   float m_fitTimeSub;
   float m_fitTimeCorr;
-  float m_fitTCorr2nd; // bill
+  float m_fitTCorr2nd;
   float m_fitTau1;
   float m_fitTau2;
   float m_fitChisq;
-  float m_fitPreT0;    // bill
-  float m_fitPreAmp;   // bill
-  float m_fitPostT0;   // bill
-  float m_fitPostAmp;  // bill
-  float m_fitExpAmp;   // bill
+  float m_fitPreT0;
+  float m_fitPreAmp;
+  float m_fitPostT0;
+  float m_fitPostAmp;
+  float m_fitExpAmp;
   float m_amplitude;
   float m_ampError;
   float m_preSampleAmp;
-  float m_preAmplitude;   // bill
-  float m_postAmplitude;  // bill
-  float m_expAmplitude;   // bill
+  float m_preAmplitude;
+  float m_postAmplitude;
+  float m_expAmplitude;
   float m_bkgdMaxFraction;
   float m_delayedBaselineShift;
 
@@ -415,11 +415,11 @@ public:
   float GetChisq()        const {return m_fitChisq;}
   float GetFitTau1()      const {return m_fitTau1;}
   float GetFitTau2()      const {return m_fitTau2;}
-  float GetFitPreT0()     const {return m_fitPreT0;}      // bill
-  float GetFitPreAmp()    const {return m_preAmplitude;}  // bill
-  float GetFitPostT0()    const {return m_fitPostT0;}     // bill
-  float GetFitPostAmp()   const {return m_postAmplitude;} // bill
-  float GetFitExpAmp()    const {return m_expAmplitude;}  // bill
+  float GetFitPreT0()     const {return m_fitPreT0;}
+  float GetFitPreAmp()    const {return m_preAmplitude;}
+  float GetFitPostT0()    const {return m_fitPostT0;}
+  float GetFitPostAmp()   const {return m_postAmplitude;}
+  float GetFitExpAmp()    const {return m_expAmplitude;}
   // ---------------------------
 
   float GetAmplitude() const {return m_amplitude;}

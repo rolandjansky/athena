@@ -38,17 +38,17 @@ public :
 
   // Processing state members
   //
-  bool _inLoop;
-  int _currentEntry;
-  unsigned int _runNumber;
+  bool m_inLoop;
+  int  m_currentEntry;
+  unsigned int m_runNumber;
 
-  bool _haveEntryList;
-  TEntryList* _entryList;
-  unsigned int _currentSelected;
+  bool m_haveEntryList;
+  TEntryList* m_entryList;
+  unsigned int m_currentSelected;
 
-  TFile* _outTFile;
-  TTree* _outTree;
-  bool _doOutput;
+  TFile* m_OutTFile;
+  TTree* m_OutTree;
+  bool m_DoOutput;
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -164,9 +164,9 @@ public :
 
   // The object responsible for the actual analysis
   //
-  ZDCDataAnalyzer* _dataAnalyzer_p;
+  ZDCDataAnalyzer* m_dataAnalyzer_p;
 
-  float _fitTMax = 0;
+  float m_fitTMax = 0;
 
   int  nSave       = 0;
   int  index       = 0;
@@ -182,7 +182,7 @@ private:
 
   std::string _fitFunction;
 
-  static int _debugLevel;
+  static int mDebugLevel;
 
   bool saveEvent  = false;
   bool mcBranches = false;
@@ -202,50 +202,50 @@ private:
 
   // Cut quantities
   //
-  float _HGOverFlowADC[2][4];
-  float _HGUnderFlowADC[2][4];
-  float _DeltaT0CutLow[2][4];
-  float _DeltaT0CutHigh[2][4];
-  float _chisqDivAmpCutHG[2][4];
-  float _chisqDivAmpCutLG[2][4];
+  float m_HGOverFlowADC[2][4];
+  float m_HGUnderFlowADC[2][4];
+  float m_DeltaT0CutLow[2][4];
+  float m_DeltaT0CutHigh[2][4];
+  float m_ChisqDivAmpCutHG[2][4];
+  float m_ChisqDivAmpCutLG[2][4];
 
   //  Per-module calibration factors
   //
   // Time-dependent
   //
-  bool _haveLBDepT0[2][4];
-  TSpline* _moduleT0HGLB[2][4];
-  TSpline* _moduleT0LGLB[2][4];
+  bool m_HaveLBDepT0[2][4];
+  TSpline* m_ModuleT0HGLB[2][4];
+  TSpline* m_ModuleT0LGLB[2][4];
 
-  bool _haveCalibrations;
-  float _modECalib[2][4];
+  bool m_haveCalibrations;
+  float m_ModECalib[2][4];
 
-  bool _haveLBDepECalib[2][4];
+  bool m_HaveLBDepECalib[2][4];
   TSpline* _modECalibLB[2][4];
 
   // Allow per-module Tau1, tau2 settings
   //
-  bool _haveModuleSettings[2][4];
-  bool _fixTau1[2][4];
-  bool _fixTau2[2][4];
-  float _moduleTau1[2][4];
-  float _moduleTau2[2][4];
-  float _moduleT0LG[2][4];
-  float _moduleT0HG[2][4];
+  bool m_haveModuleSettings[2][4];
+  bool m_FixTau1[2][4];
+  bool m_FixTau2[2][4];
+  float m_ModuleTau1[2][4];
+  float m_ModuleTau2[2][4];
+  float m_ModuleT0LG[2][4];
+  float m_ModuleT0HG[2][4];
 
   std::array<std::array<float, 4>, 2> _moduleHGGains;
   std::array<std::array<std::vector<float>, 4>, 2> _moduleHGNonLinCorr;
 
   //  Time slewing corrections
   //
-  float _T0SlewCoeffHG[2][4][3];
-  float _T0SlewCoeffLG[2][4][3];
+  float m_T0SlewCoeffHG[2][4][3];
+  float m_T0SlewCoeffLG[2][4][3];
 
   // Bunch information
   //
   std::vector<std::set<int> > _trains;
-  std::vector<int> _BCIDGap;
-  std::vector<int> _BCIDPosInTrain;
+  std::vector<int> m_BCIDGap;
+  std::vector<int> m_BCIDPosInTrain;
 
 private:
   void InitInternal();
@@ -262,24 +262,24 @@ public:
                                  const ZDCDataAnalyzer::ZDCModuleFloatArray& HGUnderFlowADC,
                                  const ZDCDataAnalyzer::ZDCModuleFloatArray& LGOverFlowADC)
   {
-    _dataAnalyzer_p->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
+    m_dataAnalyzer_p->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
   }
 
   void EnableDelayed(float deltaT, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
     _useDelayed = true;
-    _dataAnalyzer_p->EnableDelayed(deltaT, undelayedDelayedPedestalDiff);
+    m_dataAnalyzer_p->EnableDelayed(deltaT, undelayedDelayedPedestalDiff);
   }
 
   void EnableDelayed(const ZDCDataAnalyzer::ZDCModuleFloatArray& delayDeltaTArray, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
     _useDelayed = true;
-    _dataAnalyzer_p->EnableDelayed(delayDeltaTArray, undelayedDelayedPedestalDiff);
+    m_dataAnalyzer_p->EnableDelayed(delayDeltaTArray, undelayedDelayedPedestalDiff);
   }
 
   void EnableRepass(const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassLG)
   {
-    _dataAnalyzer_p->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
+    m_dataAnalyzer_p->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
   }
 
   void SetCutValues(const ZDCDataAnalyzer::ZDCModuleFloatArray& chisqDivAmpCutHG,
@@ -290,9 +290,9 @@ public:
                     const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutHighLG)
 
   {
-    _dataAnalyzer_p->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG,
-                                  DeltaT0CutLowHG, DeltaT0CutHighHG,
-                                  DeltaT0CutLowLG, DeltaT0CutHighLG);
+    m_dataAnalyzer_p->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG,
+                                   DeltaT0CutLowHG, DeltaT0CutHighHG,
+                                   DeltaT0CutLowLG, DeltaT0CutHighLG);
   }
 
   void SetTauT0Values(const ZDCDataAnalyzer::ZDCModuleBoolArray& fixTau1,
@@ -302,12 +302,12 @@ public:
                       const ZDCDataAnalyzer::ZDCModuleFloatArray& t0HG,
                       const ZDCDataAnalyzer::ZDCModuleFloatArray& t0LG)
   {
-    _dataAnalyzer_p->SetTauT0Values(fixTau1, fixTau2, tau1, tau2, t0HG, t0LG);
+    m_dataAnalyzer_p->SetTauT0Values(fixTau1, fixTau2, tau1, tau2, t0HG, t0LG);
   }
 
   static void SetDebugLevel(int debugLevel = 0)
   {
-    _debugLevel = debugLevel;
+    mDebugLevel = debugLevel;
   }
 
   static bool msgFunction(unsigned int level, std::string message)
@@ -317,7 +317,7 @@ public:
       throw;
     }
 
-    if (level >= (unsigned int) _debugLevel) {
+    if (level >= (unsigned int) mDebugLevel) {
       if (message != "") std::cout << message << std::endl;
       return true;
     }
@@ -330,23 +330,23 @@ public:
 
   void DisableModule(size_t side, size_t module)
   {
-    _dataAnalyzer_p->DisableModule(side, module);
+    m_dataAnalyzer_p->DisableModule(side, module);
   }
 
   void SetPeak2ndDerivMinTolerances(size_t tolerance)
   {
-    _dataAnalyzer_p->SetPeak2ndDerivMinTolerances(tolerance);
+    m_dataAnalyzer_p->SetPeak2ndDerivMinTolerances(tolerance);
   }
 
   void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplines)
   {
-    _dataAnalyzer_p->LoadEnergyCalibrations(std::move(calibSplines));
+    m_dataAnalyzer_p->LoadEnergyCalibrations(std::move(calibSplines));
   }
 
   void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplinesHG,
                           std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplinesLG)
   {
-    _dataAnalyzer_p->LoadT0Calibrations(std::move(calibSplinesHG), std::move(calibSplinesLG));
+    m_dataAnalyzer_p->LoadT0Calibrations(std::move(calibSplinesHG), std::move(calibSplinesLG));
   }
 
   void SetLBDepT0(int iside, int imod, TSpline* t0SplineLG, TSpline* t0SplineHG);
@@ -354,26 +354,26 @@ public:
   void SetSlewingCoeff(const std::array<std::array<std::vector<float>, 4>, 2>& HGParamArr,
                        const std::array<std::array<std::vector<float>, 4>, 2>& LGParamArr)
   {
-    _dataAnalyzer_p->SetTimingCorrParams(HGParamArr, LGParamArr);
+    m_dataAnalyzer_p->SetTimingCorrParams(HGParamArr, LGParamArr);
   }
 
   void SetNonlinCorrParams(const std::array<std::array<std::vector<float>, 4>, 2>& HGNonlinCorrParams)
   {
-    _dataAnalyzer_p->SetNonlinCorrParams(HGNonlinCorrParams);
+    m_dataAnalyzer_p->SetNonlinCorrParams(HGNonlinCorrParams);
   }
 
-  void SetFitTimeMax (float tmax) {_fitTMax = tmax; _dataAnalyzer_p->SetFitTimeMax(tmax);}
-  void SetSaveFitFunc(bool  save) {_dataAnalyzer_p->SetSaveFitFunc(save);}
+  void SetFitTimeMax (float tmax) {m_fitTMax = tmax; m_dataAnalyzer_p->SetFitTimeMax(tmax);}
+  void SetSaveFitFunc(bool  save) {m_dataAnalyzer_p->SetSaveFitFunc(save);}
   void OutputPlot(bool x = false, int y = 0) {_outputplot = x; nSave = y;}
 
   void Dump_setting() {
-    if (_debugLevel < 4) {
+    if (mDebugLevel < 4) {
       std::cout << "========================================================================================================================" << std::endl;
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 4; j++) {
           std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
           std::cout << "Side: " << i << ", Module: " << j << std::endl;
-          _dataAnalyzer_p->GetPulseAnalyzer(i, j)->Dump_setting();
+          m_dataAnalyzer_p->GetPulseAnalyzer(i, j)->Dump_setting();
         }
       }
       std::cout << "========================================================================================================================" << std::endl;
@@ -402,7 +402,7 @@ public:
 
   void LoadNextEntry()
   {
-    GetEntry(_currentEntry + 1);
+    GetEntry(m_currentEntry + 1);
     DoAnalysis();
   }
 
@@ -410,7 +410,7 @@ public:
   int LoadSelected(unsigned int selEntry);
   int LoadNextSelected();
 
-  unsigned int GetRunNumber() const {return _runNumber;}
+  unsigned int GetRunNumber() const {return m_runNumber;}
 
   void DoAnalysis();
 };
@@ -425,14 +425,14 @@ ZDCTreeAnalysis::ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int 
                                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
                                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
                                  bool forceLG) :
-  fChain(0), _outTFile(0), _outTree(0),
+  fChain(0), m_OutTFile(0), m_OutTree(0),
   _nSample(nSample), _deltaTSample(deltaT),  _preSampleIdx(preSamplIdx),
   _peak2ndDerivMinSamples(peak2ndDerivMinSamples),
   _peak2ndDerivMinThresholdsHG(peak2ndDerivMinThresholdsHG),
   _peak2ndDerivMinThresholdsLG(peak2ndDerivMinThresholdsLG),
   _useDelayed(false),
-  _doOutput(false), _currentEntry(-1), _inLoop(false),
-  _haveCalibrations(false),
+  m_DoOutput(false), m_currentEntry(-1), m_inLoop(false),
+  m_haveCalibrations(false),
   _zdcrawModuleSize(_nSample * 2 * 2) // High/low gain x delayed/undelayed x # samples
 {
 
@@ -443,7 +443,7 @@ ZDCTreeAnalysis::ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int 
   // Capture the run number
   //
   GetEntry(1);
-  _runNumber = runNumber;
+  m_runNumber = runNumber;
 
   InitInternal();
 
@@ -453,10 +453,10 @@ ZDCTreeAnalysis::ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int 
 
   ZDCMsg::MessageFunctionPtr msgPtr(new ZDCMsg::MessageFunction(msgFunction));
 
-  _dataAnalyzer_p = new ZDCDataAnalyzer(msgPtr, _nSample, _deltaTSample, _preSampleIdx, fitFunction,
-                                        _peak2ndDerivMinSamples,
-                                        _peak2ndDerivMinThresholdsHG, _peak2ndDerivMinThresholdsLG,
-                                        forceLG);
+  m_dataAnalyzer_p = new ZDCDataAnalyzer(msgPtr, _nSample, _deltaTSample, _preSampleIdx, fitFunction,
+                                         _peak2ndDerivMinSamples,
+                                         _peak2ndDerivMinThresholdsHG, _peak2ndDerivMinThresholdsLG,
+                                         forceLG);
 }
 
 ZDCTreeAnalysis::~ZDCTreeAnalysis()
@@ -470,7 +470,7 @@ Int_t ZDCTreeAnalysis::GetEntry(Long64_t entry)
 // Read contents of entry.
   if (!fChain) return 0;
   int result = fChain->GetEntry(entry);
-  if (result > 0) _currentEntry = entry;
+  if (result > 0) m_currentEntry = entry;
   return result;
 }
 Long64_t ZDCTreeAnalysis::LoadTree(Long64_t entry)

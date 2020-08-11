@@ -29,7 +29,7 @@
 
 #include "CountBits.C"
 
-int ZDCTreeAnalysis::_debugLevel = 5;
+int ZDCTreeAnalysis::mDebugLevel = 5;
 
 template <typename T> T Sqr(const T& inT) {return inT * inT;}
 
@@ -37,26 +37,26 @@ void ZDCTreeAnalysis::InitInternal()
 {
     for (int iside = 0; iside < 2; iside++) {
         for (int imod = 0; imod < 4; imod++) {
-            _fixTau1[iside][imod] = false;
-            _fixTau2[iside][imod] = false;
-            _moduleTau1[iside][imod] = 4;
-            _moduleTau2[iside][imod] = 20;
+            m_FixTau1[iside][imod] = false;
+            m_FixTau2[iside][imod] = false;
+            m_ModuleTau1[iside][imod] = 4;
+            m_ModuleTau2[iside][imod] = 20;
 
-            _chisqDivAmpCutHG[iside][imod] = 1e6;
-            _chisqDivAmpCutLG[iside][imod] = 1e6;
-            _DeltaT0CutLow[iside][imod] = -100;
-            _DeltaT0CutHigh[iside][imod] = 100;
-            _HGOverFlowADC[iside][imod] = 800;
-            _HGUnderFlowADC[iside][imod] = 25;
+            m_ChisqDivAmpCutHG[iside][imod] = 1e6;
+            m_ChisqDivAmpCutLG[iside][imod] = 1e6;
+            m_DeltaT0CutLow[iside][imod] = -100;
+            m_DeltaT0CutHigh[iside][imod] = 100;
+            m_HGOverFlowADC[iside][imod] = 800;
+            m_HGUnderFlowADC[iside][imod] = 25;
 
             for (size_t ipar = 0; ipar < 3; ipar++) {
-                _T0SlewCoeffHG[iside][imod][ipar] = 0;
-                _T0SlewCoeffLG[iside][imod][ipar] = 0;
+                m_T0SlewCoeffHG[iside][imod][ipar] = 0;
+                m_T0SlewCoeffLG[iside][imod][ipar] = 0;
             }
 
-            _modECalib[iside][imod] = 1;
-            _haveLBDepECalib[iside][imod] = false;
-            _haveLBDepT0[iside][imod] = false;
+            m_ModECalib[iside][imod] = 1;
+            m_HaveLBDepECalib[iside][imod] = false;
+            m_HaveLBDepT0[iside][imod] = false;
         }
     }
 
@@ -72,8 +72,8 @@ void ZDCTreeAnalysis::SetupBunchTrains()
 {
     GetEntry(0);
 
-    _BCIDGap.assign(3600, 0);
-    _BCIDPosInTrain.assign(3600, 0);
+    m_BCIDGap.assign(3600, 0);
+    m_BCIDPosInTrain.assign(3600, 0);
 
     std::cout << "Run = " << runNumber << std::endl;
 
@@ -90,7 +90,7 @@ void ZDCTreeAnalysis::SetupBunchTrains()
         int content = bunch_dhis->GetBinContent(i);
         if (content < 10) {count_gap++;}
         else {
-            _BCIDGap[i] = count_gap;
+            m_BCIDGap[i] = count_gap;
             numBCID++;
 
             if (count_gap > 30) {
@@ -103,7 +103,7 @@ void ZDCTreeAnalysis::SetupBunchTrains()
             else std::cout << i << ", ";
 
             pos++;
-            _BCIDPosInTrain[i] = pos;
+            m_BCIDPosInTrain[i] = pos;
             count_gap  = 0;
         }
     }
@@ -119,86 +119,83 @@ void ZDCTreeAnalysis::OpenOutputTree(std::string file)
         return;
     }
 
-    _outTFile = outputFile;
+    m_OutTFile = outputFile;
 
-    _outTree = fChain->CloneTree(0);
-    _outTree->SetBranchStatus("zdc_raw", 0);
-    _outTree->Branch("bcidGap"       , &bcidGap       , "bcidGap/I"       );
-    _outTree->Branch("bcidPosInTrain", &bcidPosInTrain, "bcidPosInTrain/I");
+    m_OutTree = fChain->CloneTree(0);
+    m_OutTree->SetBranchStatus("zdc_raw", 0);
+    m_OutTree->Branch("bcidGap"       , &bcidGap       , "bcidGap/I"       );
+    m_OutTree->Branch("bcidPosInTrain", &bcidPosInTrain, "bcidPosInTrain/I");
 
-    _outTree->Branch("zdc_SumAmp"   , zdc_SumAmp   , "zdc_SumAmp[2]/F"   );
-    _outTree->Branch("zdc_SumAmpErr", zdc_SumAmpErr, "zdc_SumAmpErr[2]/F");
+    m_OutTree->Branch("zdc_SumAmp"   , zdc_SumAmp   , "zdc_SumAmp[2]/F"   );
+    m_OutTree->Branch("zdc_SumAmpErr", zdc_SumAmpErr, "zdc_SumAmpErr[2]/F");
 
-    _outTree->Branch("zdc_SumCalibAmp"   , zdc_SumCalibAmp   , "zdc_SumCalibAmp[2]/F"   );
-    _outTree->Branch("zdc_SumCalibAmpErr", zdc_SumCalibAmpErr, "zdc_SumCalibAmpErr[2]/F");
+    m_OutTree->Branch("zdc_SumCalibAmp"   , zdc_SumCalibAmp   , "zdc_SumCalibAmp[2]/F"   );
+    m_OutTree->Branch("zdc_SumCalibAmpErr", zdc_SumCalibAmpErr, "zdc_SumCalibAmpErr[2]/F");
 
-    _outTree->Branch("zdc_SumPreSampleAmp", zdc_SumPreSampleAmp, "zdc_SumPreSampleAmp[2]/F");
+    m_OutTree->Branch("zdc_SumPreSampleAmp", zdc_SumPreSampleAmp, "zdc_SumPreSampleAmp[2]/F");
 
-    _outTree->Branch("zdc_AvgTime"   , zdc_AvgTime    , "zdc_AvgTime[2]/F");
-    _outTree->Branch("zdc_ModuleMask", &zdc_ModuleMask, "zdc_ModuleMask/I");
+    m_OutTree->Branch("zdc_AvgTime"   , zdc_AvgTime    , "zdc_AvgTime[2]/F");
+    m_OutTree->Branch("zdc_ModuleMask", &zdc_ModuleMask, "zdc_ModuleMask/I");
 
-    _outTree->Branch("zdc_Status"    , zdc_Status    , "zdc_Status[2][4]/I");
-    _outTree->Branch("zdc_Amp"       , zdc_Amp       , "zdc_Amp[2][4]/F");
-    _outTree->Branch("zdc_Presample" , zdc_Presample , "zdc_Presample[2][4]/F");
-    _outTree->Branch("zdc_FitT0"     , zdc_FitT0     , "zdc_FitT0[2][4]/F");
-    _outTree->Branch("zdc_FitPreAmp" , zdc_FitPreAmp , "zdc_FitPreAmp[2][4]/F");   // bill
-    _outTree->Branch("zdc_FitPreT0"  , zdc_FitPreT0  , "zdc_FitPreT0[2][4]/F");    // bill
-    _outTree->Branch("zdc_FitPostAmp", zdc_FitPostAmp, "zdc_FitPostAmp[2][4]/F");  // bill
-    _outTree->Branch("zdc_FitPostT0" , zdc_FitPostT0 , "zdc_FitPostT0[2][4]/F");   // bill
-    _outTree->Branch("zdc_FitExpAmp" , zdc_FitExpAmp , "zdc_FitExpAmp[2][4]/F");   // bill
-    _outTree->Branch("zdc_FitTau1"   , zdc_FitTau1   , "zdc_FitTau1[2][4]/F");
-    _outTree->Branch("zdc_FitTau2"   , zdc_FitTau2   , "zdc_FitTau2[2][4]/F");
-    _outTree->Branch("zdc_T0Corr"    , zdc_T0Corr    , "zdc_T0Corr[2][4]/F");
-    _outTree->Branch("zdc_FitChisq"  , zdc_FitChisq  , "zdc_FitChisq[2][4]/F");
+    m_OutTree->Branch("zdc_Status"    , zdc_Status    , "zdc_Status[2][4]/I");
+    m_OutTree->Branch("zdc_Amp"       , zdc_Amp       , "zdc_Amp[2][4]/F");
+    m_OutTree->Branch("zdc_Presample" , zdc_Presample , "zdc_Presample[2][4]/F");
+    m_OutTree->Branch("zdc_FitT0"     , zdc_FitT0     , "zdc_FitT0[2][4]/F");
+    m_OutTree->Branch("zdc_FitPreAmp" , zdc_FitPreAmp , "zdc_FitPreAmp[2][4]/F");
+    m_OutTree->Branch("zdc_FitPreT0"  , zdc_FitPreT0  , "zdc_FitPreT0[2][4]/F");
+    m_OutTree->Branch("zdc_FitPostAmp", zdc_FitPostAmp, "zdc_FitPostAmp[2][4]/F");
+    m_OutTree->Branch("zdc_FitPostT0" , zdc_FitPostT0 , "zdc_FitPostT0[2][4]/F");
+    m_OutTree->Branch("zdc_FitExpAmp" , zdc_FitExpAmp , "zdc_FitExpAmp[2][4]/F");
+    m_OutTree->Branch("zdc_FitTau1"   , zdc_FitTau1   , "zdc_FitTau1[2][4]/F");
+    m_OutTree->Branch("zdc_FitTau2"   , zdc_FitTau2   , "zdc_FitTau2[2][4]/F");
+    m_OutTree->Branch("zdc_T0Corr"    , zdc_T0Corr    , "zdc_T0Corr[2][4]/F");
+    m_OutTree->Branch("zdc_FitChisq"  , zdc_FitChisq  , "zdc_FitChisq[2][4]/F");
 
-    _outTree->Branch("zdc_AmpError"       , zdc_AmpError       , "zdc_AmpError[2][4]/F");
-    _outTree->Branch("zdc_BkgdMaxFraction", zdc_BkgdMaxFraction, "zdc_BkgdMaxFraction[2][4]/F");
+    m_OutTree->Branch("zdc_AmpError"       , zdc_AmpError       , "zdc_AmpError[2][4]/F");
+    m_OutTree->Branch("zdc_BkgdMaxFraction", zdc_BkgdMaxFraction, "zdc_BkgdMaxFraction[2][4]/F");
 
-    _outTree->Branch("zdc_ModuleQuality", zdc_ModuleQuality, "zdc_ModuleQuality[2][4]/F");
-    _outTree->Branch("zdc_Quality"      , zdc_Quality      , "zdc_Quality[2]/F");
+    m_OutTree->Branch("zdc_ModuleQuality", zdc_ModuleQuality, "zdc_ModuleQuality[2][4]/F");
+    m_OutTree->Branch("zdc_Quality"      , zdc_Quality      , "zdc_Quality[2]/F");
 
-    _outTree->Branch("zdc_CalibAmp" , zdc_CalibAmp, "zdc_CalibAmp[2][4]/F");
-    _outTree->Branch("zdc_CalibTime", zdc_CalibTime, "zdc_CalibTime[2][4]/F");
+    m_OutTree->Branch("zdc_CalibAmp" , zdc_CalibAmp, "zdc_CalibAmp[2][4]/F");
+    m_OutTree->Branch("zdc_CalibTime", zdc_CalibTime, "zdc_CalibTime[2][4]/F");
 
-    // _outTree->Branch("zdc_MaxADC", zdc_MaxADC, "zdc_MaxADC[2][4]/f");
-    // _outTree->Branch("zdc_MinADC", zdc_MinADC, "zdc_MinADC[2][4]/f");
-    // _outTree->Branch("zdc_MaxADCSample", zdc_MaxADCSample, "zdc_MaxADCSample[2][4]/I");
-    // _outTree->Branch("zdc_MinADCSample", zdc_MaxADCSample, "zdc_MinADCSample[2][4]/I");
-    _outTree->Branch("zdc_Min2ndDeriv", zdc_Min2ndDeriv, "zdc_Min2ndDeriv[2][4]/F");
-    _outTree->Branch("zdc_Min2ndDerivSample", zdc_Min2ndDerivSample, "zdc_Min2ndDerivSample[2][4]/I");
+    m_OutTree->Branch("zdc_MaxADC", zdc_MaxADC, "zdc_MaxADC[2][4]/f");
+    m_OutTree->Branch("zdc_MinADC", zdc_MinADC, "zdc_MinADC[2][4]/f");
+    m_OutTree->Branch("zdc_MaxADCSample", zdc_MaxADCSample, "zdc_MaxADCSample[2][4]/I");
+    m_OutTree->Branch("zdc_MinADCSample", zdc_MaxADCSample, "zdc_MinADCSample[2][4]/I");
+    m_OutTree->Branch("zdc_Min2ndDeriv", zdc_Min2ndDeriv, "zdc_Min2ndDeriv[2][4]/F");
+    m_OutTree->Branch("zdc_Min2ndDerivSample", zdc_Min2ndDerivSample, "zdc_Min2ndDerivSample[2][4]/I");
 
-    // _outTree->Branch("zdc_side", zdc_side);
-    // _outTree->Branch("zdc_module", zdc_module);
-    // _outTree->Branch("zdc_samplesSub", zdc_samplesSub);
-    _outTree->Branch("zdc_samplesDeriv", &zdc_samplesDeriv);
-    _outTree->Branch("zdc_samplesDeriv2nd", &zdc_samplesDeriv2nd);
+    m_OutTree->Branch("zdc_samplesDeriv", &zdc_samplesDeriv);
+    m_OutTree->Branch("zdc_samplesDeriv2nd", &zdc_samplesDeriv2nd);
 
-    _outTree->Branch("zdc_maxAmpModule", zdc_maxAmpModule, "zdc_maxAmpModule[2]/I");
-    _outTree->Branch("zdc_maxAmp"      , zdc_maxAmp      , "zdc_maxAmp[2]/F"      );
+    m_OutTree->Branch("zdc_maxAmpModule", zdc_maxAmpModule, "zdc_maxAmpModule[2]/I");
+    m_OutTree->Branch("zdc_maxAmp"      , zdc_maxAmp      , "zdc_maxAmp[2]/F"      );
 
-    _outTree->Branch("zdc_delayedBS", zdc_delayedBS, "zdc_delayedBS[2][4]/F");      // Bill
+    m_OutTree->Branch("zdc_delayedBS", zdc_delayedBS, "zdc_delayedBS[2][4]/F");
 
     if (mcBranches) {
-        _outTree->Branch("zdc_maxSumTruthEnergyModule"   , zdc_maxSumTruthEnergyModule   , "zdc_maxSumTruthEnergyModule[2]/I"   );
-        _outTree->Branch("zdc_maxSumTruthEnergy"         , zdc_maxSumTruthEnergy         , "zdc_maxSumTruthEnergy[2]/F"         );
-        _outTree->Branch("zdc_maxSumTruthEnergyGapModule", zdc_maxSumTruthEnergyGapModule, "zdc_maxSumTruthEnergyGapModule[2]/I");
-        _outTree->Branch("zdc_maxSumTruthEnergyGap"      , zdc_maxSumTruthEnergyGap      , "zdc_maxSumTruthEnergyGap[2]/F"      );
-        _outTree->Branch("zdc_sumTruthEnergy"            , zdc_sumTruthEnergy            , "zdc_sumTruthEnergy[2][4]/F"         );
-        _outTree->Branch("zdc_sumTruthEnergyGap"         , zdc_sumTruthEnergyGap         , "zdc_sumTruthEnergyGap[2][4]/F"      );
+        m_OutTree->Branch("zdc_maxSumTruthEnergyModule"   , zdc_maxSumTruthEnergyModule   , "zdc_maxSumTruthEnergyModule[2]/I"   );
+        m_OutTree->Branch("zdc_maxSumTruthEnergy"         , zdc_maxSumTruthEnergy         , "zdc_maxSumTruthEnergy[2]/F"         );
+        m_OutTree->Branch("zdc_maxSumTruthEnergyGapModule", zdc_maxSumTruthEnergyGapModule, "zdc_maxSumTruthEnergyGapModule[2]/I");
+        m_OutTree->Branch("zdc_maxSumTruthEnergyGap"      , zdc_maxSumTruthEnergyGap      , "zdc_maxSumTruthEnergyGap[2]/F"      );
+        m_OutTree->Branch("zdc_sumTruthEnergy"            , zdc_sumTruthEnergy            , "zdc_sumTruthEnergy[2][4]/F"         );
+        m_OutTree->Branch("zdc_sumTruthEnergyGap"         , zdc_sumTruthEnergyGap         , "zdc_sumTruthEnergyGap[2][4]/F"      );
     }
 
-    _doOutput = true;
+    m_DoOutput = true;
 }
 
 void ZDCTreeAnalysis::CloseOutputTree()
 {
-    if (!_doOutput) return;
+    if (!m_DoOutput) return;
 
-    _outTree->AutoSave();
-    delete _outTFile;
-    _outTFile = 0;
-    _outTree = 0;
-    _doOutput = false;
+    m_OutTree->AutoSave();
+    delete m_OutTFile;
+    m_OutTFile = 0;
+    m_OutTree  = 0;
+    m_DoOutput = false;
 }
 
 int ZDCTreeAnalysis::SetSelection(TCut selection)
@@ -208,10 +205,10 @@ int ZDCTreeAnalysis::SetSelection(TCut selection)
     fChain->Draw(">>zdcTreeAnalysisEL", selection, "entrylist");
     TEntryList* entryList = (TEntryList*) gDirectory->Get("zdcTreeAnalysisEL");
     if (entryList) {
-        _entryList = entryList;
-        _haveEntryList = true;
-        _currentSelected = 0;
-        return _entryList->GetN();
+        m_entryList = entryList;
+        m_haveEntryList = true;
+        m_currentSelected = 0;
+        return m_entryList->GetN();
     }
 
     return -1;
@@ -219,22 +216,22 @@ int ZDCTreeAnalysis::SetSelection(TCut selection)
 
 int ZDCTreeAnalysis::LoadSelected(unsigned int entry)
 {
-    if (!_haveEntryList) return -1;
-    if (entry > _entryList->GetN()) return -1;
+    if (!m_haveEntryList) return -1;
+    if (entry > m_entryList->GetN()) return -1;
 
-    unsigned int treeEntry = _entryList->GetEntry(entry);
+    unsigned int treeEntry = m_entryList->GetEntry(entry);
     LoadEntry(treeEntry);
 
-    _currentSelected = entry;
+    m_currentSelected = entry;
     return 0;
 }
 
 int ZDCTreeAnalysis::LoadNextSelected()
 {
-    if (!_haveEntryList) return -1;
-    if (_currentSelected >= _entryList->GetN()) return -1;
+    if (!m_haveEntryList) return -1;
+    if (m_currentSelected >= m_entryList->GetN()) return -1;
 
-    unsigned int treeEntry = _entryList->GetEntry(++_currentSelected);
+    unsigned int treeEntry = m_entryList->GetEntry(++m_currentSelected);
     LoadEntry(treeEntry);
 
     return 0;
@@ -244,7 +241,7 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
 {
     if (fChain == 0) return;
 
-    int loopStart = (startEntry == -1 ? _currentEntry : startEntry);
+    int loopStart = (startEntry == -1 ? m_currentEntry : startEntry);
 
     Long64_t nentries = fChain->GetEntriesFast() - loopStart;
 
@@ -252,12 +249,12 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
 
     Long64_t nbytes = 0, nb = 0;
 
-    _inLoop = true;
+    m_inLoop = true;
     for (Long64_t jentry = loopStart; jentry < loopStart + numLoopEntry; jentry++) {
         Long64_t ientry = LoadTree(jentry);
         if (ientry < 0) break;
         nb = fChain->GetEntry(jentry);
-        _currentEntry = jentry;
+        m_currentEntry = jentry;
         nbytes += nb;
 
         if (jentry > 1) {
@@ -279,29 +276,29 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
 
         if (mcBranches) {
             for (size_t side : {0, 1}) {
-                int   _maxSumTruthEnergyModule    = 0;
-                float _maxSumTruthEnergy          = 0;
-                int   _maxSumTruthEnergyGapModule = 0;
-                float _maxSumTruthEnergyGap       = 0;
+                int   m_maxSumTruthEnergyModule    = 0;
+                float m_maxSumTruthEnergy          = 0;
+                int   m_maxSumTruthEnergyGapModule = 0;
+                float m_maxSumTruthEnergyGap       = 0;
                 for (size_t module : {0, 1, 2, 3}) {
                     zdc_sumTruthEnergy   [side][module] = zdc_TotalTruthEnergySum[side][module][0] + zdc_TotalTruthEnergySum[side][module][1];
                     zdc_sumTruthEnergyGap[side][module] = zdc_TotalTruthEnergySum[side][module][0];
 
-                    if (zdc_sumTruthEnergy[side][module] > _maxSumTruthEnergy) {
-                        _maxSumTruthEnergy       = zdc_sumTruthEnergy[side][module];
-                        _maxSumTruthEnergyModule = module;
+                    if (zdc_sumTruthEnergy[side][module] > m_maxSumTruthEnergy) {
+                        m_maxSumTruthEnergy       = zdc_sumTruthEnergy[side][module];
+                        m_maxSumTruthEnergyModule = module;
                     }
 
-                    if (zdc_sumTruthEnergyGap[side][module] > _maxSumTruthEnergyGap) {
-                        _maxSumTruthEnergyGap       = zdc_sumTruthEnergyGap[side][module];
-                        _maxSumTruthEnergyGapModule = module;
+                    if (zdc_sumTruthEnergyGap[side][module] > m_maxSumTruthEnergyGap) {
+                        m_maxSumTruthEnergyGap       = zdc_sumTruthEnergyGap[side][module];
+                        m_maxSumTruthEnergyGapModule = module;
                     }
                 }
 
-                zdc_maxSumTruthEnergyModule   [side] = _maxSumTruthEnergyModule;
-                zdc_maxSumTruthEnergy         [side] = _maxSumTruthEnergy;
-                zdc_maxSumTruthEnergyGapModule[side] = _maxSumTruthEnergyGapModule;
-                zdc_maxSumTruthEnergyGap      [side] = _maxSumTruthEnergyGap;
+                zdc_maxSumTruthEnergyModule   [side] = m_maxSumTruthEnergyModule;
+                zdc_maxSumTruthEnergy         [side] = m_maxSumTruthEnergy;
+                zdc_maxSumTruthEnergyGapModule[side] = m_maxSumTruthEnergyGapModule;
+                zdc_maxSumTruthEnergyGap      [side] = m_maxSumTruthEnergyGap;
             }
         }
 
@@ -320,19 +317,19 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
         }
     }
 
-    _inLoop = false;
+    m_inLoop = false;
 }
 
 void ZDCTreeAnalysis::DoAnalysis()
 {
     // Starting a new event
     //
-    _dataAnalyzer_p->StartEvent(lumiBlock);
+    m_dataAnalyzer_p->StartEvent(lumiBlock);
 
-    bcidGap = _BCIDGap[bcid];
-    bcidPosInTrain = _BCIDPosInTrain[bcid];
+    bcidGap = m_BCIDGap[bcid];
+    bcidPosInTrain = m_BCIDPosInTrain[bcid];
 
-    if (_doOutput) {
+    if (m_DoOutput) {
         // //
         // //  Initialize outout arrays
         // //
@@ -369,31 +366,31 @@ void ZDCTreeAnalysis::DoAnalysis()
                 std::copy(zdc_raw + zdcrawLGOffset, zdc_raw + zdcrawLGOffset + _nSample,  LGADCSamplesDelay.begin());
                 std::copy(zdc_raw + zdcrawHGOffset, zdc_raw + zdcrawHGOffset + _nSample,  HGADCSamplesDelay.begin());
 
-                _dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples, HGADCSamplesDelay, LGADCSamplesDelay);
+                m_dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples, HGADCSamplesDelay, LGADCSamplesDelay);
             }
             else {
                 // Load the data
                 //
-                _dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples);
+                m_dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples);
             }
-            if (_debugLevel <= 3) _dataAnalyzer_p->GetPulseAnalyzer(side, module)->Dump();
+            if (mDebugLevel <= 3) m_dataAnalyzer_p->GetPulseAnalyzer(side, module)->Dump();
         }
     }
 
 
     // We're done
     //
-    _dataAnalyzer_p->FinishEvent();
+    m_dataAnalyzer_p->FinishEvent();
 
     int vectorIdx = 0;
 
     for (size_t side : {0, 1}) {
-        int   _maxAmpModule = 0;
-        float _maxAmp       = 0;
-        zdc_Quality[side] = 0;  // bill
+        int   m_maxAmpModule = 0;
+        float m_maxAmp       = 0;
+        zdc_Quality[side] = 0;
         for (size_t module : {0, 1, 2, 3}) {
 
-            const ZDCPulseAnalyzer* pulseAna_p = _dataAnalyzer_p->GetPulseAnalyzer(side, module);
+            const ZDCPulseAnalyzer* pulseAna_p = m_dataAnalyzer_p->GetPulseAnalyzer(side, module);
 
             zdc_side->push_back(side);
             zdc_module->push_back(module);
@@ -415,11 +412,11 @@ void ZDCTreeAnalysis::DoAnalysis()
             zdc_Status[side][module]     = pulseAna_p->GetStatusMask();
             zdc_Amp[side][module]        = pulseAna_p->GetAmplitude();
             zdc_FitT0[side][module]      = pulseAna_p->GetFitT0();
-            zdc_FitPreAmp[side][module]  = pulseAna_p->GetFitPreAmp();   // bill
-            zdc_FitPreT0[side][module]   = pulseAna_p->GetFitPreT0();    // bill
-            zdc_FitPostAmp[side][module] = pulseAna_p->GetFitPostAmp();  // bill
-            zdc_FitPostT0[side][module]  = pulseAna_p->GetFitPostT0();   // bill
-            zdc_FitExpAmp[side][module]  = pulseAna_p->GetFitExpAmp();   // bill
+            zdc_FitPreAmp[side][module]  = pulseAna_p->GetFitPreAmp();
+            zdc_FitPreT0[side][module]   = pulseAna_p->GetFitPreT0();
+            zdc_FitPostAmp[side][module] = pulseAna_p->GetFitPostAmp();
+            zdc_FitPostT0[side][module]  = pulseAna_p->GetFitPostT0();
+            zdc_FitExpAmp[side][module]  = pulseAna_p->GetFitExpAmp();
             zdc_FitTau1[side][module]    = pulseAna_p->GetFitTau1();
             zdc_FitTau2[side][module]    = pulseAna_p->GetFitTau2();
             zdc_T0Corr[side][module]     = pulseAna_p->GetT0Corr();
@@ -428,17 +425,17 @@ void ZDCTreeAnalysis::DoAnalysis()
             zdc_AmpError[side][module] = pulseAna_p->GetAmpError();
             zdc_BkgdMaxFraction[side][module] = pulseAna_p->GetBkgdMaxFraction();
 
-            zdc_CalibAmp[side][module] = _dataAnalyzer_p->GetModuleCalibAmplitude(side, module);
-            zdc_CalibTime[side][module] = _dataAnalyzer_p->GetModuleCalibTime(side, module);
+            zdc_CalibAmp[side][module] = m_dataAnalyzer_p->GetModuleCalibAmplitude(side, module);
+            zdc_CalibTime[side][module] = m_dataAnalyzer_p->GetModuleCalibTime(side, module);
 
-            zdc_delayedBS[side][module] = _dataAnalyzer_p->GetdelayedBS(side, module);   // Bill
+            zdc_delayedBS[side][module] = m_dataAnalyzer_p->GetdelayedBS(side, module);
 
             // ------------------------------------------------------------
             // Find max amp module
             //
-            if (zdc_Amp[side][module] > _maxAmpModule) {
-                _maxAmpModule = module;
-                _maxAmp       = zdc_Amp[side][module];
+            if (zdc_Amp[side][module] > m_maxAmpModule) {
+                m_maxAmpModule = module;
+                m_maxAmp       = zdc_Amp[side][module];
             }
 
 
@@ -446,25 +443,25 @@ void ZDCTreeAnalysis::DoAnalysis()
             // fill quality infomation
             //
             zdc_ModuleQuality[side][module] = 0;
-            bool _havePulse    = (zdc_Status[side][module] & 0x1   ) == 0x1   ;
-            bool _prePulse     = (zdc_Status[side][module] & 0x100 ) == 0x100 ;
-            bool _postPulse    = (zdc_Status[side][module] & 0x200 ) == 0x200 ;
-            bool _fitFail      = (zdc_Status[side][module] & 0x400 ) == 0x400 ;
-            bool _badChisq     = (zdc_Status[side][module] & 0x800 ) == 0x800 ;
-            bool _badT0        = (zdc_Status[side][module] & 0x1000) == 0x1000;
-            bool _excluEarlyLB = (zdc_Status[side][module] & 0x2000) == 0x2000;
-            bool _preExpTail   = (zdc_Status[side][module] & 0x8000) == 0x8000;
+            bool m_havePulse    = (zdc_Status[side][module] & 0x1   ) == 0x1   ;
+            bool m_prePulse     = (zdc_Status[side][module] & 0x100 ) == 0x100 ;
+            bool m_postPulse    = (zdc_Status[side][module] & 0x200 ) == 0x200 ;
+            bool m_fitFail      = (zdc_Status[side][module] & 0x400 ) == 0x400 ;
+            bool m_badChisq     = (zdc_Status[side][module] & 0x800 ) == 0x800 ;
+            bool m_badT0        = (zdc_Status[side][module] & 0x1000) == 0x1000;
+            bool m_excluEarlyLB = (zdc_Status[side][module] & 0x2000) == 0x2000;
+            bool m_preExpTail   = (zdc_Status[side][module] & 0x8000) == 0x8000;
 
-            if (_havePulse && !_fitFail && !_badChisq && !_badT0) {
+            if (m_havePulse && !m_fitFail && !m_badChisq && !m_badT0) {
                 float tempSum = 0;
                 tempSum = zdc_AmpError[side][module];
 
                 float leftExp  = zdc_FitExpAmp[side][module] * exp(-(zdc_FitT0[side][module] - 12.5) / zdc_FitTau2[side][module]);
                 float rightExp = zdc_FitExpAmp[side][module] * exp(-(zdc_FitT0[side][module] + 12.5) / zdc_FitTau2[side][module]);
                 float deltaExp = std::abs(leftExp - rightExp);
-                if (_preExpTail)                                    tempSum += deltaExp;
-                if (_prePulse  && !_excluEarlyLB)                   tempSum += zdc_FitPreAmp[side][module];
-                if (_postPulse && zdc_FitPostAmp[side][module] > 0) tempSum += zdc_FitPostAmp[side][module];
+                if (m_preExpTail)                                    tempSum += deltaExp;
+                if (m_prePulse  && !m_excluEarlyLB)                  tempSum += zdc_FitPreAmp[side][module];
+                if (m_postPulse && zdc_FitPostAmp[side][module] > 0) tempSum += zdc_FitPostAmp[side][module];
 
                 zdc_ModuleQuality[side][module] = zdc_Amp[side][module] / tempSum;
                 zdc_Quality[side] += zdc_ModuleQuality[side][module];
@@ -476,31 +473,31 @@ void ZDCTreeAnalysis::DoAnalysis()
         // ------------------------------------------------------------
         // Save max amp module
         //
-        zdc_maxAmpModule[side] = _maxAmpModule;
-        zdc_maxAmp      [side] = _maxAmp;
+        zdc_maxAmpModule[side] = m_maxAmpModule;
+        zdc_maxAmp      [side] = m_maxAmp;
 
-        zdc_SumAmp[side]    = _dataAnalyzer_p->GetModuleSum(side);
-        zdc_SumAmpErr[side] = _dataAnalyzer_p->GetModuleSumErr(side);
+        zdc_SumAmp[side]    = m_dataAnalyzer_p->GetModuleSum(side);
+        zdc_SumAmpErr[side] = m_dataAnalyzer_p->GetModuleSumErr(side);
 
-        zdc_SumCalibAmp[side]    = _dataAnalyzer_p->GetCalibModuleSum(side);
-        zdc_SumCalibAmpErr[side] = _dataAnalyzer_p->GetCalibModuleSumErr(side);
+        zdc_SumCalibAmp[side]    = m_dataAnalyzer_p->GetCalibModuleSum(side);
+        zdc_SumCalibAmpErr[side] = m_dataAnalyzer_p->GetCalibModuleSumErr(side);
 
-        zdc_SumPreSampleAmp[side] = _dataAnalyzer_p->GetModuleSumPreSample(side);
+        zdc_SumPreSampleAmp[side] = m_dataAnalyzer_p->GetModuleSumPreSample(side);
 
-        zdc_AvgTime[side]    = _dataAnalyzer_p->GetAverageTime(side);
-        zdc_sideFailed[side] = _dataAnalyzer_p->SideFailed(side);
+        zdc_AvgTime[side]    = m_dataAnalyzer_p->GetAverageTime(side);
+        zdc_sideFailed[side] = m_dataAnalyzer_p->SideFailed(side);
     }
 
     // -----------------------------------------------------
     // Save event bool
     //
-    zdc_ModuleMask = _dataAnalyzer_p->GetModuleMask();
+    zdc_ModuleMask = m_dataAnalyzer_p->GetModuleMask();
     bitset<4> bs(zdc_ModuleMask >> 4);
     int countBits = bs.count();
     // -----------------------------------------------------
 
-    if (_doOutput) {
-        _outTree->Fill();
+    if (m_DoOutput) {
+        m_OutTree->Fill();
     }
 }
 
@@ -562,7 +559,7 @@ void ZDCTreeAnalysis::PlotFits(int side)
         pad_p->SetTopMargin(0.03);
         pad_p->SetRightMargin(0.03);
 
-        const ZDCPulseAnalyzer* pulseAna_p = _dataAnalyzer_p->GetPulseAnalyzer(side, module);
+        const ZDCPulseAnalyzer* pulseAna_p = m_dataAnalyzer_p->GetPulseAnalyzer(side, module);
 
         unsigned int status = pulseAna_p->GetStatusMask();
 
