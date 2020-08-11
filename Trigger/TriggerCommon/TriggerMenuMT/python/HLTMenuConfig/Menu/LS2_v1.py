@@ -253,9 +253,6 @@ def setupMenu():
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
         # groups need to be properly assigned here later
-
-        # Test chain that was using parallel merging with different number of steps, now serial merged with new menu
-        ChainProp(name='HLT_e3_etcut1step_mu26_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         # Primary e-mu chains
         ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
