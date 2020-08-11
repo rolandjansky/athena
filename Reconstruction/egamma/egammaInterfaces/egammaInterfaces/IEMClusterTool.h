@@ -25,10 +25,10 @@ class IEMClusterTool : virtual public IAlgTool {
  public:
   /** @brief Virtual destructor*/
   virtual ~IEMClusterTool() {};
-  
+
   /** @brief AlgTool interface methods */
   static const InterfaceID& interfaceID();
-  
+
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute on containers */
@@ -36,9 +36,7 @@ class IEMClusterTool : virtual public IAlgTool {
                                  const CaloDetDescrManager& cmgr,
                                  xAOD::ElectronContainer* electronContainer,
                                  xAOD::PhotonContainer* photonContainer) const = 0;
-  /** @brief finalize method*/
-  virtual StatusCode finalize() = 0;
-  
+
 };
 
 inline const InterfaceID& IEMClusterTool::interfaceID()
@@ -46,4 +44,4 @@ inline const InterfaceID& IEMClusterTool::interfaceID()
   return IID_IEMClusterTool;
 }
 
-#endif // EGAMMAINTERFACES_IEMCLUSTERTOOL_H 
+#endif // EGAMMAINTERFACES_IEMCLUSTERTOOL_H
