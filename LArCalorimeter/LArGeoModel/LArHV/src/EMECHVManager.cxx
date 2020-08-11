@@ -11,10 +11,10 @@
 #include "EMECHVPayload.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -48,7 +48,7 @@ public:
       }
     }
 
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
     if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID")) {
       throw std::runtime_error("EMECHVManager failed to retrieve LArElectrodeID");
     }
@@ -183,7 +183,7 @@ void EMECHVManager::update() const {
         }
     }
     
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
 
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     IToolSvc* toolSvc;

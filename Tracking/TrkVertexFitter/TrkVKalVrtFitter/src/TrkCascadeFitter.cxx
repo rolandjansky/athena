@@ -77,7 +77,8 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
                                        IVKalState& istate,
 	  			       const  double massConstraint) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_cascadeState = std::make_unique<CascadeState>();
     state.m_vkalFitControl.renewCascadeEvent(new CascadeEvent());
 
@@ -111,7 +112,8 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
                                       IVKalState& istate,
 	  		              const  double massConstraint) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
 //----
@@ -158,7 +160,8 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
                                       IVKalState& istate,
 	  		              const  double massConstraint) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
     VertexID vID=nextVertex( list, particleMass, istate, massConstraint);
@@ -284,7 +287,8 @@ inline int SymIndex(int it, int i, int j) {  return (3*it+3+i)*(3*it+3+i+1)/2 + 
 VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
                                              const Vertex* primVrt, bool FirstDecayAtPV ) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
     int iv,it,jt;
@@ -743,7 +747,8 @@ StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
                                  IVKalState& istate,
 				 double massConstraint ) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
     int ivc, it, itc;

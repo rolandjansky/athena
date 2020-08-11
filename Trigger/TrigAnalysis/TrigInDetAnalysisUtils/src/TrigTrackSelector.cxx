@@ -432,7 +432,8 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
 
     unsigned bitmap = 0;
 
-    int trackAuthor = 0;
+    int trackAuthor = track->pdgId();
+    int barcode     = track->barcode();
 
 #if 0
     std::cout << "\t\t\tSUTT TP track" 
@@ -453,7 +454,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
 				      deta,  dphi, dz0, dd0, dpT,
 				      nBlayerHits, nPixelHits, nSctHits, nSiHits,
 				      nStrawHits,  nTrtHits,   bitmap, 0,
-				      trackAuthor,  false, -1, -1,  
+				      trackAuthor,  false, barcode, -1,  
 				      expectBL, id) ;  
 
     /// useful debug info - leave in

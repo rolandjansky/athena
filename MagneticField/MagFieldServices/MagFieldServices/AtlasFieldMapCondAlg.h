@@ -76,6 +76,10 @@ namespace MagField {
                                                         "MapToroCurrent", 20400., "Nominal toroid current (A)"};
 
 
+        // flag to load map on start
+        Gaudi::Property<bool> m_loadMapOnStart  {this,
+                                                 "LoadMapOnStart", false , "Load the magnetic field map at start"};
+
         // flag to read magnet map filenames from COOL
         Gaudi::Property<bool> m_useMapsFromCOOL {this,
                                                  "UseMapsFromCOOL", true , "Get magnetic field map filenames from COOL"};

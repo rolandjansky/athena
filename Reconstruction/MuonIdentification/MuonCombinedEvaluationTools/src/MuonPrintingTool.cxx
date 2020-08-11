@@ -143,6 +143,9 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
   float CaloLRLikelihood=0;
   if(muon.parameter(CaloLRLikelihood, xAOD::Muon::CaloLRLikelihood))
     sout << "  CaloLRLikelihood : " << CaloLRLikelihood << std::endl;
+  float CaloMuonScore=0;
+  if(muon.parameter(CaloLRLikelihood, xAOD::Muon::CaloMuonScore))
+    sout << "  CaloMuonScore : " << CaloMuonScore << std::endl;
   int CaloMuonIDTag=0;
   if(muon.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag))
     sout << "  CaloMuonIDTag : " << CaloMuonIDTag << std::endl;

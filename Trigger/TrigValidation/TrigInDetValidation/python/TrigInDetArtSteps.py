@@ -70,7 +70,7 @@ class TrigInDetReco(ExecStep):
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
                 chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20',"
-                flags += 'doBjetSlice=true;'
+                flags += 'doBjetSlice=True;'
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains

@@ -17,6 +17,7 @@
 #include "xAODEgamma/Electron.h" 
 #include "xAODEgamma/Photon.h" 
 #include "AsgTools/AnaToolHandle.h"
+#include "PATCore/AcceptData.h"
 
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
@@ -130,9 +131,9 @@ int main( int argc, char* argv[] ) {
        for (const xAOD::Electron* el : *electrons) {
        ANA_MSG_INFO("---------------------------");
        ANA_MSG_INFO("Electron: " << counter);
-       ANA_MSG_INFO("Electron LH Medium accept result: " <<electronMediumLHSelector->accept(el));
+       ANA_MSG_INFO("Electron LH Medium accept result: " <<bool(electronMediumLHSelector->accept(el)));
        ANA_MSG_INFO("Electron Cut based");
-       ANA_MSG_INFO("Electron Cut Medium accept result: " <<electronMediumIsEMSelector->accept(el));
+       ANA_MSG_INFO("Electron Cut Medium accept result: " <<bool(electronMediumIsEMSelector->accept(el)));
    
        //Bitset manipulation 
        ANA_MSG_INFO("Decision as a bitset: ");
@@ -191,7 +192,7 @@ int main( int argc, char* argv[] ) {
        for (const xAOD::Photon* ph : *photons) {
 	 ANA_MSG_INFO("---------------------------");
 	 ANA_MSG_INFO("Photon: " << counter);
-	 ANA_MSG_INFO("Photon Tight accept result: " <<photonTightIsEMSelector->accept(ph));
+	 ANA_MSG_INFO("Photon Tight accept result: " <<bool(photonTightIsEMSelector->accept(ph)));
 	 ++counter;       
        }
      }// loop entries

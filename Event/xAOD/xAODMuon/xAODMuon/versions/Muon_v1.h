@@ -106,6 +106,7 @@ namespace xAOD {
       MuGirlLowBeta,
       CaloTag,
       CaloLikelihood,
+      CaloScore,
       ExtrapolateMuonToIP,
       NumberOfMuonAuthors // increase this guy when adding
     };
@@ -118,7 +119,7 @@ namespace xAOD {
     /// Get all the authors of this Muon.
     /// For example during overlap checking, the same Muon may have been reconstructed by many different algorithms. This method returns a 16bit
     /// number, where each bit represents a muon algorithm, defined as follows (the lowest bit is indicates that something has gone wrong):
-    /// unknown | MuidCo | STACO | MuTag | MuTagIMO | MuidSA | MuGirl | MuGirlLowBeta | CaloTag | CaloLikelihood | ExtrapolateMuonToIP | MuonCombinedRefit | ExtrapolateMuonToIP        
+    /// unknown | MuidCo | STACO | MuTag | MuTagIMO | MuidSA | MuGirl | MuGirlLowBeta | CaloTag | CaloLikelihood | CaloScore | ExtrapolateMuonToIP | MuonCombinedRefit | ExtrapolateMuonToIP        
     /// @returns  16-bit word, 1-bit reserved for each muon Algorithm: 
     uint16_t allAuthors() const;
     void setAllAuthors(uint16_t authors);
@@ -204,15 +205,16 @@ namespace xAOD {
       meanDeltaADCCountsMDT=17, //!< Difference between mean number of ADC count for given track and mean number of ADC for all muons from DATA.
       /** CaloMuon variables (EnergyLossType is stored separately and retrieved using energyLossType() */
       CaloLRLikelihood=18, //!< Calo Muon ID likelihood
-      CaloMuonIDTag=19, //!< Calo Muon Identification tag
-      FSR_CandidateEnergy=20, //!< FSR candidate energy [MeV]
-      EnergyLoss=21, //!< Fitted energy loss (either param or meas depending on track isolation and calo meas) [Mev]
-      ParamEnergyLoss=22, //!< Parametrised energy loss [Mev]
-      MeasEnergyLoss=23, //!< Measured energy loss [Mev]
-      EnergyLossSigma=24, //!< Sigma of Measured or parametrised energy loss used in the track fit [Mev]
-      ParamEnergyLossSigmaPlus=25, //!< Sigma plus of Parametrised energy loss [Mev]
-      ParamEnergyLossSigmaMinus=26, //!< Sigma minus of Parametrised energy loss [Mev]
-      MeasEnergyLossSigma=27, //!< Sigma of Measured energy loss [Mev]
+      CaloMuonScore=19, //!< Calo Muon ID score
+      CaloMuonIDTag=20, //!< Calo Muon Identification tag
+      FSR_CandidateEnergy=21, //!< FSR candidate energy [MeV]
+      EnergyLoss=22, //!< Fitted energy loss (either param or meas depending on track isolation and calo meas) [Mev]
+      ParamEnergyLoss=23, //!< Parametrised energy loss [Mev]
+      MeasEnergyLoss=24, //!< Measured energy loss [Mev]
+      EnergyLossSigma=25, //!< Sigma of Measured or parametrised energy loss used in the track fit [Mev]
+      ParamEnergyLossSigmaPlus=26, //!< Sigma plus of Parametrised energy loss [Mev]
+      ParamEnergyLossSigmaMinus=27, //!< Sigma minus of Parametrised energy loss [Mev]
+      MeasEnergyLossSigma=28, //!< Sigma of Measured energy loss [Mev]
     };
         
     /// Get a parameter for this Muon - momentumBalanceSignificance for example 

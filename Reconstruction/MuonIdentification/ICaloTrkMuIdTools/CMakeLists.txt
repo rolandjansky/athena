@@ -5,6 +5,8 @@
 # Declare the package name:
 atlas_subdir( ICaloTrkMuIdTools )
 
+find_package( onnxruntime )
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloDetDescr
@@ -22,5 +24,5 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library( ICaloTrkMuIdTools
                    PUBLIC_HEADERS ICaloTrkMuIdTools
-                   LINK_LIBRARIES CaloEvent CaloIdentifier xAODCaloEvent xAODTracking GaudiKernel muonEvent TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack CaloDetDescrLib )
-
+		   INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
+		   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} CaloEvent CaloIdentifier xAODCaloEvent xAODTracking GaudiKernel muonEvent TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack CaloDetDescrLib )

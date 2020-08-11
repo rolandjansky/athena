@@ -56,12 +56,19 @@ class RefComparisonStep(Step):
             self.misconfig_abort('input_file not specified')
 
         branch = os.environ.get('AtlasBuildBranch')  # Available after asetup
-        if branch is None:
+        if not branch:
             branch = os.environ.get('gitlabTargetBranch')  # Available in CI
-        if branch is None:
-            self.log.warning('Cannot determine the branch name, both variables '
-                             'AtlasBuildBranch and gitlabTargetBranch are empty')
-            branch = 'UNKNOWN_BRANCH'
+        if not branch:
+            jobName = os.environ.get('JOB_NAME')  # Available in nightly build system (ATR-21836)
+            if jobName:
+                branch = jobName.split('_')[0].split('--')[0]
+        if not branch:
+            msg = 'Cannot determine the branch name, all variables are empty: AtlasBuildBranch, gitlabTargetBranch, JOB_NAME'
+            if self.required:
+                self.misconfig_abort(msg)
+            else:
+                self.log.warning(msg)
+                branch = 'UNKNOWN_BRANCH'
 
         sub_path = '{}/ref/{}/test_{}/'.format(
             test.package_name, branch, self.ref_test_name)
@@ -362,7 +369,8 @@ class RootCompStep(RefComparisonStep):
                 self.log.debug(
                     'Skipping %s because both reference and input are missing',
                     self.name)
-                return 0, '# (internal) {} -> skipped'.format(self.name)
+                self.result = 0
+                return self.result, '# (internal) {} -> skipped'.format(self.name)
             else:  # input exists but reference not
                 self.log.error('Missing reference for %s', self.name)
                 self.result = 999
