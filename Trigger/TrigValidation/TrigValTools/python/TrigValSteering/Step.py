@@ -219,3 +219,14 @@ def get_step_from_list(step_name, step_list):
         if step.name is not None and step_name in step.name:
             return step
     return None
+
+
+def get_step_type_from_list(step_type, step_list):
+    '''
+    Retrieve the first test matching the type from the list. Returns None if
+    no match is found.
+    '''
+    for step in step_list:
+        if isinstance(step, step_type):
+            return step
+    return None
