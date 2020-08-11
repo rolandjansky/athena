@@ -6,6 +6,7 @@
 # art-input: mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193
 # art-input-nfiles: 3
 # art-athena-mt: 4
+# art-memory: 4096
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*

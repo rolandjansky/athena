@@ -4,6 +4,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 4
+# art-memory: 4096
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*

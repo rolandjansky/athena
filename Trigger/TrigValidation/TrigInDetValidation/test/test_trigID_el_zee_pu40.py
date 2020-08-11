@@ -6,6 +6,7 @@
 # art-input: mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191
 # art-input-nfiles: 8
 # art-athena-mt: 4
+# art-memory: 4096
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
