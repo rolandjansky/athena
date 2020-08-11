@@ -96,11 +96,10 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** User updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are deleted inside the update
-    method. Update occurs on the place where the parameters parm are according
-    to the specified MaterialEffectsOnTrack
+    The parmeters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
     */
-  virtual const TrackParameters* update(
+  virtual TrackParameters* update(
     ICache& icache,
     const TrackParameters* parm,
     const MaterialEffectsOnTrack& meff,
@@ -108,10 +107,10 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
+    The parmeters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
     */
-  virtual const TrackParameters* preUpdate(
+  virtual TrackParameters* preUpdate(
     ICache& icache,
     const TrackParameters* parm,
     const Layer& sf,
@@ -120,10 +119,11 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update if the postUpdate fails, it returns 0
+    The parmeters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
+    Layer-based material update if the postUpdate fails, it returns 0
     */
-  virtual const TrackParameters* postUpdate(
+  virtual TrackParameters* postUpdate(
     ICache& icache,
     const TrackParameters& parm,
     const Layer& sf,
@@ -136,7 +136,7 @@ public:
     method. MaterialProperties based material update
     - used by all Layer-based methods
     */
-  virtual const TrackParameters* update(
+  virtual TrackParameters* update(
     ICache& icache,
     const TrackParameters& parm,
     const MaterialProperties& mprop,
@@ -153,10 +153,8 @@ public:
                            const TrackParameters* parm = nullptr) const = 0;
 
   /** Updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
     */
-  virtual const TrackParameters* update(
+  virtual TrackParameters* update(
     const TrackParameters* parm,
     const Layer& sf,
     PropDirection dir = alongMomentum,
@@ -164,11 +162,8 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** User updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are deleted inside the update
-    method. Update occurs on the place where the parameters parm are according
-    to the specified MaterialEffectsOnTrack
     */
-  virtual const TrackParameters* update(
+  virtual TrackParameters* update(
     const TrackParameters* parm,
     const MaterialEffectsOnTrack& meff,
     ParticleHypothesis particle = pion,
@@ -177,7 +172,7 @@ public:
     The parmeters are given as a pointer, they are delete inside the update
     method. Layer-based material update
     */
-  virtual const TrackParameters* preUpdate(
+  virtual TrackParameters* preUpdate(
     const TrackParameters* parm,
     const Layer& sf,
     PropDirection dir = alongMomentum,
@@ -185,10 +180,9 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update if the postUpdate fails, it returns 0
     */
-  virtual const TrackParameters* postUpdate(
+
+  virtual TrackParameters* postUpdate(
     const TrackParameters& parm,
     const Layer& sf,
     PropDirection dir = alongMomentum,
@@ -196,11 +190,10 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** Updator interface:
-    The parmeters are given as a pointer, they are delete inside the update
-    method. MaterialProperties based material update
+    MaterialProperties based material update
     - used by all Layer-based methods
     */
-  virtual const TrackParameters* update(
+  virtual TrackParameters* update(
     const TrackParameters& parm,
     const MaterialProperties& mprop,
     double pathcorrection,
