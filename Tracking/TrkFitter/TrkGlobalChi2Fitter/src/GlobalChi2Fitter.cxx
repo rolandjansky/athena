@@ -7192,12 +7192,16 @@ namespace Trk {
   ) const {
     GXFTrackState *firstmeasstate, *lastmeasstate;
     std::tie(firstmeasstate, lastmeasstate) = oldtrajectory.findFirstLastMeasurement();
-    const TrackParameters *per = nullptr;
+    std::unique_ptr<const TrackParameters> per(nullptr);
 
     if (cache.m_acceleration && !m_matupdator.empty()) {
-      const TrackParameters *prevpar = firstmeasstate->trackParameters();
-      const TrackParameters *tmppar = firstmeasstate->trackParameters();
+      std::unique_ptr<const TrackParameters> prevpar(
+        firstmeasstate->trackParameters() != nullptr ?
+        firstmeasstate->trackParameters()->clone() :
+        nullptr
+      );
       std::vector<std::pair<const Layer *, const Layer *>> & upstreamlayers = oldtrajectory.upstreamMaterialLayers();
+      bool first = true;
       
       for (int i = (int)upstreamlayers.size() - 1; i >= 0; i--) {
         if (prevpar == nullptr) {
@@ -7222,23 +7226,25 @@ namespace Trk {
             continue;
           }
           
-          if (distsol.first() * distsol.second() < 0 && prevpar != firstmeasstate->trackParameters()) {
+          if (distsol.first() * distsol.second() < 0 && !first) {
             continue;
           }
         }
         
-        if (prevpar == firstmeasstate->trackParameters() && distance > 0) {
+        if (first && distance > 0) {
           propdir = alongMomentum;
         }
 
-        const TrackParameters *layerpar = m_propagator->propagate(
-          ctx,
-          *prevpar,
-          layer->surfaceRepresentation(), 
-          propdir,
-          true,
-          oldtrajectory.m_fieldprop,
-          nonInteracting
+        std::unique_ptr<const TrackParameters> layerpar(
+          m_propagator->propagate(
+            ctx,
+            *prevpar,
+            layer->surfaceRepresentation(),
+            propdir,
+            true,
+            oldtrajectory.m_fieldprop,
+            nonInteracting
+          )
         );
         
         if (layerpar == nullptr) {
@@ -7246,18 +7252,65 @@ namespace Trk {
         }
         
         if (layer->surfaceRepresentation().bounds().inside(layerpar->localPosition())) {
-          const TrackParameters *updatedpar = m_matupdator->update(layerpar, *layer, oppositeMomentum, matEffects);
-          if ((updatedpar != nullptr) && updatedpar != layerpar) {
-            delete layerpar;
-            layerpar = updatedpar;
+          /*
+           * WARNING: Possible memory aliasing. As far as I can tell, the
+           * update method either returns its argument pointer (thereby not
+           * allocating new memory), or allocates new memory on the heap, or
+           * returns a nullptr.
+           *
+           * In other words, the user of this method cannot be sure whether the
+           * pointer returned is an alias of the argument pointer without
+           * additional checks. It also seems to free the memory pointed at in
+           * some cases.
+           *
+           * This sort of duplicity does not work well with C++ smart pointers,
+           * so it's up to the developer to ensure that the memory is handled
+           * safely.
+           *
+           * Stephen Nicholas Swatman <stephen.nicholas.swatman@cern.ch>
+           * August 11th, 2020
+           */
+          const TrackParameters * updatedpar = m_matupdator->update(layerpar.get(), *layer, oppositeMomentum, matEffects);
+
+          if (updatedpar != nullptr) {
+            if (updatedpar != layerpar.get()) {
+              /*
+               * Updating succeeded, and the result is the not the same pointer
+               * that we used as input for our method. This means that the
+               * update method freed the contents of our smart pointer. We need
+               * to replace the contents of our smart pointer _without_
+               * invoking the automatic freeing mechanism.
+               */
+              layerpar.release();
+              layerpar.reset(updatedpar);
+            }
+            /*
+             * If the returned pointer is the same as the input pointer, then
+             * our smart pointer and the returned raw pointer now alias each
+             * other. That's a less than ideal situation, but we can control
+             * the scope of the returned raw pointer. If we make sure we don't
+             * do anything with this raw pointer, for example create new smart
+             * pointers from it or free it, the aliasing raw pointer will
+             * eventually go out of scope and become harmless.
+             */
+          } else {
+            /*
+             * If the updated parameters are a nullptr, then the update failed.
+             * What this means exactly is hidden in the implementation of the
+             * update method, but god help us because it seems it also frees
+             * the memory pointed to by the argument pointer. Since the pointer
+             * argument comes from a smart pointer, we must release that
+             * pointer without freeing it, to prevent RAII mechanics from
+             * freeing it again. We also have to set it to nullptr, but
+             * luckily the std::unique_ptr::release method does both those
+             * things.
+             */
+            layerpar.release();
           }
         }
-        
-        if (prevpar != firstmeasstate->trackParameters()) {
-          delete prevpar;
-        }
-        
-        prevpar = layerpar;
+
+        prevpar = std::move(layerpar);
+        first = false;
       }
       
       const Layer *startlayer = firstmeasstate->trackParameters()->associatedSurface().associatedLayer();
@@ -7302,19 +7355,17 @@ namespace Trk {
       }
       
       if (prevpar != nullptr) {
-        per = m_propagator->propagate(
-          ctx,
-          *prevpar,
-          PerigeeSurface(Amg::Vector3D(0, 0, 0)),
-          oppositeMomentum, 
-          false,
-          oldtrajectory.m_fieldprop,
-          nonInteracting
+        per.reset(
+            m_propagator->propagate(
+            ctx,
+            *prevpar,
+            PerigeeSurface(Amg::Vector3D(0, 0, 0)),
+            oppositeMomentum,
+            false,
+            oldtrajectory.m_fieldprop,
+            nonInteracting
+          )
         );
-      }
-      
-      if (prevpar != tmppar) {
-        delete prevpar;
       }
       
       if (per == nullptr) {
@@ -7324,18 +7375,20 @@ namespace Trk {
         return nullptr;
       }
     } else if (cache.m_acceleration && (firstmeasstate->trackParameters() != nullptr)) {
-      per = m_extrapolator->extrapolate(
-        *firstmeasstate->trackParameters(),
-        PerigeeSurface(Amg::Vector3D(0, 0, 0)),
-        oppositeMomentum, 
-        false, 
-        matEffects
+      per.reset(
+        m_extrapolator->extrapolate(
+          *firstmeasstate->trackParameters(),
+          PerigeeSurface(Amg::Vector3D(0, 0, 0)),
+          oppositeMomentum,
+          false,
+          matEffects
+        )
       );
     } else {
-      per = oldtrajectory.referenceParameters(true);
+      per.reset(oldtrajectory.referenceParameters(true)->clone());
     }
 
-    return std::unique_ptr<const TrackParameters>(per);
+    return std::move(per);
   }
 
   std::unique_ptr<const TrackStateOnSurface> GlobalChi2Fitter::makeTrackFindPerigee(
