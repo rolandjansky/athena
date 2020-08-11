@@ -292,7 +292,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
 from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
-createHLTPrescalesFileFromMenu()
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+createHLTPrescalesFileFromMenu(ConfigFlags)
    
 from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
