@@ -18,21 +18,41 @@
 #include "DoubletMakingKernelCuda.cuh"
 #include "DoubletMatchingKernelCuda.cuh"
 
-SeedMakingWorkCuda::SeedMakingWorkCuda(unsigned int id, const SeedMakingWorkContextCuda& ctx, std::shared_ptr<TrigAccel::OffloadBuffer> data, 
-    tbb::concurrent_queue<SeedMakingDeviceContext*>& CQ, tbb::concurrent_vector<WorkTimeStamp>& TL) : 
+SeedMakingWorkCuda::SeedMakingWorkCuda(unsigned int id, SeedMakingDeviceContext* ctx, std::shared_ptr<TrigAccel::OffloadBuffer> data, 
+  tbb::concurrent_vector<WorkTimeStamp>* TL) : 
   m_workId(id),
-  m_context(0), 
+  m_context(ctx), 
   m_input(data),
-  m_contextQueue(CQ),
   m_timeLine(TL)
  {
   
-  m_context = new SeedMakingWorkContextCuda(ctx);//make a copy 
   m_output = std::make_shared<TrigAccel::OffloadBuffer>(sizeof(TrigAccel::OUTPUT_SEED_STORAGE));//output data
 }
 
 SeedMakingWorkCuda::~SeedMakingWorkCuda() {
-  if(m_context) delete(m_context);//delete the copy
+  
+  SeedMakingDeviceContext* p = m_context;
+
+  int id = p->m_deviceId;
+
+  cudaSetDevice(id);
+
+  cudaStreamDestroy(p->m_stream);
+
+  cudaFree(p->d_settings);
+  cudaFree(p->d_spacepoints);
+  cudaFree(p->d_detmodel);
+  
+  cudaFree(p->d_outputseeds);
+  cudaFree(p->d_doubletstorage);
+  cudaFree(p->d_doubletinfo);
+
+  cudaFreeHost(p->h_settings);
+  cudaFreeHost(p->h_spacepoints);
+  cudaFreeHost(p->h_outputseeds);
+
+  delete p;
+  m_context = 0;
 }
 
 std::shared_ptr<TrigAccel::OffloadBuffer> SeedMakingWorkCuda::getOutput() {
@@ -41,9 +61,9 @@ std::shared_ptr<TrigAccel::OffloadBuffer> SeedMakingWorkCuda::getOutput() {
 
 bool SeedMakingWorkCuda::run() {
 
-  m_timeLine.push_back(WorkTimeStamp(m_workId, 0, tbb::tick_count::now()));
+  m_timeLine->push_back(WorkTimeStamp(m_workId, 0, tbb::tick_count::now()));
 
-  const SeedMakingDeviceContext& p = *(m_context->m_pdc);
+  const SeedMakingDeviceContext& p = *m_context;
   
   int id = p.m_deviceId;  
   
@@ -104,7 +124,7 @@ bool SeedMakingWorkCuda::run() {
   checkError();
 
   doubletMakingKernel<<<gridDimensions, blockDimensions, 0, p.m_stream>>>(dSettings, dSpacepoints, dDetModel, dOutput, 
-							   dInfo, dStorage, nLayers, nSlices);
+    dInfo, dStorage, nLayers, nSlices);
 
   cudaStreamSynchronize(p.m_stream);
 
@@ -115,8 +135,8 @@ bool SeedMakingWorkCuda::run() {
   cudaMemcpy(&nStats[0], p.d_doubletstorage, 3*sizeof(int), cudaMemcpyDeviceToHost);
 
   
-  doubletMatchingKernel<<<p.m_gpuParams.m_nNUM_TRIPLET_BLOCKS, NUM_TRIPLET_THREADS, 0, p.m_stream>>>(dSettings, dSpacepoints, dDetModel, dInfo,
-												     dStorage,  dOutput, nStats[0]);
+  doubletMatchingKernel<<<p.m_gpuParams.m_nNUM_TRIPLET_BLOCKS, NUM_TRIPLET_THREADS, 0, p.m_stream>>>(dSettings, dSpacepoints, dDetModel, dInfo, 
+    dStorage,  dOutput, nStats[0]);
 
   cudaStreamSynchronize(p.m_stream);
 
@@ -141,10 +161,8 @@ bool SeedMakingWorkCuda::run() {
   checkError();
 
   memcpy(pOutput, ps, sizeof(TrigAccel::OUTPUT_SEED_STORAGE));
-
-  m_contextQueue.push(m_context->m_pdc);
-
-  m_timeLine.push_back(WorkTimeStamp(m_workId, 1, tbb::tick_count::now()));
+  
+  m_timeLine->push_back(WorkTimeStamp(m_workId, 1, tbb::tick_count::now()));
 
   return true;
 }

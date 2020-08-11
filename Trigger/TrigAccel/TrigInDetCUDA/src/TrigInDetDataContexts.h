@@ -22,12 +22,6 @@ public:
 };
 
 
-class SeedMakingWorkContext {//base class
-public:
-  SeedMakingWorkContext() {};
-  SeedMakingWorkContext(const SeedMakingWorkContext& c) {};
-};
-
 struct SeedMakingDeviceContext {
 public:
   SeedMakingDeviceContext() : m_deviceId(-1), h_spacepoints(0), d_spacepoints(0), d_size(0), h_size(0) {};
@@ -57,26 +51,6 @@ private:
 };
 
 
-
-class SeedMakingWorkContextCuda : public SeedMakingWorkContext {
-public:
-  SeedMakingWorkContextCuda(SeedMakingDeviceContext* pdc, 
-			    bool pinm = true, bool wcm = false, bool link = false) : SeedMakingWorkContext(), 
-										     m_pdc(pdc), 
-										     m_usePinnedMemory(pinm), 
-										     m_useWriteCombinedMemory(wcm),
-										     m_linkOutputToShm(link) {};
-  
-  SeedMakingWorkContextCuda(const SeedMakingWorkContextCuda& c) : SeedMakingWorkContext(), 
-								  m_pdc(c.m_pdc), 
-								  m_usePinnedMemory(c.m_usePinnedMemory),
-								  m_useWriteCombinedMemory(c.m_useWriteCombinedMemory),
-								  m_linkOutputToShm(c.m_linkOutputToShm) {};
-  SeedMakingDeviceContext* m_pdc;
-  bool m_usePinnedMemory; 
-  bool m_useWriteCombinedMemory; 
-  bool m_linkOutputToShm;
-};
 
 
 #endif
