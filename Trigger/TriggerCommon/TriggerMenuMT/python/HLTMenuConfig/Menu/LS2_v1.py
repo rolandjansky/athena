@@ -37,13 +37,15 @@ def setupMenu():
         ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
 
         #ATR-20049
-        ChainProp(name='HLT_mu10_ivarmedium_mu10_10invm70_L12MU10', groups=MultiMuonGroup),
         ChainProp(name='HLT_mu20_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-
+        
+        # planned primary 'invm' needs to be tested
+        ChainProp(name='HLT_mu20_ivarmedium_mu4noL1_10invm70', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+ 
         #test chains
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),  
 
         ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),

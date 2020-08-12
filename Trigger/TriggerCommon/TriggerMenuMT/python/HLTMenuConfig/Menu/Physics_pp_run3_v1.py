@@ -61,7 +61,9 @@ def setupMenu():
         ChainProp(name='HLT_mu22_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu14_L12MU10', l1SeedThresholds=['MU10'], groups=MultiMuonGroup),
         #-- 2 mu iso
-        ChainProp(name='HLT_mu20_ivarmedium_mu8noL1_L1MU20', l1SeedThresholds=['MU20'], groups=MultiMuonGroup),  
+        ChainProp(name='HLT_mu20_ivarmedium_mu8noL1_L1MU20', l1SeedThresholds=['MU20'], groups=MultiMuonGroup),
+        #-- 2 mu iso invm
+        ChainProp(name='HLT_mu10_ivarmedium_mu10_10invm70_L12MU10', groups=MultiMuonGroup),  
         #-- 3 mu
         ChainProp(name='HLT_mu20_ivarmedium_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_3mu6_L13MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
