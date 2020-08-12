@@ -306,6 +306,7 @@ LArOnlineIDDetD...   INFO in createObj: creating a LArOnlineID helper object in 
 LArOnlineID          INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 ClassIDSvc           INFO  getRegistryEntries: read 68 CLIDRegistry entries for module ALL
+CaloMgrDetDescrCnvWARNING Attempting to create a Calo Detector Manager object outside of the event loop. Geometry may not be aligned.
 CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
 DetectorStore     WARNING retrieve(default): No valid proxy for default object 
  of type TileDetDescrManager(CLID 2941)
