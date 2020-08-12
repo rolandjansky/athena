@@ -87,14 +87,11 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     //This will need to be filled before we construct the condition object 
     Cache cache{};
 
-    // set current scale factor from either conditions or from jobOption parameters if not locked
-    if (!m_lockMapCurrents) {
-        if (m_useDCS) {
-            ATH_CHECK( updateCurrentFromConditions(ctx, cache) );
-        }
-        else {
-            ATH_CHECK( updateCurrentFromParameters(cache) );
-        }
+    if (m_useDCS) {
+        ATH_CHECK( updateCurrentFromConditions(ctx, cache) );
+    }
+    else {
+        ATH_CHECK( updateCurrentFromParameters(cache) );
     }
     
     // Must read map cond object to get previously created map
@@ -113,6 +110,11 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
         scaleField(cache, fieldMap);
     }
     else {
+        // For locked currents, we allow the SF to be either 0 or 1, i.e. allow the DCS currents to
+        // say whether or not the solenoid or toroid is on or not
+        cache.m_solScaleFactor = (cache.m_solenoidCurrent > 0) ? 1 : 0;
+        cache.m_torScaleFactor = (cache.m_toroidCurrent   > 0) ? 1 : 0;
+        
         ATH_MSG_INFO( "execute: map currents locked");
         ATH_MSG_INFO( "execute: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
                       << cache.m_solenoidCurrent << "," << ((fieldMap) ? fieldMap->solenoidCurrent() : 0));
@@ -235,6 +237,7 @@ MagField::AtlasFieldCacheCondAlg::updateCurrentFromConditions(const EventContext
         torcur = 0.0;
         ATH_MSG_INFO( "UpdateCurrentFromConditions: Toroids are off" );
     }
+
     cache.m_solenoidCurrent = solcur;
     cache.m_toroidCurrent   = torcur;
 
