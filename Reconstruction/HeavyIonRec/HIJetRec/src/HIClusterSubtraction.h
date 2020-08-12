@@ -28,6 +28,7 @@
 #include <HIJetRec/IHIUEModulatorTool.h>
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "xAODTracking/VertexContainer.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -62,7 +63,8 @@ private:
 	// Tool handles
   ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetSubtractorToolBase", "Handle to IHISubtractorTool which does calculates subtracted kinematics" };
   ToolHandle<IHIUEModulatorTool> m_modulatorTool { this, "Modulator" , "HIUEModulatorTool" , "Handle to IHIModulatorTool" };
-  ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools { this, "ClusterCorrectionTools", {}, "" };
+	ToolHandle<IHIEventShapeMapTool> m_eventShapeMapTool { this, "EventShapeMapTool", "HIEventShapeMapTool", "Handle to Event Shape Map Tool"};
+	ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools { this, "ClusterCorrectionTools", {}, "" };
 
 	// Booleans
 	Gaudi::Property< bool > m_setMoments { this, "SetMoments", true, "Set Moments boolean switch"};

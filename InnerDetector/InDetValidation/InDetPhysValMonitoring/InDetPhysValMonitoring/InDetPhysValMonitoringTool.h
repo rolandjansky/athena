@@ -125,6 +125,7 @@ private:
     std::vector<SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> > m_intTrkDecor;
     std::vector<SG::ReadDecorHandleKey<xAOD::TruthParticleContainer> > m_floatTruthDecor;
     std::vector<SG::ReadDecorHandleKey<xAOD::TruthParticleContainer> > m_intTruthDecor;
+    std::vector<SG::ReadDecorHandleKey<xAOD::JetContainer> > m_intJetDecor;
 
     ///Directory name
     std::string m_dirName;
@@ -153,6 +154,7 @@ private:
 
     float m_maxTrkJetDR;
     bool m_doTrackInJetPlots;
+    bool m_doBjetPlots; 
 
     std::string m_folder;
 };

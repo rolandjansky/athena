@@ -6,8 +6,6 @@
 #define BsJpsiPhiAngles_H
 
 #include "CLHEP/Vector/LorentzVector.h"
-//using namespace CLHEP;
-//double thispi = 3.14159265358979312e+00;
 class BsJpsiPhiAngles{
 
   

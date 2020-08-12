@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -142,13 +142,13 @@ HLT::ErrorCode EFTauTauCombHypo::hltExecute(const HLT::TriggerElement* outputTE,
     m_monDRAll=dr;
     m_monMassAll = mass;
     m_monVxState = VX_state;
-  m_moncombtype=0;
-if(VX_state==1515)
-    m_moncombtype=1;       
-if(VX_state==1513)
-    m_moncombtype=2;
-if(VX_state==1511)
-    m_moncombtype=3; 
+    m_moncombtype=0;
+    if(VX_state==1515)
+      m_moncombtype=1;       
+    if(VX_state==1513)
+      m_moncombtype=2;
+    if(VX_state==1511)
+      m_moncombtype=3; 
 //     if(m_oppositeCharge && !oppositeCharge)
 //       {
 // 	if(msgLvl() <= MSG::VERBOSE) {

@@ -255,8 +255,8 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidatau.ntupleChainNames += [
                                 "Offline",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_TAURoI",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI"
                         ]
@@ -332,7 +332,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidabjet.ntupleChainNames += [
                                 "Offline",
-                                ":key=HLT_IDTrack_FS_FTF",
+                                ":HLT_IDTrack_FS_FTF:vtx=HLT_IDVertex_FS",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig"
                         ]

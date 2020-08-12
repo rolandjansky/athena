@@ -13,7 +13,7 @@ def CaloRecoCfg(configFlags):
 
 
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        result.merge( ByteStreamReadCfg(configFlags,typeNames=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
+        result.merge( ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
 
 
         from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg

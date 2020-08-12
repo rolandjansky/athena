@@ -200,12 +200,10 @@ unsigned long RootTruthParticleCnvTool::refCount() const { abort(); }
 //               Implementation of the IProperty function(s)
 //
 
-StatusCode RootTruthParticleCnvTool::setProperty( const Property& ) { abort(); }
 StatusCode RootTruthParticleCnvTool::setProperty( const std::string& ) {
    abort(); }
-StatusCode RootTruthParticleCnvTool::setProperty( const std::string&,
-                                                  const std::string& ) {
-   abort(); }
+StatusCode RootTruthParticleCnvTool::setProperty( const std::string&, const Gaudi::Details::PropertyBase& ) { abort(); }
+StatusCode RootTruthParticleCnvTool::setPropertyRepr( const std::string&, const std::string& ){ abort(); }
 StatusCode RootTruthParticleCnvTool::getProperty( Property* ) const { abort(); }
 const Property&
 RootTruthParticleCnvTool::getProperty( const std::string& ) const{ abort(); }

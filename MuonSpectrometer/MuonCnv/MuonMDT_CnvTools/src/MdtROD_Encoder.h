@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_MDTROD_ENCODER_H
@@ -41,7 +41,7 @@ public:
 
 	/** constructor 
 	*/
-	MdtROD_Encoder(); 
+	MdtROD_Encoder (const MdtIdHelper& mdtIdHelper); 
 
 
 	/** destructor 
@@ -70,8 +70,7 @@ private:
 
 	//	RPC_Hid2RESrcID* m_hid2re; 
 	std::vector<const MdtCsm*> m_vMdtCsm;
-	const MdtIdHelper* m_mdtIdHelper;
-	const MuonGM::MuonDetectorManager* m_mdm;
+	const MdtIdHelper& m_mdtIdHelper;
 	int m_BMGid;
 } ; 
 

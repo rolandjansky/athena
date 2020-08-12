@@ -242,10 +242,7 @@ def getThresholdsFromDict( chainDict ):
 
 def TrigMufastHypoToolFromDict( chainDict ):
 
-    if 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
-       thresholds = ['passthrough']
-    else:
-        thresholds = getThresholdsFromDict( chainDict )
+    thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     # Setup MonTool for monitored variables in AthenaMonitoring package
@@ -379,7 +376,7 @@ def TrigmuCombHypoToolFromDict( chainDict ):
 
 def TrigmuCombHypoToolwORFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName'] or 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -680,7 +677,8 @@ class TrigMuonEFTrackIsolationHypoConfig(object) :
 
 def TrigMuonEFInvMassHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
-    thresholds = cparts[0]['invMassInfo']
+    #The invariant mass is specified at end of chain, so only shows up in the last chainPart
+    thresholds = cparts[-1]['invMassInfo']
     config = TrigMuonEFInvMassHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     addMonitoring( tool, TrigMuonEFInvMassHypoMonitoring, "TrigMuonEFInvMassHypoTool", chainDict['chainName'] )
@@ -706,8 +704,8 @@ class TrigMuonEFInvMassHypoConfig(object) :
                 log.debug('Setting passthrough')
                 tool.AcceptAll = True
             else:
-                log.error('threshokds = ', thresholds)
-                raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
+                log.error('thresholds = ', thresholds)
+                raise Exception('TrigMuonEFInvMass Hypo Misconfigured')
         return tool
 
 def TrigMuonLateMuRoIHypoToolFromDict( chainDict ) :

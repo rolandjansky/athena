@@ -66,13 +66,13 @@ public:
   ConeBounds(double alpha, double zmin, double zmax, double halfphi = M_PI, double avphi = 0.);
 
   /**Copy Constructor */
-  ConeBounds(const ConeBounds& cylbo);
-
-  /**Destructor */
-  virtual ~ConeBounds();
+  ConeBounds(const ConeBounds& cylbo) = default;
 
   /**Assignment operator*/
-  ConeBounds& operator=(const ConeBounds& cylbo);
+  ConeBounds& operator=(const ConeBounds& cylbo) = default;
+
+  /**Destructor */
+  virtual ~ConeBounds() = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

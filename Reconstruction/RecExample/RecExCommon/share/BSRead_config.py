@@ -15,7 +15,7 @@ svcMgr = theApp.serviceMgr()
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     logBSRead.error("Can't find ByteStreamAddressProviderSvc!")
 
-if not athenaCommonFlags.isOnline() and not rec.readTAG():
+if not athenaCommonFlags.isOnline() and not rec.readTAG() and not globalflags.isOverlay():
     try:
         svcMgr.EventSelector.ProcessBadEvent=True
     except Exception:

@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "TrigT1NSWSimTools/MMT_Finder.h"
 
 using std::vector;
@@ -9,7 +10,8 @@ using std::map;
 using std::pair;
 using std::string;
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads){
+MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads) :
+  AthMessaging(Athena::getMessageSvc(), "MMT_Finder") {
 
   ATH_MSG_DEBUG("MMT_Finder::building finder");
 

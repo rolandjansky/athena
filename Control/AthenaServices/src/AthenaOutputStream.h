@@ -23,7 +23,11 @@
 
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/FilteredAlgorithm.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/IIoComponent.h"
+
+#include "SelectionVetoes.h"
+#include "CompressionInfo.h"
 
 // forward declarations
 class IClassIDSvc;
@@ -37,6 +41,7 @@ class MetaDataSvc;
 namespace SG {
    class DataProxy;
    class IFolder;
+   class IAuxStoreIO;
    class FolderItem;
 }
 
@@ -148,6 +153,17 @@ protected:
    typedef std::recursive_mutex mutex_t;
    mutex_t  m_mutex;
 
+private:
+   /// Key used for recording selected dynamic variable information
+   /// to the event store.
+   SG::WriteHandleKey<SG::SelectionVetoes> m_selVetoesKey
+   { this, "SelVetoesKey", "" };
+
+   /// Key used for recording lossy float compressed variable information
+   /// to the event store.
+   SG::WriteHandleKey<SG::CompressionInfo> m_compInfoKey
+   { this, "CompInfoKey", "" };
+
 protected:
    /// Handler for ItemNames Property
    void itemListHandler(Property& /* theProp */);
@@ -178,7 +194,7 @@ public:
    /// Clear list of selected objects
    void clearSelection();
    /// Collect data objects for output streamer list
-   void collectAllObjects();
+   StatusCode collectAllObjects();
    /// Return the list of selected objects
    IDataSelector* selectedObjects() {
       return &m_objects;
@@ -191,7 +207,13 @@ public:
 
 private:
    /// Add item data objects to output streamer list
-   void addItemObjects(const SG::FolderItem&);
+  void addItemObjects(const SG::FolderItem&, SG::SelectionVetoes& vetoes, SG::CompressionInfo& compInfo);
+
+   void handleVariableSelection (SG::IAuxStoreIO& auxio,
+                                 SG::DataProxy& itemProxy,
+                                 const std::string& tns,
+                                 const std::string& aux_attr,
+                                 SG::SelectionVetoes& vetoes) const;
 
    /// tokenize a string based on a substring
    void tokenizeAtSep( std::vector<std::string>&, const std::string&, const std::string& ) const;

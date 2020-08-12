@@ -1,6 +1,8 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-   Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/* Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de */
+
 #ifndef ATLASHEPMC_GENVERTEX_H
 #define ATLASHEPMC_GENVERTEX_H
 #ifdef HEPMC3
@@ -32,14 +34,6 @@ inline int barcode(HepMC3::GenVertex p){
 		 return barcode?(barcode->value()):0;
 }
 
-inline std::vector<HepMC3::GenVertexPtr> DESCENDANTS(HepMC3::GenVertexPtr endvtx)
-{
-return std::vector<HepMC3::GenVertexPtr>();	
-}
-inline std::vector<HepMC3::ConstGenVertexPtr> DESCENDANTS(HepMC3::ConstGenVertexPtr endvtx)
-{
-return std::vector<HepMC3::ConstGenVertexPtr>();	
-}
 inline void* raw_pointer(GenVertexPtr p){ return p.get();}
 inline const void* raw_pointer(ConstGenVertexPtr p){ return p.get();}
 }

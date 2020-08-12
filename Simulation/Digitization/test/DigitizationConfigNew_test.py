@@ -24,6 +24,7 @@ from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
+from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -44,6 +45,12 @@ acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(PoolWriteCfg(ConfigFlags))
 acc.merge(writeDigitizationMetadata(ConfigFlags))
+
+# Old EventInfo conversion
+if "EventInfo" not in ConfigFlags.Input.Collections:
+    acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                 inputKey="McEventInfo",
+                                 outputKey="EventInfo"))
 
 # Inner Detector
 acc.merge(BCM_DigitizationCfg(ConfigFlags))

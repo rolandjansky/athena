@@ -28,21 +28,9 @@
 namespace Muon {
 
   MuonTrackExtrapolationTool::MuonTrackExtrapolationTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa), 
-      m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-      m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
-      m_muonExtrapolator2("Trk::Extrapolator/MuonExtrapolator"),
-      m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",na),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    : AthAlgTool(ty,na,pa)
   {
     declareInterface<IMuonTrackExtrapolationTool>(this);
-    declareProperty( "TrackingGeometrySvc", m_trackingGeometrySvc);
-    declareProperty( "MuonExtrapolator",    m_muonExtrapolator);
-    declareProperty( "MuonExtrapolator2",   m_muonExtrapolator2);
-    declareProperty( "AtlasExtrapolator",   m_atlasExtrapolator);
-    declareProperty( "Cosmics",             m_cosmics = false);
-    declareProperty( "KeepInitialPerigee",  m_keepOldPerigee = true);
-    declareProperty( "MuonSystemEntranceName", m_msEntranceName = "MuonSpectrometerEntrance" );
   }
 
   StatusCode MuonTrackExtrapolationTool::initialize()
@@ -70,7 +58,7 @@ namespace Muon {
       ATH_MSG_WARNING("  " << m_trackingGeometrySvc << " has no valid trackingGeometry pointer" );
       return nullptr;
     }
-    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName.c_str());
+    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
     if( !msEntrance ) {
       ATH_MSG_WARNING("  MS entrance not found" );
       return nullptr;
@@ -113,7 +101,6 @@ namespace Muon {
 	    << " pos " << pars.position() << " dir " << pars.momentum().unit();
       if( propDir == Trk::alongMomentum ) msg() << " going along momentum" << endmsg;
       else if( propDir == Trk::oppositeMomentum ) msg() << " going opposite momentum" << endmsg;
-//      else msg() << " unknown direction" << endmsg;
     }
 
     // for cosmics try both directions
@@ -134,7 +121,7 @@ namespace Muon {
 
   const Trk::TrackParameters* MuonTrackExtrapolationTool::findClosestParametersToMuonEntry( const Trk::Track& track ) const {
 
-    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName.c_str());
+    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
     if( !msEntrance ) {
       ATH_MSG_WARNING("Failed to obtain muon entry volume");
       return nullptr;

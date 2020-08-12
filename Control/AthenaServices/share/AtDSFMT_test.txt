@@ -2,7 +2,7 @@
 
 // $Id: AtDSFMT_test.txt,v 1.2 2007-06-24 05:37:15 calaf Exp $
 
-ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.Dlls += { "AthenaServices" };
 ApplicationMgr.ExtSvc += { "AtDSFMTGenSvc", "AtDSFMTGenSvc/AtDSFMTGenSvc2", "AtDSFMTGenSvc/AtDSFMTGenSvc3"  };
 ApplicationMgr.ExtSvcCreates = false;
 

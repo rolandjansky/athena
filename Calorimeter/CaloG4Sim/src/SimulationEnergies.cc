@@ -71,7 +71,7 @@
 #include "CaloG4Sim/VEscapedEnergyProcessing.h"
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
 
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 #include "G4EventManager.hh"
 #include "G4SteppingManager.hh"
@@ -159,12 +159,12 @@ namespace CaloG4
     energies.push_back( category.energy[SimulationEnergies::kEscaped] );
 
     // Update the global step information to say that we've dealt with this
-    EventInformation* evtInfo = dynamic_cast<EventInformation*>(
+    AtlasG4EventUserInfo* atlasG4EvtUserInfo = dynamic_cast<AtlasG4EventUserInfo*>(
         G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-    if ( evtInfo ) {
+    if ( atlasG4EvtUserInfo ) {
       // Update the step info
-      evtInfo->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
-      evtInfo->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
+      atlasG4EvtUserInfo->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
+      atlasG4EvtUserInfo->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
     }
   }
 

@@ -13,7 +13,7 @@
 #ifndef TGC_INDEX_H
 #define TGC_INDEX_H
 
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCNumbering.h"
 
 namespace LVL1TGCTrigger {
 

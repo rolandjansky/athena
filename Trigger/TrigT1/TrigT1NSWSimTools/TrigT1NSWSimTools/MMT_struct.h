@@ -12,7 +12,7 @@
 #include "MuonDigitContainer/MmDigit.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "TLorentzVector.h"
 #include "TMath.h"
@@ -193,7 +193,7 @@ struct par_par{
 
 };
 
-class MMT_Parameters{
+class MMT_Parameters : public AthMessaging {
  public:
   MMT_Parameters(par_par inputParams,char wedgeSize, const MuonGM::MuonDetectorManager* detManager);
 
@@ -309,16 +309,6 @@ class MMT_Parameters{
 
   float32fixed<18> mid_plane_large_X, mid_plane_large, mid_plane_large_UV;
   float32fixed<4> vertical_strip_width_UV;
-
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
-
-
 };
 
 struct mm_digit_entry{

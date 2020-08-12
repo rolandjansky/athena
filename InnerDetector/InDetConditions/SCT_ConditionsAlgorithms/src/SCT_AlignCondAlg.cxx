@@ -25,11 +25,11 @@ StatusCode SCT_AlignCondAlg::initialize()
 
   // Read Handles
   // Static
-  ATH_CHECK(m_readKeyStatic.initialize(!m_useDynamicAlignFolders.value()));
+  ATH_CHECK(m_readKeyStatic.initialize(not m_useDynamicAlignFolders));
   // Dynamic
-  ATH_CHECK(m_readKeyDynamicL1.initialize(m_useDynamicAlignFolders.value()));
-  ATH_CHECK(m_readKeyDynamicL2.initialize(m_useDynamicAlignFolders.value()));
-  ATH_CHECK(m_readKeyDynamicL3.initialize(m_useDynamicAlignFolders.value()));
+  ATH_CHECK(m_readKeyDynamicL1.initialize(m_useDynamicAlignFolders));
+  ATH_CHECK(m_readKeyDynamicL2.initialize(m_useDynamicAlignFolders));
+  ATH_CHECK(m_readKeyDynamicL3.initialize(m_useDynamicAlignFolders));
 
   // Write Handles
   ATH_CHECK(m_writeKey.initialize());
@@ -67,7 +67,7 @@ StatusCode SCT_AlignCondAlg::execute()
   // ____________ Construct new Write Cond Object ____________
   std::unique_ptr<GeoAlignmentStore> writeCdo{std::make_unique<GeoAlignmentStore>()};
 
-  if (not m_useDynamicAlignFolders.value()) { // Static
+  if (not m_useDynamicAlignFolders) { // Static
     // ____________ Get Read Cond Object ____________
     SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic};
     const AlignableTransformContainer* readCdoStatic{*readHandleStatic};

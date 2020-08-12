@@ -1,29 +1,7 @@
-################################################################################
-# Package: ByteStreamCnvSvc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamCnvSvc )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaBaseComps
-   Event/ByteStreamCnvSvcBase
-   Event/ByteStreamData
-   GaudiKernel
-   PRIVATE
-   Control/AthenaKernel
-   Control/SGTools
-   Control/StoreGate
-   Database/APR/CollectionBase
-   Database/APR/FileCatalog
-   Database/AthenaPOOL/AthenaPoolUtilities
-   Database/PersistentDataModel
-   Event/EventInfo
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODTrigger
-   Event/ByteStreamCnvSvcLegacy )
 
 # External dependencies:
 find_package( Boost COMPONENTS system )
@@ -61,7 +39,6 @@ atlas_add_executable( AtlCopyBSEvent test/AtlCopyBSEvent.cxx
 atlas_add_executable( AtlListBSEvents test/AtlListBSEvents.cxx
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES} )
-
 
 # Test(s) in the package:
 atlas_add_test( BSEventSelector

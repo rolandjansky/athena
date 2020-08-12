@@ -34,15 +34,13 @@ if globalflags.DataSource == "data":
     doTrigger = True
 myMonAlg.doTrigger = doTrigger
 
-from ROOT import SCT_Monitoring as sctMon
+from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.
 dimension = [sctMon.N_REGIONS]
 
-MonGroupArray = helper.addArray(dimension,myMonAlg,"SCTHitsNoiseMonitor","SCT") #This puts SCTHitsNoiseMonitor_3 on index 0 !!
-
-
+MonGroupArray = helper.addArray(dimension,myMonAlg,"SCTHitsNoiseMonitor","SCT") # SCTHitsNoiseMonitor_3 on index 0 !!
 
 myMonGroupGeneral = helper.addGroup(
     myMonAlg,
@@ -50,10 +48,7 @@ myMonGroupGeneral = helper.addGroup(
     "SCT/GENERAL/"
 )
 
-### STEP 5 ###
 # Configure histograms
-#####
-
 
 abbreviations = ["ECp", "", "ECm"]
 names = ["Endcap A", "Barrel", "Endcap C"]
@@ -63,10 +58,10 @@ titleAbbreviations = ["ECp","BAR","ECm"]
 layerDisk = [ "layer","disk","layer"]
 limits = [ sctMon.N_DISKS*2, sctMon.N_BARRELS*2, sctMon.N_DISKS*2 ]
 tbinsNames = ["000", "001", "010", "011", "100", "101", "110", "111"]
+
 for isub in range(sctMon.N_REGIONS):
     for i in range(limits[isub]):
 
-  
         HitsMapName = "hitsmap" + abbreviations[isub] +  "_" + str(i/2) + "_" + str(i%2)
         HitsMapTitle = "SCT Hitmap for " + names[isub] + ": " + Title(i,isub)
         MonGroupArray.__getitem__(isub).defineHistogram(varname= "eta_"+HitsMapName+",phi_"+HitsMapName+";"+HitsMapName,
@@ -165,7 +160,6 @@ for isub in range(sctMon.N_REGIONS):
                 xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5)
 
 #GENERAL
-#clu_size
 myMonGroupGeneral.defineHistogram(varname= "clu_size",
                 type= "TH1F", 
                 title= "SCT Cluster Size" + ";Cluster Size;Num of Events",

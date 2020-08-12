@@ -6,7 +6,6 @@
 Definitions of post-exec check steps in Trigger ART tests
 '''
 
-import sys
 import os
 import re
 import subprocess
@@ -23,10 +22,17 @@ class RefComparisonStep(Step):
     def __init__(self, name):
         super(RefComparisonStep, self).__init__(name)
         self.reference = None
+        self.ref_test_name = None
         self.input_file = None
         self.explicit_reference = False  # True if reference doesn't exist at configuration time
 
     def configure(self, test):
+        if self.reference and self.ref_test_name:
+            self.misconfig_abort('Both options "reference" and "ref_test_name" used. Use at most one of them.')
+
+        if not self.ref_test_name:
+            self.ref_test_name = test.name
+
         if self.reference is not None:
             # Do nothing if the reference will be produced later
             if self.explicit_reference:
@@ -47,21 +53,25 @@ class RefComparisonStep(Step):
                 return super(RefComparisonStep, self).configure(test)
 
         if self.input_file is None:
-            self.log.error('Cannot configure %s because input_file not specified',
-                           self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('input_file not specified')
 
         branch = os.environ.get('AtlasBuildBranch')  # Available after asetup
-        if branch is None:
+        if not branch:
             branch = os.environ.get('gitlabTargetBranch')  # Available in CI
-        if branch is None:
-            self.log.warning('Cannot determine the branch name, both variables '
-                             'AtlasBuildBranch and gitlabTargetBranch are empty')
-            branch = 'UNKNOWN_BRANCH'
+        if not branch:
+            jobName = os.environ.get('JOB_NAME')  # Available in nightly build system (ATR-21836)
+            if jobName:
+                branch = jobName.split('_')[0].split('--')[0]
+        if not branch:
+            msg = 'Cannot determine the branch name, all variables are empty: AtlasBuildBranch, gitlabTargetBranch, JOB_NAME'
+            if self.required:
+                self.misconfig_abort(msg)
+            else:
+                self.log.warning(msg)
+                branch = 'UNKNOWN_BRANCH'
 
         sub_path = '{}/ref/{}/test_{}/'.format(
-            test.package_name, branch, test.name)
+            test.package_name, branch, self.ref_test_name)
         ref_eos = art_input_eos + sub_path + self.input_file
         ref_cvmfs = art_input_cvmfs + sub_path + self.input_file
         if os.path.isfile(ref_eos):
@@ -123,10 +133,9 @@ class LogMergeStep(Step):
                 self.log_files.append(step.name)
         # Protect against infinite loop
         if self.merged_name in self.log_files:
-            self.log.error('%s output log name %s is same as one of the input log names.'\
-                           ' This will lead to infinite loop, aborting.', self.name, self.merged_name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort(
+                'output log name %s is same as one of the input log names.'
+                ' This will lead to infinite loop, aborting.', self.merged_name)
         super(LogMergeStep, self).configure(test)
 
     def process_extra_regex(self):
@@ -360,7 +369,8 @@ class RootCompStep(RefComparisonStep):
                 self.log.debug(
                     'Skipping %s because both reference and input are missing',
                     self.name)
-                return 0, '# (internal) {} -> skipped'.format(self.name)
+                self.result = 0
+                return self.result, '# (internal) {} -> skipped'.format(self.name)
             else:  # input exists but reference not
                 self.log.error('Missing reference for %s', self.name)
                 self.result = 999
@@ -662,7 +672,7 @@ class MessageCountStep(Step):
         ret, cmd = super(MessageCountStep, self).run(dry_run)
         self.auto_report_result = auto_report
         if ret != 0:
-            self.log.error('%s failed')
+            self.log.error('%s failed', self.name)
             self.result = 1
             if self.auto_report_result:
                 self.report_result()
@@ -742,12 +752,12 @@ def default_check_steps(test):
         log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
-    reco_tf_steps = [step for step in test.exec_steps if step.type=='Reco_tf']
+    reco_tf_steps = [step for step in test.exec_steps if step.type in ['Reco_tf', 'Trig_reco_tf']]
     if len(reco_tf_steps) > 0:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL']
+                    'PhysicsValidation', 'RAWtoALL', 'BSRDOtoRAW']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         if not get_step_from_list('LogMerge', check_steps):
             for step in reco_tf_steps:

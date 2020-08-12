@@ -313,6 +313,7 @@ def muEFCBSequence():
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
     trigMuonEFCBHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlg" )
     trigMuonEFCBHypo.MuonDecisions = sequenceOut
+    trigMuonEFCBHypo.MapToPreviousDecisions=True
     
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
 

@@ -1,16 +1,7 @@
-################################################################################
-# Package: CLIDComps
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CLIDComps )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   Control/AthenaKernel
-   AtlasTest/TestTools
-   GaudiKernel )
 
 # External dependencies:
 find_package( Boost COMPONENTS program_options )
@@ -20,7 +11,7 @@ atlas_add_component( CLIDComps
    src/*.h src/*.cxx src/components/*.cxx
    NOCLIDDB
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel GaudiKernel )
+   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel CxxUtils GaudiKernel )
 
 # Executable(s) in the package:
 atlas_add_executable( genCLIDDB

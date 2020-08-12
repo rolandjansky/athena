@@ -9,16 +9,16 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
+#include "MuonCreatorTool.h"
+
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
-#include "MuonCreatorTool.h"
 #include "SortInDetCandidates.h"
 #include "MuonCombinedEvent/StacoTag.h"
 #include "MuonCombinedEvent/CombinedFitTag.h"
 #include "MuonCombinedEvent/SegmentTag.h"
 #include "MuonCombinedEvent/CaloTag.h"
 #include "MuonCombinedEvent/MuGirlLowBetaTag.h"
-
 #include "MuonSegment/MuonSegment.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -30,79 +30,25 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
-
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
-
 #include "muonEvent/CaloEnergy.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "TrackToCalo/CaloCellCollector.h"
-
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-
 #include "MuidEvent/FieldIntegral.h"
-
 #include "StoreGate/ReadCondHandle.h"
 
 namespace MuonCombined {
  
-  MuonCreatorTool::MuonCreatorTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-    m_makeMSPreExtrapLink(false),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
-    m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-    m_particleCreator("Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"),
-    m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-    m_muonDressingTool("MuonCombined::MuonDressingTool/MuonDressingTool"),
-    m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignificanceTool"),
-    m_scatteringAngleTool("Rec::MuonScatteringAngleSignificanceTool/MuonScatteringAngleSignificanceTool"),
-    m_selectorTool("CP::MuonSelectionTool/MuonSelectionTool"),
-    m_muonSegmentConverterTool("Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"),
-    m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"),
-    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", this),
-    m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"),
-    m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery"),
-    m_trackSummaryTool("MuonTrackSummaryTool")
-
-  {
+  MuonCreatorTool::MuonCreatorTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent) {
     declareInterface<IMuonCreatorTool>(this);
-    declareProperty("MakeTrackAtMSLink",m_makeMSPreExtrapLink=false);
-    declareProperty("Printer",m_printer );
-    declareProperty("ParticleCaloExtensionTool", m_caloExtTool);      
-    declareProperty("MuonPrinter",m_muonPrinter );
-    declareProperty("TrackParticleCreator",m_particleCreator );
-    declareProperty("AmbiguityProcessor",m_ambiguityProcessor );
-    declareProperty("Propagator",m_propagator );
-    declareProperty("MuonDressingTool",m_muonDressingTool );
-    declareProperty("MomentumBalanceTool",m_momentumBalanceTool);
-    declareProperty("ScatteringAngleTool",m_scatteringAngleTool);
-    declareProperty("MuonSelectionTool", m_selectorTool);
-    declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);
-    declareProperty("TrackSegmentAssociationTool",m_trackSegmentAssociationTool);
-    declareProperty("BuildStauContainer",m_buildStauContainer=false);
-    declareProperty("FillEnergyLossFromTrack",m_fillEnergyLossFromTrack=true);
-    declareProperty("FillAlignmentEffectsOnTrack",m_fillAlignmentEffectsOnTrack=true);
-    declareProperty("FillExtraELossInfo", m_fillExtraELossInfo=true);
-    declareProperty("PrintSummary", m_printSummary=false);
-    declareProperty("UseUpdatedExtrapolatedTrack", m_useUpdatedExtrapolatedTrack = true );
-    //Default data source for the calocells
-    declareProperty("SigmaCaloNoiseCut", m_sigmaCaloNoiseCut=3.4);
-    declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
-    declareProperty("FillTimingInformation", m_fillTimingInformation = true );
-    declareProperty("FillTimingInformationOnMuon", m_fillTimingInformationOnMuon = false );
-    declareProperty("AssociateSegmentsToLowBetaMuons",m_segLowBeta = false);
-    declareProperty("UseCaloCells",m_useCaloCells = true);
-    declareProperty("MakeSAMuons", m_doSA=false);
-    declareProperty("TrackQuery", m_trackQuery);
-    declareProperty("TrackSummaryTool", m_trackSummaryTool);
-  
   }
 
   StatusCode MuonCreatorTool::initialize() {
@@ -848,6 +794,7 @@ namespace MuonCombined {
       // init variables if necessary.
       
       mu.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::CaloLRLikelihood);
+      mu.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::CaloMuonScore);
       mu.setParameter(static_cast<int>( 0xFF ), xAOD::Muon::CaloMuonIDTag); 
       if ( m_fillExtraELossInfo) {
         // Here we can make sure that we store the extra calotag information - just always add it since this is then unambigious for debugging
@@ -859,8 +806,9 @@ namespace MuonCombined {
       return; 
     }
     
-    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
+    ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", LHR " << tag->caloLRLikelihood() << ", CaloMuonScore " << tag->caloMuonScore() );
     mu.setParameter(static_cast<float>( tag->caloLRLikelihood() ), xAOD::Muon::CaloLRLikelihood);
+    mu.setParameter(static_cast<float>( tag->caloMuonScore() ), xAOD::Muon::CaloMuonScore);
     mu.setParameter(static_cast<int>( tag->caloMuonIdTag() ), xAOD::Muon::CaloMuonIDTag); 
     
     if ( m_fillExtraELossInfo) {
@@ -1110,6 +1058,24 @@ namespace MuonCombined {
 		  }
 		}
 	      }
+	      //Same for low-pT MuidCo muons
+              if(tag->author()==xAOD::Muon::MuidCo){
+		const CombinedFitTag* cfTag = static_cast<const CombinedFitTag*>(tag);
+		//this should be a problem only for low-pT muons, so to avoid too many extra calls I think it makes sense to put a pT cut here
+		//since this isn't really a tunable parameter of the reconstruction, I'm not making it a property
+                if(cfTag->combinedTrack() && cfTag->combinedTrack()->perigeeParameters()->pT()<3000){
+		  std::unique_ptr<xAOD::TrackParticle> combtp(m_particleCreator->createParticle(cfTag->combinedTrackLink(),nullptr,nullptr,xAOD::muon));
+		  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
+		  if(!caloExtension){
+                    ATH_MSG_WARNING("failed to get a calo extension for this combined muon, don't use it");
+                    continue;
+		  }
+                  if( caloExtension->caloLayerIntersections().empty()){
+                    ATH_MSG_WARNING("failed to retrieve any calo layers for this combined muon, don't use it");
+                    continue;
+                  }
+                }
+	      } 
 	      tags.push_back(tag);
 	    }
           }

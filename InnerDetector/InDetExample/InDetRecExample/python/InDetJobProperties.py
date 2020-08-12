@@ -290,6 +290,12 @@ class doR3LargeD0(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue   = False
 
+class storeSeparateLargeD0Container(InDetFlagsJobProperty):
+    """Separate the LargeD0 container from the main track container"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class useExistingTracksAsInput(InDetFlagsJobProperty):
     """Use already processed Track from a (D)ESD input file.
     This flag is related with ProcessedESDTracks InDetKey """
@@ -1181,6 +1187,11 @@ class doDigitalROTCreation(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class nnCutLargeD0Threshold(InDetFlagsJobProperty):
+  """ Threshold for NN cut in large D0 tracking for tracks in ambi"""
+  statusOn     = True
+  allowedTypes = ['float']
+  StoredValue  = -1.0
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2615,6 +2626,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowPtLargeD0,
                             doLargeD0,
                             doR3LargeD0,
+                            storeSeparateLargeD0Container,
                             useExistingTracksAsInput,
                             cutLevel,
                             priVtxCutLevel,
@@ -2761,6 +2773,7 @@ _list_InDetJobProperties = [Enabled,
                             doHIP300,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
+                            nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling
                            ]
 for j in _list_InDetJobProperties: 

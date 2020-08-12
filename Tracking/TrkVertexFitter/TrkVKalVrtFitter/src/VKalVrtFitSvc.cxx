@@ -42,7 +42,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
         IVKalState& istate,
         bool ifCovV0 /*= false*/) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 //
 //------  extract information about selected tracks
 //
@@ -71,7 +72,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
         IVKalState& istate,
         bool ifCovV0 /*= false*/) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 
 //
 //------  extract information about selected tracks
@@ -162,44 +164,6 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 }
 
 
-
-StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBase*>& InpTrk,
-        Amg::Vector3D& Vertex,
-	TLorentzVector&   Momentum,
-	long int& Charge,
-	dvect& ErrorMatrix, 
-	dvect& Chi2PerTrk, 
-        std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2,
-        IVKalState& istate,
-        bool ifCovV0 /*= false*/) const
-{
-    State& state = dynamic_cast<State&> (istate);
-
-//
-//------  extract information about selected tracks
-//
-    int ntrk=0;
-    StatusCode sc;
-    std::vector<const TrackParameters*> baseInpTrk;
-    if(m_firstMeasuredPoint){               //First measured point strategy
-       std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
-       for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
-       sc=CvtTrackParameters(baseInpTrk,ntrk,state);
-       if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(InpTrk,ntrk,state);}
-    }else{
-       sc=CvtTrackParticle(InpTrk,ntrk,state);
-    }
-    if(sc.isFailure())return StatusCode::FAILURE;
-
-    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                            Chi2PerTrk, TrkAtVrt,Chi2, state, ifCovV0 ) ;
-    if (ierr) return StatusCode::FAILURE;
-    return StatusCode::SUCCESS;
-}
-
-
-
 StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*>    & InpTrkC,
                                         const std::vector<const NeutralParameters*>  & InpTrkN,
         Amg::Vector3D& Vertex,
@@ -212,7 +176,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         IVKalState& istate,
         bool ifCovV0 /*= false*/)  const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 
 //
 //------  extract information about selected tracks
@@ -409,7 +374,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 				      dvect& CovPerigee,
                                       IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     int i,j,ij;				      
     double Vrt[3],PMom[4],Cov0[21],Per[5],CovPer[15];
 
@@ -476,7 +442,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
                                     const IVKalState& istate,
                                     bool useMom) const
   {
-    const State& state = dynamic_cast<const State&> (istate);
+    assert(dynamic_cast<const State*> (&istate)!=nullptr);
+    const State& state = static_cast<const State&> (istate);
     if(!state.m_FitStatus)       return StatusCode::FAILURE;
     if(NTrk<1)             return StatusCode::FAILURE;
     if(NTrk>NTrMaxVFit)    return StatusCode::FAILURE;
@@ -596,7 +563,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   StatusCode TrkVKalVrtFitter::VKalGetMassError( double& dM, double& MassError,
                                                  const IVKalState& istate) const
   {    
-    const State& state = dynamic_cast<const State&> (istate);
+    assert(dynamic_cast<const State*> (&istate)!=nullptr);
+    const State& state = static_cast<const State&> (istate);
     if(!state.m_FitStatus) return StatusCode::FAILURE;
     dM        = state.m_vkalFitControl.getVertexMass();
     MassError = state.m_vkalFitControl.getVrtMassError();
@@ -607,7 +575,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   StatusCode  TrkVKalVrtFitter::VKalGetTrkWeights(dvect& trkWeights,
                                                   const IVKalState& istate) const
   {
-    const State& state = dynamic_cast<const State&> (istate);
+    assert(dynamic_cast<const State*> (&istate)!=nullptr);
+    const State& state = static_cast<const State&> (istate);
     if(!state.m_FitStatus) return StatusCode::FAILURE;  // no fit made
     trkWeights.clear();
 

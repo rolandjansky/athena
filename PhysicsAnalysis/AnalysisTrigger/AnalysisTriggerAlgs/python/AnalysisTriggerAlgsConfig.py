@@ -38,8 +38,6 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
         #
         # Set up the L1Calo tools:
         #
-        from AthenaCommon.AppMgr import ToolSvc
-
         log.info( "will add L1CPMTools instance to the algorithm" )
         self.L1CPMTools = CfgMgr.LVL1__L1CPMTools( 'L1CPMTools' )
         self.L1CPMTools.LVL1ConfigSvc = lvl1ConfigSvc

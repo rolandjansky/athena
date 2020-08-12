@@ -19,14 +19,89 @@ def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     return HLTTest__TestHypoAlg( name, Input="" )
 
 def EFMuonViewDataVerifierCfg():
-    EFMuonViewDataVerifier =  CompFactory.getComp("AthViews::ViewDataVerifier")("EFMuonViewDataVerifier")
-    EFMuonViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
+    EFMuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFMuon")
+    EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                          ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
                                           ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                           ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                          ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
+                                          ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
+                                          ( 'Trk::SolenoidParametrization' , 'ConditionStore+SolenoidParametrization' ) #TODO schedule the correct condAlg to produce this
+                                      ]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonViewDataVerifier)
+    return result
+
+def MuFastViewDataVerifier():
+    result = ComponentAccumulator()
+    alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuFast",
+                                                 DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                                                ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
+                                                                ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
+                                                                ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
+                                                                ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
+                                                                ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
+                                                                ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
+                                                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' ),
+                                                                ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )
+                                                               ]  )
+    result.addEventAlgo(alg)
+    return result
+
+#Not the ideal place to keep the track cnv alg configuration. Temproarily adding it here 
+#until a better location can be found
+def MuonTrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", **kwargs):
+    TrackCollectionCnvTool = CompFactory.xAODMaker.TrackCollectionCnvTool
+
+    result = ComponentAccumulator()
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
+    acc = MuonCombinedParticleCreatorCfg(flags)
+    kwargs.setdefault("TrackParticleCreator",  acc.popPrivateTools())
+    result.merge(acc)
+
+    result.setPrivateTools(TrackCollectionCnvTool(name=name, **kwargs))
+    return result
+
+def MuonRecTrackParticleContainerCnvToolCfg(flags, name = "MuonRecTrackParticleContainerCnvTool", **kwargs):
+    RecTrackParticleCnvTool = CompFactory.xAODMaker.RecTrackParticleContainerCnvTool
+
+    result = ComponentAccumulator()
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
+    acc = MuonCombinedParticleCreatorCfg(flags)
+    kwargs.setdefault("TrackParticleCreator",  acc.popPrivateTools())
+    result.merge(acc)
+
+    result.setPrivateTools(RecTrackParticleCnvTool(name=name, **kwargs))
+    return result
+
+def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
+    TrackParticleCnv = CompFactory.xAODMaker.TrackParticleCnvAlg
+    result=ComponentAccumulator()
+
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
+    acc = MuonCombinedParticleCreatorCfg(flags)
+    kwargs.setdefault("TrackParticleCreator", acc.popPrivateTools())
+    result.merge(acc)
+
+    acc = MuonTrackCollectionCnvToolCfg(flags)
+    kwargs.setdefault("TrackCollectionCnvTool", acc.popPrivateTools())
+    result.merge(acc)
+
+    acc = MuonRecTrackParticleContainerCnvToolCfg(flags)
+    kwargs.setdefault("RecTrackParticleContainerCnvTool", acc.popPrivateTools())
+    result.merge(acc)
+
+    kwargs.setdefault("TrackContainerName", "MuonSpectrometerTracks")
+    kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", "MuonSpectrometerTrackParticles")
+    kwargs.setdefault("AODContainerName", "")
+    kwargs.setdefault("AODTruthContainerName", "")
+    kwargs.setdefault("xAODTruthLinkVector",  "")
+    kwargs.setdefault("ConvertTrackParticles", False)
+    kwargs.setdefault("ConvertTracks", True)
+
+    trackcnv = TrackParticleCnv(name=name, **kwargs )
+
+    result.addEventAlgo( trackcnv, primary=True )
     return result
 
 def generateChains( flags, chainDict ):
@@ -43,6 +118,8 @@ def generateChains( flags, chainDict ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
     reco = InViewReco("L2MuFastReco")
 
+    #external data loading to view
+    reco.mergeReco( MuFastViewDataVerifier() )
 
 
     # decoding
@@ -160,10 +237,16 @@ def generateChains( flags, chainDict ):
     trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
     recoMS.mergeReco(trkCfg)
 
-    #The MuonCandidateAlg is not quite fully working yet
-    #from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
-    #candCfg = MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg")
-    #recoMS.mergeReco(candCfg)
+    cnvCfg = MuonTrackParticleCnvCfg(muonflags, name = "TrigMuonTrackParticleCnvAlg")
+    recoMS.mergeReco(cnvCfg)
+
+    from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
+    candCfg = MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg")
+    recoMS.mergeReco(candCfg)
+
+    from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCreatorAlgCfg
+    creatorCfg = MuonCreatorAlgCfg(muonflags, name = "TrigMuonCreatorAlg")
+    recoMS.mergeReco(creatorCfg)
 
     accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
 

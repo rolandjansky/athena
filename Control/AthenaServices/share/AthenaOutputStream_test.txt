@@ -11,5 +11,15 @@ AthenaOutputStream.ItemList={"Bar#uno", "Bar#due", "Bar#tre" ,
 			     "8101#*",
                              "Fee#quattro",
                              "Fee!#cinque",
+                             "Baz#sei",
+                             "BazAuxContainer#seiAux.aaa.ccc",
+                             "Baz#comp",
+                             "BazAuxContainer#compAux.foo.bar.zzz",
                              "13#*"};       
+
+AthenaOutputStream.CompressionBitsHigh = 10;
+AthenaOutputStream.CompressionListHigh = { "BazAuxContainer#compAux.foo.bar" };
+AthenaOutputStream.CompressionBitsLow = 16;
+AthenaOutputStream.CompressionListLow = { "BazAuxContainer#compAux.zzz" };
+
 AthenaOutputStream.AcceptAlgs={"AthenaOutputStream", "aSFQS"};

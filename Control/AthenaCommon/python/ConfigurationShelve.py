@@ -305,6 +305,9 @@ def loadJobOptionsCatalogue( cfg_fname ):
  # restore job catalogue entries
    import GaudiPython.Bindings as gaudi
    for client in jocat:
+      if client == "ApplicationMgr":
+         # ApplicationMgr properties are already set
+         continue
       for n,v in six.iteritems(jocat[ client ]):
          # In Gaudi v28, the second argument of the ctor is passed by move,
          # which pyroot doesn't handle correctly.  Do this as a workaround.

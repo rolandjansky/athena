@@ -19,6 +19,17 @@ def LArCellMonConfigOld(inputFlags):
     else:
        isMC=True
 
+    if not isMC:
+        from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault
+        LBDurationCondAlgDefault()
+        from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault
+        TrigLiveFractionCondAlgDefault()
+        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+        LuminosityCondAlgDefault()
+
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg()
+
     LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, isMC)
 
     from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
@@ -29,7 +40,6 @@ def LArCellMonConfigOld(inputFlags):
     return helper.result()
 
 def LArCellMonConfig(inputFlags):
-
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'LArCellMonConfig' )
 
@@ -60,6 +70,8 @@ def LArCellMonConfig(inputFlags):
     if inputFlags.Input.isMC is False:
       from LumiBlockComps.LuminosityCondAlgConfig import  LuminosityCondAlgCfg
       cfg.merge(LuminosityCondAlgCfg(inputFlags))
+      from LumiBlockComps.LBDurationCondAlgConfig import  LBDurationCondAlgCfg
+      cfg.merge(LBDurationCondAlgCfg(inputFlags))
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     lArCellMonAlg=CompFactory.LArCellMonAlg
@@ -69,7 +81,7 @@ def LArCellMonConfig(inputFlags):
         algname=algname+'Cosmics'
 
     isCosmics = ( inputFlags.Beam.Type == 'cosmics' )
-    LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC)
+    LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
 
     acc=helper.result()
 
@@ -85,10 +97,10 @@ def LArCellMonConfig(inputFlags):
     return cfg
 
 
-def LArCellMonConfigCore(helper, alginstance, inputFlags, isCosmics=False, isMC=False):
+def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=False, algname='LArCellMonAlg'):
 
 
-    LArCellMonAlg = helper.addAlgorithm(alginstance, 'LArCellMonAlg')
+    LArCellMonAlg = helper.addAlgorithm(algclass, algname)
 
     if isCosmics:
        badChanMaskProblems=["deadReadout","deadPhys","short","sporadicBurstNoise","highNoiseHG","highNoiseMG","highNoiseLG"]

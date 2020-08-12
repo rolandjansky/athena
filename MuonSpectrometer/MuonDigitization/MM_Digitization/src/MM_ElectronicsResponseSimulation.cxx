@@ -7,8 +7,9 @@
 *  MC for micromegas athena integration
 *
 **/
-
 #include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
+
+#include <numeric>
 
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -20,7 +21,7 @@ std::vector<float> shaperInputCharge;
 double shaperResponseFunction(double *x, double *par){
   double response=0;
   for(size_t i=0; i<shaperInputTime.size(); i++){
-    double amp = (x[0]>shaperInputTime[i])? shaperInputCharge[i]*pow((x[0]-shaperInputTime[i])/par[1],par[0])*exp(-(x[0]-shaperInputTime[i])/par[1]) :0;
+    double amp = (x[0]>shaperInputTime[i])? shaperInputCharge[i]*std::pow((x[0]-shaperInputTime[i])/par[1],par[0])*std::exp(-(x[0]-shaperInputTime[i])/par[1]) :0;
     response += amp;
   }
   return response;
@@ -110,19 +111,25 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
       if ( ii > 0 ) {
 	shaperInputTime = tStrip.at(ii-1);
 	shaperInputCharge = qStrip.at(ii-1);
-	maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+    // for now by pass the VMM charge measurement and use the total charge on the strip
+    // maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+    maxChargeLeftNeighbor = std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0);
       }
       
       if ( ii+1 < numberofStrip.size() ) {
 	shaperInputTime = tStrip.at(ii+1);
 	shaperInputCharge = qStrip.at(ii+1);
-	maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+    // for now by pass the VMM charge measurement and use the total charge on the strip
+    //maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+    maxChargeRightNeighbor = std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0);
       }
     }
     shaperInputTime = tStrip.at(ii);
     shaperInputCharge = qStrip.at(ii);
-    maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-  
+    //  for now by pass the VMM charge measurement and use the total charge on the strip
+    //  maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+    maxChargeThisStrip = std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0);
+
     float scaledThreshold = m_electronicsThreshold * thresholdScaleFactor;
     
     //check if neighbor strip was above threshold
@@ -134,27 +141,30 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
       shaperInputCharge = qStrip.at(ii);
       // float localPeak = 0;
       float localPeakt = 0;
-      float localPeakq = 0;
-      
-      float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
-      
+      // not used for now since VMM charge measurement is temporarily by passed
+      // float localPeakq = 0;
+
+      float stepSize = 0.1;  // ns(?) step size corresponding to VMM discriminator
+
       for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-	
+
 	float thisStep = m_timeWindowLowerOffset+jj*stepSize;
 	float nextStep = m_timeWindowLowerOffset+(jj+1)*stepSize;
 	float oneAfterStep = m_timeWindowLowerOffset+(jj+2)*stepSize;
-	
-	
+
+
 	//check if the charge for the next points is less than the current step and the derivative of the first point is positive or 0 and the next point is negative:
 	if ( ( m_h_intFn->Eval(thisStep,0,0) < m_h_intFn->Eval(nextStep,0,0) ) && ( m_h_intFn->Eval(nextStep,0,0) > m_h_intFn->Eval(oneAfterStep,0,0) ) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0 && (m_h_intFn->Eval(oneAfterStep+0.001)-m_h_intFn->Eval(oneAfterStep-0.001))/0.001 < 0.0 ){ // m_h_intFn->Derivative() does not work. WHY? 2016/07/18
-	  
-	  localPeakt = nextStep;
-	  localPeakq = m_h_intFn->Eval(nextStep,0,0);
-	  
-	  m_nStripElectronics.push_back(numberofStrip.at(ii));
-	  m_tStripElectronicsAbThr.push_back(localPeakt);
-	  m_qStripElectronics.push_back(localPeakq);
-	}
+
+      localPeakt = nextStep;
+      // not used for now since VMM charge measurement is temporarily by passed
+      // localPeakq = m_h_intFn->Eval(nextStep,0,0);
+
+      m_nStripElectronics.push_back(numberofStrip.at(ii));
+      m_tStripElectronicsAbThr.push_back(localPeakt);
+      // m_qStripElectronics.push_back(localPeakq);
+      m_qStripElectronics.push_back(std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0));
+    }
 	//                }
       }
     }

@@ -63,7 +63,7 @@ Chain2JetCollDict['Legacy'] = {
   'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
 }
 
-from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec #VarSpec can be added to define specific/custom variables
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def TrigJetMonConfig(inputFlags):
@@ -157,9 +157,13 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     SelectSpec( 'forward', '3.2<|eta|', path, FillerTools = ["pt","et","m"] ),
     SelectSpec( 'lowmu', 'avgMu<30', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
     SelectSpec( 'highmu', '30<avgMu', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
-    EventHistoSpec('njets', (20,0,20), title='NJets;NJets;Entries' ),
+
     EventHistoSpec('njetsPt20', (20,0,20), title='NJetsPt20;NJetsPt20;Entries' ),
-    EventHistoSpec('njetsEt40Eta1_2', (10,0,10), title='NJetsEt40Eta1_2;NJetsEt40Eta1_2;Entries' ),
+    # Jet multiplicity histograms can be added by using an EventHistoSpec
+    # Their specifications (pT cut, ET cut, eta cuts) must be defined in the knownEventVar dictionary within JetStandardHistoSpecs.py
+    # The following line is an example for a jet multiplicity histogram with ET>40 GeV, 1.0<|eta|<2.0, and binning of (10,0,10):
+    # EventHistoSpec('njetsEt40Eta1_2', (10,0,10), title='NJetsEt40Eta1_2;NJetsEt40Eta1_2;Entries' ),
+
     # TProfile2D : just use 3 variables. For now the sytem will automatically
     #  interpret it as a TProfile2D (the 3rd variable being profiled)
     #"phi;eta;e", # --> Average Energy vs pt and eta
@@ -182,21 +186,17 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
 
   return Conf
 
-from JetMonitoring.JetStandardHistoSpecs import knownHistos
 # Additional histograms for offline jets
 ExtraOfflineHists = [
   HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
   HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
   HistoSpec('Jvt', (50,-0.1,1), title="JVT;JVT;Entries" ),
-  knownHistos.pt.clone('JetConstitScaleMomentum_pt', title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries', xvar='JetConstitScaleMomentum_pt:GeV'),
-  knownHistos.eta.clone('JetConstitScaleMomentum_eta', title='ConstitScale #eta;ConstitScale #eta;Entries', xvar='JetConstitScaleMomentum_eta'),
-  knownHistos.phi.clone('JetConstitScaleMomentum_phi', title='ConstitScale #phi;ConstitScale #phi;Entries', xvar='JetConstitScaleMomentum_phi'),
-  knownHistos.m.clone('JetConstitScaleMomentum_m', title='ConstitScale m;ConstitScale mass [GeV];Entries', xvar='JetConstitScaleMomentum_m:GeV'),
   "JVFCorr",
   "JvtRpt",
   "NumTrkPt1000[0]",
   "TrackWidthPt1000[0]",
   "SumPtTrkPt500[0]",
+  SelectSpec( 'LooseBadFailedJets', 'LooseBad', InverseJetSel=True, FillerTools = ["pt","phi","eta"]),
 ]
 
 # Additional histograms for online jets
@@ -206,16 +206,23 @@ ExtraSmallROnlineHists = [
   HistoSpec('DetectorEta', (100,-5,5), title="DetectorEta;Detector #eta;Entries" ), 
   HistoSpec('ActiveArea', (80,0,0.8), title="ActiveArea;Active Area;Entries" ), 
   HistoSpec('et:GeV;eta',  (100,0,750, 50,-5,5) , title='#eta vs E_{T};E_{T} [GeV];#eta;Entries'),
-  knownHistos.pt.clone('JetConstitScaleMomentum_pt', title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries', xvar='JetConstitScaleMomentum_pt:GeV'),
-  knownHistos.eta.clone('JetConstitScaleMomentum_eta', title='ConstitScale #eta;ConstitScale #eta;Entries', xvar='JetConstitScaleMomentum_eta'),
-  knownHistos.phi.clone('JetConstitScaleMomentum_phi', title='ConstitScale #phi;ConstitScale #phi;Entries', xvar='JetConstitScaleMomentum_phi'),
-  knownHistos.m.clone('JetConstitScaleMomentum_m', title='ConstitScale m;ConstitScale mass [GeV];Entries', xvar='JetConstitScaleMomentum_m:GeV'),
   "EM3Frac",
   "Tile0Frac",
 ]
 
 ExtraLargeROnlineHists = [
 ]
+
+#Additional online & offline histograms to include kinematics at various jet calibration scales
+OfflineScaleMomenta = [ "ConstitScale", "EMScale", "PileupScale", "EtaJESScale"]
+OnlineScaleMomenta = [ "ConstitScale" ]
+
+for var in [ "pt", "eta", "m" ]:
+  for offlinescale in OfflineScaleMomenta:
+    ExtraOfflineHists.append("Jet"+offlinescale+"Momentum_"+var)
+  for onlinescale in OnlineScaleMomenta:
+    ExtraSmallROnlineHists.append("Jet"+onlinescale+"Momentum_"+var)
+
 
 def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''

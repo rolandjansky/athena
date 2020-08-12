@@ -15,6 +15,7 @@ from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 
+import AthenaCommon.SystemOfUnits as Units
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the SCT Digitization code
@@ -133,9 +134,9 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     acc = ComponentAccumulator()
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
-    kwargs.setdefault("SurfaceDriftTime", 10)
+    kwargs.setdefault("SurfaceDriftTime", 10*Units.ns)
     kwargs.setdefault("NumberOfCharges", 1)
-    kwargs.setdefault("SmallStepLength", 5)
+    kwargs.setdefault("SmallStepLength", 5*Units.micrometer)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
     kwargs.setdefault("isOverlay", flags.Detector.Overlay)

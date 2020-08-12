@@ -10,7 +10,6 @@
 #include "ActsGeometry/IActsPropStepRootWriterSvc.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // ACTS
 #include "Acts/Propagator/detail/SteppingLogger.hpp"

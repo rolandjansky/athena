@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ====================================================================
@@ -81,7 +81,7 @@ public:
     else return m_vecASDOut[index-1];
   }
 
-  std::vector<TGCASDOut*>& GetASDOutVector() const
+  const std::vector<TGCASDOut*>& GetASDOutVector() const
   {
     return (std::vector<TGCASDOut*>&)m_vecASDOut;
   }

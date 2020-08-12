@@ -17,7 +17,7 @@
 
 namespace MuonGM {
 
-  class ATLAS_NOT_THREAD_SAFE DetectorElement {
+  class DetectorElement {
   public:
     std::string name;
     std::string logVolName;
@@ -37,7 +37,7 @@ namespace MuonGM {
       log << MSG::INFO << "generic detector element" << endmsg;
     }
 
-    virtual ~DetectorElement() {}
+    virtual ~DetectorElement()=default;
 
     // Static
 
@@ -49,7 +49,7 @@ namespace MuonGM {
       s_matManager = &matMan;
     }
 
-    static const AbsMaterialManager * getMaterialManager() {
+    const AbsMaterialManager * getMaterialManager() const {
       return s_matManager;
     }
 

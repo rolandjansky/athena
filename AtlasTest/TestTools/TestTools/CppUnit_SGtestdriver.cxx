@@ -82,8 +82,8 @@ bool setupStoreGate()
   {    // Build a default list of options.
     std::list<std::string> opts;
     opts.push_back("#pragma print off");
-    opts.push_back("ApplicationMgr.DLLs += { \"StoreGate\" };");
-    //opts.push_back("ApplicationMgr.DLLs += { \"CLIDSvc\" };");
+    opts.push_back("ApplicationMgr.Dlls += { \"StoreGate\" };");
+    //opts.push_back("ApplicationMgr.Dlls += { \"CLIDSvc\" };");
     opts.push_back("ApplicationMgr.ExtSvc += { \"ClassIDSvc\" };");
     opts.push_back("ApplicationMgr.ExtSvc += { \"StoreGateSvc\", \"StoreGateSvc/DetectorStore\", \"StoreGateSvc/HistoryStore\" };");
     opts.push_back("ApplicationMgr.ExtSvc += { \"ActiveStoreSvc\" };");

@@ -157,7 +157,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::array<std::unorde
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
-
+  // vectors to store data to decrease number of fill() calls for better perfomance 
   std::vector<int> vLumiBlock[N_REGIONS];
   std::vector<int> vNumberOfHitsFromAllRDOs[N_REGIONS];
   std::vector<int> vNumberOfHitsFromSPs[N_REGIONS];
@@ -329,6 +329,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::array<std::unorde
   fill("SCTHitsNoiseMonitorGeneral", hitsAcc);
 
   // Fill hit occupancy and noise occupancy plots
+  // vectors for storing the data and then use only one fill call to decrease time
   std::vector<int> vLB[N_REGIONS_INC_GENERAL];
   std::vector<float> vNO[N_REGIONS_INC_GENERAL];
   std::vector<float> vHO[N_REGIONS_INC_GENERAL];

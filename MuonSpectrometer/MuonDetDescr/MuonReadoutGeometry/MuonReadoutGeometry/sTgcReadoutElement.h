@@ -231,7 +231,7 @@ namespace MuonGM {
 
   inline int sTgcReadoutElement::boundaryHash( const Identifier& id ) const {
     int iphi = manager()->stgcIdHelper()->channelType(id)!=1 ? 1:0 ;      // wires and pads have locX oriented along phi
-    if (abs(getStationEta())<3) iphi += 2*(manager()->stgcIdHelper()->gasGap(id)-1);
+    if (std::abs(getStationEta())<3) iphi += 2*(manager()->stgcIdHelper()->gasGap(id)-1);
     return iphi; 
   }
 

@@ -8,6 +8,8 @@
 
 #ifndef MUONCSC_CNVTOOLS_CSC_RAWDATAPROVIDERTOOL_H
 #define MUONCSC_CNVTOOLS_CSC_RAWDATAPROVIDERTOOL_H
+    
+#include "CxxUtils/checker_macros.h"
 
 #include "CSC_RawDataProviderToolCore.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -18,7 +20,8 @@
 namespace Muon
 {
 
-class CSC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public CSC_RawDataProviderToolCore
+/// This class is only used in a single-thread mode
+class ATLAS_NOT_THREAD_SAFE CSC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public CSC_RawDataProviderToolCore
 {
 public:
     CSC_RawDataProviderTool(const std::string& t, const std::string& n, const IInterface* p);

@@ -9,12 +9,10 @@
 #ifndef TRKPARAMETERSBASE_PARAMETERS_T_H
 #define TRKPARAMETERSBASE_PARAMETERS_T_H
 
-// Trk includes
 #include "TrkParametersBase/ParametersBase.h"
-// Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkParametersBase/SurfaceUniquePtrT.h"
+#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 
 /*
  * Needed for persistency

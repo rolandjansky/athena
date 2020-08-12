@@ -150,8 +150,9 @@ if ( True ) :
     ":HLT_IDTrack_FS_FTF",
 
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF",
+    "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_IDTrig",
-
+  
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_IDTrig",
     "HLT_j.*perf.*:HLT_IDTrack_Bjet_FTF",
@@ -162,6 +163,8 @@ if ( True ) :
 
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF",
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
+    "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+    "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF"
 

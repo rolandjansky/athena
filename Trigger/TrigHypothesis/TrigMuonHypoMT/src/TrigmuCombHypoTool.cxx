@@ -175,7 +175,7 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
    idZ0     = pMuon->idTrack()->z0();
  
    //Get the Pt cut for that eta bin
-   float threshold = (idEta != -9999) ? 0 : 99999999;
+   float threshold = (idEta != -9999) ? 0 : 999999;
    float absEta = fabs(idEta);
    for (std::vector<float>::size_type i = 0; i < m_bins[cutIndex]; ++i) {
       if (absEta > m_ptBins[cutIndex][i] && absEta < m_ptBins[cutIndex][i + 1]) threshold = m_ptThresholds[cutIndex][i];
