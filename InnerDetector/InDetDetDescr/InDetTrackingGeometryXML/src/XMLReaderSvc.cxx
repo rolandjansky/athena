@@ -322,6 +322,10 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
   XMLCh* TAG_chipthickness = transcode("chipThickness");
   XMLCh* TAG_hybdthickness = transcode("hybridThickness");
   XMLCh* TAG_sp3Dthickness = transcode("support3DThickness");
+  XMLCh* TAG_edges     = transcode("Edges");
+  XMLCh* TAG_ewide     = transcode("wide");
+  XMLCh* TAG_enarrow   = transcode("narrow");
+  XMLCh* TAG_elength   = transcode("inlength");
 
   ModuleTmp *module = new ModuleTmp;
 
@@ -345,6 +349,19 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
     else if( XMLString::equals(currentElement->getTagName(), TAG_chipthickness))  module->thickness  += atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_hybdthickness))  module->thickness  += atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_sp3Dthickness))  module->thickness  += atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_edges)){
+      DOMNodeList* edgesList = currentElement->getChildNodes();
+      const XMLSize_t edgesCount = edgesList->getLength();
+      for( XMLSize_t xx = 0; xx < edgesCount; ++xx ) {
+	DOMNode* edgeNode = edgesList->item(xx);
+	if(edgeNode->getNodeType() != DOMNode::ELEMENT_NODE) continue; // not an element
+	// Found node which is an Element. Re-cast node as element
+	DOMElement* edgeElement = dynamic_cast< xercesc::DOMElement* >( edgeNode );
+	if( XMLString::equals(edgeElement->getTagName(), TAG_ewide))        module->edgew   = atof(getString(edgeNode));
+	else if( XMLString::equals(edgeElement->getTagName(), TAG_enarrow)) module->edgen   = atof(getString(edgeNode));
+	else if( XMLString::equals(edgeElement->getTagName(), TAG_elength)) module->edgel   = atof(getString(edgeNode));
+      }// End of loop on edges node elements
+    }
   } // End of loop on module node elements
 
   if(module->chip_type.size()==0) return;
@@ -800,8 +817,15 @@ void InDet::XMLReaderSvc::computeModuleSize(InDet::ModuleTmp *module)
   module->widthmax  = module->widthMaxChips*chip->width+chip->edgew; 
 
   if(chip->name.find("RD53") != std::string::npos) {
-    module->length = module->lengthChips*chip->length+(module->lengthChips-1)*2.*chip->edgel;
-    module->widthmax = module->widthMaxChips*chip->width+(module->widthMaxChips-1)*2.*chip->edgew;
+    if(module->edgel>0 && module->edgew>0){
+      //New format with quad chips, interchip gap not needed
+      module->length = module->lengthChips*chip->length;
+      module->widthmax = module->widthMaxChips*chip->width;
+    }
+    else{
+      module->length = module->lengthChips*chip->length+(module->lengthChips-1)*2.*chip->edgel;
+      module->widthmax = module->widthMaxChips*chip->width+(module->widthMaxChips-1)*2.*chip->edgew;
+    }
     module->widthmin = module->widthmax;
   }
   else {
