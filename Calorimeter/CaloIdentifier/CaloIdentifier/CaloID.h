@@ -12,5 +12,4 @@
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/Tile_SuperCell_ID.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "CaloIdentifier/HGTD_ID.h"
 

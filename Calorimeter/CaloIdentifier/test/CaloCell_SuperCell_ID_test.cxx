@@ -24,7 +24,7 @@ std::unique_ptr<CaloCell_SuperCell_ID> make_calo_id ()
     LArEM_SuperCell_ID,
     LArHEC_SuperCell_ID,
     LArFCAL_SuperCell_ID,
-    Tile_SuperCell_ID, HGTD_ID> ();
+    Tile_SuperCell_ID> ();
 }
 
 

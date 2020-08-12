@@ -21,7 +21,6 @@ class LArFCAL_SuperCell_ID;
 class LArMiniFCAL_ID;
 class LArHEC_ID;
 class LArHEC_SuperCell_ID;
-class HGTD_ID;
 class TileID;
 class Tile_SuperCell_ID;
 class TTOnlineID;
@@ -55,7 +54,6 @@ public:
     const LArFCAL_ID*           getFCAL_ID               (void) const;
     const LArMiniFCAL_ID*       getMiniFCAL_ID           (void) const;
     const LArHEC_ID*            getHEC_ID                (void) const;
-    const HGTD_ID*              getHGTD_ID               (void) const;
     const TileID*               getTileID                (void) const;
     const TTOnlineID*           getTTOnlineID            (void) const;
     const CaloCell_SuperCell_ID*getCaloCell_SuperCell_ID (void) const;
@@ -79,7 +77,6 @@ public:
     void set_helper (const LArFCAL_ID* idHelper);
     void set_helper (const LArMiniFCAL_ID* idHelper);
     void set_helper (const LArHEC_ID* idHelper);
-    void set_helper (const HGTD_ID* idHelper);
     void set_helper (const TileID* idHelper);
     void set_helper (const TTOnlineID* idHelper);
     void set_helper (const CaloCell_SuperCell_ID* idHelper);
@@ -102,7 +99,6 @@ private:
     const LArFCAL_ID*      m_fcal_id;
     const LArMiniFCAL_ID*  m_minifcal_id;
     const LArHEC_ID*       m_hec_id;
-    const HGTD_ID*         m_hgtd_id;
     const TileID*          m_tile_id;
     const TTOnlineID*      m_ttonline_id;
     const CaloCell_SuperCell_ID*  m_cell_supercell_id;

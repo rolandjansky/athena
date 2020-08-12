@@ -42,8 +42,7 @@ public:
               const LArHEC_ID*        hec_id,
               const LArFCAL_ID*       fcal_id, 
               const LArMiniFCAL_ID*   minifcal_id,
-              const TileID*           tile_id,
-	      const HGTD_ID*          hgtd_id) ;
+              const TileID*           tile_id) ;
         
   ~CaloCell_ID(void);
 
@@ -83,20 +82,12 @@ public:
     {
       return static_cast<const TileID*> (CaloCell_Base_ID::tile_idHelper());
     }
-    /** access to HGTD idHelper 
-     */
-    const HGTD_ID*        hgtd_idHelper() const 
-    {
-      return static_cast<const HGTD_ID*> (CaloCell_Base_ID::hgtd_idHelper());
-    }
 
 
 private:    
   // Avoid coverity warnings.
   CaloCell_ID (const CaloCell_ID&);
   CaloCell_ID& operator= (const CaloCell_ID&);
-
-  const HGTD_ID *m_hgtdID;
 };
 
 //This is required and checked at compile time when you try to record/retrieve
