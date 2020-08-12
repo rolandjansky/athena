@@ -371,9 +371,6 @@ from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
 
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-svcMgr += RegSelSvcDefault()
-
 if TriggerFlags.doID():
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
