@@ -69,7 +69,7 @@ ActsExtrapolationTool::initialize()
 
   ATH_MSG_INFO("Initializing ACTS extrapolation");
 
-  m_logger = makeActsAthenaLogger(this, "ActsExtrapTool", "Prop");
+  m_logger = makeActsAthenaLogger(this, "Prop", "ActsExtrapTool");
 
   ATH_CHECK( m_trackingGeometryTool.retrieve() );
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
