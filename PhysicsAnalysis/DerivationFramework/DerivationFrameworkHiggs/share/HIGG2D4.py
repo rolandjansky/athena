@@ -289,22 +289,8 @@ if not "HIGG2D4Jets" in OutputJets:
     include("RecExCond/AllDet_detDescr.py")
     runTCCReconstruction(higg2d4Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-    #=======================================
-    # BUILD UFO INPUTS
-    #=======================================
-    ## Add PFlow constituents
-    from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-    pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-    
-    # add the pflow cssk sequence to the main jetalg if not already there :
-    if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-      DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
 
-    # Add UFO constituents
-    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-    emcsskufoAlg = runUFOReconstruction(higg2d4Seq, ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
-
-    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets', 'AntiKt10UFOCSSKJets']
 
     if jetFlags.useTruth:
         reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthDressedWZJets']
@@ -318,16 +304,14 @@ if not "HIGG2D4Jets" in OutputJets:
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg2d4Seq, "HIGG2D4Jets")
     # add UFO soft drop jets
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addSoftDropJets
-    addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=higg2d4Seq, outputGroup="HIGG2D4", writeUngroomed=False, mods="tcc_groomed")
-    if DerivationFrameworkIsMonteCarlo:
-      addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=higg2d4Seq, outputGroup="HIGG2D4", writeUngroomed=False)
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultUFOSoftDropJets
+    addDefaultUFOSoftDropJets(higg2d4Seq, "HIGG2D4Jets", dotruth=True)
 
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo and UFO with ghost VR-trkjet 
 #====================================================================
-largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKJets"]
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg2d4Seq)
 addVRJets(higg2d4Seq, do_ghost=True)
@@ -350,9 +334,8 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg2d4Seq)
 
-# Jet calibration should come after fat jets
-# applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg2d4Seq)
-
+# Add PFlow jet calibration for the skimming
+applyJetCalibration_xAODColl(jetalg="AntiKt4EMPFlow", sequence=higg2d4Seq)
 #====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
@@ -378,6 +361,14 @@ DerivationFrameworkJob += higg2d4Seq
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg2d4Seq, algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg2d4Seq, algname="QGTaggerToolPFAlg")
+
+# fJVT ###
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=higg2d4Seq, algname='JetForwardPFlowJvtToolAlg')
+
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=higg2d4Seq, algname='JetForwardJvtToolBDTAlg')
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

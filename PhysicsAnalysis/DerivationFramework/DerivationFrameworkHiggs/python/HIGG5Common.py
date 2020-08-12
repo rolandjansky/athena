@@ -163,12 +163,13 @@ def getHIGG5Common() :
             ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
             ".Width"),
         ("AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.pt.eta.phi.m.constituentLinks"
-         ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
-        ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
-         ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
-         ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
-         ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
-         ".Width"),
+            ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
+            ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
+            ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
+            ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
+            ".GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
+            ".Width"),
+
         ("AntiKt10TrackCaloClusterJets"
          ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
          "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
@@ -516,10 +517,10 @@ def getTCCTrackParticleThinning(tool_prefix, thinning_helper) :
 def getUFOTrackParticleThinning(tool_prefix, thinning_helper) :
     # Tracks and CaloClusters associated with UFOs
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UFOTrackParticleThinning
-    thinning_tool = DerivationFramework__UFOTrackParticleThinning(name                   = tool_prefix + "CSSKUFOTPThinningTool",
+    thinning_tool = DerivationFramework__UFOTrackParticleThinning(name                   = tool_prefix + "UFOCSSKTPThinningTool",
                                                                   ThinningService        = thinning_helper.ThinningSvc(),
                                                                   JetKey                 = "AntiKt10UFOCSSKJets",
-                                                                  UFOKey                 = "CSSKUFO",
+                                                                  UFOKey                 = "UFOCSSK",
                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
                                                                   PFOCollectionSGKey     = "JetETMiss",
                                                                   AdditionalPFOKey       = ["CSSK"])
@@ -527,6 +528,7 @@ def getUFOTrackParticleThinning(tool_prefix, thinning_helper) :
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
     return thinning_tool
+
 
 def getTauTrackParticleThinning(tool_prefix, thinning_helper) :
     # Tracks associated with taus
@@ -537,6 +539,18 @@ def getTauTrackParticleThinning(tool_prefix, thinning_helper) :
                                                                   TauKey                 = "TauJets",
                                                                   ConeSize               = 0.6,
                                                                   InDetTrackParticlesKey = "InDetTrackParticles")
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc+= thinning_tool
+    return thinning_tool
+
+def getAntiKt10UFOCSSKSoftDropBeta100Zcut10Thinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+    thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "UFOJetThinningTool",
+                                                               ThinningService  = thinning_helper.ThinningSvc(),
+                                                               ContainerName    = "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
+                                                               SelectionString  = "(AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.pt > 150*GeV && abs(AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.eta)<2.6)",
+                                                               ApplyAnd         = False)
+
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
     return thinning_tool
@@ -578,17 +592,6 @@ def getAntiKt10LCTopoCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
     kwargs.setdefault('AdditionalClustersKey', ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
     return getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
 
-def getAntiKt10UFOCSSKSoftDropBeta100Zcut10Thinning(tool_prefix, thinning_helper) :
-    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-    thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "UFOJetThinningTool",
-                                                               ThinningService  = thinning_helper.ThinningSvc(),
-                                                               ContainerName    = "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-                                                               SelectionString  = "(AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.pt > 150*GeV && abs(AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.eta)<2.6)",
-                                                               ApplyAnd         = False)
-
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc+= thinning_tool
-    return thinning_tool
 
 def getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
