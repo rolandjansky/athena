@@ -87,14 +87,16 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     //This will need to be filled before we construct the condition object 
     Cache cache{};
 
-    // set current scale factor from either conditions or from jobOption parameters
-    if (m_useDCS) {
-        ATH_CHECK( updateCurrentFromConditions(ctx, cache) );
+    // set current scale factor from either conditions or from jobOption parameters if not locked
+    if (!m_lockMapCurrents) {
+        if (m_useDCS) {
+            ATH_CHECK( updateCurrentFromConditions(ctx, cache) );
+        }
+        else {
+            ATH_CHECK( updateCurrentFromParameters(cache) );
+        }
     }
-    else {
-        ATH_CHECK( updateCurrentFromParameters(cache) );
-    }
-
+    
     // Must read map cond object to get previously created map
     SG::ReadCondHandle<AtlasFieldMapCondObj> mapReadHandle{m_mapCondObjInputKey, ctx};
     const AtlasFieldMapCondObj* mapCondObj{*mapReadHandle};
@@ -109,6 +111,13 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     // calculate the scale factors
     if (!m_lockMapCurrents) {
         scaleField(cache, fieldMap);
+    }
+    else {
+        ATH_MSG_INFO( "execute: map currents locked");
+        ATH_MSG_INFO( "execute: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
+                      << cache.m_solenoidCurrent << "," << ((fieldMap) ? fieldMap->solenoidCurrent() : 0));
+        ATH_MSG_INFO( "execute: Toroid field scale factor " << cache.m_torScaleFactor << ". Desired current and map current: "
+                      << cache.m_toroidCurrent << "," << fieldMap->toroidCurrent());
     }
     
 
@@ -268,13 +277,13 @@ MagField::AtlasFieldCacheCondAlg::scaleField(Cache& cache, const MagField::Atlas
              std::abs( cache.m_solenoidCurrent/fieldMap->solenoidCurrent() - 1.0 ) > 0.001 ){
             cache.m_solScaleFactor = cache.m_solenoidCurrent/fieldMap->solenoidCurrent(); 
         }
-        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Solenoid and map currents: "
+        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
                       << cache.m_solenoidCurrent << "," << fieldMap->solenoidCurrent());
     }
     else {
         // No SF set, set it to 0 - current was set to zero either here or for the map, or the map was not read in
         cache.m_solScaleFactor = 0;
-        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Solenoid and map currents: "
+        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
                       << cache.m_solenoidCurrent << "," << ((fieldMap) ? fieldMap->solenoidCurrent() : 0));
     }
     
@@ -285,12 +294,12 @@ MagField::AtlasFieldCacheCondAlg::scaleField(Cache& cache, const MagField::Atlas
             // scale the field in all zones except for the solenoid zone
             cache.m_torScaleFactor = cache.m_toroidCurrent/fieldMap->toroidCurrent();
         }
-        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Toroid and map currents: "
+        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Desired current and map current: "
                       << cache.m_toroidCurrent << "," << fieldMap->toroidCurrent());
     }
     else {
         cache.m_torScaleFactor = 0;
-        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Toroid and map currents: "
+        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Desired current and map current: "
                       << cache.m_toroidCurrent << "," << ((fieldMap) ? fieldMap->toroidCurrent() : 0));
     }
 }
