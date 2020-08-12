@@ -26,16 +26,18 @@
 EMShowerBuilder::EMShowerBuilder(const std::string& type,
                                  const std::string& name,
                                  const IInterface* parent)
-    : AthAlgTool(type, name, parent) {
+  : AthAlgTool(type, name, parent)
+{
   // declare interface
   declareInterface<IEMShowerBuilder>(this);
 }
 
-EMShowerBuilder::~EMShowerBuilder() {}
 
-StatusCode EMShowerBuilder::initialize() {
+StatusCode
+EMShowerBuilder::initialize()
+{
   ATH_MSG_DEBUG(
-      " Initializing EMShowerBuilder, m_cellKey = " << m_cellsKey.key());
+    " Initializing EMShowerBuilder, m_cellKey = " << m_cellsKey.key());
 
   ATH_CHECK(m_cellsKey.initialize((m_UseShowerShapeTool || m_UseCaloIsoTool) &&
                                   !m_cellsKey.key().empty()));
@@ -43,9 +45,8 @@ StatusCode EMShowerBuilder::initialize() {
   if (m_UseShowerShapeTool) {
     if ((RetrieveShowerShapeTool()).isFailure()) {
       return StatusCode::FAILURE;
-    } 
-      m_ShowerShapeTool.disable();
-    
+    }
+    m_ShowerShapeTool.disable();
   }
   //
   // call calorimeter isolation tool only if needed
@@ -53,16 +54,17 @@ StatusCode EMShowerBuilder::initialize() {
   if (m_UseCaloIsoTool) {
     if ((RetrieveHadronicLeakageTool()).isFailure()) {
       return StatusCode::FAILURE;
-    } 
-      m_HadronicLeakageTool.disable();
-    
+    }
+    m_HadronicLeakageTool.disable();
   }
   // for measuring the timing
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMShowerBuilder::RetrieveShowerShapeTool() {
+StatusCode
+EMShowerBuilder::RetrieveShowerShapeTool()
+{
   if (m_ShowerShapeTool.empty()) {
     ATH_MSG_INFO("ShowerShape is empty");
     return StatusCode::SUCCESS;
@@ -71,7 +73,9 @@ StatusCode EMShowerBuilder::RetrieveShowerShapeTool() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMShowerBuilder::RetrieveHadronicLeakageTool() {
+StatusCode
+EMShowerBuilder::RetrieveHadronicLeakageTool()
+{
   if (m_HadronicLeakageTool.empty()) {
     ATH_MSG_INFO("HadronicLeakageTool is empty");
     return StatusCode::SUCCESS;
@@ -80,11 +84,17 @@ StatusCode EMShowerBuilder::RetrieveHadronicLeakageTool() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMShowerBuilder::finalize() { return StatusCode::SUCCESS; }
+StatusCode
+EMShowerBuilder::finalize()
+{
+  return StatusCode::SUCCESS;
+}
 
-StatusCode EMShowerBuilder::execute(const EventContext& ctx,
-                                    const CaloDetDescrManager& cmgr,
-                                    xAOD::Egamma* eg) const {
+StatusCode
+EMShowerBuilder::execute(const EventContext& ctx,
+                         const CaloDetDescrManager& cmgr,
+                         xAOD::Egamma* eg) const
+{
 
   ATH_MSG_DEBUG("Executing EMShowerBuilder::execute");
   // protection against bad pointers
@@ -103,9 +113,11 @@ StatusCode EMShowerBuilder::execute(const EventContext& ctx,
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMShowerBuilder::executeWithCells(const CaloCellContainer* cellcoll,
-                                             const CaloDetDescrManager& cmgr,
-                                             xAOD::Egamma* eg) const {
+StatusCode
+EMShowerBuilder::executeWithCells(const CaloCellContainer* cellcoll,
+                                  const CaloDetDescrManager& cmgr,
+                                  xAOD::Egamma* eg) const
+{
   ATH_CHECK(CalcShowerShape(eg, cmgr, cellcoll));
   return StatusCode::SUCCESS;
 }
@@ -113,7 +125,8 @@ StatusCode EMShowerBuilder::executeWithCells(const CaloCellContainer* cellcoll,
 StatusCode
 EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg,
                                  const CaloDetDescrManager& cmgr,
-                                 const CaloCellContainer* cellcoll) const {
+                                 const CaloCellContainer* cellcoll) const
+{
   //
   // Estimate shower shapes and fill the EMShower object associated to eg
   //
@@ -152,7 +165,8 @@ StatusCode
 EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,
                                      const CaloDetDescrManager& cmgr,
                                      const xAOD::CaloCluster* clus,
-                                     const CaloCellContainer* cellcoll) const {
+                                     const CaloCellContainer* cellcoll) const
+{
   //
   // Call calorimeter isolation tool
   //
@@ -165,9 +179,9 @@ EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,
   if (m_HadronicLeakageTool.empty()) {
     return StatusCode::SUCCESS;
   }
- // calculate information concerning just the hadronic leakage
+  // calculate information concerning just the hadronic leakage
   IegammaIso::Info info;
-  StatusCode sc = m_HadronicLeakageTool->execute(*clus,cmgr,*cellcoll,info);
+  StatusCode sc = m_HadronicLeakageTool->execute(*clus, cmgr, *cellcoll, info);
   if (sc.isFailure()) {
     ATH_MSG_WARNING("call to Iso returns failure for execute");
     return sc;
@@ -190,7 +204,8 @@ EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,
 
 StatusCode
 EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg,
-                                   const IegammaShowerShape::Info& info) const {
+                                   const IegammaShowerShape::Info& info) const
+{
 
   // protection in case Tool does not exist
   if (m_ShowerShapeTool.empty()) {
@@ -332,8 +347,8 @@ EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg,
   value = static_cast<float>(info.emaxs1);
   valueSecond = static_cast<float>(info.esec1);
   eg->setShowerShapeValue(fabs(value + valueSecond) > 0.
-                              ? (value - valueSecond) / (value + valueSecond)
-                              : 0.,
+                            ? (value - valueSecond) / (value + valueSecond)
+                            : 0.,
                           xAOD::EgammaParameters::Eratio);
 
   value = static_cast<float>(info.emins1);

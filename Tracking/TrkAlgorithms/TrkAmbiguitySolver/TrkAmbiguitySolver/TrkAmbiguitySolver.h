@@ -11,7 +11,7 @@ TrkAmbiguitySolver Algorithm
 #ifndef TRKAMBIGUITYSOLVER_H
 #define TRKAMBIGUITYSOLVER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTrack/TrackCollection.h"
 #include "AthContainers/DataVector.h"
@@ -30,7 +30,7 @@ namespace Trk
      Actually at the moment, this functionality is disabled - all TrkAmbiguitySolver does is to load Trk::Tracks (from
      a location passed by jobOptions) and save them into (by default) "Tracks"*/
 
-  class TrkAmbiguitySolver : public AthAlgorithm
+  class TrkAmbiguitySolver : public AthReentrantAlgorithm
     {
 
     public:
@@ -38,7 +38,7 @@ namespace Trk
       ~TrkAmbiguitySolver(void);
       
       StatusCode	      initialize(void) override;
-      StatusCode	      execute(void) override;
+      StatusCode	      execute(const EventContext& ctx) const override;
       StatusCode	      finalize(void) override;
 
     private:
@@ -46,19 +46,12 @@ namespace Trk
       SG::ReadHandleKey<TracksScores> m_scoredTracksKey;
       SG::WriteHandleKey<TrackCollection> m_resolvedTracksKey;//!<where to save the resolved tracks
       ToolHandle<ITrackAmbiguityProcessorTool> m_ambiTool;
-      
-      /** decides whether ambi processing actually occurs 
-	  (if not, the tracks are just resaved). 
-	  Default=false.*/
-      bool              m_applySolve; 
-      
+
       /**Number of tracks input. Useful for debugging*/
-       std::atomic<long int>          m_trackInCount;
+       mutable std::atomic<long int>          m_trackInCount;
       /**Number of tracks passing Ambi solving. Useful for debugging*/
-       std::atomic<long int>          m_trackOutCount;
+       mutable std::atomic<long int>          m_trackOutCount;
       
-      /** Save the processed tracks. If ambiguity process has not been called then they will 
-	  still be the original converted tracks */
     };
 
 }

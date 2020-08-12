@@ -408,7 +408,7 @@ def SCT_TdaqEnabledCondAlgCfg(flags, name="SCT_TdaqEnabledCondAlg", **kwargs):
   result.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
   
   acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTool() )
+  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTools() )
   result.merge(acc)
 
   result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg(name=name, **kwargs) )

@@ -10,7 +10,7 @@
 # is called.
 #
 #########################################################
-from AthenaCommon.AlgSequence import AlgSequence
+from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
 
 from AthenaCommon.DetFlags import DetFlags
@@ -37,7 +37,7 @@ else:
 
 ## configure Athena for POOL persistency
 streamAlgs = ['StreamHITS','StreamRDO','StreamESD','StreamAOD']
-streamSeq = AlgSequence("Streams")
+streamSeq = AthSequencer("AthOutSeq")
 for stream in streamAlgs:
     sSoutStream = getattr(streamSeq, stream, None)
     tSoutStream = getattr(topSequence, stream, None)

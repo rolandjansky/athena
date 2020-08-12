@@ -20,6 +20,9 @@ def PileUpToolsCfg(flags, name="StandardPileUpToolsAlg", **kwargs):
     if not isinstance(PileUpTools, list):
         kwargs["PileUpTools"] = [PileUpTools]
 
+    # declare common extra inputs
+    kwargs["ExtraInputs"] = flags.Digitization.ExtraInputs
+
     # choose the correct alg
     if flags.Digitization.DoXingByXingPileUp:
         Alg = PileUpToolsAlg

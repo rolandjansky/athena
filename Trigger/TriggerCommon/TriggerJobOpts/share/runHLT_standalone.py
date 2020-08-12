@@ -431,7 +431,7 @@ elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-TriggerFlags.triggerMenuSetup = opt.setMenu
+ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = opt.setMenu
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
@@ -459,7 +459,7 @@ if opt.doL1Unpacking:
         from L1Decoder.L1DecoderConfig import L1DecoderCfg
         CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
-        from TrigUpgradeTest.TestUtils import L1EmulationTest
+        from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
 
 # ---------------------------------------------------------------
@@ -506,14 +506,14 @@ svcMgr.MessageSvc.infoLimit=10000
 
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-svcMgr += conf2toConfigurable( getHLTConfigSvc() )
+svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 
 if not opt.createHLTMenuExternally:
     # the generation of the prescale set file from the menu (with all prescales set to 1)
     # is not really needed. If no file is provided all chains are either enabled or disabled,
     # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
     from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
-    createHLTPrescalesFileFromMenu()
+    createHLTPrescalesFileFromMenu(ConfigFlags)
 
 
 
@@ -616,6 +616,12 @@ if opt.reverseViews or opt.filterViews:
 # Disable overly verbose and problematic ChronoStatSvc print-out
 #-------------------------------------------------------------
 include("TriggerTest/disableChronoStatSvcPrintout.py")
+
+#-------------------------------------------------------------
+# Disable spurious warnings from HepMcParticleLink, ATR-21838
+#-------------------------------------------------------------
+if ConfigFlags.Input.isMC:
+    svcMgr.MessageSvc.setError += ['HepMcParticleLink']
 
 #-------------------------------------------------------------
 # Enable xAOD::EventInfo decorations for pileup values

@@ -38,7 +38,7 @@ def allTE_trkfast( signature="FS" ):
         viewAlgs, viewVerify  = makeInDetAlgs( whichSignature=signature, rois=inputMakerAlg.InViewRoIs )
 
         vertexAlg = T2VertexBeamSpot_activeAllTE( "vertex_"+signature )
-        vertexAlg.TrackCollections = ["TrigFastTrackFinder_Tracks_"+signature]
+        vertexAlg.TrackCollection = "TrigFastTrackFinder_Tracks_"+signature
 
         viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+beamspotViewRoI_'+signature ),
                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),

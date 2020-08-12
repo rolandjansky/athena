@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu80_mp_grid
+# art-description: art job for all_ttbar_pu80_mt
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
 # art-athena-mt: 4
+# art-memory: 4096
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -48,12 +49,12 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon','electron','tau','bjet']
-rdo2aod.max_events = 1000 # TODO: 2000 events
+rdo2aod.max_events = 2000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 4 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar_pu80'   
+rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -68,33 +69,50 @@ test.exec_steps.append(TrigInDetAna())
 test.check_steps.append(TrigInDetdictStep())
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF'
-comp.output_dir = 'HLTL2-plots-muon'
+comp=TrigInDetCompStep('Comp_L2muon')
+comp.flag='L2muon'
+comp.test='ttbar'
 test.check_steps.append(comp)
  
  
-comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF  HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig'
-comp2.output_dir = 'HLTEF-plots-muon'
+comp2=TrigInDetCompStep('Comp_EFmuon')
+comp2.flag='EFmuon'
+comp2.test='ttbar'
 test.check_steps.append(comp2)
 
-comp3=TrigInDetCompStep('CompareStep3')
-comp3.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
-comp3.output_dir = 'HLTEF-plots-bjet'
+
+comp3=TrigInDetCompStep('Comp_L2bjet')
+comp3.flag='L2bjet'
+comp3.test='ttbar'
 test.check_steps.append(comp3)
 
-comp4=TrigInDetCompStep('CompareStep4')
-comp4.chains='HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
-comp4.output_dir = 'HLTEF-plots-electron'
+comp4=TrigInDetCompStep('Comp_EFbjet')
+comp4.flag='EFbjet'
+comp4.test='ttbar'
 test.check_steps.append(comp4)
 
-comp5=TrigInDetCompStep('CompareStep5')
-comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
-comp5.output_dir = 'HLTEF-plots-tau'
+comp5=TrigInDetCompStep('Comp_L2tau')
+comp5.flag='L2tau'
+comp5.test='ttbar'
 test.check_steps.append(comp5)
 
+comp6=TrigInDetCompStep('Comp_EFtau')
+comp6.flag='EFtau'
+comp6.test='ttbar'
+test.check_steps.append(comp6)
 
+comp7=TrigInDetCompStep('Comp_L2ele')
+comp7.flag='L2ele'
+comp7.test='ttbar'
+test.check_steps.append(comp7)
+
+comp8=TrigInDetCompStep('Comp_EFele')
+comp8.flag='EFele'
+comp8.test='ttbar'
+test.check_steps.append(comp8)
+
+
+# CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
 test.check_steps.append(cpucost)
 

@@ -42,10 +42,12 @@ TrigConf::L1Connector::update()
    }
 
    // triggerlines
-   size_t loopsize = (m_type == ConnectorType::ELECTRICAL) ? 2 : 1;
+   if(m_type == ConnectorType::ELECTRICAL) {
+      m_maxFpga = m_maxClock = 2;
+   }
 
-   for( size_t fpga = 0; fpga < loopsize; ++fpga ) {
-      for( size_t clock = 0; clock < loopsize; ++clock ) {
+   for( size_t fpga = 0; fpga < m_maxFpga; ++fpga ) {
+      for( size_t clock = 0; clock < m_maxClock; ++clock ) {
          std::string path = "triggerlines";
          if( m_type == ConnectorType::ELECTRICAL ) {
             path += ".fpga";
@@ -78,7 +80,27 @@ TrigConf::L1Connector::type() const
 std::size_t
 TrigConf::L1Connector::size() const
 {
-   return m_triggerLines[0][0].size() + m_triggerLines[0][1].size() + m_triggerLines[1][0].size() + m_triggerLines[1][1].size();
+   size_t nlines{0};
+   for( size_t fpga = 0; fpga<m_maxFpga; ++fpga) {
+      for( size_t clock = 0; clock<m_maxClock; ++clock) {
+         nlines += m_triggerLines[fpga][clock].size();
+      }
+   }
+   return nlines;
+}
+
+std::vector<std::string>
+TrigConf::L1Connector::triggerLineNames() const
+{
+   std::vector<std::string> tln{};
+   for( size_t fpga = 0; fpga<m_maxFpga; ++fpga) {
+      for( size_t clock = 0; clock<m_maxClock; ++clock) {
+         for( auto & tl : m_triggerLines[fpga][clock] ) {
+            tln.emplace_back(tl.name());
+         }
+      }
+   }
+   return tln;
 }
 
 const std::vector<TrigConf::TriggerLine> &

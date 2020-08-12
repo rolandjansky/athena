@@ -8,7 +8,6 @@
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
-#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -29,6 +28,13 @@
 // Local helper functions
 namespace {
   constexpr float wordsToKiloBytes = 0.001*sizeof(uint32_t);
+  template<typename T> inline bool contains(const std::vector<T>& vec, const T& val) {
+    return std::find(vec.cbegin(), vec.cend(), val)!=vec.cend();
+  }
+  template<typename T> inline int index(const std::vector<T>& vec, const T& val) {
+    typename std::vector<T>::const_iterator it =  std::find(vec.cbegin(), vec.cend(), val);
+    return it==vec.cend() ? -1 : std::distance(vec.cbegin(), it);
+  }
   template<typename T> struct printWordHex {
     printWordHex(const T w) : word(w) {}
     T word;
@@ -56,16 +62,29 @@ namespace {
     }
     return str;
   }
+  // StreamTag monitoring accessors
+  inline const std::string mon_streamTypeName(const eformat::helper::StreamTag& st){
+    return st.type+"_"+st.name;
+  }
+  inline const std::string& mon_streamType(const eformat::helper::StreamTag& st){
+    return st.type;
+  }
+  inline bool mon_streamIsPeb(const eformat::helper::StreamTag& st){
+    return st.robs.size()>0 || st.dets.size()>0;
+  }
+  inline size_t mon_streamPebRobsNum(const eformat::helper::StreamTag& st){
+    return st.robs.size();
+  }
+  inline size_t mon_streamPebSubDetsNum(const eformat::helper::StreamTag& st){
+    return st.dets.size();
+  }
 }
 
 // =============================================================================
 // Standard constructor
 // =============================================================================
 TrigByteStreamCnvSvc::TrigByteStreamCnvSvc(const std::string& name, ISvcLocator* svcLoc)
-: ByteStreamCnvSvc(name, svcLoc),
-  m_evtStore("StoreGateSvc", name),
-  m_robDataProviderSvc("ROBDataProviderSvc", name),
-  m_THistSvc("THistSvc", name) {}
+: ByteStreamCnvSvc(name, svcLoc) {}
 
 // =============================================================================
 // Standard destructor
@@ -80,16 +99,8 @@ StatusCode TrigByteStreamCnvSvc::initialize() {
   ATH_CHECK(ByteStreamCnvSvc::initialize());
   ATH_CHECK(m_evtStore.retrieve());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
-  ATH_CHECK(m_THistSvc.retrieve());
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
-}
-
-// =============================================================================
-// Reimplementation of Service::start
-// =============================================================================
-StatusCode TrigByteStreamCnvSvc::start() {
-  bookHistograms();
   return StatusCode::SUCCESS;
 }
 
@@ -102,8 +113,6 @@ StatusCode TrigByteStreamCnvSvc::finalize() {
     ATH_MSG_WARNING("Failed to release service " << m_robDataProviderSvc.typeAndName());
   if (m_evtStore.release().isFailure())
     ATH_MSG_WARNING("Failed to release service " << m_evtStore.typeAndName());
-  if (m_THistSvc.release().isFailure())
-    ATH_MSG_WARNING("Failed to release service " << m_THistSvc.typeAndName());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   ATH_CHECK(ByteStreamCnvSvc::finalize());
   return StatusCode::SUCCESS;
@@ -180,19 +189,20 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
     return StatusCode::FAILURE;
   }
 
-  monitorRawEvent(rawEventPtr);
+  {
+    auto t_mon = Monitored::Timer("TIME_monitorRawEvent");
+    monitorRawEvent(rawEventPtr);
+    Monitored::Group(m_monTool, t_mon);
+  }
 
   // Send output to the DataCollector
   StatusCode result = StatusCode::SUCCESS;
   try {
-    auto startTime = std::chrono::high_resolution_clock::now();
+    auto t_eventDone = Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_eventDone");
     hltinterface::DataCollector::instance()->eventDone(std::move(rawEventPtr));
-    auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<float, std::milli>(endTime - startTime);
-    m_histEventDoneTime->Fill(static_cast<float>(duration.count()));
-    m_histEventDoneTimeER->Fill(static_cast<float>(duration.count()));
+    Monitored::Group(m_monTool, t_eventDone);
     ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully, "
-                  << "the eventDone call took " << duration.count() << " microseconds");
+                  << "the eventDone call took " << (double)t_eventDone << " milliseconds");
   }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("Sending output to DataCollector failed, caught an unexpected std::exception " << e.what());
@@ -220,9 +230,8 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
     HLT::OnlineErrorCode errorCode = static_cast<HLT::OnlineErrorCode>(rawEvent.status()[1]);
     std::ostringstream ss;
     ss << errorCode;
-    oh_scoped_lock_histogram lock;
-    m_histOnlineErrorCode->Fill(ss.str().data(), 1.0);
-    m_histOnlineErrorCode->LabelsDeflate("X");
+    auto monOnlineErrorCode = Monitored::Scalar<std::string>("OnlineErrorCode", ss.str());
+    Monitored::Group(m_monTool, monOnlineErrorCode);
   }
 
   // Decode stream tags
@@ -242,17 +251,24 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
   // Get HLT result sizes
   std::vector<eformat::read::ROBFragment> robs;
   rawEvent.robs(robs);
-  std::unordered_map<uint16_t, uint32_t> resultSizes; // {module ID, size in words}
+  std::vector<uint16_t> resultSizeMap_moduleID;
+  std::vector<uint32_t> resultSizeMap_size;
   uint32_t totalSizeWords = 0;
   try {
     for (const eformat::read::ROBFragment& rob : robs) {
       eformat::helper::SourceIdentifier sid(rob.rob_source_id());
       if (sid.subdetector_id() != eformat::SubDetector::TDAQ_HLT)
         continue;
-      uint32_t size = rob.fragment_size_word();
-      uint16_t module_id = sid.module_id();
-      resultSizes[module_id] = size;
+      const uint16_t module_id = sid.module_id();
+      const uint32_t size = rob.fragment_size_word();
       totalSizeWords += size;
+      if (!contains(resultSizeMap_moduleID, module_id)) {
+        resultSizeMap_moduleID.push_back(module_id);
+        resultSizeMap_size.push_back(size);
+      }
+      else {
+        ATH_MSG_ERROR("HLT result ROB monitoring found multiple HLT ROBs with the same module ID " << module_id);
+      }
     }
   }
   catch (const std::exception& ex) {
@@ -264,80 +280,68 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
     return;
   }
 
-  // Associate result sizes to streams and fill histograms
-  m_histStreamTagsNum->Fill(streamTags.size());
-  std::unordered_map<std::string, uint32_t> resultSizesByStream;
+  // Fill helper containers for monitoring
+  std::vector<std::string> sdFromRobList;
+  std::vector<std::string> sdFromSubDetList;
+  std::vector<std::string> streamTagCorrA;
+  std::vector<std::string> streamTagCorrB;
+  std::vector<float> streamResultSize; // Correlated with streamTags vector
+  streamTagCorrA.reserve(streamTags.size() * streamTags.size());
+  streamTagCorrB.reserve(streamTags.size() * streamTags.size());
+  streamResultSize.reserve(streamTags.size());
   for (const eformat::helper::StreamTag& st : streamTags) {
-    std::string typeName = st.type + "_" + st.name;
-    {
-      oh_scoped_lock_histogram lock;
-      m_histStreamTags->Fill(typeName.data(), 1.0);
-      m_histStreamTags->LabelsDeflate("X");
-    }
-    m_histStreamTagsType->Fill(st.type.data(), 1.0);
-    if (st.robs.size() > 0 || st.dets.size() >0) { // PEB stream tag
-      m_histPebRobsNum->Fill(st.robs.size());
-      m_histPebSubDetsNum->Fill(st.dets.size());
-    }
-
     bool hasHLTSubDet = st.dets.find(eformat::SubDetector::TDAQ_HLT) != st.dets.end();
     bool includeAll = st.robs.empty() && (st.dets.empty() || hasHLTSubDet);
-    if (includeAll) {
-      resultSizesByStream[typeName] = totalSizeWords;
-      continue;
-    }
-    uint32_t size = 0;
-    std::set<std::string> sdFromRobList;
-    std::set<std::string> sdFromSubDetList;
+    // includeAll means a stream with full event building or all HLT results included
+    uint32_t sizeWords = includeAll ? totalSizeWords : 0;
     for (const eformat::SubDetector sd : st.dets) {
-      sdFromSubDetList.insert(eformat::helper::SubDetectorDictionary.string(sd));
+      const std::string& detName = eformat::helper::SubDetectorDictionary.string(sd);
+      if (!contains(sdFromSubDetList, detName)) sdFromSubDetList.push_back(detName);
     }
-    for (uint32_t robid : st.robs) {
+    for (const uint32_t robid : st.robs) {
       eformat::helper::SourceIdentifier sid(robid);
-      sdFromRobList.insert(sid.human_detector());
-      if (sid.subdetector_id() != eformat::SubDetector::TDAQ_HLT)
-        continue;
-      if (resultSizes.find(sid.module_id()) == resultSizes.end()) {
-        ATH_MSG_WARNING("Stream tag " << typeName << " declares " << sid.human()
-                        << " in ROB list, but the ROBFragment is missing");
-        continue;
+      const std::string& detName = sid.human_detector();
+      if (!contains(sdFromRobList, detName)) sdFromRobList.push_back(detName);
+      if (!includeAll && sid.subdetector_id() == eformat::SubDetector::TDAQ_HLT) {
+        if (const int ix = index(resultSizeMap_moduleID, sid.module_id()); ix >= 0) {
+          sizeWords += resultSizeMap_size[ix];
+        }
+        else {
+          ATH_MSG_WARNING("Stream tag " << st.type << "_" << st.name << " declares " << sid.human()
+                          << " in ROB list, but the ROBFragment is missing");
+        }
       }
-      size += resultSizes[sid.module_id()];
     }
-    resultSizesByStream[typeName] = size;
-    for (const std::string& sdName : sdFromRobList) {
-      oh_scoped_lock_histogram lock;
-      m_histPebSubDetsFromRobList->Fill(sdName.data(), 1.0);
-      m_histPebSubDetsFromRobList->LabelsDeflate("X");
-    }
-    for (const std::string& sdName : sdFromSubDetList) {
-      oh_scoped_lock_histogram lock;
-      m_histPebSubDetsFromSubDetList->Fill(sdName.data(), 1.0);
-      m_histPebSubDetsFromSubDetList->LabelsDeflate("X");
+    streamResultSize.push_back(sizeWords*wordsToKiloBytes);
+    for (const eformat::helper::StreamTag& st2 : streamTags) {
+      streamTagCorrA.push_back(mon_streamTypeName(st));
+      streamTagCorrB.push_back(mon_streamTypeName(st2));
     }
   }
 
-  // Fill result size and stream tag correlation histograms
-  for (const auto& [typeName, size] : resultSizesByStream) {
-    {
-      oh_scoped_lock_histogram lock;
-      m_histResultSizeByStream->Fill(typeName.data(), size*wordsToKiloBytes, 1.0);
-      m_histResultSizeByStream->LabelsDeflate("X");
-    }
-    for (const auto& [typeName2, size2] : resultSizesByStream) {
-      oh_scoped_lock_histogram lock;
-      m_histStreamTagsCorr->Fill(typeName.data(), typeName2.data(), 1.0);
-      m_histStreamTagsCorr->LabelsDeflate("X");
-      m_histStreamTagsCorr->LabelsDeflate("Y");
-    }
-  }
-  for (const auto& [moduleId, size] : resultSizes) {
-    m_histResultSizeByModule->Fill(static_cast<float>(moduleId), size*wordsToKiloBytes, 1.0);
-  }
-  m_histResultSizeTotal->Fill(totalSizeWords*wordsToKiloBytes);
-  m_histResultSizeFullEvFrag->Fill(rawEvent.fragment_size_word()*wordsToKiloBytes);
-  ATH_MSG_DEBUG("Total size of HLT ROBs is " << totalSizeWords*wordsToKiloBytes
-                << " kB and FullEventFragment size is " << rawEvent.fragment_size_word()*wordsToKiloBytes << " kB");
+  // General stream tag monitoring
+  auto monStreamTagsNum         = Monitored::Scalar<size_t>("StreamTagsNum", streamTags.size());
+  auto monStreamTags            = Monitored::Collection("StreamTags", streamTags, mon_streamTypeName);
+  auto monStreamTagsType        = Monitored::Collection("StreamTagsType", streamTags, mon_streamType);
+  auto monStreamTagCorrA        = Monitored::Collection("StreamTagCorrA", streamTagCorrA);
+  auto monStreamTagCorrB        = Monitored::Collection("StreamTagCorrB", streamTagCorrB);
+  // PEB stream tag monitoring
+  auto monStreamIsPeb           = Monitored::Collection("StreamTagIsPeb", streamTags, mon_streamIsPeb);
+  auto monPebRobsNum            = Monitored::Collection("StreamTagsPebRobsNum", streamTags, mon_streamPebRobsNum);
+  auto monPebSubDetsNum         = Monitored::Collection("StreamTagsPebSubDetsNum", streamTags, mon_streamPebSubDetsNum);
+  auto monSubDetsFromRobList    = Monitored::Collection("StreamTagsPebSubDetsFromRobList", sdFromRobList);
+  auto monSubDetsFromSubDetList = Monitored::Collection("StreamTagsPebSubDetsFromSubDetList", sdFromSubDetList);
+  // Result size monitoring
+  auto monResultSizeTotal       = Monitored::Scalar<float>("ResultSizeTotal", totalSizeWords*wordsToKiloBytes);
+  auto monResultSizeFullEvFrag  = Monitored::Scalar<float>("ResultSizeFullEvFrag", rawEvent.fragment_size_word()*wordsToKiloBytes);
+  auto monResultCollModuleID    = Monitored::Collection("ResultModuleID", resultSizeMap_moduleID);
+  auto monResultCollModuleSize  = Monitored::Collection("ResultModuleSize", resultSizeMap_size, [](uint32_t sw){return sw*wordsToKiloBytes;});
+  auto monResultSizeByStream    = Monitored::Collection("ResultSizeStream", streamResultSize);
+  // Collect all variables
+  Monitored::Group(m_monTool, monStreamTagsNum, monStreamTags, monStreamTagsType, monStreamTagCorrA,
+                   monStreamTagCorrB, monStreamIsPeb, monPebRobsNum, monPebSubDetsNum, monSubDetsFromRobList,
+                   monSubDetsFromSubDetList, monResultSizeTotal, monResultSizeFullEvFrag, monResultCollModuleID,
+                   monResultCollModuleSize, monResultSizeByStream);
 }
 
 // =============================================================================
@@ -402,88 +406,4 @@ void TrigByteStreamCnvSvc::printRawEvent() {
   }
 
   ATH_MSG_DEBUG(ss.str());
-}
-
-// =============================================================================
-void TrigByteStreamCnvSvc::bookHistograms() {
-  const std::string path = "/EXPERT/HLTFramework/" + name() + "/";
-
-  // Function to register histogram in THistSvc (moves the ownership to THistSvc)
-  auto regHist = [&path, this](TH1* hist){
-    if (m_THistSvc->regHist(path + hist->GetName(), hist).isFailure())
-      ATH_MSG_WARNING("Cannot register monitoring histogram " << hist->GetName());
-  };
-
-  m_histOnlineErrorCode = new TH1I(
-    "OnlineErrorCode", "Online error codes;;Events", 1, 0, 1);
-  m_histOnlineErrorCode->SetCanExtend(TH1::kXaxis);
-  regHist(m_histOnlineErrorCode);
-
-  m_histStreamTags = new TH1F(
-    "StreamTags", "Stream Tags produced by HLT;;Events", 1, 0, 1);
-  m_histStreamTags->SetCanExtend(TH1::kXaxis);
-  regHist(m_histStreamTags);
-
-  m_histStreamTagsCorr = new TH2F(
-    "StreamTagsCorr", "Stream Tags (produced by HLT) correlation", 1, 0, 1, 1, 0, 1);
-  m_histStreamTagsCorr->SetCanExtend(TH1::kAllAxes);
-  regHist(m_histStreamTagsCorr);
-
-  m_histStreamTagsNum = new TH1F(
-    "StreamTagsNum", "Number of Stream Tags produced by HLT;Number of Stream Tags;Events", 20, 0, 20);
-  regHist(m_histStreamTagsNum);
-
-  m_histStreamTagsType = new TH1F(
-    "StreamTagsType", "Type of Stream Tags produced by HLT;;Events", 7, 0, 7);
-  m_histStreamTagsType->GetXaxis()->SetBinLabel(1, "physics");
-  m_histStreamTagsType->GetXaxis()->SetBinLabel(2, "calibration");
-  m_histStreamTagsType->GetXaxis()->SetBinLabel(3, "express");
-  m_histStreamTagsType->GetXaxis()->SetBinLabel(4, "monitoring");
-  m_histStreamTagsType->GetXaxis()->SetBinLabel(5, "debug");
-  m_histStreamTagsType->GetXaxis()->SetBinLabel(6, "reserved");
-  m_histStreamTagsType->GetXaxis()->SetBinLabel(7, "unknown");
-  regHist(m_histStreamTagsType);
-
-  m_histPebRobsNum = new TH1F(
-    "StreamTagsPebRobsNum", "Number of ROBs in PEB stream tags;Number of ROBs;Entries", 200, 0, 200);
-  regHist(m_histPebRobsNum);
-
-  m_histPebSubDetsNum = new TH1F(
-    "StreamTagsPebSubDetsNum", "Number of SubDetectors in PEB stream tags;Number of SubDetectors;Entries", 100, 0, 100);
-  regHist(m_histPebSubDetsNum);
-
-  m_histPebSubDetsFromRobList = new TH1F(
-    "StreamTagsPebSubDetsFromRobList", "SubDetectors in PEB stream tags ROB list;;Entries", 1, 0, 1);
-  m_histPebSubDetsFromRobList->SetCanExtend(TH1::kXaxis);
-  regHist(m_histPebSubDetsFromRobList);
-
-  m_histPebSubDetsFromSubDetList = new TH1F(
-    "StreamTagsPebSubDetsFromSubDetList", "SubDetectors in PEB stream tags SubDetector list;;Entries", 1, 0, 1);
-  m_histPebSubDetsFromSubDetList->SetCanExtend(TH1::kXaxis);
-  regHist(m_histPebSubDetsFromSubDetList);
-
-  m_histResultSizeByModule = new TH2F(
-    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 10, 0, 10, 200, 0, 2000);
-  regHist(m_histResultSizeByModule);
-
-  m_histResultSizeByStream = new TH2F(
-    "ResultSizeByStream", "HLT result size by stream;;Size [kB]", 1, 0, 1, 200, 0, 2000);
-  m_histResultSizeByStream->SetCanExtend(TH1::kXaxis);
-  regHist(m_histResultSizeByStream);
-
-  m_histResultSizeTotal = new TH1F(
-    "ResultSizeTotal", "HLT result total size (sum of all modules);Size [kB];Events", 200, 0, 2000);
-  regHist(m_histResultSizeTotal);
-
-  m_histResultSizeFullEvFrag = new TH1F(
-    "ResultSizeFullEvFrag", "HLT output FullEventFragment size;Size [kB];Events", 200, 0, 2000);
-  regHist(m_histResultSizeFullEvFrag);
-
-  m_histEventDoneTime = new TH1F(
-    "TIME_EventDoneCall", "Time of DataCollector::eventDone calls;Time [ms];Events", 400, 0, 2);
-  regHist(m_histEventDoneTime);
-
-  m_histEventDoneTimeER = new TH1F(
-    "TIME_EventDoneCall_extRange", "Time of DataCollector::eventDone calls;Time [ms];Events", 400, 0, 200);
-  regHist(m_histEventDoneTimeER);
 }

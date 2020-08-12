@@ -77,7 +77,7 @@ struct TileHitData;
 class G4TouchableHistory;
 class G4VPhysicalVolume;
 
-class EventInformation;
+class AtlasG4EventUserInfo;
 
 #include <string>
 #include <vector>
@@ -258,7 +258,7 @@ private:
   bool m_addToGirder;
 
   /** variable used for producing calibration hits signed with primary particle ID */
-  EventInformation* m_event_info;
+  AtlasG4EventUserInfo* m_atlasG4EvtUserInfo;
 
   class LessHit {
   public:

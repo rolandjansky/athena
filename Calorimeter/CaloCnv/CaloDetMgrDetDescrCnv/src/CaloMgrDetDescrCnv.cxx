@@ -41,6 +41,8 @@
 
 #include "TileDetDescr/TileDetDescrManager.h"
 
+#include <GaudiKernel/ThreadLocalContext.h>
+
 long int CaloMgrDetDescrCnv::repSvcType() const
 {
   return storageType();
@@ -71,7 +73,12 @@ StatusCode CaloMgrDetDescrCnv::finalize()
 
 StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
-  MsgStream log(msgSvc(), "CaloMgrDetDescrCnv");
+  // Ensure that this object is created inside the event loop
+  auto ctx = Gaudi::Hive::currentContext();
+  MsgStream log( msgSvc(), "CaloMgrDetDescrCnv" );
+  if ( !ctx.valid() ) {
+    log << MSG::WARNING << "Attempting to create a Calo Detector Manager object outside of the event loop. Geometry may not be aligned." << endmsg;
+  }
   log << MSG::INFO << "in createObj: creating a Calo Detector Manager object in the detector store" << endmsg;
 
   bool debug = log.level()<=MSG::DEBUG; 

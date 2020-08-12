@@ -69,6 +69,11 @@ class doValidateTracksInJets(InDetPhysValFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doValidateTracksInBJets(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class validateExtraTrackCollections(InDetPhysValFlagsJobProperty) :
     """List of extra track collection names to be validated in addition to Tracks."""
     statusOn     = True
@@ -149,6 +154,7 @@ _list_InDetPhysValJobProperties = [
     doValidateLooseTracks,
     doValidateTightPrimaryTracks,
     doValidateTracksInJets,
+    doValidateTracksInBJets,
     validateExtraTrackCollections,
     doPhysValOutput,
     doExpertOutput,

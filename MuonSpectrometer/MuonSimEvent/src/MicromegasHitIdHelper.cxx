@@ -1,11 +1,20 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
+
 #include <iostream>
+#include <iomanip> // for std::array
 
 MicromegasHitIdHelper* MicromegasHitIdHelper::m_help = nullptr;
+
+namespace {
+    const static std::array<char, 1> v1 = {'M'};
+    const static std::array<char, 5> v2 = {'0','1','2','3','4'};
+    const static std::array<char, 2> v3 = {'S','L'};
+    const static std::array<char, 2> v4 = {'1','2'};
+}
 
 //private constructor
 MicromegasHitIdHelper::MicromegasHitIdHelper() : HitIdHelper()
@@ -19,12 +28,6 @@ MicromegasHitIdHelper* MicromegasHitIdHelper::GetHelper()
   if (!m_help) m_help = new MicromegasHitIdHelper();
   return m_help;
 }
-
-static char v1[] = {'M'};
-static char v2[] = {'0','1','2','3','4'};
-static char v3[] = {'S','L'};
-static char v4[] = {'1','2'};
-
 
 void MicromegasHitIdHelper::Initialize()
 {

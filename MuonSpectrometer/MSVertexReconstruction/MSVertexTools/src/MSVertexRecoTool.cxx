@@ -26,22 +26,12 @@ namespace Muon {
 
   constexpr float sq(float x) { return (x)*(x); }
 
-  MSVertexRecoTool::MSVertexRecoTool (const std::string& type, const std::string& name,
-				      const IInterface* parent)
-    : 
+  MSVertexRecoTool::MSVertexRecoTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_rndmEngine(0),
-    m_rndmSvc(0),
-    m_xAODContainerKey("MSDisplacedVertex"),
-    m_rpcTESKey("RPC_Measurements"),
-    m_tgcTESKey("TGC_Measurements"),
-    m_mdtTESKey("MDT_DriftCircles")
+    m_rndmEngine(nullptr),
+    m_rndmSvc(nullptr)
   {
     declareInterface<IMSVertexRecoTool>(this);
-    
-    declareProperty("xAODVertexContainer",m_xAODContainerKey);//name of SG container
-
     // nominal phi angle for tracklets
     declareProperty("TrackPhiAngle",m_TrackPhiAngle = 0.0);
     // chi^2 probability cut
@@ -68,17 +58,6 @@ namespace Muon {
     // cuts to prevent excessive processing timing 
     declareProperty("MaxGlobalTracklets", m_maxGlobalTracklets = 40);
     declareProperty("MaxClusterTracklets", m_maxClusterTracklets = 50);
-
-    //extrapolator
-    declareProperty("MyExtrapolator", m_extrapolator );
-
-    declareProperty("TESKey", m_rpcTESKey);
-    declareProperty("TGCKey", m_tgcTESKey);
-    declareProperty("MDTKey", m_mdtTESKey);
-//decorations
-    declareProperty("Decor_MDTK", m_decor_nMDT = "nMDT");
-    declareProperty("Decor_nRPC", m_decor_nRPC = "nRPC");
-    declareProperty("Decor_nTGC", m_decor_nTGC = "nTGC");
   }
 
 
@@ -112,16 +91,8 @@ namespace Muon {
     ATH_CHECK( m_decor_nTGC.initialize() );
     return StatusCode::SUCCESS;
   }
-  
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-  MSVertexRecoTool::~MSVertexRecoTool() {}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-  
 
   StatusCode MSVertexRecoTool::findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices, const EventContext &ctx) const {
  
@@ -143,9 +114,7 @@ namespace Muon {
       MSVertex* dummyVtx;
       MakeDummyVertex(dummyVtx);
       vertices.push_back(dummyVtx);
-      StatusCode sc = FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC);
-      if(sc.isFailure()) return StatusCode::FAILURE;
-      else               return StatusCode::SUCCESS;
+      ATH_CHECK(FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC));
     }
 
     //group the tracks
@@ -163,9 +132,7 @@ namespace Muon {
       MSVertex* dummyVtx;
       MakeDummyVertex(dummyVtx);
       vertices.push_back(dummyVtx);
-      StatusCode sc = FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC);
-      if(sc.isFailure()) return StatusCode::FAILURE;
-      else               return StatusCode::SUCCESS;
+      ATH_CHECK(FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC));
     }
 
     ATH_MSG_DEBUG( "Running on event with " << BarrelTracklets.size() << " barrel tracklets, " 
@@ -178,15 +145,13 @@ namespace Muon {
     for(unsigned int i = 0; i < BarrelClusters.size(); i++) {
       if(BarrelClusters.at(i).ntrks != (int) BarrelClusters.at(i).tracks.size()) {
         ATH_MSG_INFO( "ntrks not equal to track container size; this should never happen.  Exiting quietly." );
-        StatusCode sc = FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC);
-        return sc;
+        return FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC);
       }
     }
     for(unsigned int i = 0; i < EndcapClusters.size(); i++) {
       if(EndcapClusters.at(i).ntrks != (int) EndcapClusters.at(i).tracks.size()) {
         ATH_MSG_INFO( "ntrks not equal to track container size; this should never happen.  Exiting quietly." );
-        StatusCode sc = FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC);
-        return sc;
+        return FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC);
       }
     }
     
@@ -263,19 +228,9 @@ namespace Muon {
 
     }//end loop on endcap tracklet clusters
 
-    StatusCode sc = FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC);
-    if(sc.isFailure()) return StatusCode::FAILURE;
-    else               return StatusCode::SUCCESS;
+    ATH_CHECK(FillOutputContainer(vertices, xAODVxContainer, hMDT, hRPC, hTGC));
+  return StatusCode::SUCCESS;
   }//end find vertices
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-  
-  StatusCode MSVertexRecoTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
@@ -528,14 +483,14 @@ namespace Muon {
 	  float Yp = Rpos[k]*std::sin(avePhi);       
 	  //in case there is a nominal opening angle, calculate tracklet direction
 	  //the tracklet must cross the candidate vertex plane at the correct phi
-	  float DelR = std::sqrt(sq(x0-Xp)+sq(y0-Yp))/std::cos(NominalAngle);
+	  float DelR = std::hypot(x0-Xp,y0-Yp)/std::cos(NominalAngle);
 	  float X1 = DelR*std::cos(NominalTrkAng+avePhi) + Xp;
 	  float Y1 = DelR*std::sin(NominalTrkAng+avePhi) + Yp;
-	  float R1 = std::sqrt(sq(X1)+sq(Y1));
+	  float R1 = std::hypot(X1,Y1);
 	  float Norm = r0/R1;
 	  X1 = X1*Norm;
 	  Y1 = Y1*Norm;
-	  float Dirmag = std::sqrt(sq(X1-Xp)+sq(Y1-Yp));
+	  float Dirmag = std::hypot(X1-Xp,Y1-Yp);
 	  float Xdir = (X1-Xp)/Dirmag;
 	  float Ydir = (Y1-Yp)/Dirmag;
 	  float trkpx = Xdir*tracklets.at(i).momentum().perp();
@@ -559,14 +514,14 @@ namespace Muon {
 	  //tracks for errors -- rotate the plane & recalculate the tracklet parameters
 	  float xp = Rpos[k]*std::cos(avePhi);
 	  float yp = Rpos[k]*std::sin(avePhi);       
-	  float delR = std::sqrt(sq(x0-xp)+sq(y0-yp))/std::cos(MaxOpenAngle);
+	  float delR = std::hypot(x0-xp,y0-yp)/std::cos(MaxOpenAngle);
 	  float x1 = delR*std::cos(MaxTrkAng+avePhi) + xp;
 	  float y1 = delR*std::sin(MaxTrkAng+avePhi) + yp;
-	  float r1 = std::sqrt(sq(x1)+sq(y1));
+	  float r1 = std::hypot(x1,y1);
 	  float norm = r0/r1;
 	  x1 = x1*norm;
 	  y1 = y1*norm;
-	  float dirmag = std::sqrt(sq(x1-xp)+sq(y1-yp));
+	  float dirmag = std::hypot(x1-xp,y1-yp);
 	  float xdir = (x1-xp)/dirmag;
 	  float ydir = (y1-yp)/dirmag;
 	  float errpx = xdir*tracklets.at(i).momentum().perp();
@@ -622,7 +577,7 @@ namespace Muon {
         if(extrap) {
 	  //if the track is neutral just store the uncertainty due to angular uncertainty of the orignal tracklet
 	  if(isNeutralTrack[k].at(i)) {	  
-	    float pTot = std::sqrt(sq(TracksForVertexing[k].at(i)->momentum().perp())+sq(TracksForVertexing[k].at(i)->momentum().z()));
+	    float pTot = std::hypot(TracksForVertexing[k].at(i)->momentum().perp(),TracksForVertexing[k].at(i)->momentum().z());
 	    float dirErr = Amg::error(*TracksForVertexing[k].at(i)->covariance(),Trk::theta);
 	    float extrapRdist = TracksForVertexing[k].at(i)->position().perp() - Rpos[k];
 	    float sz = std::abs(20*dirErr*extrapRdist*sq(pTot)/sq(TracksForVertexing[k].at(i)->momentum().perp()));	  
@@ -651,7 +606,7 @@ namespace Muon {
 	    if(extrap2) {
 	      float sz = Amg::error(*extrap->covariance(),Trk::locY);
 	      float zdiff = extrap->localPosition().y() - extrap2->localPosition().y();	  
-	      float ExtrapErr = std::sqrt(sq(sz)+sq(zdiff));
+	      float ExtrapErr = std::hypot(sz,zdiff);
 	      if(ExtrapErr > maxError) ExtrapSuc[k].push_back(false);
 	      else {
 		//iff both extrapolations succeed && error is acceptable, store the information 
@@ -681,8 +636,8 @@ namespace Muon {
       float dzLoF(10);
       float aveZpos(0),posWeight(0);    
       for(unsigned int i=0; i<ExtrapZ[k].size(); ++i) {
-        float ExtrapErr = std::sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
-        if(isNeutralTrack[k][i]) ExtrapErr = std::sqrt(sq(sigmaZ[k][i]) + sq(dzLoF));
+        float ExtrapErr = std::hypot(sigmaZ[k][i],dlength[k][i],dzLoF);
+        if(isNeutralTrack[k][i]) ExtrapErr = std::hypot(sigmaZ[k][i],dzLoF);
         aveZpos += ExtrapZ[k][i]/sq(ExtrapErr);
         posWeight += 1./sq(ExtrapErr);      
       }
@@ -698,7 +653,10 @@ namespace Muon {
         vxtracks.clear();
         trkp[k].clear();
         int tmpnTrks(0);
-        float tmpzLoF(0),tmpzpossigma(0),tmpchi2(0),posWeight(0);
+        float tmpzLoF(0);
+        float tmpzpossigma(0);
+        float tmpchi2(0);
+        float posWeight(0);
         float worstdelz(0);      
         unsigned int iworst(0xC0FFEE);
 	//loop on the tracklets, find the chi^2 contribution from each tracklet
@@ -706,7 +664,7 @@ namespace Muon {
 	  if(blacklist[i]) continue;
 	  trkp[k].push_back(pAtVx[k][i]);
 	  float delz = zLoF - ExtrapZ[k][i];
-	  float ExtrapErr = std::sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
+	  float ExtrapErr = std::hypot(sigmaZ[k][i],dlength[k][i],dzLoF);
 	  float trkchi2 = sq(delz)/sq(ExtrapErr);
 	  if(trkchi2 > worstdelz) {
 	    iworst = i;
@@ -730,8 +688,8 @@ namespace Muon {
 	  //loop on the tracklets and find all that belong to the vertex
 	  for(unsigned int i=0; i<ExtrapZ[k].size(); ++i) {
 	    float delz = zLoF - ExtrapZ[k][i];
-	    float ExtrapErr = std::sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
-	    float trkErr = std::sqrt(sq(ExtrapErr)+sq(zpossigma)) + 0.001;
+	    float ExtrapErr = std::hypot(sigmaZ[k][i],dlength[k][i],dzLoF);
+	    float trkErr = std::hypot(ExtrapErr,zpossigma) + 0.001;
 	    float trkNsigma = std::abs(delz/trkErr);
 	    if(trkNsigma < 3) vxtracks.push_back(i);
 	  }
@@ -892,7 +850,8 @@ namespace Muon {
 
     std::vector<Tracklet> tracklets = getTracklets(trks, *prelim_vx_max);
     // use tracklets to estimate the line of flight of decaying particle
-    float aveX(0),aveY(0);
+    float aveX(0);
+    float aveY(0);
     for(std::vector<Tracklet>::iterator trkItr=tracklets.begin(); trkItr!=tracklets.end(); ++trkItr) {
       aveX += ((Tracklet)*trkItr).globalPosition().x();
       aveY += ((Tracklet)*trkItr).globalPosition().y();
@@ -901,14 +860,12 @@ namespace Muon {
     Amg::Vector3D MyVx = VxMinQuad(tracklets);
     float vxtheta = std::atan2(MyVx.x(),MyVx.z());
     float vxphi = vxPhiFinder(std::abs(vxtheta),tracklet_vxphi, ctx);
-      
     Amg::Vector3D vxpos(MyVx.x()*std::cos(vxphi),MyVx.x()*std::sin(vxphi),MyVx.z());
     std::vector<xAOD::TrackParticle*> vxTrkTracks; 
     for(std::vector<Tracklet>::iterator tracklet = tracklets.begin(); tracklet != tracklets.end(); tracklet++) {
 
       AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(((Tracklet)*tracklet).errorMatrix());
       Trk::Perigee* myPerigee = new Trk::Perigee(vxpos,((Tracklet)*tracklet).momentum(),0,vxpos,covariance);
-
       xAOD::TrackParticle* myTrack = new xAOD::TrackParticle();
 
       myTrack->makePrivateStore();
@@ -1137,10 +1094,23 @@ namespace Muon {
 
   
   //vertex phi location -- determined from the RPC/TGC hits
-  float MSVertexRecoTool::vxPhiFinder(float theta,float phi, const EventContext &ctx) const {
+  float MSVertexRecoTool::vxPhiFinder(const float theta, const float phi, const EventContext &ctx) const {
     float nmeas(0);
-    float sinphi(0),cosphi(0);
-    float eta = -1*std::log(std::tan(0.5*theta));
+    float sinphi(0);
+    float cosphi(0);
+    if (theta==0) {
+      ATH_MSG_WARNING("vxPhiFinder() called with theta="<<theta<<" and phi="<<phi<<", return 0");
+      return 0;
+    } else if (theta>M_PI) {
+      ATH_MSG_WARNING("vxPhiFinder() called with theta="<<std::setprecision(15)<<theta<<" and phi="<<phi<<", (theta>M_PI), return 0");
+      return 0;
+    }
+    float tanThetaHalf = std::tan(0.5*theta);
+    if (tanThetaHalf<=0) {
+      ATH_MSG_WARNING("vxPhiFinder() called with theta="<<std::setprecision(15)<<theta<<" and phi="<<phi<<", resulting in tan(0.5*theta)<=0, return 0");
+      return 0;
+    }
+    float eta = -std::log(tanThetaHalf);
     if(std::abs(eta) < 1.5) {
       SG::ReadHandle<Muon::RpcPrepDataContainer> rpcTES(m_rpcTESKey, ctx);
       if(!rpcTES.isValid()) {
@@ -1160,7 +1130,7 @@ namespace Muon {
 	    if(dphi > M_PI) dphi -= 2*M_PI;
 	    else if(dphi < -M_PI) dphi += 2*M_PI;
 	    float deta = eta - rpcEta;
-	    float DR = std::sqrt(sq(deta)+sq(dphi));
+	    float DR = std::hypot(deta,dphi);
 	    if(DR < 0.6) {
 	      nmeas++;
 	      sinphi += std::sin(rpcPhi);
@@ -1189,7 +1159,7 @@ namespace Muon {
 	    if(dphi > M_PI) dphi -= 2*M_PI;
 	    else if(dphi < -M_PI) dphi += 2*M_PI;
 	    float deta = eta - tgcEta;
-	    float DR = std::sqrt(sq(deta)+sq(dphi));
+	    float DR = std::hypot(deta,dphi);
 	    if(DR < 0.6) {
 	      nmeas++;
               sinphi += std::sin(tgcPhi);
@@ -1211,20 +1181,27 @@ namespace Muon {
   //count the hits (MDT, RPC & TGC) around the vertex
   void MSVertexRecoTool::HitCounter(MSVertex* MSRecoVx, const EventContext &ctx) const {
     int nHighOccupancy(0);
+    // Amg::Vector3D.eta() will crash via floating point exception if both x() and y() are zero (eta=inf)
+    // thus, check it manually here:
+    const Amg::Vector3D msVtxPos = MSRecoVx->getPosition();
+    if (msVtxPos.x()==0 && msVtxPos.y()==0 && msVtxPos.z()!=0) {
+      ATH_MSG_WARNING("given MSVertex has position x=y=0 and z!=0, eta() method will cause FPE, returning...");
+      return;
+    }
     SG::ReadHandle<Muon::MdtPrepDataContainer> mdtTES(m_mdtTESKey, ctx);
     if(!mdtTES.isValid()) ATH_MSG_ERROR( "Unable to retrieve the MDT hits" );
     //MDTs -- count the number around the vertex
     int nmdt(0);
     Muon::MdtPrepDataContainer::const_iterator MDTItr = mdtTES->begin();
     Muon::MdtPrepDataContainer::const_iterator MDTItrE = mdtTES->end();
-    for(; MDTItr != MDTItrE; ++MDTItr) {      
+    for(; MDTItr != MDTItrE; ++MDTItr) {
       if( (*MDTItr)->size() == 0) continue;      
       Muon::MdtPrepDataCollection::const_iterator mdt = (*MDTItr)->begin();
       Muon::MdtPrepDataCollection::const_iterator mdtE = (*MDTItr)->end();
       Amg::Vector3D ChamberCenter = (*mdt)->detectorElement()->center();
-      float deta = std::abs(MSRecoVx->getPosition().eta() - ChamberCenter.eta());
+      float deta = std::abs(msVtxPos.eta() - ChamberCenter.eta());
       if(deta > 0.6) continue;
-      float dphi = MSRecoVx->getPosition().phi() - ChamberCenter.phi();
+      float dphi = msVtxPos.phi() - ChamberCenter.phi();
       if(dphi > M_PI) dphi -= 2*M_PI;
       else if(dphi < -M_PI) dphi += 2*M_PI;
       if( std::abs(dphi) > 0.6 ) continue;
@@ -1258,11 +1235,11 @@ namespace Muon {
       for(; rpcItr != rpcItrE; ++rpcItr) {
         float rpcEta = (*rpcItr)->globalPosition().eta();
         float rpcPhi = (*rpcItr)->globalPosition().phi();
-        float dphi = MSRecoVx->getPosition().phi() - rpcPhi;
+        float dphi = msVtxPos.phi() - rpcPhi;
         if(dphi > M_PI) dphi -= 2*M_PI;
         else if(dphi < -M_PI) dphi += 2*M_PI;
-        float deta = MSRecoVx->getPosition().eta() - rpcEta;
-        float DR = std::sqrt(sq(deta)+sq(dphi));
+        float deta = msVtxPos.eta() - rpcEta;
+        float DR = std::hypot(deta,dphi);
         if(DR < 0.6) nrpc++;
         if(DR > 1.2) break;
       }
@@ -1279,11 +1256,11 @@ namespace Muon {
       for(; tgcItr != tgcItrE; ++tgcItr) {
         float tgcEta = (*tgcItr)->globalPosition().eta();
         float tgcPhi = (*tgcItr)->globalPosition().phi();
-        float dphi = MSRecoVx->getPosition().phi() - tgcPhi;
+        float dphi = msVtxPos.phi() - tgcPhi;
         if(dphi > M_PI) dphi -= 2*M_PI;
         else if(dphi < -M_PI) dphi += 2*M_PI;
-        float deta = MSRecoVx->getPosition().eta() - tgcEta;
-        float DR = std::sqrt(sq(deta)+sq(dphi));
+        float deta = msVtxPos.eta() - tgcEta;
+        float DR = std::hypot(deta,dphi);
         if(DR < 0.6) ntgc++;
         if(DR > 1.2) break;
       }

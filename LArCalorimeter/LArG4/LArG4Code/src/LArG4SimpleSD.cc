@@ -15,7 +15,7 @@
 #include "LArSimEvent/LArHitContainer.h"
 
 #include "G4RunManager.hh"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 #include "G4Step.hh"
 #ifdef DEBUG_IDENTIFIERS

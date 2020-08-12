@@ -46,6 +46,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( float, msOuterMatchChi2                 );
         DEFINE_ACCESSOR( float, meanDeltaADCCountsMDT            );		
         DEFINE_ACCESSOR( float, CaloLRLikelihood                 );		
+	DEFINE_ACCESSOR( float, CaloMuonScore                    );		
         DEFINE_ACCESSOR( float, FSR_CandidateEnergy              );		
         DEFINE_ACCESSOR( float, EnergyLoss                       );		
         DEFINE_ACCESSOR( float, ParamEnergyLoss                  );		

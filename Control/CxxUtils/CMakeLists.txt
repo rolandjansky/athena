@@ -72,6 +72,10 @@ atlas_add_test( bitscan_test_portable
    SOURCES test/bitscan_test.cxx
    LINK_LIBRARIES CxxUtils )
 
+atlas_add_test( ut_cxxutils_floatcompression_test
+   SOURCES test/ut_cxxutils_floatcompression_test.cxx
+   LINK_LIBRARIES CxxUtils )
+
 if( TARGET CxxUtils_bitscan_test_portable )
   target_compile_definitions(CxxUtils_bitscan_test_portable
     PRIVATE "-DTEST_PORTABLE" )
@@ -108,7 +112,7 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
       atomic_fetch_minmax_test
       MurmurHash2_test bitmask_test crc64_test Ring_test
       restrict_test vectorize_test get_unaligned_test aligned_vector_test
-      vec_test )
+      vec_int_test vec_float_test vec_fb_int_test vec_fb_float_test)
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LOG_IGNORE_PATTERN "no version information available"

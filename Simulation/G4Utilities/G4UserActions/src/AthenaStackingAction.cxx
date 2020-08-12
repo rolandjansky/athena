@@ -14,7 +14,7 @@
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 // Geant4 includes
 #include "G4Track.hh"
@@ -73,8 +73,8 @@ namespace G4UA
 
     // TODO: Why is this here? Can I remove it?
     G4Event* ev = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
-    EventInformation* eventInfo __attribute__ ((unused)) =
-      static_cast<EventInformation*> (ev->GetUserInformation());
+    AtlasG4EventUserInfo* atlasG4EvtUserInfo __attribute__ ((unused)) =
+      static_cast<AtlasG4EventUserInfo*> (ev->GetUserInformation());
 
     // Neutron Russian Roulette
     if (m_config.applyNRR && isNeutron(track) &&

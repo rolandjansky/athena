@@ -18,6 +18,14 @@ int MM_StripResponse::getNElectrons(){
 	return m_Electrons.size();
 }
 
+float MM_StripResponse::getTotalCharge(){
+	float qtot = 0;
+	for(const MM_Electron* electron : m_Electrons) {
+		qtot += electron->getCharge();
+	}
+	return qtot;
+}
+
 std::vector<MM_Electron*> MM_StripResponse::getElectrons(){
 	return m_Electrons;
 }

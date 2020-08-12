@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( AGDDHandlers )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/AGDD/AGDDControl
-                          DetectorDescription/AGDD/AGDDKernel
-                          PRIVATE
-                          DetectorDescription/AGDD/AGDDModel )
-
 # External dependencies:
 find_package( CLHEP )
 

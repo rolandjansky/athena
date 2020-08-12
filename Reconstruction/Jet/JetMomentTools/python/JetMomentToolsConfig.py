@@ -15,6 +15,8 @@ from JetRecTools import JetRecToolsConfig
 from JetRecTools.JetRecToolsConfig import trackcollectionmap
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+from xAODBase.xAODType import xAODType
+
 def getCaloQualityTool():
     caloqual = CompFactory.JetCaloQualityTool(
       "caloqual",
@@ -23,9 +25,28 @@ def getCaloQualityTool():
     )
     return caloqual
 
-def getConstitFourMomTool(jetdef):
-    # All this code needs to live in a JetMomentTools module
+def getEMScaleMomTool(jetdef):
+    # This may need updating e.g. for evolving trigger cluster container names
+    # We do the non-trivial summation over constituents unless the jets were
+    # built directly from EM-scale topoclusters, in which case we can just
+    # copy the constituent scale
+    useUncalibConstits = False
+    if jetdef.inputdef.basetype==xAODType.CaloCluster:
+        builtFromEMClusters = jetdef.inputdef.inputname in ["CaloCalTopoClusters","HLT_CaloTopoClustersFS"] and jetdef.inputdef.modifiers==["EM"]
+        useUncalibConstits = not builtFromEMClusters
+    elif jetdef.inputdef.basetype==xAODType.ParticleFlow:
+        useUncalibConstits = True
+    else:
+        raise ValueError("EM scale momentum not defined for input type {}".format(jetdef.inputdef.basetype))
 
+    emscalemom = CompFactory.JetEMScaleMomTool(
+        "emscalemom_{}".format(jetdef.basename),
+        UseUncalibConstits = useUncalibConstits
+    )
+
+    return emscalemom
+
+def getConstitFourMomTool(jetdef):
     ### Not ideal, but because CaloCluster.Scale is an internal class
     ### it makes the dict load really slow.
     ### So just copy the enum to a dict...
@@ -53,9 +74,14 @@ def getConstitFourMomTool(jetdef):
     cfourmom = CompFactory.JetConstitFourMomTool("constitfourmom_{0}".format(jetdef.basename))
     if "LCTopo" in jetdef.basename or "EMTopo" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]
-        cfourmom.AltConstitColls = ["CaloCalTopoClusters"]
-        cfourmom.AltConstitScales = [CaloClusterStates["CALIBRATED"]]
-        cfourmom.AltJetScales = [""]
+        if "HLT_" in jetdef.inputdef.inputname:
+            cfourmom.AltConstitColls = [""]
+            cfourmom.AltConstitScales = [0]
+            cfourmom.AltJetScales = ["JetConstitScaleMomentum"]
+        else:
+            cfourmom.AltConstitColls = ["CaloCalTopoClusters"]
+            cfourmom.AltConstitScales = [CaloClusterStates["CALIBRATED"]]
+            cfourmom.AltJetScales = [""]
     # Drop the LC-calibrated four-mom for EMTopo jets as we only wanted it as a possibility
     # in MET CST calculations but never used it
     elif "EMPFlow" in jetdef.basename:

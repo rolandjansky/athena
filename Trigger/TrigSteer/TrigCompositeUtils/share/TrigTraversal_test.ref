@@ -1,131 +1,304 @@
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r0)
-                                          running on lxplus713.cern.ch on Thu Aug  8 12:51:31 2019
+                                                   Welcome to ApplicationMgr  (GaudiCoreSvc v33r1)
+                                          running on pc-tbed-pub-21.cern.ch on Mon Aug  3 16:45:27 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-ClassIDSvc           INFO  getRegistryEntries: read 8743 CLIDRegistry entries for module ALL
-Context: s: 0  e: 0
-Current context: s: 0  e: 0
+ClassIDSvc           INFO  getRegistryEntries: read 5171 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
-1 paths for HLT_mufast_chain
-  Path 0[HLTPassRaw -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-2 paths for HLT_mu_chain
-  Path 0[HLTPassRaw -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 1[HLTPassRaw -> MU_H_2__MU1 F(pt:21) -> MU_IM_2__MU1 -> MU_F_2__MU1 -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-2 paths for HLT_mu_em_chain
-  Path 0[HLTPassRaw -> MUEM_CH_2__MU1 -> MUEM_H_2__MU1 F(pt:21) -> MUEM_IM_2__MU1 -> MUEM_F_2__MU1 -> MUEM_CH_1__MU1 -> MUEM_H_1__MU1 F(pt:20) -> MUEM_IM_1__MU1 -> MUEM_F_1__MU1 -> MU1]
-  Path 1[HLTPassRaw -> MUEM_CH_2__EM0 -> MUEM_H_2__EM0 F(pt:31) -> MUEM_IM_2__EM0 -> MUEM_F_2__EM0 -> MUEM_CH_1__EM0 -> MUEM_H_1__EM0 F(pt:30) -> MUEM_IM_1__EM0 -> MUEM_F_1__EM0 -> EM0]
-1 paths for HLT_em_chain
-  Path 0[HLTPassRaw -> EM_H_2__EM0 F(pt:31) -> EM_IM_2__EM0 -> EM_F_2__EM0 -> EM_H_1__EM0 F(pt:30) -> EM_IM_1__EM0 -> EM_F_1__EM0 -> EM0]
-5 paths for All
-  Path 0[HLTPassRaw -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 1[HLTPassRaw -> MU_H_2__MU1 F(pt:21) -> MU_IM_2__MU1 -> MU_F_2__MU1 -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 2[HLTPassRaw -> MUEM_CH_2__MU1 -> MUEM_H_2__MU1 F(pt:21) -> MUEM_IM_2__MU1 -> MUEM_F_2__MU1 -> MUEM_CH_1__MU1 -> MUEM_H_1__MU1 F(pt:20) -> MUEM_IM_1__MU1 -> MUEM_F_1__MU1 -> MU1]
-  Path 3[HLTPassRaw -> EM_H_2__EM0 F(pt:31) -> EM_IM_2__EM0 -> EM_F_2__EM0 -> EM_H_1__EM0 F(pt:30) -> EM_IM_1__EM0 -> EM_F_1__EM0 -> EM0]
-  Path 4[HLTPassRaw -> MUEM_CH_2__EM0 -> MUEM_H_2__EM0 F(pt:31) -> MUEM_IM_2__EM0 -> MUEM_F_2__EM0 -> MUEM_CH_1__EM0 -> MUEM_H_1__EM0 F(pt:30) -> MUEM_IM_1__EM0 -> MUEM_F_1__EM0 -> EM0]
-[All passing features] HLT_mufast_chain features size:1
+TrigTraversal        INFO HLT_mufast_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO HLT_mu_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #16 (MU_H_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #15 (MU_IM_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #14 (MU_F_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO HLT_mu_em_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #24 (MUEM_CH_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #23 (MUEM_H_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #22 (MUEM_IM_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #21 (MUEM_F_2__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #20 (MUEM_CH_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #19 (MUEM_H_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #18 (MUEM_IM_1__MU1)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #17 (MUEM_F_1__MU1)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #38 (MUEM_CH_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #37 (MUEM_H_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #36 (MUEM_IM_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #35 (MUEM_F_2__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #34 (MUEM_CH_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #33 (MUEM_H_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #32 (MUEM_IM_1__EM0)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #31 (MUEM_F_1__EM0)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO HLT_em_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #30 (EM_H_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #29 (EM_IM_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #28 (EM_F_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #27 (EM_H_1__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #26 (EM_IM_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #25 (EM_F_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO All
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #16 (MU_H_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #15 (MU_IM_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #14 (MU_F_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #24 (MUEM_CH_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #23 (MUEM_H_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #22 (MUEM_IM_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #21 (MUEM_F_2__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #20 (MUEM_CH_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #19 (MUEM_H_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #18 (MUEM_IM_1__MU1)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #17 (MUEM_F_1__MU1)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #30 (EM_H_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #29 (EM_IM_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #28 (EM_F_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #27 (EM_H_1__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #26 (EM_IM_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #25 (EM_F_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #38 (MUEM_CH_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #37 (MUEM_H_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #36 (MUEM_IM_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #35 (MUEM_F_2__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #34 (MUEM_CH_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #33 (MUEM_H_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #32 (MUEM_IM_1__EM0)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #31 (MUEM_F_1__EM0)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO [All passing features] HLT_mufast_chain features size:1
   Feature 0 pt:20, state:ACTIVE
-[All passing features] HLT_mu_chain features size:2
+
+TrigTraversal        INFO [All passing features] HLT_mu_chain features size:2
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
-[All passing features] HLT_mu_em_chain features size:4
+
+TrigTraversal        INFO [All passing features] HLT_mu_em_chain features size:4
   Feature 0 pt:21, state:ACTIVE
   Feature 1 pt:20, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
   Feature 3 pt:30, state:ACTIVE
-[All passing features] HLT_em_chain features size:2
+
+TrigTraversal        INFO [All passing features] HLT_em_chain features size:2
   Feature 0 pt:31, state:ACTIVE
   Feature 1 pt:30, state:ACTIVE
-[All passing features] All chains features size:4
+
+TrigTraversal        INFO [All passing features] All chains features size:4
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
   Feature 3 pt:30, state:ACTIVE
-[Final passing feature] HLT_mufast_chain features size:1
+
+TrigTraversal        INFO [Final passing feature] HLT_mufast_chain features size:1
   Feature 0 pt:20, state:ACTIVE
-[Final passing feature] HLT_mu_chain features size:2
+
+TrigTraversal        INFO [Final passing feature] HLT_mu_chain features size:2
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
-[Final passing feature] HLT_mu_em_chain features size:2
+
+TrigTraversal        INFO [Final passing feature] HLT_mu_em_chain features size:2
   Feature 0 pt:21, state:ACTIVE
   Feature 1 pt:31, state:ACTIVE
-[Final passing feature] HLT_em_chain features size:1
+
+TrigTraversal        INFO [Final passing feature] HLT_em_chain features size:1
   Feature 0 pt:31, state:ACTIVE
-[Final passing feature] All chains features size:3
+
+TrigTraversal        INFO [Final passing feature] All chains features size:3
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
+
  ---------- Now Include Failing Features 
-2 paths for HLT_mufast_chain
-  Path 0[HLTPassRaw -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 1[MU_H_1__MU0 F(pt:5) -> MU_IM_1__MU0 -> MU_F_1__MU0 -> MU0]
-3 paths for HLT_mu_chain
-  Path 0[HLTPassRaw -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 1[HLTPassRaw -> MU_H_2__MU1 F(pt:21) -> MU_IM_2__MU1 -> MU_F_2__MU1 -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 2[MU_H_1__MU0 F(pt:5) -> MU_IM_1__MU0 -> MU_F_1__MU0 -> MU0]
-3 paths for HLT_mu_em_chain
-  Path 0[HLTPassRaw -> MUEM_CH_2__MU1 -> MUEM_H_2__MU1 F(pt:21) -> MUEM_IM_2__MU1 -> MUEM_F_2__MU1 -> MUEM_CH_1__MU1 -> MUEM_H_1__MU1 F(pt:20) -> MUEM_IM_1__MU1 -> MUEM_F_1__MU1 -> MU1]
-  Path 1[HLTPassRaw -> MUEM_CH_2__EM0 -> MUEM_H_2__EM0 F(pt:31) -> MUEM_IM_2__EM0 -> MUEM_F_2__EM0 -> MUEM_CH_1__EM0 -> MUEM_H_1__EM0 F(pt:30) -> MUEM_IM_1__EM0 -> MUEM_F_1__EM0 -> EM0]
-  Path 2[MUEM_H_1__MU0 F(pt:5) -> MUEM_IM_1__MU0 -> MUEM_F_1__MU0 -> MU0]
-1 paths for HLT_em_chain
-  Path 0[HLTPassRaw -> EM_H_2__EM0 F(pt:31) -> EM_IM_2__EM0 -> EM_F_2__EM0 -> EM_H_1__EM0 F(pt:30) -> EM_IM_1__EM0 -> EM_F_1__EM0 -> EM0]
-7 paths for All
-  Path 0[HLTPassRaw -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 1[HLTPassRaw -> MU_H_2__MU1 F(pt:21) -> MU_IM_2__MU1 -> MU_F_2__MU1 -> MU_H_1__MU1 F(pt:20) -> MU_IM_1__MU1 -> MU_F_1__MU1 -> MU1]
-  Path 2[HLTPassRaw -> MUEM_CH_2__MU1 -> MUEM_H_2__MU1 F(pt:21) -> MUEM_IM_2__MU1 -> MUEM_F_2__MU1 -> MUEM_CH_1__MU1 -> MUEM_H_1__MU1 F(pt:20) -> MUEM_IM_1__MU1 -> MUEM_F_1__MU1 -> MU1]
-  Path 3[HLTPassRaw -> EM_H_2__EM0 F(pt:31) -> EM_IM_2__EM0 -> EM_F_2__EM0 -> EM_H_1__EM0 F(pt:30) -> EM_IM_1__EM0 -> EM_F_1__EM0 -> EM0]
-  Path 4[HLTPassRaw -> MUEM_CH_2__EM0 -> MUEM_H_2__EM0 F(pt:31) -> MUEM_IM_2__EM0 -> MUEM_F_2__EM0 -> MUEM_CH_1__EM0 -> MUEM_H_1__EM0 F(pt:30) -> MUEM_IM_1__EM0 -> MUEM_F_1__EM0 -> EM0]
-  Path 5[MU_H_1__MU0 F(pt:5) -> MU_IM_1__MU0 -> MU_F_1__MU0 -> MU0]
-  Path 6[MUEM_H_1__MU0 F(pt:5) -> MUEM_IM_1__MU0 -> MUEM_F_1__MU0 -> MU0]
-[All passing/failing features] HLT_mufast_chain features size:2
+TrigTraversal        INFO HLT_mufast_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #6 (MU_H_1__MU0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #5 (MU_IM_1__MU0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #4 (MU_F_1__MU0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
+TrigTraversal        INFO HLT_mu_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #16 (MU_H_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #15 (MU_IM_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #14 (MU_F_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #6 (MU_H_1__MU0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #5 (MU_IM_1__MU0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #4 (MU_F_1__MU0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
+TrigTraversal        INFO HLT_mu_em_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #24 (MUEM_CH_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #23 (MUEM_H_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #22 (MUEM_IM_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #21 (MUEM_F_2__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #20 (MUEM_CH_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #19 (MUEM_H_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #18 (MUEM_IM_1__MU1)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #17 (MUEM_F_1__MU1)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #38 (MUEM_CH_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #37 (MUEM_H_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #36 (MUEM_IM_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #35 (MUEM_F_2__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #34 (MUEM_CH_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #33 (MUEM_H_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #32 (MUEM_IM_1__EM0)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #31 (MUEM_F_1__EM0)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #9 (MUEM_H_1__MU0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #8 (MUEM_IM_1__MU0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #7 (MUEM_F_1__MU0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
+TrigTraversal        INFO HLT_em_chain
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #30 (EM_H_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #29 (EM_IM_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #28 (EM_F_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #27 (EM_H_1__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #26 (EM_IM_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #25 (EM_F_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO All
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #16 (MU_H_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #15 (MU_IM_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #14 (MU_F_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #12 (MU_IM_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #11 (MU_F_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #24 (MUEM_CH_2__MU1)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #23 (MUEM_H_2__MU1)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #22 (MUEM_IM_2__MU1)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #21 (MUEM_F_2__MU1)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #20 (MUEM_CH_1__MU1)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #19 (MUEM_H_1__MU1)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #18 (MUEM_IM_1__MU1)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #17 (MUEM_F_1__MU1)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #1 (MU1)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #30 (EM_H_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #29 (EM_IM_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #28 (EM_F_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #27 (EM_H_1__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #26 (EM_IM_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #25 (EM_F_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #38 (MUEM_CH_2__EM0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #37 (MUEM_H_2__EM0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #36 (MUEM_IM_2__EM0)
+TrigTraversal        INFO         |-> HLTNav_MyDecisionContainer #35 (MUEM_F_2__EM0)
+TrigTraversal        INFO           |-> HLTNav_MyDecisionContainer #34 (MUEM_CH_1__EM0)
+TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #33 (MUEM_H_1__EM0)
+TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #32 (MUEM_IM_1__EM0)
+TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #31 (MUEM_F_1__EM0)
+TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #2 (EM0)
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #6 (MU_H_1__MU0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #5 (MU_IM_1__MU0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #4 (MU_F_1__MU0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #9 (MUEM_H_1__MU0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #8 (MUEM_IM_1__MU0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #7 (MUEM_F_1__MU0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
+TrigTraversal        INFO [All passing/failing features] HLT_mufast_chain features size:2
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:5, state:INACTIVE
-[All passing/failing features] HLT_mu_chain features size:3
+
+TrigTraversal        INFO [All passing/failing features] HLT_mu_chain features size:3
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:5, state:INACTIVE
-[All passing/failing features] HLT_mu_em_chain features size:5
+
+TrigTraversal        INFO [All passing/failing features] HLT_mu_em_chain features size:5
   Feature 0 pt:21, state:ACTIVE
   Feature 1 pt:20, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
   Feature 3 pt:30, state:ACTIVE
   Feature 4 pt:5, state:INACTIVE
-[All passing/failing features] HLT_em_chain features size:2
+
+TrigTraversal        INFO [All passing/failing features] HLT_em_chain features size:2
   Feature 0 pt:31, state:ACTIVE
   Feature 1 pt:30, state:ACTIVE
-[All passing/failing features] All chains features size:5
+
+TrigTraversal        INFO [All passing/failing features] All chains features size:5
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
   Feature 3 pt:30, state:ACTIVE
   Feature 4 pt:5, state:ACTIVE
-[Final passing/failing feature] HLT_mufast_chain features size:2
+
+TrigTraversal        INFO [Final passing/failing feature] HLT_mufast_chain features size:2
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:5, state:INACTIVE
-[Final passing/failing feature] HLT_mu_chain features size:3
+
+TrigTraversal        INFO [Final passing/failing feature] HLT_mu_chain features size:3
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:5, state:INACTIVE
-[Final passing/failing feature] HLT_mu_em_chain features size:3
+
+TrigTraversal        INFO [Final passing/failing feature] HLT_mu_em_chain features size:3
   Feature 0 pt:21, state:ACTIVE
   Feature 1 pt:31, state:ACTIVE
   Feature 2 pt:5, state:INACTIVE
-[Final passing/failing feature] HLT_em_chain features size:1
+
+TrigTraversal        INFO [Final passing/failing feature] HLT_em_chain features size:1
   Feature 0 pt:31, state:ACTIVE
-[Final passing/failing feature] All chains features size:4
+
+TrigTraversal        INFO [Final passing/failing feature] All chains features size:4
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
   Feature 3 pt:5, state:ACTIVE
+
  ---------- Check Explicit Type 
-[Explicit Final Muon Features] HLT_mu_em_chain features size:2
+TrigTraversal        INFO [Explicit Final Muon Features] HLT_mu_em_chain features size:2
   Feature 0 pt:21, state:UNSET
   Feature 1 pt:5, state:UNSET
-[Explicit Final Electron Features] HLT_mu_em_chain features size:1
+
+TrigTraversal        INFO [Explicit Final Electron Features] HLT_mu_em_chain features size:1
   Feature 0 pt:31, state:UNSET

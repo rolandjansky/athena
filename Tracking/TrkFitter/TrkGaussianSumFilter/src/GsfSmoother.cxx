@@ -24,7 +24,6 @@ decription           : Implementation code for the class GsfSmoother
 #include "TrkSurfaces/Surface.h"
 
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
@@ -33,6 +32,7 @@ Trk::GsfSmoother::GsfSmoother(const std::string& type,
                               const std::string& name,
                               const IInterface* parent)
   : AthAlgTool(type, name, parent)
+  , m_updator{}
   , m_combineWithFitter(false)
 {
   declareInterface<IGsfSmoother>(this);
@@ -54,11 +54,9 @@ Trk::GsfSmoother::finalize()
 
 StatusCode
 Trk::GsfSmoother::configureTools(
-  const ToolHandle<IMultiStateExtrapolator>& extrapolator,
-  const ToolHandle<IMultiStateMeasurementUpdator>& measurementUpdator)
+  const ToolHandle<IMultiStateExtrapolator>& extrapolator)
 {
   m_extrapolator = extrapolator;
-  m_updator = measurementUpdator;
   ATH_MSG_INFO("Configuration of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
@@ -70,11 +68,6 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
                       const ParticleHypothesis particleHypothesis,
                       const Trk::CaloCluster_OnTrack* ccot) const
 {
-  // Check that extrapolator and updator are instansiated
-  if (!m_updator) {
-    ATH_MSG_ERROR("The measurement updator is not configured... Exiting!");
-    return nullptr;
-  }
   if (!m_extrapolator) {
     ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
     return nullptr;
@@ -160,7 +153,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
     return nullptr;
   }
   Trk::MultiComponentState firstSmoothedState =
-    m_updator->update(std::move(*smootherPredictionMultiState),
+    m_updator.update(std::move(*smootherPredictionMultiState),
                       *firstSmootherMeasurementOnTrack,
                       fitQuality);
 
@@ -211,7 +204,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
       firstSmoothedState, 15., 5., 15., 5., 15.);
 
   // Perform a measurement update on this new state
-  Trk::MultiComponentState updatedState = m_updator->update(
+  Trk::MultiComponentState updatedState = m_updator.update(
     std::move(*smoothedStateWithScaledError), *firstSmootherMeasurementOnTrack);
 
   if (updatedState.empty()) {
@@ -290,7 +283,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
 
     // Update newly extrapolated state with MeasurementBase measurement
     updatedState =
-      m_updator->update(std::move(extrapolatedState), *measurement, fitQuality);
+      m_updator.update(std::move(extrapolatedState), *measurement, fitQuality);
     if (updatedState.empty()) {
       ATH_MSG_WARNING(
         "Could not update the multi-component state... rejecting track!");
@@ -334,7 +327,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
         return nullptr;
       }
       const Trk::FitQualityOnSurface* combinedFitQuality =
-        m_updator->fitQuality(combinedState2, *measurement);
+        m_updator.fitQuality(combinedState2, *measurement);
       // In the case of combination with forwards state - push back the combined
       // state
       const Trk::MultiComponentStateOnSurface* combinedStateOnSurface =
@@ -536,7 +529,7 @@ Trk::GsfSmoother::addCCOT(const EventContext& ctx,
   // Update newly extrapolated state with MeasurementBase measurement
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
   Trk::MultiComponentState updatedState =
-    m_updator->update(std::move(extrapolatedState), *ccot, fitQuality);
+    m_updator.update(std::move(extrapolatedState), *ccot, fitQuality);
 
   if (updatedState.empty()) {
     ATH_MSG_DEBUG("Update of extrapolated state with CCOT failed .. now not "
@@ -587,7 +580,7 @@ Trk::GsfSmoother::addCCOT(const EventContext& ctx,
     MultiComponentStateCombiner::combine(extrapolatedState, true);
 
   const Trk::FitQualityOnSurface* combinedFitQuality =
-    m_updator->fitQuality(extrapolatedState, *ccot);
+    m_updator.fitQuality(extrapolatedState, *ccot);
 
   // Build a TSOS using the dummy measurement and combined state
   Trk::MultiComponentStateOnSurface* finalSOS =

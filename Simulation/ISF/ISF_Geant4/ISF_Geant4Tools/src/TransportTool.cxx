@@ -23,7 +23,7 @@
 #include "GaudiKernel/IThreadInitTool.h"
 
 #include "MCTruth/PrimaryParticleInformation.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 // HepMC classes
 #include "AtlasHepMC/GenParticle.h"
