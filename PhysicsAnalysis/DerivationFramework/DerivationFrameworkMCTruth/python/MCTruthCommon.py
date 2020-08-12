@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -165,7 +165,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
         # NB! This line works together with the next block. Some care is required here!
         # If we build groomed jets, the jet code will automatically build ungroomed jets, so no need to add them separately
         #Large R ungroomed jets
-        if objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+        if objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets") or objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthSoftDropBeta100Zcut10Jets"):
             from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
             addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets") and not hasattr(kernel,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20'):
@@ -173,6 +173,10 @@ def addTruthJets(kernel=None, decorationDressing=None):
         from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
                        algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthSoftDropBeta100Zcut10Jets") and not hasattr(kernel,'jetalgAntiKt10TruthSoftDropBeta100Zcut10'):
+        from DerivationFrameworkJetEtMiss.JetCommon import addSoftDropJets
+        addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed",
+                        algseq=kernel, outputGroup="SoftDrop", writeUngroomed=False)
     # That's all the jets!
 
 # Helper for scheduling the truth MET collection
@@ -516,10 +520,16 @@ def addLargeRJetD2(kernel=None):
     TruthD2Decorator= DerivationFramework__TruthD2Decorator("TruthD2Decorator",
                                                             JetContainerKey = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                                             DecorationName = "D2")
+
+    TruthD2Decorator_SD= DerivationFramework__TruthD2Decorator("TruthD2Decorator_SD",
+                                                               JetContainerKey = "AntiKt10TruthSoftDropBeta100Zcut10Jets",
+                                                               DecorationName = "D2")
+
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += TruthD2Decorator
+    ToolSvc += TruthD2Decorator_SD
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
-                                                          AugmentationTools = [TruthD2Decorator] )
+                                                          AugmentationTools = [TruthD2Decorator,TruthD2Decorator_SD] )
 
 
 def addTruthEnergyDensity(kernel=None):
@@ -624,4 +634,5 @@ def addTruth3ContentToSlimmerTool(slimmer):
     slimmer.ExtraVariables += [
         "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
+        "AntiKt10TruthSoftDropBeta100Zcut10Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
         "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.crossSection"]
