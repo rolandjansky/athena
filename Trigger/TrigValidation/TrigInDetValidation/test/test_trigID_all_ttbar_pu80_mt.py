@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu80
+# art-description: art job for all_ttbar_pu80_mt
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -56,7 +56,7 @@ rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon','electron','tau','bjet']
 rdo2aod.max_events = 2000 
 rdo2aod.threads = 1 # TODO: change to 4
-rdo2aod.concurrent_events = 4 # TODO: change to 4
+rdo2aod.concurrent_events = 4 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  
