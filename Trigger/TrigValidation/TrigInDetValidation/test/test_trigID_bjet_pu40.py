@@ -87,7 +87,7 @@ comp2.flag = 'EFbjet'
 test.check_steps.append(comp2)
 
 
-# CPU cost steps
+# CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
 test.check_steps.append(cpucost)
 
