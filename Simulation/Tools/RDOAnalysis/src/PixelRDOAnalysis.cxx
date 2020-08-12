@@ -578,7 +578,7 @@ StatusCode PixelRDOAnalysis::execute() {
   SG::ReadHandle<InDetSimDataCollection> simDataMapPixel (m_inputTruthKey);
   SG::ReadHandle<McEventCollection> mcEventCollection("TruthEvent");
   bool doTruthMatching = true;
-  const HepMC::GenEvent* hardScatterEvent;
+  const HepMC::GenEvent* hardScatterEvent(nullptr);
 
   if (mcEventCollection->size()==0){
     ATH_MSG_WARNING("Failed to retrieve a nonzero sized truth event collection, disabling truthMatching");
