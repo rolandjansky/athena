@@ -520,7 +520,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   m_h_globalZ = new TH1F("h_globalZ","h_globalZ; z [mm]",750,-3000.,3000.);
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalZ->GetName(), m_h_globalZ));
 
-  m_h_TruthMatchedRDOs = new TH1F("h_TruthMatchedPixelRDOs", "h_TruthMatchedPixelRDOs", 4, 1, 4);
+  m_h_TruthMatchedRDOs = new TH1F("h_TruthMatchedPixelRDOs", "h_TruthMatchedPixelRDOs", 4, 1, 5);
   TString truthMatchBinLables[4] = { "All RDOs", "Truth Matched", "HS Matched", "Unmatched" };
   for(unsigned int ibin = 1; ibin < 5; ibin++) {
     m_h_TruthMatchedRDOs->GetXaxis()->SetBinLabel(ibin, truthMatchBinLables[ibin-1]);
@@ -607,7 +607,7 @@ StatusCode PixelRDOAnalysis::execute() {
       
       for ( ; rdo_itr != rdo_end; ++rdo_itr ) {
         if(doTruthMatching){
-          m_h_TruthMatchedRDOs->Fill(1);
+          m_h_TruthMatchedRDOs->Fill(1.5);
           bool findMatch = false; 
           if(simDataMapPixel.isValid()){
             InDetSimDataCollection::const_iterator iter = (*simDataMapPixel).find((*rdo_itr)->identify());
@@ -621,14 +621,14 @@ StatusCode PixelRDOAnalysis::execute() {
 	              const HepMcParticleLink& particleLink = nextdeposit->first;
                 if(particleLink.isValid() && !findMatch){
                   const HepMC::GenParticle *genPart(particleLink.cptr());
-                  if(genPart->parent_event() == hardScatterEvent) m_h_TruthMatchedRDOs->Fill(3);
-                  m_h_TruthMatchedRDOs->Fill(2);
+                  if(genPart->parent_event() == hardScatterEvent) m_h_TruthMatchedRDOs->Fill(3.5);
+                  m_h_TruthMatchedRDOs->Fill(2.5);
                   findMatch = true;
                 }
               }
             }
           }
-          if(!findMatch) m_h_TruthMatchedRDOs->Fill(4);
+          if(!findMatch) m_h_TruthMatchedRDOs->Fill(4.5);
         }
         const Identifier rdoID((*rdo_itr)->identify());
         const unsigned int rdoWord((*rdo_itr)->getWord());
