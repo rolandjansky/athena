@@ -34,14 +34,8 @@ def setupMenu():
         #ATR-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),        
-        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),        
 
-        #ATR-20049
-        ChainProp(name='HLT_mu20_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        
-        # planned primary 'invm' needs to be tested
-        ChainProp(name='HLT_mu20_ivarmedium_mu4noL1_10invm70', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
- 
         #test chains
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup),
@@ -64,6 +58,9 @@ def setupMenu():
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6Comb_L12MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
+
+        # in planned primary as an option
+        ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup),
 
         # Additional intermediate thresholds for validation comparisons to match with Physics_pp_v7_primaries menu
         ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
