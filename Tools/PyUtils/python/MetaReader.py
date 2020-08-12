@@ -596,17 +596,18 @@ def _extract_fields_ef(value):
 def _extract_fields_triggermenu(interface, aux):
     L1Items = []
     HLTChains = []
-    import traceback
 
     try:
         interface.setStore( aux )
         if interface.size() > 0:
+            # We make the assumption that the first stored SMK is
+            # representative of all events in the input collection.
             firstMenu = interface.at(0)
-            L1Items = [ item for item in firstMenu.itemNames()]
-            HLTChains = [ chain for chain in firstMenu.chainNames()]
-    except:
-        msg.warn('Problem reading xAOD::TriggerMenu, traceback follows:')
-        msg.warn(traceback.format_exc())
+            L1Items = [ item for item in firstMenu.itemNames() ]
+            HLTChains = [ chain for chain in firstMenu.chainNames() ]
+    except Exception as err:
+        msg.warn('Problem reading xAOD::TriggerMenu:')
+        msg.warn(err)
 
     result = {}
     result['L1Items'] = L1Items
