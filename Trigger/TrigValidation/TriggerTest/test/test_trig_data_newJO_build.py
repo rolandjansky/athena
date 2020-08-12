@@ -46,7 +46,7 @@ test.check_steps = [check_log]
 
 # Change RegTest pattern
 #regtest = test.get_step('RegTest')
-#regtest.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
+#regtest.regex = r'TrigSignatureMoniMT\s*INFO\sHLT_.*|TrigSignatureMoniMT\s*INFO\s-- #[0-9]+ (Events|Features).*'
 
 import sys
 sys.exit(test.run())
