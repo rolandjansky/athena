@@ -120,11 +120,12 @@
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 , m_afpHitContainerKey("AFPSiHitContainer")
-, m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
-
+//, m_bunchCrossingCondTool("BunchCrossingCondData")
+, m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
 {
 	declareProperty( "AFPSiHitContainer", m_afpHitContainerKey );
-	declareProperty("BunchCrossingTool", m_bunchCrossingTool);
+	declareProperty("BCTool", m_bcTool);
+	//declareProperty("BunchCrossingCondData", m_bunchCrossingCondTool);
 }
 
 
@@ -141,6 +142,9 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
 	ATH_CHECK(m_afpHitContainerKey.initialize());
 	
+	//SG::ReadHandleKey<BunchCrossingCondData> bunchCrossingCondTool("bcidCondTool");
+	//ATH_CHECK(m_bunchCrossingCondTool.initialize());
+	
 	for(int a=0; a<1000; a++)
 	{
 		for(int b=0;b<4;b++)
@@ -151,30 +155,41 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 			}
 		}
 	}
-	
-	StatusCode sc = m_bunchCrossingTool.retrieve();
+	/*
+	StatusCode sc = m_bunchCrossingCondTool.retrieve();
 	if(sc.isFailure())
 	{
-		ATH_MSG_WARNING("\n\n\t\tUnable to retrieve bunchCrossingTool.\n\n");
+		ATH_MSG_WARNING("\n\n\t\tUnable to retrieve m_bunchCrossingCondTool.\n\n");
 	}
 	else
 	{
 		ATH_MSG_WARNING("\n\n\t\tRetrieve works!!!.\n\n");
-		
-	for(int i=1; i<=3654; i++)
-	{
-		if (m_bunchCrossingTool->isFilled(i))
-		{
-			std::cout << "\tFilled: " << i << std::endl;
-		}
-		else
-		{
-			std::cout << "\tNOT filled: " << i << std::endl;
-		}
 	}
+	*/
+	//ATH_CHECK(m_bunchCrossingKey.initialize());
+	ATH_MSG_INFO("Initializing...");
+	CHECK(m_bcTool.retrieve());
+	ATH_MSG_INFO("Retrieved the bunch crossing tool.");
+	return AthMonitorAlgorithm::initialize();
+}
+
+StatusCode AFPSiLayerAlgorithm::execute(const EventContext& ctx) const {
+	using namespace Monitored;
+	
+
+	
+	
+	//std::cout << "\n\t\t MAX_BCID: " << m_bunchCrossingCondTool.m_MAX_BCID;
+		
+	//std::cout << "\n\tNumber of filled bunches: " << m_bunchCrossingCondTool.numberOfFilledBunches() << "\n";	
+	//std::cout << "\tNumber of bunch trains: " << m_bunchCrossingCondTool.numberOfBunchTrains() << "\n";
+	unsigned int bcid_type = GetEventInfo(ctx)->bcid();
+	if(m_bcTool->isFilled(bcid_type))
+	{
+		std::cout << "Bunch is filled: " << bcid_type << " \n";
 	}
 
-	return AthMonitorAlgorithm::initialize();
+	return StatusCode::SUCCESS;
 }
 
 
@@ -222,6 +237,42 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	muPerBCID = lbAverageInteractionsPerCrossing(ctx);
 	//run = GetEventInfo(ctx)->runNumber();
 	fill("AFPSiLayerTool", lb, muPerBCID);
+	
+	//////////////
+	/*
+	unsigned int bcid_type = GetEventInfo(ctx)->bcid();
+	
+	SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
+	if (!bcidHdl.isValid()) 
+	{
+		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+		return StatusCode::FAILURE;
+	}
+	else
+	{
+		ATH_MSG_WARNING("\n\n\t\tRetrieve works!!!.\n\n");
+	}
+	
+	const BunchCrossingCondData* bcData{*bcidHdl};
+	//bcData->isFilled(bcid_type)
+	int maxbcid = {bcData->m_MAX_BCID};
+	
+	std::cout << "\n\n\tMAX_BCID: " << maxbcid << std::endl;
+	std::cout << "\nThis is for the testing purposes.";
+	std::cout << "\n\n\tNumber of bunch trains: " << bcData->numberOfBunchTrains() << std::endl;
+	std::cout << "\n\n\tNumber of filled bunches: " << bcData->numberOfFilledBunches() << std::endl;
+	
+	if (bcData->isFilled(bcid_type))
+	{
+		std::cout << "\tFilled: " << bcid_type << std::endl;
+	}
+	else
+	{
+		std::cout << "\tNOT filled: " << bcid_type << std::endl;
+	}
+	*/
+	//////////////////
+
 
 	++counterForEvents;		// Counter for the all BCIDs
 	++counterForEventsStation;
@@ -229,8 +280,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	int tempbcid = GetEventInfo(ctx)->bcid();
 
 	// IMPORTANT PART
+	/*
 	EventID::number_type specialBCID = GetEventInfo(ctx)->bcid();
-	if (m_bunchCrossingTool->isFilled(specialBCID))
+	if (m_bunchCrossingCondTool->isFilled(specialBCID))
 	{
 		std::cout << "\tFilled: " << specialBCID << std::endl;
 	}
@@ -238,6 +290,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 		std::cout << "\tNOT filled: " << specialBCID << std::endl;
 	}
+	*/
 	// END OF IMPORTANT PART
 	
 	if(isInList(tempbcid, frontBCIDs) == true)
@@ -275,6 +328,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 	for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
 	{
+				
 		lb = GetEventInfo(ctx)->lumiBlock();
 		pixelRowIDChip = hitsItr->pixelRowIDChip();
 		pixelColIDChip = hitsItr->pixelColIDChip();
@@ -315,7 +369,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			}
 			else
 			{
-				clustersPerPlane2 = -99;
+				clustersPerPlane2 = -0.1;
 			}
 			//std::cout <<"\t"<< clustersPerPlane2 << std::endl;
 			fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane2);
@@ -347,7 +401,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 					}
 					else
 					{
-						clustersPerPlane = -99;
+						clustersPerPlane = -0.1;
 					}
 					fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane);
 				}
@@ -392,7 +446,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 				clustersPerStation = clusterCounterStation[previouslbStation][i]*1.0;
 				if(muPerBCID != 0)
 				{clustersPerStation = clustersPerStation/(muPerBCID*counterForEventsStation*4);}
-				else{clustersPerStation = -99;}
+				else{clustersPerStation = -0.1;}
 
 				fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStation);
 			}
@@ -423,7 +477,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 					{
 						clustersPerStationFront = clustersPerStationFront/(muPerBCID*counterForEventsStationFront*4);
 					}
-					else{clustersPerStationFront = -99;}
+					else{clustersPerStationFront = -0.1;}
 					
 					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationFront);
 				}
@@ -457,7 +511,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 					{
 						clustersPerStationEnd = clustersPerStationEnd/(muPerBCID*counterForEventsStationEnd*4);
 					}
-					else{clustersPerStationEnd = -99;}
+					else{clustersPerStationEnd = -0.1;}
 				
 					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationEnd);
 				}
@@ -490,7 +544,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 					{
 						clustersPerStationMiddle = clustersPerStationMiddle/(muPerBCID*counterForEventsStationMiddle*4);
 					}
-					else{clustersPerStationMiddle = -99;}
+					else{clustersPerStationMiddle = -0.1;}
 					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationMiddle);
 				}
 				previouslbStationMiddle=lb;
@@ -530,7 +584,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 						}
 						else
 						{
-							clustersPerPlaneFront = -99;
+							clustersPerPlaneFront = -0.1;
 						}
 						//std::cout << "\tFILL FRONT" << std::endl;
 						//std::cout << "clustersPerPlaneFront (it was zero on cernbox): " << clustersPerPlaneFront << std::endl;
@@ -580,7 +634,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 						}
 						else
 						{
-							clustersPerPlaneEnd = -99;
+							clustersPerPlaneEnd = -0.1;
 						}
 						//std::cout << "\tFILL END" << std::endl;
 						//std::cout << "clustersPerPlaneEnd (it was zero on cernbox): " << clustersPerPlaneEnd << std::endl;
@@ -630,7 +684,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 						}
 						else
 						{
-							clustersPerPlaneMiddle = -99;
+							clustersPerPlaneMiddle = -0.1;
 						}
 						//std::cout << "\tFILL Middle" << std::endl;
 						//std::cout << "clustersPerPlaneMiddle (it was zero on cernbox): " << clustersPerPlaneMiddle << std::endl;

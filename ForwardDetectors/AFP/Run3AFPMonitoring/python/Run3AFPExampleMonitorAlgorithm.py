@@ -3,10 +3,8 @@
 #
 
 '''@file Run3AFPExampleMonitorAlgorithm.py
-@author C. D. Burton
-@author P. Onyisi
-@date 2018-01-11
-@brief Example python configuration for the Run III AthenaMonitoring package
+@author N. Dikic
+@date 2020-08-12
 '''
 
 def Run3AFPExampleMonitoringConfig(inputFlags):
@@ -92,8 +90,8 @@ if __name__=='__main__':
 
     #ConfigFlags.Input.Files = [nightly+file]
     #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod4.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod4.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_6/aod0.pool.root']
-    #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000002.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
-    ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/tzero/prod/data17_13TeV/physics_Main/00337176/data17_13TeV.00337176.physics_Main.recon.AOD.f871/data17_13TeV.00337176.physics_Main.recon.AOD.f871._lb0142._0006.1']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000002.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
+    #ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/tzero/prod/data17_13TeV/physics_Main/00337176/data17_13TeV.00337176.physics_Main.recon.AOD.f871/data17_13TeV.00337176.physics_Main.recon.AOD.f871._lb0142._0006.1']
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'AFPOutput46.root'
     
@@ -104,7 +102,7 @@ if __name__=='__main__':
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-
+    
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
 

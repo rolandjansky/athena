@@ -29,7 +29,8 @@ private:
 	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
 	std::map<std::string,int> m_TrackGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
-	SG::ReadCondHandleKey<BunchCrossingCondData>  m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
+	ToolHandle<Trig::IBunchCrossingTool> m_bcTool;
+	//SG::ReadCondHandleKey<BunchCrossingCondData>  m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
 	//BunchCrossingCondData m_bunchCrossingCondTool;
 	
 	//SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingCondTool {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
