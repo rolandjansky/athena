@@ -1251,9 +1251,8 @@ void ZDCPulseAnalyzer::DoFitCombined()
 
   double fitAmp = theFitter->GetParameter(1);
 
-  // Here we need to check if fitAmp == fitAmpMin.
-  // Instead of testing for equality of two float,
-  // use "< 1+epsilon" where epsilon ~ 1%
+  // Here we need to check if fitAmp is small (close) enough to fitAmpMin.
+  // with "< 1+epsilon" where epsilon ~ 1%
   if (status || fitAmp < fitAmpMin * 1.01) {
 
     // We first retry the fit with no baseline adjust
@@ -1261,9 +1260,8 @@ void ZDCPulseAnalyzer::DoFitCombined()
     theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -100, 100);
     theFitter->FixParameter(0);
 
-    // Here we need to check if fitAmp == fitAmpMin.
-    // Instead of testing for equality of two float,
-    // use "< 1+epsilon" where epsilon ~ 1%
+    // Here we need to check if fitAmp is small (close) enough to fitAmpMin.
+    // with "< 1+epsilon" where epsilon ~ 1%
     if (fitAmp < fitAmpMin * 1.01) {
       if (m_adjTimeRangeEvent) {
         float fitTReference = m_deltaTSample * m_usedPresampIdx;
@@ -1305,9 +1303,8 @@ void ZDCPulseAnalyzer::DoFitCombined()
   //
   fitAmp = theFitter->GetParameter(1);
 
-  // Here we need to check if fitAmp == fitAmpMin.
-  // Instead of testing for equality of two float,
-  // use "< 1+epsilon" where epsilon ~ 1%
+  // Here we need to check if fitAmp is small (close) enough to fitAmpMin.
+  // with "< 1+epsilon" where epsilon ~ 1%
   if (fitAmp < fitAmpMin * 1.01) {
     m_fitMinAmp = true;
   }

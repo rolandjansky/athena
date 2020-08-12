@@ -29,7 +29,7 @@
 
 #include "CountBits.C"
 
-int ZDCTreeAnalysis::mDebugLevel = 5;
+int ZDCTreeAnalysis::m_DebugLevel = 5;
 
 template <typename T> T Sqr(const T& inT) {return inT * inT;}
 
@@ -266,7 +266,7 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
             }
         }
 
-        if (_outputplot) {
+        if (doSavePlot) {
             if (!saveEvent) {
                 continue;
             }
@@ -302,7 +302,7 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
             }
         }
 
-        if (_outputplot) {
+        if (doSavePlot) {
             if (saveEvent) {
                 index++;
                 eventIndex = jentry;
@@ -345,26 +345,26 @@ void ZDCTreeAnalysis::DoAnalysis()
     for (size_t side : {0, 1}) {
         for (size_t module : {0, 1, 2, 3}) {
 
-            int zdcrawOffsetmodule = (side * 4 + module) * _zdcrawModuleSize;
+            int zdcrawOffsetmodule = (side * 4 + module) * m_zdcrawModuleSize;
 
-            static std::vector<float> HGADCSamples(_nSample);
-            static std::vector<float> LGADCSamples(_nSample);
+            static std::vector<float> HGADCSamples(m_nSample);
+            static std::vector<float> LGADCSamples(m_nSample);
 
             int zdcrawLGOffset = zdcrawOffsetmodule;
-            int zdcrawHGOffset = zdcrawLGOffset + 2 * _nSample;
+            int zdcrawHGOffset = zdcrawLGOffset + 2 * m_nSample;
 
-            std::copy(zdc_raw + zdcrawLGOffset, zdc_raw + zdcrawLGOffset + _nSample,  LGADCSamples.begin());
-            std::copy(zdc_raw + zdcrawHGOffset, zdc_raw + zdcrawHGOffset + _nSample,  HGADCSamples.begin());
+            std::copy(zdc_raw + zdcrawLGOffset, zdc_raw + zdcrawLGOffset + m_nSample,  LGADCSamples.begin());
+            std::copy(zdc_raw + zdcrawHGOffset, zdc_raw + zdcrawHGOffset + m_nSample,  HGADCSamples.begin());
 
-            if (_useDelayed) {
-                static std::vector<float> HGADCSamplesDelay(_nSample);
-                static std::vector<float> LGADCSamplesDelay(_nSample);
+            if (m_useDelayed) {
+                static std::vector<float> HGADCSamplesDelay(m_nSample);
+                static std::vector<float> LGADCSamplesDelay(m_nSample);
 
-                int zdcrawLGOffset = zdcrawOffsetmodule + _nSample;
-                int zdcrawHGOffset = zdcrawLGOffset + 2 * _nSample;
+                int zdcrawLGOffset = zdcrawOffsetmodule + m_nSample;
+                int zdcrawHGOffset = zdcrawLGOffset + 2 * m_nSample;
 
-                std::copy(zdc_raw + zdcrawLGOffset, zdc_raw + zdcrawLGOffset + _nSample,  LGADCSamplesDelay.begin());
-                std::copy(zdc_raw + zdcrawHGOffset, zdc_raw + zdcrawHGOffset + _nSample,  HGADCSamplesDelay.begin());
+                std::copy(zdc_raw + zdcrawLGOffset, zdc_raw + zdcrawLGOffset + m_nSample,  LGADCSamplesDelay.begin());
+                std::copy(zdc_raw + zdcrawHGOffset, zdc_raw + zdcrawHGOffset + m_nSample,  HGADCSamplesDelay.begin());
 
                 m_dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples, HGADCSamplesDelay, LGADCSamplesDelay);
             }
@@ -373,7 +373,7 @@ void ZDCTreeAnalysis::DoAnalysis()
                 //
                 m_dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples);
             }
-            if (mDebugLevel <= 3) m_dataAnalyzer_p->GetPulseAnalyzer(side, module)->Dump();
+            if (m_DebugLevel <= 3) m_dataAnalyzer_p->GetPulseAnalyzer(side, module)->Dump();
         }
     }
 
@@ -566,7 +566,7 @@ void ZDCTreeAnalysis::PlotFits(int side)
         std::cout << "Side " << side << ", module " << module << ", pulseAana_p = " << (unsigned long) pulseAna_p << ", status = " << status << std::endl;
 
 
-        if (!_useDelayed) {
+        if (!m_useDelayed) {
             gStyle->SetOptTitle(0);
             TGraphErrors* graph_p = pulseAna_p->GetGraph();
             float maxADC = pulseAna_p->GetMaxADC();
@@ -641,7 +641,7 @@ void ZDCTreeAnalysis::PlotFits(int side)
     plotCanvases[side]->Modified();
     plotCanvases[side]->Update();
 
-    if (_outputplot) {
+    if (doSavePlot) {
         char name[600];
         sprintf(name, "events/%.3d_event%.4d.png", index, eventIndex);
         plotCanvases[side]->SaveAs(name);

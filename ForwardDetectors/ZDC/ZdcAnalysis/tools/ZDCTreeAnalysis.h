@@ -29,26 +29,11 @@
 #include <memory>
 
 #include "ZdcAnalysis/ZDCDataAnalyzer.h"
-#include "ZdcAnalysis/ZDCMsg.h"
 
 class ZDCTreeAnalysis {
 public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
-
-  // Processing state members
-  //
-  bool m_inLoop;
-  int  m_currentEntry;
-  unsigned int m_runNumber;
-
-  bool m_haveEntryList;
-  TEntryList* m_entryList;
-  unsigned int m_currentSelected;
-
-  TFile* m_OutTFile;
-  TTree* m_OutTree;
-  bool m_DoOutput;
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -162,43 +147,57 @@ public :
   float  zdc_sumTruthEnergy[2][4];
   float  zdc_sumTruthEnergyGap[2][4];
 
+
+
+  int  nSave      = 0;
+  int  index      = 0;
+  int  eventIndex = 0;
+  bool doSavePlot = false;
+
+private:
   // The object responsible for the actual analysis
   //
   ZDCDataAnalyzer* m_dataAnalyzer_p;
 
   float m_fitTMax = 0;
 
-  int  nSave       = 0;
-  int  index       = 0;
-  int  eventIndex  = 0;
-  bool _outputplot = false;
+  // Processing state members
+  //
+  bool m_inLoop;
+  unsigned m_currentEntry;
+  unsigned m_runNumber;
 
-private:
+  bool m_haveEntryList;
+  TEntryList* m_entryList;
+  unsigned m_currentSelected;
+
+  TFile* m_OutTFile;
+  TTree* m_OutTree;
+  bool   m_DoOutput;
+
   // Critical construction parameters
   //
-  int   _nSample;
-  float _deltaTSample;
-  int   _preSampleIdx;
+  int   m_nSample;
+  float m_deltaTSample;
+  int   m_preSampleIdx;
 
-  std::string _fitFunction;
-
-  static int mDebugLevel;
+  static int m_DebugLevel;
 
   bool saveEvent  = false;
   bool mcBranches = false;
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinSamples;
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinThresholdsHG;
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinThresholdsLG;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinSamples;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsHG;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsLG;
 
-  // Use delayed samples?
+  // Use delayed samples
   //
-  bool _useDelayed;
-  float _delayDeltaT;
+  bool m_useDelayed;
+  float m_delayDeltaT;
 
   // Members that help with indexing into the zdc_raw array
   //
-  const int _zdcrawModuleSize;
+  const int m_zdcrawModuleSize;
 
   // Cut quantities
   //
@@ -221,7 +220,7 @@ private:
   float m_ModECalib[2][4];
 
   bool m_HaveLBDepECalib[2][4];
-  TSpline* _modECalibLB[2][4];
+  TSpline* m_modECalibLB[2][4];
 
   // Allow per-module Tau1, tau2 settings
   //
@@ -233,8 +232,8 @@ private:
   float m_ModuleT0LG[2][4];
   float m_ModuleT0HG[2][4];
 
-  std::array<std::array<float, 4>, 2> _moduleHGGains;
-  std::array<std::array<std::vector<float>, 4>, 2> _moduleHGNonLinCorr;
+  std::array<std::array<float, 4>, 2> m_moduleHGGains;
+  std::array<std::array<std::vector<float>, 4>, 2> m_moduleHGNonLinCorr;
 
   //  Time slewing corrections
   //
@@ -243,7 +242,7 @@ private:
 
   // Bunch information
   //
-  std::vector<std::set<int> > _trains;
+  std::vector<std::set<int> > m_trains;
   std::vector<int> m_BCIDGap;
   std::vector<int> m_BCIDPosInTrain;
 
@@ -267,13 +266,13 @@ public:
 
   void EnableDelayed(float deltaT, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
-    _useDelayed = true;
+    m_useDelayed = true;
     m_dataAnalyzer_p->EnableDelayed(deltaT, undelayedDelayedPedestalDiff);
   }
 
   void EnableDelayed(const ZDCDataAnalyzer::ZDCModuleFloatArray& delayDeltaTArray, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
-    _useDelayed = true;
+    m_useDelayed = true;
     m_dataAnalyzer_p->EnableDelayed(delayDeltaTArray, undelayedDelayedPedestalDiff);
   }
 
@@ -307,7 +306,7 @@ public:
 
   static void SetDebugLevel(int debugLevel = 0)
   {
-    mDebugLevel = debugLevel;
+    m_DebugLevel = debugLevel;
   }
 
   static bool msgFunction(unsigned int level, std::string message)
@@ -317,7 +316,7 @@ public:
       throw;
     }
 
-    if (level >= (unsigned int) mDebugLevel) {
+    if (level >= (unsigned int) m_DebugLevel) {
       if (message != "") std::cout << message << std::endl;
       return true;
     }
@@ -364,10 +363,10 @@ public:
 
   void SetFitTimeMax (float tmax) {m_fitTMax = tmax; m_dataAnalyzer_p->SetFitTimeMax(tmax);}
   void SetSaveFitFunc(bool  save) {m_dataAnalyzer_p->SetSaveFitFunc(save);}
-  void OutputPlot(bool x = false, int y = 0) {_outputplot = x; nSave = y;}
+  void OutputPlot(bool x = false, int y = 0) {doSavePlot = x; nSave = y;}
 
   void Dump_setting() {
-    if (mDebugLevel < 4) {
+    if (m_DebugLevel < 4) {
       std::cout << "========================================================================================================================" << std::endl;
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 4; j++) {
@@ -426,14 +425,14 @@ ZDCTreeAnalysis::ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int 
                                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
                                  bool forceLG) :
   fChain(0), m_OutTFile(0), m_OutTree(0),
-  _nSample(nSample), _deltaTSample(deltaT),  _preSampleIdx(preSamplIdx),
-  _peak2ndDerivMinSamples(peak2ndDerivMinSamples),
-  _peak2ndDerivMinThresholdsHG(peak2ndDerivMinThresholdsHG),
-  _peak2ndDerivMinThresholdsLG(peak2ndDerivMinThresholdsLG),
-  _useDelayed(false),
+  m_nSample(nSample), m_deltaTSample(deltaT),  m_preSampleIdx(preSamplIdx),
+  m_peak2ndDerivMinSamples(peak2ndDerivMinSamples),
+  m_peak2ndDerivMinThresholdsHG(peak2ndDerivMinThresholdsHG),
+  m_peak2ndDerivMinThresholdsLG(peak2ndDerivMinThresholdsLG),
+  m_useDelayed(false),
   m_DoOutput(false), m_currentEntry(-1), m_inLoop(false),
   m_haveCalibrations(false),
-  _zdcrawModuleSize(_nSample * 2 * 2) // High/low gain x delayed/undelayed x # samples
+  m_zdcrawModuleSize(m_nSample * 2 * 2) // High/low gain x delayed/undelayed x # samples
 {
 
   // Open the fiel, extract and initialize the tree
@@ -453,9 +452,9 @@ ZDCTreeAnalysis::ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int 
 
   ZDCMsg::MessageFunctionPtr msgPtr(new ZDCMsg::MessageFunction(msgFunction));
 
-  m_dataAnalyzer_p = new ZDCDataAnalyzer(msgPtr, _nSample, _deltaTSample, _preSampleIdx, fitFunction,
-                                         _peak2ndDerivMinSamples,
-                                         _peak2ndDerivMinThresholdsHG, _peak2ndDerivMinThresholdsLG,
+  m_dataAnalyzer_p = new ZDCDataAnalyzer(msgPtr, m_nSample, m_deltaTSample, m_preSampleIdx, fitFunction,
+                                         m_peak2ndDerivMinSamples,
+                                         m_peak2ndDerivMinThresholdsHG, m_peak2ndDerivMinThresholdsLG,
                                          forceLG);
 }
 
@@ -504,7 +503,7 @@ void ZDCTreeAnalysis::Init(TChain *i_chain)
   fChain = i_chain;
   fCurrent = -1;
 
-  int zdcRawSize = 2 * 4 * 2 * 2 * _nSample;
+  int zdcRawSize = 2 * 4 * 2 * 2 * m_nSample;
   zdc_raw = new UShort_t[zdcRawSize];
 
   fChain->SetBranchAddress("runNumber"  , &runNumber  );

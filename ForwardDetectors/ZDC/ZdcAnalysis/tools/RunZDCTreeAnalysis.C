@@ -8,24 +8,23 @@
 
 #include "TChain.h"
 #include "TString.h"
-#include "ZdcAnalysis/ZDCMsg.h"
 #include "TStopwatch.h"
 
-std::string m_CalibFile = "";
-bool m_DoECalib = false;
-bool m_DoTCalib = false;
+std::string calibFile = "";
+bool doECalib = false;
+bool doTCalib = false;
 
-void EnableCalibrations(std::string file, bool doECalib, bool doTCalib)
+void EnableCalibrations(std::string file, bool input_ECalib, bool input_TCalib)
 {
-    if (doECalib || doTCalib) {
-        m_CalibFile = file;
-        m_DoTCalib = doTCalib;
-        m_DoECalib = doECalib;
+    if (input_ECalib || input_TCalib) {
+        calibFile = file;
+        doECalib = input_ECalib;
+        doTCalib = input_TCalib;
     }
     else {
-        m_CalibFile = "";
-        m_DoTCalib = false;
-        m_DoECalib = false;
+        calibFile = "";
+        doECalib = false;
+        doTCalib = false;
     }
 }
 
@@ -323,7 +322,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
 
     ana->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
 
-    if (m_DoECalib || m_DoTCalib) LoadCalibrations(ana, m_CalibFile, runNumber, m_DoECalib, m_DoTCalib);
+    if (doECalib || doTCalib) LoadCalibrations(ana, calibFile, runNumber, doECalib, doTCalib);
 
     return ana;
 }
