@@ -109,6 +109,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_nod0_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiPhotonGroup),        
 
         # Primary
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
@@ -229,10 +230,17 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_track_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau0_perf_ptonly_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau80_medium1_tracktwo_L1TAU60",groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_tracktwo_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_perf_tracktwo_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_perf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_medium1_tracktwo_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau200_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
+        
+        
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
@@ -245,9 +253,6 @@ def setupMenu():
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
         # groups need to be properly assigned here later
-
-        # Test chain that was using parallel merging with different number of steps, now serial merged with new menu
-        ChainProp(name='HLT_e3_etcut1step_mu26_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         # Primary e-mu chains
         ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
@@ -301,3 +306,4 @@ def setupMenu():
 
 
 Prescales = mc_menu.Prescales
+

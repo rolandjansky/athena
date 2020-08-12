@@ -95,18 +95,18 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // Build the cluster sequence
   fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
   fastjet::ClusterSequence *clSequence = nullptr;
-  bool useArea = m_ghostarea <= 0 ;
+  bool useArea = m_ghostarea > 0 ;
   if ( useArea ) {
-    ATH_MSG_DEBUG("Creating input cluster sequence");
-    clSequence = new fastjet::ClusterSequence(*pseudoJetVector, jetdef);
-  } else {
     // Prepare ghost area specifications -------------
     ATH_MSG_DEBUG("Creating input area cluster sequence");
     bool seedsok=true;
     fastjet::AreaDefinition adef = buildAreaDefinition(seedsok);
     if(seedsok) {clSequence = new fastjet::ClusterSequenceArea(*pseudoJetVector, jetdef, adef);}
     else {return nullreturn;}
-  }
+  } else {
+    ATH_MSG_DEBUG("Creating input cluster sequence");
+    clSequence = new fastjet::ClusterSequence(*pseudoJetVector, jetdef);
+  } 
 
 
   // -----------------------

@@ -1360,6 +1360,7 @@
   <y title="qoverp mean of pull"/>
 </h>
 
+
 <h id="pullmean_vs_eta_ptqopt" type="TH1F" title="mean of pull vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="means pull for p_{T} #times q/p_{T}"/>
@@ -1399,6 +1400,7 @@
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="qoverp pull"/>
 </h>
+
 
 <h id="pullwidth_vs_pt_ptqopt" type="TH1F" title="pull vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
@@ -1866,32 +1868,32 @@
 
 <!-- Efficiency -->
 <h id="efficiency_vs_dR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&DRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h> 
 
 <h id="efficiency_vs_smalldR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&SMALLDRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 
 <h id="efficiency_vs_jetpT" type="TEfficiency" title="Fraction of reco-matched truth track versus jet_{p_{T}}">
-  <x title="jet_{p_{T}} [GeV]" n="100" lo="10.0" hi="1000."/>
+  <x title="jet_{p_{T}} [GeV]" n="49" lo="100.0" hi="5000."/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 
 <!-- Fake Rate -->
 <h id="fakerate_vs_dR" type="TEfficiency" title="Fake rate versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&DRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h> 
 
 <h id="fakerate_vs_smalldR" type="TEfficiency" title="Fake rate versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&SMALLDRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>
 
 <h id="fakerate_vs_jetpT" type="TEfficiency" title="Fraction of reco-matched truth track versus jet_{p_{T}}">
-  <x title="jet_{p_{T}} [GeV]" n="100" lo="10.0" hi="1000."/>
+  <x title="jet_{p_{T}} [GeV]" n="20" lo="100.0" hi="5000."/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>

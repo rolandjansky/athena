@@ -54,8 +54,8 @@ if DetFlags.digitize.TGC_on():
     StreamRDOExtraInputs += [( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' ),
                              ( 'MuonSimDataCollection' , 'StoreGateSvc+TGC_SDO' )]
 
-topSequence.StandardPileUpToolsAlg.ExtraInputs = digiExtraInputs
-topSequence.StandardPileUpToolsAlg.ExtraOutputs = digiExtraOutputs
+topSequence.StandardPileUpToolsAlg.ExtraInputs += digiExtraInputs
+topSequence.StandardPileUpToolsAlg.ExtraOutputs += digiExtraOutputs
 
 from AthenaCommon.AppMgr import theApp
 StreamRDO = theApp.getOutputStream( "StreamRDO" )

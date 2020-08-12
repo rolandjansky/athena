@@ -28,6 +28,9 @@ class TrigMuonEFHypoAlg
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{
 	this, "MuonDecisions", "MuonEFCombiner_MuonData", "Name of the input data on xAOD::MuonContainer produced by MuonCreatorAlg"};
+    Gaudi::Property<bool> m_mapToPrevDec{
+      this, "MapToPreviousDecisions", false, "Map to decisions from previous decisions (needed if IM has mergeUsingFeature=True)"};
+
 
 };
 

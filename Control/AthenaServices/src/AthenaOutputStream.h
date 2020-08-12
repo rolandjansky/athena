@@ -27,6 +27,7 @@
 #include "GaudiKernel/IIoComponent.h"
 
 #include "SelectionVetoes.h"
+#include "CompressionInfo.h"
 
 // forward declarations
 class IClassIDSvc;
@@ -158,6 +159,11 @@ private:
    SG::WriteHandleKey<SG::SelectionVetoes> m_selVetoesKey
    { this, "SelVetoesKey", "" };
 
+   /// Key used for recording lossy float compressed variable information
+   /// to the event store.
+   SG::WriteHandleKey<SG::CompressionInfo> m_compInfoKey
+   { this, "CompInfoKey", "" };
+
 protected:
    /// Handler for ItemNames Property
    void itemListHandler(Property& /* theProp */);
@@ -201,7 +207,7 @@ public:
 
 private:
    /// Add item data objects to output streamer list
-  void addItemObjects(const SG::FolderItem&, SG::SelectionVetoes& vetoes);
+  void addItemObjects(const SG::FolderItem&, SG::SelectionVetoes& vetoes, SG::CompressionInfo& compInfo);
 
    void handleVariableSelection (SG::IAuxStoreIO& auxio,
                                  SG::DataProxy& itemProxy,
