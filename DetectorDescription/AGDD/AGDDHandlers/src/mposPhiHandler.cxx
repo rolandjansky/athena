@@ -7,7 +7,6 @@
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include <iostream>
 
@@ -72,6 +71,6 @@ void mposPhiHandler::ElementHandle()
 		if (s!="false"&&i>0) crot = GeoTrf::RotateZ3D(dphi*GeoModelKernelUnits::degree)*crot;
 		else if (s!="false"&&i==0) crot = GeoTrf::RotateZ3D(phi0*GeoModelKernelUnits::degree)*crot;
 
-		p=new AGDDPositioner(volume,Amg::EigenTransformToCLHEP(GeoTrf::Translation3D(cvec)*crot));
+		p=new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
 	}
 }

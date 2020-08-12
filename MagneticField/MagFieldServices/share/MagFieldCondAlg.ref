@@ -1,0 +1,30 @@
+MagFieldCondReader                         0   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         0   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         1   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         1   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         2   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         2   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         3   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         3   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         4   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         4   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         5   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         5   0    INFO Field xyz: 100, 100, 100, 0, 0, 0
+MagFieldCondReader                         6   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         6   0    INFO Field xyz: 100, 100, 100, 0, 0, 0
+MagFieldCondReader                         7   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         7   0    INFO Field xyz: 100, 100, 100, 0, 0, 0
+MagFieldCondReader                         8   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         8   0    INFO Field xyz: 100, 100, 100, 0, 0, 0
+MagFieldCondReader                         9   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         9   0    INFO Field xyz: 100, 100, 100, 0, 0, 0
+MagFieldCondReader                        10   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        10   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        11   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        11   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        12   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        12   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        13   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        13   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        14   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        14   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734

@@ -33,7 +33,7 @@ StatusCode SCT_FlaggedConditionTestAlg::execute(const EventContext& ctx) const {
   ATH_MSG_ALWAYS("------------------------------------------------------------");
   ATH_MSG_ALWAYS(" numBadIds " << m_flaggedTool->numBadIds(ctx));
   const SCT_FlaggedCondData* badIds{m_flaggedTool->getBadIds(ctx)};
-  for (const std::pair<IdentifierHash, std::string>& badId : *badIds) {
+  for (const std::pair<const IdentifierHash, std::string>& badId : *badIds) {
     ATH_MSG_ALWAYS("  Wafer hash " << badId.first << " reason " << badId.second);
   }
 
