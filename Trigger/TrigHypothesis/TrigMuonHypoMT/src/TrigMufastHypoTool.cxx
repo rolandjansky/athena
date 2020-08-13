@@ -401,11 +401,11 @@ StatusCode TrigMufastHypoTool::applyOverlapRemoval(std::vector<TrigMufastHypoToo
 
   size_t numMuon = input.size();
 
+  auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
+  auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+  auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
   if ( numMuon == 0) {
     ATH_MSG_DEBUG( "No positive previous hypo decision. Not need overlap removal." );
-    auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
     mufastNrActiveEVs = numMuon;
     mufastNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
@@ -413,16 +413,11 @@ StatusCode TrigMufastHypoTool::applyOverlapRemoval(std::vector<TrigMufastHypoToo
   else if ( numMuon == 1 ) {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
     ATH_MSG_DEBUG("no overlap Removal necessary. exitting with all EventViews active." );
-    auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
     mufastNrActiveEVs = numMuon;
     mufastNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-    auto mufastNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
-    auto monitorIt       = Monitored::Group(m_monTool, mufastNrAllEVs);
     mufastNrAllEVs = numMuon;
     ATH_CHECK(checkOverlap(input));
     return StatusCode::SUCCESS;
