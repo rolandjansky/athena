@@ -262,10 +262,6 @@ namespace SG {
 template<class DV>
 struct Bases<ViewVector<DV> > {
   using bases = BaseList<DV>;
-  typedef DV Base1;               
-  typedef NoBase Base2;          
-  typedef NoBase Base3;      
-  typedef NoBase Base4;      
 };                               
 
 
