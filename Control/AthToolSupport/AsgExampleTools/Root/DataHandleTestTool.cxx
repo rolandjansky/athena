@@ -73,10 +73,12 @@ namespace asg
     auto readHandle = makeHandle (m_readKey);
     if (m_readFailure == true)
     {
+      EXPECT_FALSE (readHandle.isPresent());
       EXPECT_EQ (nullptr, readHandle.get());
       EXPECT_FALSE (readHandle.isValid());
     } else
     {
+      EXPECT_TRUE (readHandle.isPresent());
       EXPECT_EQ (muonsStore, readHandle.get());
       EXPECT_TRUE (readHandle.isValid());
     }

@@ -27,6 +27,16 @@ ToolHandle< T >::ToolHandle( const std::string& typeAndName, INamedInterface* pa
 
 }
 
+template<typename T> template<typename T2>
+ToolHandle<T> ::
+ToolHandle (T2 *parent, const std::string& propertyName,
+            const std::string& toolName,
+            const std::string& propertyTitle)
+  : ToolHandle (toolName, parent)
+{
+  parent->declareProperty (propertyName, *this, propertyTitle);
+}
+
 template< class T >
 T& ToolHandle< T >::operator*() {
 
