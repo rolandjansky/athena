@@ -6,6 +6,7 @@
 #define ISOLATIONTOOL_TRACKISOLATIONTOOL_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "AsgTools/ToolHandle.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
