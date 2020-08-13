@@ -568,7 +568,7 @@ def muEFIsoAlgSequence(ConfigFlags):
     newRoITool = ViewCreatorCentredOnIParticleROITool()
     newRoITool.RoIEtaWidth=0.15
     newRoITool.RoIPhiWidth=0.15
-    newRoITool.RoisWriteHandleKey = "IsoMuRoIs"
+    newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_MuonIso")
     #
     efmuIsoViewsMaker.mergeUsingFeature = True
     efmuIsoViewsMaker.RoITool = newRoITool
