@@ -226,11 +226,11 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
   // Landaus mpvs don't just add, if in Landau mode we need to do a different update
   if (m_landauMode && cache.accumulatedElossSigma != 0 && energyLossSigma != 0) {
     if (energyLoss > 0) {
-      energyLoss += energyLossSigma * log(1 + cache.accumulatedElossSigma / (energyLossSigma)) +
-                    cache.accumulatedElossSigma * log(1 + energyLossSigma / cache.accumulatedElossSigma);
+      energyLoss += energyLossSigma * std::log(1 + cache.accumulatedElossSigma / (energyLossSigma)) +
+                    cache.accumulatedElossSigma * std::log(1 + energyLossSigma / cache.accumulatedElossSigma);
     } else {
-      energyLoss -= energyLossSigma * log(1 + cache.accumulatedElossSigma / energyLossSigma) +
-                    cache.accumulatedElossSigma * log(1 + energyLossSigma / cache.accumulatedElossSigma);
+      energyLoss -= energyLossSigma * std::log(1 + cache.accumulatedElossSigma / energyLossSigma) +
+                    cache.accumulatedElossSigma * std::log(1 + energyLossSigma / cache.accumulatedElossSigma);
     }
     cache.accumulatedElossSigma += energyLossSigma;
   } else if (m_landauMode) {
@@ -276,7 +276,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
         angularVariation = m_msUpdator->sigmaSquare(mprop, updateMomentum, pathcorrection, Trk::muon);
         // sigmaDeltaPhiSq = angularVariation/(parm->sinTheta()*parm->sinTheta());
         sigmaDeltaPhiSq =
-          angularVariation / (sin(parm->parameters()[Trk::theta]) * sin(parm->parameters()[Trk::theta]));
+          angularVariation / (std::sin(parm->parameters()[Trk::theta]) * std::sin(parm->parameters()[Trk::theta]));
         sigmaDeltaThetaSq = angularVariation;
       } else {
         // material update from mefots -> D.L.
@@ -320,7 +320,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
       // -------------------------------------- screen output --------------------------------------
       if (m_msgOutputCorrections) {
         double sigmaAngle = sqrt(angularVariation);
-        ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / sin(parm->parameters()[Trk::theta]) << " / "
+        ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / std::sin(parm->parameters()[Trk::theta]) << " / "
                                                            << sigmaAngle);
         ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << energyLoss << " / " << sigmaQoverP);
       }
@@ -512,11 +512,11 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
 
     if (m_landauMode && cache.accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
       if (dir == Trk::oppositeMomentum) {
-        deltaE += sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
-                  cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
+        deltaE += sigmaDeltaE * std::log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
+                  cache.accumulatedElossSigma * std::log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
       } else {
-        deltaE -= sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
-                  cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
+        deltaE -= sigmaDeltaE * std::log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
+                  cache.accumulatedElossSigma * std::log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
       }
       cache.accumulatedElossSigma += sigmaDeltaE;
     } else if (m_landauMode) {
@@ -556,7 +556,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
         int sign = int(matupmode);
 
         double sigmaDeltaPhiSq =
-          angularVariation / (sin(parm->parameters()[Trk::theta]) * sin(parm->parameters()[Trk::theta]));
+          angularVariation / (std::sin(parm->parameters()[Trk::theta]) * std::sin(parm->parameters()[Trk::theta]));
         double sigmaDeltaThetaSq = angularVariation;
         // checks will only be done in the removeNoise mode
         COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::phi, Trk::phi), sign, sigmaDeltaPhiSq);
@@ -588,7 +588,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
         // -------------------------------------- screen output --------------------------------------
         if (outputFlag && m_msgOutputCorrections) {
           double sigmaAngle = sqrt(angularVariation);
-          ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / sin(parm->parameters()[Trk::theta])
+          ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / std::sin(parm->parameters()[Trk::theta])
                                                              << " / " << sigmaAngle);
           ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << deltaP << " / " << sigmaQoverP);
         }
@@ -691,11 +691,11 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
     delete energyLoss;
     if (m_landauMode && cache.accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
       if (dir == Trk::oppositeMomentum) {
-        deltaE += sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
-                  cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
+        deltaE += sigmaDeltaE * std::log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
+                  cache.accumulatedElossSigma * std::log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
       } else {
-        deltaE -= sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
-                  cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
+        deltaE -= sigmaDeltaE * std::log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +
+                  cache.accumulatedElossSigma * std::log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
       }
 
       cache.accumulatedElossSigma += sigmaDeltaE;
@@ -728,7 +728,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
       int sign = int(matupmode);
       // checks will only be done in the removeNoise mode
       double sigmaDeltaPhiSq =
-        angularVariation / (sin(parm.parameters()[Trk::theta]) * sin(parm.parameters()[Trk::theta]));
+        angularVariation / (std::sin(parm.parameters()[Trk::theta]) * std::sin(parm.parameters()[Trk::theta]));
       double sigmaDeltaThetaSq = angularVariation;
       // checks will only be done in the removeNoise mode
       COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::phi, Trk::phi), sign, sigmaDeltaPhiSq);
@@ -756,7 +756,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
       // --------------------------------------
       if (outputFlag && m_msgOutputCorrections) {
         double sigmaAngle = sqrt(angularVariation);
-        ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / sin(parm.parameters()[Trk::theta]) << " / "
+        ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / std::sin(parm.parameters()[Trk::theta]) << " / "
                                                            << sigmaAngle);
         ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << deltaP << " / " << sigmaQoverP);
       }
