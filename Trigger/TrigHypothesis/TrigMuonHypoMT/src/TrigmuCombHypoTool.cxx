@@ -64,7 +64,7 @@ StatusCode TrigmuCombHypoTool::initialize()
      if( m_requireDR ) {
        ATH_MSG_DEBUG( "+ dR cut:" );
        if( (m_etaBins.size()-1) != m_dRThres.size() ) {
-	 ATH_MSG_DEBUG( "bad thresholds setup .... exiting!" );
+	 ATH_MSG_ERROR( "bad thresholds setup .... exiting!" );
 	 return StatusCode::FAILURE;
        }
        for(unsigned int i=0; i<m_dRThres.size(); i++) {
@@ -75,7 +75,7 @@ StatusCode TrigmuCombHypoTool::initialize()
      if( m_requireMufastDR ) {
        ATH_MSG_DEBUG( "+ dr(by mF) cut:" );
        if( (m_etaBins.size()-1) != m_mufastDRThres.size() ) {
-	 ATH_MSG_DEBUG( "bad thresholds setup .... exiting!" );
+	 ATH_MSG_ERROR( "bad thresholds setup .... exiting!" );
 	 return StatusCode::FAILURE;
        }
        for(unsigned int i=0; i<m_mufastDRThres.size(); i++) {
@@ -86,7 +86,7 @@ StatusCode TrigmuCombHypoTool::initialize()
      if( m_requireMass ) {
        ATH_MSG_DEBUG( "+ Mass cut:" );
        if( (m_etaBins.size()-1) != m_massThres.size() ) {
-	 ATH_MSG_DEBUG( "bad thresholds setup .... exiting!" );
+	 ATH_MSG_ERROR( "bad thresholds setup .... exiting!" );
 	 return StatusCode::FAILURE;
        }
        for(unsigned int i=0; i<m_massThres.size(); i++) {
@@ -354,11 +354,11 @@ StatusCode TrigmuCombHypoTool::applyOverlapRemoval(std::vector<TrigmuCombHypoToo
 
   size_t numMuon = input.size();
 
+  auto mucombNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
+  auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+  auto monitorIt          = Monitored::Group(m_monTool, mucombNrAllEVs, mucombNrActiveEVs);
   if ( numMuon == 0) {
     ATH_MSG_DEBUG( "No positive previous hypo decision. Not need overlap removal." );
-    auto mucombNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    auto monitorIt          = Monitored::Group(m_monTool, mucombNrAllEVs, mucombNrActiveEVs);
     mucombNrActiveEVs = numMuon;
     mucombNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
@@ -366,16 +366,11 @@ StatusCode TrigmuCombHypoTool::applyOverlapRemoval(std::vector<TrigmuCombHypoToo
   else if ( numMuon == 1 ) {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
     ATH_MSG_DEBUG("no overlap Removal necessary. exitting with all EventViews active." );
-    auto mucombNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    auto monitorIt          = Monitored::Group(m_monTool, mucombNrAllEVs, mucombNrActiveEVs);
     mucombNrActiveEVs = numMuon;
     mucombNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-    auto mucombNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
-    auto monitorIt       = Monitored::Group(m_monTool, mucombNrAllEVs);
     mucombNrAllEVs = numMuon;
     ATH_CHECK(checkOverlap(input));
     return StatusCode::SUCCESS;

@@ -80,7 +80,7 @@ StatusCode TrigMufastHypoTool::initialize()
     if( m_requireDR ) {
       ATH_MSG_DEBUG( "+ dR cut:" );
       if( (m_etaBinsEC.size()-1) != m_dRThresEC.size() ) {
-	ATH_MSG_DEBUG( "bad thresholds setup .... exiting!" );
+	ATH_MSG_ERROR( "bad thresholds setup .... exiting!" );
 	return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG( "     B-B : dR < " << m_dRThresBB );
@@ -94,7 +94,7 @@ StatusCode TrigMufastHypoTool::initialize()
     if( m_requireMass ) {
       ATH_MSG_DEBUG( "+ Mass cut:" );
       if( (m_etaBinsEC.size()-1) != m_massThresEC.size() ) {
-	ATH_MSG_DEBUG( "bad thresholds setup .... exiting!" );
+	ATH_MSG_ERROR( "bad thresholds setup .... exiting!" );
 	return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG( "     B-B : Mass < " << m_massThresBB );

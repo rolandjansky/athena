@@ -252,10 +252,7 @@ def TrigMufastHypoToolFromDict( chainDict ):
 
 def TrigMufastHypoToolwORFromDict( chainDict ):
 
-    if 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
-       thresholds = ['passthrough']
-    else:
-        thresholds = getThresholdsFromDict( chainDict )
+    thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     # Setup MonTool for monitored variables in AthenaMonitoring package
@@ -354,7 +351,7 @@ class TrigMufastHypoConfig(object):
 
 def TrigmuCombHypoToolFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName'] or 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -386,8 +383,6 @@ def TrigmuCombHypoToolwORFromDict( chainDict ):
     tight = False # can be probably decoded from some of the proprties of the chain, expert work
 
     acceptAll = False
-    if chainDict['chainParts'][0]['signature'] == 'Bphysics':
-        acceptAll = True
 
     tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
 
