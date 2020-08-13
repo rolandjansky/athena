@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -20,15 +20,17 @@
 
 #ifndef INDETPRIVXFINDER_INDETPRIVXFINDER_H
 #define INDETPRIVXFINDER_INDETPRIVXFINDER_H
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTrack/TrackCollection.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#include "InDetRecToolInterfaces/IVertexFinder.h"
+#include "TrkVertexFitterInterfaces/IVertexMergingTool.h"
+#include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
 
 /** Primary Vertex Finder.
   InDetPriVxFinder uses the InDetPrimaryVertexFinderTool in the package
@@ -36,49 +38,37 @@
   and records the returned VxContainer.
  */
 
-/* Forward declarations */
-
-namespace Trk
-{
-  class IVertexMergingTool;
-  class IVertexCollectionSortingTool;
-}
-
 namespace InDet
-{
-  class IVertexFinder;
-  
-  class InDetPriVxFinder : public AthAlgorithm
+{  
+  class InDetPriVxFinder : public AthReentrantAlgorithm
   {
   public:
     InDetPriVxFinder(const std::string &name, ISvcLocator *pSvcLocator);
-    virtual ~InDetPriVxFinder();
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    
+    virtual ~InDetPriVxFinder() = default;
 
-   //Monitoring of the vertex variables
-   void monitor_vertex( const std::string &prefix, xAOD::Vertex vertex );
-   
+    // Gaudi algorithm hooks
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
 
   private:
+
+    //Monitoring of the vertex variables
+    void monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ) const;
+
     SG::ReadHandleKey<TrackCollection> m_trkTracksName{this,"TrkTracksName","Tracks","Trk::Track Collection used in Vertexing"};
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksName{this,"TracksName","InDetTrackParticles","xAOD::TrackParticle Collection used in Vertexing"};
     SG::WriteHandleKey<xAOD::VertexContainer> m_vxCandidatesOutputName{this,"VxCandidatesOutputName","PrimaryVertices","Output Vertex Collection"};
 
-    ToolHandle< IVertexFinder > m_VertexFinderTool;
-    ToolHandle<Trk::IVertexMergingTool > m_VertexMergingTool;
-    ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool;
-    
-    bool m_doVertexMerging;
-    bool m_doVertexSorting;
-    bool m_useTrackParticles;//use TrackParticles or Trk::Tracks as input
-
-    // for summary output at the end
-    unsigned int m_numEventsProcessed;
-    unsigned int m_totalNumVerticesWithoutDummy;
-
+    ToolHandle< IVertexFinder > m_VertexFinderTool{this, "VertexFinderTool", "", "Primary vertex finder tool"};
+    ToolHandle<Trk::IVertexMergingTool > m_VertexMergingTool{this, "VertexMergingTool", "", "Vertex merging tool"};
+    ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool{this, "VertexCollectionSortingTool", "", "Vertex collection sorting tool"};
     ToolHandle<GenericMonitoringTool> m_monTool{this, "PriVxMonTool", "", "Monitoring tool"};
+
+    BooleanProperty m_doVertexMerging{this, "doVertexMerging", false, "Do vertex merging"};
+    BooleanProperty m_doVertexSorting{this, "doVertexSorting", false, "Do vertex sorting"};
+    BooleanProperty m_useTrackParticles{this, "useTrackParticles", true, "Use track particles as input"};
   };
 }
 #endif

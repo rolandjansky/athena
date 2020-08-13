@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -11,45 +11,21 @@
     changes :
  ***************************************************************************/
 #include "InDetPriVxFinder/InDetPriVxFinder.h"
-// forward declares
-#include "InDetRecToolInterfaces/IVertexFinder.h"
-#include "TrkVertexFitterInterfaces/IVertexMergingTool.h"
-#include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 // normal includes
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 
-#include "AthenaMonitoringKernel/Monitored.h"
-
 namespace InDet
 {
 
-  InDetPriVxFinder::InDetPriVxFinder ( const std::string &n, ISvcLocator *pSvcLoc )
-    : AthAlgorithm ( n, pSvcLoc ),
-      m_VertexFinderTool ( "InDet::InDetPriVxFinderTool" ),
-      m_VertexMergingTool( "Trk::VertexMergingTool" ),
-      m_VertexCollectionSortingTool ("Trk::VertexCollectionSortingTool"),
-      m_doVertexMerging(false),
-      m_doVertexSorting(false),
-      m_useTrackParticles(true),
-      // for summary output at the end
-      m_numEventsProcessed(0),
-      m_totalNumVerticesWithoutDummy(0)
+InDetPriVxFinder::InDetPriVxFinder
+ (const std::string& name,ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator)
+ { }
 
-  {
-    declareProperty ( "VertexFinderTool",m_VertexFinderTool );
-    declareProperty ( "VertexMergingTool",m_VertexMergingTool );
-    declareProperty ( "VertexCollectionSortingTool",m_VertexCollectionSortingTool );
-    declareProperty ( "doVertexMerging",m_doVertexMerging );
-    declareProperty ( "doVertexSorting",m_doVertexSorting );
-    declareProperty ( "useTrackParticles", m_useTrackParticles);
-  }
-
-  InDetPriVxFinder::~InDetPriVxFinder()
-  {}
 
   StatusCode InDetPriVxFinder::initialize()
   {
@@ -64,7 +40,7 @@ namespace InDet
       msg(MSG::INFO) << "Retrieved tool " << m_VertexFinderTool << endmsg;
     }
 
-    /*Get the Vertex Mergin Tool*/
+    /*Get the Vertex Merging Tool*/
     if (m_doVertexMerging) {
       if ( m_VertexMergingTool.retrieve().isFailure() )
       {
@@ -93,23 +69,21 @@ namespace InDet
     } else {
       m_VertexCollectionSortingTool.disable();
     }
+    if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
    
     ATH_CHECK(m_trkTracksName.initialize(!m_useTrackParticles));
     ATH_CHECK(m_tracksName.initialize(m_useTrackParticles));
     ATH_CHECK(m_vxCandidatesOutputName.initialize());
-  
-    if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
     msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
 
-  StatusCode InDetPriVxFinder::execute()
+  StatusCode InDetPriVxFinder::execute(const EventContext& ctx) const
   {
-    m_numEventsProcessed++;
 
-    SG::WriteHandle<xAOD::VertexContainer> outputVertices (m_vxCandidatesOutputName);
+    SG::WriteHandle<xAOD::VertexContainer> outputVertices (m_vxCandidatesOutputName, ctx);
 
     xAOD::VertexContainer*    vertexContainer = 0;
     xAOD::VertexAuxContainer* vertexAuxContainer = 0;
@@ -117,9 +91,10 @@ namespace InDet
 	= std::make_pair( vertexContainer, vertexAuxContainer );
 
     if(m_useTrackParticles){
-      SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName);
+      SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName, ctx);
       if(trackParticleCollection.isValid()){
-	vertexContainerPair = m_VertexFinderTool->findVertex ( trackParticleCollection.cptr() );
+
+	 vertexContainerPair = m_VertexFinderTool->findVertex ( trackParticleCollection.cptr() );
       }
       else{
 	ATH_MSG_ERROR("No TrackParticle Collection with key "<<m_tracksName.key()<<" exists in StoreGate. No Vertexing Possible");
@@ -127,7 +102,7 @@ namespace InDet
       }
     }
     else{
-      SG::ReadHandle<TrackCollection> trackCollection(m_trkTracksName);
+      SG::ReadHandle<TrackCollection> trackCollection(m_trkTracksName, ctx);
       if(trackCollection.isValid()){
 	vertexContainerPair = m_VertexFinderTool->findVertex ( trackCollection.cptr() );
       }
@@ -174,7 +149,6 @@ namespace InDet
       }
       
       ATH_MSG_DEBUG("Successfully reconstructed " << myVertexContainerPair.first->size()-1 << " vertices (excluding dummy)");
-      m_totalNumVerticesWithoutDummy += (myVertexContainerPair.first->size()-1); 
     }
 
     ATH_CHECK(outputVertices.record(std::unique_ptr<xAOD::VertexContainer>(myVertexContainerPair.first),std::unique_ptr<xAOD::VertexAuxContainer>(myVertexContainerPair.second)));
@@ -196,16 +170,10 @@ namespace InDet
   
   StatusCode InDetPriVxFinder::finalize()
   {
-    if (msgLvl(MSG::INFO))
-      {
-	msg() << "Summary from Primary Vertex Finder (InnerDetector/InDetRecAlgs/InDetPriVxFinder)" << endmsg;
-	msg() << "=== " << m_totalNumVerticesWithoutDummy << " vertices recoed in " << m_numEventsProcessed << " events (excluding dummy)." << endmsg;
-	if (m_numEventsProcessed!=0) msg() << "=== " << double(m_totalNumVerticesWithoutDummy)/double(m_numEventsProcessed) << " vertices per event (excluding dummy)." << endmsg;
-      } 
     return StatusCode::SUCCESS;
   }
 
-  void InDetPriVxFinder::monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ){
+  void InDetPriVxFinder::monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ) const {
      if (prefix == "allVertex"){
          auto x        = Monitored::Scalar<double>( "allVertexX",       vertex.x()               ); 
          auto y        = Monitored::Scalar<double>( "allVertexY",       vertex.y()               ); 
@@ -225,7 +193,5 @@ namespace InDet
          auto mon = Monitored::Group(m_monTool,  x, y, z, chi2, nDoF, NTracks );
      }
   }
-
-
   
 } // end namespace InDet
