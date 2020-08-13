@@ -103,7 +103,7 @@ namespace SG {
    * to use instead @c SG::DVLDataBucket\<T>.
    *
    * Further, if @c T derives from @c DataVector or @c DataList (as declared
-   * by @c SG_BASE), then we also want to use @c SG::DVLDataBucket\<T>.
+   * by @c SG_BASES), then we also want to use @c SG::DVLDataBucket\<T>.
    *
    * Further, we don't want this code to depend on @c DataVector
    * or @c SG::DVLDataBucket.  That behavior is enabled only
@@ -132,7 +132,7 @@ namespace SG {
   struct DataBucketTrait
   {
     // The first base of @c T (or @c SG::NoBase).
-    typedef typename SG::BaseType<typename SG::Bases<T>::Base1>::type base1;
+    typedef typename SG::BaseType<typename SG::Bases<T>::bases::Base1>::type base1;
 
     // Test to see if it's valid.
     typedef typename boost::is_same<base1, SG::NoBase>::type has_base;
