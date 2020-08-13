@@ -24,9 +24,10 @@ hlt.input = 'data'
 #====================================================================================================
 # Tier-0 reco step BS->ESD->AOD
 tzrecoPreExec = ' '.join([
+ "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
+ "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
  "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
  "TriggerFlags.configForStartup=\'HLToffline\';",
- "TriggerFlags.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
  "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
  "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\')",
 ])
