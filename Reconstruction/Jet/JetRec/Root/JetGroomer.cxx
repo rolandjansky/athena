@@ -4,6 +4,7 @@
 
 #include "JetRec/JetGroomer.h"
 
+#include "AsgDataHandles/ReadHandle.h"
 #include "fastjet/PseudoJet.hh"
 #include "JetRec/PseudoJetContainer.h"
 
