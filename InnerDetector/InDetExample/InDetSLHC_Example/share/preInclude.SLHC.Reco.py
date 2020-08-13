@@ -9,6 +9,7 @@ rec.doTrigger=False # Otherwise, you will get "Py:TriggerMenu.menu.GenerateMenu 
 # Magnet is on
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
+DetFlags.overlay.BField_setOff()
 
 DetFlags.pileup.all_setOff()
 
