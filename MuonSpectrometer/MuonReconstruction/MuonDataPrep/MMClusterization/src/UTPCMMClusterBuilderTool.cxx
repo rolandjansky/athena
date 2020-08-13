@@ -83,7 +83,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
         std::vector<double> stripsLocalPosX;
         stripsLocalPosX.reserve(MMprdsOfLayer.size());
 
-        for( auto MMprd: MMprdsOfLayer){
+        for( const auto& MMprd: MMprdsOfLayer){
             Identifier id_prd=MMprd.identify();
             int gasGap=m_idHelperSvc->mmIdHelper().gasGap(id_prd);
             stripsLocalPosX.push_back(((gasGap%2==0 && m_digiHasNegativeAngles) ? -1:1)*MMprd.localPosition().x()); //flip local positions for even gas gaps to reduce hough space to positiv angles
