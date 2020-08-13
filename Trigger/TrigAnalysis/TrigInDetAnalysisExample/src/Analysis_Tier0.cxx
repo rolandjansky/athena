@@ -51,6 +51,8 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_chain);
 
   /// variable width bins for track occupancy
+
+#if 0
   
   double vnbins[81] = {
    -0.5,
@@ -75,10 +77,27 @@ void Analysis_Tier0::initialise() {
     185.5,
     192.5,
     200.5 };
+#endif
+
+  double vnbins[101] = { 
+    -0.5,
+    0.5,   1.5,   2.5,   3.5,   4.5,   5.5,   6.5,   7.5,   8.5,   9.5,   10.5,   11.5,   12.5,   13.5,   14.5,   15.5,   17.5,   18.5,   19.5,   21.5,
+    23.5,   24.5,   26.5,   28.5,   30.5,   32.5,   35.5,   37.5,   40.5,   43.5,   46.5,   50.5,   53.5,   57.5,   61.5,   66.5,   71.5,   76.5,   81.5,   87.5,
+    93.5,   100.5,   107.5,   114.5,   123.5,   131.5,   141.5,   150.5,   161.5,   172.5,   185.5,   198.5,   211.5,   226.5,   242.5,   259.5,   277.5,   297.5,   317.5,   340.5,
+    363.5,   389.5,   416.5,   445.5,   476.5,   509.5,
+    544.5,   582.5,   623.5,   666.5,   713.5,   762.5,   815.5,   872.5,   933.5,   998.5,   1067.5,
+    1141.5,   1221.5,   1305.5,   1396.5,   1493.5,   1597.5,
+    1708.5,   1827.5,   1953.5,   2089.5,
+    2234.5,   2389.5,   2555.5,
+    2733.5,   2923.5,   3125.5,
+    3342.5,   3574.5,
+    3823.5,   4088.5,
+    4372.5,   4675.5,
+     5000.5
+  };
 
 
-
-  h_ntrk = new TH1F( "reftrk_N", "Reference tracks", 80, vnbins );
+  h_ntrk = new TH1F( "reftrk_N", "Reference tracks", 100, vnbins );
 
   addHistogram(h_ntrk);
 
@@ -130,7 +149,7 @@ void Analysis_Tier0::initialise() {
 
   /// test track distributions
 
-  h_ntrk_rec = new TH1F( "testtrk_N", "Test tracks", 80, vnbins );
+  h_ntrk_rec = new TH1F( "testtrk_N", "Test tracks", 100, vnbins );
 
   addHistogram(h_ntrk_rec);
 
@@ -178,6 +197,7 @@ void Analysis_Tier0::initialise() {
   h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",     39,   d0bins    );
   h_z0eff    = new TProfile( "Eff_z0",     "z0 efficiency",     50, -225.,  225.   );
   h_nVtxeff  = new TProfile( "Eff_nVtx",   "nVtx efficiency",   71,   -0.5,  70.5  );
+
 
   h_lbeff = new TProfile( "Eff_lb", "efficinecy vs lumiblock", 301, -0.5, 3009.5 );
 

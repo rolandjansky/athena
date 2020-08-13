@@ -53,10 +53,10 @@ namespace Muon {
     static const InterfaceID& interfaceID();
 
     /** refit a track */
-    virtual const Trk::Track* refit( const Trk::Track& track, const Settings* settings = 0 ) const = 0;
+    virtual std::unique_ptr<Trk::Track> refit( Trk::Track* track, const Settings* settings = 0 ) const = 0;
 
     /** refit and back extrapolate a vector of track pairs */
-    virtual std::vector<const Trk::Track*> refit( const std::vector<const Trk::Track*>& tracks, const Settings* settings = 0 ) const = 0;
+    virtual std::vector<std::unique_ptr<Trk::Track> > refit( std::vector<Trk::Track*>& tracks, const Settings* settings = 0 ) const = 0;
 
 
   };

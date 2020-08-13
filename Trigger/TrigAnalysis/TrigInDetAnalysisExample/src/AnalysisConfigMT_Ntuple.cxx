@@ -38,7 +38,7 @@ void remove_duplicates(std::vector<T>& vec) {
 
 void AnalysisConfigMT_Ntuple::loop() {
 
-        m_provider->msg(MSG::INFO) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName 
+        m_provider->msg(MSG::DEBUG) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName 
 				   << " compiled " << __DATE__ << " " << __TIME__ << "\t: " << date() << "[m" << endmsg;
 
 	// get (offline) beam position
@@ -56,6 +56,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  ybeam = vertex[1];
 	  zbeam = vertex[2];
 
+	  /// leave this code commented here - useful for debugging 
 	  //	  m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << "\tz=" << zbeam <<endmsg; 
 	  beamline.push_back(xbeam);
 	  beamline.push_back(ybeam);
@@ -102,11 +103,15 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
-		m_provider->msg(MSG::VERBOSE) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endmsg;
+		if (m_provider->msg().level() <= MSG::VERBOSE) {
+		  m_provider->msg(MSG::VERBOSE) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endmsg;
+		}
+
 		for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-		  //  m_provider->msg(MSG::VERBOSE) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endmsg;
+		  if (m_provider->msg().level() <= MSG::VERBOSE) {
+		    m_provider->msg(MSG::VERBOSE) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endmsg;
+		  }
 		  configuredHLTChains.insert( configuredChains[i] );
-		  
 		}
 
 		tida_first = false;
@@ -207,9 +212,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 		mu_val            = pEventInfo->averageInteractionsPerCrossing();
 	}
 
-	m_provider->msg(MSG::INFO) << "run "     << run_number 
-				   << "\tevent " << event_number 
-				   << "\tlb "    << lumi_block << endmsg;
+	m_provider->msg(MSG::DEBUG) << "run "     << run_number 
+				    << "\tevent " << event_number 
+				    << "\tlb "    << lumi_block << endmsg;
 
 	m_event->run_number(run_number);
 	m_event->event_number(event_number);
@@ -243,7 +248,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	int passed_chains = 0;
 
-	m_provider->msg(MSG::INFO) << "Checking " << m_chainNames.size() << " chains" << endmsg;
+	m_provider->msg(MSG::DEBUG) << "Checking " << m_chainNames.size() << " chains" << endmsg;
 	
 	if ( m_chainNames.empty() ) {
 	  m_provider->msg(MSG::WARNING) << "No chains to check" << endmsg;
@@ -273,7 +278,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		bool passPhysics = (*m_tdt)->isPassed(chainName); 
 
-		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
+		m_provider->msg(MSG::DEBUG) << "Chain "  << chainName << "\troi " << roistring 
 					   << "\tpres " << (*m_tdt)->getPrescale(chainName)
 					   << ( passPhysics ? "[91;1m" : "" ) << "\tpass physics  " <<  passPhysics << ( passPhysics ? "[m" : "" ) 
 					   << "\t: ( pass " << (*m_tdt)->isPassed(chainName, decisiontype_ ) << "\tdec type " << decisiontype_ << " ) " << endmsg;
@@ -290,12 +295,12 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// bomb out if no chains passed and not told to keep all events and found no 
 	/// offline objects 
 	if ( !analyse && !m_keepAllEvents && !foundOffline ) { 
-	  m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event: " << run_number << " " << event_number << " " << lumi_block << endmsg; 
+	  m_provider->msg(MSG::DEBUG) << "No chains passed unprescaled - not processing this event: " << run_number << " " << event_number << " " << lumi_block << endmsg; 
 	  return;
 	}
 	
 
-	m_provider->msg(MSG::INFO) << "Chains passed " << passed_chains << endmsg;
+	m_provider->msg(MSG::DEBUG) << "Chains passed " << passed_chains << endmsg;
 
 
 	/// for Monte Carlo get the truth particles if requested to do so
@@ -304,11 +309,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	selectorTruth.clear();
 
-	m_provider->msg(MSG::INFO) << "MC Truth flag " << m_mcTruth << endmsg; 
+	m_provider->msg(MSG::DEBUG) << "MC Truth flag " << m_mcTruth << endmsg; 
 	const TrigInDetTrackTruthMap* truthMap = 0;
 	bool foundTruth = false;
 	if ( m_mcTruth && m_TruthPdgId!=15) { 
-		m_provider->msg(MSG::INFO) << "getting Truth" << endmsg; 
+		m_provider->msg(MSG::DEBUG) << "getting Truth" << endmsg; 
 		if ( m_provider->evtStore()->retrieve(truthMap, "TrigInDetTrackTruthMap").isFailure()) {
 			m_hasTruthMap = false;
 		}
@@ -353,7 +358,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	if ( m_mcTruth && !foundTruth ) { 
 
-		m_provider->msg(MSG::INFO) << "getting Truth" << endmsg; 
+		m_provider->msg(MSG::DEBUG) << "getting Truth" << endmsg; 
 
 		/// selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
 
@@ -369,22 +374,22 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		for ( int ik=0 ; ik<4 ; ik++ ) { 
 
-			m_provider->msg(MSG::INFO) << "Try McEventCollection: " << collectionNames[ik] << endmsg;
+			m_provider->msg(MSG::DEBUG) << "Try McEventCollection: " << collectionNames[ik] << endmsg;
 
 			if (!m_provider->evtStore()->contains<McEventCollection>(collectionNames[ik]) ) { 
-				m_provider->msg(MSG::INFO) << "No McEventCollection: " << collectionNames[ik] << endmsg;
+				m_provider->msg(MSG::DEBUG) << "No McEventCollection: " << collectionNames[ik] << endmsg;
 				continue;
 			}
 
-			m_provider->msg(MSG::INFO) << "evtStore()->retrieve( mcevent, " << collectionNames[ik] << " )" << endmsg;  
+			m_provider->msg(MSG::DEBUG) << "evtStore()->retrieve( mcevent, " << collectionNames[ik] << " )" << endmsg;  
 
 			if ( m_provider->evtStore()->retrieve( mcevent, collectionNames[ik] ).isFailure() ) {     
-				m_provider->msg(MSG::INFO) << "Failed to get McEventCollection: " << collectionNames[ik] << endmsg;
+				m_provider->msg(MSG::DEBUG) << "Failed to get McEventCollection: " << collectionNames[ik] << endmsg;
 			}
 			else { 
 				// found this collectionName
 				collectionName = collectionNames[ik];
-				m_provider->msg(MSG::INFO) << "Found McEventCollection: " << collectionName << endmsg;
+				m_provider->msg(MSG::DEBUG) << "Found McEventCollection: " << collectionName << endmsg;
 				foundcollection = true;
 				break;
 			}
@@ -409,7 +414,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		/// it's not at all tidy, and should be rewritten, 
 		/// but probably never will be
 
-		m_provider->msg(MSG::INFO) << "Found McEventCollection: " << collectionName << "\tNevents " << mcevent->size() << endmsg;
+		m_provider->msg(MSG::DEBUG) << "Found McEventCollection: " << collectionName << "\tNevents " << mcevent->size() << endmsg;
 
 		/// count the number of interactions of each sort
 		/// this is actually *very stupid*, there are a *lot*
@@ -472,9 +477,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  }
 		}
 		
-		m_provider->msg(MSG::INFO) << "Found " << ip << " TruthParticles (GenParticles) in " << ie_ip << " GenEvents out of " << ie << endmsg;
+		m_provider->msg(MSG::DEBUG) << "Found " << ip << " TruthParticles (GenParticles) in " << ie_ip << " GenEvents out of " << ie << endmsg;
 		
-		m_provider->msg(MSG::INFO) << "selected " << selectorTruth.size() << " TruthParticles (GenParticles)" << endmsg;
+		m_provider->msg(MSG::DEBUG) << "selected " << selectorTruth.size() << " TruthParticles (GenParticles)" << endmsg;
 
 		////////////////////////////////////////////////////////////////////////////////////////
 
@@ -494,7 +499,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	/// get offline tracks
 
-	m_provider->msg(MSG::INFO) << " Offline tracks " << endmsg;
+	m_provider->msg(MSG::DEBUG) << " Offline tracks " << endmsg;
 
 	selectorRef.clear();
 
@@ -525,7 +530,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	
 	if ( xaodVtxCollection!=0 ) { 
 	  
-	  m_provider->msg(MSG::INFO) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
+	  m_provider->msg(MSG::DEBUG) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
 
 	  xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
 
@@ -681,11 +686,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	  std::vector<TIDA::Vertex> tidavertices;
 
-	  m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
+	  m_provider->msg(MSG::DEBUG) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
 	    
 	  if ( vtx_name!="" ) { 
 	        
-	    m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
+	    m_provider->msg(MSG::DEBUG) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
 	        
 	    /// MT Vertex access
 	        
@@ -697,8 +702,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    
 	    if ( xaodVtxCollection!=0 ) { 
 	            
-	      m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodVtxCollection->size()
-					 << "\t" << vtx_name << endmsg;
+	      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << xaodVtxCollection->size()
+					  << "\t" << vtx_name << endmsg;
 	            
 	      xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin(); 
 	            
@@ -755,7 +760,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    
 	    int Ntest = selectorTest.tracks().size();
 	    
-	    m_provider->msg(MSG::INFO) << "collection " << collectionname << "\ttest tracks.size() " << Ntest << endmsg; 
+	    m_provider->msg(MSG::DEBUG) << "collection " << collectionname << "\ttest tracks.size() " << Ntest << endmsg; 
 	    for ( int ii=Ntest ; ii-- ; ) m_provider->msg(MSG::DEBUG) << "  test track " << ii << " " << *selectorTest.tracks()[ii] << endmsg;
 	  }
 	}	  
@@ -821,7 +826,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// get muons 
 	for ( size_t imuon=0 ; imuon<m_muonType.size() ; imuon++ ) {
 	  
-	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endmsg; 
+	  m_provider->msg(MSG::DEBUG) << "fetching offline muons " << endmsg; 
 
           int muonType = -1;
           for ( int it=0 ; it<5 ; it++ ) if ( m_muonType[imuon] == MuonRef[it] ) muonType=it; 
@@ -833,7 +838,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 
           Nmu += Nmu_;
 
-	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endmsg; 
+	  m_provider->msg(MSG::DEBUG) << "found " << Nmu << " offline muons " << endmsg; 
 
           std::string mchain = "Muons";
           if ( m_muonType[imuon]!="" )  mchain += "_" + m_muonType[imuon];
@@ -853,7 +858,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  }
 
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endmsg; 
-	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endmsg;  
+	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::DEBUG) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endmsg;  
 	}
 	
 
@@ -862,20 +867,20 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// get muons 
 	if ( m_doMuonsSP ) { 
 	  
-	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endmsg; 
+	  m_provider->msg(MSG::DEBUG) << "fetching offline muons " << endmsg; 
 
           int muonType = 0;
 
 	  Nmu += processMuons( selectorRef, muonType );
 
-	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endmsg; 
+	  m_provider->msg(MSG::DEBUG) << "found " << Nmu << " offline muons " << endmsg; 
 
 	  m_event->addChain("MuonsSP");
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endmsg; 
-	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endmsg;  
+	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::DEBUG) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endmsg;  
 	}
 	
 
@@ -934,7 +939,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// useful debug information 0 leave here 
 	//	std::cout << "SUTT Ntaus: " << Ntau << std::endl;
 	
-	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau==0 ) m_provider->msg(MSG::INFO) << "No offline objects found " << endmsg;
+	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau==0 ) m_provider->msg(MSG::DEBUG) << "No offline objects found " << endmsg;
 	else foundOffline = true;
 
 
@@ -998,7 +1003,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  roist = comb->get<TrigRoiDescriptor>( roi_name_tmp, decisiontype_, roi_tename );
 		  
 		  if ( roist.size()>0 ) { 
-		    for ( unsigned ir=0 ; ir<roist.size() ; ir++ ) m_provider->msg(MSG::INFO) << "\t\tRetrieved roi  " << roi_name << "\t" << *roist[ir].cptr() << endmsg; 
+		    for ( unsigned ir=0 ; ir<roist.size() ; ir++ ) m_provider->msg(MSG::DEBUG) << "\t\tRetrieved roi  " << roi_name << "\t" << *roist[ir].cptr() << endmsg; 
 		  }
 		  else { 
 		    m_provider->msg(MSG::WARNING) << "\t\tRequested roi  " << roi_name << " not found" << endmsg; 
@@ -1049,6 +1054,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  
 		  const ElementLink<TrigRoiDescriptorCollection> roi_link = roi_info.link;
 
+		  /// check this is not a spurious TDT match
+		  if ( roi_key!="" && roi_link.dataID()!=roi_key ) continue;
+
 		  const TrigRoiDescriptor* const* roiptr = roi_link.cptr();
 
 		  if ( roiptr == 0 ) { 
@@ -1064,13 +1072,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		  /// get the tracks 
 
-		  //////////////////////////////////
 
-		  ///   useful cocumentation line ... 
-		  ///   std::string keys[5] = { "TrigJetRec", "TrigSplitJet", "TrigSuperRoi", "forID", "" };
-			  
-		  //   m_provider->msg(MSG::INFO) << "using chain roi " << *roid << endmsg;
-		  m_provider->msg(MSG::INFO) << "TIDARoi " << *roi_tmp << "\tcollectionName: " << collectionName << endmsg;
+		  m_provider->msg(MSG::VERBOSE) << "TIDARoi " << *roi_tmp << "\tcollectionName: " << collectionName << endmsg;
 			      
 		  /// this should *never* be the case, and we should only run this 
 		  /// bit of code once the first time round the loop anyhow
@@ -1080,7 +1083,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		  if ( chainName.find("HLT_")!=std::string::npos ) {
 		    if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, roi_link,  collectionName ) ); 
-		    else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endmsg;  
+		    else {
+		      if (m_provider->msg().level() <= MSG::DEBUG) {
+			m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endmsg;  
+		      }
+		    }
 		  }
 		  
 		  /// fetch vertices if available ...
@@ -1089,7 +1096,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  
 		  if ( vtx_name!="" ) { 
 		    
-		    m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer for chain " << chainName << " with key " << vtx_name << endmsg;
+		    m_provider->msg(MSG::DEBUG) << "\tFetch xAOD::VertexContainer for chain " << chainName << " with key " << vtx_name << endmsg;
 		    
 		    /// MT Vertex access
 		    
@@ -1101,7 +1108,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		    }
 		    else {
 		      
-		      m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first) 
+		      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first) 
 						 << "\t" << vtx_name << endmsg;
 		      
 		      xAOD::VertexContainer::const_iterator vtxitr = vtx_itrpair.first; 
@@ -1176,9 +1183,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  else { 	  
 		    if ( beamline_online.size()>3 ) chain.back().addUserData(beamline_online);
 		  }
-		  
-		  
-		  //			m_provider->msg(MSG::INFO) << " done" << endmsg;      
 		  
 		  if ( roi_tmp ) delete roi_tmp;
 		  roi_tmp = 0;
@@ -1279,7 +1283,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 #endif
 
-	//	if ( m_printInfo ) m_provider->msg(MSG::INFO) << "FILL TREE\n" << (*m_event) << endmsg;      
 	if ( mTree ) mTree->Fill();
 	
 }

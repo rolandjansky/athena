@@ -13,6 +13,8 @@ regexEventStreamInfo = re.compile(r'^EventStreamInfo(_p\d+)?$')
 regexIOVMetaDataContainer = re.compile(r'^IOVMetaDataContainer(_p\d+)?$')
 regexByteStreamMetadataContainer = re.compile(r'^ByteStreamMetadataContainer(_p\d+)?$')
 regexXAODEventFormat = re.compile(r'^xAOD::EventFormat(_v\d+)?$')
+regexXAODTriggerMenu = re.compile(r'^DataVector<xAOD::TriggerMenu(_v\d+)?>$')
+regexXAODTriggerMenuAux = re.compile(r'^xAOD::TriggerMenuAuxContainer(_v\d+)?$')
 regex_cppname = re.compile(r'^([\w:]+)(<.*>)?$')
 # regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
 regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d+$')
@@ -146,6 +148,8 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         '/Simulation/Parameters': 'IOVMetaDataContainer_p1',
                         '/Digitization/Parameters': 'IOVMetaDataContainer_p1',
                         '/EXT/DCS/MAGNETS/SENSORDATA': 'IOVMetaDataContainer_p1',
+                        'TriggerMenu': 'DataVector<xAOD::TriggerMenu_v1>',
+                        'TriggerMenuAux.': 'xAOD::TriggerMenuAuxContainer_v1',
                         '*': 'EventStreamInfo_p*'
                     }
 
@@ -157,6 +161,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 for i in range(0, nr_of_branches):
                     branch = metadata_branches.At(i)
                     name = branch.GetName()
+
 
                     class_name = branch.GetClassName()
 
@@ -192,6 +197,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         persistent_instances[name] = ROOT.IOVMetaDataContainer_p1()
                     elif regexXAODEventFormat.match(class_name):
                         persistent_instances[name] = ROOT.xAOD.EventFormat_v1()
+                    elif regexXAODTriggerMenu.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuContainer_v1()
+                    elif regexXAODTriggerMenuAux.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuAuxContainer_v1()
 
                     if name in persistent_instances:
                         branch.SetAddress(ROOT.AddressOf(persistent_instances[name]))
@@ -209,8 +218,13 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     if hasattr(content, 'm_folderName'):
                         key = getattr(content, 'm_folderName')
 
-                    meta_dict[filename][key] = _convert_value(content)
+                    aux = None
+                    if key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances:
+                        aux = persistent_instances['TriggerMenuAux.']
+                    elif key == 'TriggerMenuAux.':
+                        continue
 
+                    meta_dict[filename][key] = _convert_value(content, aux)
 
 
             # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
@@ -423,7 +437,7 @@ def _extract_fields(obj):
     return result
 
 
-def _convert_value(value):
+def _convert_value(value, aux = None):
     if hasattr(value, '__cppname__'):
 
         result = regex_cppname.match(value.__cppname__)
@@ -451,6 +465,9 @@ def _convert_value(value):
 
             elif value.__cppname__ == 'xAOD::EventFormat_v1':
                 return _extract_fields_ef(value)
+
+            elif value.__cppname__ == 'DataVector<xAOD::TriggerMenu_v1>' :
+                return _extract_fields_triggermenu(interface=value, aux=aux)
 
             elif (value.__cppname__ == 'EventStreamInfo_p2' or
                   value.__cppname__ == 'EventStreamInfo_p3'):
@@ -572,6 +589,29 @@ def _extract_fields_ef(value):
 
     for ef_element in value:
         result[ef_element.first] = ef_element.second.className()
+
+    return result
+
+
+def _extract_fields_triggermenu(interface, aux):
+    L1Items = []
+    HLTChains = []
+
+    try:
+        interface.setStore( aux )
+        if interface.size() > 0:
+            # We make the assumption that the first stored SMK is
+            # representative of all events in the input collection.
+            firstMenu = interface.at(0)
+            L1Items = [ item for item in firstMenu.itemNames() ]
+            HLTChains = [ chain for chain in firstMenu.chainNames() ]
+    except Exception as err:
+        msg.warn('Problem reading xAOD::TriggerMenu:')
+        msg.warn(err)
+
+    result = {}
+    result['L1Items'] = L1Items
+    result['HLTChains'] = HLTChains
 
     return result
 
