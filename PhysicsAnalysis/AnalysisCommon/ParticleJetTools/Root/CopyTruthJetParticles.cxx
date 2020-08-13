@@ -10,6 +10,8 @@
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "AthContainers/ConstDataVector.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 #include "AsgTools/Check.h"
 
 #ifndef XAOD_STANDALONE

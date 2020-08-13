@@ -18,6 +18,7 @@
 #ifndef PARTICLEJETTOOLS_JETQUARKLABEL_H
 #define PARTICLEJETTOOLS_JETQUARKLABEL_H
 
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "ParticleJetTools/IJetTruthMatching.h"
 #include "EventPrimitives/EventPrimitives.h"
