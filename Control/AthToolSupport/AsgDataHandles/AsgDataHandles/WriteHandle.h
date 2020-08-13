@@ -141,11 +141,11 @@ public:
   // pointer_type operator->();
 
 
-  // /**
-  //  * @brief Dereference the pointer.
-  //  * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
-  //  */
-  // reference_type operator*();
+  /**
+   * @brief Dereference the pointer.
+   * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
+   */
+  reference_type operator*();
 
 
   // /**
@@ -168,10 +168,10 @@ public:
   // pointer_type cachedPtr();
 
 
-  // /**
-  //  * @brief Can the handle be successfully dereferenced?
-  //  */
-  // virtual bool isValid() override final;
+  /**
+   * @brief Can the handle be successfully dereferenced?
+   */
+  bool isValid();
 
 
   //************************************************************************
@@ -179,11 +179,11 @@ public:
   //
 
 
-  // /**
-  //  * @brief Record a const object to the store.
-  //  * @param data The object to record.
-  //  */
-  // StatusCode record (std::unique_ptr<T> data);
+  /**
+   * @brief Record a const object to the store.
+   * @param data The object to record.
+   */
+  StatusCode record (std::unique_ptr<T> data);
 
 
   // /**
@@ -630,6 +630,9 @@ private:
   // /// set it const on the record, but instead set this and do the
   // /// setConst in the destructor.
   // SG::DataProxy* m_lockAuxPending = nullptr;
+
+  /// the cached pointer we recorded
+  T *m_ptr {nullptr};
 }; 
 
 

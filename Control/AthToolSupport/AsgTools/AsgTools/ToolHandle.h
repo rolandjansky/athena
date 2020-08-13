@@ -108,6 +108,9 @@ public:
    /// Returns success if pointer is non-null and of the correct type.
    StatusCode retrieve() const;
 
+   /// Clear out the tool
+   void disable () noexcept;
+
    /// Return true if tool has no pointer or name
    bool empty() const;
 
@@ -116,7 +119,7 @@ public:
 
 private:
    /// Pointer to the tool
-   mutable T* m_ptool;
+   mutable T* m_ptool {nullptr};
 
 }; // class ToolHandle
 

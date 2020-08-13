@@ -35,6 +35,7 @@ namespace asg
   {
     declareProperty ("readFailure", m_readFailure, "whether to expect a read failure");
     declareProperty ("readDecorFailure", m_readDecorFailure, "whether to expect a read decoration failure");
+    declareProperty ("readArray", m_readArray, "whether to read from the array");
     declareProperty ("doWriteName", m_doWriteName, "if we should write, the name we expect to write to");
   }
 
@@ -55,6 +56,7 @@ namespace asg
     ANA_CHECK (m_readDecorKey.initialize ());
     if (!m_writeKey.empty())
       ANA_CHECK (m_writeKey.initialize ());
+    ANA_CHECK (m_readKeyArray.initialize());
 #endif
     return StatusCode::SUCCESS;
   }
@@ -91,6 +93,16 @@ namespace asg
     {
       SG::AuxElement::ConstAccessor<float> acc ("pt");
       EXPECT_EQ (acc (*testMuon), readDecorHandle (*testMuon));
+    }
+
+    if (m_readArray)
+    {
+      EXPECT_EQ (1u, m_readKeyArray.size());
+      auto handles = m_readKeyArray.makeHandles();
+      EXPECT_EQ (muonsStore, handles[0].get());
+    } else
+    {
+      EXPECT_EQ (0u, m_readKeyArray.size());
     }
 
     if (!m_doWriteName.empty())
