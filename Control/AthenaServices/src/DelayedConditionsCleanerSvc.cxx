@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -18,7 +18,6 @@
 #include "CxxUtils/StrFormat.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "tbb/task.h"
 #include <algorithm>
 
 
@@ -30,6 +29,11 @@
 // clean an item which the slot won't be able to recover.
 // Leave the code commented-out for now while we think about this further.
 #define USE_ASYNC_TASK 0
+
+
+#if USE_ASYNC_TASK
+#include "tbb/task.h"
+#endif
 
 
 namespace Athena {

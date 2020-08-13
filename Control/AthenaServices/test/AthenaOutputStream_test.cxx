@@ -93,7 +93,7 @@ int main() {
   baz4lfc->setStore (bazaux4lfc.get());
   SG::AuxElement::Accessor<float> foo ("foo");
   SG::AuxElement::Accessor<double> bar ("bar");
-  SG::AuxElement::Accessor<float> zzz ("zzz");
+  SG::AuxElement::Accessor<std::vector<float>> zzz ("zzz");
   foo (*baz4lfc);
   bar (*baz4lfc);
   zzz (*baz4lfc);
