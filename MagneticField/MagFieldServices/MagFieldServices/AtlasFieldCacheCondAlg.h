@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -32,7 +32,6 @@ namespace MagField {
 
         StatusCode initialize() override final;
         StatusCode execute(const EventContext& ctx) const override final;
-        StatusCode finalize() override final;  
 
     private:
 
@@ -49,7 +48,7 @@ namespace MagField {
             EventIDRange m_condObjOutputRange {EventIDRange(EventIDBase(0,0), EventIDBase(EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFEVT-1))}; 
         }; 
         StatusCode updateCurrentFromConditions(const EventContext& ctx, Cache& cache) const;
-        StatusCode updateCurrentFromParameters(Cache& cache) const;
+        StatusCode updateCurrentFromParameters(const EventContext& ctx, Cache& cache) const;
         void       scaleField(Cache& cache, const MagField::AtlasFieldMap* fieldMap) const;
 
         // threshold below which currents are considered zero
