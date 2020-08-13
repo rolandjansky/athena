@@ -26,7 +26,7 @@ protected:
 };
 
 
-template<bool checkKey = true, typename T>
+template<bool checkKey, typename T>
 StatusCode IDCCacheCreatorBase::createContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
     static_assert(std::is_base_of<EventContainers::IdentifiableCacheBase, T>::value, "Expects a IdentifiableCache Class" );
     if constexpr (checkKey){
@@ -41,7 +41,7 @@ StatusCode IDCCacheCreatorBase::createContainer(const SG::WriteHandleKey<T>& con
     return StatusCode::SUCCESS;
 }
 
-template<bool checkKey = true, typename T, typename X>
+template<bool checkKey, typename T, typename X>
 StatusCode IDCCacheCreatorBase::createValueContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx, const X& defaultValue) const{
     static_assert(std::is_base_of<IdentifiableValueCache<X>, T>::value, "Expects a IdentifiableValueCache Class" );
     if constexpr (checkKey){

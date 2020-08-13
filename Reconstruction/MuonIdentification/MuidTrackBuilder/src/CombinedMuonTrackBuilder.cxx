@@ -2212,46 +2212,45 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
         return nullptr;
     }
 
-    if (refittedTrack) {
-        if (!refittedTrack->fitQuality()) {
-            delete refittedTrack;
-            delete vertex;
-            return nullptr;
+    //eventually this whole tool will use unique_ptrs
+    //in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
+    std::unique_ptr<Trk::Track> refittedTrackUnique(refittedTrack);
+    if (refittedTrackUnique) {
+        if (!refittedTrackUnique->fitQuality()) {
+	  delete vertex;
+	  return nullptr;
         }
 
-        if (!m_trackQuery->isCaloAssociated(*refittedTrack)) {
+        if (!m_trackQuery->isCaloAssociated(*refittedTrackUnique)) {
             // fail as calo incorrectly described
             m_messageHelper->printWarning(28);
-            delete refittedTrack;
             delete vertex;
             return nullptr;
         }
 
-        countAEOTs(refittedTrack, " standaloneRefit final refittedTrack ");
+        countAEOTs(refittedTrackUnique.get(), " standaloneRefit final refittedTrack ");
 
         // fit with optimized spectrometer errors
         // this should also be inside the "if(refittedTrack) statement
-        if (!m_muonErrorOptimizer.empty() && !refittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)
-            && countAEOTs(refittedTrack, " before optimize ") == 0)
+        if (!m_muonErrorOptimizer.empty() && !refittedTrackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack)
+            && countAEOTs(refittedTrackUnique.get(), " before optimize ") == 0)
         {
 
             ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-            Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*refittedTrack);
+	    std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(refittedTrackUnique.get());
 
             if (optimizedTrack) {
-                if (checkTrack("standaloneRefitOpt", optimizedTrack, refittedTrack)) {
-                    delete refittedTrack;
-                    refittedTrack = optimizedTrack;
-                    countAEOTs(refittedTrack, " standaloneRefit alignment errors Track ");
-                } else {
-                    delete optimizedTrack;
-                }
+	      if (checkTrack("standaloneRefitOpt", optimizedTrack.get(), refittedTrackUnique.get())) {
+		refittedTrackUnique.swap(optimizedTrack);
+		countAEOTs(refittedTrackUnique.get(), " standaloneRefit alignment errors Track ");
+	      } 
             }
         }
     }
 
     delete vertex;
-    return refittedTrack;
+    //have to release it until the whole tool is migrated to unique_ptr
+    return refittedTrackUnique.release();
 }
 
 /** refit a track */
@@ -2381,42 +2380,42 @@ CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval ru
         return nullptr;
     }
 
+    //eventually this whole tool will use unique_ptrs
+    //in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
+    std::unique_ptr<Trk::Track> fittedTrackUnique(fittedTrack);
     // track cleaning
     if (runOutlier) {
-        // fit with optimized spectrometer errors
+      // fit with optimized spectrometer errors
 
-        if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)
-            && optimizeErrors(fittedTrack))
+        if (!m_muonErrorOptimizer.empty() && !fittedTrackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack)
+            && optimizeErrors(fittedTrackUnique.get()))
         {
 
             ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-            Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
+	    std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrackUnique.get());
 
             if (optimizedTrack) {
-                if (checkTrack("fitInterface1Opt", optimizedTrack, fittedTrack)) {
-                    delete fittedTrack;
-                    fittedTrack = optimizedTrack;
-                    countAEOTs(fittedTrack, " re fit scaled errors Track ");
-                } else {
-                    delete optimizedTrack;
-                }
+	      if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrackUnique.get())) {
+		fittedTrackUnique.swap(optimizedTrack);
+		countAEOTs(fittedTrackUnique.get(), " re fit scaled errors Track ");
+	      } 
             }
         }
 
         // chi2 before clean
-        double chi2Before = normalizedChi2(*fittedTrack);
+        double chi2Before = normalizedChi2(*fittedTrackUnique);
 
         // muon cleaner
-        ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl
-                                                      << m_printer->printStations(*fittedTrack));
+        ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
+                                                      << m_printer->printStations(*fittedTrackUnique));
 
-        if (fittedTrack) countAEOTs(fittedTrack, " refit: fitted track before cleaning ");
+        if (fittedTrackUnique) countAEOTs(fittedTrackUnique.get(), " refit: fitted track before cleaning ");
 
-        std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+        std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrackUnique);
 
         if (cleanTrack) countAEOTs(cleanTrack.get(), " refit: after cleaning");
 
-        if (cleanTrack && !checkTrack("fitInterface1Cleaner", cleanTrack.get(), fittedTrack)) {
+        if (cleanTrack && !checkTrack("fitInterface1Cleaner", cleanTrack.get(), fittedTrackUnique.get())) {
             cleanTrack.reset();
         }
 
@@ -2424,32 +2423,30 @@ CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval ru
             if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
                 ATH_MSG_DEBUG(" cleaner veto A ");
                 ++m_countStandaloneCleanerVeto;
-                delete fittedTrack;
-                fittedTrack = nullptr;
+		fittedTrackUnique.reset();
             } else {
                 ATH_MSG_DEBUG(" keep original standalone track despite cleaner veto ");
             }
-        } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
+        } else if (!(*cleanTrack->perigeeParameters() == *fittedTrackUnique->perigeeParameters())) {
             double chi2After = normalizedChi2(*cleanTrack);
 
             if (chi2After < m_badFitChi2 || chi2After < chi2Before) {
                 ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
-                delete fittedTrack;
-                // using release until the entire code can be migrated to use smart pointers
-                fittedTrack = cleanTrack.release();
+		fittedTrackUnique.swap(cleanTrack);
             } else {
                 ATH_MSG_VERBOSE(" keep original track despite cleaning ");
             }
         }
 
         // FIXME: provide indet cleaner
-        if (fittedTrack) {
-            ATH_MSG_VERBOSE(" finished track cleaning... " << m_printer->print(*fittedTrack) << std::endl
-                                                           << m_printer->printStations(*fittedTrack));
+        if (fittedTrackUnique) {
+            ATH_MSG_VERBOSE(" finished track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
+                                                           << m_printer->printStations(*fittedTrackUnique));
         }
     }
 
-    return fittedTrack;
+    //have to use release until the whole tool uses unique_ptr
+    return fittedTrackUnique.release();
 }
 
 /** 
@@ -2519,40 +2516,40 @@ CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const T
         return nullptr;
     }
 
+    //eventually this whole tool will use unique_ptrs
+    //in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
+    std::unique_ptr<Trk::Track> fittedTrackUnique(fittedTrack);
     // track cleaning
     if (runOutlier) {
         // fit with optimized spectrometer errors
 
-        if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)
-            && optimizeErrors(fittedTrack))
+        if (!m_muonErrorOptimizer.empty() && !fittedTrackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack)
+            && optimizeErrors(fittedTrackUnique.get()))
         {
 
             ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-            Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
+	    std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrackUnique.get());
             if (optimizedTrack) {
-                if (checkTrack("fitInterface2Opt", optimizedTrack, fittedTrack)) {
-                    delete fittedTrack;
-                    fittedTrack = optimizedTrack;
-                    countAEOTs(fittedTrack, " fit mstSet scaled errors Track ");
-                } else {
-                    delete optimizedTrack;
-                }
+	      if (checkTrack("fitInterface2Opt", optimizedTrack.get(), fittedTrackUnique.get())) {
+		fittedTrackUnique.swap(optimizedTrack);
+		countAEOTs(fittedTrackUnique.get(), " fit mstSet scaled errors Track ");
+	      }
             }
         }
 
         // chi2 before clean
-        double chi2Before = normalizedChi2(*fittedTrack);
+        double chi2Before = normalizedChi2(*fittedTrackUnique);
 
         // muon cleaner
         ATH_MSG_VERBOSE(" perform track cleaning... ");
 
-        if (fittedTrack) countAEOTs(fittedTrack, " fit mstSet before cleaning ");
+        if (fittedTrackUnique) countAEOTs(fittedTrackUnique.get(), " fit mstSet before cleaning ");
 
-        std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+        std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrackUnique);
 
         if (cleanTrack) countAEOTs(cleanTrack.get(), " fit mstSet clean Track ");
 
-        if (cleanTrack && !checkTrack("fitInterface2Cleaner", cleanTrack.get(), fittedTrack)) {
+        if (cleanTrack && !checkTrack("fitInterface2Cleaner", cleanTrack.get(), fittedTrackUnique.get())) {
             cleanTrack.reset();
         }
 
@@ -2560,19 +2557,15 @@ CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const T
             if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
                 ATH_MSG_DEBUG(" cleaner veto B");
                 ++m_countExtensionCleanerVeto;
-                delete fittedTrack;
-                fittedTrack = nullptr;
+		fittedTrackUnique.reset();
             } else {
                 ATH_MSG_DEBUG(" keep original extension track despite cleaner veto ");
             }
-        } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
+        } else if (!(*cleanTrack->perigeeParameters() == *fittedTrackUnique->perigeeParameters())) {
             double chi2After = normalizedChi2(*cleanTrack);
             if (chi2After < m_badFitChi2 || chi2After < chi2Before) {
                 ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
-
-                delete fittedTrack;
-                // using release until the entire code can be migrated to use smart pointers
-                fittedTrack = cleanTrack.release();
+		fittedTrackUnique.swap(cleanTrack);
             } else {
                 ATH_MSG_VERBOSE(" keep original track despite cleaning ");
             }
@@ -2581,8 +2574,8 @@ CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const T
         // FIXME: provide indet cleaner
         ATH_MSG_VERBOSE(" finished cleaning");
     }
-
-    return fittedTrack;
+    //have to use release until the whole code uses unique_ptr
+    return fittedTrackUnique.release();
 }
 
 
@@ -2644,34 +2637,37 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, Trk::Track& extrapol
 
     if (!fittedTrack) return nullptr;
 
+    //eventually this whole tool will use unique_ptrs
+    //in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
+    std::unique_ptr<Trk::Track> fittedTrackUnique(fittedTrack);
+
     // track cleaning
     if (runOutlier) {
         // fit with optimized spectrometer errors
 
         if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)
-            && optimizeErrors(fittedTrack))
+            && optimizeErrors(fittedTrackUnique.get()))
         {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-            Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
+	    std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrackUnique.get());
 
             if (optimizedTrack) {
-                delete fittedTrack;
-                fittedTrack = optimizedTrack;
-                countAEOTs(fittedTrack, " cbfit scaled errors Track ");
+	      fittedTrackUnique.swap(optimizedTrack);
+	      countAEOTs(fittedTrackUnique.get(), " cbfit scaled errors Track ");
             }
         }
 
         // chi2 before clean
-        double chi2Before = normalizedChi2(*fittedTrack);
+        double chi2Before = normalizedChi2(*fittedTrackUnique.get());
 
         // muon cleaner
-        ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl
-                                                      << m_printer->printStations(*fittedTrack));
+        ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
+                                                      << m_printer->printStations(*fittedTrackUnique));
 
-        if (fittedTrack) {
-            countAEOTs(fittedTrack, " cb before clean Track ");
+        if (fittedTrackUnique) {
+	  countAEOTs(fittedTrackUnique.get(), " cb before clean Track ");
         }
-        std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+        std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrackUnique);
         if (cleanTrack) {
             countAEOTs(cleanTrack.get(), " cb after clean Track ");
         }
@@ -2680,19 +2676,15 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, Trk::Track& extrapol
             if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
                 ATH_MSG_DEBUG(" cleaner veto C");
                 ++m_countCombinedCleanerVeto;
-                delete fittedTrack;
-                fittedTrack = nullptr;
+		fittedTrackUnique.reset();
             } else {
                 ATH_MSG_DEBUG(" keep original combined track despite cleaner veto ");
             }
-        } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
+        } else if (!(*cleanTrack->perigeeParameters() == *fittedTrackUnique->perigeeParameters())) {
             double chi2After = normalizedChi2(*cleanTrack);
             if (chi2After < m_badFitChi2 || chi2After < chi2Before) {
                 ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
-
-                delete fittedTrack;
-                // using release until the entire code can be migrated to use smart pointers
-                fittedTrack = cleanTrack.release();
+		fittedTrackUnique.swap(cleanTrack);
             } else {
                 ATH_MSG_VERBOSE(" keep original track despite cleaning ");
             }
@@ -2701,8 +2693,8 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, Trk::Track& extrapol
         // FIXME: provide indet cleaner
         ATH_MSG_VERBOSE(" finished cleaning");
     }
-
-    return fittedTrack;
+    //have to use release until the whole code uses unique_ptr
+    return fittedTrackUnique.release();
 }
 
 /*   private methods follow */
@@ -4285,21 +4277,25 @@ CombinedMuonTrackBuilder::finalTrackBuild(Trk::Track*& track) const
         ATH_MSG_VERBOSE(" finished hole recovery procedure ");
     }
 
+    //eventually this whole tool will use unique_ptrs
+    //in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
+    std::unique_ptr<Trk::Track> trackUnique(track);
     // final fit with optimized spectrometer errors
-    if (!m_muonErrorOptimizer.empty() && !track->info().trackProperties(Trk::TrackInfo::StraightTrack)
-        && countAEOTs(track, " before optimize ") == 0)
+    if (!m_muonErrorOptimizer.empty() && !trackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack)
+        && countAEOTs(trackUnique.get(), " before optimize ") == 0)
     {
         ATH_MSG_VERBOSE(" perform spectrometer error optimization... ");
-        Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*track);
-        if (optimizedTrack && checkTrack("finalTrackBuild2", optimizedTrack, track)) {
-            delete track;
-            track = optimizedTrack;
-            countAEOTs(track, " finalTrackBuilt alignment errors Track ");
+	std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(trackUnique.get());
+        if (optimizedTrack && checkTrack("finalTrackBuild2", optimizedTrack.get(), trackUnique.get())) {
+	  trackUnique.swap(optimizedTrack);
+	  countAEOTs(track, " finalTrackBuilt alignment errors Track ");
         }
     }
 
     // add the track summary
-    m_trackSummary->updateTrack(*track);
+    m_trackSummary->updateTrack(*trackUnique);
+    //have to use release until the whole code uses unique_ptr
+    track=trackUnique.release();
 }
 
 Trk::Track*

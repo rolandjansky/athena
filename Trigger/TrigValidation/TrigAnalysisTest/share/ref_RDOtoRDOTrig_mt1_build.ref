@@ -1,5 +1,3 @@
-TrigSignatureMoniMT                            0    INFO The L1 seed to multi-item-seeded chain HLT_noalg_L1Standby could not be completely resolved. This is currently OK. Exception from menu access: L1Item L1_2EM15VHI does not exist in the menu
-TrigSignatureMoniMT                            0    INFO The L1 seed to multi-item-seeded chain HLT_noalg_L1Calo could not be completely resolved. This is currently OK. Exception from menu access: L1Item L1_2EM15VHI does not exist in the menu
 TrigSignatureMoniMT                                 INFO HLT_2e17_etcut_L12EM15VH #3136730292
 TrigSignatureMoniMT                                 INFO -- #3136730292 Events         2          2          2          2          2          -          -          -          -          -          -          -          -          -          2
 TrigSignatureMoniMT                                 INFO -- #3136730292 Features                             12         296        14         -          -          -          -          -          -          -          -          -
@@ -372,9 +370,6 @@ TrigSignatureMoniMT                                 INFO -- #417425162 Features 
 TrigSignatureMoniMT                                 INFO HLT_mu24_idperf_L1MU20 #677658909
 TrigSignatureMoniMT                                 INFO -- #677658909 Events          8          8          0          0          0          0          6          6          6          6          -          -          -          -          6
 TrigSignatureMoniMT                                 INFO -- #677658909 Features                              0          0          0          0          7          7          7          7          -          -          -          -
-TrigSignatureMoniMT                                 INFO HLT_mu24_ivarmedium_L1MU20 #737407430
-TrigSignatureMoniMT                                 INFO -- #737407430 Events          8          8          0          0          0          0          8          5          5          5          3          -          -          -          3
-TrigSignatureMoniMT                                 INFO -- #737407430 Features                              0          0          0          0          10         6          6          6          3          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_mu24_mu10noL1_L1MU20 #2563354236
 TrigSignatureMoniMT                                 INFO -- #2563354236 Events         8          8          0          0          0          0          8          5          5          5          2          2          -          -          2
 TrigSignatureMoniMT                                 INFO -- #2563354236 Features                             0          0          0          0          10         6          6          6          3          3          -          -
@@ -765,3 +760,4 @@ TrigSignatureMoniMT                                 INFO -- #531141817 Features 
 TrigSignatureMoniMT                                 INFO HLT_xe65_cell_xe110_tcpufit_L1XE50 #115518400
 TrigSignatureMoniMT                                 INFO -- #115518400 Events          10         10         0          0          0          0          0          0          0          0          0          0          5          -          5
 TrigSignatureMoniMT                                 INFO -- #115518400 Features                              0          0          0          0          0          0          0          0          0          0          5          -
+

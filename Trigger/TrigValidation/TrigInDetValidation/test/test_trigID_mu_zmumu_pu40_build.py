@@ -28,7 +28,7 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, T
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon']
-rdo2aod.max_events = 2000 # TODO: 2000 events
+rdo2aod.max_events = 100 # TODO: 2000 events
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False

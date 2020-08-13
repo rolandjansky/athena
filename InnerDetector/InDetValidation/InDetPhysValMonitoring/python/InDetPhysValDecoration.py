@@ -183,8 +183,12 @@ def getTrackDecorators(**kwargs) :
     of the algorithms will be extended by the collection name.
     '''
     # only valid kwarg : TrackParticleContainerName
-    return [ getInDetPhysHitDecoratorAlg(**kwargs),
-             getParameterErrDecoratorAlg(**kwargs) ]
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if not IsInInputFile('Trk::TrackCollection','CombinedInDetTracks') :
+        return [ getParameterErrDecoratorAlg(**kwargs) ]
+    else : 
+        return [ getInDetPhysHitDecoratorAlg(**kwargs),
+                 getParameterErrDecoratorAlg(**kwargs) ]
 
 def getDBMTrackDecorators(**kwargs) :
     from InDetRecExample.InDetKeys import InDetKeys

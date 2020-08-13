@@ -104,7 +104,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     // Vertex seed finder
     VertexSeedFinder::Config seedFinderConfig;
-    //seedFinderConfig.trackDensityEstimator = trackDensity;
+    seedFinderConfig.trackDensityEstimator = trackDensity;
     VertexSeedFinder seedFinder(seedFinderConfig, extractParameters);
     VertexFinder::Config finderConfig(std::move(fitter), seedFinder,
       ipEst, linearizer);
