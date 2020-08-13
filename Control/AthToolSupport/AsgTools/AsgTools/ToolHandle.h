@@ -88,6 +88,12 @@ public:
    /// Constructor from a tool name.
    ToolHandle( const std::string& toolname, INamedInterface* parent = 0 );
 
+   /// Constructor declaring a property
+   template<typename T2>
+   ToolHandle (T2 *parent, const std::string& propertyName,
+               const std::string& toolName,
+               const std::string& propertyTitle = "");
+
    /// Dereferencing operator
    T& operator*();
    /// Dereferencing operator
