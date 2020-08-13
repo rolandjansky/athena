@@ -94,7 +94,9 @@ namespace Muon {
 
     // if not refit tool specified do a pure refit
     if( m_errorOptimisationTool.empty() ) return m_fitter->refit(track);
-    return m_errorOptimisationTool->optimiseErrors(track);
+    std::unique_ptr<Trk::Track> optTrack=m_errorOptimisationTool->optimiseErrors(&track);
+    //have to use release until the whole tool uses unique_ptr
+    return optTrack.release();
   }
 
   MuPatTrack* MooTrackBuilder::refine( MuPatTrack& track ) const {

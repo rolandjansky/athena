@@ -6,7 +6,7 @@
 
 #ifndef XAODEGAMMA_VERSIONS_ELECTRON_V1_H
 #define XAODEGAMMA_VERSIONS_ELECTRON_V1_H
-	
+
 // Core include(s):
 #include "AthLinks/ElementLink.h"
 // xAOD include(s):
@@ -25,13 +25,11 @@
 namespace xAOD {
 
   /// @class xAOD::Electron
-  /// @brief  Class describing an electron  
+  /// @brief  Class describing an electron
   ///
   /// @author Christos Anastopoulos
   /// @author Anthony Morley
   ///
-  /// $Revision: 636327 $
-  /// $Date: 2014-12-16 17:34:24 +0100 (Tue, 16 Dec 2014) $
   ///
   class Electron_v1 :public xAOD::Egamma_v1{
 
@@ -76,12 +74,12 @@ namespace xAOD {
     /// @}
 
     /// @name xAOD::Electron Pointers to  TrackParticles
-    /// @{ 
+    /// @{
 
     /// @brief Return the number xAOD::TrackParticles that match the electron
     /// candidate
     size_t nTrackParticles() const;
-    
+
     /// @brief Pointer to the xAOD::TrackParticle/s that match the electron
     /// candidate
     const xAOD::TrackParticle* trackParticle( size_t index = 0 ) const;
@@ -89,7 +87,7 @@ namespace xAOD {
     /// @brief ElementLink to the xAOD::TrackParticle/s that match the electron
     /// candidate
     const ElementLink< TrackParticleContainer >&
-    trackParticleLink( size_t index = 0 ) const; 
+    trackParticleLink( size_t index = 0 ) const;
 
     /// Helper type definition
     typedef std::vector< ElementLink< TrackParticleContainer > > TPELVec_t;
@@ -103,16 +101,16 @@ namespace xAOD {
     /// @}
 
     /// @name xAOD::Electron  Track to Calo matching values.
-    /// @{ 
+    /// @{
 
-    ///@brief Accessor for Track to Calo Match Values    
+    ///@brief Accessor for Track to Calo Match Values
     bool trackCaloMatchValue( float& value, const EgammaParameters::TrackCaloMatchType information ) const;
 
     ///@brief Accessor for Track to Calo Match values , this just returns the value without internaly checking if it exists.
     /// Will lead to an exception if the information is not available.
     float trackCaloMatchValue(  const EgammaParameters::TrackCaloMatchType information ) const;
 
-    
+
     ///@brief Set method for Track to Calo Match values.
     bool  setTrackCaloMatchValue( const float value, const EgammaParameters::TrackCaloMatchType information );
 
