@@ -78,8 +78,8 @@ namespace PartonHistoryUtils {
     if (!isTau) return result;
 
     // identify which decay is W
-    bool firstIsW1 = std::abs(result.decay1_from_decay1_pdgId == 24) ? true : false;
-    bool firsItsW2 = std::abs(result.decay1_from_decay2_pdgId == 24) ? true : false;
+    const bool firstIsW1 = std::abs(result.decay1_from_decay1_pdgId == 24) ? true : false;
+    const bool firstIsW2 = std::abs(result.decay1_from_decay2_pdgId == 24) ? true : false;
     const xAOD::TruthParticle *W1(nullptr);
     const xAOD::TruthParticle *W2(nullptr);
     if (firstIsW1) {
