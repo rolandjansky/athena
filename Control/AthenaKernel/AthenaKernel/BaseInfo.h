@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: BaseInfo.h,v 1.11 2008-12-15 16:22:45 ssnyder Exp $
-
 /**
  * @file  AthenaKernel/BaseInfo.h
  * @author scott snyder
@@ -192,6 +188,7 @@
 #define ATHENAKERNEL_BASEINFO_H
 
 #include "CxxUtils/checker_macros.h"
+#include "AthenaKernel/Bases.h"
 #include "GaudiKernel/ClassID.h"
 #include <vector>
 #include <typeinfo>
@@ -246,6 +243,7 @@
       typedef NoBase Base2;      \
       typedef NoBase Base3;      \
       typedef NoBase Base4;      \
+      using bases = BaseList<B>; \
     };                           \
     template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
@@ -270,6 +268,7 @@
       typedef B2 Base2;          \
       typedef NoBase Base3;      \
       typedef NoBase Base4;      \
+      using bases = BaseList<B1,B2>;  \
     };                           \
     template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
@@ -295,6 +294,7 @@
       typedef B2 Base2;          \
       typedef B3 Base3;          \
       typedef NoBase Base4;          \
+      using bases = BaseList<B1,B2,B3>;           \
     };                           \
     template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
@@ -321,6 +321,7 @@
       typedef B2 Base2;          \
       typedef B3 Base3;          \
       typedef B4 Base4;          \
+      using bases = BaseList<B1,B2,B3,B4>;        \
     };                           \
     template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \

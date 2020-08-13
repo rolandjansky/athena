@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: BaseInfo.icc,v 1.9 2008-12-15 15:12:39 ssnyder Exp $
 /**
  * @file  AthenaKernel/BaseInfo.icc
  * @author scott snyder
@@ -17,64 +15,6 @@
 
 
 namespace SG {
-
-
-//===========================================================================
-// Inheritance data representation classes.
-//
-
-
-/**
- * @brief Marker to indicate a nonexistent base class.
- */
-struct NoBase {};
-
-
-/**
- * @brief Wrapper to indicate virtual derivation.
- *        @a Virtual<T> will mean that derivation from @a T is virtual.
- */
-template <class T> struct Virtual {};
-
-
-/**
- * @brief Traits class to hold derivation information for up to three
- *        base classes.
- *
- * @a Base1, etc., get typedef'd to the appropriate
- * base classes.  Use @a NoBase if there is no base class; use
- * @a Virtual<T> to indicate virtual derivation.  This class should
- * be specialized for every class @a T for which we want to know
- * inheritance information.
- */
-template <class T>
-struct Bases
-{
-  typedef NoBase Base1;
-  typedef NoBase Base2;
-  typedef NoBase Base3;
-  typedef NoBase Base4;
-};
-
-
-// Helper metafunction to get base class types.
-// Generic case.
-template <class T>
-struct BaseType
-{
-  typedef T type;
-  typedef std::false_type is_virtual;
-};
-
-
-// Helper metafunction to get base class types.
-// Virtual derivation case.
-template <class T>
-struct BaseType<Virtual<T> >
-{
-  typedef T type;
-  typedef std::true_type is_virtual;
-};
 
 
 //===========================================================================

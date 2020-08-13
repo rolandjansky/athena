@@ -97,6 +97,10 @@ atlas_add_test( safe_clid_test
    SOURCES test/safe_clid_test.cxx
    LINK_LIBRARIES AthenaKernel )
 
+atlas_add_test( Bases_test
+   SOURCES test/Bases_test.cxx
+   LINK_LIBRARIES AthenaKernel )
+
 atlas_add_test( BaseInfo_test
    SOURCES test/BaseInfo_test.cxx
    LINK_LIBRARIES AthenaKernel )
