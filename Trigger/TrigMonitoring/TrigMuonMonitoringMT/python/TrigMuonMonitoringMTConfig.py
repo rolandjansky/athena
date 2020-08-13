@@ -6,6 +6,7 @@ from TrigMuonMonitoringMT.L2MuonSAMonConfig import L2MuonSAMonConfig
 from TrigMuonMonitoringMT.L2muCombMonConfig import L2muCombMonConfig
 from TrigMuonMonitoringMT.EFMuonMonConfig import EFMuonMonConfig
 from TrigMuonMonitoringMT.TrigMuonEfficiencyMonConfig import TrigMuonEfficiencyMonConfig
+from TrigMuonMonitoringMT.TrigMuZTPMonConfig import TrigMuZTPMonConfig
 
 
 def TrigMuonMonConfig(inputFlags):
@@ -18,5 +19,6 @@ def TrigMuonMonConfig(inputFlags):
     L2muCombMonConfig(helper)
     EFMuonMonConfig(helper)
     TrigMuonEfficiencyMonConfig(helper)
+    TrigMuZTPMonConfig(helper)
 
     return helper.result()

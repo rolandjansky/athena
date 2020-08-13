@@ -7,11 +7,13 @@
 #include "../L2muCombMonMT.h"
 #include "../EFMuonMonMT.h"
 #include "../TrigMuonEfficiencyMonMT.h"
+#include "../TrigMuZTPMonMT.h"
 #include "../MuonMatchingTool.h"
 
-DECLARE_COMPONENT( TrigMuonEfficiencyMonMT )
 DECLARE_COMPONENT( L1MuonMonMT )
 DECLARE_COMPONENT( L2MuonSAMonMT )
 DECLARE_COMPONENT( L2muCombMonMT )
 DECLARE_COMPONENT( EFMuonMonMT )
+DECLARE_COMPONENT( TrigMuonEfficiencyMonMT )
+DECLARE_COMPONENT( TrigMuZTPMonMT )
 DECLARE_COMPONENT( MuonMatchingTool )

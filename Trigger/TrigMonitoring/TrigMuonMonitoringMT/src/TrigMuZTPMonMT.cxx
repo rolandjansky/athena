@@ -2,17 +2,17 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigMuonEfficiencyMonMT.h"
+#include "TrigMuZTPMonMT.h"
 #include "MuonMatchingTool.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include <algorithm>
 
-TrigMuonEfficiencyMonMT :: TrigMuonEfficiencyMonMT(const std::string& name, ISvcLocator* pSvcLocator )
+TrigMuZTPMonMT :: TrigMuZTPMonMT(const std::string& name, ISvcLocator* pSvcLocator )
   : TrigMuonMonitorAlgorithm(name, pSvcLocator)
 {}
 
 
-StatusCode TrigMuonEfficiencyMonMT :: initialize(){
+StatusCode TrigMuZTPMonMT :: initialize(){
   StatusCode sc = TrigMuonMonitorAlgorithm::initialize();
 
   // Pairing HLT and L1
@@ -30,29 +30,14 @@ StatusCode TrigMuonEfficiencyMonMT :: initialize(){
 }
 
 
-bool TrigMuonEfficiencyMonMT :: selectEvents() const {
+bool TrigMuZTPMonMT :: selectEvents() const {
   if(m_event_trigger.empty()) return true;
   return getTrigDecisionTool()->isPassed(m_event_trigger);
 }
 
 
 
-StatusCode TrigMuonEfficiencyMonMT :: selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
-
-  if(m_eff_method=="TagAndProbe"){
-    return selectMuonsTagAndProbe(muons, probes);
-  } else {
-    for (const xAOD::Muon* mu : *muons) {
-      if( mu->muonType()<=m_muontype ){
-	probes.push_back(mu);
-      }
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext& ctx, const xAOD::Muon* mu, const std::string &chain) const {
+StatusCode TrigMuZTPMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext& ctx, const xAOD::Muon* mu, const std::string &chain) const {
 
 
   auto muPt = Monitored::Scalar<double>(m_group+"_muPt");
@@ -62,6 +47,21 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   muPt = mu->pt()/1e3;
   muEta = mu->eta();
   muPhi = mu->phi();
+
+  auto isEndcap = Monitored::Scalar<bool>(m_group+"_isEndcap",false);
+  auto isBarrel = Monitored::Scalar<bool>(m_group+"_isBarrel",false);
+
+  if( std::abs(muEta) > 1.05 ) isEndcap = true;
+  else isBarrel = true;
+
+
+  std::vector<int> vec_muRegion;
+  auto muRegion = Monitored::Collection(m_group+"_muRegion",vec_muRegion);
+
+  vec_muRegion.clear();
+
+  if(isBarrel) vec_muRegion.push_back(0);
+  if(isEndcap) vec_muRegion.push_back(1);
 
   auto L1pass = Monitored::Scalar<bool>(m_group+"_L1pass",false);
   auto L2SApass = Monitored::Scalar<bool>(m_group+"_L2SApass",false);
@@ -103,7 +103,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
 
 
   if(L2CBpass){
-    if(m_doEFSA){
+    if(m_doEF){
       bool activestate = false;
       m_matchTool->matchEFSA(mu, chain, activestate);
       EFSApass = activestate;
@@ -114,7 +114,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
 
 
   if(EFSApass){
-    if(m_doEFCB){
+    if(m_doEF){
       bool activestate = false;
       m_matchTool->matchEFCB(mu, chain, activestate);
       EFCBpass = activestate;
@@ -134,17 +134,17 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
     }
   }
 
-
-  if(m_doEFIso) ATH_MSG_DEBUG("L1pass:" << L1pass << " L2SAPass:" << L2SApass << " L2CBpass:" << L2CBpass << " EFSApass:" << EFSApass <<  " EFCBpass:" << EFCBpass << " EFIsopass:" << EFIsopass);
+  if(m_doEFIso) ATH_MSG_DEBUG("L1pass:" << L1pass << " L2SAPass:" << L2SApass << " L2CBpass:" << L2CBpass << " EFSApass:" << EFSApass <<  " EFCBpass:" << EFCBpass << ", EFIsopass:" << EFIsopass);
   else ATH_MSG_DEBUG("L1pass:" << L1pass << " L2SAPass:" << L2SApass << " L2CBpass:" << L2CBpass << " EFSApass:" << EFSApass <<  " EFCBpass:" << EFCBpass);
+
 
   //// Cuts based on the offline muon's features ////
   // Inclusive
-  fill(m_group, muPt, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
+  fill(m_group, muPt, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass, isEndcap, isBarrel, muRegion);
 
   // Plateau
   if(muPt>m_thresholds.at(chain)){
-    fill(m_group, muEta, muPhi, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
+    fill(m_group, muEta, muPhi, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass, isEndcap, isBarrel, muRegion);
   }
 
 
@@ -155,7 +155,10 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
 
 
 
-StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
+StatusCode TrigMuZTPMonMT :: selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
+
+  std::vector<float> vec_invmass;
+  vec_invmass.clear();
 
   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > dimuons;
   xAOD::MuonContainer::const_iterator mu1_it = muons->begin();
@@ -168,36 +171,25 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
     for(++mu2_it; mu2_it!=mu2_end; ++mu2_it){
       const xAOD::Muon *mu2 = *mu2_it;
       if( mu2->muonType()>m_muontype ) continue;
+      if( mu1->charge()*mu2->charge()>0 ) continue;
 
       TLorentzVector lvmu1 = mu1->p4();
       TLorentzVector lvmu2 = mu2->p4();
-      //double dimu_mass = (lvmu1+lvmu2).M()/1.e3;
-      //bool bit_mass = (dimu_mass > m_mass_lowlim) & (dimu_mass < m_mass_highlim);
-      //bool bit_OS = mu1->charge()*mu2->charge()>0;
-      bool bit_dR = lvmu1.DeltaR(lvmu2)>0.5;
-      if(m_use_extrapolator){
-	const xAOD::TrackParticle *track1 = mu1->primaryTrackParticle();
-	const Trk::TrackParameters *extTrack1 = m_matchTool->extTrackToPivot(track1);
-	const xAOD::TrackParticle *track2 = mu2->primaryTrackParticle();
-	const Trk::TrackParameters *extTrack2 = m_matchTool->extTrackToPivot(track2);
-	if(extTrack1 && extTrack2){
-	  TLorentzVector lvext1 = lvmu1;
-	  TLorentzVector lvext2 = lvmu2;
-	  double mupt1 = mu1->pt();
-	  double mupt2 = mu2->pt();
-	  lvext1.SetPtEtaPhiM( mupt1, extTrack1->position().eta(), extTrack1->position().phi(), mu1->m());
-	  lvext2.SetPtEtaPhiM( mupt2, extTrack2->position().eta(), extTrack2->position().phi(), mu2->m());
-	  bit_dR = lvext1.DeltaR(lvext2) > (MuonMatchingTool::reqdRL1byPt(mupt1)+MuonMatchingTool::reqdRL1byPt(mupt2));
-	}
-      }
+      double dimu_mass = (lvmu1+lvmu2).M()/1.e3; // convert to GeV
+      vec_invmass.push_back(dimu_mass);
+      bool bit_mass = (fabs(dimu_mass - 91.1876) < 12.0000);
 
-      // For ttbar events
-      if(/*!bit_mass|!bit_OS|*/!bit_dR) continue;
+      // For Z->mumu events
+      if( !bit_mass ) continue;
       
       dimuons.push_back(std::make_pair(mu1,mu2));
     }
   }// loop over muons
   
+  auto invmass = Monitored::Collection(m_group+"_invmass", vec_invmass);
+  fill(m_group, invmass);
+
+
   for (std::pair<const xAOD::Muon*,const xAOD::Muon*> dimu : dimuons){
     bool pass1 = false;
     bool pass2 = false;
