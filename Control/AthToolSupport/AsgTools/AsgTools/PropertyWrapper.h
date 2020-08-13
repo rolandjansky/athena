@@ -12,6 +12,7 @@
 
 #ifdef XAOD_STANDALONE
 
+#include <iosfwd>
 #include <string>
 #include <utility>
 
@@ -79,6 +80,14 @@ namespace Gaudi
   operator const T& () const noexcept
   {
     return m_value;
+  }
+
+
+
+  template<typename T>
+  std::ostream& operator << (std::ostream& str, const Property<T>& property)
+  {
+    return str << property.operator const T&();
   }
 }
 

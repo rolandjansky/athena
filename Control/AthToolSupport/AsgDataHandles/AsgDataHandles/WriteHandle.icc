@@ -171,17 +171,19 @@ WriteHandle<T>::~WriteHandle()
 // }
 
 
-// /**
-//  * @brief Dereference the pointer.
-//  * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
-//  */
-// template <class T>
-// inline
-// typename WriteHandle<T>::reference_type
-// WriteHandle<T>::operator*()
-// {
-//   return *WriteHandle<T>::checkedCachedPtr();
-// }
+/**
+ * @brief Dereference the pointer.
+ * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::reference_type
+WriteHandle<T>::operator*()
+{
+  if (m_ptr == nullptr)
+    throw std::runtime_error ("dereferenced handle is null: " + key());
+  return *m_ptr;
+}
 
 
 // /**
@@ -222,32 +224,35 @@ WriteHandle<T>::~WriteHandle()
 // }
 
 
-// /**
-//  * @brief Can the handle be successfully dereferenced?
-//  */
-// template <class T>
-// inline
-// bool WriteHandle<T>::isValid()
-// {
-//   return this->m_ptr != nullptr;
-// }
+/**
+ * @brief Can the handle be successfully dereferenced?
+ */
+template <class T>
+inline
+bool WriteHandle<T>::isValid()
+{
+  return this->m_ptr != nullptr;
+}
 
 
 //************************************************************************
 // Record.
 
 
-// /**
-//  * @brief Record a const object to the store.
-//  * @param data The object to record.
-//  */
-// template <class T>
-// inline
-// StatusCode
-// WriteHandle<T>::WriteHandle::record (std::unique_ptr<T> data)
-// {
-//   return this->doRecord (std::move(data), true, false);
-// }
+/**
+ * @brief Record a const object to the store.
+ * @param data The object to record.
+ */
+template <class T>
+inline
+StatusCode
+WriteHandle<T>::WriteHandle::record (std::unique_ptr<T> data)
+{
+  m_ptr = data.get();
+  if (xAOD::TActiveStore::store()->record (std::move (data), key()).isFailure())
+    return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
+}
 
 
 // /**
@@ -276,6 +281,7 @@ StatusCode
 WriteHandle<T>::WriteHandle::record (std::unique_ptr<T> data,
                                      std::unique_ptr<AUXSTORE> auxstore)
 {
+  m_ptr = data.get();
   if (xAOD::TActiveStore::store()->record (std::move (auxstore), key() + "Aux.").isFailure())
     return StatusCode::FAILURE;
   if (xAOD::TActiveStore::store()->record (std::move (data), key()).isFailure())

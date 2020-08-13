@@ -125,6 +125,11 @@ StatusCode ToolHandle< T >::retrieve() const {
 }
 
 template< class T >
+void ToolHandle< T >::disable () noexcept {
+  m_ptool = nullptr;
+}
+
+template< class T >
 bool ToolHandle< T >::empty() const {
 
    return ( ( m_ptool == 0 ) && ( name().size() == 0 ) );
