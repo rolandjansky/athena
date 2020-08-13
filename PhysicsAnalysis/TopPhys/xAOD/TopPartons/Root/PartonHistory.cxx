@@ -467,7 +467,7 @@ namespace xAOD {
   }
 
   // Initialize variables for thqtautau events
-  void PartonHistory::IniVarThqtautau() {
+  void PartonHistory::IniVarThq() {
     //t variables
     this->auxdecor< float >("MC_t_beforeFSR_m") = -1000;
     this->auxdecor< float >("MC_t_beforeFSR_pt") = -1000;
@@ -571,7 +571,70 @@ namespace xAOD {
     this->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau2_phi") = -1000;
     this->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau2_eta") = -1000;
     this->auxdecor< int >("MC_Higgs_decay2_from_W_from_tau2_pdgId") = -1000;
-
   }
+  
+  // Initialize variables for tZq events
+  void PartonHistory::IniVarTzq() {
+    //t variables
+    this->auxdecor< float >("MC_t_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_t_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_t_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_t_beforeFSR_phi") = -1000;
+
+    this->auxdecor< float >("MC_t_afterFSR_m") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_phi") = -1000;
+
+    this->auxdecor< float >("MC_t_afterFSR_SC_m") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_SC_pt") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_SC_eta") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_SC_phi") = -1000;
+
+    this->auxdecor< float >("MC_W_from_t_m") = -1000;
+    this->auxdecor< float >("MC_W_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_W_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_W_from_t_phi") = -1000;
+
+    this->auxdecor< float >("MC_b_from_t_m") = -1000;
+    this->auxdecor< float >("MC_b_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_b_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_b_from_t_phi") = -1000;
+
+    this->auxdecor< float >("MC_Wdecay1_from_t_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_t_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay1_from_t_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_Wdecay2_from_t_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_t_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay2_from_t_pdgId") = -9999;
+    
+    //Z variables
+    this->auxdecor< float >("MC_Z_m") = -1000;
+    this->auxdecor< float >("MC_Z_pt") = -1000;
+    this->auxdecor< float >("MC_Z_eta") = -1000;
+    this->auxdecor< float >("MC_Z_phi") = -1000;
+   
+    
+    this->auxdecor< float >("MC_Zdecay1_m") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_pt") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_eta") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_phi") = -1000;
+    this->auxdecor< int >("MC_Zdecay1_pdgId") = -9999;
+    this->auxdecor< int >("MC_Zdecay1_status") = -9999;
+    
+    this->auxdecor< float >("MC_Zdecay2_m") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_pt") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_eta") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_phi") = -1000;
+    this->auxdecor< int >("MC_Zdecay2_pdgId") = -9999;
+    this->auxdecor< int >("MC_Zdecay2_status") = -9999;
+    
+    
+ }
 }
 ADD_NS_DV_PROXY(xAOD, PartonHistoryContainer);

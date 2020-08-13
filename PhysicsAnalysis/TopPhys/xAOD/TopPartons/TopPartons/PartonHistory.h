@@ -53,13 +53,14 @@ namespace xAOD {
     virtual ~PartonHistory() {}
 
     void IniVarTtbar();
+    void IniVarTzq();
     void IniVarTtbarLight();
     void IniVarTbbar();
     void IniVarWlv();
     void IniVarWtb();
     void IniVarZ();
     void IniVarTtGamma();
-    void IniVarThqtautau();
+    void IniVarThq();
   };
   typedef DataVector < xAOD::PartonHistory > PartonHistoryContainer;
 }

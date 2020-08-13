@@ -61,7 +61,6 @@ thinningTools.append( HIGG5Common.getUFOTrackParticleThinning(          'HIGG5D1
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
 #UFO thinning
 thinningTools.append( HIGG5Common.getAntiKt10UFOCSSKSoftDropBeta100Zcut10Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
-
 #calocluster thinning
 thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D1',HIGG5D1ThinningHelper) )
@@ -85,11 +84,11 @@ if DerivationFrameworkIsMonteCarlo :
 # jet selection
 #====================================================================
 jetSel = '(( count( (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15.*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.6) ) ) > 0)'
-jetSel += '|| (( count( (AntiKt4EMPFlowJets.pt > 15.*GeV) && (abs(AntiKt4EMPFlowJets.eta) < 2.6) ) ) > 0)'
-jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6) ) ) > 0)'
+jetSel += '|| (( count( (AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 15.*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 150.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
-
+jetSel += '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 150.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
+jetSel += '|| (( count( (AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.pt > 150.0*GeV) && (abs(AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.eta) < 2.6) ) ) > 0)'
 #====================================================================
 # Trigger selection
 #====================================================================
@@ -229,23 +228,7 @@ if not "HIGG5D1Jets" in OutputJets:
     include("RecExCond/AllDet_detDescr.py")
     runTCCReconstruction(higg5d1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-    #=======================================
-    # BUILD UFO INPUTS ###
-    #=======================================
-
-    ## Add PFlow constituents
-    from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-    pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-    # add the pflow cssk sequence to the main jetalg if not already there :
-    if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-      DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-    # Add UFO constituents
-    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-    emcsskufoAlg = runUFOReconstruction(higg5d1Seq, ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
-
-    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets', 'AntiKt10UFOCSSKJets']
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
 
     if jetFlags.useTruth:
         reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthDressedWZJets']
@@ -255,19 +238,18 @@ if not "HIGG5D1Jets" in OutputJets:
     if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg5d1Seq,'HIGG5D1Jets')
 
-    # TCC trimmed jets
+    # also add TCC trimmed jets
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg5d1Seq, "HIGG5D1Jets")
     # add UFO soft drop jets
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addSoftDropJets
-    addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=higg5d1Seq, outputGroup="HIGG5D1", writeUngroomed=False, mods="tcc_groomed")
-    if DerivationFrameworkIsMonteCarlo:
-      addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=higg5d1Seq, outputGroup="HIGG5D1", writeUngroomed=False)
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultUFOSoftDropJets
+    addDefaultUFOSoftDropJets(higg2d4Seq, "HIGG5D1Jets", dotruth=True)
+
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo and UFO with ghost VR-trkjet
 #====================================================================
-largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKJets"]
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg5d1Seq)
 addVRJets(higg5d1Seq, do_ghost=True)
@@ -292,7 +274,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d1Seq)
 # applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d1Seq)
 # # applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d1Seq)
 # # applyJetCalibration_OTFJets("AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=higg5d1Seq)
-
+applyJetCalibration_xAODColl(jetalg="AntiKt4EMPFlow", sequence=higg5d1Seq)
 
 
 #====================================================================
@@ -331,6 +313,12 @@ DerivationFrameworkJob += higg5d1Seq
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d1Seq, algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg5d1Seq, algname="QGTaggerToolPFAlg")
 
+# fJVT ###
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=higg5d1Seq, algname='JetForwardPFlowJvtToolAlg')
+
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=higg5d1Seq, algname='JetForwardJvtToolBDTAlg')
 
 
 #====================================================================
