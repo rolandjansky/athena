@@ -49,7 +49,7 @@ private:
   MultiComponentState calculateFilterStep(
     MultiComponentState&&,
     const MeasurementBase&,
-    std::unique_ptr<FitQualityOnSurface>& fitQoS) const;
+    FitQualityOnSurface& fitQoS) const;
 
   bool invalidComponent(const Trk::TrackParameters* trackParameters) const;
 

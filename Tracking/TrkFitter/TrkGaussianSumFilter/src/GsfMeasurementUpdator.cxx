@@ -170,7 +170,7 @@ Trk::GsfMeasurementUpdator::update(
       rebuildState(std::move(stateBeforeUpdate));
     // Perform the measurement update with the modified state
     updatedState = calculateFilterStep(
-      std::move(stateWithInsertedErrors), measurement, fitQoS);
+      std::move(stateWithInsertedErrors), measurement, *fitQoS);
     if (updatedState.empty()) {
       fitQoS.reset();
       return {};
@@ -180,7 +180,7 @@ Trk::GsfMeasurementUpdator::update(
 
   // Perform the measurement update
   updatedState =
-    calculateFilterStep(std::move(stateBeforeUpdate), measurement, fitQoS);
+    calculateFilterStep(std::move(stateBeforeUpdate), measurement, *fitQoS);
 
   if (updatedState.empty()) {
     fitQoS.reset();
@@ -193,7 +193,7 @@ Trk::MultiComponentState
 Trk::GsfMeasurementUpdator::calculateFilterStep(
   Trk::MultiComponentState&& stateBeforeUpdate,
   const Trk::MeasurementBase& measurement,
-  std::unique_ptr<FitQualityOnSurface>& fitQoS) const
+  FitQualityOnSurface& fitQoS) const
 {
   // state Assembler cache
   MultiComponentStateAssembler::Cache cache;
@@ -218,39 +218,33 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
         std::abs(component.first->parameters()[Trk::qOverP]) > 0.033333) {
       continue;
     }
-    auto componentFitQuality = std::make_unique<Trk::FitQualityOnSurface>();
+    Trk::FitQualityOnSurface componentFitQuality{};
     /// Update the component in place
     bool updateSuccess = m_updator.filterStep(*(component.first),
-                                              *componentFitQuality,
+                                              componentFitQuality,
                                               measurement.localParameters(),
                                               measurement.localCovariance(),
                                               1);
     if (!updateSuccess) {
-      if (componentFitQuality) {
-        componentFitQuality.reset();
-      }
       continue;
     }
 
     if (invalidComponent(component.first.get())) {
-      componentFitQuality.reset();
       continue;
     }
 
-    if (!componentFitQuality || componentFitQuality->chiSquared() <= 0.) {
-      componentFitQuality.reset();
+    if (componentFitQuality.chiSquared() <= 0.) {
       continue;
     }
 
-    double componentChi2 = componentFitQuality->chiSquared();
+    double componentChi2 = componentFitQuality.chiSquared();
     chiSquared += component.second * componentChi2;
 
     // The same measurement is included in each update
     // so we can update the degree of freedom only
     if (degreesOfFreedom == 0.0) {
-      degreesOfFreedom = componentFitQuality->numberDoF();
+      degreesOfFreedom = componentFitQuality.numberDoF();
     }
-    componentFitQuality.reset();
 
     // Add component to state being prepared for assembly
     MultiComponentStateAssembler::addComponent(cache, std::move(component));
@@ -263,7 +257,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
     return {};
   }
 
-  fitQoS = std::make_unique<FitQualityOnSurface>(chiSquared, degreesOfFreedom);
+  fitQoS = FitQualityOnSurface(chiSquared, degreesOfFreedom);
   // Renormalise state
   MultiComponentStateHelpers::renormaliseState(assembledUpdatedState);
   return assembledUpdatedState;
