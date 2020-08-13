@@ -34,16 +34,10 @@ private:
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc{this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", ""};
   ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "TrigConf::HLTConfigSvc/HLTConfigSvc", ""};
   
-  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
-      "HLT Menu"};
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
+  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
   
-  // TODO  add once L1 menu available as well
-  //SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1Menu", "DetectorStore+HLTMenu",
-  //      "Menu"};
-
-
-
-
+  Gaudi::Property<bool> m_useNewConfig{ this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
 };
 
 
