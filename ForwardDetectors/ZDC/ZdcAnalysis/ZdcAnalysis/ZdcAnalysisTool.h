@@ -101,7 +101,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   SG::WriteHandleKey<xAOD::ZdcModuleContainer> m_ZdcModuleWriteKey {
     this, "ZdcModuleWriteKey", "ZdcSums",
     "Output location of ZDC reprocessed data"};
-                                                                    ;
+
   bool m_flipEMDelay;
   bool m_lowGainOnly;
   bool m_combineDelay;
