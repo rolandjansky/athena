@@ -42,8 +42,6 @@ const Trk::MagneticFieldProperties s_zeroMagneticField(Trk::NoField);
 // constructor
 Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
-  m_validationMode(false),
-  m_trackingGeometry(nullptr),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_insideVolumeTolerance(1. * Gaudi::Units::mm),
@@ -51,6 +49,7 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_useStraightLineApproximation(false),
   m_searchWithDistance(true),
   m_fastField(false),
+  m_validationMode(false),
   m_forwardCalls{},
   m_forwardFirstBoundSwitch{},
   m_forwardSecondBoundSwitch{},
@@ -83,41 +82,44 @@ Trk::Navigator::~Navigator() {
 // initialize
 StatusCode
 Trk::Navigator::initialize() {
-  // Initialize StatusCode
-  //StatusCode s = StatusCode::SUCCESS;
+
+
+  //We can use conditions when the key is not empty
+  m_useConditions=!m_trackingGeometryReadKey.key().empty();
 
   // get the TrackingGeometrySvc
-  if (m_trackingGeometrySvc.retrieve().isSuccess()) {
-    ATH_MSG_INFO("Successfully retrieved " << m_trackingGeometrySvc);
-    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-  } else {
-    ATH_MSG_WARNING("Couldn't retrieve " << m_trackingGeometrySvc << ". ");
-    ATH_MSG_WARNING(" -> Trying to retrieve default '" << m_trackingGeometryName << "' from DetectorStore.");
+  if (!m_useConditions) {
+    if (m_trackingGeometrySvc.retrieve().isSuccess()) {
+      ATH_MSG_INFO("Successfully retrieved " << m_trackingGeometrySvc);
+      m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
+    } else {
+      ATH_MSG_WARNING("Couldn't retrieve " << m_trackingGeometrySvc << ". ");
+      ATH_MSG_WARNING(" -> Trying to retrieve default '"
+                      << m_trackingGeometryName << "' from DetectorStore.");
+    }
   }
 
+  ATH_CHECK(m_trackingGeometryReadKey.initialize(m_useConditions));
+
+  m_fieldProperties = m_fastField
+                        ? Trk::MagneticFieldProperties(Trk::FastField)
+                        : Trk::MagneticFieldProperties(Trk::FullField);
+
+  //This is no-op for the Navigator only relevant for
+  //derivated Validation for now
   validationInitialize();
-
-  m_fieldProperties = m_fastField ? Trk::MagneticFieldProperties(Trk::FastField) : 
-    Trk::MagneticFieldProperties(Trk::FullField);
-
   ATH_MSG_DEBUG("initialize() successful");
   return StatusCode::SUCCESS;
 }
 
 const Trk::TrackingVolume *
 Trk::Navigator::volume(const Amg::Vector3D &gp) const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
-  return(m_trackingGeometry->lowestTrackingVolume(gp));
+  return(trackingGeometry()->lowestTrackingVolume(gp));
 }
 
 const Trk::TrackingVolume *
 Trk::Navigator::highestVolume() const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
-  return(m_trackingGeometry->highestTrackingVolume());
+  return(trackingGeometry()->highestTrackingVolume());
 }
 
 const Trk::BoundarySurface<Trk::TrackingVolume>*
@@ -141,9 +143,6 @@ Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
                                     Trk::PropDirection dir,
                                     const Trk::TrackingVolume& vol) const
 {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
   // get the surface accessor
   Trk::ObjectAccessor surfAcc = vol.boundarySurfaceAccessor(
     parms.position(), dir * parms.momentum().normalized());
@@ -210,9 +209,6 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
                                    Trk::PropDirection dir,
                                    const Trk::TrackingVolume& vol) const
 {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
 
   // ---------------------------------------------------
   if (dir == Trk::alongMomentum) {
@@ -271,11 +267,11 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
                                << surface_id << " of Volume: '"
                                << vol.volumeName() << "' NOT FOUND.");
       continue;
-    } 
+    }
       ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface "
                                << surface_id << " of Volume: '"
                                << vol.volumeName() << "'.");
-    
+
 
     const Trk::Surface& currentSurface =
       currentBoundary->surfaceRepresentation();
@@ -355,9 +351,6 @@ Trk::Navigator::nextDenseTrackingVolume(
   ATH_MSG_DEBUG("  [N] nextDenseTrackingVolume() to volume '"
                 << vol.volumeName() << "', starting from " << parms.position());
 
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
 
   Trk::NavigationCell solution(nullptr, nullptr);
   const Trk::TrackParameters *currPar = &parms;
@@ -370,7 +363,7 @@ Trk::Navigator::nextDenseTrackingVolume(
   if (atVolumeBoundary(currPar, &vol, dir, nextVolume, tol) && nextVolume != (&vol)) {
     if (!nextVolume) {
       const Amg::Vector3D& gp = currPar->position();
-      const Trk::TrackingVolume *currStatic = m_trackingGeometry->lowestStaticTrackingVolume(gp);
+      const Trk::TrackingVolume *currStatic = trackingGeometry()->lowestStaticTrackingVolume(gp);
       if (&vol != currStatic) {
         nextVolume = currStatic;
       }
@@ -414,7 +407,7 @@ Trk::Navigator::nextDenseTrackingVolume(
     } else if (atVolumeBoundary(nextPar, &vol, dir, nextVolume, tol)) {
       if (!nextVolume) {
         // detached volume boundary or world boundary : resolve
-        const Trk::TrackingVolume *currStatic = m_trackingGeometry->lowestStaticTrackingVolume(gp);
+        const Trk::TrackingVolume *currStatic = trackingGeometry()->lowestStaticTrackingVolume(gp);
         if (&vol != currStatic) {
           nextVolume = currStatic;
         }
@@ -482,14 +475,10 @@ Trk::Navigator::closestParameters(const Trk::Track& trk,
                                   const Trk::Surface& sf,
                                   const Trk::IPropagator* propptr) const
 {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
 
   // -- corresponds to Extrapolator::m_searchLevel = 2/3 - search with Propagation
   if (propptr && !m_searchWithDistance) {
     const Trk::TrackParameters *closestTrackParameters = nullptr;
-    // const Trk::TrackingVolume*         highestVolume = (m_trackingGeometry->highestTrackingVolume());
 
     double distanceToSurface = 10e10;
 
@@ -606,7 +595,6 @@ Trk::Navigator::closestParameters(const Trk::Track& trk,
 // finalize
 StatusCode
 Trk::Navigator::finalize() {
-  m_trackingGeometry = nullptr;
 
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG("[N] " << name() << " Perfomance Statistics : --------------------------------");
@@ -627,21 +615,25 @@ Trk::Navigator::finalize() {
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingGeometry *
+const Trk::TrackingGeometry*
 Trk::Navigator::trackingGeometry() const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
+  if (!m_useConditions) {
+    const TrackingGeometry* trackingGeometry = nullptr;
+    if (detStore()
+          ->retrieve(trackingGeometry, m_trackingGeometryName)
+          .isFailure()) {
+      ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
+      throw Trk::NavigatorException();
+    }
+    return trackingGeometry;
+  } else {
+    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey,
+                                                Gaudi::Hive::currentContext());
+    if (!handle.isValid()) {
+      ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
+      throw Trk::NavigatorException();
+    }
+    return handle.cptr();
   }
-  return m_trackingGeometry;
 }
 
-void
-Trk::Navigator::updateTrackingGeometry() const {
-  // -------------------- public TrackingGeometry (from DetectorStore) ----------------------------
-
-  if (detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName).isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore.");
-    ATH_MSG_FATAL("  - probably the chosen layout is not supported / no cool tag exists. ");
-    throw Trk::NavigatorException();
-  }
-}

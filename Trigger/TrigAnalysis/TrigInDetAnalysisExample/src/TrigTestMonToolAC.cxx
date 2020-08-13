@@ -344,10 +344,9 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
 
 StatusCode TrigTestMonToolAC::fill() { 
-  msg(MSG::INFO) << " ----- enter fill() (athena) ----- " << endmsg;  
+  msg(MSG::DEBUG) << " ----- enter fill() (athena) ----- " << endmsg;  
 
-
-  msg(MSG::INFO) << "chains: " << m_chainNames.size() << endmsg;
+  msg(MSG::DEBUG) << "chains: " << m_chainNames.size() << endmsg;
 
   for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ) { 
     ChainString s = m_chainNames[i];
@@ -357,7 +356,7 @@ StatusCode TrigTestMonToolAC::fill() {
   
   for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->execute();
 
-  msg(MSG::INFO) << " ----- exit fill() ----- " << endmsg;
+  msg(MSG::DEBUG) << " ----- exit fill() ----- " << endmsg;
   return StatusCode::SUCCESS; 
 }
 

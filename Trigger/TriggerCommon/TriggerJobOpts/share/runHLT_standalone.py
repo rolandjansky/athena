@@ -142,7 +142,7 @@ if len(athenaCommonFlags.FilesInput())>0:
         opt.setDetDescr = af.fileinfos.get('geometry',None)
     if opt.setGlobalTag is None:
         opt.setGlobalTag = af.fileinfos.get('conditions_tag',None) or \
-            (TriggerFlags.OnlineCondTag() if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
+            (ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
     TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
 
 else:   # athenaHLT
@@ -165,9 +165,9 @@ ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'P
 
 
 # Set final Cond/Geo tag based on input file, command line or default
-globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag()
+globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
 ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
-globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTag()
+globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTag
 ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
@@ -369,9 +369,6 @@ else:
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
-
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-svcMgr += RegSelSvcDefault()
 
 if ConfigFlags.Trigger.doID:
     from InDetRecExample.InDetJobProperties import InDetFlags
