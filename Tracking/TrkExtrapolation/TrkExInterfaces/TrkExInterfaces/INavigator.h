@@ -74,13 +74,16 @@ public:
 
   /** INavigator interface method - returns the TrackingGeometry used for
    * navigation */
-  virtual const TrackingGeometry* trackingGeometry() const = 0;
+  virtual const TrackingGeometry* trackingGeometry(
+    const EventContext& ctx) const = 0;
 
   /** INavigator interface method - global search for the Volume one is in */
-  virtual const TrackingVolume* volume(const Amg::Vector3D& gp) const = 0;
+  virtual const TrackingVolume* volume(const EventContext& ctx,
+                                       const Amg::Vector3D& gp) const = 0;
 
   /** INavigator interface method - forward hightes TrackingVolume */
-  virtual const TrackingVolume* highestVolume() const = 0;
+  virtual const TrackingVolume* highestVolume(
+    const EventContext& ctx) const = 0;
 
   /** INavigator interface method - getting the closest TrackParameters from a
    * Track to a Surface */
@@ -141,6 +144,21 @@ public:
                                                  ParticleHypothesis particle,
                                                  const TrackingVolume& vol,
                                                  double& path) const = 0;
+
+   /*
+    * Methods without explicit Event Context. To be removed
+    * when clients get migrated
+    */
+
+  /** INavigator interface method - returns the TrackingGeometry used for
+   * navigation */
+  virtual const TrackingGeometry* trackingGeometry() const;
+
+  /** INavigator interface method - global search for the Volume one is in */
+  virtual const TrackingVolume* volume(const Amg::Vector3D& gp) const;
+
+  /** INavigator interface method - forward hightes TrackingVolume */
+  virtual const TrackingVolume* highestVolume() const;
 
   /** INavigator interface method - getting the next BoundarySurface not knowing
    * the Volume*/

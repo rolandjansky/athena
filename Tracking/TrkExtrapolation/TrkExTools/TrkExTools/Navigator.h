@@ -73,17 +73,27 @@ namespace Trk {
       /** AlgTool finalize method */
       virtual StatusCode finalize() override;
 
+      using INavigator::trackingGeometry;
+      using INavigator::volume;
+      using INavigator::highestVolume;
+      using INavigator::nextBoundarySurface;
+      using INavigator::nextTrackingVolume;
+      using INavigator::nextDenseTrackingVolume;
+
+
       /** INavigator interface method - returns the TrackingGeometry used for
        * navigation */
-      virtual const TrackingGeometry* trackingGeometry() const override final;
+      virtual const TrackingGeometry* trackingGeometry(
+        const EventContext& ctx) const override final;
 
       /** INavigator interface methods - global search for the Volume one is in
        */
       virtual const TrackingVolume* volume(
-        const Amg::Vector3D& gp) const override final;
+        const EventContext& ctx, const Amg::Vector3D& gp) const override final;
 
       /** INavigator interface method - forward hightes TrackingVolume */
-      virtual const TrackingVolume* highestVolume() const override final;
+      virtual const TrackingVolume* highestVolume(
+        const EventContext& ctx) const override final;
 
       /** INavigator interface method - getting the closest TrackParameters from
        * a Track to a Surface*/
@@ -103,10 +113,6 @@ namespace Trk {
          Can be implemented optionally, outside access to internal validation
          steps */
       virtual void validationAction() const override {}
-
-      using INavigator::nextBoundarySurface;
-      using INavigator::nextTrackingVolume;
-      using INavigator::nextDenseTrackingVolume;
 
       /** INavigator interface methods - getting the next BoundarySurface not
        * knowing the Volume*/
