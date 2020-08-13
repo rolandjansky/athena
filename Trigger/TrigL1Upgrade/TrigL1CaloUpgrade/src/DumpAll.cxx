@@ -3,7 +3,7 @@
 */
 
 
-/** 
+/**
  * NAME : 	DumpAll.cxx
  * PACKAGE : 	Trigger/L1CaloUpgrade/DumpAll
  *
@@ -38,7 +38,7 @@ DumpAll::DumpAll( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgor
 DumpAll::~DumpAll(){}
 
 StatusCode DumpAll::initialize(){
-	
+
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "initializing DumpAll" << endmsg;
         m_counter = 0;
@@ -127,7 +127,7 @@ StatusCode DumpAll::finalize(){
 }
 
 StatusCode DumpAll::execute(){
-	
+
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute DumpAll" << endmsg;
 	std::cout << "DumpAll" << std::endl;
@@ -313,15 +313,15 @@ StatusCode DumpAll::execute(){
 		m_offel_f1.push_back(el->auxdata<float>("f1") );
 		m_offel_f3.push_back(el->auxdata<float>("f3") );
 		m_offel_had.push_back( 0.0 ); // not yet there
-		m_offel_istight.push_back( (el->passSelection( xAOD::EgammaParameters::LHTight ) ? 1 : 0 ) );
-		m_offel_ismedium.push_back( (el->passSelection( xAOD::EgammaParameters::LHMedium ) ? 1 : 0 ) );
-		m_offel_isloose.push_back( (el->passSelection( xAOD::EgammaParameters::LHLoose ) ? 1 : 0 ) );
+		m_offel_istight.push_back( (el->passSelection( "LHTight" ) ? 1 : 0 ) );
+		m_offel_ismedium.push_back( (el->passSelection( "LHMedium" ) ? 1 : 0 ) );
+		m_offel_isloose.push_back( (el->passSelection( "LHLoose" ) ? 1 : 0 ) );
 	} // end of electron
 	m_offelectron->Fill();
 
 
 	m_counter++;
-	
+
 	return StatusCode::SUCCESS;
 }
 

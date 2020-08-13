@@ -371,9 +371,6 @@ from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
 
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-svcMgr += RegSelSvcDefault()
-
 if TriggerFlags.doID():
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
@@ -459,7 +456,7 @@ if opt.doL1Unpacking:
         from L1Decoder.L1DecoderConfig import L1DecoderCfg
         CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
-        from TrigUpgradeTest.TestUtils import L1EmulationTest
+        from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
 
 # ---------------------------------------------------------------

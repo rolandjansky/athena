@@ -129,7 +129,7 @@ def make_l1_seq(options=default_options):
     # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
     from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr += getL1ConfigSvc()
+    svcMgr += getL1ConfigSvc(ConfigFlags)
 
     # Initialise L1 decoding tools
     from L1Decoder.L1DecoderConf import CTPUnpackingTool
