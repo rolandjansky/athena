@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTLorentzMonTool.cxx
@@ -34,6 +34,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 // for sct residuals
 #include "TrkTrackSummary/TrackSummary.h"
@@ -72,6 +73,8 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   m_phiVsNstrips_Side_100{},
   m_phiVsNstrips_Side_111{},
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
+  m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"), // This has to be public tool (without this pointer)
+  m_rejectSharedHit(true),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr) {
   m_stream = "/stat";
@@ -80,6 +83,8 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   m_numberOfEvents = 0;
   declareProperty("HoleSearch", m_holeSearchTool);
   declareProperty("GetTrackHoles", m_getTrackHoles);
+  declareProperty("AssociationTool", m_assoTool);
+  declareProperty("RejectSharedHit", m_rejectSharedHit);
 }
 
 // ====================================================================================================
@@ -98,6 +103,7 @@ SCTLorentzMonTool::bookHistogramsRecurrent() {                                  
                                                                                                                                              // hidetoshi
                                                                                                                                              // 14.01.21
   CHECK (m_holeSearchTool.retrieve());
+  CHECK (m_assoTool.retrieve());
   m_path = "";
   if (newRunFlag()) {
     m_numberOfEvents = 0;                                                                                                                        //
@@ -124,6 +130,7 @@ StatusCode
 SCTLorentzMonTool::bookHistograms() {                                                                                                      //
                                                                                                                                             // hidetoshi
                                                                                                                                             // 14.01.21
+  CHECK (m_assoTool.retrieve());
   CHECK (m_holeSearchTool.retrieve());
   m_path = "";
   m_numberOfEvents = 0;                                                                                                                                  //
@@ -184,6 +191,14 @@ SCTLorentzMonTool::fillHistograms() {
     ATH_MSG_WARNING("Container " << m_tracksName << " not found.  Exit SCTLorentzMonTool");
     return StatusCode::SUCCESS;
   }
+  
+  
+  // Prepare AssociationTool
+  m_assoTool->reset();
+  for (const Trk::Track* track : *tracks) {
+    ATH_CHECK(m_assoTool->addPRDs(*track));
+  }
+
 
   TrackCollection::const_iterator trkitr = tracks->begin();
   TrackCollection::const_iterator trkend = tracks->end();
@@ -214,8 +229,7 @@ SCTLorentzMonTool::fillHistograms() {
     else if ((perigee->parameters()[Trk::qOverP] < 0.) && // use negative track only
         (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
         //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
-        (summary->get(Trk::numberOfSCTHits) > 6) // SCTHits >6
-        //&& (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1 may be used if needed. 
+        (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1
     ){
         passesCuts = true;
     }else{
@@ -235,7 +249,7 @@ SCTLorentzMonTool::fillHistograms() {
     }
     
     if (not track) {
-      ATH_MSG_WARNING ("track pointer is invalid");
+      ATH_MSG_WARNING("track pointer is invalid");
       continue;
     }
     
@@ -247,6 +261,24 @@ SCTLorentzMonTool::fillHistograms() {
       continue;
     }
 
+    /// counting the hits in SCT
+    unsigned int nSCTBarrel = 0;
+    for (const Trk::TrackStateOnSurface* tsos : *trackStates) {
+      if (not tsos->type(Trk::TrackStateOnSurface::Measurement)) continue; // Not a hit
+
+      const InDet::SiClusterOnTrack* rot = dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack());
+      if (rot==nullptr) continue; // Not a valid SiClusterOnTrack
+
+      const InDet::SiCluster* clus = dynamic_cast<const InDet::SiCluster*>(rot->prepRawData());
+      if (clus==nullptr) continue; // Not a valid SiCluster
+
+      if (not clus->detectorElement()->isSCT()) continue; // Not an SCT hit
+
+      const Identifier& sct_id = clus->identify();
+      const int bec = m_pSCTHelper->barrel_ec(sct_id);
+
+      if (bec==0) nSCTBarrel++; // This SCT hit is in Barrel
+    }
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit = trackStates->end();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != endit; ++it) {
@@ -257,8 +289,28 @@ SCTLorentzMonTool::fillHistograms() {
           continue;
       }
       
-      /// selecting track momentum greater than 500
-      if(trkp->momentum().perp() < 500.) continue;
+      /// selecting track momentum greater than 500 and nSCTBarrel > 7 and use only |localX| < 28 mm and 2 <|localY| < 58 mm tracks
+      if(!(trkp->momentum().perp() > 500. && nSCTBarrel > 7 && std::abs(trkp->localPosition()[0]) < 28 && std::abs(trkp->localPosition()[1]) > 2 && std::abs(trkp->localPosition()[1]) < 58)) continue;
+      
+      //// get the pT index of the tracks
+      int pTIndex(-1);
+      if(trkp->momentum().perp() >= 500. && trkp->momentum().perp() < 600.)
+          pTIndex = 0;
+      else if(trkp->momentum().perp() >= 600. && trkp->momentum().perp() < 700.)
+          pTIndex = 1;
+      else if(trkp->momentum().perp() >= 700. && trkp->momentum().perp() < 1000.)
+          pTIndex = 2;
+      else if(trkp->momentum().perp() >= 1000. && trkp->momentum().perp() < 1500.)
+          pTIndex = 3;
+      else if(trkp->momentum().perp() >= 1500. && trkp->momentum().perp() < 2000.)
+          pTIndex = 4;
+      else if(trkp->momentum().perp() >= 2000. && trkp->momentum().perp() < 3000.)
+          pTIndex = 5;
+      else if(trkp->momentum().perp() >= 3000. && trkp->momentum().perp() < 5000.)
+          pTIndex = 6;
+      else
+          pTIndex = 7;
+          
       // working on hits
       if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
         const InDet::SiClusterOnTrack *clus =
@@ -289,6 +341,12 @@ SCTLorentzMonTool::fillHistograms() {
                 const std::vector<Identifier> &rdoList = RawDataClus->rdoList();
                 int nStrip = rdoList.size();
                 
+                /// rejecing shared hits
+                if (m_rejectSharedHit and m_assoTool->isShared(*(clus->prepRawData()))) {
+                   continue;
+                }
+
+                
                 // Get angle to wafer surface
                 float phiToWafer(90.), thetaToWafer(90.);
                 float sinAlpha = 0.; // for barrel, which is the only thing considered here
@@ -301,38 +359,90 @@ SCTLorentzMonTool::fillHistograms() {
                     ATH_MSG_WARNING("Error in finding track angles to wafer surface");
                     continue; // Let's think about this (later)... continue, break or return?
                 }
+                
                 // Fill profile
-                    
-                /// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
-                int etaIndex(0);
-                if(eta < 0 )
-                    etaIndex = eta + 6;
-                else
-                    etaIndex = eta + 5;
-                    
                 m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
-                m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                 m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                    
+                m_phiVsNstrips_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_Side_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
                 if (in100) {
                     m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
                     m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                            
-                    m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                    m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                                    
+                    m_phiVsNstrips_100_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_100_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
                 }else {
                     m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
                     m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                            
-                    m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                    m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-                                    
+                    m_phiVsNstrips_111_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_111_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                }
+                
+                /// first change the negative eta to positive eta index. This is needed to fill the array of histograms.
+                int etaIndex(-1);
+                if(eta == -1 ){
+                    etaIndex = 0;
+                }
+                else if(eta == 1){
+                    etaIndex = 1;
+                }
+                
+                if(std::abs(eta)==1){
+                    m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_Side_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    if (in100) {
+                        m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_100_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_Side_100_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    }else {
+                        m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_111_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_Side_111_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    }
+                }
+                
+                /// selecting only eta < 0.5 cases
+                if(std::abs(trkp->eta())>0.5)continue;
+                
+                m_phiVsNstrips_eta0p5[layer]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_Side_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                if (in100) {
+                    m_phiVsNstrips_eta0p5_100[layer]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_100_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_Side_100_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                }else {
+                    m_phiVsNstrips_eta0p5_111[layer]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_111_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_Side_111_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+                }
+                if(std::abs(eta)==1){
+                    m_phiVsNstrips_eta0p5_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    m_phiVsNstrips_eta0p5_Side_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    if (in100) {
+                        m_phiVsNstrips_eta0p5_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_eta0p5_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_eta0p5_100_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_eta0p5_Side_100_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    }else {
+                        m_phiVsNstrips_eta0p5_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_eta0p5_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_eta0p5_111_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                        m_phiVsNstrips_eta0p5_Side_111_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    }
                 }
             }// end if SCT
         } // end if clus..
       } // end if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
+      
       // working on holes only if we want to
       else if(m_getTrackHoles && (*it)->type(Trk::TrackStateOnSurface::Hole)) {
         Identifier surfaceID;
@@ -368,30 +478,81 @@ SCTLorentzMonTool::fillHistograms() {
             continue; // Let's think about this (later)... continue, break or return?
         }
         // Fill profile
-        /// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
-        int etaIndex(0);
-        if(eta < 0 )
-            etaIndex = eta + 6;
-        else
-            etaIndex = eta + 5;
-            
         m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
-        m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
         m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
-        m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-            
+        m_phiVsNstrips_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+        m_phiVsNstrips_Side_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
         if (in100) {
             m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                    
-            m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-            m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_100_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_100_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
         }else {
             m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
             m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                                    
-            m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
-            m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_111_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_111_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+        }
+        /// first change the negative eta to positive eta index. This is needed to fill the array of histograms.
+        int etaIndex(-1);
+        if(eta == -1 ){
+            etaIndex = 0;
+        }
+        else if(eta == 1){
+            etaIndex = 1;
+        }
+        
+        if(std::abs(eta)==1){
+            m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_Side_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            if (in100) {
+                m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_100_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_Side_100_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            }else {
+                m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_111_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_Side_111_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            }
+        }
+        
+        /// selecting only eta < 0.5 cases
+        if(std::abs(trkp->eta())>0.5)continue;
+        m_phiVsNstrips_eta0p5[layer]->Fill(phiToWafer, nStrip, 1.);
+        m_phiVsNstrips_eta0p5_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
+        m_phiVsNstrips_eta0p5_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+        m_phiVsNstrips_eta0p5_Side_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+        if (in100) {
+            m_phiVsNstrips_eta0p5_100[layer]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_100_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_Side_100_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+        }else {
+            m_phiVsNstrips_eta0p5_111[layer]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_111_pT[layer][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_Side_111_pT[layer][side][pTIndex]->Fill(phiToWafer, nStrip, 1.);
+        }
+        if(std::abs(eta)==1){
+            m_phiVsNstrips_eta0p5_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            m_phiVsNstrips_eta0p5_Side_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            if (in100) {
+                m_phiVsNstrips_eta0p5_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_100_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_Side_100_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            }else {
+                m_phiVsNstrips_eta0p5_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_111_pT_eta[layer][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                m_phiVsNstrips_eta0p5_Side_111_pT_eta[layer][side][pTIndex][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+            }
         }
       } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
     } // end of for loop trackStates
@@ -435,7 +596,8 @@ StatusCode
 SCTLorentzMonTool::bookLorentzHistos() {                                                                                                                
   const int nLayers(4);
   const int nSides(2);
-  const int nEta(12);
+  const int nEta(2);
+  const int nPt(8);
   string stem = m_path + "/SCT/GENERAL/lorentz/";
   //    MonGroup Lorentz(this,m_path+"SCT/GENERAL/lorentz",expert,run);        // hidetoshi 14.01.21
   MonGroup Lorentz(this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED);     // hidetoshi 14.01.21
@@ -447,22 +609,28 @@ SCTLorentzMonTool::bookLorentzHistos() {
     "0", "1"
   };
   string hEtaS[nEta] = {
-    "-6", "-5", "-4", "-3", "-2", "-1", "1", "2", "3", "4", "5", "6"
+    "Minus1", "Plus1"
   };
+  string hPt[nPt] = {
+    "0", "1", "2", "3", "4", "5", "6", "7"   
+  };
+  string hPtTitle[nPt] = {
+    "(0.5, 0.6)", "(0.6, 0.7)", "(0.7, 1.0)", "(1.0, 1.5)", "(1.5, 2.0)", "(2.0, 3.0)", "(3.0, 5.0)", "(5.0, inf)"   
+  };
+  
   int nProfileBins = 360;
-
   int success = 1;
 
   for (int l = 0; l != nLayers; ++l) {
     // granularity set to one profile/layer for now
     int iflag = 0;
     m_phiVsNstrips_100[l] = pFactory("h_phiVsNstrips_100" + hNum[l], "100 - Inc. Angle vs nStrips for Layer " + hNum[l],
-                                     nProfileBins, -18., 18., Lorentz, iflag);
+                                    nProfileBins, -18., 18., Lorentz, iflag);
     m_phiVsNstrips_111[l] = pFactory("h_phiVsNstrips_111" + hNum[l], "111 - Inc. Angle vs nStrips for Layer " + hNum[l],
                                      nProfileBins, -18., 18., Lorentz, iflag);
 
     m_phiVsNstrips[l] = pFactory("h_phiVsNstrips" + hNum[l], "Inc. Angle vs nStrips for Layer" + hNum[l], nProfileBins,
-                                 -18., 18., Lorentz, iflag);
+                                -18., 18., Lorentz, iflag);
     m_phiVsNstrips[l]->GetXaxis()->SetTitle("#phi to Wafer");
     m_phiVsNstrips[l]->GetYaxis()->SetTitle("Num of Strips");
 
@@ -473,72 +641,330 @@ SCTLorentzMonTool::bookLorentzHistos() {
 
     m_phiVsNstrips_111[l]->GetXaxis()->SetTitle("#phi to Wafer");
     m_phiVsNstrips_111[l]->GetYaxis()->SetTitle("Num of Strips");
-
+    
+    /// defining profiles for etaModule
     for (int etaModule=0; etaModule != nEta; ++etaModule){
                 
-      // granularity set to eta for now
-      m_phiVsNstrips_100_eta[l][etaModule] = pFactory("h_phiVsNstrips_100" + hNum[l] + "_Eta" + hEtaS[etaModule], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+          // granularity set to eta for now
+          m_phiVsNstrips_100_eta[l][etaModule] = pFactory("h_phiVsNstrips_100" + hNum[l] + "_EtaModule" + hEtaS[etaModule], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and EtaModule " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
                 
-      m_phiVsNstrips_111_eta[l][etaModule] = pFactory("h_phiVsNstrips_111" + hNum[l] + "_Eta" + hEtaS[etaModule], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
-      //// old histograms/TProfiles
-      m_phiVsNstrips_100_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-      m_phiVsNstrips_100_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+          m_phiVsNstrips_111_eta[l][etaModule] = pFactory("h_phiVsNstrips_111" + hNum[l] + "_EtaModule" + hEtaS[etaModule], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and EtaModule " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+          //// old histograms/TProfiles
+          m_phiVsNstrips_100_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+          m_phiVsNstrips_100_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
 
-      m_phiVsNstrips_111_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-      m_phiVsNstrips_111_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+          m_phiVsNstrips_111_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+          m_phiVsNstrips_111_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
                 
 
-      m_phiVsNstrips_eta[l][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "_Eta" + hEtaS[etaModule], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
-      m_phiVsNstrips_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-      m_phiVsNstrips_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+          m_phiVsNstrips_eta[l][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "_EtaModule" + hEtaS[etaModule], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and EtaModule " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+          m_phiVsNstrips_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+          m_phiVsNstrips_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
     }
+    
+    /// defining profiles for each pT chunk
+    for(int pTChunk=0; pTChunk != nPt; ++pTChunk){
+          m_phiVsNstrips_100_pT[l][pTChunk] = pFactory("h_phiVsNstrips_100" + hNum[l]+ "_pT" +hPt[pTChunk], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk],
+                                     nProfileBins, -18., 18., Lorentz, iflag);
+          m_phiVsNstrips_111_pT[l][pTChunk] = pFactory("h_phiVsNstrips_111" + hNum[l]+ "_pT" +hPt[pTChunk], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk],
+                                     nProfileBins, -18., 18., Lorentz, iflag);
 
+          m_phiVsNstrips_pT[l][pTChunk] = pFactory("h_phiVsNstrips" + hNum[l] + "_pT" +hPt[pTChunk], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and pT "+hPtTitle[pTChunk], nProfileBins,
+                                 -18., 18., Lorentz, iflag);
+          m_phiVsNstrips_pT[l][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+          m_phiVsNstrips_pT[l][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+
+          //// old histograms/TProfiles
+          m_phiVsNstrips_100_pT[l][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+          m_phiVsNstrips_100_pT[l][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+          m_phiVsNstrips_111_pT[l][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+          m_phiVsNstrips_111_pT[l][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+          
+          /// for each eta module
+          for (int etaModule=0; etaModule!=nEta;++etaModule){
+              m_phiVsNstrips_pT_eta[l][pTChunk][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "_pT" +hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and pT "+hPtTitle[pTChunk] + " and EtaModule "+ hEtaS[etaModule], nProfileBins,
+                                 -18., 18., Lorentz, iflag);
+              m_phiVsNstrips_pT_eta[l][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+              m_phiVsNstrips_pT_eta[l][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+         
+         
+              m_phiVsNstrips_100_pT_eta[l][pTChunk][etaModule] = pFactory("h_phiVsNstrips_100" + hNum[l]+ "_pT" +hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk]+" and EtaModule "+hEtaS[etaModule],
+                                     nProfileBins, -18., 18., Lorentz, iflag);
+              m_phiVsNstrips_111_pT_eta[l][pTChunk][etaModule] = pFactory("h_phiVsNstrips_111" + hNum[l]+ "_pT" +hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk] + " EtaModule "+hEtaS[etaModule],
+                                     nProfileBins, -18., 18., Lorentz, iflag);
+              m_phiVsNstrips_100_pT_eta[l][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+              m_phiVsNstrips_100_pT_eta[l][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+              m_phiVsNstrips_111_pT_eta[l][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+              m_phiVsNstrips_111_pT_eta[l][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+          }
+    }
+        
+    
+    /// defining profiles for each side
     for (int side = 0; side < nSides; ++side) {
-      m_phiVsNstrips_Side_100[l][side] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side],
+           m_phiVsNstrips_Side_100[l][side] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side],
                                                   "100 - Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
                                                   nProfileBins, -18., 18., Lorentz, iflag);
-      m_phiVsNstrips_Side_111[l][side] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side],
+           m_phiVsNstrips_Side_111[l][side] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side],
                                                   "111 - Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
                                                   nProfileBins, -18., 18., Lorentz, iflag);
-      m_phiVsNstrips_Side[l][side] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side],
-                                              "Inc. Angle vs nStrips for Layer Side" + hNum[l] + hNumS[side],
+           m_phiVsNstrips_Side[l][side] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side],
+                                              "Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
                                               nProfileBins, -18., 18., Lorentz, iflag);
 
-      m_phiVsNstrips_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
-      m_phiVsNstrips_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
+           m_phiVsNstrips_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+           m_phiVsNstrips_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
 
-      m_phiVsNstrips_Side_100[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
-      m_phiVsNstrips_Side_100[l][side]->GetYaxis()->SetTitle("Num of Strips");
+           m_phiVsNstrips_Side_100[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+           m_phiVsNstrips_Side_100[l][side]->GetYaxis()->SetTitle("Num of Strips");
 
-      m_phiVsNstrips_Side_111[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
-      m_phiVsNstrips_Side_111[l][side]->GetYaxis()->SetTitle("Num of Strips");
+           m_phiVsNstrips_Side_111[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+           m_phiVsNstrips_Side_111[l][side]->GetYaxis()->SetTitle("Num of Strips");
 
-      for (int etaModule=0; etaModule != nEta; ++etaModule){
-        m_phiVsNstrips_Side_100_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
-                                                                   "100 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+           for (int etaModule=0; etaModule != nEta; ++etaModule){
+               m_phiVsNstrips_Side_100_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side] + "_EtaModule" + hEtaS[etaModule],
+                                                                   "100 - Inc. Angle vs nStrips for Layer Side EtaModule " + hNum[l] + hNumS[side] + hEtaS[etaModule],
                                                                    nProfileBins, -18., 18., Lorentz, iflag);
-        m_phiVsNstrips_Side_111_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
-                                                                   "111 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+               m_phiVsNstrips_Side_111_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side] + "_EtaModule" + hEtaS[etaModule],
+                                                                   "111 - Inc. Angle vs nStrips for Layer Side EtaModule " + hNum[l] + hNumS[side] + hEtaS[etaModule],
                                                                    nProfileBins, -18., 18., Lorentz, iflag);
-        m_phiVsNstrips_Side_eta[l][side][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
-                                                               "Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+               m_phiVsNstrips_Side_eta[l][side][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side] + "_EtaModule" + hEtaS[etaModule],
+                                                               "Inc. Angle vs nStrips for Layer Side EtaModule " + hNum[l] + hNumS[side] + hEtaS[etaModule],
                                                                nProfileBins, -18., 18., Lorentz, iflag);
 
-        m_phiVsNstrips_Side_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-        m_phiVsNstrips_Side_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+               m_phiVsNstrips_Side_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+               m_phiVsNstrips_Side_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
 
-        m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-        m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+               m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+               m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
 
-        m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
-        m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
-      }
+               m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+               m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+           }
+      
+           //// pT dependent profile plots
+           for(int pTChunk=0; pTChunk != nPt; ++pTChunk){
+                m_phiVsNstrips_Side_100_pT[l][side][pTChunk] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk],
+                                                  "100 - Inc. Angle vs nStrips for Layer Side pT " + hNum[l] + hNumS[side] + hPtTitle[pTChunk],
+                                                  nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_Side_111_pT[l][side][pTChunk] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk],
+                                                  "111 - Inc. Angle vs nStrips for Layer Side pT " + hNum[l] + hNumS[side] + hPtTitle[pTChunk],
+                                                  nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_Side_pT[l][side][pTChunk] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side] + "_pT" + hPt[pTChunk],
+                                              "Inc. Angle vs nStrips for Layer Side pT " + hNum[l] + hNumS[side]+hPtTitle[pTChunk],
+                                              nProfileBins, -18., 18., Lorentz, iflag);
 
+                m_phiVsNstrips_Side_pT[l][side][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_Side_pT[l][side][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+                m_phiVsNstrips_Side_100_pT[l][side][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_Side_100_pT[l][side][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+                m_phiVsNstrips_Side_111_pT[l][side][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_Side_111_pT[l][side][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+        
+                /// pT dependent and eta module dependent profiles
+                for (int etaModule = 0; etaModule != nEta; ++etaModule){
+                    m_phiVsNstrips_Side_100_pT_eta[l][side][pTChunk][etaModule] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule],
+                                                  "100 - Inc. Angle vs nStrips for Layer Side pT EtaModule " + hNum[l] + hNumS[side] + hPtTitle[pTChunk]+hEtaS[etaModule],
+                                                  nProfileBins, -18., 18., Lorentz, iflag);
+                    m_phiVsNstrips_Side_111_pT_eta[l][side][pTChunk][etaModule] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule],
+                                                  "111 - Inc. Angle vs nStrips for Layer Side pT EtaModule " + hNum[l] + hNumS[side] + hPtTitle[pTChunk]+hEtaS[etaModule],
+                                                  nProfileBins, -18., 18., Lorentz, iflag);
+                    m_phiVsNstrips_Side_pT_eta[l][side][pTChunk][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side] + "_pT" + hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule],
+                                              "Inc. Angle vs nStrips for Layer Side pT EtaModule " + hNum[l] + hNumS[side]+hPtTitle[pTChunk]+hEtaS[etaModule],
+                                              nProfileBins, -18., 18., Lorentz, iflag);
+
+                    m_phiVsNstrips_Side_pT_eta[l][side][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                    m_phiVsNstrips_Side_pT_eta[l][side][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+                    m_phiVsNstrips_Side_100_pT_eta[l][side][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                    m_phiVsNstrips_Side_100_pT_eta[l][side][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+                    m_phiVsNstrips_Side_111_pT_eta[l][side][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                    m_phiVsNstrips_Side_111_pT_eta[l][side][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+          
+          
+                }
+           }
     }
+    
+    
+    /// for eta<0.5 histograms
+    
+    for (int l = 0; l != nLayers; ++l) {
+        // granularity set to one profile/layer for now
+        int iflag = 0;
+        m_phiVsNstrips_eta0p5_100[l] = pFactory("h_phiVsNstrips_eta0p5_100" + hNum[l], "100 - Inc. Angle vs nStrips for Layer " + hNum[l],
+                                        nProfileBins, -18., 18., Lorentz, iflag);
+        m_phiVsNstrips_eta0p5_111[l] = pFactory("h_phiVsNstrips_eta0p5_111" + hNum[l], "111 - Inc. Angle vs nStrips for Layer " + hNum[l],
+                                        nProfileBins, -18., 18., Lorentz, iflag);
 
+        m_phiVsNstrips_eta0p5[l] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l], "Inc. Angle vs nStrips for Layer" + hNum[l], nProfileBins,
+                                    -18., 18., Lorentz, iflag);
+        m_phiVsNstrips_eta0p5[l]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_eta0p5[l]->GetYaxis()->SetTitle("Num of Strips");
+
+
+        //// old histograms/TProfiles
+        m_phiVsNstrips_eta0p5_100[l]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_eta0p5_100[l]->GetYaxis()->SetTitle("Num of Strips");
+
+        m_phiVsNstrips_eta0p5_111[l]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_eta0p5_111[l]->GetYaxis()->SetTitle("Num of Strips");
+        
+        /// defining profiles for etaModule
+        for (int etaModule=0; etaModule != nEta; ++etaModule){
+                    
+            // granularity set to eta for now
+            m_phiVsNstrips_eta0p5_100_eta[l][etaModule] = pFactory("h_phiVsNstrips_eta0p5_100" + hNum[l] + "_EtaModule" + hEtaS[etaModule], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and EtaModule " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+                        
+            m_phiVsNstrips_eta0p5_111_eta[l][etaModule] = pFactory("h_phiVsNstrips_eta0p5_111" + hNum[l] + "_EtaModule" + hEtaS[etaModule], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and EtaModule " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+            //// old histograms/TProfiles
+            m_phiVsNstrips_eta0p5_100_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_100_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+            m_phiVsNstrips_eta0p5_111_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_111_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+                        
+
+            m_phiVsNstrips_eta0p5_eta[l][etaModule] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l] + "_EtaModule" + hEtaS[etaModule], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and EtaModule " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+            m_phiVsNstrips_eta0p5_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+        }
+        
+        /// defining profiles for each pT chunk
+        for(int pTChunk=0; pTChunk != nPt; ++pTChunk){
+            m_phiVsNstrips_eta0p5_100_pT[l][pTChunk] = pFactory("h_phiVsNstrips_eta0p5_100" + hNum[l]+ "_pT" +hPt[pTChunk], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk],
+                                            nProfileBins, -18., 18., Lorentz, iflag);
+            m_phiVsNstrips_eta0p5_111_pT[l][pTChunk] = pFactory("h_phiVsNstrips_eta0p5_111" + hNum[l]+ "_pT" +hPt[pTChunk], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk],
+                                            nProfileBins, -18., 18., Lorentz, iflag);
+
+            m_phiVsNstrips_eta0p5_pT[l][pTChunk] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l] + "_pT" +hPt[pTChunk], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and pT "+hPtTitle[pTChunk], nProfileBins,
+                                        -18., 18., Lorentz, iflag);
+            m_phiVsNstrips_eta0p5_pT[l][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_pT[l][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+
+            //// old histograms/TProfiles
+            m_phiVsNstrips_eta0p5_100_pT[l][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_100_pT[l][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+            m_phiVsNstrips_eta0p5_111_pT[l][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_111_pT[l][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+        
+            /// for each eta module
+            for (int etaModule=0; etaModule!=nEta;++etaModule){
+                m_phiVsNstrips_eta0p5_pT_eta[l][pTChunk][etaModule] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l] + "_pT" +hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and pT "+hPtTitle[pTChunk] + " and EtaModule "+ hEtaS[etaModule], nProfileBins,
+                                        -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_eta0p5_pT_eta[l][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_pT_eta[l][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+                
+                
+                m_phiVsNstrips_eta0p5_100_pT_eta[l][pTChunk][etaModule] = pFactory("h_phiVsNstrips_eta0p5_100" + hNum[l]+ "_pT" +hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk]+" and EtaModule "+hEtaS[etaModule],
+                                            nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_eta0p5_111_pT_eta[l][pTChunk][etaModule] = pFactory("h_phiVsNstrips_eta0p5_111" + hNum[l]+ "_pT" +hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and pT " + hPtTitle[pTChunk] + " EtaModule "+hEtaS[etaModule],
+                                            nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_eta0p5_100_pT_eta[l][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_100_pT_eta[l][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+                m_phiVsNstrips_eta0p5_111_pT_eta[l][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_111_pT_eta[l][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+            }
+        }
+        
+    
+        /// defining profiles for each side
+        for (int side = 0; side < nSides; ++side) {
+            m_phiVsNstrips_eta0p5_Side_100[l][side] = pFactory("h_phiVsNstrips_eta0p5_100_" + hNum[l] + "Side" + hNumS[side],
+                                                        "100 - Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
+                                                        nProfileBins, -18., 18., Lorentz, iflag);
+            m_phiVsNstrips_eta0p5_Side_111[l][side] = pFactory("h_phiVsNstrips_eta0p5_111_" + hNum[l] + "Side" + hNumS[side],
+                                                        "111 - Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
+                                                        nProfileBins, -18., 18., Lorentz, iflag);
+            m_phiVsNstrips_eta0p5_Side[l][side] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l] + "Side" + hNumS[side],
+                                                    "Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
+                                                    nProfileBins, -18., 18., Lorentz, iflag);
+
+            m_phiVsNstrips_eta0p5_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
+
+            m_phiVsNstrips_eta0p5_Side_100[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_Side_100[l][side]->GetYaxis()->SetTitle("Num of Strips");
+
+            m_phiVsNstrips_eta0p5_Side_111[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+            m_phiVsNstrips_eta0p5_Side_111[l][side]->GetYaxis()->SetTitle("Num of Strips");
+
+            for (int etaModule=0; etaModule != nEta; ++etaModule){
+                m_phiVsNstrips_eta0p5_Side_100_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_eta0p5_100_" + hNum[l] + "Side" + hNumS[side] + "_EtaModule" + hEtaS[etaModule],
+                                                                        "100 - Inc. Angle vs nStrips for Layer Side EtaModule " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+                                                                        nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_eta0p5_Side_111_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_eta0p5_111_" + hNum[l] + "Side" + hNumS[side] + "_EtaModule" + hEtaS[etaModule],
+                                                                        "111 - Inc. Angle vs nStrips for Layer Side EtaModule " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+                                                                        nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_eta0p5_Side_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l] + "Side" + hNumS[side] + "_EtaModule" + hEtaS[etaModule],
+                                                                    "Inc. Angle vs nStrips for Layer Side EtaModule " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+                                                                    nProfileBins, -18., 18., Lorentz, iflag);
+
+                m_phiVsNstrips_eta0p5_Side_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_Side_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+                m_phiVsNstrips_eta0p5_Side_100_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_Side_100_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+                m_phiVsNstrips_eta0p5_Side_111_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_Side_111_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+            }
+            
+            //// pT dependent profile plots
+            for(int pTChunk=0; pTChunk != nPt; ++pTChunk){
+                m_phiVsNstrips_eta0p5_Side_100_pT[l][side][pTChunk] = pFactory("h_phiVsNstrips_eta0p5_100_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk],
+                                                        "100 - Inc. Angle vs nStrips for Layer Side pT " + hNum[l] + hNumS[side] + hPtTitle[pTChunk],
+                                                        nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_eta0p5_Side_111_pT[l][side][pTChunk] = pFactory("h_phiVsNstrips_eta0p5_111_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk],
+                                                        "111 - Inc. Angle vs nStrips for Layer Side pT " + hNum[l] + hNumS[side] + hPtTitle[pTChunk],
+                                                        nProfileBins, -18., 18., Lorentz, iflag);
+                m_phiVsNstrips_eta0p5_Side_pT[l][side][pTChunk] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l] + "Side" + hNumS[side] + "_pT" + hPt[pTChunk],
+                                                    "Inc. Angle vs nStrips for Layer Side pT " + hNum[l] + hNumS[side]+hPtTitle[pTChunk],
+                                                    nProfileBins, -18., 18., Lorentz, iflag);
+
+                m_phiVsNstrips_eta0p5_Side_pT[l][side][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_Side_pT[l][side][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+                m_phiVsNstrips_eta0p5_Side_100_pT[l][side][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_Side_100_pT[l][side][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+
+                m_phiVsNstrips_eta0p5_Side_111_pT[l][side][pTChunk]->GetXaxis()->SetTitle("#phi to Wafer");
+                m_phiVsNstrips_eta0p5_Side_111_pT[l][side][pTChunk]->GetYaxis()->SetTitle("Num of Strips");
+                
+                /// pT dependent and eta module dependent profiles
+                for (int etaModule = 0; etaModule != nEta; ++etaModule){
+                    m_phiVsNstrips_eta0p5_Side_100_pT_eta[l][side][pTChunk][etaModule] = pFactory("h_phiVsNstrips_eta0p5_100_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule],
+                                                            "100 - Inc. Angle vs nStrips for Layer Side pT EtaModule " + hNum[l] + hNumS[side] + hPtTitle[pTChunk]+hEtaS[etaModule],
+                                                            nProfileBins, -18., 18., Lorentz, iflag);
+                    m_phiVsNstrips_eta0p5_Side_111_pT_eta[l][side][pTChunk][etaModule] = pFactory("h_phiVsNstrips_eta0p5_111_" + hNum[l] + "Side" + hNumS[side] + "_pT"+hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule],
+                                                            "111 - Inc. Angle vs nStrips for Layer Side pT EtaModule " + hNum[l] + hNumS[side] + hPtTitle[pTChunk]+hEtaS[etaModule],
+                                                            nProfileBins, -18., 18., Lorentz, iflag);
+                    m_phiVsNstrips_eta0p5_Side_pT_eta[l][side][pTChunk][etaModule] = pFactory("h_phiVsNstrips_eta0p5" + hNum[l] + "Side" + hNumS[side] + "_pT" + hPt[pTChunk]+"_EtaModule"+hEtaS[etaModule],
+                                                        "Inc. Angle vs nStrips for Layer Side pT EtaModule " + hNum[l] + hNumS[side]+hPtTitle[pTChunk]+hEtaS[etaModule],
+                                                        nProfileBins, -18., 18., Lorentz, iflag);
+
+                    m_phiVsNstrips_eta0p5_Side_pT_eta[l][side][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                    m_phiVsNstrips_eta0p5_Side_pT_eta[l][side][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+                    m_phiVsNstrips_eta0p5_Side_100_pT_eta[l][side][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                    m_phiVsNstrips_eta0p5_Side_100_pT_eta[l][side][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+                    m_phiVsNstrips_eta0p5_Side_111_pT_eta[l][side][pTChunk][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+                    m_phiVsNstrips_eta0p5_Side_111_pT_eta[l][side][pTChunk][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+                }
+            }
+        }
+    }
     success *= iflag;
   }
-  if (success == 0) {
+  if (success == 0){
     return StatusCode::FAILURE;
   }                                                                                                                 //
   return StatusCode::SUCCESS;
