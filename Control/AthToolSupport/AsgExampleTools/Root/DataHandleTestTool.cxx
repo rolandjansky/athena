@@ -99,7 +99,7 @@ namespace asg
       xAOD::MuonContainer *recordMuons {newMuons.get()};
       xAOD::MuonAuxContainer *recordAux {newAux.get()};
       EXPECT_SUCCESS (writeHandle.record (std::move (newMuons), std::move (newAux)));
-      xAOD::MuonContainer *retrieveMuons {nullptr};
+      const xAOD::MuonContainer *retrieveMuons {nullptr};
       EXPECT_SUCCESS (evtStore()->retrieve (retrieveMuons, m_doWriteName));
       EXPECT_EQ (recordMuons, retrieveMuons);
       xAOD::MuonAuxContainer *retrieveAux {nullptr};
