@@ -55,7 +55,7 @@ WriteHandleKey<T>::WriteHandleKey( OWNER* owner,
                                    std::string doc /*= ""*/)
   : WriteHandleKey<T> (key)
 {
-  auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
+  owner->declareProperty(std::move(name), *this, std::move(doc));
 }
 
 
