@@ -5,6 +5,7 @@
 #include "SCT_RDOAnalysis.h"
 
 #include "InDetIdentifier/SCT_ID.h"
+#include "GeneratorObjects/McEventCollection.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "TString.h"
@@ -81,6 +82,7 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_h_eventIndex{nullptr}
   , m_h_charge{nullptr}
   , m_h_phi_v_eta_sdo{nullptr}
+  , m_h_TruthMatchedRDOs{nullptr}
 
   , m_tree{nullptr}
   , m_thistSvc("THistSvc", name)
@@ -282,6 +284,15 @@ StatusCode SCT_RDOAnalysis::initialize() {
   m_h_phi_v_eta_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path.value() + m_h_phi_v_eta_sdo->GetName(), m_h_phi_v_eta_sdo));
 
+  m_h_TruthMatchedRDOs = new TH1F("h_TruthMatchedSCTRDOs", "h_TruthMatchedSCTRDOs", 4, 1, 5);
+  TString truthMatchBinLables[4] = { "All RDOs", "Truth Matched", "HS Matched", "Unmatched" };
+  for(unsigned int ibin = 1; ibin < 5; ibin++) {
+    m_h_TruthMatchedRDOs->GetXaxis()->SetBinLabel(ibin, truthMatchBinLables[ibin-1]);
+  }
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_TruthMatchedRDOs->GetName(), m_h_TruthMatchedRDOs));
+
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -317,7 +328,19 @@ StatusCode SCT_RDOAnalysis::execute() {
 
   // RawData
   SG::ReadHandle<SCT_RDO_Container> p_SCT_RDO_cont (m_inputKey);
-  if (p_SCT_RDO_cont.isValid()) {
+  //Adding SimMap and McEvent here for added truthMatching checks
+  SG::ReadHandle<InDetSimDataCollection> simDataMapSCT (m_inputTruthKey);
+  SG::ReadHandle<McEventCollection> mcEventCollection("TruthEvent");
+
+  const HepMC::GenEvent* hardScatterEvent(nullptr);
+  bool doTruthMatching = true;
+  if (mcEventCollection->size()==0){
+    ATH_MSG_WARNING("Failed to retrieve a nonzero sized truth event collection, disabling truthMatching");
+    doTruthMatching = false;
+  }
+  if(doTruthMatching) hardScatterEvent = mcEventCollection->at(0);
+
+  if(p_SCT_RDO_cont.isValid()) {
     // loop over RDO container
     SCT_RDO_Container::const_iterator rdoCont_itr(p_SCT_RDO_cont->begin());
     const SCT_RDO_Container::const_iterator rdoCont_end(p_SCT_RDO_cont->end());
@@ -328,6 +351,30 @@ StatusCode SCT_RDOAnalysis::execute() {
       const SCT_RDO_Collection::const_iterator rdo_end(p_SCT_RDO_coll->end());
 
       for ( ; rdo_itr != rdo_end; ++rdo_itr ) {
+        if(doTruthMatching){
+          m_h_TruthMatchedRDOs->Fill(1.5);
+          bool findMatch = false; 
+          if(simDataMapSCT.isValid()){
+            InDetSimDataCollection::const_iterator iter = (*simDataMapSCT).find((*rdo_itr)->identify());
+        
+            if ( iter != (*simDataMapSCT).end() ) {
+              const InDetSimData& sdo = iter->second;
+              const std::vector< InDetSimData::Deposit >& deposits = sdo.getdeposits();
+              std::vector< InDetSimData::Deposit >::const_iterator nextdeposit = deposits.begin();
+              std::vector< InDetSimData::Deposit >::const_iterator lastdeposit = deposits.end();
+              for( ; nextdeposit!=lastdeposit; ++nextdeposit) {
+	              const HepMcParticleLink& particleLink = nextdeposit->first;
+                if(particleLink.isValid() && !findMatch){
+                  const HepMC::GenParticle *genPart(particleLink.cptr());
+                  if(genPart->parent_event() == hardScatterEvent) m_h_TruthMatchedRDOs->Fill(3.5);
+                  m_h_TruthMatchedRDOs->Fill(2.5);
+                  findMatch = true;
+                }
+              }
+            }
+          }
+          if(!findMatch) m_h_TruthMatchedRDOs->Fill(4.5);
+        }
         const Identifier rdoID((*rdo_itr)->identify());
         const unsigned int rdoWord((*rdo_itr)->getWord());
         const int sctBrlEc(m_sctID->barrel_ec(rdoID));
@@ -383,7 +430,6 @@ StatusCode SCT_RDOAnalysis::execute() {
   }
 
   // SimData
-  SG::ReadHandle<InDetSimDataCollection> simDataMapSCT (m_inputTruthKey);
   if (simDataMapSCT.isValid()) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapSCT->begin());
