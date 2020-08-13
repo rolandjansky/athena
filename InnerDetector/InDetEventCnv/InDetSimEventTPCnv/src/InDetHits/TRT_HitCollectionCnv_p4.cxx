@@ -67,7 +67,16 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
       // store barcode once for set of consecutive hits with same barcode
       lastLink = &(trtHit->particleLink());
       persCont->m_barcode.push_back(lastLink->barcode());
-      persCont->m_mcEvtIndex.push_back(lastLink->eventIndex());
+      unsigned short index{0};
+      const HepMcParticleLink::index_type position =
+        lastLink->getEventPositionInCollection();
+      if (position!=0) {
+        index = lastLink->eventIndex();
+        if(lastLink->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
+          log << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
+        }
+      }
+      persCont->m_mcEvtIndex.push_back(index);
       persCont->m_evtColl.push_back(lastLink->getEventCollectionAsChar());
 
       if ( idx > 0 ) {
@@ -481,7 +490,12 @@ void TRT_HitCollectionCnv_p4::persToTrans(const TRT_HitCollection_p4* persCont, 
         // - For charged particles kinEne is *zero*!
         //
 
-        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::getEventCollection(persCont->m_evtColl[idxBC]) );
+        bool flag = false;
+        if (persCont->m_mcEvtIndex[idxBC] == 0) {
+          flag = true;
+        }
+
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::getEventCollection(persCont->m_evtColl[idxBC]), flag );
         transCont->Emplace( strawId, partLink, persCont->m_id[idxId],
                             kinEne, hitEne, startX, startY, startZ,
                             endX, endY, endZ, meanTime );
