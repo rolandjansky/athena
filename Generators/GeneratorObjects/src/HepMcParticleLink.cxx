@@ -39,8 +39,9 @@ namespace {
 
 HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part,
                                      uint32_t eventIndex,
-                                     EBC_EVCOLL evColl) :
-  m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex, evColl)
+                                     EBC_EVCOLL evColl,
+                                     bool isIndexEventPosition) :
+  m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex, evColl, isIndexEventPosition)
 {
   m_particle = const_cast<HepMC::GenParticle*>(part);
   m_have_particle=true;
@@ -49,8 +50,9 @@ HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part,
 
 HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part,
                                      uint32_t eventIndex,
-                                     std::string evCollName) :
-    m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex, find_enumFromKey(evCollName))
+                                     std::string evCollName,
+                                     bool isIndexEventPosition) :
+  m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex, find_enumFromKey(evCollName), isIndexEventPosition)
 {
   m_particle = const_cast<HepMC::GenParticle*>(part);
   m_have_particle=true;
@@ -75,7 +77,7 @@ HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(
     colNames=s_THIRDPUEVCOLKEYS;
     }
     else {
-      return 0;
+      return ExtendedBarCode::UNDEFINED;
     }
 
     for (unsigned int iName=0; iName<4; iName++) {
@@ -91,7 +93,7 @@ HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(
         }
       }
     }
-    return 0;
+    return ExtendedBarCode::UNDEFINED;
 }
 
 HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, HepMcParticleLink::index_type position) {
@@ -102,10 +104,13 @@ HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(
       return pEvt->event_number();
     }
   }
-  return 0;
+  std::cout << "Failed to find GenEvent at position " << position << " in " << getEventCollectionAsString(evColl) << ". McEventCollection size is " << pEvtColl->size() << std::endl;
+  return ExtendedBarCode::UNDEFINED;
 }
 
-HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(HepMcParticleLink::index_type position) const { return getEventNumberForEventPosition(this->getEventCollection(),position);}
+HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(HepMcParticleLink::index_type position) const {
+  return getEventNumberForEventPosition(this->getEventCollection(),position);
+}
 
 
 HepMcParticleLink::index_type HepMcParticleLink::getEventPositionForEventNumber(EBC_EVCOLL evColl, HepMcParticleLink::index_type evNumber) {
@@ -116,7 +121,7 @@ HepMcParticleLink::index_type HepMcParticleLink::getEventPositionForEventNumber(
       if (pEvt && static_cast<unsigned int>(pEvt->event_number())==evNumber) { return position; }
     }
   }
-  return evNumber;
+  return ExtendedBarCode::UNDEFINED;
 }
 
 const McEventCollection* HepMcParticleLink::retrieveMcEventCollection(EBC_EVCOLL evColl) {
@@ -165,17 +170,22 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
     if ((pEvtColl = retrieveMcEventCollection())) {
       const int eventNumber = static_cast<int>(eventIndex());
       if(!pEvtColl->empty()) {
-        const HepMC::GenEvent *pEvt((0 == eventIndex()) ?
-                                    pEvtColl->at(0) : //original event is at EvtColl[0]
-                                    pEvtColl->find(eventNumber));
+        const index_type index = m_extBarcode.eventIndex();
+        bool tryPosition = (isIndexAsEventPosition() && index < pEvtColl->size()) || (0 == index); //original event is at EvtColl[0]
+        const HepMC::GenEvent *pEvt( tryPosition ?
+                                     pEvtColl->at(index) :
+                                     pEvtColl->find(eventNumber));
         if (nullptr != pEvt) {
           m_particle = pEvt->barcode_to_particle(barcode());
           m_have_particle = true;
           return m_particle;
         }
         else {
+          const std:: string posString = isIndexAsEventPosition() ? "at position " : "with event number ";
           mlog() << MSG::WARNING
-                 << "cptr: Mc Truth not stored for event index" << eventNumber
+                 << "cptr: Mc Truth not stored for GenEvent "
+                 << posString.c_str()
+                 << eventNumber
                  << ", size of McEventCollection = " << pEvtColl->size()
                  << endreq;
         }
