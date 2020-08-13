@@ -1,0 +1,10 @@
+<lcgdict>
+
+<class name = "Trk::MultiComponentStateOnSurface" >
+<field name = "m_multiComponentState" transient="true" />
+<field name = "m_mixtureModeQoverP" transient="true" />
+</class>
+
+<class name="TrkMultiComponentStateOnSurfaceDV" />
+
+</lcgdict>
