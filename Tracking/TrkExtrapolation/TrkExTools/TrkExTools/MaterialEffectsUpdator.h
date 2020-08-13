@@ -69,9 +69,6 @@ class MaterialEffectsUpdator : public AthAlgTool,
 
     /** AlgTool initailize method.*/
     virtual StatusCode initialize() override ;
-    /** AlgTool finalize method */
-    StatusCode finalize()  override ;
-
     /*
      * The concrete cache class for this specialization of the IMaterialEffectsUpdator
      */

@@ -134,13 +134,6 @@ Trk::MaterialEffectsUpdator::initialize()
   return StatusCode::SUCCESS;
 }
 
-// finalize
-StatusCode
-Trk::MaterialEffectsUpdator::finalize()
-{
-  ATH_MSG_DEBUG("finalize() successful");
-  return StatusCode::SUCCESS;
-}
 
 Trk::TrackParameters*
 Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
