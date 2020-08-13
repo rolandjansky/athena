@@ -5,7 +5,7 @@ log = logging.getLogger('Menu.L1.Config.TopoMultiplicityAlgoDef')
 
 from ..Base.TopoAlgos import EMMultiplicityAlgo, TauMultiplicityAlgo, JetMultiplicityAlgo, XEMultiplicityAlgo
 
-class TopoMultiplicityAlgoDef(object):
+class TopoAlgoDefMultiplicity(object):
     """
     Defines the TopoAlgorithms that calculate multiplicities for L1Calo thresholds
     The thresholds have to be explicitly defined here.
