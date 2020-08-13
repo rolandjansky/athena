@@ -95,7 +95,7 @@ testL1Menu_Boards(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.boardNames().size() << " boards configured" << endl;
    string boardName("Topo1");
    auto & board = l1menu.board(boardName);
-   cout << "Board " << boardName << " has " << board.size() << " connectors configured: ";
+   cout << "Board " << boardName << " of type " << board.type() << " has " << board.size() << " connectors configured: ";
    for( auto & connName : board.connectorNames() ) { cout << connName << " "; }
    cout << endl;
    return true;   
