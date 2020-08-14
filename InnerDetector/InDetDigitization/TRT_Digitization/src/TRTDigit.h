@@ -18,7 +18,7 @@ public:
   /** Empty, useless digit */
   TRTDigit() : m_strawID(0), m_digit(0) {}
 
-  ~TRTDigit() {}
+  ~TRTDigit() = default;
 
   /** Get straw ID */
   int GetStrawID() const { return m_strawID; }
