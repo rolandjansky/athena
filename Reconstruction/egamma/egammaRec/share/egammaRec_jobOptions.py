@@ -18,13 +18,13 @@ if not rec.doTruth():
 # GSF and vertex building need the inner detector
 if not DetFlags.detdescr.ID_on():
     jobproperties.egammaRecFlags.doBremFinding = False
-    jobproperties.egammaRecFlags.doConversions = False
+    jobproperties.egammaRecFlags.doVertexBuilding = False
 
 # We can not run without having the Calo
 if not (rec.readESD() or jobproperties.CaloRecFlags.doCaloTopoCluster()):
     jobproperties.egammaRecFlags.doEgammaCaloSeeded = False
     jobproperties.egammaRecFlags.doEgammaForwardSeeded = False
-    
+
 
 
 # Function to schedule the GSF
@@ -68,7 +68,7 @@ def setupVertices():
         treatException(
             "Could not set up the conversion vertex building."
             "Switch vertex building off !")
-        jobproperties.egammaRecFlags.doConversions = False
+        jobproperties.egammaRecFlags.doVertexBuilding = False
 
 # Function to schedule the Topo cluster based egamma
 
@@ -115,7 +115,7 @@ def setupTruthAssociation():
 if jobproperties.egammaRecFlags.doBremFinding():
     setupGSF()
 
-if jobproperties.egammaRecFlags.doConversions():
+if jobproperties.egammaRecFlags.doVertexBuilding():
     setupVertices()
 
 if jobproperties.egammaRecFlags.doEgammaCaloSeeded():

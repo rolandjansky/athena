@@ -59,8 +59,15 @@ class doBremFinding (egammaRecFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue = True
 
-# Other options
+class doVertexBuilding (egammaRecFlagsJobProperty):
+    """ switch for whether to do the conversion vertex building
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = True
 
+
+# Other options
 
 class doEgammaTruthAssociation (JobProperty):
     """ switch for truth association alg
@@ -144,7 +151,7 @@ jobproperties.add_Container(egammaRecFlags)
 
 # I want always the following flags in the container
 _list_Egamma = [Enabled, doEgammaCaloSeeded, doEgammaForwardSeeded,
-                doBremFinding, doConversions,
+                doBremFinding, doVertexBuilding, doConversions,
                 cellContainerName, doEgammaTruthAssociation,
                 clusterCorrectionVersion, calibMVAVersion, doSuperclusters,
                 inputTopoClusterCollection, egammaTopoClusterCollection]
