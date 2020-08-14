@@ -396,7 +396,7 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
         // For HLT use the conditionsRun retrieved from the first BeginRun incident
         runNumber = m_conditionsRun;
     } else {
-        ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror");      
+        ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelector");      
         return (StatusCode::FAILURE);
     }
     
@@ -490,15 +490,15 @@ TagInfoMgr::handle(const Incident& inc) {
     **                
     **   2) Then whenever a new file is opened (BeginInputFile), we
     **      use the TagInfo object from the detector store to "re-fill"
-    **      and override the newly merged TagInfo meta data in the output
+    **      and overwrite the newly merged TagInfo meta data in the output
     **      meta data store. We receive BeginInputFile AFTER the 
     **      IOVDbMetaDataTool has done this automatic merging, so that we 
     **      can safely overwrite with the desired TagInfo information for
     **      this job/run.
     **      As well, if there is a second BeginRun during the processing, 
-    **      here we update m_currentRun and overried again the TagInfo meta
-    **      with the new run which will just extend the IOV of the TagInfo
-    **      meta data.
+    **      here we update m_currentRun and overwrite again the TagInfo in the  
+    **      meta store with the new run which will just extend the IOV of the
+    **      TagInfo meta data.
     **
     **/
 
