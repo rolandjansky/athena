@@ -59,8 +59,8 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
 
     /* Create new xAOD::FlowElement and set the type to charged PFlow */
     xAOD::FlowElement* thisFE = new xAOD::FlowElement();
-    thisFE->setSignalType(xAOD::FlowElement::SignalType::ChargedPFlow);
     chargedFlowElementContainerWriteHandle->push_back(thisFE);
+    thisFE->setSignalType(xAOD::FlowElement::SignalType::ChargedPFlow);
 
     /* Get the track elementLink and add it to the xAOD:FE. 
     Note we first have to convert it to an IParticle ElementLink. */
