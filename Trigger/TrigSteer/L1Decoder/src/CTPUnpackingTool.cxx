@@ -57,12 +57,18 @@ StatusCode CTPUnpackingTool::start() {
     }
   }
   m_ctpToChain.clear();
-  auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id ) -> StatusCode {
+  auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id, bool warningOnly = false ) -> StatusCode {
     if ( toCTPID.find( itemName ) != toCTPID.end() ) {
       m_ctpToChain[ toCTPID[itemName] ].push_back( id );
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
+    if( warningOnly ) {
+       // this code should be removed after the L1 menu is migrated to the new json version
+       ATH_MSG_WARNING(itemName << " used to seed the chain " << id <<" not in the configuration ");
+       return StatusCode::SUCCESS;
+    } else {
+       ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
+    }
     return StatusCode::FAILURE;
   };
 
@@ -77,7 +83,7 @@ StatusCode CTPUnpackingTool::start() {
       std::vector<std::string> items;
       boost::split(items, chain.l1item(), [](char c){return c == ',';});
       for ( const std::string& i: items ) {
-	ATH_CHECK( addIfItemExists( i, chainID ) );
+         ATH_CHECK( addIfItemExists( i, chainID, true ) );
       }
     } else { // regular chain
       ATH_CHECK( addIfItemExists( chain.l1item(), chainID ) );
