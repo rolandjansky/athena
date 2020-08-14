@@ -12,7 +12,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TRT_ConditionsData/HWMap.h"
 
 class TRTHWMapCondAlg : public AthAlgorithm

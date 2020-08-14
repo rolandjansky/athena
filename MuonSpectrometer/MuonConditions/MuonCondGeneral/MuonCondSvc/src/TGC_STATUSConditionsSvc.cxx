@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "Identifier/Identifier.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "Identifier/IdentifierHash.h"
 
 TGC_STATUSConditionsSvc::TGC_STATUSConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :

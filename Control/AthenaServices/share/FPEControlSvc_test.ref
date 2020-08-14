@@ -13,15 +13,15 @@ ApplicationMgr    SUCCESS
 ====================================================================================================================================
 /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 176, which is not a valid value for type 'bool'
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
-FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Property&)): Enable: divbyzero overflow invalid Disable: (none) 
+FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Gaudi::Details::PropertyBase&)): Enable: divbyzero overflow invalid Disable: (none) 
 ApplicationMgr       INFO Application Manager Configured successfully
-FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Property&)): Enable: divbyzero overflow invalid Disable: (none) 
+FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Gaudi::Details::PropertyBase&)): Enable: divbyzero overflow invalid Disable: (none) 
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Property&)): Enable: (none) Disable: divbyzero 
-FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Property&)): Enable: divbyzero Disable: (none) 
-FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Property&)): Unknown exception name: fooo
-FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Property&)): Enable: divbyzero Disable: (none) 
+FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Gaudi::Details::PropertyBase&)): Enable: (none) Disable: divbyzero 
+FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Gaudi::Details::PropertyBase&)): Enable: divbyzero Disable: (none) 
+FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Gaudi::Details::PropertyBase&)): Unknown exception name: fooo
+FPEControlSvc        INFO FILE:LINE (void FPEControlSvc::prophand(Gaudi::Details::PropertyBase&)): Enable: divbyzero Disable: (none) 

@@ -20,7 +20,7 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Property.h"   /*StringArrayProperty*/
+#include "Gaudi/Property.h"   /*StringArrayProperty*/
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"

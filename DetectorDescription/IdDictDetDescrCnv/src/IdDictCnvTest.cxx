@@ -21,7 +21,7 @@
 // Athena-related includes
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 
 

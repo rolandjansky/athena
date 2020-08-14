@@ -3,7 +3,7 @@
 */
 
 #include <algorithm>
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigJetHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"

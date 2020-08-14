@@ -5,7 +5,7 @@
 #include "TileEvent/TileRawChannel.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 // Atlas includes

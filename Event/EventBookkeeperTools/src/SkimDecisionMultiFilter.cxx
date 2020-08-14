@@ -17,7 +17,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Handy definitions for error checking
 #include "AthenaKernel/errorcheck.h"

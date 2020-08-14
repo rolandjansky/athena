@@ -10,7 +10,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 

@@ -38,7 +38,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"

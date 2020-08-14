@@ -28,7 +28,7 @@ namespace LArG4 {
       m_geometryTypeProp.declareUpdateHandler(&LArHECCalibrationWheelCalculator::GeometryTypeUpdateHandler, this);
     }
 
-    void LArHECCalibrationWheelCalculator::GeometryTypeUpdateHandler(Property&)
+    void LArHECCalibrationWheelCalculator::GeometryTypeUpdateHandler(Gaudi::Details::PropertyBase&)
     {
       switch(m_geometryTypeProp.value())
         {

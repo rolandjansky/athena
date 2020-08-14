@@ -10,7 +10,7 @@
  #include "AthenaKernel/POSIXTimeKeeper.h"
 #endif
 #ifndef GAUDIKERNEL_PROPERTY_H
- #include "GaudiKernel/Property.h"
+ #include "Gaudi/Property.h"
 #endif
 #ifndef ATHENABASECOMPS_ATHSERVICE_H
  #include "AthenaBaseComps/AthService.h"
@@ -59,7 +59,7 @@ public:
   // Standard Destructor
   virtual ~SimplePOSIXTimeKeeperSvc();
 private:
-  void decodeAllocTime(Property&); 
+  void decodeAllocTime(Gaudi::Details::PropertyBase&); 
   time_t m_allocTime;             ///< allocated job cpu time (in 1/100 sec)
   IntegerProperty m_allocTimeProp;///< property: alloc job cpu time (in sec)
 };

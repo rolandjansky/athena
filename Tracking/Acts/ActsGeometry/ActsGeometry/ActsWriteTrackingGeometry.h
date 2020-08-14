@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAthRNGSvc.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 
 // PACKAGE

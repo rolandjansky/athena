@@ -8,7 +8,7 @@
 // ATHENA
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 
 // ACTS

@@ -81,19 +81,19 @@ private:
   //------------------------------------------------------
 
   /// Call-back method to configure the cut properties (min/max): numberBLayerHits
-  void setupNumberBLayerHits( Property& prop );
+  void setupNumberBLayerHits( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): numberPixelHits
-  void setupNumberPixelHits( Property& prop );
+  void setupNumberPixelHits( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): numberSCTHits
-  void setupNumberSCTHits( Property& prop );
+  void setupNumberSCTHits( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): numberSiliconHits
-  void setupNumberSiliconHits( Property& prop );
+  void setupNumberSiliconHits( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): numberTRTHits
-  void setupNumberTRTHits( Property& prop );
+  void setupNumberTRTHits( Gaudi::Details::PropertyBase& prop );
 
 
 
@@ -175,31 +175,31 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline void D2PDTrackParticleSelector::setupNumberBLayerHits( Property& /*prop*/ )
+inline void D2PDTrackParticleSelector::setupNumberBLayerHits( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doNumberBLayerHits = true;
   return;
 }
 
-inline void D2PDTrackParticleSelector::setupNumberPixelHits( Property& /*prop*/ )
+inline void D2PDTrackParticleSelector::setupNumberPixelHits( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doNumberPixelHits = true;
   return;
 }
 
-inline void D2PDTrackParticleSelector::setupNumberSCTHits( Property& /*prop*/ )
+inline void D2PDTrackParticleSelector::setupNumberSCTHits( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doNumberSCTHits = true;
   return;
 }
 
-inline void D2PDTrackParticleSelector::setupNumberSiliconHits( Property& /*prop*/ )
+inline void D2PDTrackParticleSelector::setupNumberSiliconHits( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doNumberSiliconHits = true;
   return;
 }
 
-inline void D2PDTrackParticleSelector::setupNumberTRTHits( Property& /*prop*/ )
+inline void D2PDTrackParticleSelector::setupNumberTRTHits( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doNumberTRTHits = true;
   return;

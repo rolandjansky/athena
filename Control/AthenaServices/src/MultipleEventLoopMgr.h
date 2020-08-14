@@ -14,7 +14,7 @@
 #include <string>
 
 #ifndef GAUDIKERNEL_PROPERTY_H
-# include "GaudiKernel/Property.h"
+# include "Gaudi/Property.h"
 #endif
 #ifndef GAUDIKERNEL_SERVICEHANDLE_H
 # include "GaudiKernel/ServiceHandle.h"

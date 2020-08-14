@@ -6,7 +6,7 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Atlas includes

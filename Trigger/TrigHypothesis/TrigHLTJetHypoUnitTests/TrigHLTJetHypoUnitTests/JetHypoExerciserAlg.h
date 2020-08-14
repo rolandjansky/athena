@@ -11,7 +11,7 @@
 #include "TrigHLTJetHypoUnitTests/IHypoJetVectorGenerator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 
 class JetHypoExerciserAlg : public AthAlgorithm {

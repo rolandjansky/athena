@@ -15,7 +15,7 @@
 #include "TileRecUtils/TileFilterTester.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 //Atlas includes
 #include "AthAllocators/DataPool.h"
