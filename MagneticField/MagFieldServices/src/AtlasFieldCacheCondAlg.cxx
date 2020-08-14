@@ -108,19 +108,6 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     if (!m_lockMapCurrents) {
         scaleField(cache, fieldMap);
     }
-    else {
-        // For locked currents, we allow the SF to be either 0 or 1, i.e. allow the DCS currents to
-        // say whether or not the solenoid or toroid is on or not
-        cache.m_solScaleFactor = (cache.m_solenoidCurrent > 0) ? 1 : 0;
-        cache.m_torScaleFactor = (cache.m_toroidCurrent   > 0) ? 1 : 0;
-        
-        ATH_MSG_INFO( "execute: map currents locked");
-        ATH_MSG_INFO( "execute: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
-                      << cache.m_solenoidCurrent << "," << ((fieldMap) ? fieldMap->solenoidCurrent() : 0));
-        ATH_MSG_INFO( "execute: Toroid field scale factor " << cache.m_torScaleFactor << ". Desired current and map current: "
-                      << cache.m_toroidCurrent << "," << fieldMap->toroidCurrent());
-    }
-    
 
     // save current scale factor in conditions object
     auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();

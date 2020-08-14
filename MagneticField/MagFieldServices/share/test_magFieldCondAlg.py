@@ -4,8 +4,11 @@
 #
 
 # Testing IOVs and currents: (since LB, solenoid, toroids)
-currents = [(0, 7730, 20400),
-            (5, 0, 0),
+# currents = [(0, 7730, 20400),
+#             (5, 0, 0),
+#             (10, 7730, 20400)]
+currents = [(0, 0, 20400),
+            (5, 7730, 20400),
             (10, 7730, 20400)]
 
 # Folder name
