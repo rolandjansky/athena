@@ -319,11 +319,11 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
 
 void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples)
 {
-  (void) HGSamples;
-  (void) LGSamples;
   // We immediately return if this module is disabled
   //
   if (m_moduleDisabled[side][module]) {
+    (void) HGSamples;
+    (void) LGSamples;
     (*m_msgFunc_p)(ZDCMsg::Verbose, ("Skipping analysis of disabled mofule for event index " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
     return;
