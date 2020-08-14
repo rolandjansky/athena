@@ -148,7 +148,6 @@ namespace xAOD {
       std::vector< float>             msInnerMatchChi2               ;
       std::vector< float>             meanDeltaADCCountsMDT          ;
       std::vector< float>             CaloLRLikelihood               ;
-      std::vector< float>             CaloMuonScore                  ;
       std::vector< float>             EnergyLoss                     ;
       std::vector< float>             ParamEnergyLoss                ;
       std::vector< float>             MeasEnergyLoss                 ;
