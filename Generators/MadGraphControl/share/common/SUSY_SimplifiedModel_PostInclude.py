@@ -68,20 +68,29 @@ else:
     param_card_old = process_dir+'/Cards/param_card.dat'
     ktdurham = -1
     import tarfile
-    myTarball = tarfile.open(runArgs.inputGeneratorFile)
-    myEvents = None
-    for afile in myTarball.getnames():
-        if afile.endswith('.events'): myEvents = afile
-    if myEvents is None:
-        raise RuntimeError('No input events file found!')
+    if tarfile.is_tarfile(runArgs.inputGeneratorFile):
+        myTarball = tarfile.open(runArgs.inputGeneratorFile)
+        myEvents = None
+        for afile in myTarball.getnames():
+            if afile.endswith('.events'): myEvents = afile
+        if myEvents is None:
+            raise RuntimeError('No input events file found!')
+        else:
+            events_file = myTarball.extractfile( myEvents )
+            update_lhe_file(lhe_file_old=myEvents,param_card_old=param_card_old,masses=masses)
+            for aline in events_file:
+                if 'ktdurham' in aline and "=" in aline:
+                    ktdurham = float(aline.split('=')[0].strip())
+                    break
+        myTarball.close()
     else:
-        events_file = myTarball.extractfile( myEvents )
-        update_lhe_file(lhe_file_old=myEvents,param_card_old=param_card_old,masses=masses)
-        for aline in events_file:
-            if 'ktdurham' in aline and "=" in aline:
-                ktdurham = float(aline.split('=')[0].strip())
-                break
-    myTarball.close()
+        # Assume this is already an unzipped file -- happens when we run on multiple LHEs
+        update_lhe_file(lhe_file_old=runArgs.inputGeneratorFile,param_card_old=param_card_old,masses=masses)
+        with open(runArgs.inputGeneratorFile,'r') as events_file:
+            for aline in events_file:
+                if 'ktdurham' in aline and "=" in aline:
+                    ktdurham = float(aline.split('=')[0].strip())
+                    break
 
     if madspin_card is not None:
         # Do a stupid addition of madspin - requires a dummy process
