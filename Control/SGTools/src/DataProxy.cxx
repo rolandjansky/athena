@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm> 
@@ -489,9 +489,10 @@ std::unique_ptr<DataObject> DataProxy::readData (objLock_t&, ErrNo* errNo) const
 
 
 /// Access DataObject on-demand using conversion service
-DataObject* DataProxy::accessData()
+DataObject* DataProxy::accessDataOol()
 {
-  if (0 != m_dObject) return m_dObject;  // cached object
+  // This is done in the inlined accessData().
+  //if (0 != m_dObject) return m_dObject;  // cached object
 
   objLock_t objLock (m_objMutex);
 
@@ -568,18 +569,6 @@ bool DataProxy::isValidAddress() const
   lock_t lock (m_mutex);
   return isValidAddress (lock);
 }
-
-bool DataProxy::isValidObject() const
-{
-  // FIXME: should we try to chase?
-  return (0!= m_dObject);
-}
-  
-bool DataProxy::isValid() const
-{
-  return (isValidObject() || isValidAddress());
-}
-
 
 bool DataProxy::updateAddress()
 {

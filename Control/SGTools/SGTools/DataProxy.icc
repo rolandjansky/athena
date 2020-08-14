@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -188,6 +188,35 @@ void SG::DataProxy::setID (CLID id, const std::string& key)
 }
 
 
+/// am I valid?
+inline
+bool SG::DataProxy::isValid() const
+{
+  return (isValidObject() || isValidAddress());
+}
+
+
+/// is the object valid?
+inline
+bool SG::DataProxy::isValidObject() const
+{
+  // FIXME: should we try to chase?
+  return (0!= m_dObject);
+}
+
+
+/// Access DataObject on-demand using conversion service
+///@throws runtime_error when converter fails
+inline
+DataObject* SG::DataProxy::accessData()
+{
+  // Inlined part: return m_dObject if it's valid.
+  // Otherwise, call the out-of-line part of the code.
+  if (0 != m_dObject) return m_dObject;  // cached object
+  return accessDataOol();
+}
+
+
 inline
 SG::DataProxy::ErrNo SG::DataProxy::errNo() const
 {
@@ -209,7 +238,7 @@ CLID SG::DataProxy::clID() const
 inline
 bool SG::DataProxy::isConst() const
 {
-  lock_t lock (m_mutex);
+  // No lock; underlying member is atomic.
   return m_const;
 }
 

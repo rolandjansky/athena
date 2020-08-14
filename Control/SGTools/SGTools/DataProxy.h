@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGTOOLS_DATAPROXY_H
@@ -261,6 +261,10 @@ class DataStore;
     DataProxy& operator=(const DataProxy&) = delete;
 
 
+    /// Out-of-line part of accessData().
+    DataObject* accessDataOol();
+
+
     /**
      * @brief Reset/release a proxy at the end of an event.
      * @param force If true, force a release rather than a reset.
@@ -305,7 +309,7 @@ class DataStore;
     bool m_boundHandles;
 
     /// Is the proxy currently const?
-    bool m_const;
+    std::atomic<bool> m_const;
     /// Was the proxy created as const?
     bool m_origConst;
 
