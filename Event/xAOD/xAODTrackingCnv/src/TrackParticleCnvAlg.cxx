@@ -22,23 +22,9 @@
 #include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
 
 namespace xAODMaker {
-
-  //Small class for cleaning up counter code
-  class SummaryCounter{
-      xAOD::TrackParticle* m_ptr;
-      public:
-      SummaryCounter(xAOD::TrackParticle* inptr) : m_ptr(inptr) { }
-      void AddToCounter(xAOD::SummaryType type, unsigned int &counter){
-        uint8_t result=0;
-        if (m_ptr->summaryValue(result, type))
-            counter += result;
-      }
-  };
-
-
   TrackParticleCnvAlg::TrackParticleCnvAlg( const std::string& name,
 					    ISvcLocator* svcLoc )
-    : AthAlgorithm( name, svcLoc ),
+    : AthReentrantAlgorithm( name, svcLoc ),
       m_particleCreator("Trk::TrackParticleCreatorTool/TrackParticleCreatorTool"),
       m_truthClassifier("MCTruthClassifier/MCTruthClassifier"),
       m_TrackCollectionCnvTool( "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool", this ),
@@ -49,45 +35,7 @@ namespace xAODMaker {
       m_xaodTrackParticlesout("ConvertedTrackParticleCandidate"),
       m_truthParticleLinkVec("xAODTruthLinks"),
       m_aodTruth(""),
-      m_trackTruth(""),
-      
-      m_numEvents(0),
-      m_nTracksProcessed(0),
-      m_nTrackParticlesCreated(0),
-      
-      m_numberOfBLayerHits(0),             
-      m_numberOfBLayerSharedHits(0),       
-      m_numberOfBLayerOutliers(0),
-      
-      m_numberOfContribPixelLayers(0),
-      m_numberOfPixelHits(0),              
-      m_numberOfPixelSharedHits(0),        
-      m_numberOfPixelHoles(0),             
-      m_numberOfGangedPixels(0),
-      m_numberOfGangedFlaggedFakes(0),      
-      
-      m_numberOfSCTHits(0),                
-      m_numberOfSCTSharedHits(0),          
-      m_numberOfSCTHoles(0),               
-      m_numberOfSCTDoubleHoles(0),         
-      m_numberOfTRTHits(0),                
-      m_numberOfTRTXenonHits(0),                
-      m_numberOfTRTHighThresholdHits(0),   
-      m_numberOfTRTOutliers(0),            
-      m_numberOfTRTHighThresholdOutliers(0),
-      m_numberOfOutliersOnTrack(0),
-      
-      m_numberOfPixelOutliers(0),
-      m_numberOfPixelDeadSensors(0),
-      m_numberOfPixelSpoiltHits(0), 
-      m_numberOfBlayersMissed(0),
-      
-      m_numberOfSCTOutliers(0),
-      m_numberOfSCTDeadSensors(0),
-      m_numberOfSCTSpoiltHits(0),   
-      m_numberOfTRTHoles(0),        
-      m_numberOfTRTDeadStraws(0),   
-      m_numberOfTRTTubeHits(0)
+      m_trackTruth("")
   {
     declareProperty( "MCTruthClassifier",       m_truthClassifier);
     declareProperty( "AODContainerName",        m_aod );
@@ -101,11 +49,8 @@ namespace xAODMaker {
     declareProperty( "xAODTrackParticlesFromTracksContainerName",   m_xaodout);   
     declareProperty( "ConvertTrackParticles",   m_convertAODTrackParticles = true );   
     declareProperty( "ConvertTracks",           m_convertTracks = false ); 
-    declareProperty( "PrintIDSummaryInfo",      m_IdOutputInfo = false ); 
     declareProperty( "TrackCollectionCnvTool",                 m_TrackCollectionCnvTool );
     declareProperty( "RecTrackParticleContainerCnvTool",       m_RecTrackParticleContainerCnvTool );
-    declareProperty( "DoMonitoring",      m_doMonitoring = false  );
-    declareProperty( "TrackMonTool",      m_trackMonitoringTool  );
   }
 
   StatusCode TrackParticleCnvAlg::initialize() {
@@ -132,16 +77,12 @@ namespace xAODMaker {
     ATH_CHECK(m_trackTruth.initialize(m_addTruthLink && m_convertTracks));
 
 
-    //Retrieve monitoring tool if provided
-    ATH_CHECK( m_trackMonitoringTool.retrieve(DisableTool{!m_doMonitoring}) );
-
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TrackParticleCnvAlg::execute() {
+  StatusCode TrackParticleCnvAlg::execute(const EventContext& ctx) const {
 
-    m_numEvents++; 
     const Rec::TrackParticleContainer *aod=nullptr;
     const TrackCollection *tracks = nullptr;
     const xAODTruthParticleLinkVector *truthLinks = nullptr;
@@ -150,7 +91,7 @@ namespace xAODMaker {
 
     // Retrieve the AOD particles:
     if (m_convertAODTrackParticles){
-      SG::ReadHandle<Rec::TrackParticleContainer> rh_aod(m_aod);
+      SG::ReadHandle<Rec::TrackParticleContainer> rh_aod(m_aod, ctx);
       if (!rh_aod.isValid()) {
         ATH_MSG_DEBUG("Error finding " << m_aod.key() << " found. Do nothing.");
         return StatusCode::SUCCESS;
@@ -161,7 +102,7 @@ namespace xAODMaker {
     }
     // Retrieve the Tracks:
     if (m_convertTracks){
-      SG::ReadHandle<TrackCollection> rh_tracks(m_tracks);
+      SG::ReadHandle<TrackCollection> rh_tracks(m_tracks, ctx);
       if (!rh_tracks.isValid()) {
         ATH_MSG_DEBUG("Error finding " << m_tracks.key() << " found. Do nothing.");
         return StatusCode::SUCCESS;
@@ -172,7 +113,7 @@ namespace xAODMaker {
     }
     if( m_addTruthLink ){
       if (m_convertAODTrackParticles){
-	SG::ReadHandle<TrackParticleTruthCollection> rh_aodTruth(m_aodTruth);
+	SG::ReadHandle<TrackParticleTruthCollection> rh_aodTruth(m_aodTruth, ctx);
         if (!rh_aodTruth.isValid()) {
           ATH_MSG_WARNING("No TrackParticleTruthCollection with key " << m_aodTruth.key() << " found. Do nothing.");
           return StatusCode::SUCCESS;
@@ -180,7 +121,7 @@ namespace xAODMaker {
 	else aodTruth = rh_aodTruth.cptr();
       }
       if (m_convertTracks){
-	SG::ReadHandle<TrackTruthCollection> rh_trackTruth(m_trackTruth);
+	SG::ReadHandle<TrackTruthCollection> rh_trackTruth(m_trackTruth, ctx);
         if (!rh_trackTruth.isValid()) {
           ATH_MSG_WARNING("No DetailedTrackTruthCollection with key " << m_trackTruth.key() << " found. Do nothing.");
           return StatusCode::SUCCESS;
@@ -188,7 +129,7 @@ namespace xAODMaker {
 	else trackTruth = rh_trackTruth.cptr();
       }
 
-      SG::ReadHandle<xAODTruthParticleLinkVector> rh_truthParticleLinkVec(m_truthParticleLinkVec);
+      SG::ReadHandle<xAODTruthParticleLinkVector> rh_truthParticleLinkVec(m_truthParticleLinkVec, ctx);
       if (!rh_truthParticleLinkVec.isValid()) {
         ATH_MSG_WARNING("No xAODTruthParticleLinkVector with key " << m_truthParticleLinkVec.key() << " found. Do nothing.");
         return StatusCode::SUCCESS;
@@ -196,15 +137,12 @@ namespace xAODMaker {
       else truthLinks = rh_truthParticleLinkVec.cptr();
     }
     if (m_convertTracks) {
-      SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodout(m_xaodout);
+      SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodout(m_xaodout, ctx);
       ATH_CHECK(wh_xaodout.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
       convert((*tracks), trackTruth, m_TrackCollectionCnvTool,  wh_xaodout, truthLinks);
-
-      if( m_doMonitoring) m_trackMonitoringTool->monitor_tracks( "Track", "Pass", *wh_xaodout );
-
     }
     if (m_convertAODTrackParticles){
-      SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodTrackParticlesout(m_xaodTrackParticlesout);
+      SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodTrackParticlesout(m_xaodTrackParticlesout, ctx);
       ATH_CHECK(wh_xaodTrackParticlesout.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
       convert((*aod), aodTruth, m_RecTrackParticleContainerCnvTool, wh_xaodTrackParticlesout, truthLinks);
     }
@@ -248,7 +186,7 @@ namespace xAODMaker {
   };
 
   template<typename CONT, typename TRUTHCONT, typename CONVTOOL>
-  int TrackParticleCnvAlg::convert(const CONT& container, const TRUTHCONT& truth, CONVTOOL& conv_tool, SG::WriteHandle<xAOD::TrackParticleContainer> &xaod, const xAODTruthParticleLinkVector *truthLinkVec){    
+  int TrackParticleCnvAlg::convert(const CONT& container, const TRUTHCONT& truth, CONVTOOL& conv_tool, SG::WriteHandle<xAOD::TrackParticleContainer> &xaod, const xAODTruthParticleLinkVector *truthLinkVec) const{    
     // Create the xAOD container and its auxiliary store:
    
 
@@ -268,8 +206,6 @@ namespace xAODMaker {
     for( ;itr_xaod!=end_xaod;++itr_xaod ) {
       //protect if something went wrong and there is no converted xaod equivalent
 
-      m_nTracksProcessed++;
-
       if (!(*itr_xaod)) {
 	ATH_MSG_WARNING("WTaF? Empty element in xAOD container!");
 	continue;
@@ -282,85 +218,9 @@ namespace xAODMaker {
 	continue;
       }
 
-      m_nTrackParticlesCreated++;
       //
       // --------- statistics
       //
-      if (m_IdOutputInfo) {
-        SummaryCounter count(particle);
-	// integer entries in the summary can be -1 or -999, strange I know but that is the design ...
-        
-        count.AddToCounter(xAOD::numberOfBLayerHits, m_numberOfBLayerHits);
-        
-        count.AddToCounter(xAOD::numberOfBLayerSharedHits, m_numberOfBLayerSharedHits);
-        
-        count.AddToCounter(xAOD::numberOfBLayerOutliers, m_numberOfBLayerOutliers);
-        
-        count.AddToCounter(xAOD::numberOfContribPixelLayers, m_numberOfContribPixelLayers);
-        
-        count.AddToCounter(xAOD::numberOfPixelHits, m_numberOfPixelHits);
-
-        count.AddToCounter(xAOD::numberOfPixelSharedHits, m_numberOfPixelSharedHits);
-        
-        count.AddToCounter(xAOD::numberOfPixelHoles, m_numberOfPixelHoles);
-        
-        count.AddToCounter(xAOD::numberOfGangedPixels, m_numberOfGangedPixels);
-        
-        count.AddToCounter(xAOD::numberOfGangedFlaggedFakes, m_numberOfGangedFlaggedFakes);
-        
-        count.AddToCounter(xAOD::numberOfSCTHits, m_numberOfSCTHits);
-        
-        count.AddToCounter(xAOD::numberOfSCTSharedHits, m_numberOfSCTSharedHits);
-                
-        count.AddToCounter(xAOD::numberOfSCTHoles, m_numberOfSCTHoles);
-        
-        count.AddToCounter(xAOD::numberOfSCTDoubleHoles, m_numberOfSCTDoubleHoles);
-        
-        count.AddToCounter(xAOD::numberOfTRTHits, m_numberOfTRTHits);
-                 
-        count.AddToCounter(xAOD::numberOfTRTXenonHits, m_numberOfTRTXenonHits);
-        
-        count.AddToCounter(xAOD::numberOfTRTHighThresholdHits, m_numberOfTRTHighThresholdHits);
-       
-        count.AddToCounter(xAOD::numberOfTRTOutliers, m_numberOfTRTOutliers);
-           
-        count.AddToCounter(xAOD::numberOfTRTHighThresholdOutliers, m_numberOfTRTHighThresholdOutliers);
-        
-        count.AddToCounter(xAOD::numberOfOutliersOnTrack, m_numberOfOutliersOnTrack);
-        
-        count.AddToCounter(xAOD::numberOfPixelOutliers, m_numberOfPixelOutliers);
-        
-        count.AddToCounter(xAOD::numberOfPixelDeadSensors, m_numberOfPixelDeadSensors);
-        
-        count.AddToCounter(xAOD::numberOfPixelSpoiltHits, m_numberOfPixelSpoiltHits);
-        
-        {
-        uint8_t expectBLayerHit = 0;
-        uint8_t numberOfBLayerHits = 0;
-        uint8_t numberOfBLayerOutliers = 0;
-        uint8_t numberOfContribPixelLayers=0;
-        if (particle->summaryValue(expectBLayerHit,xAOD::expectBLayerHit) &&
-            expectBLayerHit>0 && 
-            (particle->summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits)) && 
-            (particle->summaryValue(numberOfBLayerOutliers,xAOD::numberOfBLayerOutliers)) && 
-            (particle->summaryValue(numberOfContribPixelLayers,xAOD::numberOfContribPixelLayers))){
-          if((numberOfBLayerHits + numberOfBLayerOutliers) == 0 && numberOfContribPixelLayers ==2) m_numberOfBlayersMissed++;
-        }
-        }
-        
-        count.AddToCounter(xAOD::numberOfSCTOutliers, m_numberOfSCTOutliers);
-        
-        count.AddToCounter(xAOD::numberOfSCTDeadSensors, m_numberOfSCTDeadSensors);
-        
-        count.AddToCounter(xAOD::numberOfSCTSpoiltHits, m_numberOfSCTSpoiltHits);
-        
-        count.AddToCounter(xAOD::numberOfTRTHoles, m_numberOfTRTHoles);
-        
-        count.AddToCounter(xAOD::numberOfTRTDeadStraws, m_numberOfTRTDeadStraws);
-        
-        count.AddToCounter(xAOD::numberOfTRTTubeHits, m_numberOfTRTTubeHits);
-      }
-
 
       if( m_addTruthLink ){
         MCTruthPartClassifier::ParticleType type = MCTruthPartClassifier::Unknown;
@@ -444,100 +304,6 @@ namespace xAODMaker {
   }
 
   StatusCode TrackParticleCnvAlg::finalize() {
-
-    if (m_IdOutputInfo){
-
-      double nTP = (double)m_nTrackParticlesCreated;
-  
-      msg(MSG::INFO) << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(9) << std::setprecision(3);
-      msg(MSG::INFO) << " --- InDetParticleCreation Summary: " << endmsg;
-    
-      msg(MSG::INFO) << " --- Input  TrackCollection        : \"" <<  m_tracks.key()              << "\" with " << m_nTracksProcessed << " Tracks (";
-      msg(MSG::INFO) << ( m_numEvents ? (double)m_nTracksProcessed/(double)m_numEvents : 0 ) << " per event)." << endmsg;
-    
-    
-      msg(MSG::INFO) << " --- Output TrackParticleContainer : \"" << m_xaodout.key() << "\" with " << nTP << " TrackParticles (";
-      msg(MSG::INFO) << (m_numEvents ? nTP/(double)m_numEvents : 0 ) << " per event)." << endmsg;
-    
-      if (m_nTrackParticlesCreated>0){
-	msg(MSG::INFO) << " ---  /Track in   -----> "
-		       << " BLayer " 
-		       << " Pixel " 
-		       << "  SCT  "
-		       << "  TRT  " 
-		       << "  All (P+S+T)" << endmsg;
-	msg(MSG::INFO) << " ---  Hits                "
-		       << (double)m_numberOfBLayerHits/nTP << "  "
-		       << (double)m_numberOfPixelHits/nTP  << "  "
-		       << (double)m_numberOfSCTHits/nTP    << "  "
-		       << (double)m_numberOfTRTHits/nTP    << "  "
-		       << (double)(m_numberOfPixelHits+m_numberOfSCTHits+m_numberOfTRTHits)/nTP << endmsg;
-	msg(MSG::INFO) << " ---  Shared Hits         "
-		       << (double)m_numberOfBLayerSharedHits/nTP << "  " 
-		       << (double)m_numberOfPixelSharedHits/nTP  << "  " 
-		       << (double)m_numberOfSCTSharedHits/nTP    << "  " 
-		       << " " << "       "
-		       << " " << (double)(m_numberOfPixelSharedHits+m_numberOfSCTSharedHits)/nTP << endmsg;
-	msg(MSG::INFO) << " ---  Spoiled/Tube Hits    "
-		       << "      "
-		       << (double)m_numberOfPixelSpoiltHits/nTP << "  "
-		       << (double)m_numberOfSCTSpoiltHits/nTP   << "  "
-		       << " " << (double)m_numberOfTRTTubeHits/nTP     << "  "
-		       << " " << (double)(m_numberOfPixelSpoiltHits+m_numberOfSCTSpoiltHits+m_numberOfTRTTubeHits)/nTP << endmsg;
-	msg(MSG::INFO) << " ---  Outliers            "
-		       << (double)m_numberOfBLayerOutliers/nTP << "  "
-		       << (double)m_numberOfPixelOutliers/nTP  << "  "
-		       << (double)m_numberOfSCTOutliers/nTP    << "  "
-		       << " " << (double)m_numberOfTRTOutliers/nTP    << "  "
-		       << " " << (double)m_numberOfOutliersOnTrack/nTP << endmsg;
-	msg(MSG::INFO) << " ---  Holes               "
-		       << "       "
-		       << (double)m_numberOfPixelHoles/nTP   << "  " 
-		       << (double)m_numberOfSCTHoles/nTP     << "  "
-		       << " " << (double)m_numberOfTRTHoles/nTP     << "  "
-		       << " " << (double)(m_numberOfPixelHoles+m_numberOfSCTHoles+m_numberOfTRTHoles)/nTP << endmsg;
-	msg(MSG::INFO) << "      missed (exp) blayer " << (double) m_numberOfBlayersMissed/nTP << endmsg;         
-	msg(MSG::INFO) << "      SCT Double Holes    "
-		       << "       "
-		       << "       "
-		       << (double)m_numberOfSCTDoubleHoles/nTP
-		       << endmsg;
-	msg(MSG::INFO) << " ---  Dead Sensors/Straws "
-		       << "       "
-		       << (double)m_numberOfPixelDeadSensors/nTP << "  "
-		       << (double)m_numberOfSCTDeadSensors/nTP   << "  "
-		       << " " << (double)m_numberOfTRTDeadStraws/nTP    << "  "
-		       << " " << (double)(m_numberOfPixelDeadSensors+m_numberOfSCTDeadSensors+m_numberOfTRTDeadStraws)/nTP
-		       << endmsg;
-	msg(MSG::INFO) << " ---  Add info Pixels " << endmsg;
-	msg(MSG::INFO) << "      contributing layers        " << (double)m_numberOfContribPixelLayers/nTP << endmsg;
-	msg(MSG::INFO) << "      ganged pixels              " << (double)m_numberOfGangedPixels/nTP << endmsg;
-	msg(MSG::INFO) << "      ganged flagged as fake     " << (double)m_numberOfGangedFlaggedFakes/nTP << endmsg;
-	msg(MSG::INFO) << " ---  Add info TRT " << endmsg;
-	msg(MSG::INFO) << "      High Threshold Hits "
-		       << "       "
-		       << "       "
-		       << "       "
-		       << " " << (double)m_numberOfTRTHighThresholdHits/nTP
-		       << endmsg;
-	msg(MSG::INFO) << "      High thre. outliers "
-		       << "       "
-		       << "       "
-		       << "       "
-		       << " " << (double)m_numberOfTRTHighThresholdOutliers/nTP
-		       << endmsg;
-	msg(MSG::INFO) << "      Xenon hits"
-		       << "       "
-		       << "       "
-		       << "       "
-		       << " " << (double)m_numberOfTRTXenonHits/nTP
-		       << endmsg;
-      
-      
-      } else 
-	msg(MSG::INFO) << " No TrackParticles have been created ... skipping output." << endmsg;
-    }    
-    msg(MSG::DEBUG) << "finalize() success" << endmsg;
     return StatusCode::SUCCESS;  
   }
 
