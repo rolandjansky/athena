@@ -40,10 +40,7 @@ public:
   }
 
 
-  CaloTopoTmpHashCell(const CaloTopoTmpHashCell &other)
-  {
-    m_clusterCell = other.m_clusterCell;
-  }
+  CaloTopoTmpHashCell(const CaloTopoTmpHashCell &other) = default;
 
 
   CaloTopoTmpHashCell(T* clusterCell) 
@@ -58,13 +55,7 @@ public:
     return (m_clusterCell == other.m_clusterCell);
   }
 
-  CaloTopoTmpHashCell & operator=(const CaloTopoTmpHashCell & other)
-  {
-    if ( this != &other ) {
-      m_clusterCell = other.m_clusterCell;
-    }
-    return *this;
-  }
+  CaloTopoTmpHashCell & operator=(const CaloTopoTmpHashCell & other) = default;
 
   T * getCaloTopoTmpClusterCell() const
   {
