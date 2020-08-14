@@ -56,7 +56,7 @@ namespace InDet
     PixelSpacePoint( const PixelSpacePoint & PSP);
 
     /** Destructor */
-    ~PixelSpacePoint();
+    ~PixelSpacePoint() = default;
 
     /** Overloading assignment operator */
     PixelSpacePoint &operator=(const PixelSpacePoint &);
