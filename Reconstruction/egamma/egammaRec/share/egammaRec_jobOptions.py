@@ -26,7 +26,6 @@ if not (rec.readESD() or jobproperties.CaloRecFlags.doCaloTopoCluster()):
     jobproperties.egammaRecFlags.doEgammaForwardSeeded = False
 
 
-
 # Function to schedule the GSF
 
 

@@ -59,6 +59,7 @@ class doBremFinding (egammaRecFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue = True
 
+
 class doVertexBuilding (egammaRecFlagsJobProperty):
     """ switch for whether to do the conversion vertex building
     """
