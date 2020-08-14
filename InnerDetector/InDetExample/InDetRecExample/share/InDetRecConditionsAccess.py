@@ -15,7 +15,7 @@ if DetFlags.haveRIO.pixel_on():
     from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
     InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
   
-    # Load pixel calibration service
+    # Load pixel calibration service 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixCalib'):
             conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
@@ -26,7 +26,9 @@ if DetFlags.haveRIO.pixel_on():
             print InDetPixelCalibSvc
 
     # Load pixel special pixel map services
-    if athenaCommonFlags.isOnline() :
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+    #Switching off special pixels for ITk - see ATLASRECTS-5613 
+    if athenaCommonFlags.isOnline() or (CommonGeometryFlags.Run() == "RUN4"):
        InDetPixelConditionsSummarySvc.UseSpecialPixelMap = False
     else:
         InDetPixelConditionsSummarySvc.UseSpecialPixelMap = True
