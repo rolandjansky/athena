@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,6 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "MuidInterfaces/IMuidCaloEnergy.h"
-#include "MuidInterfaces/IMuidCaloMaterialParam.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -43,11 +40,7 @@ namespace Rec {
 MuidCaloTrackStateOnSurface::MuidCaloTrackStateOnSurface(const std::string& type, const std::string& name,
                                                          const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_caloEnergyDeposit("Rec::MuidCaloEnergyTool/MuidCaloEnergyTool", this),
-      m_caloEnergyParam("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam", this),
-      m_caloMaterialParam("Rec::MuidCaloMaterialParam/MuidCaloMaterialParam", this),
       m_magFieldProperties(0),
-      m_propagator("Trk::IntersectorWrapper/IntersectorWrapper", this),
       m_minCaloRadius(0.4 * Gaudi::Units::meter),
       m_minRemainingEnergy(0.5 * Gaudi::Units::GeV),
       m_paramPtCut(15.0 * Gaudi::Units::GeV),
@@ -58,10 +51,6 @@ MuidCaloTrackStateOnSurface::MuidCaloTrackStateOnSurface(const std::string& type
       m_countOuterFailure(0)
 {
     declareInterface<IMuidCaloTrackStateOnSurface>(this);
-    declareProperty("CaloEnergyDeposit", m_caloEnergyDeposit);
-    declareProperty("CaloEnergyParam", m_caloEnergyParam);
-    declareProperty("CaloMaterialParam", m_caloMaterialParam);
-    declareProperty("Propagator", m_propagator);
     declareProperty("MinCaloRadius", m_minCaloRadius);
     declareProperty("MinRemainingEnergy", m_minRemainingEnergy);
     declareProperty("ParamPtCut", m_paramPtCut);
@@ -78,32 +67,20 @@ MuidCaloTrackStateOnSurface::initialize()
                   << " - package version " << PACKAGE_VERSION);
 
     // get the Tools
-    if (m_caloEnergyDeposit.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_caloEnergyDeposit);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_caloEnergyDeposit);
-    }
-    if (m_caloEnergyParam.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_caloEnergyParam);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_caloEnergyParam);
-    }
-    if (m_caloMaterialParam.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_caloMaterialParam);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_caloMaterialParam);
-    }
+    ATH_CHECK(m_caloEnergyDeposit.retrieve());
+    ATH_MSG_DEBUG("Retrieved tool " << m_caloEnergyDeposit);
+
+    ATH_CHECK(m_caloEnergyParam.retrieve());
+    ATH_MSG_DEBUG("Retrieved tool " << m_caloEnergyParam);
+
+    ATH_CHECK(m_caloMaterialParam.retrieve());
+    ATH_MSG_DEBUG("Retrieved tool " << m_caloMaterialParam);
+
     /// handle to the magnetic field cache
     ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
-    if (m_propagator.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_propagator);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_propagator);
-    }
+
+    ATH_CHECK(m_propagator.retrieve());
+    ATH_MSG_DEBUG("Retrieved tool " << m_propagator);
 
     m_magFieldProperties = new Trk::MagneticFieldProperties(Trk::FullField);
 

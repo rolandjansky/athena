@@ -29,19 +29,19 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MuidInterfaces/IMuidCaloEnergy.h"
+#include "MuidInterfaces/IMuidCaloMaterialParam.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
+#include "TrkExInterfaces/IPropagator.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Trk {
-class IPropagator;
 class MagneticFieldProperties;
 }  // namespace Trk
 
 namespace Rec {
 
-class IMuidCaloEnergy;
-class IMuidCaloMaterialParam;
 
 class MuidCaloTrackStateOnSurface : public AthAlgTool, virtual public IMuidCaloTrackStateOnSurface {
 
@@ -80,11 +80,29 @@ class MuidCaloTrackStateOnSurface : public AthAlgTool, virtual public IMuidCaloT
     bool                        useEtaPhiFromDirection(const Trk::TrackParameters& parameters) const;
 
     // helpers, managers, tools
-    ToolHandle<Rec::IMuidCaloEnergy>        m_caloEnergyDeposit;
-    ToolHandle<Rec::IMuidCaloEnergy>        m_caloEnergyParam;
-    ToolHandle<Rec::IMuidCaloMaterialParam> m_caloMaterialParam;
-    Trk::MagneticFieldProperties*           m_magFieldProperties;
-    ToolHandle<Trk::IPropagator>            m_propagator;
+    ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyDeposit{
+        this,
+        "CaloEnergyDeposit",
+        "Rec::MuidCaloEnergyTool/MuidCaloEnergyTool",
+    };
+    ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
+        this,
+        "CaloEnergyParam",
+        "Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam",
+    };
+    ToolHandle<Rec::IMuidCaloMaterialParam> m_caloMaterialParam{
+        this,
+        "CaloMaterialParam",
+        "Rec::MuidCaloMaterialParam/MuidCaloMaterialParam",
+    };
+    ToolHandle<Trk::IPropagator> m_propagator{
+        this,
+        "Propagator",
+        "Trk::IntersectorWrapper/IntersectorWrapper",
+    };
+
+    Trk::MagneticFieldProperties* m_magFieldProperties;
+
     // Read handle for conditions object to get the field cache
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
         this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};

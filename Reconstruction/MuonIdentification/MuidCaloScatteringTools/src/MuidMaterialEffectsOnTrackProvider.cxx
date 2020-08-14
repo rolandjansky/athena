@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,16 +26,10 @@
 // constructor
 Rec::MuidMaterialEffectsOnTrackProvider::MuidMaterialEffectsOnTrackProvider(const std::string& t, const std::string& n,
                                                                             const IInterface* p)
-    : AthAlgTool(t, n, p),
-      m_calotsos("Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface"),
-      m_calotsosparam(""),
-      m_scattool("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator")
+    : AthAlgTool(t, n, p)
 {
     m_cosmics = false;
     declareProperty("Cosmics", m_cosmics);
-    declareProperty("TSOSTool", m_calotsos);
-    declareProperty("TSOSToolParam", m_calotsosparam);
-    declareProperty("MultipleScatteringTool", m_scattool);
     declareInterface<IMaterialEffectsOnTrackProvider>(this);
 }
 
@@ -48,24 +42,16 @@ StatusCode
 Rec::MuidMaterialEffectsOnTrackProvider::initialize()
 {
     if (!m_cosmics) {
-        if (m_calotsos.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_calotsos.name());
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_calotsos.name());
-        }
+
+        ATH_CHECK(m_calotsos.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_calotsos.name());
+
         if (!m_calotsosparam.empty()) {
-            if (m_calotsosparam.retrieve().isFailure()) {
-                ATH_MSG_FATAL("Failed to retrieve tool " << m_calotsosparam.name());
-                return StatusCode::FAILURE;
-            } else {
-                ATH_MSG_INFO("Retrieved tool " << m_calotsosparam.name());
-            }
+            ATH_CHECK(m_calotsosparam.retrieve());
+            ATH_MSG_INFO("Retrieved tool " << m_calotsosparam.name());
         }
-        if (m_scattool.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Could not get " << m_scattool.type());
-            return StatusCode::FAILURE;
-        }
+
+        ATH_CHECK(m_scattool.retrieve());
     }
     return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,9 +50,21 @@ class MuidMaterialEffectsOnTrackProvider : public AthAlgTool, virtual public Trk
                                                                              Trk::ParticleHypothesis) const;
 
   private:
-    ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_calotsos;
-    ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_calotsosparam;
-    ToolHandle<Trk::IMultipleScatteringUpdator>   m_scattool;
+    ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_calotsos{
+        this,
+        "TSOSTool",
+        "Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface",
+    };
+    ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_calotsosparam{
+        this,
+        "TSOSToolParam",
+        "",
+    };
+    ToolHandle<Trk::IMultipleScatteringUpdator> m_scattool{
+        this,
+        "MultipleScatteringTool",
+        "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",
+    };
 
 
     bool m_cosmics;

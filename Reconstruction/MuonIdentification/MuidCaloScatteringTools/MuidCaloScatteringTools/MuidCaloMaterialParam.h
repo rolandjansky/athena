@@ -66,8 +66,11 @@ class MuidCaloMaterialParam : public AthAlgTool, virtual public IMuidCaloMateria
     StatusCode    defineCaloMaterial(void);
 
     // helpers, managers, tools
-    // ToolHandle<Trk::ITrackingVolumeDisplayer>	m_surfaceDisplayTool;
-    ToolHandle<Trk::IGeometryProcessor> m_surfaceDisplayTool;
+    ToolHandle<Trk::IGeometryProcessor> m_surfaceDisplayTool {
+       this,
+       "SurfaceDisplayTool",
+       "Trk::TrackingVolumeDisplayer/TrackingVolumeDisplayer",
+    };
 
     // configuration
     /** if true (set in jobOptions), use TrackingVolumeDisplayer to produce ROOT output.*/

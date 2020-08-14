@@ -40,14 +40,9 @@
 namespace Rec {
 
 MuidCaloMaterialParam::MuidCaloMaterialParam(const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent),
-      m_surfaceDisplayTool("Trk::TrackingVolumeDisplayer/TrackingVolumeDisplayer"),
-      m_produceSurfacesDisplay(false),
-      m_binSize(1),
-      m_numberBins(277)
+    : AthAlgTool(type, name, parent), m_produceSurfacesDisplay(false), m_binSize(1), m_numberBins(277)
 {
     declareInterface<IMuidCaloMaterialParam>(this);
-    declareProperty("SurfaceDisplayTool", m_surfaceDisplayTool);
     declareProperty("ProduceSurfacesFile", m_produceSurfacesDisplay);
 }
 
@@ -62,12 +57,8 @@ MuidCaloMaterialParam::initialize()
 
     // get the display tool
     if (m_produceSurfacesDisplay) {
-        if (m_surfaceDisplayTool.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_surfaceDisplayTool);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_surfaceDisplayTool);
-        }
+        ATH_CHECK(m_surfaceDisplayTool.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_surfaceDisplayTool);
     } else {
         m_surfaceDisplayTool.disable();
     }
