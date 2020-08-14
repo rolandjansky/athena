@@ -98,6 +98,7 @@ namespace {
     virtual const CLID& clID() const override { return m_clid; }
     virtual void* object() override { return m_ptr; }
     virtual const std::type_info& tinfo() const override { return m_tinfo; }
+    using DataBucketBase::cast;
     virtual void* cast (CLID /*clid*/,
                         SG::IRegisterTransient* /*irt*/ = nullptr,
                         bool /*isConst*/ = true) override
