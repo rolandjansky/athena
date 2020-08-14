@@ -21,6 +21,8 @@ from ..Base.Thresholds import TopoThreshold
 from ..Base.CTPCondition import ThrCondition, InternalTrigger  # noqa: F401
 from .TriggerTypeDef import TT
 
+from future.utils import with_metaclass
+
 
 
 class ItemDef:
@@ -44,7 +46,7 @@ class ItemDef:
         isHIV5 = 'HI_v5' in menuName
         isPhaseII = '_PhaseII' in menuName
 
-        class d(metaclass=meta_d): pass
+        class d(with_metaclass(meta_d)): pass
 
         # ... and make them accessible by their name
         for thr in tc.getDefinedThresholds():
