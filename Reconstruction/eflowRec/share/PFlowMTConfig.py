@@ -260,3 +260,6 @@ if jobproperties.eflowRecFlags.useFlowElements:
   PFNeutralFlowElementCreatorAlgorithm = PFNeutralFlowElementCreatorAlgorithm("PFNeutralFlowElementCreatorAlgorithm")
   topSequence += PFNeutralFlowElementCreatorAlgorithm 
 
+  from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
+  PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
+  topSequence += PFLCNeutralFlowElementCreatorAlgorithm 

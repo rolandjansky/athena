@@ -40,9 +40,6 @@ private:
   /** Toggle usage of calibration hit truth - false by default */
   Gaudi::Property<bool> m_useCalibHitTruth{this,"UseCalibHitTruth",false,"Toggle usage of calibration hit truth - false by default"};
 
-  /** Toggle addition of charged shower subtracted CaloCluster links to neutral FE - false by default */
-  Gaudi::Property<bool> m_addShowerSubtractedClusters{this,"AddShowerSubtractedClusters",false,"Toggle addition of charged shower subtracted CaloCluster links to neutral PFO - false by default"};
-
   /** ReadHandleKey for eflowCaloObjectContainer */
   SG::ReadHandleKey<eflowCaloObjectContainer> m_eflowCaloObjectContainerReadHandleKey{this,"eflowCaloObjectContainerName","eflowCaloObjects","ReadHandleKey for eflowCaloObjectContainer"};
   

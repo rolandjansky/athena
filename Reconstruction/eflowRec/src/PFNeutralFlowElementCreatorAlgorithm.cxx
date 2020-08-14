@@ -84,10 +84,8 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
     theClusters.push_back(theIParticleTrackLink);
     thisFE->setOtherObjectLinks(theClusters);
 
-    if (true == m_addShowerSubtractedClusters){
-      const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > accShowerSubtractedClusterLink("FEShowerSubtractedClusterLink");
-      accShowerSubtractedClusterLink(*thisFE) = thisEfRecCluster->getClusElementLink();
-    }
+    const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > accShowerSubtractedClusterLink("FEShowerSubtractedClusterLink");
+    accShowerSubtractedClusterLink(*thisFE) = thisEfRecCluster->getClusElementLink();
 
     ATH_MSG_VERBOSE("  Sucessfully set cluster link");
 
