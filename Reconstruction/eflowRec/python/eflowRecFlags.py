@@ -128,6 +128,12 @@ class provideShowerSubtractedClusters(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class useFlowElements(JobProperty):
+    """ Flag to toggle whether to create the new FlowElement EDM objects in addition to the PFO EDM objects. """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 # Defines the container for the eflowRec flags
 
 class eflowRecFlags(JobPropertyContainer):
@@ -138,7 +144,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,provideShowerSubtractedClusters]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,provideShowerSubtractedClusters, useFlowElements]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

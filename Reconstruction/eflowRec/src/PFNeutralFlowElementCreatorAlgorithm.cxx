@@ -101,68 +101,68 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
     
     thisFE->setCharge(0);
 
-    this->addMoment(xAOD::CaloCluster::CENTER_MAG,"eflowRec_CENTER_MAG",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::SECOND_R,"eflowRec_SECOND_R",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::CENTER_LAMBDA,"eflowRec_CENTER_LAMBDA",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::ENG_BAD_CELLS,"eflowRec_ENG_BAD_CELLS",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::N_BAD_CELLS,"eflowRec_N_BAD_CELLS",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::BADLARQ_FRAC,"eflowRec_BADLARQ_FRAC",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::ENG_POS,"eflowRec_ENG_POS",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::AVG_LAR_Q,"eflowRec_AVG_LAR_Q",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,"eflowRec_AVG_TILE_Q",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::ISOLATION,"eflowRec_ISOLATION",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::SECOND_LAMBDA,"eflowRec_SECOND_LAMBDA",*cluster,*thisFE);
-    this->addMoment(xAOD::CaloCluster::EM_PROBABILITY,"eflowRec_EM_PROBABILITY",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::CENTER_MAG,"PF_CENTER_MAG",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::SECOND_R,"PF_SECOND_R",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::CENTER_LAMBDA,"PF_CENTER_LAMBDA",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::ENG_BAD_CELLS,"PF_ENG_BAD_CELLS",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::N_BAD_CELLS,"PF_N_BAD_CELLS",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::BADLARQ_FRAC,"PF_BADLARQ_FRAC",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::ENG_POS,"PF_ENG_POS",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::AVG_LAR_Q,"PF_AVG_LAR_Q",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,"PF_AVG_TILE_Q",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::ISOLATION,"PF_ISOLATION",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::SECOND_LAMBDA,"PF_SECOND_LAMBDA",*cluster,*thisFE);
+    this->addMoment(xAOD::CaloCluster::EM_PROBABILITY,"PF_EM_PROBABILITY",*cluster,*thisFE);
 
     if (m_useCalibHitTruth){
-      this->addMoment(xAOD::CaloCluster::ENG_CALIB_TOT,"eflowRec_ENG_CALIB_TOT",*cluster,*thisFE);
-      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,"eflowRec_ENG_CALIB_FRAC_EM",*cluster,*thisFE);
-      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_HAD,"eflowRec_ENG_CALIB_FRAC_HAD",*cluster,*thisFE);
-      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_REST,"eflowRec_ENG_CALIB_FRAC_REST",*cluster,*thisFE);
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_TOT,"PF_ENG_CALIB_TOT",*cluster,*thisFE);
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,"PF_ENG_CALIB_FRAC_EM",*cluster,*thisFE);
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_HAD,"PF_ENG_CALIB_FRAC_HAD",*cluster,*thisFE);
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_REST,"PF_ENG_CALIB_FRAC_REST",*cluster,*thisFE);
     }
 
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::PreSamplerB,"eflowRec_LAYERENERGY_PreSamplerB",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB1,"eflowRec_LAYERENERGY_EMB1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB2,"eflowRec_LAYERENERGY_EMB2",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB3,"eflowRec_LAYERENERGY_EMB3",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::PreSamplerB,"PF_LAYERENERGY_PreSamplerB",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB1,"PF_LAYERENERGY_EMB1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB2,"PF_LAYERENERGY_EMB2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EMB3,"PF_LAYERENERGY_EMB3",*cluster,*thisFE);
     
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::PreSamplerE,"eflowRec_LAYERENERGY_PreSamplerE",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME1,"eflowRec_LAYERENERGY_EME1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME2,"eflowRec_LAYERENERGY_EME2",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME3,"eflowRec_LAYERENERGY_EME3",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::PreSamplerE,"PF_LAYERENERGY_PreSamplerE",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME1,"PF_LAYERENERGY_EME1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME2,"PF_LAYERENERGY_EME2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::EME3,"PF_LAYERENERGY_EME3",*cluster,*thisFE);
 
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC0,"eflowRec_LAYERENERGY_HEC0",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC1,"eflowRec_LAYERENERGY_HEC1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC2,"eflowRec_LAYERENERGY_HEC2",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC3,"eflowRec_LAYERENERGY_HEC3",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC0,"PF_LAYERENERGY_HEC0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC1,"PF_LAYERENERGY_HEC1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC2,"PF_LAYERENERGY_HEC2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::HEC3,"PF_LAYERENERGY_HEC3",*cluster,*thisFE);
 
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar0,"eflowRec_LAYERENERGY_TileBar0",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar1,"eflowRec_LAYERENERGY_TileBar1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar2,"eflowRec_LAYERENERGY_TileBar2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar0,"PF_LAYERENERGY_TileBar0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar1,"PF_LAYERENERGY_TileBar1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileBar2,"PF_LAYERENERGY_TileBar2",*cluster,*thisFE);
 
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap1,"eflowRec_LAYERENERGY_TileGap1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap2,"eflowRec_LAYERENERGY_TileGap2",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap3,"eflowRec_LAYERENERGY_TileGap3",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap1,"PF_LAYERENERGY_TileGap1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap2,"PF_LAYERENERGY_TileGap2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileGap3,"PF_LAYERENERGY_TileGap3",*cluster,*thisFE);
 
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt0,"eflowRec_LAYERENERGY_TileExt0",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt1,"eflowRec_LAYERENERGY_TileExt1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt2,"eflowRec_LAYERENERGY_TileExt2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt0,"PF_LAYERENERGY_TileExt0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt1,"PF_LAYERENERGY_TileExt1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::TileExt2,"PF_LAYERENERGY_TileExt2",*cluster,*thisFE);
 
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL0,"eflowRec_LAYERENERGY_FCAL0",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL1,"eflowRec_LAYERENERGY_FCAL1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL2,"eflowRec_LAYERENERGY_FCAL2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL0,"PF_LAYERENERGY_FCAL0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL1,"PF_LAYERENERGY_FCAL1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::FCAL2,"PF_LAYERENERGY_FCAL2",*cluster,*thisFE);
 
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL0,"eflowRec_LAYERENERGY_MINIFCAL0",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL1,"eflowRec_LAYERENERGY_MINIFCAL1",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL2,"eflowRec_LAYERENERGY_MINIFCAL2",*cluster,*thisFE);
-    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL3,"eflowRec_LAYERENERGY_MINIFCAL3",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL0,"PF_LAYERENERGY_MINIFCAL0",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL1,"PF_LAYERENERGY_MINIFCAL1",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL2,"PF_LAYERENERGY_MINIFCAL2",*cluster,*thisFE);
+    this->addSamplingEnergy(xAOD::CaloCluster::CaloSample::MINIFCAL3,"PF_LAYERENERGY_MINIFCAL3",*cluster,*thisFE);
 
     float layerEnergy_TileBar0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar0);
     float layerEnergy_TileExt0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileExt0);
-    const SG::AuxElement::Accessor<float> accFloatTIle0E("eflowRec_LAYERENERGY_TILE0");
+    const SG::AuxElement::Accessor<float> accFloatTIle0E("PF_LAYERENERGY_TILE0");
     accFloatTIle0E(*thisFE) = layerEnergy_TileBar0 + layerEnergy_TileExt0;
 
-    const SG::AuxElement::Accessor<float> accFloatTiming("eflowRec_TIMING");
+    const SG::AuxElement::Accessor<float> accFloatTiming("PF_TIMING");
     accFloatTiming(*thisFE) = cluster->time();
  
   }//cluster loop
