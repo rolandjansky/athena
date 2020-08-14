@@ -84,8 +84,8 @@ public:
   virtual std::unique_ptr<ICache> getCache() const = 0;
 
   /** Updator interface (full update for a layer):
-    The parameters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
+    The parameters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller.
     */
   virtual const TrackParameters* update(
     ICache& icache,
@@ -132,8 +132,8 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** Updator interface:
-    The parameters are given as a pointer, they are delete inside the update
-    method. MaterialProperties based material update
+    The parameters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
     - used by all Layer-based methods
     */
   virtual TrackParameters* update(
@@ -169,8 +169,6 @@ public:
     ParticleHypothesis particle = pion,
     MaterialUpdateMode matupmode = addNoise) const = 0;
   /** Updator interface (pre-update for a layer):
-    The parameters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
     */
   virtual TrackParameters* preUpdate(
     const TrackParameters* param,
@@ -181,7 +179,6 @@ public:
 
   /** Updator interface (pre-update for a layer):
     */
-
   virtual TrackParameters* postUpdate(
     const TrackParameters& param,
     const Layer& sf,
