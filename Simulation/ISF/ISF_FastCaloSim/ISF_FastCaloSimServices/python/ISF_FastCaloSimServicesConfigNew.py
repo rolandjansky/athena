@@ -111,6 +111,7 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
 
     acc = ComponentAccumulator()
     mergeable_collection_suffix = "_FastCaloSim"
+    region = "CALO"
 
     EMB_hits_bare_collection_name = "LArHitEMB"
     EMB_hits_merger_input_property = "LArEMBHits"
@@ -118,7 +119,8 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
         flags,
         EMB_hits_bare_collection_name,
         mergeable_collection_suffix,
-        EMB_hits_merger_input_property)
+        EMB_hits_merger_input_property,
+        region)
     acc.merge(acc1)
 
     EMEC_hits_bare_collection_name = "LArHitEMEC"
@@ -127,7 +129,8 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
         flags,
         EMEC_hits_bare_collection_name,
         mergeable_collection_suffix,
-        EMEC_hits_merger_input_property)
+        EMEC_hits_merger_input_property,
+        region)
     acc.merge(acc2)
 
     FCAL_hits_bare_collection_name = "LArHitFCAL"
@@ -136,7 +139,8 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
         flags,
         FCAL_hits_bare_collection_name,
         mergeable_collection_suffix,
-        FCAL_hits_merger_input_property)
+        FCAL_hits_merger_input_property,
+        region)
     acc.merge(acc3)
 
     HEC_hits_bare_collection_name = "LArHitHEC"
@@ -145,7 +149,8 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
         flags,
         HEC_hits_bare_collection_name,
         mergeable_collection_suffix,
-        HEC_hits_merger_input_property)
+        HEC_hits_merger_input_property,
+        region)
     acc.merge(acc4)
 
     tile_hits_bare_collection_name = "TileHitVec"
@@ -154,7 +159,8 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
         flags,
         tile_hits_bare_collection_name,
         mergeable_collection_suffix,
-        tile_hits_merger_input_property)
+        tile_hits_merger_input_property,
+        region)
     acc.merge(acc5)
 
     kwargs.setdefault("embHitContainername", EMB_hits_collection_name)
