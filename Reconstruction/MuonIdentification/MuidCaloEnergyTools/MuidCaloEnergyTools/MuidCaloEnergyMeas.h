@@ -65,15 +65,27 @@ class MuidCaloEnergyMeas : public AthAlgTool, virtual public IMuidCaloEnergyMeas
     int    cellCounting(const CaloCellContainer* cellContainer, double eta, double phi) const;
 
     // helpers, managers, tools
-    SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this, "CaloNoiseKey", "totalNoise",
-                                                   "SG Key of CaloNoise data object"};
-    ToolHandle<IMuidCaloEnergyParam> m_caloParamTool;
+    SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{
+        this,
+        "CaloNoiseKey",
+        "totalNoise",
+        "SG Key of CaloNoise data object",
+    };
+    ToolHandle<IMuidCaloEnergyParam> m_caloParamTool{
+        this,
+        "CaloParamTool",
+        "",
+    };
 
     const TileID*                        m_tileID;
     const LArEM_ID*                      m_emID;
     const LArHEC_ID*                     m_hecID;
-    SG::ReadHandleKey<CaloCellContainer> m_cellContainerLocation{this, "CellContainerLocation", "AllCalo",
-                                                                 "calo cell container location"};
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerLocation{
+        this,
+        "CellContainerLocation",
+        "AllCalo",
+        "calo cell container location",
+    };
 
     double m_measurementConeTile;
     double m_measurementConeLArHEC;

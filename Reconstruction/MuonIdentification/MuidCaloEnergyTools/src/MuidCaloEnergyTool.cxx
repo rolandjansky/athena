@@ -41,9 +41,6 @@ namespace Rec {
 
 MuidCaloEnergyTool::MuidCaloEnergyTool(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_caloMeasTool("Rec::MuidCaloEnergyMeas/MuidCaloEnergyMeas", this),
-      m_caloParamTool("Rec::MuidCaloEnergyParam/MuidCaloEnergyParam", this),
-      m_trackIsolationTool("Rec::MuidTrackIsolation/MuidTrackIsolation", this),
       m_cosmics(false),
       m_energyLossMeasurement(true),
       m_forceIsolationFailure(false),
@@ -62,9 +59,6 @@ MuidCaloEnergyTool::MuidCaloEnergyTool(const std::string& type, const std::strin
       m_countMop(0)
 {
     declareInterface<IMuidCaloEnergy>(this);
-    declareProperty("CaloMeasTool", m_caloMeasTool);
-    declareProperty("CaloParamTool", m_caloParamTool);
-    declareProperty("TrackIsolationTool", m_trackIsolationTool);
     declareProperty("Cosmics", m_cosmics);
     declareProperty("EnergyLossMeasurement", m_energyLossMeasurement);
     declareProperty("ForceIsolationFailure", m_forceIsolationFailure);
@@ -96,28 +90,16 @@ MuidCaloEnergyTool::initialize()
     }
 
     // get the Tools
-    if (m_caloParamTool.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_caloParamTool);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_INFO("Retrieved tool " << m_caloParamTool);
-    }
+    ATH_CHECK(m_caloParamTool.retrieve());
+    ATH_MSG_INFO("Retrieved tool " << m_caloParamTool);
 
     if (m_energyLossMeasurement) {
-        if (m_caloMeasTool.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_caloMeasTool);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_caloMeasTool);
-        }
+        ATH_CHECK(m_caloMeasTool.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_caloMeasTool);
 
         if (m_trackIsolation) {
-            if (m_trackIsolationTool.retrieve().isFailure()) {
-                ATH_MSG_FATAL("Failed to retrieve tool " << m_trackIsolationTool);
-                return StatusCode::FAILURE;
-            } else {
-                ATH_MSG_INFO("Retrieved tool " << m_trackIsolationTool);
-            }
+            ATH_CHECK(m_trackIsolationTool.retrieve());
+            ATH_MSG_INFO("Retrieved tool " << m_trackIsolationTool);
         } else {
             ATH_MSG_WARNING(" Using energy measurement without trackIsolation ");
             m_trackIsolationTool.disable();

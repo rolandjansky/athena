@@ -29,6 +29,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
+#include "MuidInterfaces/IMuidCaloEnergyParam.h"
+#include "MuidInterfaces/IMuidTrackIsolation.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -66,9 +68,21 @@ class MuidCaloEnergyTool : public AthAlgTool, virtual public IMuidCaloEnergy {
     double      landau(double x, double mpv, double sigma, bool norm) const;
 
     // helpers, managers, tools
-    ToolHandle<IMuidCaloEnergyMeas>  m_caloMeasTool;
-    ToolHandle<IMuidCaloEnergyParam> m_caloParamTool;
-    ToolHandle<IMuidTrackIsolation>  m_trackIsolationTool;
+    ToolHandle<IMuidCaloEnergyMeas> m_caloMeasTool{
+        this,
+        "CaloMeasTool",
+        "Rec::MuidCaloEnergyMeas/MuidCaloEnergyMeas",
+    };
+    ToolHandle<IMuidCaloEnergyParam> m_caloParamTool{
+        this,
+        "CaloParamTool",
+        "Rec::MuidCaloEnergyParam/MuidCaloEnergyParam",
+    };
+    ToolHandle<IMuidTrackIsolation> m_trackIsolationTool{
+        this,
+        "TrackIsolationTool",
+        "Rec::MuidTrackIsolation/MuidTrackIsolation",
+    };
 
     // configurable options
     bool m_cosmics;

@@ -35,7 +35,6 @@ namespace Rec {
 
 MuidCaloEnergyMeas::MuidCaloEnergyMeas(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_caloParamTool("", this),
       m_tileID(0),
       m_emID(0),
       m_hecID(0),
@@ -49,7 +48,6 @@ MuidCaloEnergyMeas::MuidCaloEnergyMeas(const std::string& type, const std::strin
       m_totalSelectedTile(0)
 {
     declareInterface<IMuidCaloEnergyMeas>(this);
-    declareProperty("CaloParamTool", m_caloParamTool);
     declareProperty("NoiseThresInSigmas", m_sigmasAboveNoise);
     declareProperty("NoiseThresInSigmasCore", m_sigmasAboveNoiseCore);
 
@@ -93,7 +91,7 @@ MuidCaloEnergyMeas::initialize()
     }
     ATH_MSG_VERBOSE("Accessed LArHEC helper");
 
-
+    ATH_CHECK(m_caloParamTool.retrieve());
     ATH_CHECK(m_noiseCDOKey.initialize());
     ATH_CHECK(m_cellContainerLocation.initialize());
 
