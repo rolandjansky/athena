@@ -59,24 +59,6 @@ namespace Rec {
 CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, const std::string& name,
                                                    const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_caloEnergyParam("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam", this),
-      m_caloTSOS("Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface", this),
-      m_cleaner("Muon::MuonTrackCleaner/MuidTrackCleaner", this),
-      m_cscRotCreator("", this),
-      m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
-      m_fitter("Trk::iPatFitter/iPatFitter", this),
-      m_fitterSL("Trk::iPatFitter/iPatSLFitter", this),
-      m_intersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
-      m_materialAllocator("", this),
-      m_mdtRotCreator("", this),
-      m_muonErrorOptimizer("Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool", this),
-      m_muonHoleRecovery("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool", this),
-      m_propagator("Trk::IntersectorWrapper/IntersectorWrapper", this),
-      m_propagatorSL("Trk::StraightLinePropagator/MuonStraightLinePropagator", this),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", this),
-      m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery", this),
-      m_trackSummary("Trk::TrackSummaryTool/MuidTrackSummaryTool", this),
-      m_materialUpdator("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", this),
       m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc", name),
       m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc", name),
       m_magFieldProperties(Trk::FullField),
@@ -132,22 +114,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
     m_messageHelper = new MessageHelper(*this);
 
     declareInterface<ICombinedMuonTrackBuilder>(this);
-    declareProperty("CaloEnergyParam", m_caloEnergyParam);
-    declareProperty("CaloTSOS", m_caloTSOS);
-    declareProperty("Cleaner", m_cleaner);
-    declareProperty("CscRotCreator", m_cscRotCreator);
-    declareProperty("Extrapolator", m_extrapolator);
-    declareProperty("Fitter", m_fitter);
-    declareProperty("SLFitter", m_fitterSL);
-    declareProperty("Intersector", m_intersector);
-    declareProperty("MaterialAllocator", m_materialAllocator);
-    declareProperty("MdtRotCreator", m_mdtRotCreator);
-    declareProperty("MuonErrorOptimizer", m_muonErrorOptimizer);
-    declareProperty("MuonHoleRecovery", m_muonHoleRecovery);
-    declareProperty("Propagator", m_propagator);
-    declareProperty("SLPropagator", m_propagatorSL);
     declareProperty("TrackingVolumesSvc", m_trackingVolumesSvc);
-    declareProperty("TrackSummaryTool", m_trackSummary);
     declareProperty("AllowCleanerVeto", m_allowCleanerVeto);
     declareProperty("CleanCombined", m_cleanCombined);
     declareProperty("CleanStandalone", m_cleanStandalone);
@@ -178,14 +145,12 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
 
     declareProperty("UpdateWithCaloTG", m_updateWithCaloTG);
     declareProperty("UseCaloTG", m_useCaloTG);
-    declareProperty("CaloMaterialProvider", m_materialUpdator);
     declareProperty("IterateCombinedTrackFit", m_iterateCombinedTrackFit);
     declareProperty("RefineELossCombinedTrackFit", m_refineELossCombinedTrackFit);
     declareProperty("RefineELossStandAloneTrackFit", m_refineELossStandAloneTrackFit);
     declareProperty("AddElossID", m_addElossID);
     declareProperty("AddIDMSerrors", m_addIDMSerrors);
     declareProperty("UseRefitTrackError", m_useRefitTrackError);
-    declareProperty("TrackQuery", m_trackQuery);
 }
 
 
@@ -454,13 +419,13 @@ CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::T
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return nullptr;
     }
     fieldCondObj->getInitializedCache (fieldCache);
-    
+
     if (surface && fieldCache.solenoidOn() && !m_updateWithCaloTG) {
         const Trk::TrackStateOnSurface* innerTSOS = nullptr;
 
@@ -814,13 +779,13 @@ CombinedMuonTrackBuilder::indetExtension(const Trk::Track&           indetTrack,
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return 0;
     }
     fieldCondObj->getInitializedCache (fieldCache);
-    
+
     if (fieldCache.toroidOn()) {
         // fail when solenoid off and toroid on - as extrapolation from ID is not the correct strategy
         //   for material effects, fit starting value etc
@@ -980,7 +945,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return 0;
@@ -1721,13 +1686,13 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return 0;
     }
     fieldCondObj->getInitializedCache (fieldCache);
-    
+
     if (!fieldCache.toroidOn()) {
         // no standalone refit for Toroid off
         return nullptr;
@@ -2243,7 +2208,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
 	      if (checkTrack("standaloneRefitOpt", optimizedTrack.get(), refittedTrackUnique.get())) {
 		refittedTrackUnique.swap(optimizedTrack);
 		countAEOTs(refittedTrackUnique.get(), " standaloneRefit alignment errors Track ");
-	      } 
+	      }
             }
         }
     }
@@ -2278,7 +2243,7 @@ CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval ru
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return 0;
@@ -2398,7 +2363,7 @@ CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval ru
 	      if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrackUnique.get())) {
 		fittedTrackUnique.swap(optimizedTrack);
 		countAEOTs(fittedTrackUnique.get(), " re fit scaled errors Track ");
-	      } 
+	      }
             }
         }
 
@@ -2449,7 +2414,7 @@ CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval ru
     return fittedTrackUnique.release();
 }
 
-/** 
+/**
     fit a set of MeasurementBase objects with starting value for perigeeParameters */
 Trk::Track*
 CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const Trk::TrackParameters& perigeeStartValue,
@@ -2471,7 +2436,7 @@ CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const T
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return 0;
@@ -2601,7 +2566,7 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, Trk::Track& extrapol
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return 0;
@@ -3252,7 +3217,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(const Trk::Track&           sp
             EventContext ctx = Gaudi::Hive::currentContext();
             SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
             const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
             if (fieldCondObj == nullptr) {
                 ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
                 return 0;
@@ -3996,7 +3961,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
     EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-   
+
     if (fieldCondObj == nullptr) {
         ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
         return 0;
