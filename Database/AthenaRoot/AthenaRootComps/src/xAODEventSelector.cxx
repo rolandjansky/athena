@@ -24,7 +24,7 @@
 #include "TKey.h"
 #include "TLeaf.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Framework includes
 //#include "GaudiKernel/GenericAddress.h"

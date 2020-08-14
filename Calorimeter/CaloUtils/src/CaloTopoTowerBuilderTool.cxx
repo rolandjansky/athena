@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/IChronoStatSvc.h"

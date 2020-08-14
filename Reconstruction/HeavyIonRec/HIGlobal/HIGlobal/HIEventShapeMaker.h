@@ -13,7 +13,7 @@
 #include <string>
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "IHIEventShapeFiller.h"
 #include "HIEventUtils/HIEventShapeSummaryTool.h"
 

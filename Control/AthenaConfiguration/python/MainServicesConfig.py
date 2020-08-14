@@ -39,7 +39,6 @@ def MainServicesCfg(cfgFlags):
     #Build standard sequences:
     cfg.addSequence(AthSequencer('AthAlgEvtSeq',Sequential=True, StopOverride=True),parentName="AthMasterSeq") 
     cfg.addSequence(AthSequencer('AthOutSeq',StopOverride=True),parentName="AthMasterSeq")
-    cfg.addSequence(AthSequencer('AthRegSeq',StopOverride=True),parentName="AthMasterSeq")
 
     cfg.addSequence(AthSequencer('AthBeginSeq',Sequential=True),parentName='AthAlgEvtSeq')
     cfg.addSequence(AthSequencer('AthAllAlgSeq',StopOverride=True),parentName='AthAlgEvtSeq') 

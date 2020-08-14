@@ -5,7 +5,7 @@
 #ifndef MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
 #define MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/WriteHandle.h"

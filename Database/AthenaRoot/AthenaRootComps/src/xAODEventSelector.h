@@ -17,7 +17,7 @@
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IAddressProvider.h"

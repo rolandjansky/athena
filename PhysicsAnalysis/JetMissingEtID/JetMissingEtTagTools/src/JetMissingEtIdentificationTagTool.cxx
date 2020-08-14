@@ -10,7 +10,7 @@ Purpose : create a JetMissingEtIdentificationTag - word to encode Jet and
 *****************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODJet/JetContainer.h"

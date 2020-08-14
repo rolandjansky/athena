@@ -17,7 +17,7 @@ namespace asg {
    const T* AsgTool::getProperty( const std::string& name ) const {
 
       // Get the property object (if it exists):
-      const Property* prop = m_properties->getProperty( name );
+     const Property* prop = m_properties->getProperty( name );
       if( ! prop ) {
          ATH_MSG_WARNING( "Property with name \"" << name << "\" not found" );
          return 0;
@@ -43,8 +43,15 @@ namespace asg {
 #ifndef XAOD_STANDALONE
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
+
+using Property = Gaudi::Details::PropertyBase;
+
+template <class TYPE, class VERIFIER = Gaudi::Details::Property::NullVerifier,
+          class HANDLERS = Gaudi::Details::Property::UpdateHandler>
+using PropertyWithValue  = Gaudi::Property<TYPE, VERIFIER, HANDLERS>;
+
 
 namespace asg {
 
@@ -52,7 +59,7 @@ namespace asg {
    const T* AsgTool::getProperty( const std::string& name ) const {
 
       // Get the property object (if it exists):
-      const Property* prop = Gaudi::Utils::getProperty( this, name );
+     const Gaudi::Details::PropertyBase* prop = Gaudi::Utils::getProperty( this, name );
       if( ! prop ) {
          ATH_MSG_WARNING( "Property with name \"" << name << "\" not found" );
          return 0;
@@ -60,7 +67,7 @@ namespace asg {
 
       // Try to cast it to the required type:
       const PropertyWithValue< T >* tprop =
-         dynamic_cast< const PropertyWithValue< T >* >( prop );
+        dynamic_cast< const PropertyWithValue< T >* >( prop );
       if( ! tprop ) {
          ATH_MSG_WARNING( "Property \"" << name << "\" is of type: "
                           << System::typeinfoName( *( prop->type_info() ) ) );

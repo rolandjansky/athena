@@ -9,7 +9,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 namespace CLHEP { class HepRandomEngine; }
 /** @class TestRandomSegAlg

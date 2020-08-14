@@ -25,7 +25,7 @@ SG_BASES1(PyObject, SG::NoBase);
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaPython/IPyComponent.h"
 
 // PyROOT includes

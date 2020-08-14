@@ -112,14 +112,16 @@ Trk::Navigator::initialize() {
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingVolume *
-Trk::Navigator::volume(const Amg::Vector3D &gp) const {
-  return(trackingGeometry()->lowestTrackingVolume(gp));
+const Trk::TrackingVolume*
+Trk::Navigator::volume(const EventContext& ctx, const Amg::Vector3D& gp) const
+{
+  return (trackingGeometry(ctx)->lowestTrackingVolume(gp));
 }
 
-const Trk::TrackingVolume *
-Trk::Navigator::highestVolume() const {
-  return(trackingGeometry()->highestTrackingVolume());
+const Trk::TrackingVolume*
+Trk::Navigator::highestVolume(const EventContext& ctx) const
+{
+  return (trackingGeometry(ctx)->highestTrackingVolume());
 }
 
 const Trk::BoundarySurface<Trk::TrackingVolume>*
@@ -363,7 +365,7 @@ Trk::Navigator::nextDenseTrackingVolume(
   if (atVolumeBoundary(currPar, &vol, dir, nextVolume, tol) && nextVolume != (&vol)) {
     if (!nextVolume) {
       const Amg::Vector3D& gp = currPar->position();
-      const Trk::TrackingVolume *currStatic = trackingGeometry()->lowestStaticTrackingVolume(gp);
+      const Trk::TrackingVolume *currStatic = trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
       if (&vol != currStatic) {
         nextVolume = currStatic;
       }
@@ -407,7 +409,7 @@ Trk::Navigator::nextDenseTrackingVolume(
     } else if (atVolumeBoundary(nextPar, &vol, dir, nextVolume, tol)) {
       if (!nextVolume) {
         // detached volume boundary or world boundary : resolve
-        const Trk::TrackingVolume *currStatic = trackingGeometry()->lowestStaticTrackingVolume(gp);
+        const Trk::TrackingVolume *currStatic = trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
         if (&vol != currStatic) {
           nextVolume = currStatic;
         }
@@ -448,8 +450,9 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,
                                                                         dir * parms->momentum().unit());
       if (distSol.currentDistance(false) < tol && distSol.numberOfSolutions() > 0) {
         isAtBoundary = true;
-        const Trk::TrackingVolume *attachedVol = (bounds[ib].get())->attachedVolume(
-          parms->position(), parms->momentum(), dir);
+        const Trk::TrackingVolume* attachedVol =
+          (bounds[ib].get())
+            ->attachedVolume(parms->position(), parms->momentum(), dir);
         if (!nextVol && attachedVol) {
           nextVol = attachedVol;
         }
@@ -616,7 +619,8 @@ Trk::Navigator::finalize() {
 }
 
 const Trk::TrackingGeometry*
-Trk::Navigator::trackingGeometry() const {
+Trk::Navigator::trackingGeometry(const EventContext& ctx) const
+{
   if (!m_useConditions) {
     const TrackingGeometry* trackingGeometry = nullptr;
     if (detStore()
@@ -627,8 +631,7 @@ Trk::Navigator::trackingGeometry() const {
     }
     return trackingGeometry;
   } else {
-    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey,
-                                                Gaudi::Hive::currentContext());
+    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
     if (!handle.isValid()) {
       ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
       throw Trk::NavigatorException();

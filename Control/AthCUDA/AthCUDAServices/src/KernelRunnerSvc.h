@@ -14,7 +14,7 @@
 
 // Framework include(s).
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthService.h"
 
 // System include(s).

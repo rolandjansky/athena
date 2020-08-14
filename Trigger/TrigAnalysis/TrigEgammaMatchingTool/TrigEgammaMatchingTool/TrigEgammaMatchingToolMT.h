@@ -5,7 +5,7 @@
 #ifndef TrigEgammaMatchingToolMT_H
 #define TrigEgammaMatchingToolMT_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"

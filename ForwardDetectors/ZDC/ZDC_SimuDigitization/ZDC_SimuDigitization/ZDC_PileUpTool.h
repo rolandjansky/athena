@@ -6,7 +6,7 @@
 #define ZDC_DIGITIZATION_TOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"

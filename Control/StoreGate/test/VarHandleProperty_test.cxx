@@ -56,13 +56,13 @@ public:
   { return mgr.setProperty(n, p); }
   virtual StatusCode setPropertyRepr( const std::string& n, const std::string& r ) override
   { return mgr.setPropertyRepr(n,r); }
-  virtual StatusCode getProperty( Property* p ) const override
+  virtual StatusCode getProperty( Gaudi::Details::PropertyBase* p ) const override
   { return mgr.getProperty (p); }
-  virtual const Property& getProperty( const std::string& name) const override
+  virtual const Gaudi::Details::PropertyBase& getProperty( const std::string& name) const override
   { return mgr.getProperty (name); }
   virtual StatusCode getProperty( const std::string& n, std::string& v ) const override
   { return mgr.getProperty (n, v); }
-  virtual const std::vector<Property*>& getProperties( ) const override
+  virtual const std::vector<Gaudi::Details::PropertyBase*>& getProperties( ) const override
   { return mgr.getProperties(); }
   virtual bool hasProperty(const std::string& name) const override
   { return mgr.hasProperty(name); }

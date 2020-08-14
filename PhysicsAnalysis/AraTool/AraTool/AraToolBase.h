@@ -5,7 +5,7 @@
 #ifndef ARATOOLBASE_H
 #define ARATOOLBASE_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/PropertyHolder.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IDataHandleHolder.h"
@@ -35,7 +35,7 @@ public:
 
 
   template<class TYPE>
-    Property* declareProperty
+  Gaudi::Details::PropertyBase* declareProperty
     ( const std::string&       name  ,
       TYPE&                    value,
       const std::string&       doc = "none" ) ;
@@ -47,7 +47,7 @@ public:
 };
 
 template<class TYPE>
-inline Property *
+inline Gaudi::Details::PropertyBase *
 AraToolBase::declareProperty
 ( const std::string& name  ,
   TYPE&              value,

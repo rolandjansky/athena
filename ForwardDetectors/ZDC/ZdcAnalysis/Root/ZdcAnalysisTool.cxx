@@ -11,6 +11,8 @@
 #include <sstream>
 #include <memory>
 #include <xAODForward/ZdcModuleAuxContainer.h>
+#include <AsgDataHandles/ReadHandle.h>
+#include <AsgDataHandles/WriteHandle.h>
 #include "PathResolver/PathResolver.h"
 
 namespace ZDC
@@ -19,8 +21,6 @@ namespace ZDC
   ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name),
 							      m_writeAux(false),
 							      m_runNumber(0), m_lumiBlock(0),
-                                                              m_eventInfoKey("EventInfo"),
-                                                              m_ZdcModuleWriteKey("ZdcSums"),
     m_splines{{{{0,0,0,0}},{{0,0,0,0}}}}, m_zdcTriggerEfficiency(0)
 {
 
@@ -28,8 +28,6 @@ namespace ZDC
    declareInterface<IZdcAnalysisTool>(this);
 #endif
 
-  declareProperty("EventInfoKey",          m_eventInfoKey,          "Location of the event info.");
-  declareProperty("ZdcModuleWriteKey",     m_ZdcModuleWriteKey,     "Output location of ZDC reprocessed data");
   declareProperty("Configuration", m_configuration = "PbPb2015");
   declareProperty("FlipEMDelay",m_flipEMDelay=false);
   declareProperty("LowGainOnly",m_lowGainOnly=false);

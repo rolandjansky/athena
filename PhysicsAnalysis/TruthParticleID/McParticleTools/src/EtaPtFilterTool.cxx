@@ -449,13 +449,13 @@ StatusCode EtaPtFilterTool::initializeTool()
   return StatusCode::SUCCESS;
 }
 
-void EtaPtFilterTool::setupInnerEtaRegionCuts( Property& /*innerRegion*/ )
+void EtaPtFilterTool::setupInnerEtaRegionCuts( Gaudi::Details::PropertyBase& /*innerRegion*/ )
 {
   // nothing to do (yet?)
   return;
 }
 
-void EtaPtFilterTool::setupOuterEtaRegionCuts( Property& /*outerRegion*/ )
+void EtaPtFilterTool::setupOuterEtaRegionCuts( Gaudi::Details::PropertyBase& /*outerRegion*/ )
 {
   // nothing to do (yet?)
   return;

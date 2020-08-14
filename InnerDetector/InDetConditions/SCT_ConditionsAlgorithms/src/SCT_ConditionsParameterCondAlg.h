@@ -16,7 +16,7 @@
 #include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class SCT_ConditionsParameterCondAlg : public AthReentrantAlgorithm 
 {  

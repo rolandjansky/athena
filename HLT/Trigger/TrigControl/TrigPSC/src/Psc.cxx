@@ -33,7 +33,7 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 
 #include <sstream>

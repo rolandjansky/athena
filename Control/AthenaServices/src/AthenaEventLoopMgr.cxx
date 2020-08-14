@@ -210,7 +210,7 @@ StatusCode AthenaEventLoopMgr::initialize()
 	  error() << "Could not dcast HistPersSvc to a Service"
 		<< endmsg;
 	} else {
-	  const Property &prop = s->getProperty("OutputFile");
+	  const Gaudi::Details::PropertyBase &prop = s->getProperty("OutputFile");
 	  std::string val;
 	  try {
 	    const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
@@ -329,7 +329,7 @@ StatusCode AthenaEventLoopMgr::initialize()
 // property handlers
 //=========================================================================
 void 
-AthenaEventLoopMgr::setupTimeKeeper(Property&) {
+AthenaEventLoopMgr::setupTimeKeeper(Gaudi::Details::PropertyBase&) {
   const std::string& tkName(m_timeKeeperName.value());
   // We do not expect a TimeKeeper necessarily being declared  
   if( tkName != "NONE" && tkName.length() != 0) {
@@ -342,7 +342,7 @@ AthenaEventLoopMgr::setupTimeKeeper(Property&) {
 }
 
 void 
-AthenaEventLoopMgr::setClearStorePolicy(Property&) {
+AthenaEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
   const std::string& policyName = m_clearStorePolicy.value();
 
   if ( policyName != "BeginEvent" &&
@@ -362,7 +362,7 @@ AthenaEventLoopMgr::setClearStorePolicy(Property&) {
 }
 
 void
-AthenaEventLoopMgr::setupPreSelectTools(Property&) {
+AthenaEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
 
   m_toolInvoke.clear();
   m_toolReject.clear();

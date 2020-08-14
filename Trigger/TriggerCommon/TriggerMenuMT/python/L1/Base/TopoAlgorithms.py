@@ -18,15 +18,16 @@ class AlgType(Enum):
         self.key = key
     
 class AlgCategory(Enum):
-    TOPO = (1, 'TOPO', 'new topo')
-    MUCTPI = (2, 'MUTOPO', 'muctpi topo')
-    LEGACY = (3, 'R2TOPO', 'legacy topo')
-    MULTI = (4, 'MULTTOPO', 'multiplicity topo')
+    TOPO = (1, 'TOPO', 'new topo', 'TopoAlgoDef')
+    MUCTPI = (2, 'MUTOPO', 'muctpi topo', 'TopoAlgoDefMuctpi')
+    LEGACY = (3, 'R2TOPO', 'legacy topo', 'TopoAlgoDefLegacy')
+    MULTI = (4, 'MULTTOPO', 'multiplicity topo', 'TopoAlgoDefMultiplicity')
 
-    def __init__(self, _, key, desc ):
+    def __init__(self, _, key, desc, defFile ):
         self.key = key
         self.prefix = key + '_' if key else ''
         self.desc = desc
+        self.defFile = defFile
 
     def __str__(self):
         return self.desc

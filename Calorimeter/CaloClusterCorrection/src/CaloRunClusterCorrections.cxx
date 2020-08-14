@@ -22,7 +22,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/Array.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -771,10 +771,10 @@ CaloRunClusterCorrections::orderCorrections ATLAS_NOT_THREAD_SAFE (bool allowMis
       // Tool is being initialized from JO.  Find the order property from JOS.
       tool.order = -1;
       std::string fullname = this->name() + "." + tool.name;
-      const std::vector<const Property*>* props =
+      const std::vector<const Gaudi::Details::PropertyBase*>* props =
         m_jos->getProperties (fullname);
       for (size_t iprop = 0; iprop < props->size(); iprop++) {
-        const Property& prop = *(*props)[iprop];
+        const Gaudi::Details::PropertyBase& prop = *(*props)[iprop];
         if (prop.name() == "order") {
           tool.order = std::atoi (prop.toString().c_str());
           break;

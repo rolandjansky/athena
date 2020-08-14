@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class IIncidentSvc;

@@ -941,7 +941,7 @@ else:
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
-        if  InDetFlags.doSplitReco() :
+        if  InDetFlags.doSplitReco() or InDetFlags.doIdealPseudoTracking() :
           # --- add the truth to the truth tracks ;-)
           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),

@@ -11,7 +11,7 @@ Purpose : create a collection of PhotonTag
 
 #include "ElectronPhotonTagTools/PhotonTagTool.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODParticleEvent/IParticleLink.h"

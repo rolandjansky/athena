@@ -13,7 +13,7 @@
 #include <algorithm>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // McParticleUtils includes
 #include "McParticleUtils/McVtxFilter.h"

@@ -5,7 +5,7 @@
 #include "WidthPlot.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"

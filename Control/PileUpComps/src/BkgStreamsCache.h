@@ -17,7 +17,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "PileUpTools/PileUpStream.h"
 #include "PileUpTools/IBkgStreamsCache.h"
 
@@ -123,7 +123,7 @@ private:
   Gaudi::Property<std::string> m_randomStreamName;
   /// the type of events in this cache
   Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
-  void PileUpEventTypeHandler(Property&);
+  void PileUpEventTypeHandler(Gaudi::Details::PropertyBase&);
   /// the type of events in this cache
   xAOD::EventInfo::PileUpType m_pileUpEventType;
   /// subtract from number of events at bunch xing = 0

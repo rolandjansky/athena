@@ -9,7 +9,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include <string>
 #include <vector>
