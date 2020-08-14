@@ -268,12 +268,12 @@ Aud::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
   RootUtils::PyGILStateEnsure ensure;
-  PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
+  PyObject* pyobj = TPython::CPPInstance_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
     PyErr_Clear();
     // try PyAthena::Aud
-    pyobj = TPython::ObjectProxy_FromVoidPtr ((void*)this, "PyAthena::Aud");
+    pyobj = TPython::CPPInstance_FromVoidPtr ((void*)this, "PyAthena::Aud");
     MsgStream msg( msgSvc(), name() );
     msg << MSG::INFO
         << "could not dyncast component [" << name() << "] to a python "

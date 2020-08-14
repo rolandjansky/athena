@@ -800,14 +800,14 @@ Bool_t RootUtils::TVoidArrayConverter::SetArg(
   PyObject* pyobject, TParameter_t& para, CallFunc_t* func, Long_t user )
 {
 // just convert pointer if it is a ROOT object
-   if ( TPython::ObjectProxy_Check( pyobject ) ) {
+   if ( TPython::CPPInstance_Check( pyobject ) ) {
    // depending on memory policy, some objects are no longer owned when passed to C++
       if ( ! fKeepControl && !useStrictOwnership (user) ) {
         if (!setOwnership (pyobject, false)) return kFALSE;
       }
 
    // set pointer (may be null) and declare success
-      para.fVoidp = TPython::ObjectProxy_AsVoidPtr (pyobject);
+      para.fVoidp = TPython::CPPInstance_AsVoidPtr (pyobject);
       if ( func )
          gInterpreter->CallFunc_SetArg( func,  para.fLong );
       return kTRUE;
@@ -850,14 +850,14 @@ PyObject* RootUtils::TVoidArrayConverter::FromMemory( void* address )
 Bool_t RootUtils::TVoidArrayConverter::ToMemory( PyObject* value, void* address )
 {
 // just convert pointer if it is a ROOT object
-   if ( TPython::ObjectProxy_Check( value ) ) {
+   if ( TPython::CPPInstance_Check( value ) ) {
    // depending on memory policy, some objects are no longer owned when passed to C++
      if ( ! fKeepControl && !isStrict() ) {
        if (!setOwnership (value, false)) return kFALSE;
      }
 
    // set pointer (may be null) and declare success
-      *(void**)address = TPython::ObjectProxy_AsVoidPtr (value);
+      *(void**)address = TPython::CPPInstance_AsVoidPtr (value);
       return kTRUE;
    }
 
@@ -981,7 +981,7 @@ Bool_t RootUtils::TRootObjectConverter::SetArg(
      PyObject* pyobject, TParameter_t& para, CallFunc_t* func, Long_t user )
 {
 // convert <pyobject> to C++ instance*, set arg for call
-   if ( ! TPython::ObjectProxy_Check( pyobject ) ) {
+   if ( ! TPython::CPPInstance_Check( pyobject ) ) {
       if ( GetAddressSpecialCase( pyobject, para.fVoidp ) ) {
          if ( func )
             gInterpreter->CallFunc_SetArg( func,  para.fLong );      // allow special cases such as NULL
@@ -999,7 +999,7 @@ Bool_t RootUtils::TRootObjectConverter::SetArg(
         if (!setOwnership (pyobject, false)) return kFALSE;
 
    // calculate offset between formal and actual arguments
-      para.fVoidp = TPython::ObjectProxy_AsVoidPtr (pyobject);
+      para.fVoidp = TPython::CPPInstance_AsVoidPtr (pyobject);
       para.fLong += UpcastOffset( isa, fClass, para.fVoidp, true /*derivedObj*/ );
 
    // set pointer (may be null) and declare success
@@ -1008,7 +1008,7 @@ Bool_t RootUtils::TRootObjectConverter::SetArg(
       return kTRUE;
    } else if ( ! fClass.GetClass()->GetClassInfo() ) {
    // assume "user knows best" to allow anonymous pointer passing
-      para.fVoidp = TPython::ObjectProxy_AsVoidPtr (pyobject);
+      para.fVoidp = TPython::CPPInstance_AsVoidPtr (pyobject);
       if ( func )
          gInterpreter->CallFunc_SetArg( func,  para.fLong );
       return kTRUE;
@@ -1023,14 +1023,14 @@ PyObject* RootUtils::TRootObjectConverter::FromMemory( void* address )
 // construct python object from C++ instance read at <address>
   //return BindRootObject( address, fClass, kFALSE );
   // xxx no downcasting
-  return TPython::ObjectProxy_FromVoidPtr (address, fClass->GetName());
+  return TPython::CPPInstance_FromVoidPtr (address, fClass->GetName());
 }
 
 //____________________________________________________________________________
 Bool_t RootUtils::TRootObjectConverter::ToMemory( PyObject* value, void* address )
 {
 // convert <value> to C++ instance, write it at <address>
-   if ( ! TPython::ObjectProxy_Check( value ) ) {
+   if ( ! TPython::CPPInstance_Check( value ) ) {
       void* ptr = 0;
       if ( GetAddressSpecialCase( value, ptr ) ) {
          *(void**)address = ptr;             // allow special cases such as NULL
@@ -1049,7 +1049,7 @@ Bool_t RootUtils::TRootObjectConverter::ToMemory( PyObject* value, void* address
      }
 
    // call assignment operator through a temporarily wrapped object proxy
-      PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr (address, fClass->GetName());
+      PyObject* pyobj = TPython::CPPInstance_FromVoidPtr (address, fClass->GetName());
       if (!setOwnership (pyobj, false))     // TODO: might be recycled (?)
         return kFALSE;
       PyObject* result = PyObject_CallMethod( pyobj, (char*)"__assign__", (char*)"O", value );
@@ -1068,7 +1068,7 @@ Bool_t RootUtils::TRootObjectPtrConverter::SetArg(
                                                   PyObject* pyobject, TParameter_t& /*para*/, CallFunc_t* /*func*/, Long_t user )
 {
 // convert <pyobject> to C++ instance**, set arg for call
-   if ( ! TPython::ObjectProxy_Check( pyobject ) )
+   if ( ! TPython::CPPInstance_Check( pyobject ) )
       return kFALSE;              // not a PyROOT object (TODO: handle SWIG etc.)
 
    TClass* isa = objectIsA (pyobject);
@@ -1082,7 +1082,7 @@ Bool_t RootUtils::TRootObjectPtrConverter::SetArg(
      std::abort();
 #if 0
    // set pointer (may be null) and declare success
-      para.fVoidp = &((ObjectProxy*)pyobject)->fObject;
+      para.fVoidp = &((CPPInstance*)pyobject)->fObject;
       if ( func )
          gInterpreter->CallFunc_SetArg( func,  para.fLong );
       return kTRUE;
@@ -1098,14 +1098,14 @@ PyObject* RootUtils::TRootObjectPtrConverter::FromMemory( void* address )
   // construct python object from C++ instance* read at <address>
   //return BindRootObject( address, fClass, kTRUE );
   // xxx no downcasting
-  return TPython::ObjectProxy_FromVoidPtr (address, fClass->GetName());
+  return TPython::CPPInstance_FromVoidPtr (address, fClass->GetName());
 }
 
 //____________________________________________________________________________
 Bool_t RootUtils::TRootObjectPtrConverter::ToMemory( PyObject* value, void* address )
 {
 // convert <value> to C++ instance*, write it at <address>
-   if ( ! TPython::ObjectProxy_Check( value ) )
+   if ( ! TPython::CPPInstance_Check( value ) )
       return kFALSE;              // not a PyROOT object (TODO: handle SWIG etc.)
 
    TClass* isa = objectIsA (value);
@@ -1116,7 +1116,7 @@ Bool_t RootUtils::TRootObjectPtrConverter::ToMemory( PyObject* value, void* addr
      }
 
    // set pointer (may be null) and declare success
-      *(void**)address = TPython::ObjectProxy_AsVoidPtr (value);
+      *(void**)address = TPython::CPPInstance_AsVoidPtr (value);
       return kTRUE;
    }
 
@@ -1137,7 +1137,7 @@ Bool_t RootUtils::TRootObjectArrayConverter::SetArg(
       return kFALSE;
 
    PyObject* first = PyTuple_GetItem( pyobject, 0 );
-   if ( ! TPython::ObjectProxy_Check( first ) )
+   if ( ! TPython::CPPInstance_Check( first ) )
       return kFALSE;              // should not happen
 
    TClass* isa = objectIsA (first);
@@ -1145,7 +1145,7 @@ Bool_t RootUtils::TRootObjectArrayConverter::SetArg(
    // no memory policies supported
 
    // set pointer (may be null) and declare success
-      para.fVoidp = TPython::ObjectProxy_AsVoidPtr (first);
+      para.fVoidp = TPython::CPPInstance_AsVoidPtr (first);
       if ( func )
          gInterpreter->CallFunc_SetArg( func,  para.fLong );
       return kTRUE;
@@ -1159,7 +1159,7 @@ PyObject* RootUtils::TRootObjectArrayConverter::FromMemory( void* address )
 {
 // construct python tuple of instances from C++ array read at <address>
    if ( m_size <= 0 )   // if size unknown, just hand out the first object
-     return TPython::ObjectProxy_FromVoidPtr ( address, fClass->GetName() );
+     return TPython::CPPInstance_FromVoidPtr ( address, fClass->GetName() );
 
    std::abort();  /// xxx unimplemented
 }
@@ -1183,7 +1183,7 @@ Bool_t RootUtils::TSTLIteratorConverter::SetArg(
 
 {
 // just set the pointer value, no check
-   para.fVoidp = TPython::ObjectProxy_AsVoidPtr (pyobject);
+   para.fVoidp = TPython::CPPInstance_AsVoidPtr (pyobject);
    if (!para.fVoidp)
      return kFALSE;
    if ( func ) gInterpreter->CallFunc_SetArg( func,  para.fLong );
@@ -1196,11 +1196,11 @@ Bool_t RootUtils::TVoidPtrRefConverter::SetArg(
      PyObject* pyobject, TParameter_t& /*para*/, CallFunc_t* /*func*/, Long_t )
 {
 // convert <pyobject> to C++ void*&, set arg for call
-   if ( TPython::ObjectProxy_Check( pyobject ) ) {
+   if ( TPython::CPPInstance_Check( pyobject ) ) {
      std::abort();
      // Unimplemented
 #if 0
-      para.fVoidp = &((ObjectProxy*)pyobject)->fObject;
+      para.fVoidp = &((CPPInstance*)pyobject)->fObject;
       if ( func )
          gInterpreter->CallFunc_SetArg( func,  para.fLong );    // this assumes that CINT will treat void*& as void**
       return kTRUE;
@@ -1215,10 +1215,10 @@ Bool_t RootUtils::TVoidPtrPtrConverter::SetArg(
       PyObject* pyobject, TParameter_t& para, CallFunc_t* func, Long_t )
 {
 // convert <pyobject> to C++ void**, set arg for call
-   if ( TPython::ObjectProxy_Check( pyobject ) ) {
+   if ( TPython::CPPInstance_Check( pyobject ) ) {
 #if 0
    // this is a ROOT object, take and set its address
-      para.fVoidp = &((ObjectProxy*)pyobject)->fObject;
+      para.fVoidp = &((CPPInstance*)pyobject)->fObject;
       if ( func )
          gInterpreter->CallFunc_SetArg( func,  para.fLong );
       return kTRUE;

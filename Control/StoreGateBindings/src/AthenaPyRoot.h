@@ -29,7 +29,7 @@
 #endif
 #endif
 
-#define ObjectProxy_ASVOIDPTR(o) (TPython::ObjectProxy_AsVoidPtr(o))
+#define CPPInstance_ASVOIDPTR(o) (TPython::CPPInstance_AsVoidPtr(o))
 
 namespace PyROOT {
 

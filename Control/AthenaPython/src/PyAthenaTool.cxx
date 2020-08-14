@@ -109,12 +109,12 @@ Tool::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
   RootUtils::PyGILStateEnsure ensure;
-  PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
+  PyObject* pyobj = TPython::CPPInstance_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
     PyErr_Clear();
     // try PyAthena::Tool
-    pyobj = TPython::ObjectProxy_FromVoidPtr ((void*)this, "PyAthena::Tool");
+    pyobj = TPython::CPPInstance_FromVoidPtr ((void*)this, "PyAthena::Tool");
     ATH_MSG_INFO
       ("could not dyncast component [" << name() << "] to a python "
        << "object of type [" << this->typeName() << "] (probably a missing "

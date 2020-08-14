@@ -319,7 +319,7 @@ StatusCode PyAthena::queryInterface ATLAS_NOT_THREAD_SAFE
     
     const RootType fromType( cppName );
     const RootType toType( cppBaseName );
-    void* objProxy = TPython::ObjectProxy_AsVoidPtr(self);
+    void* objProxy = TPython::CPPInstance_AsVoidPtr(self);
     *ppvInterface = objProxy;
     if (fromType.Class() && toType.Class())
       *ppvInterface = fromType.Class()->DynamicCast (toType.Class(), objProxy);
@@ -380,7 +380,7 @@ void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
     const StatusCode& sc )
 {
   RootUtils::PyGILStateEnsure ensure;
-  PyObject* pySc = TPython::ObjectProxy_FromVoidPtr((void*)&sc,
+  PyObject* pySc = TPython::CPPInstance_FromVoidPtr((void*)&sc,
 						    "StatusCode");
   if ( !pySc ) {
     throw PyROOT::TPyException();

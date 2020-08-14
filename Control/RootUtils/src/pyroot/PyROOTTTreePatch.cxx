@@ -42,7 +42,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 namespace PyROOT {
 
-class ObjectProxy {
+class CPPInstance {
 public:
   enum EFlags { kNone = 0x0, kIsOwner = 0x0001, kIsReference = 0x0002, kIsValue = 0x0004 };
 
@@ -231,7 +231,7 @@ leafToValueCache (TLeaf* leaf, PyObject* nameobj, PyObject* elements)
   // Get a Python object holding the leaf.
   TClass* tleaf_cls = TClass::GetClass ("TLeaf");
   TClass* act_cls = tleaf_cls->GetActualClass (leaf);
-  PyObject* leafobj = TPython::ObjectProxy_FromVoidPtr (leaf, act_cls->GetName());
+  PyObject* leafobj = TPython::CPPInstance_FromVoidPtr (leaf, act_cls->GetName());
   if (!leafobj)
     return 0;
 
@@ -272,7 +272,7 @@ branchToValueCache (TBranch* branch,
 
   // Bind the branch's object to a Python object.
   if ( klass && branch->GetAddress() )
-    ret = TPython::ObjectProxy_FromVoidPtr( *(char**)branch->GetAddress(),
+    ret = TPython::CPPInstance_FromVoidPtr( *(char**)branch->GetAddress(),
                                             klass->GetName() );
 
   // If we succeeded, add to the cache.
@@ -307,7 +307,7 @@ branchToValueCache (TBranch* branch,
   // First need to make a Python object holding the branch.
   TClass* tbranch_cls = TClass::GetClass ("TBranch");
   TClass* act_cls = tbranch_cls->GetActualClass (branch);
-  PyObject* branchobj = TPython::ObjectProxy_FromVoidPtr (branch, act_cls->GetName());
+  PyObject* branchobj = TPython::CPPInstance_FromVoidPtr (branch, act_cls->GetName());
   if (!branchobj)
     return 0;
   PyObject* ret = branchToValueCache (branch, branchobj, nameobj, elements);
@@ -399,7 +399,7 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
   {
     return 0;
   }
-  if (!TPython::ObjectProxy_Check (self))
+  if (!TPython::CPPInstance_Check (self))
   {
     PyErr_Format( PyExc_TypeError,
                   "TTree::__getattr__ must be called on a root object" );
@@ -447,11 +447,11 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
         //  For array leaves the converter and buffer can be reused
         //  only if the size of the array doesn't change.
         PyObject* leafobj = PySequence_GetItem (elt, 0);
-        if (TPython::ObjectProxy_Check (leafobj)) {
+        if (TPython::CPPInstance_Check (leafobj)) {
           TLeaf* leaf =
             (TLeaf*)objectIsA(leafobj)->DynamicCast
               ( TLeaf::Class(),
-                TPython::ObjectProxy_AsVoidPtr (leafobj) );
+                TPython::CPPInstance_AsVoidPtr (leafobj) );
           if (leaf) {
             checkEnable (leaf->GetBranch());
             PyObject* ret = leafToValue (leaf);
@@ -467,19 +467,19 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
         // Branch type.
         // elt[0] is the branch, elt[1] is the obj.
         PyObject* branchobj = PySequence_GetItem (elt, 0);
-        if (TPython::ObjectProxy_Check (branchobj)) {
+        if (TPython::CPPInstance_Check (branchobj)) {
           TBranch* branch =
             (TBranch*)objectIsA(branchobj)->DynamicCast
               ( TBranch::Class(),
-                TPython::ObjectProxy_AsVoidPtr (branchobj) );
+                TPython::CPPInstance_AsVoidPtr (branchobj) );
           if (branch) {
             PyObject* objobj = PySequence_GetItem (elt, 1);
-            if (TPython::ObjectProxy_Check (objobj)) {
+            if (TPython::CPPInstance_Check (objobj)) {
               checkEnable (branch);
               // Now check that the address hasn't moved.
               // If not, we can just return the object as-is.
               // Otherwise, we need to make a new one.
-              if (*(char**)branch->GetAddress() != TPython::ObjectProxy_AsVoidPtr(objobj))
+              if (*(char**)branch->GetAddress() != TPython::CPPInstance_AsVoidPtr(objobj))
                 objobj = branchToValueCache (branch, branchobj,
                                              nameobj, elements);
               Py_XDECREF (elt);
@@ -504,7 +504,7 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
   // get hold of actual tree
   TTree* tree =
     (TTree*)objectIsA(self)->DynamicCast
-      ( TTree::Class(), TPython::ObjectProxy_AsVoidPtr (self) );
+      ( TTree::Class(), TPython::CPPInstance_AsVoidPtr (self) );
 
   if (!elements) {
     // Need to make the __elements__ dict.
@@ -522,7 +522,7 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
     if (!treeobj_ref)
       return 0;
     TNamed* notifier = new TreeNotifier (tree, treeobj_ref, elements);
-    PyObject* notobj = TPython::ObjectProxy_FromVoidPtr (notifier, "TNamed");
+    PyObject* notobj = TPython::CPPInstance_FromVoidPtr (notifier, "TNamed");
     setOwnership (notobj, true);
     stat = PyObject_SetAttr (self, notifier_str, notobj);
     Py_XDECREF (notobj);
@@ -624,10 +624,10 @@ PyObject* branchSetAddress (PyObject*, PyObject* args)
 
   // The branch as a Root object.
   TBranch* branch = 0;
-  if (TPython::ObjectProxy_Check (self)) {
+  if (TPython::CPPInstance_Check (self)) {
     branch =  (TBranch*)objectIsA(self)->DynamicCast
       ( TBranch::Class(),
-        TPython::ObjectProxy_AsVoidPtr(self) );
+        TPython::CPPInstance_AsVoidPtr(self) );
   }
 
   if ( ! branch ) {
@@ -639,11 +639,11 @@ PyObject* branchSetAddress (PyObject*, PyObject* args)
 
   // Convert the buffer argument to an address.
   void* buf = 0;
-  if ( TPython::ObjectProxy_Check( address ) ) {
-    if ( ((ObjectProxy*)address)->fFlags & ObjectProxy::kIsReference )
-      buf = (void*)((ObjectProxy*)address)->fObject;
+  if ( TPython::CPPInstance_Check( address ) ) {
+    if ( ((CPPInstance*)address)->fFlags & CPPInstance::kIsReference )
+      buf = (void*)((CPPInstance*)address)->fObject;
     else
-      buf = (void*)&((ObjectProxy*)address)->fObject;
+      buf = (void*)&((CPPInstance*)address)->fObject;
   } else
     RootUtils::GetBuffer( address, '*', 1, buf, kFALSE );
 

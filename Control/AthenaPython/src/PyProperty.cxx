@@ -134,7 +134,7 @@ PyProperty::PyProperty(const std::string& name,
       type == typeid(PyObject*)) {
     m_pyobj = ::DeepCopier::instance()->copy ((PyObject*)obj);
   } else {
-    m_pyobj = TPython::ObjectProxy_FromVoidPtr 
+    m_pyobj = TPython::CPPInstance_FromVoidPtr 
       (obj,
        System::typeinfoName(type.name()).c_str());
   }
@@ -176,7 +176,7 @@ PyProperty::assign (const Gaudi::Details::PropertyBase& src)
   const std::string value_type = System::typeinfoName (*src.type_info());
   const std::string prop_type = "PropertyWithValue< "+value_type+" >";
 
-  PyObject *pyprop= TPython::ObjectProxy_FromVoidPtr
+  PyObject *pyprop= TPython::CPPInstance_FromVoidPtr
     ((void*)&src, (char*)prop_type.c_str());
   if (!pyprop) {
     // XXX assume error message installed by PyRoot is explanatory enough.
@@ -201,7 +201,7 @@ std::string
 PyProperty::toString() const
 {
   useReadHandler();
-  // XXX this might not do something useful if m_pyobj is an ObjectProxy...
+  // XXX this might not do something useful if m_pyobj is an CPPInstance...
   return PyAthena::str(m_pyobj);
 }
 
@@ -210,7 +210,7 @@ void
 PyProperty::toStream(std::ostream& out) const
 {
   useReadHandler();
-  // XXX this might not do something useful if m_pyobj is an ObjectProxy...
+  // XXX this might not do something useful if m_pyobj is an CPPInstance...
   out << PyAthena::str(m_pyobj);
 }
 
@@ -218,13 +218,13 @@ PyProperty::toStream(std::ostream& out) const
 StatusCode 
 PyProperty::fromString (const std::string& value)
 {
-  PyObject *o = TPython::ObjectProxy_FromVoidPtr
+  PyObject *o = TPython::CPPInstance_FromVoidPtr
     ((void*)TPython::Eval (value.c_str()),
      System::typeinfoName(*this->type_info()).c_str());
   if (!o) {
     return StatusCode::FAILURE;
   }
-  if (!TPython::ObjectProxy_Check(o)) {
+  if (!TPython::CPPInstance_Check(o)) {
     Py_DECREF(o);
     return StatusCode::FAILURE;
   }

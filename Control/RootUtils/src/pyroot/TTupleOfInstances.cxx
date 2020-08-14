@@ -37,7 +37,7 @@ PyObject* TTupleOfInstances_New( void* address, TClass* klass, Py_ssize_t size )
       PyTuple_SetItem( tup, i,
                        //BindRootObject( (char*)address + i*klass->Size(), klass, kFALSE /* isRef */ )
                        // xxx no downcasting
-                       TPython::ObjectProxy_FromVoidPtr ((char*)address + i*klass->Size(), klass->GetName())
+                       TPython::CPPInstance_FromVoidPtr ((char*)address + i*klass->Size(), klass->GetName())
                        );
    // Note: objects are bound as pointers, yet since the pointer value stays in
    // place, updates propagate just as if they were bound by-reference

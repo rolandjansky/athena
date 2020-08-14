@@ -12,7 +12,7 @@
 
 
 #include "RootUtils/PyLogger.h"
-#include "TPyException.h"
+#include "CPyCppyy/PyException.h"
 
 
 namespace RootUtils {
@@ -79,7 +79,7 @@ void PyLogger::call (PyObject* fn, const char* msg)
 
   PyObject* res = PyObject_CallFunction (fn, (char*)"s", msg);
   if (res == 0)
-    throw PyROOT::TPyException();
+    throw CPyCppyy::PyException();
   Py_DECREF (res);
 }
 
