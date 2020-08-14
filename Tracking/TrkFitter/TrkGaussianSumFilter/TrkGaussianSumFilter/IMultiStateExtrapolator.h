@@ -93,7 +93,7 @@ public:
     //!< Garbage bin for TrackParameter objects
     std::vector<std::unique_ptr<const TrackParameters>> m_tpGarbageBin;
 
-    Cache() { m_materialEffectsCaches.reserve(72); }
+    Cache() { m_materialEffectsCaches.reserve(12); }
 
     void reset()
     {
