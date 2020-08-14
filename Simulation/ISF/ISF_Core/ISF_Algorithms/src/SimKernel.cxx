@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ISF_Algs includes
@@ -25,6 +25,8 @@
 // GeneratorObjects
 #include "GeneratorObjects/McEventCollection.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+
+#undef ISFDEBUG
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -382,6 +384,7 @@ StatusCode ISF::SimKernel::execute()
     const ISF::ConstISFParticleVector &particles = m_particleBroker->popVector(m_maxParticleVectorSize);
     const unsigned int numParticlesLeftInBroker = m_particleBroker->numParticles();
     int numParticles = particles.size();
+
     // particle vector empty -> end simulation
     if (numParticles==0) break;
 
@@ -395,6 +398,16 @@ StatusCode ISF::SimKernel::execute()
 
     ATH_MSG_DEBUG  ( "Took " << numParticles << " particles from queue (remaining: " << m_particleBroker->numParticles() << ")" );
     ATH_MSG_VERBOSE( " -> All particles will be sent to '" << m_simSvcNames[simID] << "' simulator (SimSvcID=" << simID << ")"  );
+
+    #ifdef ISFDEBUG
+    if (loopCounter>100 && numParticles<3) {
+      ATH_MSG_INFO("Main Loop pass no. " << loopCounter);
+      ATH_MSG_INFO("Selected " << numParticles << " particles to be processed by " << m_simSvcNames[simID]);
+      for ( const ISFParticle *particle : particles ) {
+        ATH_MSG_INFO(*particle);
+      }
+    }
+    #endif // ISFDEBUG
 
     // ensure that all particles in the vector have the same SimID
     for ( const ISFParticle *particle : particles ) {

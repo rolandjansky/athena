@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,6 +20,7 @@
 #include <queue>
 #include <utility>
 
+#undef ISFDEBUG
 
 ISF::SimKernelMT::SimKernelMT( const std::string& name, ISvcLocator* pSvcLocator ) :
     ::AthAlgorithm( name, pSvcLocator ),
@@ -129,7 +130,7 @@ StatusCode ISF::SimKernelMT::initialize() {
 
 StatusCode ISF::SimKernelMT::execute() {
 
-  // Release the event from all simulators (TODO: make the tools do this)
+  // Call setupEvent for all simulators (TODO: make the tools do this)
   for (auto& curSimTool: m_simulationTools) {
     if ( curSimTool ) {
       ATH_CHECK(curSimTool->setupEvent());
@@ -223,6 +224,16 @@ StatusCode ISF::SimKernelMT::execute() {
       }
     }
     particleQueue = std::move(tempQueue);
+    #ifdef ISFDEBUG
+    if (loopCounter>100 && particles.size()<3) {
+      ATH_MSG_INFO("Main Loop pass no. " << loopCounter);
+      ATH_MSG_INFO("Selected " << particles.size() << " particles to be processed by " << lastSimulator->name());
+      for ( const ISFParticle *particle : particles ) {
+        ATH_MSG_INFO(*particle);
+      }
+    }
+    #endif // ISFDEBUG
+
     ATH_MSG_VERBOSE("Selected " << particles.size() << " particles to be processed by " << lastSimulator->name());
     // Run the simulation
     ATH_CHECK( lastSimulator->simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
