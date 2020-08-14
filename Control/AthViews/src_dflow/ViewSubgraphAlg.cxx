@@ -4,7 +4,7 @@
 
 #include "ViewSubgraphAlg.h"
 #include "AthViews/ViewHelper.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "StoreGate/WriteHandle.h"
 
 namespace AthViews {
@@ -43,6 +43,16 @@ StatusCode ViewSubgraphAlg::execute()
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   const EventContext& ctx = getContext();
+
+  //Start scheduler profiling
+  auto profileCallback = [this, slot=ctx.slot()]( IScheduler::OccupancySnapshot snap ) -> void {
+    std::string states = "";
+    for ( int const stateTotal : snap.states[slot] ) {
+      states += std::to_string( stateTotal ) + " ";
+    }
+    ATH_MSG_INFO( "Slot " << slot << " snapshot time " << snap.time.time_since_epoch().count() << " states: " << states );
+  };
+  m_scheduler->recordOccupancy( 0, std::move( profileCallback ) );
   
   //Make a vector of dummy data to initialise the views
   std::vector<int> viewData;

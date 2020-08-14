@@ -264,7 +264,7 @@ public:
    *
    * This version is used by Gaudi as of v19.
    */
-  virtual StatusCode setProperty (const Property& p);
+  virtual StatusCode setProperty (const Gaudi::Details::PropertyBase& p);
 
 
 private:

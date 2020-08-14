@@ -5,7 +5,7 @@
 // TrigEgammaMatchingToolTest.cxx 
 
 #include "TrigEgammaMatchingToolTest.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 using std::string;
 
 //**********************************************************************

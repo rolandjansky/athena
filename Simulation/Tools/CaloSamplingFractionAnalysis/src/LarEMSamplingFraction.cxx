@@ -14,7 +14,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 

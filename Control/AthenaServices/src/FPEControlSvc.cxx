@@ -152,7 +152,7 @@ std::string mask_to_string (int mask)
 /**
  * @brief Property change handler.
  */
-void FPEControlSvc::prophand (Property& /*prop*/)
+void FPEControlSvc::prophand (Gaudi::Details::PropertyBase& /*prop*/)
 {
   if (!m_haveEnv) {
     // Save the current FP environment.

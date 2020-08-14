@@ -1,7 +1,7 @@
 // AsgExampleAlgorithm.cxx 
 
 #include "AsgExampleAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AsgExampleTools/IAsgHelloTool.h"
 #include "AsgTools/AsgTool.h"
 

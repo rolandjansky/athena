@@ -52,7 +52,7 @@ namespace LArG4 {
       CalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator);
       virtual ~CalibrationCalculator();
       // Update handler
-      void WheelTypeHandler(Property&);
+      void WheelTypeHandler(Gaudi::Details::PropertyBase&);
       StatusCode initialize() override final;
 
       // The Process method returns a boolean value.  If it's true, the

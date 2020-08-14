@@ -130,7 +130,7 @@ void HLT::RandomScaler::setSeedFromDataflow()
   // Check if application-specific random seed is provided via DataFlowConfig
   ServiceHandle<IJobOptionsSvc> jobOptSvc("JobOptionsSvc", name());
   if ( jobOptSvc.retrieve().isSuccess() ) {
-    const Property* p = Gaudi::Utils::getProperty( jobOptSvc->getProperties("DataFlowConfig"), "DF_RandomSeed");
+    const Gaudi::Details::PropertyBase* p = Gaudi::Utils::getProperty( jobOptSvc->getProperties("DataFlowConfig"), "DF_RandomSeed");
     if ( p!=0 ) {   // Partition running
       IntegerProperty seed;
       if ( seed.assign(*p) ) {

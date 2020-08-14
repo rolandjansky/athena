@@ -21,7 +21,7 @@
 #include <boost/array.hpp>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // NavFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"
@@ -273,7 +273,7 @@ I4MomDumper::dump( const std::string& collName )
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void I4MomDumper::setupDisplay( Property& /*displayName*/ )
+void I4MomDumper::setupDisplay( Gaudi::Details::PropertyBase& /*displayName*/ )
 {
   std::string& display = const_cast<std::string&>(m_displayName.value());
 
@@ -296,7 +296,7 @@ void I4MomDumper::setupDisplay( Property& /*displayName*/ )
   return;
 }
 
-void I4MomDumper::setupOutputStream( Property& /*outputStreamName*/ )
+void I4MomDumper::setupOutputStream( Gaudi::Details::PropertyBase& /*outputStreamName*/ )
 {
   // reset internal state
   if ( m_outputStream && 

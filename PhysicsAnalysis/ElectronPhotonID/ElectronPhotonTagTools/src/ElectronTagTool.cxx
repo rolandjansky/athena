@@ -10,7 +10,7 @@ Purpose : create a collection of ElectronTag
 *****************************************************************************/
 #include "ElectronPhotonTagTools/ElectronTagTool.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODParticleEvent/IParticleLink.h"

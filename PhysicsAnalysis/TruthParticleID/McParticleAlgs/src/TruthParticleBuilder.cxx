@@ -12,7 +12,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // McParticleKernel includes
 #include "McParticleKernel/ITruthParticleFilterTool.h"
@@ -148,7 +148,7 @@ StatusCode TruthParticleBuilder::execute()
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void TruthParticleBuilder::setupFilterTool( Property& /*doFiltering*/ )
+void TruthParticleBuilder::setupFilterTool( Gaudi::Details::PropertyBase& /*doFiltering*/ )
 {
   if ( m_doFiltering ) {
     
@@ -186,7 +186,7 @@ void TruthParticleBuilder::setupFilterTool( Property& /*doFiltering*/ )
   return;
 }
 
-void TruthParticleBuilder::setupCnvTool( Property& /*doTruthParticles*/ )
+void TruthParticleBuilder::setupCnvTool( Gaudi::Details::PropertyBase& /*doTruthParticles*/ )
 {
   if ( m_doTruthParticles ) {
 

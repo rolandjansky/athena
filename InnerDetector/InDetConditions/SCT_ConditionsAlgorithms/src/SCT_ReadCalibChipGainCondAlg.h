@@ -12,7 +12,7 @@
 
 // Include Gaudi classes
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Include Athena classes
 #include "StoreGate/ReadCondHandleKey.h"

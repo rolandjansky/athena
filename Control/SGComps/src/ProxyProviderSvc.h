@@ -16,7 +16,7 @@
 
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/StoreID.h"
-#include "GaudiKernel/Property.h" /*StringArrayProperty*/
+#include "Gaudi/Property.h" /*StringArrayProperty*/
 #include "GaudiKernel/StatusCode.h"
 #include <cassert>
 #include <list>
@@ -103,7 +103,7 @@ private:
   StringArrayProperty m_providerNames{this,"ProviderNames",{},
       "names of the services to be use as address providers","OrderedSet<std::string>"};
   /// the handler for m_providerNames
-  void providerNamesPropertyHandler( Property& theProp );
+  void providerNamesPropertyHandler( Gaudi::Details::PropertyBase& theProp );
   
   StatusCode doPreLoadProxies(IProxyRegistry& storeToModify);
 

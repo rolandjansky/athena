@@ -63,13 +63,13 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'CaloClustersToThin' property
-  void setupCaloClustersToThin( Property& /*prop*/ );
+  void setupCaloClustersToThin( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'InputContainerList' property
-  void setupInputContainerList( Property& /*prop*/ );
+  void setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'Selection' property
-  void setupSelection( Property& /*prop*/ );
+  void setupSelection( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
   ///////////////////////////////////////////////////////////////////
@@ -120,19 +120,19 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 /// This internal method will realize if a user sets the 'CaloClustersToThin' property
-inline void ThinCaloClustersAlg::setupCaloClustersToThin( Property& /*prop*/ ) {
+inline void ThinCaloClustersAlg::setupCaloClustersToThin( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setCaloClusKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'InputContainerList' property
-inline void ThinCaloClustersAlg::setupInputContainerList( Property& /*prop*/ ) {
+inline void ThinCaloClustersAlg::setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'Selection' property
-inline void ThinCaloClustersAlg::setupSelection( Property& /*prop*/ ) {
+inline void ThinCaloClustersAlg::setupSelection( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setSelection = true;
   return;
 }

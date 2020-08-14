@@ -7,7 +7,7 @@
 #ifndef RECO_ALGS_JOBOPTIONSDUMPERALG_H
 #define RECO_ALGS_JOBOPTIONSDUMPERALG_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>

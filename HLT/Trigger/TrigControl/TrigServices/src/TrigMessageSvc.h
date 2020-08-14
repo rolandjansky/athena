@@ -23,7 +23,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Message.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/StatusCode.h"
 

@@ -101,12 +101,12 @@ class TruthIsolationTool : virtual public ITruthIsolationTool,
   /** @brief Callback method to ensure consistency of the TruthEtIsolations
    *  prefix key.
    */
-  void setupTruthEtIsolationsPrefix( Property& truthEtIsolationsPrefix );
+  void setupTruthEtIsolationsPrefix( Gaudi::Details::PropertyBase& truthEtIsolationsPrefix );
 
   /** @brief Callback method to ensure consistency of output McEventCollection
    *  key.
    */
-  void setupMcEventsOutput( Property& mcEventsOutputName );
+  void setupMcEventsOutput( Gaudi::Details::PropertyBase& mcEventsOutputName );
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

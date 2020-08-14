@@ -19,7 +19,7 @@
 #ifndef ATHENAPOOLTEST_REGISTRATIONSVC_H
 #define ATHENAPOOLTEST_REGISTRATIONSVC_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIoComponent.h"
 
@@ -69,13 +69,13 @@ private:
 
     /// PRIVATE METHODS
     /// Handler for ItemNames Property
-    void itemListHandler( Property& );
+    void itemListHandler( Gaudi::Details::PropertyBase& );
 
     /// Handler for ProvNames Property
-    void ProvIncludeHandler( Property& );
+    void ProvIncludeHandler( Gaudi::Details::PropertyBase& );
 
     /// Handler for ItemNames Property
-    void ProvExcludeHandler( Property& );
+    void ProvExcludeHandler( Gaudi::Details::PropertyBase& );
 
     /// NOTE that the Tools assume this list will be ordered.
     ///  begin = newest; end = oldest
