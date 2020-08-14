@@ -190,6 +190,8 @@ namespace CP {
     PrepareReader( m_readerO_MUGIRL.get() );
     m_readerO_MUGIRL->BookMVA("BDTG", weightPath_ODD_MuGirl);
 
+    ATH_CHECK( m_eventInfo.initialize() );
+
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
