@@ -20,6 +20,11 @@ def findViewAlgs( inputNodes, viewNodes ):
         # If node is a sequence, explore further
         if isSequence( node ):
 
+            # Empty nodes can cause Gaudi scheduler bug https://gitlab.cern.ch/gaudi/Gaudi/-/issues/135
+            if len( node.getChildren() ) == 0 and ( hasattr( node, "ModeOR" ) and node.ModeOR ):
+
+              raise RuntimeError( "Empty CF sequence in OR mode can cause Gaudi scheduler bug. Please remove " + node.getName() )
+
             # Identify view CF nodes
             if node.getName() in viewNodes.keys():
 

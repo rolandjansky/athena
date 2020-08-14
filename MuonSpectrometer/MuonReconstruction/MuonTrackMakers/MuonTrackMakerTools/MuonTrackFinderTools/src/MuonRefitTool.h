@@ -41,25 +41,25 @@ namespace Muon {
     virtual StatusCode finalize() override;
 
     /** refit a track */
-    const Trk::Track* refit( const Trk::Track& track, const Settings* settings = 0 ) const override;
+    std::unique_ptr<Trk::Track> refit( Trk::Track* track, const Settings* settings = 0 ) const override;
 
     /** refit and back extrapolate a vector of track pairs */
-    std::vector<const Trk::Track*> refit( const std::vector<const Trk::Track*>& tracks, const Settings* settings = 0 ) const override;
+    std::vector<std::unique_ptr<Trk::Track> > refit( std::vector<Trk::Track*>& tracks, const Settings* settings = 0 ) const override;
 
   protected:
 
     /** update errors on a muon track */
-    Trk::Track* updateErrors( const Trk::Track& track, const Settings& settings ) const;
+    std::unique_ptr<Trk::Track> updateErrors( Trk::Track* track, const Settings& settings ) const;
 
-    Trk::Track* updateMdtErrors( const Trk::Track& track, const Settings& settings ) const;
+    std::unique_ptr<Trk::Track> updateMdtErrors( Trk::Track* track, const Settings& settings ) const;
 
-    Trk::Track* updateAlignmentErrors( const Trk::Track& track, const Settings& settings ) const;
+    std::unique_ptr<Trk::Track> updateAlignmentErrors( Trk::Track* track, const Settings& settings ) const;
 
-    Trk::Track* makeAEOTs( const Trk::Track& track ) const;
+    std::unique_ptr<Trk::Track> makeAEOTs( Trk::Track* track ) const;
 
-    Trk::Track* makeSimpleAEOTs( const Trk::Track& track ) const;
+    std::unique_ptr<Trk::Track> makeSimpleAEOTs( Trk::Track* track ) const;
 
-    const Trk::Track* removeOutliers( const Trk::Track& track,const Settings& settings ) const;
+    std::unique_ptr<Trk::Track> removeOutliers( Trk::Track* track,const Settings& settings ) const;
 
     bool removeMdtOutliers( const Trk::TrackParameters& pars, const std::vector<const MdtDriftCircleOnTrack*>& hits,   
 			    std::set<Identifier>& removedIdentifiers, const Settings& settings ) const;

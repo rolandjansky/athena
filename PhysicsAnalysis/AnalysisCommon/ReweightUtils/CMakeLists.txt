@@ -12,23 +12,6 @@ if( NOT XAOD_STANDALONE )
    set( extra_dep Control/AthenaBaseComps GaudiKernel )
 endif()
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   PRIVATE
-   Control/CxxUtils
-   Event/xAOD/xAODParticleEvent
-   Event/xAOD/xAODTruth
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODCutFlow
-   Tools/PathResolver
-   ${extra_dep} )
-
 # External dependencies:
 find_package( Lhapdf )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
@@ -49,13 +32,13 @@ atlas_add_library( ReweightUtilsLib
    INCLUDE_DIRS ${LHAPDF_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${LHAPDF_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEventInfo
    xAODBase PATInterfaces AsgAnalysisInterfaces
-   PRIVATE_LINK_LIBRARIES xAODParticleEvent xAODTruth PathResolver )
+   PRIVATE_LINK_LIBRARIES xAODParticleEvent xAODTruth PathResolver xAODCutFlow )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ReweightUtils
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODCutFlow 
       GaudiKernel ReweightUtilsLib )
 endif()
 

@@ -183,3 +183,29 @@ class PrescaleHandler(object):
         for itemList in self.itemsByPartition.values():
             itemList.sort(lambda x,y: cmp(x.ctpid,y.ctpid))
 
+
+class meta_d(type):
+    def __getattr__(cls, attr):
+        import traceback
+        isTopo = any(filter(lambda x: attr.startswith(x), ["R2TOPO_", "TOPO_", "MUTOPO_", "MULTTOPO_"]))
+        fs = traceback.extract_stack()[-2]
+        expProdFile = "L1/Config/"
+        if isTopo:
+            if attr.startswith("R2TOPO_"):
+                expProdFile += "TopoAlgoDefLegacy.py"
+            elif attr.startswith("TOPO_"):
+                expProdFile += "TopoAlgoDef.py"
+            elif attr.startswith("MUTOPO_"):
+                expProdFile += "TopoAlgoDefMuctpi.py"
+            elif attr.startswith("MULTTOPO_"):
+                expProdFile += "TopoMultiplicityAlgoDef.py"
+        else:
+            isLegacyThr = any(filter(lambda x: attr.startswith(x), ["EM", "TAU", "J", "XE", "TE", "XS"]))
+            if isLegacyThr:
+                expProdFile += "ThresholdDefLegacy.py"
+            else:
+                expProdFile += "ThresholdDef.py"
+
+        msg = "Item definition issue in file %s, line %i. Threshold %s has not been defined in %s" % ('/'.join(fs.filename.rsplit('/',4)[1:]),fs.lineno, attr, expProdFile)
+        log.error(msg)
+        raise RuntimeError(msg)

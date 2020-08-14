@@ -7,7 +7,6 @@
 
 #include <vector>
 
-#include "tbb/concurrent_queue.h"
 #include "tbb/concurrent_vector.h"
 #include "TrigInDetDataContexts.h"
 #include "TrigAccelEvent/Work.h"
@@ -17,8 +16,8 @@
 class SeedMakingWorkCuda : public TrigAccel::Work{
 
 public:
-  SeedMakingWorkCuda(unsigned int, const SeedMakingWorkContextCuda&, std::shared_ptr<TrigAccel::OffloadBuffer> data, 
-    tbb::concurrent_queue<SeedMakingDeviceContext*>&, tbb::concurrent_vector<WorkTimeStamp>&);
+  SeedMakingWorkCuda(unsigned int, SeedMakingDeviceContext*, std::shared_ptr<TrigAccel::OffloadBuffer>, 
+  tbb::concurrent_vector<WorkTimeStamp>*);
   ~SeedMakingWorkCuda();
   std::shared_ptr<TrigAccel::OffloadBuffer> getOutput();
   bool run();
@@ -37,10 +36,9 @@ private:
   };
   
   unsigned int m_workId;
-  SeedMakingWorkContextCuda* m_context;  
+  SeedMakingDeviceContext* m_context;  
   std::shared_ptr<TrigAccel::OffloadBuffer> m_input, m_output;
-  tbb::concurrent_queue<SeedMakingDeviceContext*>& m_contextQueue;
-  tbb::concurrent_vector<WorkTimeStamp>& m_timeLine;
+  tbb::concurrent_vector<WorkTimeStamp>* m_timeLine;
 
   float m_CovMS, m_ptCoeff, m_minPt2, m_ptCoeff2, m_maxD0; 
 };

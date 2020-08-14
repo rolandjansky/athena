@@ -512,6 +512,12 @@ class useZvertexTool(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class useActsPriVertexing(InDetFlagsJobProperty):
+    """ use ACTS primary vertexing """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     """ use track finding in silicon """
     statusOn     = True
@@ -2378,6 +2384,8 @@ class InDetJobProperties(JobPropertyContainer):
        print('* - primary vertexing cut setup   : ',self.primaryVertexCutSetup())
        if self.doPrimaryVertex3DFinding() :
           print('* - use 3D seed finding')
+       if self.useActsPriVertexing():
+          print('* - use Acts primary vertex finding')
        print('* - privtx cut level : ', self.priVtxCutLevel())
     if self.doParticleCreation() :
        print('* create TrackParticles')
@@ -2663,6 +2671,7 @@ _list_InDetJobProperties = [Enabled,
                             trackFitterType,
                             doHolesOnTrack,
                             useZvertexTool,
+                            useActsPriVertexing,
                             doSiSPSeededTrackFinder,
 #                            doTRTExtension,
                             doTRTExtensionNew,

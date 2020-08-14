@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ class IEMConversionBuilder : virtual public IAlgTool
 
   /** @brief Virtual destructor*/
   virtual ~IEMConversionBuilder() {};
-	
+
   /** @brief AlgTool interface methods */
   static const InterfaceID& interfaceID();
 
@@ -44,9 +44,7 @@ class IEMConversionBuilder : virtual public IAlgTool
   virtual StatusCode executeRec(const EventContext& ctx,egammaRec* egRec) const =  0;
   /** @brief execute method*/
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const =0;
-  /** @brief finalize method*/
-  virtual StatusCode finalize() = 0;
-  
+
 };
 
 inline const InterfaceID& IEMConversionBuilder::interfaceID()
