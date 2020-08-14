@@ -816,6 +816,16 @@ def CaloMuonLikelihoodToolCfg(flags, name='CaloMuonLikelihoodTool', **kwargs ):
     result.setPrivateTools(tool)
     return result
 
+def CaloMuonScoreToolCfg(flags, name='CaloMuonScoreTool', **kwargs ):
+    from TrackToCalo.TrackToCaloConfig import ParticleCaloCellAssociationToolCfg
+    result = ParticleCaloCellAssociationToolCfg(flags)
+    kwargs.setdefault("ParticleCaloCellAssociationTool", result.popPrivateTools())
+    caloMuonScoreSvc = CompFactory.CaloMuonScoreONNXRuntimeSvc(name="CaloMuonScoreONNXRuntimeSvc")
+    result.addService(caloMuonScoreSvc)
+    tool = CompFactory.CaloMuonScoreTool(name, **kwargs )
+    result.setPrivateTools(tool)
+    return result
+
 def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):  
     result = ComponentAccumulator()
     kwargs.setdefault("CaloMuonTagLoose",       CompFactory.CaloMuonTag(name = "CaloMuonTagLoose", TagMode="Loose") )
@@ -826,6 +836,10 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
     acc = CaloMuonLikelihoodToolCfg(flags)
     kwargs.setdefault("CaloMuonLikelihoodTool", acc.popPrivateTools() )
     result.addPublicTool(kwargs['CaloMuonLikelihoodTool'])
+
+    acc = CaloMuonScoreToolCfg(flags)
+    kwargs.setdefault("CaloMuonScoreTool", acc.popPrivateTools() )
+    result.addPublicTool(kwargs['CaloMuonScoreTool'])
 
     result.merge(acc)
     acc = TrackDepositInCaloToolCfg(flags)
@@ -838,7 +852,7 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
     result.addPublicTool(calotrkmuidalgtrackselectortool)
     kwargs.setdefault("TrackSelectorTool",   calotrkmuidalgtrackselectortool     )
     result.merge(acc)
-    kwargs.setdefault("doCaloLR",               True )
+    kwargs.setdefault("doCaloLR", True)
     tool = CompFactory.MuonCombined.MuonCaloTagTool(name, **kwargs )
     result.setPrivateTools(tool)
     return result
