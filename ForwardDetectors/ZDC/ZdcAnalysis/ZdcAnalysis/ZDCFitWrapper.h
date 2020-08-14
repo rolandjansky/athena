@@ -251,6 +251,7 @@ class ZDCFitExpFermiPrePulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ~ZDCFitExpFermiPrePulse() {delete m_expFermiFunc;}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
@@ -510,6 +511,7 @@ class ZDCFitExpFermiLinearPrePulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitExpFermiLinearPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ~ZDCFitExpFermiLinearPrePulse() {delete m_expFermiFunc;}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
@@ -630,6 +632,7 @@ class ZDCFitComplexPrePulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ~ZDCFitComplexPrePulse() {delete m_expFermiFunc;}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
@@ -751,6 +754,7 @@ class ZDCFitGeneralPulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ~ZDCFitGeneralPulse() {delete m_expFermiFunc;}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);

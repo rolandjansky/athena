@@ -568,7 +568,7 @@ public:
       theGraph->SetPoint(npts, m_delayedHist->GetBinCenter(iDelayPt + 1), m_delayedHist->GetBinContent(iDelayPt + 1) - m_delayedBaselineShift);
       theGraph->SetPointError(npts++, 0, m_delayedHist->GetBinError(iDelayPt + 1));
     }
-    std::cout << "here" << std::endl;
+
     TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
     theGraph->GetListOfFunctions()->Add(func_p);
     theGraph->SetName(( std::string(m_fitHist->GetName()) + "delayed").c_str());

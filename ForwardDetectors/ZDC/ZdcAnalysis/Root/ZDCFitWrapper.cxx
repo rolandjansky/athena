@@ -45,7 +45,6 @@ ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(std::string tag, float tm
   theTF1->SetParName(1, "T0");
   theTF1->SetParName(2, "#tau_{1}");
   theTF1->SetParName(3, "#tau_{2}");
-  //theTF1->SetParName(4, "s_{b}");
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
