@@ -26,14 +26,10 @@ using namespace MuonCombined;
 
 
 MuonTrackTagTestTool::MuonTrackTagTestTool(const std::string &type, const std::string &name, const IInterface *parent)
-    : AthAlgTool(type, name, parent),
-      m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
-      m_trackingGeometrySvc("AtlasTrackingGeometrySvc", name)
+    : AthAlgTool(type, name, parent), m_trackingGeometrySvc("AtlasTrackingGeometrySvc", name)
 {
-
     declareInterface<IMuonTrackTagTool>(this);
     declareProperty("Chi2Cut", m_chi2cut = 50.);
-    declareProperty("ExtrapolatorTool", m_extrapolator);
     declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
 #ifdef MUONCOMBDEBUG
     declareProperty("Truth", m_truth = false);
@@ -46,18 +42,10 @@ MuonTrackTagTestTool::MuonTrackTagTestTool(const std::string &type, const std::s
 StatusCode
 MuonTrackTagTestTool::initialize()
 {
-    StatusCode sc = m_extrapolator.retrieve();
-    if (sc == StatusCode::FAILURE) {
-        msg(MSG::FATAL) << "Could not retrieve extrapolator tool" << endmsg;
-        return sc;
-    }
+    ATH_CHECK(m_extrapolator.retrieve());
 
     if (!m_trackingGeometrySvc.empty()) {
-        sc = m_trackingGeometrySvc.retrieve();
-        if (sc.isFailure()) {
-            msg(MSG::ERROR) << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endmsg;
-            return StatusCode::FAILURE;
-        }
+        ATH_CHECK(m_trackingGeometrySvc.retrieve());
         msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endmsg;
     }
 

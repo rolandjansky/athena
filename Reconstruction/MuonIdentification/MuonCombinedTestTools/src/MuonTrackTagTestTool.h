@@ -37,7 +37,11 @@ class MuonTrackTagTestTool : public AthAlgTool, virtual public IMuonTrackTagTool
     double chi2(const Trk::Track& id, const Trk::Track& ms) const;
 
   private:
-    ToolHandle<Trk::IExtrapolator> m_extrapolator;
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{
+        this,
+        "ExtrapolatorTool",
+        "Trk::Extrapolator/AtlasExtrapolator",
+    };
     mutable ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc
         ATLAS_THREAD_SAFE;  // Services are assumed to be thread-safe
     mutable const Trk::TrackingGeometry* m_trackingGeometry
