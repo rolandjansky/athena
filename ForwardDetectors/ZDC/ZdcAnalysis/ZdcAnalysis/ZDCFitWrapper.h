@@ -182,7 +182,7 @@ class ZDCFitExpFermiFixedTaus : public ZDCFitWrapper
   float m_norm;
   float m_timeCorr;
 
-  TF1* m_expFermiFunc;
+  TF1* m_expFermiFunc = 0;
 
 public:
 
@@ -247,7 +247,7 @@ class ZDCFitExpFermiPrePulse : public ZDCPrePulseFitWrapper
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc;
+  TF1* m_expFermiFunc = 0;
 
 public:
   ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
@@ -362,7 +362,7 @@ class ZDCFitExpFermiPulseSequence : public ZDCFitWrapper
   std::vector<float> m_pulseDeltaT;
 
   TF1* m_fitFunc;
-  TF1* m_expFermiFunc;
+  TF1* m_expFermiFunc = 0;
 
 
 public:
@@ -441,7 +441,7 @@ class ZDCFitExpFermiLinearFixedTaus : public ZDCFitWrapper
   float m_norm;
   float m_timeCorr;
 
-  TF1* m_expFermiFunc;
+  TF1* m_expFermiFunc = 0;
 
 public:
 
@@ -507,7 +507,7 @@ class ZDCFitExpFermiLinearPrePulse : public ZDCPrePulseFitWrapper
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc;
+  TF1* m_expFermiFunc = 0;
 
 public:
   ZDCFitExpFermiLinearPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
@@ -628,7 +628,7 @@ class ZDCFitComplexPrePulse : public ZDCPrePulseFitWrapper
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc;
+  TF1* m_expFermiFunc = 0;
 
 public:
   ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
@@ -750,7 +750,7 @@ class ZDCFitGeneralPulse : public ZDCPrePulseFitWrapper
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc;
+  TF1* m_expFermiFunc = 0;
 
 public:
   ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2);

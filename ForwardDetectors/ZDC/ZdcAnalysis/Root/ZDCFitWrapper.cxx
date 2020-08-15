@@ -92,7 +92,7 @@ ZDCFitExpFermiFixedTaus::ZDCFitExpFermiFixedTaus(std::string tag, float tmin, fl
   // Now create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiFixedTausRefFunc" + tag;
-
+  if (m_expFermiFunc) delete m_expFermiFunc;
   m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 5);
 
   m_expFermiFunc->SetParameter(0, 1);
@@ -126,7 +126,7 @@ ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, floa
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-
+  if (m_expFermiFunc) delete m_expFermiFunc;
   m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
@@ -185,7 +185,7 @@ ZDCFitExpFermiPulseSequence::ZDCFitExpFermiPulseSequence(std::string tag, float 
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPulseSequenceRefFunc" + tag;
-
+  if (m_expFermiFunc) delete m_expFermiFunc;
   m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 5);
 
   m_expFermiFunc->SetParameter(0, 1);
@@ -294,7 +294,7 @@ ZDCFitExpFermiLinearFixedTaus::ZDCFitExpFermiLinearFixedTaus(std::string tag, fl
   // Now create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiFixedTausRefFunc" + tag;
-
+  if (m_expFermiFunc) delete m_expFermiFunc;
   m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
@@ -336,7 +336,7 @@ ZDCFitExpFermiLinearPrePulse::ZDCFitExpFermiLinearPrePulse(std::string tag, floa
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-
+  if (m_expFermiFunc) delete m_expFermiFunc;
   m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
@@ -415,7 +415,7 @@ ZDCFitComplexPrePulse::ZDCFitComplexPrePulse(std::string tag, float tmin, float 
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-
+  if (m_expFermiFunc) delete m_expFermiFunc;
   m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
@@ -491,7 +491,7 @@ ZDCFitGeneralPulse::ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, 
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-
+  if (m_expFermiFunc) delete m_expFermiFunc;
   m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
