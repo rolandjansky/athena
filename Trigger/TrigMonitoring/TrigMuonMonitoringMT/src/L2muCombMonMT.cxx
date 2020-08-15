@@ -29,7 +29,7 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> saLinkInfo = TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(muDecision, "feature");
     ATH_CHECK( saLinkInfo.isValid() );
     const ElementLink<xAOD::L2StandAloneMuonContainer> saEL = saLinkInfo.link;
-    float saELPt = (*saEL)->pt();
+
 
 
     // basic EDM variables
@@ -41,45 +41,22 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     cbEta = (*muEL)->eta();
     cbPhi = (*muEL)->phi();
 
-
-    // get L2SA track
     auto saPt = Monitored::Scalar<float>(m_group+"_saPt",-999.);
     auto saEta = Monitored::Scalar<float>(m_group+"_saEta",-999.);
     auto saPhi = Monitored::Scalar<float>(m_group+"_saPhi",-999.);
 
-    const xAOD::L2StandAloneMuon* samu = nullptr;
+    saPt = (*saEL)->pt();
+    saEta = (*saEL)->eta();
+    saPhi = (*saEL)->phi();
+
+
+    // get L2SA track
+    const xAOD::L2StandAloneMuon* SATrack = nullptr;
+    float SATrackPt = -999.;
     if( (*muEL)->muSATrackLink().isValid() ) {
-      samu = (*muEL)->muSATrack();
-      saPt  = samu->pt();
-      saEta = samu->eta();
-      saPhi = samu->phi();
+      SATrack    = (*muEL)->muSATrack();
+      SATrackPt  = SATrack->pt();
     }
-
-
-    // MF error
-    // SA and CB ContainerSize Error cannot occur, so removed it (change point from Run 2 monitoring)
-    std::vector<int> vec_MF_error;
-    vec_MF_error.clear();
-    auto MF_error = Monitored::Collection(m_group+"_MF_error",vec_MF_error);
-
-    bool error = false;
-    if( samu ){
-      if(std::abs(saELPt - saPt) > ZERO_LIMIT){
-        vec_MF_error.push_back(1);
-        error = true;
-      }
-    } else{
-      vec_MF_error.push_back(1);
-      error = true;
-    }
-    if(std::abs(saELPt) < ZERO_LIMIT){
-      vec_MF_error.push_back(2);
-      error = true;
-    }
-    if(!error)  vec_MF_error.push_back(0);
-
-    fill(m_group, MF_error);
-    if(error) continue;
 
 
     // CB and Offline matching
@@ -164,6 +141,30 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
       
       fill(m_group, ptratio_TrktoSA, dEta_TrktoSA, dPhi_TrktoSA, dR_TrktoSA);
     } 
+
+
+    // Muon Feature error
+    std::vector<int> vec_MF_error;
+    vec_MF_error.clear();
+    auto MF_error = Monitored::Collection(m_group+"_MF_error",vec_MF_error);
+
+    bool error = false;
+    if( SATrack ){
+      if(std::abs(saPt - SATrackPt) > ZERO_LIMIT){
+        vec_MF_error.push_back(2);
+        error = true;
+      }
+    } else{
+      vec_MF_error.push_back(1);
+      error = true;
+    }
+    if(std::abs(saPt) < ZERO_LIMIT){
+      vec_MF_error.push_back(3);
+      error = true;
+    }
+    if(!error)  vec_MF_error.push_back(0);
+
+    fill(m_group, MF_error);
 
   }
 
