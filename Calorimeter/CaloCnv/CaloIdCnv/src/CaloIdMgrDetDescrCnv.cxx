@@ -29,7 +29,6 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
-#include "CaloIdentifier/HGTD_ID.h"
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/Tile_SuperCell_ID.h"
 #include "CaloIdentifier/TTOnlineID.h"
@@ -152,7 +151,6 @@ CaloIdMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     SET_HELPER (LArHEC_ID);
     SET_HELPER (LArFCAL_ID);
     SET_HELPER (LArMiniFCAL_ID);
-    SET_HELPER (HGTD_ID);
     SET_HELPER (TileID);
     SET_HELPER (TTOnlineID);
     SET_HELPER (JTower_ID);
