@@ -58,10 +58,12 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   auto muPt = Monitored::Scalar<double>(m_group+"_muPt");
   auto muEta = Monitored::Scalar<float>(m_group+"_muEta");
   auto muPhi = Monitored::Scalar<float>(m_group+"_muPhi");
+  auto muPileup = Monitored::Scalar<float>(m_group+"_muPileup");
 
   muPt = mu->pt()/1e3;
   muEta = mu->eta();
   muPhi = mu->phi();
+  muPileup = lbAverageInteractionsPerCrossing(ctx);
 
   auto L1pass = Monitored::Scalar<bool>(m_group+"_L1pass",false);
   auto L2SApass = Monitored::Scalar<bool>(m_group+"_L2SApass",false);
@@ -140,15 +142,12 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
 
   //// Cuts based on the offline muon's features ////
   // Inclusive
-  fill(m_group, muPt, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
+  fill(m_group, muPt, muPileup, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
 
   // Plateau
   if(muPt>m_thresholds.at(chain)){
     fill(m_group, muEta, muPhi, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
   }
-
-
-
 
   return StatusCode::SUCCESS;
 }
@@ -156,6 +155,9 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
 
 
 StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
+
+  std::vector<float> vec_invmass;
+  vec_invmass.clear();
 
   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > dimuons;
   xAOD::MuonContainer::const_iterator mu1_it = muons->begin();
@@ -168,12 +170,13 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
     for(++mu2_it; mu2_it!=mu2_end; ++mu2_it){
       const xAOD::Muon *mu2 = *mu2_it;
       if( mu2->muonType()>m_muontype ) continue;
+      if( !mu1->charge()*mu2->charge()>0 ) continue;
 
       TLorentzVector lvmu1 = mu1->p4();
       TLorentzVector lvmu2 = mu2->p4();
-      //double dimu_mass = (lvmu1+lvmu2).M()/1.e3;
-      //bool bit_mass = (dimu_mass > m_mass_lowlim) & (dimu_mass < m_mass_highlim);
-      //bool bit_OS = mu1->charge()*mu2->charge()>0;
+      double dimu_mass = (lvmu1+lvmu2).M()/1.e3;
+      vec_invmass.push_back(dimu_mass);
+      bool bit_mass = (dimu_mass > m_mass_lowlim) & (dimu_mass < m_mass_highlim);
       bool bit_dR = lvmu1.DeltaR(lvmu2)>0.5;
       if(m_use_extrapolator){
 	const xAOD::TrackParticle *track1 = mu1->primaryTrackParticle();
@@ -192,11 +195,17 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
       }
 
       // For ttbar events
-      if(/*!bit_mass|!bit_OS|*/!bit_dR) continue;
+      if( m_ttbar_mode && !bit_dR ) continue;
+      // For Zmumu events
+      if( m_Zmumu_mode && !bit_mass ) continue;
       
       dimuons.push_back(std::make_pair(mu1,mu2));
     }
   }// loop over muons
+
+  auto invmass = Monitored::Collection(m_group+"_invmass", vec_invmass);
+  fill(m_group, invmass);
+
   
   for (std::pair<const xAOD::Muon*,const xAOD::Muon*> dimu : dimuons){
     bool pass1 = false;

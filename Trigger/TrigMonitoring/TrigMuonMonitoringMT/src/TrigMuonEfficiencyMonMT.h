@@ -45,6 +45,8 @@ class TrigMuonEfficiencyMonMT : public TrigMuonMonitorAlgorithm{
   Gaudi::Property<bool> m_use_extrapolator {this, "UseExtrapolator", false, "Flag to activate the track extrapolator"};
   Gaudi::Property<double> m_mass_lowlim {this, "MassLowLim", 81., "Lower mass limit for the tag and probe method"};
   Gaudi::Property<double> m_mass_highlim {this, "MassHighLim", 101., "Higher mass limit for the tag and probe method"};
+  Gaudi::Property<bool> m_ttbar_mode {this, "ttbarMode", false, "Flag to use ttbar events"};
+  Gaudi::Property<bool> m_Zmumu_mode {this, "ZmumuMode", false, "Flag to use Zmumu events"};
 
   // data
   std::map<std::string, std::string> m_l1seeds {};
