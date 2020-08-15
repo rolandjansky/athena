@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/test/DataVector_test.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -595,7 +593,8 @@ template <class B, class D>
 void test2_initial()
 {
   DataVector<D> vd;
-  vd.push_back (new D(1));
+  D* dptr = new D(1);
+  assert (vd.push_back (dptr) == dptr);
   DataVector<B>& vb = vd;
   const B* b = vb[0];
   const D* d = vd[0];
@@ -937,9 +936,12 @@ void test2_push_back()
   DataVector<B> vb;
   SG::AuxStoreInternal storeb;
   setaux (vb, storeb);
-  vb.push_back (make_comp<B>(1));
-  vb.push_back (make_comp<D>(2));
-  vb.emplace_back (make_comp<D>(12));
+  B* pb = make_comp<B>(1);
+  assert (vb.push_back (pb) == pb);
+  D* pd = make_comp<D>(2);
+  assert (vb.push_back (pd) == pd);
+  D* pd12 = make_comp<D>(12);
+  assert (vb.emplace_back (pd12) == pd12);
   myassert (vb.size() == 3);
   myassert (vb[0]->x == 1);
   myassert (vb[1]->x == 2);
@@ -1017,8 +1019,14 @@ void test2_push_back()
     DataVector<B> vb_u;
     SG::AuxStoreInternal storeb_u;
     setaux (vb_u, storeb_u);
-    vb_u.push_back (make_comp_unique<B>(20));
-    vb_u.push_back (make_comp_unique<D>(21));
+
+    std::unique_ptr<B> ub = make_comp_unique<B>(20);
+    B* ubptr = ub.get();
+    assert (vb_u.push_back (std::move (ub)) == ubptr);
+
+    std::unique_ptr<D> ud = make_comp_unique<D>(21);
+    D* udptr = ud.get();
+    assert (vb_u.push_back (std::move (ud)) == udptr);
     CHECK_INDICES(vb_u);
     checkaux(vb_u);
     check_dtor_log();
