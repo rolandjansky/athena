@@ -291,10 +291,18 @@ StatusCode AthenaOutputStream::initialize() {
    }
 
    // Check compression settings and print some information about the configuration
-   if(m_compressionBitsHigh < 5) {
+   // Both should be between [5, 23] and high compression should be <= low compression
+   if(m_compressionBitsHigh < 5 || m_compressionBitsHigh > 23) {
      ATH_MSG_INFO("Float compression mantissa bits for high compression " <<
-                  "(" << m_compressionBitsHigh << ") is too low, setting it to 5.");
-     m_compressionBitsHigh = 5;
+                  "(" << m_compressionBitsHigh << ") is outside the allowed range of [5, 23].");
+     ATH_MSG_INFO("Setting it to the appropriate limit.");
+     m_compressionBitsHigh = m_compressionBitsHigh < 5 ? 5 : 23;
+   }
+   if(m_compressionBitsLow < 5 || m_compressionBitsLow > 23) {
+     ATH_MSG_INFO("Float compression mantissa bits for low compression " <<
+                  "(" << m_compressionBitsLow << ") is outside the allowed range of [5, 23].");
+     ATH_MSG_INFO("Setting it to the appropriate limit.");
+     m_compressionBitsLow = m_compressionBitsLow < 5 ? 5 : 23;
    }
    if(m_compressionBitsLow < m_compressionBitsHigh) {
      ATH_MSG_INFO("Float compression mantissa bits for low compression " <<
@@ -1039,7 +1047,7 @@ void AthenaOutputStream::handleVariableSelection (SG::IAuxStoreIO& auxio,
 }
 
 
-void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
+void AthenaOutputStream::itemListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    // Assuming concrete SG::Folder also has an itemList property
    IProperty *pAsIProp(nullptr);
    if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -1049,7 +1057,7 @@ void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
+void AthenaOutputStream::excludeListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_decoder.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
@@ -1058,7 +1066,7 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerHigh(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderHigh.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderHigh)) ||
@@ -1067,7 +1075,7 @@ void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerLow(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerLow(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderLow.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderLow)) ||

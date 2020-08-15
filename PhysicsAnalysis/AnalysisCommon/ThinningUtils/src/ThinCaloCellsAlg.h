@@ -61,10 +61,10 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'CaloCellsToThin' property
-  void setupCaloCellsToThin( Property& /*prop*/ );
+  void setupCaloCellsToThin( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'InputContainerList' property
-  void setupInputContainerList( Property& /*prop*/ );
+  void setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
   ///////////////////////////////////////////////////////////////////
@@ -107,13 +107,13 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 /// This internal method will realize if a user sets the 'CaloCellsToThin' property
-inline void ThinCaloCellsAlg::setupCaloCellsToThin( Property& /*prop*/ ) {
+inline void ThinCaloCellsAlg::setupCaloCellsToThin( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setCaloCellKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'InputContainerList' property
-inline void ThinCaloCellsAlg::setupInputContainerList( Property& /*prop*/ ) {
+inline void ThinCaloCellsAlg::setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKey = true;
   return;
 }

@@ -14,7 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"

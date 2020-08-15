@@ -16,7 +16,7 @@
 #include "AthenaBaseComps/AthCommonDataStore.h"
 #include "AthenaBaseComps/AthCommonMsg.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "Gaudi/Sequence.h"
 
 #include <setjmp.h>
@@ -124,13 +124,13 @@ public:
   StatusCode decodeMemberNames( );
 
   /// "Members" property handler
-  void       membershipHandler( Property& theProp );
+  void       membershipHandler( Gaudi::Details::PropertyBase& theProp );
 
   /// Decode branch member naem list
   StatusCode decodeBranchMemberNames( );
 
   /// "BranchMembers" propertry handler
-  void       branchMembershipHandler( Property& theProp );
+  void       branchMembershipHandler( Gaudi::Details::PropertyBase& theProp );
 
 protected:
 

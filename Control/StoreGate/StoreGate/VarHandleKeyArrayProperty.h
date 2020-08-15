@@ -15,7 +15,7 @@
 #include "StoreGate/VarHandleKeyArray.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "StoreGate/WriteHandleKeyArray.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include <iostream>
 
 namespace Gaudi { 
@@ -44,9 +44,9 @@ namespace SG {
  
     VarHandleKeyArrayProperty* clone() const override;
  
-    bool load( Property& destination ) const override;
+    bool load( Gaudi::Details::PropertyBase& destination ) const override;
  
-    bool assign( const Property& source ) override;
+    bool assign( const Gaudi::Details::PropertyBase& source ) override;
  
     std::string toString() const override;
  

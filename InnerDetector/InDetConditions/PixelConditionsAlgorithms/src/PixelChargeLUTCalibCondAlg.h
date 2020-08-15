@@ -24,7 +24,7 @@
 #include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class PixelChargeLUTCalibCondAlg : public AthReentrantAlgorithm {
   public:

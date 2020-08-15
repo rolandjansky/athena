@@ -197,7 +197,7 @@ private: // properties
    /// InputCollections, vector with names of the input collections.
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "InputCollections", {}, ""};
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator ATLAS_THREAD_SAFE;
-   void inputCollectionsHandler(Property&);
+   void inputCollectionsHandler(Gaudi::Details::PropertyBase&);
    /// Query, query string.
    Gaudi::Property<std::string> m_query{this, "Query", "", ""};
 

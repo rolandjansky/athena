@@ -16,7 +16,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 

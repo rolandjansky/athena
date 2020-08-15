@@ -14,7 +14,7 @@
 //      
 /////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthContainers/DataVector.h"

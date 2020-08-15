@@ -9,7 +9,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "StoreGate/DataHandle.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"

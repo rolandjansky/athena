@@ -14,7 +14,7 @@
 #include "TrkGeometry/LayerMaterialMap.h"
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"

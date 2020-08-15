@@ -43,7 +43,7 @@ def main():
         logging.info('Processing argument signatures for {0}'.format(trf))
         # Use __import__ to allow us to import from the trf list
         try:
-            trfModule = __import__('{0}'.format(trf), globals(), locals(), ['getTransform'], -1)
+            trfModule = __import__('{0}'.format(trf), globals(), locals(), ['getTransform'], 0)
         except ImportError:
             logging.warning('Failed to import transform {0} - ignored'.format(trf))
             continue

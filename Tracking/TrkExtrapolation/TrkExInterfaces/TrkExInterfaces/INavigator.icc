@@ -7,8 +7,26 @@
  * in terms of the Gaudi Context aware ones
  */
 namespace Trk {
-/** INavigator interface method - getting the next BoundarySurface not knowing
- * the Volume*/
+
+inline const TrackingGeometry*
+INavigator::trackingGeometry() const
+{
+  return trackingGeometry(Gaudi::Hive::currentContext());
+}
+
+inline const TrackingVolume*
+INavigator::volume(const Amg::Vector3D& gp) const
+{
+
+  return volume(Gaudi::Hive::currentContext(), gp);
+}
+
+inline const TrackingVolume*
+INavigator::highestVolume() const
+{
+  return highestVolume(Gaudi::Hive::currentContext());
+}
+
 inline const BoundarySurface<TrackingVolume>*
 INavigator::nextBoundarySurface(const IPropagator& prop,
                                 const TrackParameters& parms,
@@ -17,8 +35,6 @@ INavigator::nextBoundarySurface(const IPropagator& prop,
   return nextBoundarySurface(Gaudi::Hive::currentContext(), prop, parms, dir);
 }
 
-/** INavigator interface method - getting the next BoundarySurface when
- * knowing the Volume*/
 inline const BoundarySurface<TrackingVolume>*
 INavigator::nextBoundarySurface(const IPropagator& prop,
                                 const TrackParameters& parms,
@@ -30,8 +46,6 @@ INavigator::nextBoundarySurface(const IPropagator& prop,
     Gaudi::Hive::currentContext(), prop, parms, dir, vol);
 }
 
-/** INavigator interface method - - getting the next Volume and the parameter
- * for the next Navigation */
 inline NavigationCell
 INavigator::nextTrackingVolume(const IPropagator& prop,
                                const TrackParameters& parms,
@@ -40,13 +54,9 @@ INavigator::nextTrackingVolume(const IPropagator& prop,
 {
 
   return nextTrackingVolume(
-    Gaudi::Hive::currentContext(),prop,parms, dir, vol);
+    Gaudi::Hive::currentContext(), prop, parms, dir, vol);
 }
 
-/** INavigator interface method - getting the next Volume and the parameter
-  for the next Navigation
-  - contains full loop over volume boundaries
-*/
 inline NavigationCell
 INavigator::nextDenseTrackingVolume(const IPropagator& prop,
                                     const TrackParameters& parms,
@@ -66,6 +76,5 @@ INavigator::nextDenseTrackingVolume(const IPropagator& prop,
                                  vol,
                                  path);
 }
-
 
 }

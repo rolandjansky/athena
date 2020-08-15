@@ -14,7 +14,7 @@
 #include <limits>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // NavFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"

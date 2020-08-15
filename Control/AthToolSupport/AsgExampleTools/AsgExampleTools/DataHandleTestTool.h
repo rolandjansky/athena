@@ -13,6 +13,7 @@
 #include <AsgExampleTools/IDataHandleTestTool.h>
 #include <AsgDataHandles/ReadHandleKey.h>
 #include <AsgDataHandles/ReadDecorHandleKey.h>
+#include <AsgDataHandles/WriteHandleKey.h>
 
 // AthSimulation doesn't contain the muon-container, so we can't
 // really build the tool, but it is simpler to build an empty tool
@@ -51,9 +52,11 @@ namespace asg
 #ifndef SIMULATIONBASE
     SG::ReadHandleKey<xAOD::MuonContainer> m_readKey {this, "readKey", "Muons", "regular read key"};
     SG::ReadDecorHandleKey<xAOD::MuonContainer> m_readDecorKey {this, "readDecorKey", "Muons.pt", "read decor key"};
+    SG::WriteHandleKey<xAOD::MuonContainer> m_writeKey {this, "writeKey", "", "regular write key"};
 #endif
     bool m_readFailure {false};
     bool m_readDecorFailure {false};
+    std::string m_doWriteName;
   };
 }
 

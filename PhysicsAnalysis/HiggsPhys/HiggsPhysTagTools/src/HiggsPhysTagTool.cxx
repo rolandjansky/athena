@@ -12,7 +12,7 @@ Purpose : create a HiggsPhysTag - a word to encode HiggsPhys specific informatio
 
 *****************************************************************************/
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "HiggsPhysTagTools/HiggsPhysTagTool.h"

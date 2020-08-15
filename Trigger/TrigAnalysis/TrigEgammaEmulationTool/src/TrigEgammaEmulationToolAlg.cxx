@@ -3,7 +3,7 @@
 */
 
 #include "TrigEgammaEmulationToolAlg.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "xAODTrigger/EmTauRoI.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRingerRings.h"

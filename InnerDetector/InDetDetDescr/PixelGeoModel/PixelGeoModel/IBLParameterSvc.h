@@ -15,7 +15,7 @@
 
 #include "PixelGeoModel/IIBLParameterSvc.h" 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h" 

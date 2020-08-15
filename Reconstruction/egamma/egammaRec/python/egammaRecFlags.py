@@ -52,14 +52,6 @@ class doEgammaForwardSeeded (egammaRecFlagsJobProperty):
     StoredValue = True
 
 
-class doTopoCaloSeeded (JobProperty):
-    """ switch for SW TopoCalo algorithm
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
-
 class doBremFinding (egammaRecFlagsJobProperty):
     """ switch for whether to do the brem finding
     """
@@ -75,8 +67,8 @@ class doVertexBuilding (egammaRecFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue = True
 
-# Other options
 
+# Other options
 
 class doEgammaTruthAssociation (JobProperty):
     """ switch for truth association alg
@@ -161,7 +153,7 @@ jobproperties.add_Container(egammaRecFlags)
 # I want always the following flags in the container
 _list_Egamma = [Enabled, doEgammaCaloSeeded, doEgammaForwardSeeded,
                 doBremFinding, doVertexBuilding, doConversions,
-                doTopoCaloSeeded, cellContainerName, doEgammaTruthAssociation,
+                cellContainerName, doEgammaTruthAssociation,
                 clusterCorrectionVersion, calibMVAVersion, doSuperclusters,
                 inputTopoClusterCollection, egammaTopoClusterCollection]
 

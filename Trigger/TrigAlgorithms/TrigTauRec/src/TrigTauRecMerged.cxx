@@ -17,7 +17,7 @@
 //#include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/ListItem.h"
 //#include "GaudiKernel/StatusCode.h"
-//#include "GaudiKernel/Property.h"
+//#include "Gaudi/Property.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

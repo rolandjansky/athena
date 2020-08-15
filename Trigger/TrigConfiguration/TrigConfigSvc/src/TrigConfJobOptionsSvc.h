@@ -104,7 +104,7 @@ namespace TrigConf {
       return m_josvc->getProperties(client);
     }
 
-    virtual const Property* getClientProperty(const std::string& client,
+    virtual const Gaudi::Details::PropertyBase* getClientProperty(const std::string& client,
                                               const std::string& name) const override
     {
       return m_josvc->getClientProperty(client, name);

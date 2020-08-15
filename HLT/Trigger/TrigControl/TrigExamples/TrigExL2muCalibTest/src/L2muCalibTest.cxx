@@ -88,11 +88,11 @@ StatusCode L2muCalibTest::initialize(){
 	ATH_MSG_INFO("Dump of the property catalogue.... ");
 	std::vector<std::string> clients = m_jobOptionsSvc->getClients();
 	std::vector<std::string>::iterator cit;
-	std::vector<const Property*>::const_iterator pit;
+	std::vector<const Gaudi::Details::PropertyBase*>::const_iterator pit;
 
 	for( cit = clients.begin(); cit != clients.end(); cit++ ) {
 	  ATH_MSG_INFO(" Properties of " <<  *cit << ": ";
-	  const std::vector<const Property*>* properties = m_jobOptionsSvc->getProperties(*cit);
+	  const std::vector<const Gaudi::Details::PropertyBase*>* properties = m_jobOptionsSvc->getProperties(*cit);
 	  for( pit = properties->begin(); pit != properties->end(); pit++ ) {
 	    log << (*pit)->name();
 	    if( (pit+1) != properties->end())  log << ", ";
@@ -112,11 +112,11 @@ StatusCode L2muCalibTest::initialize(){
 
       // Find the Data Flow application name
       bool df_found = false;
-      const std::vector<const Property*>* dataFlowProps = m_jobOptionsSvc->getProperties("DataFlowConfig");
+      const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps = m_jobOptionsSvc->getProperties("DataFlowConfig");
       if ( dataFlowProps ) { 
 	ATH_MSG_INFO(" Properties available for 'DataFlowConfig': number = " << dataFlowProps->size());
 	ATH_MSG_INFO(" --------------------------------------------------- ");
-	for ( std::vector<const Property*>::const_iterator cur = dataFlowProps->begin();
+	for ( std::vector<const Gaudi::Details::PropertyBase*>::const_iterator cur = dataFlowProps->begin();
 	      cur != dataFlowProps->end(); cur++) {
 	  ATH_MSG_INFO((*cur)->name() << " = " << (*cur)->toString());
 	  // the application name is found

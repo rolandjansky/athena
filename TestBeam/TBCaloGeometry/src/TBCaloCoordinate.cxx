@@ -11,7 +11,7 @@
 #include "TBCaloGeometry/TBCaloCoordinate.h"
 
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"

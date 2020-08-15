@@ -16,7 +16,7 @@
 #include <limits>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 
 typedef IIoSvc::Fd Fd;

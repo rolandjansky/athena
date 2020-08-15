@@ -12,7 +12,7 @@
 #include "RoiB2TopoInputDataCnv.h"
 #include "TrigT1CaloUtils/L1TopoDataMaker.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 

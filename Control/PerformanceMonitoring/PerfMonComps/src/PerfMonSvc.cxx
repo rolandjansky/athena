@@ -35,7 +35,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -1095,12 +1095,12 @@ void PerfMonSvc::undeclareAll( const IInterface* iowner )
 ///////////////////////////////////////////////////////////////////
 // Non-const methods:
 ///////////////////////////////////////////////////////////////////
-void PerfMonSvc::setupProfiledAlgList( Property& /*profiledAlgNames*/ )
+void PerfMonSvc::setupProfiledAlgList( Gaudi::Details::PropertyBase& /*profiledAlgNames*/ )
 {
   return;
 }
 
-void PerfMonSvc::setupIoContainerList( Property& /*ioContainerNames*/ )
+void PerfMonSvc::setupIoContainerList( Gaudi::Details::PropertyBase& /*ioContainerNames*/ )
 {
 }
 
