@@ -142,11 +142,11 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
 
   //// Cuts based on the offline muon's features ////
   // Inclusive
-  fill(m_group, muPt, muPileup, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
+  fill(m_group, muPt, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
 
   // Plateau
   if(muPt>m_thresholds.at(chain)){
-    fill(m_group, muEta, muPhi, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
+    fill(m_group, muEta, muPhi, muPileup, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
   }
 
   return StatusCode::SUCCESS;
