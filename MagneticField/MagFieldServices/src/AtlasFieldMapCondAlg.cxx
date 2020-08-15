@@ -214,6 +214,8 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
         else {
             // For normal athena jobs, check the currents in DCS to check if one of the two magnets
             // is OFF so that the correct map can be used.
+            // If a field is off, set an IOV validity range to be the current run only.
+            // (Note DCS currents have a timestamp-based IOV, so this is not used.)
 
             //  Note: for the nominal maps from COOL, three maps are available:
             //    - Global with both solenoid and toroid
@@ -225,35 +227,25 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
             EventIDRange rangeDCS;
             ATH_CHECK( checkCurrentFromConditions(ctx, soleCurrent, toroCurrent, rangeDCS) );
 
-            bool useDCSIOVRange = false;
+            bool mustCreateIOVRange = false;
             if (soleCurrent < m_soleMinCurrent) {
                 cache.m_mapSoleCurrent = 0;
-                useDCSIOVRange = true;
+                mustCreateIOVRange = true;
                 ATH_MSG_INFO("updateFieldMap: set solenoid current to 0 from DCS");
             }
             if (toroCurrent < m_toroMinCurrent) {
                 cache.m_mapToroCurrent = 0;
-                useDCSIOVRange = true;
+                mustCreateIOVRange = true;
                 ATH_MSG_INFO("updateFieldMap: set toroid current to 0 from DCS");
             }
-            if (useDCSIOVRange) {
-                // Construct range - from DCS range, if not a TimeStamp IOV
+            if (mustCreateIOVRange) {
+                // The currents from DCS are zero for either solenoid or toroid, construct an range for one run
                 EventIDBase start, stop;
-                if (rangeDCS.start().isTimeStamp()) {
-                    // use ctx run number
-                    start.set_run_number(ctx.eventID().run_number());
-                    start.set_lumi_block(0);
-                    stop.set_run_number(ctx.eventID().run_number() + 1);
-                    stop.set_lumi_block(0);
-                }
-                else {
-                    // not just time stamp, use the DCS run number
-                    //  - require validity to be at least one full run
-                    start.set_run_number(rangeDCS.start().run_number());
-                    start.set_lumi_block(0);
-                    stop.set_run_number(std::max(rangeDCS.start().run_number() + 1, rangeDCS.stop().run_number()));
-                    stop.set_lumi_block(0);
-                }
+                // use ctx run number
+                start.set_run_number(ctx.eventID().run_number());
+                start.set_lumi_block(0);
+                stop.set_run_number(ctx.eventID().run_number() + 1);
+                stop.set_lumi_block(0);
                 cache.m_mapCondObjOutputRange = EventIDRange(start,stop);
                 ATH_MSG_INFO("updateFieldMap: map IOV  range " << cache.m_mapCondObjOutputRange);
             }
