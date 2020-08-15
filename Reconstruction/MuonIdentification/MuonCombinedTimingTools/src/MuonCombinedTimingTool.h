@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTimingTool.h"
 #include "TrkSegment/SegmentCollection.h"
+#include "TrkToolInterfaces/ITrackTimingTool.h"
 #include "xAODMuon/Muon.h"
 
 namespace Trk {
@@ -48,13 +49,29 @@ class MuonCombinedTimingTool : virtual public IMuonCombinedTimingTool, public At
 
   private:
     //! time calculation in subdetector responsibility: inner detector
-    ToolHandle<Trk::ITrackTimingTool> m_trtTimingTool;
+    ToolHandle<Trk::ITrackTimingTool> m_trtTimingTool{
+        this,
+        "InDetTimingTool",
+        "InDet::TRT_TrackTimingTool/TRT_TrackTimingTool",
+    };
     //! time calculation in subdetector responsibility: calorimeter
-    ToolHandle<Trk::ITrackTimingTool> m_caloTimingTool;
+    ToolHandle<Trk::ITrackTimingTool> m_caloTimingTool{
+        this,
+        "CaloTimingTool",
+        "Rec::TrackInCaloTimingTool/TrackInCaloTimingTool",
+    };
     //! time calculation in subdetector responsibility: muon spectrometer (T0 fit) for MDT and CSC
-    ToolHandle<Trk::ITrackTimingTool> m_mdtSegmentTimingTool;
+    ToolHandle<Trk::ITrackTimingTool> m_mdtSegmentTimingTool{
+        this,
+        "MDT_TimingTool",
+        "Muon::SegmentTimingTool/SegmentTimingTool",
+    };
     //! time calculation in subdetector responsibility: muon spectrometer (RPC timing)
-    ToolHandle<Trk::ITrackTimingTool> m_rpcTimingTool;
+    ToolHandle<Trk::ITrackTimingTool> m_rpcTimingTool{
+        this,
+        "RPC_TimingTool",
+        "",
+    };
 
     virtual const Trk::SegmentCollection* getSegmentContainer(const xAOD::Muon& muon) const;
 };

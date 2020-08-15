@@ -9,22 +9,14 @@
 #include "MuonCombinedTimingTool.h"
 
 #include "TrkSpaceTimePoint/SpaceTimePoint.h"
-#include "TrkToolInterfaces/ITrackTimingTool.h"
+
 
 //================ Constructor =================================================
 
 Rec::MuonCombinedTimingTool::MuonCombinedTimingTool(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t, n, p),
-      m_trtTimingTool("InDet::TRT_TrackTimingTool/TRT_TrackTimingTool"),
-      m_caloTimingTool("Rec::TrackInCaloTimingTool/TrackInCaloTimingTool"),
-      m_mdtSegmentTimingTool("Muon::SegmentTimingTool/SegmentTimingTool"),
-      m_rpcTimingTool("")
+    : AthAlgTool(t, n, p)
 {
     declareInterface<IMuonCombinedTimingTool>(this);
-    declareProperty("InDetTimingTool", m_trtTimingTool);
-    declareProperty("CaloTimingTool", m_caloTimingTool);
-    declareProperty("MDT_TimingTool", m_mdtSegmentTimingTool);
-    declareProperty("RPC_TimingTool", m_rpcTimingTool);
 }
 
 //================ Destructor =================================================
@@ -42,32 +34,20 @@ Rec::MuonCombinedTimingTool::initialize()
     if (sc.isFailure()) return sc;
 
     if (!m_trtTimingTool.empty()) {
-        if (m_trtTimingTool.retrieve().isFailure()) {
-            ATH_MSG_ERROR("Could not retrieve " << m_trtTimingTool.name());
-            return StatusCode::FAILURE;
-        } else
-            ATH_MSG_DEBUG("Retrieved " << m_trtTimingTool.name());
+        ATH_CHECK(m_trtTimingTool.retrieve());
+        ATH_MSG_DEBUG("Retrieved " << m_trtTimingTool.name());
     }
     if (!m_caloTimingTool.empty()) {
-        if (m_caloTimingTool.retrieve().isFailure()) {
-            ATH_MSG_ERROR("Could not retrieve " << m_caloTimingTool.name());
-            return StatusCode::FAILURE;
-        } else
-            ATH_MSG_DEBUG("Retrieved " << m_caloTimingTool.name());
+        ATH_CHECK(m_caloTimingTool.retrieve());
+        ATH_MSG_DEBUG("Retrieved " << m_caloTimingTool.name());
     }
     if (!m_mdtSegmentTimingTool.empty()) {
-        if (m_mdtSegmentTimingTool.retrieve().isFailure()) {
-            ATH_MSG_ERROR("Could not retrieve " << m_mdtSegmentTimingTool.name());
-            return StatusCode::FAILURE;
-        } else
-            ATH_MSG_DEBUG("Retrieved " << m_mdtSegmentTimingTool.name());
+        ATH_CHECK(m_mdtSegmentTimingTool.retrieve());
+        ATH_MSG_DEBUG("Retrieved " << m_mdtSegmentTimingTool.name());
     }
     if (!m_rpcTimingTool.empty()) {
-        if (m_rpcTimingTool.retrieve().isFailure()) {
-            ATH_MSG_ERROR("Could not retrieve " << m_rpcTimingTool.name());
-            return StatusCode::FAILURE;
-        } else
-            ATH_MSG_DEBUG("Retrieved " << m_rpcTimingTool.name());
+        ATH_CHECK(m_rpcTimingTool.retrieve());
+        ATH_MSG_DEBUG("Retrieved " << m_rpcTimingTool.name());
     }
 
     /*
