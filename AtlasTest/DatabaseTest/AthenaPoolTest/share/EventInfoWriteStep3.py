@@ -121,7 +121,7 @@ svcMgr.TagInfoMgr.OutputLevel = DEBUG
 #--------------------------------------------------------------
 from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
 ToolSvc += IOVDbMetaDataTool( "IOVDbMetaDataTool" )
-IOVDbMetaDataTool.OutputLevel      = DEBUG
+IOVDbMetaDataTool.OutputLevel      = INFO
 
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )
