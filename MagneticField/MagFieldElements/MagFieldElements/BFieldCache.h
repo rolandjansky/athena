@@ -80,6 +80,26 @@ public:
     }
   }
 
+  // set field array, filled externally
+  void setField(double field[][8]) {
+      std::copy( &field[0][0], &field[0][0] + 3*8, &m_field[0][0]);
+  }
+    
+
+  // set the field values at each corner (rescale for current scale factor)
+  void printField() 
+  {
+    // print out field values
+    std::cout << "Field at corner i, for each component j (Bz, Br, Bphi)" << std::endl;
+
+    for (int i = 0; i < 8; ++i) {
+      for (int j = 0; j < 3; ++j) {
+          std::cout << i << "," << j << ": " << m_field[j][i] << ", ";
+      }
+      std::cout << std::endl;
+    }
+  }
+
   // set the multiplicative factor for the field vectors
   void setBscale(double bscale) { m_scale = bscale; }
   float bscale() { return m_scale; }
