@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -112,16 +112,18 @@ namespace Trk
 
   float Chi2TrackCompatibilityEstimator::compatibility(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
+    //Looking for a AtaPlane object (track)
     const Trk::AtaPlane * myAtaPlane=vtxTrack.ImpactPoint3dAtaPlane();
-
-    if (myAtaPlane!=nullptr && myAtaPlane->covariance()!=nullptr) //Looking for a AtaPlane object (track)
+    if (myAtaPlane!=nullptr && myAtaPlane->covariance()!=nullptr) {
       return _compatibility(myAtaPlane, vertex);
-    //looking for a NeutralAtaPlane object (neutral)
-      const Trk::NeutralAtaPlane * myNeutralAtaPlane=vtxTrack.ImpactPoint3dNeutralAtaPlane();
-      if (myNeutralAtaPlane!=nullptr && myNeutralAtaPlane->covariance()!=nullptr)
-        return _compatibility(myNeutralAtaPlane, vertex);
-    
+    }
 
+    //looking for a NeutralAtaPlane object (neutral)
+    const Trk::NeutralAtaPlane * myNeutralAtaPlane=vtxTrack.ImpactPoint3dNeutralAtaPlane();
+    if (myNeutralAtaPlane!=nullptr && myNeutralAtaPlane->covariance()!=nullptr){
+      return _compatibility(myNeutralAtaPlane, vertex);
+    }
+    
     ATH_MSG_WARNING( " No compatibility plane attached to the VxTrackAtVertex. Compatibility couldn't be found... 0 compatibility returned."  );
     return 100;
   }
