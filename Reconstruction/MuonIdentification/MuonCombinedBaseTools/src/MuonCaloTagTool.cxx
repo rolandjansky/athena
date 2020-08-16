@@ -362,17 +362,21 @@ namespace MuonCombined {
     }
     else if (likelihood > m_CaloLRlikelihoodCut)
       caloTag = new CaloTag(xAOD::Muon::CaloLikelihood, eLoss, 0); 
+    else if (muonScore > -1)
+      caloTag = new CaloTag(xAOD::Muon::CaloScore, eLoss, 0);
+
     if( caloTag ){
       caloTag->set_deposits(deposits);
       caloTag->set_caloMuonIdTag(tag);
       caloTag->set_caloLRLikelihood(likelihood);
       caloTag->set_caloMuonScore(muonScore);
+
+      if (muonScore > -1)
+	caloTag->set_author3(xAOD::Muon::CaloScore);
+
       tagMap->addEntry(&muonCandidate,caloTag);
     }
 
-    if (muonScore > -1) {
-      caloTag->set_author3(xAOD::Muon::CaloScore);
-    }
 
   }
 
