@@ -104,8 +104,40 @@ public:
         double r0      = 1200;
         double phi0    = phi;
         double xyz[3]  = {0, 0, 0};
-        double bxyz_std[3] = {0, 0, 0};
-        double bxyz_new[3] = {0, 0, 0};
+        double bxyz[3] = {0, 0, 0};
+        double bxyz_std[3][10] = { 
+            { -2.83727e-07, -2.81403e-07, -2.79079e-07, -2.76755e-07, -2.74431e-07,
+              -2.72107e-07, -2.69782e-07, -2.67458e-07, -2.65134e-07, -2.6281e-07 },
+            {  9.47007e-08,  7.49033e-08,  5.51058e-08,  3.53084e-08,  1.5511e-08,
+              -4.28645e-09, -2.40839e-08, -4.38813e-08, -6.36787e-08, -8.34762e-08 },
+            {  0.00308551,   0.00255923,   0.00203296,   0.00150669,   0.000980422,
+               0.000454151, -7.21201e-05, -0.000598391, -0.00112466,  -0.00165093 }
+        };
+        
+// get field std: i, bxyz_std 0 -2.83727e-07, 9.47007e-08, 0.00308551
+// get field new: i, bxyz_new 0 -2.83727e-07, 9.47007e-08, 0.00308551
+// get field std: i, bxyz_std 1 -2.81403e-07, 7.49033e-08, 0.00255923
+// get field new: i, bxyz_new 1 -2.81403e-07, 7.49033e-08, 0.00255923
+// get field std: i, bxyz_std 2 -2.79079e-07, 5.51058e-08, 0.00203296
+// get field new: i, bxyz_new 2 -2.79079e-07, 5.51058e-08, 0.00203296
+// get field std: i, bxyz_std 3 -2.76755e-07, 3.53084e-08, 0.00150669
+// get field new: i, bxyz_new 3 -2.76755e-07, 3.53084e-08, 0.00150669
+// get field std: i, bxyz_std 4 -2.74431e-07, 1.5511e-08, 0.000980422
+// get field new: i, bxyz_new 4 -2.74431e-07, 1.5511e-08, 0.000980422
+// get field std: i, bxyz_std 5 -2.72107e-07, -4.28645e-09, 0.000454151
+// get field new: i, bxyz_new 5 -2.72107e-07, -4.28645e-09, 0.000454151
+// get field std: i, bxyz_std 6 -2.69782e-07, -2.40839e-08, -7.21201e-05
+// get field new: i, bxyz_new 6 -2.69782e-07, -2.40839e-08, -7.21201e-05
+// get field std: i, bxyz_std 7 -2.67458e-07, -4.38813e-08, -0.000598391
+// get field new: i, bxyz_new 7 -2.67458e-07, -4.38813e-08, -0.000598391
+// get field std: i, bxyz_std 8 -2.65134e-07, -6.36787e-08, -0.00112466
+// get field new: i, bxyz_new 8 -2.65134e-07, -6.36787e-08, -0.00112466
+// get field std: i, bxyz_std 9 -2.6281e-07, -8.34762e-08, -0.00165093
+// get field new: i, bxyz_new 9 -2.6281e-07, -8.34762e-08, -0.00165093
+
+        // zone.m_doNew = false;
+        zone.m_doNew = true;
+
         
         for (unsigned int i = 0; i < 10; ++i) {
             double r1 = r0 + 5 + i*10.;
@@ -115,32 +147,25 @@ public:
             xyz[2] = z0;
             
             // do interpolation (cache3d has correct scale factor)
-            zone.m_doNew = false;
             zone.getCache(z, r, phi, cache3d, 1);
-            cache3d.getB(xyz, r1, phi, bxyz_std, 0);
+            cache3d.getB(xyz, r1, phi, bxyz, 0);
 
-            std::cout << "get field std: i, bxyz_std " << i << " "
-                      << bxyz_std[0] << ", " << bxyz_std[1] << ", "
-                      << bxyz_std[2] << std::endl;
+            std::cout << "get field std: i, bxyz " << i << " "
+                      << bxyz[0] << ", " << bxyz[1] << ", "
+                      << bxyz[2] << std::endl;
 
-            zone.m_doNew = true;
-            zone.getCache(z, r, phi, cache3d, 1);
-            cache3d.getB(xyz, r1, phi, bxyz_new, 0);
-
-            std::cout << "get field new: i, bxyz_new " << i << " "
-                      << bxyz_new[0] << ", " << bxyz_new[1] << ", "
-                      << bxyz_new[2] << std::endl;
-
-            if (bxyz_std[0] != bxyz_new[0]) {
-                std::cout << "failed bz comparison" << std::endl;
+            if (fabs(bxyz[0] - bxyz_std[0][i]) > 0.00001) {
+                std::cout << "failed bz comparison - bz, bz std " << bxyz[0] << ", " << bxyz_std[0][i] << std::endl;
                 status = 1;
             }
-            if (bxyz_std[1] != bxyz_new[1]) {
+            if (fabs(bxyz[1] - bxyz_std[1][i]) > 0.00001) {
                 std::cout << "failed br comparison" << std::endl;
+                std::cout << "failed br comparison - br, br std " << bxyz[1] << ", " << bxyz_std[1][i] << std::endl;
                 status = 1;
             }
-            if (bxyz_std[2] != bxyz_new[2]) {
+            if (fabs(bxyz[2] - bxyz_std[2][i]) > 0.00001) {
                 std::cout << "failed bphi comparison" << std::endl;
+                std::cout << "failed bphi comparison - bphi, bphi std " << bxyz[2] << ", " << bxyz_std[2][i] << std::endl;
                 status = 1;
             }
             
