@@ -239,7 +239,7 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
                 ATH_MSG_INFO("updateFieldMap: set toroid current to 0 from DCS");
             }
             if (mustCreateIOVRange) {
-                // The currents from DCS are zero for either solenoid or toroid, construct an range for one run
+                // The currents from DCS are zero for either solenoid or toroid, construct an IOV range for one run
                 EventIDBase start, stop;
                 // use ctx run number
                 start.set_run_number(ctx.eventID().run_number());
