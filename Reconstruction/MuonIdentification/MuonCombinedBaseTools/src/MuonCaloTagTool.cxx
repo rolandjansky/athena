@@ -218,11 +218,11 @@ namespace MuonCombined {
       }
       ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and muon score " << muon_score);
       // --- If all three taggers do not think it's a muon, forget about it ---
-      if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut && muon_score < 0) {
+      if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut && muon_score == -1) {
 	continue;                                                                                                                                                            
       }
       // --- Only accept tight tagged muons if pT is below 4 GeV and the muon score is below the threshold---
-      if (tag<10 && par->pT()<4000 && muon_score<0) {
+      if (tag<10 && par->pT()<4000 && muon_score == -1) {
 	continue;
       }
       
