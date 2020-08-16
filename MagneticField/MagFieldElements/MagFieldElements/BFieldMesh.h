@@ -98,9 +98,6 @@ public:
   double bscale() const { return m_scale; }
   int memSize() const;
 
-  bool m_doNew{false};
-
-    
 protected:
   std::array<double, 3> m_min;
   std::array<double, 3> m_max;

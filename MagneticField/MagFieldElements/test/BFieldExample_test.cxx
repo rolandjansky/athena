@@ -79,21 +79,21 @@ public:
         BFieldCache cache3d;
         double z{0}, r{1250}, phi{1.6};
 
-        if (doDebug) std::cout << "do getCache old " << std::endl;
+        // if (doDebug) std::cout << "do getCache old " << std::endl;
 
-        zone.m_doNew = false;
+        // zone.m_doNew = false;
         
-        zone.getCache(z, r, phi, cache3d, 1);
+        // zone.getCache(z, r, phi, cache3d, 1);
 
-        cache3d.printField();
+        // cache3d.printField();
 
-        if (doDebug) std::cout << "do getCache new " << std::endl;
+        // if (doDebug) std::cout << "do getCache new " << std::endl;
         
-        zone.m_doNew = true;
+        // zone.m_doNew = true;
         
-        zone.getCache(z, r, phi, cache3d, 1);
+        // zone.getCache(z, r, phi, cache3d, 1);
 
-        cache3d.printField();
+        // cache3d.printField();
 
 
         // get field at steps of 10 mm from 1200 to 1300
@@ -135,9 +135,6 @@ public:
 // get field std: i, bxyz_std 9 -2.6281e-07, -8.34762e-08, -0.00165093
 // get field new: i, bxyz_new 9 -2.6281e-07, -8.34762e-08, -0.00165093
 
-        // zone.m_doNew = false;
-        zone.m_doNew = true;
-
         
         for (unsigned int i = 0; i < 10; ++i) {
             double r1 = r0 + 5 + i*10.;
@@ -152,7 +149,12 @@ public:
 
             std::cout << "get field std: i, bxyz " << i << " "
                       << bxyz[0] << ", " << bxyz[1] << ", "
-                      << bxyz[2] << std::endl;
+                      << bxyz[2]
+                      << " fractional diff gt 10^-5: "
+                      << int(fabs(bxyz[0] - bxyz_std[0][i])/bxyz[0] > 0.00001) << ", "
+                      << int(fabs(bxyz[1] - bxyz_std[1][i])/bxyz[1] > 0.00001) << ", "
+                      << int(fabs(bxyz[2] - bxyz_std[2][i])/bxyz[2] > 0.00001) 
+                      << std::endl;
 
             if (fabs(bxyz[0] - bxyz_std[0][i]) > 0.00001) {
                 std::cout << "failed bz comparison - bz, bz std " << bxyz[0] << ", " << bxyz_std[0][i] << std::endl;

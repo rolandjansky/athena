@@ -15,7 +15,7 @@ atlas_add_library( MagFieldElements
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 		 
-atlas_add_test( BFieldExample_test
+atlas_add_test( BFieldExample
                 SOURCES  test/BFieldExample_test.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} #${GMOCK_INCLUDE_DIRS}
                 LINK_LIBRARIES TestTools  CxxUtils EventPrimitives ${GTEST_LIBRARIES} #${GMOCK_LIBRARIES}
