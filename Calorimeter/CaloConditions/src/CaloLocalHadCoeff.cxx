@@ -21,32 +21,6 @@
 LocalHadDimension ->
 *************************************************************************** */
 
-// copy constructor
-CaloLocalHadCoeff::LocalHadDimension::LocalHadDimension(const CaloLocalHadCoeff::LocalHadDimension &other)
-  : m_title (other.m_title),
-    m_type (other.m_type),
-    m_nbins (other.m_nbins),
-    m_xmin (other.m_xmin),
-    m_xmax (other.m_xmax),
-    m_dx (other.m_dx),
-    m_xbins (other.m_xbins)
-{
-}
-
-CaloLocalHadCoeff::LocalHadDimension&
-CaloLocalHadCoeff::LocalHadDimension::operator= (const CaloLocalHadCoeff::LocalHadDimension &other)
-{
-  if (this != &other) {
-    m_title = other.m_title;
-    m_type = other.m_type;
-    m_nbins = other.m_nbins;
-    m_xmin = other.m_xmin;
-    m_xmax = other.m_xmax;
-    m_dx = other.m_dx;
-    m_xbins = other.m_xbins;
-  }
-  return *this;
-}
 
 // return bin number for cluster variable
 int CaloLocalHadCoeff::LocalHadDimension::getBin(float &x) const
@@ -157,32 +131,6 @@ bool CaloLocalHadCoeff::isFilled(const int bin) const
 /* ***************************************************************************
 LocalHadArea ->
 *************************************************************************** */
-// copy constructor
-CaloLocalHadCoeff::LocalHadArea::LocalHadArea(const CaloLocalHadCoeff::LocalHadArea &other)
-  : m_title (other.m_title),
-    m_type (other.m_type),
-    m_npars (other.m_npars),
-    m_offset (other.m_offset),
-    m_length (other.m_length),
-    m_dims (other.m_dims),
-    m_dims_loc (other.m_dims_loc)
-{
-}
-
-CaloLocalHadCoeff::LocalHadArea&
-CaloLocalHadCoeff::LocalHadArea::operator=(const CaloLocalHadCoeff::LocalHadArea &other)
-{
-  if (this != &other) {
-    m_title = other.m_title;
-    m_type = other.m_type;
-    m_npars = other.m_npars;
-    m_offset = other.m_offset;
-    m_length = other.m_length;
-    m_dims = other.m_dims;
-    m_dims_loc = other.m_dims_loc;
-  }
-  return *this;
-}
 
 // add new dimension to the area
 void CaloLocalHadCoeff::LocalHadArea::addDimension(CaloLocalHadCoeff::LocalHadDimension &dim)
@@ -214,27 +162,9 @@ CaloLocalHadCoeff
 // default constructor
 CaloLocalHadCoeff::CaloLocalHadCoeff()
 {
-
-}
-
-// copy constructor
-CaloLocalHadCoeff::CaloLocalHadCoeff(const CaloLocalHadCoeff &other)
-  : m_title (other.m_title),
-    m_CoeffSet (other.m_CoeffSet),
-    m_AreaSet (other.m_AreaSet)
-{
-}
-
-
-
-CaloLocalHadCoeff& CaloLocalHadCoeff::operator=(const CaloLocalHadCoeff &other)
-{
-  if (this != &other) {
-    m_AreaSet = other.m_AreaSet;
-    m_CoeffSet = other.m_CoeffSet;
-    m_title = other.m_title;
-  }
-  return *this;
+   static_assert(std::is_nothrow_move_constructible<CaloLocalHadCoeff>::value);
+   static_assert(std::is_nothrow_move_constructible<LocalHadArea>::value);
+   static_assert(std::is_nothrow_move_constructible<LocalHadDimension>::value);
 }
 
 
