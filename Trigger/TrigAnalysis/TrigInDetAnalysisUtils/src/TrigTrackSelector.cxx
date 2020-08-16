@@ -401,9 +401,9 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
     if ( (  track->hasProdVtx() && rp<=inner_radius ) && 
 	 ( !track->hasDecayVtx() || rd>outer_radius ) ) final_state = true; 
       
-    if ( track->status() == 3 ) final_state = false;         /// check its not a documentation particle    
+    //    if ( track->status() == 3 ) final_state = false;         /// check its not a documentation particle    
 
-    if ( !final_state ) return 0; 
+    if ( !final_state ) return false; 
     
     double deta = 0;
     double dphi = 0;
