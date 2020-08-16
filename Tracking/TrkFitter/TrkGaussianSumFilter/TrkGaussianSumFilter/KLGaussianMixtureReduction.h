@@ -110,7 +110,7 @@ struct triangularToIJ
  * @brief Merge the componentsIn and return
  * which componets got merged
  *
- * The inpupt component array is assumed to be
+ * The input component array is assumed to be
  * GSFUtils::alignment aligned.
  *
  */
