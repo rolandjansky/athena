@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,7 +33,6 @@ namespace MagField {
         StatusCode start() override final;
         StatusCode initialize() override final;
         StatusCode execute(const EventContext& ctx) const override final;
-        StatusCode finalize() override final;  
 
     private:
 
