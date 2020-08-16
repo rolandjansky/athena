@@ -15,7 +15,7 @@
  *
  * @author John Chapman - ATLAS Collaboration
  */
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "PileUpTools/IBeamIntensity.h"
 #include "AthenaBaseComps/AthService.h"

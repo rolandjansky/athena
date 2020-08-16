@@ -5,7 +5,7 @@
 #ifndef LARCLUSTERCOLLISIONTIMEALG_H
 #define LARCLUSTERCOLLISIONTIMEALG_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

@@ -60,7 +60,7 @@ namespace Simulation
   {
   }
 
-  void CrabKissingVertexPositioner::BunchShapeHandler(Property&)
+  void CrabKissingVertexPositioner::BunchShapeHandler(Gaudi::Details::PropertyBase&)
   {
     if(m_bunchShapeProp.value() == "GAUSS") m_bunchShape = BunchShape::GAUSS;
     else if(m_bunchShapeProp.value() == "FLAT") m_bunchShape = BunchShape::FLAT;

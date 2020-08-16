@@ -19,7 +19,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 
 // PyRoot
@@ -140,7 +140,7 @@ PyJobOptionsSvc::setMyProperties (const std::string& client,
 /// Add a property into the JobOptions catalog
 StatusCode
 PyJobOptionsSvc::addPropertyToCatalogue (const std::string& client, 
-					 const Property& property)
+					 const Gaudi::Details::PropertyBase& property)
 {
   ATH_MSG_VERBOSE ("::addPropToCat (client=[" << client << "], prop=["
 		   << property.name() << ", "
@@ -153,7 +153,7 @@ PyJobOptionsSvc::addPropertyToCatalogue (const std::string& client,
     return m_catalogue.add_property (client, pyprop->clone());
   }
   
-  Property *p = new StringProperty (property.name(), "");
+  Gaudi::Details::PropertyBase *p = new StringProperty (property.name(), "");
   if (!property.load (*p)) {
     delete p; p = 0;
     return StatusCode::FAILURE;
@@ -221,7 +221,7 @@ PyJobOptionsSvc::readOptions (const std::string& file,
 
 // /// IProperty implementation (needed for initialisation)
 // StatusCode 
-// PyJobOptionsSvc::setProperty(const Property& p)
+// PyJobOptionsSvc::setProperty(const Gaudi::Details::PropertyBase& p)
 // {
 //   return m_pmgr.setProperty (p);
 // }

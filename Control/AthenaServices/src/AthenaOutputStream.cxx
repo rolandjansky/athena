@@ -1047,7 +1047,7 @@ void AthenaOutputStream::handleVariableSelection (SG::IAuxStoreIO& auxio,
 }
 
 
-void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
+void AthenaOutputStream::itemListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    // Assuming concrete SG::Folder also has an itemList property
    IProperty *pAsIProp(nullptr);
    if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -1057,7 +1057,7 @@ void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
+void AthenaOutputStream::excludeListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_decoder.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
@@ -1066,7 +1066,7 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerHigh(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderHigh.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderHigh)) ||
@@ -1075,7 +1075,7 @@ void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerLow(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerLow(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderLow.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderLow)) ||

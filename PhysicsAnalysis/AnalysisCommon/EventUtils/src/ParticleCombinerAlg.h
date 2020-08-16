@@ -71,22 +71,22 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'InputContainerList' property
-  void setupInputContainerList( Property& /*prop*/ );
+  void setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'MissingETObject' property
-  void setupMissingETObject( Property& /*prop*/ );
+  void setupMissingETObject( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'OutputContainer' property
-  void setupOutputContainer( Property& /*prop*/ );
+  void setupOutputContainer( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
-  void setupWriteSplitOutputContainer( Property& /*prop*/ );
+  void setupWriteSplitOutputContainer( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'SetPdgId' property
-  void setupSetPdgId( Property& /*prop*/ );
+  void setupSetPdgId( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'SortConstituents' property
-  void setupSort( Property& /*prop*/ );
+  void setupSort( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
 
@@ -151,37 +151,37 @@ private:
 // Inline methods
 
 /// This internal method will realize if a user sets the 'InputContainerList' property
-inline void ParticleCombinerAlg::setupInputContainerList( Property& /*prop*/ ) {
+inline void ParticleCombinerAlg::setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKeyList = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'MissingETObject' property
-inline void ParticleCombinerAlg::setupMissingETObject( Property& /*prop*/ ) {
+inline void ParticleCombinerAlg::setupMissingETObject( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setMetName = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'OutputContainer' property
-inline void ParticleCombinerAlg::setupOutputContainer( Property& /*prop*/ ) {
+inline void ParticleCombinerAlg::setupOutputContainer( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setOutCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
-inline void ParticleCombinerAlg::setupWriteSplitOutputContainer( Property& /*prop*/ ) {
+inline void ParticleCombinerAlg::setupWriteSplitOutputContainer( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setWriteSplitAux = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'SetPdgId' property
-inline void ParticleCombinerAlg::setupSetPdgId( Property& /*prop*/ ) {
+inline void ParticleCombinerAlg::setupSetPdgId( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setPdgId = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'SortConstituents' property
-inline void ParticleCombinerAlg::setupSort( Property& /*prop*/ ) {
+inline void ParticleCombinerAlg::setupSort( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setSort = true;
   return;
 }

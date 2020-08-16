@@ -19,7 +19,7 @@
 // framework includes
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <boost/thread/tss.hpp>
 

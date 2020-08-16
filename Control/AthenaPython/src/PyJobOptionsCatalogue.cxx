@@ -80,7 +80,7 @@ PyJobOptionsCatalogue::clients() const
 /// add a property to the catalogue
 StatusCode
 PyJobOptionsCatalogue::add_property (const std::string& client,
-				     const Property* prop)
+				     const Gaudi::Details::PropertyBase* prop)
 {
   if (!prop) {
     return StatusCode::FAILURE;

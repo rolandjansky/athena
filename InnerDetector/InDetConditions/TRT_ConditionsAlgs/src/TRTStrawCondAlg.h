@@ -12,7 +12,7 @@
 #include "TRT_ConditionsData/AliveStraws.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
 class TRT_ID;

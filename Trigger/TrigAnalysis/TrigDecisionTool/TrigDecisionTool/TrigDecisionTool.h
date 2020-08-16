@@ -87,7 +87,7 @@ namespace Trig {
     StatusCode finalize();
 
     #ifndef XAOD_STANDALONE
-    void outputlevelupdateHandler(Property& p);  //propagates outputlevel changes to the Logger
+    void outputlevelupdateHandler(Gaudi::Details::PropertyBase& p);  //propagates outputlevel changes to the Logger
     
     #endif
 

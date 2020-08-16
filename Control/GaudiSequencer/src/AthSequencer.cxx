@@ -364,7 +364,7 @@ AthSequencer::decodeMemberNames( )
 }
 
 void
-AthSequencer::membershipHandler( Property& /* theProp */ )
+AthSequencer::membershipHandler( Gaudi::Details::PropertyBase& /* theProp */ )
 {
   if ( isInitialized() ) decodeMemberNames().ignore();
 }

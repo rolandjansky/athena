@@ -59,7 +59,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 #ifndef XAOD_STANDALONE
    //just for Athena/AthAnalysisBase
    auto props = getProperties();
-   for( Property* prop : props ) {
+   for( Gaudi::Details::PropertyBase* prop : props ) {
      if( prop->name() != "OutputLevel" ) {
        continue;
      }
@@ -72,7 +72,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 }
 
 #ifndef XAOD_STANDALONE
-void Trig::TrigDecisionTool::outputlevelupdateHandler(Property& /*p*/) {
+void Trig::TrigDecisionTool::outputlevelupdateHandler(Gaudi::Details::PropertyBase& /*p*/) {
    //call the original update handler
    Logger::msg().setLevel(AthMessaging::msg().level());
 }

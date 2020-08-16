@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
 #include "TrigConfData/DataStructure.h"

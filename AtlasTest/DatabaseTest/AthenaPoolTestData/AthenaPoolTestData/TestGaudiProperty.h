@@ -8,7 +8,7 @@
 #define ATLASHISTORY_TESTGAUDIPROPERTY_H
 
 //#include "GaudiKernel/HistoryObj.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include <string>
 #include <vector>
@@ -27,17 +27,17 @@ class TestGaudiProperty {
 
 public:
 
-  //typedef std::vector< std::pair<std::string,const Property*> > PropertyList;
-  //typedef std::vector< const Property* > PropertyList;
-  //typedef const Property* PropertyList;
+  //typedef std::vector< std::pair<std::string,const Gaudi::Details::PropertyBase*> > PropertyList;
+  //typedef std::vector< const Gaudi::Details::PropertyBase* > PropertyList;
+  //typedef const Gaudi::Details::PropertyBase* PropertyList;
 
 private:  // data
 
   //PropertyList m_props;
   //Property     m_p1;
-  Property*    m_pptr;
-  const Property*  m_cptr;
-  std::vector<Property*> m_ncprops;
+  Gaudi::Details::PropertyBase*    m_pptr;
+  const Gaudi::Details::PropertyBase*  m_cptr;
+  std::vector<Gaudi::Details::PropertyBase*> m_ncprops;
 
 public:  // functions
 
@@ -47,11 +47,11 @@ public:  // functions
   // Destructor.
   ~TestGaudiProperty();
 
-  //void addProperty( const std::string&, const Property* );
-  //void addProperty( const Property* );
+  //void addProperty( const std::string&, const Gaudi::Details::PropertyBase* );
+  //void addProperty( const Gaudi::Details::PropertyBase* );
 
   //const PropertyList& properties() const { return m_props; }
-  const Property* property() const { return m_cptr; }
+  const Gaudi::Details::PropertyBase* property() const { return m_cptr; }
 
 private:
 

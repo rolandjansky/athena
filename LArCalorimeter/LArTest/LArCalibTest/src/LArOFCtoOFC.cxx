@@ -11,7 +11,7 @@
 
 #include "AthenaKernel/errorcheck.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 
 

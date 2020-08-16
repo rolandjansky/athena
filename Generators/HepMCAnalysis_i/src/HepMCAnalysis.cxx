@@ -11,7 +11,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // ROOT
 #include "TFile.h"

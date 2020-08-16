@@ -18,7 +18,7 @@
 #include "PileUpTools/PileUpStream.h"
 
 // Gaudi headers
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"

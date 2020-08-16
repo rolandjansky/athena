@@ -3,7 +3,7 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "TrigSignatureMoni.h"
 

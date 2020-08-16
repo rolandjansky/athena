@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "MuonSimData/MuonSimData.h" // cannot fw declare typedef MuonSimData::Deposit
 
 #include "TrigT1NSWSimTools/IPadTdsTool.h"

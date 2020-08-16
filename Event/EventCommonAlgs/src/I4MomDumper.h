@@ -81,11 +81,11 @@ class I4MomDumper : public AthAlgorithm
 
   /// Callback method to configure the display property which will tell how to
   /// dump the informations from @c I4MomentumCollection
-  void setupDisplay( Property& display );
+  void setupDisplay( Gaudi::Details::PropertyBase& display );
 
   /// Callback method to configure the output stream into which we'll
   /// dump the informations from @c I4MomentumCollection
-  void setupOutputStream( Property& outputStreamName );
+  void setupOutputStream( Gaudi::Details::PropertyBase& outputStreamName );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

@@ -374,7 +374,7 @@ ToolWithConstantsMixin::setProperty (const std::string& propname,
  * This version is used by Gaudi as of v19.
  */
 StatusCode
-ToolWithConstantsMixin::setProperty (const Property& p)
+ToolWithConstantsMixin::setProperty (const Gaudi::Details::PropertyBase& p)
 {
   return CaloRec::ToolWithConstantsMixin::setProperty (p.name(), p.toString());
 }

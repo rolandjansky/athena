@@ -31,7 +31,7 @@ SimplePOSIXTimeKeeperSvc::queryInterface(const InterfaceID& riid,
 }
 
 void 
-SimplePOSIXTimeKeeperSvc::decodeAllocTime(Property&) {
+SimplePOSIXTimeKeeperSvc::decodeAllocTime(Gaudi::Details::PropertyBase&) {
   m_allocTime = 100 * m_allocTimeProp;
 }
 
