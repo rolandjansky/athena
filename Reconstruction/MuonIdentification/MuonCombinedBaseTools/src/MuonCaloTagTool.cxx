@@ -366,12 +366,14 @@ namespace MuonCombined {
 	caloTag->set_author2(xAOD::Muon::CaloScore);
 
     }
-    else if (likelihood > m_CaloLRlikelihoodCut)
+    else if (likelihood > m_CaloLRlikelihoodCut){
       caloTag = new CaloTag(xAOD::Muon::CaloLikelihood, eLoss, 0); 
       if (muonScore > m_CaloMuonScoreCut) 
 	caloTag->set_author2(xAOD::Muon::CaloScore);
-    else if (muonScore > m_CaloMuonScoreCut)
+    }
+    else if (muonScore > m_CaloMuonScoreCut){
       caloTag = new CaloTag(xAOD::Muon::CaloScore, eLoss, 0);
+    }
 
     if( caloTag ){
       caloTag->set_deposits(deposits);
