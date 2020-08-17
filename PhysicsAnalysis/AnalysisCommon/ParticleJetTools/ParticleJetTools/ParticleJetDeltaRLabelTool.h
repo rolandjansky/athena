@@ -5,6 +5,7 @@
 #ifndef PARTICLEJETDELTARLABELTOOL_H
 #define PARTICLEJETDELTARLABELTOOL_H
 
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetModifier.h"
 #include "xAODTruth/TruthParticle.h"

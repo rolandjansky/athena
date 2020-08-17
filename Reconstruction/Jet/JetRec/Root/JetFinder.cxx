@@ -13,6 +13,8 @@
 #ifndef NO_JET_VARIABLER
 #include "fastjet/contrib/VariableRPlugin.hh"
 #endif
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "JetEDM/FastJetUtils.h"
 #include "JetEDM/PseudoJetVector.h"

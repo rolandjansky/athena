@@ -50,12 +50,12 @@ public:
   //
 
 
-  // /**
-  //  * @brief Default constructor.
-  //  *
-  //  * The handle will not be usable until a non-blank key is assigned.
-  //  */
-  // ReadHandle();
+  /**
+   * @brief Default constructor.
+   *
+   * The handle will not be usable until a non-blank key is assigned.
+   */
+  ReadHandle() = default;
 
 
   /**
@@ -132,6 +132,14 @@ public:
    * @param ctx The event context to use.
    */
   const_pointer_type get (const EventContext& ctx) const;
+
+
+  /**
+   * @brief Is the referenced object present in SG?
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool isPresent() const;
 
 
   /**

@@ -15,9 +15,10 @@
 #include <string>
 
 // FrameWork includes
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
 
 
 // METInterface includes
