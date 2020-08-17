@@ -36,6 +36,9 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
+// framework includes
+#include "AsgDataHandles/ReadHandle.h"
+
 namespace met {
 
   using std::vector;

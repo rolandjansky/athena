@@ -10,6 +10,8 @@
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "AthContainers/ConstDataVector.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 #include "AsgTools/Check.h"
 
 #ifndef XAOD_STANDALONE
@@ -183,10 +185,10 @@ int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{
   // if  m_barcodeFromMetadata  is  set to  1, the check is performed  and a warning is set out
   // explicitly set out when nothing is foun
  if(m_barcodeFromMetadata>0){
+    // Usage of metadata is only possible in Athena (not supported by dual-use tools yet)...
+#ifndef XAOD_STANDALONE
     bool found = false;
     // retrieve the value for the current sample from metadata
-#ifndef XAOD_STANDALONE
-    // Usage of metadata is only possible in Athena (not supported by dual-use tools yet)...
     
     int barcodeOffset_tmp(0);
     ATH_MSG_INFO("Look for barcode offset in  metadata ... ");

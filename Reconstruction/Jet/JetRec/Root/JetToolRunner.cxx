@@ -19,11 +19,7 @@ using std::fixed;
 //**********************************************************************
 
 JetToolRunner::JetToolRunner(const std::string& myname): 
-  AsgTool(myname),
-  m_evstools(this),
-  m_exetools(this){
-  declareProperty("Tools", m_exetools);
-  declareProperty("EventShapeTools", m_evstools);
+  AsgTool(myname){
   declareProperty("Timer", m_timer =0);
 }
 

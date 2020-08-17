@@ -187,7 +187,7 @@ public:
 
   /// \name vector constructors (no Allocators)
   //@{
-  ElementLinkVector() : ElementLinkVectorBase() { }
+  ElementLinkVector();
  
   ElementLinkVector(size_type n, const ElemLink& link) :
     ElementLinkVectorBase(), m_shortRefs(n, ElemLinkRef(link))
@@ -217,7 +217,7 @@ public:
     ElementLinkVectorBase( vec ),
     m_shortRefs(vec.m_shortRefs), m_hostDObjs(vec.m_hostDObjs) { }
 
-  ElementLinkVector(ElemLinkVec&& vec) :
+  ElementLinkVector(ElemLinkVec&& vec) noexcept :
     ElementLinkVectorBase( std::move(vec) ),
     m_shortRefs(std::move(vec.m_shortRefs)),
     m_hostDObjs(std::move(vec.m_hostDObjs)) { }
@@ -233,7 +233,7 @@ public:
     return *this;
   }
 
-  ElementLinkVector& operator= (ElemLinkVec&& vec)
+  ElementLinkVector& operator= (ElemLinkVec&& vec) noexcept
   {
     if (this != &vec) {
       m_persKeys    = std::move(vec.m_persKeys);
@@ -415,6 +415,10 @@ private:
   ROOT_SELECTION_NS::ElementLinkVector< DOBJ>::self DictSel;
 
 }; // class ElementLinkVector
+
+template <typename DOBJ>
+  ElementLinkVector<DOBJ>::ElementLinkVector() : ElementLinkVectorBase() { 
+}
 
 /*
  * The following piece of code makes the Reflex dictionary think of

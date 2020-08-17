@@ -1,13 +1,11 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: safe_clid.h,v 1.2 2005-11-08 22:01:30 ssnyder Exp $
-
 /**
- * @file  SGTools/safe_clid.h
+ * @file  AthenaKernel/tools/safe_clid.h
  * @author scott snyder
  * @date Nov 2005
  * @brief Find the class ID of a type, without triggering an error
@@ -30,8 +28,8 @@
  * to include @a has_classID_tag, or this function won't work.
  */
 
-#ifndef SGTOOLS_SAFECLID_H
-#define SGTOOLS_SAFECLID_H
+#ifndef ATHENAKERNEL_SAFECLID_H
+#define ATHENAKERNEL_SAFECLID_H
 
 
 #include "GaudiKernel/ClassID.h"
@@ -46,13 +44,13 @@ namespace SG {
  *        is not defined.
  */
 template <class T>
-CLID safe_clid();
+constexpr CLID safe_clid();
 
 
 } // namespace SG
 
 
-#include "SGTools/safe_clid.icc"
+#include "AthenaKernel/tools/safe_clid.icc"
 
 
-#endif // not SGTOOLS_SAFECLID_H
+#endif // not ATHENAKERNEL_SAFECLID_H

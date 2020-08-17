@@ -5,44 +5,6 @@
 # Declare the package name:
 atlas_subdir( MissingETPerformance )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloConditions
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/SGTools
-                          Control/StoreGate
-                          GaudiKernel
-                          Generators/GeneratorObjects
-                          Generators/AtlasHepMC
-                          LArCalorimeter/LArRecConditions
-                          PhysicsAnalysis/AnalysisCommon/AnalysisTools
-                          PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          Reconstruction/Jet/JetEvent
-                          Reconstruction/Jet/JetUtils
-                          Reconstruction/MissingETEvent
-                          Reconstruction/MissingETGoodness
-                          Reconstruction/MuonIdentification/muonEvent
-                          Reconstruction/Particle
-                          Reconstruction/egamma/egammaEvent
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigMissingEtEvent
-                          Trigger/TrigEvent/TrigMuonEvent
-                          PRIVATE
-                          Control/AthenaKernel
-                          Calorimeter/CaloGeoHelpers
-                          Event/FourMom
-                          Event/FourMomUtils
-                          Event/xAOD/xAODEventInfo
-                          Generators/GenAnalysisTools/TruthHelper
-                          Reconstruction/tauEvent
-                          Tracking/TrkEvent/VxVertex
-                          Trigger/TrigConfiguration/TrigConfL1Data )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
@@ -59,7 +21,7 @@ atlas_add_library( MissingETPerformanceLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloEvent AthenaBaseComps SGTools GaudiKernel GeneratorObjects LArRecConditions AnalysisTriggerEvent McParticleEvent JetEvent JetUtils MissingETEvent muonEvent Particle egammaEvent TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent StoreGateLib SGtests AthAnalysisToolsLib MissingETGoodnessLib TrigDecisionToolLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloEvent AthenaBaseComps SGTools GaudiKernel GeneratorObjects LArRecConditions AnalysisTriggerEvent McParticleEvent JetEvent JetUtils MissingETEvent muonEvent Particle egammaEvent TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent StoreGateLib SGtests AthAnalysisToolsLib MissingETGoodnessLib TrigDecisionToolLib CaloInterfaceLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AtlasHepMCLib AthenaKernel CaloGeoHelpers FourMom FourMomUtils xAODEventInfo TruthHelper tauEvent VxVertex TrigConfL1Data )
 
 atlas_add_component( MissingETPerformance

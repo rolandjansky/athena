@@ -5,6 +5,7 @@
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
 #include "ParticleJetTools/ParticleJetLabelCommon.h"
 #include "xAODJet/JetContainer.h"
+#include "AsgDataHandles/ReadHandle.h"
 #include "AsgTools/Check.h"
 
 using namespace std;

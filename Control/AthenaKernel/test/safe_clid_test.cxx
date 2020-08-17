@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
 
-#include "SGTools/safe_clid.h"
+#include "AthenaKernel/tools/safe_clid.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/DataObject.h"
 #include <cassert>
@@ -22,6 +22,7 @@ struct C
 
 int main()
 {
+  std::cout << "AthenaKernel/safe_clid_test\n";
   assert (SG::safe_clid<int> () == 0);
   assert (SG::safe_clid<A> () == 0);
   assert (SG::safe_clid<B> () == 98765);
