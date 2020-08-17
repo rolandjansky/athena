@@ -668,7 +668,7 @@ class AthAppMgr( AppMgr ):
       try:
          # Set threaded flag to release the python GIL when we're in C++
          is_threaded = jp.ConcurrencyFlags.NumThreads() > 0
-         self.getHandle()._appmgr.initialize._threaded = is_threaded
+         self.getHandle()._appmgr.initialize.__release_gil__ = is_threaded
          sc = self.getHandle().initialize()
          if sc.isFailure():
             self._exitstate = ExitCodes.INI_ALG_FAILURE
@@ -737,7 +737,7 @@ class AthAppMgr( AppMgr ):
       try:
          # Set threaded flag to release the GIL on execution
          executeRunMethod = self.getHandle()._evtpro.executeRun
-         executeRunMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         executeRunMethod.__release_gil__ = jp.ConcurrencyFlags.NumThreads() > 0
          sc = executeRunMethod(nEvt)
          if sc.isFailure() and not self._exitstate:
             self._exitstate = ExitCodes.EXE_ALG_FAILURE   # likely, no guarantee
@@ -793,7 +793,7 @@ class AthAppMgr( AppMgr ):
          # Set threaded flag to release the GIL when finalizing in the c++
          from AthenaCommon.ConcurrencyFlags import jobproperties as jp
          finalizeMethod = self.getHandle()._appmgr.finalize
-         finalizeMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         finalizeMethod.__release_gil__ = jp.ConcurrencyFlags.NumThreads() > 0
          sc = finalizeMethod()
          if sc.isFailure():
             self._exitstate = ExitCodes.FIN_ALG_FAILURE
