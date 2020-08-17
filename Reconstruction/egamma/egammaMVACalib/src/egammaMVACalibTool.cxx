@@ -8,6 +8,7 @@
 
 #include "TFile.h"
 #include "TMath.h"
+#include "TObjString.h"
 
 #include <cmath>
 
