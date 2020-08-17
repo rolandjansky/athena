@@ -47,10 +47,10 @@ class CscPrepData :   public MuonCluster
   friend class Muon::CscPrepDataContainerCnv_p1;
 
   CscPrepData();
-  CscPrepData(const CscPrepData &);
-  CscPrepData(CscPrepData &&);
-  CscPrepData &operator=(const CscPrepData &);
-  CscPrepData &operator=(CscPrepData &&);
+  CscPrepData(const CscPrepData &) = default;
+  CscPrepData(CscPrepData &&) noexcept = default;
+  CscPrepData &operator=(const CscPrepData &) = default;
+  CscPrepData &operator=(CscPrepData &&) noexcept = default;
 
 
   /** @brief Full constructor.

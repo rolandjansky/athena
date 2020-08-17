@@ -35,9 +35,9 @@ namespace Muon
 
     MMPrepData();
     MMPrepData(const MMPrepData &);
-    MMPrepData(MMPrepData &&);
+    MMPrepData(MMPrepData &&) noexcept = default;
     MMPrepData &operator=(const MMPrepData &);
-    MMPrepData &operator=(MMPrepData &&);
+    MMPrepData &operator=(MMPrepData &&) noexcept = default;
 
 
     /** @brief Constructor.
