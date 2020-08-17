@@ -175,6 +175,7 @@ private:
     TagInfoMgr();
     TagInfoMgr(const TagInfoMgr&);
     TagInfoMgr &operator=(const TagInfoMgr&);
+    StatusCode getRunNumber (unsigned int& runNumber);
   
     ///////////////////////////////////////////////////////////////////
     // Private data:
