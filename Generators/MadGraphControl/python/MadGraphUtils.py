@@ -17,7 +17,7 @@ MADGRAPH_RUN_NAME='run_01'
 MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
-from MadGraphUtilsHelpers import checkSettingExists,checkSetting,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
+from MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
 from MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
 
 def setup_path_protection():
@@ -553,6 +553,20 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
 
         run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
+
+        #turn off systematics for gridpack generation and store settings for standalone run
+        run_card_dict=getDictFromCard(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat')
+        systematics_settings=None
+        if checkSetting('systematics_program','systematics',run_card_dict):
+            if not checkSettingIsTrue('store_rwgt_info',run_card_dict):
+                raise RuntimeError('Trying to run NLO systematics but reweight info not stored')
+            if checkSettingExists('systematics_arguments',run_card_dict):
+                systematics_settings=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
+            else:
+                systematics_settings={}
+            mglog.info('Turning off systematics for now, running standalone later')
+            modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'systematics_program':'none'},skipBaseFragment=True)
+
         if not gridpack_compile:
             mglog.info('Copying make_opts from Template')
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',MADGRAPH_GRIDPACK_LOCATION+'/Source/')
@@ -583,6 +597,14 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     mglog.info('Moving generated events to be in correct format for arrange_output().')
     mglog.info('Unzipping generated events.')
     unzip = subprocess.Popen(['gunzip','-f','events.lhe.gz'])
+
+    # run systematics
+    if isNLO and not systematics_settings is None:
+        mglog.info('Running systematics standalone')
+        systematics_path=MADGRAPH_GRIDPACK_LOCATION+'/bin/internal/systematics.py'
+        systematics = subprocess.Popen(['python',systematics_path]+['events.lhe']*2+["--"+k+"="+systematics_settings[k] for k in systematics_settings])
+        systematics.wait()
+
     unzip.wait()
 
     mglog.info('Moving file over to '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/unweighted_events.lhe')
