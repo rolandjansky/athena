@@ -167,13 +167,21 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
         if(info.trigType == "electron"){
             ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
             passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons");
-            passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons");
+            if (info.trigEtcut){
+              passedEF=true;
+            }else{
+              passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons");
+            }
             passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
         }
         else if(info.trigType == "photon"){
             ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
             passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons");
-            passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons");
+            if (info.trigEtcut){
+              passedEF=true;
+            }else{
+              passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons");
+            }
             passedEFTrk=true;// Assume true for photons
         }
     }
