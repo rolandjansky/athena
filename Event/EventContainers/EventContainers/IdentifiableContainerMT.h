@@ -215,9 +215,10 @@ public:
         return IdentifiableContainerBase::numberOfCollections();
     }
 
-    const std::vector < std::pair<IdentifierHash::value_type, const T*> >& GetAllHashPtrPair() const{
+    const std::vector < EventContainers::hashPair<T> >& GetAllHashPtrPair() const{
         static_assert(sizeof(const T*) == sizeof(const void*) && std::is_pointer<const T*>::value);
-        return reinterpret_cast<const std::vector < std::pair<IdentifierHash::value_type, const T*> >&>
+        static_assert(sizeof(EventContainers::hashPair<T>) == sizeof(EventContainers::hashPair<void>));
+        return reinterpret_cast<const std::vector < EventContainers::hashPair<T> >&>
                 (m_link->getAllHashPtrPair());
     }
     

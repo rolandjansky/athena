@@ -49,7 +49,7 @@ public:
 private:
     EventContainers::IdentifiableCacheBase *m_cacheLink;
     mutable std::vector< IdentifierHash > m_waitlist ATLAS_THREAD_SAFE;
-    mutable std::vector<std::pair<IdentifierHash::value_type, const void*>> m_map ATLAS_THREAD_SAFE;
+    mutable std::vector<I_InternalIDC::hashPair> m_map ATLAS_THREAD_SAFE;
     mutable std::mutex m_waitMutex ATLAS_THREAD_SAFE;
     mutable std::vector<bool> m_mask ATLAS_THREAD_SAFE;
     mutable std::atomic<bool> m_waitNeeded ATLAS_THREAD_SAFE; //These mutables are carefully thought out, do not change
