@@ -57,7 +57,7 @@ def generateJSON():
 
     return __generateJSON( TriggerConfigHLT.dictsList(),
                            TriggerConfigHLT.configsList(),
-                           TriggerFlags.triggerMenuSetup(),
+                           ConfigFlags.Trigger.triggerMenuSetup,
                            getHLTPrescalesSetFileName(ConfigFlags) )
 
 def generateJSON_newJO( chainDicts, chainConfigs ):
