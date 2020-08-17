@@ -29,7 +29,7 @@
 #include "StoreGate/UpdateHandleKey.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include <iostream>
 
 namespace Gaudi { 
@@ -116,7 +116,7 @@ public:
    * by converting to a string and back again.  Returns true on success,
    * false on failure.
    */
-  virtual bool load( Property& destination ) const override;
+  virtual bool load( Gaudi::Details::PropertyBase& destination ) const override;
 
 
   /**
@@ -127,7 +127,7 @@ public:
    * by converting to a string and back again.  Returns true on success,
    * false on failure.
    */
-  virtual bool assign( const Property& source ) override;
+  virtual bool assign( const Gaudi::Details::PropertyBase& source ) override;
 
 
   /**

@@ -164,7 +164,7 @@ def main():
         msg.info('Processing transform {0}:'.format(transform_path))
 
         try:
-            trfModule = __import__(transform_module, globals(), locals(), ['getTransform'], -1)
+            trfModule = __import__(transform_module, globals(), locals(), ['getTransform'], 0)
 
         except Exception as e:
             msg.warning('Failed to import transform {0} ({1}) - ignored'.format(transform_module, e))

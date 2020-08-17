@@ -7,7 +7,7 @@
 #include<boost/algorithm/string.hpp>
 
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaInterprocess/Incidents.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"

@@ -43,8 +43,8 @@ function( atlas_build_lvl1_trigger_menu menu )
       COMMAND ${CMAKE_COMMAND} -E copy_directory
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuMT
-      COMMAND ${CMAKE_COMMAND} -E touch
-      ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
+      #COMMAND ${CMAKE_COMMAND} -E touch           # do not create stamp file to force rebuild every time
+      #${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
       DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
 
    # Create custom target and add it to package dependencies

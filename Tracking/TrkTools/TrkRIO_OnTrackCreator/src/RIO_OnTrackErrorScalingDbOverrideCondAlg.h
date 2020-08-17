@@ -12,7 +12,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include <iostream>
 
 class RIO_OnTrackErrorScalingKit;

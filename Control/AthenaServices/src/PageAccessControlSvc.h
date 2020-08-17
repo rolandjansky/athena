@@ -23,7 +23,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "CxxUtils/PageAccessControl.h"
 #include "CxxUtils/PtrAccessSEGVHandler.h"
-#include "GaudiKernel/Property.h"   /*BooleanProperty*/
+#include "Gaudi/Property.h"   /*BooleanProperty*/
 
 // Forward declarations
 template <class TYPE> class SvcFactory;

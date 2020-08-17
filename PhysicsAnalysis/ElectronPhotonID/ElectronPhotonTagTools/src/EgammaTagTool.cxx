@@ -12,7 +12,7 @@ Purpose : create a collection of EgammaTag
 *****************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "ElectronPhotonTagTools/EgammaTagTool.h"
 #include "TagEvent/EgammaAttributeNames.h"

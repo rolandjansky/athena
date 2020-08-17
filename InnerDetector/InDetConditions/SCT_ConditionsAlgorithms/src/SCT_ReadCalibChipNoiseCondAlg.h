@@ -18,7 +18,7 @@
 
 // Include Gaudi classes
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Forward declarations
 class SCT_ID;

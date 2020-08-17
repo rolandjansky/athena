@@ -117,8 +117,8 @@ else:
       DQMonFlags.doSCTMon=False
       DQMonFlags.doTRTMon=False
       DQMonFlags.doTRTElectronMon=False
-#      DQMonFlags.doInDetGlobalMon=False
-#      DQMonFlags.doInDetAlignMon=False
+      DQMonFlags.doInDetGlobalMon=False
+      DQMonFlags.doInDetAlignMon=False
 
       DQMonFlags.doGlobalMon=False
       DQMonFlags.doLVL1CaloMon=False

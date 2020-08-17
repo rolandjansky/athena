@@ -163,7 +163,7 @@ RegistrationStream::execute()
 }
 
 void
-RegistrationStream::itemListHandler( Property& /* theProp */ )
+RegistrationStream::itemListHandler( Gaudi::Details::PropertyBase& /* theProp */ )
 {
   //assuming concrete SG::Folder also has an itemList property
   IProperty *pAsIProp(nullptr);
@@ -175,7 +175,7 @@ RegistrationStream::itemListHandler( Property& /* theProp */ )
 }
 
 void
-RegistrationStream::ProvIncludeHandler( Property& )
+RegistrationStream::ProvIncludeHandler( Gaudi::Details::PropertyBase& )
 {
   std::vector<std::string> list = m_provIncludeList.value();
   std::vector<std::string>::const_iterator it = list.begin();
@@ -187,7 +187,7 @@ RegistrationStream::ProvIncludeHandler( Property& )
 }
 
 void
-RegistrationStream::ProvExcludeHandler( Property& )
+RegistrationStream::ProvExcludeHandler( Gaudi::Details::PropertyBase& )
 {
   std::vector<std::string> list = m_provExcludeList.value();
   std::vector<std::string>::const_iterator it = list.begin();

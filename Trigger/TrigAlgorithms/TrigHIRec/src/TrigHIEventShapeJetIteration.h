@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -64,8 +64,6 @@ private:
 
   /// \brief If selected, the jet constituents define the associated clusters
   bool m_exclude_constituents;
-
-  mutable bool m_isInit;
 
   std::string m_modulation_key;
 };

@@ -15,7 +15,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/errorcheck.h"
 
@@ -79,15 +79,15 @@ namespace D3PD {
       m_tupleName = "";
       ServiceHandle< IJobOptionsSvc > jobOSvc( "JobOptionsSvc", name() );
       CHECK( jobOSvc.retrieve() );
-      const std::vector< const Property* >* evSelProp =
+      const std::vector< const Gaudi::Details::PropertyBase* >* evSelProp =
          jobOSvc->getProperties( "EventSelector" );
       if( ! evSelProp ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Didn't find the input file list";
          return StatusCode::FAILURE;
       }
-      std::vector< const Property* >::const_iterator itr = evSelProp->begin();
-      std::vector< const Property* >::const_iterator end = evSelProp->end();
+      std::vector< const Gaudi::Details::PropertyBase* >::const_iterator itr = evSelProp->begin();
+      std::vector< const Gaudi::Details::PropertyBase* >::const_iterator end = evSelProp->end();
       for( ; itr != end; ++itr ) {
 
          // Look for the "InputCollections" property:

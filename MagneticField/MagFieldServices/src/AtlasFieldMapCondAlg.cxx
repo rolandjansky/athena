@@ -38,7 +38,6 @@ MagField::AtlasFieldMapCondAlg::~AtlasFieldMapCondAlg()= default;
 StatusCode
 MagField::AtlasFieldMapCondAlg::initialize() {
 
-    ATH_MSG_INFO ("Initialize");
     // CondSvc
     ATH_CHECK( m_condSvc.retrieve() );
 
@@ -59,7 +58,7 @@ MagField::AtlasFieldMapCondAlg::initialize() {
     
     ATH_MSG_INFO ( "Initialize: Key " << m_mapCondObjOutputKey.fullKey() << " has been succesfully registered " );
     if (m_useMapsFromCOOL) {
-        ATH_MSG_INFO ( "Initialize: Will update the field map from conditions"); // 
+        ATH_MSG_INFO ( "Initialize: Will update the field map from conditions");
     }
     else {
         ATH_MSG_INFO ( "Initialize: Will update the field map from jobOpt file name");
@@ -82,7 +81,7 @@ MagField::AtlasFieldMapCondAlg::start() {
 StatusCode
 MagField::AtlasFieldMapCondAlg::execute(const EventContext& ctx) const {
 
-    ATH_MSG_DEBUG ( "execute: entering  ");
+    ATH_MSG_DEBUG ( "execute: entering  " << ctx.eventID() );
 
     // Check if output conditions object with field map object is still valid, if not replace it
     // with new map
@@ -104,9 +103,7 @@ MagField::AtlasFieldMapCondAlg::execute(const EventContext& ctx) const {
     else {
         ATH_MSG_INFO ( "execute: no map read (currents == 0");
     }
-    
-    
-    
+
     // Save newly created map in conditions object, and record it in the conditions store, with its
     // own range
     auto fieldMapCondObj = std::make_unique<AtlasFieldMapCondObj>();
@@ -119,7 +116,7 @@ MagField::AtlasFieldMapCondAlg::execute(const EventContext& ctx) const {
                       << " into Conditions Store");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO ( "execute: recored AtlasFieldMapCondObj with field map");
+    ATH_MSG_INFO ( "execute: recorded AtlasFieldMapCondObj with EventRange " << cache.m_mapCondObjOutputRange );
 
     return StatusCode::SUCCESS;
 }
@@ -200,13 +197,16 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
         cache.m_mapSoleCurrent = m_mapSoleCurrent;
         cache.m_mapToroCurrent = m_mapToroCurrent;
 
-        // Create a range from 0 to inf in terms of run, LB
-        const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
-        const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
-        EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                             EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, UNDEFNUM, 0));
-        cache.m_mapCondObjOutputRange = rangeW;
-        ATH_MSG_INFO("updateFieldMap: useMapsFromCOOL == false, using default range " << rangeW);
+        // Create a range for the current run
+        EventIDBase start, stop;
+        start.set_run_number(ctx.eventID().run_number());
+        start.set_lumi_block(0);
+        stop.set_run_number(ctx.eventID().run_number()+1);
+        stop.set_lumi_block(0);
+        cache.m_mapCondObjOutputRange = EventIDRange(start,stop);
+
+        ATH_MSG_INFO("updateFieldMap: useMapsFromCOOL == false, using default range "
+                     << cache.m_mapCondObjOutputRange);
     }
 
     // We allow to set currents via the TagInfoMgr which adds tags to the TagInfo object - only allowed for offline
@@ -311,11 +311,4 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
     ATH_MSG_INFO( "updateFieldMap: Initialized the field map from " << resolvedMapFile );
 
     return StatusCode::SUCCESS;
-}
-    
-
-StatusCode
-MagField::AtlasFieldMapCondAlg::finalize() {
-    ATH_MSG_INFO ( " in finalize " );
-    return StatusCode::SUCCESS; 
 }

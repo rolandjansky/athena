@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 

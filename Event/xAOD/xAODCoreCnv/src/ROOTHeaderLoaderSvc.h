@@ -10,7 +10,7 @@
 
 // Framework include(s).
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // System include(s).
 #include <string>

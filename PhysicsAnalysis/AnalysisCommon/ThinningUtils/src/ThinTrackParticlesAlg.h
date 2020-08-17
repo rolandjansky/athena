@@ -63,25 +63,25 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'TrackParticlesToThin' property
-  void setupTrackPartsToThin( Property& /*prop*/ );
+  void setupTrackPartsToThin( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'InputContainerList' property
-  void setupInputContainerList( Property& /*prop*/ );
+  void setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'Selection' property
-  void setupSelection( Property& /*prop*/ );
+  void setupSelection( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'KeepTauConversions' property
-  void setupTauConv( Property& /*prop*/ );
+  void setupTauConv( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'KeepTauWide' property
-  void setupTauWide( Property& /*prop*/ );
+  void setupTauWide( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'KeepTauOther' property
-  void setupTauOther( Property& /*prop*/ );
+  void setupTauOther( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'NMaxElectronTrackParticles' property
-  void setupNEleTPMax( Property& /*prop*/ );
+  void setupNEleTPMax( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
   ///////////////////////////////////////////////////////////////////
@@ -160,43 +160,43 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 /// This internal method will realize if a user sets the 'TrackParticlesToThin' property
-inline void ThinTrackParticlesAlg::setupTrackPartsToThin( Property& /*prop*/ ) {
+inline void ThinTrackParticlesAlg::setupTrackPartsToThin( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setTrackPartKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'InputContainerList' property
-inline void ThinTrackParticlesAlg::setupInputContainerList( Property& /*prop*/ ) {
+inline void ThinTrackParticlesAlg::setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'Selection' property
-inline void ThinTrackParticlesAlg::setupSelection( Property& /*prop*/ ) {
+inline void ThinTrackParticlesAlg::setupSelection( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setSelection = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'KeepTauConversions' property
-inline void ThinTrackParticlesAlg::setupTauConv( Property& /*prop*/ ) {
+inline void ThinTrackParticlesAlg::setupTauConv( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setTauConv = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'KeepTauWide' property
-inline void ThinTrackParticlesAlg::setupTauWide( Property& /*prop*/ ) {
+inline void ThinTrackParticlesAlg::setupTauWide( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setTauWide = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'KeepTauOther' property
-inline void ThinTrackParticlesAlg::setupTauOther( Property& /*prop*/ ) {
+inline void ThinTrackParticlesAlg::setupTauOther( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setTauOther = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'NMaxElectronTrackParticles' property
-inline void ThinTrackParticlesAlg::setupNEleTPMax( Property& /*prop*/ ){
+inline void ThinTrackParticlesAlg::setupNEleTPMax( Gaudi::Details::PropertyBase& /*prop*/ ){
   m_setNEleTPMax = true;
   return;
 }

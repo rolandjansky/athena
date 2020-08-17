@@ -110,7 +110,6 @@ class ConfigurationJar( object ):
       self.TopSequence  = _as.AlgSequence  ("TopAlg")
       self.athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
       self.athOutSeq    = _as.AthSequencer ("AthOutSeq")
-      self.athRegSeq    = _as.AthSequencer ("AthRegSeq")
       
       self.AppMgr      = theApp
       self.ServiceMgr  = ServiceMgr     # takes care of AuditorSvc & ToolSvc
@@ -131,7 +130,6 @@ class ConfigurationJar( object ):
       d[ 'AthAlgSeq' ]     = self.athAlgSeq
       d[ 'TopSequence' ]   = self.TopSequence
       d[ 'AthOutSeq' ]     = self.athOutSeq
-      d[ 'AthRegSeq' ]     = self.athRegSeq
       d[ 'AppMgr' ]        = self.AppMgr
       d[ 'Streams' ]       = self.AppMgr._streams
       d[ 'ServiceMgr' ]    = self.ServiceMgr #takes care of {Auditor,Tool}Svc

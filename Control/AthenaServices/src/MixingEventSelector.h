@@ -27,7 +27,7 @@
 #include "GaudiKernel/IConverter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Property.h" /*StringArrayProperty*/
+#include "Gaudi/Property.h" /*StringArrayProperty*/
 
 class ISvcLocator;
 
@@ -136,7 +136,7 @@ public:
 
   /// TriggerList property call-back. Decode TriggerList, obtain selector ptrs
   /// and store them alongside fractions in m_trigList
-  void setUpTriggerList(Property& trigList); 
+  void setUpTriggerList(Gaudi::Details::PropertyBase& trigList); 
   /// functor that creates a Trigger object and adds it to m_trigList
   void decodeTrigger(std::string triggDescr);
 

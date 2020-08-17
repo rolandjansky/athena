@@ -163,7 +163,7 @@ private: // properties
    ByteStreamInputSvc*      m_eventSource{};
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "Input", {}, ""};
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
-   void inputCollectionsHandler(Property&);
+   void inputCollectionsHandler(Gaudi::Details::PropertyBase&);
    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
 

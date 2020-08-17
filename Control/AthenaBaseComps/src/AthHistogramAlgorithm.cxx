@@ -17,7 +17,7 @@
 #include <map>
 
 // Framework includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 

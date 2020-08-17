@@ -72,7 +72,7 @@ class BaseSimulationSelector : public extends<AthAlgTool, ISimulationSelector> {
     bool                                m_isDynamic;  //!< this selector is either dynamic or static
     bool                                m_invertCuts; //!< invert the result given by passesCuts(..) method
     Gaudi::CheckedProperty<unsigned short> m_simFlavorProp{0}; //!< the simulation flavour that this selector will select
-    void SimulationFlavorHandler(Property&);
+    void SimulationFlavorHandler(Gaudi::Details::PropertyBase&);
     ISF::SimulationFlavor               m_simflavor{ISF::UndefinedSim};  //!< simulation flavor
 };
 

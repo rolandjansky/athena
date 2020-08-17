@@ -11,7 +11,7 @@
 #include "TRT_ConditionsData/AverageT0.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class TRT_ID;
 

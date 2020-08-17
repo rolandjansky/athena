@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "TrkTrackLink/ITrackLink.h"
