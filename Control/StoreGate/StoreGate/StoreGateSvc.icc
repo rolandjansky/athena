@@ -14,7 +14,7 @@
 #include "AthContainersInterfaces/AuxStore_traits.h"
 #include "AthenaKernel/ClassName.h"
 #include "CxxUtils/checker_macros.h"
-#include "boost/bind.hpp"
+#include "boost/bind/bind.hpp"
 #include <vector>
 
 /// macro to help writing the function calls.
@@ -106,7 +106,8 @@ StoreGateSvc::regFcn ATLAS_NOT_THREAD_SAFE (StatusCode (T::*updFcn)(IOVSVC_CALLB
   SG::DataProxy *dp = 0;
 
   const CallBackID c(updFcn,obj);
-  IOVSvcCallBackFcn fcn(boost::bind(updFcn,const_cast<T*>(obj),_1,_2));
+  using namespace boost::placeholders;
+  IOVSvcCallBackFcn fcn(boost::bind(updFcn,const_cast<T*>(obj), _1, _2));
 
   bool ret = this->currentStore()->bindHandleToProxyAndRegister
                                     (clid, key, ir, dp, c, fcn, trigger);
@@ -143,7 +144,8 @@ StoreGateSvc::regFcn ATLAS_NOT_THREAD_SAFE (StatusCode (T1::*fcn1)(IOVSVC_CALLBA
 {
   const CallBackID c1(fcn1, obj1);
   const CallBackID c2(fcn2, obj2);
-  IOVSvcCallBackFcn fcn( boost::bind(fcn2,const_cast<T2*>(obj2),_1,_2));
+  using namespace boost::placeholders;
+  IOVSvcCallBackFcn fcn( boost::bind(fcn2,const_cast<T2*>(obj2), _1, _2));
 
   _SGXCALL( regFcn, (c1, c2, fcn, trigger), StatusCode::FAILURE );
 }
@@ -157,6 +159,7 @@ StoreGateSvc::regFcn ATLAS_NOT_THREAD_SAFE (const std::string& toolName,
                                             const T2* obj2, bool trigger)
 {
   const CallBackID c2(fcn2, obj2);
+  using namespace boost::placeholders;
   IOVSvcCallBackFcn fcn( boost::bind(fcn2,const_cast<T2*>(obj2),_1,_2));
   _SGXCALL( regFcn, (toolName, c2, fcn, trigger), StatusCode::FAILURE );
 }
