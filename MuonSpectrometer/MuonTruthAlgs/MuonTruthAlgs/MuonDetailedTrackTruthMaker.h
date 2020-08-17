@@ -1,23 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDETAILEDTRACKTRUTHMAKER_H
 #define MUONDETAILEDTRACKTRUTHMAKER_H
 
-#include <string>
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "StoreGate/WriteHandleKeyArray.h"
 #include "StoreGate/ReadHandleKeyArray.h"
-
 #include "TrkToolInterfaces/IDetailedTrackTruthBuilder.h"
-
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
+
+#include <string>
 
 /**
  * This algorithm produces track truth data using Muon PRD truth collections.
@@ -33,7 +31,6 @@ public:
   
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
   
 private:
   // PRD truth maps in any order
@@ -45,12 +42,11 @@ private:
   // DetailedTrackTruthCollection output
   SG::WriteHandleKeyArray<DetailedTrackTruthCollection> m_detailedTrackTruthNames{this,"DetailedTrackTruthNames",{""},"output collections"};
 
-  // Tool Handle for truth tool
-  ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
+  ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool{this,"TruthTool","Trk::DetailedTrackTruthBuilder"};
 
-  bool m_hasCSC;
-  bool m_hasSTgc;
-  bool m_hasMM;
+  Gaudi::Property<bool> m_hasCSC {this, "HasCSC", true};
+  Gaudi::Property<bool> m_hasSTgc {this, "HasSTgc", true};
+  Gaudi::Property<bool> m_hasMM {this, "HasMM", true};
 
 };
 

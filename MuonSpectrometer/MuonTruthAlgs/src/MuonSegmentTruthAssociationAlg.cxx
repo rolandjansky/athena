@@ -15,11 +15,7 @@ namespace Muon {
 
   // Constructor with parameters:
   MuonSegmentTruthAssociationAlg::MuonSegmentTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name,pSvcLocator),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_muonTrackTruthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool")
-  {  
-    declareProperty("BarcodeOffset", m_barcodeOffset = 1000000 ,"barcode offset for matching truth particles");
+    AthAlgorithm(name,pSvcLocator) {  
   }
 
   // Initialize method:

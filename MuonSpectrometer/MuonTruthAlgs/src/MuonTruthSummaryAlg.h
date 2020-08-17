@@ -1,30 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRUTHALGS_MUONTRUTHSUMMARYALGS_H
 #define MUONTRUTHALGS_MUONTRUTHSUMMARYALGS_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include <string>
 #include "GaudiKernel/ToolHandle.h"
+
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
 
+#include <string>
 
-class MuonTruthSummaryAlg: public ::AthAlgorithm {
+class MuonTruthSummaryAlg: public AthAlgorithm {
  public:
   MuonTruthSummaryAlg( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~MuonTruthSummaryAlg();
+  virtual ~MuonTruthSummaryAlg()=default;
 
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
 
  private:
-   std::string                                      m_segmentContainerName;
-   std::string                                      m_msTracksContainerName;
-   std::string                                      m_msTrackletContainerName;
-   ToolHandle<Muon::IMuonTruthSummaryTool>          m_truthSummaryTool;
+   ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool{this,"MuonTruthSummaryTool","MuonTruthSummaryTool"};
+
+   Gaudi::Property<std::string> m_segmentContainerName{this,"SegmentContainerName","MuonSegments"};
+   Gaudi::Property<std::string> m_msTracksContainerName{this,"MSTracksContainerName","MuonSpectrometerTracks"};
+   Gaudi::Property<std::string> m_msTrackletContainerName{this,"MSTrackletsContainerName","MSonlyTracklets"};
 };
 
 #endif //> !MUONTRUTHALGS_MUONTRUTHSUMMARYALGS_H
