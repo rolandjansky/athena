@@ -14,6 +14,9 @@ def regex(pat):
     return cached_regex[pat]
 
 
+##
+# @brief A special configuration for ttbar samples, where the cut on m_mumu is loosened to improve the acceptance.
+# This is useless for data samples because the ttbar process has very small contribution.
 def TrigMuonEfficiencyMonTTbarConfig(helper):
     
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -148,10 +151,10 @@ def defineEfficiencyHistograms(monAlg, histGroup, GroupName, chain):
                                       type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
 
 
-    defineEachStepHistograms('muPt', 'p_{T} [GeV]', 30, 0.0, 60)
+    defineEachStepHistograms('muPt', 'p_{T} [GeV]', 50, 0.0, 100.)
     defineEachStepHistograms('muEta', '#eta', 30, -3.0, 3.0)
     defineEachStepHistograms('muPhi', '#phi', 30, -math.pi, math.pi)
-    defineEachStepHistograms('averageMu', 'average pileup', 3, 0., 60.)
+    defineEachStepHistograms('averageMu', 'average pileup', 4, 0., 80.)
 
 
     histGroup.defineHistogram(GroupName+'_invmass;invmass',
