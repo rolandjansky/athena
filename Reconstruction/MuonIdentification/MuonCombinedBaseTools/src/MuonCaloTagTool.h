@@ -96,6 +96,7 @@ namespace MuonCombined {
     Gaudi::Property<double> m_eIsoPtRatioTransitionCut {this, "TrackEIsoPtRatioTransitionCut", 1.25, "Energy isolation  for a .45 cone in Barrel-EndCap transition region, normalized to track pt"};
     Gaudi::Property<double> m_eIsoPtRatioEndCapCut {this, "TrackEIsoPtRatioEndCapCut", 1.6, "Energy isolation for a .45 cone in Endcap, normalized to track pt"};
     Gaudi::Property<double> m_CaloLRlikelihoodCut {this, "CaloLRLikelihoodCut", 0.5, "CaloLR likelihood ratio hard cut"};
+    Gaudi::Property<double> m_CaloMuonScoreCut {this, "CaloMuonScoreCut", 0.4, "Calo muon convolutional neural network output score hard cut"};
     Gaudi::Property<double> m_trackIsoCone {this, "TrackIsoConeSize", 0.45, "Cone size for track isolation"};
     Gaudi::Property<double> m_energyIsoCone {this, "EnergyIsoConeSize", 0.4, "Cone size for energy isolation"};
     
