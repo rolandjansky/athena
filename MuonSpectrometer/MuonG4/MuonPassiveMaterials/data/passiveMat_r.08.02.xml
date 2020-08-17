@@ -10073,25 +10073,25 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
 
 <!--     name       =  Plancher                      section name       = "Supports"  -->
 <!--     plan:ATF1 UX 150001   -->
-<defaults   unit_length="mm"   />
+<defaults unit_length="mm"/>
 
-<box name="box1" material="Iron"      X_Y_Z="30000; 5002;27000" />
-<box name="box2" material="Iron"      X_Y_Z="30000; 1336; 9000" />
-<box name="box3" material="Iron"      X_Y_Z=" 5200;10000;27001" />
+<box name="box1" material="Iron" X_Y_Z="30000; 5002;27000" />
+<box name="box2" material="Iron" X_Y_Z="30000; 1336; 9000" />
+<box name="box3" material="Iron" X_Y_Z=" 5200;10000;27010" /> <!-- use larger length in z than box1 to not run into issues with volume subtraction -->
 
 <subtraction  name="central" >
-  <posXYZ  volume="box1" X_Y_Z=" 0. ;    0. ; 0. " />
-  <posXYZ  volume="box3" X_Y_Z=" 0. ; 4541. ; 0. " />
+  <posXYZ  volume="box1" X_Y_Z="0;   0;0" />
+  <posXYZ  volume="box3" X_Y_Z="0;4541;0" />
 </subtraction>
 
 <composition name="PlancherTilte">
-   <posXYZ volume="central" X_Y_Z="  0.;  -13521 ;      0."  />
-   <posXYZ volume="box2"    X_Y_Z="  0.;  -15350 ;  18005."  />
-   <posXYZ volume="box2"    X_Y_Z="  0.;  -15350 ; -18005."  />
+   <posXYZ volume="central" X_Y_Z="0;  -13871;      0"  /> <!-- the distance between cavern floor and centre of beam axis at IP is 11370mm, cf. atcz____0005-vAC -->
+   <posXYZ volume="box2"    X_Y_Z="0;  -15704;  18005"  />
+   <posXYZ volume="box2"    X_Y_Z="0;  -15704; -18005"  />
 </composition>
 
 <composition name="Plancher">
-   <posXYZ volume="PlancherTilte" X_Y_Z="0.; 0.; 0."  rot="-0.708; 0.; 0"/>
+   <posXYZ volume="PlancherTilte" X_Y_Z="0;0;0"  rot="-0.708;0;0"/>
 </composition>
 
 </section>
