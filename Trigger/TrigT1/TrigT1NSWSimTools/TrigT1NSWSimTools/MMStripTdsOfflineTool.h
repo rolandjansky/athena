@@ -10,7 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 //local includes
 #include "TrigT1NSWSimTools/IMMStripTdsTool.h"

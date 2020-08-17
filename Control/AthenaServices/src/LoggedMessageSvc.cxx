@@ -161,7 +161,7 @@ StatusCode LoggedMessageSvc::reinitialize() {
 
 //#############################################################################
 
-void LoggedMessageSvc::initColors(Property& /*prop*/) {
+void LoggedMessageSvc::initColors(Gaudi::Details::PropertyBase& /*prop*/) {
 
   if (m_color == true) {
 
@@ -203,7 +203,7 @@ void LoggedMessageSvc::initColors(Property& /*prop*/) {
 
 //#############################################################################
 
-void LoggedMessageSvc::setupColors(Property& prop) {
+void LoggedMessageSvc::setupColors(Gaudi::Details::PropertyBase& prop) {
 
   if (! m_color) return;
 
@@ -255,7 +255,7 @@ void LoggedMessageSvc::setupColors(Property& prop) {
 }
 //#############################################################################
 
-void LoggedMessageSvc::setupLimits(Property& prop) {
+void LoggedMessageSvc::setupLimits(Gaudi::Details::PropertyBase& prop) {
 
   //int ic = 0;
   if (prop.name() == "fatalLimit") {
@@ -292,7 +292,7 @@ void LoggedMessageSvc::setupLimits(Property& prop) {
 }
 //#############################################################################
 
-void LoggedMessageSvc::setupThreshold(Property& prop) {
+void LoggedMessageSvc::setupThreshold(Gaudi::Details::PropertyBase& prop) {
 
   int ic = 0;
   if (prop.name() == "setFatal") {
@@ -346,7 +346,7 @@ void LoggedMessageSvc::setupThreshold(Property& prop) {
 
 //#############################################################################
 
-void LoggedMessageSvc::setupInactCount(Property& prop) {
+void LoggedMessageSvc::setupInactCount(Gaudi::Details::PropertyBase& prop) {
   if (prop.name() == "countInactive") {
 #ifndef NDEBUG
     BooleanProperty *p = dynamic_cast<BooleanProperty*>(&prop);

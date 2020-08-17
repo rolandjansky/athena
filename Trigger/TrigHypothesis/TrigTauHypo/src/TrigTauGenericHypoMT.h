@@ -24,7 +24,7 @@
 //#include "TrigInterfaces/HypoAlgo.h"
 
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

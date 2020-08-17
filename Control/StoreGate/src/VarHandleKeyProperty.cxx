@@ -121,7 +121,7 @@ VarHandleKeyProperty::clone() const
  * false on failure.
  */
 bool
-VarHandleKeyProperty::load( Property& destination ) const 
+VarHandleKeyProperty::load( Gaudi::Details::PropertyBase& destination ) const 
 {
   return destination.assign( *this );
 }
@@ -136,7 +136,7 @@ VarHandleKeyProperty::load( Property& destination ) const
  * false on failure.
  */
 bool
-VarHandleKeyProperty::assign( const Property& source ) 
+VarHandleKeyProperty::assign( const Gaudi::Details::PropertyBase& source ) 
 {
   return fromString( source.toString() ).isSuccess();
 }

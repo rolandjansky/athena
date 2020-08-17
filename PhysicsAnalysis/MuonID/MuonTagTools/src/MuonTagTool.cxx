@@ -9,7 +9,7 @@ Purpose : create a collection of MuonTag
 
 *****************************************************************************/
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODParticleEvent/IParticleLink.h"
 #include "AthContainers/ConstDataVector.h"

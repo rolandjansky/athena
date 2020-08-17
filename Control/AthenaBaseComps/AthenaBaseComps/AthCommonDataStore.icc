@@ -19,7 +19,7 @@
 #include "AthenaBaseComps/AthAlgStartVisitor.h"
 
 template <class PBASE>
-void AthCommonDataStore<PBASE>::extraDeps_update_handler( Property& ExtraDeps ) 
+void AthCommonDataStore<PBASE>::extraDeps_update_handler( Gaudi::Details::PropertyBase& ExtraDeps ) 
   {
     DataObjIDColl newColl;
     Gaudi::Property<DataObjIDColl> *prop = dynamic_cast<Gaudi::Property<DataObjIDColl>*> (&ExtraDeps);

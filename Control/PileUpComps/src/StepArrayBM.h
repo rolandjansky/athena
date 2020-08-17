@@ -15,7 +15,7 @@
  * $Id: BkgStreamsStepCache.h,v 1.10 2008-08-28 01:11:06 calaf Exp $
  * @author Will Buttinger - ATLAS Collaboration
  */
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "PileUpTools/IBeamIntensity.h"
 #include "AthenaBaseComps/AthService.h"

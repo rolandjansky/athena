@@ -4,7 +4,7 @@
 
  #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "MissingETGoodness/JetGoodiesFiller.h"
 #include "MissingETGoodness/MissingETUtils.h"

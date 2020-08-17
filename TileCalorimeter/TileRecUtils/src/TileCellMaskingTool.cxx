@@ -4,7 +4,7 @@
 
 // Gaudi includes
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"

@@ -13,7 +13,7 @@ Purpose : create a GlobalEventTag - The Tag information associated to the event
 *****************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "StoreGate/StoreGateSvc.h"

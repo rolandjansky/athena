@@ -61,7 +61,6 @@ class TrigInDetAccelerationSvc : public extends<AthService, ITrigInDetAccelerati
     
   public:
   PhiEtaHash(short phi, short eta, int hash) : m_phiIndex(phi), m_etaIndex(eta), m_hash(hash) {};
-  PhiEtaHash(const PhiEtaHash& p) : m_phiIndex(p.m_phiIndex), m_etaIndex(p.m_etaIndex), m_hash(p.m_hash) {}; 
     short m_phiIndex, m_etaIndex;
     int m_hash;
   };

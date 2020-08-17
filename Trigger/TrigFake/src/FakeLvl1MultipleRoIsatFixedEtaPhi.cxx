@@ -24,7 +24,7 @@ Modified :
 #include <utility>
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 

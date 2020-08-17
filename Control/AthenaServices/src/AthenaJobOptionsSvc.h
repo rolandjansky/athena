@@ -72,7 +72,7 @@ class JobOptionsSvc
   
   /// Add a property into the JobOptions catalog
   virtual StatusCode addPropertyToCatalogue( const std::string& client, 
-                                             const Property& property );
+                                             const Gaudi::Details::PropertyBase& property );
   /// Remove a property from the JobOptions catalog
   virtual StatusCode removePropertyFromCatalogue( const std::string& client, 
                                                   const std::string& name );
@@ -118,7 +118,7 @@ class JobOptionsSvc
   JobOptionsSvc();
 
   /// Property handler
-  void propertyHandler(Property& p);
+  void propertyHandler(Gaudi::Details::PropertyBase& p);
 
   /// handle to the "real" @c IJobOptionsSvc we are proxying
   ServiceHandle<IJobOptionsSvc> m_jobosvc;

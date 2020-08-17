@@ -9,7 +9,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "CaloEvent/CaloClusterCellLink.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CaloInterface/ILArHVFraction.h"
 
 

@@ -8,7 +8,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"

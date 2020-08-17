@@ -33,7 +33,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/DataObject.h"
 #include "AthContainers/DataVector.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 

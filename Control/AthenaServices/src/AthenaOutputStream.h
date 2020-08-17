@@ -17,7 +17,7 @@
 
 // Required for inheritance
 #include "GaudiKernel/IDataSelector.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -166,13 +166,13 @@ private:
 
 protected:
    /// Handler for ItemNames Property
-   void itemListHandler(Property& /* theProp */);
+   void itemListHandler(Gaudi::Details::PropertyBase& /* theProp */);
    /// Handler for ItemNames Property
-   void excludeListHandler(Property& /* theProp */);
+   void excludeListHandler(Gaudi::Details::PropertyBase& /* theProp */);
    /// Handler for ItemNames Property
-   void compressionListHandlerHigh(Property& /* theProp */);
+   void compressionListHandlerHigh(Gaudi::Details::PropertyBase& /* theProp */);
    /// Handler for ItemNames Property
-   void compressionListHandlerLow(Property& /* theProp */);
+   void compressionListHandlerLow(Gaudi::Details::PropertyBase& /* theProp */);
 
 public:
    typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;

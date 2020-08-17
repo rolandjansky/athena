@@ -3,7 +3,7 @@
 */
 
 #include "CaloTests/AnalysisCal.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 

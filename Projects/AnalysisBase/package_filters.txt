@@ -49,7 +49,7 @@
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 #+ External/AtlasPyFwdBwdPorts
-#+ ForwardDetectors/ZDC/ZdcAnalysis
++ ForwardDetectors/ZDC/ZdcAnalysis
 #+ ForwardDetectors/ZDC/ZdcNtuple
 + Generators/TruthUtils
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
