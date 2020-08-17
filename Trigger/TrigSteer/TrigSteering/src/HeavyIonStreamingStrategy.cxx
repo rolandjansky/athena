@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <functional>
-#include "boost/mem_fn.hpp"
-#include "boost/bind.hpp"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "HeavyIonStreamingStrategy.h"
 using namespace HLT;
