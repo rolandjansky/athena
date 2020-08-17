@@ -21,7 +21,7 @@ MatchingTool::MatchingTool(const std::string& name) :
 }
 
 #ifndef XAOD_STANDALONE
-void MatchingTool::updateThreshold(Property& /*p*/) {
+void MatchingTool::updateThreshold(Gaudi::Details::PropertyBase& /*p*/) {
    ATH_MSG_DEBUG("Matching Threshold is updated to:" << m_matchingThreshold);
    impl()->setThreshold( m_matchingThreshold );
 }

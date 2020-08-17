@@ -5,42 +5,35 @@
 #ifndef MSVERTEXTRACKLETTOOL_H
 #define MSVERTEXTRACKLETTOOL_H
 
+#include "MSVertexToolInterfaces/IMSVertexTrackletTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MSVertexToolInterfaces/IMSVertexTrackletTool.h"
+
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MSVertexUtils/TrackletSegment.h"
 #include "MSVertexUtils/Tracklet.h"
-#include <utility>
-#include <vector>
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
+#include <utility>
+#include <vector>
 
 
 namespace Muon {
 
-  class MSVertexTrackletTool : virtual public IMSVertexTrackletTool, public AthAlgTool
-  {
-	
+  class MSVertexTrackletTool : virtual public IMSVertexTrackletTool, public AthAlgTool {
   public :
-    /** default constructor */
     MSVertexTrackletTool (const std::string& type, const std::string& name, const IInterface* parent);
-    /** destructor */
-    virtual ~MSVertexTrackletTool();
+    virtual ~MSVertexTrackletTool()=default;
 
-    static const InterfaceID& interfaceID();
-
-    virtual StatusCode initialize(void) override;
-    virtual StatusCode finalize(void) override;
+    virtual StatusCode initialize() override;
 
     StatusCode findTracklets(std::vector<Tracklet>& traklets, const EventContext &ctx) const override;
 
   private:
-    //tool handles & private data members
-
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     float m_SeedResidual;
@@ -66,8 +59,9 @@ namespace Muon {
     void convertToTrackParticles(std::vector<Tracklet>& tracklets, SG::WriteHandle<xAOD::TrackParticleContainer> &container) const;
 
     void addMDTHits( std::vector<const Muon::MdtPrepData*>& hits, std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt ) const;
-    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtTESKey;//"MDT_DriftCircles"
-    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_TPContainer;
+    
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtTESKey { this, "mdtTES", "MDT_DriftCircles"};
+    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_TPContainer { this, "xAODTrackParticleContainer", "MSonlyTracklets"};
   };
   
   

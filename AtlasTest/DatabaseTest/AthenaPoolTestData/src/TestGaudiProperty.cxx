@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/System.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaPoolTestData/TestGaudiProperty.h"
 
 #include <cstdlib>
@@ -47,11 +47,11 @@ TestGaudiProperty::~TestGaudiProperty() {
 }
 /*
 void
-//TestGaudiProperty::addProperty(const std::string& client, const Property* prop) {
-TestGaudiProperty::addProperty(const Property* prop) {
+//TestGaudiProperty::addProperty(const std::string& client, const Gaudi::Details::PropertyBase* prop) {
+TestGaudiProperty::addProperty(const Gaudi::Details::PropertyBase* prop) {
 //  if (m_props.find(prop) == m_props.end()) {
     //m_props.push_back( prop);
-    //m_ncprops.push_back( const_cast<Property*>(prop));
+    //m_ncprops.push_back( const_cast<Gaudi::Details::PropertyBase*>(prop));
     //m_p1 = *prop;
     //m_pptr = m_ncprops[0];
     m_cptr = prop;

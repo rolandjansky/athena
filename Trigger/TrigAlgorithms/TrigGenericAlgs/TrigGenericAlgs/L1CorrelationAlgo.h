@@ -16,7 +16,7 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include <string>
 #include <vector>
@@ -67,7 +67,7 @@ public:
   /// Run once per event
   HLT::ErrorCode hltExecute(std::vector<HLT::TEVec>&, unsigned int output); 
 
-  void updateHandler(Property& p);
+  void updateHandler(Gaudi::Details::PropertyBase& p);
   
 private:
   std::vector<uint32_t> m_bitmasks;

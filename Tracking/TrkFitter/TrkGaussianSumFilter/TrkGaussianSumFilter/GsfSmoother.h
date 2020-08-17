@@ -13,7 +13,7 @@
 #define TrkGsfSmoother_H
 
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
-
+#include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -48,8 +48,7 @@ public:
       - Configure the extrapolator
       - Configure the measurement updator */
   virtual StatusCode configureTools(
-    const ToolHandle<IMultiStateExtrapolator>&,
-    const ToolHandle<IMultiStateMeasurementUpdator>&);
+    const ToolHandle<IMultiStateExtrapolator>& extrapolator);
 
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(
@@ -72,6 +71,7 @@ private:
     Trk::SmoothedTrajectory* smoothedTrajectory) const;
 
 private:
+  GsfMeasurementUpdator m_updator;
   bool m_combineWithFitter;
 
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{
@@ -80,11 +80,11 @@ private:
     12,
     "Maximum number of components"
   };
+
   /*
-   * Special Tool Handles set by the configureTools
+   * Special Tool Handle set by the configureTools
    */
   ToolHandle<IMultiStateExtrapolator> m_extrapolator;
-  ToolHandle<IMultiStateMeasurementUpdator> m_updator;
 };
 
 } // end Trk namespace

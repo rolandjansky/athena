@@ -19,7 +19,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "DBDataModel/CollectionMetadata.h"

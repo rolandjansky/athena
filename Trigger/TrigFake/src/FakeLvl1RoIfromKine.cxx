@@ -23,7 +23,7 @@ Modified :
 #include <vector>
 #include <utility>
 // INCLUDE GAUDI HEADER FILES:
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 # include "CLHEP/Units/SystemOfUnits.h"

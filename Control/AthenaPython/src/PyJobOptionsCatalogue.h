@@ -18,7 +18,7 @@
 
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CxxUtils/checker_macros.h"
 
 // Forward declaration
@@ -68,7 +68,7 @@ public:
 
   /// add a property to the catalogue
   StatusCode
-  add_property (const std::string& client, const Property* prop);
+  add_property (const std::string& client, const Gaudi::Details::PropertyBase* prop);
 
   /// remove a property from the catalogue
   StatusCode

@@ -14,7 +14,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/GaudiException.h"
 
 // ROOT includes
@@ -176,7 +176,7 @@ StatusCode HepMcTupleWriterTool::write( const HepMC::GenEvent* evt )
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void HepMcTupleWriterTool::setupBackend( Property& /*m_outputFileName*/ )
+void HepMcTupleWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*m_outputFileName*/ )
 {
   const bool createIf = false;
   IProperty * tSvc = 0;

@@ -15,7 +15,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "MonGroupBuilder.h"

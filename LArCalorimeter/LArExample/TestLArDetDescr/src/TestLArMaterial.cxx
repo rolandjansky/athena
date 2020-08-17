@@ -6,7 +6,7 @@
 #include "TestLArDetDescr/TestLArMaterial.h"
 
 // Athena related 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IService.h"

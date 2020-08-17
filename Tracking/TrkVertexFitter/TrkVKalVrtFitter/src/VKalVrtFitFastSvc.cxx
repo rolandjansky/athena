@@ -33,7 +33,8 @@ namespace Trk{
                                               Amg::Vector3D& Vertex,
                                               IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 //
 //  Convert particles and setup reference frame
 //
@@ -98,7 +99,8 @@ namespace Trk{
                                               Amg::Vector3D& Vertex,
                                               IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 //
 //  Convert particles and setup reference frame
 //
@@ -164,7 +166,8 @@ namespace Trk{
                                               Amg::Vector3D& Vertex,
                                               IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
 //
 //  Convert particles and setup reference frame
 //

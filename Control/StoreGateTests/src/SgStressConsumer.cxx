@@ -14,7 +14,7 @@
 #include <sstream>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"

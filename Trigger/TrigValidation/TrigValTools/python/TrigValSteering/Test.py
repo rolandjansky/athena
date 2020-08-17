@@ -13,7 +13,7 @@ import subprocess
 from collections import OrderedDict
 
 from TrigValTools.TrigValSteering.Common import get_logger, art_result, clear_art_summary, package_prefix_dict
-from TrigValTools.TrigValSteering.Step import get_step_from_list
+from TrigValTools.TrigValSteering.Step import get_step_from_list, get_step_type_from_list
 
 
 class Test(object):
@@ -194,6 +194,12 @@ class Test(object):
         step = get_step_from_list(step_name, self.exec_steps)
         if step is None:
             step = get_step_from_list(step_name, self.check_steps)
+        return step
+
+    def get_step_by_type(self, step_type):
+        step = get_step_type_from_list(step_type, self.exec_steps)
+        if step is None:
+            step = get_step_type_from_list(step_type, self.check_steps)
         return step
 
     def pre_exec(self):

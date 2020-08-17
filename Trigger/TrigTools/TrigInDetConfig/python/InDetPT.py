@@ -6,8 +6,6 @@ from __future__ import print_function
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
-include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetPT")
@@ -106,7 +104,7 @@ def makeInDetPrecisionTracking( whichSignature,
 
   trigTrackSummaryTool  = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT%s"%(algNamePrefix, signature),
                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
-                                                doSharedHits           = InDetTrigFlags.doSharedHits(),
+                                                doSharedHits           = True,
                                                 doHolesInDet           = True )
   
   if doTRTextension:

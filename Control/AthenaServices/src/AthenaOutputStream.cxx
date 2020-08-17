@@ -29,6 +29,7 @@
 #include "SGTools/SGIFolder.h"
 #include "AthenaKernel/CLIDRegistry.h"
 #include "xAODCore/AuxSelection.h"
+#include "xAODCore/AuxCompression.h"
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
@@ -290,10 +291,18 @@ StatusCode AthenaOutputStream::initialize() {
    }
 
    // Check compression settings and print some information about the configuration
-   if(m_compressionBitsHigh < 5) {
+   // Both should be between [5, 23] and high compression should be <= low compression
+   if(m_compressionBitsHigh < 5 || m_compressionBitsHigh > 23) {
      ATH_MSG_INFO("Float compression mantissa bits for high compression " <<
-                  "(" << m_compressionBitsHigh << ") is too low, setting it to 5.");
-     m_compressionBitsHigh = 5;
+                  "(" << m_compressionBitsHigh << ") is outside the allowed range of [5, 23].");
+     ATH_MSG_INFO("Setting it to the appropriate limit.");
+     m_compressionBitsHigh = m_compressionBitsHigh < 5 ? 5 : 23;
+   }
+   if(m_compressionBitsLow < 5 || m_compressionBitsLow > 23) {
+     ATH_MSG_INFO("Float compression mantissa bits for low compression " <<
+                  "(" << m_compressionBitsLow << ") is outside the allowed range of [5, 23].");
+     ATH_MSG_INFO("Setting it to the appropriate limit.");
+     m_compressionBitsLow = m_compressionBitsLow < 5 ? 5 : 23;
    }
    if(m_compressionBitsLow < m_compressionBitsHigh) {
      ATH_MSG_INFO("Float compression mantissa bits for low compression " <<
@@ -318,6 +327,9 @@ StatusCode AthenaOutputStream::initialize() {
    }
    m_selVetoesKey = "SelectionVetoes_" + streamName;
    ATH_CHECK( m_selVetoesKey.initialize() );
+
+   m_compInfoKey = "CompressionInfo_" + streamName;
+   ATH_CHECK( m_compInfoKey.initialize() );
 
    ATH_MSG_DEBUG("End initialize");
    return StatusCode::SUCCESS;
@@ -623,13 +635,14 @@ StatusCode AthenaOutputStream::collectAllObjects() {
    }
 
    auto vetoes = std::make_unique<SG::SelectionVetoes>();
+   auto compInfo = std::make_unique<SG::CompressionInfo>();
 
    m_p2BWritten->updateItemList(true);
    std::vector<CLID> folderclids;
    // Collect all objects that need to be persistified:
    //FIXME refactor: move this in folder. Treat as composite
    for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; i++) {
-     addItemObjects(*i, *vetoes);
+     addItemObjects(*i, *vetoes, *compInfo);
       folderclids.push_back(i->id());
    }
 
@@ -661,12 +674,18 @@ StatusCode AthenaOutputStream::collectAllObjects() {
      ATH_CHECK( SG::makeHandle (m_selVetoesKey).record (std::move (vetoes)) );
    }
 
+   // Store the lossy float compression information in the SG.
+   if (!compInfo->empty()) {
+     ATH_CHECK( SG::makeHandle (m_compInfoKey).record (std::move (compInfo)) );
+   }
+
    return StatusCode::SUCCESS;
 }
 
 //FIXME refactor: move this in folder. Treat as composite
 void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
-                                        SG::SelectionVetoes& vetoes)
+                                        SG::SelectionVetoes& vetoes,
+                                        SG::CompressionInfo& compInfo)
 {
    // anything after a dot is a list of dynamic Aux attrubutes, separated by dots
    size_t dotpos = item.key().find('.');
@@ -912,6 +931,41 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                     auxcomp->setCompressedAuxIDs( comp_attr );
                     auxcomp->setCompressionBits( comp_bits );
                   }
+
+                  // New Compression Logic
+                  SG::IAuxStore* auxstore( nullptr );
+                  try {
+                    SG::fromStorable( itemProxy->object(), auxstore, true );
+                  } catch( const std::exception& ) {
+                    ATH_MSG_DEBUG( "Error in casting object with CLID "
+                                   << itemProxy->clID() << " to SG::IAuxStore*" );
+                    auxstore = nullptr;
+                  }
+                  if ( auxstore ) {
+                    // Get a hold of all AuxIDs for this store (static, dynamic etc.)
+                    const SG::auxid_set_t allVars = auxstore->getAuxIDs();
+
+                    // Get a handle on the compression information for this store
+                    std::string key = item_key;
+                    key.erase (key.size()-4, 4);
+                    SG::ThinningInfo::compression_map_t& compMap = compInfo[key];
+
+                    // Build the compression list, retrieve the relevant AuxIDs and
+                    // store it in the relevant map that is going to be inserted into
+                    // the ThinningCache later on by the ThinningCacheTool
+                    xAOD::AuxCompression compression;
+                    compression.setCompressedAuxIDs( comp_attr );
+                    compression.setCompressionBits( comp_bits );
+
+                    compMap[comp_bits[0]] = compression.getCompressedAuxIDs( allVars, true ); // High
+                    compMap[comp_bits[1]] = compression.getCompressedAuxIDs( allVars, false ); // Low
+
+                    for(auto& it : compMap) {
+                      ATH_MSG_DEBUG( "Lossy float compression level " << it.first <<
+                                     " contains " << it.second.size() <<  " elements"
+                                     " for container " << key );
+                    }
+                  }
                }
 
                added = true;
@@ -993,7 +1047,7 @@ void AthenaOutputStream::handleVariableSelection (SG::IAuxStoreIO& auxio,
 }
 
 
-void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
+void AthenaOutputStream::itemListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    // Assuming concrete SG::Folder also has an itemList property
    IProperty *pAsIProp(nullptr);
    if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -1003,7 +1057,7 @@ void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
+void AthenaOutputStream::excludeListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_decoder.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
@@ -1012,7 +1066,7 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerHigh(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderHigh.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderHigh)) ||
@@ -1021,7 +1075,7 @@ void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerLow(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerLow(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderLow.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderLow)) ||

@@ -59,7 +59,7 @@ def defineInputsMenu():
             "type" : "ctpin",
             "legacy" : False,
             "thresholds" : [
-                'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4'  , 'MBTS_C5', 'MBTS_C6', 'MBTS_C7', 'MBTS_C8', 'MBTS_C10', 'MBTS_C12', 'MBTS_C14', 
+                'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4', 'MBTS_C5', 'MBTS_C6', 'MBTS_C7', 'MBTS_C8', 'MBTS_C10', 'MBTS_C12', 'MBTS_C14', 
                 'MBTS_C9', 'MBTS_C11', 'MBTS_C13', 'MBTS_C15', # 16x MBTSSI 
                 ('MBTS_C',3), # 1x MBTS_C
                 'NIMTGC',     # TGC
@@ -125,7 +125,6 @@ def defineInputsMenu():
             'jXE50'
         ]
     })
-
 
     topoBoards["Topo2"] = odict()
     topoBoards["Topo2"]["connectors"] = []
@@ -274,7 +273,6 @@ def defineInputsMenu():
         ]
 
     })
-
 
     muctpiBoard["MuCTPi"]["connectors"].append({
         "name" : "MuCTPiEl",

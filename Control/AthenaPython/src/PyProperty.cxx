@@ -158,14 +158,14 @@ PyProperty::~PyProperty()
 
 /// export the property value to the destination
 bool
-PyProperty::load (Property& dest) const
+PyProperty::load (Gaudi::Details::PropertyBase& dest) const
 {
   return dest.assign (*this);
 }
 
 /// import the property value from source
 bool 
-PyProperty::assign (const Property& src)
+PyProperty::assign (const Gaudi::Details::PropertyBase& src)
 {
   const PyProperty *p = dynamic_cast<const PyProperty*> (&src);
   if (p) {

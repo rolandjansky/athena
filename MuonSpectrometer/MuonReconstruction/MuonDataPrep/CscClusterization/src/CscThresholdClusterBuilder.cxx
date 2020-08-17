@@ -4,7 +4,7 @@
 
 // CscThresholdClusterBuilder.cxx
 #include "CscThresholdClusterBuilder.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include <sstream>
 
 using std::string;

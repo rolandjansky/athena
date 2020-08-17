@@ -34,8 +34,7 @@ Trk::DummyMaterialEffectsUpdator::DummyMaterialEffectsUpdator(const std::string 
 }
 
 // destructor
-Trk::DummyMaterialEffectsUpdator::~DummyMaterialEffectsUpdator() {
-}
+Trk::DummyMaterialEffectsUpdator::~DummyMaterialEffectsUpdator() = default;
 
 // Athena standard methods
 // initialize
@@ -44,9 +43,9 @@ Trk::DummyMaterialEffectsUpdator::initialize() {
   if (m_materialMapper.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_materialMapper);
     return StatusCode::FAILURE;
-  } 
+  }
     ATH_MSG_INFO("Retrieved tool " << m_materialMapper);
-  
+
 
   // set the validation switch
   m_validationDirection = (m_validationDirectionSwitch == 1) ? Trk::alongMomentum : Trk::oppositeMomentum;
@@ -62,7 +61,7 @@ Trk::DummyMaterialEffectsUpdator::finalize() {
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackParameters *
+Trk::TrackParameters *
 Trk::DummyMaterialEffectsUpdator::update(const TrackParameters *parm,
                                          const Layer &lay,
                                          PropDirection,
@@ -101,10 +100,10 @@ Trk::DummyMaterialEffectsUpdator::update(const TrackParameters *parm,
       ATH_MSG_WARNING("update() ... dynamic cast to MaterialProperties failed!");
     }
   }
-  return parm;
+  return parm->clone();
 }
 
-const Trk::TrackParameters *
+Trk::TrackParameters *
 Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
                                             const Layer &lay,
                                             PropDirection dir,
@@ -117,7 +116,7 @@ Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
     double preFactor = lay.preUpdateMaterialFactor(*parm, dir);
     // return if the preFactor is too small
     if (preFactor < 0.1) {
-      return(parm);
+      return parm->clone();
     }
 
     double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
@@ -155,10 +154,10 @@ Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
       ATH_MSG_WARNING("preUpdate() ... dynamic cast to MaterialProperties failed!");
     }
   }
-  return parm;
+  return parm->clone();
 }
 
-const Trk::TrackParameters *
+Trk::TrackParameters *
 Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
                                              const Layer &lay,
                                              PropDirection dir,
@@ -207,7 +206,7 @@ Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
 }
 
 // actual update method
-const Trk::TrackParameters *
+Trk::TrackParameters *
 Trk::DummyMaterialEffectsUpdator::update(const TrackParameters &parm,
                                          const MaterialProperties &,
                                          double,

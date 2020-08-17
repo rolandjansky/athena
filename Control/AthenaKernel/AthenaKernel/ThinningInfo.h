@@ -16,6 +16,7 @@
 
 #include "CxxUtils/ConcurrentBitset.h"
 
+#include <map>
 
 namespace SG {
 
@@ -50,6 +51,30 @@ public:
   bool vetoed (size_t id) const
   {
     return m_vetoed.test (id);
+  }
+
+  /// This map holds a set of auxids to be lossy compressed
+  /// for each compression level (nmantissa).
+  /// Same comment above for the SG::auxid_set_t applies here.
+  /// Keeping compression level as the key allows us to use
+  /// the set as the value, which eases the look up.
+  /// Maybe it would be more natural to have auxid => compression level
+  /// but that might have complicated things a bit.
+  /// If an auxid exists in multiple compression levels,
+  /// always pick the most strict one (lowest) for space savings.
+  typedef std::map<unsigned int,
+                   CxxUtils::ConcurrentBitset> compression_map_t;
+  compression_map_t m_compression;
+
+  /// Test if a variable is asked to be compressed.
+  /// If it is, return the compression level (nmantissa).
+  /// 0 means no compression is asked for.
+  unsigned int compression (size_t id) const
+  {
+    for (const auto &entry : m_compression) {
+      if (entry.second.test(id)) return entry.first;
+    }
+    return 0;
   }
 };
 

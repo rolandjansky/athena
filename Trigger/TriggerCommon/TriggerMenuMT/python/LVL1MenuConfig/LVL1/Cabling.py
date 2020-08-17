@@ -1,13 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#
-# Disable flake8 checking due to the use of 'exec':
-# flake8: noqa
-#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from .Limits import Limits
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")
+log.setLevel(logging.INFO)
 
 """
 Thilo's proposal in the CTP meeting Oct 13
@@ -78,7 +75,7 @@ def getLutInput(connector):
 
 
 
-class Cabling(object):
+class Cabling:
     @staticmethod
     def getInputCable(threshold):
         return InputCable( threshold )
@@ -90,6 +87,16 @@ class Cabling(object):
 
         from .Lvl1Flags import Lvl1Flags
         run1 = Lvl1Flags.CTPVersion()<=3
+
+
+        if thrtype == 'EM' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'TAU' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'JET' and mapping >= 25:
+            mapping = 24
+        elif thrtype == 'XE' and mapping >=16:
+            mapping = 15
         
         if run1:
             type2cablename  = { 'MUON'   : [(0,6,'MUCTPI')],
@@ -115,13 +122,13 @@ class Cabling(object):
                                 }
         else:
             type2cablename  = { 'MUON'   : [(0,6,'MUCTPI')],
-                                'EM'     : [(0,8,'EM1'), (8,16,'EM2')],
-                                'TAU'    : [(0,8,'TAU1'), (8,16,'TAU2')],
-                                'JET'    : [(0,10,'JET1'), (10,25,'JET2')],
+                                'EM'     : [(0,8,'EM1'), (8,16,'EM2'), (16, 20, 'EM1'), (20, 26, 'EM2')],
+                                'TAU'    : [(0,8,'TAU1'), (8,16,'TAU2'), (16, 19, 'TAU1'), (19, 24, 'TAU2')],
+                                'JET'    : [(0,10,'JET1'), (10,25,'JET2'), (25, 33, 'JET1'), (33, 42, 'JET2')],
                                 'TE'     : [(0,8,'EN1'),(8,16,'EN2')],
-                                'XE'     : [(0,8,'EN1'),(8,16,'EN2')],
+                                'XE'     : [(0,8,'EN1'),(8,16,'EN2'), (16, 24, 'EN1')],
                                 'XS'     : [(0,8,'EN1')],
-                                'MBTSSI' : [(0,12,'NIM1'),(12,24,'NIM2')],
+                                'MBTSSI' : [(0,16,'NIM1'),(16,32,'NIM2')],
                                 'MBTS'   : [(0,1,'NIM1'), (1,2,'NIM2')],
                                 'LUCID'  : [(0,6,'CTPCAL')],
                                 'ZDC'    : [(0,3,'CTPCAL')],
@@ -150,11 +157,12 @@ class Cabling(object):
     @staticmethod
     def calcBitnum(thrtype):
         # get the widths for the threshold types is defined in L1Common
-        return getattr (Limits, '%s_bitnum' % thrtype)
+        nbits = getattr(Limits,'%s_bitnum' % thrtype)
+        return nbits
 
 
 
-class InputCable(object):
+class InputCable:
         
     def __fillTopoInputs(self, threshold):
         # CTPCORE
@@ -166,10 +174,11 @@ class InputCable(object):
         self.clock       = threshold.clock
         self.range_begin = threshold.bitOnCable
         self.range_end   = threshold.bitOnCable+self.bitnum-1
-        
+
         log.debug( 'Threshold type %s (mapping=%i) comes in on CTPCore on cable %s, bit %s, clock %i',
                    self.thrtype, self.mapping, self.connector,
                    ("%i" % self.range_begin) if self.bitnum==1 else ("%i-%i" % (self.range_begin, self.range_end)), self.clock )
+
 
     def __fillAlfaInputs(self, threshold):
         # CTPCORE
@@ -180,10 +189,12 @@ class InputCable(object):
         self.clock = self.mapping / 32
         self.range_begin = self.mapping % 32
         self.range_end   = self.range_begin
-           
+
         log.debug( 'Threshold type %s (mapping=%i) comes in on CTPCore on cable %s, bit %s, clock %i',
                    self.thrtype, self.mapping, self.connector,
                    ("%i" % self.range_begin) if self.bitnum==1 else ("%i-%i" % (self.range_begin, self.range_end)), self.clock )
+
+ 
 
     def __fillCTPIn(self):
         self.name = Cabling.getCableName(self.thrtype,self.mapping)
@@ -194,6 +205,7 @@ class InputCable(object):
                    ("%i" % self.range_begin) if self.bitnum==1 else ("%i-%i" % (self.range_begin, self.range_end)) )
 
 
+
     def __init__(self, threshold ):
 
         if threshold.ttype == 'ZB':
@@ -201,6 +213,17 @@ class InputCable(object):
         else:
             self.thrtype = threshold.ttype
         self.mapping = int(threshold.mapping)
+        thrtype = self.thrtype
+        mapping = self.mapping
+        if thrtype == 'EM' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'TAU' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'JET' and mapping >= 25:
+            mapping = 24
+        elif thrtype == 'XE' and mapping >=16:
+            mapping = 15
+        self.mapping = mapping
 
         self.isDirectIn  = False # True for TOPO and ALFA which go into CTPCore
         self.slot        = None  # input cable slot, possible values 7..9
@@ -236,12 +259,28 @@ class InputCable(object):
             cableAssign += self.getCTPINCableAssignment("TAU")
 
         offset = self.mapping
+        name = Cabling.getCableName(self.thrtype,self.mapping)
+        if name == 'EM1' and self.mapping >= 16: 
+            offset -= 16
+        elif name == 'EM2' and self.mapping >= 20:
+            offset -= 12
+        elif name == 'TAU1' and self.mapping >= 16:
+            offset -= 16
+        elif name == 'TAU2' and self.mapping >= 19:
+            offset -= 11
+        elif name == 'JET1' and self.mapping >= 25:
+            offset -= 25
+        elif name == 'JET2' and self.mapping >= 33:
+            offset -= 23
+        elif self.thrtype == 'XE' and name == 'EN1' and self.mapping >= 16:
+            offset -= 16
         for (slot, connector, start, stop, bitnum) in cableAssign:
 
             self.bitnum = bitnum
 
             delta = (stop - start + 1) / self.bitnum
             log.debug( 'Cable SLOT%i / CON%i has room for %i thresholds of type %s', slot, connector, delta, self.thrtype )
+
 
             if offset >= delta: # does not fit on this connector (only 0 to offset-1 will fit)
                 offset -= delta # move to the next cable for checking
@@ -252,7 +291,6 @@ class InputCable(object):
             self.range_begin = start + offset * self.bitnum
             self.range_end   = self.range_begin + self.bitnum-1
             break
-
         if not self.connector:
             log.error("Cable mapping ERROR %s", cableAssign)
             raise RuntimeError("No cable has been assigned to threshold type '%s' with mapping %i" % (self.thrtype,self.mapping))
@@ -266,8 +304,7 @@ class InputCable(object):
         """
         Gets the cable assignment from L1Common
         """
-        cable = getattr (Limits, "%s_cable" % thrtype)
-        
+        cable = getattr(Limits,'%s_cable' % thrtype)
         # we change the format for run 2, the tuple now contains also the bit multiplicity, as it is not constant per type
         infosize = (len(cable)-1)/cable[0]
 

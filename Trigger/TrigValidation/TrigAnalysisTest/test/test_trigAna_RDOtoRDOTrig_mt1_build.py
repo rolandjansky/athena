@@ -23,7 +23,7 @@ test.check_steps = CheckSteps.default_check_steps(test)
 # Add a step comparing counts in the log against reference
 refcomp = CheckSteps.RegTestStep("CountRefComp")
 refcomp.input_base_name = 'athena.merged'
-refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
+refcomp.regex = r'TrigSignatureMoniMT\s*INFO\sHLT_.*|TrigSignatureMoniMT\s*INFO\s-- #[0-9]+ (Events|Features).*'
 refcomp.reference = 'TrigAnalysisTest/ref_RDOtoRDOTrig_mt1_build.ref'
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)

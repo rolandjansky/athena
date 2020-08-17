@@ -1,10 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/TgcHitIdHelper.h"
 
+#include <iomanip> // for std::array
+
 TgcHitIdHelper* TgcHitIdHelper::m_help = nullptr;
+
+namespace {
+    const static std::array<char, 4> v1 = {'B','E','T','C'};
+    const static std::array<char, 9> v2 = {'I','M','O','E','1','2','3','4','S'};
+    const static std::array<char, 6> v3 = {'S','L','E','R','F','G'};
+}
 
 //private constructor
 TgcHitIdHelper::TgcHitIdHelper() : HitIdHelper()
@@ -18,11 +26,6 @@ TgcHitIdHelper* TgcHitIdHelper::GetHelper()
   if (!m_help) m_help = new TgcHitIdHelper();
   return m_help;
 }
-
-static char v1[] = {'B','E','T','C'};
-static char v2[] = {'I','M','O','E','1','2','3','4','S'};
-static char v3[] = {'S','L','E','R','F','G'};
-
 
 void TgcHitIdHelper::Initialize()
 {

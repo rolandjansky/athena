@@ -38,6 +38,7 @@ def getSpecialConfiguration(flags):
     #     include(inc)
     return out
 
+
 def createDigitizationCfgFlags():
     """Return an AthConfigFlags object with required flags"""
     flags = AthConfigFlags()
@@ -67,5 +68,27 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.AddCaloDigi", False)
     # Integer offset to random seed initialisation
     flags.addFlag("Digitization.RandomSeedOffset", 0)
+    # Digitization extra input dependencies
+    flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
     return flags
 
+
+def digitizationRunArgsToFlags(runArgs, flags):
+    """Fill digitization configuration flags from run arguments."""
+    if hasattr(runArgs, "PileUpPremixing"):
+        flags.Digitization.PileUpPremixing = runArgs.PileUpPremixing
+
+    if hasattr(runArgs, "doAllNoise"):
+        flags.Digitization.DoInnerDetectorNoise = runArgs.doAllNoise
+        flags.Digitization.DoCaloNoise = runArgs.doAllNoise
+
+    if hasattr(runArgs, "AddCaloDigi"):
+        flags.Digitization.AddCaloDigi = runArgs.AddCaloDigi
+    
+    if hasattr(runArgs, "digiSeedOffset1"):
+        flags.Digitization.RandomSeedOffset = runArgs.digiSeedOffset1
+
+    # TODO: Not covered yet as no flag equivalents exist yet
+    # '--digiRndmSvc'
+    # '--digiSteeringConf'
+    # '--samplingFractionDbTag'

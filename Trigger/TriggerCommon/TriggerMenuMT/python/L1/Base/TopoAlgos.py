@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from collections import OrderedDict as odict
+
 from AthenaCommon.Logging import logging
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 import re
@@ -8,15 +10,22 @@ from .ThresholdType import ThrType
 
 log = logging.getLogger("Menu.L1.Base.TopoAlgos") 
 
+##
+## These classes are base classes for the auto-generated algorithm python representations
+## 
+## C++ L1Topo algorithms are defined in Trigger/TrigT1/L1Topo/L1TopoAlgorithms
+## During the build, from each class a python class is generated and put in the release
+## Those generated python classes derive fro SortingAlgo and DecisionAlgo below.
+
 class TopoAlgo(object):
 
     _availableVars = []
 
     #__slots__ = ['_name', '_selection', '_value', '_generic']
-    def __init__(self, classtype, name, algoId=0):
+    def __init__(self, classtype, name, algoId=-1):
         self.classtype = classtype
         self.name = name
-        self.algoId = int(algoId)
+        self.algoId = algoId
         self.generics = []
         self.variables = []
         
@@ -51,14 +60,14 @@ class TopoAlgo(object):
         return self
 
     def json(self):
-        from collections import OrderedDict as odict
         confObj = odict()
         confObj["algId"] = self.algoId
+        confObj["klass"] = self.classtype
         return confObj
 
     def getScaleToCountsEM(self):
         tw = self.menuThr.typeWideThresholdConfig(ThrType["EM"])
-        return 1000 / tw["resolutionMeV"]
+        return 1000 // tw["resolutionMeV"]
     
 class Variable(object):
     def __init__(self, name, selection, value):
@@ -73,7 +82,7 @@ class Generic(object):
         if isinstance(value,HardwareConstrainedParameter):
             self.value = ":%s:" % value.name
         else:
-            self.value = str(int(value))
+            self.value = value
 
         
 class SortingAlgo(TopoAlgo):
@@ -85,7 +94,7 @@ class SortingAlgo(TopoAlgo):
         self.inputvalue=  self.inputs
         if self.inputs.find("Cluster")>=0: # to extract inputvalue (for FW) from output name
             if self.outputs.find("TAU")>=0:
-                self.inputvalue= self.inputvalue.replace("Cluster","Tau")            
+                self.inputvalue= self.inputvalue.replace("Cluster","Tau")
             if self.outputs.find("EM")>=0:
                 self.inputvalue= self.inputvalue.replace("Cluster","Em")
 
@@ -93,16 +102,10 @@ class SortingAlgo(TopoAlgo):
         return True
         
     def json(self):
-        from collections import OrderedDict as odict
-        confObj = odict()
-        confObj["algId"] = self.algoId
+        confObj = super(SortingAlgo, self).json()
+        confObj["input"] = self.inputvalue
         confObj["output"] = self.outputs
-        confObj["type"] = self.classtype
         confObj["fixedParameters"] = odict()
-        confObj["fixedParameters"]["input"] = odict([(self.inputs,self.inputvalue)])
-        confObj["fixedParameters"]["output"] = odict([("TobArrayOut",self.outputs)])
-        confObj["fixedParameters"]["generics"] = [(genParm.name, genParm.value) for genParm in self.generics]
-
         confObj["fixedParameters"]["generics"] = odict()
         for (pos, genParm) in enumerate(self.generics):
             confObj["fixedParameters"]["generics"][genParm.name] = odict([("value", genParm.value), ("position", pos)]) 
@@ -118,6 +121,9 @@ class SortingAlgo(TopoAlgo):
                 if "MU" in self.outputs and variable.value > _mu_for_decision:
                     variable.value -= _mu_for_decision
             confObj["variableParameters"].append(odict([("name", variable.name),("value", variable.value)]))
+
+            if type(variable.value) == float:
+                raise RuntimeError("In algorithm %s the variable %s with value %r is of type float but must be int" % (self.name,variable.name,variable.value))
         return confObj
 
     def xml(self):
@@ -160,25 +166,11 @@ class DecisionAlgo(TopoAlgo):
         return True
 
     def json(self):
-        from collections import OrderedDict as odict
-        confObj = odict()
-        confObj["algId"] = self.algoId
-        confObj["type"] = self.classtype
+        confObj = super(DecisionAlgo, self).json()
+        confObj["input"] = self.inputs # list of input names
         confObj["output"] = self.outputs # list of output names
         # fixed parameters
         confObj["fixedParameters"] = odict()
-        if len(self.inputs)==1:
-            confObj["fixedParameters"]["inputs"] = [ odict([ ("name","Tob"), ("value",self.inputs[0]), ("position",0) ]) ]
-        else:
-            confObj["fixedParameters"]["inputs"] = list()
-            input_woovlp = set()
-            for (tobid, input) in enumerate(self.inputs):
-                if input in input_woovlp:
-                    continue
-                input_woovlp.add(input)
-                confObj["fixedParameters"]["inputs"] += [ odict( [ ("name","Tob%i" % (tobid+1) ), ("value",input), ("position",tobid) ] ) ]
-                
-        #confObj["fixedParameters"]["outputs"] = [odict([("selection",bit),("name", name)]) for bit,name in enumerate(self.outputs)]
         confObj["fixedParameters"]["generics"] = odict()
         for (pos, genParm) in enumerate(self.generics):
             confObj["fixedParameters"]["generics"][genParm.name] = odict([("value", genParm.value), ("position", pos)]) 
@@ -199,6 +191,9 @@ class DecisionAlgo(TopoAlgo):
                         if _input.find("MU")>=0:
                             if (len(self.inputs)>1 and (variable.name==_minet+str(tobid+1) or (tobid==0 and variable.name==_minet))) or (len(self.inputs)==1 and (variable.name.find(_minet)>=0)):
                                 variable.value = ((variable.value - _mu_for_decision ) if variable.value>0 else variable.value)
+
+            if type(variable.value) == float:
+                raise RuntimeError("In algorithm %s the variable %s with value %r is of type float but must be int" % (self.name,variable.name,variable.value))
 
             if variable.selection >= 0:
                 confObj["variableParameters"].append(odict([("name", variable.name), ("selection",variable.selection), ("value", variable.value)]))
@@ -274,9 +269,7 @@ class MultiplicityAlgo(TopoAlgo):
         pass
 
     def json(self):
-        from collections import OrderedDict as odict
-        confObj = odict()
-        confObj["type"] = self.classtype
+        confObj = super(MultiplicityAlgo, self).json()
         confObj["threshold"] = self.threshold
         confObj["input"] = self.input
         confObj["output"] = self.outputs

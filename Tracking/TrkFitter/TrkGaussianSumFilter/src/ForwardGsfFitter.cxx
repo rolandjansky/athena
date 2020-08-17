@@ -13,7 +13,6 @@
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -28,6 +27,7 @@ Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type,
                                         const std::string& name,
                                         const IInterface* parent)
   : AthAlgTool(type, name, parent)
+  , m_updator{}
   , m_cutChiSquaredPerNumberDOF(50.)
   , m_overideMaterialEffects(4)
   , m_overideParticleHypothesis(nonInteracting)
@@ -47,7 +47,6 @@ Trk::ForwardGsfFitter::initialize()
 
   ATH_MSG_DEBUG("A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF
                                          << " will be applied");
-
   Trk::ParticleSwitcher particleSwitcher;
   m_overideParticleHypothesis =
     particleSwitcher.particle[m_overideMaterialEffects];
@@ -73,11 +72,9 @@ Trk::ForwardGsfFitter::finalize()
 StatusCode
 Trk::ForwardGsfFitter::configureTools(
   const ToolHandle<IMultiStateExtrapolator>& extrapolator,
-  const ToolHandle<IMultiStateMeasurementUpdator>& measurementUpdator,
   const ToolHandle<IRIO_OnTrackCreator>& rioOnTrackCreator)
 {
   m_extrapolator = extrapolator;
-  m_updator = measurementUpdator;
   m_rioOnTrackCreator = rioOnTrackCreator;
   ATH_MSG_INFO("Configuration of " << name() << " was successful");
 
@@ -179,11 +176,6 @@ Trk::ForwardGsfFitter::fitMeasurements(
   const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-  // Check that the updator is instansiated
-  if (!m_updator) {
-    ATH_MSG_ERROR("The measurement updator is not configured... Exiting!");
-    return nullptr;
-  }
 
   if (!m_extrapolator) {
     ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
@@ -291,7 +283,8 @@ Trk::ForwardGsfFitter::stepForwardFit(
     ATH_MSG_DEBUG("Extrapolation failed... returning false");
     return false;
   } else {
-    ATH_MSG_DEBUG("Extrapolation worked... state size: "<< extrapolatedState.size() );
+    ATH_MSG_DEBUG(
+      "Extrapolation worked... state size: " << extrapolatedState.size());
   }
   // =======================
   // Measurement Preparation
@@ -322,7 +315,7 @@ Trk::ForwardGsfFitter::stepForwardFit(
     return false;
   }
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  updatedState = m_updator->update(
+  updatedState = m_updator.update(
     std::move(*(MultiComponentStateHelpers::clone(extrapolatedState))),
     *measurement,
     fitQuality);
@@ -330,7 +323,8 @@ Trk::ForwardGsfFitter::stepForwardFit(
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
   } else {
-    ATH_MSG_DEBUG("Measurement update of the state worked : " << updatedState.size() );
+    ATH_MSG_DEBUG(
+      "Measurement update of the state worked : " << updatedState.size());
   }
   // Bail if the fit quality is not defined:
   if (!fitQuality) {

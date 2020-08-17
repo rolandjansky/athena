@@ -18,7 +18,7 @@
 #include <typeinfo>
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CxxUtils/checker_macros.h"
 
 // Forward declaration
@@ -50,10 +50,10 @@ class ATLAS_NOT_THREAD_SAFE PyProperty
   /// @c Property implementation
   ///@{
   /// export the property value to the destination
-  virtual bool load (Property& dest) const override;
+  virtual bool load (Gaudi::Details::PropertyBase& dest) const override;
 
   /// import the property value from source
-  virtual bool assign (const Property& src) override;
+  virtual bool assign (const Gaudi::Details::PropertyBase& src) override;
 
   /// export the property value as a @c std::string
   virtual std::string toString() const override;

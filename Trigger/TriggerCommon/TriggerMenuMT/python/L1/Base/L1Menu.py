@@ -68,7 +68,7 @@ class L1Menu(object):
 
 
     def addTopoAlgo(self, algo, category):
-        algo.setThresholds( self.thresholds )
+        algo.setThresholds( self.thresholds ) # each algo gets a pointer to the full thresholds definition (for the extrainfo)
         self.topoAlgos.addAlgo(algo, category)
 
 

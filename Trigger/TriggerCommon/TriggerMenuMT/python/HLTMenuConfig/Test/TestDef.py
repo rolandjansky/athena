@@ -7,8 +7,8 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Test.TestDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TrigUpgradeTest.HLTSignatureConfig import  muMenuSequence, elMenuSequence, gamMenuSequence
-from TrigUpgradeTest.HLTSignatureHypoTools import dimuDrComboHypoTool
+from DecisionHandling.HLTSignatureConfig import  muMenuSequence, elMenuSequence, gamMenuSequence
+from DecisionHandling.HLTSignatureHypoTools import dimuDrComboHypoTool
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO

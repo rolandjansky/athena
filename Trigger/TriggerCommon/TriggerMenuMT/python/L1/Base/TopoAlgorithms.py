@@ -18,15 +18,16 @@ class AlgType(Enum):
         self.key = key
     
 class AlgCategory(Enum):
-    TOPO = (1, 'TOPO', 'new topo')
-    MUCTPI = (2, 'MUTOPO', 'muctpi topo')
-    LEGACY = (3, 'R2TOPO', 'legacy topo')
-    MULTI = (4, 'MULTTOPO', 'multiplicity topo')
+    TOPO = (1, 'TOPO', 'new topo', 'TopoAlgoDef')
+    MUCTPI = (2, 'MUTOPO', 'muctpi topo', 'TopoAlgoDefMuctpi')
+    LEGACY = (3, 'R2TOPO', 'legacy topo', 'TopoAlgoDefLegacy')
+    MULTI = (4, 'MULTTOPO', 'multiplicity topo', 'TopoAlgoDefMultiplicity')
 
-    def __init__(self, _, key, desc ):
+    def __init__(self, _, key, desc, defFile ):
         self.key = key
         self.prefix = key + '_' if key else ''
         self.desc = desc
+        self.defFile = defFile
 
     def __str__(self):
         return self.desc
@@ -71,9 +72,6 @@ class MenuTopoAlgorithmsCollection(object):
         else:
             raise RuntimeError("Trying to add topo algorithm %s of unknown type %s to the menu" % (algo.name, type(algo)))
 
-        if category != AlgCategory.MULTI and algo.name.startswith(category.prefix):
-            algo.name = algo.name.split(category.prefix,1)[-1]
-
         if algType not in self.topoAlgos[category]:
             self.topoAlgos[category][algType] = odict()
 
@@ -84,6 +82,13 @@ class MenuTopoAlgorithmsCollection(object):
 
 
     def json(self):
+        def idGenerator(usedIds, start):
+            while True:
+                while start in usedIds:
+                    start += 1
+                yield start
+                start += 1
+
         confObj = odict()
         for cat in self.topoAlgos:
             confObj[cat.key] = odict()
@@ -91,5 +96,12 @@ class MenuTopoAlgorithmsCollection(object):
                 confObj[cat.key][typ.key] = odict()
                 for alg in sorted(self.topoAlgos[cat][typ].values(), key=attrgetter('name')):
                     confObj[cat.key][typ.key][alg.name] = alg.json()
+
+                # set unspecified algoIds to a unique value
+                usedAlgIds = set([x["algId"] for x in confObj[cat.key][typ.key].values() if x["algId"]>=0])
+                autoId = idGenerator(usedAlgIds, 0)
+                for algJsonEntry in confObj[cat.key][typ.key].values():
+                    if algJsonEntry["algId"] < 0:
+                        algJsonEntry["algId"] = next(autoId)
 
         return confObj

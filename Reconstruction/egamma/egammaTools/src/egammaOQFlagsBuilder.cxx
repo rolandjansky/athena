@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -34,7 +34,7 @@ isbadtilecell(CaloCellList& ccl,
 {
 
   bool isbadtilecell = false;
-  ccl.select(cmgr,clusterEta, clusterPhi, sizeEta, sizePhi, sample);
+  ccl.select(cmgr, clusterEta, clusterPhi, sizeEta, sizePhi, sample);
   CaloCellList::list_iterator cclIter = ccl.begin();
   CaloCellList::list_iterator cclIterEnd = ccl.end();
   for (; cclIter != cclIterEnd; cclIter++) {
@@ -58,7 +58,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   m_calocellId = nullptr;
 }
 
-egammaOQFlagsBuilder::~egammaOQFlagsBuilder() {}
+egammaOQFlagsBuilder::~egammaOQFlagsBuilder() = default;
 
 StatusCode
 egammaOQFlagsBuilder::initialize()
@@ -70,7 +70,7 @@ egammaOQFlagsBuilder::initialize()
   // Get CaloAffectedTool
   StatusCode sc = m_affectedTool.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve CaloAffectedTool " << m_affectedTool);
+    ATH_MSG_ERROR("Could not retrieve CaloAffectedTool " << m_affectedTool);
     return StatusCode::FAILURE;
   }
 
@@ -111,8 +111,9 @@ egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster,
 
   for (; cellIter != cellIterEnd; cellIter++) {
     const CaloCell* cell = (*cellIter);
-    if (!cell)
+    if (!cell){
       continue;
+    }
     float eta = cell->eta();
     float phi = cell->phi();
     float energy = cell->energy();
@@ -278,68 +279,80 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
         }
       } else {
         if ((cell->provenance() & 0x0A00) == 0x0A00) {
+
           if (layer == CaloSampling::PreSamplerB ||
               layer == CaloSampling::PreSamplerE) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgePS);
-          }
-          if (layer == CaloSampling::EMB1 || layer == CaloSampling::EME1) {
+          } else if (layer == CaloSampling::EMB1 ||
+                     layer == CaloSampling::EME1) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS1);
             if (isStripCoreCell)
               iflag |= (0x1 << xAOD::EgammaParameters::BadS1Core);
-          }
-          if (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2)
+          } else if (layer == CaloSampling::EMB2 ||
+                     layer == CaloSampling::EME2) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS2);
-          if (layer == CaloSampling::EMB3 || layer == CaloSampling::EME3)
+          } else if (layer == CaloSampling::EMB3 ||
+                     layer == CaloSampling::EME3) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS3);
+          }
         }
         if ((cell->provenance() & 0x0A00) == 0x0800) {
+
           if (layer == CaloSampling::PreSamplerB ||
               layer == CaloSampling::PreSamplerE) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgePS);
-          }
-          if (layer == CaloSampling::EMB1 || layer == CaloSampling::EME1) {
+          } else if (layer == CaloSampling::EMB1 ||
+                     layer == CaloSampling::EME1) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgeS1);
-            if (isStripCoreCell)
+            if (isStripCoreCell) {
               iflag |= (0x1 << xAOD::EgammaParameters::BadS1Core);
-          }
-          if (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2)
+            }
+          } else if (layer == CaloSampling::EMB2 ||
+                     layer == CaloSampling::EME2) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgeS2);
-          if (layer == CaloSampling::EMB3 || layer == CaloSampling::EME3)
+          } else if (layer == CaloSampling::EMB3 ||
+                     layer == CaloSampling::EME3) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgeS3);
+          }
         }
         if (bc.sporadicBurstNoise() && qual < m_QCellSporCut) {
           iflag |= (0x1 << xAOD::EgammaParameters::SporadicNoiseLowQEdge);
         }
+
         if (bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
             bc.lowNoiseLG() || bc.distorted() || bc.unstable() ||
             bc.unstableNoiseHG() || bc.unstableNoiseMG() ||
             bc.unstableNoiseLG() || bc.peculiarCalibrationLine() ||
             bc.almostDead() || bc.shortProblem()) {
+
           if (layer == CaloSampling::PreSamplerB ||
               layer == CaloSampling::PreSamplerE) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgePS);
-          }
-          if (layer == CaloSampling::EMB1 || layer == CaloSampling::EME1)
+          } else if (layer == CaloSampling::EMB1 ||
+                     layer == CaloSampling::EME1) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgeS1);
-          if (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2)
+          } else if (layer == CaloSampling::EMB2 ||
+                     layer == CaloSampling::EME2) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgeS2);
-          if (layer == CaloSampling::EMB3 || layer == CaloSampling::EME3)
+          } else if (layer == CaloSampling::EMB3 ||
+                     layer == CaloSampling::EME3) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgeS3);
+          }
         }
         if (qual >= 4000) {
           iflag |= (0x1 << xAOD::EgammaParameters::HighQEdge);
         }
       }
     } // end loop over LAr cells
-    
-    //Set LArQCleaning bit
+
+    // Set LArQCleaning bit
     double egammaLArQCleaning = 0;
     if (totE != 0)
       egammaLArQCleaning = badE / totE;
     if (egammaLArQCleaning > m_LArQCut) {
       iflag |= (0x1 << xAOD::EgammaParameters::LArQCleaning);
     }
-    //Set HighRcell bit//
+    // Set HighRcell bit//
     double ratioCell = 0;
     if (totE != 0)
       ratioCell = energyCellMax / totE;
@@ -348,7 +361,7 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
     }
   } // close if found central cell
 
-  //Check the HV components
+  // Check the HV components
   float deta = 0;
   float dphi = 0;
 
@@ -377,7 +390,7 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
                                                       CaloSampling::PreSamplerB,
                                                       CaloSampling::PreSamplerB,
                                                       1));
-  if (isNonNominalHVPS){
+  if (isNonNominalHVPS) {
     iflag |= (0x1 << xAOD::EgammaParameters::NonNominalHVPS);
   }
 
@@ -395,7 +408,7 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
                                                 CaloSampling::PreSamplerB,
                                                 CaloSampling::PreSamplerB,
                                                 2));
-  if (isDeadHVPS){
+  if (isDeadHVPS) {
     iflag |= (0x1 << xAOD::EgammaParameters::DeadHVPS);
   }
 

@@ -1,39 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/AGDDToolBase.h"
 #include "AGDDControl/AGDDController.h"
 
-AGDDToolBase::AGDDToolBase(const std::string& type, const std::string& name, 
-				 const IInterface* parent):AthAlgTool(type,name,parent),
-				 	m_parserVerbosity(0),m_builderVerbosity(0),
-    				m_printSections(false),m_locked(false),
-					m_defaultDetector("NoDetector"),m_navigateDetector("")
+AGDDToolBase::AGDDToolBase(const std::string& type, const std::string& name,
+                           const IInterface* parent)
+  : base_class(type,name,parent)
 {
-	declareInterface<IAGDDToolBase> (this);
-
-	declareProperty( "XMLFiles",      	m_xmlFiles);
-	declareProperty( "Sections",      	m_sectionsToBuild);
-	declareProperty( "Volumes" ,      	m_volumesToBuild);
-	declareProperty( "ParserVerbosity",   m_parserVerbosity);
-	declareProperty( "BuilderVerbosity",  m_builderVerbosity);
-	declareProperty( "PrintSections",   	m_printSections);
-	declareProperty( "Locked",			m_locked);
-	declareProperty("DefaultDetector",	m_defaultDetector);
-	declareProperty("NavigateDetector",	m_navigateDetector);
-	declareProperty("DisableSections",	m_disableSections);
-	declareProperty("WriteAGDDFile",	m_writeDBfile = false);
-	declareProperty("OutAGDDXMLName",	m_outFileName = "mytest.xml");
-	
-	ATH_MSG_DEBUG(" trying to get the controller");
-  	m_controller =AGDDController::GetController();
+  ATH_MSG_DEBUG(" trying to get the controller");
+  m_controller = AGDDController::GetController();
 }
 
 StatusCode AGDDToolBase::initialize()
 {
-	InitializeAGDD();
-	return AlgTool::initialize();
+  InitializeAGDD();
+  return StatusCode::SUCCESS;
 }
 
 void AGDDToolBase::InitializeAGDD()

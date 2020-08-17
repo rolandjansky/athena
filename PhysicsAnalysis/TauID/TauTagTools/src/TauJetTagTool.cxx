@@ -9,7 +9,7 @@ Purpose : create a collection of TauJetTag
 
 *****************************************************************************/
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "StoreGate/StoreGateSvc.h"
 

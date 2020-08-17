@@ -53,10 +53,10 @@ HLT::TEVec getAllTEs(const std::vector<HLT::TEVec>& tes_in){
 T2VertexBeamSpot::T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLocator )
   : HLT::AllTEAlgo(name, pSvcLocator){ 
    
-   declareProperty( "TrackCollections",  m_trackCollections = {"TrigFastTrackFinder_Tracks"}  ); 
-   declareProperty( "VertexCollection",  m_outputVertexCollectionKey =  "myVertices"  ); 
+   declareProperty( "TrackCollection",  m_trackCollectionKey = "TrigFastTrackFinder_Tracks"  );
+   declareProperty( "VertexCollection",  m_outputVertexCollectionKey =  "myVertices"  );
 
-   declareProperty("vertexCollName",     m_vertexCollName      = "TrigBeamSpotVertex"); 
+   declareProperty("vertexCollName",     m_vertexCollName      = "TrigBeamSpotVertex");
 
 
 
@@ -161,7 +161,7 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
             auto nPerVecTEHighPTTracks = Monitored::Scalar<unsigned>("nPerVecTEHighPTTracks");
 
             //Loop over Trigger Elements
-            for ( HLT::TriggerElement* TE : iTE){ 
+            for ( HLT::TriggerElement* TE : iTE){
                //Monitor how long does it take to loop over each trigger element
                auto tTE = Monitored::Timer("TIME_EachTE");
 
@@ -183,7 +183,7 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
                   m_beamSpotTool->selectTracks( tracks, mySelectedTrackCollection, nTracks );
 
                   //Increment counters per TE
-                  nPerTETracks       += nTracks[0]; 
+                  nPerTETracks       += nTracks[0];
                   nPerTEPassedTracks += nTracks[1];
                   nPerTEHighPTTracks += nTracks[2];
                }
@@ -216,14 +216,14 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
       } //End part of track selection
 
 
-      ATH_MSG_DEBUG( "Number of all Tracks: "<< nAllTracks <<" Selected Tracks: " << nSelectedTracks << " highPt Tracks: " << nHighPtTracks ); 
+      ATH_MSG_DEBUG( "Number of all Tracks: "<< nAllTracks <<" Selected Tracks: " << nSelectedTracks << " highPt Tracks: " << nHighPtTracks );
 
       if ( !m_beamSpotTool->isHighPTTrack( nHighPtTracks  ) ) {
          ATH_MSG_DEBUG( " No seed tracks for vertex");
          break;
       }
 
-      
+
 
       m_beamSpotTool->eventStage( hasSeedTrack );
 
@@ -258,7 +258,7 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
    HLT::TEVec allTEs =  getAllTEs(tes_in);
    ATH_MSG_DEBUG( "n of all TEs: " << allTEs.size() );
 
-   //Check how many vertices passed the selection 
+   //Check how many vertices passed the selection
    unsigned int nPassedVtx = m_beamSpotTool->m_NvtxPass;
 
    //Save all events, or only those events which pass the Npv cuts (if activated)!
@@ -397,10 +397,10 @@ StatusCode T2VertexBeamSpot::initialize() {
       return StatusCode::FAILURE;
    }
 
-   ATH_CHECK( m_trackCollections.initialize() ); 
+   ATH_CHECK( m_trackCollectionKey.initialize() );
 
 
-   ATH_CHECK( m_outputVertexCollectionKey.initialize() ); 
+   ATH_CHECK( m_outputVertexCollectionKey.initialize() );
 
 
    ATH_CHECK( m_eventInfoKey.initialize() );
@@ -420,7 +420,7 @@ StatusCode T2VertexBeamSpot::execute(){
 
 
 
-   //Reset monitored variables from previous event 
+   //Reset monitored variables from previous event
    m_beamSpotTool->resetMonitoredVariables();
    // Initialize booleans for event stats
    m_beamSpotTool->m_eventStageFlag = std::vector<bool>( numStatistics, false );
@@ -462,22 +462,20 @@ StatusCode T2VertexBeamSpot::execute(){
       auto nTotalPassedTracks = Monitored::Scalar<unsigned>("nTotalPassedTracks");
       auto nTotalHighPTTracks = Monitored::Scalar<unsigned>("nTotalHighPTTracks");
       //Loop over track collections and select tracks
-      for (SG::ReadHandleKey<TrackCollection> trackCollectionKey : m_trackCollections) {
-         SG::ReadHandle<TrackCollection> trackCollection (trackCollectionKey); 
-         ATH_CHECK(trackCollection.isValid());
+      SG::ReadHandle<TrackCollection> trackCollection (m_trackCollectionKey);
+      ATH_CHECK(trackCollection.isValid());
 
-         //Dereference tracks
-         const TrackCollection* tracks = trackCollection.cptr();
+      //Dereference tracks
+      const TrackCollection* tracks = trackCollection.cptr();
 
-         //Select tracks
-         std::vector<unsigned> trackCounter(3,0);//returning all tracks[0]/passed tracks[1]/ hipt tracks[2] counts
-         m_beamSpotTool->selectTracks( tracks, mySelectedTrackCollection, trackCounter );
+      //Select tracks
+      std::vector<unsigned> trackCounter(3,0);//returning all tracks[0]/passed tracks[1]/ hipt tracks[2] counts
+      m_beamSpotTool->selectTracks( tracks, mySelectedTrackCollection, trackCounter );
 
-         //FIXME: make a counter class
-         nTotalTracks       += trackCounter[0];   
-         nTotalPassedTracks += trackCounter[1]; 
-         nTotalHighPTTracks += trackCounter[2];
-      }
+      //FIXME: make a counter class
+      nTotalTracks       += trackCounter[0];   
+      nTotalPassedTracks += trackCounter[1]; 
+      nTotalHighPTTracks += trackCounter[2];
 
       //Store counts for all/highPt/selected tracks
       nAllTracks = nTotalTracks;

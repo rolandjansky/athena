@@ -457,8 +457,11 @@ else:
       #     processing case, those tracks are not part of the re-tracking procedure)
       if InDetFlags.useExistingTracksAsInput():
           _dummy = InputCombinedInDetTracks.pop()
+
       # --- add into list for combination
-      InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
+      # Add tracks to standard track collection or a separate container?
+      if not InDetFlags.storeSeparateLargeD0Container():
+        InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
     
 
@@ -588,6 +591,13 @@ else:
     #
     # ------------------------------------------------------------         
 
+    if InDetFlags.doForwardTracks():
+      # Add tracks that are not saved to the InputCombinedInDetTracks
+      InputForwardInDetTracks = []
+      InputForwardInDetTracks += InputCombinedInDetTracks
+      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        InputForwardInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
+
     if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
       if InDetFlags.doSLHCVeryForward(): 
        if ('InDetNewTrackingCutsForwardTracks' not in dir()): 
@@ -599,7 +609,7 @@ else:
          # --- now run Si pattern for Low Pt 
          # 
          include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py") 
-         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks, 
+         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks, 
  		                                                      InDetKeys.ResolvedForwardTracks(), 
  		                                                      InDetKeys.SiSpSeededForwardTracks(), 
  		                                                      InDetNewTrackingCutsForwardTracks, 
@@ -619,7 +629,7 @@ else:
         # --- now run Si pattern for Low Pt
         #
         include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
                                                                    InDetKeys.ResolvedForwardTracks(),
                                                                    InDetKeys.SiSpSeededForwardTracks(),
                                                                    InDetNewTrackingCutsForwardTracks,
@@ -644,14 +654,14 @@ else:
       # --- now run Si pattern for Low Pt
       #
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+      InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
                                                                    InDetKeys.ResolvedForwardTracks(),
                                                                    InDetKeys.SiSpSeededForwardTracks(),
                                                                    InDetNewTrackingCutsForwardTracks,
                                                                    TrackCollectionKeys,
                                                                    TrackCollectionTruthKeys)  
-      # --- do not add into list for combination YET
-      # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
+      # --- do not add into list for combination
+      # InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
     if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
       #
@@ -684,8 +694,11 @@ else:
     if InDetFlags.doTrackSegmentsDisappearing():
       InputPixelInDetTracks = []
       InputPixelInDetTracks += InputCombinedInDetTracks
+      # Add tracks that are not saved to the InputCombinedInDetTracks
       if InDetFlags.doForwardTracks(): 
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
+      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        InputPixelInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
       # --- load cuts for pixel segment finding
       if ('InDetNewTrackingCutsDisappearing' not in dir()):
         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now")
@@ -928,7 +941,7 @@ else:
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
-        if  InDetFlags.doSplitReco() :
+        if  InDetFlags.doSplitReco() or InDetFlags.doIdealPseudoTracking() :
           # --- add the truth to the truth tracks ;-)
           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),

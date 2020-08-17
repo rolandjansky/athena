@@ -18,7 +18,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -28,7 +28,7 @@
 
 namespace Athena {
 
-  std::string pythonize_value(const Property* prop);
+  std::string pythonize_value(const Gaudi::Details::PropertyBase* prop);
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -173,7 +173,7 @@ JobOptionsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 /////////////////////////////////////////////////////////////////// 
 
 void
-JobOptionsSvc::propertyHandler(Property& p)
+JobOptionsSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 {
   if (!m_jobosvc.retrieve().isSuccess()) {
     ATH_MSG_ERROR("could not retrieve service [" 
@@ -216,8 +216,8 @@ JobOptionsSvc::setMyProperties( const std::string& client, IProperty* me )
   fprintf(m_cat_fd, "\n%s'%s' : {\n", _INDENT, client.c_str());
   fprintf(m_cat_fd, "%s'props': {\n", _INDENT _INDENT);
 
-  const std::vector<Property*>& props = me->getProperties();
-  for ( std::vector<Property*>::const_iterator 
+  const std::vector<Gaudi::Details::PropertyBase*>& props = me->getProperties();
+  for ( std::vector<Gaudi::Details::PropertyBase*>::const_iterator 
           iprop = props.begin(),
           iend  = props.end();
         iprop != iend;
@@ -302,7 +302,7 @@ JobOptionsSvc::setMyProperties( const std::string& client, IProperty* me )
 /// Add a property into the JobOptions catalog
 StatusCode 
 JobOptionsSvc::addPropertyToCatalogue( const std::string& client, 
-                                    const Property& property )
+                                    const Gaudi::Details::PropertyBase& property )
 {
   return m_jobosvc->addPropertyToCatalogue(client, property);
 }
@@ -351,7 +351,7 @@ JobOptionsSvc::readOptions( const std::string& file      ,
 
 
 std::string
-pythonize_value(const Property* p)
+pythonize_value(const Gaudi::Details::PropertyBase* p)
 {
   std::string pvalue = p->toString();
   const std::type_info& ti = *p->type_info();

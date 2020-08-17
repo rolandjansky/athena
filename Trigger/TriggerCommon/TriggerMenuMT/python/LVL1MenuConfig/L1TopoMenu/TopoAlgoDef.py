@@ -425,7 +425,9 @@ class TopoAlgoDef(object):
             
         # deta-dphi with ab+ab
         for x in [
-                {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 4, "olist2": "", "nleading2": HW.OutputWidthSelectMU}, #5DETA99-5DPHI99-2MU4ab
+            {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "MU", "ocut2": 4, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU}, #5DETA99-5DPHI99-MU6ab-MU4ab
+        {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 6, "olist2": "", "nleading2": HW.OutputWidthSelectMU}, #5DETA99-5DPHI99-2MU6ab
+        {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 4, "olist2": "", "nleading2": HW.OutputWidthSelectMU}, #5DETA99-5DPHI99-2MU4ab
             ]:
 
             class d : pass
@@ -606,6 +608,8 @@ class TopoAlgoDef(object):
             
             alg = AlgConf.DeltaEtaIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
 
+            log.info("Current algo ID %i" % currentAlgoId )
+
 
 
             alg.addgeneric('InputWidth', d.inputwidth1)  # noqa: F821
@@ -638,6 +642,8 @@ class TopoAlgoDef(object):
 
             alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
 
+            log.info("Current algo ID %i" % currentAlgoId )
+
             alg.addgeneric('InputWidth1', d.inputwidth) # noqa: F821
             alg.addgeneric('InputWidth2', 1)  
             alg.addgeneric('MaxTob1', d.nleading)       # noqa: F821
@@ -649,7 +655,38 @@ class TopoAlgoDef(object):
             tm.registerAlgo(alg)
             
 
+        # added for muon-jet:
+        algoList = [
+            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"}, #0DR04-MU4ab-CJ15ab
+            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"}, #0DR04-MU6ab-CJ20ab
+        ]
 
+
+        for x in algoList:
+            class d : pass
+            for k in x:
+                setattr (d, k, x[k])
+
+
+            toponame = "%iDR%02d-%s%s%s-%s%s%s"  % (d.minDr, d.maxDr, d.otype1, str(d.ocut1), d.olist1, d.otype2, str(d.ocut2), d.olist2) # noqa: F821
+            log.info("Define %s" % toponame)
+
+            inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2] # noqa: F821
+
+            alg = AlgConf.DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
+
+            log.info("Current algo ID %i" % currentAlgoId )
+
+            alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectJET)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectJET)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinET1', d.ocut1, 0) # noqa: F821
+            alg.addvariable('MinET2', d.ocut2, 0) # noqa: F821
+            alg.addvariable('DeltaRMin', d.minDr*d.minDr, 0) # noqa: F821
+            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr, 0) # noqa: F821
+            tm.registerAlgo(alg)
             
 
         # LFV DETA ATR-14282 
@@ -774,7 +811,7 @@ class TopoAlgoDef(object):
 
         # DISAMB 2 lists
         algolist=[
-            {"disamb": 2, "otype1" : "TAU", "ocut1": 12, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "J", "ocut2": 25, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET}, #1DISAMB-TAU12abi-J25ab
+            {"disamb": 2, "otype1" : "TAU", "ocut1": 12, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "J", "ocut2": 25, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET}, #2DISAMB-TAU12abi-J25ab
         ]
             
         for x in algolist :
@@ -805,7 +842,7 @@ class TopoAlgoDef(object):
             alg.addvariable('DisambDRSqrMin', d.disamb*d.disamb) # noqa: F821
             tm.registerAlgo(alg)
         
-        # DISAMB 3 lists with DR cut to 2nd and 3rd lists Lidija
+        # DISAMB 3 lists with DR cut to 2nd and 3rd lists
 
         algolist=[
             {"disamb": 2, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 25}, # 2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi

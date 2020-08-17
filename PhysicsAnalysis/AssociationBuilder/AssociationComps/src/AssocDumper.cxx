@@ -17,7 +17,7 @@
 #include <ostream>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // CLHEP includes
 #include "AthenaKernel/Units.h"
@@ -256,13 +256,13 @@ StatusCode AssocDumper::dump( const INav4MomAssocs* assocs )
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void AssocDumper::setupINav4MomAssocs( Property& /*inav4MomAssocsName*/ )
+void AssocDumper::setupINav4MomAssocs( Gaudi::Details::PropertyBase& /*inav4MomAssocsName*/ )
 {
   // nothing to do (yet?)
   return;
 }
 
-void AssocDumper::setupOutputStream( Property& /*outputStreamName*/ )
+void AssocDumper::setupOutputStream( Gaudi::Details::PropertyBase& /*outputStreamName*/ )
 {
   // reset internal state
   if ( m_outputStream && 

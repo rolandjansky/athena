@@ -91,7 +91,7 @@ class AthFilterAlgorithm
 
   //special case: post-python default value of property FilterDescription sent to ICutFlowSvc only if not explicitly specified before
   bool m_resetSelfDescription;
-  void doNotResetSelfDescription( Property& );
+  void doNotResetSelfDescription( Gaudi::Details::PropertyBase& );
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
   { this, "EventInfoKey", "EventInfo", "" };
@@ -134,7 +134,7 @@ CutIdentifier AthFilterAlgorithm::cutID()
 
 inline 
 void 
-AthFilterAlgorithm::doNotResetSelfDescription( Property& )
+AthFilterAlgorithm::doNotResetSelfDescription( Gaudi::Details::PropertyBase& )
 { 
   m_resetSelfDescription=false; 
 }

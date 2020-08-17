@@ -92,7 +92,7 @@ namespace SG {
     ServiceHandle<IClassIDSvc> m_pCLIDSvc;
     /// property: the list of items (data objects identified by a class name/key pair)
     StringArrayProperty m_itemList;
-    void decodeItemList(Property&) { 
+    void decodeItemList(Gaudi::Details::PropertyBase&) { 
       const bool DONTCHECKVALIDCLID(false);
       updateItemList(DONTCHECKVALIDCLID); 
     }

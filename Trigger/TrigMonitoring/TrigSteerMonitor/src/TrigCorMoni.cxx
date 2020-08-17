@@ -12,7 +12,7 @@
 
 #include "TH2I.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 

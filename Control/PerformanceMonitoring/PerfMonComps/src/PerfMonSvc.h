@@ -221,10 +221,10 @@ private:
   PerfMonSvc();
 
   /// callback to synchronize the list of algorithms to be profiled
-  void setupProfiledAlgList( Property& profiledAlgNames );
+  void setupProfiledAlgList( Gaudi::Details::PropertyBase& profiledAlgNames );
 
   /// callback to synchronize the list of I/O containers to be monitored
-  void setupIoContainerList( Property& ioContainerNames );
+  void setupIoContainerList( Gaudi::Details::PropertyBase& ioContainerNames );
 
   /// loop over user-declared variables (via the @c IMonitorSvc interface)
   /// and poll the data

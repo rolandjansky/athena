@@ -6,7 +6,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/IChronoStatSvc.h"
@@ -28,8 +28,7 @@
 CaloTowerBuilderTool::CaloTowerBuilderTool(const std::string& name,
 					   const std::string& type,
 					   const IInterface* parent)
-  : CaloTowerBuilderToolBase(name,type,parent),
-    m_caloDDM(nullptr)
+  : CaloTowerBuilderToolBase(name,type,parent)
     //  , m_errorCounter(0)
 {
   declareInterface<ICaloTowerBuilderToolBase>(this);    
@@ -52,7 +51,6 @@ CaloTowerBuilderTool::~CaloTowerBuilderTool()
 
 // protected!
 StatusCode CaloTowerBuilderTool::initializeTool() {
-  ATH_CHECK( detStore()->retrieve (m_caloDDM, "CaloMgr") );
   m_caloIndices = parseCalos (m_includedCalos);
   return this->checkSetup(msg());
 }
@@ -304,7 +302,12 @@ CaloTowerBuilderTool::parseCalos
 StatusCode CaloTowerBuilderTool::rebuildLookup()
 {
   if (towerSeg().neta() != 0 && towerSeg().nphi() != 0) {
-    if (m_cellStore.buildLookUp(*m_caloDDM, towerSeg(), m_caloIndices)) {
+
+    // Cannot do this in initialize: see ATLASRECTS-5012
+    const CaloDetDescrManager* caloDDM = nullptr;
+    ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
+
+    if (m_cellStore.buildLookUp(*caloDDM, towerSeg(), m_caloIndices)) {
       return StatusCode::SUCCESS;
     }
   }
