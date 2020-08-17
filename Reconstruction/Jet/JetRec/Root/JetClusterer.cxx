@@ -3,6 +3,7 @@
 */
 
 #include <memory>
+#include "AsgDataHandles/ReadHandle.h"
 #include "JetRec/JetClusterer.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -115,7 +116,7 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // Thus the contained PseudoJet will be kept frozen there and we can safely use pointer to them from the xAOD::Jet objects
   auto pjVector = std::make_unique<PseudoJetVector>(fastjet::sorted_by_pt(clSequence->inclusive_jets(m_ptmin)) );
   ATH_MSG_DEBUG("Found jet count: " << pjVector->size());
-  if(msgLevel(MSG::VERBOSE)) {
+  if(msgLvl(MSG::VERBOSE)) {
     for(const auto& pj : *pjVector) {
       msg() << "  Pseudojet with pt " << std::setprecision(4) << pj.Et()*1e-3 << " has " << pj.constituents().size() << " constituents" << endmsg;
     }

@@ -36,7 +36,7 @@ namespace InDet
     assert (tmpPos) ;
     m_position = *tmpPos;
 
-    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
+    m_clusList = {clus,nullptr};
     m_elemIdList.first = elementId ;
     m_elemIdList.second = 0 ;
     setupGlobalFromLocalCovariance();
@@ -55,7 +55,7 @@ namespace InDet
     assert (clus!=nullptr);
     m_position         = globpos;
     m_globalCovariance = globcov;
-    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
+    m_clusList = {clus,nullptr};
     m_elemIdList.first = elementId ;
     m_elemIdList.second = 0 ;
   }
@@ -68,11 +68,6 @@ namespace InDet
     SpacePoint(PSP)
   {}
 
-  //-------------------------------------------------------------
-  
-  /** Destructor */
-  PixelSpacePoint::~PixelSpacePoint()
-  {}
  
   //-------------------------------------------------------------
   

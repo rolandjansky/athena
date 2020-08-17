@@ -41,7 +41,7 @@ CachedUniquePtrT<T>::CachedUniquePtrT (std::unique_ptr<T> elt)
  */
 template <class T>
 inline
-CachedUniquePtrT<T>::CachedUniquePtrT (CachedUniquePtrT&& other)
+CachedUniquePtrT<T>::CachedUniquePtrT (CachedUniquePtrT&& other) noexcept
   : m_ptr (other.release().release())
 {
 }
@@ -53,7 +53,7 @@ CachedUniquePtrT<T>::CachedUniquePtrT (CachedUniquePtrT&& other)
 template <class T>
 inline
 CachedUniquePtrT<T>&
-CachedUniquePtrT<T>::operator= (CachedUniquePtrT&& other)
+CachedUniquePtrT<T>::operator= (CachedUniquePtrT&& other) noexcept
 {
   if (this != &other) {
     store (other.release());
@@ -104,7 +104,7 @@ T* CachedUniquePtrT<T>::set (std::unique_ptr<T> elt) const
  */
 template <class T>
 inline
-void CachedUniquePtrT<T>::store (std::unique_ptr<T> elt)
+void CachedUniquePtrT<T>::store (std::unique_ptr<T> elt) noexcept
 {
   T* old = m_ptr.exchange (elt.release());
   delete old;
@@ -165,7 +165,7 @@ CachedUniquePtrT<T>::operator bool() const
 template <class T>
 inline
 std::unique_ptr<T>
-CachedUniquePtrT<T>::release()
+CachedUniquePtrT<T>::release() noexcept
 {
   T* old = m_ptr.exchange (nullptr);
   return std::unique_ptr<T> (old);

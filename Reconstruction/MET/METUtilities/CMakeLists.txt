@@ -55,7 +55,7 @@ atlas_add_library( METUtilitiesLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
    xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces
-   METInterface
+   METInterface AsgDataHandlesLib
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -83,8 +83,11 @@ endif()
 # Executable(s) in the package:
 # only compiled in analysis releases
 if( XAOD_ANALYSIS )
-  foreach( utility example_METMaker_METSystematicsTool
-          example_METMaker_advanced example_rebuildTrackMET )
+  # FIX ME: temporarily disabled utilities relying on non-existant code
+
+  # foreach( utility example_METMaker_METSystematicsTool
+  #         example_METMaker_advanced example_rebuildTrackMET )
+  foreach( utility example_rebuildTrackMET )
     atlas_add_executable( ${utility}
           util/${utility}.cxx
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

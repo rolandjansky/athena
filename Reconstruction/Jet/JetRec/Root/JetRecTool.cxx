@@ -20,9 +20,10 @@
 #include "JetRec/PseudoJetContainer.h"
 #include <algorithm>
 
-#include "StoreGate/ReadHandle.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
-#ifndef GENERATIONBASE
+#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
   #include "AthenaMonitoringKernel/Monitored.h"
 #endif
 
@@ -48,22 +49,15 @@ JetRecTool::JetRecTool(std::string myname)
 #endif
   m_finder("",this),
   m_groomer("",this),
-  m_modifiers(this),
-  m_consumers(this),
   m_trigger(false),
   m_initCount(0),
   m_find(false), m_groom(false), m_copy(false),
   m_inputtype(xAOD::JetInput::Uncategorized),
   m_ppjr(nullptr) {
-  declareProperty("OutputContainer", m_outcoll);
-  declareProperty("InputContainer", m_incoll);
   declareProperty("InputTool", m_intool);
-  declareProperty("InputPseudoJets", m_psjsin);
   declareProperty("JetPseudojetRetriever", m_hpjr);
   declareProperty("JetFinder", m_finder);
   declareProperty("JetGroomer", m_groomer);
-  declareProperty("JetModifiers", m_modifiers);
-  declareProperty("JetConsumers", m_consumers);
   declareProperty("Trigger", m_trigger);
   declareProperty("Timer", m_timer =0);
 }
@@ -225,7 +219,7 @@ StatusCode JetRecTool::initialize() {
   m_conclock.Reset();
   m_nevt = 0;
 
-#ifndef GENERATIONBASE
+#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 #endif
 
@@ -235,6 +229,7 @@ StatusCode JetRecTool::initialize() {
 
 //**********************************************************************
 
+#ifndef XAOD_STANDALONE
 StatusCode JetRecTool::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
   string tname = "";
@@ -320,6 +315,7 @@ StatusCode JetRecTool::finalize() {
   if( saveToFile ) outfile.close();
   return StatusCode::SUCCESS;
 }
+#endif
 
 //**********************************************************************
 
@@ -412,7 +408,7 @@ const JetContainer* JetRecTool::build() const {
   }
 
 
-#ifndef GENERATIONBASE
+#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
   // monitor jet multiplicity and basic jet kinematics
   auto njets = Monitored::Scalar<int>("nJets");
   auto pt    = Monitored::Collection("pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });

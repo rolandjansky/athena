@@ -9,19 +9,19 @@
 #include "TrkDriftCircleMath/MdtChamberGeometry.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GeoModelUtilities/GeoGetIds.h"
 #include "MuonCondData/MdtCondDbData.h"
 
 namespace Muon{
 
   
-  MdtIntersectGeometry::MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData, MsgStream* msg) :
+  MdtIntersectGeometry::MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData, MsgStream* msg, const Muon::IMuonIdHelperSvc* idHelp) :
       m_chid(chid),
       m_mdtGeometry(nullptr),
       m_detMgr(detMgr),
       m_dbData(dbData),
-      m_mdtIdHelper(nullptr)
+      m_idHelperSvc(idHelp)
   {
     init(msg);
   }
@@ -35,7 +35,7 @@ namespace Muon{
     m_detElMl1 = right.m_detElMl1;
     m_detMgr = right.m_detMgr;
     m_dbData=right.m_dbData;
-    m_mdtIdHelper = right.m_mdtIdHelper;
+    m_idHelperSvc = right.m_idHelperSvc;
   }
 
   MdtIntersectGeometry& MdtIntersectGeometry::operator=(const MdtIntersectGeometry& right) {
@@ -48,7 +48,7 @@ namespace Muon{
       m_detElMl1 = right.m_detElMl1;
       m_detMgr = right.m_detMgr;
       m_dbData=right.m_dbData;
-      m_mdtIdHelper = right.m_mdtIdHelper;
+      m_idHelperSvc = right.m_idHelperSvc;
     }
     return *this;
   } 
@@ -63,7 +63,7 @@ namespace Muon{
     MuonStationIntersect intersect;
     if( !m_mdtGeometry ){
       MsgStream log(Athena::getMessageSvc(),"MdtIntersectGeometry");
-      log<<MSG::WARNING<<"MdtIntersectGeometry::intersection() - MdtIntersectGeometry not correctly initialized "<< m_mdtIdHelper->print_to_string(m_chid)<<endmsg;
+      log<<MSG::WARNING<<"MdtIntersectGeometry::intersection() - MdtIntersectGeometry not correctly initialized "<< m_idHelperSvc->mdtIdHelper().print_to_string(m_chid)<<endmsg;
       return intersect;
     }
 
@@ -85,8 +85,8 @@ namespace Muon{
     for( ; dit!=dit_end;++dit ){
 
       double xint = dxdy*( dit->position().x() - lpos.y() ) + lpos.x();
-      Identifier tubeid = m_mdtIdHelper->channelID( m_chid, dit->id().ml()+1, dit->id().lay()+1, dit->id().tube()+1 );
-      if( m_deadTubesML.find( m_mdtIdHelper->multilayerID(tubeid) ) != m_deadTubesML.end() ) {
+      Identifier tubeid = m_idHelperSvc->mdtIdHelper().channelID( m_chid, dit->id().ml()+1, dit->id().lay()+1, dit->id().tube()+1 );
+      if( m_deadTubesML.find( m_idHelperSvc->mdtIdHelper().multilayerID(tubeid) ) != m_deadTubesML.end() ) {
         if( std::find( m_deadTubes.begin(), m_deadTubes.end(), tubeid ) != m_deadTubes.end() )
           continue;
       }
@@ -114,8 +114,6 @@ namespace Muon{
   void MdtIntersectGeometry::init(MsgStream* msg)
   {
 
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-
     /* calculate chamber geometry
        it takes as input:
          distance between the first and second tube in the chamber within a layer along the tube layer (tube distance)
@@ -129,15 +127,15 @@ namespace Muon{
     */
 
     // get id
-    int eta =  m_mdtIdHelper->stationEta(m_chid);
-    int phi = m_mdtIdHelper->stationPhi(m_chid);
-    int name = m_mdtIdHelper->stationName(m_chid);
-    int isBarrel = m_mdtIdHelper->isBarrel(m_chid);
-    int isSmallMdt = m_mdtIdHelper->isSmallMdt(m_chid);
+    int eta = m_idHelperSvc->mdtIdHelper().stationEta(m_chid);
+    int phi = m_idHelperSvc->mdtIdHelper().stationPhi(m_chid);
+    int name = m_idHelperSvc->mdtIdHelper().stationName(m_chid);
+    int isBarrel = m_idHelperSvc->mdtIdHelper().isBarrel(m_chid);
+    int isSmallMdt = m_idHelperSvc->issMdt(m_chid);
     TrkDriftCircleMath::MdtStationId stationId( isSmallMdt, isBarrel, name, eta, phi );
     
     // get detEL for first ml (always there)
-    Identifier firstIdml0 = m_mdtIdHelper->channelID( name,eta,phi,1,1,1 );
+    Identifier firstIdml0 = m_idHelperSvc->mdtIdHelper().channelID( name,eta,phi,1,1,1 );
     Identifier firstIdml1;
 
     m_detElMl0 = m_detMgr->getMdtReadoutElement( firstIdml0 );
@@ -153,7 +151,7 @@ namespace Muon{
     
     // treament of chambers with two ml
     if( nml == 2 ){
-      firstIdml1 = m_mdtIdHelper->channelID( name,eta,phi,2,1,1 );
+      firstIdml1 = m_idHelperSvc->mdtIdHelper().channelID( name,eta,phi,2,1,1 );
       m_detElMl1 = m_detMgr->getMdtReadoutElement( firstIdml1 );
     }
     
@@ -201,14 +199,14 @@ namespace Muon{
     TrkDriftCircleMath::LocPos firstTube1( firstTubeMl1.y(), firstTubeMl1.z() );
         
     // position second tube in ml 0
-    Identifier secondIdml0 = m_mdtIdHelper->channelID( name,eta,phi,firstMlIndex,1,2 );
+    Identifier secondIdml0 = m_idHelperSvc->mdtIdHelper().channelID( name,eta,phi,firstMlIndex,1,2 );
     Amg::Vector3D secondTubeMl0 = transform()*(m_detElMl0->tubePos( secondIdml0 ));
 
     if(m_detElMl0) fillDeadTubes(m_detElMl0, msg);
     if(m_detElMl1) fillDeadTubes(m_detElMl1, msg);
 	
     // position first tube in second layer ml 0 
-    Identifier firstIdml0lay1 = m_mdtIdHelper->channelID( name,eta,phi,firstMlIndex,2,1 );
+    Identifier firstIdml0lay1 = m_idHelperSvc->mdtIdHelper().channelID( name,eta,phi,firstMlIndex,2,1 );
     Amg::Vector3D firstTubeMl0lay1 = transform()*(m_detElMl0->tubePos( firstIdml0lay1 ));
 	
     double tubeDist = (secondTubeMl0 - firstTubeMl0).y();      // distance between tube in a given layer
@@ -235,10 +233,10 @@ namespace Muon{
 
       Identifier detElId = mydetEl->identify();
 
-      int name = m_mdtIdHelper->stationName(detElId);
-      int eta = m_mdtIdHelper->stationEta(detElId);
-      int phi = m_mdtIdHelper->stationPhi(detElId);
-      int ml = m_mdtIdHelper->multilayer(detElId);
+      int name = m_idHelperSvc->mdtIdHelper().stationName(detElId);
+      int eta = m_idHelperSvc->mdtIdHelper().stationEta(detElId);
+      int phi = m_idHelperSvc->mdtIdHelper().stationPhi(detElId);
+      int ml = m_idHelperSvc->mdtIdHelper().multilayer(detElId);
 
       std::vector<int>::iterator it = tubes.begin();
       for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
@@ -253,8 +251,8 @@ namespace Muon{
                ++it;
              }
              else {
-               Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
-               Identifier deadTubeMLId = m_mdtIdHelper->multilayerID( deadTubeId );
+               Identifier deadTubeId = m_idHelperSvc->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
+               Identifier deadTubeMLId = m_idHelperSvc->mdtIdHelper().multilayerID( deadTubeId );
                m_deadTubes.push_back( deadTubeId );
                m_deadTubesML.insert( deadTubeMLId );
                if (msg) {

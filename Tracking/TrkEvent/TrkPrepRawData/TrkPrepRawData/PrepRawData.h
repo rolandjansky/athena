@@ -64,9 +64,9 @@ public:
   /** public because of DataPool*/
   PrepRawData();
   PrepRawData(const PrepRawData&);
-  PrepRawData(PrepRawData&&);
+  PrepRawData(PrepRawData&&) noexcept;
   PrepRawData& operator=(const PrepRawData&);
-  PrepRawData& operator=(PrepRawData&&);
+  PrepRawData& operator=(PrepRawData&&) noexcept;
 
   /** Full Constructor (with references)
       @param clusId Identifier of the tube, strip etc which has produced this
