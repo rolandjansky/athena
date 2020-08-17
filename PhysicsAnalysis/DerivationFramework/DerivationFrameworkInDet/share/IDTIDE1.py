@@ -234,7 +234,8 @@ if idDxAOD_doPix:
   IDTIDESequence += PixelChargeToTConversionSetter 
   _info("Add Pixel xAOD ToTConversionSetter: %s Properties: %s", PixelChargeToTConversionSetter, PixelChargeToTConversionSetter.properties())
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-  xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
+  xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
+                                                  ClusterSplitProbabilityName = InDetRecExample.TrackingCommon.pixelClusterSplitProbName())
   xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
   xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
   _info( "Add Pixel xAOD TrackMeasurementValidation: %s", xAOD_PixelPrepDataToxAOD)
