@@ -52,7 +52,7 @@ EventSelectorByteStream::EventSelectorByteStream(
 
 
 /******************************************************************************/
-void EventSelectorByteStream::inputCollectionsHandler(Property&) {
+void EventSelectorByteStream::inputCollectionsHandler(Gaudi::Details::PropertyBase&) {
   if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
     this->reinit().ignore();
   }

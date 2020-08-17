@@ -205,7 +205,7 @@ HLTConfigSvc::initialize() {
       if (jobOptionsSvc.retrieve().isFailure()) {
          ATH_MSG_WARNING("Cannot retrieve JobOptionsSvc");
       } else {
-         const Property* p=Gaudi::Utils::getProperty( jobOptionsSvc->getProperties("DataFlowConfig"), "DF_PartitionName");   
+         const Gaudi::Details::PropertyBase* p=Gaudi::Utils::getProperty( jobOptionsSvc->getProperties("DataFlowConfig"), "DF_PartitionName");   
          if (p != 0) m_partition = p->toString();
       }
    }

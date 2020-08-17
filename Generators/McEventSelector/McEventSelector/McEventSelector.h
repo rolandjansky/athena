@@ -25,7 +25,7 @@
 // Include files
 #include "GaudiKernel/IEvtSelector.h"
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthenaKernel/IEvtSelectorSeek.h"

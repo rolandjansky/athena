@@ -5,7 +5,7 @@
 // TrigEgammaAnalysisAlg.cxx 
 
 #include "TrigEgammaAnalysisAlg.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
 

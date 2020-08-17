@@ -31,7 +31,7 @@
 // Headerfile
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "Identifier/Identifier.h"

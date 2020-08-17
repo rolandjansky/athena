@@ -124,7 +124,7 @@ MixingEventSelector::finalize() {
 
 
 void
-MixingEventSelector::setUpTriggerList(Property&) {
+MixingEventSelector::setUpTriggerList(Gaudi::Details::PropertyBase&) {
   m_trigList = TriggerList();
   for_each(m_triggerListProp.value().begin(), m_triggerListProp.value().end(),  
 	   bind1st(mem_fun(&MixingEventSelector::decodeTrigger), this));

@@ -86,19 +86,19 @@ private:
   //------------------------------------------------------
 
   /// Call-back method to configure the cut properties (min/max): IsTau
-  void setupIsTau( Property& prop );
+  void setupIsTau( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): Author
-  void setupAuthor( Property& prop );
+  void setupAuthor( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): Discriminant
-  void setupDiscriminant( Property& prop );
+  void setupDiscriminant( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): Charge
-  void setupCharge( Property& prop );
+  void setupCharge( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupNTracks( Property& prop );
+  void setupNTracks( Gaudi::Details::PropertyBase& prop );
 
 
 
@@ -287,31 +287,31 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline void D2PDTauSelector::setupIsTau( Property& /*prop*/ )
+inline void D2PDTauSelector::setupIsTau( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doIsTau = true;
   return;
 }
 
-inline void D2PDTauSelector::setupAuthor( Property& /*prop*/ )
+inline void D2PDTauSelector::setupAuthor( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doAuthor = true;
   return;
 }
 
-inline void D2PDTauSelector::setupDiscriminant( Property& /*prop*/ )
+inline void D2PDTauSelector::setupDiscriminant( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTauDiscriminant = true;
   return;
 }
 
-inline void D2PDTauSelector::setupCharge( Property& /*prop*/ )
+inline void D2PDTauSelector::setupCharge( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doCharge = true;
   return;
 }
 
-inline void D2PDTauSelector::setupNTracks( Property& /*prop*/ )
+inline void D2PDTauSelector::setupNTracks( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doNTracks = true;
   return;

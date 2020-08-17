@@ -12,7 +12,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include <map>
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthViews/View.h"
 
 // STL includes

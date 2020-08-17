@@ -9,7 +9,7 @@
 
 #include "xAODJet/JetContainer.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "PileUpTools/PileUpMergeSvc.h"

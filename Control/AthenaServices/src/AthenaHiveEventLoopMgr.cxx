@@ -32,7 +32,7 @@
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/AppReturnCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
@@ -249,7 +249,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 	error() << "Could not dcast HistPersSvc to a Service"
 		<< endmsg;
       } else {
-	const Property &prop = s->getProperty("OutputFile");
+	const Gaudi::Details::PropertyBase &prop = s->getProperty("OutputFile");
 	std::string val;
 	try {
 	  const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
@@ -358,7 +358,7 @@ AthenaHiveEventLoopMgr::eventStore() const {
 // property handlers
 //=========================================================================
 void 
-AthenaHiveEventLoopMgr::setupTimeKeeper(Property&) {
+AthenaHiveEventLoopMgr::setupTimeKeeper(Gaudi::Details::PropertyBase&) {
   const std::string& tkName(m_timeKeeperName.value());
   // We do not expect a TimeKeeper necessarily being declared  
   if( tkName != "NONE" && tkName.length() != 0) {
@@ -371,7 +371,7 @@ AthenaHiveEventLoopMgr::setupTimeKeeper(Property&) {
 }
 
 void 
-AthenaHiveEventLoopMgr::setClearStorePolicy(Property&) {
+AthenaHiveEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
   const std::string& policyName = m_clearStorePolicy.value();
 
   if ( policyName != "BeginEvent" &&
@@ -390,7 +390,7 @@ AthenaHiveEventLoopMgr::setClearStorePolicy(Property&) {
 }
 
 void
-AthenaHiveEventLoopMgr::setupPreSelectTools(Property&) {
+AthenaHiveEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
 
   m_toolInvoke.clear();
   m_toolReject.clear();

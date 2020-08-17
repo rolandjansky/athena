@@ -41,7 +41,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
   std::vector< std::pair<const xAOD::TauJet*, const TrigCompositeUtils::Decision*>> pairObjs;
 
-  for(const auto trigger : m_trigInputList){
+  for(const auto& trigger : m_trigInputList){
 
     if ( executeNavigation( ctx, trigger,25,"mediumRNN", pairObjs).isFailure() )                                                            
     {                                                                                                                                                       

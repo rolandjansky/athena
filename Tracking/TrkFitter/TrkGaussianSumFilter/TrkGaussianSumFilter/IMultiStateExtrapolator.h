@@ -9,12 +9,11 @@
  * Abstract base class for extrapolation of a MultiComponentState
  */
 
-
 #ifndef TrkIMultiStateExtrapolator_H
 #define TrkIMultiStateExtrapolator_H
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -49,7 +48,6 @@ struct StateAtBoundarySurface
   const TrackParameters* navigationParameters = nullptr;
   const TrackingVolume* trackingVolume = nullptr;
 
-
   /** Update State at Boundary Surface Information */
   void updateBoundaryInformation(const MultiComponentState* boundaryState,
                                  const TrackParameters* navParameters,
@@ -61,7 +59,6 @@ struct StateAtBoundarySurface
   }
 };
 
-
 static const InterfaceID IID_IMultiStateExtrapolator("IMultiStateExtrapolator",
                                                      1,
                                                      0);
@@ -70,53 +67,50 @@ class IMultiStateExtrapolator : virtual public IAlgTool
 {
 public:
   /** @brief MultiStateExtrapolator cache class.
-   *  This object holds information regarding the state of the extrpolation process 
-   *  as well as a large store for  material effects properties.
-   *  
-   *  The is owned by the tools that call the extrapolatator (Currently the GSFSmoother or Forward fitter)
-   *  and it not exposed to the caller of the track fitter.
-   *  Caller of the GSF Extrapolator is needs to ensure that there is one cache per thread 
-   *  to ensure thread safety.
-   *                 */
+   *
+   * This object holds information regarding the state of the extrpolation
+   * process as well as a large store for  material effects properties.
+   *
+   * It to be passed/owned  as argument by the tools that call the extrapolator
+   */
   struct Cache
   {
-    bool  m_recall = false;                   //!< Flag the recall solution
+    bool m_recall = false;                    //!< Flag the recall solution
     const Surface* m_recallSurface = nullptr; //!< Surface for recall
     const Layer* m_recallLayer = nullptr;     //!< Layer for recall
-    const TrackingVolume*
-      m_recallTrackingVolume = nullptr; //!< Tracking volume for recall
-    StateAtBoundarySurface
-      m_stateAtBoundarySurface; //!< Instance of structure describing the state
-                                //!< at a boundary of tracking volumes
+    //!< Tracking volume for recall
+    const TrackingVolume* m_recallTrackingVolume = nullptr;
+
+    // ! < Instance of structure describing the state
+    //!< at a boundary of tracking volumes
+    StateAtBoundarySurface m_stateAtBoundarySurface;
+    //!<  Large cache for material effects
+    std::vector<Trk::IMultiStateMaterialEffects::Cache> m_materialEffectsCaches;
+
     std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> m_matstates;
-    std::vector<std::unique_ptr<const MultiComponentState>>
-      m_mcsGarbageBin; //!< Garbage bin for MultiComponentState objects
-    std::vector<std::unique_ptr<const TrackParameters>>
-      m_tpGarbageBin; //!< Garbage bin for TrackParameter objects
+    //!< Garbage bin for MultiComponentState objects
+    std::vector<std::unique_ptr<const MultiComponentState>> m_mcsGarbageBin;
+    //!< Garbage bin for TrackParameter objects
+    std::vector<std::unique_ptr<const TrackParameters>> m_tpGarbageBin;
 
-    std::vector<Trk::IMultiStateMaterialEffects::Cache> 
-      m_materialEffectsCaches; //!<  Large cache for material effects
+    Cache() { m_materialEffectsCaches.reserve(12); }
 
-
-    Cache()
+    void reset()
     {
-      m_materialEffectsCaches.reserve(72);
-    }
-
-    void reset(){
       m_recall = false;
       m_recallSurface = nullptr;
       m_recallLayer = nullptr;
       m_recallTrackingVolume = nullptr;
       m_matstates.reset(nullptr);
-      m_stateAtBoundarySurface.updateBoundaryInformation(nullptr,nullptr,nullptr);
+      m_stateAtBoundarySurface.updateBoundaryInformation(
+        nullptr, nullptr, nullptr);
       m_mcsGarbageBin.clear();
       m_tpGarbageBin.clear();
       m_materialEffectsCaches.clear();
     };
   };
- 
- /** Virtual destructor */
+
+  /** Virtual destructor */
   virtual ~IMultiStateExtrapolator() = default;
 
   /** AlgTool interface method */

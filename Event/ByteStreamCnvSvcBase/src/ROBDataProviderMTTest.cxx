@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TestTools/ParallelCallTest.h"
 #include "TestTools/random.h"
 #include "ROBDataProviderMTTest.h"

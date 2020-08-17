@@ -47,9 +47,9 @@ public:
 
     RpcPrepData();
     RpcPrepData(const RpcPrepData &);
-    RpcPrepData(RpcPrepData &&);
+    RpcPrepData(RpcPrepData &&) noexcept = default;
     RpcPrepData &operator=(const RpcPrepData &);
-    RpcPrepData &operator=(RpcPrepData &&);
+    RpcPrepData &operator=(RpcPrepData &&) noexcept = default;
 
 
     /** @brief Constructor.

@@ -5,6 +5,8 @@
 #ifndef ZDCANALYSIS_ZDCANALYSISTOOL_H
 #define ZDCANALYSIS_ZDCANALYSISTOOL_H
 
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODForward/ZdcModuleContainer.h"
@@ -93,8 +95,13 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   // internal functions
   TF1* m_tf1SincInterp;
 
-  SG::ReadHandleKey<xAOD::EventInfo>           m_eventInfoKey;
-  SG::WriteHandleKey<xAOD::ZdcModuleContainer> m_ZdcModuleWriteKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {
+    this, "EventInfoKey", "EventInfo",
+    "Location of the event info."};
+  SG::WriteHandleKey<xAOD::ZdcModuleContainer> m_ZdcModuleWriteKey {
+    this, "ZdcModuleWriteKey", "ZdcSums",
+    "Output location of ZDC reprocessed data"};
+
   bool m_flipEMDelay;
   bool m_lowGainOnly;
   bool m_combineDelay;

@@ -6,7 +6,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/IChronoStatSvc.h"

@@ -14,7 +14,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // McParticleKernel includes
 #include "McParticleKernel/ITruthParticleCnvTool.h"

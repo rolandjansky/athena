@@ -9,7 +9,7 @@
 
 #include "G4InputLoader.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaKernel/errorcheck.h"

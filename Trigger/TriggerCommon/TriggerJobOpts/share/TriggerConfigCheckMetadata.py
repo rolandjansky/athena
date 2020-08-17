@@ -28,13 +28,11 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                 TriggerFlags.dataTakingConditions.set_Value_and_Lock('Lvl1Only')
                 DQMonFlags.doHLTMon.set_Value_and_Lock(False) # now that some hltmon moved to ESDtoAOD
                 DQMonFlags.useTrigger.set_Value_and_Lock(False)
-                TriggerFlags.NtupleProductionFlags.ProductionLocation.set_Value_and_Lock('')
 
             if hasHLT and not hasLVL1:
                 log.error("This pool file does not contain LVL1 trigger information ")
                 log.info("Disabling trigger ntuples and trigger aware DQMonitoring but not HLT monitoring.")
                 TriggerFlags.dataTakingConditions.set_Value_and_Lock('HltOnly')
-                TriggerFlags.NtupleProductionFlags.ProductionLocation.set_Value_and_Lock('')
                 DQMonFlags.useTrigger.set_Value_and_Lock(False)
                 DQMonFlags.doLVL1CaloMon.set_Value_and_Lock(False)
                 DQMonFlags.doCTPMon.set_Value_and_Lock(False)
@@ -56,7 +54,6 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                 DQMonFlags.useTrigger.set_Value_and_Lock(False)
                 DQMonFlags.doLVL1CaloMon.set_Value_and_Lock(False)
                 DQMonFlags.doCTPMon.set_Value_and_Lock(False)
-                TriggerFlags.NtupleProductionFlags.ProductionLocation.set_Value_and_Lock('')
                 try:
                     from MuonDQAMonFlags.MuonDQAProperFlags import MuonDQADetFlags
                     MuonDQADetFlags.doTGCL1Mon.set_Value_and_Lock(False)

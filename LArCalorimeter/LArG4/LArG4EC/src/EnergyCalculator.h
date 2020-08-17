@@ -54,8 +54,8 @@ namespace LArG4 {
 
       EnergyCalculator(const std::string& name, ISvcLocator *pSvcLocator);
       // Update handlers
-      void CorrectionTypeHandler(Property&);
-      void SolidTypeHandler(Property&);
+      void CorrectionTypeHandler(Gaudi::Details::PropertyBase&);
+      void SolidTypeHandler(Gaudi::Details::PropertyBase&);
 
       virtual StatusCode initialize() override final;
       virtual StatusCode finalize() override final;

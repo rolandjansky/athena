@@ -243,7 +243,6 @@ ApplicationMgr    SUCCESS           AthSequencer/AthEndSeq
 ApplicationMgr    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
 ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg2
 ApplicationMgr    SUCCESS      AthSequencer/AthOutSeq
-ApplicationMgr    SUCCESS      AthSequencer/AthRegSeq
 ApplicationMgr    SUCCESS ******************************************************************************
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/OnOffIdMap'
 ApplicationMgr       INFO Application Manager Started successfully

@@ -21,7 +21,7 @@
 #include "PixelConditionsData/PixelDeadMapCondData.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class PixelDeadMapCondAlg : public AthReentrantAlgorithm {
   public:
