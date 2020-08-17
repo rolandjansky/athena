@@ -98,7 +98,3 @@ atlas_add_test( ut_PMGTruthWeightTool_test
    SOURCES test/ut_PMGTruthWeightTool_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib ${xaod_access_lib} )
-
-
-# Install files from the package:
-atlas_install_data( data/*.txt share/*.txt )
