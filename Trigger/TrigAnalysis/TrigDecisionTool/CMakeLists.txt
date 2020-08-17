@@ -5,7 +5,7 @@ atlas_subdir( TrigDecisionTool )
 
 # External dependencies:
 find_package( Boost )
-find_package( ROOT COMPONENTS Core PyROOT )
+find_package( ROOT COMPONENTS Core PyROOT ROOTTPython )
 
 # Component(s) in the package:
 if( XAOD_STANDALONE )
