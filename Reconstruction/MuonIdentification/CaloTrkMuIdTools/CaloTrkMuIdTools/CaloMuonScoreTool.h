@@ -82,9 +82,6 @@ private:
   // Number of colour channels to consider in the convolutional neural network
   int m_nChannels = 7;
 
-  // Eta cut (absolute value) up to which a track particle's muon score will be calculated  
-  float m_caloMuonEtaCut = 0.1;
-
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
 
   /// Handle to @c IONNXRuntimeSvc
@@ -101,6 +98,8 @@ private:
   std::vector<int64_t> m_input_node_dims;
 
   Gaudi::Property<std::string> m_modelFileName{this,"ModelFileName","CaloMuonCNN_0.onnx"};
+
+  Gaudi::Property<double> m_CaloMuonEtaCut {this, "CaloMuonEtaCut", 1.0, "Eta cut (absolute value) up to which a track particle's muon score will be calculated"};
 };
 
 #endif

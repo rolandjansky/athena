@@ -137,10 +137,10 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   double track_eta = trk->eta();
 
   // calculate muon score at all eta values
-  //  if(std::abs(track_eta) > m_caloMuonEtaCut){
-  //  ATH_MSG_DEBUG("Skip calculation of muon score for track particle due to failed eta cut of " << m_caloMuonEtaCut << " (eta="<<track_eta<<")");
-  //  return -1;
-  // }
+  if(std::abs(track_eta) > m_CaloMuonEtaCut){
+    ATH_MSG_DEBUG("Skip calculation of muon score for track particle due to failed eta cut of " << m_CaloMuonEtaCut << " (eta="<<track_eta<<")");
+    return -1;
+  }
 
   ATH_MSG_DEBUG("Calculating muon score for track particle with eta="<<track_eta);
 
