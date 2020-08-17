@@ -78,14 +78,6 @@ RpcPrepData::RpcPrepData(const RpcPrepData& RIO):
         m_ambiguityFlag(RIO.m_ambiguityFlag)    
 { }
 
-// move constructor:
-RpcPrepData::RpcPrepData(RpcPrepData&& RIO):
-        MuonCluster(std::move(RIO)),
-        m_detEl( RIO.m_detEl ),
-        m_time( RIO.m_time ),
-        m_triggerInfo(RIO.m_triggerInfo),
-        m_ambiguityFlag(RIO.m_ambiguityFlag)    
-{ }
 
 //assignment operator
 RpcPrepData&
@@ -103,21 +95,6 @@ RpcPrepData::operator=(const RpcPrepData& RIO)
 
 }
 
-//move operator
-RpcPrepData&
-RpcPrepData::operator=(RpcPrepData&& RIO)
-{
-    if (&RIO !=this)
-    {
-      MuonCluster::operator=(std::move(RIO));
-      m_detEl =  RIO.m_detEl ;
-      m_time = RIO.m_time;
-      m_triggerInfo = RIO.m_triggerInfo;
-      m_ambiguityFlag =RIO.m_ambiguityFlag;
-    }
-    return *this;
-
-}
 
 MsgStream&
 RpcPrepData::dump( MsgStream&    stream) const

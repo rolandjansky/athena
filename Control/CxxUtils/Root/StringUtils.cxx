@@ -705,7 +705,7 @@ namespace CxxUtils {
 	  case '$':
 	    {
 	      // find the end of the math block
-	      size_t endpos = latex.find("$",nextpos+1);
+	      size_t endpos = latex.find('$',nextpos+1);
 	      if(endpos == std::string::npos){
 		// it's unterminated, break
 		retval += latex.substr(pos);
