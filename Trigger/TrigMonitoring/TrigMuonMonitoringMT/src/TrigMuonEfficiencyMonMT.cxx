@@ -197,7 +197,7 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
       // For ttbar events
       if( m_eff_method == "TTbarTagAndProbe" && !bit_dR ) continue;
       // For Zmumu events
-      if( m_eff_method == "ZTagAndProbe" && !bit_dR && !bit_mass ) continue;
+      if( m_eff_method == "ZTagAndProbe" && !(bit_mass && bit_dR) ) continue;
       
       dimuons.push_back(std::make_pair(mu1,mu2));
     }
