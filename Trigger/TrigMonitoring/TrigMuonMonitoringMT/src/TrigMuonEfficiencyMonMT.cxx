@@ -39,7 +39,7 @@ bool TrigMuonEfficiencyMonMT :: selectEvents() const {
 
 StatusCode TrigMuonEfficiencyMonMT :: selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
 
-  if(m_eff_method=="TagAndProbe"){
+  if(m_eff_method == "TTbarTagAndProbe" || m_eff_method == "ZTagAndProbe"){
     return selectMuonsTagAndProbe(muons, probes);
   } else {
     for (const xAOD::Muon* mu : *muons) {
@@ -58,12 +58,12 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   auto muPt = Monitored::Scalar<double>(m_group+"_muPt");
   auto muEta = Monitored::Scalar<float>(m_group+"_muEta");
   auto muPhi = Monitored::Scalar<float>(m_group+"_muPhi");
-  auto muPileup = Monitored::Scalar<float>(m_group+"_muPileup");
+  auto averageMu = Monitored::Scalar<float>(m_group+"_averageMu");
 
   muPt = mu->pt()/1e3;
   muEta = mu->eta();
   muPhi = mu->phi();
-  muPileup = lbAverageInteractionsPerCrossing(ctx);
+  averageMu = lbAverageInteractionsPerCrossing(ctx);
 
   auto L1pass = Monitored::Scalar<bool>(m_group+"_L1pass",false);
   auto L2SApass = Monitored::Scalar<bool>(m_group+"_L2SApass",false);
@@ -137,8 +137,8 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   }
 
 
-  if(m_doEFIso) ATH_MSG_DEBUG("L1pass:" << L1pass << " L2SAPass:" << L2SApass << " L2CBpass:" << L2CBpass << " EFSApass:" << EFSApass <<  " EFCBpass:" << EFCBpass << " EFIsopass:" << EFIsopass);
-  else ATH_MSG_DEBUG("L1pass:" << L1pass << " L2SAPass:" << L2SApass << " L2CBpass:" << L2CBpass << " EFSApass:" << EFSApass <<  " EFCBpass:" << EFCBpass);
+  ATH_MSG_DEBUG("doL1:" << m_doL1 << " L1pass:" << L1pass << " doL2SA:" << m_doL2SA << " L2SAPass:" << L2SApass << " doL2CB:" << m_doL2CB << " L2CBpass:" << L2CBpass <<
+                " doEFSA:" << m_doEFSA << " EFSApass:" << EFSApass << " doEFCB:" << m_doEFCB <<  " EFCBpass:" << EFCBpass << " doEFIso:" << m_doEFIso << " EFIsopass:" << EFIsopass);
 
   //// Cuts based on the offline muon's features ////
   // Inclusive
@@ -146,7 +146,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
 
   // Plateau
   if(muPt>m_thresholds.at(chain)){
-    fill(m_group, muEta, muPhi, muPileup, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
+    fill(m_group, muEta, muPhi, averageMu, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass, EFIsopass);
   }
 
   return StatusCode::SUCCESS;
@@ -170,7 +170,7 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
     for(++mu2_it; mu2_it!=mu2_end; ++mu2_it){
       const xAOD::Muon *mu2 = *mu2_it;
       if( mu2->muonType()>m_muontype ) continue;
-      if( !mu1->charge()*mu2->charge()>0 ) continue;
+      if( mu1->charge()*mu2->charge()>0 ) continue;
 
       TLorentzVector lvmu1 = mu1->p4();
       TLorentzVector lvmu2 = mu2->p4();
@@ -195,9 +195,9 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
       }
 
       // For ttbar events
-      if( m_ttbar_mode && !bit_dR ) continue;
+      if( m_eff_method == "TTbarTagAndProbe" && !bit_dR ) continue;
       // For Zmumu events
-      if( m_Zmumu_mode && !bit_mass ) continue;
+      if( m_eff_method == "ZTagAndProbe" && !bit_dR && !bit_mass ) continue;
       
       dimuons.push_back(std::make_pair(mu1,mu2));
     }

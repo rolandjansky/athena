@@ -10,15 +10,15 @@ template<class T> std::tuple<bool,double,double> MuonMatchingTool :: trigPosForM
 
 template<class T, class OFFL>
 const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float reqdR, bool &pass,
-                                   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*),
-                                   const std::string containerSGKey) const {
+                                   const std::string containerSGKey,
+                                   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::match<T>");
 
   using CONTAINER = DataVector<T>;
   const T* ptr = nullptr;
 
-  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = matchLinkInfo<T>(offl, trig, reqdR, pass, trigPosForMatchFunc, containerSGKey);
+  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = matchLinkInfo<T>(offl, trig, reqdR, pass, containerSGKey, trigPosForMatchFunc);
   if( featureLinkInfo.isValid() ){
     const ElementLink<CONTAINER> link = featureLinkInfo.link;
     ptr = *link;
@@ -31,8 +31,8 @@ const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float req
 
 template<class T, class OFFL>
 const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: matchLinkInfo(const OFFL* offl, std::string trig, float reqdR, bool &pass,
-                                                                                     std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*),
-                                                                                     const std::string containerSGKey) const {
+                                                                                     const std::string containerSGKey,
+                                                                                     std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::matchLinkInfo<T>");
 

@@ -4,7 +4,17 @@ import re
 import math
 import ROOT
 
-def TrigMuonEfficiencyMonttbarConfig(helper):
+
+def regex(pat):
+    if 'cached_regex' not in globals():
+        global cached_regex
+        cached_regex = {}
+    if pat not in cached_regex:
+        cached_regex.update({pat:re.compile(pat)})
+    return cached_regex[pat]
+
+
+def TrigMuonEfficiencyMonTTbarConfig(helper):
     
     from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -12,24 +22,17 @@ def TrigMuonEfficiencyMonttbarConfig(helper):
     # To do: add multi-muon chain and msonly chain
     Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20']
 
-    cached_regex = {}
-    def regex(pat):
-        if pat not in cached_regex:
-            cached_regex.update({pat:re.compile(pat)})
-        return cached_regex[pat]
-
-    
     for chain in Chains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMonMT,'TrigMuEff_ttbar_'+chain)
 
         monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU20'
         monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU20'
-        monAlg.Method = 'TagAndProbe'
-        monAlg.ttbarMode = True
+        monAlg.Method = 'TTbarTagAndProbe'
         monAlg.MuonType = ROOT.xAOD.Muon_v1.Combined
         monAlg.MonitoredChains = [chain]
-        monAlg.L1Seeds = ['L1_'+chain.split('L1')[1]]
-        monAlg.Thresholds = [float(regex('HLT_mu').sub('',regex('HLT_mu[0-9]+').match(chain).group()))]
+        threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
+        monAlg.L1Seeds = [regex('L1MU').sub('L1_MU', level1)]
+        monAlg.Thresholds = [float(threshold)]
         monAlg.Group = 'Eff_ttbar_'+chain
         
         GroupName = 'Eff_ttbar_'+chain
@@ -51,24 +54,17 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
     # To do: add multi-muon chain and msonly chain
     Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20']
 
-    cached_regex = {}
-    def regex(pat):
-        if pat not in cached_regex:
-            cached_regex.update({pat:re.compile(pat)})
-        return cached_regex[pat]
-
-    
     for chain in Chains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMonMT,'TrigMuEff_ZTP_'+chain)
 
         monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU20'
         monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU20'
-        monAlg.Method = 'TagAndProbe'
-        monAlg.ZmumuMode = True
+        monAlg.Method = 'ZTagAndProbe'
         monAlg.MuonType = ROOT.xAOD.Muon_v1.Combined
         monAlg.MonitoredChains = [chain]
-        monAlg.L1Seeds = ['L1_'+chain.split('L1')[1]]
-        monAlg.Thresholds = [float(regex('HLT_mu').sub('',regex('HLT_mu[0-9]+').match(chain).group()))]
+        threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
+        monAlg.L1Seeds = [regex('L1MU').sub('L1_MU', level1)]
+        monAlg.Thresholds = [float(threshold)]
         monAlg.Group = 'Eff_ZTP_'+chain
         
         GroupName = 'Eff_ZTP_'+chain
@@ -155,7 +151,7 @@ def defineEfficiencyHistograms(monAlg, histGroup, GroupName, chain):
     defineEachStepHistograms('muPt', 'p_{T} [GeV]', 30, 0.0, 60)
     defineEachStepHistograms('muEta', '#eta', 30, -3.0, 3.0)
     defineEachStepHistograms('muPhi', '#phi', 30, -math.pi, math.pi)
-    defineEachStepHistograms('muPileup', 'average pileup', 3, 0., 60.)
+    defineEachStepHistograms('averageMu', 'average pileup', 3, 0., 60.)
 
 
     histGroup.defineHistogram(GroupName+'_invmass;invmass',

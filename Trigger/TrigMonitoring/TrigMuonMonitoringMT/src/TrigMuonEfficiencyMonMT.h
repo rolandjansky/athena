@@ -31,7 +31,7 @@ class TrigMuonEfficiencyMonMT : public TrigMuonMonitorAlgorithm{
   StatusCode selectMuonsTagAndProbe(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const ;
 
   // properties
-  Gaudi::Property<std::string> m_eff_method {this, "Method", "", "Method to measure efficiency e.g. \"TagAndProbe\", \"Bootstrap\""};
+  Gaudi::Property<std::string> m_eff_method {this, "Method", "", "Method to measure efficiency e.g. \"TTbarTagAndProbe\", \"ZTagAndProbe\", \"Bootstrap\""};
   Gaudi::Property<std::string> m_event_trigger {this, "EventTrigger", "", "Trigger used to select events"};
   Gaudi::Property<std::string> m_tag_trig {this, "TagTrigger", "", "Trigger used to define tag muons"};
   Gaudi::Property<std::vector<std::string> > m_monitored_chains_L1 {this, "L1Seeds", {}, "List of L1 seeds of measured trigger"};
@@ -45,8 +45,6 @@ class TrigMuonEfficiencyMonMT : public TrigMuonMonitorAlgorithm{
   Gaudi::Property<bool> m_use_extrapolator {this, "UseExtrapolator", false, "Flag to activate the track extrapolator"};
   Gaudi::Property<double> m_mass_lowlim {this, "MassLowLim", 81., "Lower mass limit for the tag and probe method"};
   Gaudi::Property<double> m_mass_highlim {this, "MassHighLim", 101., "Higher mass limit for the tag and probe method"};
-  Gaudi::Property<bool> m_ttbar_mode {this, "ttbarMode", false, "Flag to use ttbar events"};
-  Gaudi::Property<bool> m_Zmumu_mode {this, "ZmumuMode", false, "Flag to use Zmumu events"};
 
   // data
   std::map<std::string, std::string> m_l1seeds {};

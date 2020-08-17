@@ -202,8 +202,8 @@ class MuonMatchingTool : public AthAlgTool {
    * @todo Consider improving the argument list.
    */
   template<class T, class OFFL> const TrigCompositeUtils::LinkInfo<DataVector<T> > matchLinkInfo(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
-				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>,
-                                   const std::string containerSGKey = "") const;
+                                   const std::string containerSGKey = "",
+				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
 
   /**
    * @brief Function that searches for an online muon candidate of type T and judges if it is matched to a given offline muon.
@@ -218,8 +218,8 @@ class MuonMatchingTool : public AthAlgTool {
    * @todo Consider improving the argument list.
    */
   template<class T, class OFFL> const T* match(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
-				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>,
-                                   const std::string containerSGKey = "") const;
+                                   const std::string containerSGKey = "",
+				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
 
   /**
    * @brief Function that searches for an offline muon candidate matched to online muon of type T.
