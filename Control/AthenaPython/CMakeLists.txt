@@ -5,7 +5,7 @@ atlas_subdir( AthenaPython )
 
 # External dependencies:
 find_package( Python COMPONENTS Development )
-find_package( ROOT COMPONENTS Core PyROOT )
+find_package( ROOT COMPONENTS Core PyROOT ROOTTPython cppyy3_7)
 
 # Component(s) in the package:
 atlas_add_library( AthenaPython

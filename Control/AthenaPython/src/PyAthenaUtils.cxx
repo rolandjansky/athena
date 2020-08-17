@@ -25,7 +25,7 @@
 
 // PyROOT includes
 #include "TPython.h"
-#include "TPyException.h"
+#include "CPyCppyy/PyException.h"
 
 // Reflex includes
 #include "DataModelRoot/RootType.h"
@@ -160,7 +160,7 @@ void PyAthena::throw_py_exception (bool display)
       Py_XDECREF (f);
     }
   }
-  throw PyROOT::TPyException();
+  throw CPyCppyy::PyException();
 }
 
 StatusCode 
@@ -383,7 +383,7 @@ void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
   PyObject* pySc = TPython::CPPInstance_FromVoidPtr((void*)&sc,
 						    "StatusCode");
   if ( !pySc ) {
-    throw PyROOT::TPyException();
+    throw CPyCppyy::PyException();
   }
 
   PyObject* call = PyObject_CallMethod(self,

@@ -29,7 +29,7 @@ SG_BASES1(PyObject, SG::NoBase);
 #include "AthenaPython/IPyComponent.h"
 
 // PyROOT includes
-#include "TPyException.h"
+#include "CPyCppyy/PyException.h"
 #include "TPython.h"
 
 using namespace PyAthena;
@@ -93,7 +93,7 @@ PyComponentMgr::initialize()
   if ( !module || !PyModule_Check( module ) ) {
     ATH_MSG_ERROR("Could not import [" << pyModuleName << "] !!");
     Py_XDECREF (module);
-    throw PyROOT::TPyException();
+    throw CPyCppyy::PyException();
   }
 
   const std::string pyClassName = "PyComponents";
@@ -200,7 +200,7 @@ PyComponentMgr::pyObject( IPyComponent* cppComp )
     ATH_MSG_ERROR("No such python component [" << name
                   << "] or invalid item !!");
     Py_XDECREF( o );
-    throw PyROOT::TPyException();
+    throw CPyCppyy::PyException();
   }
   m_components[name] = o;
 
