@@ -19,8 +19,3 @@ PhysValPFO_neutral_EM.PFOContainerName="JetETMissNeutralParticleFlowObjects"
 PhysValPFO_neutral_EM.useNeutralPFO = True
 
 monMan.AthenaMonTools += [ PhysValPFO_neutral_EM ]
-
-if jobproperties.eflowRecFlags.useFlowElements:
-  from PFODQA.PFODQAConf import PhysValFlowElement
-  PhysValFlowElement = PhysValFlowElement("PhysValFlowElement_Charged")
-  monMan.AthenaMonTools += [PhysValFlowElement]
