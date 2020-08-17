@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF_FastCaloSimServices
@@ -800,41 +800,47 @@ def getPileupFastShowerCellBuilderTool(name="ISF_PileupFastShowerCellBuilderTool
 
 def getFastHitConvertTool(name="ISF_FastHitConvertTool", **kwargs):
     mergeable_collection_suffix = "_FastCaloSim"
+    region = "CALO"
 
     EMB_hits_bare_collection_name = "LArHitEMB"
     EMB_hits_merger_input_property = "LArEMBHits"
     EMB_hits_collection_name = generate_mergeable_collection_name(
         EMB_hits_bare_collection_name,
         mergeable_collection_suffix,
-        EMB_hits_merger_input_property)
+        EMB_hits_merger_input_property,
+        region)
 
     EMEC_hits_bare_collection_name = "LArHitEMEC"
     EMEC_hits_merger_input_property = "LArEMECHits"
     EMEC_hits_collection_name = generate_mergeable_collection_name(
         EMEC_hits_bare_collection_name,
         mergeable_collection_suffix,
-        EMEC_hits_merger_input_property)
+        EMEC_hits_merger_input_property,
+        region)
 
     FCAL_hits_bare_collection_name = "LArHitFCAL"
     FCAL_hits_merger_input_property = "LArFCALHits"
     FCAL_hits_collection_name = generate_mergeable_collection_name(
         FCAL_hits_bare_collection_name,
         mergeable_collection_suffix,
-        FCAL_hits_merger_input_property)
+        FCAL_hits_merger_input_property,
+        region)
 
     HEC_hits_bare_collection_name = "LArHitHEC"
     HEC_hits_merger_input_property = "LArHECHits"
     HEC_hits_collection_name = generate_mergeable_collection_name(
         HEC_hits_bare_collection_name,
         mergeable_collection_suffix,
-        HEC_hits_merger_input_property)
+        HEC_hits_merger_input_property,
+        region)
 
     tile_hits_bare_collection_name = "TileHitVec"
     tile_hits_merger_input_property = "TileHits"
     tile_hits_collection_name = generate_mergeable_collection_name(
         tile_hits_bare_collection_name,
         mergeable_collection_suffix,
-        tile_hits_merger_input_property)
+        tile_hits_merger_input_property,
+        region)
 
     kwargs.setdefault('embHitContainername', EMB_hits_collection_name)
     kwargs.setdefault('emecHitContainername', EMEC_hits_collection_name)
