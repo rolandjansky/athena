@@ -4736,9 +4736,11 @@ these parts had been maschined during installation so that the true value is not
 <!-- BEGIN confirmation with atljf___0010-vAC (if no other comment) -->
 <!--  Main Cylinder  -->
 <var  name="JFSH_JFCMClen_JFCMainCylinder_length"                  value=" 5041." />
-<var  name="JFSH_JFCMCir1_JFCMainCylinder_innerRadius1"            value="  304." />  <!-- NO CONFIRMATION POSSIBLE -->
+<var  name="JFSH_JFCMCir1_JFCMainCylinder_innerRadius1"            value="  282." />  <!-- NO CONFIRMATION POSSIBLE; changed by Sven.Menke@CERN.CH Jul 2020 from 304 to 282 according to http://atlas.web.cern.ch/Atlas/GROUPS/Shielding/shielding.htm -->
 <var  name="JFSH_JFCMCouR_JFCMainCylinder_outerRadius"             value=" 1550." />
 <var  name="JFSH_JFCMChSl_JFCMainCylinder_HoleSLope"               value="    1.1"/>  <!-- NO CONFIRMATION POSSIBLE -->
+<var  name="JFSH_JFCMChSl_JFCMainCylinder_HoleSLope_zoffset"       value=" 1630." />  <!-- this length plus plug is straight; introduced by Sven.Menke@CERN.CH Jul 2020 according to https://edms.cern.ch/ui/file/322317/AC/atljf___0003-vAC.pdf -->
+<var  name="JFSH_JFCMChSl_JFCMainCylinder_OctoZoverlap"            value="  520." />  <!-- this is the z-portion of JFC3 that is modeled here as Oct; introduced by Sven.Menke@CERN.CH Jul 2020 -->
 <var  name="JFSH_JFCMCzof_JFCMainCylinder_zoffset"                 value="   45." />
 <var  name="JFSH_JFCMCrso_JFCMainCylinder_rolledsteeloff"          value="   30." />  <!-- confirmed atljf___0031-vAE -->
 <var  name="JFSH_JFCMCpoo_JFCMainCylinder_polybaronoff"            value="   50." />  <!-- confirmed atljf___0030-vAD -->
@@ -4764,7 +4766,8 @@ these parts had been maschined during installation so that the true value is not
 
 <!--  Derived variables  -->
 
-<var  name="JFSH_JFCMCir2_JFCMainCylinder_innerRadius2"   value="JFSH_JFCMCir1_JFCMainCylinder_innerRadius1+JFSH_JFCMClen_JFCMainCylinder_length*tan(JFSH_JFCMChSl_JFCMainCylinder_HoleSLope*GENV_PiS180)"/>
+<var  name="JFSH_JFCMCir2_JFCMainCylinder_innerRadius2"   value="JFSH_JFCMCir1_JFCMainCylinder_innerRadius1+(JFSH_JFCMClen_JFCMainCylinder_length-JFSH_JFCMChSl_JFCMainCylinder_HoleSLope_zoffset)*tan(JFSH_JFCMChSl_JFCMainCylinder_HoleSLope*GENV_PiS180)"/> <!-- changed by SvenMenke@CERN.CH Jul 2020 -->
+<var  name="JFSH_JFCMCir3_JFCMainCylinder_innerRadius3"   value="JFSH_JFCMCir2_JFCMainCylinder_innerRadius2+JFSH_JFCMChSl_JFCMainCylinder_OctoZoverlap*tan(JFSH_JFCMChSl_JFCMainCylinder_HoleSLope*GENV_PiS180)"/> <!-- added by SvenMenke@CERN.CH Jul 2020 -->
 <var  name="JFSH_JFCMCzpo_JFCMainCylinder_Z"              value="JFSH_XYZref+JFSH_JFCMCzof_JFCMainCylinder_zoffset" />
 <var  name="JFSH_JFSOCzpo_JFSOctogon_Z"                   value="JFSH_XYZref+JFSH_JFSOCzof_JFSOctogon_zoffset+JFSH_JFSOClen_JFSOctogon_length/2." />
 <var  name="JFSH_PLUGzpos_Plug_posz"                      value="JFSH_XYZref-JFSH_PLUGleng_Plug_length"/>
@@ -4774,6 +4777,7 @@ these parts had been maschined during installation so that the true value is not
      <polyplane   Rio_Z="JFSH_PLUGinRa_Plug_innerRadius;JFSH_PLUGouRa_Plug_outerRadius;JFSH_PLUGzpos_Plug_posz"  />
      <polyplane   Rio_Z="JFSH_PLUGinRa_Plug_innerRadius;JFSH_PLUGouRa_Plug_outerRadius;0."  />
      <polyplane   Rio_Z="JFSH_JFCMCir1_JFCMainCylinder_innerRadius1;JFSH_JFCMCouR_JFCMainCylinder_outerRadius-JFSH_JFCMCrso_JFCMainCylinder_rolledsteeloff-JFSH_JFCMCpoo_JFCMainCylinder_polybaronoff-GENV_Eps;0."  />
+     <polyplane   Rio_Z="JFSH_JFCMCir1_JFCMainCylinder_innerRadius1;JFSH_JFCMCouR_JFCMainCylinder_outerRadius-JFSH_JFCMCrso_JFCMainCylinder_rolledsteeloff-JFSH_JFCMCpoo_JFCMainCylinder_polybaronoff-GENV_Eps;JFSH_JFCMChSl_JFCMainCylinder_HoleSLope_zoffset"  /> <!-- added plane by Sven.Menke@CERN.CH Jul 2020 since JFC2 is first straight and then with 1.1 degrees like JFC3 -->
      <polyplane   Rio_Z="JFSH_JFCMCir2_JFCMainCylinder_innerRadius2;JFSH_JFCMCouR_JFCMainCylinder_outerRadius-JFSH_JFCMCrso_JFCMainCylinder_rolledsteeloff-JFSH_JFCMCpoo_JFCMainCylinder_polybaronoff-GENV_Eps;JFSH_JFCMClen_JFCMainCylinder_length"  />
 </pcon>
 
@@ -4817,7 +4821,13 @@ these parts had been maschined during installation so that the true value is not
   <posXYZ  volume="JFSH_JFSOctogon_Coreround" X_Y_Z=" 0.; 0.;-(JFSH_JFSOClen_JFSOctogon_length-JFSH_JFSOCrso_JFSOctogon_rolledsteeloff-JFSH_JFSOCpoo_JFSOctogon_polybaronoff)/2.+GENV_Eps" />
 </union>
 
-<tubs name="JFSH_JFSOctogon_Hole" material="ShieldIron" Rio_Z=" 0. ;JFSH_JFCMCir2_JFCMainCylinder_innerRadius2; JFSH_JFSOClen_JFSOctogon_length*1.2"/>
+<pcon name="JFSH_JFSOctogon_Hole" material="ShieldIron" > <!-- changed from tubs to pcon by Sven.Menke@CERN.CH Jul 2020 since inner bore of JFC3 has 1.1 degree angle -->
+     <polyplane   Rio_Z="0.;JFSH_JFCMCir2_JFCMainCylinder_innerRadius2;-0.6*JFSH_JFSOClen_JFSOctogon_length"/>
+     <polyplane   Rio_Z="0.;JFSH_JFCMCir2_JFCMainCylinder_innerRadius2;-0.5*JFSH_JFSOClen_JFSOctogon_length"/>
+     <polyplane   Rio_Z="0.;JFSH_JFCMCir2_JFCMainCylinder_innerRadius2;-0.5*JFSH_JFSOClen_JFSOctogon_length"/>
+     <polyplane   Rio_Z="0.;JFSH_JFCMCir3_JFCMainCylinder_innerRadius3;-0.5*JFSH_JFSOClen_JFSOctogon_length+JFSH_JFCMChSl_JFCMainCylinder_OctoZoverlap"/>
+     <polyplane   Rio_Z="0.;JFSH_JFCMCir3_JFCMainCylinder_innerRadius3; 0.6*JFSH_JFSOClen_JFSOctogon_length"/>
+</pcon>
 <var  name="JFSH_JFSOctHBPzo_JFSOctogon_HoleBPzoffset"    value=" 600." />       <!-- confirmed atljf___0010-vAC -->
 <var  name="JFSH_JFSOctHBPoR_JFSOctogon_HoleBPoutRad"     value=" 436. + 1." />  <!-- value of MuonSys mother volume -->
 <tubs name="JFSH_JFSOctogon_HoleBP" material="ShieldIron" Rio_Z=" 0. ;JFSH_JFSOctHBPoR_JFSOctogon_HoleBPoutRad; JFSH_JFSOClen_JFSOctogon_length"/>
@@ -5696,7 +5706,7 @@ these parts had been maschined during installation so that the true value is not
 <var  name="JTSH_zpositio_Shield_Z"                                 value=" 7917. " />  <!-- atljt___0055-vAC says 7941. , TC says wrong by 3cm -->
 <var  name="JTSH_yrotatio_Shield_rotY"                              value="  180. " />  <!-- NO CONFIRMATION NEEDED -->
 
-<var  name="JTSH_IPinnRa2_InnerPlugs_innerRadius2" value="JTSH_IPinnRa1_InnerPlugs_innerRadius1 + JTSH_OPlength_OuterPlugs_length *tan(JTSH_IPtiltAn_InnerPlugs_tiltAngle*GENV_PiS180)"/>
+<var  name="JTSH_IPinnRa2_InnerPlugs_innerRadius2" value="JTSH_IPinnRa1_InnerPlugs_innerRadius1 + JTSH_IPlength_InnerPlugs_length *tan(JTSH_IPtiltAn_InnerPlugs_tiltAngle*GENV_PiS180)"/> <!-- changed by Sven.Menke@CERN.CH Jul 2020 from JTSH_OPlength_OuterPlugs_length to JTSH_IPlength_InnerPlugs_length -->
 <var  name="JTSH_PRextzpo_PolyRings_extension_z"   value="(JTSH_PRoutRad_PolyRings_outerRadius-JTSH_PRinnRad_PolyRings_innerRadius-JTSH_PRinRaof_PolyRings_innerRadoff)/tan(JTSH_PRexttAn_PolyRings_extension_tiltAngle*GENV_PiS180)"/>
 
 <var  name="JTSH_OPzposi1_OuterPlugs_z1"    value="JTSH_PRipexle_PolyRings_IPextension_length" />
