@@ -33,7 +33,7 @@ class ZDCTriggerEfficiency{
 
 	void UpdatelumiBlock(unsigned int lumiBlock)
 	{
-		if (!_haveParams) throw;
+		if (!_haveParams) throw std::exception();
 
 		if (lumiBlock != _currentLB) {
 			int newLB = std::max(std::min(lumiBlock, _maxLB), _minLB);

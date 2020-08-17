@@ -44,10 +44,10 @@ std::pair<double, double> ZDCTriggerEfficiency::GetEfficiencyAndError(MsgStream&
 	double ddb = (1 - m) * -p / pow(1 + p, 2.0) * ADCSum / beta / beta;
 	double ddt = -ADCSum * m / theta / theta / (1 + p);
 
-	double efficiencyErr = sqrt(
-			alphaErr * alphaErr * dda * dda +
-			betaErr * betaErr * ddb * ddb +
-			thetaErr * thetaErr * ddt * ddt +
+	double efficiencyErr = std::sqrt(
+			std::pow(alphaErr * dda, 2) +
+			std::pow(betaErr * ddb, 2) +
+			std::pow(thetaErr * ddt, 2) +
 			2 * corrAlphaBeta*alphaErr*betaErr * dda * ddb +
 			2 * corrAlphaTheta*alphaErr*thetaErr * dda * ddt +
 			2 * corrBetaTheta*betaErr*thetaErr * ddb * ddt);

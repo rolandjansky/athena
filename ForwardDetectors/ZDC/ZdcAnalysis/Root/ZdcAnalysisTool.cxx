@@ -423,11 +423,11 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCut;
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
 
-    const int peakSample = 5;
-    const float peak2ndDerivThreshHG = -35;
-    const float peak2ndDerivThreshLG = -20;
-    const float peak2ndDerivRepassHG = -10;
-    const float peak2ndDerivRepassLG = -6;
+    static constexpr int peakSample = 5;
+    static constexpr float peak2ndDerivThreshHG = -35;
+    static constexpr float peak2ndDerivThreshLG = -20;
+    static constexpr float peak2ndDerivRepassHG = -10;
+    static constexpr float peak2ndDerivRepassLG = -6;
 
     ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {3.877, 3.998, 3.821, 3.858,
                                                     4.296, 4.064, 3.497, 3.642
@@ -495,8 +495,8 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), 7, 25, 0, "FermiExpLinear", peak2ndDerivMinSamples, // presample index changed to zero 4/6/19
-            peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer = std::make_unique<ZDCDataAnalyzer>(MakeMessageFunction(), 7, 25, 0, "FermiExpLinear", peak2ndDerivMinSamples, // presample index changed to zero 4/6/19
+            peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly);
 
     // Open up tolerances on the position of the peak for now
     //

@@ -21,10 +21,10 @@ extern int gErrorIgnoreLevel;
 
 bool ZDCPulseAnalyzer::s_quietFits         = true;
 bool ZDCPulseAnalyzer::s_saveFitFunc       = false;
-std::string ZDCPulseAnalyzer::s_fitOptions =   "";
-TH1* ZDCPulseAnalyzer::s_undelayedFitHist  =    0;
-TH1* ZDCPulseAnalyzer::s_delayedFitHist    =    0;
-TF1* ZDCPulseAnalyzer::s_combinedFitFunc   =    0;
+std::string ZDCPulseAnalyzer::s_fitOptions = "";
+TH1* ZDCPulseAnalyzer::s_undelayedFitHist  = nullptr;
+TH1* ZDCPulseAnalyzer::s_delayedFitHist    = nullptr;
+TF1* ZDCPulseAnalyzer::s_combinedFitFunc   = nullptr;
 float ZDCPulseAnalyzer::s_combinedFitTMax  = 1000;
 float ZDCPulseAnalyzer::s_combinedFitTMin  = -0.5;   // add to allow switch to high gain by skipping early samples
 std::vector<float> ZDCPulseAnalyzer::pullValues;

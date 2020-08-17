@@ -143,7 +143,7 @@ ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, floa
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
-  theTF1->SetParLimits(2, 1, 4096);
+  theTF1->SetParLimits(2, 1, 4096); // Increase the upper range to 4 times of ADC range to deal with large exponential tail case of pre-pulse.
   theTF1->SetParLimits(3, -20, 10);
 
   theTF1->SetParName(0, "Amp");
@@ -308,8 +308,8 @@ ZDCFitExpFermiLinearFixedTaus::ZDCFitExpFermiLinearFixedTaus(std::string tag, fl
 
 void ZDCFitExpFermiLinearFixedTaus::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
-  float slope     = 0.1 * initialAmp / initialT0;
-  float intercept = 0.1 * initialAmp;
+  float slope     = std::abs(0.1 * initialAmp / initialT0);
+  float intercept = std::abs(0.1 * initialAmp);
   GetWrapperTF1()->SetParLimits(2, -slope    , slope    );
   GetWrapperTF1()->SetParLimits(3, -intercept, intercept);
 
@@ -353,7 +353,7 @@ ZDCFitExpFermiLinearPrePulse::ZDCFitExpFermiLinearPrePulse(std::string tag, floa
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
-  theTF1->SetParLimits(2, 1, 4096);
+  theTF1->SetParLimits(2, 1, 4096); // Increase the upper range to 4 times of ADC range to deal with large exponential tail case of pre-pulse.
   theTF1->SetParLimits(3, -20, 10);
 
   theTF1->SetParName(0, "Amp");
@@ -377,8 +377,8 @@ void ZDCFitExpFermiLinearPrePulse::SetPrePulseT0Range(float tmin, float tmax)
 
 void ZDCFitExpFermiLinearPrePulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
-  float slope     = initialAmp / initialT0;  // to be studied more ??? limit 0.1 0.05
-  float intercept = 0.5 * initialAmp;
+  float slope     = std::abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
+  float intercept = std::abs(0.5 * initialAmp);
   GetWrapperTF1()->SetParLimits(4, -slope    , slope    );
   GetWrapperTF1()->SetParLimits(5, -intercept, intercept);
 
@@ -430,11 +430,11 @@ ZDCFitComplexPrePulse::ZDCFitComplexPrePulse(std::string tag, float tmin, float 
   //
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
-  theTF1->SetParLimits(0,    5, 2048);
+  // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
-  theTF1->SetParLimits(2,    0, 2048);
+  theTF1->SetParLimits(2,    0, 2048);  // Pre-pulse upper bound should not be greater 2 times of ADC range with overflow constrains.
   theTF1->SetParLimits(3,    0,   40);
-  theTF1->SetParLimits(6,    0, 1024);
+  theTF1->SetParLimits(6,    0, 4096);  // Increase the upper range to 4 times of ADC range to deal with large exponential tail case of pre-pulse.
 
   theTF1->SetParName(0, "Amp");
   theTF1->SetParName(1, "T0");
@@ -506,12 +506,12 @@ ZDCFitGeneralPulse::ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, 
   //
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
-  theTF1->SetParLimits(0,    5, 2048);
+  // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
-  theTF1->SetParLimits(2,    0, 2048);
+  theTF1->SetParLimits(2,    0, 2048);  // Pre-pulse upper bound should not be greater 2 times of ADC range with overflow constrains.
   theTF1->SetParLimits(3,    0,   40);
-  theTF1->SetParLimits(6,    0, 4096);
-  theTF1->SetParLimits(7,    0, 2048);
+  theTF1->SetParLimits(6,    0, 4096);  // Increase the upper range to 4 times of ADC range to deal with large exponential tail case of pre-pulse.
+  theTF1->SetParLimits(7,    0, 2048);  // Post-pulse upper bound should not be greater 2 times of ADC range with overflow constrains.
   theTF1->SetParLimits(8,  100,  163);
 
   theTF1->SetParName(0, "Amp");

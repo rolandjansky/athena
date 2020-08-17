@@ -13,6 +13,7 @@ double ZDCFermiExpFit(double* xvec, double* pvec);
 
 class ZDCFitWrapper
 {
+private:
   TF1* m_wrapperTF1;
 
   float m_tmin;
@@ -116,6 +117,7 @@ public:
 
 class ZDCFitExpFermiVariableTaus : public ZDCFitWrapper
 {
+private:
   bool m_fixTau1;
   bool m_fixTau2;
 
@@ -153,7 +155,7 @@ public:
   {
     if (index == 0) return GetWrapperTF1()->GetParameter(2);
     else if (index == 1) return GetWrapperTF1()->GetParameter(3);
-    else throw;
+    else throw std::exception();
   }
 
   virtual float GetBkgdMaxFraction() const
@@ -176,6 +178,7 @@ public:
 
 class ZDCFitExpFermiFixedTaus : public ZDCFitWrapper
 {
+private:
   float m_tau1;
   float m_tau2;
 
@@ -188,9 +191,7 @@ public:
 
   ZDCFitExpFermiFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  ~ZDCFitExpFermiFixedTaus() {
-    delete m_expFermiFunc;
-  }
+  ~ZDCFitExpFermiFixedTaus() {if (m_expFermiFunc) delete m_expFermiFunc;}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
@@ -202,19 +203,14 @@ public:
   virtual float GetTau2() const {return m_tau2;}
 
   virtual float GetTime() const {
-    float fitT0 =  GetWrapperTF1()->GetParameter(1);
-
-    // Correct the time to the maximum
-    //
-    fitT0 += m_timeCorr;
-    return fitT0;
+    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
   }
 
   virtual float GetShapeParameter(size_t index) const
   {
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
-    else throw;
+    else throw std::exception();
   }
 
   virtual float GetBkgdMaxFraction() const
@@ -243,6 +239,7 @@ public:
 
 class ZDCFitExpFermiPrePulse : public ZDCPrePulseFitWrapper
 {
+private:
   float m_tau1;
   float m_tau2;
   float m_norm;
@@ -251,60 +248,55 @@ class ZDCFitExpFermiPrePulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitExpFermiPrePulse() {delete m_expFermiFunc;}
+  ~ZDCFitExpFermiPrePulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
 
-  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
-  virtual void SetT0FitLimits(float tMin, float tMax);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
+  virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) {
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) override {
     (void) expamp;
     (void) fixPrePulseToZero;
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
   }
 
-  virtual void SetPrePulseT0Range(float tmin, float tmax);
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) {
-    tmin = tmin;
-    tmax = tmax;
-    initialPostT0 = initialPostT0;
+  virtual void SetPrePulseT0Range(float tmin, float tmax) override;
+  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) override {
+    (void) tmin;
+    (void) tmax;
+    (void) initialPostT0;
     return;
   }
 
-  unsigned int GetPreT0ParIndex() const {return 3;}
+  virtual unsigned int GetPreT0ParIndex() const override {return 3;}
 
-  virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
-  virtual float GetAmpError() const {return GetWrapperTF1()->GetParError(0); }
+  virtual float GetAmplitude() const override {return GetWrapperTF1()->GetParameter(0); }
+  virtual float GetAmpError() const override {return GetWrapperTF1()->GetParError(0); }
 
-  virtual float GetTau1() const {return m_tau1;}
-  virtual float GetTau2() const {return m_tau2;}
+  virtual float GetTau1() const override {return m_tau1;}
+  virtual float GetTau2() const override {return m_tau2;}
 
-  virtual float GetPreT0()  const {return 0;}
-  virtual float GetPreAmp() const {return 0;}
+  virtual float GetPreT0()  const override {return 0;}
+  virtual float GetPreAmp() const override {return 0;}
 
-  virtual float GetPostT0()  const {return 0;}
-  virtual float GetPostAmp() const {return 0;}
+  virtual float GetPostT0()  const override {return 0;}
+  virtual float GetPostAmp() const override {return 0;}
 
-  virtual float GetExpAmp() const {return 0;}
+  virtual float GetExpAmp() const override {return 0;}
 
-  virtual float GetTime() const {
-    float fitT0 =  GetWrapperTF1()->GetParameter(1);
-
-    // Correct the time to the maximum
-    //
-    fitT0 += m_timeCorr;
-    return fitT0;
+  virtual float GetTime() const override {
+    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
   }
 
-  virtual float GetShapeParameter(size_t index) const
+  virtual float GetShapeParameter(size_t index) const override
   {
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index < 5) return GetWrapperTF1()->GetParameter(index);
-    else throw;
+    else throw std::exception();
   }
 
-  virtual float GetBkgdMaxFraction() const
+  virtual float GetBkgdMaxFraction() const override
   {
     const TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
@@ -323,7 +315,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p)
+  virtual double operator() (double *x, double *p) override
   {
     double t = x[0];
 
@@ -353,6 +345,7 @@ public:
 
 class ZDCFitExpFermiPulseSequence : public ZDCFitWrapper
 {
+private:
   float m_tau1;
   float m_tau2;
   float m_norm;
@@ -370,47 +363,42 @@ public:
 
   ~ZDCFitExpFermiPulseSequence()
   {
-    delete m_fitFunc;
-    delete m_expFermiFunc;
+    if (m_fitFunc)      delete m_fitFunc;
+    if (m_expFermiFunc) delete m_expFermiFunc;
   }
 
-  virtual TF1* GetWrapperTF1() {return m_fitFunc;}
-  virtual const TF1* GetWrapperTF1() const {return m_fitFunc;}
+  virtual TF1* GetWrapperTF1() override {return m_fitFunc;}
+  virtual const TF1* GetWrapperTF1() const override {return m_fitFunc;}
 
-  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
-  virtual void SetT0FitLimits(float tMin, float tMax);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
+  virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual float GetAmplitude() const {return m_fitFunc->GetParameter(0); }
-  virtual float GetAmpError() const {return m_fitFunc->GetParError(0); }
+  virtual float GetAmplitude() const override {return m_fitFunc->GetParameter(0); }
+  virtual float GetAmpError() const override {return m_fitFunc->GetParError(0); }
 
-  virtual float GetTau1() const {return m_tau1;}
-  virtual float GetTau2() const {return m_tau2;}
+  virtual float GetTau1() const override {return m_tau1;}
+  virtual float GetTau2() const override {return m_tau2;}
 
   unsigned int GetPreT0ParIndex() const {return 3;}
 
-  virtual float GetTime() const {
-    float fitT0 =  m_fitFunc->GetParameter(1);
-
-    // Correct the time to the maximum
-    //
-    fitT0 += m_timeCorr;
-    return fitT0;
+  virtual float GetTime() const override {
+    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
   }
 
-  virtual float GetShapeParameter(size_t index) const
+  virtual float GetShapeParameter(size_t index) const override
   {
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index < m_numPulses + 2) return m_fitFunc->GetParameter(index);
-    else throw;
+    else throw std::exception();
   }
 
-  virtual float GetBkgdMaxFraction() const
+  virtual float GetBkgdMaxFraction() const override
   {
     return 0;
   }
 
-  virtual double operator() (double *x, double *p)
+  virtual double operator() (double *x, double *p) override
   {
     double t = x[0];
 
@@ -435,6 +423,7 @@ public:
 // ----------------------------------------------------------------------
 class ZDCFitExpFermiLinearFixedTaus : public ZDCFitWrapper
 {
+private:
   float m_tau1;
   float m_tau2;
 
@@ -447,36 +436,29 @@ public:
 
   ZDCFitExpFermiLinearFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  ~ZDCFitExpFermiLinearFixedTaus() {
-    delete m_expFermiFunc;
+  ~ZDCFitExpFermiLinearFixedTaus() {if (m_expFermiFunc) delete m_expFermiFunc;}
+
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
+  virtual void SetT0FitLimits(float tMin, float tMax) override;
+
+  virtual float GetAmplitude() const override {return GetWrapperTF1()->GetParameter(0); }
+  virtual float GetAmpError() const override {return GetWrapperTF1()->GetParError(0); }
+
+  virtual float GetTau1() const override {return m_tau1;}
+  virtual float GetTau2() const override {return m_tau2;}
+
+  virtual float GetTime() const override {
+    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
   }
 
-  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
-  virtual void SetT0FitLimits(float tMin, float tMax);
-
-  virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
-  virtual float GetAmpError() const {return GetWrapperTF1()->GetParError(0); }
-
-  virtual float GetTau1() const {return m_tau1;}
-  virtual float GetTau2() const {return m_tau2;}
-
-  virtual float GetTime() const {
-    float fitT0 =  GetWrapperTF1()->GetParameter(1);
-
-    // Correct the time to the maximum
-    //
-    fitT0 += m_timeCorr;
-    return fitT0;
-  }
-
-  virtual float GetShapeParameter(size_t index) const
+  virtual float GetShapeParameter(size_t index) const override
   {
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
-    else throw;
+    else throw std::exception();
   }
 
-  virtual float GetBkgdMaxFraction() const
+  virtual float GetBkgdMaxFraction() const override
   {
     const TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
     double amp = theTF1->GetParameter(0);
@@ -486,7 +468,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p)
+  virtual double operator() (double *x, double *p) override
   {
     double amp    = p[0];
     double t0     = p[1];
@@ -503,6 +485,7 @@ public:
 // ----------------------------------------------------------------------
 class ZDCFitExpFermiLinearPrePulse : public ZDCPrePulseFitWrapper
 {
+private:
   float m_tau1;
   float m_tau2;
   float m_norm;
@@ -511,35 +494,35 @@ class ZDCFitExpFermiLinearPrePulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitExpFermiLinearPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitExpFermiLinearPrePulse() {delete m_expFermiFunc;}
+  ~ZDCFitExpFermiLinearPrePulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
 
-  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
-  virtual void SetT0FitLimits(float tMin, float tMax);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
+  virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) {
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) override {
     (void) expamp;
     (void) fixPrePulseToZero;
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
   }
 
-  virtual void SetPrePulseT0Range(float tmin, float tmax);
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) {
-    tmin = tmin;
-    tmax = tmax;
-    initialPostT0 = initialPostT0;
+  virtual void SetPrePulseT0Range(float tmin, float tmax) override;
+  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) override {
+    (void) tmin;
+    (void) tmax;
+    (void) initialPostT0;
     return;
   }
 
-  unsigned int GetPreT0ParIndex() const {return 3;}
+  unsigned int GetPreT0ParIndex() const override {return 3;}
 
-  virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
-  virtual float GetAmpError() const {return GetWrapperTF1()->GetParError(0); }
+  virtual float GetAmplitude() const override {return GetWrapperTF1()->GetParameter(0); }
+  virtual float GetAmpError() const override {return GetWrapperTF1()->GetParError(0); }
 
-  virtual float GetTau1() const {return m_tau1;}
-  virtual float GetTau2() const {return m_tau2;}
+  virtual float GetTau1() const override {return m_tau1;}
+  virtual float GetTau2() const override {return m_tau2;}
 
-  virtual float GetPreT0()  const {
+  virtual float GetPreT0()  const override {
     float fitPreT0 =  GetWrapperTF1()->GetParameter(3);
 
     // Correct the time to the maximum
@@ -548,31 +531,26 @@ public:
 
     return fitPreT0;
   }
-  virtual float GetPreAmp() const {return GetWrapperTF1()->GetParameter(2);}
+  virtual float GetPreAmp() const override {return GetWrapperTF1()->GetParameter(2);}
 
-  virtual float GetPostT0()  const {return 0;}
-  virtual float GetPostAmp() const {return 0;}
+  virtual float GetPostT0()  const override {return 0;}
+  virtual float GetPostAmp() const override {return 0;}
 
-  virtual float GetExpAmp() const {return 0;}
+  virtual float GetExpAmp() const override {return 0;}
 
-  virtual float GetTime() const {
-    float fitT0 =  GetWrapperTF1()->GetParameter(1);
-
-    // Correct the time to the maximum
-    //
-    fitT0 += m_timeCorr;
-    return fitT0;
+  virtual float GetTime() const override {
+    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
   }
 
-  virtual float GetShapeParameter(size_t index) const
+  virtual float GetShapeParameter(size_t index) const override
   {
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index < 5) return GetWrapperTF1()->GetParameter(index);
-    else throw;
+    else throw std::exception();
   }
 
-  virtual float GetBkgdMaxFraction() const
+  virtual float GetBkgdMaxFraction() const override
   {
     const TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
@@ -591,7 +569,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p)
+  virtual double operator() (double *x, double *p) override
   {
     double t = x[0];
 
@@ -624,6 +602,7 @@ public:
 // ----------------------------------------------------------------------
 class ZDCFitComplexPrePulse : public ZDCPrePulseFitWrapper
 {
+private:
   float m_tau1;
   float m_tau2;
   float m_norm;
@@ -632,35 +611,35 @@ class ZDCFitComplexPrePulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitComplexPrePulse() {delete m_expFermiFunc;}
+  ~ZDCFitComplexPrePulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
 
-  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
-  virtual void SetT0FitLimits(float tMin, float tMax);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
+  virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero = false) {
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero = false) override {
     (void) fixPrePulseToZero;
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
     GetWrapperTF1()->SetParameter(6, std::max(std::abs(expamp), (float) 1.5));
   }
 
-  virtual void SetPrePulseT0Range(float tmin, float tmax);
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) {
-    tmin = tmin;
-    tmax = tmax;
-    initialPostT0 = initialPostT0;
+  virtual void SetPrePulseT0Range(float tmin, float tmax) override;
+  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) override {
+    (void) tmin;
+    (void) tmax;
+    (void) initialPostT0;
     return;
   }
 
-  unsigned int GetPreT0ParIndex() const {return 3;}
+  unsigned int GetPreT0ParIndex() const override {return 3;}
 
-  virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
-  virtual float GetAmpError() const {return GetWrapperTF1()->GetParError(0); }
+  virtual float GetAmplitude() const override {return GetWrapperTF1()->GetParameter(0); }
+  virtual float GetAmpError() const override {return GetWrapperTF1()->GetParError(0); }
 
-  virtual float GetTau1() const {return m_tau1;}
-  virtual float GetTau2() const {return m_tau2;}
+  virtual float GetTau1() const override {return m_tau1;}
+  virtual float GetTau2() const override {return m_tau2;}
 
-  virtual float GetPreT0()  const {
+  virtual float GetPreT0()  const override {
     float fitPreT0 =  GetWrapperTF1()->GetParameter(3);
 
     // Correct the time to the maximum
@@ -669,31 +648,26 @@ public:
 
     return fitPreT0;
   }
-  virtual float GetPreAmp() const {return GetWrapperTF1()->GetParameter(2);}
+  virtual float GetPreAmp() const override {return GetWrapperTF1()->GetParameter(2);}
 
-  virtual float GetPostT0()  const {return 0;}
-  virtual float GetPostAmp() const {return 0;}
+  virtual float GetPostT0()  const override {return 0;}
+  virtual float GetPostAmp() const override {return 0;}
 
-  virtual float GetExpAmp() const {return GetWrapperTF1()->GetParameter(6);}
+  virtual float GetExpAmp() const override {return GetWrapperTF1()->GetParameter(6);}
 
-  virtual float GetTime() const {
-    float fitT0 =  GetWrapperTF1()->GetParameter(1);
-
-    // Correct the time to the maximum
-    //
-    fitT0 += m_timeCorr;
-    return fitT0;
+  virtual float GetTime() const override {
+    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
   }
 
-  virtual float GetShapeParameter(size_t index) const
+  virtual float GetShapeParameter(size_t index) const override
   {
     if      (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index <  5) return GetWrapperTF1()->GetParameter(index);
-    else throw;
+    else throw std::exception();
   }
 
-  virtual float GetBkgdMaxFraction() const
+  virtual float GetBkgdMaxFraction() const override
   {
     const TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
@@ -712,7 +686,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p)
+  virtual double operator() (double *x, double *p) override
   {
     double t = x[0];
 
@@ -746,6 +720,7 @@ public:
 // ----------------------------------------------------------------------
 class ZDCFitGeneralPulse : public ZDCPrePulseFitWrapper
 {
+private:
   float m_tau1;
   float m_tau2;
   float m_norm;
@@ -754,12 +729,12 @@ class ZDCFitGeneralPulse : public ZDCPrePulseFitWrapper
 
 public:
   ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitGeneralPulse() {delete m_expFermiFunc;}
+  ~ZDCFitGeneralPulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
 
-  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
-  virtual void SetT0FitLimits(float tMin, float tMax);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
+  virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) override {
     GetWrapperTF1()->ReleaseParameter(2);
     GetWrapperTF1()->ReleaseParameter(3);
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
@@ -772,18 +747,18 @@ public:
     }
   }
 
-  virtual void SetPrePulseT0Range(float tmin, float tmax);
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0);
+  virtual void SetPrePulseT0Range(float tmin, float tmax) override;
+  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) override;
 
-  unsigned int GetPreT0ParIndex() const {return 3;}
+  unsigned int GetPreT0ParIndex() const override {return 3;}
 
-  virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
-  virtual float GetAmpError()  const {return GetWrapperTF1()->GetParError(0); }
+  virtual float GetAmplitude() const override {return GetWrapperTF1()->GetParameter(0); }
+  virtual float GetAmpError()  const override {return GetWrapperTF1()->GetParError(0); }
 
-  virtual float GetTau1() const {return m_tau1;}
-  virtual float GetTau2() const {return m_tau2;}
+  virtual float GetTau1() const override {return m_tau1;}
+  virtual float GetTau2() const override {return m_tau2;}
 
-  virtual float GetPreT0()  const {
+  virtual float GetPreT0()  const override {
     float fitPreT0 =  GetWrapperTF1()->GetParameter(3);
 
     // Correct the time to the maximum
@@ -792,9 +767,9 @@ public:
 
     return fitPreT0;
   }
-  virtual float GetPreAmp() const {return GetWrapperTF1()->GetParameter(2);}
+  virtual float GetPreAmp() const override {return GetWrapperTF1()->GetParameter(2);}
 
-  virtual float GetPostT0()  const {
+  virtual float GetPostT0()  const override {
     float fitPostT0 =  GetWrapperTF1()->GetParameter(8);
 
     // Correct the time to the maximum
@@ -803,28 +778,23 @@ public:
 
     return fitPostT0;
   }
-  virtual float GetPostAmp() const {return GetWrapperTF1()->GetParameter(7);}
+  virtual float GetPostAmp() const override {return GetWrapperTF1()->GetParameter(7);}
 
-  virtual float GetExpAmp() const {return GetWrapperTF1()->GetParameter(6);}
+  virtual float GetExpAmp() const override {return GetWrapperTF1()->GetParameter(6);}
 
-  virtual float GetTime() const {
-    float fitT0 =  GetWrapperTF1()->GetParameter(1);
-
-    // Correct the time to the maximum
-    //
-    fitT0 += m_timeCorr;
-    return fitT0;
+  virtual float GetTime() const override {
+    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
   }
 
-  virtual float GetShapeParameter(size_t index) const
+  virtual float GetShapeParameter(size_t index) const override
   {
     if      (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index <  5) return GetWrapperTF1()->GetParameter(index);
-    else throw;
+    else throw std::exception();
   }
 
-  virtual float GetBkgdMaxFraction() const
+  virtual float GetBkgdMaxFraction() const override
   {
     const TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
@@ -843,7 +813,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p)
+  virtual double operator() (double *x, double *p) override
   {
     double t = x[0];
 
