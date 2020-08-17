@@ -99,7 +99,7 @@ namespace SG {
       return CPPInstance_ASVOIDPTR(value);
     }
     Py_XDECREF(value);
-    throw PyROOT::TPyException();
+    throw CPyCppyy::PyException();
     return 0;
   }
 

@@ -33,6 +33,7 @@ extern CLID PyCLID;
 
 // PyROOT includes
 #include "AthenaPyRoot.h"
+#include "CPyCppyy/PyException.h"
 
 #include <unordered_map>
 
@@ -430,7 +431,7 @@ namespace SG {
     {
       PyObject* obj = NULL;
       if ( !(obj = TPython::CPPInstance_FromVoidPtr((void*)addr, klass)) ) {
-        throw PyROOT::TPyException();
+        throw CPyCppyy::PyException();
       }
       return obj;
     }
