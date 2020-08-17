@@ -39,7 +39,7 @@ bool TrigMuonEfficiencyMonMT :: selectEvents() const {
 
 StatusCode TrigMuonEfficiencyMonMT :: selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
 
-  if(m_eff_method == "TTbarTagAndProbe" || m_eff_method == "ZTagAndProbe"){
+  if(m_eff_method.value().find("TagAndProbe")!=std::string::npos){
     return selectMuonsTagAndProbe(muons, probes);
   } else {
     for (const xAOD::Muon* mu : *muons) {
