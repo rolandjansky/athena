@@ -176,9 +176,12 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
     bare_collection_name = "LArHitEMB"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "LArEMBHits"
-    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "CALO"
+    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                    bare_collection_name,
+                                                    mergeable_collection_suffix,
+                                                    merger_input_property,
+                                                    region)
 
     result.merge(acc)
     ## Main configuration
@@ -195,7 +198,7 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
 
     result.merge(EMBCalculatorCfg(ConfigFlags))
     kwargs.setdefault("EMBCalculator", result.getService("EMBCalculator"))
-    
+
     result.setPrivateTools( LArG4__EMBSDTool(name, **kwargs) )
     return result
 
@@ -204,9 +207,12 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     bare_collection_name = "LArHitEMEC"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "LArEMECHits"
-    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "CALO"
+    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                    bare_collection_name,
+                                                    mergeable_collection_suffix,
+                                                    merger_input_property,
+                                                    region)
     result.merge(acc)
 
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2002","tb_LArH6EC_2002"]:
@@ -254,9 +260,12 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     bare_collection_name = "LArHitFCAL"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "LArFCALHits"
-    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "CALO"
+    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                    bare_collection_name,
+                                                    mergeable_collection_suffix,
+                                                    merger_input_property,
+                                                    region)
     result.merge(acc)
 
     kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::Gap"])
@@ -287,9 +296,12 @@ def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kw
     bare_collection_name = "LArHitHEC"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "LArHECHits"
-    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "CALO"
+    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                    bare_collection_name,
+                                                    mergeable_collection_suffix,
+                                                    merger_input_property,
+                                                    region)
     result.merge(acc)
 
     kwargs.setdefault("WheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Slice"])

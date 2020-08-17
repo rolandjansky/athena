@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 
-TRTSensitiveDetectorTool =CompFactory.TRTSensitiveDetectorTool 
+TRTSensitiveDetectorTool =CompFactory.TRTSensitiveDetectorTool
 
 def TRTSensitiveDetectorCfg(ConfigFlags, name="TRTSensitiveDetector", **kwargs):
 
@@ -13,9 +13,12 @@ def TRTSensitiveDetectorCfg(ConfigFlags, name="TRTSensitiveDetector", **kwargs):
     bare_collection_name = "TRTUncompressedHits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "TRTUncompressedHits"
-    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "ID"
+    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                    bare_collection_name,
+                                                    mergeable_collection_suffix,
+                                                    merger_input_property,
+                                                    region)
     result.merge(acc)
 
     logicalVolumeNames = ["TRT::Gas","TRT::GasMA"]
