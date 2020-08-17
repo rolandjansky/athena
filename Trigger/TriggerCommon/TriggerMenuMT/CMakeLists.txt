@@ -141,7 +141,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf )
 atlas_add_test( full_menu_cf
 		        SCRIPT scripts/test_full_menu_cf.sh
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf 
-                PROPERTIES TIMEOUT 300)
+                PROPERTIES TIMEOUT 500)
 
 
 #----------------------------------
