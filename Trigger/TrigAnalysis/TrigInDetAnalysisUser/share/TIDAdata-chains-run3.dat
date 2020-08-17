@@ -19,8 +19,9 @@ testChains = {
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauIso_FTF",
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso",
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_FTF",
+    "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_FTF:HLT_TAURoI",
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig",
-    "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauCore",
+    "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_TAURoI",
 
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig",

@@ -165,7 +165,7 @@ class TrigInDetCompStep(RefComparisonStep):
             if (self.test=='ttbar'):
                 self.output_dir = self.output_dir+'-tau'
         elif (self.flag == 'EFtau'):
-            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
+            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_TAURoI'
             self.output_dir = 'HLTEF-plots'
             if (self.test=='ttbar'):
                 self.output_dir = self.output_dir+'-tau'
