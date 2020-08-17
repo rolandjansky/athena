@@ -6,7 +6,7 @@
  * @file   GsfExtrapolator.h
  * @date   Tuesday 25th January 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * Extrapolation of MultiComponentState class. It is an                                                                    
+ * Extrapolation of MultiComponentState class. It is an
  * AlgTool inheriting from the IMultiStateExtrapolator class
  */
 
