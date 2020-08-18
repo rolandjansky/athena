@@ -46,8 +46,6 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::execute(const EventContext& ctx
   return StatusCode::SUCCESS;
 }
 
-StatusCode PFNeutralFlowElementCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS;}
-
 StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const eflowCaloObject& energyFlowCaloObject, xAOD::FlowElementContainer* neutralFEContainer) const {
 
   unsigned int nClusters = energyFlowCaloObject.nClusters();

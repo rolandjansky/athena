@@ -24,7 +24,6 @@ public:
 
   StatusCode initialize();
   StatusCode execute(const EventContext& ctx) const;
-  StatusCode finalize();
 
 private:
 

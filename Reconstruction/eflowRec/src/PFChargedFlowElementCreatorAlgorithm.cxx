@@ -42,8 +42,6 @@ StatusCode PFChargedFlowElementCreatorAlgorithm::execute(const EventContext& ctx
 
 }
 
-StatusCode PFChargedFlowElementCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }
-
 void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::FlowElementContainer>& chargedFlowElementContainerWriteHandle) const {
 
   /* Loop over all tracks in the eflowCaloObject */

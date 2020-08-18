@@ -20,7 +20,6 @@ class PFChargedFlowElementCreatorAlgorithm : public  AthReentrantAlgorithm {
 
     StatusCode initialize();
     StatusCode execute(const EventContext&) const;
-    StatusCode finalize();
 
   private:
 

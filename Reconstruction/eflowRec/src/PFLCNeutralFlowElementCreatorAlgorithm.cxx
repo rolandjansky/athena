@@ -42,7 +42,3 @@ StatusCode PFLCNeutralFlowElementCreatorAlgorithm::execute(const EventContext& c
 
   return StatusCode::SUCCESS;
 }
-
-StatusCode PFLCNeutralFlowElementCreatorAlgorithm::finalize(){
-  return StatusCode::SUCCESS;
-}
