@@ -45,7 +45,7 @@ namespace HLT {
     StreamTag( const TrigConf::HLTStreamTag* configStream,
                HLT::IScalerSvc* scalerSvc ); //!< constructor for normal running
 
-    ~StreamTag(); //!< destructor
+    ~StreamTag() = default; //!< destructor
 
     bool reset(); //!< Is called for every new event, resets everything to default.
 

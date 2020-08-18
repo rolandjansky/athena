@@ -40,7 +40,7 @@ public:
   float32fixed(int value){  m_fixp_content=value; }
   float32fixed(float value){  m_fixp_content=value; }
   float32fixed(double value){  m_fixp_content=value; }
-  ~float32fixed(){}
+  ~float32fixed()=default;
 
 
 
