@@ -16,7 +16,7 @@
 #ifndef TRIGT2BEAMSPOT_T2TRACK_H
 #define TRIGT2BEAMSPOT_T2TRACK_H
 /// Externals
-#include "TrkTrack/Track.h" 
+#include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -26,13 +26,11 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
-
+#include "TMath.h"
 
 namespace PESA {
 
   class T2Track;
-
-  double trackChi2Prob( const T2Track& track );
 
   class T2Track
   {
@@ -40,72 +38,75 @@ namespace PESA {
 
     // Constructor
     T2Track( const Trk::Track& track )
-      : m_Chi2Prob( -1.                           ) // lazy evaluation
-      {
-        
-        const Trk::TrackParameters* trackPars = track.perigeeParameters();
-        if (trackPars) {
-          m_D0 = trackPars->parameters()[Trk::d0]; 
-          m_Z0 = trackPars->parameters()[Trk::z0]; 
-          if (trackPars->covariance()) {
-            m_D0err = Amg::error(*(trackPars->covariance()),Trk::d0);
-            m_Z0err = Amg::error(*(trackPars->covariance()),Trk::z0);
-          }
-          m_Phi = trackPars->parameters()[Trk::phi0]; 
-          float theta = trackPars->parameters()[Trk::theta]; 
-          m_Eta = -log(tan(0.5*theta)); 
-          float qOverP = trackPars->parameters()[Trk::qOverP]; 
-          m_Pt = std::abs(std::sin(theta)/qOverP)/Gaudi::Units::GeV;
+    {
 
-          const Trk::FitQuality* fq = track.fitQuality();
-          m_Qual = 1e8;
-          //m_NDF = 0;
-          if (fq) {
-            if(fq->numberDoF()!=0) {
-              m_Qual = fq->chiSquared()/fq->numberDoF();
-              //m_NDF = fq->numberDoF() - 5;//Remove 5 helix parameters
+      const Trk::TrackParameters* trackPars = track.perigeeParameters();
+      if (trackPars) {
+        m_D0 = trackPars->parameters()[Trk::d0];
+        m_Z0 = trackPars->parameters()[Trk::z0];
+        if (trackPars->covariance()) {
+          m_D0err = Amg::error(*(trackPars->covariance()),Trk::d0);
+          m_Z0err = Amg::error(*(trackPars->covariance()),Trk::z0);
+        }
+        m_Phi = trackPars->parameters()[Trk::phi0];
+        float theta = trackPars->parameters()[Trk::theta];
+        m_Eta = -log(tan(0.5*theta));
+        float qOverP = trackPars->parameters()[Trk::qOverP];
+        m_Pt = std::abs(std::sin(theta)/qOverP)/Gaudi::Units::GeV;
+
+        const Trk::FitQuality* fq = track.fitQuality();
+        m_Qual = 1e8;
+        if (fq) {
+          if(fq->numberDoF()!=0) {
+            m_Qual = fq->chiSquared()/fq->numberDoF();
+          }
+        }
+        int nPix=0;
+        int nSct=0;
+        if( track.trackSummary() != nullptr){
+          nPix =    track.trackSummary()->get(Trk::numberOfPixelHits);
+          nSct =  track.trackSummary()->get(Trk::numberOfSCTHits);
+        } else {
+          for(auto tSOS = track.trackStateOnSurfaces()->begin();
+              tSOS!=track.trackStateOnSurfaces()->end(); ++tSOS) {
+            if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
+              const Trk::FitQualityOnSurface* fq =  (*tSOS)->fitQualityOnSurface();
+              if(!fq) continue;
+              int nd = fq->numberDoF();
+              if(nd==2) nPix++;
+              if(nd==1) nSct++;
             }
           }
-          int nPix=0;
-          int nSct=0;
-	  if( track.trackSummary() != nullptr){
-	    nPix =    track.trackSummary()->get(Trk::numberOfPixelHits);
-	    nSct =  track.trackSummary()->get(Trk::numberOfSCTHits);
-	  } else {
-	    for(auto tSOS = track.trackStateOnSurfaces()->begin();  
-		tSOS!=track.trackStateOnSurfaces()->end(); ++tSOS) { 
-	      if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
-		const Trk::FitQualityOnSurface* fq =  (*tSOS)->fitQualityOnSurface(); 
-		if(!fq) continue; 
-		int nd = fq->numberDoF(); 
-		if(nd==2) nPix++;
-		if(nd==1) nSct++;
-	      }
-	    }
-	  }
-          m_PIXHits = nPix; 
-          m_SCTHits = nSct/2; 
-          m_SiHits = m_PIXHits + m_SCTHits; 
-          m_NDF = (m_PIXHits + m_SCTHits)*2 - 5;
-          m_TRTHits = 0; //for now: FTF tracks have no TRT extension in any case
         }
+        m_PIXHits = nPix;
+        m_SCTHits = nSct/2;
+        m_SiHits = m_PIXHits + m_SCTHits;
+        m_NDF = (m_PIXHits + m_SCTHits)*2 - 5;
+        m_TRTHits = 0; //for now: FTF tracks have no TRT extension in any case
       }
+      m_Chi2Prob = -1;
+      const double chi2 = m_Qual * m_NDF;
+      if ( m_NDF  > 0  &&  chi2 > 0. && ! std::isinf( chi2 ) )
+        {
+          m_Chi2Prob = TMath::Prob(chi2,m_NDF);
+        }
+    }
 
     // Accessors
-    double Pt      () const { return m_Pt     ; }
-    double Eta     () const { return m_Eta    ; }
-    double Phi     () const { return m_Phi    ; }
-    double Z0      () const { return m_Z0     ; }
-    double D0      () const { return m_D0     ; }
-    double Z0err   () const { return m_Z0err  ; }
-    double D0err   () const { return m_D0err  ; }
-    double NDF     () const { return m_NDF    ; }
-    double Qual    () const { return m_Qual   ; }
-    double Chi2Prob() const { if ( m_Chi2Prob < 0. ) m_Chi2Prob = trackChi2Prob( *this ); return m_Chi2Prob  ; }
-    int    SiHits  () const { return m_SiHits ; }
-    int    PIXHits () const { return m_PIXHits; }
-    int    SCTHits () const { return m_SCTHits; }
-    int    TRTHits () const { return m_TRTHits; }
+    double Pt      () const { return m_Pt      ; }
+    double Eta     () const { return m_Eta     ; }
+    double Phi     () const { return m_Phi     ; }
+    double Z0      () const { return m_Z0      ; }
+    double D0      () const { return m_D0      ; }
+    double Z0err   () const { return m_Z0err   ; }
+    double D0err   () const { return m_D0err   ; }
+    double NDF     () const { return m_NDF     ; }
+    double Qual    () const { return m_Qual    ; }
+    double Chi2Prob() const { return m_Chi2Prob; }
+    int    SiHits  () const { return m_SiHits  ; }
+    int    PIXHits () const { return m_PIXHits ; }
+    int    SCTHits () const { return m_SCTHits ; }
+    int    TRTHits () const { return m_TRTHits ; }
 
   private:
     // Data members
@@ -118,7 +119,7 @@ namespace PESA {
     double m_D0err;
     double m_NDF;
     double m_Qual;
-    mutable std::atomic<double> m_Chi2Prob;
+    double m_Chi2Prob;
     int    m_SiHits;
     int    m_PIXHits;
     int    m_SCTHits;
@@ -147,8 +148,8 @@ namespace PESA {
       m_D0      .push_back( track.D0      () );
       m_Z0err   .push_back( track.Z0err   () );
       m_D0err   .push_back( track.D0err   () );
-      m_NDF     .push_back( track.NDF     () );    
-      m_Qual    .push_back( track.Qual    () );    
+      m_NDF     .push_back( track.NDF     () );
+      m_Qual    .push_back( track.Qual    () );
       m_Chi2Prob.push_back( track.Chi2Prob() );
       m_SiHits  .push_back( track.SiHits  () );
       m_PIXHits .push_back( track.PIXHits () );

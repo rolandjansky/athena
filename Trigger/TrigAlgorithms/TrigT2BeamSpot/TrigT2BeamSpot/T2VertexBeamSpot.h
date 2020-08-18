@@ -29,7 +29,7 @@
 /// trigger EDM
 #include "TrigInterfaces/AllTEAlgo.h"
 //Interface for the beam spot tool
-#include "IT2VertexBeamSpotTool.h"
+#include "T2VertexBeamSpotTool.h"
 
 namespace HLT {
   class TriggerElement;
@@ -86,6 +86,11 @@ namespace PESA {
       /** Function which attaches splitted vertex collections to the trigger element output */
       HLT::ErrorCode attachFeatureSplitVertex(DataVector< TrigVertexCollection > &mySplitVertexCollections,  HLT::TEVec &allTEs, unsigned int type_out );
 
+      //Until HLT::Algo inherits from AthReentrantAlgorithm or we can drop Run-2 setup
+      virtual bool isClonable() const override { return true; }
+      virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
+
+
       //Only for Run2 settings
       bool m_activateTE; /*If true to be added */
       bool m_activateAllTE;/*If true to be added */
@@ -116,7 +121,7 @@ namespace PESA {
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey  { this, "EventInfo", "EventInfo", "" };
 
       //Tools
-      ToolHandle<IT2VertexBeamSpotTool> m_beamSpotTool {this, "BeamSpotTool", "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
+      ToolHandle<T2VertexBeamSpotTool> m_beamSpotTool {this, "BeamSpotTool", "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
       ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
 
