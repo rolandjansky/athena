@@ -719,7 +719,7 @@ def getTauTrackClassifier():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict.so')
 
     # =========================================================================
     _BDT_TTCT_ITFT_0 = TrackMVABDT(name = _name + "_0",
@@ -727,9 +727,9 @@ def getTauTrackClassifier():
                                    #Threshold      = -0.005,
                                    InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[0][0],
                                    Threshold = tauFlags.tauRecMVATrackClassificationConfig()[0][1],
-                                   ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
-                                   SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, 
-                                   BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation,
+                                   ExpectedFlag   = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
+                                   SignalType     = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedCharged, 
+                                   BackgroundType = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedIsolation,
                                    calibFolder = tauFlags.tauRecToolsCVMFSPath(), 
                                    )
     ToolSvc += _BDT_TTCT_ITFT_0
@@ -740,9 +740,9 @@ def getTauTrackClassifier():
                                      #Threshold      = -0.0074,
                                      InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[1][0],
                                      Threshold = tauFlags.tauRecMVATrackClassificationConfig()[1][1],
-                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedCharged,
-                                     SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged,
-                                     BackgroundType = ROOT.xAOD.TauJetParameters.classifiedConversion,
+                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedCharged,
+                                     SignalType     = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedCharged,
+                                     BackgroundType = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedConversion,
                                      calibFolder = tauFlags.tauRecToolsCVMFSPath(),
                                      )
     ToolSvc += _BDT_TTCT_ITFT_0_0
@@ -813,8 +813,8 @@ def getTauWPDecoratorJetRNN():
                                        flatteningFile1Prong = "rnnid_mc16d_flat_1p.root",
                                        flatteningFile3Prong = "rnnid_mc16d_flat_3p.root",
                                        CutEnumVals =
-                                       [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
-                                         ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
+                                       [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
+                                         ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
                                        SigEff1P = [0.95, 0.85, 0.75, 0.60],
                                        SigEff3P = [0.95, 0.75, 0.60, 0.45],
                                        ScoreName = "RNNJetScore",
@@ -838,8 +838,8 @@ def getTauWPDecoratorJetBDT():
                                        flatteningFile1Prong = "FlatJetBDT1Pv2.root", #update
                                        flatteningFile3Prong = "FlatJetBDT3Pv2.root", #update
                                        CutEnumVals = 
-                                       [ ROOT.xAOD.TauJetParameters.JetBDTSigVeryLoose, ROOT.xAOD.TauJetParameters.JetBDTSigLoose,
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigMedium, ROOT.xAOD.TauJetParameters.JetBDTSigTight ],
+                                       [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigLoose,
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigTight ],
                                        SigEff1P = [0.95, 0.85, 0.75, 0.60],
                                        SigEff3P = [0.95, 0.75, 0.60, 0.45],
                                        ScoreName = "BDTJetScore",
@@ -867,9 +867,9 @@ def getTauWPDecoratorEleBDT():
                                              NewScoreName = "BDTEleScoreSigTrans", #dynamic
                                              DefineWPs = True,
                                              CutEnumVals = 
-                                             [ROOT.xAOD.TauJetParameters.EleBDTLoose, 
-                                              ROOT.xAOD.TauJetParameters.EleBDTMedium, 
-                                              ROOT.xAOD.TauJetParameters.EleBDTTight],
+                                             [ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTLoose, 
+                                              ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTMedium, 
+                                              ROOT.xAOD.TauJetParameters.EIsTauFlag.leBDTTight],
                                              SigEff1P = [0.95, 0.85, 0.75],
                                              SigEff3P = [0.95, 0.85, 0.75],
                                              ) 
