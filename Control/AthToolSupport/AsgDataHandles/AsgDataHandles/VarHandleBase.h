@@ -43,6 +43,13 @@ namespace SG {
   public: 
 
     /**
+     * @brief Default constructor.
+     *
+     * The handle will not be usable until a non-blank key is assigned.
+     */
+    VarHandleBase() = default;
+
+    /**
      * @brief Constructor from a VarHandleKey.
      * @param key The key object holding the clid/key/store.
      * @param ctx The event context to use, or nullptr.

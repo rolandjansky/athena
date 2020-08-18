@@ -13,16 +13,12 @@
  **************************************************************************/ 
  
 #include "TrigEFBMuMuFex.h"
-#include "BtrigUtils.h"
 #include "TrigBphysHelperUtilsTool.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include <iostream>
-//class ISvcLocator;
 
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -32,11 +28,7 @@
 
 TrigEFBMuMuFex::TrigEFBMuMuFex(const std::string & name, ISvcLocator* pSvcLocator):
 HLT::ComboAlgo(name, pSvcLocator)
-//  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
 ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
-//m_trigBphysColl(NULL),
-//m_xAODTrigBphysColl(NULL),
-//m_xAODTrigBphysAuxColl(NULL)
 ,m_BmmHypTot(0),m_BmmHypVtx(0)
 ,m_expectNumberOfInputTE(2)
 ,m_massMuon(105.6583715)
@@ -80,7 +72,6 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("LowerMassCut", m_lowerMassCut=2000.0);
     declareProperty("UpperMassCut", m_upperMassCut=10000.0);
     declareProperty("ApplyUpperMassCut", m_ApplyupperMassCut=true);
-    //declareProperty("VertexFitterTool", m_fitterSvc);
     declareProperty("MuonAlgo"    , m_muonAlgo="TrigMuSuperEF");
     declareProperty("ExtrapolatedTrackParticleContName", m_SAMuonLabel="MuonEFInfo_ExtrapTrackParticles");
     declareProperty("noId"        , m_noId              = false);
@@ -335,7 +326,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             // loop over the vector of muon containers
             msg() << MSG::DEBUG << "MuonContainer, Got MuonEF " << ic << " Feature, size = " << muelv.size() << endmsg;
             int i(0);
-            for ( const auto muel: muelv) {
+            for ( const auto& muel: muelv) {
                 msg() << MSG::DEBUG << "ELLink: " << i++
                     << " index: "  << muel.index()
                     << " sgkey: "  << muel.dataID()
@@ -363,7 +354,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         for ( const auto& tpelv : vec_elv_tps) {
             msg() << MSG::DEBUG <<  "SATrackParticleContainer, Got MUSA " << ic << " Feature, size = " << tpelv.size() << endmsg;
             int i(0);
-            for ( const auto tpel: tpelv) {
+            for ( const auto& tpel: tpelv) {
                 msg() << MSG::DEBUG << "ELLink: " << i++
                     << " index: "  << tpel.index()
                     << " sgkey: "  << tpel.dataID()
@@ -378,7 +369,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     
     // for each of the two roi's make muons selection (not roi2 has m_noID complexity)
     std::vector<const xAOD::Muon*> muons0, muons1, muonsAll;
-    for (const auto muel: vec_elv_muons[0]){
+    for (const auto& muel: vec_elv_muons[0]){
         if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
             ATH_MSG_DEBUG("Muon from roi1 is neither Combined or SegmentTagged - reject" );
             continue;
@@ -388,7 +379,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         m_bphysHelperTool->addUnique(*muel, muonsAll,0.005,0.005,10, m_muonParticleType);
     } // roi1
     if(vec_elv_muons.size() > 1) {
-      for (const auto muel: vec_elv_muons[1]){
+      for (const auto& muel: vec_elv_muons[1]){
           // special case if noId set
           if (m_noId) {
               // no check needed for the noID
@@ -437,7 +428,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 xAOD::TrigBphys * bphys = m_resultsHolder.back();
                 ElementLink<xAOD::IParticleContainer> ptl1EL,ptl2EL;
                 bool foundMu0(false), foundMu1(false);
-                for ( const auto muel: vec_elv_muons[0] ) {
+                for ( const auto& muel: vec_elv_muons[0] ) {
                     if ( *muel == mu0) {
                         ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                         foundMu0 = true;
@@ -449,7 +440,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                     if (foundMu0 && foundMu1) break; // found both links
                 }
                 if(vec_elv_muons.size() > 1) {
-                  for ( const auto muel: vec_elv_muons[1] ) {
+                  for ( const auto& muel: vec_elv_muons[1] ) {
                       if ( *muel == mu0) {
                           ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                           foundMu0 = true;
@@ -490,7 +481,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 xAOD::TrigBphys * bphys = m_resultsHolder.back();
                 ElementLink<xAOD::IParticleContainer> ptl1EL,ptl2EL;
                 bool foundMu0(false), foundMu1(false);
-                for ( const auto muel: vec_elv_muons[0] ) {
+                for ( const auto& muel: vec_elv_muons[0] ) {
                     if ( *muel == mu0) {
                         ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                         foundMu0 = true;
@@ -502,7 +493,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                     if (foundMu0 && foundMu1) break; // found both links
                 }
                 if(vec_elv_muons.size() > 1) {
-                  for ( const auto muel: vec_elv_muons[1] ) {
+                  for ( const auto& muel: vec_elv_muons[1] ) {
                       if ( *muel == mu0) {
                           ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
                           foundMu0 = true;
@@ -584,10 +575,8 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     const xAOD::TrackParticle* tp1 = mu1->trackParticle(m_noId ? xAOD::Muon::MuonSpectrometerTrackParticle : m_muonParticleType);
     if (!tp0) return;
     if (!tp1) return;
-    const Trk::Track * trk0 = tp0->track();
-    const Trk::Track * trk1 = tp1->track();
-    if (trk1 && (trk1 == trk0)) {
-        ATH_MSG_DEBUG("Same Trk::Track pointers" );
+    if (tp0 == tp1) {
+        ATH_MSG_DEBUG("Same xAOD::TrackParticle  pointers" );
         return;
     } // if tracks the same
 
@@ -597,8 +586,8 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     } // track uniqueness
     m_mon_Acceptance.push_back( ACCEPT_MuMu_Unique );
     // opposite charge requirement
-    ATH_MSG_VERBOSE("Charges combination: " << mu0 << ": " << mu0->charge() << " " << tp0->qOverP() << " " << (trk0 ? trk0->perigeeParameters()->charge() : -99)
-        << " , " << mu1 << ": " << mu1->charge() << " " << tp1->qOverP() << " " << (trk1 ? trk1->perigeeParameters()->charge() : -99));
+    ATH_MSG_VERBOSE("Charges combination: " << mu0 << ": " << mu0->charge() << " " << tp0->qOverP() << " " <<  tp0->charge()
+        << " , " << mu1 << ": " << mu1->charge() << " " << tp1->qOverP() << " " << tp1->charge());
     
     if (m_oppositeCharge && (tp0->charge() * tp1->charge() > 0)) {
         ATH_MSG_DEBUG("Reject permutation due to opposite charge requirement: " << mu0->charge() << "  " << mu1->charge() );

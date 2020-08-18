@@ -73,6 +73,19 @@ namespace InDet {
         m_errorMatrix(pcp.m_errorMatrix ? new Amg::MatrixX(*pcp.m_errorMatrix) : 0)
         {}    
 
+        /** move constructor */
+    PixelClusterParts(PixelClusterParts&& pcp) noexcept :
+        m_idgroup(std::move(pcp.m_idgroup)),
+        m_totgroup(std::move(pcp.m_totgroup)),
+        m_lvl1group(std::move(pcp.m_lvl1group)),
+        m_localPosition( pcp.m_localPosition ),
+        m_errorMatrix(pcp.m_errorMatrix)
+        {
+            pcp.m_localPosition= nullptr;
+            pcp.m_errorMatrix  = nullptr;
+        }
+
+
         /** assignment operator*/
     PixelClusterParts& operator=(const PixelClusterParts& pcp){
         if (this != &pcp){

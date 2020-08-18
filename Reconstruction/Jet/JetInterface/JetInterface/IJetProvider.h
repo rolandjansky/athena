@@ -16,9 +16,9 @@
 
 #include <utility>
 #include <memory>
+#include "AsgDataHandles/WriteHandle.h"
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/JetContainer.h"
-#include "StoreGate/WriteHandle.h"
 
 namespace SG {
   class IAuxStore;

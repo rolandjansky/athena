@@ -1,65 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
 // A. Gaponenko, 2006
 
 #include "MuonTruthAlgs/MuonPatternCombinationDetailedTrackTruthMaker.h"
+
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include "TrkTrack/TrackCollection.h"
-#include <iterator>
-
 #include "MuonPattern/DetailedMuonPatternTruthCollection.h"
 
+#include <iterator>
 
 //================================================================
 MuonPatternCombinationDetailedTrackTruthMaker::MuonPatternCombinationDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-//  m_truthTool("Trk::DetailedTrackTruthBuilder")
-  m_truthTool("Trk::DetailedMuonPatternTruthBuilder/DetailedMuonPatternTruthBuilder")
+  AthAlgorithm(name,pSvcLocator)
 {  
-  declareProperty("TruthTool",               m_truthTool);
-
-  // Inputs
-  declareProperty("TrackCollectionName", m_trackCollectionName = "MooreTracks");
-  declareProperty("MuonPatternCombinationCollection", m_collection = "MuonHoughPatternCombinations");
-
-  declareProperty("PRD_TruthNames",          m_PRD_TruthNames);
-  m_PRD_TruthNames.push_back("CSC_TruthMap");
-  m_PRD_TruthNames.push_back("RPC_TruthMap");
-  m_PRD_TruthNames.push_back("TGC_TruthMap");
-  m_PRD_TruthNames.push_back("MDT_TruthMap");
-
-
-  // Output
-  declareProperty("DetailedTrackTruthNames",  m_detailedTrackTruthName);
-  m_detailedTrackTruthName = (m_trackCollectionName + "Truth");
+  if (m_detailedTrackTruthName.empty()) m_detailedTrackTruthName = (m_trackCollectionName + "Truth");
 }
 
-// Initialize method
 // -----------------------------------------------------------------------------------------------------
 StatusCode MuonPatternCombinationDetailedTrackTruthMaker::initialize()
 {
   ATH_MSG_DEBUG( "MuonPatternCombinationDetailedTrackTruthMaker::initialize()");
-    
-  //----------------
-  if ( m_truthTool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_truthTool);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved tool " << m_truthTool );
-  }
-
-  //----------------
-  return StatusCode::SUCCESS;
-}
-
-// -----------------------------------------------------------------------------------------------------
-StatusCode MuonPatternCombinationDetailedTrackTruthMaker::finalize() 
-{
-  ATH_MSG_DEBUG( "MuonPatternCombinationDetailedTrackTruthMaker::finalize()");
+  ATH_CHECK(m_truthTool.retrieve());
   return StatusCode::SUCCESS;
 }
 

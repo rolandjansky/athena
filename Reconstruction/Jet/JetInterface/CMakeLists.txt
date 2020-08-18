@@ -21,7 +21,7 @@ atlas_depends_on_subdirs(
 atlas_add_library( JetInterface
    JetInterface/*.h Root/*.cxx
    PUBLIC_HEADERS JetInterface
-   LINK_LIBRARIES AsgTools xAODEventInfo xAODJet xAODTracking xAODBase )
+   LINK_LIBRARIES AsgTools AsgDataHandlesLib xAODEventInfo xAODJet xAODTracking xAODBase )
 
 atlas_add_dictionary( JetInterfaceDict
    JetInterface/JetInterfaceDict.h

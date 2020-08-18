@@ -86,6 +86,12 @@ public:
    /// Constructor from a tool name.
    ToolHandle( const std::string& toolname, INamedInterface* parent = 0 );
 
+   /// Constructor declaring a property
+   template<typename T2>
+   ToolHandle (T2 *parent, const std::string& propertyName,
+               const std::string& toolName,
+               const std::string& propertyTitle = "");
+
    /// Dereferencing operator
    T& operator*();
    /// Dereferencing operator
@@ -100,6 +106,9 @@ public:
    /// Returns success if pointer is non-null and of the correct type.
    StatusCode retrieve() const;
 
+   /// Clear out the tool
+   void disable () noexcept;
+
    /// Return true if tool has no pointer or name
    bool empty() const;
 
@@ -108,7 +117,7 @@ public:
 
 private:
    /// Pointer to the tool
-   mutable T* m_ptool;
+   mutable T* m_ptool {nullptr};
 
 }; // class ToolHandle
 

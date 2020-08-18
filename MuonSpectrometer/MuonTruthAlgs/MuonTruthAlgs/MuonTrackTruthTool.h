@@ -16,11 +16,13 @@
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
 
 #include <string>
 #include <vector>
 #include <map>
 #include <utility>
+#include <set>
 
 class TruthTrajectory;
 
@@ -35,7 +37,6 @@ namespace Muon {
 namespace Trk {
   class Track;
   class MeasurementBase;
-  class ITruthTrajectoryBuilder;
 }
 
 namespace Muon {
@@ -138,21 +139,23 @@ namespace Muon {
     /// The number of such scatters is returned in the .second.
     const std::pair<const HepMC::GenParticle*, unsigned int> getInitialPair( const TruthTrajectory& traj, const int barcodeIn ) const;
     
-    const MuonGM::MuonDetectorManager*  m_detMgr;
+    const MuonGM::MuonDetectorManager* m_detMgr;
 
-    ToolHandle<Muon::MuonEDMPrinterTool>         m_printer;
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ToolHandle<Trk::ITruthTrajectoryBuilder>     m_truthTrajectoryBuilder;
+
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"Printer","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrajectoryBuilder{this,"TruthTrajectoryBuilder","Muon::MuonDecayTruthTrajectoryBuilder/MuonDecayTruthTrajectoryBuilder"};
 
     mutable TruthTree m_truthTree;
     mutable std::vector<TruthTrajectory*> m_truthTrajectoriesToBeDeleted;
     mutable std::map<int,int> m_barcodeMap; // map used to link barcode of TrackRecord particles/hits to 'final' state barcode
-    bool m_manipulateBarCode;
-    bool m_doSummary;
-    unsigned int  m_minHits;
-    bool m_matchAllParticles;
+
+    Gaudi::Property<bool> m_manipulateBarCode{this,"ManipulateBarCode",false};
+    Gaudi::Property<bool> m_doSummary{this,"DoSummary",false};
+    Gaudi::Property<bool> m_matchAllParticles{this,"MatchAllParticles",true};
+    Gaudi::Property<unsigned int> m_minHits{this,"MinHits",4};
+    Gaudi::Property<std::vector<int>> m_pdgsToBeConsidered{this,"ConsideredPDGs",{}};
     
-    IntegerArrayProperty m_pdgsToBeConsidered;
     std::set<int> m_selectedPdgs; // set storing particle PDG's considered for matching
   };
 

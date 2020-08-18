@@ -38,10 +38,10 @@ namespace Trk{
   public:
     // public because of DataPool
     SpacePoint();
-    SpacePoint(const SpacePoint &);
-    SpacePoint &operator=(const SpacePoint &);
+    SpacePoint(const SpacePoint &) = default;
+    SpacePoint &operator=(const SpacePoint &) = default;
     // Destructor:
-    virtual ~SpacePoint();
+    virtual ~SpacePoint() = default;
 	
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -89,7 +89,7 @@ namespace Trk{
     virtual std::ostream& dump( std::ostream& out ) const override=0 ;
 
   protected:
-    const std::pair<const PrepRawData*, const PrepRawData*> *m_clusList;
+    std::pair<const PrepRawData*, const PrepRawData*> m_clusList;
     std::pair<IdentifierHash, IdentifierHash> m_elemIdList;
     Amg::Vector3D m_position; 
     Amg::MatrixX  m_globalCovariance;
@@ -117,8 +117,7 @@ namespace Trk{
 
   inline const std::pair<const PrepRawData*, const PrepRawData*>& SpacePoint::clusterList() const
     {
-      assert(m_clusList!=0);
-      return *m_clusList;
+      return m_clusList;
     }
 
   inline double SpacePoint::eta(double z0) const

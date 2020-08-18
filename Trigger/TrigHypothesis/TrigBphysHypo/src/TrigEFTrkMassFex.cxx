@@ -10,23 +10,19 @@
 // ********************************************************************
 
 #include "TrigEFTrkMassFex.h"
-#include "BtrigUtils.h"
 #include "TrigBphysHelperUtilsTool.h"
 
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
 
-#include <algorithm>
 #include <math.h>
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-
+#include "TrigTimeAlgs/TrigTimer.h"                  // for TrigTimer
 
 class ISvcLocator;
 
@@ -44,7 +40,6 @@ HLT::FexAlgo(name, pSvcLocator)
     // Read cuts
     declareProperty( "AcceptAll", m_acceptAll  = false );
     declareProperty( "OppositeCharge", m_oppositeCharge  = true );
-    declareProperty("m_matchL1", m_matchL1 = false);
     declareProperty("MuonPTthr", m_muonPtthr=4.);
     declareProperty("TrackPTthr", m_trackPtthr=1.4);
     declareProperty("dEtaTrackRoI", m_dEta_cut=0.1);
@@ -127,10 +122,6 @@ HLT::ErrorCode TrigEFTrkMassFex::hltInitialize()
         ATH_MSG_DEBUG("TrigBphysHelperUtilsTool found" );
     }
     
-    if (m_matchL1) {
-        ATH_MSG_DEBUG("matchL1 not yet re-implemented." );
-        return HLT::BAD_JOB_SETUP;
-    }
     
     ATH_MSG_INFO("AcceptAll            = "<< (m_acceptAll==true ? "True" : "False") );
     ATH_MSG_INFO("Apply opposite sign cut = " << (m_oppositeCharge==true ? "True" : "False") );
@@ -302,7 +293,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     }
     if(msgLvl() <= MSG::DEBUG) { // print debug
         msg() << MSG::DEBUG << "Found MuonContainer, Got MuonEF size = " << elvmuon.size() << endmsg;
-        for ( const auto muel: elvmuon) {
+        for ( const auto& muel: elvmuon) {
             msg() << MSG::DEBUG << "ELLink: "
                 << " index: "  << muel.index()
                 << " sgkey: "  << muel.dataID()
@@ -311,7 +302,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
                 << " ptr: "    << (muel.isValid() ? *muel : nullptr)
                 << endmsg;
         }
-        for ( const auto muel: elvmuon) {
+        for ( const auto& muel: elvmuon) {
             if (!muel.isValid()) continue;
             msg() << MSG::DEBUG << "Muon:   "
                 << " pt: " <<  (*muel)->pt()
@@ -352,7 +343,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
 
     if(msgLvl() <= MSG::DEBUG) { // print debug
         msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endmsg;
-        for ( const auto eltp: elvtps) {
+        for ( const auto& eltp: elvtps) {
             msg() << MSG::DEBUG << "ELLink: "
                 << " index: "  << eltp.index()
                 << " sgkey: "  << eltp.dataID()
@@ -393,7 +384,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     //#FIXME - remember to implement the scenario of (tracks matched to roi + tracks)
     std::vector<ElementLink<xAOD::MuonContainer> > muons;
     std::vector<ElementLink<xAOD::TrackParticleContainer> > tracks;
-    for (auto muel: elvmuon) {
+    for (const auto& muel: elvmuon) {
         if (!muel.isValid()) continue;
         const xAOD::TrackParticle * mutrk = (*muel)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
         if (!mutrk) continue;
@@ -436,7 +427,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
         
         muons.push_back(muel);
     } // optimize? addUnique?
-    for (auto trkel: elvtps)  {
+    for (const auto& trkel: elvtps)  {
         const xAOD::TrackParticle * trk = *trkel;
         if (!trk) continue;
         if (trk->definingParametersCovMatrixVec().size() == 0) {
@@ -528,7 +519,7 @@ void TrigEFTrkMassFex::buildMuTrkPairs(const TrigRoiDescriptor * roi,
         return;
     }
 
-    for (auto muel: muons) {
+    for (const auto& muel: muons) {
         if (!muel.isValid()) continue;
         const xAOD::Muon * muon = *muel;
         if (!muon) continue;
@@ -536,7 +527,7 @@ void TrigEFTrkMassFex::buildMuTrkPairs(const TrigRoiDescriptor * roi,
         const ElementLink<xAOD::TrackParticleContainer> & mutrkel = muon->trackParticleLink(xAOD::Muon::InnerDetectorTrackParticle);
         if (!mutrk) continue;
         
-        for (auto trkel: tracks) {
+        for (const auto& trkel: tracks) {
             if (!trkel.isValid()) continue;
             const xAOD::TrackParticle * trk = *trkel;
             if (!trk) continue;

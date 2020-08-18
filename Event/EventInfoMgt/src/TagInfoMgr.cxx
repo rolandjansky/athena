@@ -366,6 +366,7 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
 
 }
 
+
 StatusCode
 TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection* tagInfoCond) 
 {
@@ -393,11 +394,17 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
         runNumber = m_currentRun;
     }
     else if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
-        // For HLT use the conditionsRun retrieved from the first BeginRun incident
+        // Not completely sure of the use-case for the setting of the conditions run number, but
+        // this will be used if the current run number has not been set. RDS 2020/08
         runNumber = m_conditionsRun;
+        ATH_MSG_INFO( "fillMetaData: Using conditions run number: " << m_conditionsRun << " rather then current run number: " << m_currentRun);
     } else {
-        ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelector");      
-        return (StatusCode::FAILURE);
+       // For simulation, we may be in the initialization phase and
+       // must get the run number from the event selector
+       if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
+           ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror");      
+           return (StatusCode::FAILURE);
+       }
     }
     
     // Copy tags to AttributeList
@@ -467,6 +474,67 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
 
     return StatusCode::SUCCESS;
 
+}
+
+
+StatusCode          
+TagInfoMgr::getRunNumber (unsigned int& runNumber)
+{
+    // check if EventSelector is being used to override run numbers if
+    // so, we return the runNumber from the properties of the
+    // EventSelector
+
+    // Get run number parameter from the EventSelector 
+    ATH_MSG_DEBUG( "getRunNumber: check if tag is set in jobOpts");
+    // Get name of event selector from the application manager to
+    // make sure we get the one for MC signal events
+    IProperty* propertyServer(0); 
+    StatusCode sc = serviceLocator()->service("ApplicationMgr", propertyServer); 
+    if (sc != StatusCode::SUCCESS ) {
+        ATH_MSG_ERROR( "getRunNumber: Cannot get ApplicationMgr "); 
+        return StatusCode::FAILURE;
+    }
+    StringProperty property("EvtSel", "");
+    sc = propertyServer->getProperty(&property);
+    if (!sc.isSuccess()) {
+        ATH_MSG_ERROR( "getRunNumber: unable to get EvtSel: found " << property.value());
+        return StatusCode::FAILURE;
+    }
+    // Get EventSelector for ApplicationMgr
+    std::string eventSelector = property.value();
+    sc = serviceLocator()->service(eventSelector, propertyServer); 
+    if (sc != StatusCode::SUCCESS ) {
+        ATH_MSG_ERROR( "getRunNumber: Cannot get EventSelector " << eventSelector); 
+        return StatusCode::FAILURE;
+    }
+    BooleanProperty overrideRunNumber = BooleanProperty("OverrideRunNumber", false);
+    sc = propertyServer->getProperty(&overrideRunNumber);
+    if (!sc.isSuccess()) {
+        // Not all EventSelectors have this property, but we should
+        // not get here if the ES is not one for simulation => return failure
+        ATH_MSG_WARNING( "getRunNumber: unable to get OverrideRunNumber property from EventSelector ");
+        return StatusCode::FAILURE;
+    }
+    if (overrideRunNumber.value()) {
+        IntegerProperty runNumberProp = IntegerProperty("RunNumber", 0);
+        sc = propertyServer->getProperty(&runNumberProp);
+        if (!sc.isSuccess()) {
+            ATH_MSG_ERROR( "getRunNumber: unable to get RunNumber from EventSelector: found " 
+                << runNumberProp.value());
+            return StatusCode::FAILURE;
+        }
+        else {
+            runNumber = runNumberProp.value();
+            ATH_MSG_DEBUG( "getRunNumber: Run number:  "
+                  << runNumber << " obtained from "
+                  << eventSelector);
+        }
+    }
+    else {
+        ATH_MSG_ERROR( "getRunNumber: OverrideRunNumber from EventSelector is false ");
+        return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
 }
 
 

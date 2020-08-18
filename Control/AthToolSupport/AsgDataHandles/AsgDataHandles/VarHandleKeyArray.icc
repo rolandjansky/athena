@@ -1,0 +1,105 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include <sstream>
+
+
+namespace SG {
+  /**
+   * @brief forward the initialization to the member VarHandleKeys
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
+   */
+  template <class Base>
+  inline
+  StatusCode VarHandleKeyArrayCommon<Base>::initialize (bool used /*= true*/) {
+    StatusCode sc(StatusCode::SUCCESS);
+    if (used) {
+      // IDataHandleHolder* const owner = this->owner();
+      for (Base& b : *this) {
+        // if (owner != nullptr) {
+        //   b.setOwner(owner);
+        // }
+        if ( b.initialize().isFailure() ) {
+          sc = StatusCode::FAILURE;
+        }
+      }
+    }
+    else {
+      this->clear();
+    }
+    return sc;
+  }
+
+  // //
+  // // Set the VarHandleKey from a string
+  // //
+  // template <class Base>
+  // inline
+  // StatusCode VarHandleKeyArrayCommon<Base>::assign(const std::vector<std::string>& vs) {
+  //   StatusCode sc(StatusCode::SUCCESS);
+  //   this->clear();
+  //   for (auto & s : vs) {
+  //     Base b;
+  //     if (!b.assign(s)) {
+  //       sc = StatusCode::FAILURE;
+  //     } else {
+  //       // Skip blank keys
+  //       if (b.key() != "") {
+  //         this->push_back(b);
+  //       }
+  //     }
+  //   }
+  //   return sc;
+  // }
+  
+  //
+  // string representation of VarHandleKeyArray
+  //
+  template <class Base>
+  inline
+  std::string VarHandleKeyArrayCommon<Base>::toString() const {
+    std::ostringstream ost;
+    typename std::vector<Base>::const_iterator itr;
+    itr = this->begin();
+    size_t sz = this->size();
+    for ( size_t i=0; i < sz; ++i, ++itr) {
+      // ost << "'" << itr->objKey() << "'";
+      ost << "'" << itr->key() << "'";
+      if (i != sz-1) {
+        ost << ",";
+      }
+    }
+    return ost.str();      
+  }
+  
+  // //
+  // // create array of all base VarHandleKeys in the Array
+  // //
+  // template <class Base>
+  // inline  
+  // std::vector<SG::VarHandleKey*> VarHandleKeyArrayCommon<Base>::keys() const {
+  //   std::vector<SG::VarHandleKey*> keys;
+  //   for (const SG::VarHandleKey& k : *this) {
+  //     // FIXME: This is a rule violation, but we can't really fix it without
+  //     // changing the IDataHandleHolder base class from Gaudi.
+  //     SG::VarHandleKey* k_nc ATLAS_THREAD_SAFE = const_cast<SG::VarHandleKey*>(&k);
+  //     keys.push_back (k_nc);
+  //   }
+  //   return keys;
+  // }      
+ 
+  // template <class Base>
+  // inline  
+  // void VarHandleKeyArrayCommon<Base>::declare(IDataHandleHolder* owner) {
+  //   if ( renounced() ) {
+  //     return;
+  //   }     
+  //   for (auto k: keys() ) {
+  //     owner->declare ( *k );
+  //     k->setOwner( owner );
+  //   }
+  // }
+}

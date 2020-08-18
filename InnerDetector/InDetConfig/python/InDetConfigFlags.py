@@ -181,6 +181,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs 
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
-  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.PixelOn))
-  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.SCTOn))
+  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoPixel))
+  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoSCT))
   return icf

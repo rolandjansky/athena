@@ -37,34 +37,18 @@ namespace PESA
     // List of the splitter algorithms
     enum Algorithm { Alternating, Pt, Phi, NorthSouth, Charge };
 
-    // Constructor/Destructor
-    T2TrackManager( int nSplit = 2, Algorithm alg = Alternating );
-
-    ~T2TrackManager();
-
     // Return a vector of sub-clusters
-    std::vector< ConstDataVector<TrackCollection> >          split( const TrackCollection& cluster);
+    std::vector< ConstDataVector<TrackCollection> > split(const TrackCollection& cluster, const EventContext& ctx) const;
 
-    // Get and Set parameters
-    //    int GetNSplit() {return m_nSplit;}
-    //    int GetAlg() {return m_alg;}
-    //    void SetNSplit(int nSplit) {m_nSplit = nSplit;}
-    //    void SetAlg(int alg) {m_alg = alg;}
-    void ResetKey(int key = -1) { m_altKey = key;}
-    
   private:
     
     // The splitter algorithms
-    int alternatingSplit();         // 1 for me, 1 for you, 2 for me, ...
-    int orderedSplit(int nEntries); // 1, 2, 3 for me, 1, 2, 3 for you ...
+    constexpr int alternatingSplit(int key) const;         // 1 for me, 1 for you, 2 for me, ...
+    constexpr int orderedSplit(int key, int nEntries) const; // 1, 2, 3 for me, 1, 2, 3 for you ...
     
     /// Data members
-    int m_nSplit;      // How many output clusters
-    int m_alg;         // Which algorithm to use
-    
-    /// Algorithm helper objects
-    int m_altKey;     // Alternating split key
-    //int m_ordKey;     // Ordered split key
+    int m_nSplit = 2;      // How many output clusters
+    int m_alg = Alternating;         // Which algorithm to use
   };
 
 } //PESA

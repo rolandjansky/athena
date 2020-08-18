@@ -16,14 +16,9 @@ class CaloBadChannel {
   CaloBadChannel( BitWord rawStatus) : m_word(rawStatus) {}
   CaloBadChannel() : m_word(0) {}
 
-  CaloBadChannel(const CaloBadChannel& rBad) {m_word=rBad.m_word;}
+  CaloBadChannel(const CaloBadChannel& rBad) = default;
   CaloBadChannel(const CaloBadChannel* pBad) {m_word=pBad->m_word;}
-  CaloBadChannel& operator= (const CaloBadChannel& rBad) {
-    if (this != &rBad) {
-      m_word = rBad.m_word;
-    }
-    return *this;
-  }
+  CaloBadChannel& operator= (const CaloBadChannel& rBad) = default;
 
   bool statusOK( ProblemType pb) const {
     BitWord mask = 1 << (PosType) pb;
