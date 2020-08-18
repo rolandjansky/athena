@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
@@ -99,6 +99,8 @@ def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
     kwargs.setdefault("doDeltaRay", False)            # needs validation
     kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
+    if InDetGeometryFlags.isSLHC():
+       kwargs.setdefault("doSlimEdges", False) 
     if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
@@ -144,6 +146,8 @@ def PixelECChargeTool(name="PixelECChargeTool", **kwargs):
 def IblPlanarChargeTool(name="IblPlanarChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
+    if InDetGeometryFlags.isSLHC():
+       kwargs.setdefault("doSlimEdges", False)
     if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
