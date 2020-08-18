@@ -949,6 +949,23 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, uint32_t, beamStatus,
                                          setBeamStatus )
 
+
+   /// Accessor for "BeamSpotWeight"
+   static const SG::AuxElement::Accessor< float >
+      BeamSpotWeight( "BeamSpotWeight" );
+
+   float EventInfo_v1::beamSpotWeight() const {
+      // If the value is not available, then return 1.0
+      if( ! BeamSpotWeight.isAvailable( *this ) ) return 1.0f;
+      return BeamSpotWeight( *this );
+   }
+
+   void EventInfo_v1::setBeamSpotWeight( float value ) {
+      BeamSpotWeight( *this ) = value;
+      return;
+   }
+
+
    //
    /////////////////////////////////////////////////////////////////////////////
 
