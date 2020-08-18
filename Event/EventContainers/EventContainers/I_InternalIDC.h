@@ -8,7 +8,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "GaudiKernel/StatusCode.h"
 #include <vector>
-#include <utility>
 
 namespace EventContainers{
 class IDC_WriteHandleBase;
@@ -22,9 +21,19 @@ virtualised.
 
 A standard iterator is provided for fast iteration in a sequential order.
 */
+template<typename T>
+struct hashPair{
+   IdentifierHash::value_type first;
+   const T*                second;
+   constexpr hashPair(IdentifierHash::value_type f, const T* s) : first(f), second(s) {  }
+   bool operator <(const hashPair &b) const noexcept{
+      return first < b.first;
+   }
+};
+
 class I_InternalIDC{
 public:
-    typedef std::pair < IdentifierHash::value_type, const void* > hashPair;
+    typedef EventContainers::hashPair<void> hashPair;
     typedef std::vector < hashPair >::const_iterator InternalConstItr;
     #include "EventContainers/deleter.h"
     virtual InternalConstItr cbegin() const=0;

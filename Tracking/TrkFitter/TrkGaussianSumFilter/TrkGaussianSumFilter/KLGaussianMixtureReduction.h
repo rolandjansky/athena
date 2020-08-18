@@ -109,6 +109,10 @@ struct triangularToIJ
 /**
  * @brief Merge the componentsIn and return
  * which componets got merged
+ *
+ * The input component array is assumed to be
+ * GSFUtils::alignment aligned.
+ *
  */
 std::vector<std::pair<int32_t, int32_t>>
 findMerges(Component1D* componentsIn,
@@ -126,10 +130,6 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 
 __attribute__((target("sse4.1")))
-int32_t
-findMinimumIndex(const float* distancesIn, const int32_t n);
-
-__attribute__((target("sse2")))
 int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 #endif // x86_64 specific targets

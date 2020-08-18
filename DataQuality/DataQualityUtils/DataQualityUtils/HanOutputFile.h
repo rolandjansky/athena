@@ -73,6 +73,8 @@ public:
   /**
    * cnvsType: 1=pngOnly;2=jsonOnly;3=pngAndJson
    */
+  const static int GENERATE_PNG        = 1; // Make PNG with TImage
+  const static int GENERATE_JSON       = 2; // Make JSON
   virtual int  saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB,int cnvsType = 1);
   static bool containsDir(std::string dirname, std::string maindir);
 

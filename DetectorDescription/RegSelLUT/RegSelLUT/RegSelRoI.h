@@ -39,7 +39,7 @@ public:
 	    double phiMin, double phiMax, 
 	    double etaMin, double etaMax);
 
-  ~RegSelRoI() { } 
+  ~RegSelRoI() = default;
 
   double getzMin()   const { return m_zMin; } 
   double getzMax()   const { return m_zMax; } 
