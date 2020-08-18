@@ -200,7 +200,7 @@ def getHLTConfigSvc( flags ):
 
 # configuration of CondAlg providing the HLTPrescalesSet
 @memoize
-def setupHLTPrescaleCondAlg( flags = None ):
+def setupHLTPrescaleCondAlg( flags  ):
     log = logging.getLogger('TrigConfigSvcCfg')
     TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
     hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlg")
@@ -219,16 +219,14 @@ def setupHLTPrescaleCondAlg( flags = None ):
 
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if tc["source"] == "COOL" or athenaCommonFlags.isOnline():
-        if flags is None: # old style config
-            from IOVDbSvc.CondDB import conddb
-            conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
-            log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
+      from IOVDbSvc.CondDB import conddb
+      conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
+      log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
     # add the hltPrescaleCondAlg to condseq
-    if flags is None: # old style config
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        condSequence += conf2toConfigurable( hltPrescaleCondAlg )
-        log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSequence = AthSequencer("AthCondSeq")
+      condSequence += conf2toConfigurable( hltPrescaleCondAlg )
+      log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
     return hltPrescaleCondAlg
 
 
