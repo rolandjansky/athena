@@ -949,6 +949,8 @@ def conf2toConfigurable( comp, indent="" ):
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
                 pvalue=__listHelperToList(pvalue)
+                if pname not in alreadySetProperties:
+                    continue
                 if alreadySetProperties[pname] != pvalue:
                     _log.info("{}Merging property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
                     # create surrogate
