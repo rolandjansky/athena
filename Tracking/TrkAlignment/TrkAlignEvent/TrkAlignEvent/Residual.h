@@ -25,7 +25,7 @@ namespace Trk {
 
   public:
     Residual(AlignResidualType resType, AlignMesType mesType, ParamDefs param, double residual, double errSq);
-    ~Residual();
+    ~Residual() = default;
 
     /** returns residual type */
     AlignResidualType residualType() const;

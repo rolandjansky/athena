@@ -26,12 +26,6 @@ namespace InDet {
     m_goodFrac = -99999;
   }
 
-  InDet::TrackStateOnBLayerInfo::~TrackStateOnBLayerInfo(){
-    ////....
-  }
-
-
-
 
 } //end namespace
 

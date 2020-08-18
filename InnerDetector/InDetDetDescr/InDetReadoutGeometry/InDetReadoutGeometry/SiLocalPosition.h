@@ -53,7 +53,7 @@ namespace InDetDD {
   		  const double xDepth=0);
 
     /** Destructor: */
-    ~SiLocalPosition();
+    ~SiLocalPosition()=default;
 
     /** Assignment operator: */
     SiLocalPosition &operator=(const SiLocalPosition &) = default;
@@ -121,8 +121,6 @@ namespace InDetDD {
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline SiLocalPosition::~SiLocalPosition()
-{}
 
 inline double SiLocalPosition::xEta() const
 {
