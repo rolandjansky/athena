@@ -69,7 +69,7 @@ class RpcIdHelper : public MuonIdHelper
   // Identifier builders
 
   Identifier elementID(int stationName, int stationEta, int stationPhi,
-		       int doubletR, bool check=false, bool* isValid=0) const;
+		       int doubletR, bool check=false, bool* isValid=0, bool noPrint=false) const;
   Identifier elementID(std::string stationNameStr, int stationEta,
 		       int stationPhi, int doubletR, bool check=false, bool* isValid=0) const;
   Identifier elementID(const Identifier& elementID, int doubletR, bool check=false, bool* isValid=0) const;
@@ -187,7 +187,7 @@ class RpcIdHelper : public MuonIdHelper
   // Private validation of levels
 
   bool validElement(const Identifier& id, int stationName, int stationEta, 
-		    int stationPhi,int doubletR) const;
+		    int stationPhi,int doubletR, bool noPrint=false) const;
   bool validChannel(const Identifier& id, int stationName, int stationEta, 
 		    int stationPhi,int doubletR, int doubletZ, 
 		    int doubletPhi, int gasGap,int measuresPhi, 
@@ -246,7 +246,7 @@ CLASS_DEF(RpcIdHelper, 4172, 1)
 // Construct ID from components
 
      inline Identifier RpcIdHelper::elementID(int stationName, int stationEta, int stationPhi,
-					      int doubletR, bool check, bool* isValid) const {
+					      int doubletR, bool check, bool* isValid, bool noPrint) const {
 
   // pack fields independently
   Identifier result((Identifier::value_type)0);
@@ -259,7 +259,7 @@ CLASS_DEF(RpcIdHelper, 4172, 1)
   m_dbr_impl.pack (doubletR,result);
   if ( check ) {
     val = this->validElement(result,stationName,stationEta,
-			     stationPhi,doubletR);
+			     stationPhi,doubletR,noPrint);
     if ( isValid ) *isValid = val;
   }
   return result;
