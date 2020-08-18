@@ -83,7 +83,6 @@ void CaloEnergyCnv_p2::transToPers( const CaloEnergy* trans,
 
   pers->m_energyLossType     = trans->energyLossType();
   pers->m_caloLRLikelihood   = trans->caloLRLikelihood();
-  pers->m_caloMuonScore      = trans->caloMuonScore();
   pers->m_caloMuonIdTag      = trans->caloMuonIdTag();
   pers->m_fsrCandidateEnergy = trans->fsrCandidateEnergy();
   
