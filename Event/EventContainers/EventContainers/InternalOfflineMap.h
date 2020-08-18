@@ -40,7 +40,7 @@ public:
     virtual void* removeCollection( IdentifierHash hashId ) override;
     virtual void destructor(deleter_f*) noexcept override;
 private:
-    mutable std::vector<std::pair<IdentifierHash::value_type, const void*>> m_map;
+    mutable std::vector<I_InternalIDC::hashPair> m_map;
     std::unordered_map<IdentifierHash::value_type, const void*> m_fullMap;
     mutable std::mutex m_waitMutex ATLAS_THREAD_SAFE;
     mutable std::atomic<bool> m_needsupdate ATLAS_THREAD_SAFE; //These mutables are carefully thought out, do not change

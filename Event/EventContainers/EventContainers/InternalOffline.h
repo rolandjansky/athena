@@ -38,7 +38,7 @@ public:
     virtual void* removeCollection( IdentifierHash hashId ) override;
     virtual void destructor(deleter_f*) noexcept override;
 private:
-    std::vector<std::pair<IdentifierHash::value_type, const void*>> m_map;
+    std::vector<I_InternalIDC::hashPair> m_map;
     size_t m_maximumSize;
 };
 
