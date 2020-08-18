@@ -6,7 +6,6 @@
 #include "BeamSpotReweightingAlg.h"
 
 // Athena headers
-#include "GeneratorObjects/McEventCollection.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/WriteDecorHandle.h"
@@ -22,11 +21,8 @@ namespace Simulation
 {
 
   BeamSpotReweightingAlg::BeamSpotReweightingAlg( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthReentrantAlgorithm( name, pSvcLocator ),
-      m_inputMcEventCollection("TruthEvent")
+    : AthReentrantAlgorithm( name, pSvcLocator )
   {
-    declareProperty("InputMcEventCollection", m_inputMcEventCollection,
-                    "The name of the input McEventCollection");
     declareProperty( "Input_beam_sigma_z", m_input_beam_sigma_z, "Beam spot sigma of the input HIT file to be reweighted");
   }
 
@@ -36,9 +32,9 @@ namespace Simulation
     // This will check that the properties were initialized
     // properly by job configuration.
     ATH_CHECK( m_inputMcEventCollection.initialize() );
-    ATH_CHECK( m_BeamSpotWeight.initialize() );
+    ATH_CHECK( m_beamSpotWeight.initialize() );
     ATH_CHECK( m_beamSpotKey.initialize() );
-    ATH_CHECK( m_EventInfo.initialize() );
+    ATH_CHECK( m_eventInfo.initialize() );
     
     ATH_MSG_INFO("Input_beam_sigma_z="<<m_input_beam_sigma_z);
 
@@ -51,6 +47,18 @@ namespace Simulation
     if(m_input_beam_sigma_z<0) {
       ATH_MSG_DEBUG("Input_beam_sigma_z="<<m_input_beam_sigma_z<<"<0, do nothing");
       return StatusCode::SUCCESS;
+    }
+
+    if(msgLvl(MSG::DEBUG)) {
+      SG::ReadHandle<xAOD::EventInfo> evt (m_eventInfo,ctx);
+      if (!evt.isValid()) {
+        ATH_MSG_FATAL( "Could not find event info"  );
+        return(StatusCode::FAILURE);
+      }
+      ATH_MSG_DEBUG( "EventInfo before adding the weight: " << evt->eventNumber() 
+                            << " run: " << evt->runNumber()
+                            << " hasBeamSpotWeight: "<< evt->hasBeamSpotWeight()
+                            << " beamSpotWeight: "<< evt->beamSpotWeight()  );
     }
 
     // Construct handles from the keys.
@@ -80,21 +88,24 @@ namespace Simulation
         float pullold=(z-beamz)/m_input_beam_sigma_z;
         float pullnew=(z-beamz)/newsigmaz;
         
-        ATH_MSG_INFO("Beamspot z="<<beamz<<", z="<<z<<"; old sigma_z="<<m_input_beam_sigma_z<<", old pull="<<pullold<<"; new sigma_z="<<newsigmaz<<", new pull="<<pullnew);
+        ATH_MSG_DEBUG("Beamspot z="<<beamz<<", z="<<z<<"; old sigma_z="<<m_input_beam_sigma_z<<", old pull="<<pullold<<"; new sigma_z="<<newsigmaz<<", new pull="<<pullnew);
         
-        //Use Gauss probability ratio to calculate the weight:
-        //weight=TMath::Gaus(z,0,35,true)/TMath::Gaus(z,0,42,true);
-        weight=m_input_beam_sigma_z/newsigmaz * std::exp(-pullnew*pullnew/2) / std::exp(-pullold*pullold/2);
+        if(std::abs(pullold)<10 && std::abs(pullnew)<10) {
+          //Use Gauss probability ratio to calculate the weight:
+          //weight=TMath::Gaus(z,0,35,true)/TMath::Gaus(z,0,42,true);
+          weight=m_input_beam_sigma_z/newsigmaz * std::exp(-pullnew*pullnew/2) / std::exp(-pullold*pullold/2);
+        } else {
+          ATH_MSG_WARNING("Large pull of beamspot: Beamspot z="<<beamz<<", z="<<z<<"; old sigma_z="<<m_input_beam_sigma_z<<", old pull="<<pullold<<"; new sigma_z="<<newsigmaz<<", new pull="<<pullnew<<" => use default weight="<<weight);
+        }  
       } else {
-        //set weight to 1
         ATH_MSG_WARNING("No signal vertex found, use default weight="<<weight);
       }  
 
-      ATH_MSG_INFO("Beam weight="<<weight);
+      ATH_MSG_DEBUG("Beam weight="<<weight);
       break;
     }
 
-    SG::WriteDecorHandle<xAOD::EventInfo,float> BeamSpotWeight(m_BeamSpotWeight,ctx);
+    SG::WriteDecorHandle<xAOD::EventInfo,float> BeamSpotWeight(m_beamSpotWeight,ctx);
     if (!BeamSpotWeight.isPresent()) {
       ATH_MSG_ERROR( "BeamSpotWeight.isPresent check fails" );
       return StatusCode::FAILURE;
@@ -103,14 +114,17 @@ namespace Simulation
       BeamSpotWeight(0) = weight;
     }
     
-    SG::ReadHandle<xAOD::EventInfo> evt (m_EventInfo,ctx);
-    if (!evt.isValid()) {
-      ATH_MSG_FATAL( "Could not find event info"  );
-      return(StatusCode::FAILURE);
+    if(msgLvl(MSG::DEBUG)) {
+      SG::ReadHandle<xAOD::EventInfo> evt (m_eventInfo,ctx);
+      if (!evt.isValid()) {
+        ATH_MSG_FATAL( "Could not find event info"  );
+        return(StatusCode::FAILURE);
+      }
+      ATH_MSG_DEBUG( "EventInfo after adding the weight: " << evt->eventNumber() 
+                            << " run: " << evt->runNumber()
+                            << " hasBeamSpotWeight: "<< evt->hasBeamSpotWeight()
+                            << " beamSpotWeight: "<< evt->beamSpotWeight()  );
     }
-    ATH_MSG_INFO( "EventInfo event: " << evt->eventNumber() 
-                          << " run: " << evt->runNumber()
-                          << " beamSpotWeight: "<< evt->beamSpotWeight()  );
 
     return StatusCode::SUCCESS;
   }

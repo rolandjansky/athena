@@ -16,13 +16,13 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
 // Forward declarations
-class McEventCollection;
 #include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace HepMC 
@@ -62,16 +62,13 @@ namespace Simulation
     /** Ensure that the GenEvent::signal_process_vertex has been set */
     HepMC::GenVertex* GetSignalProcessVertex(const HepMC::GenEvent& ge) const;
     
-    SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection;
+    SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection { this, "InputMcEventCollection", "TruthEvent", "The name of the input McEventCollection" };
     
-    SG::WriteDecorHandleKey<xAOD::EventInfo> m_BeamSpotWeight {this
-      ,"BeamSpotWeight"
-      ,"EventInfo.BeamSpotWeight"
-      ,"Decoration for a beam spot weight when reweighting the beam spot size"};
+    SG::WriteDecorHandleKey<xAOD::EventInfo> m_beamSpotWeight {this, "BeamSpotWeight", "EventInfo.BeamSpotWeight", "Decoration for a beam spot weight when reweighting the beam spot size" };
       
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };  
     
-    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfo { this, "EventInfo", "EventInfo", "EventInfo object in SG" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EventInfo", "EventInfo", "EventInfo object in SG" };
       
     float m_input_beam_sigma_z = 42*Gaudi::Units::mm;
   };
