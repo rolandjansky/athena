@@ -196,14 +196,12 @@ findMerges(Component1D* componentsIn,
   const int32_t n = inputSize;
   const int32_t nn = n * (n - 1) / 2;
   // Create a trianular mapping for the pairwise distances
-  std::vector<triangularToIJ> convert;
-  convert.reserve(nn);
-
+  // We now that the size is nn
+  std::vector<triangularToIJ> convert(nn);
   for (int32_t i = 1; i < n; ++i) {
     const int indexConst = (i - 1) * i / 2;
     for (int32_t j = 0; j < i; ++j) {
-      int32_t index = indexConst + j;
-      convert[index] = { i, j };
+      convert[indexConst + j] = { i, j };
     }
   }
   // We need to work with multiple of 8, in principle this is a requirement
