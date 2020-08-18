@@ -568,7 +568,8 @@ void ZDCTreeAnalysis::PlotFits(int side)
 
         if (!m_useDelayed) {
             gStyle->SetOptTitle(0);
-            TGraphErrors* graph_p = pulseAna_p->GetGraph();
+            std::shared_ptr<TGraphErrors> graph_sp = pulseAna_p->GetGraph();
+            TGraphErrors* graph_p = new TGraphErrors(*graph_sp);
             float maxADC = pulseAna_p->GetMaxADC();
             float minADC = pulseAna_p->GetMinADC();
             graph_p->SetMaximum(std::max(  5.0, maxADC * 1.3));
@@ -577,7 +578,8 @@ void ZDCTreeAnalysis::PlotFits(int side)
         }
         else {
             gStyle->SetOptTitle(0);
-            TGraphErrors* graph_p = pulseAna_p->GetCombinedGraph();
+            std::shared_ptr<TGraphErrors> graph_sp = pulseAna_p->GetCombinedGraph();
+            TGraphErrors* graph_p = new TGraphErrors(*graph_sp);
             graph_p->Draw("ap");
 
             float funcMax = pulseAna_p->GetMaxADC();

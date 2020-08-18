@@ -155,7 +155,7 @@ public:
   {
     if (index == 0) return GetWrapperTF1()->GetParameter(2);
     else if (index == 1) return GetWrapperTF1()->GetParameter(3);
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const
@@ -210,7 +210,7 @@ public:
   {
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const
@@ -293,7 +293,7 @@ public:
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index < 5) return GetWrapperTF1()->GetParameter(index);
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const override
@@ -390,7 +390,7 @@ public:
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index < m_numPulses + 2) return m_fitFunc->GetParameter(index);
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const override
@@ -455,7 +455,7 @@ public:
   {
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const override
@@ -547,7 +547,7 @@ public:
     if (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index < 5) return GetWrapperTF1()->GetParameter(index);
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const override
@@ -664,7 +664,7 @@ public:
     if      (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index <  5) return GetWrapperTF1()->GetParameter(index);
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const override
@@ -791,7 +791,7 @@ public:
     if      (index == 0) return m_tau1;
     else if (index == 1) return m_tau2;
     else if (index <  5) return GetWrapperTF1()->GetParameter(index);
-    else throw std::exception();
+    else throw std::runtime_error("Fit parameter does not exist.");
   }
 
   virtual float GetBkgdMaxFraction() const override

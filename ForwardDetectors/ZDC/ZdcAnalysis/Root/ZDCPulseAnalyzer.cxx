@@ -1513,3 +1513,105 @@ unsigned int ZDCPulseAnalyzer::GetStatusMask() const
 
   return statusMask;
 }
+
+std::shared_ptr<TGraphErrors> ZDCPulseAnalyzer::GetCombinedGraph() const {
+  //
+  // We defer filling the histogram if we don't have a pulse until the histogram is requested
+  //
+  GetHistogramPtr();
+
+  std::shared_ptr<TGraphErrors> theGraph = std::make_shared<TGraphErrors>(TGraphErrors(2 * m_Nsample));
+  size_t npts = 0;
+
+  for (int ipt = 0; ipt < m_fitHist->GetNbinsX(); ipt++) {
+    theGraph->SetPoint(npts, m_fitHist->GetBinCenter(ipt + 1), m_fitHist->GetBinContent(ipt + 1));
+    theGraph->SetPointError(npts++, 0, m_fitHist->GetBinError(ipt + 1));
+  }
+
+  for (int iDelayPt = 0; iDelayPt < m_delayedHist->GetNbinsX(); iDelayPt++) {
+    theGraph->SetPoint(npts, m_delayedHist->GetBinCenter(iDelayPt + 1), m_delayedHist->GetBinContent(iDelayPt + 1) - m_delayedBaselineShift);
+    theGraph->SetPointError(npts++, 0, m_delayedHist->GetBinError(iDelayPt + 1));
+  }
+
+  TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
+  theGraph->GetListOfFunctions()->Add(func_p);
+  theGraph->SetName(( std::string(m_fitHist->GetName()) + "combinaed").c_str());
+
+  theGraph->SetMarkerStyle(20);
+  theGraph->SetMarkerColor(1);
+
+  return theGraph;
+}
+
+
+std::shared_ptr<TGraphErrors> ZDCPulseAnalyzer::GetGraph() const {
+  //
+  // We defer filling the histogram if we don't have a pulse until the histogram is requested
+  //
+  GetHistogramPtr();
+
+  std::shared_ptr<TGraphErrors> theGraph = std::make_shared<TGraphErrors>(TGraphErrors(m_Nsample));
+  size_t npts = 0;
+
+  for (int ipt = 0; ipt < m_fitHist->GetNbinsX(); ipt++) {
+    theGraph->SetPoint(npts, m_fitHist->GetBinCenter(ipt + 1), m_fitHist->GetBinContent(ipt + 1));
+    theGraph->SetPointError(npts++, 0, m_fitHist->GetBinError(ipt + 1));
+  }
+
+  TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
+  theGraph->GetListOfFunctions()->Add(func_p);
+  theGraph->SetName(( std::string(m_fitHist->GetName()) + "not_combinaed").c_str());
+
+  theGraph->SetMarkerStyle(20);
+  theGraph->SetMarkerColor(1);
+
+  return theGraph;
+}
+
+std::shared_ptr<TGraphErrors> ZDCPulseAnalyzer::GetUndelayedGraph() const {
+  //
+  // We defer filling the histogram if we don't have a pulse until the histogram is requested
+  //
+  GetHistogramPtr();
+
+  std::shared_ptr<TGraphErrors> theGraph = std::make_shared<TGraphErrors>(TGraphErrors(m_Nsample));
+  size_t npts = 0;
+
+  for (int ipt = 0; ipt < m_fitHist->GetNbinsX(); ipt++) {
+    theGraph->SetPoint(npts, m_fitHist->GetBinCenter(ipt + 1), m_fitHist->GetBinContent(ipt + 1));
+    theGraph->SetPointError(npts++, 0, m_fitHist->GetBinError(ipt + 1));
+  }
+
+  TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
+  theGraph->GetListOfFunctions()->Add(func_p);
+  theGraph->SetName(( std::string(m_fitHist->GetName()) + "undelayed").c_str());
+
+  theGraph->SetMarkerStyle(20);
+  theGraph->SetMarkerColor(1);
+
+  return theGraph;
+}
+
+std::shared_ptr<TGraphErrors> ZDCPulseAnalyzer::GetDelayedGraph() const {
+  //
+  // We defer filling the histogram if we don't have a pulse until the histogram is requested
+  //
+  GetHistogramPtr();
+
+  std::shared_ptr<TGraphErrors> theGraph = std::make_shared<TGraphErrors>(TGraphErrors(m_Nsample));
+  size_t npts = 0;
+
+  for (int iDelayPt = 0; iDelayPt < m_delayedHist->GetNbinsX(); iDelayPt++) {
+    theGraph->SetPoint(npts, m_delayedHist->GetBinCenter(iDelayPt + 1), m_delayedHist->GetBinContent(iDelayPt + 1) - m_delayedBaselineShift);
+    theGraph->SetPointError(npts++, 0, m_delayedHist->GetBinError(iDelayPt + 1));
+  }
+
+  TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
+  theGraph->GetListOfFunctions()->Add(func_p);
+  theGraph->SetName(( std::string(m_fitHist->GetName()) + "delayed").c_str());
+
+  theGraph->SetMarkerStyle(20);
+  theGraph->SetMarkerColor(kBlue);
+
+  return theGraph;
+}
