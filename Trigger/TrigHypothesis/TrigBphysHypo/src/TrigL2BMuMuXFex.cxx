@@ -34,7 +34,6 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h" 
 #include "TrigInDetEvent/TrigL2Vertex.h"                         
@@ -42,7 +41,7 @@
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
 #include "TrigBphysHelperUtilsTool.h"
-
+#include "TrigInDetEvent/TrigVertex.h"
 
 #include <math.h>
 
@@ -401,7 +400,6 @@ TrigL2BMuMuXFex::TrigL2BMuMuXFex(const std::string & name, ISvcLocator* pSvcLoca
 ////////////////////////////// Declaration of output collections ///////////////////////////////////////////
   m_trigBphysColl_b = NULL;
   m_trigBphysColl_bxAOD = NULL;
-  m_VertexColl = NULL;
   // temporary
   m_trigBphysColl_kStarxAOD = NULL;
   m_trigBphysColl_phixAOD = NULL;
@@ -414,7 +412,6 @@ TrigL2BMuMuXFex::TrigL2BMuMuXFex(const std::string & name, ISvcLocator* pSvcLoca
 /*----------------------------------------*/
 TrigL2BMuMuXFex::~TrigL2BMuMuXFex()                                            
 { 
-  if(m_VertexColl!=NULL) delete m_VertexColl;
 //  if(m_trigBphysColl_kSplus) delete m_trigBphysColl_kSplus;
  
 }
@@ -541,14 +538,7 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltInitialize()
   }
 ///////////////////////////// end of add timers ////////////////////////////////
   
-// /////////////////////////////// choose tracking algo ///////////////////////////
-//   std::string inDetAlgo = m_inDetAlgo;
-// 
-//   if(inDetAlgo=="IDSCAN")        m_inDetAlgoId = TrigInDetTrack::IDSCANID;
-//   else if(inDetAlgo=="SITRACK")  m_inDetAlgoId = TrigInDetTrack::SITRACKID;
-//   else                           m_inDetAlgoId = TrigInDetTrack::IDSCANID;
-// ///////////////////////////// end of choose tracking algo //////////////////////
-  
+ 
   return HLT::OK;
 
 } ///////// end of HLT - Errorcode - TrigL2BMuMuXFex - hltInitialize////////////
@@ -815,7 +805,7 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
     
     if ( !pCombinedMuonFeature1->idTrack()) {
         ATH_MSG_DEBUG("Muon candidate1: no id track!");
-        auto idlink = pCombinedMuonFeature1->idTrackLink();
+        const auto& idlink = pCombinedMuonFeature1->idTrackLink();
         ATH_MSG_DEBUG("Muon elementlink has "<< idlink.dataID() << " " << idlink.index() << " " << idlink.isValid() );
         if(timerSvc()) {
             m_TotTimer->stop();
@@ -829,7 +819,7 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
     
     if ( !pCombinedMuonFeature2->idTrack()) {
         ATH_MSG_DEBUG("Muon candidate2: no id track!");
-        auto idlink = pCombinedMuonFeature2->idTrackLink();
+        const auto& idlink = pCombinedMuonFeature2->idTrackLink();
         ATH_MSG_DEBUG("Muon elementlink has "<< idlink.dataID() << " " << idlink.index() << " " << idlink.isValid() );
         if(timerSvc()) {
             m_TotTimer->stop();
@@ -860,38 +850,7 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
   /////////////////////////// loop over TE's////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////    
 
-    /*
-  std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections1;
-  std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections2;
-  //std::vector<const TrackCollection*> vectorOfTrackCollections1;
-  //std::vector<const TrackCollection*> vectorOfTrackCollections2;
 
-  std::vector<const HLT::TriggerElement*>::const_iterator iTE = inputTEs.begin();
-  ////////////////////////////// other particle candidates //////////////////////////////  
-  status = getFeatures(*iTE, vectorOfTrackCollections1);
-  //status = getFeatures(*iTE, vectorOfTrackCollections1,"TrigFastTrackFinder_TrigInDetTrack_Muon");
-  //status = getFeatures(*iTE, vectorOfTrackCollections1);
-    if (status!=HLT::OK) { ATH_MSG_ERROR("XX1: ");return HLT::NAV_ERROR;}
-    std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections1a;
-    std::vector<const TrackCollection*> vectorOfTrackCollections1b;
-    std::vector<const TrackCollection*> vectorOfTrackCollections1c;
-    status = getFeatures(*iTE, vectorOfTrackCollections1a,"TrigFastTrackFinder_TrigInDetTrack_Muon");
-    if (status!=HLT::OK) { ATH_MSG_ERROR("XX1a: ");return HLT::NAV_ERROR;}
-    status = getFeatures(*iTE, vectorOfTrackCollections1b);
-    if (status!=HLT::OK) { ATH_MSG_ERROR("XX1b: ");return HLT::NAV_ERROR;}
-    status = getFeatures(*iTE, vectorOfTrackCollections1c,"TrigFastTrackFinder_Muon");
-    if (status!=HLT::OK) { ATH_MSG_ERROR("XX1c: ");return HLT::NAV_ERROR;}
-    ATH_MSG_INFO(" found: "
-    << vectorOfTrackCollections1.size() << " "
-    << vectorOfTrackCollections1a.size() << " "
-    << vectorOfTrackCollections1b.size() << " "
-    << vectorOfTrackCollections1c.size() << " ");
-    
-    for (auto x: vectorOfTrackCollections1 ) { if (!x) continue; ATH_MSG_INFO(" 1 : " << x->size());}
-    for (auto x: vectorOfTrackCollections1a) { if (!x) continue; ATH_MSG_INFO(" 1a: " << x->size());}
-    for (auto x: vectorOfTrackCollections1b) { if (!x) continue; ATH_MSG_INFO(" 1b: " << x->size());}
-    for (auto x: vectorOfTrackCollections1c) { if (!x) continue; ATH_MSG_INFO(" 1c: " << x->size());}
-    */
     std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections1;
     std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections2;
     std::vector<const HLT::TriggerElement*>::const_iterator iTE = inputTEs.begin();
@@ -913,7 +872,6 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
     }
     m_mon_Acceptance.push_back( ACCEPT_First_TrackColl );
     ++iTE; // next trigger element, no more or less than two, checked by acceptInputs!!
-    //status = getFeatures(*iTE, vectorOfTrackCollections2,"TrigFastTrackFinder_TrigInDetTrack_Muon");
     status = getFeatures(*iTE, vectorOfTrackCollections2);
     //status = getFeatures(*iTE, vectorOfTrackCollections2);
     //status = getFeatures( *iTE, vectorOfTrackCollections);
@@ -1075,24 +1033,15 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
   ////////////////////////// end of muons part ///////////////////////////////
 
   //////////////////// merge of vectorOfTrackCollections /////////////////////
-//    std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections= merge_no_dupl(vectorOfTrackCollections1, vectorOfTrackCollections2);
     std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections= merge_no_dupl(vectorOfTrackCollections1, vectorOfTrackCollections2);
     ///////////////////////////////////////////////////////////////////////////////
     ////////////////////////// output trigger element /////////////////////////////  
     //  create vector for TrigL2Bphys particles
-    //    m_trigBphysColl_b = new TrigL2BphysContainer();
-    //    m_VertexColl = new TrigVertexCollection();
-    //    //temporary
-    //    m_trigBphysColl_kStar = new TrigL2BphysContainer();
-    //    m_trigBphysColl_phi = new TrigL2BphysContainer();
-    //    m_trigBphysColl_lambda = new TrigL2BphysContainer();
-    //    m_trigBphysColl_ds = new TrigL2BphysContainer();
-    //    //m_trigBphysColl_kSplus = new TrigL2BphysContainer();
+
     
     m_trigBphysColl_bxAOD = new xAOD::TrigBphysContainer();
     xAOD::TrigBphysAuxContainer trigBphysAuxColl_bxAOD;
     m_trigBphysColl_bxAOD->setStore(&trigBphysAuxColl_bxAOD);
-    m_VertexColl          = new TrigVertexCollection();
     //temporary
     m_trigBphysColl_kStarxAOD  = new xAOD::TrigBphysContainer();
     xAOD::TrigBphysAuxContainer trigBphysAuxColl_kStarxAOD;
@@ -1214,7 +1163,6 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
           nTriedCombinations++;
         } //end of B->KMuMu decay
 
-        if(iTrack2 != lastiTrack2) {
           // Protection
           if(nTriedCombinations > m_maxNcombinations) {
             ATH_MSG_DEBUG("Too many track combinations: ");
@@ -1299,7 +1247,6 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
                                  << *iTrack3 << " = " << (*iTrack3)->charge());
             }
           } // end of loop over iTrack3 (internal)                      
-        }
       }   // end of loop over iTrack2 (external)             
     } //////////////// end of loop over InDetTrackCollections //////////////////    
  
@@ -1349,8 +1296,6 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
     delete m_trigBphysColl_dsxAOD;
   }
   m_trigBphysColl_bxAOD=NULL;
-  delete m_VertexColl;
-  m_VertexColl=NULL;
   // try add other collections to delete them!!
 //   delete m_trigBphysColl_lambda;
   m_trigBphysColl_lambdaxAOD = NULL;
@@ -1385,20 +1330,15 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
         trigPartBmumuKplus->initialise(0., 0., 0., xAOD::TrigBphys::BKMUMU, kMuMumass,xAOD::TrigBphys::L2);
         ATH_MSG_DEBUG(" Create B+ Bphys particle with roIId - more RoIs => 0" << trigPartBmumuKplus->roiId() << " mass " << kMuMumass
             << " phi, eta - more RoIs => 0" << trigPartBmumuKplus->phi() << " " << trigPartBmumuKplus->eta() << " vertex type " << trigPartBmumuKplus->particleType());
-        ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuKplus;
-        ElementLink<xAOD::TrackParticleContainer> track1EL = mu1->idTrackLink();
-        ElementLink<xAOD::TrackParticleContainer> track2EL = mu2->idTrackLink();
+        const ElementLink<xAOD::TrackParticleContainer>& track1EL = mu1->idTrackLink();
+        const ElementLink<xAOD::TrackParticleContainer>& track2EL = mu2->idTrackLink();
         ElementLink<xAOD::TrackParticleContainer> track3EL(*trkCollection, iTrk3);
 
         ATH_MSG_VERBOSE("Just check track links... ");
         ATH_MSG_VERBOSE("Muon 1 pT " << (*track1EL)->pt() << " eta: " << (*track1EL)->eta() << " phi: " << (*track1EL)->phi());
         ATH_MSG_VERBOSE("Muon 2 pT " << (*track2EL)->pt() << " eta: " << (*track2EL)->eta() << " phi: " << (*track2EL)->phi());
         ATH_MSG_VERBOSE("Track 1 pT " << (*track3EL)->pt() << " eta: " << (*track3EL)->eta() << " phi: " << (*track3EL)->phi());
-        
-        trackVectorBmumuKplus.push_back(track1EL); // temp
-        trackVectorBmumuKplus.push_back(track2EL); // temp
-        trackVectorBmumuKplus.push_back(track3EL); // temp
-        
+
         trigPartBmumuKplus->addTrackParticleLink(track1EL);
         trigPartBmumuKplus->addTrackParticleLink(track2EL);
         trigPartBmumuKplus->addTrackParticleLink(track3EL);
@@ -1514,7 +1454,6 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
                         <<", ndof = " <<baplusVtx->ndof());
                         
                         // perferct -> Bphys particle was stored in Collection
-                        m_VertexColl->push_back(mother_BplusVtx);
                         m_trigBphysColl_bxAOD->push_back(trigPartBmumuKplus);
                         ATH_MSG_DEBUG(" Added B vertex to vertex collection");
                         
@@ -1532,7 +1471,6 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
                     }else{
                         ATH_MSG_DEBUG(" B rejected by mass or chi2 cuts after vertex fit!" << ", chi2= " << baplusVtx->chi2());  
                     
-                    vertex = false;
                     delete mother_BplusVtx;
                     delete trigPartBmumuKplus;
                     }
@@ -1594,18 +1532,14 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
         << " phi, eta - more RoIs => " << trigPartBmumuKstar->phi() << " " << trigPartBmumuKstar->eta() << " vertex type " << trigPartBmumuKstar->particleType());
         
         // Store links to the tracks forming bphys particle
-        ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuKstar;
+
         ElementLink<xAOD::TrackParticleContainer> track3EL(*trkCollection, iTrk3);
         ElementLink<xAOD::TrackParticleContainer> track4EL(*trkCollection, iTrk4);
-        //         ElementLink<TrigInDetTrackCollection> track3EL(*(*iTrackCollection), itrk);
-        //         ElementLink<TrigInDetTrackCollection> track4EL(*(*iTrackCollection), jtrk);
         
         ATH_MSG_VERBOSE("Just check track links... ");
         ATH_MSG_VERBOSE("Track 1 pT " << (*track3EL)->pt() << " eta: " << (*track3EL)->eta() << " phi: " << (*track3EL)->phi());
         ATH_MSG_VERBOSE("Track 2 pT " << (*track4EL)->pt() << " eta: " << (*track4EL)->eta() << " phi: " << (*track4EL)->phi());
-        trackVectorBmumuKstar.push_back(track3EL); // temp
-        trackVectorBmumuKstar.push_back(track4EL); // temp
-        
+
         trigPartBmumuKstar->addTrackParticleLink(track3EL);
         trigPartBmumuKstar->addTrackParticleLink(track4EL);
         // end of initial addon
@@ -1702,11 +1636,6 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                         << ", chi2= " << kaStarVtx->chi2() <<", ndof = " <<kaStarVtx->ndof());
                         goodKstar = true;
                         
-                        // GREAT -> store daughter particle info
-                        m_VertexColl->push_back(mother_KstarVtx);
-                        ATH_MSG_DEBUG(" Added Kstar vertex to vertex collection");
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> KstarVertexEL(*m_VertexColl,index);
                         
                         // monitoring
                         m_mon_BdMuMuKs_VtxMassBd_Ks.push_back((kaStarVtx->mass())*0.001);
@@ -1726,12 +1655,9 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                         ATH_MSG_DEBUG(" B0 rejected by mass or chi2 cuts after vertex fit!" << ", chi2= " << kaStarVtx->chi2());
                         if(timerSvc()) m_VtxFitTimer->pause();
                         //continue; // for performance test not continue
-                        vertex = false;
                         delete mother_KstarVtx;
                     }
                 } // end of successful fit condition "mother"
-                //int index = m_VertexColl->size()-1;
-                //ElementLink<TrigVertexCollection> BplusVertexEL(*m_VertexColl,index);
                 delete kaStarVtx;
             } // end of successful fit condition initial vertex
             if(timerSvc()) m_VtxFitTimer->pause();
@@ -1837,7 +1763,6 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                             << ", chi2= " << baDVtx->chi2() <<", ndof = " <<baDVtx->ndof());
                             
                             // PERFECT -> Bphys particle was stored in collection
-                            m_VertexColl->push_back(mother_BdVtx);
                             m_trigBphysColl_bxAOD->push_back(trigPartBmumuBd);
                             ATH_MSG_DEBUG(" Added Bd vertex to vertex collection");
                             
@@ -1865,8 +1790,6 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                         }
                     } // end of successful fit condition "mother"
                     if (vertex){
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> BdVertexEL(*m_VertexColl,index);
                     } else {
                         delete mother_BdVtx;
                     }
@@ -1881,9 +1804,9 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
             if ((xMuMuMass > m_lowerBd_KstarMuMuMassCutVtxOff && xMuMuMass < m_upperBd_KstarMuMuMassCutVtxOff)) {
                 
                 // Store links to the tracks forming bphys particle
-                ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuBd;
-                ElementLink<xAOD::TrackParticleContainer> track1ELBd = mu1->idTrackLink();
-                ElementLink<xAOD::TrackParticleContainer> track2ELBd = mu2->idTrackLink();
+
+                const ElementLink<xAOD::TrackParticleContainer>& track1ELBd = mu1->idTrackLink();
+                const ElementLink<xAOD::TrackParticleContainer>& track2ELBd = mu2->idTrackLink();
                 ElementLink<xAOD::TrackParticleContainer> track3ELBd(*trkCollection, iTrk3);
                 ElementLink<xAOD::TrackParticleContainer> track4ELBd(*trkCollection, iTrk4);
                 
@@ -1893,15 +1816,8 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                 ATH_MSG_VERBOSE("Track 1 pT " << (*track3ELBd)->pt() << " eta: " << (*track3ELBd)->eta() << " phi: " << (*track3ELBd)->phi());
                 ATH_MSG_VERBOSE("Track 2 pT " << (*track4ELBd)->pt() << " eta: " << (*track4ELBd)->eta() << " phi: " << (*track4ELBd)->phi());
 
-                trackVectorBmumuBd.push_back(track1ELBd); // temp
-                trackVectorBmumuBd.push_back(track2ELBd); // temp
-                trackVectorBmumuBd.push_back(track3ELBd); // temp
-                trackVectorBmumuBd.push_back(track4ELBd); // temp
-                
-                
-                //                 if(m_doKstar_KaonPionVertexFit){
                 ElementLink<xAOD::TrigBphysContainer> trigPartBdEL(*m_trigBphysColl_kStarxAOD,KstarIndex);
-                //TrigL2Bphys* trigPartBmumuBd = new TrigL2Bphys(0.0, 0.0, 0.0, TrigL2Bphys::BDKSTMUMU, xMuMuMass, trigPartBdEL);
+
                 xAOD::TrigBphys * trigPartBmumuBd = new xAOD::TrigBphys();
                 trigPartBmumuBd->makePrivateStore();
                 trigPartBmumuBd->initialise(0.0, 0.0, 0.0, xAOD::TrigBphys::BDKSTMUMU, xMuMuMass,trigPartBdEL, xAOD::TrigBphys::L2);
@@ -1911,15 +1827,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                 trigPartBmumuBd->addTrackParticleLink(track3ELBd);
                 trigPartBmumuBd->addTrackParticleLink(track4ELBd);
                 m_trigBphysColl_bxAOD->push_back(trigPartBmumuBd);
-                //                 }else{
-                //                     ElementLink<TrigL2BphysContainer> trigPartBdEL(*m_trigBphysColl_kStar,KstarIndex);
-                //                     TrigL2Bphys* trigPartBmumuBd = new TrigL2Bphys(0., 0., 0., TrigL2Bphys::BDKSTMUMU, xMuMuMass, trigPartBdEL);
-                //                     trigPartBmumuBd->addTrack(track1ELBd);
-                //                     trigPartBmumuBd->addTrack(track2ELBd);
-                //                     trigPartBmumuBd->addTrack(track3ELBd);
-                //                     trigPartBmumuBd->addTrack(track4ELBd);
-                //                     m_trigBphysColl_b->push_back(trigPartBmumuBd);
-                //                 }
+
                 
                 ATH_MSG_DEBUG(" Kstar's Pion and Kaon Candidates accepted with K* mass: " << xMass << "MeV" << " and with Bd mass : " << xMuMuMass << "MeV"
                     << " kaon particle with pt: "<< trk3->pt() << " pion charged particle with pt: "<< trk4->pt());
@@ -1967,7 +1875,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
         << " phi, eta - more RoIs => " << trigPartBmumuPhi->phi() << " " << trigPartBmumuPhi->eta() << " vertex type " << trigPartBmumuPhi->particleType());
 
         // Store links to the tracks forming bphys particle
-        ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuPhi;
+
         ElementLink<xAOD::TrackParticleContainer> track3EL(*trkCollection, iTrk3);
         ElementLink<xAOD::TrackParticleContainer> track4EL(*trkCollection, iTrk4);
         
@@ -1975,9 +1883,6 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
         ATH_MSG_VERBOSE("Track 1 pT " << (*track3EL)->pt() << " eta: " << (*track3EL)->eta() << " phi: " << (*track3EL)->phi());
         ATH_MSG_VERBOSE("Track 2 pT " << (*track4EL)->pt() << " eta: " << (*track4EL)->eta() << " phi: " << (*track4EL)->phi());
 
-        trackVectorBmumuPhi.push_back(track3EL); // temp
-        trackVectorBmumuPhi.push_back(track4EL); // temp
-        
         trigPartBmumuPhi->addTrackParticleLink(track3EL);
         trigPartBmumuPhi->addTrackParticleLink(track4EL);
         // end of initial addon
@@ -2090,10 +1995,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                         
                         goodPhi = true;
                         // GREAT -> store daughter particle info
-                        m_VertexColl->push_back(mother_PhiVtx);
                         ATH_MSG_DEBUG(" Added Phi vertex to vertex collection");
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> PhiVertexEL(*m_VertexColl,index);
                         
                         // monitoring
                         m_mon_BsMuMuPhi_VtxMassBs_Phi.push_back((phia1020Vtx->mass())*0.001);
@@ -2119,12 +2021,9 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                         ATH_MSG_DEBUG(" Phi rejected by mass or chi2 cuts after vertex fit!" << ", chi2= " << phia1020Vtx->chi2());
                         if(timerSvc()) m_VtxFitTimer->pause();
                         //continue; // for performance test not continue
-                        vertex = false;
                         delete mother_PhiVtx;
                     }
                 } // end of successful fit condition "mother"
-                //int index = m_VertexColl->size()-1;
-                //ElementLink<TrigVertexCollection> BplusVertexEL(*m_VertexColl,index);
                 delete phia1020Vtx;
             } // end of successful fit condition initial vertex
             if(timerSvc()) m_VtxFitTimer->pause();
@@ -2233,7 +2132,6 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                                 << ", chi2= " << baSVtx->chi2()
                                 <<", ndof = " <<baSVtx->ndof());
                             // PERFECT -> Bphys particle was stored in collection
-                            m_VertexColl->push_back(mother_BsVtx);
                             m_trigBphysColl_bxAOD->push_back(trigPartBmumuBs);
                             ATH_MSG_DEBUG(" Added Bs vertex to vertex collection");
                             // monitoring of successfuly stored particles
@@ -2266,8 +2164,6 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                         }
                     } // end of successful fit condition "mother"
                     if(vertex) {
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> BsVertexEL(*m_VertexColl,index);
                     } else {
                         delete mother_BsVtx;
                     }
@@ -2282,9 +2178,8 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
             if ((xMuMuMass > m_lowerBs_Phi1020MuMuMassCutVtxOff && xMuMuMass < m_upperBs_Phi1020MuMuMassCutVtxOff)) {
                 
                 // Store links to the tracks forming bphys particle
-                ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuBs;
-                ElementLink<xAOD::TrackParticleContainer> track1ELBs = mu1->idTrackLink();
-                ElementLink<xAOD::TrackParticleContainer> track2ELBs = mu2->idTrackLink();
+                const ElementLink<xAOD::TrackParticleContainer>& track1ELBs = mu1->idTrackLink();
+                const ElementLink<xAOD::TrackParticleContainer>& track2ELBs = mu2->idTrackLink();
                 ElementLink<xAOD::TrackParticleContainer> track3ELBs(*trkCollection, iTrk3);
                 ElementLink<xAOD::TrackParticleContainer> track4ELBs(*trkCollection, iTrk4);
                 
@@ -2294,15 +2189,8 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                 ATH_MSG_VERBOSE("Track 1 pT " << (*track3ELBs)->pt() << " eta: " << (*track3ELBs)->eta() << " phi: " << (*track3ELBs)->phi());
                 ATH_MSG_VERBOSE("Track 2 pT " << (*track4ELBs)->pt() << " eta: " << (*track4ELBs)->eta() << " phi: " << (*track4ELBs)->phi());
 
-                trackVectorBmumuBs.push_back(track1ELBs); // temp
-                trackVectorBmumuBs.push_back(track2ELBs); // temp
-                trackVectorBmumuBs.push_back(track3ELBs); // temp
-                trackVectorBmumuBs.push_back(track4ELBs); // temp
-                
-                
-                //         if(m_doPhi1020_KaonKaonVertexFit){
-                //                ElementLink<TrigL2BphysContainer> trigPartBsEL(*m_trigBphysColl_phi,PhiIndex);
-                //TrigL2Bphys* trigPartBmumuBs = new TrigL2Bphys(0.0, 0.0, 0.0, TrigL2Bphys::BSPHIMUMU, xMuMuMass, trigPartBsEL);
+
+
                 ElementLink<xAOD::TrigBphysContainer> trigPartBsEL(*m_trigBphysColl_phixAOD,PhiIndex);
                 xAOD::TrigBphys *trigPartBmumuBs = new xAOD::TrigBphys();
                 trigPartBmumuBs->makePrivateStore();
@@ -2313,18 +2201,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                 trigPartBmumuBs->addTrackParticleLink(track3ELBs); 
                 trigPartBmumuBs->addTrackParticleLink(track4ELBs); 
                 m_trigBphysColl_bxAOD->push_back(trigPartBmumuBs);
-                //         }else{
-                // //           m_trigBphysColl_phi->push_back(trigPartBmumuPhi);
-                // //           int PhiIndex = m_trigBphysColl_phi->size() - 1;
-                // //           ElementLink<TrigL2BphysContainer> trigPartBsEL(*m_trigBphysColl_phi,PhiIndex);
-                //           
-                //           TrigL2Bphys* trigPartBmumuBs = new TrigL2Bphys(0., 0., 0., TrigL2Bphys::BSPHIMUMU, xMuMuMass/*, trigPartBsEL*/);
-                //           trigPartBmumuBs->addTrackParticleLink(track1ELBs); 
-                //             trigPartBmumuBs->addTrackParticleLink(track2ELBs); 
-                //             trigPartBmumuBs->addTrackParticleLink(track3ELBs); 
-                //             trigPartBmumuBs->addTrackParticleLink(track4ELBs); 
-                //           m_trigBphysColl_b->push_back(trigPartBmumuBs);
-                //         }
+
                 m_mon_BsMuMuPhi_n++;
                 if(trk3->pt() * trk3->charge() > 0) {
                     ATH_MSG_DEBUG(" Phi's Kplus and Kminus Candidates accepted with Phi mass: " << xMass << "MeV"  
@@ -2387,16 +2264,13 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
             << " phi, eta - more RoIs => " << trigPartBmumuL->phi() << " " << trigPartBmumuL->eta() << " vertex type " << trigPartBmumuL->particleType());
         
         // Store links to the tracks forming bphys particle
-        ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuL;
+
         ElementLink<xAOD::TrackParticleContainer> track3EL(*trkCollection, iTrk3);
         ElementLink<xAOD::TrackParticleContainer> track4EL(*trkCollection, iTrk4);
         
         ATH_MSG_VERBOSE("Just check track links... ");
         ATH_MSG_VERBOSE("Track 1 pT " << (*track3EL)->pt() << " eta: " << (*track3EL)->eta() << " phi: " << (*track3EL)->phi());
         ATH_MSG_VERBOSE("Track 2 pT " << (*track4EL)->pt() << " eta: " << (*track4EL)->eta() << " phi: " << (*track4EL)->phi());
-        
-        trackVectorBmumuL.push_back(track3EL); // temp
-        trackVectorBmumuL.push_back(track4EL); // temp
         
         trigPartBmumuL->addTrackParticleLink(track3EL);
         trigPartBmumuL->addTrackParticleLink(track4EL);
@@ -2496,10 +2370,6 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                             <<", ndof = " <<lambdaaVtx->ndof());
                         goodL = true;
                         // GREAT -> store daughter particle info
-                        m_VertexColl->push_back(mother_LVtx);
-                        ATH_MSG_DEBUG(" Added L vertex to vertex collection");
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> LVertexEL(*m_VertexColl,index);
                         
                         // monitoring
                         m_mon_LbMuMuL_VtxMassLb_L.push_back((lambdaaVtx->mass())*0.001);
@@ -2523,8 +2393,6 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                         delete mother_LVtx;
                     }
                 } // end of successful fit condition "mother"
-                //int index = m_VertexColl->size()-1;
-                //ElementLink<TrigVertexCollection> BplusVertexEL(*m_VertexColl,index);
                 delete lambdaaVtx;
             } // end of successful fit condition initial vertex
             if(timerSvc()) m_VtxFitTimer->pause();
@@ -2635,7 +2503,6 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                                 <<", ndof = " <<laBVtx->ndof());
                             
                             // PERFECT -> Bphys particle was stored in collection
-                            m_VertexColl->push_back(mother_LbVtx);
                             m_trigBphysColl_bxAOD->push_back(trigPartBmumuLb);
                             ATH_MSG_DEBUG(" Added Lb vertex to vertex collection");
                             
@@ -2663,8 +2530,6 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                         }
                     } // end of successful fit condition "mother"
                     if(vertex) {
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> LbVertexEL(*m_VertexColl,index);
                     } else {
                         delete mother_LbVtx;
                     }
@@ -2680,9 +2545,8 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
             if ((xMuMuMass > m_lowerLb_LambdaMuMuMassCutVtxOff && xMuMuMass < m_upperLb_LambdaMuMuMassCutVtxOff)) {
                 
                 // Store links to the tracks forming bphys particle
-                ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuLb;
-                ElementLink<xAOD::TrackParticleContainer> track1ELLb = mu1->idTrackLink();
-                ElementLink<xAOD::TrackParticleContainer> track2ELLb = mu2->idTrackLink();
+                const ElementLink<xAOD::TrackParticleContainer>& track1ELLb = mu1->idTrackLink();
+                const ElementLink<xAOD::TrackParticleContainer>& track2ELLb = mu2->idTrackLink();
                 ElementLink<xAOD::TrackParticleContainer> track3ELLb(*trkCollection, iTrk3);
                 ElementLink<xAOD::TrackParticleContainer> track4ELLb(*trkCollection, iTrk4);
                 
@@ -2691,16 +2555,8 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                 ATH_MSG_VERBOSE("Muon 2 pT " << (*track2ELLb)->pt() << " eta: " << (*track2ELLb)->eta() << " phi: " << (*track2ELLb)->phi());
                 ATH_MSG_VERBOSE("Track 1 pT " << (*track3ELLb)->pt() << " eta: " << (*track3ELLb)->eta() << " phi: " << (*track3ELLb)->phi());
                 ATH_MSG_VERBOSE("Track 2 pT " << (*track4ELLb)->pt() << " eta: " << (*track4ELLb)->eta() << " phi: " << (*track4ELLb)->phi());
-                
-                trackVectorBmumuLb.push_back(track1ELLb); // temp
-                trackVectorBmumuLb.push_back(track2ELLb); // temp
-                trackVectorBmumuLb.push_back(track3ELLb); // temp
-                trackVectorBmumuLb.push_back(track4ELLb); // temp
-                
-                
-                //         if(m_doLambda_ProtonPionVertexFit){
+
                 ElementLink<xAOD::TrigBphysContainer> trigPartLbEL(*m_trigBphysColl_lambdaxAOD,LIndex);
-                //TrigL2Bphys* trigPartBmumuLb = new TrigL2Bphys(0.0, 0.0, 0.0, TrigL2Bphys::LBLMUMU, xMuMuMass, trigPartLbEL);
                 xAOD::TrigBphys* trigPartBmumuLb = new xAOD::TrigBphys();
                 trigPartBmumuLb->makePrivateStore();
                 trigPartBmumuLb->initialise(0.0, 0.0, 0.0, xAOD::TrigBphys::LBLMUMU, xMuMuMass, trigPartLbEL,xAOD::TrigBphys::L2);
@@ -2710,18 +2566,6 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                 trigPartBmumuLb->addTrackParticleLink(track3ELLb);
                 trigPartBmumuLb->addTrackParticleLink(track4ELLb);
                 m_trigBphysColl_bxAOD->push_back(trigPartBmumuLb);
-                //         }else{
-                // //           m_trigBphysColl_lambda->push_back(trigPartBmumuL);
-                // //           int LIndex = m_trigBphysColl_lambda->size() - 1;
-                // //           ElementLink<xAOD::TrigBphysContainer> trigPartLbEL(*m_trigBphysColl_lambda,LIndex);
-                //           
-                //           TrigL2Bphys* trigPartBmumuLb = new TrigL2Bphys(0., 0., 0., TrigL2Bphys::LBLMUMU, xMuMuMass/*, trigPartLbEL*/);
-                //           trigPartBmumuLb->addTrack(track1ELLb); 
-                //           trigPartBmumuLb->addTrack(track2ELLb); 
-                //           trigPartBmumuLb->addTrack(track3ELLb); 
-                //           trigPartBmumuLb->addTrack(track4ELLb); 
-                //           m_trigBphysColl_b->push_back(trigPartBmumuLb);
-                //         }
                 
                 ATH_MSG_DEBUG(" Lambda's Proton and Pion Candidates accepted with L mass: " << xMass << "MeV"  
                     << " and with LambdaB mass : " << xMuMuMass << "MeV" << " proton particle with pt: "<< trk3->pt() << " pion particle with pt: "<< trk4->pt());
@@ -2773,7 +2617,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
             << " phi, eta - more RoIs => " << trigPartBmumuDs->phi() << " " << trigPartBmumuDs->eta() << " vertex type " << trigPartBmumuDs->particleType());
         
         // Store links to the tracks forming bphys particle
-        ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuDs;
+
         ElementLink<xAOD::TrackParticleContainer> track3EL(*trkCollection, iTrk3); //kaon
         ElementLink<xAOD::TrackParticleContainer> track4EL(*trkCollection, iTrk4); //kaon
         ElementLink<xAOD::TrackParticleContainer> track5EL(*trkCollection, iTrk5); //pion
@@ -2783,9 +2627,6 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
         ATH_MSG_VERBOSE("Track 2 pT " << (*track4EL)->pt() << " eta: " << (*track4EL)->eta() << " phi: " << (*track4EL)->phi());
         ATH_MSG_VERBOSE("Track 3 pT " << (*track5EL)->pt() << " eta: " << (*track5EL)->eta() << " phi: " << (*track5EL)->phi());
 
-        trackVectorBmumuDs.push_back(track3EL); // temp
-        trackVectorBmumuDs.push_back(track4EL); // temp
-        trackVectorBmumuDs.push_back(track5EL); // temp
         
         trigPartBmumuDs->addTrackParticleLink(track3EL);
         trigPartBmumuDs->addTrackParticleLink(track4EL);
@@ -2898,10 +2739,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                         
                         goodDs = true;
                         // GREAT -> store daughter particle info
-                        m_VertexColl->push_back(mother_DsVtx);
                         ATH_MSG_DEBUG(" Added Ds vertex to vertex collection");
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> DsVertexEL(*m_VertexColl,index);
                         
                         // monitoring
                         m_mon_BcMuMuDs_VtxMassBc_Ds.push_back((DsVtx->mass())*0.001);
@@ -2939,8 +2777,6 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                         delete mother_DsVtx;
                     }
                 } // end of successful fit condition "mother"
-                //int index = m_VertexColl->size()-1;
-                //ElementLink<TrigVertexCollection> BplusVertexEL(*m_VertexColl,index);
                 delete DsVtx;
             } // end of successful fit condition initial vertex
             if(timerSvc()) m_VtxFitTimer->pause();
@@ -2995,8 +2831,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                     //continue;
                     vertex = false;
                 }
-                //ElementLink<TrigL2BphysContainer> trigPartBcEL(*m_trigBphysColl_ds,DsIndex);
-                //TrigL2Bphys* trigPartBmumuBc = new TrigL2Bphys(0.0, 0.0, 0.0, TrigL2Bphys::BCDSMUMU, xMuMuMass, trigPartBcEL);
+
                 ElementLink<xAOD::TrigBphysContainer> trigPartBcEL(*m_trigBphysColl_dsxAOD,DsIndex);
                 xAOD::TrigBphys* trigPartBmumuBc = new xAOD::TrigBphys();
                 trigPartBmumuBc->makePrivateStore();
@@ -3057,7 +2892,6 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                                 <<", ndof = " <<BcVtx->ndof());
                             
                             // PERFECT -> Bphys particle was stored in collection
-                            m_VertexColl->push_back(mother_BcVtx);
                             m_trigBphysColl_bxAOD->push_back(trigPartBmumuBc);
                             ATH_MSG_DEBUG(" Added Bc vertex to vertex collection");
                             // monitoring of successfuly stored particles
@@ -3095,8 +2929,6 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                         }
                     } // end of successful fit condition "mother"
                     if(vertex) {
-                        int index = m_VertexColl->size()-1;
-                        ElementLink<TrigVertexCollection> BsVertexEL(*m_VertexColl,index);
                     } else {
                         delete mother_BcVtx;
                     }
@@ -3111,9 +2943,9 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
             if ((xMuMuMass > m_lowerBc_DsMuMuMassCutVtxOff && xMuMuMass < m_upperBc_DsMuMuMassCutVtxOff)) {
                 
                 // Store links to the tracks forming bphys particle
-                ElementLinkVector<xAOD::TrackParticleContainer> trackVectorBmumuBc;
-                ElementLink<xAOD::TrackParticleContainer> track1ELBc = mu1->idTrackLink();
-                ElementLink<xAOD::TrackParticleContainer> track2ELBc = mu2->idTrackLink();
+
+                const ElementLink<xAOD::TrackParticleContainer>& track1ELBc = mu1->idTrackLink();
+                const ElementLink<xAOD::TrackParticleContainer>& track2ELBc = mu2->idTrackLink();
                 ElementLink<xAOD::TrackParticleContainer> track3ELBc(*trkCollection, iTrk3);
                 ElementLink<xAOD::TrackParticleContainer> track4ELBc(*trkCollection, iTrk4);
                 ElementLink<xAOD::TrackParticleContainer> track5ELBc(*trkCollection, iTrk5);
@@ -3124,17 +2956,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                 ATH_MSG_VERBOSE("Track 1 pT " << (*track3ELBc)->pt() << " eta: " << (*track3ELBc)->eta() << " phi: " << (*track3ELBc)->phi());
                 ATH_MSG_VERBOSE("Track 2 pT " << (*track4ELBc)->pt() << " eta: " << (*track4ELBc)->eta() << " phi: " << (*track4ELBc)->phi());
                 ATH_MSG_VERBOSE("Track 3 pT " << (*track5ELBc)->pt() << " eta: " << (*track5ELBc)->eta() << " phi: " << (*track5ELBc)->phi());
-                
-                trackVectorBmumuBc.push_back(track1ELBc); // temp
-                trackVectorBmumuBc.push_back(track2ELBc); // temp
-                trackVectorBmumuBc.push_back(track3ELBc); // temp
-                trackVectorBmumuBc.push_back(track4ELBc); // temp
-                trackVectorBmumuBc.push_back(track5ELBc); // temp
-                
-                
-                //         if(m_doPhi1020_KaonKaonVertexFit){
-                //ElementLink<TrigL2BphysContainer> trigPartBcEL(*m_trigBphysColl_ds,DsIndex);
-                //TrigL2Bphys* trigPartBmumuBc = new TrigL2Bphys(0.0, 0.0, 0.0, TrigL2Bphys::BCDSMUMU, xMuMuMass, trigPartBcEL);
+
                 ElementLink<xAOD::TrigBphysContainer> trigPartBcEL(*m_trigBphysColl_dsxAOD,DsIndex);
                 xAOD::TrigBphys* trigPartBmumuBc = new xAOD::TrigBphys();
                 trigPartBmumuBc->makePrivateStore();
@@ -3146,18 +2968,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                 trigPartBmumuBc->addTrackParticleLink(track4ELBc);
                 trigPartBmumuBc->addTrackParticleLink(track5ELBc);
                 m_trigBphysColl_bxAOD->push_back(trigPartBmumuBc);
-                //         }else{
-                // //           m_trigBphysColl_phi->push_back(trigPartBmumuPhi);
-                // //           int PhiIndex = m_trigBphysColl_phi->size() - 1;
-                // //           ElementLink<TrigL2BphysContainer> trigPartBsEL(*m_trigBphysColl_phi,PhiIndex);
-                //           
-                //           TrigL2Bphys* trigPartBmumuBs = new TrigL2Bphys(0., 0., 0., TrigL2Bphys::BSPHIMUMU, xMuMuMass/*, trigPartBsEL*/);
-                //           trigPartBmumuBs->addTrack(track1ELBs); 
-                //             trigPartBmumuBs->addTrack(track2ELBs); 
-                //             trigPartBmumuBs->addTrack(track3ELBs); 
-                //             trigPartBmumuBs->addTrack(track4ELBs); 
-                //           m_trigBphysColl_b->push_back(trigPartBmumuBs);
-                //         }
+
                 m_mon_BcMuMuDs_n++;
                 if(trk3->pt()*trk3->charge() > 0) {
                     ATH_MSG_DEBUG(" Ds's Kplus, Kminus and pion Candidates accepted with Ds mass: " << xMass << "MeV"  

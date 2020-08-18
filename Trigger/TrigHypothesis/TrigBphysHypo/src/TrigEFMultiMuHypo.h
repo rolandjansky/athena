@@ -24,8 +24,6 @@
 // general athena stuff
 #include "TrigInterfaces/HypoAlgo.h"
 
-#include "Constants.h"
-
 
 class TrigEFMultiMuHypo: public HLT::HypoAlgo  {
   

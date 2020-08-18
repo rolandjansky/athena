@@ -29,7 +29,7 @@ TrigBphysHelperUtilsTool::TrigBphysHelperUtilsTool( const std::string& type,
 		      const std::string& name, 
 		      const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   )
-,  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
+,  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this), m_VKVFitter(nullptr)
 {
   declareInterface< TrigBphysHelperUtilsTool >(this);
   //
@@ -100,32 +100,6 @@ double TrigBphysHelperUtilsTool::deltaR(double deta, double dphi) const {
     return sqrt(deta*deta + dphi*dphi);
 }
 
-
-void TrigBphysHelperUtilsTool::addUnique(std::vector<const Trk::Track*>& tracks, const Trk::Track* trkIn) const {
-    // from the the original run-1 code
-    if (!trkIn) return;
-    std::vector<const Trk::Track*>::iterator tItr     = tracks.begin();
-    std::vector<const Trk::Track*>::iterator tItr_end = tracks.end();
-
-    double phi = trkIn->perigeeParameters()->parameters()[Trk::phi];
-    double eta = (*tItr)->perigeeParameters()->eta();
-    double pT  = fabs(trkIn->perigeeParameters()->pT());
-    
-    for (;tItr != tItr_end; ++tItr) {
-        if (trkIn == *tItr) continue; // don't consider if already included
-        // match on eta and phi
-        double dphi = absDeltaPhi((*tItr)->perigeeParameters()->parameters()[Trk::phi], phi);
-        double deta = absDeltaEta((*tItr)->perigeeParameters()->eta(), eta);
-        double dpt  = fabs(fabs((*tItr)->perigeeParameters()->pT()) - pT);
-        
-        if (dphi < 0.005 &&
-            deta < 0.005 &&
-            dpt  < 10.) return; // found a matching track, so return out of the function
-    } // for
-    
-    // if here then track is added to list
-    tracks.push_back(trkIn);
-}
 
 bool TrigBphysHelperUtilsTool::areUnique(const xAOD::TrackParticle* t0, const xAOD::TrackParticle* t1, double dEtaCut , double dPhiCut, double dPtCut) const {
     if (!t0 || !t1) {
@@ -291,7 +265,6 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         ATH_MSG_DEBUG("Fit not allowed, Problems with TP1" );
     }
 
-    //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
     const Amg::Vector3D startingPoint(0.,0.,0.);
     std::vector<const xAOD::TrackParticle*> trks;
     trks.push_back(*particles[0]);
@@ -313,9 +286,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         result->setFitz        (-9999);
         
     } else {
-        //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
         if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError,*state).isSuccess())) {
             ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
         } // if
@@ -380,7 +351,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     bool doFit(true); // set false if problematic TP
     std::vector<const xAOD::TrackParticle*> trks;
     
-    for ( auto ptlEL : particles) {
+    for ( const auto& ptlEL : particles) {
         if (!ptlEL.isValid()) {
             ATH_MSG_DEBUG("Non valid TPEL" );
             doFit = false;
@@ -414,7 +385,6 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     } else {
         //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
         if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError,istate).isSuccess())) {
             ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
             invariantMass = -9999.;
@@ -449,7 +419,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         "fity:          " << result->fity() << "\n\t  " <<
         "fitz:          " << result->fitz() << "\n\t  " );
     
-    for ( auto ptlEL : particles) {
+    for ( const auto& ptlEL : particles) {
         result->addTrackParticleLink(ptlEL);
     }
     return StatusCode::SUCCESS;
@@ -492,7 +462,6 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     } else {
         std::vector<int> trkIndices(trks.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
         if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError,*state).isSuccess())) {
             ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
             invariantMass = -9999.;
@@ -541,42 +510,15 @@ double TrigBphysHelperUtilsTool::invariantMass(const xAOD::TrackParticle *p1, co
     static_assert(!std::is_base_of<xAOD::TrackParticle, xAOD::L2StandAloneMuon>::value, "Types have become ambiguous, units may be wrong" );
     assert(p1!=nullptr);
     assert(p2!=nullptr);
-    double px(0.),py(0.),pz(0.),E(0.);
-    
-
-    {
-    const auto &pv1 = p1->p4();
-    px += pv1.Px();
-    py += pv1.Py();
-    pz += pv1.Pz();
-    E  += sqrt(mi1*mi1 +
-               pv1.Px()*pv1.Px() +
-               pv1.Py()*pv1.Py() +
-               pv1.Pz()*pv1.Pz()
-          );
-    }
-    {
-    const auto &pv2 = p2->p4();
-    px += pv2.Px();
-    py += pv2.Py();
-    pz += pv2.Pz();
-    E  += sqrt(mi2*mi2 +
-               pv2.Px()*pv2.Px() +
-               pv2.Py()*pv2.Py() +
-               pv2.Pz()*pv2.Pz()
-          );
-    }
-    double m2 = E*E - px*px - py*py -pz*pz;
-    if (m2 < 0) return 0.;
-    else        return sqrt(m2);
+	const std::array<const xAOD::TrackParticle*, 2> &tracks{p1, p2};
+	const std::array<double, 2> &masses{mi1, mi2};
+    return invariantMassInternal(tracks.data(), masses.data(), 2);
 } // invariantMass
 
 
 double TrigBphysHelperUtilsTool::invariantMass(const std::vector<const xAOD::TrackParticle*>&ptls, const std::vector<double> & masses) const {
-    // 're-cast the vector in terms of the iparticle'
-    std::vector<const xAOD::IParticle*> i_ptls;
-    for ( auto tp : ptls) i_ptls.push_back(tp);
-    return invariantMassIP(i_ptls,masses);
+	assert(ptls.size() == masses.size());
+    return invariantMassInternal(ptls.data(), masses.data(), masses.size());
 }
 
 
@@ -626,15 +568,6 @@ void TrigBphysHelperUtilsTool::fillTrigObjectKinematics(xAOD::TrigBphys* bphys,
          ATH_MSG_WARNING("Null pointer of trigger object provided." );
          return;
      }
-     
-     //     if (ptls.size() != masses.size()) {
-     //         if ( msg().level() <= MSG::WARNING ) {
-     //             msg()  << MSG::WARNING << "Nptls != nMasses; no information will be populated." );
-     //         }
-     //         return;
-     //     } // if invalid prequesits
-     
-     
      
      xAOD::TrackParticle::FourMom_t fourMom;
      
@@ -707,6 +640,25 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
     bphys->setTauError(BsTauError);
 } // setBeamlineDisplacement
 
+double TrigBphysHelperUtilsTool::invariantMassInternal(const xAOD::TrackParticle* const* tracks, const double* masses, size_t N)
+{
+    double px(0.),py(0.),pz(0.),E(0.);
+    for(size_t i=0; i<N; i++){
+       const auto &pv1 = tracks[i]->p4();
+       double mi1 = masses[i];
+       px += pv1.Px();
+       py += pv1.Py();
+       pz += pv1.Pz();
+       E  += sqrt(mi1*mi1 +
+               pv1.Px()*pv1.Px() +
+               pv1.Py()*pv1.Py() +
+               pv1.Pz()*pv1.Pz()
+          );
+    }
+    double m2 = E*E - px*px - py*py -pz*pz;
+    if (m2 < 0) return 0.;
+    else        return std::sqrt(m2);
+}
 
 std::unique_ptr<Trk::IVKalState>
 TrigBphysHelperUtilsTool::makeVKalState() const

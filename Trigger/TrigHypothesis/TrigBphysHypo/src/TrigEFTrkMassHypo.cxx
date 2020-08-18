@@ -23,8 +23,6 @@
 #include "TrigEFTrkMassHypo.h"
 
 
-#include <math.h>
-//#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
 
 // additions of xAOD objects
@@ -118,7 +116,6 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   // for now pass all events - JK changed to false 9/2/10
   pass=false;
 //  create vector for TrigEFBphys particles
-    //const TrigEFBphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer * xAODTrigBphysColl(0);
     
   HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, "EFTrackMass");
