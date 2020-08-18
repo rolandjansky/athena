@@ -147,11 +147,10 @@ void MuonCnv_p1::persToTrans( const Muon_p1* pers,
       float sigma  = (sigmaM+sigmaP)/2.0;
       unsigned short elossT = static_cast<unsigned short> (pers->m_caloEnergyLoss.m_energyLossType);
       float caloLR          = pers->m_caloEnergyLoss.m_caloLRLikelihood;
-      float caloScore       = pers->m_caloEnergyLoss.m_caloMuonScore;
       unsigned short tag    = static_cast<unsigned short>(pers->m_caloEnergyLoss.m_fsrCandidateEnergy);
       float fsrEnergy       = pers->m_caloEnergyLoss.m_fsrCandidateEnergy;
       
-      CaloEnergy * caloEnergy  = new CaloEnergy(deltaE, sigma, sigmaM, sigmaP, elossT, caloLR, caloScore, tag) ;
+      CaloEnergy * caloEnergy  = new CaloEnergy(deltaE, sigma, sigmaM, sigmaP, elossT, caloLR, tag) ;
       caloEnergy->set_fsrCandidateEnergy ( fsrEnergy );
       std::vector<DepositInCalo> deposits;
       deposits.reserve( pers->m_caloEnergyLoss.m_deposits.size() );

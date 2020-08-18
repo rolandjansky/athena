@@ -85,7 +85,7 @@ void test1()
   std::vector<DepositInCalo> deposits;
   deposits.emplace_back (CaloCell_ID::EMB2, 10.5, 11.5, 12.5);
   deposits.emplace_back (CaloCell_ID::EME2, 20.5, 21.5, 22.5);
-  CaloEnergy trans1 (1.5, 2.5, 3.5, 4.5, 1, 5.5, 0.8, 20, deposits);
+  CaloEnergy trans1 (1.5, 2.5, 3.5, 4.5, 1, 5.5, 20, deposits);
   testit (trans1);
 }
 
