@@ -1,15 +1,12 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file RootUtils/src/pyroot/Utility.h
  * @author scott snyder, Wim Lavrijsen
  * @date Jul, 2015
- * @brief Utility code copied from pyroot.
+ * @brief Utility code originally from pyroot.
  */
 
 
@@ -24,58 +21,36 @@
 
 #if PY_VERSION_HEX < 0x03000000
 # define PyROOT_PyUnicode_Type               PyString_Type
-# define PyROOT_PyUnicode_Check              PyString_Check
 # define PyROOT_PyUnicode_FromFormat         PyString_FromFormat
 # define PyROOT_PyUnicode_AsString           PyString_AS_STRING
-# define PyROOT_PyUnicode_AsStringChecked    PyString_AsString
 # define PyROOT_PyUnicode_GET_SIZE           PyString_GET_SIZE
 # define PyROOT_PyUnicode_FromString         PyString_FromString
 # define PyROOT_PyUnicode_FromStringAndSize  PyString_FromStringAndSize
 # define PyROOT_PyUnicode_InternFromString   PyString_InternFromString
-# define PyROOT_PyCapsule_CheckExact    PyCObject_Check
-static inline void* PyROOT_PyCapsule_GetPointer( PyObject* capsule, const char* /* name */ )
-{
-   return (void*)PyCObject_AsVoidPtr( capsule );
-}
 #else
 # define PyROOT_PyUnicode_Type               PyUnicode_Type
-# define PyROOT_PyUnicode_Check              PyUnicode_Check
 # define PyROOT_PyUnicode_FromFormat         PyUnicode_FromFormat
 # define PyROOT_PyUnicode_AsString           _PyUnicode_AsString
-# define PyROOT_PyUnicode_AsStringChecked    _PyUnicode_AsString
 # define PyROOT_PyUnicode_GET_SIZE           PyUnicode_GET_SIZE
 # define PyROOT_PyUnicode_FromString         PyUnicode_FromString
 # define PyROOT_PyUnicode_FromStringAndSize  PyUnicode_FromStringAndSize
 # define PyROOT_PyUnicode_InternFromString   PyUnicode_InternFromString
-# define PyROOT_PyCapsule_CheckExact    PyCapsule_CheckExact
-# define PyROOT_PyCapsule_GetPointer    PyCapsule_GetPointer
-
-# define PyInt_Type                     PyLong_Type
-# define PyInt_Check                    PyLong_Check
-# define PyInt_CheckExact               PyLong_CheckExact
-# define PyInt_AsLong                   PyLong_AsLong
-# define PyInt_AS_LONG                  PyLong_AsLong
-# define PyInt_AsSsize_t                PyLong_AsSsize_t
-# define PyInt_FromLong                 PyLong_FromLong
-
-# define PyBuffer_Type                  PyMemoryView_Type
-
-# define Py_TPFLAGS_CHECKTYPES 0
 #endif
 
 
-#ifdef R__MACOSX
-# if SIZEOF_SIZE_T == SIZEOF_INT
-#   if defined(MAC_OS_X_VERSION_10_4)
-#      define PY_SSIZE_T_FORMAT "%ld"
-#   else
-#      define PY_SSIZE_T_FORMAT "%d"
-#   endif
-# elif SIZEOF_SIZE_T == SIZEOF_LONG
-#   define PY_SSIZE_T_FORMAT "%ld"
-# endif
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,22,0)
+# define CPPInstance_Check         ObjectProxy_Check
+# define CPPInstance_AsVoidPtr     ObjectProxy_AsVoidPtr
+# define CPPInstance_FromVoidPtr   ObjectProxy_FromVoidPtr
+#include "TPyException.h"
+namespace RootUtils {
+  using PyException = PyROOT::TPyException;
+}
 #else
-# define PY_SSIZE_T_FORMAT "%zd"
+#include "CPyCppyy/PyException.h"
+namespace RootUtils {
+  using PyException = CPyCppyy::PyException;
+}
 #endif
 
 
@@ -84,19 +59,9 @@ namespace RootUtils {
 
 
 int GetBuffer( PyObject* pyobject, char tc, int size, void*& buf, Bool_t check = kTRUE );
-Long_t UpcastOffset( ClassInfo_t* clDerived, ClassInfo_t* clBase, void* obj, bool derivedObj );
-inline Long_t UpcastOffset( TClass* clDerived, TClass* clBase, void* obj, bool derivedObj ) {
-  return UpcastOffset( clDerived->GetClassInfo(), clBase->GetClassInfo(), obj, derivedObj );
-}
+TClass* objectIsA (PyObject* obj);
+bool setOwnership (PyObject* obj, bool flag);
 
-
-  ULong_t PyLongOrInt_AsULong( PyObject* pyobject );
-  ULong64_t PyLongOrInt_AsULong64( PyObject* pyobject );
-  TClass* objectIsA (PyObject* obj);
-  PyObject* nullPtrObject();
-  bool setOwnership (PyObject* obj, bool flag);
-  bool isStrict();
-  bool useStrictOwnership (Long_t user);
 
 }
 

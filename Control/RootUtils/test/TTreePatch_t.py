@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id$
 # File: TTreePatch_t.py
 # Created: Jul, 2015
 # Purpose: Regression tests for PyROOTTTreePatch
@@ -10,7 +9,7 @@
 
 class Notifier:
     def Notify (self, *args):
-        print 'Notify', args
+        print ('Notify', args)
         return
 
 
@@ -20,9 +19,9 @@ def make_tree (name, offset):
     import struct
     f = ROOT.TFile.Open (name, 'RECREATE')
     t = ROOT.TTree ('tt', 'tt')
-    arr = array.array ('c')
-    arr.fromstring (256*' ')
-    t.Branch ('b1', arr, 'i1/i:f1/f:d1[3]/d')
+    arr = array.array ('b')
+    arr.frombytes ((256*' ').encode())
+    t.Branch ('b1', arr, 'i1/I:f1/F:d1[3]/D')
     obj = ROOT.RootUtilsTest.TreeTest()
     t.Branch ('b2', 'RootUtilsTest::TreeTest', obj)
     for i in range(10):
@@ -41,15 +40,15 @@ def make_tree (name, offset):
 def dump_tree1 (t):
     for i in range(t.GetEntries()):
         t.GetEntry(i)
-        print '%3d %5.1f %3d %5.1f [%5.1f %5.1f %5.1f]' % (t.i1, t.f1, t.b2.i, t.b2.f,
-                                               t.d1[0], t.d1[1], t.d1[2])
+        print ('%3d %5.1f %3d %5.1f [%5.1f %5.1f %5.1f]' % (t.i1, t.f1, t.b2.i, t.b2.f,
+                                                            t.d1[0], t.d1[1], t.d1[2]))
     return
 
 
 def dump_tree (name):
     import ROOT
     f = ROOT.TFile.Open (name)
-    f.tt.SetBranchStatus ('*', 0)
+    #f.tt.SetBranchStatus ('*', 0)
     dump_tree1 (f.tt)
     f.Close()
     return
@@ -60,7 +59,7 @@ def dump_chain (names):
     t = ROOT.TChain('tt')
     for n in names:
         t.Add (n)
-    t.SetBranchStatus ('*', 0)
+    #t.SetBranchStatus ('*', 0)
     n = Notifier()
     t.SetNotify(n)
     dump_tree1 (t)
@@ -73,8 +72,8 @@ def _test1():
     >>> import cppyy
     >>> make_tree ('tree1.root', 100)
     >>> make_tree ('tree2.root', 200)
-    >>> from RootUtils.PyROOTFixes import enable_tree_speedups
-    >>> enable_tree_speedups()
+    >>> from RootUtils.PyROOTFixes import enable_tree_fixes
+    >>> enable_tree_fixes()
     >>> dump_tree ('tree1.root')
     101 101.5 111 111.5 [111.5 121.5 131.5]
     102 102.5 112 112.5 [112.5 122.5 132.5]
@@ -98,6 +97,8 @@ def _test1():
     209 209.5 219 219.5 [219.5 229.5 239.5]
     210 210.5 220 220.5 [220.5 230.5 240.5]
     >>> dump_chain (['tree1.root', 'tree2.root'])
+    Notify ()
+    Notify ()
     101 101.5 111 111.5 [111.5 121.5 131.5]
     102 102.5 112 112.5 [112.5 122.5 132.5]
     103 103.5 113 113.5 [113.5 123.5 133.5]
@@ -123,4 +124,5 @@ def _test1():
 
 
 import doctest
+print ('RootUtils/TTreePatch_t')
 doctest.testmod()
