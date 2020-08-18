@@ -7316,7 +7316,7 @@ namespace Trk {
       per.reset(oldtrajectory.referenceParameters(true)->clone());
     }
 
-    return std::move(per);
+    return per;
   }
 
   std::unique_ptr<const TrackStateOnSurface> GlobalChi2Fitter::makeTrackFindPerigee(
