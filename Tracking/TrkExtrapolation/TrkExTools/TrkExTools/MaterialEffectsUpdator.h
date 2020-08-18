@@ -102,9 +102,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     }
 
     /** Updator interface (full update for a layer)
-      ---> ALWAYS the same pointer is returned
-      the pointer to the same TrackParameters object is returned,
-      it is manipulated (if sf.fullUpdateMaterial())
+      ---> ALWAYS  pointer to new TrackParameters is returned
       */
     virtual TrackParameters*  update(ICache& icache, const TrackParameters* parm,
                                            const Layer& sf,
@@ -121,9 +119,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     }
     /** Updator interface (full update for a layer) according to user
       input through MaterialEffectsOnTrack
-      ---> ALWAYS the same pointer is returned
-      the pointer to the same TrackParameters object is returned,
-      it is manipulated
+      ---> ALWAYS pointer to new TrackParameters is returned
       */
     virtual TrackParameters* update(ICache& icache,
                                           const TrackParameters* parm,
@@ -142,9 +138,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     }
 
     /** Updator interface (pre-update for a layer):
-      ---> ALWAYS the same pointer is returned
-      the pointer to the same TrackParametes object is returned,
-      it is manipulated (if.preUpdateMaterial())
+      ---> ALWAYS pointer to new TrackParameters is returned
       */
     virtual TrackParameters* preUpdate(ICache& icache,
                                              const TrackParameters* parm,
@@ -163,8 +157,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
     }
 
     /** Updator interface (post-update for a layer):
-      ---> ALWAYS pointer to new TrackParameters are returned
-      if no postUpdate is to be done : return 0
+      ---> ALWAYS pointer to new TrackParameters is returned
+      if no postUpdate is to be done : return nullptr
       */
     virtual TrackParameters* postUpdate(
       ICache& icache,
