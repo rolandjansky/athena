@@ -27,6 +27,7 @@
 #include <fstream>
 
 //LWTNN
+#include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/parse_json.hh"
 
 // XML reader
