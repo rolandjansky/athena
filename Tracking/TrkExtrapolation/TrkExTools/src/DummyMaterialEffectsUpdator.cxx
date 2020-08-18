@@ -62,11 +62,13 @@ Trk::DummyMaterialEffectsUpdator::finalize() {
 }
 
 Trk::TrackParameters *
-Trk::DummyMaterialEffectsUpdator::update(const TrackParameters *parm,
-                                         const Layer &lay,
-                                         PropDirection,
-                                         ParticleHypothesis,
-                                         MaterialUpdateMode) const {
+Trk::DummyMaterialEffectsUpdator::update(
+  const TrackParameters *parm,
+  const Layer &lay,
+  PropDirection,
+  ParticleHypothesis,
+  MaterialUpdateMode
+) const {
   if (m_validationMode && parm) {
     // get the numbers according
     const Trk::TrackingVolume *tvol = lay.enclosingTrackingVolume();
@@ -104,11 +106,13 @@ Trk::DummyMaterialEffectsUpdator::update(const TrackParameters *parm,
 }
 
 Trk::TrackParameters *
-Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
-                                            const Layer &lay,
-                                            PropDirection dir,
-                                            ParticleHypothesis,
-                                            MaterialUpdateMode) const {
+Trk::DummyMaterialEffectsUpdator::preUpdate(
+  const TrackParameters *parm,
+  const Layer &lay,
+  PropDirection dir,
+  ParticleHypothesis,
+  MaterialUpdateMode
+) const {
   if (m_validationMode && dir == m_validationDirection && parm) {
     // get the numbers according
     const Trk::TrackingVolume *tvol = lay.enclosingTrackingVolume();
@@ -158,11 +162,13 @@ Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
 }
 
 Trk::TrackParameters *
-Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
-                                             const Layer &lay,
-                                             PropDirection dir,
-                                             ParticleHypothesis,
-                                             MaterialUpdateMode) const {
+Trk::DummyMaterialEffectsUpdator::postUpdate(
+  const TrackParameters &parm,
+  const Layer &lay,
+  PropDirection dir,
+  ParticleHypothesis,
+  MaterialUpdateMode
+) const {
   if (m_validationMode && dir == m_validationDirection) {
     const Trk::TrackingVolume *tvol = lay.enclosingTrackingVolume();
 
@@ -207,12 +213,14 @@ Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
 
 // actual update method
 Trk::TrackParameters *
-Trk::DummyMaterialEffectsUpdator::update(const TrackParameters &parm,
-                                         const MaterialProperties &,
-                                         double,
-                                         PropDirection,
-                                         ParticleHypothesis,
-                                         MaterialUpdateMode) const {
+Trk::DummyMaterialEffectsUpdator::update(
+  const TrackParameters &parm,
+  const MaterialProperties &,
+  double,
+  PropDirection,
+  ParticleHypothesis,
+  MaterialUpdateMode
+) const {
   return(parm.clone());
 }
 

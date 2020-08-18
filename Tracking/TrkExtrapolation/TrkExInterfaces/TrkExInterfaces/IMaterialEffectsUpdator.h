@@ -93,7 +93,8 @@ public:
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** User updator interface (full update for a layer):
     The parameters are given as a pointer owned by the caller.
@@ -104,7 +105,8 @@ public:
     const TrackParameters* param,
     const MaterialEffectsOnTrack& meff,
     Trk::ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface (pre-update for a layer):
     The parameters are given as a pointer owned by the caller.
@@ -116,7 +118,8 @@ public:
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface (pre-update for a layer):
     The parameters are given as a pointer owned by the caller.
@@ -129,7 +132,8 @@ public:
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface:
     The parameters are given as a pointer owned by the caller.
@@ -143,7 +147,8 @@ public:
     double pathcorrection,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Validation Action: */
   virtual void validationAction(ICache& icache) const = 0;
@@ -159,7 +164,8 @@ public:
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** User updator interface (full update for a layer):
     */
@@ -167,7 +173,8 @@ public:
     const TrackParameters* param,
     const MaterialEffectsOnTrack& meff,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
   /** Updator interface (pre-update for a layer):
     */
   virtual TrackParameters* preUpdate(
@@ -175,7 +182,8 @@ public:
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface (pre-update for a layer):
     */
@@ -184,7 +192,8 @@ public:
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface:
     MaterialProperties based material update
@@ -196,7 +205,8 @@ public:
     double pathcorrection,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
   /** Validation Action:
     outside access to internal validation steps
     Optional */

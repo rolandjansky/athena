@@ -136,13 +136,14 @@ Trk::MaterialEffectsUpdator::initialize()
 
 
 Trk::TrackParameters*
-Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
-                                        const TrackParameters* parm,
-                                        const Layer& lay,
-                                        PropDirection dir,
-                                        ParticleHypothesis particle,
-                                        MaterialUpdateMode matupmode) const
-{
+Trk::MaterialEffectsUpdator::updateImpl(
+  Cache& cache,
+  const TrackParameters* parm,
+  const Layer& lay,
+  PropDirection dir,
+  ParticleHypothesis particle,
+  MaterialUpdateMode matupmode
+) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm->position())) {
@@ -181,12 +182,13 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
 }
 
 Trk::TrackParameters*
-Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
-                                        const TrackParameters* parm,
-                                        const MaterialEffectsOnTrack& meff,
-                                        ParticleHypothesis particle,
-                                        MaterialUpdateMode matupmode) const
-{
+Trk::MaterialEffectsUpdator::updateImpl(
+  Cache& cache,
+  const TrackParameters* parm,
+  const MaterialEffectsOnTrack& meff,
+  ParticleHypothesis particle,
+  MaterialUpdateMode matupmode
+) const {
   // no material properties - pass them back
   // TODO, if the parm doesn't have a surface (i.e. its in
   // curvilinear) then should we fall through?
@@ -360,13 +362,14 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
 }
 
 Trk::TrackParameters*
-Trk::MaterialEffectsUpdator::preUpdateImpl(Cache& cache,
-                                           const TrackParameters* parm,
-                                           const Layer& lay,
-                                           PropDirection dir,
-                                           ParticleHypothesis particle,
-                                           MaterialUpdateMode matupmode) const
-{
+Trk::MaterialEffectsUpdator::preUpdateImpl(
+  Cache& cache,
+  const TrackParameters* parm,
+  const Layer& lay,
+  PropDirection dir,
+  ParticleHypothesis particle,
+  MaterialUpdateMode matupmode
+) const {
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
     return parm->clone();
@@ -413,13 +416,14 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(Cache& cache,
 }
 
 Trk::TrackParameters*
-Trk::MaterialEffectsUpdator::postUpdateImpl(Cache& cache,
-                                            const TrackParameters& parm,
-                                            const Layer& lay,
-                                            PropDirection dir,
-                                            ParticleHypothesis particle,
-                                            MaterialUpdateMode matupmode) const
-{
+Trk::MaterialEffectsUpdator::postUpdateImpl(
+  Cache& cache,
+  const TrackParameters& parm,
+  const Layer& lay,
+  PropDirection dir,
+  ParticleHypothesis particle,
+  MaterialUpdateMode matupmode
+) const {
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm.position())) {
@@ -468,14 +472,15 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(Cache& cache,
 
 // actual update method - manipulation
 Trk::TrackParameters*
-Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
-                                        const TrackParameters* parm,
-                                        const MaterialProperties& matprop,
-                                        double pathcorrection,
-                                        PropDirection dir,
-                                        ParticleHypothesis particle,
-                                        MaterialUpdateMode matupmode) const
-{
+Trk::MaterialEffectsUpdator::updateImpl(
+  Cache& cache,
+  const TrackParameters* parm,
+  const MaterialProperties& matprop,
+  double pathcorrection,
+  PropDirection dir,
+  ParticleHypothesis particle,
+  MaterialUpdateMode matupmode
+) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
     return parm->clone();
@@ -645,14 +650,15 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
 
 // actual update method
 Trk::TrackParameters*
-Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,
-                                        const TrackParameters& parm,
-                                        const MaterialProperties& matprop,
-                                        double pathcorrection,
-                                        PropDirection dir,
-                                        ParticleHypothesis particle,
-                                        MaterialUpdateMode matupmode) const
-{
+Trk::MaterialEffectsUpdator::updateImpl(
+  Cache& cache,
+  const TrackParameters& parm,
+  const MaterialProperties& matprop,
+  double pathcorrection,
+  PropDirection dir,
+  ParticleHypothesis particle,
+  MaterialUpdateMode matupmode
+) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || (!m_doMs && !m_doEloss)) {
     return parm.clone();

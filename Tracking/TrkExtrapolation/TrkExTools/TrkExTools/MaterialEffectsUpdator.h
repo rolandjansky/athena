@@ -104,11 +104,14 @@ class MaterialEffectsUpdator : public AthAlgTool,
     /** Updator interface (full update for a layer)
       ---> ALWAYS  pointer to new TrackParameters is returned
       */
-    virtual TrackParameters*  update(ICache& icache, const TrackParameters* parm,
-                                           const Layer& sf,
-                                           PropDirection dir=alongMomentum,
-                                           ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override {
+    virtual TrackParameters*  update(
+      ICache& icache,
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir=alongMomentum,
+      ParticleHypothesis particle=pion,
+      MaterialUpdateMode matupmode=addNoise
+    ) const override {
       if(icache.type()!=ICache::MaterialEffects){
          ATH_MSG_WARNING("Wrong cache Type");
          return nullptr;
@@ -121,13 +124,13 @@ class MaterialEffectsUpdator : public AthAlgTool,
       input through MaterialEffectsOnTrack
       ---> ALWAYS pointer to new TrackParameters is returned
       */
-    virtual TrackParameters* update(ICache& icache,
-                                          const TrackParameters* parm,
-                                          const MaterialEffectsOnTrack& meff,
-                                          Trk::ParticleHypothesis particle = pion,
-                                          MaterialUpdateMode matupmode = addNoise) const override
-    {
-
+    virtual TrackParameters* update(
+      ICache& icache,
+      const TrackParameters* parm,
+      const MaterialEffectsOnTrack& meff,
+      Trk::ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       if (icache.type() != ICache::MaterialEffects) {
         ATH_MSG_WARNING("Wrong cache Type");
         return nullptr;
@@ -140,13 +143,14 @@ class MaterialEffectsUpdator : public AthAlgTool,
     /** Updator interface (pre-update for a layer):
       ---> ALWAYS pointer to new TrackParameters is returned
       */
-    virtual TrackParameters* preUpdate(ICache& icache,
-                                             const TrackParameters* parm,
-                                             const Layer& sf,
-                                             PropDirection dir = alongMomentum,
-                                             ParticleHypothesis particle = pion,
-                                             MaterialUpdateMode matupmode = addNoise) const override
-    {
+    virtual TrackParameters* preUpdate(
+      ICache& icache,
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       if (icache.type() != ICache::MaterialEffects) {
         ATH_MSG_WARNING("Wrong cache Type");
         return nullptr;
@@ -166,8 +170,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final
-    {
+      MaterialUpdateMode matupmode = addNoise
+    ) const override final {
       if (icache.type() != ICache::MaterialEffects) {
         ATH_MSG_WARNING("Wrong cache Type");
         return nullptr;
@@ -177,14 +181,15 @@ class MaterialEffectsUpdator : public AthAlgTool,
       return outparam;
     }
     /** Dedicated Updator interface:-> create new track parameters*/
-    virtual TrackParameters* update(ICache& icache,
-                                          const TrackParameters& parm,
-                                          const MaterialProperties& mprop,
-                                          double pathcorrection,
-                                          PropDirection dir = alongMomentum,
-                                          ParticleHypothesis particle = pion,
-                                          MaterialUpdateMode matupmode = addNoise) const override final
-    {
+    virtual TrackParameters* update(
+      ICache& icache,
+      const TrackParameters& parm,
+      const MaterialProperties& mprop,
+      double pathcorrection,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override final {
       if (icache.type() != ICache::MaterialEffects) {
         ATH_MSG_WARNING("Wrong cache Type");
         return nullptr;
@@ -227,8 +232,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final
-    {
+      MaterialUpdateMode matupmode = addNoise
+    ) const override final {
 
       Cache& cache = getTLSCache();
       TrackParameters* outparam =
@@ -240,8 +245,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
       Trk::ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final
-    {
+      MaterialUpdateMode matupmode = addNoise
+    ) const override final {
       Cache& cache = getTLSCache();
       TrackParameters* outparam =
         updateImpl(cache, parm, meff, particle, matupmode);
@@ -253,8 +258,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final
-    {
+      MaterialUpdateMode matupmode = addNoise
+    ) const override final {
       Cache& cache = getTLSCache();
       TrackParameters* outparam =
         preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
@@ -266,8 +271,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final
-    {
+      MaterialUpdateMode matupmode = addNoise
+    ) const override final {
       Cache& cache = getTLSCache();
       TrackParameters* outparam =
         postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
@@ -280,8 +285,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
       double pathcorrection,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final
-    {
+      MaterialUpdateMode matupmode = addNoise
+    ) const override final {
       Cache& cache = getTLSCache();
       TrackParameters* outparam = updateImpl(
         cache, parm, mprop, pathcorrection, dir, particle, matupmode);
@@ -304,18 +309,22 @@ class MaterialEffectsUpdator : public AthAlgTool,
   private:
     /* The acutal implementation methods using the tool's
      * concrete  Cache*/
-    TrackParameters* updateImpl(Cache& cache,
-                                const TrackParameters* parm,
-                                const Layer& sf,
-                                PropDirection dir = alongMomentum,
-                                ParticleHypothesis particle = pion,
-                                MaterialUpdateMode matupmode = addNoise) const;
+    TrackParameters* updateImpl(
+      Cache& cache,
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const;
 
-    TrackParameters* updateImpl(Cache& cache,
-                                const TrackParameters* parm,
-                                const MaterialEffectsOnTrack& meff,
-                                Trk::ParticleHypothesis particle = pion,
-                                MaterialUpdateMode matupmode = addNoise) const;
+    TrackParameters* updateImpl(
+      Cache& cache,
+      const TrackParameters* parm,
+      const MaterialEffectsOnTrack& meff,
+      Trk::ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const;
 
     TrackParameters* preUpdateImpl(
       Cache& cache,
@@ -323,7 +332,8 @@ class MaterialEffectsUpdator : public AthAlgTool,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const;
+      MaterialUpdateMode matupmode = addNoise
+    ) const;
 
     TrackParameters* postUpdateImpl(
       Cache& cache,
@@ -331,23 +341,28 @@ class MaterialEffectsUpdator : public AthAlgTool,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const;
+      MaterialUpdateMode matupmode = addNoise
+    ) const;
 
-    TrackParameters* updateImpl(Cache& cache,
-                                const TrackParameters* parm,
-                                const MaterialProperties& mprop,
-                                double pathcorrection,
-                                PropDirection dir = alongMomentum,
-                                ParticleHypothesis particle = pion,
-                                MaterialUpdateMode matupmode = addNoise) const;
+    TrackParameters* updateImpl(
+      Cache& cache,
+      const TrackParameters* parm,
+      const MaterialProperties& mprop,
+      double pathcorrection,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const;
 
-    TrackParameters* updateImpl(Cache& cache,
-                                const TrackParameters& parm,
-                                const MaterialProperties& mprop,
-                                double pathcorrection,
-                                PropDirection dir = alongMomentum,
-                                ParticleHypothesis particle = pion,
-                                MaterialUpdateMode matupmode = addNoise) const;
+    TrackParameters* updateImpl(
+      Cache& cache,
+      const TrackParameters& parm,
+      const MaterialProperties& mprop,
+      double pathcorrection,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const;
 
     void validationActionImpl(Cache& cache) const;
 
