@@ -7,9 +7,14 @@
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
-#include "lwtnn/LightweightGraph.hh"
 #include <string>
 #include "TH2D.h"
+
+// forward declare lwtnn dependencies
+namespace lwt
+{
+  class LightweightGraph;
+}
 
 class TFCSEnergyAndHitGAN:public TFCSParametrizationBinnedChain {
 public:
