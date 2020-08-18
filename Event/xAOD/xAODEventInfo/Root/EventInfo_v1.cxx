@@ -954,6 +954,10 @@ namespace xAOD {
    static const SG::AuxElement::Accessor< float >
       BeamSpotWeight( "BeamSpotWeight" );
 
+   bool EventInfo_v1::hasBeamSpotWeight() const {
+      return BeamSpotWeight.isAvailable( *this );
+   }
+
    float EventInfo_v1::beamSpotWeight() const {
       // If the value is not available, then return 1.0
       if( ! BeamSpotWeight.isAvailable( *this ) ) return 1.0f;
