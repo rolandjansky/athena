@@ -29,7 +29,7 @@ StatusCode PFChargedFlowElementCreatorAlgorithm::execute(const EventContext& ctx
   
   /* Create Charged FlowElements from all eflowCaloObjects */
   SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey,ctx);
-  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedFlowElements(*thisEflowCaloObject,true,chargedFlowElementContainerWriteHandle);
+  for (const auto& thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedFlowElements(*thisEflowCaloObject,true,chargedFlowElementContainerWriteHandle);
 
   std::sort(chargedFlowElementContainerWriteHandle->begin(), chargedFlowElementContainerWriteHandle->end(), [] (const xAOD::FlowElement* flowElement1, const xAOD::FlowElement* flowElement2) {return flowElement1->pt()>flowElement2->pt();});
 
@@ -46,9 +46,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
     eflowRecTrack* efRecTrack = energyFlowCaloObject.efRecTrack(iTrack);
 
     /* Skip tracks that haven't been subtracted */
-    if (false == m_eOverPMode){
-      if (!efRecTrack->isSubtracted()){ continue; }
-    }
+    if (!m_eOverPMode && !efRecTrack->isSubtracted()){continue;}
 
     /* Create new xAOD::FlowElement and set the type to charged PFlow */
     xAOD::FlowElement* thisFE = new xAOD::FlowElement();
@@ -108,7 +106,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
     accIsInDenseEnvironment(*thisFE) = efRecTrack->isInDenseEnvironment();
 
      /* Optionally we add the links to clusters to the xAOD::PFO */
-    if (true == addClusters){
+    if (addClusters){
 
       std::vector<std::pair<eflowTrackClusterLink*,float> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
 
