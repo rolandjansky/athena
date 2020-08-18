@@ -54,9 +54,6 @@ namespace Simulation
     /** Athena algorithm's interface method execute() */
     virtual StatusCode execute(const EventContext& ctx) const override final;
 
-    /** Can clone for AthenaMT **/
-    virtual bool isClonable() const override final { return true; }
-
   private:
 
     /** Ensure that the GenEvent::signal_process_vertex has been set */

@@ -486,6 +486,8 @@ namespace xAOD {
 
       /// Weight for beam spot size reweighting
       float beamSpotWeight() const;
+      /// Check if weight for beam spot size reweighting exists
+      bool hasBeamSpotWeight() const;
       /// Set weight for beam spot size reweighting
       void setBeamSpotWeight( float value );
 
