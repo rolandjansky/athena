@@ -1,84 +1,87 @@
-Thu Jan 30 12:26:06 CET 2020
-Preloading tcmalloc_minimal.so
+Fri Aug 14 17:09:27 EDT 2020
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.9] [x86_64-centos7-gcc8-opt] [xAODEventInfoEvolution-master-20200128/240ecd7] -- built on [2020-01-30T1225]
+Py:Athena            INFO using release [?-22.0.0] [?] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "xAODEventInfoAthenaPool/xAODEventInfoAthenaPool_20.0.0.3_test.py"
 Py:Athena            INFO including file "AthenaPoolUtilities/TPCnvTest.py"
-Py:ConfigurableDb    INFO Read module info for 5610 configurables from 4 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 907 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Warning in <TInterpreter::ReadRootmapFile>: class  CP::IMuonCalibrationAndSmearingTool found in libMuonMomentumCorrectionsDict.so  is already in libMuonAnalysisInterfacesDict.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  CP::IMuonSelectionTool found in libMuonSelectorToolsDict.so  is already in libMuonAnalysisInterfacesDict.so 
 Py:Athena            INFO Importing MuonRecExample.MuonRecUtils
 Py:Athena            INFO Importing MuonCnvExample.MuonCnvUtils
-EventInfoMgtInit: Got release version  Athena-22.0.9
+EventInfoMgtInit: Got release version  sss-22.0.0
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:MuonAlign         INFO Running a reconstruction job on geant4 or a digitization job: UseAlines='none' UseBlines='none' UseIlines=False UseAsBuilt=False
 Py:MuonAlign         INFO Running a reconstruction job on geant4 or a digitization job: UseAlines='none' UseBlines='none' UseIlines=False UseAsBuilt=False
 Py:MuonRec           INFO Reading alignment constants from DB
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfiguredFactory    INFO imported 136 confDb modules in 0.53 seconds
+Py:ConfiguredFactory    INFO imported 15 confDb modules in 0.01 seconds
 Py:Athena            INFO SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+# setting LC_ALL to "C"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r0)
-                                          running on eec2226d49c4 on Thu Jan 30 12:26:44 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Fri Aug 14 17:10:02 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
 JobIDSvc             INFO Initializing JobIDSvc - package version AthenaServices-00-00-00
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 7486 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+ClassIDSvc           INFO  getRegistryEntries: read 9574 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2020-01-27T2131/Athena/22.0.9/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
 DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 2 servers found for host eec2226d49c4 [ATLF atlas_dd ]
+DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
-PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
-PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
-PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
+PoolSvc              INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
+PoolSvc              INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
+PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /home/sss/atlas/DBRelease/poolcond/PoolFileCatalog.xml
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
 EventSelector        INFO EventSelection with query 
 PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
+Warning in <TClass::Init>: no dictionary for class TileMuContainer_p1 is available
+Warning in <TClass::Init>: no dictionary for class egammaContainer_p5 is available
+Warning in <TClass::Init>: no dictionary for class TauJetContainer_p5 is available
+Warning in <TClass::Init>: no dictionary for class LArNoisyROSummary_p3 is available
+Warning in <TClass::Init>: no dictionary for class RawInfoSummaryForTag_p1 is available
+Warning in <TClass::Init>: no dictionary for class TauDetailsContainer_tlp4 is available
+Warning in <TClass::Init>: no dictionary for class JetCollection_tlp6 is available
 Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_tlp1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p2 is available
+Warning in <TClass::Init>: no dictionary for class MuonCaloEnergyContainer_p1 is available
+Warning in <TClass::Init>: no dictionary for class TileMu_p1 is available
+Warning in <TClass::Init>: no dictionary for class TauDetailsContainer_p1 is available
+Warning in <TClass::Init>: no dictionary for class JetCollection_p6 is available
 Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_p1 is available
 DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 2E8B319A-926C-EAC6-1E34-21E75E56342A
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root File version:53424
-/cvmfs/atlas-ni...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 2E8B319A-926C-EAC6-1E34-21E75E56342A
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 0648B630-D9C5-F049-B4F8-EC2538BD8678
+Domain[ROOT_All]     INFO                           /home/sss/nobackup/referencefiles/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root
+RootDatabase.open    INFO /home/sss/nobackup/referencefiles/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root File version:53424
+/home/sss/nobac...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 0648B630-D9C5-F049-B4F8-EC2538BD8678
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 76376094-4CF4-084F-B321-C5E2CEE3F29D
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root File version:53424
-ClassIDSvc           INFO  getRegistryEntries: read 21465 CLIDRegistry entries for module ALL
+Domain[ROOT_All]     INFO                           /home/sss/nobackup/referencefiles/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root
+RootDatabase.open    INFO /home/sss/nobackup/referencefiles/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root File version:53424
+ClassIDSvc           INFO  getRegistryEntries: read 17412 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
-IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbFolder          INFO Read from meta data only for folder /TagInfo
 IOVDbSvc             INFO Initialised with 4 connections and 15 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
@@ -94,9 +97,9 @@ IOVDbSvc             INFO Opening COOL connection for COOLOFL_INDET/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_TRT/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_INDET/OFLP200
 IOVDbSvc             INFO Added taginfo remove for /TagInfo
-ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 268 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 13 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 38 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
 DetDescrCnvSvc       INFO  filling proxies for detector managers 
@@ -165,7 +168,6 @@ MuGM:MuonFactory     INFO                    BOG cutouts are activated 1 , all o
 MuGM:MuonFactory     INFO Manager created for geometry version R.06.04 from DB MuonVersion <MuonSpectrometer-R.06.04>
 MuonGeoModel.MYSQL   INFO GeometryVersion set to <R.06.04>
 MuGM:MuonFactory     INFO Mysql helper class created here for geometry version R.06.04 from DB MuonVersion <MuonSpectrometer-R.06.04>
-MuGM:MuonFactory     INFO MDTIDHELPER retrieved from DetStore
 EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
 MDT_IDDetDescrCnv    INFO in createObj: creating a MdtIdHelper object in the detector store
@@ -201,7 +203,7 @@ MdtIdHelper          INFO Initializing MDT hash indices ...
 MdtIdHelper          INFO The element hash max is 1172
 MdtIdHelper          INFO The detector element hash max is 2296
 MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ... 
-MuGM:MuonFactory     INFO RPCIDHELPER retrieved from DetStore
+MuGM:MuonFactory     INFO MDTIDHELPER retrieved from DetStore
 RPC_IDDetDescrCnv    INFO in createObj: creating a RpcIdHelper object in the detector store
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
@@ -215,7 +217,7 @@ RpcIdHelper          INFO Initializing RPC hash indices ...
 RpcIdHelper          INFO The element hash max is 594
 RpcIdHelper          INFO The detector element hash max is 1116
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
-MuGM:MuonFactory     INFO TGCIDHELPER retrieved from DetStore
+MuGM:MuonFactory     INFO RPCIDHELPER retrieved from DetStore
 TGC_IDDetDescrCnv    INFO in createObj: creating a TgcIdHelper object in the detector store
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
@@ -229,7 +231,7 @@ TgcIdHelper          INFO Initializing TGC hash indices ...
 TgcIdHelper          INFO The element hash max is 1578
 TgcIdHelper          INFO The detector element hash max is 1578
 TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
-MuGM:MuonFactory     INFO CSCIDHELPER retrieved from DetStore
+MuGM:MuonFactory     INFO TGCIDHELPER retrieved from DetStore
 CSC_IDDetDescrCnv    INFO in createObj: creating a CcscIdHelper object in the detector store
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
@@ -244,6 +246,7 @@ CscIdHelper          INFO The element hash max is 32
 CscIdHelper          INFO The detector element hash max is 64
 CscIdHelper          INFO The channel hash max is 61440
 CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... 
+MuGM:MuonFactory     INFO CSCIDHELPER retrieved from DetStore
 MuGM:MuonFactory     INFO  **************** MuonDetectorFactory001 ************************
 MuGM:MuonFactory     INFO  *** Start building the Muon Geometry Tree **********************
 MuGM:RDBReadAtlas    INFO Start retriving dbObjects with tag = <ATLAS-R1-2012-03-01-00> node <ATLAS>
@@ -252,7 +255,6 @@ MuGM:RDBReadAtlas    INFO After getQuery XtomoData
 In DblQ00Xtomo(data)
 No XtomoData table in the MuonDD Database
 MuGM:RDBReadAtlas    INFO After new DblQ00Xtomo
-MuGM:RDBReadAtlas    INFO After m_dhxtomo.data()
 MuGM:RDBReadAtlas    INFO No Ascii aszt input found: looking for A-lines in ORACLE
 MuGM:RDBReadAtlas    INFO ASZT table found in Oracle
 MuGM:RDBReadAtlas    INFO ASZT size is 32
@@ -273,7 +275,6 @@ MuGM:ProcPosition    INFO  *** : 1740 physical stations in space - according to 
 MuGM:ProcCutouts     INFO  Processing Cutouts for geometry layout R.06
 MuGM:ProcCutouts     INFO  Processing Cutouts DONE
 MuGM:RDBReadAtlas    INFO  ProcessTGCreadout - version 7 wirespacing 1.8
-MGM::MuonDetect...   INFO Creating now the CscInternalAlignmentMapContainer
 MuGM:RDBReadAtlas    INFO Intermediate Objects built from primary numbers
 MuGM:MuonFactory     INFO  theMaterialManager retrieven successfully from the DetStore
 MuGM:MuonFactory     INFO MuonSystem description from OracleTag=<ATLAS-R1-2012-03-01-00> and node=<ATLAS>
@@ -302,7 +303,7 @@ MGM::MuonDetect...   INFO Init A/B Line Containers - done - size is respectively
 MGM::MuonDetect...   INFO I-Line for CSC wire layers loaded (Csc Internal Alignment)
 MGM::MuonDetect...   INFO According to configuration parameters they WILL BE UPDATED FROM CONDDB 
 MGM::MuonDetect...   INFO Filling cache
-GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 171360Kb 	 Time = 2.33S
+GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 210072Kb 	 Time = 51.11S
 GeoModelSvc.Pix...   INFO Building Pixel Detector with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
 GeoModelSvc.Pix...   INFO Pixel Version: Pixel-GEO-13  Package Version: PixelGeoModel-00-00-00
 PixelIDDetDescrCnv   INFO in createObj: creating a PixelID helper object in the detector store
@@ -340,9 +341,9 @@ PixelGeoModel        INFO ... Record Sets retrieved.
 PixelGeoModel        INFO DBM switch = SetDBMFlag: 0
 PixelGeoModel        INFO Building Pixel Detector
 PixelGeoModel        INFO  Version: Pixel-GEO-13, Name: DC3, Layout: Final, Code Version: 5.01.00, Description: DC3 Geometry
-GEOPIXELSERVICES pixel : 40.0000 245.0000 //  3460.0000
-GEOPIXELSERVICES barrel : 42.0000 143.0000 //  -460.0000 460.0000
-GEOPIXELSERVICES endcap : 82.0000 175.0000 //  484.0000 670.0000
+GEOPIXELSERVICES pixel : 40 245 //  3460
+GEOPIXELSERVICES barrel : 42 143 //  -460 460
+GEOPIXELSERVICES endcap : 82 175 //  484 670
 PixelGeoModel        INFO *** LAYER 0  planar/3D modules : 0 0
 PixelGeoModel        INFO Layer 0 in/out radius 46.2723  64.1329
 PixelGeoModel        INFO *** LAYER 1  planar/3D modules : 0 0
@@ -365,21 +366,12 @@ PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/PI
 PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/PIXEC1, level 0, with frame local.
 PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/PIXEC2, level 0, with frame local.
 PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/PIXEC3, level 0, with frame local.
-GeoModelSvc          INFO GeoModelSvc.PixelDetectorTool	 SZ= 7824Kb 	 Time = 0.2S
+GeoModelSvc          INFO GeoModelSvc.PixelDetectorTool	 SZ= 11288Kb 	 Time = 0.73S
 GeoModelSvc.SCT...   INFO Building SCT with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
 GeoModelSvc.SCT...   INFO SCT Version: SCT-GEO-01  Package Version: SCT_GeoModel-00-00-00
 SCT_IDDetDescrCnv    INFO in createObj: creating a SCT_ID helper object in the detector store
-SCT_ID               INFO Initialize from dictionary
+SCT_ID               INFO 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-indet 1 2,4,5,7,10,11,12,13 7 1fffffffffffffff 61 3 0
-sct1 1:3 3 e7ffffffffffffff 59 2 3
-bec1 -2,0,2 3 f9ffffffffffffff 57 2 5
-lay_disk0 0:8 f fe1fffffffffffff 53 4 7
-phi_mod0 0:55 3f ffe07fffffffffff 47 6 11
-eta_mod1 -6:6 f ffff87ffffffffff 43 4 17
-side0 0:1 1 fffffbffffffffff 42 1 21
-strip0 0:767 3ff fffffc00ffffffff 32 10 22
-SCT_ID               INFO  SCT_ID::initialize_from_dict 
 SCT_GeoModel         INFO Retrieving Record Sets from database ...
 SCT_GeoModel         INFO Building SCT Detector.
 SCT_GeoModel         INFO  Version: SCT-GEO-01, Name: GEO, Layout: Final, Code Version: 3.06.00, Description: Atlas Geometry 2008
@@ -407,7 +399,13 @@ SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SC
 SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SCTEC7, level 1, with frame local.
 SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SCTEC8, level 1, with frame local.
 SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SCTEC9, level 1, with frame local.
-GeoModelSvc          INFO GeoModelSvc.SCT_DetectorTool	 SZ= 16384Kb 	 Time = 0.15S
+GeoModelSvc          INFO GeoModelSvc.SCT_DetectorTool	 SZ= 17000Kb 	 Time = 1.21S
+ClassIDSvc           INFO  getRegistryEntries: read 6452 CLIDRegistry entries for module ALL
+GeoModelSvc.TRT...   INFO TRT_StrawStatusSummaryTool initialize method called
+TRT_IDDetDescrCnv    INFO in createObj: creating a TRT_ID helper object in the detector store
+TRT_ID               INFO Initialize from dictionary msgSvc 0x5567d1081848
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+GeoModelSvc.TRT...   INFO TRT_StrawStatusSummaryTool initialized successfully  
 GeoModelSvc.TRT...   INFO Building TRT with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
 GeoModelSvc.TRT...   INFO TRT Version: TRT-GEO-00  Package Version: TRT_GeoModel-00-00-00
 GeoModelSvc.TRT...   INFO Creating the TRT
@@ -420,12 +418,6 @@ GeoModelSvc.TRT...   INFO   InitialLayout                  = true
 GeoModelSvc.TRT...   INFO   Alignable                      = true
 GeoModelSvc.TRT...   INFO   VersioName                     = DC3
 GeoModelSvc.TRT...   INFO  Building TRT geometry from GeoModel factory TRTDetectorFactory_Full
-TRT_GeoModel      WARNING The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON
-TRT_GeoModel      WARNING Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION
-TRT_GeoModel      WARNING Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION
-TRT_IDDetDescrCnv    INFO in createObj: creating a TRT_ID helper object in the detector store
-TRT_ID               INFO Initialize from dictionary msgSvc 0x2cc9c698
-AtlasDetectorID      INFO initialize_from_dictionary - OK
 TRT_GeoModel         INFO In TRT Detector Factory (For DC2 and later geometries)
 TRT_GeoModel         INFO  Version: TRT-GEO-00, Name: DC3, Layout: Initial, Code Version: 4.01.01, Description: DC3 Geometry
 TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/TRT, level 3, with frame global.
@@ -434,22 +426,21 @@ TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/B1, 
 TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/B2, level 2, with frame global.
 TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/L2A, level 1, with frame global.
 TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/L2C, level 1, with frame global.
-GeoModelSvc          INFO GeoModelSvc.TRT_DetectorTool	 SZ= 23224Kb 	 Time = 0.13S
+GeoModelSvc          INFO GeoModelSvc.TRT_DetectorTool	 SZ= 20860Kb 	 Time = 0.71S
 GeoModelSvc.InD...   INFO InDetServMat Package Version: InDetServMatGeoModel-00-00-00
 GeoModelSvc.InD...   INFO Building Inner Detector Service Material. Version: CSC
-GeoModelSvc          INFO GeoModelSvc.InDetServMatTool	 SZ= 0Kb 	 Time = 0.04S
+GeoModelSvc          INFO GeoModelSvc.InDetServMatTool	 SZ= 0Kb 	 Time = 0.18S
 GeoModelSvc.Bea...   INFO Building Beam Pipe
-GeoModelSvc          INFO GeoModelSvc.BeamPipeDetectorTool	 SZ= 0Kb 	 Time = 0S
-ClassIDSvc           INFO  getRegistryEntries: read 4177 CLIDRegistry entries for module ALL
+GeoModelSvc          INFO GeoModelSvc.BeamPipeDetectorTool	 SZ= 0Kb 	 Time = 0.02S
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1948 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 740 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 2572 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 1169 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2190 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 743 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4158 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1197 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
-  +  ( 'AlignableTransformContainer' , 'ConditionStore+/Indet/Align' )   -> no bases
-  +  ( 'AlignableTransformContainer' , 'ConditionStore+/TRT/Align' )   -> no bases
+  +  ( 'AlignableTransformContainer' , 'ConditionStore+/Indet/Align' )   ->
+  +  ( 'AlignableTransformContainer' , 'ConditionStore+/TRT/Align' )   ->
   +  ( 'CondAttrListCollection' , 'ConditionStore+/Indet/IBLDist' )   ->
   +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/ERRS' )   ->
   +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/BARREL' )   ->
@@ -458,9 +449,9 @@ CondInputLoader      INFO Adding base classes:
   +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEA' )   ->
   +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEC' )   ->
   +  ( 'DetCondCFloat' , 'ConditionStore+/Indet/PixelDist' )   -> no bases
-  +  ( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/Status' )   -> no bases
-  +  ( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )   -> no bases
-  +  ( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusPermanent' )   -> no bases
+  +  ( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/Status' )   ->
+  +  ( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )   ->
+  +  ( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusPermanent' )   ->
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
     +  ( 'AlignableTransformContainer' , 'ConditionStore+/Indet/Align' ) 
     +  ( 'AlignableTransformContainer' , 'ConditionStore+/TRT/Align' ) 
@@ -483,7 +474,7 @@ PyComponentMgr       INFO Initializing PyComponentMgr...
 dumper               INFO Initializing dumper...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 687 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 636 CLIDRegistry entries for module ALL
 CondInputLoader      INFO created CondCont<AlignableTransformContainer> with key 'ConditionStore+/Indet/Align'
 CondInputLoader      INFO created CondCont<AlignableTransformContainer> with key 'ConditionStore+/TRT/Align'
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/Indet/IBLDist'
@@ -501,8 +492,7 @@ ApplicationMgr       INFO Application Manager Started successfully
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 41 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 1 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 110 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 189751    <<<===
 IOVDbSvc             INFO Global tag: OFLCOND-SDR-BS7T-05-24 set from input file
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_INDET/OFLP200
@@ -518,18 +508,18 @@ IOVDbFolder          INFO HVS tag OFLCOND-SDR-BS7T-05-24 resolved to TrtStrawSta
 IOVDbFolder          INFO HVS tag OFLCOND-SDR-BS7T-05-24 resolved to TrtStrawStatusPermCol-02 for folder /TRT/Cond/StatusPermanent
 IOVDbSvc             INFO Disconnecting from COOLOFL_TRT/OFLP200
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D0709FD7-6A55-E011-925D-002481043EC0
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000029.gen.COND/cond09_mc.000029.gen.COND._0001.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000029.gen.COND/cond09_mc.000029.gen.COND._0001.pool.root File version:52600
+Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000029.gen.COND/cond09_mc.000029.gen.COND._0001.pool.root
+RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000029.gen.COND/cond09_mc.000029.gen.COND._0001.pool.root File version:52600
 PixelDetectorMa...   INFO Processing IBLDist alignment container with key (/Indet/IBLDist) and alignment folder pointing to /Indet/Align
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 0E3CF1E5-143D-DB11-92C7-000CF1DA62DD
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/cmccond.000001.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0029.pool.root__DQ2-1250194490
+Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0029.pool.root
 Warning in <TClass::Init>: no dictionary for class DataHeader_p1 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p1 is available
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/cmccond.000001.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0029.pool.root__DQ2-1250194490 File version:51000
+RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0029.pool.root File version:51000
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D67CA215-C5CB-DF11-954C-000423DC2158
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0010.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0010.pool.root File version:52200
-/cvmfs/atlas-ni...   INFO Database being retired...
+Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0010.pool.root
+RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0010.pool.root File version:52200
+/home/sss/nobac...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 76376094-4CF4-084F-B321-C5E2CEE3F29D
 GeoModelSvc       WARNING *** *** Geometry configured through jobOptions does not match TagInfo tags! *** ***
 GeoModelSvc          INFO ** Job Option configuration: 
@@ -556,52 +546,60 @@ IOVDbFolder          INFO HVS tag OFLCOND-SDR-BS7T-05-24 resolved to MuonAlignMD
 IOVDbFolder          INFO HVS tag OFLCOND-SDR-BS7T-05-24 resolved to MuonAlignTGCEndCapAAlign-0001-DEFAULT for folder /MUONALIGN/TGC/SIDEA
 IOVDbFolder          INFO HVS tag OFLCOND-SDR-BS7T-05-24 resolved to MuonAlignTGCEndCapCAlign-0001-DEFAULT for folder /MUONALIGN/TGC/SIDEC
 IOVDbSvc             INFO Disconnecting from COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_MUONALIGN/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_MUONALIGN/OFLP200
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A01A6C89-05C8-DF11-B56E-002481043EC0
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0009.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0009.pool.root File version:52600
+Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0009.pool.root
+RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000019.gen.COND/cond09_mc.000019.gen.COND._0009.pool.root File version:52600
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] AC64B64A-71FE-E011-83C1-001E4F3E59B1
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000037.gen.COND/cond09_mc.000037.gen.COND._0001.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000037.gen.COND/cond09_mc.000037.gen.COND._0001.pool.root File version:52800
+Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000037.gen.COND/cond09_mc.000037.gen.COND._0001.pool.root
+RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000037.gen.COND/cond09_mc.000037.gen.COND._0001.pool.root File version:52800
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 564393DD-6BBF-E111-9C06-003048D3C892
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000045.gen.COND/cond09_mc.000045.gen.COND._0001.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000045.gen.COND/cond09_mc.000045.gen.COND._0001.pool.root File version:53005
-/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000045.gen.COND/cond09_mc.000045.gen.COND._0001.pool.root
+RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000045.gen.COND/cond09_mc.000045.gen.COND._0001.pool.root File version:53005
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 0E3CF1E5-143D-DB11-92C7-000CF1DA62DD
-/cvmfs/atlas-co...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D0709FD7-6A55-E011-925D-002481043EC0
-/cvmfs/atlas-co...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D67CA215-C5CB-DF11-954C-000423DC2158
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 26AD0F0C-EC4D-DF11-99D0-001EC959A004
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000010.gen.COND/cond09_mc.000010.gen.COND._0002.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000010.gen.COND/cond09_mc.000010.gen.COND._0002.pool.root File version:52200
-/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO                           /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000010.gen.COND/cond09_mc.000010.gen.COND._0002.pool.root
+RootDatabase.open    INFO /home/sss/atlas/DBRelease/current/poolcond/cond09_mc.000010.gen.COND/cond09_mc.000010.gen.COND._0002.pool.root File version:52200
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A01A6C89-05C8-DF11-B56E-002481043EC0
 MuonAlignmentCo...   INFO Load alignment parameters from DB folder </MUONALIGN/MDT/BARREL>
 MuonAlignmentCo...   INFO Size of /MUONALIGN/MDT/BARREL CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/BARREL' )  readCdo->size()= 1
-MuonAlignmentCo...   INFO Range of /MUONALIGN/MDT/BARREL input is, ALines: {[0,0,t:0] - [t:4294967294.854775807]} BLines: {[0,0,t:0] - [t:4294967294.854775807]}
+MuonAlignmentCo...   INFO Range of /MUONALIGN/MDT/BARREL input is, ALines: {[0,0,t:1316868299] - [t:1316868899]} BLines: {[0,0,t:1316868299] - [t:1316868899]}
 MuonAlignmentCo...   INFO A- and B-Lines parameters from DB folder </MUONALIGN/MDT/BARREL> loaded
 MuonAlignmentCo...   INFO Load alignment parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEA>
 MuonAlignmentCo...   INFO Size of /MUONALIGN/MDT/ENDCAP/SIDEA CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEA' )  readCdo->size()= 1
-MuonAlignmentCo...   INFO Range of /MUONALIGN/MDT/ENDCAP/SIDEA input is, ALines: {[0,0,t:0] - [t:4294967294.854775807]} BLines: {[0,0,t:0] - [t:4294967294.854775807]}
+MuonAlignmentCo...   INFO Range of /MUONALIGN/MDT/ENDCAP/SIDEA input is, ALines: {[0,0,t:1316868299] - [t:1316868899]} BLines: {[0,0,t:1316868299] - [t:1316868899]}
 MuonAlignmentCo...   INFO A- and B-Lines parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEA> loaded
 MuonAlignmentCo...   INFO Load alignment parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEC>
 MuonAlignmentCo...   INFO Size of /MUONALIGN/MDT/ENDCAP/SIDEC CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEC' )  readCdo->size()= 1
-MuonAlignmentCo...   INFO Range of /MUONALIGN/MDT/ENDCAP/SIDEC input is, ALines: {[0,0,t:0] - [t:4294967294.854775807]} BLines: {[0,0,t:0] - [t:4294967294.854775807]}
+MuonAlignmentCo...   INFO Range of /MUONALIGN/MDT/ENDCAP/SIDEC input is, ALines: {[0,0,t:1316868299] - [t:1316868899]} BLines: {[0,0,t:1316868299] - [t:1316868899]}
 MuonAlignmentCo...   INFO A- and B-Lines parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEC> loaded
 MuonAlignmentCo...   INFO Load alignment parameters from DB folder </MUONALIGN/TGC/SIDEA>
 MuonAlignmentCo...   INFO No BLines decoding will be attempted for folder named /MUONALIGN/TGC/SIDEA
 MuonAlignmentCo...   INFO Size of /MUONALIGN/TGC/SIDEA CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEA' )  readCdo->size()= 1
-MuonAlignmentCo...   INFO Range of /MUONALIGN/TGC/SIDEA input is, ALines: {[0,0,t:0] - [t:4294967294.854775807]}
+MuonAlignmentCo...   INFO Range of /MUONALIGN/TGC/SIDEA input is, ALines: {[0,0,t:1316868299] - [t:1316868899]}
 MuonAlignmentCo...   INFO A- and B-Lines parameters from DB folder </MUONALIGN/TGC/SIDEA> loaded
 MuonAlignmentCo...   INFO Load alignment parameters from DB folder </MUONALIGN/TGC/SIDEC>
 MuonAlignmentCo...   INFO No BLines decoding will be attempted for folder named /MUONALIGN/TGC/SIDEC
 MuonAlignmentCo...   INFO Size of /MUONALIGN/TGC/SIDEC CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEC' )  readCdo->size()= 1
-MuonAlignmentCo...   INFO Range of /MUONALIGN/TGC/SIDEC input is, ALines: {[0,0,t:0] - [t:4294967294.854775807]}
+MuonAlignmentCo...   INFO Range of /MUONALIGN/TGC/SIDEC input is, ALines: {[0,0,t:1316868299] - [t:1316868899]}
 MuonAlignmentCo...   INFO A- and B-Lines parameters from DB folder </MUONALIGN/TGC/SIDEC> loaded
-MGM::MuonDetect...WARNING Empty temporary A-line container - nothing to do here
-MuonAlignmentCo...   INFO recorded new ALineMapContainer with range {[0,0,t:0,l:0] - [t:4294967294.854775807]} into Conditions Store
-MGM::MuonDetect...   INFO Mdt deformations are not enabled - nothing to do here
-MuonAlignmentCo...   INFO recorded new BLineMapContainer with range {[0,0,t:0,l:0] - [t:4294967294.854775807]} into Conditions Store
+MuonAlignmentCo...   INFO recorded new ALineMapContainer with range {[0,0,t:1316868299,l:0] - [t:1316868899]} into Conditions Store
+MuonAlignmentCo...   INFO recorded new BLineMapContainer with range {[0,0,t:1316868299,l:0] - [t:1316868899]} into Conditions Store
 MuonAlignmentEr...   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/ERRS' )  readCdo->size()= 1
 MuonAlignmentEr...   INFO Range of input is {[0,0,t:0] - [t:4294967294.854775807]}
 MuonAlignmentEr...   INFO *****************************************
@@ -642,7 +640,6 @@ MuGM:RDBReadAtlas    INFO After getQuery XtomoData
 In DblQ00Xtomo(data)
 No XtomoData table in the MuonDD Database
 MuGM:RDBReadAtlas    INFO After new DblQ00Xtomo
-MuGM:RDBReadAtlas    INFO After m_dhxtomo.data()
 MuGM:RDBReadAtlas    INFO No Ascii aszt input found: looking for A-lines in ORACLE
 MuGM:RDBReadAtlas    INFO ASZT table found in Oracle
 MuGM:RDBReadAtlas    INFO ASZT size is 32
@@ -663,7 +660,6 @@ MuGM:ProcPosition    INFO  *** : 1740 physical stations in space - according to 
 MuGM:ProcCutouts     INFO  Processing Cutouts for geometry layout R.06
 MuGM:ProcCutouts     INFO  Processing Cutouts DONE
 MuGM:RDBReadAtlas    INFO  ProcessTGCreadout - version 7 wirespacing 1.8
-MGM::MuonDetect...   INFO Creating now the CscInternalAlignmentMapContainer
 MuGM:RDBReadAtlas    INFO Intermediate Objects built from primary numbers
 MuGM:MuonFactory     INFO  theMaterialManager retrieven successfully from the DetStore
 MuGM:MuonFactory     INFO MuonSystem description from OracleTag=<ATLAS-R1-2012-03-01-00> and node=<ATLAS>
@@ -693,22 +689,23 @@ MGM::MuonDetect...   INFO I-Line for CSC wire layers loaded (Csc Internal Alignm
 MGM::MuonDetect...   INFO According to configuration parameters they WILL BE UPDATED FROM CONDDB 
 MGM::MuonDetect...   INFO Filling cache
 MGM::MuonDetect...WARNING Empty temporary A-line container - nothing to do here
+MGM::MuonDetect...   INFO In updateDeformations()
 MGM::MuonDetect...   INFO Mdt deformations are not enabled - nothing to do here
-MuonDetectorCon...   INFO recorded new MuonDetectorManager with range {[0,0,t:0,l:0] - [t:4294967294.854775807]} into Conditions Store
+MuonDetectorCon...   INFO recorded new MuonDetectorManager with range {[0,0,t:1316868299,l:0] - [t:1316868899]} into Conditions Store
 TRTAlignCondAlg      INFO recorded new CDO GeoAlignmentStore with range {[0,l:0] - [9999999,l:9999999]} into Conditions Store
 TRTAlignCondAlg      INFO recorded new CDO TRT_DetElementContainer with range {[0,l:0] - [9999999,l:9999999]} with size of 14912 into Conditions Store
-SCT_AlignCondAlg     INFO recorded new CDO SCTAlignmentStore with range {[189750,l:4294777545] - [189751,l:4294777544]} into Conditions Store
-SCT_DetectorEle...   INFO recorded new CDO SCT_DetectorElementCollection with range {[189750,l:4294777545] - [189751,l:4294777544]} with size of 8176 into Conditions Store
+SCT_AlignCondAlg     INFO recorded new CDO SCTAlignmentStore with range {[189751,l:0] - [189752,l:115]} into Conditions Store
+SCT_DetectorEle...   INFO recorded new CDO SCT_DetectorElementCollection with range {[189751,l:0] - [189752,l:115]} with size of 8176 into Conditions Store
 PixelDetectorMa...   INFO Processing IBLDist alignment container with key /Indet/IBLDist
-PixelAlignCondAlg    INFO recorded new CDO PixelAlignmentStore with range {[189750,t:0,l:4294777545] - [189751,l:4294777544]} into Conditions Store
-PixelDetectorEl...   INFO recorded new CDO PixelDetectorElementCollection with range {[189750,t:0,l:4294777545] - [189751,l:4294777544]} with size of 1744 into Conditions Store
-ClassIDSvc           INFO  getRegistryEntries: read 58 CLIDRegistry entries for module ALL
-RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root File version:53424
-/cvmfs/atlas-co...   INFO Database being retired...
+PixelAlignCondAlg    INFO recorded new CDO PixelAlignmentStore with range {[189751,t:0,l:0] - [189752,l:115]} into Conditions Store
+PixelDetectorEl...   INFO recorded new CDO PixelDetectorElementCollection with range {[189751,t:0,l:0] - [189752,l:115]} with size of 1744 into Conditions Store
+ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
+RootDatabase.open    INFO /home/sss/nobackup/referencefiles/aod/AOD-20.0.0.3/AOD-20.0.0.3-full.pool.root File version:53424
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] AC64B64A-71FE-E011-83C1-001E4F3E59B1
-ClassIDSvc           INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 26 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #35002, run #189751 1 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 8 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 9 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #35003, run #189751 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #35003, run #189751 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #35004, run #189751 2 events processed so far  <<<===
@@ -728,57 +725,56 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #35010, run #189751 9 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #35011, run #189751 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #35011, run #189751 10 events processed so far  <<<===
 EventSelector        INFO Disconnecting input sourceID: 76376094-4CF4-084F-B321-C5E2CEE3F29D
-/cvmfs/atlas-ni...   INFO Database being retired...
+/home/sss/nobac...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 76376094-4CF4-084F-B321-C5E2CEE3F29D
 AthenaEventLoopMgr   INFO No more events in event selection 
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 26AD0F0C-EC4D-DF11-99D0-001EC959A004
-/cvmfs/atlas-co...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 564393DD-6BBF-E111-9C06-003048D3C892
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
+/home/sss/atlas...   INFO Database being retired...
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 dumper               INFO Finalizing dumper...
-ERROR running diff with reference
-diff: ../../share/AOD-20.0.0.3-full.pool.root.ref: No such file or directory
 IncidentProcAlg2     INFO Finalize
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /Indet/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 34/43/5440 ((     0.03 ))s
-IOVDbFolder          INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/2 objs/chan/bytes 14/14/280 ((     0.01 ))s
-IOVDbFolder          INFO Folder /Indet/PixelDist (PoolRef) db-read 1/1 objs/chan/bytes 1/1/174 ((     0.02 ))s
-IOVDbFolder          INFO Folder /MUONALIGN/ERRS (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/3489 ((     0.03 ))s
-IOVDbFolder          INFO Folder /MUONALIGN/MDT/BARREL (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/84 ((     0.02 ))s
-IOVDbFolder          INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/84 ((     0.02 ))s
-IOVDbFolder          INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/84 ((     0.02 ))s
-IOVDbFolder          INFO Folder /MUONALIGN/TGC/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/1106 ((     0.02 ))s
-IOVDbFolder          INFO Folder /MUONALIGN/TGC/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/1106 ((     0.03 ))s
-IOVDbFolder          INFO Folder /TRT/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 32/32/5120 ((     0.03 ))s
-IOVDbFolder          INFO Folder /TRT/Calib/DX (PoolRef) db-read 1/1 objs/chan/bytes 1/1/183 ((     0.02 ))s
-IOVDbFolder          INFO Folder /TRT/Cond/Status (PoolRefColl) db-read 1/1 objs/chan/bytes 36/36/6552 ((     0.02 ))s
-IOVDbFolder          INFO Folder /TRT/Cond/StatusHT (PoolRefColl) db-read 1/1 objs/chan/bytes 35/35/6370 ((     0.02 ))s
-IOVDbFolder          INFO Folder /TRT/Cond/StatusPermanent (PoolRefColl) db-read 1/1 objs/chan/bytes 35/36/6370 ((     0.02 ))s
+IOVDbFolder          INFO Folder /Indet/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 34/43/5440 ((     0.08 ))s
+IOVDbFolder          INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/2 objs/chan/bytes 14/14/280 ((     0.00 ))s
+IOVDbFolder          INFO Folder /Indet/PixelDist (PoolRef) db-read 1/1 objs/chan/bytes 1/1/174 ((     0.00 ))s
+IOVDbFolder          INFO Folder /MUONALIGN/ERRS (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/3489 ((     0.07 ))s
+IOVDbFolder          INFO Folder /MUONALIGN/MDT/BARREL (AttrListColl) db-read 6/1 objs/chan/bytes 6/3/504 ((     0.35 ))s
+IOVDbFolder          INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEA (AttrListColl) db-read 6/1 objs/chan/bytes 6/3/504 ((     0.01 ))s
+IOVDbFolder          INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEC (AttrListColl) db-read 6/1 objs/chan/bytes 6/3/504 ((     0.01 ))s
+IOVDbFolder          INFO Folder /MUONALIGN/TGC/SIDEA (AttrListColl) db-read 6/1 objs/chan/bytes 6/3/6636 ((     0.01 ))s
+IOVDbFolder          INFO Folder /MUONALIGN/TGC/SIDEC (AttrListColl) db-read 6/1 objs/chan/bytes 6/3/6636 ((     0.01 ))s
+IOVDbFolder          INFO Folder /TRT/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 32/32/5120 ((     0.07 ))s
+IOVDbFolder          INFO Folder /TRT/Calib/DX (PoolRef) db-read 1/1 objs/chan/bytes 1/1/183 ((     0.00 ))s
+IOVDbFolder          INFO Folder /TRT/Cond/Status (PoolRefColl) db-read 1/1 objs/chan/bytes 36/36/6552 ((     0.00 ))s
+IOVDbFolder          INFO Folder /TRT/Cond/StatusHT (PoolRefColl) db-read 1/1 objs/chan/bytes 35/35/6370 ((     0.00 ))s
+IOVDbFolder          INFO Folder /TRT/Cond/StatusPermanent (PoolRefColl) db-read 1/1 objs/chan/bytes 35/36/6370 ((     0.00 ))s
 IOVDbFolder          INFO Folder /TagInfo (AttrListColl) db-read 0/2 objs/chan/bytes 2/0/0 ((     0.00 ))s
-IOVDbSvc             INFO  bytes in ((      0.32 ))s
+IOVDbSvc             INFO  bytes in ((      0.61 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_MUONALIGN/OFLP200 : nConnect: 2 nFolders: 6 ReadTime: ((     0.16 ))s
-IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 5 ReadTime: ((     0.11 ))s
-IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.06 ))s
+IOVDbSvc             INFO Connection COOLOFL_MUONALIGN/OFLP200 : nConnect: 7 nFolders: 6 ReadTime: ((     0.45 ))s
+IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 5 ReadTime: ((     0.08 ))s
+IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.08 ))s
 XMLCatalog           INFO File 'PoolFileCatalog.xml' does not exist. New file created.
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
+GeoModelSvc.TRT...   INFO  in finalize() 
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=  200 [ms] Ave/Min/Max=0.694(+- 7.28)/    0/  120 [ms] #=288
-cObj_ALL             INFO Time User   : Tot=  260 [ms] Ave/Min/Max= 4.81(+- 19.4)/    0/  140 [ms] #= 54
-ChronoStatSvc        INFO Time User   : Tot= 11.3  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=  220 [ms] Ave/Min/Max=   0.764(+-    8.46)/       0/     140 [ms] #=288
+cObj_ALL             INFO Time User   : Tot=  370 [ms] Ave/Min/Max=    6.85(+-    25.2)/       0/     180 [ms] #= 54
+ChronoStatSvc        INFO Time User   : Tot=  156  [s]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
