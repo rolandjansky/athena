@@ -11,11 +11,6 @@
 #include "xAODPFlow/PFODefs.h"
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
-PFChargedFlowElementCreatorAlgorithm::PFChargedFlowElementCreatorAlgorithm(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name,pSvcLocator)
-{
-}
-
 StatusCode PFChargedFlowElementCreatorAlgorithm::initialize(){
 
   ATH_CHECK(m_eflowCaloObjectContainerReadHandleKey.initialize());

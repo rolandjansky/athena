@@ -14,9 +14,7 @@ class PFChargedFlowElementCreatorAlgorithm : public  AthReentrantAlgorithm {
 
   public:
   
-    PFChargedFlowElementCreatorAlgorithm(const std::string& name, ISvcLocator* pSvcLocator);
-
-    ~PFChargedFlowElementCreatorAlgorithm() {}
+    using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
     StatusCode initialize();
     StatusCode execute(const EventContext&) const;

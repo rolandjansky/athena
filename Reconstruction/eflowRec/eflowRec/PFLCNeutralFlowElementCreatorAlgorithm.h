@@ -15,12 +15,7 @@
 class PFLCNeutralFlowElementCreatorAlgorithm : public AthReentrantAlgorithm {
 
 public:
-  
-  PFLCNeutralFlowElementCreatorAlgorithm(const std::string& name,ISvcLocator* pSvcLocator);
-
-  ~PFLCNeutralFlowElementCreatorAlgorithm() {}
-
-  static const InterfaceID& interfaceID();
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   StatusCode initialize();
   StatusCode execute(const EventContext& ctx) const;

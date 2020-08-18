@@ -2,10 +2,6 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-PFLCNeutralFlowElementCreatorAlgorithm::PFLCNeutralFlowElementCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator)
-{}
-
 StatusCode PFLCNeutralFlowElementCreatorAlgorithm::initialize(){
 
   ATH_CHECK(m_neutralFEContainerReadHandleKey.initialize());
