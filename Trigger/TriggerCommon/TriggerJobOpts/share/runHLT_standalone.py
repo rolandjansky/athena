@@ -44,7 +44,7 @@ class opt:
     enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
 #Individual slice flags
-    doCalibSlice        = True
+    doCalibSlice  = True
     doTestSlice         = True
     doHeavyIonSlice     = True
     doEnhancedBiasSlice = True
@@ -96,6 +96,7 @@ import re
 
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
+print('[runHLT_standalone] slices = {}'.format(slices))
 if opt.doEmptyMenu is True:
     log.info("Disabling all slices")
     for s in slices:
