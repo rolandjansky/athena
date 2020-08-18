@@ -121,8 +121,8 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       //Create vector of pairs which map each CaloCluster to the ratio of its new energy to unstracted energy
       std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer>, double> > vectorClusterToSubtractedEnergies;
 
-      for (auto trackClusterLink : thisTracks_trackClusterLinks){
-        for (auto trackClusterLinkPair : trackClusterLinkPairs){
+      for (auto& trackClusterLink : thisTracks_trackClusterLinks){
+        for (auto& trackClusterLinkPair : trackClusterLinkPairs){
           if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second)) {
             thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
             eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
