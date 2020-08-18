@@ -39,10 +39,6 @@ if TriggerFlags.doCalo:
     
     
     
-     #topSequence += algo
-     #from TrigUpgradeTest.TestUtils import L1DecoderTest
-     #l1DecoderTest=L1DecoderTest()
-     #topSequence+=l1DecoderTest
 
      from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
     

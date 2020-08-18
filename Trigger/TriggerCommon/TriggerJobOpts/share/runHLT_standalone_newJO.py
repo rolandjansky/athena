@@ -1,14 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentAccumulator import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm, findOwningSequence
-from AthenaCommon.AlgSequence import dumpMasterSequence
-from AthenaCommon.AppMgr import theApp
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
@@ -35,8 +31,8 @@ flags.Trigger.CostMonitoring.doCostMonitoring = True
 import importlib
 setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup+"_newJO"
 setupMenuModule = importlib.import_module( setupMenuPath )
-assert setupMenuModule != None, "Could not import module {}".format(setupMenuPath)
-assert setupMenuModule.setupMenu != None, "Could not import setupMenu from {}".format(setupMenuPath)
+assert setupMenuModule is not None, "Could not import module {}".format(setupMenuPath)
+assert setupMenuModule.setupMenu is not None, "Could not import setupMenu from {}".format(setupMenuPath)
 flags.needFlagsCategory('Trigger')
 setupMenuModule.setupMenu(flags)
 flags.Exec.MaxEvents=50
@@ -52,7 +48,7 @@ flags.InDet.usePixelDCS=False
 
 flags.lock()
 
-from AthenaCommon.Constants import INFO,DEBUG,WARNING
+from AthenaCommon.Constants import DEBUG,WARNING
 acc = MainServicesCfg( flags )
 acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 
@@ -65,7 +61,7 @@ from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 acc.merge(ByteStreamReadCfg( flags ))
 
 
-from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
+from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig( flags ))
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
@@ -97,7 +93,7 @@ acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
 acc.foreach_component("*FastEMCaloAlgo*").OutputLevel = DEBUG
 acc.foreach_component("VDVFastEgammaCalo").OutputLevel =DEBUG
 
-fname = "newJOtest.pkl"
+fname = "runHLT_standalone_newJO.pkl"
 print( "Storing config in the file {}".format( fname ) )
 with open(fname, "wb") as p:
     acc.store( p )

@@ -3,6 +3,7 @@
 #
 doWriteRDOTrigger = False
 doWriteBS = False
+doEmptyMenu = True
 include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence

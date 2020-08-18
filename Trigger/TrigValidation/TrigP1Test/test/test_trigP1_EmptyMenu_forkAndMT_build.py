@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# art-description: EmptyMenu test with forks=2, threads=2, concurrent_events=2
+# art-description: Test running L1 result decoding, but no HLT chains, with forks=2, threads=2, concurrent_events=2
 # art-type: build                                                                  
 # art-include: master/Athena                                                       
 
