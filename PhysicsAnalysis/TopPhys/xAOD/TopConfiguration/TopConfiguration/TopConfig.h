@@ -1679,7 +1679,12 @@ namespace top {
     const std::unordered_map<std::string, std::string> boostedTaggerSFnames() const {return m_boostedTaggerSFnames;}
     void setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname);
     // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
-    const std::vector<std::pair<std::string, std::string> > bTagWP() const {return m_chosen_btaggingWP;}
+    const std::vector<std::pair<std::string, std::string> > bTagWP() const {return m_chosen_btaggingWP_caloJet;}
+    const std::vector<std::pair<std::string, std::string> > bTagWP_trkJet() const {return m_chosen_btaggingWP_trkJet;}
+    // parse b-tagging configuration from config file into a vector of pair <algorithm, WP>
+    void parse_bTagWPs(const std::string& btagWPsettingString,
+        std::vector<std::pair<std::string, std::string>>& btagWPlist,
+        const std::string& jetCollectionName);
     // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
     const std::string bTagSystsExcludedFromEV() const {return m_bTagSystsExcludedFromEV;}
 
@@ -1695,6 +1700,19 @@ namespace top {
     void setBTagWP_calibrated_trkJet(std::string btagging_WP);
     const std::vector<std::string>& bTagWP_calibrated() const {return m_calibrated_btaggingWP;}
     const std::vector<std::string>& bTagWP_calibrated_trkJet() const {return m_calibrated_btaggingWP_trkJet;}
+    // B-tagging algorithms, e.g. DL1, DL1r, DL1rmu
+    // which of them can be initialized for the given CDI file
+    // used for e.g. storing algorithm discriminant in the event saver
+    void setBTagAlgo_available(std::string algo, std::string toolName);
+    void setBTagAlgo_available_trkJet(std::string algo, std::string toolName);
+    const std::set<std::string>& bTagAlgo_available() const {return m_available_btaggingAlgos;}
+    const std::set<std::string>& bTagAlgo_available_trkJet() const {return m_available_btaggingAlgos_trkJet;}
+    // since MV2c10 is the only non-DL1 b-tagger, we just expose a bool to check if MV2c10 is used or not
+    bool bTagAlgo_MV2c10_used() const {return m_MV2c10_algo_used;}
+    bool bTagAlgo_MV2c10_used_trkJet() const {return m_MV2c10_algo_used_trkJet;}
+
+    const std::unordered_map<std::string, std::string>& bTagAlgo_selToolNames() const {return m_algo_selTools;}
+    const std::unordered_map<std::string, std::string>& bTagAlgo_selToolNames_trkJet() const {return m_algo_selTools_trkJet;}
 
     std::string FormatedWP(std::string raw_WP);
 
@@ -2388,7 +2406,9 @@ namespace top {
     std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
 
     // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
-    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
+    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
+    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP_caloJet;
+    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP_trkJet;
     // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
     std::string m_bTagSystsExcludedFromEV = "";
 
@@ -2398,6 +2418,14 @@ namespace top {
     // list of B-tagging WP actualy calibrated
     std::vector<std::string> m_calibrated_btaggingWP;
     std::vector<std::string> m_calibrated_btaggingWP_trkJet;
+    // list of B-tagging algorithms requested
+    std::set<std::string> m_available_btaggingAlgos;
+    std::set<std::string> m_available_btaggingAlgos_trkJet;
+    bool m_MV2c10_algo_used = false;
+    bool m_MV2c10_algo_used_trkJet = false;
+
+    std::unordered_map<std::string, std::string> m_algo_selTools;
+    std::unordered_map<std::string, std::string> m_algo_selTools_trkJet;
 
     // B-tagging calibration to be used
     bool m_cdi_path_warning = false;

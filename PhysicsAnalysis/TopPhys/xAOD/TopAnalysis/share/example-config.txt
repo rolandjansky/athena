@@ -78,7 +78,8 @@ JetPt 25000
 JVTWP Default
 
 ### B-tagging configuration
-BTaggingWP DL1r:FixedCutBEff_77
+BTaggingCaloJetWP DL1r:FixedCutBEff_77
+# for track jet, use BTaggingTrackJetWP option
 
 ###########Reco-level systematics models##########
 ElectronEfficiencySystematicModel TOTAL

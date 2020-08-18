@@ -59,7 +59,7 @@ FakesMMWeights True
 UseAodMetaData False
 IsAFII False
 
-BTaggingWP FixedCutBEff_77
+BTaggingCaloJetWP FixedCutBEff_77
 
 
 

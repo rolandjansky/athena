@@ -1532,41 +1532,20 @@ namespace top {
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
+    parse_bTagWPs(settings->value("BTaggingWP"), m_chosen_btaggingWP, m_sgKeyJets + ", " + m_sgKeyTrackJets);
+    parse_bTagWPs(settings->value("BTaggingCaloJetWP"), m_chosen_btaggingWP_caloJet, m_sgKeyJets);
+    parse_bTagWPs(settings->value("BTaggingTrackJetWP"), m_chosen_btaggingWP_trkJet, m_sgKeyTrackJets);
 
-    std::istringstream str_btagging_WP(settings->value("BTaggingWP"));
-
-    std::vector<std::string> all_btagging_WP;
-    std::copy(std::istream_iterator<std::string>(str_btagging_WP),
-              std::istream_iterator<std::string>(),
-              std::back_inserter(all_btagging_WP));
-
-    // loop through all btagging WPs requested
-    for (auto AlgTag : all_btagging_WP) {
-      std::vector<std::string> btagAlg_btagWP;
-      tokenize(AlgTag, btagAlg_btagWP, ":");
-      // DEFAULT algorithm - May remove in future
-      std::string alg = "MV2c10";
-      std::string tag = "";
-      // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
-      if (btagAlg_btagWP.size() == 2) {
-        alg = btagAlg_btagWP.at(0);
-        tag = btagAlg_btagWP.at(1);
-      } else if (btagAlg_btagWP.size() == 1) {
-        tag = btagAlg_btagWP.at(0);
+    // check whether user is using the deprecated BTaggingWP option
+    if (m_chosen_btaggingWP.size() > 0) {
+      ATH_MSG_WARNING("You specified b-tagging WPs via BTaggingWP which is obsolete. Please switch to options BTaggingCaloJetWP for specifying EMTopo/EMPFlow b-tagging, and BTaggingTrackJetWP for track-jet b-tagging.");
+      if (m_chosen_btaggingWP_caloJet.size() > 0 || m_chosen_btaggingWP_trkJet.size() > 0) {
+        ATH_MSG_ERROR("You specified b-tagging WPs both via BTaggingWP as well as BTaggingCaloJetWP or BTaggingTrackJetWP. The BTaggingWP option is deprecated and conflicts with the other two options!");
+        throw std::runtime_error("TopConfig: Failed to determine what b-tagging WPs to configure.");
       } else {
-        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
-        continue;
-      }
-
-      ATH_MSG_INFO("BTagging algorithm: " << alg << ", " << tag);
-      std::string formatedWP = FormatedWP(tag);
-      std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
-      // take care that no WP is taken twice
-      if (std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end()) {
-        m_chosen_btaggingWP.push_back(alg_tag);
-        ATH_MSG_INFO("Chosen btag alg, WP: " << alg_tag.first << ", " << alg_tag.second);
-      } else {
-        ATH_MSG_INFO("alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen");
+        // if deprecated option used, assume both calo and track jet WPs are the same
+        m_chosen_btaggingWP_caloJet = m_chosen_btaggingWP;
+        m_chosen_btaggingWP_trkJet = m_chosen_btaggingWP;
       }
     }
 
@@ -2114,6 +2093,44 @@ namespace top {
     else return raw_WP;
   }
 
+  void TopConfig::parse_bTagWPs(const std::string& btagWPsettingString,
+      std::vector<std::pair<std::string, std::string>>& btagWPlist,
+      const std::string& jetCollectionName) {
+    std::istringstream str_btagging_WP(btagWPsettingString);
+    std::vector<std::string> all_btagging_WP;
+    std::copy(std::istream_iterator<std::string>(str_btagging_WP),
+              std::istream_iterator<std::string>(),
+              std::back_inserter(all_btagging_WP));
+    // loop through all btagging WPs requested
+    for (const auto& AlgTag : all_btagging_WP) {
+      std::vector<std::string> btagAlg_btagWP;
+      tokenize(AlgTag, btagAlg_btagWP, ":");
+      // DEFAULT algorithm - May remove in future
+      std::string alg = "MV2c10";
+      std::string tag = "";
+      // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
+      if (btagAlg_btagWP.size() == 2) {
+        alg = btagAlg_btagWP.at(0);
+        tag = btagAlg_btagWP.at(1);
+      } else if (btagAlg_btagWP.size() == 1) {
+        tag = btagAlg_btagWP.at(0);
+      } else {
+        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
+        continue;
+      }
+
+      ATH_MSG_INFO("BTagging algorithm: " << alg << "_" << tag << " for collection: " << jetCollectionName);
+      std::string formatedWP = FormatedWP(tag);
+      std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
+      // take care that no WP is taken twice
+      if (std::find(btagWPlist.begin(), btagWPlist.end(), alg_tag) == btagWPlist.end()) {
+        btagWPlist.push_back(alg_tag);
+      } else {
+        ATH_MSG_INFO("This b-tag algorithm was already added!");
+      }
+    }
+  }
+
   void TopConfig::setBTagWP_available(std::string btagging_WP) {
     m_available_btaggingWP.push_back(btagging_WP);
   }
@@ -2128,6 +2145,34 @@ namespace top {
 
   void TopConfig::setBTagWP_calibrated_trkJet(std::string btagging_WP) {
     m_calibrated_btaggingWP_trkJet.push_back(btagging_WP);
+  }
+
+  void TopConfig::setBTagAlgo_available(std::string algo, std::string toolName) {
+    if (algo.find("DL1") == std::string::npos) {
+      if (algo.find("MV2c10") != std::string::npos)
+        m_MV2c10_algo_used = true;
+      else
+        ATH_MSG_WARNING("Encountered b-tagging algorithm that is not considered in the EventSaver: " << algo);
+    } else {
+      auto is_inserted = m_available_btaggingAlgos.insert(algo);
+      if (is_inserted.second) {
+        m_algo_selTools[algo] = toolName;
+      }
+    }
+  }
+
+  void TopConfig::setBTagAlgo_available_trkJet(std::string algo, std::string toolName) {
+    if (algo.find("DL1") == std::string::npos) {
+      if (algo.find("MV2c10") != std::string::npos)
+        m_MV2c10_algo_used_trkJet = true;
+      else
+        ATH_MSG_WARNING("Encountered track-jet b-tagging algorithm that is not considered in the EventSaver: " << algo);
+    } else {
+      auto is_inserted = m_available_btaggingAlgos_trkJet.insert(algo);
+      if (is_inserted.second) {
+        m_algo_selTools_trkJet[algo] = toolName;
+      }
+    }
   }
 
   void TopConfig::addLHAPDFResult(const std::string& pdf_name,

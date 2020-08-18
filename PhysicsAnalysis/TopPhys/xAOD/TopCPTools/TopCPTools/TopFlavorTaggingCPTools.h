@@ -42,7 +42,6 @@ namespace top {
     const std::vector<std::string> m_jet_flavors = {
       "B", "C", "T", "Light"
     };
-    std::vector<std::string> m_tagger_algorithms;
     std::vector<std::string> m_calo_WPs_calib;
     std::vector<std::string> m_calo_WPs;
     std::vector<std::string> m_trackAntiKtVR_WPs_calib;

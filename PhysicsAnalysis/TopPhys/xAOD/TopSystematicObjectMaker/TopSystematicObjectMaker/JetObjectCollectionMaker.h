@@ -165,7 +165,10 @@ namespace top {
 
     // DL1 decoration
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelToolsDL1Decor;
+    std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelToolsDL1Decor_trkJet;
     StatusCode decorateDL1(bool trackJets = false);
+
+    std::unordered_map<std::string, SG::AuxElement::Decorator<float>> DLx;
   };
 } // namespace
 #endif

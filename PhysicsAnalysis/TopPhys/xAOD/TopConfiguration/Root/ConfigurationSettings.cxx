@@ -485,7 +485,19 @@ namespace top {
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
 
     registerParameter("BTaggingWP",
-                      "b-tagging WPs to use in the analysis, separated by commas."
+                      "DEPRECATED OPTION, use BTaggingCaloJetWP and BTaggingTrackJetWP for specifying b-tagging WPs for jet collections using calorimeter information and for track jets respectively.",
+                      " ");
+
+    registerParameter("BTaggingTrackJetWP",
+                      "b-tagging WPs to use for track jet collection in the analysis, separated by commas."
+                      " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
+                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
+                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
+                      " By default, no WP is used.",
+                      " ");
+
+    registerParameter("BTaggingCaloJetWP",
+                      "b-tagging WPs to use for calorimeter jet collection (e.g. EMTopo, EMPFlow) in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
                       " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
                       " The specified WPs which are calibrated for all flavours will have scale-factors computed."
