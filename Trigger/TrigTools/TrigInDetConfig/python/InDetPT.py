@@ -394,7 +394,6 @@ def makeInDetPrecisionTracking( whichSignature,
                                                                         ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm
                                                                         xAODContainerName = '',  
                                                                         RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
-                                                                        #PrintIDSummaryInfo = True, #Just to test and have some output
                                                                         TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
                                                                         )
   

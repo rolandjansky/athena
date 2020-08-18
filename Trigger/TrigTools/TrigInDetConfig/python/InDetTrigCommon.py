@@ -72,7 +72,6 @@ def getTrackParticleCnv( prefix, suffix, outPTTracks, outPTTrackParticles ):
                                                                         ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm
                                                                         xAODContainerName = '',  
                                                                         RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
-                                                                        #PrintIDSummaryInfo = True, #Just to test and have some output
                                                                         TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool,
                                                                         #Add online track monitoring
                                                                         DoMonitoring = True,

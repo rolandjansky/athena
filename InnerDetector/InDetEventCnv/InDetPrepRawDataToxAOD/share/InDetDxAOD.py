@@ -155,7 +155,6 @@ if makeSplitTracks:
     xAODSplitTrackParticleCnvAlg.AddTruthLink = False #isIdTrkDxAODSimulation
     if (isIdTrkDxAODSimulation):
         xAODSplitTrackParticleCnvAlg.TrackTruthContainerName = 'SplitTrackTruth'
-    xAODSplitTrackParticleCnvAlg.PrintIDSummaryInfo = True
     IDDerivationSequence += xAODSplitTrackParticleCnvAlg
 
 
