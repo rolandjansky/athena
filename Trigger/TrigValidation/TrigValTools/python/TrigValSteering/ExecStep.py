@@ -161,10 +161,7 @@ class ExecStep(Step):
                 athenaopts += ' --perfmon'
 
         # Default threads/concurrent_events/forks
-        if test.package_name == 'TrigUpgradeTest':
-            if self.threads is None:
-                self.threads = 1
-        elif test.package_name == 'TrigP1Test' and self.type == 'athenaHLT':
+        if test.package_name == 'TrigP1Test' and self.type == 'athenaHLT':
             if self.threads is None:
                 self.threads = 1
             if self.concurrent_events is None:
