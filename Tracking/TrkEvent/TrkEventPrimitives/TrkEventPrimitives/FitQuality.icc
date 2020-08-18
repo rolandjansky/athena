@@ -4,12 +4,12 @@
 
 namespace Trk {
 
-inline Trk::FitQuality::FitQuality(double chiSquared, double numberDoF)
+inline FitQuality::FitQuality(double chiSquared, double numberDoF)
   : m_chiSquared(chiSquared)
   , m_numberDoF(numberDoF)
 {}
 
-inline Trk::FitQuality::FitQuality(double chiSquared, int numberDoF)
+inline FitQuality::FitQuality(double chiSquared, int numberDoF)
   : m_chiSquared(double(chiSquared))
   , m_numberDoF(numberDoF)
 {}
