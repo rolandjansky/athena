@@ -26,14 +26,6 @@
 #include <string>
 // general athena stuff
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TrigInDetEvent/TrigVertexCollection.h"
-
-#include "Constants.h"
-
-#include "xAODTrigBphys/TrigBphys.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
-#include "xAODTrigBphys/TrigBphysAuxContainer.h"
-
 
 class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
   

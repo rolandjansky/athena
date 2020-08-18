@@ -42,16 +42,6 @@ using std::abs;
 using namespace PESA;
 
 
-//Delete a vector of dynamically created objects
-template<typename T>
-void deleteVector(std::vector<T*> &v){
-   while(!v.empty()){
-      delete v.back();
-      v.pop_back();
-   }
-   v.clear();
-}
-
 namespace Beamspot
 { 
   class TrackPTSort{
@@ -81,7 +71,6 @@ PESA::T2VertexBeamSpotTool::T2VertexBeamSpotTool( const std::string& type, const
    : AthAlgTool( type, name, parent),
    m_primaryVertexFitterTool("TrigInDetToolInterfaces/ITrigPrimaryVertexFitter", this){
 
-   declareInterface<IT2VertexBeamSpotTool>(this);
    //Declare properties in here
    declareProperty( "BeamSpotData",  m_beamSpotKey   );
    declareProperty( "PrimaryVertexFitter",  m_primaryVertexFitterTool);
@@ -165,7 +154,7 @@ StatusCode T2VertexBeamSpotTool::initialize(){
 *  Detailed description of the select track function
  ***********************************************/
 void T2VertexBeamSpotTool::selectTracks( const TrackCollection* trackCollection,
-      ConstDataVector<TrackCollection>& mySelectedTrackCollection, std::vector<unsigned> &trackCounter ) {
+      ConstDataVector<TrackCollection>& mySelectedTrackCollection, std::vector<unsigned> &trackCounter ) const {
 
    ATH_MSG_DEBUG( "Selecting tracks for the beamSpot algorithm" );
 
@@ -177,7 +166,7 @@ void T2VertexBeamSpotTool::selectTracks( const TrackCollection* trackCollection,
    auto nHiPTTracksPassedPerROI = Monitored::Scalar<unsigned>("SelectedHiPTTracksPerROI", 0);
 
    //T2Track with easily accesable parameters
-   std::vector<const T2Track*> myTracks; myTracks.reserve(trackCollection->size() );
+   std::vector<T2Track> myTracks; myTracks.reserve(trackCollection->size() );
 
    // Loop over all tracks in the given track collections
    for ( TrackCollection::const_iterator trackIter = trackCollection->begin();
@@ -186,13 +175,12 @@ void T2VertexBeamSpotTool::selectTracks( const TrackCollection* trackCollection,
       const Trk::Track& track = **trackIter;
 
       // Make sure that the event has tracks
-      eventStage( hasTracks );
       //Counter for all input tracks
       nTracksPerROI++;
 
-      const T2Track *myTrack = new T2Track( track );
+      T2Track myTrack( track );
       // Check for passed track
-      if ( isGoodTrack( *myTrack ) ) {
+      if ( isGoodTrack( myTrack ) ) {
          // Add this track to the set used to find a vertex
          mySelectedTrackCollection.push_back( *trackIter );
 
@@ -203,22 +191,22 @@ void T2VertexBeamSpotTool::selectTracks( const TrackCollection* trackCollection,
          nTracksPassedPerROI++;
 
          // Check for high-pT track
-         if ( myTrack->Pt() > m_trackSeedPt ){
+         if ( myTrack.Pt() > m_trackSeedPt ){
             //Counter for high pT tracks
             nHiPTTracksPassedPerROI++;
          }
-         else ATH_MSG_DEBUG( "Track->pt: " << myTrack->Pt()*GeV );
+         else ATH_MSG_DEBUG( "Track.pt: " << myTrack.Pt()*GeV );
       }
       else {
-         ATH_MSG_DEBUG( "Track->failed selection: d0: " << myTrack->D0() <<
-               " z0: " << myTrack->Z0() <<
-               " phi0: " << myTrack->Phi() <<
-               " eta: " << myTrack->Eta() <<
-               " pT: " << myTrack->Pt()*GeV <<
-               " chi2: " << myTrack->Qual() <<
-               " NpixSPs: " << myTrack->PIXHits() <<
-               " NsctSPs: " << myTrack->SCTHits() <<
-               " NstrawHits: " << myTrack->TRTHits() );
+         ATH_MSG_DEBUG( "Track.failed selection: d0: " << myTrack.D0() <<
+               " z0: " << myTrack.Z0() <<
+               " phi0: " << myTrack.Phi() <<
+               " eta: " << myTrack.Eta() <<
+               " pT: " << myTrack.Pt()*GeV <<
+               " chi2: " << myTrack.Qual() <<
+               " NpixSPs: " << myTrack.PIXHits() <<
+               " NsctSPs: " << myTrack.SCTHits() <<
+               " NstrawHits: " << myTrack.TRTHits() );
       }
    } //end for loop over tracks in a collection
 
@@ -236,14 +224,12 @@ void T2VertexBeamSpotTool::selectTracks( const TrackCollection* trackCollection,
       //Monitor counters per track collection and time to select tracks
       auto mon = Monitored::Group(m_monTool, nTracksPerROI, nTracksPassedPerROI, nHiPTTracksPassedPerROI,
                  timerTrackSelection ); //timers
-      //clear tracks
-      deleteVector( myTracks );
 }
 
 
-void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
+unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
                                            TrigVertexCollection& myVertexCollection,
-                                           DataVector< TrigVertexCollection >&  mySplitVertexCollections) {
+                                           DataVector< TrigVertexCollection >&  mySplitVertexCollections, const EventContext& ctx) const {
     ATH_MSG_DEBUG( "Reconstructing vertices" );
 
    //Monitoring counters and timers
@@ -309,7 +295,6 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
       }
 
       // Event has a good cluster
-      eventStage( hasCluster );
       nClusters++;
 
       // Monitor properties of of the cluster
@@ -339,14 +324,11 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
          continue; 
       }
 
-      // Event has a vertex!
-      eventStage( hasVertex );
-
       // Update vertex counter
       nVtx++;
 
       // Extract beam spot parameters
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
 
       T2BeamSpot beamSpot(*beamSpotHandle);
 
@@ -369,10 +351,7 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
       // Add primary vertex to collection
       myVertexCollection.push_back( primaryVertex ); // passes ownership to vertex collection
 
-      // Event has good vertex
-      eventStage( hasGoodVertex );
-
-      //Monito parameters of the  passed vertex 
+      //Monitor parameters of the  passed vertex 
       monitor_vertex( "Vertex", "Pass", myVertex ); 
 
       //Update good vertex counter
@@ -405,7 +384,7 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
          {
             // Split, optinally re-cluster, and fit separate vertices
             ATH_MSG_DEBUG( "Reconstruct split vertices");
-            reconstructSplitVertices( mySplitTrackCollection, mySplitVertexCollections, trackClusterer );
+            reconstructSplitVertices( mySplitTrackCollection, mySplitVertexCollections, trackClusterer, ctx );
          }
          // Alternative 3: Split all the tracks and iterate with the remaining tracks
          //          mySplitTrackCollection = mySelectedTrackCollection;
@@ -426,19 +405,15 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
 
     }//End looping over tracks
 
-  //Store flag whether the nvtx passed trig cuts
-  m_passNpvTrigCuts =  (m_minNpvTrigger <= nPassVtx) && (nPassVtx <= m_maxNpvTrigger); 
-  //Keep the track of how many vertices passed the selection
-  m_NvtxPass  = nPassVtx;
-
   //monitor number of (passed) vertices, clusters, etc
   auto mon = Monitored::Group(m_monTool,  nVtx, nPassVtx, nPassBCIDVtx, nClusters, timerVertexRec );
+  return static_cast<unsigned int>(nPassVtx);
 }
 
 
 void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollection>& myFullTrackCollection,
                                                 DataVector< TrigVertexCollection >& mySplitVertexCollections,
-                                                T2TrackClusterer& trackClusterer ) {
+                                                T2TrackClusterer& trackClusterer, const EventContext& ctx ) const {
   auto timerVertexRec = Monitored::Timer("TIME_SplitVertexReconstruction");
 
 
@@ -449,10 +424,8 @@ void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollec
      auto mon = Monitored::Group(m_monTool,  timeToSortTracks ); 
   }
 
-  // Split the track collection (typically into halves)
   // This returns m_nSplitVertices (ideally) or fewer (if clustering fails) track collections
-  m_trackManager.ResetKey( m_EventID % 2 - 1 );
-  vector< ConstDataVector<TrackCollection> > splitTrackCollections = m_trackManager.split( *myFullTrackCollection.asDataVector() );
+  vector< ConstDataVector<TrackCollection> > splitTrackCollections = m_trackManager.split( *myFullTrackCollection.asDataVector(), ctx );
 
   // Add a new track collection for the split vertices corresponding to this primary vertex
   // There can be anywhere between zero and m_nSplitVertices entries in the collection
@@ -582,38 +555,29 @@ bool T2VertexBeamSpotTool::isGoodVertexBCID( const T2Vertex& vertex ) const {
      );
 }
 
-void T2VertexBeamSpotTool::resetMonitoredVariables() {
-   if(m_eventStageFlag.size() != 0 ) m_eventStageFlag.clear();
-   if(m_eventStage.size() != 0 ) m_eventStage.clear();
-   //Reset all variables just in case
-   m_NvtxPass = 0;
-   m_passNpvTrigCuts = false;
-
-}
-
 
 //Monitoring track variables
-void T2VertexBeamSpotTool::monitor_tracks(std::string prefix, std::string suffix, std::vector<const T2Track*> tracks ){
-   auto  trackPt      = Monitored::Collection(  prefix + "Pt"       + suffix, tracks, [](const T2Track *t){ return t->Pt()      ;});
-   auto  trackEta     = Monitored::Collection(  prefix + "Eta"      + suffix, tracks, [](const T2Track *t){ return t->Eta()     ;});
-   auto  trackPhi     = Monitored::Collection(  prefix + "Phi"      + suffix, tracks, [](const T2Track *t){ return t->Phi()     ;});
-   auto  trackZ0      = Monitored::Collection(  prefix + "Z0"       + suffix, tracks, [](const T2Track *t){ return t->Z0()      ;});
-   auto  trackD0      = Monitored::Collection(  prefix + "D0"       + suffix, tracks, [](const T2Track *t){ return t->D0()      ;});
-   auto  trackZ0err   = Monitored::Collection(  prefix + "Z0err"    + suffix, tracks, [](const T2Track *t){ return t->Z0err()   ;});
-   auto  trackD0err   = Monitored::Collection(  prefix + "D0err"    + suffix, tracks, [](const T2Track *t){ return t->D0err()   ;});
-   auto  trackNDF     = Monitored::Collection(  prefix + "NDF"      + suffix, tracks, [](const T2Track *t){ return t->NDF()     ;});
-   auto  trackQual    = Monitored::Collection(  prefix + "Qual"     + suffix, tracks, [](const T2Track *t){ return t->Qual()    ;});
-   auto  trackChi2Prob= Monitored::Collection(  prefix + "Chi2Prob" + suffix, tracks, [](const T2Track *t){ return t->Chi2Prob();});
-   auto  trackSiHits  = Monitored::Collection(  prefix + "SiHits"   + suffix, tracks, [](const T2Track *t){ return t->SiHits()  ;});
-   auto  trackPiHits  = Monitored::Collection(  prefix + "PIXHits"  + suffix, tracks, [](const T2Track *t){ return t->PIXHits() ;});
-   auto  trackSCTHits = Monitored::Collection(  prefix + "SCTHits"  + suffix, tracks, [](const T2Track *t){ return t->SCTHits() ;});
-   auto  trackTRTHits = Monitored::Collection(  prefix + "TRTHits"  + suffix, tracks, [](const T2Track *t){ return t->TRTHits() ;});
+void T2VertexBeamSpotTool::monitor_tracks(const std::string& prefix, const std::string& suffix, const std::vector<T2Track>& tracks ) const {
+   auto  trackPt      = Monitored::Collection(  prefix + "Pt"       + suffix, tracks, [](const T2Track t){ return t.Pt()      ;});
+   auto  trackEta     = Monitored::Collection(  prefix + "Eta"      + suffix, tracks, [](const T2Track t){ return t.Eta()     ;});
+   auto  trackPhi     = Monitored::Collection(  prefix + "Phi"      + suffix, tracks, [](const T2Track t){ return t.Phi()     ;});
+   auto  trackZ0      = Monitored::Collection(  prefix + "Z0"       + suffix, tracks, [](const T2Track t){ return t.Z0()      ;});
+   auto  trackD0      = Monitored::Collection(  prefix + "D0"       + suffix, tracks, [](const T2Track t){ return t.D0()      ;});
+   auto  trackZ0err   = Monitored::Collection(  prefix + "Z0err"    + suffix, tracks, [](const T2Track t){ return t.Z0err()   ;});
+   auto  trackD0err   = Monitored::Collection(  prefix + "D0err"    + suffix, tracks, [](const T2Track t){ return t.D0err()   ;});
+   auto  trackNDF     = Monitored::Collection(  prefix + "NDF"      + suffix, tracks, [](const T2Track t){ return t.NDF()     ;});
+   auto  trackQual    = Monitored::Collection(  prefix + "Qual"     + suffix, tracks, [](const T2Track t){ return t.Qual()    ;});
+   auto  trackChi2Prob= Monitored::Collection(  prefix + "Chi2Prob" + suffix, tracks, [](const T2Track t){ return t.Chi2Prob();});
+   auto  trackSiHits  = Monitored::Collection(  prefix + "SiHits"   + suffix, tracks, [](const T2Track t){ return t.SiHits()  ;});
+   auto  trackPiHits  = Monitored::Collection(  prefix + "PIXHits"  + suffix, tracks, [](const T2Track t){ return t.PIXHits() ;});
+   auto  trackSCTHits = Monitored::Collection(  prefix + "SCTHits"  + suffix, tracks, [](const T2Track t){ return t.SCTHits() ;});
+   auto  trackTRTHits = Monitored::Collection(  prefix + "TRTHits"  + suffix, tracks, [](const T2Track t){ return t.TRTHits() ;});
    auto mon = Monitored::Group(m_monTool, trackPt, trackEta, trackPhi, trackZ0, trackD0, trackZ0err, trackD0err,
                                trackNDF, trackQual, trackChi2Prob, trackSiHits, trackPiHits, trackSCTHits, trackTRTHits );
 }
 
 
-void T2VertexBeamSpotTool::monitor_cluster( const T2TrackClusterer& clusterer  ){
+void T2VertexBeamSpotTool::monitor_cluster( const T2TrackClusterer& clusterer  ) const {
    auto  clusterZ                = Monitored::Scalar<double>("ClusterZ", clusterer.seedZ0()            );
    auto  clusterNtracks          = Monitored::Scalar<int>("ClusterZ", clusterer.cluster().size()       );
    auto  clusterNUnusedTracks    = Monitored::Scalar<int>("ClusterZ", clusterer.unusedTracks().size()  );
@@ -622,7 +586,7 @@ void T2VertexBeamSpotTool::monitor_cluster( const T2TrackClusterer& clusterer  )
 }
 
 
-void T2VertexBeamSpotTool::monitor_cluster_tracks(T2TrackClusterer &clusterer, const Trk::Track &track  ){
+void T2VertexBeamSpotTool::monitor_cluster_tracks(T2TrackClusterer &clusterer, const Trk::Track &track  ) const {
    const double deltaZ0 = track.perigeeParameters()->parameters()[Trk::z0] - clusterer.seedZ0();
    const AmgSymMatrix(5)& perigeeCov = *track.perigeeParameters()->covariance();
    const double z0Error = std::sqrt(perigeeCov(Trk::z0,Trk::z0));
@@ -635,7 +599,7 @@ void T2VertexBeamSpotTool::monitor_cluster_tracks(T2TrackClusterer &clusterer, c
 
 
 
-void T2VertexBeamSpotTool::monitor_vertex(std::string prefix, std::string suffix, const T2Vertex &vertex ){
+void T2VertexBeamSpotTool::monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex ) const {
 
    auto ntrk      = Monitored::Scalar<int>   ( prefix + "NTrks"      + suffix, vertex.NTrks()      ); 
    auto sumpt     = Monitored::Scalar<double>( prefix + "SumPt"      + suffix, vertex.SumPt()      ); 
@@ -662,13 +626,4 @@ void T2VertexBeamSpotTool::monitor_vertex(std::string prefix, std::string suffix
   
 
 
-bool T2VertexBeamSpotTool::eventStage( Statistics stage ) {
-   if ( ! m_eventStageFlag[ stage ] )
-   {
-      m_eventStageFlag[ stage ] = true;
-      m_eventStage.push_back( stage );
-      return true;
-   }
-   return false;
-}
 

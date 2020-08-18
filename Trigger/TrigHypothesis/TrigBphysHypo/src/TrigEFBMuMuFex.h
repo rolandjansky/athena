@@ -21,13 +21,10 @@
 
 // standard stuff
 #include <string>
-#include <map>
-#include <cmath> 
 // general athena stuff
 //// trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 #include "xAODMuon/Muon.h"
-#include "AthLinks/ElementLink.h"
 
 // forward includes
 class TrigBphysHelperUtilsTool;

@@ -25,7 +25,6 @@
 #include "TrigInterfaces/HypoAlgo.h"
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "Constants.h"
 
 class TrigEFBMuMuHypo: public HLT::HypoAlgo  {
   

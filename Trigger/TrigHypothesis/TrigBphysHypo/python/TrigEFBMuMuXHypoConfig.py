@@ -90,12 +90,6 @@ class EFBMuMuXHypo_allModes (EFBMuMuXHypo_1):
         self.AcceptLb = True
         self.AcceptBc = True
         
-class EFBMuMuXHypo_FTK (EFBMuMuXHypo_1):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuXHypo_FTK"):
-        EFBMuMuXHypo_1.__init__(self, name )
-
-        
 class EFBMuMuXHypo_allModes_tightBc (EFBMuMuXHypo_allModes):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXHypo_allModes_tightBc"):

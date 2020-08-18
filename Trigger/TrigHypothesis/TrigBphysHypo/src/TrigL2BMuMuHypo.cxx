@@ -20,9 +20,7 @@
 
 #include "TrigL2BMuMuHypo.h"
 
-#include <math.h>
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
 
 #include "TrigBphysHelperUtilsTool.h"
 #include "xAODTrigBphys/TrigBphys.h"

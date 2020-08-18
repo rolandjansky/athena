@@ -23,12 +23,6 @@
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
 
-////#include "TrigTimeAlgs/TrigTimerSvc.h"
-//#include "TrigInDetEvent/TrigVertexCollection.h"
-//#include "TrigParticle/TrigL2Bphys.h"
-//#include "TrigParticle/TrigL2BphysContainer.h"
-//
-
 class TrigBphysHelperUtilsTool;
 
 

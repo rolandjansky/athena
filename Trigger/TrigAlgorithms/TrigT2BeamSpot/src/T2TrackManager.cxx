@@ -29,26 +29,11 @@ using std::abs;
 using namespace PESA;
 
 
-// Not much to do here now, will eventually init the config parameters
-T2TrackManager::T2TrackManager( int nSplit, Algorithm alg )
-  // Fill the defaults
-  : m_nSplit      ( nSplit )
-  , m_alg         ( alg    )
-  , m_altKey      ( -1     )
-  //, m_ordKey      ( 0      )
-{
-}
-
-
-// Will have to clean up after myself here
-T2TrackManager::~T2TrackManager()
-{
-}
-
 // The meat of the class, return a vector of split clusters
 std::vector< ConstDataVector<TrackCollection> >
-T2TrackManager::split( const TrackCollection& cluster )
+T2TrackManager::split( const TrackCollection& cluster, const EventContext& ctx ) const
 {
+  int key = ctx.eventID().event_number() %2 -1;
   const int nEntries = cluster.size();
 
   //std::cout << "Reserve space" << std::endl;
@@ -69,9 +54,9 @@ T2TrackManager::split( const TrackCollection& cluster )
     // tracks in the 1st collection
     int nPos = 0;
     if (m_alg == Alternating)
-      nPos = alternatingSplit();
+      nPos = alternatingSplit(key);
     else if (m_alg == Pt)
-      nPos = orderedSplit(nEntries);
+      nPos = orderedSplit(key, nEntries);
 
     // Add the track to the appropriate collection
     trackCollections[nPos].push_back(*c_itr);
@@ -82,18 +67,16 @@ T2TrackManager::split( const TrackCollection& cluster )
 }
 
 
-int
-T2TrackManager::alternatingSplit()
+constexpr int T2TrackManager::alternatingSplit(int key) const
 {
-  ++m_altKey;
-  m_altKey %= m_nSplit;
-  return m_altKey;
+  ++key;
+  key %= m_nSplit;
+  return key;
 }
 
 
-int
-T2TrackManager::orderedSplit(const int nEntries)
+constexpr int T2TrackManager::orderedSplit(int key, const int nEntries) const
 {
-  ++m_altKey;
-  return m_altKey * m_nSplit / nEntries;
+  ++key;
+  return key * m_nSplit / nEntries;
 }
