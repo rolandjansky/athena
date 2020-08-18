@@ -5,54 +5,46 @@
 #ifndef DETAILEDMUONPATTERNTRUTHBUILDER_H
 #define DETAILEDMUONPATTERNTRUTHBUILDER_H
 
-// Gaudi
+#include "MuonRecToolInterfaces/IDetailedMuonPatternTruthBuilder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "AthLinks/ElementLink.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkEventUtils/InverseMultiMap.h"
-
-#include "MuonRecToolInterfaces/IDetailedMuonPatternTruthBuilder.h"
 #include "MuonPattern/MuonPatternCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/DetailedMuonPatternTruthCollection.h"
-
 #include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
 #include "TrkTruthData/DetailedTrackTruth.h"
 #include "TrkTruthData/DetailedSegmentTruth.h"
 #include "TrkTruthData/SubDetHitStatistics.h"
-
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include "TrkTruthData/DetailedTrackTruth.h"
 #include "TrkTruthData/TruthTrajectory.h"
-
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPrepRawData/PrepRawData.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-// Include any other potentially useful packages
-// Trk includes
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecord.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkParameters/TrackParameters.h"
-#include <vector>
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 
+#include <string>
+#include <vector>
+
 namespace Trk {
   
-  class DetailedMuonPatternTruthBuilder: virtual public IDetailedMuonPatternTruthBuilder,
-				   public AthAlgTool
+  class DetailedMuonPatternTruthBuilder: virtual public IDetailedMuonPatternTruthBuilder, public AthAlgTool
   {
   public:
     DetailedMuonPatternTruthBuilder(const std::string& type, const std::string& name, const IInterface* parent);
@@ -77,10 +69,9 @@ namespace Trk {
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrackBuilder;
-    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>   m_mdtCreator;
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>      m_muonClusterCreator;
-    ToolHandle<Muon::IMuonClusterOnTrackCreator >    p_IMuonClusterOnTrackCreatorCSCCluster ;
+    ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrackBuilder{this,"TruthTrajectoryTool","Trk::ElasticTruthTrajectoryBuilder"};
+    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtCreator{this,"MdtDriftCircleCreator","Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_muonClusterCreator{this,"MuonClusterCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
 
     SubDetHitStatistics::SubDetType findSubDetType(Identifier id);
 
