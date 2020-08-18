@@ -114,35 +114,45 @@ class ConfiguredInDetPreProcessingTRT:
          MaxDriftTime    = 60.0*ns
          LowGate         = 14.0625*ns # 4.5*3.125 ns
          HighGate        = 42.1875*ns # LowGate + 9*3.125 ns
+         LowGateArgon         = LowGate
+         HighGateArgon        = HighGate
+
          if InDetFlags.doCosmics():
             LowGate         = 19.0*ns
             HighGate        = 44.0*ns
+            LowGateArgon    = 19.0*ns
+            HighGateArgon   = 44.0*ns
+
          if globalflags.DataSource == 'data':
             MinTrailingEdge = 11.0*ns
             MaxDriftTime    = 60.0*ns
-            LowGate         = 14.0625*ns # 4.5*3.125 ns
-            HighGate        = 42.1875*ns # LowGate + 9*3.125 ns
+            LowGate         = 17.1875*ns
+            HighGate        = 45.3125*ns
+            LowGateArgon    = 18.75*ns
+            HighGateArgon   = 43.75*ns
             if InDetFlags.doCosmics():
                LowGate         = 19.0*ns
                HighGate        = 44.0*ns
+               LowGateArgon    = 19.0*ns
+               HighGateArgon   = 44.0*ns
 
          InDetTRT_DriftCircleTool = InDet__TRT_DriftCircleTool(name                            = prefix+"DriftCircleTool",
                                                                TRTDriftFunctionTool            = InDetTRT_DriftFunctionTool,
                                                                ConditionsSummaryTool           = InDetTRTStrawStatusSummaryTool,
                                                                UseConditionsStatus             = True,
                                                                UseConditionsHTStatus           = True,
-                                                               SimpleOutOfTimePileupSupression = InDetFlags.doCosmics(),
+                                                               SimpleOutOfTimePileupSupression = False,
                                                                RejectIfFirstBit                = False, # fixes 50 nsec issue 
                                                                MinTrailingEdge                 = MinTrailingEdge,
                                                                MaxDriftTime                    = MaxDriftTime,
-                                                               ValidityGateSuppression         = not InDetFlags.doCosmics(),
+                                                               ValidityGateSuppression         =  InDetFlags.InDet25nsec(),
                                                                LowGate                         = LowGate,
                                                                HighGate                        = HighGate,
-                                                               SimpleOutOfTimePileupSupressionArgon = InDetFlags.doCosmics(),
+                                                               SimpleOutOfTimePileupSupressionArgon = False,
                                                                RejectIfFirstBitArgon                = False, # fixes 50 nsec issue 
                                                                MinTrailingEdgeArgon                 = MinTrailingEdge,
                                                                MaxDriftTimeArgon                    = MaxDriftTime,
-                                                               ValidityGateSuppressionArgon         = not InDetFlags.doCosmics(),
+                                                               ValidityGateSuppressionArgon         = InDetFlags.InDet25nsec(),
                                                                LowGateArgon                         = LowGate,
                                                                HighGateArgon                        = HighGate,
                                                                useDriftTimeHTCorrection        = True,
@@ -150,14 +160,6 @@ class ConfiguredInDetPreProcessingTRT:
          if not usePhase:
             from InDetRecExample import TrackingCommon
             InDetTRT_DriftCircleTool.LumiDataKey = TrackingCommon.getLumiCondDataKeyForTRTMuScaling()
-
-         from AthenaCommon.BeamFlags import jobproperties 
-         if InDetFlags.InDet25nsec() and jobproperties.Beam.beamType()=="collisions": 
-            InDetTRT_DriftCircleTool.ValidityGateSuppression=True  
-            InDetTRT_DriftCircleTool.SimpleOutOfTimePileupSupression=False  
-         if jobproperties.Beam.beamType()=="cosmics": 
-            InDetTRT_DriftCircleTool.SimpleOutOfTimePileupSupression=False 
-
 
          ToolSvc += InDetTRT_DriftCircleTool
          if (InDetFlags.doPrintConfigurables()):

@@ -103,6 +103,7 @@ recalculateDistances(const Component1D* componentsIn,
 {
   const Component1D* components = static_cast<const Component1D*>(
     __builtin_assume_aligned(componentsIn, alignment));
+
   float* distances =
     static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
 
@@ -147,6 +148,7 @@ calculateAllDistances(const Component1D* componentsIn,
     __builtin_assume_aligned(componentsIn, alignment));
   float* distances =
     static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
     const Component1D componentI = components[i];
@@ -183,7 +185,7 @@ namespace GSFUtils {
 
 /**
  * Merge the componentsIn and return
- * which componets got merged
+ * which componets got merged.
  */
 std::vector<std::pair<int32_t, int32_t>>
 findMerges(Component1D* componentsIn,
@@ -196,19 +198,17 @@ findMerges(Component1D* componentsIn,
   const int32_t n = inputSize;
   const int32_t nn = n * (n - 1) / 2;
   // Create a trianular mapping for the pairwise distances
-  std::vector<triangularToIJ> convert;
-  convert.reserve(nn);
-
+  // We now that the size is nn
+  std::vector<triangularToIJ> convert(nn);
   for (int32_t i = 1; i < n; ++i) {
     const int indexConst = (i - 1) * i / 2;
     for (int32_t j = 0; j < i; ++j) {
-      int32_t index = indexConst + j;
-      convert[index] = { i, j };
+      convert[indexConst + j] = { i, j };
     }
   }
-  // We need to work with multiple of 8, in principle this is a requirement
-  // of aligned_alloc (although not in POSIX ) i.e allocation should be multiple
-  // of the requested size.
+  // We work with a  multiple of 8*floats (32 bytes).
+  // Ensures also that the  size parameter passed to aligned alloc
+  // is an integral multiple of alignment (32 bytes).
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
   AlignedDynArray<float, alignment> distances(
     nn2, std::numeric_limits<float>::max());
@@ -242,11 +242,25 @@ findMerges(Component1D* componentsIn,
 
 /**
  * findMinimumIndex
- * For FindMinimumIndex at x86_64 we have
- * AVX2,SSE4.1,SSE2  versions
- * These assume that the number of elements is a multiple
- * of 8 and are to be used for sizeable inputs.
- * We also provide a default "scalar" implementation
+ * Assume that the number of elements is a multiple
+ * of 8 and is to be used for sizeable inputs.
+ *
+ * It uses the CxxUtils:vec class which provides
+ * a degree of portability.
+ *
+ * avx2 gives us lanes 8 float wide
+ * SSE4.1 gives us efficient blend
+ * so we employ function multiversioning
+ *
+ * For non-sizeable inputs
+ * std::distance(array, std::min_element(array, array + n))
+ * can be good enough instead of calling this function.
+ *
+ * Note than the above "STL"  code in gcc
+ * (up to 10.2 at least) this emits
+ * a cmov which make it considerable slower
+ * than the clang when the branch can
+ * be well predicted.
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
@@ -335,10 +349,9 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
-/*
- * SSE2 does not have a blend/select instruction.
- */
-__attribute__((target("sse2")))
+#endif // end of x86_64 versions
+__attribute__((target("default")))
+#endif // HAVE_FUNCTION_MULTIVERSIONING
 int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
@@ -388,23 +401,5 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
-#endif // end of x86_64 versions
-// Always fall back to a simple default version with no intrinsics
-__attribute__((target("default")))
-#endif // HAVE_FUNCTION_MULTIVERSIONING
-int32_t
-findMinimumIndex(const float* distancesIn, const int n)
-{
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  float minDistance = array[0];
-  int32_t minIndex = 0;
-  for (int i = 0; i < n; ++i) {
-    const float value = array[i];
-    if (value < minDistance) {
-      minIndex = i;
-      minDistance = value;
-    }
-  }
-  return minIndex;
-}
+
 } // end namespace GSFUtils

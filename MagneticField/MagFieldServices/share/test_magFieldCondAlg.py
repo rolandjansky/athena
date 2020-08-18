@@ -4,9 +4,22 @@
 #
 
 # Testing IOVs and currents: (since LB, solenoid, toroids)
+# Default test - should read both mag field files, and turn off fields for events 5 to 9, and back on for 10 to 14
 currents = [(0, 7730, 20400),
             (5, 0, 0),
             (10, 7730, 20400)]
+
+# Optional test: only toroid is on for whole run. Scale factor for solenoid will become 1 at event 5,
+# but solenoid field will still be off
+# currents = [(0, 0, 20400),
+#             (5, 7730, 20400),
+#             (10, 7730, 20400)]
+
+# Optional test: only solenoid is on for whole run. Scale factor for toroid will become 1 at event 5,
+# but toroid field will still be off
+# currents = [(0, 7730, 0),
+#             (5, 7730, 20400),
+#             (10, 7730, 20400)]
 
 # Folder name
 folder = '/EXT/DCS/MAGNETS/SENSORDATA'

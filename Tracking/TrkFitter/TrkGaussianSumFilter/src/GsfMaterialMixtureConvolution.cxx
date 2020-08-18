@@ -274,10 +274,10 @@ Trk::GsfMaterialMixtureConvolution::update(
       // Store component weight
       caches[i].weights[j] *= inputState[i].second;
       // Ensure weight of component is not too small to save us from potential
-      // FPE's Value chosen to be sufficiently small so that the final state
-      // will not be impacted
-      if (caches[i].weights[j] < 1e-12) {
-        caches[i].weights[j] = 1e-12;
+      // FPE's Value. Weights are double so the min of float should
+      // be small enough and should be handled
+      if (caches[i].weights[j] < std::numeric_limits<float>::min()) {
+        caches[i].weights[j] = std::numeric_limits<float>::min();
       }
     }
     n += caches[i].weights.size();

@@ -16,8 +16,8 @@ class TH2D;
 class TH1D;
 
 #include "METInterface/IMETSystematicsTool.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/DataHandle.h"
 
 #include "PATInterfaces/SystematicsTool.h"
 

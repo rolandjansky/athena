@@ -26,15 +26,9 @@
 #include "BtrigUtils.h"
 
 
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-//#include "TrigMuonEvent/TrigCombDiMuonContainer.h"
-
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"                         
-
-#include "TrigInDetEvent/TrigVertexCollection.h"
 
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
@@ -42,8 +36,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
-
-typedef std::vector<const TrigInDetTrack*> TTrackPair;
 
 class TrigBphysHelperUtilsTool;
 
@@ -67,20 +59,6 @@ class TrigL2BMuMuXFex: public HLT::ComboAlgo
   private:
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
 
-//    double KMuMuMass(const TrigInDetTrack* mu1, const TrigInDetTrack* mu2, const TrigInDetTrack* kaon);
-//    double XMass(const TrigInDetTrack* particle1, const TrigInDetTrack* particle2, int decay);                
-//    double XMuMuMass(const TrigInDetTrack* mu1, const TrigInDetTrack* mu2, 
-//                     const TrigInDetTrack* particle1, const TrigInDetTrack* particle2, int decay);
-//    double X3Mass(const TrigInDetTrack* particle1, const TrigInDetTrack* particle2, const TrigInDetTrack* particle3);                
-//    double X3MuMuMass(const TrigInDetTrack* mu1, const TrigInDetTrack* mu2, 
-//                     const TrigInDetTrack* particle1, const TrigInDetTrack* particle2, const TrigInDetTrack* particle3);
-//    
-    //    void checkBMuMuK(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2, const TrigInDetTrack* trk3, const TrigInDetTrackCollection* trkCollection, int iTrk3);
-    //    void checkBdMuMuKstar(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2, const TrigInDetTrack* trk3, const TrigInDetTrack* trk4, const TrigInDetTrackCollection* trkCollection, int iTrk3, int iTrk4);
-    //    void checkBsMuMuPhi(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2, const TrigInDetTrack* trk3, const TrigInDetTrack* trk4, const TrigInDetTrackCollection* trkCollection, int iTrk3, int iTrk4);
-    //    void checkLbMuMuLambda(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2, const TrigInDetTrack* trk3, const TrigInDetTrack* trk4, const TrigInDetTrackCollection* trkCollection, int iTrk3, int iTrk4);
-    //    void checkBcMuMuDs(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2, const TrigInDetTrack* trk3, const TrigInDetTrack* trk4, const TrigInDetTrack* trk5, const TrigInDetTrackCollection* trkCollection, int iTrk3, int iTrk4, double xPhiMass, int iTrk5);
- 
     
     void checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L2CombinedMuon* mu2, const xAOD::TrackParticle* trk3,
                      const xAOD::TrackParticleContainer* trkCollection, int iTrk3);
@@ -233,13 +211,6 @@ class TrigL2BMuMuXFex: public HLT::ComboAlgo
     TrigL2BphysContainer* m_trigBphysColl_b;
     xAOD::TrigBphysContainer* m_trigBphysColl_bxAOD; // revert back to non-aod naming once complete
     
-    TrigVertexCollection* m_VertexColl;
-    // temporary
-//    TrigL2BphysContainer* m_trigBphysColl_kStar;   
-//    TrigL2BphysContainer* m_trigBphysColl_phi;   
-//    TrigL2BphysContainer* m_trigBphysColl_lambda;   
-//    TrigL2BphysContainer* m_trigBphysColl_ds;
-
     xAOD::TrigBphysContainer* m_trigBphysColl_kStarxAOD;
     xAOD::TrigBphysContainer* m_trigBphysColl_phixAOD;
     xAOD::TrigBphysContainer* m_trigBphysColl_lambdaxAOD;

@@ -16,8 +16,9 @@ class TrackGrade {
   TrackGrade(int,const std::string&);
 
   TrackGrade(const TrackGrade & );
+  TrackGrade( TrackGrade && ) noexcept = default;
   TrackGrade &operator= (const TrackGrade& rhs);
-
+  TrackGrade &operator= ( TrackGrade&& rhs) noexcept = default;
   bool operator== (const std::string &) const;
   bool operator== (const int &) const;
   bool operator== (const TrackGrade& rhs) const;

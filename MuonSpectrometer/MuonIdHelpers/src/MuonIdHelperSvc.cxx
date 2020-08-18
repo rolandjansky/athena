@@ -199,6 +199,17 @@ namespace Muon {
     return m_stgcIdHelper->is_stgc(id);
   }
 
+  bool MuonIdHelperSvc::issMdt( const Identifier& id ) const {
+    if (!m_mdtIdHelper) return false;
+    else if (!isMdt(id)) return false;
+    else if (m_mdtIdHelper->isEndcap(id)) return false; // there are no sMDTs in the endcaps
+    else if (!m_rpcIdHelper) return false; // need RPC helper for the hasHPTDC check
+    bool sMdt = false;
+    if (m_mdtIdHelper->isBME(id)) sMdt = true; // all BME chambers are sMDTs
+    else if (hasHPTDC(id)) sMdt = true; // all chambers with HPTDC are sMDTs
+    return sMdt;
+  }
+
   bool MuonIdHelperSvc::hasHPTDC( const Identifier& id ) const {
     if (!isMdt(id)) return false;
     else if (!m_rpcIdHelper) return false; // there must be RPCs in the layout

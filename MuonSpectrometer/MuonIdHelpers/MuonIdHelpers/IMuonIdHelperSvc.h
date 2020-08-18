@@ -75,6 +75,9 @@ namespace Muon {
     /** @brief returns whether this is a sTGC Identifier or not */
     virtual bool issTgc( const Identifier& id ) const = 0;
 
+    /** @brief returns whether this is a sMDT Identifier or not */
+    virtual bool issMdt( const Identifier& id ) const = 0;
+
     /** @brief returns whether this Identifier belongs to an MDT with HPTDC or not */
     virtual bool hasHPTDC( const Identifier& id ) const = 0;
 
