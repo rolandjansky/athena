@@ -72,7 +72,7 @@ def createL1PrescalesFileFromMenu( flags ):
         log.info("Generated default L1 prescale set %s", outfile.name)
 
 
-def getTrigConfigFromFlag( flags=None ):
+def getTrigConfigFromFlag( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
     tcflag = flags.Trigger.triggerConfig
     log.info("Parsing new-style trigger flag 'triggerConfig': %s", tcflag)
