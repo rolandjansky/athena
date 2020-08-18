@@ -320,7 +320,7 @@ primary_jet_validation        = ['j25',
                                  '6j55_0eta240_L14J15',
                                  'j35_nojcalib',
                                  'j45_320eta490',
-                                 'j460_a10_lcw_subjes_L1SC11',
+                                 'j460_a10_lcw_subjes_L1SC111',
                                  'j460_a10t_lcw_jes_L1SC111',
                                  '2j330_a10t_lcw_jes_35smcINF_SC111',
 ]
