@@ -835,7 +835,7 @@ TF1* FitFWGaussian(TH1D* s, double a, double b) {
 
 void fitSin( TH1D* h, const std::string& parent="" ) { 
 
-  static TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)" ); // , -M_PI, M_PI );
+  TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)" ); // , -M_PI, M_PI );
 
   fsin->SetParameter(0,1);
   fsin->SetParameter(1,0);
@@ -855,6 +855,7 @@ void fitSin( TH1D* h, const std::string& parent="" ) {
   
   std::cout << parent << "\t" << h->GetTitle() << "\tx = " << x << "\ty = " << y << std::endl;
 
+  delete fsin;
 }
 
 

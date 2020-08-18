@@ -304,7 +304,7 @@ void contents( std::vector<std::string>&  keys, TDirectory* td,
       /// not a directory so include this ...
       if ( directory == "" || contains( path, directory ) ) {
 	
-	if ( print ) std::cout << "will process " << tobj->GetName() << std::endl;
+	if ( print ) std::cout << "will process " << td->GetName() << " \t:: " << tobj->GetName() << std::endl;
 	print = false;
 	
 	if ( pattern == "" || contains(std::string(tobj->GetName()), pattern ) ) { 
