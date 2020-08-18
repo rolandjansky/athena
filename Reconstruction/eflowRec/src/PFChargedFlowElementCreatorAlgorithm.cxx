@@ -40,8 +40,7 @@ StatusCode PFChargedFlowElementCreatorAlgorithm::execute(const EventContext& ctx
 void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::FlowElementContainer>& chargedFlowElementContainerWriteHandle) const {
 
   /* Loop over all tracks in the eflowCaloObject */
-  int nTracks = energyFlowCaloObject.nTracks();
-  for (int iTrack = 0; iTrack < nTracks; ++iTrack) {
+  for (unsigned int iTrack = 0; iTrack < energyFlowCaloObject.nTracks(); ++iTrack) {
 
     eflowRecTrack* efRecTrack = energyFlowCaloObject.efRecTrack(iTrack);
 

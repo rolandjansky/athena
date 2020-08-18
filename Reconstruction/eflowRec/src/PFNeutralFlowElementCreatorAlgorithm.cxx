@@ -44,10 +44,7 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::execute(const EventContext& ctx
 
 StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const eflowCaloObject& energyFlowCaloObject, xAOD::FlowElementContainer* neutralFEContainer) const {
 
-  unsigned int nClusters = energyFlowCaloObject.nClusters();
-
-  ATH_MSG_VERBOSE("  eflowCaloObject with " << nClusters << " clusters");
-  for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
+  for (unsigned int iCluster = 0; iCluster < energyFlowCaloObject.nClusters(); ++iCluster){
     eflowRecCluster* thisEfRecCluster = energyFlowCaloObject.efRecCluster(iCluster);
     
     /* Skip empty clusters (presumably subtraction remnants) */
