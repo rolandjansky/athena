@@ -4,20 +4,8 @@
 
 #include "MuonCalibPatRec/MuonSegmentToCalibSegment.h"
 
-// muon geomodel
-#include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
-
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
-
-
-// hack to get MdtCalibrationSvcInput to compile
-namespace Trk {
-  class StraightLineSurface;
-}
-
-// mdt calibration
-#include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MuonCalibEvent/MdtCalibHit.h"
@@ -25,34 +13,22 @@ namespace Trk {
 #include "MuonCalibEventBase/CscCalibHitBase.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibNtuple/MuonSegmentNtupleBranch.h"
-
-
-#include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentQuality.h"
-
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-
-
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include <iostream>
 
-
 namespace MuonCalib {
 
   MuonSegmentToCalibSegment::MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator),
-    m_calibrationTool("MdtCalibrationTool",this),
-    m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
-    m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool")
-
-  {
+    AthAlgorithm(name, pSvcLocator) {
 
     declareProperty("ReadSegments", m_readSegments = false);
     declareProperty("UseCscSegments", m_useCscSegments = true);

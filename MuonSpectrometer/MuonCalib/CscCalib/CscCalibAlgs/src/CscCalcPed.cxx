@@ -2,63 +2,46 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ITHistSvc.h"
+#include "CscCalcPed.h"
+
 #include "GaudiKernel/Chrono.h"
-
-#include "TH1.h"
-#include "TF1.h"
-#include "TFile.h"
-
-#include "StoreGate/StoreGate.h"
-
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
-
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataContainer.h"
-
 #include "CscCalibData/CscCalibResultContainer.h"
 #include "CscCalibData/CscCalibReportContainer.h"
 #include "CscCalibData/CscCalibReportPed.h"
 
-#include <string>
+#include "TF1.h"
+
 #include <iostream>
 #include <fstream>
 #include <bitset>
 #include <inttypes.h>
-
-#include "CscCalcPed.h"
 
 namespace MuonCalib {
 
   CscCalcPed::CscCalcPed(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
     m_chronoSvc(0),
-    m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
     m_maxStripHash(0),
     m_numBits(12),
-    m_ampHists(NULL),
-    m_sampHists(NULL),
-    m_bitHists(NULL),
-    m_bitProds(NULL),
-    m_bitCorrelation(NULL),
-    m_peds(NULL),
-    m_noises(NULL),
-    m_rmses(NULL),
-    m_f001s(NULL),
-    m_onlineTHoldBreaches(NULL),
+    m_ampHists(nullptr),
+    m_sampHists(nullptr),
+    m_bitHists(nullptr),
+    m_bitProds(nullptr),
+    m_bitCorrelation(nullptr),
+    m_peds(nullptr),
+    m_noises(nullptr),
+    m_rmses(nullptr),
+    m_f001s(nullptr),
+    m_onlineTHoldBreaches(nullptr),
     m_eventCnt(0),
-    m_crossTalkFix(NULL),
-    m_debug(0),
-    m_verbose(0)
+    m_crossTalkFix(nullptr)
   {
     declareProperty("OutputFile", m_outputFileName = "output.cal");
     declareProperty("TitlePrefix",m_titlePrefix = "");	//Prefix appended to title of histograms and graphs
     declareProperty("TitlePostfix",m_titlePostfix = "");	//Prefix appended to title of histograms and graphs
-    declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
     declareProperty("PedAmpHighBound", m_ampHistHighBound = 2600);
     declareProperty("PedAmpLowBound", m_ampHistLowBound = 1800); 
     declareProperty("PedAmpNumBins", m_ampHistNumBins = 800);
@@ -84,16 +67,10 @@ namespace MuonCalib {
 
   StatusCode CscCalcPed::initialize()
   {
-    MsgStream mLog( msgSvc(), name() );
-
-    //Set debug level    
-    m_debug = (mLog.level() <= MSG::DEBUG);
-    m_verbose = (mLog.level() <= MSG::VERBOSE);
-
-    mLog << MSG::INFO << "CscCalcPed::initialize() called" << endmsg;
+    ATH_MSG_INFO("CscCalcPed::initialize() called");
 
     if(m_doOnlineDbFile && m_onlineDbFile ==""){
-      mLog << MSG::FATAL <<"Either specify an OnlineCalibFile or set CompareOnlineCalibFile to false"<< endmsg;
+      ATH_MSG_FATAL("Either specify an OnlineCalibFile or set CompareOnlineCalibFile to false");
       return StatusCode::FAILURE;
     }
 
@@ -144,8 +121,7 @@ namespace MuonCalib {
     //Now creating ampHists. It wasn't done in last loop since there 
     //is no gaurantee that it will come out in strip order, and we assume
     //later that m_ampHists's index = stripHash
-    if(m_debug) mLog << MSG::DEBUG << "Preparing ampHists. Only allowing those for "
-      << " chamberLayer " << m_expectedChamberLayer << endmsg;
+    ATH_MSG_DEBUG("Preparing ampHists. Only allowing those for " << " chamberLayer " << m_expectedChamberLayer);
     for(unsigned int stripItr = 0 ; stripItr <=m_maxStripHash; stripItr++)
     {        
 
@@ -165,7 +141,7 @@ namespace MuonCalib {
 
 
         char name[30],titleSeed[600];
-        TH1I* hist = NULL;
+        TH1I* hist = nullptr;
 
         int stationName = m_idHelperSvc->cscIdHelper().stationName(stripId);		
         //Amplitude histogram
@@ -214,9 +190,9 @@ namespace MuonCalib {
       }
       else
       {
-        m_ampHists->push_back(NULL);
-        if(m_bitHists) m_bitHists->push_back(NULL);
-        if(m_doSampleHists) m_sampHists->push_back(NULL);
+        m_ampHists->push_back(nullptr);
+        if(m_bitHists) m_bitHists->push_back(nullptr);
+        if(m_doSampleHists) m_sampHists->push_back(nullptr);
       }
     }//end strip loop
 
@@ -225,7 +201,7 @@ namespace MuonCalib {
     m_noises = new CscCalibResultCollection("noise");
     m_rmses = new CscCalibResultCollection("rms");
     if(m_doF001){
-      if(m_debug) mLog << MSG::DEBUG <<  "Doing f001" << endmsg;
+      ATH_MSG_DEBUG("Doing f001");
       //For f001 values
       m_f001s = new CscCalibResultCollection("f001");
 
@@ -245,7 +221,7 @@ namespace MuonCalib {
         m_onlineThresholds.resize(m_maxStripHash+1);
         std::ifstream ifile; ifile.open(m_onlineDbFile.c_str());
         if(!ifile.is_open()){
-          mLog << MSG::FATAL << "Failed to open online database file " << m_onlineDbFile << endmsg;
+          ATH_MSG_FATAL("Failed to open online database file " << m_onlineDbFile);
           return StatusCode::FAILURE;
         }
         std::string buf;
@@ -256,13 +232,13 @@ namespace MuonCalib {
         double f001;
 
         if(!ifile){
-          mLog << MSG::FATAL << "Problem with file after one word read in." << endmsg;
+          ATH_MSG_FATAL("Problem with file after one word read in.");
           return StatusCode::FAILURE;
         }
 
 
-        if(m_debug) mLog << MSG::DEBUG << "Reading in online thresholds from file " <<  m_onlineDbFile << endmsg;
-        if(m_debug) mLog << MSG::DEBUG << "First (junk) word: " << buf << endmsg;
+        ATH_MSG_DEBUG("Reading in online thresholds from file " <<  m_onlineDbFile);
+        ATH_MSG_DEBUG("First (junk) word: " << buf);
         int chanCnt = 0;
         while(ifile >> std::hex >> onlineId >> std::dec) { 
           chanCnt++;
@@ -270,29 +246,25 @@ namespace MuonCalib {
 
           ifile >> buf >> buf >> buf >> buf >>  rms >> buf >> f001;
           double thold = f001 + 2*rms;
-          if(m_verbose) mLog << MSG::VERBOSE 
-            << "onlid: " <<  std::hex << onlineId << std::dec << " hash: " << hashId << " rms: " << rms << " f001: " << f001 << " thold: " << thold 
-              << endmsg;
+          ATH_MSG_VERBOSE("onlid: " <<  std::hex << onlineId << std::dec << " hash: " << hashId << " rms: " << rms << " f001: " << f001 << " thold: " << thold);
           m_onlineThresholds.at(hashId) = thold;
-          if(m_verbose){
             if(!ifile)
-              mLog << MSG::VERBOSE << "input file is done, ready to close!"<< endmsg;
-          }
+              ATH_MSG_VERBOSE("input file is done, ready to close!");
           else 
-            mLog << MSG::VERBOSE << "Input file still good!" <<endmsg;
+            ATH_MSG_VERBOSE("Input file still good!");
 
 
         }
         if(chanCnt != 30720){
-          mLog << MSG::FATAL << "Did not retrieve expected 30720 channels from online database! Retrieved: " << chanCnt << endmsg;
-          mLog << MSG::FATAL << "Last onlineId read: " << std::hex << onlineId << std::dec << endmsg;
+          ATH_MSG_FATAL("Did not retrieve expected 30720 channels from online database! Retrieved: " << chanCnt);
+          ATH_MSG_FATAL("Last onlineId read: " << std::hex << onlineId << std::dec);
           return StatusCode::FAILURE;
         }
 
       }//if m_doOnlineDBFile
     }//db file
 
-    mLog << MSG::INFO << "highest strip hash id is " << m_maxStripHash  << endmsg;
+    ATH_MSG_INFO("highest strip hash id is " << m_maxStripHash);
 
     //If we're doing correlation plots, set up the product histogram array
     if(m_doCorrelation){
@@ -304,59 +276,55 @@ namespace MuonCalib {
 
 
 
-    mLog << MSG::INFO << "m_prods value: " << m_bitProds <<  "\ndoCorrelation" << m_doCorrelation << endmsg;
+    ATH_MSG_INFO("m_prods value: " << m_bitProds <<  "\ndoCorrelation" << m_doCorrelation);
     return StatusCode::SUCCESS;
   }
 
   //Execute loops through all strips and fills histograms
   StatusCode CscCalcPed::execute()
   {
-    MsgStream mLog( msgSvc(), name() );
-    if(m_debug) mLog << MSG::DEBUG << "Begin execute" << endmsg;	
+    ATH_MSG_DEBUG("Begin execute");	
     //collectEventInfo collects infomation about each event by filling ampHistCollection and peaktHist.
     StatusCode sc = collectEventInfo();
 
     if(!sc.isSuccess())
     {
-      mLog << MSG::ERROR << "There was an error collecting information from the RDO this event." << endmsg;
+      ATH_MSG_ERROR("There was an error collecting information from the RDO this event.");
       return StatusCode::RECOVERABLE;
     }
-    mLog << MSG::INFO << "End execute" << endmsg;	
+    ATH_MSG_DEBUG("End execute");	
     return StatusCode::SUCCESS;
   } //end execute()
 
   StatusCode CscCalcPed::finalize() {
-
-    MsgStream mLog( msgSvc(), name() );
-
     if(m_eventCnt ==0)
     {
-      mLog <<MSG::FATAL << "No events processed!" << endmsg;
+      ATH_MSG_FATAL("No events processed!");
       return StatusCode::FAILURE;
     }
     else
-      mLog << MSG::INFO << "In finalize() after analyzing " << m_eventCnt << " events " <<endmsg;
+      ATH_MSG_INFO("In finalize() after analyzing " << m_eventCnt << " events ");
 
     StatusCode sc;
 
-    mLog << MSG::INFO << "not dump all hists!" << endmsg;
+    ATH_MSG_INFO("not dump all hists!");
 
     //calculateParameters() finds means and fits gain curves from the data in 
     //m_ampHistCollection and/or m_peaktHist 
     sc =calculateParameters();
     if(!sc.isSuccess())
     {
-      mLog << MSG::FATAL << "Calculation of parameters failed!" << endmsg;
+      ATH_MSG_FATAL("Calculation of parameters failed!");
       return StatusCode::FAILURE;
     }
-    if(m_debug) mLog << MSG::DEBUG << "Finished calculating parameters" << endmsg;
+    ATH_MSG_DEBUG("Finished calculating parameters");
 
 
     //writeCalibrationFile() writes the calculated parameters into a calibration fie.
     sc = writeCalibrationFile();
     if(!sc.isSuccess())
     {
-      mLog << MSG::FATAL << "Calculation of parameters failed!" << endmsg;
+      ATH_MSG_FATAL("Calculation of parameters failed!");
       return StatusCode::FAILURE;
     }
 
@@ -365,10 +333,11 @@ namespace MuonCalib {
     sc =storeGateRecord(); 
     if (!sc.isSuccess())
     {
-      mLog << MSG::FATAL << "Failed recording data in storegate" <<endmsg;
+      ATH_MSG_FATAL("Failed recording data in storegate");
+      return StatusCode::FAILURE;
     }
 
-    mLog << MSG::INFO << "Finished finalize" << endmsg;
+    ATH_MSG_INFO("Finished finalize");
     return StatusCode::SUCCESS;	
   }//end finalize()
 
@@ -376,33 +345,30 @@ namespace MuonCalib {
   //Collect event info is run every event, gathering amplitutdes and peakting times.
   StatusCode CscCalcPed::collectEventInfo()
   {
-    MsgStream mLog( msgSvc(), name() );
-
-
     //start the timer
     Chrono chrono(m_chronoSvc,"collectEventInfo");
 
 
     m_eventCnt++;
-    if(m_debug) mLog << MSG::DEBUG <<"Collecting event info for event " << m_eventCnt << endmsg;
+    ATH_MSG_DEBUG("Collecting event info for event " << m_eventCnt);
     //Below might need to be changed depending on how we get data
     const CscRawDataContainer* rawDataContainter;
     StatusCode sc_read = evtStore()->retrieve(rawDataContainter, "CSCRDO"); 
     if (sc_read != StatusCode::SUCCESS)
     {
-      mLog << MSG::FATAL << "Could not find event" << endmsg;
+      ATH_MSG_FATAL("Could not find event");
       return StatusCode::FAILURE;
     }
 
-    if(m_verbose) mLog << MSG::VERBOSE <<"Retrieved RDO from storegate " <<  endmsg;
+    ATH_MSG_VERBOSE("Retrieved RDO from storegate ");
 
     if(rawDataContainter->size() == 0)
     {
-      mLog << MSG::FATAL << "no rods in RDO!" << endmsg;
+      ATH_MSG_FATAL("no rods in RDO!");
       return StatusCode::FAILURE;
     }
 
-    if(m_verbose) mLog << MSG::VERBOSE <<"There are " << rawDataContainter->size() << " rods in the RDO" << endmsg;
+    ATH_MSG_VERBOSE("There are " << rawDataContainter->size() << " rods in the RDO");
 
     IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
 
@@ -410,16 +376,15 @@ namespace MuonCalib {
     //a single CscRawaData collection
     CscRawDataContainer::const_iterator rodItr = rawDataContainter->begin();
     CscRawDataContainer::const_iterator rodEnd = rawDataContainter->end();
-    if(m_verbose) mLog << MSG::VERBOSE <<"does rodItr == rodEnd? " << (rodItr == rodEnd) << endmsg;
-    //	mLog << MSG::INFO<< " going to read all " << rawDataContainter->size() << " rod's" << endmsg;
+    ATH_MSG_VERBOSE("does rodItr == rodEnd? " << (rodItr == rodEnd));
     for(;rodItr != rodEnd; rodItr++)
     {
       Chrono chronoRod(m_chronoSvc,"RodItr");
-      if(m_verbose) mLog << MSG::VERBOSE <<"Examining a ROD" << endmsg;
+      ATH_MSG_VERBOSE("Examining a ROD");
       const CscRawDataCollection * rod = (*rodItr); 	//Removing another "pointer layer" to make
       //                                                syntax simpler
 
-      if(m_verbose) mLog << MSG::VERBOSE <<"There are " << rod->size() << " clusters in the ROD" << endmsg;
+      ATH_MSG_VERBOSE("There are " << rod->size() << " clusters in the ROD");
       if(rod->size() >0) 
       {
         //Loop over strips in rod
@@ -433,7 +398,7 @@ namespace MuonCalib {
           int numStrips = cluster->width();
           int samplesPerStrip = (cluster->samples()).size()/numStrips;
 
-          if(m_verbose) mLog << MSG::VERBOSE << "About to collect info from " << numStrips << " strips" << endmsg;
+          ATH_MSG_VERBOSE("About to collect info from " << numStrips << " strips");
           for(int stripItr = 0; stripItr <numStrips; stripItr++)
           {
 
@@ -454,20 +419,17 @@ namespace MuonCalib {
 
             if( m_idHelperSvc->cscIdHelper().chamberLayer(channelId) != m_expectedChamberLayer)
             {
-              mLog << MSG::WARNING << "Wrong chamber layer  a hash ("
+              ATH_MSG_WARNING("Wrong chamber layer  a hash ("
                 << stripHash << ")  from the wrong multilayer has appeared in the data. Its string id is " << m_idHelperSvc->cscIdHelper().show_to_string(stripId)
-                <<  "  " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
-                << endmsg;
+                <<  "  " << m_idHelperSvc->cscIdHelper().show_to_string(channelId));
 
-              mLog << MSG::INFO << "WP added (1) "
+              ATH_MSG_INFO("WP added (1) "
                 << m_idHelperSvc->cscIdHelper().stationEta(stripId) << " " << m_idHelperSvc->cscIdHelper().measuresPhi(stripId) << " "
-                << stripHash << " " << cscChannelHashId
-                << endmsg;
+                << stripHash << " " << cscChannelHashId);
 
-              mLog << MSG::INFO << "WP added (2) "
+              ATH_MSG_INFO("WP added (2) "
                 << m_idHelperSvc->cscIdHelper().stationEta(stripId) << " " << m_idHelperSvc->cscIdHelper().measuresPhi(stripId) << " "
-                << stripId << " " << channelId
-                << endmsg;
+                << stripId << " " << channelId);
 
               stripId = m_idHelperSvc->cscIdHelper().channelID(
                   m_idHelperSvc->cscIdHelper().stationName(stripId),
@@ -481,13 +443,13 @@ namespace MuonCalib {
               IdentifierHash newHash;
               m_idHelperSvc->cscIdHelper().get_channel_hash(stripId, newHash );
               stripHash = newHash;
-              if(m_debug) mLog << MSG::DEBUG << "New hash " << stripHash << endmsg;
+              ATH_MSG_DEBUG("New hash " << stripHash);
             }
             else{
               if(m_idHelperSvc->cscIdHelper().measuresPhi(stripId))
-                mLog << MSG::VERBOSE <<" good id Measures Phi" << endmsg;
+                ATH_MSG_VERBOSE(" good id Measures Phi");
               else
-                mLog << MSG::VERBOSE <<" good id is eta" << endmsg;
+                ATH_MSG_VERBOSE(" good id is eta");
             }
 
             Chrono chronoAfterId2(m_chronoSvc,"afterID2");
@@ -508,20 +470,20 @@ namespace MuonCalib {
                 (*((*m_sampHists)[stripHash]))[sampCnt]->Fill(*sampItr);
               if(m_bitHists && sampCnt==1)
               {
-                TH2F* prodHist = NULL;
-                if(m_bitProds!=NULL)
+                TH2F* prodHist = nullptr;
+                if(m_bitProds)
                   prodHist = (*m_bitProds)[stripHash];
                 if(!fillBitHist((*m_bitHists)[stripHash],*sampItr, prodHist).isSuccess())
-                  mLog << MSG::WARNING << "Failed recording bits for strip " << stripHash << endmsg;
+                  ATH_MSG_WARNING("Failed recording bits for strip " << stripHash);
               }//end if(m_bitHists)
 
               if(m_doOnlineDbFile){//m_doF001){
                 //test if any samples are obvoe the online threshold
                 if (*sampItr > m_onlineThresholds[stripHash] ){
                   m_onlineThresholdFailureCount[stripHash]++;
-                  if(m_verbose) mLog << MSG::VERBOSE << "StripHash: " << stripHash  << 
+                  ATH_MSG_VERBOSE("StripHash: " << stripHash  << 
                     " has online threshold breach. Sample: " << *sampItr << " Thold: " 
-                      << m_onlineThresholds[stripHash] << endmsg;
+                      << m_onlineThresholds[stripHash]);
                 }
               }
               sampCnt++;
@@ -530,9 +492,9 @@ namespace MuonCalib {
           }//end cluster loop
         }
         else
-          if(m_debug) mLog << MSG::DEBUG << "There is an empty rod (CscRawDataContainer)." <<endmsg;
+          ATH_MSG_DEBUG("There is an empty rod (CscRawDataContainer).");
       }//end rod loop
-      if(m_debug) mLog << MSG::DEBUG << "end collectEventInfo()" << endmsg;
+      ATH_MSG_DEBUG("end collectEventInfo()");
       return StatusCode::SUCCESS;
     }// end collectEventInfo()
 
@@ -541,7 +503,6 @@ namespace MuonCalib {
     //calculates the parameter values.
     StatusCode CscCalcPed::calculateParameters()
     {
-      MsgStream mLog( msgSvc(), name() );
       Chrono chrono(m_chronoSvc,"calculateParameters");
 
 
@@ -551,14 +512,14 @@ namespace MuonCalib {
       {
         if(stripHash < 50 || stripHash%1000 == 0)
         {
-          mLog << MSG::INFO << "Analyzing strip with hash " << stripHash << " out of " << m_maxStripHash << endmsg; 
-          if(m_verbose) mLog <<MSG::VERBOSE << (float)clock()/((float)CLOCKS_PER_SEC) << " is the time" << endmsg;
+          ATH_MSG_INFO("Analyzing strip with hash " << stripHash << " out of " << m_maxStripHash); 
+          ATH_MSG_VERBOSE((float)clock()/((float)CLOCKS_PER_SEC) << " is the time");
         }
 
         TH1I * ampHist = (*m_ampHists)[stripHash];
-        if(ampHist != NULL)
+        if(ampHist)
         {
-          if(m_verbose) mLog << MSG::VERBOSE << "Have data for strip hash " << stripHash << endmsg;
+          ATH_MSG_VERBOSE("Have data for strip hash " << stripHash);
           if(ampHist->GetEntries() >0) //If strip wasn't tested, it won't have entries
           {
             //Following Schernau's work
@@ -568,12 +529,11 @@ namespace MuonCalib {
 
             float lowbound = histMean - 3*histRMS;
             float highbound = histMean + 3*histRMS;
-            if(m_verbose) mLog << MSG::VERBOSE << "About to fit..." << endmsg;
+            ATH_MSG_VERBOSE("About to fit...");
 
             int result = ampHist->Fit("gaus","QL","",lowbound,highbound);
-            if(m_verbose) mLog << MSG::VERBOSE << "Result is " << result << endmsg;
+            ATH_MSG_VERBOSE("Result is " << result);
             TF1 * fittedFunction = ampHist->GetFunction("gaus");
-            //double mean = fittedFunction->GetParameter(1);
             double meanError = fittedFunction->GetParError(1);
             double sigma = fittedFunction->GetParameter(2);
             double sigmaError = fittedFunction->GetParError(2);
@@ -610,16 +570,16 @@ namespace MuonCalib {
           }
         }
         else
-          if(m_verbose) mLog << MSG::VERBOSE << "Don't have data for strip hash " << stripHash << endmsg;
+          ATH_MSG_VERBOSE("Don't have data for strip hash " << stripHash);
       }//end loop over strips
 
 
       //don't need it anymore, clear ram taken by m_failure tests
-      mLog << MSG::DEBUG << "Clearing m_onlineThresholdFailureCount" << endmsg;
+      ATH_MSG_DEBUG("Clearing m_onlineThresholdFailureCount");
       m_onlineThresholdFailureCount.resize(0);
 
 
-      mLog << MSG::INFO << "Completed calculating parameters." << endmsg;
+      ATH_MSG_INFO("Completed calculating parameters.");
 
       return StatusCode::SUCCESS;
     }//End calculateParameters()
@@ -627,10 +587,9 @@ namespace MuonCalib {
     //writeCalibrationFile() dumps the parameters to disk
     StatusCode CscCalcPed::writeCalibrationFile()
     {
-      MsgStream mLog( msgSvc(), name() );
       Chrono chrono(m_chronoSvc,"writeFile");
       //***Take conditions data held in summary histograms and  print to the calibration file***//
-      mLog << MSG::INFO << "Parameters calculated, preparing to output to file: " << m_outputFileName << " Types 1 and " << m_calOutputVersion << endmsg;
+      ATH_MSG_INFO("Parameters calculated, preparing to output to file: " << m_outputFileName << " Types 1 and " << m_calOutputVersion);
 
       ATH_CHECK( calOutput1() );
 
@@ -641,7 +600,7 @@ namespace MuonCalib {
         return calOutput3();
       }
       else{
-        mLog << "Don't know how to write calibration file version " << m_calOutputVersion << endmsg;
+        ATH_MSG_WARNING("Don't know how to write calibration file version " << m_calOutputVersion);
         return StatusCode::RECOVERABLE;
       }
       // this part of the code cannot be reached since one of the if statements before already exits the code
@@ -649,13 +608,12 @@ namespace MuonCalib {
     }
 
     StatusCode CscCalcPed::calOutput0() {
-      MsgStream mLog( msgSvc(), name() );
 
       std::ofstream out;
       out.open(m_outputFileName.c_str());
       if(!out.is_open())
       {
-        mLog << MSG::ERROR << "Can't open file " << m_outputFileName.c_str() << endmsg;
+        ATH_MSG_ERROR("Can't open file " << m_outputFileName.c_str());
         return StatusCode::RECOVERABLE;
       }
 
@@ -666,8 +624,7 @@ namespace MuonCalib {
       out << "rms ";
       out << "END_HEADER\n";			
 
-      if(m_debug) mLog << MSG::DEBUG <<  "Begining loop over all " << m_peds->size()  
-        << " channels data was collected for." << endmsg;
+      ATH_MSG_DEBUG("Begining loop over all " << m_peds->size() << " channels data was collected for.");
 
       //form is:hashID chamber LayerOrientationStrip  parametervalue parametervalue 
       CscCalibResultCollection::iterator pedItr = m_peds->begin();
@@ -680,10 +637,8 @@ namespace MuonCalib {
         double ped = (*pedItr)->value();
         double noise = (*noiseItr)->value();
         double rms = (*rmsItr)->value();
-        //double thold = (*tholdItr)->value();
 
-        if(m_debug) mLog << MSG::DEBUG << "we're on hash " << hashId << " with pedestal " << ped 
-          << "and noise " << noise << endmsg;//<< " and threshold " << thold << endmsg;
+        ATH_MSG_DEBUG("we're on hash " << hashId << " with pedestal " << ped << "and noise " << noise);
         Identifier id;
         IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
         m_idHelperSvc->cscIdHelper().get_id(hashId,id, &channelContext);
@@ -691,10 +646,8 @@ namespace MuonCalib {
         Identifier chamberId = m_idHelperSvc->cscIdHelper().elementID(id);
         if(!m_idHelperSvc->cscIdHelper().valid(chamberId))
         {
-          mLog << MSG::WARNING << chamberId.getString() << " is not a valid id!" << endmsg;
-          mLog << MSG::WARNING << "identifier is: " << m_idHelperSvc->cscIdHelper().show_to_string(chamberId) << endmsg;
-          //id.show();
-          //in.ignore(10000,'\n');
+          ATH_MSG_WARNING(chamberId.getString() << " is not a valid id!");
+          ATH_MSG_WARNING("identifier is: " << m_idHelperSvc->cscIdHelper().show_to_string(chamberId));
         }
 
         IdentifierHash chamberHash;
@@ -707,19 +660,17 @@ namespace MuonCalib {
         out << " " << ped;
         out << " " << noise;
         out << " " << rms;
-        //out << " " << thold;
         out << "\n" ; 
       } //end loop over hash Ids
 
       out.close(); //done writing		
-      mLog <<MSG::INFO <<"File written" << endmsg;
+      ATH_MSG_INFO("File written");
       return StatusCode::SUCCESS;	
     }//end calOutput0
 
     //calOutput1 prints out calibration output file in format Michael Schernau's 
     //online software likes to read
     StatusCode CscCalcPed::calOutput1() {
-      MsgStream mLog( msgSvc(), name() );
 
       std::ofstream out;
       std::string onlineFileName = m_outputFileName + "_online";
@@ -727,14 +678,13 @@ namespace MuonCalib {
       out.open(onlineFileName.c_str());
       if(!out.is_open())
       {
-        mLog << MSG::ERROR << "Can't open online file " << m_outputFileName.c_str() << endmsg;
+        ATH_MSG_ERROR("Can't open online file " << m_outputFileName.c_str());
         return StatusCode::RECOVERABLE;
       }
 
       out << "32\n";
 
-      if(m_debug) mLog << MSG::DEBUG <<  "Begining loop over all " << m_peds->size()  
-        << " channels data was collected for." << endmsg;
+      ATH_MSG_DEBUG("Begining loop over all " << m_peds->size() << " channels data was collected for.");
 
       SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey}; 
       const CscCondDbData* readCdo{*readHandle};
@@ -759,8 +709,7 @@ namespace MuonCalib {
         //Online ids are same as "string ids" used internally in COOL db.
         readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", onlineHexId).ignore();
 
-        if(m_debug) mLog << MSG::DEBUG << "we're on hash " << hashId << " with pedestal " << ped 
-          << "and noise " << noise << endmsg;//<< " and threshold " << thold << endmsg;
+        ATH_MSG_DEBUG("we're on hash " << hashId << " with pedestal " << ped << "and noise " << noise);
         Identifier id;
         IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
         m_idHelperSvc->cscIdHelper().get_id(hashId,id, &channelContext);
@@ -768,10 +717,8 @@ namespace MuonCalib {
         Identifier chamberId = m_idHelperSvc->cscIdHelper().elementID(id);
         if(!m_idHelperSvc->cscIdHelper().valid(chamberId))
         {
-          mLog << MSG::WARNING << chamberId.getString() << " is not a valid id!" << endmsg;
-          mLog << MSG::WARNING << "identifier is: " << m_idHelperSvc->cscIdHelper().show_to_string(chamberId) << endmsg;
-          //id.show();
-          //in.ignore(10000,'\n');
+          ATH_MSG_WARNING(chamberId.getString() << " is not a valid id!");
+          ATH_MSG_WARNING("identifier is: " << m_idHelperSvc->cscIdHelper().show_to_string(chamberId));
         }
 
         char orientationChar = (m_idHelperSvc->cscIdHelper().measuresPhi(id) ? 'Y':'X');
@@ -797,20 +744,18 @@ namespace MuonCalib {
       } //end loop over hash Ids
 
       out.close(); //done writing		
-      mLog <<MSG::INFO <<"File written" << endmsg;
+      ATH_MSG_INFO("File written");
       return StatusCode::SUCCESS;	
     }//end calOutput1
 
     //calOutput3 outputs version 03-00 calibration files, which are what the most recent version
     //of CscCoolReadWrite takes for input
     StatusCode CscCalcPed::calOutput3() {
-      MsgStream mLog( msgSvc(), name() );
-
       std::ofstream out;
       out.open(m_outputFileName.c_str());
       if(!out.is_open())
       {
-        mLog << MSG::ERROR << "Can't open output 3 type file " << m_outputFileName.c_str() <<  " for writing " << endmsg;
+        ATH_MSG_ERROR("Can't open output 3 type file " << m_outputFileName.c_str() <<  " for writing ");
         return StatusCode::RECOVERABLE;
       }
       out << "03-00 <END_HEADER>";
@@ -858,15 +803,12 @@ namespace MuonCalib {
     //programs
     StatusCode CscCalcPed::storeGateRecord()
     {
-      MsgStream mLog( msgSvc(), name() );
-
       StatusCode sc = StatusCode::SUCCESS;
 
       bool thereIsAnError = false;
 
       std::string histKey = "cscPedCalibReport";
-      if(m_debug) mLog << MSG::DEBUG << "Recording pedestal amplitude histograms to TDS with key " 
-        << histKey << endmsg;
+      ATH_MSG_DEBUG("Recording pedestal amplitude histograms to TDS with key " << histKey);
 
       //CscCalibReport has extraraneous monitoring information
       CscCalibReportPed * report = new CscCalibReportPed("pedAmps");
@@ -885,7 +827,7 @@ namespace MuonCalib {
       sc = evtStore()->record(repCont, histKey);
       if(!sc.isSuccess())
       {
-        mLog << MSG::ERROR << "Failed to record CscCalibReportPed to storegate" << endmsg;
+        ATH_MSG_ERROR("Failed to record CscCalibReportPed to storegate");
         thereIsAnError = true;
         delete repCont;
       }
@@ -894,7 +836,7 @@ namespace MuonCalib {
       //CscCalibResult contains the actual parameters that we recorded, mostly things that should be entered
       //into cool
       std::string key = "CscCalibResultPed";
-      if(m_debug) mLog << MSG::DEBUG << "Recording calibration results to TDS with key " << key << endmsg;
+      ATH_MSG_DEBUG("Recording calibration results to TDS with key " << key);
 
       CscCalibResultContainer * calibResults 
         = new CscCalibResultContainer("CscCalibResultPed");
@@ -908,7 +850,7 @@ namespace MuonCalib {
       sc = evtStore()->record(calibResults,key);
       if(!sc.isSuccess())
       {
-        mLog << MSG::ERROR << "Failed to record data to storegate" << endmsg;
+        ATH_MSG_ERROR("Failed to record data to storegate");
         thereIsAnError = true;
         delete calibResults;
       }
@@ -923,7 +865,7 @@ namespace MuonCalib {
     DataVector<TH2F> * CscCalcPed::makeBitCorrelation() {
 
       if(!m_bitProds || !m_bitHists)
-        return NULL;
+        return nullptr;
 
       DataVector<TH2F> * correlations = new DataVector<TH2F>(SG::VIEW_ELEMENTS);
       correlations->resize(m_maxStripHash +1);
@@ -969,23 +911,6 @@ namespace MuonCalib {
           for(unsigned int bit1 = 1; bit1 <=m_numBits; bit1++){
             for(unsigned int bit2 = 1; bit2 <=bit1; bit2++){
 
-              /*
-              //Prolay's method
-
-              float xyn = bitProds->GetBinContent(bit1,bit2)/n; //Avg product
-              float x = bitHist->GetBinContent(bit1);
-              float xn = x/n;                                   //avg bit1
-              float y = bitHist->GetBinContent(bit2);
-              float yn = y/n;                                   //avg bit2
-              float sigx = sqrt(x*(1-xn));                      //sigma 1
-              float sigy = sqrt(y*(1-yn));                      //sigma 2
-
-              float pxy = (xyn - xn*yn)/sigx/sigy;
-
-              correlationHist->SetBinContent(bit1,bit2,pxy);
-              if(bit1!=bit2)
-              correlationHist->SetBinContent(bit2,bit1,pxy);
-               */
               float xy = bitProds->GetBinContent(bit1,bit2);
               float x = bitHist->GetBinContent(bit1);
               float y = bitHist->GetBinContent(bit2);

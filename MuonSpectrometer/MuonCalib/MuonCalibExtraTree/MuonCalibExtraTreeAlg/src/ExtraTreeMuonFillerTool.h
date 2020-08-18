@@ -9,7 +9,6 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Trk {
@@ -39,7 +38,7 @@ class ExtraTreeMuonFillerTool: public ExtraTreeTrackFillerTool {
     ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelper {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<Trk::IPropagator> m_propagator;
+    ToolHandle<Trk::IPropagator> m_propagator{this,"Propagator","Trk::StraightLinePropagator/MuonStraightLinePropagator"};
     inline StatusCode writeTrackParticle(const xAOD::TrackParticle *&part, bool /*isPrimaryAuthor*/, bool writeHits, unsigned int &index, int author);
     inline Trk::Track* createTaggedMuonTrack( const xAOD::Muon &muon ) const;
   };

@@ -2,57 +2,26 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// standard C++ //
-#include <iostream>
-#include <fstream>
-#include <typeinfo>
-#include "cmath"
-
-// Gaudi //
-#include "StoreGate/StoreGateSvc.h"
-
-// MuonCalib //
 #include "MdtCalibIOSvc/MdtCalibOutputDbSvc.h"
-#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
+
 #include "MdtCalibT0/T0CalibrationOutput.h"
 #include "MdtCalibData/MdtTubeFitContainer.h"
 #include "MdtCalibRt/RtCalibrationOutput.h" 
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/RtResolutionLookUp.h"
-
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
 #include "MdtCalibData/IRtResolution.h"
 #include "MdtCalibData/RtResolutionFromPoints.h"
 
-#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
+#include <iostream>
+#include <fstream>
+#include <typeinfo>
+#include <cmath>
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
 using namespace MuonCalib;
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS MdtCalibOutputDbSvc ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//////////////////
-// SET POINTERS //
-//////////////////
-
-//MdtCalibOutputDbSvc *MdtCalibOutputDbSvc::m_MdtCalibOutputDbSvc_pointer=0;
-
-//*****************************************************************************
-
-
-//::::::::::::::::::::::::
-//:: PUBLIC CONSTRUCTOR ::
-//::::::::::::::::::::::::
-
-//MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string & name,
-//					 ISvcLocator *svc_locator) : Service(name, svc_locator), m_results(NULL), m_postprocess_calibration(false), m_write_root_database(false), m_db(NULL), m_iov_start(-1), m_iov_end(-1) {
 MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string &name,ISvcLocator *svc_locator) : AthService(name, svc_locator), m_results(NULL), 
 											     m_postprocess_calibration(false), 
-											     m_calib_output_tool("MuonCalib::CalibrationFileIOTool"), 
 											     m_iov_start(-1), m_iov_end(-1), 
 											     m_reg_sel_svc("RegionSelectionSvc", name), 
 											     m_input_service("MdtCalibInputSvc",name) {
@@ -60,7 +29,6 @@ MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string &name,ISvcLocator *sv
   declareProperty("PostprocessCalibration", m_postprocess_calibration);
   m_flat_default_resolution=-1;
   declareProperty("FlatDefaultResolution", m_flat_default_resolution);
-  declareProperty("OutputTool", m_calib_output_tool);
   m_force_default_resolution=false;
   declareProperty("ForceDefaultResolution", m_force_default_resolution);
   

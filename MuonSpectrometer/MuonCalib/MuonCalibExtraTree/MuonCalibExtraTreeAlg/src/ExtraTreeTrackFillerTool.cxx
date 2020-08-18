@@ -14,9 +14,7 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibTrack_E.h"
 #include "AthContainers/DataVector.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -35,7 +33,6 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h" 
 
 #include "TrkEventPrimitives/ResidualPull.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "CxxUtils/sincos.h"
 
 #include "EventPrimitives/EventPrimitives.h"
@@ -45,15 +42,11 @@ namespace MuonCalib {
 ExtraTreeTrackFillerTool::ExtraTreeTrackFillerTool(const std::string &type, const std::string &name, const IInterface *parent) : 
   IExtraTreeFillerTool(), 
   AthAlgTool(type, name, parent),
-  m_idToFixedIdTool( "MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool" ),
-  m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
   m_author(0) {
   declareInterface<IExtraTreeFillerTool>(this);
   declareProperty("TrackCollectionKey", m_trackCollectionKey);
   declareProperty("SegmentAuthors", m_segment_authors);
   declareProperty("TrackAuthor", m_author);
-  declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
-  declareProperty("PullCalculator", m_pullCalculator);
 }
 	
 StatusCode ExtraTreeTrackFillerTool::initialize() {

@@ -6,7 +6,6 @@
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibData/MdtFullCalibData.h"
@@ -90,8 +89,7 @@ MdtCalibrationTool::Imp::Imp(std::string name) :
 
 
 MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent)
-  : base_class(type, name, parent),
-    m_dbTool("MdtCalibrationDbTool",this)
+  : base_class(type, name, parent)
 {
   m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
@@ -110,7 +108,6 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
   declareProperty("LowerBoundHitRadius", m_imp->m_unphysicalHitRadiusLowerBound = 0. );
   declareProperty("DoT0Shift", m_imp->m_doT0Shift = false );
   declareProperty("DoTMaxShift", m_imp->m_doTMaxShift = false );
-  declareProperty("CalibrationDbTool",m_dbTool);
 }
 
 MdtCalibrationTool::~MdtCalibrationTool() {

@@ -5,43 +5,26 @@
 #ifndef RegionSelectionSvc_H
 #define RegionSelectionSvc_H
 
-//c - c++
-#include "string"
-#include "iostream"
-#include "set"
-#include "list"
-
-
-//gaudi
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h" 
 #include "GaudiKernel/ToolHandle.h"
 
-//MuonCalibITools
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
+#include <string>
+#include <vector>
+#include <set>
+#include <list>
+
 namespace MuonCalib {
-
-//this
-class RegionSelectorBase;
-
-//MuonCalibIdentifier
-class MuonFixedId;
-
-class IIdToFixedIdTool;
-class RPCTowerId;
+  class RegionSelectorBase;
+  class MuonFixedId;
 }
 
 // interface to enable retrieving of a pointer to the singleton //
 const InterfaceID IID_IRegionSelectionSvc("RegionSelectionSvc", 1, 0);
-
-class Identifier; 
-class StoreGateSvc; 
 
 /** @class RegionSelectionSvc
 Seolect calibration region
@@ -49,7 +32,6 @@ Seolect calibration region
 @author rauscher@cern.ch
 */
 
-class TDirectory;
 class TChain;
 
 class RegionSelectionSvc : public AthService
@@ -100,7 +82,7 @@ class RegionSelectionSvc : public AthService
 		const MuonGM::MuonDetectorManager* m_detMgr;//! search for chambers and multilayers in selected region
 	//!towers in selected region
 		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-		ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
+		ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool{this,"IdToFixedIdTool","MuonCalib::IdToFixedIdTool"};
 		
 		inline void search_chambers_in_region();
 	/** process string */
