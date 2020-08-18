@@ -830,7 +830,7 @@ collection_merger_alg = CfgGetter.getAlgorithm('ISF_CollectionMerger')
 
 SimKernel = CfgGetter.getAlgorithm(ISF_Flags.Simulator.KernelName())
 
-if ISF_Flags.HITSMergingRequired():
+if ISF_Flags.HITSMergingRequired.anyOn():
     topSequence += collection_merger_alg
 
 #--------------------------------------------------------------

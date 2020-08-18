@@ -12,9 +12,11 @@ def getFatrasHitCreatorPixel(name="ISF_FatrasHitCreatorPixel", **kwargs):
     bare_collection_name = "PixelHits"
     mergeable_collection_suffix = "_Fatras"
     merger_input_property = "PixelHits"
+    region = 'ID'
     hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                               mergeable_collection_suffix,
-                                                              merger_input_property)
+                                                              merger_input_property,
+                                                              region)
 
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
@@ -36,9 +38,11 @@ def getFatrasHitCreatorSCT(name="ISF_FatrasHitCreatorSCT", **kwargs):
     bare_collection_name = "SCT_Hits"
     mergeable_collection_suffix = "_Fatras"
     merger_input_property = "SCTHits"
+    region = 'ID'
     hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                               mergeable_collection_suffix,
-                                                              merger_input_property)
+                                                              merger_input_property,
+                                                              region)
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
@@ -59,9 +63,11 @@ def getFatrasHitCreatorTRT(name="ISF_FatrasHitCreatorTRT", **kwargs):
     bare_collection_name = "TRTUncompressedHits"
     mergeable_collection_suffix = "_Fatras"
     merger_input_property = "TRTUncompressedHits"
+    region = 'ID'
     hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                               mergeable_collection_suffix,
-                                                              merger_input_property)
+                                                              merger_input_property,
+                                                              region)
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())

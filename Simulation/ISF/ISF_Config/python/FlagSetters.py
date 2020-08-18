@@ -46,7 +46,8 @@ def configureFlagsBase():
 def configureFlagsFullG4():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "FullG4"
-    ISF_Flags.HITSMergingRequired = False
+    mergeDict = {'ID':False, 'CALO':False, 'MUON':False}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     ISF_Flags.ParticleBroker = "ISF_ParticleBrokerSvcNoOrdering"
     return
 
@@ -111,6 +112,8 @@ def configureFlagsATLFASTII():
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
+    mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
     return
 
@@ -159,6 +162,9 @@ def configureFlagsATLFASTIIF():
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.MaterialVersion=21
     TrkDetFlags.TRT_BuildStrawLayers=True
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsFatras_newExtrapolation():
@@ -187,6 +193,9 @@ def configureFlagsG4HS_FastPileup():
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.MaterialVersion=21
     TrkDetFlags.TRT_BuildStrawLayers=True
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsATLFASTIIF_IDOnly():
@@ -219,6 +228,8 @@ def configureFlagsATLFASTIIF_G4MS():
 def configureFlagsMultiSimTest():
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
+    mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
     return
 
 def configureFlagsG4GammaCones():

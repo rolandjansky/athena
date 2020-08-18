@@ -6,7 +6,8 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 def generate_mergeable_collection_name(bare_collection_name,
                                        mergeable_collection_suffix,
-                                       merger_input_property):
+                                       merger_input_property,
+                                       region):
     """
     Generates and returns a collection name that is also registered to
     the ISF CollectionMerger algorithm.
@@ -19,7 +20,7 @@ def generate_mergeable_collection_name(bare_collection_name,
         CollectionMerger algorithm to add the mergeable collection to.
     """
     hardscatterSG = "OriginalEvent_SG/"
-    if simFlags.ISFRun() and ISF_Flags.HITSMergingRequired():
+    if simFlags.ISFRun() and ISF_Flags.HITSMergingRequired.get_Value().get(region,True):
         mergeable_collection = '{bare}{suffix}'.format(
             bare=bare_collection_name,
             suffix=mergeable_collection_suffix
