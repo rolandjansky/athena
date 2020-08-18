@@ -87,7 +87,7 @@ public:
     The parameters are given as a pointer owned by the caller.
     The returned ptr is owned by the caller.
     */
-  virtual const TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     ICache& icache,
     const TrackParameters* param,
     const Layer& sf,
@@ -100,7 +100,7 @@ public:
     The parameters are given as a pointer owned by the caller.
     The returned ptr is owned by the caller
     */
-  virtual TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     ICache& icache,
     const TrackParameters* param,
     const MaterialEffectsOnTrack& meff,
@@ -112,7 +112,7 @@ public:
     The parameters are given as a pointer owned by the caller.
     The returned ptr is owned by the caller
     */
-  virtual TrackParameters* preUpdate(
+  virtual std::unique_ptr<TrackParameters> preUpdate(
     ICache& icache,
     const TrackParameters* param,
     const Layer& sf,
@@ -126,7 +126,7 @@ public:
     The returned ptr is owned by the caller
     Layer-based material update if the postUpdate fails, it returns 0
     */
-  virtual TrackParameters* postUpdate(
+  virtual std::unique_ptr<TrackParameters> postUpdate(
     ICache& icache,
     const TrackParameters& param,
     const Layer& sf,
@@ -140,7 +140,7 @@ public:
     The returned ptr is owned by the caller
     - used by all Layer-based methods
     */
-  virtual TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     ICache& icache,
     const TrackParameters& param,
     const MaterialProperties& mprop,
@@ -159,7 +159,7 @@ public:
 
   /** Updator interface (full update for a layer):
     */
-  virtual TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     const TrackParameters* param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
@@ -169,7 +169,7 @@ public:
 
   /** User updator interface (full update for a layer):
     */
-  virtual TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     const TrackParameters* param,
     const MaterialEffectsOnTrack& meff,
     ParticleHypothesis particle = pion,
@@ -177,7 +177,7 @@ public:
   ) const = 0;
   /** Updator interface (pre-update for a layer):
     */
-  virtual TrackParameters* preUpdate(
+  virtual std::unique_ptr<TrackParameters> preUpdate(
     const TrackParameters* param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
@@ -187,7 +187,7 @@ public:
 
   /** Updator interface (pre-update for a layer):
     */
-  virtual TrackParameters* postUpdate(
+  virtual std::unique_ptr<TrackParameters> postUpdate(
     const TrackParameters& param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
@@ -199,7 +199,7 @@ public:
     MaterialProperties based material update
     - used by all Layer-based methods
     */
-  virtual TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     const TrackParameters& param,
     const MaterialProperties& mprop,
     double pathcorrection,

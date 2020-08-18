@@ -135,7 +135,7 @@ Trk::MaterialEffectsUpdator::initialize()
 }
 
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
   Cache& cache,
   const TrackParameters* parm,
@@ -147,13 +147,13 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm->position())) {
-    return parm->clone();
+    return std::unique_ptr<TrackParameters>(parm->clone());
   }
 
   // get the quantities
   const Trk::MaterialProperties* mprop = lay.fullUpdateMaterialProperties(*parm);
   if (!mprop) {
-    return parm->clone();
+    return std::unique_ptr<TrackParameters>(parm->clone());
   }
 
   // get the real pathlength
@@ -178,10 +178,10 @@ Trk::MaterialEffectsUpdator::updateImpl(
   if (m_validationMode) {
     cache.validationLayer = &lay;
   }
-  return (updateImpl(cache, parm, *mprop, pathCorrection, dir, particle, matupmode));
+  return updateImpl(cache, parm, *mprop, pathCorrection, dir, particle, matupmode);
 }
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
   Cache& cache,
   const TrackParameters* parm,
@@ -194,7 +194,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // curvilinear) then should we fall through?
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       parm->associatedSurface() != meff.associatedSurface()) {
-    return parm->clone();
+    return std::unique_ptr<TrackParameters>(parm->clone());
   }
 
   // get the kinematics
@@ -353,15 +353,19 @@ Trk::MaterialEffectsUpdator::updateImpl(
     // ----------------------------------------- validation section ----------------------------------
   }
   updatedParameters[Trk::qOverP] = qOverPnew;
-  return parm->associatedSurface().createTrackParameters(updatedParameters[Trk::loc1],
-                                                         updatedParameters[Trk::loc2],
-                                                         updatedParameters[Trk::phi],
-                                                         updatedParameters[Trk::theta],
-                                                         updatedParameters[Trk::qOverP],
-                                                         updatedCovariance);
+  return std::unique_ptr<TrackParameters>(
+    parm->associatedSurface().createTrackParameters(
+      updatedParameters[Trk::loc1],
+      updatedParameters[Trk::loc2],
+      updatedParameters[Trk::phi],
+      updatedParameters[Trk::theta],
+      updatedParameters[Trk::qOverP],
+      updatedCovariance
+    )
+  );
 }
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::preUpdateImpl(
   Cache& cache,
   const TrackParameters* parm,
@@ -372,14 +376,14 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(
 ) const {
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
-    return parm->clone();
+    return std::unique_ptr<TrackParameters>(parm->clone());
   }
 
   // get the split factor
   double preFactor = lay.preUpdateMaterialFactor(*parm, dir);
   // return if the preFactor is less than one
   if (preFactor < 0.01) {
-    return parm->clone();
+    return std::unique_ptr<TrackParameters>(parm->clone());
   }
 
   // get the material properties
@@ -394,7 +398,7 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(
 
   // exit if no mprop could be assigned
   if (!mprop) {
-    return parm->clone();
+    return std::unique_ptr<TrackParameters>(parm->clone());
   }
   // --------------------------------------------------------------------------------------------------
   if (outputFlag) {
@@ -412,10 +416,10 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(
   if (m_validationMode) {
     cache.validationLayer = &lay;
   }
-  return (updateImpl(cache, parm, *mprop, pathCorrection, dir, particle, matupmode));
+  return updateImpl(cache, parm, *mprop, pathCorrection, dir, particle, matupmode);
 }
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::postUpdateImpl(
   Cache& cache,
   const TrackParameters& parm,
@@ -427,7 +431,7 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm.position())) {
-    return parm.clone();
+    return std::unique_ptr<TrackParameters>(parm.clone());
   }
 
   // get the quantities
@@ -436,7 +440,7 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(
 
   // no material properties - pass them back
   if (postFactor < 0.01) {
-    return parm.clone();
+    return std::unique_ptr<TrackParameters>(parm.clone());
   }
 
   // set the output if restricted to the validation direction
@@ -448,7 +452,7 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(
 
   // exit if no material properties
   if (!mprop) {
-    return parm.clone();
+    return std::unique_ptr<TrackParameters>(parm.clone());
   }
 
   // --------------------------------------------------------------------------------------------------
@@ -467,11 +471,11 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(
   if (m_validationMode) {
     cache.validationLayer = &lay;
   }
-  return (updateImpl(cache, parm, *mprop, pathCorrection, dir, particle, matupmode));
+  return updateImpl(cache, parm, *mprop, pathCorrection, dir, particle, matupmode);
 }
 
 // actual update method - manipulation
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
   Cache& cache,
   const TrackParameters* parm,
@@ -483,7 +487,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 ) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
-    return parm->clone();
+    return std::unique_ptr<TrackParameters>(parm->clone());
   }
 
   // get the kinematics
@@ -637,19 +641,23 @@ Trk::MaterialEffectsUpdator::updateImpl(
       // ----------------------------------------- validation section ----------------------------------
     }
     updatedParameters[Trk::qOverP] = parm->charge() / (p + deltaP);
-    return parm->associatedSurface().createTrackParameters(updatedParameters[Trk::loc1],
-                                                           updatedParameters[Trk::loc2],
-                                                           updatedParameters[Trk::phi],
-                                                           updatedParameters[Trk::theta],
-                                                           updatedParameters[Trk::qOverP],
-                                                           updatedCovariance);
+    return std::unique_ptr<TrackParameters>(
+      parm->associatedSurface().createTrackParameters(
+        updatedParameters[Trk::loc1],
+        updatedParameters[Trk::loc2],
+        updatedParameters[Trk::phi],
+        updatedParameters[Trk::theta],
+        updatedParameters[Trk::qOverP],
+        updatedCovariance
+      )
+    );
   }
   //default if we have not returned just above
-  return parm->clone();
+  return std::unique_ptr<TrackParameters>(parm->clone());
 }
 
 // actual update method
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
   Cache& cache,
   const TrackParameters& parm,
@@ -661,7 +669,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 ) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || (!m_doMs && !m_doEloss)) {
-    return parm.clone();
+    return std::unique_ptr<TrackParameters>(parm.clone());
   }
 
   // get the kinematics
@@ -804,14 +812,18 @@ Trk::MaterialEffectsUpdator::updateImpl(
       }
       // ------------------------------------------validation section ----------------------------------
     }
-    return parm.associatedSurface().createTrackParameters(updatedParameters[Trk::loc1],
-                                                          updatedParameters[Trk::loc2],
-                                                          updatedParameters[Trk::phi],
-                                                          updatedParameters[Trk::theta],
-                                                          updatedParameters[Trk::qOverP],
-                                                          updatedCovariance);
+    return std::unique_ptr<TrackParameters>(
+      parm.associatedSurface().createTrackParameters(
+        updatedParameters[Trk::loc1],
+        updatedParameters[Trk::loc2],
+        updatedParameters[Trk::phi],
+        updatedParameters[Trk::theta],
+        updatedParameters[Trk::qOverP],
+        updatedCovariance
+      )
+    );
   }
-  return parm.clone();
+  return std::unique_ptr<TrackParameters>(parm.clone());
 }
 
 void

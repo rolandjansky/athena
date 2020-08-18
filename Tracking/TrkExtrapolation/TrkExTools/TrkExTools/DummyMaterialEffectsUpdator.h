@@ -48,7 +48,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
 
     /** Updator interface (full update for a layer): Dummy full update
     */
-    TrackParameters* update(
+    std::unique_ptr<TrackParameters> update(
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -60,7 +60,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       The parmeters are given as a pointer, they are deleted inside the update method.
       Update occurs on the place where the parameters parm are according to the specified MaterialEffectsOnTrack
       */
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
       ParticleHypothesis particle = pion,
@@ -69,12 +69,12 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       (void)meff;
       (void)particle;
       (void)matupmode;
-      return parm->clone();
+      return std::unique_ptr<TrackParameters>(parm->clone());
     }
 
     /** Updator interface (pre-update for a layer): Dummy pre update
     */
-    virtual TrackParameters* preUpdate(
+    virtual std::unique_ptr<TrackParameters> preUpdate(
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -84,7 +84,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
 
     /** Updator interface (post-update for a layer): Dummy post update
     */
-    virtual TrackParameters* postUpdate(
+    virtual std::unique_ptr<TrackParameters> postUpdate(
       const TrackParameters& parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -97,7 +97,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       MaterialProperties based material update
       - used by all Layer-based methods
       */
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       const TrackParameters& parm,
       const MaterialProperties& mprop,
       double pathcorrection,
@@ -126,7 +126,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       return std::make_unique<Cache>();
     }
 
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       ICache& icache,
       const TrackParameters* parm,
       const Layer& sf,
@@ -138,7 +138,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       return update(parm, sf, dir, particle, matupmode);
     }
 
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       ICache& icache,
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
@@ -149,7 +149,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       return update(parm, meff, particle, matupmode);
     }
 
-    virtual TrackParameters* preUpdate(
+    virtual std::unique_ptr<TrackParameters> preUpdate(
       ICache& icache,
       const TrackParameters* parm,
       const Layer& sf,
@@ -161,7 +161,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       return preUpdate(parm, sf, dir, particle, matupmode);
     }
 
-    virtual TrackParameters* postUpdate(
+    virtual std::unique_ptr<TrackParameters> postUpdate(
       ICache& icache,
       const TrackParameters& parm,
       const Layer& sf,
@@ -173,7 +173,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       return postUpdate(parm,sf,dir,particle,matupmode);
     }
 
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       ICache& icache, const TrackParameters& parm,
       const MaterialProperties& mprop,
       double pathcorrection,

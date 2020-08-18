@@ -1327,7 +1327,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 nextPar = ManagedTrackParmPtr::recapture(
                   nextPar,
                   currentUpdator->update(
-                    currentUpdatorCache, nextPar.get(), *mb, dir, particle, matupmode));
+                    currentUpdatorCache, nextPar.get(), *mb, dir, particle, matupmode).release());
               }
               if (!nextPar) {
                 cache.m_parametersAtBoundary.resetBoundaryInformation();
@@ -1477,7 +1477,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               nextPar = ManagedTrackParmPtr::recapture(
                 nextPar,
                 currentUpdator->update(
-                  currentUpdatorCache, nextPar.get(), *nextLayer, dir, particle, matupmode));
+                  currentUpdatorCache, nextPar.get(), *nextLayer, dir, particle, matupmode).release());
             }
             if (!nextPar) {
               cache.m_parametersAtBoundary.resetBoundaryInformation();
@@ -2977,7 +2977,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
     if (currentUpdator) {
       upNext = ManagedTrackParmPtr::recapture(
         currPar,
-        currentUpdator->update(currentUpdatorCache, currPar.get(), a_sfMeff, particle, matupmode));
+        currentUpdator->update(currentUpdatorCache, currPar.get(), a_sfMeff, particle, matupmode).release());
     }
     if (!upNext) {
       // update killed the track or config problem. Return
@@ -3444,7 +3444,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         nextParameters = ManagedTrackParmPtr::recapture(
           nextParameters,
           currentUpdator->postUpdate(
-            currentUpdatorCache, *nextParameters, *associatedLayer, dir, particle, matupmode));
+            currentUpdatorCache, *nextParameters, *associatedLayer, dir, particle, matupmode).release());
       }
       // collect the material : either for extrapolateM or for the valdiation
       if (nextParameters && (cache.m_matstates || m_materialEffectsOnTrackValidation)) {
@@ -3708,7 +3708,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
                                  *(bParameters->associatedSurface().materialLayer()),
                                  dir,
                                  particle,
-                                 matupmode));
+                                 matupmode).release());
       }
       // collect the material
       if (bParameters && (cache.m_matstates || m_materialEffectsOnTrackValidation)) {
@@ -3924,7 +3924,7 @@ Trk::Extrapolator::extrapolateToDestinationLayer(const EventContext& ctx,
     preUpdatedParameters = ManagedTrackParmPtr::recapture(
       destParameters,
       currentUpdator->preUpdate(
-        currentUpdatorCache, destParameters.get(), lay, dir, particle, matupmode));
+        currentUpdatorCache, destParameters.get(), lay, dir, particle, matupmode).release());
   } else {
     preUpdatedParameters = destParameters;
   }
@@ -4070,7 +4070,7 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
     parsOnLayer = ManagedTrackParmPtr::recapture(
       parsOnLayer,
       currentUpdator->update(
-        currentUpdatorCache, parsOnLayer.get(), lay, dir, particle, matupmode));
+        currentUpdatorCache, parsOnLayer.get(), lay, dir, particle, matupmode).release());
   }
   // there are layers that have a surfaceArray but no material properties
   if (parsOnLayer && lay.layerMaterialProperties() &&
@@ -5428,7 +5428,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
               nextPar = ManagedTrackParmPtr::recapture(
                 nextPar,
                 currentUpdator->update(
-                  currentUpdatorCache, nextPar.get(), *mb, dir, particle, matupmod));
+                  currentUpdatorCache, nextPar.get(), *mb, dir, particle, matupmod).release());
             }
             if (!nextPar) {
               ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
@@ -5520,7 +5520,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             nextPar = ManagedTrackParmPtr::recapture(
               nextPar,
               currentUpdator->preUpdate(
-                currentUpdatorCache, nextPar.get(), *nextLayer, dir, particle, matupmod));
+                currentUpdatorCache, nextPar.get(), *nextLayer, dir, particle, matupmod).release());
           }
           if (!nextPar) {
             ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
@@ -5561,7 +5561,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
               if (currentUpdator) {
                 nextPar = ManagedTrackParmPtr::recapture(
                   nextPar,
-                  currentUpdator->postUpdate(*nextPar, *nextLayer, dir, particle, matupmod));
+                  currentUpdator->postUpdate(*nextPar, *nextLayer, dir, particle, matupmod).release());
               }
               if (!nextPar) {
                 ATH_MSG_VERBOSE("postUpdate failed for input parameters:"
@@ -5580,7 +5580,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             if (currentUpdator) {
               nextPar = ManagedTrackParmPtr::recapture(
                 nextPar,
-                currentUpdator->update(nextPar.get(), *nextLayer, dir, particle, matupmod));
+                currentUpdator->update(nextPar.get(), *nextLayer, dir, particle, matupmod).release());
             }
             if (!nextPar) {
               ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");

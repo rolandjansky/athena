@@ -104,7 +104,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     /** Updator interface (full update for a layer)
       ---> ALWAYS  pointer to new TrackParameters is returned
       */
-    virtual TrackParameters*  update(
+    virtual std::unique_ptr<TrackParameters> update(
       ICache& icache,
       const TrackParameters* parm,
       const Layer& sf,
@@ -117,14 +117,13 @@ class MaterialEffectsUpdator : public AthAlgTool,
          return nullptr;
       }
       Cache& cache= static_cast<Cache&> (icache);
-      TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
-      return outparam;
+      return updateImpl(cache,parm,sf,dir,particle,matupmode);
     }
     /** Updator interface (full update for a layer) according to user
       input through MaterialEffectsOnTrack
       ---> ALWAYS pointer to new TrackParameters is returned
       */
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       ICache& icache,
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
@@ -136,14 +135,13 @@ class MaterialEffectsUpdator : public AthAlgTool,
         return nullptr;
       }
       Cache& cache = static_cast<Cache&>(icache);
-      TrackParameters* outparam = updateImpl(cache, parm, meff, particle, matupmode);
-      return outparam;
+      return updateImpl(cache, parm, meff, particle, matupmode);
     }
 
     /** Updator interface (pre-update for a layer):
       ---> ALWAYS pointer to new TrackParameters is returned
       */
-    virtual TrackParameters* preUpdate(
+    virtual std::unique_ptr<TrackParameters> preUpdate(
       ICache& icache,
       const TrackParameters* parm,
       const Layer& sf,
@@ -156,15 +154,14 @@ class MaterialEffectsUpdator : public AthAlgTool,
         return nullptr;
       }
       Cache& cache = static_cast<Cache&>(icache);
-      TrackParameters* outparam = preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
-      return outparam;
+      return preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
     /** Updator interface (post-update for a layer):
       ---> ALWAYS pointer to new TrackParameters is returned
       if no postUpdate is to be done : return nullptr
       */
-    virtual TrackParameters* postUpdate(
+    virtual std::unique_ptr<TrackParameters> postUpdate(
       ICache& icache,
       const TrackParameters& parm,
       const Layer& sf,
@@ -177,11 +174,10 @@ class MaterialEffectsUpdator : public AthAlgTool,
         return nullptr;
       }
       Cache& cache = static_cast<Cache&>(icache);
-      TrackParameters* outparam = postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
-      return outparam;
+      return postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
     /** Dedicated Updator interface:-> create new track parameters*/
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       ICache& icache,
       const TrackParameters& parm,
       const MaterialProperties& mprop,
@@ -195,9 +191,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
         return nullptr;
       }
       Cache& cache = static_cast<Cache&>(icache);
-      TrackParameters* outparam =
-        updateImpl(cache, parm, mprop, pathcorrection, dir, particle, matupmode);
-      return outparam;
+      return updateImpl(cache, parm, mprop, pathcorrection, dir, particle, matupmode);
     }
 
     /** Validation Action - calls the writing and resetting of the TTree variables */
@@ -227,7 +221,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     /*
      * Public methods using the TLS cache.
      */
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -236,24 +230,20 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ) const override final {
 
       Cache& cache = getTLSCache();
-      TrackParameters* outparam =
-        updateImpl(cache, parm, sf, dir, particle, matupmode);
-      return outparam;
+      return updateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
       Trk::ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
       Cache& cache = getTLSCache();
-      TrackParameters* outparam =
-        updateImpl(cache, parm, meff, particle, matupmode);
-      return outparam;
+      return updateImpl(cache, parm, meff, particle, matupmode);
     }
 
-    virtual TrackParameters* preUpdate(
+    virtual std::unique_ptr<TrackParameters> preUpdate(
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -261,12 +251,10 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
       Cache& cache = getTLSCache();
-      TrackParameters* outparam =
-        preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
-      return outparam;
+      return preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
-    virtual TrackParameters* postUpdate(
+    virtual std::unique_ptr<TrackParameters> postUpdate(
       const TrackParameters& parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -274,12 +262,10 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
       Cache& cache = getTLSCache();
-      TrackParameters* outparam =
-        postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
-      return outparam;
+      return postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
-    virtual TrackParameters* update(
+    virtual std::unique_ptr<TrackParameters> update(
       const TrackParameters& parm,
       const MaterialProperties& mprop,
       double pathcorrection,
@@ -288,9 +274,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
       Cache& cache = getTLSCache();
-      TrackParameters* outparam = updateImpl(
-        cache, parm, mprop, pathcorrection, dir, particle, matupmode);
-      return outparam;
+      return updateImpl(cache, parm, mprop, pathcorrection, dir, particle, matupmode);
     }
 
     virtual void validationAction() const override final
@@ -309,7 +293,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
   private:
     /* The acutal implementation methods using the tool's
      * concrete  Cache*/
-    TrackParameters* updateImpl(
+    std::unique_ptr<TrackParameters> updateImpl(
       Cache& cache,
       const TrackParameters* parm,
       const Layer& sf,
@@ -318,7 +302,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const;
 
-    TrackParameters* updateImpl(
+    std::unique_ptr<TrackParameters> updateImpl(
       Cache& cache,
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
@@ -326,7 +310,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const;
 
-    TrackParameters* preUpdateImpl(
+    std::unique_ptr<TrackParameters> preUpdateImpl(
       Cache& cache,
       const TrackParameters* parm,
       const Layer& sf,
@@ -335,7 +319,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const;
 
-    TrackParameters* postUpdateImpl(
+    std::unique_ptr<TrackParameters> postUpdateImpl(
       Cache& cache,
       const TrackParameters& parm,
       const Layer& sf,
@@ -344,7 +328,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const;
 
-    TrackParameters* updateImpl(
+    std::unique_ptr<TrackParameters> updateImpl(
       Cache& cache,
       const TrackParameters* parm,
       const MaterialProperties& mprop,
@@ -354,7 +338,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const;
 
-    TrackParameters* updateImpl(
+    std::unique_ptr<TrackParameters> updateImpl(
       Cache& cache,
       const TrackParameters& parm,
       const MaterialProperties& mprop,
