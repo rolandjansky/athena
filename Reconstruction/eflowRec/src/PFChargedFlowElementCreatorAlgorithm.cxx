@@ -72,16 +72,16 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
 
       /*add information to xAOD*/
-      const SG::AuxElement::Accessor<int> accLHED("LayerHED");
+      const static SG::AuxElement::Accessor<int> accLHED("LayerHED");
       accLHED(*thisFE) = efRecTrack->getLayerHED();
 
-      const SG::AuxElement::Accessor<std::vector<int> > accCellOrderVector("LayerVectorCellOrdering");
+      const static SG::AuxElement::Accessor<std::vector<int> > accCellOrderVector("LayerVectorCellOrdering");
       accCellOrderVector(*thisFE) = efRecTrack->getLayerCellOrderVector();
 
-      const SG::AuxElement::Accessor<std::vector<float> > accRadiusCellOrderVector("RadiusVectorCellOrdering");
+      const static SG::AuxElement::Accessor<std::vector<float> > accRadiusCellOrderVector("RadiusVectorCellOrdering");
       accRadiusCellOrderVector(*thisFE) = efRecTrack->getRadiusCellOrderVector();
 
-      const SG::AuxElement::Accessor<std::vector<float> > accAvgEDensityCellOrderVector("AvgEdensityVectorCellOrdering");
+      const static SG::AuxElement::Accessor<std::vector<float> > accAvgEDensityCellOrderVector("AvgEdensityVectorCellOrdering");
       accAvgEDensityCellOrderVector(*thisFE) = efRecTrack->getAvgEDensityCellOrderVector();
     } else {
       /* In normal mode we want the track eta,phi at the perigee */
@@ -95,13 +95,13 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
     ATH_MSG_DEBUG("Created charged PFO with E, pt, eta and phi of " << thisFE->e() << ", " << thisFE->pt() << ", " << thisFE->eta() << " and " << thisFE->phi());
 
     /* Add the amount of energy the track was expected to deposit in the calorimeter - this is needed to calculate the charged weight in the jet finding */
-    const SG::AuxElement::Accessor<float> accTracksExpectedEnergyDeposit("TracksExpectedEnergyDeposit");
+    const static SG::AuxElement::Accessor<float> accTracksExpectedEnergyDeposit("TracksExpectedEnergyDeposit");
     accTracksExpectedEnergyDeposit(*thisFE) = efRecTrack->getEExpect();
     ATH_MSG_DEBUG("Have set that PFO's expected energy deposit to be " << efRecTrack->getEExpect());
 
     /* Flag if this track was in a dense environment for later checking */
     //There is an issue using bools - when written to disk they convert to chars. So lets store the bool as an int.
-    const SG::AuxElement::Accessor<int> accIsInDenseEnvironment("IsInDenseEnvironment");
+    const static SG::AuxElement::Accessor<int> accIsInDenseEnvironment("IsInDenseEnvironment");
     accIsInDenseEnvironment(*thisFE) = efRecTrack->isInDenseEnvironment();
 
      /* Optionally we add the links to clusters to the xAOD::PFO */

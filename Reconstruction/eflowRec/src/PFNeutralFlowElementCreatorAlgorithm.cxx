@@ -75,7 +75,7 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
     theClusters.push_back(theIParticleTrackLink);
     thisFE->setOtherObjectLinks(theClusters);
 
-    const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > accShowerSubtractedClusterLink("FEShowerSubtractedClusterLink");
+    const static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > accShowerSubtractedClusterLink("FEShowerSubtractedClusterLink");
     accShowerSubtractedClusterLink(*thisFE) = thisEfRecCluster->getClusElementLink();
 
     ATH_MSG_VERBOSE("  Sucessfully set cluster link");
@@ -148,10 +148,10 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
 
     float layerEnergy_TileBar0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar0);
     float layerEnergy_TileExt0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileExt0);
-    const SG::AuxElement::Accessor<float> accFloatTIle0E("PF_LAYERENERGY_TILE0");
+    const static SG::AuxElement::Accessor<float> accFloatTIle0E("PF_LAYERENERGY_TILE0");
     accFloatTIle0E(*thisFE) = layerEnergy_TileBar0 + layerEnergy_TileExt0;
 
-    const SG::AuxElement::Accessor<float> accFloatTiming("PF_TIMING");
+    const static SG::AuxElement::Accessor<float> accFloatTiming("PF_TIMING");
     accFloatTiming(*thisFE) = cluster->time();
  
   }//cluster loop
@@ -164,7 +164,7 @@ void PFNeutralFlowElementCreatorAlgorithm::addMoment(const xAOD::CaloCluster::Mo
   bool isRetrieved = theCluster.retrieveMoment(momentType, moment);
   if (true == isRetrieved) {    
     float float_moment = static_cast<float>(moment);
-    const SG::AuxElement::Accessor<float> accFloat(feAttribute);
+    const static SG::AuxElement::Accessor<float> accFloat(feAttribute);
     accFloat(theFE) = float_moment;
   }
   else ATH_MSG_WARNING(" Could not retrieve moment from the CaloCluster");
@@ -172,6 +172,6 @@ void PFNeutralFlowElementCreatorAlgorithm::addMoment(const xAOD::CaloCluster::Mo
 }
 
 void PFNeutralFlowElementCreatorAlgorithm::addSamplingEnergy(const xAOD::CaloCluster::CaloSample& sampling, const std::string& feAttribute, const xAOD::CaloCluster& theCluster, xAOD::FlowElement& theFE) const {
-  const SG::AuxElement::Accessor<float> accFloat(feAttribute);
+  const static SG::AuxElement::Accessor<float> accFloat(feAttribute);
   accFloat(theFE) = theCluster.eSample(sampling);
 }
