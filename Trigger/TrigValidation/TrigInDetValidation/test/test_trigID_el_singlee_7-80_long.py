@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for el_singlee_7-80
+# art-description: art job for el_singlee_7-80_long
 # art-type: grid
 # art-include: master/Athena
 # art-input: mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728
@@ -54,7 +54,7 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['electron']
-rdo2aod.max_events = 20000 # TODO increase to 20k
+rdo2aod.max_events = 20000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
