@@ -23,7 +23,7 @@ class Identifier
   } max_value_type;
 
   Identifier():m_id(max_value) {};
-  Identifier(const Identifier& value):m_id(value.m_id) {};
+  Identifier(const Identifier& value):m_id(value.m_id) = default;
   Identifier(value_type value):m_id(value) {};
   
   operator value_type() const { return m_id; }

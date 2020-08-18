@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: safe_clid.icc,v 1.2 2007-12-14 03:12:34 binet Exp $
 /**
- * @file  SGTools/safe_clid.icc
+ * @file  AthenaeKernel/tools/safe_clid.icc
  * @author scott snyder
  * @date Nov 2005
  * @brief Find the class ID of a type, without triggering an error
@@ -13,8 +11,7 @@
  */
 
 #include "AthenaKernel/ClassID_traits.h"
-#include "AthenaKernel/tools/type_tools.h"
-#include "boost/type_traits/remove_pointer.hpp"
+#include <type_traits>
 
 
 namespace SG {
@@ -55,15 +52,15 @@ namespace SG {
 
 // Decl 1
 template <class T>
-CLID safe_clid_1 (T*, typename ClassID_traits<T>::has_classID_tag);
+constexpr CLID safe_clid_1 (T*, typename ClassID_traits<T>::has_classID_tag);
 
 // Decl 2
 template <class T, class U>
-CLID safe_clid_1 (T, U);
+constexpr CLID safe_clid_1 (T, U);
 
 // This is the public entry point.
 template <class T>
-CLID safe_clid()
+constexpr CLID safe_clid()
 {
   return safe_clid_1 ((T*)0, std::true_type());
 }
@@ -75,7 +72,7 @@ CLID safe_clid()
 // So we can go ahead and ask for the ID in this case.
 
 template <class T>
-CLID safe_clid_1 (T*, typename ClassID_traits<T>::has_classID_tag)
+constexpr CLID safe_clid_1 (T*, typename ClassID_traits<T>::has_classID_tag)
 {
   return ClassID_traits<T>::ID();
 }
@@ -93,7 +90,7 @@ CLID safe_clid_1 (T*, typename ClassID_traits<T>::has_classID_tag)
 template <class T, bool B>
 struct safe_clid_2
 {
-  static CLID clid() { return CLID_NULL; }
+  constexpr static CLID clid() { return CLID_NULL; }
 };
 
 // This specialization is used if @a T does derive from @a DataObject.
@@ -101,7 +98,7 @@ struct safe_clid_2
 template <class T>
 struct safe_clid_2<T, true>
 {
-  static CLID clid() { return ClassID_traits<T>::ID(); }
+  constexpr static CLID clid() { return ClassID_traits<T>::ID(); }
 };
 
 // This is the definition corresponding to decl 2 above.
@@ -109,9 +106,9 @@ struct safe_clid_2<T, true>
 // Note that here @a T will be a pointer to the class we're
 // actually interested in, so we need to strip a pointer.
 template <class T, class U>
-CLID safe_clid_1 (T, U)
+constexpr CLID safe_clid_1 (T, U)
 {
-  typedef typename boost::remove_pointer<T>::type typ;
+  using typ = std::remove_pointer_t<T>;
   return safe_clid_2<typ, ClassID_traits<typ>::s_isDataObject>::clid();
 }
 
