@@ -8,20 +8,22 @@
 /** @file BookkeeperTool.h
  *  @brief This class is an implementation of the AsgMetadataTool
  *  for the xAOD::CutBookkeeperContainer.
+ *  @author Tadej Novak <tadej@cern.ch>
  *  @author Jack Cranshaw <cranshaw@anl.gov>
- *  $Id: $
  **/
 
-//#include "GaudiKernel/AlgTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "AsgTools/AsgMetadataTool.h"
-#include "AthenaKernel/ICutFlowSvc.h"
+#include <memory>
+
+#include <AsgTools/AsgMetadataTool.h>
+#include <AthenaBaseComps/AthAlgTool.h>
+#include <AthenaKernel/ICutFlowSvc.h>
 #ifndef XAOD_STANDALONE
-#include "AthenaKernel/IMetaDataTool.h"
+#include <AthenaKernel/IMetaDataTool.h>
 #endif // XAOD_STANDALONE
-#include "GaudiKernel/ServiceHandle.h"
+#include <GaudiKernel/ServiceHandle.h>
 
 #include <xAODCutFlow/CutBookkeeperContainer.h>
+#include <xAODCutFlow/CutBookkeeperAuxContainer.h>
 
 class CutFlowSvc;
 
@@ -30,48 +32,63 @@ class BookkeeperTool : public asg::AsgMetadataTool
                      , public virtual ::IMetaDataTool
 #endif // XAOD_STANDALONE
 {
-   ASG_TOOL_CLASS0(BookkeeperTool)
+  ASG_TOOL_CLASS0(BookkeeperTool)
 public: // Constructor and Destructor
-   /// Standard Service Constructor
-   BookkeeperTool(const std::string& name = "BookkeeperTool");
-   /// Destructor
-   virtual ~BookkeeperTool();
+  /// Standard Service Constructor
+  BookkeeperTool(const std::string& name = "BookkeeperTool");
+  /// Destructor
+  virtual ~BookkeeperTool() = default;
 
+  /// Standard reimplemented functions
 public:
-   virtual StatusCode metaDataStop() override;
-   virtual StatusCode beginInputFile() override {return StatusCode::SUCCESS;}
-   virtual StatusCode endInputFile() override {return StatusCode::SUCCESS;}
-   virtual StatusCode beginInputFile(const SG::SourceID&) override;
-   virtual StatusCode endInputFile(const SG::SourceID&) override;
-   virtual StatusCode initialize() override;
-   virtual StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode metaDataStop() override;
+  virtual StatusCode beginInputFile() override {return StatusCode::SUCCESS;}
+  virtual StatusCode endInputFile() override {return StatusCode::SUCCESS;}
+  virtual StatusCode beginInputFile(const SG::SourceID &source) override;
+  virtual StatusCode endInputFile(const SG::SourceID &source) override;
 
 private:
-  
-  /// Helper class to update a container with information from another one
-  StatusCode updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
-                              const xAOD::CutBookkeeperContainer* otherCont );
+  /// Helper in-memory structure
+  struct LocalContainers {
+    std::vector<std::unique_ptr<xAOD::CutBookkeeperContainer>> cont;
+    std::vector<std::unique_ptr<xAOD::CutBookkeeperAuxContainer>> aux;
 
-  StatusCode copyContainerToOutput(const std::string& outname);
+    bool empty() { return cont.empty(); }
+    std::size_t size() { return cont.size(); }
+    xAOD::CutBookkeeperContainer *at(std::size_t n) { return cont.at(n).get(); }
+    void clear() { cont.clear(); aux.clear(); }
+  };
 
-  /// Fill Cutflow information
-  StatusCode addCutFlow();
- 
+  /// Copy input containers to the output
+  StatusCode copyInputContainersToOutput(LocalContainers &target,
+                                         const SG::SourceID &source = "");
+
+  /// Fill Cutflow information from the service
+  StatusCode copyCutflowFromService();
+
+  /// Prepare containers
+  StatusCode prepareContainers(LocalContainers &target);
+
   /// Pointer to the public CutFlowSvc interface
   ServiceHandle<ICutFlowSvc> m_cutFlowSvc{ this, "CutFlowSvc", "CutFlowSvc/CutFlowSvc", "Pointer to the CutFlowSvc"};
   /// Direct pointer to the CutFlowSvc for "private" methods access
   const CutFlowSvc *m_cutFlowSvcPrivate;
 
-  /// The name of the output CutBookkeeperContainer
-  std::string m_outputCollName;
-  
   /// The name of the input CutBookkeeperContainer
-  std::string  m_inputCollName;
+  Gaudi::Property<std::string> m_inputCollName{this, "InputCollName", "CutBookkeepers",
+    "The default name of the xAOD::CutBookkeeperContainer for input files"};
 
-  bool m_cutflowTaken;
+  /// The name of the output CutBookkeeperContainer
+  Gaudi::Property<std::string> m_outputCollName{this, "OutputCollName", "CutBookkeepers",
+    "The default name of the xAOD::CutBookkeeperContainer for output files"};
 
+  /// Input CutBookkeeperContainers
+  std::unordered_map<SG::SourceID, LocalContainers> m_inputContainers;
+
+  /// Local CutBookkeeperContainers
+  LocalContainers m_completeContainers;
+  LocalContainers m_incompleteContainers;
 };
 
-#endif
-
-
+#endif // BOOKKEEPERTOOL_H
