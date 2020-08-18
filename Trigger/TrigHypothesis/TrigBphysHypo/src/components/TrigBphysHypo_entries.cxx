@@ -16,8 +16,6 @@
 //#include "TrigBphysHypo/TrigL2DsPhiPiFex.h"
 //#include "../TrigL2DiMuXHypo.h"
 //#include "../TrigL2DiMuXFex.h"
-#include "../TrigL2TrkMassFex.h"
-#include "../TrigL2TrkMassHypo.h"
 #include "../TrigEFTrkMassHypo.h"
 #include "../TrigMultiTrkFex.h"
 #include "../TrigBphysMuonCounter.h"
@@ -53,8 +51,7 @@ DECLARE_COMPONENT( TrigEFMultiMuHypo )
 //DECLARE_COMPONENT( TrigL2DiMuHypo )
 //DECLARE_COMPONENT( TrigL2DsPhiPiHypo )
 //DECLARE_COMPONENT( TrigL2DsPhiPiFex )
-DECLARE_COMPONENT( TrigL2TrkMassFex )
-DECLARE_COMPONENT( TrigL2TrkMassHypo )
+
 DECLARE_COMPONENT( TrigEFTrkMassHypo )
 //DECLARE_COMPONENT( TrigL2LooseMuonHypo )
 
