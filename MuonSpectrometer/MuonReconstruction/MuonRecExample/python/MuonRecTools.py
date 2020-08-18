@@ -107,6 +107,9 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
         kwargs.setdefault("IsMC", False)
     else:
         kwargs.setdefault("IsMC", True)
+
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("doMDT", True)
                   
     return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
