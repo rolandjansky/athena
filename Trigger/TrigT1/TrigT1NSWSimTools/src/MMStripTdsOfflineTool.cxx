@@ -87,7 +87,7 @@ namespace NSWL1 {
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-      std::string algo_name = pnamed->name();
+      const std::string& algo_name = pnamed->name();
 
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;

@@ -50,7 +50,7 @@ namespace NSWL1 {
     private:
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         /// load the 4o4 coincidence table
-         StatusCode loadCoincidenceTable(std::string);
+         StatusCode loadCoincidenceTable(const std::string&);
         // inflates the table by appending 3o4s //empty hits/missing layers are -9999 (const value of the 'nullPadNumber' variable. Never use any nonsense number for non existing values it will break some rules )
          StatusCode expandCoincidenceTable();
          const std::vector<float> m_etaBandsLargeSector;
