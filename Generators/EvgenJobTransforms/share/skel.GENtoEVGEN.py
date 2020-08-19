@@ -549,8 +549,8 @@ rel = os.popen("echo $AtlasVersion").read()
 rel = rel.strip()
 errorBL = checkBlackList("AthGeneration",rel,gennames)
 if (errorBL): 
-#   raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)  
-    evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
+   raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)  
+#    evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
 
 
 ##==============================================================

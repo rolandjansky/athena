@@ -1,4 +1,4 @@
-#
+# 
 # File specifying the location of MadGraph to use.
 #
 
