@@ -16,9 +16,9 @@ Sebastien Binet (binet@cern.ch)
 def _setup():
     import cppyy
     # StoreGate bindings from dictionary
-    cppyy.loadDictionary( "libAthenaPythonDict" )      # for clidsvc
-    cppyy.loadDictionary( "libStoreGateBindingsDict" ) # for storegatesvc
-    cppyy.loadDictionary( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
+    cppyy.load_library( "libAthenaPythonDict" )      # for clidsvc
+    cppyy.load_library( "libStoreGateBindingsDict" ) # for storegatesvc
+    cppyy.load_library( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
 
     # make sure the global C++ namespace has been created
     gbl = cppyy.makeNamespace('')  # noqa: F841
