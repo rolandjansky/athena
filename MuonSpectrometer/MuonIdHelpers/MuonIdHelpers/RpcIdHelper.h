@@ -70,14 +70,14 @@ class RpcIdHelper : public MuonIdHelper
 
   Identifier elementID(int stationName, int stationEta, int stationPhi,
 		       int doubletR, bool check=false, bool* isValid=0, bool noPrint=false) const;
-  Identifier elementID(std::string stationNameStr, int stationEta,
+  Identifier elementID(const std::string& stationNameStr, int stationEta,
 		       int stationPhi, int doubletR, bool check=false, bool* isValid=0) const;
   Identifier elementID(const Identifier& elementID, int doubletR, bool check=false, bool* isValid=0) const;
   Identifier elementID(const Identifier& channelID) const;
   Identifier channelID(int stationName, int stationEta, int stationPhi,
 		       int doubletR, int doubletZ, int doubletPhi,
 		       int gasGap, int measuresPhi, int strip, bool check=false, bool* isValid=0, bool noPrint=false) const;
-  Identifier channelID(std::string stationNameStr, int stationEta,
+  Identifier channelID(const std::string& stationNameStr, int stationEta,
 		       int stationPhi, int doubletR, int doubletZ,
 		       int doubletPhi, int gasGap, int measuresPhi, int strip, bool check=false, bool* isValid=0) const;
   Identifier channelID(const Identifier& id,  int doubletZ, int doubletPhi,
@@ -165,7 +165,7 @@ class RpcIdHelper : public MuonIdHelper
   virtual int init_detectorElement_hashes(void);
   int init_id_to_hashes();
   int zIndex(const Identifier& id) const;
-  int zIndex(std::string name, int eta, int dR, int dZ, int dP) const;
+  int zIndex(const std::string& name, int eta, int dR, int dZ, int dP) const;
   unsigned int m_module_hashes[60][20][8][2];
   unsigned int m_detectorElement_hashes[60][20][8][2][4];
 
@@ -266,7 +266,7 @@ CLASS_DEF(RpcIdHelper, 4172, 1)
 
 }
 
-inline Identifier RpcIdHelper::elementID(std::string stationNameStr, int stationEta,
+inline Identifier RpcIdHelper::elementID(const std::string& stationNameStr, int stationEta,
 					 int stationPhi, int doubletR, bool check, bool* isValid) const {
 
   Identifier id;
@@ -441,7 +441,7 @@ inline Identifier RpcIdHelper::channelID(int stationName, int stationEta, int st
 
 }
 
-inline Identifier RpcIdHelper::channelID(std::string stationNameStr, int stationEta,
+inline Identifier RpcIdHelper::channelID(const std::string& stationNameStr, int stationEta,
 					 int stationPhi, int doubletR, int doubletZ,
 					 int doubletPhi, int gasGap, int measuresPhi,
 					 int strip, bool check, bool* isValid) const {
@@ -682,7 +682,7 @@ inline int RpcIdHelper::zIndex(const Identifier& id) const {
   return zIndex(name, eta, dR, dZ, dP);
 }
 
-inline int RpcIdHelper::zIndex(std::string name, int eta, int dR, int dZ, int dP) const {
+inline int RpcIdHelper::zIndex(const std::string& name, int eta, int dR, int dZ, int dP) const {
 
   /** - from Stefania 
       BMS5 which has the following structure:
