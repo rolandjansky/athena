@@ -55,28 +55,52 @@ public:
     m_invr = 1.0 / (rmax - rmin);
     m_invphi = 1.0 / (phimax - phimin);
   }
-  // set the field values at each corner (rescale for current scale factor)
-  void setField(const std::array<BFieldVector<double>, 8>& field,
-                double scaleFactor = 1.0)
-  {
-    // We pass array of 8 elements with 3 entries
-    // Which go to 3x8 matrix
-    for (int i = 0; i < 8; ++i) {
-      for (int j = 0; j < 3; ++j) {
-        m_field[j][i] = scaleFactor * field[i][j];
-      }
-    }
-  }
 
-  void setField(const std::array<BFieldVector<short>, 8>& field,
-                double scaleFactor = 1.0)
+    // **
+    // ** The following two methods are commented out, and replaced by the third setField as optimization test
+    // **
+  // // set the field values at each corner (rescale for current scale factor)
+  // void setField(const std::array<BFieldVector<double>, 8>& field,
+  //               double scaleFactor = 1.0)
+  // {
+  //   // We pass array of 8 elements with 3 entries
+  //   // Which go to 3x8 matrix
+  //   for (int i = 0; i < 8; ++i) {
+  //     for (int j = 0; j < 3; ++j) {
+  //       m_field[j][i] = scaleFactor * field[i][j];
+  //     }
+  //   }
+  // }
+
+  // void setField(const std::array<BFieldVector<short>, 8>& field,
+  //               double scaleFactor = 1.0)
+  // {
+  //   // We pass array of 8 elements with 3 entries
+  //   // Which go to 3x8 matrix
+  //   for (int i = 0; i < 8; ++i) {
+  //     for (int j = 0; j < 3; ++j) {
+  //       m_field[j][i] = scaleFactor * field[i][j];
+  //     }
+  //   }
+  // }
+
+  // set field array, filled externally
+  void setField(double field[][8]) {
+      std::copy( &field[0][0], &field[0][0] + 3*8, &m_field[0][0]);
+  }
+    
+
+  // set the field values at each corner (rescale for current scale factor)
+  void printField() 
   {
-    // We pass array of 8 elements with 3 entries
-    // Which go to 3x8 matrix
+    // print out field values
+    std::cout << "Field at corner i, for each component j (Bz, Br, Bphi)" << std::endl;
+
     for (int i = 0; i < 8; ++i) {
       for (int j = 0; j < 3; ++j) {
-        m_field[j][i] = scaleFactor * field[i][j];
+          std::cout << i << "," << j << ": " << m_field[j][i] << ", ";
       }
+      std::cout << std::endl;
     }
   }
 
