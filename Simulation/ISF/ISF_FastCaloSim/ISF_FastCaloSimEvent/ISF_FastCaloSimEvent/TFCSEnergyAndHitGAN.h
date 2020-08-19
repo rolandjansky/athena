@@ -35,6 +35,15 @@ public:
   void set_GANfreemem() {SetBit(kGANfreemem);};
   void reset_GANfreemem() {ResetBit(kGANfreemem);};
 
+  ///Status bit for energy initialization
+  enum FCSEnergyInitializationStatusBits {
+     kOnlyScaleEnergy = BIT(18) ///< Set this bit in the TObject bit field the simulated energy should only be scaled by the GAN
+  };
+
+  bool OnlyScaleEnergy() const {return TestBit(kOnlyScaleEnergy);};
+  void set_OnlyScaleEnergy() {SetBit(kOnlyScaleEnergy);};
+  void reset_OnlyScaleEnergy() {ResetBit(kOnlyScaleEnergy);};
+
   /// use the layer to be done as binning of the GAN chain
   virtual int get_bin(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const override {return simulstate.getAuxInfo<int>("GANlayer"_FCShash);};
   virtual const std::string get_variable_text(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const override;
