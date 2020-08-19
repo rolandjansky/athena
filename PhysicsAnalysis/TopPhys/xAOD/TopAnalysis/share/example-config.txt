@@ -54,7 +54,7 @@ JetCollectionName AntiKt4EMPFlowJets_BTagging201903
 LargeJetCollectionName None # can be e.g. AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName None #can be e.g. TauJets
 PhotonCollectionName None #can be e.g. Photons
-TrackJetCollectionName None #can be e.g. AntiKtVR30Rmax4Rmin02TrackJets
+TrackJetCollectionName None #can be e.g. AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903
 JetGhostTrackDecoName None # can be e.g. GhostTrack
 
 ### Electron configuration
