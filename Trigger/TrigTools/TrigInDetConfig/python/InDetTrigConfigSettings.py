@@ -68,7 +68,7 @@ class _Settings :
 
         self._doTRT               = False
 
-  def _name(self) :
+  def name(self) :
    return self._name
 
   def pTmin(self) :
@@ -146,10 +146,17 @@ class _Settings :
        print( "   roiName              : ", self._roiName ) 
        print( "   trackCollectiom      : ", self._trackCollection ) 
 
+
+#Note:
+#pTmin cuts adapted from: 
+#https://gitlab.cern.ch/atlas/athena/-/blob/master/InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigSliceSettings.py#L70
+
+
 # electron configuration ...
 
 class _Settings_electron( _Settings ) : 
     def __init__( self ) : 
+        _Settings.__init__(self)
         self._name = "electron"
         self._doCloneRemoval      = False
         self._checkRedundantSeeds = True
@@ -196,6 +203,34 @@ class _Settings_muonIso( _Settings ) :
         self._phiHalfWidth = 0.35
         self._roiName         = "HLT_Roi_MuonIso"
         self._trackCollection = "HLT_IDTrack_MuonIso"
+
+        self._doTRT               = False
+
+class _Settings_muonFS( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "muonFS"
+        self._d0SeedMax           = 10.0
+        self._doResMon            = True
+        self._doSpPhiFiltering    = False
+        self._checkRedundantSeeds = True
+        self._monPtMin            = 12*GeV
+        self._roiName             = "HLT_Roi_MuonFS" #Is this correct?!
+        self._trackCollection     = "HLT_IDTrack_MuonFS" #Is this correct?!
+
+        self._doTRT               = False
+
+class _Settings_muonLate( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name = "muonLate"
+        self._d0SeedMax           = 10.0
+        self._doResMon            = True
+        self._doSpPhiFiltering    = False
+        self._checkRedundantSeeds = True
+        self._monPtMin            = 12*GeV
+        self._roiName             = "HLT_Roi_MuonLate" #@TODO Is this correct?!
+        self._trackCollection     = "HLT_IDTrack_MuonLate" #Is this correct?!
 
         self._doTRT               = False
 
@@ -264,7 +299,7 @@ class _Settings_minBias( _Settings ) :
         _Settings.__init__(self)
         self._name = "minBias"
         self._doFullScan      = True
-        self._pTmin           = 0.2*GeV # You have to be fucking kidding me !
+        self._pTmin           = 0.2*GeV # TODO: double check
         self._etaHalfWidth    = 3
         self._phiHalfWidth    = 3.14159
         self._roiName         = "HLT_Roi_MinBias"
@@ -346,6 +381,9 @@ _ConfigSettings = {
     "muon"     : _Settings_muon(),
     "muonIso"  : _Settings_muonIso(),
     "muonCore" : _Settings_muonCore(),
+    #Atm the config is very similar  (probably once more variables added they will be more distinct, but if not should we start from the same conf (muon) and change just RoI/TrackCollection Names?)
+    "muonFS"   : _Settings_muonFS(),
+    "muonLate" : _Settings_muonLate(),
     
     "electron"  : _Settings_electron(),
     "photon"    : _Settings(name="photon"),
@@ -353,6 +391,10 @@ _ConfigSettings = {
     "tau"       : _Settings_tau(),
     "tauCore"   : _Settings_tauCore(),
     "tauIso"    : _Settings_tauIso(),
+    "tauId"     : _Settings_tau(), #Does this need separate setting?
+    "tauTrk"    : _Settings_tau(), #Does this need separate setting?
+    "tauTrkTwo" : _Settings_tau(), #Does this need separate setting?
+    "tauEF"     : _Settings_tau(), #Does this need separate setting?
 
     "bjet"      : _Settings_bjet(),
     "bjetVtx"   : _Settings_bjetVtx(),
