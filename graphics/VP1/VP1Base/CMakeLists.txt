@@ -12,6 +12,7 @@ atlas_subdir( VP1Base )
 atlas_depends_on_subdirs( PUBLIC 
                           DetectorDescription/GeoPrimitives
     	                  Event/xAOD/xAODBase
+    	                  Event/xAOD/xAODCore
                           PRIVATE 
                           graphics/VP1/VP1HEPVis )
 
@@ -46,5 +47,5 @@ atlas_add_library( VP1Base VP1Base/*.h src/*.cxx src/*.qrc
    PUBLIC_HEADERS VP1Base
    INCLUDE_DIRS ${QT5_INCLUDE_DIRS} ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES ${QT5_LIBRARIES} ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
+   LINK_LIBRARIES ${QT5_LIBRARIES} ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives xAODCore
    PRIVATE_LINK_LIBRARIES VP1HEPVis )

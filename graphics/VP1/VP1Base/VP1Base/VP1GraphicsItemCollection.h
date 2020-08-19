@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -44,6 +44,10 @@
 //  Future: Special selection tool which lets you draw a path and select anything inside it (needs to know which system it is selecting from)
 //
 // Any change of selection or occurrence of picks/events makes the GV ask the appropriate IC to emit a signal.
+
+// FIXME: need to include this before any QT header, because QT defines
+// a macro `foreach' that collides with an identifier in AthenaKernel.
+#include "xAODCore/BaseInfo.h"
 
 #include <QObject>
 

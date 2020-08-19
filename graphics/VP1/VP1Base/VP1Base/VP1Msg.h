@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,6 +16,10 @@
 
 #ifndef VP1MSG_H
 #define VP1MSG_H
+
+// FIXME: need to include this before any QT header, because QT defines
+// a macro `foreach' that collides with an identifier in AthenaKernel.
+#include "xAODCore/BaseInfo.h"
 
 #include <QStringList>
 #include "VP1Base/VP1String.h"
