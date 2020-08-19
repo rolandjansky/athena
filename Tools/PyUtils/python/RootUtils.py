@@ -132,7 +132,7 @@ def _pythonize_tfile():
             'Warning in <TEnvRec::ChangeValue>: duplicate entry.*'
             ),
         ]):
-        cppyy.loadDict("RootUtilsPyROOTDict")
+        cppyy.load_library("libRootUtilsPyROOTDict")
         rootutils = getattr(root, "RootUtils")
         pybytes        = getattr(rootutils, "PyBytes")  # noqa: F841
         #MN: lines below fail in ROOT6 if PCM from RootUtils is not found
