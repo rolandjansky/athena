@@ -41,7 +41,7 @@ JetCollectionName AntiKt4EMTopoJets_BTagging201810
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
-TrackJetCollectionName AntiKtVR30Rmax4Rmin02TrackJets
+TrackJetCollectionName AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810
 JetGhostTrackDecoName GhostTrack
 
 ### Large-R configuration
@@ -129,8 +129,8 @@ UseAodMetaData True
 BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80
 
 ### B-tagging configuration
-BTaggingCaloJetWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous DL1r:FixedCutBEff_77
-BTaggingTrackJetWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous DL1r:FixedCutBEff_77
+BTaggingCaloJetWP MV2c10:FixedCutBEff_77 MV2c10:Continuous
+BTaggingTrackJetWP MV2c10:FixedCutBEff_77 MV2c10:Continuous
 # Example of how to remove systematics from b-tag EV
 #BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
 
@@ -318,30 +318,6 @@ SELECTION ejets_MV2c10_2018
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION ejets_DL1r_2015
-. EL_2015
-. ejets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION ejets_DL1r_2016
-. EL_2016
-. ejets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION ejets_DL1r_2017
-. EL_2017
-. ejets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION ejets_DL1r_2018
-. EL_2018
-. ejets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
-SAVE
-
 ########################################################################
 # For testing whether track jet b-tag selection works
 # ONLY FOR TESTING, DOES NOT MAKE SENSE TO USE THIS FOR PHYSICS ANALYSIS
@@ -442,30 +418,6 @@ SELECTION mujets_MV2c10_2018
 . MU_2018
 . mujets_basic
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION mujets_DL1r_2015
-. MU_2015
-. mujets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION mujets_DL1r_2016
-. MU_2016
-. mujets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION mujets_DL1r_2017
-. MU_2017
-. mujets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION mujets_DL1r_2018
-. MU_2018
-. mujets_basic
-JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
 ########################################################################

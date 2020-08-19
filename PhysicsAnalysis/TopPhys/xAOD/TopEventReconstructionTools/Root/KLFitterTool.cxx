@@ -799,6 +799,7 @@ namespace top {
     weight = -99.;
 
     for (const auto& tagWP : m_config->bTagWP_available()) {
+      if (tagWP == "DL1_Continuous") continue;
       if (!jet.isAvailable<char>("isbtagged_" + tagWP)) {
         ATH_MSG_ERROR("Failed to retrieve jet decoration isbtagged_" + tagWP);
         break;
