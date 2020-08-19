@@ -54,7 +54,7 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon','electron','tau','bjet']
-rdo2aod.max_events = 2000 
+rdo2aod.max_events = 100 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
@@ -119,17 +119,12 @@ comp8.flag='EFele'
 comp8.test='ttbar'
 test.check_steps.append(comp8)
 
-comp9=TrigInDetCompStep('Comp_L2FS')
-comp9.flag='L2FS'
-comp9.test='ttbar'
-test.check_steps.append(comp9)
-
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
+cpucost2.args += '  -d TrigFastTrackFinder_Muon'
 cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 

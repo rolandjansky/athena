@@ -160,12 +160,12 @@ class TrigInDetCompStep(RefComparisonStep):
             if (self.test=='ttbar'):
                 self.output_dir = self.output_dir+'-bjet'
         elif (self.flag == 'L2tau'):
-            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore'
+            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF'
             self.output_dir = 'HLTL2-plots'
             if (self.test=='ttbar'):
                 self.output_dir = self.output_dir+'-tau'
         elif (self.flag == 'EFtau'):
-            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_TAURoI'
+            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
             self.output_dir = 'HLTEF-plots'
             if (self.test=='ttbar'):
                 self.output_dir = self.output_dir+'-tau'
@@ -214,8 +214,8 @@ class TrigInDetCpuCostStep(RefComparisonStep):
         #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
         if (self.reference == None):
             # if not reference found, run with "--noref" option
-            self.args += ' {} --noref -o {} '.format(self.input_file,self.output_dir)
+            self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
         else:
-            self.args += ' {} {} -o {} '.format(self.input_file,self.reference,self.output_dir)
+            self.args += ' {} {} -o {} -p TIME'.format(self.input_file,self.reference,self.output_dir)
         super(TrigInDetCpuCostStep, self).configure(test)
 
