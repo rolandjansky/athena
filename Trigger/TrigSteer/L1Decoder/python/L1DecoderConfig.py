@@ -168,7 +168,8 @@ def L1DecoderCfg(flags, seqName = None):
     decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1Phase1 else ""
     decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
-                                               MonTool = CTPUnpackingMonitoring(512, 200) )
+                                                           MonTool = CTPUnpackingMonitoring(512, 200),
+                                                           UseNewConfig = flags.Trigger.readLVL1FromJSON )
     #Transient bytestream
     if flags.Input.Format == "POOL":
         transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")

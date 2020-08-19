@@ -21,6 +21,7 @@
 #include "Acts/Propagator/ActionList.hpp"
 #include "Acts/Surfaces/BoundaryCheck.hpp"
 #include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 // BOOST
 #include <boost/variant/variant.hpp>
@@ -67,6 +68,8 @@ ActsExtrapolationTool::initialize()
 
 
   ATH_MSG_INFO("Initializing ACTS extrapolation");
+
+  m_logger = makeActsAthenaLogger(this, "Prop", "ActsExtrapTool");
 
   ATH_CHECK( m_trackingGeometryTool.retrieve() );
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
@@ -127,7 +130,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
 
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;
@@ -207,7 +210,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;
@@ -258,7 +261,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;
@@ -331,7 +334,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;

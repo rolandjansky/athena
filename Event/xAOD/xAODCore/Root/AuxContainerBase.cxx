@@ -617,16 +617,6 @@ namespace xAOD {
       return dummy;
    }
 
-   void
-   AuxContainerBase::selectAux( const std::set< std::string >& attributes ) {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      m_selection.selectAux( attributes );
-      return;
-   }
-
    AuxContainerBase::auxid_set_t
    AuxContainerBase::getSelectedAuxIDs() const {
 

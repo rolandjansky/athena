@@ -82,9 +82,13 @@ class CaloLocalHadCoeff {
         /**
          * @brief Copy constructor
          */
-        LocalHadDimension(const LocalHadDimension &other);
-        LocalHadDimension& operator= (const LocalHadDimension &other);
-
+        LocalHadDimension(const LocalHadDimension &other) = default;
+        LocalHadDimension& operator= (const LocalHadDimension &other) = default;
+        /**
+         * @brief Move constructor
+         */
+        LocalHadDimension( LocalHadDimension &&) noexcept = default;
+        LocalHadDimension& operator= ( LocalHadDimension &&)  noexcept = default;
         // access methods
 
         /// return dimension type
@@ -157,8 +161,10 @@ class CaloLocalHadCoeff {
         /**
          * @brief Copy constructor
          */
-        LocalHadArea(const LocalHadArea &other);
-        LocalHadArea& operator= (const LocalHadArea &other);
+        LocalHadArea(const LocalHadArea &other) = default;
+        LocalHadArea& operator= (const LocalHadArea &other) = default;
+        LocalHadArea( LocalHadArea &&other) noexcept = default;
+        LocalHadArea& operator= ( LocalHadArea &&other) noexcept = default;
 
         /// return area type
         inline unsigned int getType() const { return m_type; }
@@ -220,8 +226,11 @@ class CaloLocalHadCoeff {
     /**
      * @brief Copy constructor.
      */
-    CaloLocalHadCoeff(const CaloLocalHadCoeff &other);
-    CaloLocalHadCoeff& operator= (const CaloLocalHadCoeff &other);
+    CaloLocalHadCoeff(const CaloLocalHadCoeff &other) = default;
+    CaloLocalHadCoeff& operator= (const CaloLocalHadCoeff &other) = default;
+    //Move operators
+    CaloLocalHadCoeff(CaloLocalHadCoeff &&) noexcept = default;
+    CaloLocalHadCoeff& operator= (CaloLocalHadCoeff &&) noexcept = default;
 
     //
     // general access methods
