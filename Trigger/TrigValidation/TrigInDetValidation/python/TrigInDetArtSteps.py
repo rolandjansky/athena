@@ -213,7 +213,7 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     def configure(self, test):
         #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
         if (self.reference == None):
-            # if not reference found, run with "--noref" option
+            ## if not reference found, run with "--noref" option
             self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
         else:
             self.args += ' {} {} -o {} -p TIME'.format(self.input_file,self.reference,self.output_dir)
