@@ -15,7 +15,7 @@ __all__ = [
 
 import cppyy
 
-cppyy.loadDictionary( 'libPerfMonEventDict' )
+cppyy.load_library( 'libPerfMonEventDict' )
 
 PerfMon = cppyy.makeNamespace( 'PerfMon' )
 
