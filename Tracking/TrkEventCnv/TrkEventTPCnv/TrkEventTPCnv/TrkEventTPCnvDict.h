@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTTPCNV_TRKEVENTTPCNVDICT_H
@@ -125,5 +125,6 @@
 //-----------------------------------------------------------------------------
 #include "TrkEventTPCnv/TrkParticleBase/TrackParticleBase_p1.h"
 
+#include "TrkEventTPCnv/TrkClusterSplitProbabilityContainer/ClusterSplitProbabilityContainer_p1.h"
 
 #endif // TRKEVENTTPCNV_H

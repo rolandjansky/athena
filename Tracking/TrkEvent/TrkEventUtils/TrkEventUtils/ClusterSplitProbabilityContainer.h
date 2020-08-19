@@ -9,8 +9,13 @@
 #include <stdexcept>
 
 namespace Trk {
+   class ClusterSplitProbabilityContainerCnv_p1;
+
+   /** Container to associate Cluster with cluster splitting probabilities.
+    */
    class ClusterSplitProbabilityContainer
    {
+      friend class ClusterSplitProbabilityContainerCnv_p1;
    public:
       using ClusterIdentifier=unsigned int;
 
