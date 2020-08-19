@@ -60,10 +60,13 @@ public:
 
   }
 
-
+  //constructor
+  float32fixed<T>(const float32fixed<T>&) = default;
+  float32fixed<T>(float32fixed<T>&&) = default;
 
   // assignment
-  float32fixed<T> operator=(float other){ this->m_fixp_content = other; return *this;  }
+  float32fixed<T>& operator=(const float32fixed<T> &other) = default;
+  float32fixed<T>& operator=( float32fixed<T> &&other) noexcept = default;
   template<unsigned char S>
   float32fixed<T> operator=(float32fixed<S> other){ this->m_fixp_content = other.getFixed(); return *this;  }
 
