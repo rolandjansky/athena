@@ -782,7 +782,7 @@ def getTauTrackRNNClassifier():
     from tauRecTools.tauRecToolsConf import tauRecTools__TrackRNN as TrackRNN
 
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     _RNN= TrackRNN(name = _name + "_0",
                    InputWeightsPath = tauFlags.tauRecRNNTrackClassificationConfig()[0],
@@ -805,7 +805,7 @@ def getTauWPDecoratorJetRNN():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     _name = sPrefix + 'TauWPDecoratorJetRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
@@ -830,7 +830,7 @@ def getTauWPDecoratorJetBDT():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     _name = sPrefix + 'TauWPDecoratorJetBDT'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
@@ -855,7 +855,7 @@ def getTauWPDecoratorEleBDT():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     _name = sPrefix + 'TauWPDecoratorEleBDT'
     from tauRecTools.tauRecToolsConf import TauWPDecorator

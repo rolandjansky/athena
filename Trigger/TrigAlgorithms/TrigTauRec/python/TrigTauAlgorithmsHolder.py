@@ -711,7 +711,7 @@ def getTauTrackClassifier():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     input_file_name = 'EFtracks_BDT_classifier_v0.root'
     BDTcut = 0.45
@@ -819,7 +819,7 @@ def getTauWPDecoratorJetBDT():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
@@ -853,7 +853,7 @@ def getTauWPDecoratorJetRNN():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
