@@ -65,10 +65,10 @@ namespace PESA {
       //=================================
       //       Old Run2 setup
       /** Initialize the beamspot algorithm for Run2 configuration within the HLT, initialize all the handles and retrieve the tools associated with the algorithm */
-      HLT::ErrorCode hltInitialize();
+      virtual HLT::ErrorCode hltInitialize() override;
 
       /** Finalize the beamspot algorithm for Run2 configuration within the HLT (nothing really happens here atm) */
-      HLT::ErrorCode hltFinalize();
+      virtual HLT::ErrorCode hltFinalize() override;
 
       /**
        * @brief implementation of the abstract hltExecute method in HLT::AllTEAlgo.
@@ -77,8 +77,8 @@ namespace PESA {
        *              inner vector provides all TE instances of the given type
        * @param output the output TE type
        */
-      HLT::ErrorCode hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& input,
-                                 unsigned int output );
+      virtual HLT::ErrorCode hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& input,
+                                         unsigned int output ) override;
 
       /** Function which attaches vertex collections to the trigger element output */
       HLT::ErrorCode attachFeatureVertex( TrigVertexCollection &myVertexCollection,  HLT::TEVec &allTEs, unsigned int type_out );
