@@ -254,8 +254,8 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_distetaCaloBorder[CaloCell_ID_FCS::MaxSample][3];
 
 
-   void extrapolate(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector);
-   void extrapolate_to_ID(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector);
+   void extrapolate(const HepMC::GenParticlePtr  part,std::vector<Trk::HitInfo>* hitVector);
+   void extrapolate_to_ID(const HepMC::GenParticlePtr  part,std::vector<Trk::HitInfo>* hitVector);
 
    HepPDT::ParticleDataTable*     m_particleDataTable;
 
