@@ -24,7 +24,7 @@ namespace InDet {
 
   public:
     TrackStateOnBLayerInfo();
-    ~TrackStateOnBLayerInfo();
+    ~TrackStateOnBLayerInfo() = default;
 
     inline TrackStateOnBLayerType type() const { return m_type; }
     inline Identifier moduleId() const { return m_moduleId; }

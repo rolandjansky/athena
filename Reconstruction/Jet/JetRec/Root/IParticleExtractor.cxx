@@ -7,6 +7,7 @@
 #include "JetRec/IParticleExtractor.h"
 #include "JetRec/LineFormatter.h" // helper class for debug printing
 #include "xAODBase/IParticle.h"
+#include <numeric>
 #include <vector>
 
 IParticleExtractor::IParticleExtractor(const xAOD::IParticleContainer* ips,

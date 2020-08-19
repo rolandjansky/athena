@@ -175,6 +175,7 @@ if ( True ) :
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
 
+
     ]
   
   from AthenaCommon.AppMgr import release_metadata

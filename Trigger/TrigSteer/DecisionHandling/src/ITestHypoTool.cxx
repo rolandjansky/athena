@@ -4,7 +4,6 @@
 // Framework includes
 
 
-// TrigUpgradeTest includes
 #include "./ITestHypoTool.h"
 
 namespace HLTTest {

@@ -101,17 +101,13 @@ namespace TRT{
   public:
     // Constructors
     HitInfo() : m_Ints(Hit::TNOIV),m_Floats(Hit::TNOFV) {}
-    HitInfo(const HitInfo& orig): m_Ints(orig.m_Ints),m_Floats(orig.m_Floats) {}
+    HitInfo(const HitInfo& orig)= default;
+    HitInfo(HitInfo&& orig) noexcept = default;
     //assignment
-    HitInfo & operator=(const HitInfo & other){
-      if (this!=&other){
-        m_Ints = other.m_Ints;
-        m_Floats = other.m_Floats;
-      }
-      return *this;
-    }
+    HitInfo & operator=(const HitInfo & other)=default;
+    HitInfo & operator=(HitInfo && other) noexcept =default;
     // Destructor
-    ~HitInfo(){}
+    ~HitInfo()=default;
     // Access
     const int& operator[](const Hit::IntVariables& theIndex) const {return m_Ints[theIndex];}
     const float& operator[](const Hit::FloatVariables& theIndex) const {return m_Floats[theIndex];}

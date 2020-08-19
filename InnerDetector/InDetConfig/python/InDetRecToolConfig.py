@@ -27,7 +27,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
   result = ComponentAccumulator()
 
   if 'SctSummaryTool' not in kwargs:
-    if flags.Detector.SCTOn:
+    if flags.Detector.RecoSCT:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)
       kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
       result.merge(tmpAcc)
@@ -39,8 +39,8 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
     kwargs.setdefault("PixelLayerTool", tmpAcc.getPrimary())
     result.merge(tmpAcc)
 
-  kwargs.setdefault("UsePixel", flags.Detector.PixelOn)
-  kwargs.setdefault("UseSCT", flags.Detector.SCTOn)
+  kwargs.setdefault("UsePixel", flags.Detector.RecoPixel)
+  kwargs.setdefault("UseSCT", flags.Detector.RecoSCT)
 
   indet_boundary_check_tool = CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs)
   result.setPrivateTools(indet_boundary_check_tool)

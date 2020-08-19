@@ -168,7 +168,7 @@ from ISF_Example.ISF_Metadata import createSimulationParametersMetadata, configu
 createSimulationParametersMetadata()
 configureRunNumberOverrides()
 
-if ISF_Flags.HITSMergingRequired():
+if ISF_Flags.HITSMergingRequired.anyOn():
     topSequence += collection_merger_alg
 
 #--------------------------------------------------------------

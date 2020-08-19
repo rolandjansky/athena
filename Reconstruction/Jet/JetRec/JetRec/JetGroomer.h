@@ -18,8 +18,8 @@
 
 #include "AsgTools/AsgTool.h"
 
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 #include "JetInterface/IJetProvider.h"
 
