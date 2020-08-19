@@ -6,6 +6,12 @@ from __future__ import print_function
 
 from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+from builtins import str
+from builtins import zip
+from builtins import object
 from AthenaCommon.Logging import logging
 import time
 
@@ -20,7 +26,7 @@ def getFrontierCursor(url, schema, loglevel = logging.INFO):
         return FrontierCursor( url = url, schema = schema)
         
 
-class FrontierCursor2:
+class FrontierCursor2(object):
     def __init__(self, url, schema, refreshFlag=False):
         log = logging.getLogger( "TrigConfFrontier.py" )
         self.url = url
@@ -39,7 +45,7 @@ class FrontierCursor2:
         log = logging.getLogger( "TrigConfFrontier.py" )
         import re
         varsextract = re.findall(':([A-z0-9]*)',query)
-        values = map(bindvars.get, varsextract)
+        values = list(map(bindvars.get, varsextract))
         log.debug("Resolving bound variable %r with %r", varsextract,values)
         appendix = ":".join([str(v) for v in values])
         queryWithQuestionMarks = re.sub(':[A-z0-9]*','?', query)
@@ -53,7 +59,7 @@ class FrontierCursor2:
         """
         log = logging.getLogger( "TrigConfFrontier.py" )
         from builtins import int
-        for var,val in bindvars.items():
+        for var,val in list(bindvars.items()):
             if query.find(":%s" % var)<0:
                 raise NameError("variable '%s' is not a bound variable in this query: %s" % (var, query) )
             if isinstance (val, int):
@@ -117,7 +123,7 @@ Refresh cache:  %s""" % (self.url, self.schema, self.refreshFlag)
 
 
     
-class FrontierCursor:
+class FrontierCursor(object):
     def __init__(self, url, schema, refreshFlag=False, doDecode=True, retrieveZiplevel="zip"):
         if url.startswith('('):
             self.servertype, self.url  = FrontierCursor.getServerUrls(url)[0]
@@ -142,10 +148,10 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
 
     @classmethod
     def testUrl(cls, url):
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         try:
-            urllib2.urlopen(url)
-        except urllib2.URLError:
+            urllib.request.urlopen(url)
+        except urllib.error.URLError:
             import traceback
             traceback.print_exc()
             
@@ -158,14 +164,16 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
         log.debug("Refresh cache     : %s", self.refreshFlag)
         log.debug("Query             : %s", query)
         
-        import base64, zlib, urllib2, time
+        import base64, zlib, urllib.request, urllib.error, urllib.parse, time
 
         self.result = None
 
-        encQuery = base64.binascii.b2a_base64(zlib.compress(query,9)).replace("+", ".").replace("\n","").replace("/","-").replace("=","_")
+        compQuery = zlib.compress(query.encode("utf-8"),9)
+        base64Query = base64.binascii.b2a_base64(compQuery).decode("utf-8")
+        encQuery = base64Query.replace("+", ".").replace("\n","").replace("/","-").replace("=","_")
 
         frontierRequest="%s/type=frontier_request:1:DEFAULT&encoding=BLOB%s&p1=%s" % (self.url, self.retrieveZiplevel, encQuery)
-        request = urllib2.Request(frontierRequest)
+        request = urllib.request.Request(frontierRequest)
 
         if self.refreshFlag:
             request.add_header("pragma", "no-cache")
@@ -177,7 +185,7 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
         log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
         t1 = time.time()
-        result = urllib2.urlopen(request,None,10).read()
+        result = urllib.request.urlopen(request,None,10).read().decode()
         t2 = time.time()
 
         queryEnd = time.localtime()
@@ -215,9 +223,14 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                     print (keepalives, "keepalives received\n")
                     keepalives = 0
             
-                row = base64.decodestring(node.data)
+                row = base64.decodebytes(node.data.encode())
                 if self.retrieveZiplevel != "":
-                    row = zlib.decompress(row)
+                    row = zlib.decompress(row).decode("utf-8")
+
+                #Hack to get these lines to work in python 2
+                import sys
+                if sys.version_info[0] < 3: 
+                    row = row.encode('ascii', 'xmlcharrefreplace')
              
                 endFirstRow = row.find('\x07')
                 firstRow = row[:endFirstRow]
@@ -241,7 +254,7 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                 log.debug("DB Types    : %r", types)
                 log.debug("Python Types: %r", ptypes)
                 
-                row = str(row[endFirstRow+1:])
+                row = row[endFirstRow+1:]
 
                 row_h = row.rstrip('\x07')
                 
@@ -276,55 +289,17 @@ def testConnection():
     tf.triggerUseFrontier = True
 
     from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
-    connectionParameters = interpretConnection("TRIGGERDBREPR")
+    connectionParameters = interpretConnection("TRIGGERDBMC")
 
-    cursor = FrontierCursor2( url = connectionParameters['url'], schema = connectionParameters['schema'])
+    cursor = FrontierCursor( url = connectionParameters['url'], schema = connectionParameters['schema'])
 
-    query = "select distinct SM.SMT_ID, SM.SMT_NAME, SM.SMT_VERSION, SM.SMT_COMMENT, SM.SMT_ORIGIN, SM.SMT_USERNAME, SM.SMT_STATUS from ATLAS_CONF_TRIGGER_REPR.SUPER_MASTER_TABLE SM order by SM.SMT_ID"
-
-    cursor.execute(query)
-
-    for r in cursor.result[:20]:
-        print (r)
-
-    query = """
-SELECT DISTINCT
-CP.HCP_NAME,
-CP.HCP_ALIAS,
-TE2CP.HTE2CP_ALGORITHM_COUNTER,
-TE.HTE_ID,
-TE.HTE_NAME,
-TE2TE.HTE2TE_TE_INP_ID,
-TE2TE.HTE2TE_TE_INP_TYPE,
-TE2TE.HTE2TE_TE_COUNTER
-FROM
-ATLAS_CONF_TRIGGER_REPR.SUPER_MASTER_TABLE    SM,
-ATLAS_CONF_TRIGGER_REPR.HLT_MASTER_TABLE      HM,
-ATLAS_CONF_TRIGGER_REPR.HLT_TM_TO_TC          M2C,
-ATLAS_CONF_TRIGGER_REPR.HLT_TC_TO_TS          TC2TS,
-ATLAS_CONF_TRIGGER_REPR.HLT_TS_TO_TE          S2TE,
-ATLAS_CONF_TRIGGER_REPR.HLT_TRIGGER_ELEMENT   TE,
-ATLAS_CONF_TRIGGER_REPR.HLT_TE_TO_CP          TE2CP,
-ATLAS_CONF_TRIGGER_REPR.HLT_TE_TO_TE          TE2TE,
-ATLAS_CONF_TRIGGER_REPR.HLT_COMPONENT         CP
-WHERE
-SM.SMT_ID     = 539
-AND HM.HMT_ID = SM.SMT_HLT_MASTER_TABLE_ID
-AND HM.HMT_TRIGGER_MENU_ID = M2C.HTM2TC_TRIGGER_MENU_ID
-AND M2C.HTM2TC_TRIGGER_CHAIN_ID = TC2TS.HTC2TS_TRIGGER_CHAIN_ID
-AND TC2TS.HTC2TS_TRIGGER_SIGNATURE_ID = S2TE.HTS2TE_TRIGGER_SIGNATURE_ID
-AND TE.HTE_ID = S2TE.HTS2TE_TRIGGER_ELEMENT_ID
-AND TE.HTE_ID = TE2CP.HTE2CP_TRIGGER_ELEMENT_ID
-AND TE.HTE_ID = TE2TE.HTE2TE_TE_ID
-AND CP.HCP_ID = TE2CP.HTE2CP_COMPONENT_ID
-ORDER BY
-TE.HTE_ID ASC,
-TE2CP.HTE2CP_ALGORITHM_COUNTER DESC"""
+    query = "select distinct HPS.HPS_NAME from ATLAS_CONF_TRIGGER_RUN2_MC.HLT_PRESCALE_SET HPS where HPS.HPS_ID = '260'"
 
     cursor.execute(query)
-
-    for r in cursor.result[:20]:
-        print (r)
+    print(cursor.result)
+    cursor.decodeResult()
+    print(cursor.result[0][0])
+    assert cursor.result[0][0] == 'MC_pp_v7'
 
     return 0
 
@@ -336,6 +311,7 @@ def testBindVarResolution():
     print(query)
     print("is translated to")
     print(FrontierCursor2.resolvebindvars(query, bindvars))
+    return 0
 
     
 if __name__=="__main__":
