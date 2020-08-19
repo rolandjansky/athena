@@ -41,7 +41,9 @@ CaloCellLink* CaloClusterNavigable::getCellLink()
   if ( m_ownLinkStore )
     {
       if ( *m_cellLink == nullptr ) m_cellLink.setElement(new CaloCellLink());
-      return const_cast<CaloCellLink*>(*m_cellLink);
+      // Ok, because this happens only if we own the pointer.
+      CaloCellLink* link ATLAS_THREAD_SAFE = const_cast<CaloCellLink*>(*m_cellLink);
+      return link;
     }
   else
     {
@@ -80,12 +82,4 @@ CaloClusterNavigable::getCellLink() const
   //		<< *m_cellLink << std::endl;
   //    }
   return m_cellLink.isValid() ? *m_cellLink : nullptr;
-}
-
-
-
-bool CaloClusterNavigable::replaceCellContainer(const CaloCellContainer* newCont) const {
-  //return (*m_cellLink)->replace(newCont);
-  CaloCellLink* lnk=const_cast<CaloCellLink*>(*m_cellLink);
-  return lnk->replace(newCont);
 }
