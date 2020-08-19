@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,6 +18,7 @@ public:
     virtual std::vector<IdentifierHash> GetAllCurrentHashes() const =0;
 
     virtual StatusCode addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId) =0;
+    virtual StatusCode addOrDelete(std::unique_ptr<const T> ptr, IdentifierHash hashId) =0;
 
     virtual size_t fullSize() const =0;
 
