@@ -19,7 +19,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.addResidualHistograms()
 
     def addSPHistograms(self, name):
-        if name=='FS' or name=='JetFS' or name='FullScan' or name='fullScan':
+        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
             self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 500, xmin=-0.5, xmax=49999.5)
             self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 500, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=6.4)
@@ -40,7 +40,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
                              xlabels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
    
     def addTimingHistograms(self, name):
-        if name=='FS' or name=='JetFS' or name='FullScan' or name='fullScan':
+        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=200000.0, ybins = 100, ymin=0.0, ymax=40000.0)
             self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=10000.0,  ybins = 100, ymin=0.0, ymax=40000.0)
             self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=40000.0)
@@ -62,7 +62,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
 
 
     def addTrackHistograms(self, name):
-        if name=='FS' or name=='JetFS' or name='FullScan' or name='fullScan':
+        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
             self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins = 1000, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins = 100, xmin=-0.5, xmax=9999.5)
         else:
