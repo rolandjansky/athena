@@ -19,7 +19,9 @@ def _load_dict(lib):
     """Helper function to remember which libraries have been already loaded
     """
     import cppyy
-    return cppyy.loadDictionary(lib)
+    if not lib.startswith(lib):
+        lib="lib"+lib
+    return cppyy.load_library(lib)
 
 @memoize
 def _import_ROOT():
@@ -32,30 +34,6 @@ def _import_ROOT():
         os.environ['DISPLAY'] = orig_display
     del orig_display
 
-    # install additional pythonizations
-    ROOT._Template = ROOT.Template
-    class Template(ROOT._Template):
-        def __call__(self, *args):
-            try:
-                result = ROOT._Template.__call__(self, *args)
-            except Exception:
-                # try again...
-                result = ROOT._Template.__call__(self, *args)
-
-            if self.__name__ in ('std::map', 'map'):
-                try:
-                    fct = globals().get('_std_map_pythonize')
-                    if fct:
-                        new_cls = fct(result,
-                                      key_type=args[0],
-                                      value_type=args[1])
-                        result = new_cls
-                except Exception:
-                    pass
-            return result
-    ROOT.Template = Template
-    for cls in ROOT.std.stlclasses:
-        setattr(ROOT.std, cls, ROOT.Template('std::%s'%cls))
     return ROOT
     
 ### data ----------------------------------------------------------------------
@@ -122,7 +100,8 @@ class _PyAthenaBindingsCatalog(object):
             try:
                 import cppyy
                 #klass = getattr(ROOT, name)
-                klass = cppyy.makeClass(name)
+                #klass = cppyy.makeClass(name)
+                klass=getattr(cppyy.gbl,name)
             except AttributeError:
                 raise AttributeError("no reflex-dict for type [%s]"%name)
         return klass
