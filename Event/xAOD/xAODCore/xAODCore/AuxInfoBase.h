@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODCORE_AUXINFOBASE_H
 #define XAODCORE_AUXINFOBASE_H
@@ -146,9 +146,6 @@ namespace xAOD {
 
       /// Get the types(names) of variables created dynamically
       virtual const auxid_set_t& getDynamicAuxIDs() const override;
-
-      /// Select dynamic Aux attributes by name (for writing)
-      virtual void selectAux( const std::set< std::string >& attributes ) override;
 
       /// Get the IDs of the selected dynamic Aux variables (for writing)
       virtual SG::auxid_set_t getSelectedAuxIDs() const override;
