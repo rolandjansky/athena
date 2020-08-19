@@ -119,6 +119,11 @@ comp8.flag='EFele'
 comp8.test='ttbar'
 test.check_steps.append(comp8)
 
+comp9=TrigInDetCompStep('Comp_L2FS')
+comp9.flag='L2FS'
+comp9.test='ttbar'
+test.check_steps.append(comp9)
+
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
 test.check_steps.append(cpucost)
