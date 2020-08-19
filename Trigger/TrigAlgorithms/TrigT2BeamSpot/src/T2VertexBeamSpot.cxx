@@ -104,19 +104,14 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
   // Start the overall timer
   auto tTotal = Monitored::Timer("TIME_TotalTime");
 
-  //Reset monitored variables from previous event 
-  m_beamSpotTool->resetMonitoredVariables();
-  // Initialize booleans for event stats
-  m_beamSpotTool->m_eventStageFlag = std::vector<bool>( numStatistics, false );
-  m_beamSpotTool->eventStage( allInput );
-
   // Initialize vertex collections
   TrigVertexCollection myVertexCollection;
   DataVector< TrigVertexCollection > mySplitVertexCollections;
 
   // Be optimistic
   HLT::ErrorCode errorCode = HLT::OK;
-
+  unsigned int nPassVtx = 0;
+  const EventContext& ctx = Algorithm::getContext();
   // Process event - break to do cleanup before returning
   do 
     {
@@ -128,8 +123,6 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
       }
       else ATH_MSG_DEBUG( "Number of input TEs = " << tes_in.size() );
   
-      m_beamSpotTool->eventStage( hasTE );
-      
       //-----------------
       // Track selection
 
@@ -225,20 +218,16 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
 
 
 
-      m_beamSpotTool->eventStage( hasSeedTrack );
-
       // Check for the total number of available tracks
       if( m_beamSpotTool->notEnoughTracks( nSelectedTracks ) ){
          ATH_MSG_DEBUG( " Not enough total passed tracks to vertex");
          break;
       }
 
-      m_beamSpotTool->eventStage( enoughTracks );
-
       //-----------------------
       // Vertex reconstruction
       // Cluster tracks in z around seed track and reconstruct vertices
-      m_beamSpotTool->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections );
+      nPassVtx = m_beamSpotTool->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections, ctx );
 
     } while (false);
 
@@ -258,9 +247,6 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
    HLT::TEVec allTEs =  getAllTEs(tes_in);
    ATH_MSG_DEBUG( "n of all TEs: " << allTEs.size() );
 
-   //Check how many vertices passed the selection
-   unsigned int nPassedVtx = m_beamSpotTool->m_NvtxPass;
-
    //Save all events, or only those events which pass the Npv cuts (if activated)!
    if ( m_activateAllTE ) {
       ATH_MSG_DEBUG( "Activate all TEs" );
@@ -270,10 +256,10 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
    }
 
 
-   if ( ! m_activateAllTE && m_activateTE && nPassedVtx > 0 ) {
-      ATH_MSG_DEBUG( "Activate TE with "<< nPassedVtx << " vertices" );
+   if ( ! m_activateAllTE && m_activateTE && nPassVtx > 0 ) {
+      ATH_MSG_DEBUG( "Activate TE with "<< nPassVtx << " vertices" );
       // FIXME: Why do we need one TE per vertex?
-      for ( unsigned i=0; i < nPassedVtx; ++i ) {
+      for ( unsigned i=0; i < nPassVtx; ++i ) {
          // Create an output TE seeded by the inputs
          HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
          outputTE->setActiveState(true);
@@ -298,10 +284,6 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
    }
 
 
-
-   //Monitoring eventStatistics
-   auto eventStatistics = Monitored::Collection("EventStatistics", m_beamSpotTool->m_eventStage );
-   auto mon = Monitored::Group(m_monTool,  eventStatistics, timeToCreateOutput );
 
   // Return cause you're done!
   return errorCode;
@@ -418,25 +400,10 @@ StatusCode T2VertexBeamSpot::execute(){
 
    ATH_MSG_DEBUG( "Beam spot algorithm execute method" );
 
-
-
-   //Reset monitored variables from previous event
-   m_beamSpotTool->resetMonitoredVariables();
-   // Initialize booleans for event stats
-   m_beamSpotTool->m_eventStageFlag = std::vector<bool>( numStatistics, false );
-   m_beamSpotTool->eventStage( allInput );
-
    const EventContext& ctx = Algorithm::getContext();
-   ATH_MSG_DEBUG( "Run: " << ctx.eventID().run_number() <<
-         " Event Number: " << ctx.eventID().event_number() <<
-         " Lumi Block: " << ctx.eventID().lumi_block() <<
-         " Bunch Crossing ID " << ctx.eventID().bunch_crossing_id() );
-
-   //Pass event ID for vertex splitting alg, TODO: need to revisit 
-   m_beamSpotTool->m_EventID = ctx.eventID().event_number() ;
 
    //// Initialize vertex collections
-   SG::WriteHandle<TrigVertexCollection> myVertexCollection(m_outputVertexCollectionKey);
+   SG::WriteHandle<TrigVertexCollection> myVertexCollection(m_outputVertexCollectionKey, ctx);
    myVertexCollection = std::make_unique<TrigVertexCollection>();
 
    //Need to convert to the write handles
@@ -452,7 +419,6 @@ StatusCode T2VertexBeamSpot::execute(){
    unsigned nHighPtTracks = 0;
 
    ATH_MSG_DEBUG( "Selecting tracks" );
-   //Loop over trackCollections
    {
       //Monitor how long does it take to loop over all collections
       auto tSelectingTracks = Monitored::Timer("TIME_SelectingTracks");
@@ -462,7 +428,7 @@ StatusCode T2VertexBeamSpot::execute(){
       auto nTotalPassedTracks = Monitored::Scalar<unsigned>("nTotalPassedTracks");
       auto nTotalHighPTTracks = Monitored::Scalar<unsigned>("nTotalHighPTTracks");
       //Loop over track collections and select tracks
-      SG::ReadHandle<TrackCollection> trackCollection (m_trackCollectionKey);
+      SG::ReadHandle<TrackCollection> trackCollection (m_trackCollectionKey, ctx);
       ATH_CHECK(trackCollection.isValid());
 
       //Dereference tracks
@@ -494,37 +460,28 @@ StatusCode T2VertexBeamSpot::execute(){
       return StatusCode::SUCCESS;
    }
 
-   m_beamSpotTool->eventStage( hasSeedTrack );
-
    // Check for the total number of available tracks
    if (  ( m_beamSpotTool->notEnoughTracks(nSelectedTracks)) ) {
       ATH_MSG_DEBUG( "Not enough total passed tracks to vertex");
       return StatusCode::SUCCESS;
    }
 
-   m_beamSpotTool->eventStage( enoughTracks );
-
    ATH_MSG_DEBUG( "Reconstruct vertices" );
    //Reconstruct vertices if passed track selection
    {
       //Monitor how long does it take to loop over all collections
       auto tReconstructVertices = Monitored::Timer("TIME_ReconstructVertices");
-      m_beamSpotTool->reconstructVertices( mySelectedTrackCollection, *myVertexCollection, mySplitVertexCollections );
+      m_beamSpotTool->reconstructVertices( mySelectedTrackCollection, *myVertexCollection, mySplitVertexCollections, ctx );
       //Monitor total number of tracks
       auto monitor = Monitored::Group(m_monTool, tReconstructVertices);
    }
 
-   //Do i want to call createOutputTEs even if the conditions are not fulfilled?
    ATH_MSG_DEBUG( "Number of track collection containers: " << mySelectedTrackCollection.size() );
 
    //What should go as an output? SelectedTrackCollection and Vertices?
    //Atm just try add vertex
    //TODO: adding split vertices as well, will need an array
 
-
-   //Monitoring eventStatistics
-   auto eventStatistics = Monitored::Collection("EventStatistics", m_beamSpotTool->m_eventStage );
-   auto monitor = Monitored::Group(m_monTool, eventStatistics, tTotal);
    return StatusCode::SUCCESS;
 } 
 

@@ -820,7 +820,6 @@ Calculation of energy fraction caused by particles of different types
 void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,int>& truthBarcodeToPdgCodeMap,
                                                    const MyClusInfo& clusInfo, std::vector<double> &engFrac) const
 {
-  static unsigned int nWarnings = 0;
   engFrac.assign(kCalibFracMax, 0.0);
   if(clusInfo.engCalibIn.engTot <= 0.0) return;
   // each MyClusInfo has a map of particle's barcode and particle calibration deposits in given cluster
@@ -829,10 +828,7 @@ void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,i
     int pdg_id = 0;
     try { pdg_id = truthBarcodeToPdgCodeMap.at(barcode); }
     catch (const std::out_of_range& e){
-      if (nWarnings < 10 ){
-	ATH_MSG_WARNING("truthBarcodeToPdgCodeMap cannot find an entry with barcode " << barcode);
-	nWarnings++;
-      }
+      ATH_MSG_WARNING("truthBarcodeToPdgCodeMap cannot find an entry with barcode " << barcode);
       continue;
     }
 

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// MuonTruthAlgs includes
 #include "MuonTruthSummaryAlg.h"
 
 #include "TrkTrack/TrackCollection.h"
@@ -10,19 +9,9 @@
 #include "MuonSegment/MuonSegment.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-MuonTruthSummaryAlg::MuonTruthSummaryAlg( const std::string& name, ISvcLocator* pSvcLocator ) 
-  : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_truthSummaryTool("MuonTruthSummaryTool"){
-  declareProperty("SegmentContainerName"      , m_segmentContainerName = "MuonSegments");
-  declareProperty("MSTracksContainerName"     , m_msTracksContainerName = "MuonSpectrometerTracks");
-  declareProperty("MSTrackletsContainerName"     , m_msTrackletContainerName = "MSonlyTracklets");
-  declareProperty("MuonTruthSummaryTool"      ,	m_truthSummaryTool );
+MuonTruthSummaryAlg::MuonTruthSummaryAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
+  AthAlgorithm( name, pSvcLocator ) {
 }
-
-
-MuonTruthSummaryAlg::~MuonTruthSummaryAlg() {}
-
 
 StatusCode MuonTruthSummaryAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
@@ -30,12 +19,6 @@ StatusCode MuonTruthSummaryAlg::initialize() {
     ATH_MSG_ERROR("Failed to initialize " << m_truthSummaryTool );
     return StatusCode::FAILURE;
   }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MuonTruthSummaryAlg::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-
   return StatusCode::SUCCESS;
 }
 
@@ -59,14 +42,6 @@ StatusCode MuonTruthSummaryAlg::execute() {
     }
   }
 
-//  const xAOD::TrackParticleContainer* trackPs = 0;
-//  if (evtStore()->retrieve(trackPs, m_msTrackletContainerName).isSuccess()){
-//    for (auto trkP : *trackPs) {
-//        m_truthSummaryTool->add(*trkP,4);
-//    }
-//  }
-
-  //ATH_MSG_VERBOSE(m_truthSummaryTool->printSummary());
   return StatusCode::SUCCESS;
 }
 

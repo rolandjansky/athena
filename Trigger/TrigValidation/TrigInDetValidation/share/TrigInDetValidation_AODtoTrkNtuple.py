@@ -166,7 +166,9 @@ if ( True ) :
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF"
+    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF",
+    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI",
+    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
 
     ]
   

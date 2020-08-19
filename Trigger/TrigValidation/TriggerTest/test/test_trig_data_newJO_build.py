@@ -14,7 +14,7 @@ copy_jo = ExecStep.ExecStep('CopyJO')
 copy_jo.type = 'other'
 copy_jo.input = ''
 copy_jo.executable = 'get_files'
-copy_jo.args = '-remove -jo TrigUpgradeTest/newJOtest.py'
+copy_jo.args = '-remove -jo TriggerJobOpts/runHLT_standalone_newJO.py'
 copy_jo.prmon = False
 copy_jo.auto_report_result = False  # Do not set art-result for this step
 copy_jo.output_stream = Step.Step.OutputStream.STDOUT_ONLY  # Do not create a log file for this step
@@ -24,14 +24,14 @@ pickle = ExecStep.ExecStep('GeneratePickle')
 pickle.type = 'other'
 pickle.input = ''
 pickle.executable = 'python'
-pickle.args = 'newJOtest.py'
+pickle.args = 'runHLT_standalone_newJO.py'
 pickle.prmon = False
 
 # The main job running athena from pickle
 run_athena = ExecStep.ExecStep('newJO')
 run_athena.type = 'athena'
 run_athena.use_pickle = True
-run_athena.job_options = 'newJOtest.pkl'
+run_athena.job_options = 'runHLT_standalone_newJO.py'
 run_athena.input = ''
 
 # The full test configuration

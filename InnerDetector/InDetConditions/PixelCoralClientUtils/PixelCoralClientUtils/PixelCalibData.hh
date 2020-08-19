@@ -37,7 +37,7 @@ class PixelCalibData{
   PixelCalibData(unsigned int ident,int nmax); 
 
   /** default destructor */
-  ~PixelCalibData ();
+  ~PixelCalibData () = default;
 
   const static int nPixelChipSummaryDataMax = 16; /** maximum number of chips per module */
   /** embedded class PixelChipSummaryData holds all the calibration data for a chip */ 
@@ -46,7 +46,7 @@ class PixelCalibData{
 
   public: 
     PixelChipSummaryData();
-    ~PixelChipSummaryData(){};
+    ~PixelChipSummaryData() = default;
 
     /** Methods to access the calibration data */ 
     int getChipID() const { return (int)m_chip; } //<! get the chip id inside a module from 0 to 15 
@@ -349,7 +349,6 @@ inline PixelCalibData::PixelChipSummaryData::PixelChipSummaryData(){
   }
 }
 
-inline PixelCalibData::~PixelCalibData(){}
 
 inline int PixelCalibData::size() const
    { return (int)m_vec.size();}

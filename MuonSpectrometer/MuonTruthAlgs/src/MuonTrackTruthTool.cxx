@@ -4,46 +4,27 @@
 
 #include "MuonTruthAlgs/MuonTrackTruthTool.h"
 
-#include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "TrkTruthData/TruthTrajectory.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "MuonSimData/MuonSimData.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonSegment/MuonSegment.h"
-
-#include <iostream>
-#include <set>
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventUtils/RoT_Extractor.h"
 
+#include <iostream>
+
 namespace Muon {
 
-  MuonTrackTruthTool::MuonTrackTruthTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa), 
-      m_detMgr(0),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_truthTrajectoryBuilder("Muon::MuonDecayTruthTrajectoryBuilder/MuonDecayTruthTrajectoryBuilder")
-  {
+  MuonTrackTruthTool::MuonTrackTruthTool(const std::string& ty,const std::string& na,const IInterface* pa) :
+      AthAlgTool(ty,na,pa), 
+      m_detMgr(nullptr) {
     declareInterface<IMuonTrackTruthTool>(this);
-
-    declareProperty("DoSummary",                  m_doSummary = false );
-    declareProperty("ManipulateBarCode",          m_manipulateBarCode = false );
-    declareProperty("MinHits",                    m_minHits = 4 );
-    declareProperty("MatchAllParticles",          m_matchAllParticles = true );
-    declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
   }
 
   StatusCode MuonTrackTruthTool::initialize()
@@ -258,8 +239,6 @@ namespace Muon {
 	ATH_MSG_VERBOSE(" Erasing entry: barcode " << it->second.truthTrack->GetBarCode() 
                         << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode()) << " hits " << nhits);
 	badBarcodes.push_back(it->first);
-	//m_truthTree.erase(it);
-	//it = m_truthTree.begin();
       }else{
 	++ngood;
 	ATH_MSG_VERBOSE(" Keeping entry: barcode " << it->second.truthTrack->GetBarCode() 

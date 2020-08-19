@@ -119,9 +119,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     if mt_chains:
       chainnames = [
         "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
-        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuonForEF",
-        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
-        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuonForEF"
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuonForEF",
+        "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
+        "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso"
       ]
     else:
       chainnames = [
@@ -157,9 +157,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     if mt_chains:
       chainnames = [
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso_TauID",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso_TauID"
       ]
     else:
       chainnames = [
