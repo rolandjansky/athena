@@ -456,6 +456,7 @@ def defineMenu():
         #TE + MU
 
         # MBTS
+        "L1_MBTS_1_EMPTY",
         # beam splashes
         
         #Overlay
@@ -981,7 +982,8 @@ def defineMenu():
         'L1_DY-BOX-2MU6' : 318,
         'L1_DY-BOX-2MU4' : 160,
         'L1_CEP-CJ60' : 162,
-        'L1_CEP-CJ50' : 164,
+        #'L1_CEP-CJ50' : 164,
+        'L1_MBTS_1_EMPTY' : 164,
         'L1_BPH-8M15-2MU4-BO' : 165,
         'L1_CALREQ2' : 511,
 
