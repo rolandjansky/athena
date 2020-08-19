@@ -207,15 +207,15 @@ thinningTools.append(PHYSLITEVertexThinningTool)
 #==============================================================================
 # Jet building
 #==============================================================================
-OutputJets["PHYSLITE"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+OutputJets["PHYSLITE"] = ["AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
-   OutputJets["PHYSLITE"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
+   OutputJets["PHYSLITE"].append("AntiKt10TruthSoftDropBeta100Zcut10Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
+add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthSoftDropBeta100Zcut10')
+addDefaultUFOSoftDropJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
 
 # Rebuild the PFlow jets for a consistent set of inputs to MET
 addCHSPFlowObjects()
@@ -223,7 +223,7 @@ addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, algseq=
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+   addJetTruthLabel(jetalg="AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 # q/g discrimination
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
@@ -234,15 +234,16 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSLITE, algname='PHYSLITEJetF
 #====================================================================
 # Flavour tagging   
 #====================================================================
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(SeqPHYSLITE)
+# Create variable-R trackjets and dress AntiKt10UFOCSSKJets with ghost VR-trkjet
+largeRJetCollections = ["AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
+addVRJets(SeqPHYSLITE,largeRJetCollections,training='201903')
 #addVRJetsTCC(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
 #             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
 #             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
 #             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
-# add xbb taggers
-from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
-addRecommendedXbbTaggers(SeqPHYSLITE, ToolSvc)
+# add xbb taggers (not optimised yet for UFO SD jets)
+#from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+#addRecommendedXbbTaggers(SeqPHYSLITE, ToolSvc)
 
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMPFlowJets'], Sequencer = SeqPHYSLITE)
 
@@ -320,6 +321,14 @@ jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 print( jetSequence ) # For debugging
 
 SeqPHYSLITE += jetSequence
+
+largeRJetContainer = 'AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets'
+
+# Include, and then set up the jet analysis algorithm sequence for large-radius jets
+largeRJetSequence = makeJetAnalysisSequence(dataType, largeRJetContainer, postfix = 'largeR', deepCopyOutput = True, shallowViewOutput = False, runGhostMuonAssociation = False )
+largeRJetSequence.configure( inputName = largeRJetContainer, outputName = 'AnalysisLargeRJets' )
+
+SeqPHYSLITE += largeRJetSequence
 
 # Make sure the MET knows what we've done
 # Now build MET from our analysis objects
@@ -437,11 +446,12 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'AnalysisElectrons':'xAOD::ElectronContainer', 'AnalysisElectronsAux':'xAOD::ElectronAuxContainer',
                                          'AnalysisMuons':'xAOD::MuonContainer', 'AnalysisMuonsAux':'xAOD::MuonAuxContainer',
                                          'AnalysisJets':'xAOD::JetContainer','AnalysisJetsAux':'xAOD::AuxContainerBase',
+                                         'AnalysisLargeRJets':'xAOD::JetContainer','AnalysisLargeRJetsAux':'xAOD::AuxContainerBase',
                                          'AnalysisPhotons':'xAOD::PhotonContainer', 'AnalysisPhotonsAux':'xAOD::PhotonAuxContainer',
                                          'AnalysisTauJets':'xAOD::TauJetContainer', 'AnalysisTauJetsAux':'xAOD::TauJetAuxContainer',
                                          'MET_Core_AnalysisMET':'xAOD::MissingETContainer', 'MET_Core_AnalysisMETAux':'xAOD::MissingETAuxContainer',
                                          'METAssoc_AnalysisMET':'xAOD::MissingETAssociationMap', 'METAssoc_AnalysisMETAux':'xAOD::MissingETAuxAssociationMap',
-                                         'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
+                                         'AntiKt10TruthSoftDropBeta100Zcut10Jets':'xAOD::JetContainer', 'AntiKt10TruthSoftDropBeta100Zcut10JetsAux':'xAOD::JetAuxContainer'
                                          }
 
 # Leaving these as smart collections
@@ -465,6 +475,9 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrix.vertexLink.theta.qOverP.truthParticleLink",
   "AnalysisTauJets.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
   "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PSFrac.EMFrac.Width",
+  "AnalysisLargeRJets.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.ECF1.ECF2.ECF3.Tau1_wta.Tau2_wta.Tau3_wta.Split12.Split23.Qw.PlanarFlow.FoxWolfram2.FoxWolfram0.Angularity.Aplanarity.KtDR.ZCut12.Parent.DetectorEta.DetectorY.GhostCHadronsFinalCount.GhostBHadronsFinalCount.R10TruthLabel_R21Consolidated",
+  "AntiKt10UFOCSSKJets.NumTrkPt500.GhostVR30Rmax4Rmin02TrackJet_BTagging201903",
+  "AntiKt10TruthSoftDropBeta100Zcut10Jets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostCHadronsFinalCount.GhostBHadronsFinalCount",
   "BTagging_AntiKt4EMPFlow_201903.DL1r_pu.DL1rmu_pu.DL1r_pb.DL1rmu_pb.DL1r_pc.DL1rmu_pc",
   "TruthPrimaryVertices.t.x.y.z",
   "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",
