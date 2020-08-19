@@ -35,8 +35,7 @@ RegionSelectionSvc :: RegionSelectionSvc(const std::string & name, ISvcLocator *
     m_print_list_of_selected_chambers(false),
     m_master_region(nullptr),
     m_detStore(nullptr),
-    m_detMgr(nullptr),
-    m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
+    m_detMgr(nullptr)
 	{
 	declareProperty("Region", m_region_string);
 	declareProperty("PrintList", m_print_list_of_selected_chambers);

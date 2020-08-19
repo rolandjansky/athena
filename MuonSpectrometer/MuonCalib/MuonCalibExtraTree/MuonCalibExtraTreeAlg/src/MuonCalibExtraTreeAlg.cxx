@@ -3,11 +3,9 @@
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibExtraTreeAlg.h"
-#include "MuonCalibExtraTreeAlg/IExtraTreeFillerTool.h"
-#include "MuonCalibExtraTreeAlg/ISegmentOnTrackSelector.h"
+
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
 #include "AthContainers/DataVector.h"
-#include "GaudiKernel/MsgStream.h"
 #include "MuonCalibNtuple/RootFileManager.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
@@ -16,7 +14,6 @@
 #include "TrkPrepRawData/PrepRawData.h"
 #include "CxxUtils/sincos.h"
 
-#include "TFile.h"
 #include "TTree.h"
 #include "TDirectory.h"
 #include <vector>
@@ -24,31 +21,12 @@
 namespace MuonCalib{
   
 MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), 
+  AthAlgorithm(name, pSvcLocator),
   m_patterns(0),
-  m_doPhi(false),
-  m_ntupleName(""), m_patternLocation(""),m_delayFinish(false),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool"),
-  m_segmentOnTrackSelector(""),
-  m_dir(0), m_tree(0),
+  m_dir(nullptr),
+  m_tree(nullptr),
   m_init(false) {
-  m_ntupleName = "PatternNtupleMaker";
-  declareProperty("doPhi",m_doPhi);
-    
-  declareProperty("NtupleName",m_ntupleName);
-  declareProperty("PatternLocation",m_patternLocation);
-//  Run TrackAnalysis in RTT 
-  declareProperty("DelayFinish",m_delayFinish);
-  //  Properties for TrackAnalysis passed
-  //  flip hit truth radius of MDT drift radius 
-  //  needed for truth matching in e.g. rel 12 RDO data sets 
-  declareProperty("TrackFillerTools", m_track_fillers);
-  declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
-  declareProperty("SegmentOnTrackSelector", m_segmentOnTrackSelector);
 }  //end MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg
-  
-MuonCalibExtraTreeAlg::~MuonCalibExtraTreeAlg() {
-}
 
 StatusCode MuonCalibExtraTreeAlg::initialize() {
     
@@ -57,7 +35,7 @@ StatusCode MuonCalibExtraTreeAlg::initialize() {
 
 StatusCode MuonCalibExtraTreeAlg::execute() {
   if(!m_init) {
-    m_dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
+    m_dir = RootFileManager::getInstance()->getDirectory(m_ntupleName);
     m_dir->cd();
       
     //    m_tree = new TTree("Segments", "my first Tree");  
@@ -118,8 +96,6 @@ StatusCode MuonCalibExtraTreeAlg::finalize() {
     m_hitBranch.reset();
     m_trackBranch.reset();
   }
-
-//    m_tree->Write();      
   return StatusCode::SUCCESS;
 }  // end MuonCalibExtraTreeAlg::finalize
 

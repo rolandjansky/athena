@@ -13,13 +13,13 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MdtDriftCircleStatus.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 
 #include <string>
 
 class MdtCalibHit;
 class MdtCalibrationSvcInput;
 class MdtCalibrationSvcSettings;
-class MdtCalibrationDbTool;
 
 namespace MuonCalib {
   class MdtRtRelation;
@@ -116,7 +116,7 @@ private:
   class Imp;
   std::unique_ptr<Imp> m_imp;
 
-  ToolHandle<MdtCalibrationDbTool> m_dbTool;
+  ToolHandle<MdtCalibrationDbTool> m_dbTool{this,"CalibrationDbTool","MdtCalibrationDbTool"};
 
   // Read handle for conditions object to get the field cache
   // If one wants to avoid that adding of this read handle here, then client tools/algs calling driftRadiusFromTime

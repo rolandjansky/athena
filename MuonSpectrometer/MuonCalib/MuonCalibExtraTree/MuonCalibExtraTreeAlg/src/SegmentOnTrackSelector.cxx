@@ -3,12 +3,11 @@
 */
 
 #include "MuonCalibExtraTreeAlg/SegmentOnTrackSelector.h"
+
 #include "TrkTrack/Track.h"
 #include "MuonCalibEvent/MuonCalibPatternCollection.h"
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
 namespace MuonCalib {
@@ -17,14 +16,12 @@ SegmentOnTrackSelector::SegmentOnTrackSelector(const std::string &type,const std
   AthAlgTool(type,name,parent),
   m_pattern_location(""),
   m_min_hits_on_track(3),
-  m_max_hits_not_on_track(1),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
+  m_max_hits_not_on_track(1)
 {
   declareInterface<ISegmentOnTrackSelector>(this);
   declareProperty("PattternLocation", m_pattern_location);
   declareProperty("MinHitsOnTrack", m_min_hits_on_track);
   declareProperty("MaxHitsNotOnTrack", m_max_hits_not_on_track);
-  declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
 }
 
 StatusCode SegmentOnTrackSelector::initialize() {
@@ -35,7 +32,6 @@ StatusCode SegmentOnTrackSelector::initialize() {
   ATH_CHECK(m_edmHelperSvc.retrieve());
   ATH_CHECK(m_idToFixedIdTool.retrieve());
   ATH_CHECK(m_idHelperSvc.retrieve());
-
   return StatusCode::SUCCESS;
 }
 
