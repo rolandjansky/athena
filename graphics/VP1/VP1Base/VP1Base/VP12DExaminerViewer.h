@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -15,10 +15,6 @@
 
 #ifndef VP12DEXAMINERVIEWER_H
 #define VP12DEXAMINERVIEWER_H
-
-// FIXME: need to include this before any QT header, because QT defines
-// a macro `foreach' that collides with an identifier in AthenaKernel.
-#include "xAODCore/BaseInfo.h"
 
 #include <QList>
 #include <QPair>

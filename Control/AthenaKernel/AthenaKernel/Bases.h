@@ -10,8 +10,9 @@
  *
  * For a class @c T, its base classes are available via the traits
  * class defined here, as @c Bases<T>::bases.  This will be an instantiation
- * of @c BaseList, defined below, which provides a @c foreach function
+ * of @c BaseList, defined below, which provides a @c foreach_ function
  * to iterate over the base classes.
+ * [<CENSORED> Qt defines `foreach' as a macro, so we can't use that name!]
  *
  * For this to work, the @c Bases class must be specialized for each
  * class @c T.  This is usually done using the @c SG_BASE macros
@@ -76,7 +77,7 @@ public:
    */
   template <class CALLABLE>
   static
-  auto foreach (CALLABLE f, bool /*is_virtual*/ = false)
+  auto foreach_ (CALLABLE f, bool /*is_virtual*/ = false)
   {
     // Need to find the return type.
     using return_t = decltype (f (static_cast<void*> (nullptr), false));
@@ -169,13 +170,13 @@ public:
    *       if (typeid(base_t) == ti) return true;
    *       return false;
    *    };
-   *    return SG::Bases<T>::bases::foreach (search);
+   *    return SG::Bases<T>::bases::foreach_ (search);
    *  }
    @endcode
    */
   template <class CALLABLE>
   static
-  auto foreach (CALLABLE f, bool is_virtual = false)
+  auto foreach_ (CALLABLE f, bool is_virtual = false)
   {
     // Unwrap a SG::Virtual if needed.
     using base_t = typename BaseType<BASE>::type;
@@ -188,14 +189,14 @@ public:
     }
 
     // Call it on bases of our first base.
-    auto ret2 = Bases<base_t>::bases::foreach (f, base_is_virtual);
+    auto ret2 = Bases<base_t>::bases::foreach_ (f, base_is_virtual);
     if (static_cast<bool> (ret2)) {
       return ret2;
     }
 
     // Call it on our remaining bases.
     if constexpr (sizeof... (REST) > 0) {
-      auto ret3 = BaseList<REST...>::foreach (f, is_virtual);
+      auto ret3 = BaseList<REST...>::foreach_ (f, is_virtual);
       if (static_cast<bool> (ret3)) {
         return ret3;
       }

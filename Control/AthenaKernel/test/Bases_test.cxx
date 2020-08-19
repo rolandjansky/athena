@@ -109,15 +109,15 @@ void test1()
     return false;
   };
 
-  assert (SG::Bases<C>::bases::foreach (collect_names) == false);
+  assert (SG::Bases<C>::bases::foreach_ (collect_names) == false);
   assert (names == (std::vector<std::string> { "A", "B" }));
 
   names.clear();
-  assert (SG::Bases<D>::bases::foreach (collect_names) == false);
+  assert (SG::Bases<D>::bases::foreach_ (collect_names) == false);
   assert (names == (std::vector<std::string> { "C", "A", "B" }));
 
   names.clear();
-  assert (SG::Bases<E>::bases::foreach (collect_names) == false);
+  assert (SG::Bases<E>::bases::foreach_ (collect_names) == false);
   assert (names == (std::vector<std::string> { "C", "(virtual)",
                                                 "A", "(virtual)",
                                                 "B", "(virtual)",
@@ -134,7 +134,7 @@ void test1()
   };
 
   names.clear();
-  const char* nm = SG::Bases<D>::bases::foreach (collect_names2);
+  const char* nm = SG::Bases<D>::bases::foreach_ (collect_names2);
   assert (std::string(nm) == "A");
   assert (names == (std::vector<std::string> { "C", "A" }));
 }
@@ -152,7 +152,7 @@ bool derivesFrom (const std::type_info& ti)
     if (typeid(base_t) == ti) return true;
     return false;
   };
-  return SG::Bases<T>::bases::foreach (search);
+  return SG::Bases<T>::bases::foreach_ (search);
 }
 
 
