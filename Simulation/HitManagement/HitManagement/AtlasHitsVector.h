@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -167,7 +167,7 @@ public:
   // when the dictionary for this class is loaded.
   static const std::type_info* initHelper()
   { return DataModel_detail::DVLInfo<AtlasHitsVector<T> >::initHelper(); }
-  static const std::type_info* s_info;
+  static const std::type_info* const s_info;
 };
 
 
@@ -189,7 +189,7 @@ void dvl_makecontainer (size_t nreserve, AtlasHitsVector<T>*& cont)
 // Ensure that the DVLInfo gets registered
 // when the dictionary for this class is loaded.
 template <class T>
-const std::type_info* AtlasHitsVector<T>::s_info = AtlasHitsVector<T>::initHelper();
+const std::type_info* const AtlasHitsVector<T>::s_info = AtlasHitsVector<T>::initHelper();
 
 
 #endif
