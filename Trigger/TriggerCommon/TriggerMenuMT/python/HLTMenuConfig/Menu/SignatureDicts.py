@@ -22,8 +22,7 @@ SliceIDDict = {
     'MinBias' : 'mb',
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
-    # 'Calibration'   : 'calib',
-    'Calib'   : 'calib',
+    'Calibration'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
@@ -39,8 +38,7 @@ AllowedSignatures = ["jet", "bjet", "ht",
                      "minbias", 
                      "heavyion", 
                      "cosmic", 
-                     # "calibration",
-                     "calib", "streaming", "monitoring", 'eb']        
+                     "calibration", "streaming", "monitoring", 'eb']        
 
 #==========================================================
 # ---- Generic Template for all chains          ----
@@ -815,9 +813,7 @@ def getSignatureInformation(signature):
         return [HeavyIonChainParts_Default, HeavyIonChainParts]
     if signature == "Cosmic":
         return [CosmicChainParts_Default, CosmicChainParts]
-    # if signature == "Calibration":
-    #     return [CalibChainParts_Default, CalibChainParts]
-    if signature == "Calib":
+    if signature == "Calibration":
         return [CalibChainParts_Default, CalibChainParts]
     if signature == "Streaming":
         return [StreamingChainParts_Default, StreamingChainParts]

@@ -79,8 +79,8 @@ class GenerateMenuMT(object):
         self.doMinBiasChains        = True
         self.doHeavyIonChains       = True
         self.doCosmicChains         = True
-        # self.doCalibrationChains    = True
-        self.doCalibChains          = True
+        self.doCalibrationChains    = True
+        self.doCalibChains    = True
         self.doStreamingChains      = True
         self.doMonitorChains        = True
         self.doBeamspotChains       = True
