@@ -93,7 +93,8 @@ namespace Simulation
         if(std::abs(pullold)<10 && std::abs(pullnew)<10) {
           //Use Gauss probability ratio to calculate the weight:
           //weight=TMath::Gaus(z,0,35,true)/TMath::Gaus(z,0,42,true);
-          weight=m_input_beam_sigma_z/newsigmaz * std::exp(-pullnew*pullnew/2) / std::exp(-pullold*pullold/2);
+          //This can be simplified to:
+          weight=m_input_beam_sigma_z/newsigmaz * std::exp(0.5*(pullold*pullold - pullnew*pullnew));
         } else {
           ATH_MSG_WARNING("Large pull of beamspot: Beamspot z="<<beamz<<", z="<<z<<"; old sigma_z="<<m_input_beam_sigma_z<<", old pull="<<pullold<<"; new sigma_z="<<newsigmaz<<", new pull="<<pullnew<<" => use default weight="<<weight);
         }  
