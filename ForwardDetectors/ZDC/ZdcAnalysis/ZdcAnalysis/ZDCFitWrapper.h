@@ -253,20 +253,13 @@ public:
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) override {
-    (void) expamp;
-    (void) fixPrePulseToZero;
+  virtual void SetInitialPrePulse(float amp, float t0, float /*expamp = 0*/, bool /*fixPrePulseToZero = false*/) override {
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
   }
 
   virtual void SetPrePulseT0Range(float tmin, float tmax) override;
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) override {
-    (void) tmin;
-    (void) tmax;
-    (void) initialPostT0;
-    return;
-  }
+  virtual void SetPostPulseT0Range(float /*tmin*/, float /*tmax*/, float /*initialPostT0*/) override {return;}
 
   virtual unsigned int GetPreT0ParIndex() const override {return 3;}
 
@@ -499,20 +492,13 @@ public:
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) override {
-    (void) expamp;
-    (void) fixPrePulseToZero;
+  virtual void SetInitialPrePulse(float amp, float t0, float /*expamp = 0*/, bool /*fixPrePulseToZero = false*/) override {
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
   }
 
   virtual void SetPrePulseT0Range(float tmin, float tmax) override;
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) override {
-    (void) tmin;
-    (void) tmax;
-    (void) initialPostT0;
-    return;
-  }
+  virtual void SetPostPulseT0Range(float /*tmin*/, float /*tmax*/, float /*initialPostT0*/) override {return;}
 
   unsigned int GetPreT0ParIndex() const override {return 3;}
 
@@ -616,20 +602,14 @@ public:
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero = false) override {
-    (void) fixPrePulseToZero;
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool /*fixPrePulseToZero = false*/) override {
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
     GetWrapperTF1()->SetParameter(6, std::max(std::abs(expamp), (float) 1.5));
   }
 
   virtual void SetPrePulseT0Range(float tmin, float tmax) override;
-  virtual void SetPostPulseT0Range(float tmin, float tmax, float initialPostT0) override {
-    (void) tmin;
-    (void) tmax;
-    (void) initialPostT0;
-    return;
-  }
+  virtual void SetPostPulseT0Range(float /*tmin*/, float /*tmax*/, float /*initialPostT0*/) override {return;}
 
   unsigned int GetPreT0ParIndex() const override {return 3;}
 

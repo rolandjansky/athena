@@ -317,13 +317,11 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
   m_currentLB = lumiBlock;
 }
 
-void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples)
+void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples)
 {
   // We immediately return if this module is disabled
   //
   if (m_moduleDisabled[side][module]) {
-    (void) HGSamples;
-    (void) LGSamples;
     (*m_msgFunc_p)(ZDCMsg::Verbose, ("Skipping analysis of disabled mofule for event index " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
     return;
@@ -344,16 +342,12 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   m_moduleStatus[side][module] = pulseAna_p->GetStatusMask();
 }
 
-void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
-    const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed)
+void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples,
+    const std::vector<float>& HGSamplesDelayed, const std::vector<float>& LGSamplesDelayed)
 {
   // We immediately return if this module is disabled
   //
   if (m_moduleDisabled[side][module]) {
-    (void) HGSamples;
-    (void) LGSamples;
-    (void) HGSamplesDelayed;
-    (void) LGSamplesDelayed;
     (*m_msgFunc_p)(ZDCMsg::Debug,  ("Skipping analysis of disabled mofule for event index " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
     return;

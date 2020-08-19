@@ -163,10 +163,10 @@ public:
 
   void StartEvent(int lumiBlock);
 
-  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples);
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples);
 
-  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
-                          const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed);
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples,
+                          const std::vector<float>& HGSamplesDelayed, const std::vector<float>& LGSamplesDelayed);
 
   bool FinishEvent();
 
