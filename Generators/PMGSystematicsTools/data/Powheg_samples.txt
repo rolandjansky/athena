@@ -1,0 +1,11 @@
+# ttbar
+mc15_13TeV:mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.evgen.EVNT.e6337
+mc15_13TeV:mc15_13TeV.410471.PhPy8EG_A14_ttbar_hdamp258p75_allhad.evgen.EVNT.e6337
+mc15_13TeV:mc15_13TeV.410472.PhPy8EG_A14_ttbar_hdamp258p75_dil.evgen.EVNT.e6348
+# single top
+mc15_13TeV:mc15_13TeV.410658.PhPy8EG_A14_tchan_BW50_lept_top.evgen.EVNT.e6671
+mc15_13TeV:mc15_13TeV.410659.PhPy8EG_A14_tchan_BW50_lept_antitop.evgen.EVNT.e6671
+mc15_13TeV:mc15_13TeV.410644.PowhegPythia8EvtGen_A14_singletop_schan_lept_top.evgen.EVNT.e6527
+mc15_13TeV:mc15_13TeV.410645.PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop.evgen.EVNT.e6527
+mc15_13TeV:mc15_13TeV.410647.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop.evgen.EVNT.e6552
+mc15_13TeV:mc15_13TeV.410646.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top.evgen.EVNT.e6552

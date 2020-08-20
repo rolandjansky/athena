@@ -1,0 +1,168 @@
+ PDF set = 13165 
+ PDF set = 25200 
+ PDF set = 260001 
+ PDF set = 260002 
+ PDF set = 260003 
+ PDF set = 260004 
+ PDF set = 260005 
+ PDF set = 260006 
+ PDF set = 260007 
+ PDF set = 260008 
+ PDF set = 260009 
+ PDF set = 260010 
+ PDF set = 260011 
+ PDF set = 260012 
+ PDF set = 260013 
+ PDF set = 260014 
+ PDF set = 260015 
+ PDF set = 260016 
+ PDF set = 260017 
+ PDF set = 260018 
+ PDF set = 260019 
+ PDF set = 260020 
+ PDF set = 260021 
+ PDF set = 260022 
+ PDF set = 260023 
+ PDF set = 260024 
+ PDF set = 260025 
+ PDF set = 260026 
+ PDF set = 260027 
+ PDF set = 260028 
+ PDF set = 260029 
+ PDF set = 260030 
+ PDF set = 260031 
+ PDF set = 260032 
+ PDF set = 260033 
+ PDF set = 260034 
+ PDF set = 260035 
+ PDF set = 260036 
+ PDF set = 260037 
+ PDF set = 260038 
+ PDF set = 260039 
+ PDF set = 260040 
+ PDF set = 260041 
+ PDF set = 260042 
+ PDF set = 260043 
+ PDF set = 260044 
+ PDF set = 260045 
+ PDF set = 260046 
+ PDF set = 260047 
+ PDF set = 260048 
+ PDF set = 260049 
+ PDF set = 260050 
+ PDF set = 260051 
+ PDF set = 260052 
+ PDF set = 260053 
+ PDF set = 260054 
+ PDF set = 260055 
+ PDF set = 260056 
+ PDF set = 260057 
+ PDF set = 260058 
+ PDF set = 260059 
+ PDF set = 260060 
+ PDF set = 260061 
+ PDF set = 260062 
+ PDF set = 260063 
+ PDF set = 260064 
+ PDF set = 260065 
+ PDF set = 260066 
+ PDF set = 260067 
+ PDF set = 260068 
+ PDF set = 260069 
+ PDF set = 260070 
+ PDF set = 260071 
+ PDF set = 260072 
+ PDF set = 260073 
+ PDF set = 260074 
+ PDF set = 260075 
+ PDF set = 260076 
+ PDF set = 260077 
+ PDF set = 260078 
+ PDF set = 260079 
+ PDF set = 260080 
+ PDF set = 260081 
+ PDF set = 260082 
+ PDF set = 260083 
+ PDF set = 260084 
+ PDF set = 260085 
+ PDF set = 260086 
+ PDF set = 260087 
+ PDF set = 260088 
+ PDF set = 260089 
+ PDF set = 260090 
+ PDF set = 260091 
+ PDF set = 260092 
+ PDF set = 260093 
+ PDF set = 260094 
+ PDF set = 260095 
+ PDF set = 260096 
+ PDF set = 260097 
+ PDF set = 260098 
+ PDF set = 260099 
+ PDF set = 260100 
+ PDF set = 90900 
+ PDF set = 90901 
+ PDF set = 90902 
+ PDF set = 90903 
+ PDF set = 90904 
+ PDF set = 90905 
+ PDF set = 90906 
+ PDF set = 90907 
+ PDF set = 90908 
+ PDF set = 90909 
+ PDF set = 90910 
+ PDF set = 90911 
+ PDF set = 90912 
+ PDF set = 90913 
+ PDF set = 90914 
+ PDF set = 90915 
+ PDF set = 90916 
+ PDF set = 90917 
+ PDF set = 90918 
+ PDF set = 90919 
+ PDF set = 90920 
+ PDF set = 90921 
+ PDF set = 90922 
+ PDF set = 90923 
+ PDF set = 90924 
+ PDF set = 90925 
+ PDF set = 90926 
+ PDF set = 90927 
+ PDF set = 90928 
+ PDF set = 90929 
+ PDF set = 90930 
+ muR = 0.50, muF = 0.50 
+ muR = 0.50, muF = 1.00 
+ muR = 0.50, muF = 2.00 
+ muR = 1.00, muF = 0.50 
+ muR = 1.00, muF = 2.00 
+ muR = 2.00, muF = 0.50 
+ muR = 2.00, muF = 1.00 
+ muR = 2.00, muF = 2.00 
+ nominal 
+Var3cDown
+Var3cUp
+hardHi
+hardLo
+isr:PDF:minus
+isr:PDF:plus
+isr:muRfac=0.5_fsr:muRfac=0.5
+isr:muRfac=0.5_fsr:muRfac=1.0
+isr:muRfac=0.5_fsr:muRfac=2.0
+isr:muRfac=0.625_fsr:muRfac=1.0
+isr:muRfac=0.75_fsr:muRfac=1.0
+isr:muRfac=0.875_fsr:muRfac=1.0
+isr:muRfac=1.0_fsr:muRfac=0.5
+isr:muRfac=1.0_fsr:muRfac=0.625
+isr:muRfac=1.0_fsr:muRfac=0.75
+isr:muRfac=1.0_fsr:muRfac=0.875
+isr:muRfac=1.0_fsr:muRfac=1.25
+isr:muRfac=1.0_fsr:muRfac=1.5
+isr:muRfac=1.0_fsr:muRfac=1.75
+isr:muRfac=1.0_fsr:muRfac=2.0
+isr:muRfac=1.25_fsr:muRfac=1.0
+isr:muRfac=1.5_fsr:muRfac=1.0
+isr:muRfac=1.75_fsr:muRfac=1.0
+isr:muRfac=2.0_fsr:muRfac=0.5
+isr:muRfac=2.0_fsr:muRfac=1.0
+isr:muRfac=2.0_fsr:muRfac=2.0

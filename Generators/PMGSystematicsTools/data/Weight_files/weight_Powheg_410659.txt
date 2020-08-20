@@ -1,0 +1,192 @@
+ 0p5muF_0p5muR_CT14 
+ 0p5muF_0p5muR_MMHT 
+ 0p5muF_0p5muR_PDF4LHC15 
+ 0p5muF_2muR_CT14 
+ 0p5muF_2muR_MMHT 
+ 0p5muF_2muR_PDF4LHC15 
+ 0p5muF_CT14 
+ 0p5muF_MMHT 
+ 0p5muF_PDF4LHC15 
+ 0p5muR_CT14 
+ 0p5muR_MMHT 
+ 0p5muR_PDF4LHC15 
+ 2muF_0p5muR_CT14 
+ 2muF_0p5muR_MMHT 
+ 2muF_0p5muR_PDF4LHC15 
+ 2muF_2muR_CT14 
+ 2muF_2muR_MMHT 
+ 2muF_2muR_PDF4LHC15 
+ 2muF_CT14 
+ 2muF_MMHT 
+ 2muF_PDF4LHC15 
+ 2muR_CT14 
+ 2muR_MMHT 
+ 2muR_PDF4LHC15 
+ PDF set = 13191 
+ PDF set = 25410 
+ PDF set = 260401 
+ PDF set = 260402 
+ PDF set = 260403 
+ PDF set = 260404 
+ PDF set = 260405 
+ PDF set = 260406 
+ PDF set = 260407 
+ PDF set = 260408 
+ PDF set = 260409 
+ PDF set = 260410 
+ PDF set = 260411 
+ PDF set = 260412 
+ PDF set = 260413 
+ PDF set = 260414 
+ PDF set = 260415 
+ PDF set = 260416 
+ PDF set = 260417 
+ PDF set = 260418 
+ PDF set = 260419 
+ PDF set = 260420 
+ PDF set = 260421 
+ PDF set = 260422 
+ PDF set = 260423 
+ PDF set = 260424 
+ PDF set = 260425 
+ PDF set = 260426 
+ PDF set = 260427 
+ PDF set = 260428 
+ PDF set = 260429 
+ PDF set = 260430 
+ PDF set = 260431 
+ PDF set = 260432 
+ PDF set = 260433 
+ PDF set = 260434 
+ PDF set = 260435 
+ PDF set = 260436 
+ PDF set = 260437 
+ PDF set = 260438 
+ PDF set = 260439 
+ PDF set = 260440 
+ PDF set = 260441 
+ PDF set = 260442 
+ PDF set = 260443 
+ PDF set = 260444 
+ PDF set = 260445 
+ PDF set = 260446 
+ PDF set = 260447 
+ PDF set = 260448 
+ PDF set = 260449 
+ PDF set = 260450 
+ PDF set = 260451 
+ PDF set = 260452 
+ PDF set = 260453 
+ PDF set = 260454 
+ PDF set = 260455 
+ PDF set = 260456 
+ PDF set = 260457 
+ PDF set = 260458 
+ PDF set = 260459 
+ PDF set = 260460 
+ PDF set = 260461 
+ PDF set = 260462 
+ PDF set = 260463 
+ PDF set = 260464 
+ PDF set = 260465 
+ PDF set = 260466 
+ PDF set = 260467 
+ PDF set = 260468 
+ PDF set = 260469 
+ PDF set = 260470 
+ PDF set = 260471 
+ PDF set = 260472 
+ PDF set = 260473 
+ PDF set = 260474 
+ PDF set = 260475 
+ PDF set = 260476 
+ PDF set = 260477 
+ PDF set = 260478 
+ PDF set = 260479 
+ PDF set = 260480 
+ PDF set = 260481 
+ PDF set = 260482 
+ PDF set = 260483 
+ PDF set = 260484 
+ PDF set = 260485 
+ PDF set = 260486 
+ PDF set = 260487 
+ PDF set = 260488 
+ PDF set = 260489 
+ PDF set = 260490 
+ PDF set = 260491 
+ PDF set = 260492 
+ PDF set = 260493 
+ PDF set = 260494 
+ PDF set = 260495 
+ PDF set = 260496 
+ PDF set = 260497 
+ PDF set = 260498 
+ PDF set = 260499 
+ PDF set = 260500 
+ PDF set = 92000 
+ PDF set = 92001 
+ PDF set = 92002 
+ PDF set = 92003 
+ PDF set = 92004 
+ PDF set = 92005 
+ PDF set = 92006 
+ PDF set = 92007 
+ PDF set = 92008 
+ PDF set = 92009 
+ PDF set = 92010 
+ PDF set = 92011 
+ PDF set = 92012 
+ PDF set = 92013 
+ PDF set = 92014 
+ PDF set = 92015 
+ PDF set = 92016 
+ PDF set = 92017 
+ PDF set = 92018 
+ PDF set = 92019 
+ PDF set = 92020 
+ PDF set = 92021 
+ PDF set = 92022 
+ PDF set = 92023 
+ PDF set = 92024 
+ PDF set = 92025 
+ PDF set = 92026 
+ PDF set = 92027 
+ PDF set = 92028 
+ PDF set = 92029 
+ PDF set = 92030 
+ muR = 0.50, muF = 0.50 
+ muR = 0.50, muF = 1.00 
+ muR = 0.50, muF = 2.00 
+ muR = 1.00, muF = 0.50 
+ muR = 1.00, muF = 2.00 
+ muR = 2.00, muF = 0.50 
+ muR = 2.00, muF = 1.00 
+ muR = 2.00, muF = 2.00 
+ nominal 
+Var3cDown
+Var3cUp
+hardHi
+hardLo
+isr:PDF:minus
+isr:PDF:plus
+isr:muRfac=0.5_fsr:muRfac=0.5
+isr:muRfac=0.5_fsr:muRfac=1.0
+isr:muRfac=0.5_fsr:muRfac=2.0
+isr:muRfac=0.625_fsr:muRfac=1.0
+isr:muRfac=0.75_fsr:muRfac=1.0
+isr:muRfac=0.875_fsr:muRfac=1.0
+isr:muRfac=1.0_fsr:muRfac=0.5
+isr:muRfac=1.0_fsr:muRfac=0.625
+isr:muRfac=1.0_fsr:muRfac=0.75
+isr:muRfac=1.0_fsr:muRfac=0.875
+isr:muRfac=1.0_fsr:muRfac=1.25
+isr:muRfac=1.0_fsr:muRfac=1.5
+isr:muRfac=1.0_fsr:muRfac=1.75
+isr:muRfac=1.0_fsr:muRfac=2.0
+isr:muRfac=1.25_fsr:muRfac=1.0
+isr:muRfac=1.5_fsr:muRfac=1.0
+isr:muRfac=1.75_fsr:muRfac=1.0
+isr:muRfac=2.0_fsr:muRfac=0.5
+isr:muRfac=2.0_fsr:muRfac=1.0
+isr:muRfac=2.0_fsr:muRfac=2.0
