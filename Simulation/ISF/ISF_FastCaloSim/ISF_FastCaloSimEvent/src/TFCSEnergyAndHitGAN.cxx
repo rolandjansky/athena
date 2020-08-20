@@ -223,8 +223,12 @@ bool TFCSEnergyAndHitGAN::fillFastCaloGanNetworkInputs(TFCSSimulationState& simu
 bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol, NetworkInputs inputs) const
 {
   const int     pdgId    = truth->pdgid();
-  const double  charge   = HepPDT::ParticleID(pdgId).charge();
-  const double EKin = truth->Ekin();
+  const float   charge   = HepPDT::ParticleID(pdgId).charge();
+
+  float Einit;
+  const float Ekin = truth->Ekin();
+  if(OnlyScaleEnergy()) Einit=simulstate.E();
+   else Einit=Ekin;
 
   ATH_MSG_VERBOSE("Momentum " << truth->P() <<" pdgId " << truth->pdgid());
   
@@ -310,7 +314,7 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
           continue;
         }
         
-        simulstate.add_E(layer,EKin*energyInVoxel);
+        simulstate.add_E(layer,Einit*energyInVoxel);
         
         TAxis* x = (TAxis*)h->GetXaxis();
         nHitsR = x->GetBinUpEdge(ix) - x->GetBinLowEdge(ix);
@@ -347,7 +351,7 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
             }
 
             hit.reset();
-            hit.E()=EKin*energyInVoxel/(nHitsAlpha*nHitsR);
+            hit.E()=Einit*energyInVoxel/(nHitsAlpha*nHitsR);
 
             if (layer <=20){
                float delta_eta_mm = r * cos(alpha);
