@@ -14,6 +14,7 @@ from builtins import zip
 from builtins import object
 from AthenaCommon.Logging import logging
 import time
+import sys
 
 def getFrontierCursor(url, schema, loglevel = logging.INFO):
     log = logging.getLogger( "TrigConfFrontier.py" )
@@ -228,7 +229,6 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                     row = zlib.decompress(row).decode("utf-8")
 
                 #Hack to get these lines to work in python 2
-                import sys
                 if sys.version_info[0] < 3: 
                     row = row.encode('ascii', 'xmlcharrefreplace')
              
@@ -315,7 +315,6 @@ def testBindVarResolution():
 
     
 if __name__=="__main__":
-    import sys
     res = testBindVarResolution()
     res = max(res, testConnection())
     sys.exit(res)
