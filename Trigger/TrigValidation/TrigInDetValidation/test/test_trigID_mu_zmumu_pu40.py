@@ -76,19 +76,33 @@ if (not exclude):
  
 # Run Tidardict
 if ((not exclude) or postproc ):
-    rdict = TrigInDetdictStep()
+    rdict = TrigInDetdictStep('TrigInDetDict')
     rdict.args='TIDAdata-run3.dat -f data-hists.root -p 13 -b Test_bin.dat '
     test.check_steps.append(rdict)
+    rdict2 = TrigInDetdictStep('TrigInDetDict2')
+    rdict2.args='TIDAdata-run3.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
+    test.check_steps.append(rdict2)
 
  
 # Now the comparitor steps
 comp=TrigInDetCompStep('Comp_L2muon')
 comp.flag = 'L2muon'
 test.check_steps.append(comp)
-  
+
 comp2=TrigInDetCompStep('Comp_EFmuon')
 comp2.flag = 'EFmuon'
 test.check_steps.append(comp2)
+
+comp3=TrigInDetCompStep('Comp_L2muon_off')
+comp3.flag = 'L2muon'
+comp3.type = 'offl'
+test.check_steps.append(comp3)
+
+comp4=TrigInDetCompStep('Comp_EFmuon_off')
+comp4.flag = 'EFmuon'
+comp4.type = 'offl'
+test.check_steps.append(comp4)
+
 
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1')
