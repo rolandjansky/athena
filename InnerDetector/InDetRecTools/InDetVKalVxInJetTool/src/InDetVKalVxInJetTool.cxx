@@ -415,16 +415,16 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
        ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
 
-       const int nbins_R = 75;
+       static constexpr int nbins_R = 75;
        double bins_R[nbins_R+1];
        for(unsigned int i=0; i<=15; i++) bins_R[i] = 2*i;          // 2 mm bin width below R=30 mmm
        for(unsigned int i=1; i<=60; i++) bins_R[i+15] = 30 + 6*i; // 6 mm bin width beyond R=30 mm
 
-       const int nbins_Z = 1000;
-       const double zmax = 3000.;
+       static constexpr int nbins_Z = 1000;
+       static constexpr double zmax = 3000.;
 
        std::string mapName = "ITkMaterialMap_"+m_instanceName;
-       m_ITkPixMaterialMap = new TH2F(mapName.c_str(),mapName.c_str(),nbins_Z,-zmax,zmax,nbins_R,bins_R); // x-axis = global z coordinates, -3240 mm to +3240 mm, 6 mm bin width / y-axis = global R coordinates, variable bin width
+       m_ITkPixMaterialMap = std::make_unique<TH2F>(mapName.c_str(),mapName.c_str(),nbins_Z,-zmax,zmax,nbins_R,bins_R); // x-axis = global z coordinates, -3240 mm to +3240 mm, 6 mm bin width / y-axis = global R coordinates, variable bin width
 
 
        // Retrieve the beam pipe radius from the SectionC03 volume
@@ -494,7 +494,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
   {
     //MsgStream log( msgSvc(), name() );
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalVxInJetTool finalize()" << endmsg;
-    if(m_useITkMaterialRejection) delete m_ITkPixMaterialMap;
     return StatusCode::SUCCESS; 
   }
   

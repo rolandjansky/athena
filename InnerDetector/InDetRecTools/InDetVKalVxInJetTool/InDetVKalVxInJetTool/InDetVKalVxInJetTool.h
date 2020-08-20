@@ -272,7 +272,7 @@ namespace InDet {
       bool m_useITkMaterialRejection;
       const BeamPipeDetectorManager*       m_beamPipeMgr;
       const InDetDD::PixelDetectorManager* m_pixelManager;
-      TH2F* m_ITkPixMaterialMap;
+      std::unique_ptr<TH2F> m_ITkPixMaterialMap;
 
       double m_massPi ;
       double m_massP ;
