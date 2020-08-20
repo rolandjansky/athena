@@ -14,6 +14,7 @@
 #include "TClass.h"
 #include "TBuffer.h"
 #include "RootUtils/TClassEditRootUtils.h"
+#include "CxxUtils/checker_macros.h"
 #include "TMemberStreamer.h"
 #include "TStreamerElement.h"
 #include "TStreamerInfo.h"
@@ -26,6 +27,7 @@
 #include <sstream>
 #include <cstring>
 #include <algorithm>
+#include <mutex>
 
 
 namespace {
@@ -421,10 +423,6 @@ void test_dv (RootUtils::ILogger* logfn,
 }
 
 
-// List of classes we've already processed.
-std::vector<TClass*> s_seen;
-
-
 } // anonymous namespace
 
 
@@ -443,6 +441,12 @@ namespace DataModelAthenaPool {
  */
 void DataVectorConvert::initialize (RootUtils::ILogger* logfn /* = 0*/)
 {
+  static std::mutex m;
+  std::lock_guard<std::mutex> lock (m);
+
+  // List of classes we've already processed.
+  static std::vector<TClass*> s_seen ATLAS_THREAD_SAFE;
+
   TIter next (gROOT->GetListOfClasses());
   while (TClass* cls = dynamic_cast<TClass*> (next())) {
     if (std::strncmp (cls->GetName(), "DataVector<", 11) == 0) {
