@@ -1132,7 +1132,7 @@ void ZdcAnalysisTool::setEnergyCalibrations(unsigned int runNumber)
         }
     }
     fCalib->Close();
-    if (m_doCalib) m_zdcDataAnalyzer->LoadEnergyCalibrations(std::move(splines));
+    if (m_doCalib) m_zdcDataAnalyzer->LoadEnergyCalibrations(splines);
 
     return;
 }
@@ -1176,7 +1176,7 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
                 }
             }
         }
-        m_zdcDataAnalyzer->LoadT0Calibrations(std::move (T0HGOffsetSplines), std::move (T0LGOffsetSplines));
+        m_zdcDataAnalyzer->LoadT0Calibrations(T0HGOffsetSplines, T0LGOffsetSplines);
         fCalib->Close();
     }
     else

@@ -339,13 +339,13 @@ public:
 
   void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplines)
   {
-    m_dataAnalyzer_p->LoadEnergyCalibrations(std::move(calibSplines));
+    m_dataAnalyzer_p->LoadEnergyCalibrations(calibSplines);
   }
 
   void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplinesHG,
                           std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplinesLG)
   {
-    m_dataAnalyzer_p->LoadT0Calibrations(std::move(calibSplinesHG), std::move(calibSplinesLG));
+    m_dataAnalyzer_p->LoadT0Calibrations(calibSplinesHG, calibSplinesLG);
   }
 
   void SetLBDepT0(int iside, int imod, TSpline* t0SplineLG, TSpline* t0SplineHG);
