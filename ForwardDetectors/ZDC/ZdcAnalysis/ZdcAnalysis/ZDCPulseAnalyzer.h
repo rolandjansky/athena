@@ -133,11 +133,11 @@ private:
 
   // Histogram used to perform the fits and function wrappers
   //
-  mutable TH1* m_fitHist;
+  mutable std::unique_ptr<TH1> m_fitHist;
 
   bool m_initializedFits;
-  ZDCFitWrapper* m_defaultFitWrapper;
-  ZDCPrePulseFitWrapper* m_prePulseFitWrapper;
+  std::unique_ptr<ZDCFitWrapper> m_defaultFitWrapper;
+  std::unique_ptr<ZDCPrePulseFitWrapper> m_prePulseFitWrapper;
 
   // Members to keep track of adjustments to time range used in analysis/fit
   //
@@ -151,10 +151,10 @@ private:
   bool  m_useFixedBaseline;
   float m_delayedDeltaT;
   float m_delayedPedestalDiff;
-  mutable TH1* m_delayedHist;
+  mutable std::unique_ptr<TH1> m_delayedHist;
 
-  TFitter* m_prePulseCombinedFitter;
-  TFitter* m_defaultCombinedFitter;
+  std::unique_ptr<TFitter> m_prePulseCombinedFitter;
+  std::unique_ptr<TFitter> m_defaultCombinedFitter;
 
   // Dynamic data loaded for each pulse (event)
   // ==========================================
@@ -304,7 +304,7 @@ private:
   void DoFit();
   void DoFitCombined();
 
-  static TFitter* MakeCombinedFitter(TF1* func);
+  static std::unique_ptr<TFitter> MakeCombinedFitter(TF1* func);
 
   //  The minuit FCN used for fitting combined undelayed and delayed pulses
   //
@@ -317,7 +317,7 @@ public:
   ZDCPulseAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, float gainHG,
                    std::string fitFunction, int peak2ndDerivMinSample, float peak2DerivMinThreshHG, float peak2DerivMinThreshLG);
 
-  ~ZDCPulseAnalyzer();
+  ~ZDCPulseAnalyzer(){}
 
   static void SetFitOPtions(std::string fitOptions) { s_fitOptions = fitOptions;}
   static void SetQuietFits  (bool quiet) {s_quietFits = quiet;}
@@ -461,7 +461,7 @@ public:
       else FillHistogram(m_samplesSub, m_ADCSSampSigHG);
     }
 
-    return m_fitHist;
+    return m_fitHist.get();
   }
 
   std::shared_ptr<TGraphErrors> GetCombinedGraph() const;

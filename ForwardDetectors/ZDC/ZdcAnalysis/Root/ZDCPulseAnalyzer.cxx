@@ -98,8 +98,6 @@ ZDCPulseAnalyzer::ZDCPulseAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, std::st
   m_useDelayed(false),
   m_enableRepass(false),
   m_haveTimingCorrections(false), m_haveNonlinCorr(false), m_initializedFits(false),
-  m_defaultFitWrapper(0), m_prePulseFitWrapper(0),
-  m_delayedHist(0), m_prePulseCombinedFitter(0), m_defaultCombinedFitter(0),
   m_ADCSamplesHGSub(Nsample, 0), m_ADCSamplesLGSub(Nsample, 0),
   m_ADCSSampSigHG(Nsample, 1), m_ADCSSampSigLG(Nsample, 1), // By default the ADC uncertainties are set to one
   m_samplesSub(Nsample, 0)
@@ -111,24 +109,13 @@ ZDCPulseAnalyzer::ZDCPulseAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, std::st
 
   std::string histName = "ZDCFitHist" + tag;
 
-  m_fitHist = new TH1F(histName.c_str(), "", m_Nsample, m_tmin, m_tmax);
+  m_fitHist = std::make_unique<TH1F>(histName.c_str(), "", m_Nsample, m_tmin, m_tmax);
   m_fitHist->SetDirectory(0);
 
   SetDefaults();
   Reset();
 }
 
-ZDCPulseAnalyzer::~ZDCPulseAnalyzer()
-{
-  if (m_defaultFitWrapper)  delete m_defaultFitWrapper;
-  if (m_prePulseFitWrapper) delete m_prePulseFitWrapper;
-
-  if (m_fitHist)     delete m_fitHist;
-  if (m_delayedHist) delete m_delayedHist;
-
-  if (m_prePulseCombinedFitter) delete m_prePulseCombinedFitter;
-  if (m_defaultCombinedFitter ) delete m_defaultCombinedFitter;
-}
 
 void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline)
 {
@@ -143,7 +130,7 @@ void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fix
   m_defaultT0Max = m_deltaTSample * (m_peak2ndDerivMinSample + m_peak2ndDerivMinTolerance + 0.5);
   m_defaultT0Min = m_deltaTSample * (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance - 0.5);
 
-  m_delayedHist = new TH1F((std::string(m_fitHist->GetName()) + "delayed").c_str(), "", m_Nsample, m_tmin + m_delayedDeltaT, m_tmax + m_delayedDeltaT);
+  m_delayedHist = std::make_unique<TH1F>((std::string(m_fitHist->GetName()) + "delayed").c_str(), "", m_Nsample, m_tmin + m_delayedDeltaT, m_tmax + m_delayedDeltaT);
   m_delayedHist->SetDirectory(0);
 
   m_ADCSamplesHGSub.assign(2 * m_Nsample, 0);
@@ -362,9 +349,6 @@ void ZDCPulseAnalyzer::SetCutValues(float chisqDivAmpCutHG, float chisqDivAmpCut
 
 void ZDCPulseAnalyzer::SetupFitFunctions()
 {
-  if (m_defaultFitWrapper)  delete m_defaultFitWrapper;
-  if (m_prePulseFitWrapper) delete m_prePulseFitWrapper;
-
   float prePulseTMin = 0;
   float prePulseTMax = prePulseTMin + m_deltaTSample * (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance);
 
@@ -373,52 +357,52 @@ void ZDCPulseAnalyzer::SetupFitFunctions()
       //
       // Use the variable tau version of the expFermiFit
       //
-      m_defaultFitWrapper = new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2));
     }
     else {
-      m_defaultFitWrapper = new ZDCFitExpFermiFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
     }
 
-    m_prePulseFitWrapper = new ZDCFitExpFermiPrePulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+    m_prePulseFitWrapper = std::unique_ptr<ZDCPrePulseFitWrapper>(new ZDCFitExpFermiPrePulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
   }
   else if (m_fitFunction == "FermiExpLinear") {
     if (!m_fixTau1 || !m_fixTau2) {
       //
       // Use the variable tau version of the expFermiFit
       //
-      m_defaultFitWrapper = new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2));
     }
     else {
-      m_defaultFitWrapper = new ZDCFitExpFermiLinearFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiLinearFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
     }
 
-    m_prePulseFitWrapper = new ZDCFitExpFermiLinearPrePulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+    m_prePulseFitWrapper = std::unique_ptr<ZDCPrePulseFitWrapper>(new ZDCFitExpFermiLinearPrePulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
   }
   else if (m_fitFunction == "ComplexPrePulse") {
     if (!m_fixTau1 || !m_fixTau2) {
       //
       // Use the variable tau version of the expFermiFit
       //
-      m_defaultFitWrapper = new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2));
     }
     else {
-      m_defaultFitWrapper = new ZDCFitExpFermiLinearFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiLinearFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
     }
 
-    m_prePulseFitWrapper  = new ZDCFitComplexPrePulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+    m_prePulseFitWrapper  = std::unique_ptr<ZDCPrePulseFitWrapper>(new ZDCFitComplexPrePulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
   }
   else if (m_fitFunction == "GeneralPulse") {
     if (!m_fixTau1 || !m_fixTau2) {
       //
       // Use the variable tau version of the expFermiFit
       //
-      m_defaultFitWrapper = new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiVariableTaus(m_tag, m_tmin, m_tmax, m_fixTau1, m_fixTau2, m_nominalTau1, m_nominalTau2));
     }
     else {
-      m_defaultFitWrapper = new ZDCFitExpFermiLinearFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+      m_defaultFitWrapper = std::unique_ptr<ZDCFitWrapper>(new ZDCFitExpFermiLinearFixedTaus(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
     }
 
-    m_prePulseFitWrapper  = new ZDCFitGeneralPulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
+    m_prePulseFitWrapper  = std::unique_ptr<ZDCPrePulseFitWrapper>(new ZDCFitGeneralPulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2));
   }
   else {
     (*m_msgFunc_p)(ZDCMsg::Fatal, "Wrong fit function type.");
@@ -1096,20 +1080,20 @@ void ZDCPulseAnalyzer::DoFit()
 
   if (ampInitial < fitAmpMin) ampInitial = fitAmpMin * 1.5;
 
-  ZDCFitWrapper* fitWrapper = m_defaultFitWrapper;
-  if (PrePulse()) fitWrapper = m_prePulseFitWrapper;
+  ZDCFitWrapper* fitWrapper = m_defaultFitWrapper.get();
+  if (PrePulse()) fitWrapper = m_prePulseFitWrapper.get();
 
   fitWrapper->Initialize(ampInitial, t0Initial, fitAmpMin, fitAmpMax);
   if (PrePulse()) {
     //
     //
-    (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetInitialPrePulse(m_initialPrePulseAmp, m_initialPrePulseT0, m_initialExpAmp, m_fixPrePulse);
+    (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetInitialPrePulse(m_initialPrePulseAmp, m_initialPrePulseT0, m_initialExpAmp, m_fixPrePulse);
 
     if (m_initialPrePulseT0 < 0) {
-      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetPrePulseT0Range(-25, 0);
+      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetPrePulseT0Range(-25, 0);
     }
     else {
-      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetPrePulseT0Range(-m_deltaTSample / 2, (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)*m_deltaTSample);
+      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetPrePulseT0Range(-m_deltaTSample / 2, (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)*m_deltaTSample);
     }
   }
 
@@ -1159,8 +1143,8 @@ void ZDCPulseAnalyzer::DoFitCombined()
 
   if (ampInitial < fitAmpMin) ampInitial = fitAmpMin * 1.5;
 
-  ZDCFitWrapper* fitWrapper = m_defaultFitWrapper;
-  if (PrePulse() || PostPulse()) fitWrapper = m_prePulseFitWrapper;
+  ZDCFitWrapper* fitWrapper = m_defaultFitWrapper.get();
+  if (PrePulse() || PostPulse()) fitWrapper = m_prePulseFitWrapper.get();
 
   // Initialize the fit wrapper for this eventm, specifying a
   //   per-event fit range if necessary
@@ -1180,19 +1164,19 @@ void ZDCPulseAnalyzer::DoFitCombined()
   if (PrePulse() || PostPulse()) {
     //
     //
-    (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetInitialPrePulse(m_initialPrePulseAmp, m_initialPrePulseT0, m_initialExpAmp, m_fixPrePulse);
+    (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetInitialPrePulse(m_initialPrePulseAmp, m_initialPrePulseT0, m_initialExpAmp, m_fixPrePulse);
 
     if (m_fitFunction == "ComplexPrePulse" || m_fitFunction == "GeneralPulse") {
       m_fitTMin = std::max(m_fitTMin, (float) - 0.5);
-      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetPrePulseT0Range(m_fitTMin, (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)*m_deltaTSample);
-      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetPostPulseT0Range(m_fitPostT0lo, m_fitTMax, m_initialPostPulseT0);
+      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetPrePulseT0Range(m_fitTMin, (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)*m_deltaTSample);
+      (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetPostPulseT0Range(m_fitPostT0lo, m_fitTMax, m_initialPostPulseT0);
     }
     else {
       if (m_initialPrePulseT0 < 0) {
-        (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetPrePulseT0Range(-25, 0);
+        (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetPrePulseT0Range(-25, 0);
       }
       else {
-        (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetPrePulseT0Range(-m_deltaTSample / 2, (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)*m_deltaTSample);
+        (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->SetPrePulseT0Range(-m_deltaTSample / 2, (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)*m_deltaTSample);
       }
     }
   }
@@ -1200,24 +1184,21 @@ void ZDCPulseAnalyzer::DoFitCombined()
   // Set up the virtual fitter
   //
   TFitter* theFitter = 0;
-
   if (PrePulse()) {
-    if (m_prePulseCombinedFitter) delete m_prePulseCombinedFitter;
     m_prePulseCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1RawPtr());
 
-    theFitter = m_prePulseCombinedFitter;
+    theFitter = m_prePulseCombinedFitter.get();
   }
   else {
-    if (m_defaultCombinedFitter) delete m_defaultCombinedFitter;
     m_defaultCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1RawPtr());
 
-    theFitter = m_defaultCombinedFitter;
+    theFitter = m_defaultCombinedFitter.get();
   }
 
   // Set the static pointers to histograms and function for use in FCN
   //
-  s_undelayedFitHist = m_fitHist;
-  s_delayedFitHist = m_delayedHist;
+  s_undelayedFitHist = m_fitHist.get();
+  s_delayedFitHist = m_delayedHist.get();
   s_combinedFitFunc = fitWrapper->GetWrapperTF1RawPtr();
   s_combinedFitTMax = m_fitTMax;
   s_combinedFitTMin = m_fitTMin;
@@ -1361,11 +1342,11 @@ void ZDCPulseAnalyzer::DoFitCombined()
   m_fitAmplitude = fitWrapper->GetAmplitude();
   m_fitTime      = fitWrapper->GetTime();
   if (PrePulse()) {
-    m_fitPreT0   = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->GetPreT0();
-    m_fitPreAmp  = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->GetPreAmp();
-    m_fitPostT0  = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->GetPostT0();
-    m_fitPostAmp = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->GetPostAmp();
-    m_fitExpAmp  = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->GetExpAmp();
+    m_fitPreT0   = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->GetPreT0();
+    m_fitPreAmp  = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->GetPreAmp();
+    m_fitPostT0  = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->GetPostT0();
+    m_fitPostAmp = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->GetPostAmp();
+    m_fitExpAmp  = (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper.get()))->GetExpAmp();
   }
 
   m_fitTimeSub = m_fitTime - t0Initial;
@@ -1378,12 +1359,12 @@ void ZDCPulseAnalyzer::DoFitCombined()
 }
 
 
-TFitter* ZDCPulseAnalyzer::MakeCombinedFitter(TF1* func)
+std::unique_ptr<TFitter> ZDCPulseAnalyzer::MakeCombinedFitter(TF1* func)
 {
   TVirtualFitter::SetDefaultFitter("Minuit");
 
   size_t nFitParams = func->GetNpar() + 1;
-  TFitter* fitter = new TFitter(nFitParams);
+  std::unique_ptr<TFitter> fitter = std::make_unique<TFitter>(nFitParams);
 
   fitter->GetMinuit()->fISW[4] = -1;
   fitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -100, 100);
