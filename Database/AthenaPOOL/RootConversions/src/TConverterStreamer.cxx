@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TConverterStreamer.cxx,v 1.3 2008-11-04 12:42:10 ssnyder Exp $
 /**
  * @file TConverterStreamer.cxx
  * @author scott snyder <snyder@bnl.gov>, from code by Marcin Nowak.
@@ -93,9 +91,11 @@ void TConverterStreamer::FindVersion(TBuffer& buf,
     Version_t  vers[2];
   } v;
 #ifdef R__BYTESWAP
+  // cppcheck-suppress uninitvar
   buf >> v.vers[1];
   buf >> v.vers[0];
 #else
+  // cppcheck-suppress uninitvar
   buf >> v.vers[0];
   buf >> v.vers[1];
 #endif
