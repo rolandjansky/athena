@@ -1072,6 +1072,14 @@ namespace InDet{
                  if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)  BadTracks = 4;
                }  //}
              }
+
+
+	     if(m_useITkMaterialRejection){
+	       float zvt = FitVertex.z(); float Rvt = sqrt(xvt*xvt+yvt*yvt);
+	       int bin = m_ITkPixMaterialMap->FindBin(zvt,Rvt);
+	       if(m_ITkPixMaterialMap->GetBinContent(bin)>0) BadTracks = 4;
+	     }
+
 //
 //  Creation of tracks from V0 list
 //	     

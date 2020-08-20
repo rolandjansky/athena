@@ -14,7 +14,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Particle
                           Tracking/TrkVertexFitter/TrkVKalVrtFitter
                           PRIVATE
+                          AtlasGeometryCommon/BeamPipeGeoModel
+                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoPrimitives
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           PhysicsAnalysis/AnalysisCommon/AnalysisUtils
                           Tracking/TrkEvent/TrkNeutralParameters
                           Tracking/TrkEvent/TrkParticleBase
@@ -36,7 +40,7 @@ atlas_add_component( InDetVKalVxInJetTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkVKalVrtFitterLib BeamPipeGeoModelLib GeoModelKernel GeoPrimitives PixelReadoutGeometry InDetReadoutGeometry  AnalysisUtilsLib TrkNeutralParameters TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetVKalVxInJetTool )
