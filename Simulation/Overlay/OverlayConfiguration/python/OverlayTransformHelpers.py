@@ -10,7 +10,7 @@ from PyJobTransforms.trfExe import athenaExecutor
 def addOverlayTrfArgs(parser):
     """Add common overlay command-line parser arguments."""
     parser.defineArgGroup('Overlay', 'Common Overlay Options')
-    parser.add_argument('--detectors',
+    parser.add_argument('--detectors', nargs='*',
                         type=argFactory(argString),
                         help='Detectors autoconfiguration string',
                         group='Overlay')
