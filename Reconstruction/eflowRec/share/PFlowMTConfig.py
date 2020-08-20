@@ -243,12 +243,19 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
     PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
 
 topSequence += PFONeutralCreatorAlgorithm
+from eflowRec.eflowRecFlags import jobproperties
+jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
-
+   
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
+
+   from eflowRec.eflowRecConf import NewEDM_PFEGamRecoAssoc
+   NewEDM_PFEGamRecoAssoc=NewEDM_PFEGamRecoAssoc("NewEDM_PFEGamRecoAssoc")
+   topSequence +=NewEDM_PFEGamRecoAssoc
+   
 
 #Add new FlowElement creators
 if jobproperties.eflowRecFlags.useFlowElements:
