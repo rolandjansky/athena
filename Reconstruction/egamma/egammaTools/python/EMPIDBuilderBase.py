@@ -9,8 +9,8 @@ from AthenaCommon.Logging import logging
 from egammaTools.egammaToolsConf import EMPIDBuilder
 
 # Eventually we need to get rid of this
-import cppyy
-cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+#import cppyy
+#cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 
 
 class EMPIDBuilderElectronBase (EMPIDBuilder):
