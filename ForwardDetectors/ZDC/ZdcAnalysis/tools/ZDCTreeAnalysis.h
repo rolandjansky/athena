@@ -27,6 +27,7 @@
 #include <sstream>
 #include <functional>
 #include <memory>
+#include <set>
 
 #include "ZdcAnalysis/ZDCDataAnalyzer.h"
 
