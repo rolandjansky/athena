@@ -37,7 +37,7 @@ declareProperty ("ChargedPFOElectronDecorKey", m_chargedpfoElectronWriteDecorKey
 declareProperty ("PhotonNeutralPFODecorKey", m_photonNeutralPFOWriteDecorKey = "Photons.neutralfeLinks");
 declareProperty ("PhotonChargedPFODecorKey", m_photonChargedPFOWriteDecorKey = "Photons.chargedfeLinks");
 declareProperty ("NeutralPFOPhotonDecorKey", m_neutralpfoPhotonWriteDecorKey = "JetETMissNeutralFlowElements.fe_PhotonLinks");
-declareProperty ("ChargedPFOPhotonDecorKey", m_chargedpfoPhotonWriteDecorKey = "JetETMissChargedParticleFlowObjects.fe_PhotonLinks");
+declareProperty ("ChargedPFOPhotonDecorKey", m_chargedpfoPhotonWriteDecorKey = "JetETMissChargedFlowElements.fe_PhotonLinks");
 }
 
 // Class destructor 
@@ -100,7 +100,7 @@ std::vector<std::vector<FlowElementLink_t>> photonChargedPFOVec(photonReadHandle
 ///////////////////////////
 // Loop over neutral flow elements (PFOs)
 ///////////////////////////
-
+ std::cout<<"MATT'S DEBUG: PFO elements size "<<neutralpfoElectronWriteDecorHandle->size()<<std::endl;
  for (const xAOD::FlowElement* pfo: *neutralpfoElectronWriteDecorHandle){
    //Obtain the index of the PFO topo-cluster
    auto pfoClusterIndex = pfo->CaloCluster;
