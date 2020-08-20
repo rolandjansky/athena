@@ -40,7 +40,7 @@ atlas_add_component( InDetVKalVxInJetTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkVKalVrtFitterLib BeamPipeGeoModel GeoModelKernel GeoPrimitives PixelReadoutGeometry InDetReadoutGeometry  AnalysisUtilsLib TrkNeutralParameters TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkVKalVrtFitterLib BeamPipeGeoModelLib GeoModelKernel GeoPrimitives PixelReadoutGeometry InDetReadoutGeometry  AnalysisUtilsLib TrkNeutralParameters TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetVKalVxInJetTool )
