@@ -29,6 +29,8 @@
 #include <vector>
 #include <sstream>
 
+#include "boost/bind/bind.hpp"
+
 //________________________________________________________________________________
 MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::AthService(name, pSvcLocator),
 	m_inputDataStore("StoreGateSvc/InputMetaDataStore", name),
@@ -383,6 +385,7 @@ void MetaDataSvc::handle(const Incident& inc) {
 
    if (inc.type() == "FirstInputFile") {
       // Register open/close callback actions
+     using namespace boost::placeholders;
       Io::bfcn_action_t boa = boost::bind(&MetaDataSvc::rootOpenAction, this, _1,_2);
       if (m_fileMgr->regAction(boa, Io::OPEN).isFailure()) {
          ATH_MSG_FATAL("Cannot register ROOT file open action with FileMgr.");
