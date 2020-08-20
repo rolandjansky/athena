@@ -12,12 +12,11 @@
 #include <TH1.h>
 #include <TGraphErrors.h>
 #include <TList.h>
+#include "TFitter.h"
 
 // #include <AsgTools/MessageCheck.h>
 #include "ZdcAnalysis/ZDCMsg.h"
 #include "ZdcAnalysis/ZDCFitWrapper.h"
-
-class TFitter;
 
 class ZDCPulseAnalyzer
 {
