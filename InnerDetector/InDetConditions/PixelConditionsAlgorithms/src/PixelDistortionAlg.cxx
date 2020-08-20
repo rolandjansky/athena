@@ -56,6 +56,7 @@ StatusCode PixelDistortionAlg::execute() {
 
   constexpr int nmodule_max = 2048;
   std::unordered_map<uint32_t,std::vector<float>> distortionMap;
+  std::unordered_map<uint32_t,unsigned long long> ids;
   if (moduleData->getDistortionInputSource()==0) { // no bow correction
     ATH_MSG_DEBUG("No bow correction");
     writeCdo -> setVersion(moduleData->getDistortionVersion());
@@ -78,32 +79,47 @@ StatusCode PixelDistortionAlg::execute() {
     ATH_MSG_DEBUG("Reading pixel distortions from file: " << moduleData->getDistortionFileName());
     writeCdo -> setVersion(moduleData->getDistortionVersion());
 
-    std::string file_name = PathResolver::find_file(moduleData->getDistortionFileName(), "DATAPATH");
-    if (file_name.size()==0) {
-      ATH_MSG_ERROR("Distortion file " << moduleData->getDistortionFileName() << " not found! No pixel distortion will be applied.");
-      return StatusCode::FAILURE;
+    std::string file_name = moduleData->getDistortionFileName();
+    if (file_name[0] != '/') {
+      PathResolver::find_file(moduleData->getDistortionFileName(), "DATAPATH");
+      if (file_name.size()==0) {
+        ATH_MSG_ERROR("Distortion file " << moduleData->getDistortionFileName() << " not found! No pixel distortion will be applied.");
+        return StatusCode::FAILURE;
+      }
     }
     std::ifstream input(file_name.c_str());
     if (!input.good()) {
       ATH_MSG_ERROR("Cannot open " << file_name);
       return StatusCode::FAILURE;
     }
+
+    int distosize;
+    if (moduleData->getDistortionVersion() < 2) distosize = 3;
+    else distosize = 441;
+
     while (!input.eof()) {
       unsigned int idmod;
-      float r1,r2,twist;
       unsigned int hashID = 0;
-      if (moduleData->getDistortionVersion()==0) { 
-        input >> std::hex >> idmod >> std::dec >> r1 >> r2 >> twist;
+      float data;
+
+      if (moduleData->getDistortionVersion() == 1) {
+        input >> idmod;
+        hashID = idmod;
+      } else {
+        input >> std::hex >> idmod >> std::dec;
         hashID = m_pixelID->wafer_hash((Identifier)idmod); 
       }
-      else if (moduleData->getDistortionVersion()>0) { 
-        input >> idmod >> r1 >> r2 >> twist;
-        hashID = idmod;
+      Identifier modId = m_pixelID->wafer_id((IdentifierHash)hashID);
+      ids[hashID] = modId.get_compact();
+      ATH_MSG_DEBUG("Identifier = 0x" << std::hex << ids[hashID] << std::dec);
+
+      std::stringstream s;
+      for (int i = 0; i < distosize; ++i) {
+        input >> data;
+        s << data << " ";
+        distortionMap[hashID].push_back(data);
       }
-      ATH_MSG_VERBOSE("Identifier = " << idmod << " HashID = " << hashID << " R1 = " << r1 << " R2 = " << r2 << " Twist = " << twist);
-      distortionMap[hashID].push_back(r1); // convert to 1/mm
-      distortionMap[hashID].push_back(r2); // convert to 1/mm
-      distortionMap[hashID].push_back(twist); // convert to degree
+      ATH_MSG_DEBUG(s.str());
     }
     input.close();
   }
@@ -125,6 +141,7 @@ StatusCode PixelDistortionAlg::execute() {
     }
   }
   else if (moduleData->getDistortionInputSource()==4) { // read from database here 
+    ATH_MSG_DEBUG("Using pixel distortions from database");
     SG::ReadCondHandle<DetCondCFloat> readHandle(m_readKey);
     const DetCondCFloat* readCdo = *readHandle; 
     if (readCdo==nullptr) {
@@ -158,17 +175,28 @@ StatusCode PixelDistortionAlg::execute() {
       }
     }
     writeCdo -> setVersion(version);
+    ATH_MSG_DEBUG("Distortions data version = " << version);
+
+    int distosize = readCdo->size();
 
     for (int i=0; i<nmodule_max; i++) {
       if (readCdo->find(m_pixelID->wafer_id(IdentifierHash(i)))) {
-        const float *disto = readCdo->find(m_pixelID->wafer_id(IdentifierHash(i)));
-        distortionMap[i].push_back(disto[0]);
-        distortionMap[i].push_back(disto[1]);
-        distortionMap[i].push_back(disto[2]);
+        Identifier modId = m_pixelID->wafer_id((IdentifierHash)i);
+        const float *disto = readCdo->find(modId);
+        ids[i] = modId.get_compact();
+
+        ATH_MSG_DEBUG("Identifier = 0x" << std::hex << ids[i] << std::dec);
+        std::stringstream s;
+        for (int j = 0; j < distosize; ++j) {
+          distortionMap[i].push_back(disto[j]);
+          s << disto[j] << " ";
+        }
+        ATH_MSG_DEBUG(s.str());
       }
     }
   }
   writeCdo -> setDistortionMap(distortionMap);
+  writeCdo -> setIds(ids);
 
   if (moduleData->getDistortionWriteToFile()) {
     std::ofstream* outfile = new std::ofstream("output_distortion.txt"); 
