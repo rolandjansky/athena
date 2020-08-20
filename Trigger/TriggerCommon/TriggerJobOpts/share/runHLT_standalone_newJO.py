@@ -9,10 +9,9 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
-#Temporarily turning off ID geometery until the configuration is fully migrated
-flags.Detector.GeometryPixel = False
-flags.Detector.GeometrySCT   = False
-flags.Detector.GeometryTRT   = False
+flags.Detector.GeometryPixel = True
+flags.Detector.GeometrySCT   = True
+flags.Detector.GeometryTRT   = True
 flags.Detector.GeometryLAr   = True
 flags.Detector.GeometryTile  = True
 flags.Detector.GeometryMDT   = True
