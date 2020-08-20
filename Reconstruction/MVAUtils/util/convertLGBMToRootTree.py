@@ -509,8 +509,8 @@ if __name__ == "__main__":
                 "Have you setup athena? Do not use this in production!")
         else:
             try:
-                print(u":::😀😀😀 everything fine:"
-                      "LGBM output == MVAUtils output 😀😀😀:::")
+                print(u"::: :) :) :)  everything fine:"
+                      "LGBM output == MVAUtils output :) :) :) :::")
             except UnicodeEncodeError:
                 print(":::==> everything fine:"
                       "LGBM output == MVAUtils output <==:::")
