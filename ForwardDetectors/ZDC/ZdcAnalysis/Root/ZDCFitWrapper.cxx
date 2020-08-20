@@ -36,10 +36,10 @@ void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float ampMin, 
 }
 
 ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(std::string tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2) :
-  ZDCFitWrapper(new TF1(("ExpFermiVariableTaus" + tag).c_str(), ZDCFermiExpFit, tmin, tmax, 5 - 1)),
+  ZDCFitWrapper(std::make_shared<TF1>(("ExpFermiVariableTaus" + tag).c_str(), ZDCFermiExpFit, tmin, tmax, 5 - 1)),
   m_fixTau1(fixTau1), m_fixTau2(fixTau2), m_tau1(tau1), m_tau2(tau2)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
   theTF1->SetParName(0, "Amp");
   theTF1->SetParName(1, "T0");
@@ -58,7 +58,7 @@ ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(std::string tag, float tm
 
 void ZDCFitExpFermiVariableTaus::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
   theTF1->SetParameter(0, initialAmp);
   theTF1->SetParameter(1, initialT0);
@@ -73,15 +73,15 @@ void ZDCFitExpFermiVariableTaus::SetT0FitLimits(float t0Min, float t0Max)
 {
   // Set the parameter limits accordingly on the TF1
   //
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = ZDCFitWrapper::GetWrapperTF1();
   theTF1->SetParLimits(1, t0Min, t0Max);
 }
 
 ZDCFitExpFermiFixedTaus::ZDCFitExpFermiFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2) :
-  ZDCFitWrapper(new TF1(("ExpFermiFixedTaus" + tag).c_str(), this, tmin, tmax, 3 - 1)),
+  ZDCFitWrapper(std::make_shared<TF1>(("ExpFermiFixedTaus" + tag).c_str(), this, tmin, tmax, 3 - 1)),
   m_tau1(tau1), m_tau2(tau2)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
@@ -92,8 +92,7 @@ ZDCFitExpFermiFixedTaus::ZDCFitExpFermiFixedTaus(std::string tag, float tmin, fl
   // Now create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiFixedTausRefFunc" + tag;
-  if (m_expFermiFunc) delete m_expFermiFunc;
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 5);
+  m_expFermiFunc.reset(new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 5));
 
   m_expFermiFunc->SetParameter(0, 1);
   m_expFermiFunc->SetParameter(1, 0);
@@ -115,19 +114,18 @@ void ZDCFitExpFermiFixedTaus::DoInitialize(float initialAmp, float initialT0, fl
 
 void ZDCFitExpFermiFixedTaus::SetT0FitLimits(float t0Min, float t0Max)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
-  theTF1->SetParLimits(1, t0Min, t0Max);
+  GetWrapperTF1()->SetParLimits(1, t0Min, t0Max);
 }
 
 ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2) :
-  ZDCPrePulseFitWrapper(new TF1(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 5 - 1)),
+  ZDCPrePulseFitWrapper(std::make_shared<TF1>(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 5 - 1)),
   m_tau1(tau1), m_tau2(tau2)
 {
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-  if (m_expFermiFunc) delete m_expFermiFunc;
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+
+  m_expFermiFunc.reset(new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4));
 
   m_expFermiFunc->SetParameter(0, 1);
   m_expFermiFunc->SetParameter(1, 0);
@@ -139,7 +137,7 @@ ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, floa
 
   // Now set up the actual TF1
   //
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+   std::shared_ptr<TF1> theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
@@ -175,78 +173,9 @@ void ZDCFitExpFermiPrePulse::DoInitialize(float initialAmp, float initialT0, flo
 
 void ZDCFitExpFermiPrePulse::SetT0FitLimits(float t0Min, float t0Max)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+   std::shared_ptr<TF1> theTF1 = GetWrapperTF1();
   theTF1->SetParLimits(1, t0Min, t0Max);
 }
-
-ZDCFitExpFermiPulseSequence::ZDCFitExpFermiPulseSequence(std::string tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2) :
-  ZDCFitWrapper(0), m_tau1(tau1), m_tau2(tau2)
-{
-  // Create the reference function that we use to evaluate ExpFermiFit more efficiently
-  //
-  std::string funcNameRefFunc = "ExpFermiPulseSequenceRefFunc" + tag;
-  if (m_expFermiFunc) delete m_expFermiFunc;
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 5);
-
-  m_expFermiFunc->SetParameter(0, 1);
-  m_expFermiFunc->SetParameter(1, 0);
-  m_expFermiFunc->SetParameter(2, m_tau1);
-  m_expFermiFunc->SetParameter(3, m_tau2);
-  m_expFermiFunc->SetParameter(4, 0);
-
-  m_norm = 1. / m_expFermiFunc->GetMaximum();
-  m_timeCorr = m_tau1 * std::log(m_tau2 / m_tau1 - 1.0);
-
-  // Calculate how many pulses we have to analyze
-  //
-  size_t numPrePulse = std::ceil((nominalT0 - tmin) / deltaT) + 1;
-  for (size_t ipre = 0; ipre <  numPrePulse; ipre++) {
-    m_pulseDeltaT.push_back(((float) ipre) * -deltaT);
-  }
-
-  size_t numPostPulse = std::floor((tmax - nominalT0) / deltaT);
-  for (size_t ipost = 0; ipost <  numPrePulse; ipost++) {
-    m_pulseDeltaT.push_back(((float) ipost) * deltaT);
-  }
-
-  m_numPulses = 1 + numPrePulse + numPostPulse;
-
-  // Now set up the actual TF1
-  //
-  m_fitFunc = new TF1(("ExpFermiPulseSequence" + tag).c_str(), this, tmin, tmax, m_numPulses + 1),
-
-  m_fitFunc->SetParName(0, "Amp");
-  m_fitFunc->SetParName(1, "T0");
-
-  m_fitFunc->SetParLimits(0, 0, 1024);
-  m_fitFunc->SetParLimits(1, nominalT0 - deltaT / 2, nominalT0 + deltaT / 2);
-
-  for (size_t ipulse = 0; ipulse < m_numPulses - 1; ipulse++) {
-    std::string name = "Amp" + std::to_string(ipulse + 1);
-    m_fitFunc->SetParName(ipulse + 2, name.c_str());
-    m_fitFunc->SetParLimits(ipulse + 2, 0, 1024);
-  }
-}
-
-void ZDCFitExpFermiPulseSequence::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
-{
-  m_fitFunc->SetParameter(0, initialAmp);
-  m_fitFunc->SetParameter(1, initialT0);
-
-  for (size_t ipulse = 0; ipulse < m_numPulses - 1; ipulse++) {
-    m_fitFunc->SetParameter(ipulse + 2, 0);
-  }
-
-
-  m_fitFunc->SetParLimits(0, ampMin, ampMax);
-}
-
-void ZDCFitExpFermiPulseSequence::SetT0FitLimits(float t0Min, float t0Max)
-{
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
-  theTF1->SetParLimits(1, t0Min, t0Max);
-}
-
 
 double ZDCFermiExpFit(double* xvec, double* pvec)
 {
@@ -278,10 +207,10 @@ double ZDCFermiExpFit(double* xvec, double* pvec)
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
 ZDCFitExpFermiLinearFixedTaus::ZDCFitExpFermiLinearFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2) :
-  ZDCFitWrapper(new TF1(("ExpFermiFixedTaus" + tag).c_str(), this, tmin, tmax, 4)),
+  ZDCFitWrapper(std::make_shared<TF1>(("ExpFermiFixedTaus" + tag).c_str(), this, tmin, tmax, 4)),
   m_tau1(tau1), m_tau2(tau2)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = GetWrapperTF1();
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
@@ -294,8 +223,8 @@ ZDCFitExpFermiLinearFixedTaus::ZDCFitExpFermiLinearFixedTaus(std::string tag, fl
   // Now create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiFixedTausRefFunc" + tag;
-  if (m_expFermiFunc) delete m_expFermiFunc;
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+
+  m_expFermiFunc = std::make_shared<TF1>(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
   m_expFermiFunc->SetParameter(1, 0);
@@ -323,21 +252,21 @@ void ZDCFitExpFermiLinearFixedTaus::DoInitialize(float initialAmp, float initial
 
 void ZDCFitExpFermiLinearFixedTaus::SetT0FitLimits(float t0Min, float t0Max)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = GetWrapperTF1();
   theTF1->SetParLimits(1, t0Min, t0Max);
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
 ZDCFitExpFermiLinearPrePulse::ZDCFitExpFermiLinearPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2) :
-  ZDCPrePulseFitWrapper(new TF1(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 6)),
+  ZDCPrePulseFitWrapper(std::make_shared<TF1>(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 6)),
   m_tau1(tau1), m_tau2(tau2)
 {
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-  if (m_expFermiFunc) delete m_expFermiFunc;
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+
+  m_expFermiFunc = std::make_shared<TF1>(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
   m_expFermiFunc->SetParameter(1, 0);
@@ -349,7 +278,7 @@ ZDCFitExpFermiLinearPrePulse::ZDCFitExpFermiLinearPrePulse(std::string tag, floa
 
   // Now set up the actual TF1
   //
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
@@ -394,29 +323,21 @@ void ZDCFitExpFermiLinearPrePulse::DoInitialize(float initialAmp, float initialT
 
 void ZDCFitExpFermiLinearPrePulse::SetT0FitLimits(float t0Min, float t0Max)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
-  theTF1->SetParLimits(1, t0Min, t0Max);
+  GetWrapperTF1()->SetParLimits(1, t0Min, t0Max);
 }
-
-
-
-
-
-
-
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
 ZDCFitComplexPrePulse::ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2) :
-  ZDCPrePulseFitWrapper(new TF1(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 7)),
+  ZDCPrePulseFitWrapper(std::make_shared<TF1>(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 7)),
   m_tau1(tau1), m_tau2(tau2)
 {
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-  if (m_expFermiFunc) delete m_expFermiFunc;
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+
+  m_expFermiFunc = std::make_shared<TF1>(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
   m_expFermiFunc->SetParameter(1, 0);
@@ -428,7 +349,7 @@ ZDCFitComplexPrePulse::ZDCFitComplexPrePulse(std::string tag, float tmin, float 
 
   // Now set up the actual TF1
   //
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = GetWrapperTF1();
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
@@ -476,8 +397,7 @@ void ZDCFitComplexPrePulse::DoInitialize(float initialAmp, float initialT0, floa
 
 void ZDCFitComplexPrePulse::SetT0FitLimits(float t0Min, float t0Max)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
-  theTF1->SetParLimits(1, t0Min, t0Max);
+  GetWrapperTF1()->SetParLimits(1, t0Min, t0Max);
 }
 
 
@@ -485,14 +405,14 @@ void ZDCFitComplexPrePulse::SetT0FitLimits(float t0Min, float t0Max)
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
 ZDCFitGeneralPulse::ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2) :
-  ZDCPrePulseFitWrapper(new TF1(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 9)),
+  ZDCPrePulseFitWrapper(std::make_shared<TF1>(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 9)),
   m_tau1(tau1), m_tau2(tau2)
 {
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
-  if (m_expFermiFunc) delete m_expFermiFunc;
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+
+  m_expFermiFunc = std::make_shared<TF1>(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
 
   m_expFermiFunc->SetParameter(0, 1);
   m_expFermiFunc->SetParameter(1, 0);
@@ -504,7 +424,7 @@ ZDCFitGeneralPulse::ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, 
 
   // Now set up the actual TF1
   //
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  std::shared_ptr<TF1> theTF1 = GetWrapperTF1();
 
   // BAC, parameter 0 limits now is set in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
@@ -561,6 +481,5 @@ void ZDCFitGeneralPulse::DoInitialize(float initialAmp, float initialT0, float a
 
 void ZDCFitGeneralPulse::SetT0FitLimits(float t0Min, float t0Max)
 {
-  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
-  theTF1->SetParLimits(1, t0Min, t0Max);
+  GetWrapperTF1()->SetParLimits(1, t0Min, t0Max);
 }

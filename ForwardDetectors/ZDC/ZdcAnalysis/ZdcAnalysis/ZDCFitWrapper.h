@@ -14,7 +14,7 @@ double ZDCFermiExpFit(double* xvec, double* pvec);
 class ZDCFitWrapper
 {
 private:
-  TF1* m_wrapperTF1;
+   std::shared_ptr<TF1> m_wrapperTF1;
 
   float m_tmin;
   float m_tmax;
@@ -29,7 +29,7 @@ private:
   float m_tminAdjust;
 
 public:
-  ZDCFitWrapper(TF1* wrapperTF1) : m_wrapperTF1(wrapperTF1),
+ ZDCFitWrapper(const std::shared_ptr<TF1>& wrapperTF1) : m_wrapperTF1(wrapperTF1),
     m_ampMin(0),
     m_adjTLimitsEvent(true)  // true here forces a setting of T0 par limits on first event
   {
@@ -40,7 +40,7 @@ public:
     m_t0Max = m_tmax;
   }
 
-  virtual ~ZDCFitWrapper() {delete m_wrapperTF1;}
+  virtual ~ZDCFitWrapper() {}
 
   void Initialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   void Initialize(float initialAmp, float initialT0, float ampMin, float ampMax, float fitTmin, float fitTmax, float fitTRef);
@@ -90,14 +90,15 @@ public:
 
   virtual double operator()(double *x, double *p) = 0;
 
-  virtual TF1* GetWrapperTF1() {return m_wrapperTF1;}
-  virtual const TF1* GetWrapperTF1() const {return m_wrapperTF1;}
+  virtual std::shared_ptr<TF1> GetWrapperTF1() {return m_wrapperTF1;}
+  virtual const TF1* GetWrapperTF1() const {return m_wrapperTF1.get();}
+  virtual TF1* GetWrapperTF1RawPtr() const {return m_wrapperTF1.get();}
 };
 
 class ZDCPrePulseFitWrapper : public ZDCFitWrapper
 {
 public:
-  ZDCPrePulseFitWrapper(TF1* wrapperTF1) : ZDCFitWrapper(wrapperTF1) {}
+  ZDCPrePulseFitWrapper(std::shared_ptr<TF1> wrapperTF1) : ZDCFitWrapper(wrapperTF1) {}
 
   virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) = 0;
 
@@ -185,13 +186,13 @@ private:
   float m_norm;
   float m_timeCorr;
 
-  TF1* m_expFermiFunc = 0;
+  std::shared_ptr<TF1> m_expFermiFunc = 0;
 
 public:
 
   ZDCFitExpFermiFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  ~ZDCFitExpFermiFixedTaus() {if (m_expFermiFunc) delete m_expFermiFunc;}
+  ~ZDCFitExpFermiFixedTaus() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
@@ -244,11 +245,11 @@ private:
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc = 0;
+  std::shared_ptr<TF1> m_expFermiFunc = 0;
 
 public:
   ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitExpFermiPrePulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
+  ~ZDCFitExpFermiPrePulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;
@@ -336,83 +337,6 @@ public:
   }
 };
 
-class ZDCFitExpFermiPulseSequence : public ZDCFitWrapper
-{
-private:
-  float m_tau1;
-  float m_tau2;
-  float m_norm;
-  float m_timeCorr;
-
-  size_t m_numPulses;
-  std::vector<float> m_pulseDeltaT;
-
-  TF1* m_fitFunc;
-  TF1* m_expFermiFunc = 0;
-
-
-public:
-  ZDCFitExpFermiPulseSequence(std::string tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2);
-
-  ~ZDCFitExpFermiPulseSequence()
-  {
-    if (m_fitFunc)      delete m_fitFunc;
-    if (m_expFermiFunc) delete m_expFermiFunc;
-  }
-
-  virtual TF1* GetWrapperTF1() override {return m_fitFunc;}
-  virtual const TF1* GetWrapperTF1() const override {return m_fitFunc;}
-
-  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
-  virtual void SetT0FitLimits(float tMin, float tMax) override;
-
-  virtual float GetAmplitude() const override {return m_fitFunc->GetParameter(0); }
-  virtual float GetAmpError() const override {return m_fitFunc->GetParError(0); }
-
-  virtual float GetTau1() const override {return m_tau1;}
-  virtual float GetTau2() const override {return m_tau2;}
-
-  unsigned int GetPreT0ParIndex() const {return 3;}
-
-  virtual float GetTime() const override {
-    return GetWrapperTF1()->GetParameter(1) + m_timeCorr; // Correct the time to the maximum
-  }
-
-  virtual float GetShapeParameter(size_t index) const override
-  {
-    if (index == 0) return m_tau1;
-    else if (index == 1) return m_tau2;
-    else if (index < m_numPulses + 2) return m_fitFunc->GetParameter(index);
-    else throw std::runtime_error("Fit parameter does not exist.");
-  }
-
-  virtual float GetBkgdMaxFraction() const override
-  {
-    return 0;
-  }
-
-  virtual double operator() (double *x, double *p) override
-  {
-    double t = x[0];
-
-    double mainAmp = p[0];
-    double t0 = p[1];
-
-    double mainDeltaT = t - t0;
-    double funcValue =  mainAmp * m_norm * m_expFermiFunc->operator()(mainDeltaT);
-
-    for (size_t ipulse = 0; ipulse < m_numPulses - 1; ipulse++) {
-      double deltaT = mainDeltaT - m_pulseDeltaT[ipulse];
-      double amp = p[2 + ipulse];
-
-      double pulse = amp * m_norm * m_expFermiFunc->operator()(deltaT);
-      funcValue += pulse;
-    }
-
-    return funcValue;
-  }
-};
-
 // ----------------------------------------------------------------------
 class ZDCFitExpFermiLinearFixedTaus : public ZDCFitWrapper
 {
@@ -423,13 +347,13 @@ private:
   float m_norm;
   float m_timeCorr;
 
-  TF1* m_expFermiFunc = 0;
+  std::shared_ptr<TF1> m_expFermiFunc;
 
 public:
 
   ZDCFitExpFermiLinearFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  ~ZDCFitExpFermiLinearFixedTaus() {if (m_expFermiFunc) delete m_expFermiFunc;}
+  ~ZDCFitExpFermiLinearFixedTaus() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;
@@ -483,11 +407,11 @@ private:
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc = 0;
+  std::shared_ptr<TF1> m_expFermiFunc;
 
 public:
   ZDCFitExpFermiLinearPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitExpFermiLinearPrePulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
+  ~ZDCFitExpFermiLinearPrePulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;
@@ -593,11 +517,11 @@ private:
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc = 0;
+  std::shared_ptr<TF1> m_expFermiFunc;
 
 public:
   ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitComplexPrePulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
+  ~ZDCFitComplexPrePulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;
@@ -705,11 +629,11 @@ private:
   float m_tau2;
   float m_norm;
   float m_timeCorr;
-  TF1* m_expFermiFunc = 0;
+  std::shared_ptr<TF1> m_expFermiFunc;
 
 public:
   ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
-  ~ZDCFitGeneralPulse() {if (m_expFermiFunc) delete m_expFermiFunc;}
+  ~ZDCFitGeneralPulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
   virtual void SetT0FitLimits(float tMin, float tMax) override;

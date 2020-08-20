@@ -1118,11 +1118,11 @@ void ZDCPulseAnalyzer::DoFit()
   std::string options = s_fitOptions;
   if (QuietFits()) options += "Q0";
 
-  TFitResultPtr result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1(), options.c_str(), "", m_fitTMin, m_fitTMax);
+  TFitResultPtr result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1RawPtr(), options.c_str(), "", m_fitTMin, m_fitTMax);
 
   int fitStatus = result_ptr;
   if (fitStatus != 0) {
-    TFitResultPtr try2Result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1(), options.c_str(), "", m_fitTMin, m_fitTMax);
+    TFitResultPtr try2Result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1RawPtr(), options.c_str(), "", m_fitTMin, m_fitTMax);
     if ((int) try2Result_ptr != 0) m_fitFailed = true;
   }
   else m_fitFailed = false;
@@ -1131,7 +1131,7 @@ void ZDCPulseAnalyzer::DoFit()
   m_bkgdMaxFraction = fitWrapper->GetBkgdMaxFraction();
   if (std::abs(m_bkgdMaxFraction) > 0.25) {
     std::string tempOptions = options + "e";
-    m_fitHist->Fit(fitWrapper->GetWrapperTF1(), tempOptions.c_str(), "", m_fitTMin, m_fitTMax);
+    m_fitHist->Fit(fitWrapper->GetWrapperTF1RawPtr(), tempOptions.c_str(), "", m_fitTMin, m_fitTMax);
     m_bkgdMaxFraction = fitWrapper->GetBkgdMaxFraction();
   }
 
@@ -1203,13 +1203,13 @@ void ZDCPulseAnalyzer::DoFitCombined()
 
   if (PrePulse()) {
     if (m_prePulseCombinedFitter) delete m_prePulseCombinedFitter;
-    m_prePulseCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1());
+    m_prePulseCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1RawPtr());
 
     theFitter = m_prePulseCombinedFitter;
   }
   else {
     if (m_defaultCombinedFitter) delete m_defaultCombinedFitter;
-    m_defaultCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1());
+    m_defaultCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1RawPtr());
 
     theFitter = m_defaultCombinedFitter;
   }
@@ -1218,7 +1218,7 @@ void ZDCPulseAnalyzer::DoFitCombined()
   //
   s_undelayedFitHist = m_fitHist;
   s_delayedFitHist = m_delayedHist;
-  s_combinedFitFunc = fitWrapper->GetWrapperTF1();
+  s_combinedFitFunc = fitWrapper->GetWrapperTF1RawPtr();
   s_combinedFitTMax = m_fitTMax;
   s_combinedFitTMin = m_fitTMin;
 
@@ -1418,7 +1418,7 @@ void ZDCPulseAnalyzer::UpdateFitterTimeLimits(TFitter* fitter, ZDCFitWrapper* wr
 {
   double parLimitLow, parLimitHigh;
 
-  TF1* func_p = wrapper->GetWrapperTF1();
+  auto func_p = wrapper->GetWrapperTF1();
   func_p->GetParLimits(1, parLimitLow, parLimitHigh);
 
   fitter->SetParameter(2, func_p->GetParName(1), func_p->GetParameter(1), 0.01, parLimitLow, parLimitHigh);
@@ -1534,7 +1534,10 @@ std::shared_ptr<TGraphErrors> ZDCPulseAnalyzer::GetCombinedGraph() const {
   }
   if (m_havePulse) {
     TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
-    theGraph->GetListOfFunctions()->Add(new TF1(*func_p));
+    if (func_p) {
+      theGraph->GetListOfFunctions()->Add(new TF1(*func_p));
+      m_fitHist->GetListOfFunctions()->SetOwner (false);
+    }
   }
   theGraph->SetName(( std::string(m_fitHist->GetName()) + "combinaed").c_str());
 
