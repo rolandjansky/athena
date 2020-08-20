@@ -18,7 +18,7 @@
 /// the target attribute
 #if defined(__ELF__) && defined(__GNUC__) && !defined(__CLING__) &&            \
   !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__) &&         \
-  !defined(CL_SYCL_LANGUAGE_VERSION)
+  !defined(CL_SYCL_LANGUAGE_VERSION) && !defined(__HIP__)
 # define HAVE_FUNCTION_MULTIVERSIONING 1
 #else
 # define HAVE_FUNCTION_MULTIVERSIONING 0
