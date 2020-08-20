@@ -96,7 +96,6 @@ import re
 
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
-print('[runHLT_standalone] slices = {}'.format(slices))
 if opt.doEmptyMenu is True:
     log.info("Disabling all slices")
     for s in slices:

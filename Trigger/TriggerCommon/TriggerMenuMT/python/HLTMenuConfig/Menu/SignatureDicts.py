@@ -626,7 +626,7 @@ CalibChainParts_Default = {
     'purpose'        : [],
     'addInfo'        : [],
     'hypo'           : '',
-    'hits'           : [],
+    # 'hits'           : [],
     'streamingInfo'  : [],
     'threshold'      : '',
     'multiplicity'   : '',
