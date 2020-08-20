@@ -60,7 +60,7 @@ const xAOD::Muon* MuonMatchingTool :: matchEFSA(  const xAOD::Muon *mu, std::str
     MuonTrack = mu->trackParticle(type);
     if (MuonTrack) break;
   }
-  return MuonTrack ? match<xAOD::Muon>( MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchSATrack) : nullptr;
+  return MuonTrack ? match<xAOD::Muon>( MuonTrack, trig, m_EFreqdR, pass, "HLT_Muons_", &MuonMatchingTool::PosForMatchSATrack) : nullptr;
 }
 
 const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matchEFSALinkInfo( const xAOD::Muon *mu, std::string trig) const {
@@ -76,14 +76,14 @@ const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matc
     MuonTrack = mu->trackParticle(type);
     if (MuonTrack) break;
   }
-  return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchSATrack) : muonLinkInfo;
+  return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, "HLT_Muons_", &MuonMatchingTool::PosForMatchSATrack) : muonLinkInfo;
 }
 
 
 const xAOD::Muon* MuonMatchingTool :: matchEFCB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchEFCB()");
   const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
-  return MuonTrack ? match<xAOD::Muon>( MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchCBTrack) : nullptr;
+  return MuonTrack ? match<xAOD::Muon>( MuonTrack, trig, m_EFreqdR, pass, "HLT_MuonsCB", &MuonMatchingTool::PosForMatchCBTrack) : nullptr;
 }
 
 const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matchEFCBLinkInfo( const xAOD::Muon *mu, std::string trig) const {
@@ -91,7 +91,14 @@ const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matc
   bool pass = false;
   TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> muonLinkInfo;
   const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
-  return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchCBTrack) : muonLinkInfo;
+  return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, "HLT_MuonsCB", &MuonMatchingTool::PosForMatchCBTrack) : muonLinkInfo;
+}
+
+
+const xAOD::Muon* MuonMatchingTool :: matchEFIso(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchEFIso()");
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
+  return MuonTrack ? match<xAOD::Muon>( MuonTrack, trig, m_EFreqdR, pass, "HLT_MuonsIso", &MuonMatchingTool::PosForMatchCBTrack) : nullptr;
 }
 
 
@@ -105,25 +112,25 @@ const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchL2SA(  const xAOD::Muon *
       return match<xAOD::L2StandAloneMuon>( &extPos, trig, reqdR, pass);
     }
   }
-  return match<xAOD::L2StandAloneMuon>( mu, trig, reqdR, pass);
+  return match<xAOD::L2StandAloneMuon>( mu, trig, reqdR, pass, "HLT_MuonL2SAInfo");
 }
 
 const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> MuonMatchingTool :: searchL2SALinkInfo(  const xAOD::Muon *mu, std::string trig) const {
   ATH_MSG_DEBUG("MuonMonitoring::searchL2SALinkInfo()");
   bool pass = false;
-  return matchLinkInfo<xAOD::L2StandAloneMuon>( mu, trig, 1000., pass);
+  return matchLinkInfo<xAOD::L2StandAloneMuon>( mu, trig, 1000., pass, "HLT_MuonL2SAInfo");
 }
 
 
 const xAOD::L2CombinedMuon* MuonMatchingTool :: matchL2CB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchL2CB()");
-  return match<xAOD::L2CombinedMuon>( mu, trig, m_L2CBreqdR, pass);
+  return match<xAOD::L2CombinedMuon>( mu, trig, m_L2CBreqdR, pass, "HLT_MuonL2CBInfo");
 }
 
 const TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> MuonMatchingTool :: searchL2CBLinkInfo(  const xAOD::Muon *mu, std::string trig) const {
   ATH_MSG_DEBUG("MuonMonitoring::searchL2CBLinkInfo()");
   bool pass = false;
-  return matchLinkInfo<xAOD::L2CombinedMuon>( mu, trig,  1000., pass);
+  return matchLinkInfo<xAOD::L2CombinedMuon>( mu, trig,  1000., pass, "HLT_MuonL2CBInfo");
 }
 
 
