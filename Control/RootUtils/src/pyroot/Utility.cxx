@@ -22,7 +22,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "TInterpreter.h"
 #include <sstream>
 
-
 namespace RootUtils {
 enum EMemoryPolicy { kHeuristics = 1, kStrict = 2 };
 }
@@ -252,11 +251,13 @@ bool setOwnership (PyObject* obj, bool flag)
 }
 
 
-bool isStrict()
-{
-  using PyROOT::TCallContext;
-  return TCallContext::sMemoryPolicy == TCallContext::kUseStrict;
-}
+  //CallContext no longer exposed by CPyCppyy
+  bool isStrict()
+  {
+  //using CPyCppyy::CallContext;
+  //return CallContext::sMemoryPolicy == CallContext::kUseStrict;
+    return true;
+  }
 
 
 bool useStrictOwnership (Long_t user)
