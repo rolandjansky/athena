@@ -30,7 +30,6 @@ namespace met {
 			   ISvcLocator* pSvcLocator )
     : ::AthAlgorithm( name, pSvcLocator ),
     m_metKey(""),
-    //m_metMapKey(""),
     m_metmaker(this),  
     m_muonSelTool(this,""),
     m_elecSelLHTool(this,""),

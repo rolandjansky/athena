@@ -91,20 +91,12 @@ namespace met{
 
     private:
 
-    std::string m_recoJet;
-    std::string m_recoEl;
-    std::string m_recoMu;
-    std::string m_recoGam;
-    std::string m_recoTau;
-
-    SG::ReadHandleKey<xAOD::ElectronContainer>      m_recoElKey{""};
-    SG::ReadHandleKey<xAOD::PhotonContainer>        m_recoGamKey{""};
-    SG::ReadHandleKey<xAOD::TauJetContainer>        m_recoTauKey{""};
-    SG::ReadHandleKey<xAOD::MuonContainer>          m_recoMuKey{""};
-    SG::ReadHandleKey<xAOD::JetContainer>           m_recoJetKey{""};
-
-    std::string m_truthEvent;
-    SG::ReadHandleKey<xAOD::TruthEventContainer>           m_truthEventKey{""};
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_recoElKey{this,"RecoElKey","Electrons",""};
+    SG::ReadHandleKey<xAOD::PhotonContainer>        m_recoGamKey{this,"RecoGamKey","Photons",""};
+    SG::ReadHandleKey<xAOD::TauJetContainer>        m_recoTauKey{this,"RecoTauKey","TauJets",""};
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_recoMuKey{this,"RecoMuKey","Muons",""};
+    SG::ReadHandleKey<xAOD::JetContainer>           m_recoJetKey{this,"RecoJetKey","",""};
+    SG::ReadHandleKey<xAOD::TruthEventContainer>           m_truthEventKey{this,"TruthEventKey","TruthEvents",""};
 
     /// Default constructor: 
     METTruthAssociator();
