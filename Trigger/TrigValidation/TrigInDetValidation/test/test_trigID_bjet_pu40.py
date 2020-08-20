@@ -88,14 +88,11 @@ test.check_steps.append(comp2)
 
 
 # CPU cost steps
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -d TrigFastTrackFinder_'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
-
 
 import sys
 sys.exit(test.run())
