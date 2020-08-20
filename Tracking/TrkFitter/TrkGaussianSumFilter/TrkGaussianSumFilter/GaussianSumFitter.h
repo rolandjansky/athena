@@ -4,7 +4,7 @@
 
 /**
  * @file   GaussianSumFitter.h
- * @date   Monday 7th March 2005 
+ * @date   Monday 7th March 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
  * @brief  Class for fitting according to the Gaussian Sum Filter  formalism
  */
@@ -12,19 +12,16 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h" 
 #include "TrkFitterUtils/FitterTypes.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <atomic>
-
 
 namespace Trk {
 class IMultiStateMeasurementUpdator;
@@ -33,7 +30,6 @@ class IForwardGsfFitter;
 class IGsfSmoother;
 class FitQuality;
 class Track;
-
 
 class GaussianSumFitter
   : virtual public ITrackFitter
@@ -129,12 +125,6 @@ private:
     "Trk::GsfExtrapolator/GsfExtrapolator",
     ""
   };
-  ToolHandle<IMultiStateMeasurementUpdator> m_updator{
-    this,
-    "MeasurementUpdatorType",
-    "Trk::GsfMeasurementUpdator/GsfMeasurementUpdator",
-    ""
-  };
   ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator{
     this,
     "ToolForROTCreation",
@@ -151,26 +141,43 @@ private:
                                           "GsfSmoother",
                                           "Trk::GsfSmoother/GsfSmoother",
                                           "" };
-  
+
   Gaudi::Property<bool> m_StoreMCSOS{
     this,
     "StoreMCSOS",
-    false,
-    "Store multicomponent state or single state in final trajectory"
+    true,
+    "Store Multicomponent State (preferred if we slim later on) or Single "
+    "state in final trajectory"
   };
- 
-  bool m_reintegrateOutliers;
-  bool m_makePerigee;
-  bool m_refitOnMeasurementBase;
-  bool m_doHitSorting;
+
+  Gaudi::Property<bool> m_reintegrateOutliers{ this,
+                                               "ReintegrateOutliers",
+                                               true,
+                                               "Reintegrate Outliers" };
+
+  Gaudi::Property<bool> m_makePerigee{ this,
+                                       "MakePerigee",
+                                       true,
+                                       "Make Perigee" };
+
+  Gaudi::Property<bool> m_refitOnMeasurementBase{ this,
+                                                  "RefitOnMeasurementBase",
+                                                  true,
+                                                  "Refit On Measurement Base" };
+
+  Gaudi::Property<bool> m_doHitSorting{ this,
+                                        "DoHitSorting",
+                                        true,
+                                        "Do Hit Sorting" };
+
   PropDirection m_directionToPerigee;
-  std::unique_ptr<TrkParametersComparisonFunction> m_trkParametersComparisonFunction;
+  std::unique_ptr<TrkParametersComparisonFunction>
+    m_trkParametersComparisonFunction;
   std::unique_ptr<TrackFitInputPreparator> m_inputPreparator;
   std::vector<double> m_sortingReferencePoint;
-  ServiceHandle<IChronoStatSvc> m_chronoSvc;
 
   // Number of Fit PrepRawData Calls
-  mutable std::atomic<int> m_FitPRD;   
+  mutable std::atomic<int> m_FitPRD;
   // Number of Fit MeasurementBase Calls
   mutable std::atomic<int> m_FitMeasurementBase;
   // Number of Foward Fit Failures
@@ -183,8 +190,6 @@ private:
   mutable std::atomic<int> m_fitQualityFailure;
   // Number of Tracks that are successfull
   mutable std::atomic<int> m_fitSuccess;
-
-
 };
 
 } // end Trk namespace

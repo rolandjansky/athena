@@ -53,6 +53,10 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                             FillTrackInJetPlots = True)
          from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
          addTruthJetsIfNotExising(jets_name)
+         if InDetPhysValFlags.doValidateTracksInBJets():
+            kwargs=setDefaults(kwargs,
+                              FillTrackInBJetPlots = True)
+
       else :
          kwargs=setDefaults(kwargs,
                             JetContainerName    ='' ,
@@ -89,7 +93,8 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          TruthSelectionTool         = '',
                          # the jet container is actually meant to be a truth jet container
                          JetContainerName           ='',
-                         FillTrackInJetPlots        = False)
+                         FillTrackInJetPlots        = False,
+                         FillTrackInBJetPlots       = False)
 
    # Control the number of output histograms
    if InDetPhysValFlags.doPhysValOutput() :

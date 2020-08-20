@@ -61,6 +61,13 @@
 #include "xAODTrigger/versions/EnergySumRoI_v2.h"
 #include "xAODTrigger/versions/EnergySumRoIAuxInfo_v2.h"
 
+#include "xAODTrigger/eFexEMRoI.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIAuxContainer.h"
+#include "xAODTrigger/versions/eFexEMRoI_v1.h"
+#include "xAODTrigger/versions/eFexEMRoIContainer_v1.h"
+#include "xAODTrigger/versions/eFexEMRoIAuxContainer_v1.h"
+
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigDecisionAuxInfo.h"
 #include "xAODTrigger/versions/TrigDecision_v1.h"
@@ -120,6 +127,8 @@ namespace {
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JetRoIContainer_v2 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, EmTauRoIContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, EmTauRoIContainer_v2 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexEMRoIContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigCompositeContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigPassBitsContainer_v1 );

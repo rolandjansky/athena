@@ -4,6 +4,7 @@
 
 #include "JetRec/JetCopier.h"
 
+#include "AsgDataHandles/ReadHandle.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODBase/IParticleHelpers.h"

@@ -77,7 +77,7 @@ def createSimConfigFlags():
 
     # For ISF
     scf.addFlag("Sim.ISFRun",False)
-    scf.addFlag("Sim.ISF.HITSMergingRequired", True)
+    scf.addFlag("Sim.ISF.HITSMergingRequired", {'ID':True, 'CALO':True, 'MUON':True})
     scf.addFlag("Sim.ISF.Simulator", "ATLFASTII")
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring

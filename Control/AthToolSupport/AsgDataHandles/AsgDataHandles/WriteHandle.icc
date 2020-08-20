@@ -1,0 +1,988 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file AsgDataHandles/WriteHandle.icc
+ * @author Nils Krumnack <Nils.Erik.Krumnack@cern.h>
+ * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov> (for original version)
+ * @brief Handle class for recording to StoreGate.
+ */
+
+#include "xAODRootAccess/TActiveStore.h"
+#include "xAODRootAccess/TStore.h"
+#include <stdexcept>
+
+
+namespace SG {
+
+
+//************************************************************************
+// Constructors, etc.
+//
+
+
+// /**
+//  * @brief Default constructor.
+//  *
+//  * The handle will not be usable until a non-blank key is assigned.
+//  */
+// template <class T>
+// inline
+// WriteHandle<T>::WriteHandle()
+//   : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Writer)
+// {
+// }
+
+
+// /**
+//  * @brief Constructor with full arguments.
+//  * @param sgkey StoreGate key of the referenced object.
+//  * @param storename Name of the referenced event store.
+//  */
+// template <class T>
+// inline
+// WriteHandle<T>::WriteHandle (const std::string& sgkey,
+//                              const std::string& storename /* ="StoreGateSvc"*/)
+//   : VarHandleBase (ClassID_traits<T>::ID(), sgkey,
+//                    Gaudi::DataHandle::Writer, storename)
+// {
+// }
+
+
+/**
+ * @brief Constructor from a WriteHandleKey.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle (const WriteHandleKey<T>& key)
+  : VarHandleBase (key, nullptr)
+{
+}
+
+
+/**
+ * @brief Constructor from a WriteHandleKey and an explicit event context.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle (const WriteHandleKey<T>& key,
+                             const EventContext& ctx)
+  : VarHandleBase (key, &ctx)
+{
+}
+
+
+/**
+ * @brief Copy constructor.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle(const WriteHandle& h)
+  : VarHandleBase(h)
+{
+}
+
+
+/**
+ * @brief Move constructor.
+ */
+template <class T> 
+WriteHandle<T>::WriteHandle(WriteHandle&& h)
+  : VarHandleBase(std::move(h))
+{
+  // m_lockAuxPending = h.m_lockAuxPending;
+  // h.m_lockAuxPending = nullptr;
+}
+
+
+/**
+ * @brief Assignment operator.
+ */
+template <class T>
+inline
+WriteHandle<T>& 
+WriteHandle<T>::operator= (const WriteHandle& h)
+{
+  if (this != &h)
+    this->VarHandleBase::operator=(h);
+  return *this;
+}
+
+
+/**
+ * @brief Move operator.
+ */
+template <class T>
+inline
+WriteHandle<T>& 
+WriteHandle<T>::operator= (WriteHandle&& h)
+{
+  if (this != &h) {
+    this->VarHandleBase::operator=(std::move(h));
+    // m_lockAuxPending = h.m_lockAuxPending;
+    // h.m_lockAuxPending = nullptr;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * Lock an aux object if m_lockAuxPending is true.
+ */
+template <class T>
+WriteHandle<T>::~WriteHandle()
+{
+  // if (m_lockAuxPending) {
+  //   m_lockAuxPending->setConst();
+  // }
+}
+
+
+//************************************************************************
+// Deference.  These all return only the cached pointer.
+//
+
+
+// /**
+//  * @brief Dereference the pointer.
+//  * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::pointer_type
+// WriteHandle<T>::operator->()
+// {
+//   return WriteHandle<T>::checkedCachedPtr();
+// }
+
+
+/**
+ * @brief Dereference the pointer.
+ * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::reference_type
+WriteHandle<T>::operator*()
+{
+  if (m_ptr == nullptr)
+    throw std::runtime_error ("dereferenced handle is null: " + key());
+  return *m_ptr;
+}
+
+
+// /**
+//  * @brief Dereference the pointer.
+//  * Returns the cached pointer.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::cptr() const
+// {
+//   return reinterpret_cast<pointer_type>(this->m_ptr);
+// }
+
+
+// /**
+//  * @brief Dereference the pointer.
+//  * Returns the cached pointer.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::pointer_type
+// WriteHandle<T>::ptr()
+// {
+//   return cachedPtr();
+// }
+
+
+// /**
+//  * @brief Return the cached pointer directly; no lookup.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::pointer_type
+// WriteHandle<T>::cachedPtr()
+// {
+//   return reinterpret_cast<pointer_type>(this->m_ptr);
+// }
+
+
+/**
+ * @brief Can the handle be successfully dereferenced?
+ */
+template <class T>
+inline
+bool WriteHandle<T>::isValid()
+{
+  return this->m_ptr != nullptr;
+}
+
+
+//************************************************************************
+// Record.
+
+
+/**
+ * @brief Record a const object to the store.
+ * @param data The object to record.
+ */
+template <class T>
+inline
+StatusCode
+WriteHandle<T>::WriteHandle::record (std::unique_ptr<T> data)
+{
+  m_ptr = data.get();
+  if (xAOD::TActiveStore::store()->record (std::move (data), key()).isFailure())
+    return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
+}
+
+
+// /**
+//  * @brief Record a non-const object to the store.
+//  * @param data The object to record.
+//  * @param isConst If true, record the object as const.
+//  */
+// template <class T>
+// inline
+// StatusCode
+// WriteHandle<T>::WriteHandle::recordNonConst (std::unique_ptr<T> data)
+// {
+//   return this->doRecord (std::move(data), false, false);
+// }
+
+
+/**
+ * @brief Record a const object and its auxiliary store to the store.
+ * @param data The object to record.
+ * @param auxstore Auxiliary store object.
+ */
+template <class T>
+template <class AUXSTORE>
+inline
+StatusCode
+WriteHandle<T>::WriteHandle::record (std::unique_ptr<T> data,
+                                     std::unique_ptr<AUXSTORE> auxstore)
+{
+  m_ptr = data.get();
+  if (xAOD::TActiveStore::store()->record (std::move (auxstore), key() + "Aux.").isFailure())
+    return StatusCode::FAILURE;
+  if (xAOD::TActiveStore::store()->record (std::move (data), key()).isFailure())
+    return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
+}
+
+
+// /**
+//  * @brief Record a non-const object and its auxiliary store to the store.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// inline
+// StatusCode
+// WriteHandle<T>::WriteHandle::recordNonConst (std::unique_ptr<T> data,
+//                                              std::unique_ptr<AUXSTORE> auxstore)
+// {
+//   return record (std::move(data), std::move(auxstore), false);
+// }
+
+
+// /**
+//  * @brief Record a const shared DataObject to the store.
+//  * @param data The object to record.
+//  *
+//  * The event store takes shared ownership of the object.
+//  */
+// template <class T>
+// inline
+// StatusCode
+// WriteHandle<T>::record (SG::DataObjectSharedPtr<T> data)
+// {
+//   return this->doRecord (std::move(data), true, false);
+// }
+
+
+// /**
+//  * @brief Record a non-const shared DataObject to the store.
+//  * @param data The object to record.
+//  *
+//  * The event store takes shared ownership of the object.
+//  */
+// template <class T>
+// inline
+// StatusCode
+// WriteHandle<T>::recordNonConst (SG::DataObjectSharedPtr<T> data)
+// {
+//   return this->doRecord (std::move(data), false, false);
+// }
+
+
+/**
+ * @brief Record an object to the store.
+ * @param data The object to record.
+ * @param returnExisting Allow an existing object?
+ *
+ * Unlike record(), this does not change the handle object.
+ * That means that one will not be able to get the object back
+ * by dereferencing the handle.
+ * Returns the object placed in the store, or nullptr if there
+ * was an error.
+ * If there was already an object in the store with the given key,
+ * then return null, unless @c returnExisting is true, in which case
+ * return success.  In either case, @c data is destroyed.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::const_pointer_type
+WriteHandle<T>::put (std::unique_ptr<T> data/*,
+                     bool returnExisting / *= false*/) const
+{
+  const_pointer_type result = data.get();
+  if (xAOD::TActiveStore::store()->record (std::move (data), key()).isFailure())
+    throw std::runtime_error ("failed to record object: " + key());
+  return result;
+}
+
+
+// /**
+//  * @brief Record an object to the store.
+//  * @param data The object to record.
+//  * @param returnExisting Allow an existing object?
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, unless @c returnExisting is true, in which case
+//  * return success.  In either case, @c data is destroyed.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (std::unique_ptr<const T> data,
+//                      bool returnExisting /*= false*/) const
+// {
+//   IProxyDict* store = nullptr;
+//   return doPut (nullptr, std::move(data), returnExisting, store);
+// }
+
+
+// /**
+//  * @brief Record an object to the store.
+//  * @param data The object to record.
+//  * @param returnExisting Allow an existing object?
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, unless @c returnExisting is true, in which case
+//  * return success.  In either case, @c data is destroyed.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (std::unique_ptr<const ConstDataVector<T> > data,
+//                      bool returnExisting /*= false*/) const
+// {
+//   IProxyDict* store = nullptr;
+//   std::unique_ptr<const T> coll (data.release()->asDataVector());
+//   return doPut (nullptr, std::move(coll), returnExisting, store);
+// }
+
+
+// /**
+//  * @brief Record an object to the store.
+//  * @param ctx The event context to use.
+//  * @param data The object to record.
+//  * @param returnExisting Allow an existing object?
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, unless @c returnExisting is true, in which case
+//  * return success.  In either case, @c data is destroyed.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (const EventContext& ctx,
+//                      std::unique_ptr<const ConstDataVector<T> > data,
+//                      bool returnExisting /*= false*/) const
+// {
+//   IProxyDict* store = nullptr;
+//   std::unique_ptr<const T> coll (data.release()->asDataVector());
+//   return doPut (&ctx, std::move(coll), returnExisting, store);
+// }
+
+
+// /**
+//  * @brief Record an object to the store.
+//  * @param ctx The event context to use.
+//  * @param data The object to record.
+//  * @param returnExisting Allow an existing object?
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, unless @c returnExisting is true, in which case
+//  * return success.  In either case, @c data is destroyed.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (const EventContext& ctx,
+//                      std::unique_ptr<T> data,
+//                      bool returnExisting /*= false*/) const
+// {
+//   IProxyDict* store = nullptr;
+//   return doPut (&ctx, std::move(data), returnExisting, store);
+// }
+
+
+// /**
+//  * @brief Record an object to the store.
+//  * @param ctx The event context to use.
+//  * @param data The object to record.
+//  * @param returnExisting Allow an existing object?
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, unless @c returnExisting is true, in which case
+//  * return success.  In either case, @c data is destroyed.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (const EventContext& ctx,
+//                      std::unique_ptr<const T> data,
+//                      bool returnExisting /*= false*/) const
+// {
+//   IProxyDict* store = nullptr;
+//   return doPut (&ctx, std::move(data), returnExisting, store);
+// }
+
+
+// /**
+//  * @brief Record an object to the store.
+//  * @param data The object to record.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  *
+//  * The event store takes shared ownership of the object.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (SG::DataObjectSharedPtr<T> data) const
+// {
+//   IProxyDict* store = nullptr;
+//   return doPut (nullptr, std::move(data), false, store);
+// }
+
+
+// /**
+//  * @brief Record an object to the store.
+//  * @param ctx The event context to use.
+//  * @param data The object to record.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  *
+//  * The event store takes shared ownership of the object.
+//  */
+// template <class T>
+// inline
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (const EventContext& ctx,
+//                      SG::DataObjectSharedPtr<T> data) const
+// {
+//   IProxyDict* store = nullptr;
+//   return doPut (&ctx, std::move(data), false, store);
+// }
+
+
+// /**
+//  * @brief Record an object and its auxiliary store to the store.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, and the objects passed in are destroyed.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (std::unique_ptr<T> data,
+//                      std::unique_ptr<AUXSTORE> auxstore) const
+// {
+//   return doPut (nullptr, std::move(data), std::move(auxstore));
+// }
+
+
+
+// /**
+//  * @brief Record an object and its auxiliary store to the store.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, and the objects passed in are destroyed.
+//  *
+//  * Unlike the version taking unique_ptr<T>, this does not alter the
+//  * store pointer of @c data.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (std::unique_ptr<const T> data,
+//                      std::unique_ptr<const AUXSTORE> auxstore) const
+// {
+//   return doPut (nullptr, std::move(data), std::move(auxstore));
+// }
+
+
+// /**
+//  * @brief Record an object and its auxiliary store to the store.
+//  * @param ctx The event context to use.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, and the objects passed in are destroyed.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (const EventContext& ctx,
+//                      std::unique_ptr<T> data,
+//                      std::unique_ptr<AUXSTORE> auxstore) const
+// {
+//   return doPut (&ctx, std::move(data), std::move(auxstore));
+// }
+
+
+// /**
+//  * @brief Record an object and its auxiliary store to the store.
+//  * @param ctx The event context to use.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that one will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, and the objects passed in are destroyed.
+//  *
+//  * Unlike the version taking unique_ptr<T>, this does not alter the
+//  * store pointer of @c data.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::put (const EventContext& ctx,
+//                      std::unique_ptr<const T> data,
+//                      std::unique_ptr<const AUXSTORE> auxstore) const
+// {
+//   return doPut (&ctx, std::move(data), std::move(auxstore));
+// }
+
+
+/**
+ * @brief Alternate notation for record.  Records a non-const object.
+ * @param data Object to record.
+ *
+ * Throws an exception on failure.
+ */
+template <class T>
+WriteHandle<T>& 
+WriteHandle<T>::operator= (std::unique_ptr<T> data)
+{
+  if (recordNonConst (std::move(data)).isFailure()) {
+    throw std::runtime_error ("WriteHandle<T>::operator=(unique_ptr) Record failed.");
+  }
+  return *this;
+}
+
+
+// /**
+//  * @brief Make an alias.
+//  * @param key Alternate key by which the referenced object should be known.
+//  *
+//  * The current handle should be valid and referencing an object
+//  * (i.e., @c record should have been called on it).
+//  *
+//  * The object will also be known by the name given in @c key.
+//  */
+// template <class T>
+// StatusCode WriteHandle<T>::alias (const WriteHandleKey<T>& key)
+// {
+//   return symLink_impl (this->clid(), key.key());
+// }
+
+
+// /**
+//  * @brief Make an explicit link.
+//  * @param key Alternate clid by which the referenced object
+//  *            should be known.  The SG key must match the key of the
+//  *            current handle.
+//  *
+//  * You should generally not be using this!
+//  *
+//  * The current handle should be valid and referencing an object
+//  * (i.e., @c record should have been called on it).
+//  *
+//  * This makes a symlink: the object will be retrievable
+//  * as a different type.
+//  * 
+//  * Note that if @c T and @c @U are related via @c SG_BASE and/or
+//  * @c DATAVECTOR_BASE, then you shouldn't need to explicitly make a symlink;
+//  * that should happen automatically.
+//  *
+//  * If a @c U* is not convertable to a @c T* via C++ rules, then you likely
+//  * will be, at best, relying on undefined behavior.  You will probably
+//  * get warnings from the undefined behavior sanitizer when if you try
+//  * to dereference the @c U*.
+//  *
+//  * This usage is here mainly to assist in migrating some existing
+//  * patterns to MT.  You should think several times before using
+//  * in new code.
+//  */
+// template <class T>
+// template <class U>
+// StatusCode WriteHandle<T>::symLink (const WriteHandleKey<U>& other)
+// {
+//   if (this->key() != other.key()) {
+//     REPORT_ERROR (StatusCode::FAILURE)
+//       << "symLink: SG keys do not match: " << other.key() << " vs "
+//       << this->key();
+//     return StatusCode::FAILURE;
+//   }
+//   return symLink_impl (other.clid(), other.key());
+// }
+
+
+// /**
+//  * @brief Return the cached pointer directly.
+//  *
+//  * If it is null, throw ExcNullWriteHandle.
+//  */
+// template <class T>
+// typename WriteHandle<T>::pointer_type
+// WriteHandle<T>::checkedCachedPtr()
+// {
+//   if (!m_ptr)
+//     throwExcNullWriteHandle (clid(), key(), store());
+//   return cachedPtr();
+// }
+
+
+// /**
+//  * @brief Helper for record.
+//  * @param data The object to record.
+//  * @param isConst If true, record the object as const.
+//  * @param returnExisting Allow an existing object.
+//  */
+// template <class T>
+// template <class U>
+// StatusCode WriteHandle<T>::doRecord (U data,
+//                                      bool isConst,
+//                                      bool returnExisting)
+// {
+//   typedef typename U::element_type elt_t;
+  
+//   // make sure the BaseInfo(Base) structure is initialized
+//   SG::BaseInfo<elt_t>::baseinfo();
+
+//   // If s_isConst is set for this type, then we want to automatically
+//   // make it const when recorded.
+//   bool allowMods = !isConst;
+//   if (ClassID_traits<elt_t>::s_isConst)
+//     allowMods = false;
+
+//   void* dataPtr(data.get());
+//   std::unique_ptr<DataObject> dobj (SG::asStorable (std::move (data)));
+//   return this->record_impl (std::move(dobj), dataPtr, allowMods, returnExisting);
+// }
+
+
+// /**
+//  * @brief Helper for put.
+//  * @param ctx The event context, or nullptr to use the current context.
+//  * @param data The object to record.
+//  * @param returnExisting Allow an existing object.
+//  * @param[out] store The store being used.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, unless @c returnExisting is true, in which case
+//  * return success.  In either case, @c data is destroyed.
+//  */
+// template <class T>
+// template <class U>
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::doPut (const EventContext* ctx,
+//                        U data,
+//                        bool returnExisting,
+//                        IProxyDict* & store) const
+// {
+//   //typedef typename U::element_type elt_t;
+//   typedef T elt_t;
+  
+//   // make sure the BaseInfo(Base) structure is initialized
+//   SG::BaseInfo<elt_t>::baseinfo();
+
+//   const void* dataPtr = data.get();
+//   std::unique_ptr<DataObject> dobj (SG::asStorable (std::move (data)));
+//   return reinterpret_cast<const T*>
+//     (this->put_impl (ctx, std::move(dobj), dataPtr, false, returnExisting, store));
+// }
+
+
+// /**
+//  * @brief Helper for recording an object and its auxiliary store to the store.
+//  * @param ctx The event context, or nullptr to use the current context.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, and the objects passed in are destroyed.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::doPut (const EventContext* ctx,
+//                        std::unique_ptr<T> data,
+//                        std::unique_ptr<AUXSTORE> auxstore) const
+// {
+//   T& dref = *data;
+
+//   // If there's no store association, do it now.
+//   if (data->getStore() == nullptr)
+//     data->setStore (auxstore.get());
+
+//   IProxyDict* store = nullptr;
+//   const T* ptr = this->doPut (ctx, std::move(data), false, store);
+//   if (!ptr) return nullptr;
+
+//   SG::DataObjectSharedPtr<DataObject> dobj
+//     (SG::asStorable (std::move (auxstore)));
+//   SG::DataProxy* proxy = store->recordObject (std::move(dobj),
+//                                               this->name() + "Aux.",
+//                                               false,
+//                                               false);
+//   if (!proxy) {
+//     REPORT_ERROR (StatusCode::FAILURE)
+//       << "recordObject of aux store failed";
+
+//     // If we've failed here, then the aux store object has been deleted,
+//     // but not the primary object.  Null out the store pointer to prevent
+//     // having a dangling pointer to a deleted object.
+//     dref.setStore (static_cast<SG::IConstAuxStore*>(nullptr));
+//     return nullptr;
+//   }
+
+//   return ptr;
+// }
+
+
+// /**
+//  * @brief Helper for recording an object and its auxiliary store to the store.
+//  * @param ctx The event context, or nullptr to use the current context.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  *
+//  * Unlike record(), this does not change the handle object.
+//  * That means that will not be able to get the object back
+//  * by dereferencing the handle.
+//  * Returns the object placed in the store, or nullptr if there
+//  * was an error.
+//  * If there was already an object in the store with the given key,
+//  * then return null, and the objects passed in are destroyed.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// typename WriteHandle<T>::const_pointer_type
+// WriteHandle<T>::doPut (const EventContext* ctx,
+//                        std::unique_ptr<const T> data,
+//                        std::unique_ptr<const AUXSTORE> auxstore) const
+// {
+//   IProxyDict* store = nullptr;
+//   const T* ptr = this->doPut (ctx, std::move(data), false, store);
+//   if (!ptr) return nullptr;
+
+//   SG::DataObjectSharedPtr<DataObject> dobj
+//     (SG::asStorable (std::move (auxstore)));
+//   SG::DataProxy* proxy = store->recordObject (std::move(dobj),
+//                                               this->name() + "Aux.",
+//                                               false,
+//                                               false);
+//   if (!proxy) {
+//     REPORT_ERROR (StatusCode::FAILURE)
+//       << "recordObject of aux store failed";
+//     return nullptr;
+//   }
+
+//   return ptr;
+// }
+
+
+// /**
+//  * @brief Record an object and its auxiliary store to the store.
+//  * @param data The object to record.
+//  * @param auxstore Auxiliary store object.
+//  * @param isConst If true, record the objects as const.
+//  */
+// template <class T>
+// template <class AUXSTORE>
+// StatusCode
+// WriteHandle<T>::record (std::unique_ptr<T> data,
+//                         std::unique_ptr<AUXSTORE> auxstore,
+//                         bool isConst)
+// {
+//   T& dref = *data;
+
+//   // If there's no store association, do it now.
+//   if (data->getStore() == nullptr)
+//     data->setStore (auxstore.get());
+
+//   if (isConst) {
+//     // Temporarily clear the store association, in order to prevent
+//     // the aux store from being locked at this point.
+//     IAuxStore* store = dref.getStore();
+//     if (store)
+//       dref.setStore (static_cast<SG::IAuxStore*>(nullptr));
+//     CHECK (this->record(std::move(data)));
+//     // Deliberately not using RAII here.  If there is an error,
+//     // then the object referenced by data will be deleted.
+//     dref.setStore (store);
+//   }
+//   else
+//     CHECK (this->recordNonConst(std::move(data)));
+
+//   // Store and proxy must be valid if we get to this point.
+  
+//   SG::DataObjectSharedPtr<DataObject> dobj
+//     (SG::asStorable (std::move (auxstore)));
+//   SG::DataProxy* proxy = m_store->recordObject (std::move(dobj),
+//                                                 this->name() + "Aux.",
+//                                                 true,
+//                                                 false);
+//   if (!proxy) {
+//     REPORT_ERROR (StatusCode::FAILURE)
+//       << "recordObject of aux store failed";
+
+//     // If we've failed here, then the aux store object has been deleted,
+//     // but not the primary object.  Null out the store pointer to prevent
+//     // having a dangling pointer to a deleted object.
+//     dref.setStore (static_cast<SG::IConstAuxStore*>(nullptr));
+//     return StatusCode::FAILURE;
+//   }
+
+//   if (m_proxy->isConst())
+//     m_lockAuxPending = proxy;
+
+//   return StatusCode::SUCCESS;
+// }
+
+
+/**
+ * @brief Return a @c WriteHandle referencing @c key.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+WriteHandle<T> makeHandle (const WriteHandleKey<T>& key)
+{
+  return WriteHandle<T> (key);
+}
+
+
+/**
+ * @brief Return a @c WriteHandle referencing @c key for an explicit context.
+ * @param key The key object holding the clid/key/store.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+WriteHandle<T> makeHandle (const WriteHandleKey<T>& key,
+                           const EventContext& ctx)
+{
+  return WriteHandle<T> (key, ctx);
+}
+
+
+} /* namespace SG */

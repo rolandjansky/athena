@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 
+from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
@@ -47,9 +48,8 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # Tell tool to pick it up
          outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
-         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
-         EventInfoTagBuilder = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter,
-                                                   Tool=EventInfoAttListTool())
+         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder         
+         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
          from AthenaCommon.GlobalFlags  import globalflags
          if globalflags.InputFormat() == 'bytestream':
             #No event-tag input in bytestream

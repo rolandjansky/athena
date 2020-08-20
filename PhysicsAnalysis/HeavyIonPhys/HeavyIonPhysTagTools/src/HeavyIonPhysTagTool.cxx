@@ -13,7 +13,7 @@ Purpose : create a HeavyIonPhysTag - a word to encode ExoticPhys specific inform
 *****************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "HeavyIonPhysTagTools/HeavyIonPhysTagTool.h"

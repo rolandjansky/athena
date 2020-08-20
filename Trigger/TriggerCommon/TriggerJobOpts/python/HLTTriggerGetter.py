@@ -4,7 +4,6 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging  # loads logger
 from PerfMonComps.PerfMonFlags import jobproperties
 from AthenaCommon.Include import include
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 
 from RecExConfig.Configured import Configured
 
@@ -145,6 +144,7 @@ class HLTSimulationGetter(Configured):
 
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr
+        from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
         ServiceMgr += RegSelSvcDefault()
 
         # Configure the Data Preparation for Calo

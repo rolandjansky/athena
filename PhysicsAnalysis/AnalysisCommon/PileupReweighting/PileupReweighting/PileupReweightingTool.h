@@ -126,7 +126,7 @@ namespace CP {
       CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
 #ifndef XAOD_STANDALONE
-      void updateHandler(Property& /*p*/);
+     void updateHandler(Gaudi::Details::PropertyBase& /*p*/);
 #endif
 
    protected:

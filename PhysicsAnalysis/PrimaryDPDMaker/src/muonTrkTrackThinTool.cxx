@@ -13,7 +13,7 @@
 #include <iostream>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 // StoreGate
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ThinningHandle.h"

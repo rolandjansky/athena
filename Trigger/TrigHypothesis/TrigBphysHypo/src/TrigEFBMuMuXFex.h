@@ -202,9 +202,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     float m_bCD0VtxChi2Cut;
     int m_maxBcD0ToStore;
     
-    // FTK Flag
-    bool m_FTK;
-
     // Monitoring variables and containers
     //   General
     std::vector<int>   m_mon_Errors;
@@ -379,10 +376,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
 
-
-    // TrigEFBphysContainer* m_trigBphysColl_b;
-    // TrigEFBphysContainer* m_trigBphysColl_X;
-
     xAOD::TrigBphysContainer * m_TrigBphysColl_b;
     xAOD::TrigBphysContainer * m_TrigBphysColl_X;
     
@@ -493,7 +486,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedBcD0Lxy;
     int m_countBcD0ToStore;
     
-    void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
     void addUnique(std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticle*);
     void addUnique(std::vector<ElementLink<xAOD::TrackParticleContainer> >&, const ElementLink<xAOD::TrackParticleContainer>&);
 //   double invariantMass(const TrigMuonEF* , const TrigMuonEF* );

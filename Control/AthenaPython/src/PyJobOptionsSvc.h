@@ -22,7 +22,7 @@
 // GaudiKernel
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/PropertyHolder.h"
 //#include "GaudiKernel/PropertyMgr.h"
 
@@ -83,7 +83,7 @@ class ATLAS_NOT_THREAD_SAFE PyJobOptionsSvc
   /// Add a property into the JobOptions catalog
   virtual 
   StatusCode addPropertyToCatalogue (const std::string& client, 
-				     const Property& property ) override;
+				     const Gaudi::Details::PropertyBase& property ) override;
   /// Remove a property from the JobOptions catalog
   virtual 
   StatusCode removePropertyFromCatalogue (const std::string& client, 
@@ -91,7 +91,7 @@ class ATLAS_NOT_THREAD_SAFE PyJobOptionsSvc
 
   /// Get the properties associated to a given client
   virtual 
-  //  const std::vector<const Property*>* 
+  //  const std::vector<const Gaudi::Details::PropertyBase*>* 
   const std::vector<const Gaudi::Details::PropertyBase*>* 
   getProperties (const std::string& client) const override;
 
@@ -117,7 +117,7 @@ class ATLAS_NOT_THREAD_SAFE PyJobOptionsSvc
   ///@}
 
   /// IProperty implementation (needed for initialisation)
-  // StatusCode setProperty(const Property& p);
+  // StatusCode setProperty(const Gaudi::Details::PropertyBase& p);
   // StatusCode getProperty(Property *p) const;
 
  private: 

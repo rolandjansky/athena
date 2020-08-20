@@ -6,7 +6,7 @@
 #define ATHEXMONITORED_MONITOREDALG_H 1
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 

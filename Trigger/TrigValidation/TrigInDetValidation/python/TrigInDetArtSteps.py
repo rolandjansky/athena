@@ -70,7 +70,7 @@ class TrigInDetReco(ExecStep):
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
                 chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20',"
-                flags += 'doBjetSlice=true;'
+                flags += 'doBjetSlice=True;'
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
@@ -120,6 +120,9 @@ class TrigInDetdictStep(Step):
         super(TrigInDetdictStep, self).configure(test)
 
 
+
+
+
 class TrigInDetCompStep(RefComparisonStep):
     '''
     Execute TIDAcomparitor for data.root files.
@@ -127,21 +130,70 @@ class TrigInDetCompStep(RefComparisonStep):
     def __init__(self, name='TrigInDetComp'):
         super(TrigInDetCompStep, self).__init__(name)
         self.input_file = 'data-hists.root'
-#        self.ref_file = 'data-hists.root'   #### need to add reference file here 
         self.output_dir = 'HLT-plots'
         self.chains = ' '
         self.args = ''
+        self.test = ' '
         self.auto_report_result = True
         self.required = True
         self.executable = 'TIDAcomparitor'
     
     def configure(self, test):
+        if (self.flag == 'L2muon'):
+            self.chains = 'HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF'
+            self.output_dir = 'HLTL2-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-muon'
+        elif (self.flag == 'EFmuon'):
+            self.chains='HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig'
+            self.output_dir = 'HLTEF-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-muon'
+        elif (self.flag == 'L2bjet'):
+            self.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF'
+            self.output_dir = 'HLTL2-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-bjet'
+        elif (self.flag == 'EFbjet'):
+            self.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
+            self.output_dir = 'HLTEF-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-bjet'
+        elif (self.flag == 'L2tau'):
+            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore'
+            self.output_dir = 'HLTL2-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-tau'
+        elif (self.flag == 'EFtau'):
+            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_TAURoI'
+            self.output_dir = 'HLTEF-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-tau'
+        elif (self.flag == 'L2ele'):
+            self.chains = 'HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF'
+            self.output_dir = 'HLTL2-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-electron'
+        elif (self.flag == 'EFele'):
+            self.chains = 'HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
+            self.output_dir = 'HLTEF-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-electron'
+        elif (self.flag == 'L2FS'):
+            self.chains = 'HLT_IDTrack_FS_FTF'
+            self.output_dir = 'HLTL2-plots'
+            if (self.test=='ttbar'):
+                self.output_dir = self.output_dir+'-FS'
+        else:
+            print('Unknown flag for comparitor step ', self.flag) 
+
         if (self.reference == None):
             # if no referenc found, use input file as reference
             self.args += self.input_file+' '+self.input_file+' '+self.chains+' -d '+self.output_dir
         else:
             self.args += self.input_file+' '+self.ref_file+' '+self.chains+' -d '+self.output_dir
         super(TrigInDetCompStep, self).configure(test)
+
 
 
 class TrigInDetCpuCostStep(RefComparisonStep):

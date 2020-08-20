@@ -31,7 +31,7 @@
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ListItem.h"
 
 egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type,

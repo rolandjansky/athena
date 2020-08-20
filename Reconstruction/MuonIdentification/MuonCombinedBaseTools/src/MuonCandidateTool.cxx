@@ -69,7 +69,7 @@ namespace MuonCombined {
       ATH_MSG_VERBOSE("Re-Fitting track " << std::endl << m_printer->print(msTrack) << std::endl << m_printer->printStations(msTrack));
       Trk::Track* standaloneTrack = 0;
       const Trk::Vertex* vertex = 0;
-      if( m_extrapolationStrategy == 0 ) {
+      if( m_extrapolationStrategy == 0u ) {
         standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
       } else {
          standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);

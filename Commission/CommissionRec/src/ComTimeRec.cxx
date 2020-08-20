@@ -6,7 +6,7 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "CommissionEvent/ComTime.h"
 

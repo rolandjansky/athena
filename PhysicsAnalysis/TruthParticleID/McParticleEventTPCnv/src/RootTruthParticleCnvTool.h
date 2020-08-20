@@ -8,7 +8,7 @@
 #define MCPARTICLEEVENTTPCNV_ROOTTRUTHPARTICLECNVTOOL_H
 
 #include "McParticleKernel/ITruthParticleCnvTool.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class RootTruthParticleCnvTool
   : public ITruthParticleCnvTool
@@ -56,10 +56,10 @@ public:
   virtual StatusCode setProperty( const std::string& name, const Gaudi::Details::PropertyBase& p );
   virtual StatusCode setPropertyRepr( const std::string& n, const std::string& r );
 
-  virtual StatusCode getProperty( Property* p ) const;
-  virtual const Property& getProperty( const std::string& name ) const;
+  virtual StatusCode getProperty( Gaudi::Details::PropertyBase* p ) const;
+  virtual const Gaudi::Details::PropertyBase& getProperty( const std::string& name ) const;
   virtual StatusCode getProperty( const std::string& n, std::string& v ) const;
-  virtual const std::vector<Property*>& getProperties( ) const;
+  virtual const std::vector<Gaudi::Details::PropertyBase*>& getProperties( ) const;
   virtual bool hasProperty(const std::string& name) const;
   /// @}
 

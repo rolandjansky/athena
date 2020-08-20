@@ -59,16 +59,16 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'AddVarTo' property
-  void setupInputContainer( Property& /*prop*/ );
+  void setupInputContainer( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'VarName' property
-  void setupVarName( Property& /*prop*/ );
+  void setupVarName( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'VarType' property
-  void setupVarType( Property& /*prop*/ );
+  void setupVarType( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'Selection' property
-  void setupSelection( Property& /*prop*/ );
+  void setupSelection( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
 
@@ -127,25 +127,25 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 /// This internal method will realize if a user sets the 'AddVarTo' property
-inline void AddVarAlg::setupInputContainer( Property& /*prop*/ ) {
+inline void AddVarAlg::setupInputContainer( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'VarName' property
-inline void AddVarAlg::setupVarName( Property& /*prop*/ ) {
+inline void AddVarAlg::setupVarName( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setVarName = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'VarType' property
-inline void AddVarAlg::setupVarType( Property& /*prop*/ ) {
+inline void AddVarAlg::setupVarType( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setVarType = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'Selection' property
-inline void AddVarAlg::setupSelection( Property& /*prop*/ ) {
+inline void AddVarAlg::setupSelection( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setSelection = true;
   return;
 }

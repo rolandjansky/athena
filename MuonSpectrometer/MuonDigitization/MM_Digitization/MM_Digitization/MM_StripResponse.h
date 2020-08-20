@@ -40,6 +40,7 @@ class MM_StripResponse {
   std::vector<float> getTimeMaxChargeVec() const;
 
   int getNElectrons();
+  float getTotalCharge();
   std::vector<MM_Electron*> getElectrons();
 
  private:

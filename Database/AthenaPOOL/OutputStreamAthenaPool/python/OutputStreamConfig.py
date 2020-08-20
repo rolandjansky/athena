@@ -55,8 +55,8 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
       outputStream.WritingTool.AttributeListKey=key
       # build eventinfo attribute list
       EventInfoAttListTool, EventInfoTagBuilder=CompFactory.getComps("EventInfoAttListTool","EventInfoTagBuilder",)
-      tagBuilder = EventInfoTagBuilder(AttributeList=key,
-                                       Tool=EventInfoAttListTool())
+      result.addPublicTool(EventInfoAttListTool())
+      tagBuilder = EventInfoTagBuilder(AttributeList=key)
       result.addEventAlgo(tagBuilder)
 
    # For xAOD output

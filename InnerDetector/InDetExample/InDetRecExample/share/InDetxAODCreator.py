@@ -212,6 +212,11 @@ if InDetFlags.doPseudoTracking():
                               InDetKeys.xAODPseudoTrackParticleContainer(),
                               topSequence)
 
+
+if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+    if doCreation :
+        createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
+        
  
 if InDetFlags.doTrackSegmentsPixel() and InDetFlags.doParticleCreation():
     if doCreation :

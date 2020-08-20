@@ -50,7 +50,6 @@ public:
       - Configure the RIO_OnTrack creator */
   virtual StatusCode configureTools(
     const ToolHandle<Trk::IMultiStateExtrapolator>&,
-    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
     const ToolHandle<Trk::IRIO_OnTrackCreator>&) = 0;
 
   /** Forward GSF fit using PrepRawData */

@@ -19,7 +19,7 @@ PURPOSE:  Apply necessary finalising operation to CaloCellContainer
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ListItem.h"
 
 #include "StoreGate/StoreGateSvc.h"

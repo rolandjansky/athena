@@ -12,7 +12,7 @@ Purpose : create a StandardModelPhysTag - a word to encode StandardModelPhys spe
 
 *****************************************************************************/
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/GaudiException.h"
 

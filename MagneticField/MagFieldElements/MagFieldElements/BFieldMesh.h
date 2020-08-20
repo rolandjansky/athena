@@ -112,6 +112,7 @@ private:
   std::array<std::vector<int>,3> m_LUT;
   std::array<double,3> m_invUnit; // inverse unit size in the LUT
   int m_roff, m_zoff;
+
 };
 #include "MagFieldElements/BFieldMesh.icc"
 #endif

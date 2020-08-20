@@ -19,7 +19,7 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <fenv.h>
@@ -98,7 +98,7 @@ private:
   std::string m_feSetRounding;
   
   /// Property change handler.
-  void prophand (Property& prop);
+  void prophand (Gaudi::Details::PropertyBase& prop);
 };
 
 #endif // not ATHENASERVICES_FPECONTROLSVC_H

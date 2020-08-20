@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 /**

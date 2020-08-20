@@ -15,7 +15,6 @@ using CLHEP::HepVector;
 namespace Trk {
   GXFTrajectory::GXFTrajectory() {
     m_straightline = true;
-    m_fieldprop = nullptr;
     m_ndof = 0;
     m_nperpars = -1;
     m_nscatterers = 0;
@@ -234,18 +233,9 @@ namespace Trk {
     return true;
   }
 
-  void GXFTrajectory::addHoleState(const TrackParameters * par) {
-    GXFTrackState *state = new GXFTrackState(par);
-    m_states.push_back(state);
-  }
-
-  void GXFTrajectory::addMaterialState(GXFTrackState * state, int index, bool owntp) {
+  void GXFTrajectory::addMaterialState(GXFTrackState * state, int index) {
     const TrackParameters *par = state->trackParameters();
     GXFMaterialEffects *meff = state->materialEffects();
-
-    if (owntp) {
-      state->setTrackParameters(par);
-    }
     
     if (index == -1) {
       m_states.push_back(state);
@@ -521,7 +511,7 @@ namespace Trk {
     return m_nperpars + numberOfBrems() + 2 * numberOfScatterers();
   }
 
-  double GXFTrajectory::chi2() {
+  double GXFTrajectory::chi2() const {
     return m_chi2;
   }
 
@@ -537,7 +527,7 @@ namespace Trk {
     m_prevchi2 = chi2;
   }
 
-  int GXFTrajectory::nDOF() {
+  int GXFTrajectory::nDOF() const {
     return m_ndof;
   }
 
@@ -671,15 +661,8 @@ namespace Trk {
     GXFTrackState *firstmeasstate = nullptr;
     GXFTrackState *lastmeasstate = nullptr;
 
-    for (auto & hit : trackStates()) {
-      if (
-        hit->measurementType() == TrackState::Pseudo &&
-        hit->trackStateType() == TrackState::GeneralOutlier
-      ) {
-        continue;
-      }
-
-      if (hit->measurement(false) != nullptr) {
+    for (GXFTrackState * hit : trackStates()) {
+      if (hit->measurement() != nullptr) {
         if (firstmeasstate == nullptr) {
           firstmeasstate = hit;
         }
@@ -712,5 +695,15 @@ namespace Trk {
     }
 
     return false;
+  }
+
+  void GXFTrajectory::resetCovariances(void) {
+    for (GXFTrackState *hit : trackStates()) {
+      hit->setTrackCovariance(nullptr);
+    }
+  }
+
+  std::unique_ptr<const FitQuality> GXFTrajectory::quality(void) const {
+    return std::make_unique<const FitQuality>(chi2(), nDOF());
   }
 }

@@ -5,7 +5,7 @@
 // TrigEgammaTDToolTest.cxx 
 
 #include "TrigEgammaTDToolTest.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 using std::string;

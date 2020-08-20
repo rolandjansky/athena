@@ -17,9 +17,8 @@
 #include "TrigInterfaces/FexAlgo.h"
 #include <string>
 
-// edm classes
-#include "xAODBase/IParticle.h"
-#include "xAODTracking/TrackParticle.h"
+#include <vector>                     // for vector
+#include "TrigSteeringEvent/Enums.h"  // for ErrorCode
 
 // fwd declare TrigRoiDescriptor class
 class TrigRoiDescriptor;

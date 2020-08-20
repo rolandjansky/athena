@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -52,7 +53,7 @@ public:
                 float   sigmaMinusDeltaE=0.0,
                 float   sigmaPlusDeltaE=0.0,
 		unsigned short energyLossType=0,
-		float          likelhoold=0,
+		float          likelihood=0,
 		unsigned short tag=0);
 
     /** full constructor with the detailed deposits in Calo */
@@ -61,7 +62,7 @@ public:
 		float	sigmaMinusDeltaE,
 		float   sigmaPlusDeltaE,
 		unsigned short energyLossType,
-		float likelhoold,
+		float likelihood,
 		unsigned short tag,
 		const std::vector<DepositInCalo>& deposits);
 

@@ -17,7 +17,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 /**
  * @brief Condition algorithm to produce TileEMScale and put it into condition store

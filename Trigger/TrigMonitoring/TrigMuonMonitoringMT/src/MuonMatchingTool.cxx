@@ -38,23 +38,60 @@ std::tuple<bool, double,double> MuonMatchingTool :: trigPosForMatch<xAOD::L2Stan
 }
 
 
-std::tuple<bool, double,double> MuonMatchingTool :: trigPosForMatchEFSA(const xAOD::Muon *trig){
-  const xAOD::TrackParticle* mooreMuon = trig->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
-  return mooreMuon ? std::forward_as_tuple(true, mooreMuon->eta(), mooreMuon->phi()) : std::forward_as_tuple(false, 0., 0.);
+std::tuple<bool, double,double> MuonMatchingTool :: PosForMatchSATrack(const xAOD::Muon *mu){
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+  return MuonTrack ? std::forward_as_tuple(true, MuonTrack->eta(), MuonTrack->phi()) : std::forward_as_tuple(false, 0., 0.);
+}
+
+std::tuple<bool, double,double> MuonMatchingTool :: PosForMatchCBTrack(const xAOD::Muon *mu){
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+  return MuonTrack ? std::forward_as_tuple(true, MuonTrack->eta(), MuonTrack->phi()) : std::forward_as_tuple(false, 0., 0.);
 }
 
 
 const xAOD::Muon* MuonMatchingTool :: matchEFSA(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchEFSA()");
-  float reqdR = 0.03;
-  return match<xAOD::Muon>( mu, trig, reqdR, pass, &MuonMatchingTool::trigPosForMatchEFSA);
+  const xAOD::TrackParticle* MuonTrack = nullptr;
+  using Type = xAOD::Muon::TrackParticleType;
+  std::vector<Type> types { Type::ExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MSOnlyExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MuonSpectrometerTrackParticle};
+  for (Type type : types){
+    MuonTrack = mu->trackParticle(type);
+    if (MuonTrack) break;
+  }
+  return MuonTrack ? match<xAOD::Muon>( MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchSATrack) : nullptr;
+}
+
+const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matchEFSALinkInfo( const xAOD::Muon *mu, std::string trig) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchEFSALinkInfo()");
+  bool pass = false;
+  TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> muonLinkInfo;
+  const xAOD::TrackParticle* MuonTrack = nullptr;
+  using Type = xAOD::Muon::TrackParticleType;
+  std::vector<Type> types { Type::ExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MSOnlyExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MuonSpectrometerTrackParticle};
+  for (Type type : types){
+    MuonTrack = mu->trackParticle(type);
+    if (MuonTrack) break;
+  }
+  return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchSATrack) : muonLinkInfo;
 }
 
 
 const xAOD::Muon* MuonMatchingTool :: matchEFCB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchEFCB()");
-  float reqdR = 0.03;
-  return match<xAOD::Muon>( mu, trig, reqdR, pass);
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
+  return MuonTrack ? match<xAOD::Muon>( MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchCBTrack) : nullptr;
+}
+
+const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matchEFCBLinkInfo( const xAOD::Muon *mu, std::string trig) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchEFCBLinkInfo()");
+  bool pass = false;
+  TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> muonLinkInfo;
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
+  return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, &MuonMatchingTool::PosForMatchCBTrack) : muonLinkInfo;
 }
 
 
@@ -74,7 +111,7 @@ const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchL2SA(  const xAOD::Muon *
 const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> MuonMatchingTool :: searchL2SALinkInfo(  const xAOD::Muon *mu, std::string trig) const {
   ATH_MSG_DEBUG("MuonMonitoring::searchL2SALinkInfo()");
   bool pass = false;
-  return searchLinkInfo<xAOD::L2StandAloneMuon>( mu, trig, 1000., pass);
+  return matchLinkInfo<xAOD::L2StandAloneMuon>( mu, trig, 1000., pass);
 }
 
 
@@ -86,7 +123,7 @@ const xAOD::L2CombinedMuon* MuonMatchingTool :: matchL2CB(  const xAOD::Muon *mu
 const TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> MuonMatchingTool :: searchL2CBLinkInfo(  const xAOD::Muon *mu, std::string trig) const {
   ATH_MSG_DEBUG("MuonMonitoring::searchL2CBLinkInfo()");
   bool pass = false;
-  return searchLinkInfo<xAOD::L2CombinedMuon>( mu, trig,  1000., pass);
+  return matchLinkInfo<xAOD::L2CombinedMuon>( mu, trig,  1000., pass);
 }
 
 
@@ -125,7 +162,7 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const E
     double dphi = xAOD::P4Helpers::deltaPhi(refPhi, roiPhi);
     double dR = sqrt(deta*deta + dphi*dphi);
     ATH_MSG_VERBOSE("L1 muon candidate eta=" << roiEta << " phi=" << roiPhi  << " dR=" << dR);
-    if( dR<reqdR && roiThr>=L1ItemSTI(trig)){
+    if( dR<reqdR && roiThr>=L1ItemStringToInt(trig)){
       reqdR = dR;
       pass = true;
       closest = roi;
@@ -137,40 +174,12 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const E
 }
 
 
-const xAOD::Muon* MuonMatchingTool :: matchL2SAtoOff( const EventContext& ctx, float trigEta, float trigPhi) const {
-  return matchOff(ctx, trigEta, trigPhi, m_L2SAreqdR);
+const xAOD::Muon* MuonMatchingTool :: matchL2SAtoOff( const EventContext& ctx, const xAOD::L2StandAloneMuon* samu) const {
+  return matchOff(ctx, samu, m_L2SAreqdR, &MuonMatchingTool::PosForMatchSATrack);
 }
 
-const xAOD::Muon* MuonMatchingTool :: matchL2CBtoOff( const EventContext& ctx, float trigEta, float trigPhi) const {
-  return matchOff(ctx, trigEta, trigPhi, m_L2CBreqdR);
-}
-
-const xAOD::Muon* MuonMatchingTool :: matchOff( const EventContext& ctx, float trigEta, float trigPhi, float DR_cut) const {
-
-  const xAOD::Muon *muon = nullptr;
-
-  SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
-  if (! muons.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
-    return muon;
-  }
-
-  for(const auto &mu : *muons){
-    float offEta = mu->eta();
-    float offPhi = mu->phi();
-
-    float deta = offEta - trigEta;
-    float dphi = xAOD::P4Helpers::deltaPhi(offPhi, trigPhi);
-    double dR = sqrt(deta*deta + dphi*dphi);
-
-    if(dR < DR_cut){
-      DR_cut = dR;
-      muon = mu;
-      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " offEta=" << offEta << " offPhi=" << offPhi << " dR=" << dR);
-    }
-  }  
-
-  return muon;
+const xAOD::Muon* MuonMatchingTool :: matchL2CBtoOff( const EventContext& ctx, const xAOD::L2CombinedMuon* cbmu) const {
+  return matchOff(ctx, cbmu, m_L2CBreqdR, &MuonMatchingTool::PosForMatchCBTrack);
 }
 
 

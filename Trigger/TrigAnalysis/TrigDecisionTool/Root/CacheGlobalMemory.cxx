@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -333,6 +333,11 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker);
 
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
+  bool contains_xAOD_decision = false;
+  bool is_l1result_configured = false;
+  bool contains_decision = false;
+  bool contains_old_event_info = false;
+  
   if(!m_unpacker){
     ATH_MSG_INFO("decision not set on first (?) assert. deciding how to unpack");
    
@@ -342,16 +347,12 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     //we're hardcoding in order not to require python configuration changes
 
     const EventContext context = Gaudi::Hive::currentContext();
-    bool contains_xAOD_decision = false;
     if (!m_decisionKeyPtr->empty()) {
        SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_decisionKeyPtr, context);
       contains_xAOD_decision = decisionReadHandle.isValid();
     }
 
 #ifndef XAOD_ANALYSIS
-    bool is_l1result_configured = false;
-    bool contains_decision = false;
-    bool contains_old_event_info = false;
 
     if (!m_oldDecisionKeyPtr->empty()) {
       SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecisionKeyPtr, context);
@@ -393,10 +394,18 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     ATH_MSG_ERROR("No source of Trigger Decision in file. "
       << "(Looked for xAOD::TrigDecision? "
       << (m_decisionKeyPtr->empty() ? "NO" : "YES")
-      << " Looked for old TrigDec::TrigDecision? "
+      << ", has xAOD::TrigDecision? " 
+      << (contains_xAOD_decision ? "YES" : "NO")
+      << ". Looked for old TrigDec::TrigDecision? "
       << (m_oldDecisionKeyPtr->empty() ? "NO" : "YES")
-      << ", looked for old EventInfo? "
+      << ", has TrigDec::TrigDecision? " 
+      << (contains_decision ? "YES" : "NO")
+      << ", TrigDec::TrigDecision has L1? " 
+      << (is_l1result_configured ? "YES" : "NO")
+      << ". Looked for old EventInfo? "
       << (m_oldEventInfoKeyPtr->empty() ? "NO" : "YES")
+      << ", has old EventInto? "  
+      << (contains_old_event_info ? "YES" : "NO")
       << ". Check UseRun1DecisionFormat and UseOldEventInfoDecisionFormat flags if reading pre-xAOD or BS input).");
     throw std::runtime_error("Trig::CacheGlobalMemory::assert_decision(): No source of Trigger Decision in file.");
   }

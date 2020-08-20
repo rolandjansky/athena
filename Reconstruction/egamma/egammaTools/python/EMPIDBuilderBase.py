@@ -45,11 +45,6 @@ class EMPIDBuilderElectronBase (EMPIDBuilder):
             "TightLHSelector", LikeEnum.Tight)
         TightLHSelector.primaryVertexContainer = "PrimaryVertices"
 
-        # Multi Lepton
-        from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf \
-            import AsgElectronMultiLeptonSelector
-        MultiLeptonSelector = AsgElectronMultiLeptonSelector(
-            "MultiLeptonSelector")
 
         self.electronIsEMselectors = [
             LooseElectronSelector,
@@ -60,8 +55,6 @@ class EMPIDBuilderElectronBase (EMPIDBuilder):
         self.electronLHselectors = [
             LooseLHSelector, MediumLHSelector, TightLHSelector]
         self.electronLHselectorResultNames = ["LHLoose", "LHMedium", "LHTight"]
-        self.genericIsEMselectors = [MultiLeptonSelector]
-        self.genericIsEMselectorResultNames = ["MultiLepton"]
         self.LuminosityTool = None
 
 

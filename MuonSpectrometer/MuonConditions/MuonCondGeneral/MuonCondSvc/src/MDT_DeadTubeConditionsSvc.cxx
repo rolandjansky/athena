@@ -9,7 +9,7 @@
 //#include "PathResolver/PathResolver.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "Identifier/IdentifierHash.h"
 #include <iostream>

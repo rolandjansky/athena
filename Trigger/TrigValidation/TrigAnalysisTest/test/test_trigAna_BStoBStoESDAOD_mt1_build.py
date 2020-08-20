@@ -51,9 +51,10 @@ recoPreExec = ' '.join([
   "AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);",
   "AODFlags.AddEgammaMuonTracksInAOD.set_Value_and_Lock(False);",
   # Trigger flags
+  "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
+  "ConfigFlags.Trigger.triggerMenuSetup=\'{:s}\';".format(menu_name),
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.triggerMenuSetup=\'{:s}\';".format(menu_name),
   "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"])
 reco = ExecStep.ExecStep('Tier0Reco')

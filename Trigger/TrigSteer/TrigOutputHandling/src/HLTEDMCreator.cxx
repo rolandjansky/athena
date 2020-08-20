@@ -380,7 +380,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
       if ( not readHandle.isValid() ) { // collection is missing
 	ATH_MSG_DEBUG( "Creating missing CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopy[index].key() );
 	auto writeHandle = SG::makeHandle( m_CaloClusterContainerShallowCopyOut[index], context );
-	ATH_CHECK( writeHandle.record( std::move( std::make_unique<xAOD::CaloClusterContainer>()), std::move(std::make_unique<xAOD::ShallowAuxContainer>()) ));
+	ATH_CHECK( writeHandle.record( std::make_unique<xAOD::CaloClusterContainer>(), std::make_unique<xAOD::ShallowAuxContainer>() ));
       } else {
 	ATH_MSG_DEBUG( "CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopyOut[index].key() << " present in the event, done nothing");
       }

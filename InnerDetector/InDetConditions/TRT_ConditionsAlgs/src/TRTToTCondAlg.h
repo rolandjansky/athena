@@ -14,7 +14,7 @@
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TRT_ConditionsData/TRTDedxcorrection.h"
 
 class TRTToTCondAlg : public AthAlgorithm

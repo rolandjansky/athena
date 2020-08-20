@@ -16,9 +16,9 @@
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
-#include "xAODCore/tools/FloatCompressor.h"
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/FloatCompressor.h"
 
 using namespace std;
 
@@ -617,16 +617,6 @@ namespace xAOD {
       return dummy;
    }
 
-   void
-   AuxContainerBase::selectAux( const std::set< std::string >& attributes ) {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      m_selection.selectAux( attributes );
-      return;
-   }
-
    AuxContainerBase::auxid_set_t
    AuxContainerBase::getSelectedAuxIDs() const {
 
@@ -682,13 +672,13 @@ namespace xAOD {
       // Two main modes are supported: High and Low Compression
       const unsigned int idx = highComp ? AuxCompression::High : AuxCompression::Low;
 
-      // This part could be nicer if we were to rewrite xAOD::FloatCompressor
+      // This part could be nicer if we were to rewrite CxxUtils::FloatCompressor
       // to accept the number of bits in the call to reduceFloatPrecision instead
       // of the constructor
       static const unsigned int high_bits = m_compression.getCompressionBits(true);
       static const unsigned int low_bits = m_compression.getCompressionBits(false);
-      static const std::vector< xAOD::FloatCompressor >
-      myFloatCompressors { xAOD::FloatCompressor(high_bits), xAOD::FloatCompressor(low_bits) };
+      static const std::vector< CxxUtils::FloatCompressor >
+      myFloatCompressors { CxxUtils::FloatCompressor(high_bits), CxxUtils::FloatCompressor(low_bits) };
 
       return myFloatCompressors[ idx ].reduceFloatPrecision( value );
    }

@@ -3,7 +3,7 @@
 */
 
 
-/** 
+/**
  * NAME : 	EFexAnalysis.cxx
  * PACKAGE : 	Trigger/TrigL1Upgrade/TrigL1CaloUpgrade/EFexAnalysis
  *
@@ -35,7 +35,7 @@ EFexAnalysis::EFexAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) 
 EFexAnalysis::~EFexAnalysis(){}
 
 StatusCode EFexAnalysis::initialize(){
-	
+
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "initializing TrigT1CaloEFex" << endmsg;
         if ( m_enableMon ){
@@ -122,7 +122,7 @@ StatusCode EFexAnalysis::finalize(){
 }
 
 StatusCode EFexAnalysis::execute(){
-	
+
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endmsg;
         const xAOD::TrigEMClusterContainer* scluster(nullptr);
@@ -176,7 +176,7 @@ StatusCode EFexAnalysis::execute(){
 			 m_f3->Fill( (cl->energy( CaloSampling::EMB3 ) + cl->energy( CaloSampling::EME3 ) ) / cl->energy() );
 			}
 		}
-		
+
 	}
 	if ( m_doTruth ) {
 	const xAOD::TruthParticleContainer* truth;
@@ -208,7 +208,7 @@ StatusCode EFexAnalysis::execute(){
 			if ( std::abs( tt->eta() )<2.5 ) m_eff_truth_ptA_n->Fill( tt->pt()/1e3 );
 			m_eff_truth_eta_n->Fill( tt->eta() );
 		}
-		
+
 	}
 	} // end of if m_doTruth
 
@@ -222,7 +222,7 @@ StatusCode EFexAnalysis::execute(){
         for( auto el : *electrons ){
                 if ( el->pt() < 1e3 ) continue;
                 //if ( !el->passSelection( xAOD::EgammaParameters::LHMedium ) ) continue;
-                if ( !el->passSelection( xAOD::EgammaParameters::LHLoose ) ) continue;
+                if ( !el->passSelection( "LHLoose" ) ) continue;
                 m_eff_off_pt_d->Fill( el->pt()/1e3 );
                 if ( el->pt() > 16000 ) m_eff_off_eta_d->Fill( el->eta() );
                 for( auto cl : *scluster ){
@@ -235,7 +235,7 @@ StatusCode EFexAnalysis::execute(){
                         m_res_off->Fill( resolution );
                         m_res_off_eta->Fill( el->eta(), resolution );
                         m_res_off_pt->Fill( el->pt()/1e3, resolution );
-			
+
 			if ( (el->caloCluster()->et() > 9e3) && (std::abs(el->eta())<2.47) )
                         m_res_off_nvtx->Fill( nvtxs, resolution );
 
@@ -262,7 +262,7 @@ StatusCode EFexAnalysis::execute(){
 			if ( cl->e277() > 0.0 )
 				{ SE_reta = cl->e237()/cl->e277(); }
 			float resol_reta = -100.0;
-			if ( off_reta > 0 ) resol_reta = 
+			if ( off_reta > 0 ) resol_reta =
 				100.0*(off_reta-SE_reta)/off_reta;
 			m_res_rEta_off->Fill( resol_reta );
 			m_res_rEta_off_eta->Fill( el->eta(), resol_reta );
@@ -275,7 +275,7 @@ StatusCode EFexAnalysis::execute(){
 			if ( cl->energy() > 0.0 )
 				{ SE_f1 = (cl->energy(CaloSampling::EMB1)+cl->energy(CaloSampling::EME1))/cl->energy(); }
 			float resol_f1 = -100.0;
-			if ( fabsf(off_f1) > 0.01 ) resol_f1 = 
+			if ( fabsf(off_f1) > 0.01 ) resol_f1 =
 				100.0*(off_f1-SE_f1)/off_f1;
 			m_res_f1_off->Fill( resol_f1 );
 			m_res_f1_off_eta->Fill( el->eta(), resol_f1 );
@@ -289,7 +289,7 @@ StatusCode EFexAnalysis::execute(){
 			if ( cl->energy() > 0.0 )
 				{ SE_f3 = (cl->energy(CaloSampling::EMB3)+cl->energy(CaloSampling::EME3))/cl->energy(); }
 			float resol_f3 = -100.0;
-			if ( fabsf(off_f3) > 0.001 ) resol_f3 = 
+			if ( fabsf(off_f3) > 0.001 ) resol_f3 =
 				100.0*(off_f3-SE_f3)/off_f3;
 			m_res_f3_off->Fill( resol_f3 );
 			m_res_f3_off_eta->Fill( el->eta(), resol_f3 );

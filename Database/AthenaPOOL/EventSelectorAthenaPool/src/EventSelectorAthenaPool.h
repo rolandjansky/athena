@@ -151,7 +151,7 @@ protected:
    /// Fill AttributeList with specific items from the selector and a suffix
    virtual StatusCode fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool copySource) const override;
    // Disconnect DB if all events from the source FID were processed and the Selector moved to another file
-   virtual bool disconnectIfFinished(SG::SourceID fid) const override;
+   virtual bool disconnectIfFinished(const SG::SourceID &fid) const override;
 
 private: // internal member functions
    /// Return pointer to active event SG
@@ -197,7 +197,7 @@ private: // properties
    /// InputCollections, vector with names of the input collections.
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "InputCollections", {}, ""};
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator ATLAS_THREAD_SAFE;
-   void inputCollectionsHandler(Property&);
+   void inputCollectionsHandler(Gaudi::Details::PropertyBase&);
    /// Query, query string.
    Gaudi::Property<std::string> m_query{this, "Query", "", ""};
 

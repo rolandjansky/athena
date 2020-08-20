@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EMCONVERSIONBUILDER_H
@@ -49,10 +49,10 @@ public:
                       const IInterface* parent);
 
   /** @brief Destructor*/
-  ~EMConversionBuilder();
+  virtual ~EMConversionBuilder() = default;
 
   /** @brief initialize method*/
-  StatusCode initialize() override;
+  StatusCode initialize() override final;
   /** @brief execute method*/
   virtual StatusCode executeRec(const EventContext& ctx,
                                 egammaRec* egRec) const override final;
@@ -60,16 +60,12 @@ public:
   virtual StatusCode hltExecute(
     egammaRec* egRec,
     const xAOD::VertexContainer* conversions) const override final;
- /** @brief finalize method*/
-  StatusCode finalize() override;
 
 private:
   /** @brief actual  implementation method*/
-  StatusCode vertexExecute(
-    const EventContext& ctx,
-    egammaRec* egRec,
-    const xAOD::VertexContainer* conversions) const;
- 
+  StatusCode vertexExecute(const EventContext& ctx,
+                           egammaRec* egRec,
+                           const xAOD::VertexContainer* conversions) const;
 
   /** @brief Return true if vertex and cluster pass Pt and E/p cuts **/
   bool passPtAndEoverP(const EventContext& ctx,

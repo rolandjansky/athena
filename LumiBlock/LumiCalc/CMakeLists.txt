@@ -15,7 +15,7 @@ atlas_add_library( LumiBlockCoolQuery
                    src/ReplicaSorter.cxx
                    src/LumiBlockCollectionConverter.cxx
                    PUBLIC_HEADERS LumiCalc
-                   INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
                    LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel GoodRunsListsLib LumiBlockData xAODLuminosity )
 
 atlas_add_executable( iLumiCalc

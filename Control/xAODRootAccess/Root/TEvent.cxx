@@ -1109,19 +1109,6 @@ namespace xAOD {
                      XAOD_MESSAGE( "Internal logic error detected" ) );
             return TReturnCode::kFailure;
          }
-         // Set up the filtering:
-         if( filter ) {
-            void* io1 = auxMgr->holder()->getAs( typeid( SG::IAuxStoreIO ) );
-            SG::IAuxStoreIO* io2 = reinterpret_cast< SG::IAuxStoreIO* >( io1 );
-            if( ! io2 ) {
-               ::Error( "xAOD::TEvent::copy",
-                        XAOD_MESSAGE( "Couldn't get SG::IAuxStoreIO pointer to "
-                                      "object: %s" ),
-                        ( keyToUse + "Aux." ).c_str() );
-               return TReturnCode::kFailure;
-            }
-            io2->selectAux( *filter );
-         }
          RETURN_CHECK( "xAOD::TEvent::copy",
                        record( auxMgr->object(),
                                auxMgr->holder()->getClass()->GetName(),
@@ -3097,16 +3084,17 @@ namespace xAOD {
 
       // Check if we have rules defined for which auxiliary properties
       // to write out:
+      xAOD::AuxSelection sel;
       if( ! metadata ) {
          auto item_itr = m_auxItemList.find( mgr->branch()->GetName() );
          if( item_itr != m_auxItemList.end() ) {
-            aux->selectAux( item_itr->second );
+            sel.selectAux( item_itr->second );
          }
       }
 
       // Get the dynamic auxiliary variables held by this object, which
       // were selected to be written:
-      const SG::auxid_set_t auxids = aux->getSelectedAuxIDs();
+      const SG::auxid_set_t auxids = sel.getSelectedAuxIDs (aux->getSelectedAuxIDs());
 
       // If there are no dynamic auxiliary variables in the object, return
       // right away:

@@ -66,15 +66,15 @@ namespace InDet {
             const AtlasDetectorID *m_atlasId;
 
             /** eta and phi tolerances **/
-            Gaudi::Property<double> m_etaTol = 3.0;
-            Gaudi::Property<double> m_phiTol = 3.0;
+            Gaudi::Property<double> m_etaTol{this, "ToleranceEta", 3.0};
+            Gaudi::Property<double> m_phiTol{this, "TolerancePhi", 3.0};
 
             /** Control usage of pixel and SCT info */
-            Gaudi::Property<bool> m_usePixel;
-            Gaudi::Property<bool> m_useSCT;
+            Gaudi::Property<bool> m_usePixel{this, "UsePixel", true};
+            Gaudi::Property<bool> m_useSCT{this, "UseSCT", true};
 
             /** Control check of bad SCT chip (should be false for ITk Strip) */
-            Gaudi::Property<bool> m_checkBadSCT;
+            Gaudi::Property<bool> m_checkBadSCT{this, "CheckBadSCT", true};
     };
 }
 

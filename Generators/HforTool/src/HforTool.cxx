@@ -13,7 +13,7 @@
 #include <cmath>
 #include <set>
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "TruthUtils/GeneratorName.h"

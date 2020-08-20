@@ -40,10 +40,22 @@ CachedPointer<T>::CachedPointer (pointer_t elt)
  */
 template <class T>
 inline
-CachedPointer<T>::CachedPointer (const CachedPointer& other)
+CachedPointer<T>::CachedPointer (const CachedPointer& other) noexcept
   : m_a (other.get())
 {
 }
+
+/**
+ * @brief Move constructor.
+ */
+template <class T>
+inline
+CachedPointer<T>::CachedPointer ( CachedPointer&& other) noexcept
+  : m_a (other.get())
+{
+   //Does not own pointer so don't need to null
+}
+
 
 
 /**

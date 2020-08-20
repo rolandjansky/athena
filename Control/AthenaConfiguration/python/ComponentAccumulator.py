@@ -1066,7 +1066,6 @@ def appendCAtoAthena(ca):
 
 
     preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
-    #preconfigured = ["AthMasterSeq", "AthCondSeq", "AthAlgSeq", "AthOutSeq", "AthRegSeq"]
 
     for seq in ca._allSequences:
         merged = False

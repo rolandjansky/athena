@@ -14,7 +14,7 @@
 #include <stdexcept>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"

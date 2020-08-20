@@ -47,9 +47,9 @@ public:
 
     MdtPrepData();
     MdtPrepData(const MdtPrepData &);
-    MdtPrepData(MdtPrepData &&);
+    MdtPrepData(MdtPrepData &&) noexcept;
     MdtPrepData &operator=(const MdtPrepData &);
-    MdtPrepData &operator=(MdtPrepData &&);
+    MdtPrepData &operator=(MdtPrepData &&) noexcept;
 
     /** Constructor with parameters: this class owns the pointers passed (except the MuonDetectorElement)
     @param id Identifier of the tube which generated DriftCircle,

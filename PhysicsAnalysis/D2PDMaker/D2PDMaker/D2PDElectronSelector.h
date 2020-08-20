@@ -90,112 +90,112 @@ private:
   //------------------------------------------------------
 
   /// Call-back method to configure the cut properties (min/max): IsEM
-  void setupIsEM( Property& prop );
+  void setupIsEM( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): passID
-  void setupPassID( Property& prop );
+  void setupPassID( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): Author
-  void setupAuthor( Property& prop );
+  void setupAuthor( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): uncombined et
-  void setupUncombinedEt( Property& prop );
+  void setupUncombinedEt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): uncombined e
-  void setupUncombinedE( Property& prop );
+  void setupUncombinedE( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): uncombined eta
-  void setupUncombinedEta( Property& prop );
+  void setupUncombinedEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): uncombined |eta|
-  void setupUncombinedAbsEta( Property& prop );
+  void setupUncombinedAbsEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): uncombined phi
-  void setupUncombinedPhi( Property& prop );
+  void setupUncombinedPhi( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): uncombined mass
-  void setupUncombinedMass( Property& prop );
+  void setupUncombinedMass( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster et
-  void setupClusterEt( Property& prop );
+  void setupClusterEt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster e
-  void setupClusterE( Property& prop );
+  void setupClusterE( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster eta
-  void setupClusterEta( Property& prop );
+  void setupClusterEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster |eta|
-  void setupClusterAbsEta( Property& prop );
+  void setupClusterAbsEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster eta veto
-  void setupClusterEtaVeto( Property& prop );
+  void setupClusterEtaVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster phi
-  void setupClusterPhi( Property& prop );
+  void setupClusterPhi( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster phi veto
-  void setupClusterPhiVeto( Property& prop );
+  void setupClusterPhiVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster mass
-  void setupClusterMass( Property& prop );
+  void setupClusterMass( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster layer e
-  void setupClusterLayerE( Property& prop );
+  void setupClusterLayerE( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster layer eta
-  void setupClusterLayerEta( Property& prop );
+  void setupClusterLayerEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster layer |eta|
-  void setupClusterLayerAbsEta( Property& prop );
+  void setupClusterLayerAbsEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster layer eta veto
-  void setupClusterLayerEtaVeto( Property& prop );
+  void setupClusterLayerEtaVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster layer phi
-  void setupClusterLayerPhi( Property& prop );
+  void setupClusterLayerPhi( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster layer phi veto
-  void setupClusterLayerPhiVeto( Property& prop );
+  void setupClusterLayerPhiVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track pt
-  void setupTrackPt( Property& prop );
+  void setupTrackPt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track p
-  void setupTrackP( Property& prop );
+  void setupTrackP( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track eta
-  void setupTrackEta( Property& prop );
+  void setupTrackEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track |eta|
-  void setupTrackAbsEta( Property& prop );
+  void setupTrackAbsEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track eta veto
-  void setupTrackEtaVeto( Property& prop );
+  void setupTrackEtaVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track phi
-  void setupTrackPhi( Property& prop );
+  void setupTrackPhi( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track phi veto
-  void setupTrackPhiVeto( Property& prop );
+  void setupTrackPhiVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track mass
-  void setupTrackMass( Property& prop );
+  void setupTrackMass( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): cluster-track et
-  void setupClusterTrackEt( Property& prop );
+  void setupClusterTrackEt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): track pt iso
-  void setupTrackPtIso( Property& prop );
+  void setupTrackPtIso( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): |track pt iso|
-  void setupAbsTrackPtIso( Property& prop );
+  void setupAbsTrackPtIso( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): calo et iso
-  void setupCaloEtIso( Property& prop );
+  void setupCaloEtIso( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): |calo et iso|
-  void setupAbsCaloEtIso( Property& prop );
+  void setupAbsCaloEtIso( Gaudi::Details::PropertyBase& prop );
 
 
 
@@ -749,217 +749,217 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline void D2PDElectronSelector::setupIsEM( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupIsEM( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doIsEM = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupPassID( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupPassID( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doPassID = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupAuthor( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupAuthor( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doAuthor = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupUncombinedEt( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupUncombinedEt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doUncombinedEt = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupUncombinedE( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupUncombinedE( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doUncombinedE = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupUncombinedEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupUncombinedEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doUncombinedEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupUncombinedAbsEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupUncombinedAbsEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doUncombinedAbsEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupUncombinedPhi( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupUncombinedPhi( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doUncombinedPhi = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupUncombinedMass( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupUncombinedMass( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doUncombinedMass = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterEt( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterEt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterEt = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterE( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterE( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterE = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterAbsEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterAbsEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterAbsEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterEtaVeto( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterEtaVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterEtaVeto = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterPhi( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterPhi( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterPhi = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterPhiVeto( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterPhiVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterPhiVeto = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterMass( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterMass( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterMass = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterLayerE( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterLayerE( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterLayerE = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterLayerEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterLayerEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterLayerEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterLayerAbsEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterLayerAbsEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterLayerAbsEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterLayerEtaVeto( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterLayerEtaVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterLayerEtaVeto = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterLayerPhi( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterLayerPhi( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterLayerPhi = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterLayerPhiVeto( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterLayerPhiVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterLayerPhiVeto = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackPt( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackPt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackPt = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackP( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackP( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackP = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackAbsEta( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackAbsEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackAbsEta = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackEtaVeto( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackEtaVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackEtaVeto = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackPhi( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackPhi( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackPhi = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackPhiVeto( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackPhiVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackPhiVeto = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackMass( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackMass( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackMass = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupClusterTrackEt( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupClusterTrackEt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doClusterTrackEt = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupTrackPtIso( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupTrackPtIso( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doTrackPtIso = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupAbsTrackPtIso( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupAbsTrackPtIso( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doAbsTrackPtIso = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupCaloEtIso( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupCaloEtIso( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doCaloEtIso = true;
   return;
 }
 
-inline void D2PDElectronSelector::setupAbsCaloEtIso( Property& /*prop*/ )
+inline void D2PDElectronSelector::setupAbsCaloEtIso( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doAbsCaloEtIso = true;
   return;

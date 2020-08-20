@@ -65,12 +65,12 @@ class TruthParticleBuilder : public AthAlgorithm
   /** Call-back method to configure the filter tool if needed (this is defined
    *  by the state of the "DoFiltering" property)
    */
-  void setupFilterTool( Property& doFiltering );
+  void setupFilterTool( Gaudi::Details::PropertyBase& doFiltering );
 
   /** Call-back method to configure the converter tool if needed (this is
    *  defined by the state of the "DoTruthParticles" property)
    */
-  void setupCnvTool( Property& doTruthParticles );
+  void setupCnvTool( Gaudi::Details::PropertyBase& doTruthParticles );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

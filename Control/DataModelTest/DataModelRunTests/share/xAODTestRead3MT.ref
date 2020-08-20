@@ -195,7 +195,6 @@ PrecedenceSvc                                  0    INFO
         EndIncFiringAlg [Alg]  [n= 0]
         IncidentProcAlg2 [Alg]  [n= 1] [unclonable] 
     AthOutSeq [Seq]  [Concurrent] 
-    AthRegSeq [Seq]  [Concurrent] 
 
 AthenaHiveEventLoopMgr                         0    INFO Setup EventSelector service EventSelector
 ApplicationMgr                                 0    INFO Application Manager Initialized successfully
