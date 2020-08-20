@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu80_mt
+# art-description: art job for all_ttbar_pu80_mt3
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
