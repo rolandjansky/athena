@@ -144,9 +144,9 @@ StatusCode HLT::HLTResultMT::getSerialisedData(const uint16_t moduleId, const st
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setSerialisedData(const std::unordered_map<uint16_t, std::vector<uint32_t> >& data) {
-  // WARNING, copying data which may be large
-  m_data = data;
+void HLT::HLTResultMT::setSerialisedData(std::unordered_map<uint16_t, std::vector<uint32_t> > data) {
+  // WARNING, copying data which may be large - recommend calling this with std::move if appropriate
+  m_data = std::move(data);
 }
 
 // -----------------------------------------------------------------------------
@@ -157,15 +157,15 @@ void HLT::HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vec
 }
 
 // -----------------------------------------------------------------------------
-StatusCode HLT::HLTResultMT::addSerialisedDataWithCheck(const uint16_t moduleId, const std::vector<uint32_t>& data) {
+StatusCode HLT::HLTResultMT::addSerialisedDataWithCheck(const uint16_t moduleId, std::vector<uint32_t> data) {
   if (m_data.find(moduleId)!=m_data.cend()) {
     ATH_REPORT_ERROR_WITH_CONTEXT(StatusCode::FAILURE, CONTEXT_NAME)
       << "Trying to add data for a module which already exists in the stored map, moduleId=" << moduleId;
     return StatusCode::FAILURE;
   }
   else {
-    // WARNING, copying data which may be large
-    m_data[moduleId] = data;
+    // moving data
+    m_data[moduleId] = std::move(data);
   }
   return StatusCode::SUCCESS;
 }
@@ -197,9 +197,9 @@ const std::vector<HLT::OnlineErrorCode> HLT::HLTResultMT::getErrorCodes() const 
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setStatus(const std::vector<uint32_t>& status) {
-  // copy assignment
-  m_status = status;
+void HLT::HLTResultMT::setStatus(std::vector<uint32_t> status) {
+  // move assignment
+  m_status = std::move(status);
 }
 
 // -----------------------------------------------------------------------------
