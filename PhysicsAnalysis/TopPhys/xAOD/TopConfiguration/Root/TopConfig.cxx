@@ -312,6 +312,7 @@ namespace top {
     // Particle Level / Truth Configuration
     m_truth_electron{25000., 2.5, true, false},
     m_truth_muon{25000., 2.5, true, false},
+    m_truth_softmuon{4000., 2.5},
     m_truth_photon{25000., 2.5, "SET_ME", "SET_ME"},
     m_truth_jet{25000., 2.5},
     // -----------------------------------------------]]]
@@ -1445,6 +1446,29 @@ namespace top {
 
     this->truth_muon_PtCut(std::stof(settings->value("TruthMuonPt")));
     this->truth_muon_EtaCut(std::stof(settings->value("TruthMuonEta")));
+    
+    float truth_softmu_ptcut=4000.;
+    try{
+      truth_softmu_ptcut=std::stof(settings->value("TruthSoftMuonPt"));
+    }
+    catch (...) {
+        throw std::runtime_error {
+                "TopConfig: can't convert provided TruthSoftMuonPt into float"
+        };
+    }
+    
+    float truth_softmu_etacut=2.5;
+    try{
+      truth_softmu_etacut=std::stof(settings->value("TruthSoftMuonEta"));
+    }
+    catch (...) {
+        throw std::runtime_error {
+                "TopConfig: can't convert provided TruthSoftMuonEta into float"
+        };
+    }
+    
+    this->truth_softmuon_PtCut(truth_softmu_ptcut);
+    this->truth_softmuon_EtaCut(truth_softmu_etacut);
 
     this->truth_photon_PtCut(std::stof(settings->value("TruthPhotonPt")));
     this->truth_photon_EtaCut(std::stof(settings->value("TruthPhotonEta")));

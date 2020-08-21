@@ -1053,26 +1053,11 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
   {
 
     for (auto iMu : goodSoftMuons) {
-    // Get muon iMu
-    const xAOD::Muon* muon = xaod_softmu->at(iMu);
-
-        muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
-        muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
-        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
-        
-        top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+      // Get muon iMu
+      const xAOD::Muon* muon = xaod_softmu->at(iMu);
+      
+      top::truth::initRecoMuonHistoryInfo(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin()); //it's safer if we initialize everything to default for each muon before filling the muon history        
+      top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
     }//end of loop on soft muons
   }
   void TopObjectSelection::applyTightSelectionPostOverlapRemoval(const xAOD::IParticleContainer* xaod,

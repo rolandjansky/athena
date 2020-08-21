@@ -5,11 +5,13 @@ atlas_subdir( TopParticleLevel None )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
+                          xAODBase
                           xAODTruth
                           xAODJet
                           xAODMissingET
                           xAODCore
                           xAODRootAccess
+                          FourMomUtils
                           TopEvent
                           TopConfiguration
                           TopDataPreparation
@@ -36,11 +38,14 @@ atlas_add_library( TopParticleLevel Root/*.cxx Root/*.h Root/*.icc
                    TopParticleLevel/*.h TopParticleLevel/*.icc TopParticleLevel/*/*.h
                    TopParticleLevel/*/*.icc 
                    PUBLIC_HEADERS TopParticleLevel
-                   LINK_LIBRARIES xAODTruth
+                   LINK_LIBRARIES 
+                                  xAODBase
+                                  xAODTruth
                                   xAODJet
                                   xAODMissingET
                                   xAODCore
                                   xAODRootAccess
+                                  FourMomUtils
                                   TopEvent
                                   TopConfiguration
                                   TopDataPreparation

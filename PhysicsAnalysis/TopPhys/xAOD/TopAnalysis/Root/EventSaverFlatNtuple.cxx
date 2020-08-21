@@ -1531,6 +1531,9 @@ namespace top {
       m_particleLevelTreeManager->makeOutputVariable(m_el_phi, "el_phi");
       m_particleLevelTreeManager->makeOutputVariable(m_el_e, "el_e");
       m_particleLevelTreeManager->makeOutputVariable(m_el_charge, "el_charge");
+      
+      m_particleLevelTreeManager->makeOutputVariable(m_el_true_type, "el_true_type");
+      m_particleLevelTreeManager->makeOutputVariable(m_el_true_origin, "el_true_origin");
 
       m_particleLevelTreeManager->makeOutputVariable(m_el_pt_bare, "el_pt_bare");
       m_particleLevelTreeManager->makeOutputVariable(m_el_eta_bare, "el_eta_bare");
@@ -1545,12 +1548,36 @@ namespace top {
       m_particleLevelTreeManager->makeOutputVariable(m_mu_phi, "mu_phi");
       m_particleLevelTreeManager->makeOutputVariable(m_mu_e, "mu_e");
       m_particleLevelTreeManager->makeOutputVariable(m_mu_charge, "mu_charge");
+      
+      m_particleLevelTreeManager->makeOutputVariable(m_mu_true_type, "mu_true_type");
+      m_particleLevelTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
 
       m_particleLevelTreeManager->makeOutputVariable(m_mu_pt_bare, "mu_pt_bare");
       m_particleLevelTreeManager->makeOutputVariable(m_mu_eta_bare, "mu_eta_bare");
       m_particleLevelTreeManager->makeOutputVariable(m_mu_phi_bare, "mu_phi_bare");
       m_particleLevelTreeManager->makeOutputVariable(m_mu_e_bare, "mu_e_bare");
-    }
+      
+      if(m_config->useSoftMuons())
+      {
+        m_particleLevelTreeManager->makeOutputVariable(m_softmu_pt, "softmu_pt");
+        m_particleLevelTreeManager->makeOutputVariable(m_softmu_eta, "softmu_eta");
+        m_particleLevelTreeManager->makeOutputVariable(m_softmu_phi, "softmu_phi");
+        m_particleLevelTreeManager->makeOutputVariable(m_softmu_e, "softmu_e");
+        m_particleLevelTreeManager->makeOutputVariable(m_softmu_charge, "softmu_charge");
+        
+        m_particleLevelTreeManager->makeOutputVariable(m_softmu_true_type, "softmu_true_type");
+        m_particleLevelTreeManager->makeOutputVariable(m_softmu_true_origin, "softmu_true_origin");
+        
+        if(m_config->softmuonAdditionalTruthInfo())
+        {
+          if(m_config->softmuonAdditionalTruthInfoCheckPartonOrigin()) m_particleLevelTreeManager->makeOutputVariable(m_softmu_parton_origin_flag, "softmu_parton_origin_flag");
+          m_particleLevelTreeManager->makeOutputVariable(m_softmu_particle_origin_flag, "softmu_particle_origin_flag");
+          m_particleLevelTreeManager->makeOutputVariable(m_softmu_parent_pdgid,"softmu_parent_pdgid");
+          m_particleLevelTreeManager->makeOutputVariable(m_softmu_b_hadron_parent_pdgid,"softmu_b_hadron_parent_pdgid");
+          m_particleLevelTreeManager->makeOutputVariable(m_softmu_c_hadron_parent_pdgid,"softmu_c_hadron_parent_pdgid");
+        }
+      }
+    }//end of muons branches
 
     //photons
     if (m_config->useTruthPhotons()) {
@@ -4196,6 +4223,9 @@ namespace top {
       m_el_eta_bare.resize(plEvent.m_electrons->size());
       m_el_phi_bare.resize(plEvent.m_electrons->size());
       m_el_e_bare.resize(plEvent.m_electrons->size());
+      
+      m_el_true_type.resize(plEvent.m_electrons->size());
+      m_el_true_origin.resize(plEvent.m_electrons->size());
 
       for (const auto& elPtr : *plEvent.m_electrons) {
         m_el_pt[i] = elPtr->pt();
@@ -4208,6 +4238,14 @@ namespace top {
         m_el_eta_bare[i] = elPtr->auxdata<float>("eta_bare");
         m_el_phi_bare[i] = elPtr->auxdata<float>("phi_bare");
         m_el_e_bare[i] = elPtr->auxdata<float>("e_bare");
+        
+        if(elPtr->isAvailable<unsigned int>("particleType")) m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
+        else if(elPtr->isAvailable<unsigned int>("classifierParticleType")) m_el_true_type[i] = elPtr->auxdata<unsigned int>("classifierParticleType");
+        else m_el_true_type[i] = 0;
+        
+        if(elPtr->isAvailable<unsigned int>("particleOrigin")) m_el_true_origin[i] = elPtr->auxdata<unsigned int>("particleOrigin");
+        else if(elPtr->isAvailable<unsigned int>("classifierParticleOrigin")) m_el_true_origin[i] = elPtr->auxdata<unsigned int>("classifierParticleOrigin");
+        else m_el_true_origin[i] = 0;
 
         ++i;
       }
@@ -4227,6 +4265,9 @@ namespace top {
       m_mu_eta_bare.resize(plEvent.m_muons->size());
       m_mu_phi_bare.resize(plEvent.m_muons->size());
       m_mu_e_bare.resize(plEvent.m_muons->size());
+      
+      m_mu_true_type.resize(plEvent.m_muons->size());
+      m_mu_true_origin.resize(plEvent.m_muons->size());
 
       for (const auto& muPtr : *plEvent.m_muons) {
         m_mu_pt[i] = muPtr->pt();
@@ -4239,10 +4280,92 @@ namespace top {
         m_mu_eta_bare[i] = muPtr->auxdata<float>("eta_bare");
         m_mu_phi_bare[i] = muPtr->auxdata<float>("phi_bare");
         m_mu_e_bare[i] = muPtr->auxdata<float>("e_bare");
+        
+        if(muPtr->isAvailable<unsigned int>("particleType")) m_mu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
+        else if(muPtr->isAvailable<unsigned int>("classifierParticleType")) m_mu_true_type[i] = muPtr->auxdata<unsigned int>("classifierParticleType");
+        else m_mu_true_type[i] = 0;
+        
+        if(muPtr->isAvailable<unsigned int>("particleOrigin")) m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("particleOrigin");
+        else if(muPtr->isAvailable<unsigned int>("classifierParticleOrigin")) m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("classifierParticleOrigin");
+        else m_mu_true_origin[i] = 0;
 
         ++i;
       }
-    }
+      
+      i=0;
+      if(m_config->useSoftMuons()) {
+        
+        m_softmu_pt.resize(plEvent.m_softmuons->size());
+        m_softmu_eta.resize(plEvent.m_softmuons->size());
+        m_softmu_phi.resize(plEvent.m_softmuons->size());
+        m_softmu_e.resize(plEvent.m_softmuons->size());
+        m_softmu_charge.resize(plEvent.m_softmuons->size());
+        
+        m_softmu_true_type.resize(plEvent.m_softmuons->size());
+        m_softmu_true_origin.resize(plEvent.m_softmuons->size());
+        
+        if(m_config->softmuonAdditionalTruthInfo())
+        {
+          m_softmu_parton_origin_flag.resize(plEvent.m_softmuons->size());
+          m_softmu_particle_origin_flag.resize(plEvent.m_softmuons->size());
+          m_softmu_parent_pdgid.resize(plEvent.m_softmuons->size());
+          m_softmu_b_hadron_parent_pdgid.resize(plEvent.m_softmuons->size());
+          m_softmu_c_hadron_parent_pdgid.resize(plEvent.m_softmuons->size());
+        }
+        
+        for (const auto& muPtr : *plEvent.m_softmuons) {
+          m_softmu_pt[i] = muPtr->pt();
+          m_softmu_eta[i] = muPtr->eta();
+          m_softmu_phi[i] = muPtr->phi();
+          m_softmu_e[i] = muPtr->e();
+          m_softmu_charge[i] = muPtr->charge();
+          
+          if(muPtr->isAvailable<unsigned int>("particleType")) m_softmu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
+          else if(muPtr->isAvailable<unsigned int>("classifierParticleType")) m_softmu_true_type[i] = muPtr->auxdata<unsigned int>("classifierParticleType");
+          else m_softmu_true_type[i] = 0;
+          
+          if(muPtr->isAvailable<unsigned int>("particleOrigin")) m_softmu_true_origin[i] = muPtr->auxdata<unsigned int>("particleOrigin");
+          else if(muPtr->isAvailable<unsigned int>("classifierParticleOrigin")) m_softmu_true_origin[i] = muPtr->auxdata<unsigned int>("classifierParticleOrigin");
+          else m_softmu_true_origin[i] = 0;
+          
+          if(m_config->softmuonAdditionalTruthInfo())
+          {
+            
+            m_softmu_parton_origin_flag[i]=0;
+            if(m_config->softmuonAdditionalTruthInfoCheckPartonOrigin())
+            {
+              static const SG::AuxElement::Accessor<top::LepPartonOriginFlag> leppartonoriginflag("LepPartonOriginFlag");
+              if(leppartonoriginflag.isAvailable(*muPtr)) m_softmu_parton_origin_flag[i]=static_cast<int>(leppartonoriginflag(*muPtr));
+            }
+            m_softmu_particle_origin_flag[i]=0;
+            m_softmu_parent_pdgid[i]=0;
+            m_softmu_b_hadron_parent_pdgid[i]=0;
+            m_softmu_c_hadron_parent_pdgid[i]=0;
+            static const SG::AuxElement::Accessor<top::LepParticleOriginFlag> lepparticleoriginflag("LepParticleOriginFlag");
+            if(lepparticleoriginflag.isAvailable(*muPtr)) m_softmu_particle_origin_flag[i]=static_cast<int>(lepparticleoriginflag(*muPtr));
+            
+            static const SG::AuxElement::Accessor<const xAOD::TruthParticle*> Mother("truthMotherLink");
+            const xAOD::TruthParticle* mother = 0;
+            if(Mother.isAvailable(*muPtr)) mother=Mother(*muPtr);
+            if(mother) m_softmu_parent_pdgid[i]=mother->pdgId();
+            
+            static const SG::AuxElement::Accessor<const xAOD::TruthParticle*> BMother("truthBMotherLink");
+            const xAOD::TruthParticle* Bmother = 0;
+            if(BMother.isAvailable(*muPtr)) Bmother=BMother(*muPtr);
+            if(Bmother) m_softmu_b_hadron_parent_pdgid[i]=Bmother->pdgId();
+            
+            static const SG::AuxElement::Accessor<const xAOD::TruthParticle*> CMother("truthCMotherLink");
+            const xAOD::TruthParticle* Cmother = 0;
+            if(CMother.isAvailable(*muPtr)) Cmother=CMother(*muPtr);
+            if(Cmother) m_softmu_c_hadron_parent_pdgid[i]=Cmother->pdgId();
+            
+            if(m_config->softmuonAdditionalTruthInfoDoVerbose()) asg::msgUserCode::ATH_MSG_INFO("writing truth soft muon with pt="<<m_softmu_pt[i] <<" parton_origin_flag="<<m_softmu_parton_origin_flag[i]<<" particle_origin_flag="<<m_softmu_particle_origin_flag[i]<<" parent_pdg_id="<<m_softmu_parent_pdgid[i]<<" b_hadron_parent_pdg_id="<<m_softmu_b_hadron_parent_pdgid[i]<<" c_hadron_parent_pdg_id="<<m_softmu_c_hadron_parent_pdgid[i]);
+          }
+          
+          ++i;
+        } 
+      }//end of soft muons part
+    }//end of muons part
 
     //photons
     if (m_config->useTruthPhotons()) {

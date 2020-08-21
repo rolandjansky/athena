@@ -1566,6 +1566,22 @@ namespace top {
     inline virtual float truth_muon_EtaCut() const {return m_truth_muon.EtaCut;}
     inline virtual bool truth_muon_NotFromHadron() const {return m_truth_muon.NotFromHadron;}
     inline virtual bool truth_muon_TauIsHadron() const {return m_truth_muon.TauIsHadron;}
+    
+    // soft muons
+    inline virtual void truth_softmuon_PtCut(const float pt) {
+      if (!m_configFixed) {
+        m_truth_softmuon.PtCut = pt;
+      }
+    }
+
+    inline virtual void truth_softmuon_EtaCut(const float eta) {
+      if (!m_configFixed) {
+        m_truth_softmuon.EtaCut = eta;
+      }
+    }
+
+    inline virtual float truth_softmuon_PtCut() const {return m_truth_softmuon.PtCut;}
+    inline virtual float truth_softmuon_EtaCut() const {return m_truth_softmuon.EtaCut;}
 
     // photons
     inline virtual void truth_photon_PtCut(const float pt) {
@@ -2362,6 +2378,15 @@ namespace top {
       bool TauIsHadron;      // [ParticleLevel / Truth] Whether a tauon is a
       // hadron during the 'NotFromHadron' check
     } m_truth_muon;
+    
+    // soft muons
+    struct {
+      float PtCut;           // [ParticleLevel / Truth] Muon Object
+      // Selection minimum pT Cut (Standard ATLAS
+      // units, [MeV]).
+      float EtaCut;          // [ParticleLevel / Truth] Muon Object
+      // Selection maximum absolute eta Cut.
+    } m_truth_softmuon;
 
     // photons
     struct {
