@@ -3,8 +3,8 @@ import ROOT
 import cppyy
 
 import sys
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataReadDict")
+cppyy.load_library("libDataModelTestDataCommonDict")
+cppyy.load_library("libDataModelTestDataReadDict")
 
 def CHECK(sc):
     if not sc.isSuccess():

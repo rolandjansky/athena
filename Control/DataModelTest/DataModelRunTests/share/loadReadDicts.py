@@ -19,8 +19,8 @@ class LoadReadDicts (Alg):
     def initialize (self):
         import ROOT
         import cppyy
-        cppyy.loadDictionary("libDataModelTestDataCommonDict")
-        cppyy.loadDictionary("libDataModelTestDataReadDict")
+        cppyy.load_library("libDataModelTestDataCommonDict")
+        cppyy.load_library("libDataModelTestDataReadDict")
         ROOT.DMTest.B
         ROOT.gROOT.GetClass('DMTest::HAuxContainer_v1')
         ROOT.gROOT.GetClass('DataVector<DMTest::H_v1>')
