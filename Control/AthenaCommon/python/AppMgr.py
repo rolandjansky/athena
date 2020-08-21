@@ -651,6 +651,8 @@ class AthAppMgr( AppMgr ):
       # Touch these types early, before dictionaries are loaded,
       # to prevent spurious error messages from ROOT.
       # See ATLASRECTS-3486.
+      from os import environ
+      environ['CLING_STANDARD_PCH'] = 'none' #See bug ROOT-10789
       import cppyy
       getattr(cppyy.gbl, 'vector<bool>')
       getattr(cppyy.gbl, 'vector<float>')
