@@ -216,7 +216,6 @@ def createTriggerFlags():
     flags.addFlag('Trigger.L1MenuFile',
                   lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
     
-
     # L1 topo XML file name
     def _deriveTopoConfigName(prevFlags):
         import re

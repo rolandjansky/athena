@@ -27,8 +27,6 @@ def setupMenu():
     log.info('setupMenu ...')
 
 
-   
-
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
 
