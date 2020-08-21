@@ -26,6 +26,7 @@ struct AlgorithmIdentifier {
   TrigConf::HLTHash callerHash() const;
   TrigConf::HLTHash storeHash() const;
   StatusCode isValid() const;
+  void dump();
 
   size_t m_realSlot; //!< The actual slot of the algorithm
   size_t m_slotToSaveInto; //!< The slot which is used for the purposes of recording data on this algorithm's execution. Note: might not be the *actual* slot of the alg

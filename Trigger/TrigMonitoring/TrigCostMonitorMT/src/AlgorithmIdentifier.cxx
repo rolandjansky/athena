@@ -6,7 +6,7 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
-#include "AlgorithmIdentifier.h"
+#include "TrigCostMonitorMT/AlgorithmIdentifier.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -35,13 +35,23 @@ AlgorithmIdentifier::AlgorithmIdentifier(const size_t realSlot, const size_t sav
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 TrigConf::HLTHash AlgorithmIdentifier::callerHash() const {
-  return TrigConf::HLTUtils::string2hash(m_caller, "ALG");
+  try {
+    return TrigConf::HLTUtils::string2hash(m_caller, "ALG");
+  } catch (const std::exception& ex) {
+    *m_msg << MSG::DEBUG << "Caught " << typeid(ex).name() << ": " << ex.what() << endmsg;
+  }
+  return 0;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 TrigConf::HLTHash AlgorithmIdentifier::storeHash() const {
-  return TrigConf::HLTUtils::string2hash(m_store, "STORE");
+  try {
+    return TrigConf::HLTUtils::string2hash(m_store, "STORE");
+  } catch (const std::exception& ex) {
+    *m_msg << MSG::DEBUG << "Caught " << typeid(ex).name() << ": " << ex.what() << endmsg;
+  }
+  return 0;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -51,6 +61,24 @@ StatusCode AlgorithmIdentifier::isValid() const {
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void AlgorithmIdentifier::dump() {
+  TrigConf::HLTHash theCallerHash = callerHash();
+  TrigConf::HLTHash theStoreHash = storeHash();
+
+  *m_msg << MSG::INFO << "----------" << endmsg;
+  *m_msg << "Valid? " << (isValid() ? "YES" : "NO") << endmsg;
+  *m_msg << "Real Slot:" << m_realSlot << endmsg;
+  *m_msg << "Slot Save Overrride:" << m_slotToSaveInto << endmsg;
+  *m_msg << "Caller:'" << m_caller << "'" << endmsg;
+  *m_msg << "Caller Hash:" << theCallerHash << endmsg;
+  *m_msg << "Store:'" << m_store << "'" << endmsg;
+  *m_msg << "Store Hash:" << theStoreHash << endmsg;
+  *m_msg << "View ID:" << m_viewID << endmsg;
+  *m_msg << "AI Hash:" << m_hash << endmsg;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
