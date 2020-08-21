@@ -8,10 +8,10 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+//#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHit.h"
-#include "LumiBlockData/BunchCrossingCondData.h"
+//#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include "TRandom3.h"
 
@@ -29,7 +29,7 @@ private:
 	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
 	std::map<std::string,int> m_TrackGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
-	ToolHandle<Trig::IBunchCrossingTool> m_bcTool;
+//	ToolHandle<Trig::IBunchCrossingTool> m_bcTool;
 	//SG::ReadCondHandleKey<BunchCrossingCondData>  m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
 	//BunchCrossingCondData m_bunchCrossingCondTool;
 	

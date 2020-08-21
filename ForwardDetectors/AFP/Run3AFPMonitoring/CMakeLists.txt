@@ -50,6 +50,7 @@ atlas_add_component( Run3AFPMonitoring
         LumiBlockCompsLib
         LumiBlockData
         TrigDecisionToolLib
+#        TrigAnalysisInterfaces
         xAODForward
         #xAODTrigger
         #Trigger
