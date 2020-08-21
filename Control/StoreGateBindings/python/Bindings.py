@@ -20,14 +20,6 @@ def _setup():
     cppyy.load_library( "libStoreGateBindingsDict" ) # for storegatesvc
     cppyy.load_library( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
 
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
-    _ath= cppyy.makeNamespace('AthenaInternal')
-
-    # ROOT6 workaround, kick the loading of headers
-    _ath.ROOT6_AthenaPython_WorkAround_Dummy
-    _ath.ROOT6_StoreGateBindings_WorkAround_Dummy
-    # end workaround
     
     global py_retrieve
     py_retrieve = cppyy.gbl.AthenaInternal.retrieveObjectFromStore

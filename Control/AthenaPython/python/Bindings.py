@@ -269,8 +269,6 @@ def _py_init_IIncidentSvc():
     import cppyy
     # IIncidentSvc bindings from dictionary
     _load_dict( "libGaudiKernelDict" )
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
 
     # retrieve the IIncidentSvc class
     global IIncidentSvc
@@ -303,15 +301,6 @@ def _py_init_ClassIDSvc():
     import cppyy
     # IClassIDSvc bindings from dictionary
     _load_dict( "libAthenaPythonDict" )
-
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
-
-    # load the AthenaInternal::getClid helper method
-    cppyy.makeNamespace('AthenaInternal')
-    # Really make sure that dictionaries are loaded.
-    # Needed this with 20.7.X-VAL.
-    cppyy.gbl.AthenaInternal.ROOT6_AthenaPython_WorkAround_Dummy
 
     # retrieve the IClassIDSvc class
     global IClassIDSvc
@@ -360,8 +349,6 @@ def _py_init_THistSvc():
     # ITHistSvc bindings from dictionary
     _load_dict( "libGaudiKernelDict" )
 
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
 
     # retrieve the ITHistSvc class
     global ITHistSvc
@@ -619,8 +606,6 @@ def _py_init_EventStreamInfo():
     import cppyy
     # EventStreamInfo bindings from dictionary
     _load_dict( "libEventInfoDict" )
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
 
     # retrieve the EventStreamInfo class
     ESI = cppyy.gbl.EventStreamInfo
@@ -653,8 +638,6 @@ def _py_init_EventType():
     import cppyy
     # EventStreamInfo bindings from dictionary
     _load_dict( "libEventInfoDict" )
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
 
     # retrieve the EventType class
     cls = cppyy.gbl.EventType
