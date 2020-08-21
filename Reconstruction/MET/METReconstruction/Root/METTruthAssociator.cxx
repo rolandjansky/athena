@@ -224,7 +224,7 @@ namespace met {
     // Retrieve the truth container
     SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
     if (!truthEventCont.isValid()) {
-      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEvent);
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey.key());
       return StatusCode::FAILURE;
     }
 
@@ -304,7 +304,7 @@ namespace met {
     // Retrieve the truth container
     SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
     if (!truthEventCont.isValid()) {
-      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEvent);
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey.key());
       return StatusCode::SUCCESS;
     }
 
@@ -398,7 +398,7 @@ namespace met {
     // Retrieve the truth container
     SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
     if (!truthEventCont.isValid()) {
-      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEvent);
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey.key());
       return StatusCode::SUCCESS;
     }
 
