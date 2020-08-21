@@ -15,7 +15,6 @@
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
-#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "AthContainersInterfaces/IAuxSetOption.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/OwnershipPolicy.h"
