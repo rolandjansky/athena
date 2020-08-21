@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  TopoSteering.h
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/20/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __L1TopoCoreSimulation__TopoSteering__
-#define __L1TopoCoreSimulation__TopoSteering__
+#ifndef L1TopoCoreSim_TopoSteering
+#define L1TopoCoreSim_TopoSteering
 
 #include <bitset>
 #include <iostream>
@@ -161,4 +156,4 @@ namespace TCS {
    
 } // end of namespace TCS
 
-#endif /* defined(__L1TopoCoreSimulation__TopoSteering__) */
+#endif
