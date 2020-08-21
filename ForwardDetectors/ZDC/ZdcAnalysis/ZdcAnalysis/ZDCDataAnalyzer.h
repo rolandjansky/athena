@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCDataAnalyzer_h
@@ -26,6 +26,8 @@ private:
   size_t m_preSampleIdx;
   std::string m_fitFunction;
   bool m_forceLG;
+
+  bool m_repassEnabled;
 
   std::array<std::array<int, 4>, 2> m_delayedOrder;
 
@@ -85,6 +87,8 @@ public:
   void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
   void EnableDelayed(const ZDCModuleFloatArray& delayDeltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
 
+  void EnableRepass(const ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCModuleFloatArray& peak2ndDerivMinRepassLG);
+
   unsigned int GetModuleMask() const {return m_moduleMask;}
 
   float GetModuleSum(size_t side) const {return m_moduleSum.at(side);}
@@ -125,6 +129,9 @@ public:
                       const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2,
                       const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG);
 
+  void SetFitMinMaxAmpValues(const ZDCModuleFloatArray& minAmpHG, const ZDCModuleFloatArray& minAmpLG,
+                             const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG);
+
   void SetCutValues(const ZDCModuleFloatArray& chisqDivAmpCutHG, const ZDCModuleFloatArray& chisqDivAmpCutLG,
                     const ZDCModuleFloatArray& deltaT0MinHG, const ZDCModuleFloatArray& deltaT0MaxHG,
                     const ZDCModuleFloatArray&  deltaT0MinLG, const ZDCModuleFloatArray& deltaT0MaxLG);
@@ -135,7 +142,7 @@ public:
 
   void SetNonlinCorrParams(const std::array<std::array<std::vector<float>, 4>, 2>& HGNonlinCorrParams);
 
-  void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> calibSplines)
+  void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>& calibSplines)
   {
     (*m_msgFunc_p)(ZDCMsg::Verbose, "Loading energy calibrations");
 
@@ -143,8 +150,8 @@ public:
     m_haveECalib = true;
   }
 
-  void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0HGOffsetSplines,
-                          std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0LGOffsetSplines)
+  void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>& T0HGOffsetSplines,
+                          std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>& T0LGOffsetSplines)
   {
     (*m_msgFunc_p)(ZDCMsg::Verbose, "Loading timing calibrations");
 
@@ -156,10 +163,10 @@ public:
 
   void StartEvent(int lumiBlock);
 
-  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples);
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples);
 
-  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
-                          const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed);
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples,
+                          const std::vector<float>& HGSamplesDelayed, const std::vector<float>& LGSamplesDelayed);
 
   bool FinishEvent();
 

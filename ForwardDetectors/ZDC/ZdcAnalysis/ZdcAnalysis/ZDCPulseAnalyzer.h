@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCPulseAnalyzer_h
@@ -12,12 +12,11 @@
 #include <TH1.h>
 #include <TGraphErrors.h>
 #include <TList.h>
+#include "TFitter.h"
 
 // #include <AsgTools/MessageCheck.h>
 #include "ZdcAnalysis/ZDCMsg.h"
 #include "ZdcAnalysis/ZDCFitWrapper.h"
-
-class TFitter;
 
 class ZDCPulseAnalyzer
 {
@@ -39,7 +38,12 @@ public:
         // -------------------------
         BadT0Bit              = 12, //  &4096
         ExcludeEarlyLGBit     = 13, //  &8192
-        ExcludeLateLGBit      = 14  //  &16384
+        ExcludeLateLGBit      = 14, //  &16384
+        preExpTailBit         = 15,  // &32768
+        //
+        FitMinAmpBit          = 16,   // 0x10000
+        RepassPulseBit        = 17,    // 0x20000
+        ArmSumIncludeBit      = 18,
        };
 
 private:
@@ -76,13 +80,14 @@ private:
   float m_peak2ndDerivMinThreshLG;
   float m_peak2ndDerivMinThreshHG;
 
+  bool m_useDelayed;
+
+  bool m_enableRepass;
+  float m_peak2ndDerivMinRepassLG;
+  float m_peak2ndDerivMinRepassHG;
+
   // Default fit values and cuts that can be set via modifier methods
   //
-  bool m_adjTimeRangeEvent; // indicates whether we adjust the time range for this specific event
-
-  int m_minSampleEvt;
-  int m_maxSampleEvt;
-
   int m_HGOverflowADC;
   int m_HGUnderflowADC;
   int m_LGOverflowADC;
@@ -111,6 +116,13 @@ private:
   float m_defaultT0Max;   // Upper limit on pulse t0
   float m_defaultT0Min;   // Lower limit on pulse t0
 
+  float m_fitAmpMinHG;      // Minimum amplitude in the fit
+  float m_fitAmpMinLG;      // Minimum amplitude in the fit
+
+  float m_fitAmpMaxHG;      // Minimum amplitude in the fit
+  float m_fitAmpMaxLG;      // Minimum amplitude in the fit
+
+  //
   bool m_haveTimingCorrections;
   std::vector<float> m_LGT0CorrParams; // Parameters used to correct the fit LG times
   std::vector<float> m_HGT0CorrParams; // Parameters used to correct the fit HG times
@@ -120,49 +132,70 @@ private:
 
   // Histogram used to perform the fits and function wrappers
   //
-  mutable TH1* m_fitHist;
+  mutable std::unique_ptr<TH1> m_fitHist;
 
   bool m_initializedFits;
-  ZDCFitWrapper* m_defaultFitWrapper;
-  ZDCPrePulseFitWrapper* m_prePulseFitWrapper;
+  std::unique_ptr<ZDCFitWrapper> m_defaultFitWrapper;
+  std::unique_ptr<ZDCPrePulseFitWrapper> m_prePulseFitWrapper;
+
+  // Members to keep track of adjustments to time range used in analysis/fit
+  //
+  bool m_adjTimeRangeEvent; // indicates whether we adjust the time range for this specific event
+
+  int m_minSampleEvt;
+  int m_maxSampleEvt;
 
   // Delayed pulse members
   //
-  bool  m_useDelayed;
   bool  m_useFixedBaseline;
   float m_delayedDeltaT;
   float m_delayedPedestalDiff;
-  mutable TH1* m_delayedHist;
+  mutable std::unique_ptr<TH1> m_delayedHist;
 
-  TFitter* m_prePulseCombinedFitter;
-  TFitter* m_defaultCombinedFitter;
+  std::unique_ptr<TFitter> m_prePulseCombinedFitter;
+  std::unique_ptr<TFitter> m_defaultCombinedFitter;
 
   // Dynamic data loaded for each pulse (event)
   // ==========================================
 
+  // -----------------------
   // Statuses
   //
   bool m_haveData;
+
   bool m_havePulse;
-  bool m_fail;
   bool m_useLowGain;
+  bool m_fail;
   bool m_HGOverflow;
+
   bool m_HGUnderflow;
+  bool m_PSHGOverUnderflow;
   bool m_LGOverflow;
   bool m_LGUnderflow;
-  bool m_PSHGOverUnderflow;
-  bool m_preExpTail;
+
   bool m_prePulse;
   bool m_postPulse;
   bool m_fitFailed;
-  bool m_badT0;
   bool m_badChisq;
+
+  bool m_badT0;
+  bool m_ExcludeEarly;
+  bool m_ExcludeLate;
+  bool m_preExpTail;
+
+  bool m_fixPrePulse;
+  bool m_fixPostPulse;
+  bool m_fitMinAmp;
+  bool m_repassPulse;
+
+  // -----------------------
 
   bool  m_backToHG_pre;
   float m_baselineCorr;
 
   // Pulse analysis
   //
+  int m_usedPresampIdx;
   float m_preSample;
 
   float m_maxADCValue;
@@ -173,26 +206,40 @@ private:
   int m_maxSampl;
   int m_minSampl;
 
+  float m_initialExpAmp;
   float m_minDeriv2nd;
   int   m_minDeriv2ndIndex;
 
   float m_fitTMax;          // event-by-event specified fit tmax
   float m_fitTMin;          // event-by-event specified fit tmin
 
+  float m_fitPostT0lo;      // use to assign lower bound of post pulse T0
+
   float m_initialPrePulseT0;
   float m_initialPrePulseAmp;
+
+  float m_initialPostPulseT0;
 
   float m_fitAmplitude;
   float m_fitAmpError;
   float m_fitTime;
   float m_fitTimeSub;
   float m_fitTimeCorr;
+  float m_fitTCorr2nd;
   float m_fitTau1;
   float m_fitTau2;
   float m_fitChisq;
+  float m_fitPreT0;
+  float m_fitPreAmp;
+  float m_fitPostT0;
+  float m_fitPostAmp;
+  float m_fitExpAmp;
   float m_amplitude;
   float m_ampError;
   float m_preSampleAmp;
+  float m_preAmplitude;
+  float m_postAmplitude;
+  float m_expAmplitude;
   float m_bkgdMaxFraction;
   float m_delayedBaselineShift;
 
@@ -213,9 +260,11 @@ private:
 
   // Private methods
   //
-  void Reset();
+  void Reset(bool reanalyze = false);
   void SetDefaults();
   void SetupFitFunctions();
+
+  bool DoAnalysis(bool repass);
 
   bool AnalyzeData(size_t nSamples, size_t preSample,
                    const std::vector<float>& samples,        // The samples used for this event
@@ -254,7 +303,7 @@ private:
   void DoFit();
   void DoFitCombined();
 
-  static TFitter* MakeCombinedFitter(TF1* func);
+  static std::unique_ptr<TFitter> MakeCombinedFitter(TF1* func);
 
   //  The minuit FCN used for fitting combined undelayed and delayed pulses
   //
@@ -267,7 +316,7 @@ public:
   ZDCPulseAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, float gainHG,
                    std::string fitFunction, int peak2ndDerivMinSample, float peak2DerivMinThreshHG, float peak2DerivMinThreshLG);
 
-  ~ZDCPulseAnalyzer();
+  ~ZDCPulseAnalyzer(){}
 
   static void SetFitOPtions(std::string fitOptions) { s_fitOptions = fitOptions;}
   static void SetQuietFits  (bool quiet) {s_quietFits = quiet;}
@@ -275,6 +324,8 @@ public:
   static bool QuietFits() {return s_quietFits;}
 
   void EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline = false);
+
+  void EnableRepass(float peak2ndDerivMinRepassHG, float peak2ndDerivMinRepassLG);
 
   void SetPeak2ndDerivMinTolerance(size_t tolerance) {m_peak2ndDerivMinTolerance = tolerance;}
 
@@ -284,6 +335,8 @@ public:
   void SetCutValues(float chisqDivAmpCutHG, float chisqDivAmpCutLG,
                     float deltaT0MinHG, float deltaT0MaxHG,
                     float deltaT0MinLG, float deltaT0MaxLG) ;
+
+  void SetFitMinMaxAmp(float minAmpHG, float minAmpLG, float maxAmpHG, float maxAmpLG);
 
   void SetTauT0Values(bool fixTau1, bool fixTau2, float tau1, float tau2, float t0HG, float t0LG);
 
@@ -313,36 +366,60 @@ public:
     m_haveNonlinCorr = true;
   }
 
-  bool LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float> ADCSamplesLG);
+  bool LoadAndAnalyzeData(const std::vector<float>& ADCSamplesHG, const std::vector<float>& ADCSamplesLG);
 
-  bool LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float> ADCSamplesLG,
-                          std::vector<float> ADCSamplesHGDelayed, std::vector<float> ADCSamplesLGDelayed);
+  bool LoadAndAnalyzeData(const std::vector<float>& ADCSamplesHG, const std::vector<float>& ADCSamplesLG,
+                          const std::vector<float>& ADCSamplesHGDelayed, const std::vector<float>& ADCSamplesLGDelayed);
+
+  bool ReanalyzeData();
 
   bool HaveData() const {return m_haveData;}
-  bool HavePulse() const {return m_havePulse;}
-  bool Failed() const {return m_fail;}
-  bool BadChisq() const {return m_badChisq;}
-  bool BadT0() const {return m_badT0;}
-  bool FitFailed() const {return m_fitFailed;}
-  bool PrePulse() const {return m_prePulse;}
-  bool PostPulse() const {return m_postPulse;}
+
+  // ------------------------------------------------------------
+  // Status bit setting functions
+  //
+  bool HavePulse()  const {return m_havePulse;}
   bool UseLowGain() const {return m_useLowGain;}
-
+  bool Failed()     const {return m_fail;}
   bool HGOverflow() const {return m_HGOverflow;}
-  bool HGUnderflow() const {return m_HGUnderflow;}
-  bool LGOverflow() const {return m_LGOverflow;}
-  bool LGUnderflow() const {return m_LGUnderflow;}
 
+  bool HGUnderflow()       const {return m_HGUnderflow;}
   bool PSHGOverUnderflow() const {return m_PSHGOverUnderflow;}
+  bool LGOverflow()        const {return m_LGOverflow;}
+  bool LGUnderflow()       const {return m_LGUnderflow;}
 
+  bool PrePulse()  const {return m_prePulse;}
+  bool PostPulse() const {return m_postPulse;}
+  bool FitFailed() const {return m_fitFailed;}
+  bool BadChisq()  const {return m_badChisq;}
+
+  bool BadT0()          const {return m_badT0;}
+  bool ExcludeEarlyLG() const {return m_ExcludeEarly;}
+  bool ExcludeLateLG()  const {return m_ExcludeLate;}
+  bool preExpTail()     const {return m_preExpTail;}
+  bool fitMinimumAmplitude() const {return m_fitMinAmp;}
+  bool repassPulse() const {return m_repassPulse;}
+  bool ArmSumInclude() const {return HavePulse() && !(FitFailed() || BadChisq() || BadT0() || fitMinimumAmplitude());}
+
+  // ------------------------------------------------------------
+
+
+  // ---------------------------
+  // Get fit parameters
+  //
   float GetFitAmplitude() const {return m_fitAmplitude;}
-  float GetFitT0() const {return m_fitTime;}
-  float GetT0Sub() const {return m_fitTimeSub;}
-  float GetT0Corr() const {return m_fitTimeCorr;}
-  float GetChisq() const {return m_fitChisq;}
-
-  float GetFitTau1() const {return m_fitTau1;}
-  float GetFitTau2() const {return m_fitTau2;}
+  float GetFitT0()        const {return m_fitTime;}
+  float GetT0Sub()        const {return m_fitTimeSub;}
+  float GetT0Corr()       const {return m_fitTimeCorr;}
+  float GetChisq()        const {return m_fitChisq;}
+  float GetFitTau1()      const {return m_fitTau1;}
+  float GetFitTau2()      const {return m_fitTau2;}
+  float GetFitPreT0()     const {return m_fitPreT0;}
+  float GetFitPreAmp()    const {return m_preAmplitude;}
+  float GetFitPostT0()    const {return m_fitPostT0;}
+  float GetFitPostAmp()   const {return m_postAmplitude;}
+  float GetFitExpAmp()    const {return m_expAmplitude;}
+  // ---------------------------
 
   float GetAmplitude() const {return m_amplitude;}
   float GetAmpError() const {return m_ampError;}
@@ -383,37 +460,12 @@ public:
       else FillHistogram(m_samplesSub, m_ADCSSampSigHG);
     }
 
-    return m_fitHist;
+    return m_fitHist.get();
   }
 
-  TGraphErrors* GetCombinedGraph() const {
-    //
-    // We defer filling the histogram if we don't have a pulse until the histogram is requested
-    //
-    GetHistogramPtr();
+  std::shared_ptr<TGraphErrors> GetCombinedGraph() const;
+  std::shared_ptr<TGraphErrors> GetGraph() const;
 
-    TGraphErrors* theGraph = new TGraphErrors(2 * m_Nsample);
-    size_t npts = 0;
-
-    for (int ipt = 0; ipt < m_fitHist->GetNbinsX(); ipt++) {
-      theGraph->SetPoint(npts, m_fitHist->GetBinCenter(ipt + 1), m_fitHist->GetBinContent(ipt + 1));
-      theGraph->SetPointError(npts++, 0, m_fitHist->GetBinError(ipt + 1));
-    }
-
-    for (int iDelayPt = 0; iDelayPt < m_delayedHist->GetNbinsX(); iDelayPt++) {
-      theGraph->SetPoint(npts, m_delayedHist->GetBinCenter(iDelayPt + 1), m_delayedHist->GetBinContent(iDelayPt + 1) - m_delayedBaselineShift);
-      theGraph->SetPointError(npts++, 0, m_delayedHist->GetBinError(iDelayPt + 1));
-    }
-
-    TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
-    theGraph->GetListOfFunctions()->Add(func_p);
-    theGraph->SetName(( std::string(m_fitHist->GetName()) + "combinaed").c_str());
-
-    theGraph->SetMarkerStyle(20);
-    theGraph->SetMarkerColor(1);
-
-    return theGraph;
-  }
 
   std::unique_ptr<TH1> GetFitPulls() const
   {
@@ -426,6 +478,9 @@ public:
 
     return hist;
   }
+
+  std::shared_ptr<TGraphErrors> GetUndelayedGraph() const;
+  std::shared_ptr<TGraphErrors> GetDelayedGraph() const;
 
   void Dump() const;
   void Dump_setting() const;

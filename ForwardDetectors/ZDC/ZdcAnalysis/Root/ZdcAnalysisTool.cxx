@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZdcAnalysisTool.h"
@@ -419,13 +419,15 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 {
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples;
-    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG;
     ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCut;
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
 
-    const int peakSample = 5;
-    const float peak2ndDerivThreshHG = -12;
-    const float peak2ndDerivThreshLG = -10;
+    static constexpr int peakSample = 5;
+    static constexpr float peak2ndDerivThreshHG = -35;
+    static constexpr float peak2ndDerivThreshLG = -20;
+    static constexpr float peak2ndDerivRepassHG = -10;
+    static constexpr float peak2ndDerivRepassLG = -6;
 
     ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {3.877, 3.998, 3.821, 3.858,
                                                     4.296, 4.064, 3.497, 3.642
@@ -450,12 +452,14 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     for (size_t side : {0, 1}) {
         for (size_t module : {0, 1, 2, 3}) {
-            fixTau1Arr[side][module] = m_fixTau1;
-            fixTau2Arr[side][module] = m_fixTau2;
+            fixTau1Arr[side][module] = true;
+            fixTau2Arr[side][module] = true;
 
             peak2ndDerivMinSamples[side][module] = peakSample;
             peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
             peak2ndDerivMinThresholdsLG[side][module] = peak2ndDerivThreshLG;
+            peak2ndDerivMinRepassHG    [side][module] = peak2ndDerivRepassHG;
+            peak2ndDerivMinRepassLG    [side][module] = peak2ndDerivRepassLG;
 
             chisqDivAmpCut[side][module] = 15;
         }
@@ -491,8 +495,8 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), 7, 25, 0, "FermiExp", peak2ndDerivMinSamples, // presample index changed to zero 4/6/19
-            peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer = std::make_unique<ZDCDataAnalyzer>(MakeMessageFunction(), 7, 25, 0, "FermiExpLinear", peak2ndDerivMinSamples, // presample index changed to zero 4/6/19
+            peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly);
 
     // Open up tolerances on the position of the peak for now
     //
@@ -520,6 +524,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting, requested by BAC 4/6/19
     zdcDataAnalyzer->SetSaveFitFunc(false);
+    zdcDataAnalyzer->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG); // add repass as default Jul 21 2020 Bill
     zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
     // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
@@ -1127,7 +1132,7 @@ void ZdcAnalysisTool::setEnergyCalibrations(unsigned int runNumber)
         }
     }
     fCalib->Close();
-    if (m_doCalib) m_zdcDataAnalyzer->LoadEnergyCalibrations(std::move(splines));
+    if (m_doCalib) m_zdcDataAnalyzer->LoadEnergyCalibrations(splines);
 
     return;
 }
@@ -1171,7 +1176,7 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
                 }
             }
         }
-        m_zdcDataAnalyzer->LoadT0Calibrations(std::move (T0HGOffsetSplines), std::move (T0LGOffsetSplines));
+        m_zdcDataAnalyzer->LoadT0Calibrations(T0HGOffsetSplines, T0LGOffsetSplines);
         fCalib->Close();
     }
     else
