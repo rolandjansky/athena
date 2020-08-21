@@ -490,6 +490,8 @@ def defineMenu():
 
         # TRT
         # "L1_TRT",
+        "L1_TRT_FILLED",
+        "L1_TRT_EMPTY",
 
         # TGC
         "L1_TGC_BURST",
@@ -886,6 +888,8 @@ def defineMenu():
         'L1_RD0_EMPTY' : 202,
         'L1_RD1_EMPTY' : 204,
         'L1_RD2_EMPTY' : 206,
+        'L1_TRT_FILLED' : 218,
+        'L1_TRT_EMPTY' : 219,
         'L1_RD0_ABORTGAPNOTCALIB' : 372,
         'L1_TGC_BURST' : 220,
         'L1_ZB' : 240,
