@@ -52,7 +52,7 @@ for opt,arg in opts:
 
 
 rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['muon']
+rdo2aod.slices = ['tau']
 rdo2aod.max_events = 6000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4

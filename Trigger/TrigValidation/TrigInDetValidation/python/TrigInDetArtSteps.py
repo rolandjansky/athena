@@ -143,6 +143,7 @@ class TrigInDetCompStep(RefComparisonStep):
         self.chains = ' '
         self.args = ''
         self.test = ' '
+        self.type = 'truth'
         self.auto_report_result = True
         self.required = True
         self.executable = 'TIDAcomparitor'
@@ -196,6 +197,9 @@ class TrigInDetCompStep(RefComparisonStep):
         else:
             print('Unknown flag for comparitor step ', self.flag) 
 
+        if (self.type == 'offl'):
+            self.output_dir = self.output_dir+'-offl'    
+            self.input_file = 'data-hists-offline.root'
         if (self.reference == None):
             # if no referenc found, use input file as reference
             self.args += self.input_file+' '+self.input_file+' '+self.chains+' -d '+self.output_dir
