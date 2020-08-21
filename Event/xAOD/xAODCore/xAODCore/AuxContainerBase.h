@@ -213,8 +213,6 @@ namespace xAOD {
       void regAuxVar1( auxid_t auxid, const std::string& name,
                        CONT& vec );
 
-      /// Dynamic attributes selection implementation
-      AuxSelection  m_selection;
       /// Attributes compression implementation
       AuxCompression  m_compression;
       /// Internal list of all available variables

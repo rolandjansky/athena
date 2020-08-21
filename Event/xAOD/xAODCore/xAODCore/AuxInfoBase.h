@@ -175,8 +175,6 @@ namespace xAOD {
                       T& info );
 
    private:
-      /// Dynamic attributes selection implementation
-      AuxSelection m_selection;
       /// Internal list of all available variables
       auxid_set_t m_auxids;
       /// Internal list of all managed variables
