@@ -65,7 +65,6 @@ def precisionElectronRecoSequence(RoIs):
 
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking("electron", ViewVerifyTrk, inputFTFtracks= TrackCollection, rois= RoIs)
     PTSeq = parOR("precisionTrackingInElectrons", PTAlgs)
-    #electronPrecisionTrack += PTSeq
     trackParticles = PTTrackParticles[-1]
     
     electronPrecisionTrack = parOR("electronPrecisionTrack")
@@ -99,8 +98,9 @@ def precisionElectronRecoSequence(RoIs):
     trigTopoEgammaAlgo.SuperElectronRecCollectionName = trigElectronAlgo.SuperElectronRecCollectionName
     collectionOut = trigTopoEgammaAlgo.ElectronOutputName
     thesequence += trigTopoEgammaAlgo
-
     
-    return (thesequence, electronPrecisionTrack, collectionOut)    
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigElectronIsoBuilderCfg
+    isoBuilder = TrigElectronIsoBuilderCfg()
+    thesequence += isoBuilder
 
-
+    return (thesequence, electronPrecisionTrack, collectionOut)
