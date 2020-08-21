@@ -51,6 +51,7 @@ class TrigInDetReco(ExecStep):
             'from TriggerJobOpts.TriggerFlags import TriggerFlags',
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
+        self.postexec_trig = ' '
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 
 
@@ -61,22 +62,30 @@ class TrigInDetReco(ExecStep):
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
+                chains += "'HLT_mu26_ivarmedium_L1MU20',"
                 flags += 'doMuonSlice=True;'
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
+                chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
+                chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
                 chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20',"
                 flags += 'doBjetSlice=True;'
+            if (i=='beamspot') :
+                chains += "'HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15','HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15',"
+                flags += 'doBeamspotSlice=True;'
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
+        if (self.postexec_trig != ' '):
+            self.args += ' --postExec "RDOtoRDOTrigger:{:s};" '.format(self.postexec_trig)
         super(TrigInDetReco, self).configure(test)
 
 

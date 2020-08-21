@@ -7,6 +7,7 @@
 # art-input-nfiles: 8
 # art-athena-mt: 4
 # art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
