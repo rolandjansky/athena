@@ -55,28 +55,28 @@ class TrigDecisionChecker : public AthAlgorithm
   StatusCode finalize();//!< std Gaudi finalize method
   
  private:
-  template <class T> StatusCode checkEDM(std::string trigItem);
-  StatusCode checkTauEDM(std::string trigItem);
+  template <class T> StatusCode checkEDM(const std::string& trigItem);
+  StatusCode checkTauEDM(const std::string& trigItem);
 
-  StatusCode checkMuonEDM(std::string trigItem);
+  StatusCode checkMuonEDM(const std::string& trigItem);
 
-  StatusCode checkBphysEDM(std::string trigItem); //!< Bphysics EDM checker
+  StatusCode checkBphysEDM(const std::string& trigItem); //!< Bphysics EDM checker
 
-  StatusCode checkBjetEDM(std::string trigItem);
+  StatusCode checkBjetEDM(const std::string& trigItem);
   
-  StatusCode checkElectronEDM(std::string trigItem);
+  StatusCode checkElectronEDM(const std::string& trigItem);
 
-  StatusCode checkPhotonEDM(std::string trigItem);
+  StatusCode checkPhotonEDM(const std::string& trigItem);
 
-  StatusCode checkMinBiasEDM(std::string trigItem);
+  StatusCode checkMinBiasEDM(const std::string& trigItem);
   void checkTrigSpacePointCounts(const Trig::FeatureContainer& fc);
   void checkTrigT2MBTSBits(const Trig::FeatureContainer& fc);
   void checkTrigVertexCounts(const Trig::FeatureContainer& fc);
   void checkTrigTrackCounts(const Trig::FeatureContainer& fc);
 
-  StatusCode checkJetEDM(std::string trigItem);
+  StatusCode checkJetEDM(const std::string& trigItem);
 
-  StatusCode checkMetEDM(std::string trigItem);
+  StatusCode checkMetEDM(const std::string& trigItem);
 
   uint32_t m_smk; ///< Super Master Key
   uint32_t m_l1psk; ///< LVL1 Prescale Key
