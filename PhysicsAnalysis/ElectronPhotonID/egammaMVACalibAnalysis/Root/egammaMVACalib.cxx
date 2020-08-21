@@ -2,12 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
 #include <cassert>
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <map>
 #include <memory>
+#include <string>
+#include <utility>
+
 #include <vector>
 #include <stdexcept>
 
@@ -37,11 +39,10 @@
 #include "PathResolver/PathResolver.h"
 
 #include "MVAUtils/BDT.h"
-#include "MVAUtils/TMVAToMVAUtils.h"
 using namespace MVAUtils;
 
 #define CHECK_SETUPBDT(EXP) { \
-  if (!EXP) { \
+  if (!(EXP)) { \
 	 	ATH_MSG_WARNING( #EXP << " returned false (not present?), skipping " << f->GetName() ); \
     f->Close(); \
     return; \
@@ -53,14 +54,14 @@ using namespace MVAUtils;
 // - Print "empty" bins ?
 
 template<typename T>
-std::unique_ptr<T> loadFromFile(TFile* f, std::string key)
+std::unique_ptr<T> loadFromFile(TFile* f, const std::string& key)
 {
   return std::unique_ptr<T>( dynamic_cast<T*>(f->Get(key.c_str())));
 }
 
 egammaMVACalib::egammaMVACalib(int particle,
                                bool useNewBDTs,
-                               TString folder,
+                               const TString& folder,
                                const TString & method,
                                int calibrationType,
                                bool debug,
@@ -77,13 +78,13 @@ egammaMVACalib::egammaMVACalib(int particle,
     m_particleTypeVar(particleTypeVar),
     m_ignoreSpectators(ignoreSpectators),
     m_hasEnergyBins(false), m_binMultiplicity(0),
-    m_particleType(0), m_eta(0), m_energy(0), m_initialEnergy(0),
-    m_hPoly(0),
-    m_tree(0), m_input_tree(0),
+    m_particleType(nullptr), m_eta(nullptr), m_energy(nullptr), m_initialEnergy(nullptr),
+    m_hPoly(nullptr),
+    m_tree(nullptr), m_input_tree(nullptr),
     m_mvaOutput(0),
     m_dummyFloat(0),
     m_shiftType(NOSHIFT),
-    m_clusterFormula(0)
+    m_clusterFormula(nullptr)
 {
     ATH_MSG_DEBUG("creating egammaMVACalib in debug mode with options:"
           << "\n  particle     : " << particle
@@ -225,7 +226,7 @@ egammaMVACalib::~egammaMVACalib()
   ATH_MSG_DEBUG("finishing");
 }
 
-void egammaMVACalib::setPeakCorrection(TString shift_type)
+void egammaMVACalib::setPeakCorrection(const TString& shift_type)
 {
   ShiftType shift = NOSHIFT;
   if (shift_type == "NOSHIFT") shift = NOSHIFT;
@@ -268,7 +269,7 @@ egammaMVACalib::getUserInfo(const TString & xmlfilename)
   while (std::string(xml.GetNodeName(user_infos_node)) != "UserInfo")
   {
     user_infos_node = xml.GetNext(user_infos_node);
-    if (user_infos_node == 0) break;
+    if (user_infos_node == nullptr) break;
   }
   if (!user_infos_node) {
     xml.FreeDoc(xmldoc);
@@ -277,11 +278,11 @@ egammaMVACalib::getUserInfo(const TString & xmlfilename)
 
   // loop over all children inside <UserInfo>
   XMLNodePointer_t info_node = xml.GetChild(user_infos_node);
-  while (info_node != 0)
+  while (info_node != nullptr)
   {
     XMLAttrPointer_t attr = xml.GetFirstAttr(info_node);
     TString name, value;
-    while (attr != 0) {
+    while (attr != nullptr) {
       const TString key_name = xml.GetAttrName(attr);
       const TString key_value = xml.GetAttrValue(attr);
       if (key_name == "name") {
@@ -395,8 +396,8 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   auto hPoly = loadFromFile<TH2Poly>(f.get(), "hPoly");
   CHECK_SETUPBDT( hPoly );
 
-  if (!m_hPoly) m_hPoly = (TH2Poly*) hPoly.get()->Clone();
-  m_hPoly->SetDirectory(0);
+  if (!m_hPoly) m_hPoly = (TH2Poly*) hPoly->Clone();
+  m_hPoly->SetDirectory(nullptr);
   CHECK_SETUPBDT( m_hPoly );
 
   // Load formulae
@@ -416,7 +417,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
 
   // Load trees
   auto trees = loadFromFile<TObjArray>(f.get(), "trees");
-  if (trees.get()) {
+  if (trees) {
     trees->SetOwner(); // to delete the objects when d-tor is called
     ATH_MSG_DEBUG("setupBDT " << "BDTs read from TObjArray");
   }
@@ -486,7 +487,7 @@ bool egammaMVACalib::parseFileName(const TString & fileName, egammaMVACalib::Rea
 {
   // Check if the fileName matches the expected pattern for readers
   std::unique_ptr<TObjArray> match(m_fileNamePattern->MatchS(fileName));
-  if (!match.get() or match->GetEntries() != 3) {
+  if (!match or match->GetEntries() != 3) {
     return false;
   }
 
@@ -501,7 +502,7 @@ bool egammaMVACalib::parseFileName(const TString & fileName, egammaMVACalib::Rea
   //   delete match;
 
   std::unique_ptr<TObjArray> binArray(binDef.Tokenize("_"));
-  if (!binArray.get()) return false;
+  if (!binArray) return false;
 
   TIter next(binArray.get());
 
@@ -550,15 +551,14 @@ bool egammaMVACalib::parseFileName(const TString & fileName, egammaMVACalib::Par
   // Check if the fileName matches the expected pattern for readers
   TPRegexp fileNamePattern("MVACalib_(.*?).weights.root");
   std::unique_ptr<TObjArray> match(fileNamePattern.MatchS(fileName));
-  if (!match.get() or match->GetEntries() != 2) {
+  if (!match or match->GetEntries() != 2) {
     return false;
   }
   ATH_MSG_DEBUG("Checking: " << fileName.Data());
   // Define the ParticleType, convert the string to the enum
   TString pType = getString(match->At(1));
   particleType = getParticleType(pType);
-  if (particleType == INVALIDPARTICLE) return false;
-  return true;
+  return particleType != INVALIDPARTICLE;
 }
 
 TString egammaMVACalib::getBinName(const TString & binField)
@@ -696,7 +696,7 @@ void egammaMVACalib::predefineFormula(const TString & name, const TString & expr
   std::map< TString, VarFormula >::iterator it = m_formulae.find(name);
   if (it == m_formulae.end()) // variable not yet defined
   {
-    VarFormula v = { 0, expression, infoType, valueType, 0, 0 };
+    VarFormula v = { 0, expression, infoType, valueType, nullptr, 0 };
     m_formulae[name] = v;
     ATH_MSG_DEBUG("Formula " << name << " := " << expression);
   }
@@ -741,12 +741,12 @@ int egammaMVACalib::getBin() const
 TTree* egammaMVACalib::createInternalTree(TTree *tree)
 {
   ATH_MSG_DEBUG("Creating internal tree");
-  if (!tree) { 
-      ATH_MSG_FATAL("tree is null"); 
+  if (!tree) {
+      ATH_MSG_FATAL("tree is null");
       throw std::runtime_error("Null pointer");
   }
   TTree* new_tree = new TTree();
-  new_tree->SetDirectory(0);
+  new_tree->SetDirectory(nullptr);
   new_tree->SetCacheSize(0);
 
   new_tree->Branch(m_methodName.Data(), &m_mvaOutput, Form("%s/F", m_methodName.Data()));
@@ -908,12 +908,12 @@ int egammaMVACalib::getNdata()
 
 
 TTree* egammaMVACalib::getMVAResponseTree(TTree *tree, int Nentries, TString branchName,
-                                          TString copyBranches, int first_event, bool flatten, int update)
+                                          const TString& copyBranches, int first_event, bool flatten, int update)
 {
   if (!tree)
   {
     ATH_MSG_WARNING("getMVAResponseTree " << "Null pointer to tree");
-    return 0;
+    return nullptr;
   }
 
   InitTree(tree);
@@ -1118,13 +1118,13 @@ egammaMVACalib::parseVariables(TXMLEngine *xml, void* node, const TString & node
   if (!xml || !node) return result;
 
   // loop over all children inside <Variables> or <Spectators>
-  for (XMLNodePointer_t info_node = xml->GetChild(node); info_node != 0;
+  for (XMLNodePointer_t info_node = xml->GetChild(node); info_node != nullptr;
        info_node = xml->GetNext(info_node))
   {
     XMLAttrPointer_t attr = xml->GetFirstAttr(info_node);
     XmlVariableInfo o;
     // loop over the attributes of each child
-    while (attr != 0)
+    while (attr != nullptr)
     {
       TString name = xml->GetAttrName(attr);
       if (name == "Expression")
@@ -1190,7 +1190,7 @@ void egammaMVACalib::printReadersInfo() const
 
   ATH_MSG_INFO(getNreaders() << " readers created");
   TAxis* fAxisEta = m_hPoly->GetXaxis(); // TODO: ???
-  TAxis* fAxisEnergy = (m_binMultiplicity > 1 ? m_hPoly->GetYaxis() : 0);
+  TAxis* fAxisEnergy = (m_binMultiplicity > 1 ? m_hPoly->GetYaxis() : nullptr);
 
   if (fAxisEta){
     ATH_MSG_INFO("egammaMVACalib::printReadersInfo "
@@ -1236,7 +1236,7 @@ TObjArray* egammaMVACalib::getListOfBranches()
   if (!m_input_tree)
   {
     ATH_MSG_WARNING("getListOfBranches " << " No tree defined");
-    return 0;
+    return nullptr;
   }
 
   TObjArray* branches = new TObjArray();
@@ -1276,14 +1276,14 @@ TString egammaMVACalib::getCalibTypeString()
 {
   if (m_calibrationType == correctEcluster)
     return "Ecluster";
-  else if (m_calibrationType == correctEaccordion)
+  if (m_calibrationType == correctEaccordion)
     return "Eaccordion";
-  else if (m_calibrationType == fullCalibration)
+  if (m_calibrationType == fullCalibration)
     return "Efull";
   return "";
 }
 
-TTree* egammaMVACalib::getOutputTree(TString copyBranches, bool deactivateFirst)
+TTree* egammaMVACalib::getOutputTree(const TString& copyBranches, bool deactivateFirst)
 {
   // Deactivate all branches before cloning the tree
   if (deactivateFirst)
@@ -1423,100 +1423,6 @@ void egammaMVACalib::checkShowerDepth(TTree *tree)
     newShowerDepth.ReplaceAll("ph_", prefix);
     m_formulae[showerDepth].expression = newShowerDepth;
   }
-}
-
-void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
-{
-  if (m_useNewBDTs ? !m_BDTs.size() : !m_readers.size())
-  {
-    ATH_MSG_WARNING("writeROOTfile " << "No reader defined, not dumping ROOT file");
-    return;
-  }
-  if (particle == INVALIDPARTICLE)
-  {
-    if (m_egammaType == egPHOTON)
-    {
-      writeROOTfile(directory, UNCONVERTED);
-      writeROOTfile(directory, CONVERTED);
-      return;
-    }
-    else
-    {
-      writeROOTfile(directory, ELECTRON);
-      return;
-    }
-  }
-
-  if (m_useNewBDTs)
-  {
-    ATH_MSG_WARNING("writeROOTfile " << "not implemented when reading ROOT files");
-    return;
-  }
-
-  TString particleName("electron");
-  if (particle == UNCONVERTED)
-    particleName = "unconvertedPhoton";
-  else if (particle == CONVERTED)
-    particleName = "convertedPhoton";
-
-  TString fileName = directory + TString("/MVACalib_") + particleName + TString(".weights.root");
-  TFile *f = TFile::Open(fileName, "UPDATE");
-  TObjArray trees, variables, formulae, shifts;
-
-  // Convert readers to TTrees and fill variables
-  // The index of each object in the array is determined by the binning
-  std::map< egammaMVACalib::ReaderID, TMVA::Reader* >::const_iterator itReader;
-  for (itReader = m_readers.begin(); itReader != m_readers.end(); ++itReader)
-  {
-    if (itReader->first.particleType != particle) continue;
-    // bin has an offset so index = bin - 1
-    addReaderInfoToArrays(itReader->second, &trees, &variables, itReader->first.bin - 1);
-  }
-
-  // Expressions (formulae)
-  std::map<TString, egammaMVACalib::VarFormula>::const_iterator it;
-  for (it = m_formulae.begin(); it != m_formulae.end(); ++it)
-    formulae.Add(new TNamed(it->first, it->second.expression));
-
-  // Shifts
-  for (ShiftMap::iterator itS = m_shiftMap.begin(); itS != m_shiftMap.end(); ++itS)
-  {
-    if (itS->first.first.particleType != particle || itS->first.second != MEAN10TOTRUE)
-      continue;
-    shifts.Add(new TObjString(itS->second->GetTitle()));
-  }
-
-  // Write and close
-  int option = (TObject::kSingleKey | TObject::kOverwrite);
-//   trees.Write("trees", option);
-  ATH_MSG_INFO("writeROOTfile " << "Ntrees: " << trees.GetEntries());
-  trees.Print();
-  trees.Write();
-  variables.Write("variables", option);
-  formulae.Write("formulae", option);
-  shifts.Write("shifts", option);
-  getTH2Poly()->Write(0, option);
-  f->Close();
-  ATH_MSG_INFO("writeROOTfile " << "Wrote ROOT file: " <<fileName.Data());
-
-}
-
-void egammaMVACalib::addReaderInfoToArrays(TMVA::Reader *reader,
-                                           TObjArray *trees,
-                                           TObjArray *variables,
-                                           int index)
-{
-  if (index < 0) index = variables->GetSize();
-  TString *vars = getVariables(reader);
-  assert(vars);
-
-  TMVA::MethodBDT* tbdt = dynamic_cast<TMVA::MethodBDT*>(reader->FindMVA("BDTG"));
-  assert(tbdt);
-  std::unique_ptr<BDT> bdt = TMVAToMVAUtils::convert(tbdt);
-  TTree *tree = bdt->WriteTree(Form("BDT%d", index));
-
-  variables->AddAtAndExpand(new TObjString(*vars), index);
-  trees->AddAtAndExpand(tree, index);
 }
 
 
