@@ -91,6 +91,13 @@ InDet::PixelClusterOnTrackTool::~PixelClusterOnTrackTool() {
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
+namespace {
+   std::string_view stripStoreName(const std::string &name) {
+      std::string::size_type pos = name.find("+");
+      pos =  (pos!=std::string::npos ? pos + 1 : 0);
+      return std::string_view( &(name.c_str()[pos]),name.size()-pos);
+   }
+}
 
 StatusCode
 InDet::PixelClusterOnTrackTool::initialize() {
@@ -147,7 +154,18 @@ InDet::PixelClusterOnTrackTool::initialize() {
   ///  
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
-   
+
+  if (!m_renounce.empty()) {
+     for (Gaudi::DataHandle* input_handle : inputHandles()) {
+        std::string_view base_name(stripStoreName(input_handle->objKey()));
+        for (const std::string &renounce_input : m_renounce) {
+           if (base_name==renounce_input) {
+              renounce(*input_handle);
+              ATH_MSG_INFO("Renounce : " << name() << " . " << input_handle->objKey() );
+           }
+        }
+     }
+  }
   return StatusCode::SUCCESS;
 }
 

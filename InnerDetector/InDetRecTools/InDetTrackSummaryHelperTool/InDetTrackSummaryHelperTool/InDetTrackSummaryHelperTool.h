@@ -166,6 +166,9 @@ namespace InDet {
     SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>   m_clusterSplitProbContainer
        {this, "ClusterSplitProbabilityName", "",""};
 
+    Gaudi::Property<std::vector<std::string> >                 m_renounce
+       {this, "RenounceInputHandles", {},""};
+
     BooleanProperty m_usePixel{this, "usePixel", true};
     BooleanProperty m_useSCT{this, "useSCT", true};
     BooleanProperty m_useTRT{this, "useTRT", true};

@@ -175,6 +175,8 @@ private:
 
   SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>   m_clusterSplitProbContainer
      {this, "ClusterSplitProbabilityName", "",""};
+  Gaudi::Property<std::vector<std::string> >                 m_renounce
+     {this, "RenounceInputHandles", {},""};
 
   //moved from static to member variable
   static constexpr int s_nbinphi=9;

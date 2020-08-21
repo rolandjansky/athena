@@ -110,7 +110,7 @@ def InDetKOL(name='InDetKOL',**kwargs) :
 def InDetMeasRecalibST(name='InDetMeasRecalibST',**kwargs) :
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     from InDetRecExample import TrackingCommon as TrackingCommon
     if 'BroadPixelClusterOnTrackTool' not in kwargs :
@@ -132,7 +132,7 @@ def InDetKalmanTrackFitterBase(name='InDetKalmanTrackFitterBase',**kwargs) :
     from AthenaCommon.AppMgr import ToolSvc
 
     nameSuffix=kwargs.pop('nameSuffix','')
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles'])
     if len(pix_cluster_on_track_args)>0 and len(nameSuffix)>0 :
         pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
@@ -194,7 +194,7 @@ def KalmanDNAFitter(name='KalmanDNAFitter',**kwargs) :
     return InDetKalmanTrackFitterBase(name,**kwargs)
 
 def DistributedKalmanFilter(name="DistributedKalmanFilter", **kwargs) :
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     from InDetRecExample.TrackingCommon          import setDefaults
     if 'ExtrapolatorTool' not in kwargs :
@@ -241,7 +241,7 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
     return Trk__GlobalChi2Fitter(name, **kwargs)
 
 def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     from InDetRecExample import TrackingCommon as TrackingCommon
     if 'RotCreatorTool' not in kwargs :
@@ -291,7 +291,7 @@ def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
 def InDetGlobalChi2FitterLowPt(name='InDetGlobalChi2FitterLowPt', **kwargs) :
     # @TODO TrackingGeometrySvc was not set but is set now
     #       RotCreatorTool and BroadRotCreatorTool not set
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     from InDetRecExample import TrackingCommon as TrackingCommon
     if 'RotCreatorTool' not in kwargs :
@@ -315,7 +315,7 @@ def InDetGlobalChi2FitterTRT(name='InDetGlobalChi2FitterTRT', **kwargs) :
     '''
     Global Chi2 Fitter for TRT segments with different settings
     '''
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     if 'RotCreatorTool' not in kwargs :
         from InDetRecExample import TrackingCommon as TrackingCommon
@@ -343,7 +343,7 @@ def InDetGlobalChi2FitterTRT(name='InDetGlobalChi2FitterTRT', **kwargs) :
        ))
 
 def InDetGlobalChi2FitterDBM(name='InDetGlobalChi2FitterDBM', **kwargs) :
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
     if 'RotCreatorTool' not in kwargs :
         from InDetRecExample import TrackingCommon as TrackingCommon
         kwargs=setDefaults(kwargs, RotCreatorTool = TrackingCommon.getInDetRotCreatorDBM(**pix_cluster_on_track_args))
@@ -359,7 +359,7 @@ def InDetGlobalChi2FitterDBM(name='InDetGlobalChi2FitterDBM', **kwargs) :
                                                           Momentum              = 1000.*Units.MeV))
 
 def GaussianSumFitter(name='GaussianSumFitter', **kwargs) :
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     from InDetRecExample import TrackingCommon as TrackingCommon
     if 'ToolForROTCreation' not in kwargs :

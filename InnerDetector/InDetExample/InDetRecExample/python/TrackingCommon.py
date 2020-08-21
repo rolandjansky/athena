@@ -513,7 +513,7 @@ def getInDetTRT_DriftCircleOnTrackUniversalToolCosmics(name='TRT_DriftCircleOnTr
 
 @makePublicTool
 def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
-    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix']
+    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix']
     pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
     # note nameSuffix is strupped by makeName
     the_name = makeName( name, kwargs)
@@ -548,7 +548,7 @@ def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
 
 def getInDetRotCreatorPattern(name='InDetRotCreatorPattern', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         kwargs = setDefaults(kwargs,
                              ToolPixelCluster = getInDetPixelClusterOnTrackToolPattern(**pix_cluster_on_track_args))
     return getInDetRotCreator(name=name, **kwargs)
@@ -556,7 +556,7 @@ def getInDetRotCreatorPattern(name='InDetRotCreatorPattern', **kwargs) :
 
 def getInDetRotCreatorDBM(name='InDetRotCreatorDBM', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         from InDetRecExample.InDetJobProperties import InDetFlags
         from AthenaCommon.DetFlags              import DetFlags
         if InDetFlags.loadRotCreator() and DetFlags.haveRIO.pixel_on():
@@ -569,7 +569,7 @@ def getInDetRotCreatorDBM(name='InDetRotCreatorDBM', **kwargs) :
 
 def getInDetRotCreatorDigital(name='InDetRotCreatorDigital', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         kwargs = setDefaults(kwargs,
                              ToolPixelCluster = getInDetPixelClusterOnTrackToolDigital(**pix_cluster_on_track_args))
     return getInDetRotCreator(name=name, **kwargs)
@@ -577,7 +577,7 @@ def getInDetRotCreatorDigital(name='InDetRotCreatorDigital', **kwargs) :
 # @TODO rename to InDetBroadRotCreator
 def getInDetBroadRotCreator(name='InDetBroadInDetRotCreator', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         kwargs = setDefaults(kwargs,
                              ToolPixelCluster    = getInDetBroadPixelClusterOnTrackTool(**pix_cluster_on_track_args))
     if 'ToolSCT_Cluster' not in kwargs :
@@ -1070,8 +1070,9 @@ def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs
 def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
     # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
     hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
-    id_helper_args = copyArgs(kwargs,['ClusterSplitProbabilityName','namePrefix','nameSuffix']) if 'ClusterSplitProbabilityName' in kwargs else {}
+    id_helper_args = copyArgs(kwargs,['ClusterSplitProbabilityName','RenounceInputHandles','namePrefix','nameSuffix']) if 'ClusterSplitProbabilityName' in kwargs else {}
     kwargs.pop('ClusterSplitProbabilityName',None)
+    kwargs.pop('RenounceInputHandles',None)
     kwargs.pop('isHLT',None)
     the_name = makeName( name, kwargs)
     do_holes=kwargs.get("doHolesInDet",True)
@@ -1098,12 +1099,13 @@ def getInDetTrackSummaryToolNoHoleSearch(name='InDetTrackSummaryToolNoHoleSearch
 def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**kwargs) :
 
     if 'InDetSummaryHelperTool' not in kwargs :
-        copy_args=['ClusterSplitProbabilityName','namePrefix','nameSuffix']
+        copy_args=['ClusterSplitProbabilityName','RenounceInputHandles','namePrefix','nameSuffix']
         do_holes=kwargs.get("doHolesInDet",True)
         if do_holes :
             copy_args += ['isHLT']
         id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
         kwargs.pop('ClusterSplitProbabilityName',None)
+        kwargs.pop('RenounceInputHandles',None)
         kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
 
     if 'TRT_ElectronPidTool' not in kwargs :
