@@ -33,7 +33,7 @@ def setupGSF():
     try:
         from egammaAlgs.egammaSelectedTrackCopy import (
             egammaSelectedTrackCopy)
-        egammaSelectedTrackCopy(doPrint=True)
+        egammaSelectedTrackCopy(doPrint=False)
     except Exception:
         treatException(
             "Could not set up the egamma track Selection for GSF."
@@ -42,7 +42,7 @@ def setupGSF():
     try:
         from egammaAlgs.EMBremCollectionBuilder import (
             EMBremCollectionBuilder)
-        EMBremCollectionBuilder(doPrint=True)
+        EMBremCollectionBuilder(doPrint=False)
     except Exception:
         treatException(
             "Could not set up EMBremCollectionBuilder."
@@ -51,7 +51,7 @@ def setupGSF():
     try:
         from egammaAlgs.EMGSFCaloExtensionBuilder import (
             EMGSFCaloExtensionBuilder)
-        EMGSFCaloExtensionBuilder(doPrint=True)
+        EMGSFCaloExtensionBuilder(doPrint=False)
     except Exception:
         treatException("Could not set up EMGSFCaloExtensionBuilder.")
 
@@ -62,7 +62,7 @@ def setupVertices():
     # Conversion vertex builder can not run in the default mode without GSF
     try:
         from egammaAlgs.EMVertexBuilder import EMVertexBuilder
-        EMVertexBuilder(doPrint=True)
+        EMVertexBuilder(doPrint=False)
     except Exception:
         treatException(
             "Could not set up the conversion vertex building."
