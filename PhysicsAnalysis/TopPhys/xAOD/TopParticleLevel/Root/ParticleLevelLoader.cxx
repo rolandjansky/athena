@@ -8,6 +8,7 @@
 // Created: Sun Feb 22 13:24:02 2015
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
+#include "TopParticleLevel/TruthTools.h"
 
 #include <list>
 #include <cassert>
@@ -24,6 +25,7 @@
 #include "TopParticleLevel/ParticleLevelTauObjectSelector.h"
 
 #include "TopConfiguration/TopConfig.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -622,6 +624,103 @@ namespace top {
         m_goodTaus->push_back(tau);
       }
     }
+    
+    if (m_config->useTruthMuons() && m_config->useSoftMuons() ) {
+      xAOD::TruthParticleContainer* goodSoftMuons = new xAOD::TruthParticleContainer();
+      xAOD::TruthParticleAuxContainer* goodSoftMuonsAux = new xAOD::TruthParticleAuxContainer();
+      goodSoftMuons->setStore(goodSoftMuonsAux); //< Connect the two
+
+      m_goodSoftMuons.reset(goodSoftMuons);
+      m_goodSoftMuonsAux.reset(goodSoftMuonsAux);
+      
+      //if we want the soft muon truth history, the parent navigation for the TruthMuons collection is unfortunately working only in DAOD_PHYS, in other derivations 
+      //we need a workaround, i.e. we need to use the muon from the TruthParticles container instead of the one from the TruthMuon container
+      std::vector<const xAOD::TruthParticle*> truth_particles_vec; //this is an helper vector to speed up looking for the right muon...
+      const xAOD::TruthParticleContainer* truth_particles = nullptr;
+      if (m_config->useTruthParticles() && m_config->softmuonAdditionalTruthInfo()) {
+        top::check(evtStore()->retrieve(truth_particles, m_config->sgKeyMCParticle()),
+                   "xAOD::TEvent::retrieve failed for Truth Particles");
+        if(truth_particles)
+        {
+          for(const xAOD::TruthParticle* p : *truth_particles)
+          {
+            if(p->isMuon() && p->status()==1) truth_particles_vec.push_back(p);
+          }
+        }
+      }
+      
+      for (std::size_t i = 0; i < muons->size(); ++i) { //note we don't use dressed muons in this case
+        if(std::find(idx_muons.begin(), idx_muons.end(), i)!=idx_muons.end()) continue; //we don't want to store muons both as standard muons and as soft muons
+        const auto& muPtr = muons->at(i);
+        
+        //here we apply the selection for soft muons
+        if(muPtr->absPdgId()!=13) continue;
+        if(muPtr->pt()<m_config->truth_softmuon_PtCut()) continue;
+        if(fabs(muPtr->eta())>m_config->truth_softmuon_EtaCut()) continue;
+        //now the association with the jets
+        
+        if(m_config->useTruthJets())
+        {
+          bool isInJet=false;
+          for(xAOD::Jet* jetPtr : *m_goodJets)
+          {
+            float dR = xAOD::P4Helpers::deltaR(*muPtr,*jetPtr,m_config->softmuonDRJetcutUseRapidity());
+            if(dR<m_config->softmuonDRJetcut())
+            {
+              isInJet=true;
+              break;
+            }
+          }
+          if(!isInJet) continue;
+        }
+        //end of selection
+        
+        if(m_config->softmuonAdditionalTruthInfo() && (!muPtr->isAvailable<bool>("hasTruthMuonHistoryInfo") || !muPtr->auxdecor<bool>("hasTruthMuonHistoryInfo"))) //if "hasTruthMuonPartonHistoryInfo" exists and is true, we already filled these info for this muon (since muon history filling can be done in several parts of the code for good reasons)
+        {
+          bool doPartonHistory=m_config->softmuonAdditionalTruthInfoCheckPartonOrigin();
+          top::truth::initTruthMuonHistoryInfo(muPtr,doPartonHistory);
+          
+          //in DAOD_PHYS we can just navigate directly from the muon from TruthMuons
+          if (m_config->getDerivationStream() == "PHYS")
+          {
+            top::truth::getTruthMuonHistory(muPtr,doPartonHistory,m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+          }
+          else //apparently in older derivation formats we have to navigate using the muon from the TruthParticles container, this is annoying
+          {
+            //first we find the associated truth muon from truth_particles
+            const xAOD::TruthParticle* assMuon = 0;
+            for(const xAOD::TruthParticle* p : truth_particles_vec)
+            {
+              if(!p) continue;
+              if(p->barcode() == muPtr->barcode())
+              {
+                assMuon = p;
+                break;
+              }
+            }
+            if(assMuon) //then we use it
+            {
+              //if we don't have the info correctly filled already, let's initialize it to default values
+              if(!assMuon->isAvailable<bool>("hasTruthMuonHistoryInfo") || ! assMuon->auxdecor<bool>("hasTruthMuonHistoryInfo")) top::truth::initTruthMuonHistoryInfo(assMuon,doPartonHistory);
+              //we have to use the associated muon from the TruthParticles container in this case
+              top::truth::getTruthMuonHistory(assMuon,doPartonHistory,m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+              //then we copy the info to our muon
+              top::truth::copyTruthMuonHistoryInfo(assMuon,muPtr);
+              
+             }
+          }
+        }//end of additional soft muon filling
+        
+        xAOD::TruthParticle* muon = new xAOD::TruthParticle();
+        muon->makePrivateStore(*muPtr);
+
+        m_goodSoftMuons->push_back(muon);
+        
+      }
+      
+      // sort muons based on dressed pT -- otherwise they remain sorted according to bare pT
+      std::sort(m_goodSoftMuons->begin(), m_goodSoftMuons->end(), top::descendingPtSorter);
+    }
 
 
     // ======================================================================
@@ -629,12 +728,13 @@ namespace top {
     // Put everything into storage, i.e. into the ParticleLevel.event object
     plEvent.m_electrons = m_config->useTruthElectrons() ? m_goodElectrons.get() : nullptr;
     plEvent.m_muons = m_config->useTruthMuons() ? m_goodMuons.get() : nullptr;
+    plEvent.m_softmuons = (m_config->useTruthMuons() && m_config->useSoftMuons()) ? m_goodSoftMuons.get() : nullptr;
     plEvent.m_photons = m_config->useTruthPhotons() ? m_goodPhotons.get() : nullptr;
     plEvent.m_jets = m_config->useTruthJets() ? m_goodJets.get() : nullptr;
     plEvent.m_largeRJets = m_config->useTruthLargeRJets() ? m_goodLargeRJets.get() : nullptr;
     plEvent.m_taus = m_config->useTruthTaus() ? m_goodTaus.get() : nullptr;
     plEvent.m_met = m_config->useTruthMET() ? (*mets)[ "NonInt" ] : nullptr;
-
+    
     // Reclustered jets
     if (m_config->useRCJets()) {
       top::check(m_particleLevelRCJetObjectLoader->execute(

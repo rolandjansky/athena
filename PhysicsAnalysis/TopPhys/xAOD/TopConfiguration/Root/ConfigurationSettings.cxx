@@ -439,7 +439,12 @@ namespace top {
                       "Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("TruthMuonEta",
                       "Absolute Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
-
+    
+    registerParameter("TruthSoftMuonPt",
+                      "Soft Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 4 GeV.", "4000");
+    registerParameter("TruthSoftMuonEta",
+                      "Absolute Soft Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
+                      
     registerParameter("TruthPhotonPt",
                       "Photon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.",
                       "25000");

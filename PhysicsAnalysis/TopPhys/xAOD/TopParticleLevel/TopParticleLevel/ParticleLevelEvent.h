@@ -43,6 +43,9 @@ namespace top {
 
     /// Pointer to truth level muons
     const xAOD::TruthParticleContainer* m_muons;
+    
+    /// Pointer to truth level soft-muons
+    const xAOD::TruthParticleContainer* m_softmuons;
 
     /// Pointer to truth level photons
     const xAOD::TruthParticleContainer* m_photons;

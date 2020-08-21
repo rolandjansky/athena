@@ -18,6 +18,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "TopEvent/EventTools.h"
 #include "TopDataPreparation/SampleXsection.h"
+#include "xAODBase/IParticle.h"
 
 namespace top {
   namespace truth {
@@ -53,6 +54,16 @@ namespace top {
     const xAOD::TruthParticle* getInitialStateParticle(const xAOD::TruthParticle* truthParticle, bool verbose=false);
     const xAOD::TruthParticle* getFirstHFHadronOfSameFlavour(const xAOD::TruthParticle* truthParticle, bool verbose=false);
     const xAOD::TruthParticle* getTruthMuonAssociatedToRecoMuon(const xAOD::Muon* muon);
+    //to initialize correctly all decorations to default values
+    void initTruthMuonHistoryInfo(const xAOD::TruthParticle* truth_muon, bool doPartonHistory);
+    void initRecoMuonHistoryInfo(const xAOD::Muon* muon, bool doPartonHistory);
+    //additional method to share common code between the two methods above
+    void initCommonMuonHistoryInfo(const xAOD::IParticle* muon, bool doPartonHistory);
+    //helper methods to copy info from one muon to another
+    void copyTruthMuonHistoryInfo(const xAOD::TruthParticle* tm_origin, const xAOD::TruthParticle* tm_target);
+    void copyRecoMuonHistoryInfo(const xAOD::Muon* m_origin, const xAOD::Muon* m_target);
+    //additional method to share common code between the two methods above
+    void copyCommonMuonHistoryInfo(const xAOD::IParticle*  m_origin, const xAOD::IParticle* m_target);
     
     /*!
      * @brief Prints the decay chain leading up to a certain particle to a
