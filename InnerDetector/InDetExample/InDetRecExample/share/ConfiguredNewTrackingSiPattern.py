@@ -553,8 +553,6 @@ class  ConfiguredNewTrackingSiPattern:
               elif NewTrackingCuts.extension() == "Disappearing":
                  InDetAmbiguityScoreProcessor.SplitClusterMap_old  = InDetKeys.SplitClusterAmbiguityMap()
               InDetAmbiguityScoreProcessor.SplitClusterMap_new  = InDetKeys.SplitClusterAmbiguityMap()+NewTrackingCuts.extension()
-           if InDetFlags.doTIDE_RescalePixelCovariances() :
-            InDetAmbiguityProcessor.applydRcorrection = True
 
          if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":
             InDetAmbiguityProcessor.SuppressHoleSearch = True

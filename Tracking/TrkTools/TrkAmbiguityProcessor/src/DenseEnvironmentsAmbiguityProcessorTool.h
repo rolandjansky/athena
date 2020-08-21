@@ -9,7 +9,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
-#include "TrkAmbiguityProcessor/dRMap.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
@@ -157,8 +156,6 @@ namespace Trk {
     /**These allow us to retrieve the helpers*/
     const PixelID* m_pixelId;
     const AtlasDetectorID* m_idHelper;
-
-    SG::WriteHandleKey<InDet::DRMap>                    m_dRMap;      //!< the actual dR map         
 
     bool m_rejectInvalidTracks;
   };

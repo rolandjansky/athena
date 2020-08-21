@@ -1085,12 +1085,6 @@ class doTIDE_Ambi(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
   
-class doTIDE_RescalePixelCovariances(InDetFlagsJobProperty):
-  """ Switch for running TIDE pixel cluster covariance rescaling """
-  statusOn     = True
-  allowedTypes = ['bool']
-  StoredValue  = False
-
 class doRefitInvalidCov(InDetFlagsJobProperty):
   """ Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices."""
   statusOn     = True
@@ -1357,7 +1351,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsTRT     , False)
        self.checkThenSet(self.doSlimming             , False)
        self.checkThenSet(self.doSGDeletion           , True )
-       self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
        # TEMPORARY FIX TO STOP SEG FAULT
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
@@ -1654,7 +1647,6 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
-        self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
         self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     if rec.doExpressProcessing() :
@@ -1715,11 +1707,6 @@ class InDetJobProperties(JobPropertyContainer):
       self.doSpacePointFormation = self.preProcessing() and self.doSpacePointFormation() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doPRDFormation        = self.preProcessing() and self.doPRDFormation()        and (DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on() or DetFlags.makeRIO.TRT_on())
       
-      # --------------------------------------------------------------------
-      # ---- TIDE Pixel cluster covariance rescaling
-      # --------------------------------------------------------------------
-      self.doTIDE_RescalePixelCovariances = self.doTIDE_RescalePixelCovariances() and self.doPixelClusterSplitting() and self.pixelClusterSplittingType() == 'NeuralNet' and self.doTIDE_Ambi()
-
       # --------------------------------------------------------------------
       # --- 1st iteration, inside out tracking
       # --------------------------------------------------------------------
@@ -2231,8 +2218,6 @@ class InDetJobProperties(JobPropertyContainer):
             print('*   split prob1 cut:                     ', self.pixelClusterSplitProb1())
             print('*   split prob2 cut:                     ', self.pixelClusterSplitProb2())
             print('*   Min split   pt: [MeV]                ', self.pixelClusterSplitMinPt())
-            if self.doTIDE_RescalePixelCovariances():
-                print('*   rescaling pixel cluster covariances: ', self.doTIDE_RescalePixelCovariances())
           else:
             print('* - run new Pixel clustering with splitting using analog information')
             print('*   splitting technique: ', self.pixelClusterSplittingType())
@@ -2764,7 +2749,6 @@ _list_InDetJobProperties = [Enabled,
                             doTIDE_Ambi,
                             doRefitInvalidCov,
                             doRejectInvalidCov,
-                            doTIDE_RescalePixelCovariances,
                             doSSSfilter,
                             pT_SSScut,
                             ForceCoraCool,

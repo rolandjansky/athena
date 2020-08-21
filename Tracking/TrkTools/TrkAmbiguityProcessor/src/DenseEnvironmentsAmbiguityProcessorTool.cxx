@@ -115,10 +115,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
   //Initialise the ROI tool
   ATH_CHECK(m_inputHadClusterContainerName.initialize(m_useHClusSeed));
 
-  if(!m_dRMap.key().empty()){
-     ATH_CHECK(m_dRMap.initialize() );
-  }
-
   if (m_etaBounds.size() != Counter::nRegions) {
      ATH_MSG_FATAL("There must be exactly " << (Counter::nRegions) << " eta bounds but "
                    << m_etaBounds.size() << " are set." );
@@ -333,107 +329,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const Trk::Track* track
   return newTrack.release();
 }
 
-
-//==================================================================================================
-
-void 
-Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackCollection& tracks,
-                                          std::vector<Trk::Track*> &refittedTracks ){
-  ATH_MSG_VERBOSE ("Creating track Distance dR map");
-  SG::WriteHandle<InDet::DRMap> dRMapHandle (m_dRMap);
-  dRMapHandle = std::make_unique<InDet::DRMap>();
-  if ( !dRMapHandle.isValid() ){
-    ATH_MSG_WARNING("Could not record Distance dR map.");
-  } else {
-    ATH_MSG_VERBOSE("Distance dR map recorded as '" << m_dRMap.key() <<"'.");
-  }
-  constexpr double twoPi = 2.*M_PI;
-  for (const auto & track : tracks){
-      bool refit = false;
-      const DataVector<const TrackStateOnSurface>* tsosVec = track->trackStateOnSurfaces();  
-      if(!tsosVec){
-        ATH_MSG_WARNING("TSOS vector does not exist");
-        continue;   
-      }  
-      ATH_MSG_VERBOSE("---> Looping over TSOS's to allow  for cluster updates: "<< tsosVec->size() );
-      for(const auto & tsos : *tsosVec){
-          const MeasurementBase* measurement = tsos->measurementOnTrack(); 
-          if(!measurement || ! tsos->trackParameters()){
-            ATH_MSG_VERBOSE("---- TSOS has either no measurement or parameters: "<< measurement << "  " << tsos->trackParameters() );
-            continue;           
-          }
-          if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) {continue;}
-          auto globalPosition = measurement->globalPosition();
-          const double radius = std::sqrt(globalPosition[0]*globalPosition[0]+globalPosition[1]*globalPosition[1]);
-          const double invRadius{1./radius};
-          // get the associated prd
-          const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*> ( measurement );
-          if(!rio){
-              continue;
-          }
-          const InDet::PixelCluster* pixel = dynamic_cast<const InDet::PixelCluster*> ( rio->prepRawData() );
-          // not pixel or not split
-          if (!pixel || !pixel->isSplit() ) {continue ;}
-
-          CylinderSurface iblSurface(radius,3000.0);
-          
-          const TrackParameters * trackParams = m_extrapolatorTool->extrapolate(*track,iblSurface);
-          
-          double yOnPix = trackParams->position().y();
-          double zOnPix = trackParams->position().z();
-
-          // now, find closest track  
-          double mindR = 99999999.;
-          double mindX = 99999999.;
-          double mindZ = 99999999.;
-          //
-          const double eta1{track->perigeeParameters()->momentum().eta()};
-          const double phi1{track->perigeeParameters()->momentum().phi()};
-          for (const auto & track2 : tracks){
-              if(track==track2) continue;
-              float dEta = eta1 - track2->perigeeParameters()->momentum().eta();
-              float dPhi2 = phi1 - track2->perigeeParameters()->momentum().phi();
-              double dr =  std::sqrt(dEta*dEta + dPhi2*dPhi2);
-              if(dr>0.4) continue;
-              
-              //extrapolation to pixel hit radius
-              const TrackParameters * track2Params = m_extrapolatorTool->extrapolate(*track2,iblSurface);
-          
-              const double y2OnPix = track2Params->position().y();
-              const double z2OnPix = track2Params->position().z();
-              
-              float dPhi = std::asin(yOnPix*invRadius) - std::asin(y2OnPix*invRadius);
-              if (dPhi >= M_PI) dPhi -= twoPi;
-              if (dPhi < -M_PI) dPhi += twoPi;
-              
-              const double dx = std::abs(radius*dPhi);
-              const double dz = std::abs(zOnPix - z2OnPix);
-              if(dx>mindX && dz>mindZ) continue;
-              dr = std::sqrt(dx*dx + dz*dz);
-              
-              if(dr<mindR && dr > 1.e-4){
-                  mindR = dr;
-                  mindX = dx;
-                  mindZ = dz;
-              }
-         }
-         refit = true;
-         std::pair<InDet::DRMap::iterator,bool> ret;
-         std::pair<float,float> min (mindX, mindZ);
-         ret = dRMapHandle->insert ( std::pair<const InDet::PixelCluster*,std::pair<float,float> >(pixel,min));
-         // if we already have a dR for this prd, we update it, if current value is smaller
-         if (!ret.second) {
-            InDet::DRMap::iterator it{dRMapHandle->find(pixel)};
-            auto &[x, z] = it->second;
-            if(std::sqrt(x * x + z * z) > (float)mindR) {
-                x = (float) mindX;
-                z = (float) mindZ;
-	        }
-         }
-      }
-      if(refit) refittedTracks.push_back(track);
-  }
-  }
 
 //============================================================================================================
 bool 
