@@ -266,8 +266,8 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
       ATH_MSG_FATAL("Signal GenEvent is not first in the list! Something has gone wrong during the GenEvent sorting!");
       return StatusCode::FAILURE;
     }
-  //Restore original event number
-  m_pOvrlMcEvColl->at(0)->set_event_number(m_signal_event_number);
+  // Set hard-scatter event number to zero
+  m_pOvrlMcEvColl->at(0)->set_event_number(0);
 
   return StatusCode::SUCCESS;
 }
