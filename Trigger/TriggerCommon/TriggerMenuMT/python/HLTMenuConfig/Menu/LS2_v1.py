@@ -108,7 +108,13 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_nod0_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiPhotonGroup),        
+        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiPhotonGroup),    
+
+        # low et threshold chains using Ringer
+        ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_nod0_L1EM3', groups=SingleElectronGroup),
 
         # Primary
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),

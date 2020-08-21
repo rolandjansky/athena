@@ -136,12 +136,24 @@ TrigSignatureMoniMT                                 INFO -- #683953566 Features 
 TrigSignatureMoniMT                                 INFO HLT_e5_etcut_L1EM3 #324908483
 TrigSignatureMoniMT                                 INFO -- #324908483 Events          20         20         13         13         13         -          -          -          -          -          -          -          -          -          13         
 TrigSignatureMoniMT                                 INFO -- #324908483 Features                              41         148        49         -          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_e5_lhloose_L1EM3 #736648247
+TrigSignatureMoniMT                                 INFO -- #736648247 Events          20         20         9          9          9          1          -          -          -          -          -          -          -          -          1          
+TrigSignatureMoniMT                                 INFO -- #736648247 Features                              18         52         28         1          -          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e5_lhloose_noringer_L1EM3 #1053337356
 TrigSignatureMoniMT                                 INFO -- #1053337356 Events         20         20         10         10         10         1          -          -          -          -          -          -          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #1053337356 Features                             15         48         31         1          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_e5_lhmedium_L1EM3 #2713915187
+TrigSignatureMoniMT                                 INFO -- #2713915187 Events         20         20         9          9          9          0          -          -          -          -          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #2713915187 Features                             19         55         28         0          -          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e5_lhmedium_noringer_L1EM3 #176627878
 TrigSignatureMoniMT                                 INFO -- #176627878 Events          20         20         9          9          9          0          -          -          -          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #176627878 Features                              13         51         30         0          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_e5_lhtight_L1EM3 #2070133824
+TrigSignatureMoniMT                                 INFO -- #2070133824 Events         20         20         8          8          8          0          -          -          -          -          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #2070133824 Features                             16         43         25         0          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_e5_lhtight_nod0_L1EM3 #3303895627
+TrigSignatureMoniMT                                 INFO -- #3303895627 Events         20         20         8          8          8          0          -          -          -          -          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #3303895627 Features                             16         43         25         0          -          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e5_lhtight_noringer_L1EM3 #2758326765
 TrigSignatureMoniMT                                 INFO -- #2758326765 Events         20         20         9          9          9          0          -          -          -          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #2758326765 Features                             13         51         30         0          -          -          -          -          -          -          -          -          
