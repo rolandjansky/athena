@@ -573,7 +573,7 @@ def _extract_fields_esi(value):
     result['numberOfEvents'] = value.m_numberOfEvents
     result['runNumbers'] = list(value.m_runNumbers)
     result['lumiBlockNumbers'] = list(value.m_lumiBlockNumbers)
-    result['processingTags'] = list(value.m_processingTags)
+    result['processingTags'] = [str(v) for v in value.m_processingTags]
     result['itemList'] = []
 
     # Get the class name in the repository with CLID <clid>
