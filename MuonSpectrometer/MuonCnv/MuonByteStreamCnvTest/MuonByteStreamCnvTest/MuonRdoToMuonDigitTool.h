@@ -27,6 +27,7 @@
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include <unordered_map>
 
 class MdtDigitContainer;
 class CscDigitContainer;
@@ -76,24 +77,29 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
  private:
 
   // private method for the decoding RDO --> digits
-  StatusCode decodeMdtRDO(const EventContext& ctx, MdtDigitContainer*); 
-  StatusCode decodeMdt(MdtDigitContainer*, const MdtCsm *, MdtDigitCollection*&, Identifier& );
+  using MdtDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<MdtDigitCollection> >;
+  StatusCode decodeMdtRDO(const EventContext& ctx, MdtDigitContainer*) const;
+  StatusCode decodeMdt(const MdtCsm& rdoColl, MdtDigitMap_t& mdtDigitVec ) const;
 
-  StatusCode decodeCscRDO(const EventContext& ctx, CscDigitContainer*);
-  //  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*, Identifier&, CscRDO_Decoder& decoder );
-  StatusCode decodeCsc(CscDigitContainer*, const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
+  using CscDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<CscDigitCollection> >;
+  StatusCode decodeCscRDO(const EventContext& ctx, CscDigitContainer*) const;
+  StatusCode decodeCsc(const CscRawDataCollection& rdoColl, CscDigitMap_t& cscDigitMap ) const;
 
-  StatusCode decodeRpcRDO(const EventContext& ctx, RpcDigitContainer*);
-  StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*&, const RpcCablingCondData* rpcCab);
+  using RpcDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<RpcDigitCollection> >;
+  StatusCode decodeRpcRDO(const EventContext& ctx, RpcDigitContainer*) const;
+  StatusCode decodeRpc(const RpcPad& rpcColl, RpcDigitMap_t& rpcDigitMap, const RpcCablingCondData* rpcCab) const;
  
-  StatusCode decodeTgcRDO(const EventContext& ctx, TgcDigitContainer*);
-  StatusCode decodeTgc(TgcDigitContainer*, const TgcRdo *, Identifier&);
+  using TgcDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<TgcDigitCollection> >;
+  StatusCode decodeTgcRDO(const EventContext& ctx, TgcDigitContainer*) const;
+  StatusCode decodeTgc(const TgcRdo& rdoColl, TgcDigitMap_t& tgcDigitMap) const;
 
-  StatusCode decodeSTGC_RDO(const EventContext& ctx, sTgcDigitContainer*);
-  StatusCode decodeSTGC(sTgcDigitContainer*, const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
+  using sTgcDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<sTgcDigitCollection> >;
+  StatusCode decodeSTGC_RDO(const EventContext& ctx, sTgcDigitContainer*) const;
+  StatusCode decodeSTGC(const Muon::STGC_RawDataCollection& rdoColl, sTgcDigitMap_t& stgcDigitMap) const;
 
-  StatusCode decodeMM_RDO(const EventContext& ctx, MmDigitContainer*);
-  StatusCode decodeMM(MmDigitContainer*, const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
+  using MmDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<MmDigitCollection> >;
+  StatusCode decodeMM_RDO(const EventContext& ctx, MmDigitContainer*) const;
+  StatusCode decodeMM(const Muon::MM_RawDataCollection& rdoColl, MmDigitMap_t& mmDigitMap) const;
 
   StatusCode getTgcCabling();
 
