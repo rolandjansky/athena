@@ -90,8 +90,8 @@ def L2muCombMonConfig(helper):
 
         histGroup.defineHistogram(GroupName+'_MF_error;L2muComb_MF_error',
                                   title='L2muComb pointer to MuonFeature Error '+chain+';;Events',
-                                  type='TH1I', path='',xbins=5,xmin=0,xmax=5,
-                                  xlabels=["No error","Missing Pointer to MF","SA reconstruction Error","CB ContainerSize Error","SA ContainerSize Error"])
+                                  type='TH1I', path='',xbins=4,xmin=0,xmax=4,
+                                  xlabels=["No error","Missing muSATrackLink","TrackLink and ElementLinnk matching error","SA reconstruction Error"])
 
 
         # ID variables

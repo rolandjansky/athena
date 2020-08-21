@@ -10,6 +10,7 @@ template<class T> std::tuple<bool,double,double> MuonMatchingTool :: trigPosForM
 
 template<class T, class OFFL>
 const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float reqdR, bool &pass,
+                                   const std::string containerSGKey,
                                    std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::match<T>");
@@ -17,7 +18,7 @@ const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float req
   using CONTAINER = DataVector<T>;
   const T* ptr = nullptr;
 
-  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = matchLinkInfo<T>(offl, trig, reqdR, pass, trigPosForMatchFunc);
+  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = matchLinkInfo<T>(offl, trig, reqdR, pass, containerSGKey, trigPosForMatchFunc);
   if( featureLinkInfo.isValid() ){
     const ElementLink<CONTAINER> link = featureLinkInfo.link;
     ptr = *link;
@@ -30,6 +31,7 @@ const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float req
 
 template<class T, class OFFL>
 const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: matchLinkInfo(const OFFL* offl, std::string trig, float reqdR, bool &pass,
+                                                                                     const std::string containerSGKey,
                                                                                      std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::matchLinkInfo<T>");
@@ -39,7 +41,7 @@ const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: matchLink
   double offlEta = offl->eta();
   double offlPhi = offl->phi();
 
-  std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = m_trigDec->features<CONTAINER>( trig, TrigDefs::includeFailedDecisions );
+  std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = m_trigDec->features<CONTAINER>( trig, TrigDefs::includeFailedDecisions, containerSGKey );
   TrigCompositeUtils::LinkInfo<CONTAINER> muonLinkInfo;
   for(const TrigCompositeUtils::LinkInfo<CONTAINER>& featureLinkInfo : featureCont){
     if ( !featureLinkInfo.isValid() ) continue;

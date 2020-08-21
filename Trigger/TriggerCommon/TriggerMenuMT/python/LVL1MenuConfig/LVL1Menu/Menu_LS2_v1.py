@@ -456,6 +456,7 @@ def defineMenu():
         #TE + MU
 
         # MBTS
+        "L1_MBTS_1_EMPTY",
         # beam splashes
         
         #Overlay
@@ -489,6 +490,8 @@ def defineMenu():
 
         # TRT
         # "L1_TRT",
+        "L1_TRT_FILLED",
+        "L1_TRT_EMPTY",
 
         # TGC
         "L1_TGC_BURST",
@@ -885,6 +888,8 @@ def defineMenu():
         'L1_RD0_EMPTY' : 202,
         'L1_RD1_EMPTY' : 204,
         'L1_RD2_EMPTY' : 206,
+        'L1_TRT_FILLED' : 218,
+        'L1_TRT_EMPTY' : 219,
         'L1_RD0_ABORTGAPNOTCALIB' : 372,
         'L1_TGC_BURST' : 220,
         'L1_ZB' : 240,
@@ -981,7 +986,8 @@ def defineMenu():
         'L1_DY-BOX-2MU6' : 318,
         'L1_DY-BOX-2MU4' : 160,
         'L1_CEP-CJ60' : 162,
-        'L1_CEP-CJ50' : 164,
+        #'L1_CEP-CJ50' : 164,
+        'L1_MBTS_1_EMPTY' : 164,
         'L1_BPH-8M15-2MU4-BO' : 165,
         'L1_CALREQ2' : 511,
 

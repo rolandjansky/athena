@@ -60,6 +60,13 @@ public:
   vertex fit as double */
   double doubleNumberDoF() const;
 
+  /** set the @f$ \chi^2 @f$*/
+  void setChiSquared(double chiSquared);
+
+  /** set the number of degrees of freedom*/
+  void setNumberDoF(double numberDoF);
+
+
 private:
   double m_chiSquared;
   double m_numberDoF;

@@ -14,8 +14,6 @@
 #  include "GaudiKernel/ContextSpecificPtr.h"
 #endif
 
-static std::mutex sgMutex;
-
 //
 // private constructor
 SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {

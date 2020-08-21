@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  Types.h
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/22/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __L1TopoCoreSimulation__Types__
-#define __L1TopoCoreSimulation__Types__
+#ifndef L1TopoCommon_Types
+#define L1TopoCommon_Types
 
 #include <string>
 

@@ -2,7 +2,8 @@
 
 from egammaRec.Factories import ToolFactory, PublicToolFactory
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-__doc__ = "ToolFactories to instantiate InDet tools for egamma with default configuration"
+__doc__ = """ToolFactories to instantiate InDet tools
+for egamma with default configuration"""
 __author__ = "Bruno Lenzi"
 
 # Tools for extrapolating to the calo
@@ -76,13 +77,15 @@ egammaExtrapolator = ToolFactory(
     AtlasExtrapolator,
     name='egammaExtrapolator')
 
-# The general use extrapolator same as ATLAS default public
+# The general use extrapolator same as ATLAS default.
+# Public as still needed due to some InnerDetector/Tracking
+# tools
 AtlasPublicExtrapolator = PublicToolFactory(
     AtlasExtrapolator,
     name='AtlasPublicExtrapolator')
 
-# Specialized for e/gamma calo extrapolations i.e ignore material effect
-# that are not that relevant in the calo side
+# Extrapolator specialized for the e/gamma specific calo extrapolations
+# i.e ignore material effect that are not relevant.
 egammaCaloExtrapolator = ToolFactory(
     AtlasExtrapolator,
     postInit=[configureExtrapolator],

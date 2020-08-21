@@ -216,13 +216,13 @@ namespace MuonCombined {
       if(m_doCaloMuonScore){
 	muon_score = m_caloMuonScoreTool->getMuonScore(tp);
       }
-      ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and muon score " << muon_score);
-      // --- If both the taggers do not think it's a muon, forget about it ---
-      if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut) {
+      ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and calo muon score " << muon_score);
+      // --- If all three taggers do not think it's a muon, forget about it ---
+      if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut && muon_score < m_CaloMuonScoreCut) {
 	continue;                                                                                                                                                            
       }
-      // --- Only accept tight tagged muons if pT is below 4 GeV ---
-      if (tag<10&& par->pT()<4000) {
+      // --- Only accept tight tagged muons if pT is below 4 GeV and the muon score is below the threshold---
+      if (tag<10 && par->pT()<4000 && muon_score < m_CaloMuonScoreCut ) {
 	continue;
       }
       
@@ -359,19 +359,28 @@ namespace MuonCombined {
       caloTag = new CaloTag(xAOD::Muon::CaloTag, eLoss, 0); //set eLoss, sigmaEloss is set to 0.
       if(likelihood > m_CaloLRlikelihoodCut)
         caloTag->set_author2(xAOD::Muon::CaloLikelihood);
+      
+      if (muonScore > m_CaloMuonScoreCut && likelihood > m_CaloLRlikelihoodCut)
+	caloTag->set_author3(xAOD::Muon::CaloScore);
+      else if (muonScore > m_CaloMuonScoreCut)
+	caloTag->set_author2(xAOD::Muon::CaloScore);
+
     }
-    else if (likelihood > m_CaloLRlikelihoodCut)
+    else if (likelihood > m_CaloLRlikelihoodCut){
       caloTag = new CaloTag(xAOD::Muon::CaloLikelihood, eLoss, 0); 
+      if (muonScore > m_CaloMuonScoreCut) 
+	caloTag->set_author2(xAOD::Muon::CaloScore);
+    }
+    else if (muonScore > m_CaloMuonScoreCut){
+      caloTag = new CaloTag(xAOD::Muon::CaloScore, eLoss, 0);
+    }
+
     if( caloTag ){
       caloTag->set_deposits(deposits);
       caloTag->set_caloMuonIdTag(tag);
       caloTag->set_caloLRLikelihood(likelihood);
       caloTag->set_caloMuonScore(muonScore);
       tagMap->addEntry(&muonCandidate,caloTag);
-    }
-
-    if (muonScore > -1) {
-      caloTag->set_author3(xAOD::Muon::CaloScore);
     }
 
   }

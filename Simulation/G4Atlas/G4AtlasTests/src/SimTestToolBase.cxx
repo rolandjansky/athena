@@ -16,7 +16,7 @@ SimTestToolBase::SimTestToolBase(const std::string& type,
   declareProperty("McEventKey", m_key="TruthEvent");
 }
 
-const HepMC::GenParticle * SimTestToolBase::getPrimary() 
+HepMC::ConstGenParticlePtr   SimTestToolBase::getPrimary() 
 {
   const DataHandle<McEventCollection> mcCollection;
   if (evtStore()->retrieve(mcCollection,m_key).isSuccess()) {
@@ -24,7 +24,7 @@ const HepMC::GenParticle * SimTestToolBase::getPrimary()
     for (e=mcCollection->begin();e!=mcCollection->end(); e++) {
       HepMC::GenEvent::particle_const_iterator p;
       for (p= (**e).particles_begin(); p!= (**e).particles_end(); p++) {
-	if ( (*p)->barcode()<200000 ) {
+	if ( HepMC::barcode(*p)<200000 ) {
 	  return (*p);
 	}
       }

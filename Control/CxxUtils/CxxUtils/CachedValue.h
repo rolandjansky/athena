@@ -70,7 +70,7 @@ public:
 
 
   /// Move constructor from a value.
-  CachedValue (T&& val);
+  CachedValue (T&& val) noexcept;
 
 
   /// Copy constructor.
@@ -79,7 +79,7 @@ public:
 
   /// Move constructor.
   /// No concurrent operations on OTHER are possible.
-  CachedValue (CachedValue&& other);
+  CachedValue (CachedValue&& other) noexcept;
 
 
   /// Copy constructor from other type.
@@ -93,7 +93,7 @@ public:
     
   /// Move.
   /// No concurrent operations on OTHER are possible.
-  CachedValue& operator= (CachedValue&& other);
+  CachedValue& operator= (CachedValue&& other) noexcept;
 
     
   /// Set the value, assuming it is currently invalid.
@@ -105,7 +105,7 @@ public:
   /// Set the value by move, assuming it is currently invalid.
   /// Otherwise, this method will do nothing.
   /// The value will be valid once this returns.
-  void set (T&& val) const;
+  void set (T&& val) const noexcept;
  
 
   /// Test to see if the value is valid.
@@ -124,7 +124,7 @@ public:
 
 
   /// Store a new value, by move.
-  void store (T&& val);
+  void store (T&& val) noexcept;
 
 
   /// Reset the value to invalid.
