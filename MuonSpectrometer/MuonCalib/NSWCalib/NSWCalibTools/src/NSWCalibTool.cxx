@@ -16,6 +16,22 @@ namespace {
   static const std::map<std::string, float> map_vDrift {{"ArCo2_937", 0.047},
                               {"ArCo2_8020", 0.040}, {"ArCo2iC4H10_9352", 0.045}};
 
+  // sTGC conversion from potential to PDO for VMM1 configuration, mV*1.0304 + 59.997; from Shandong cosmics tests
+  // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
+  static constexpr double const& sTGC_chargeToPdoSlope = 1.0304;
+  static constexpr double const& sTGC_chargeToPdoOffset = 59.997;
+  // sTGC conversion from PDO to potential
+  static constexpr double const& sTGC_pdoToChargeSlope = 0.97050;
+  static constexpr double const& sTGC_pdoToChargeOffset = -54.345;
+  
+  // MM conversion from charge to PDO
+  static constexpr double const& MM_chargeToPdoSlope = 9./6421;
+  static constexpr double const& MM_chargeToPdoOffset = 0;
+  // MM conversion from PDO to charge
+  static constexpr double const& MM_pdoToChargeSlope = 713.4;
+  static constexpr double const& MM_pdoToChargeOffset = 0;
+
+  
   //Functional form fit to agree with Garfield simulations. Fit and parameters from G. Iakovidis
   // For now only the parametrisation for 93:7 is available
   static const std::map<std::string, std::vector<float>> map_lorentzAngleFunctionPars {
@@ -154,6 +170,31 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData,
 
   return StatusCode::SUCCESS;
 }
+
+double Muon::NSWCalibTool::pdoToCharge(const int pdoCounts, const Identifier& stripID) const {
+  double charge = 0;
+  if (m_idHelperTool->isMM(stripID)){
+    charge = pdoCounts * MM_pdoToChargeSlope + MM_pdoToChargeOffset; 
+  }
+  else if (m_idHelperTool->issTgc(stripID)){
+    charge = pdoCounts * sTGC_pdoToChargeSlope + sTGC_pdoToChargeOffset;
+    charge = 0.001 * charge;
+  }
+  return charge;
+}
+
+int Muon::NSWCalibTool::chargeToPdo(const float charge, const Identifier& stripID) const {
+  int pdoCounts = 0;
+  if (m_idHelperTool->isMM(stripID)){
+    pdoCounts = charge * MM_chargeToPdoSlope + MM_chargeToPdoOffset;
+  }
+  else if (m_idHelperTool->issTgc(stripID)){
+    double c = charge * 1000;  // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
+    pdoCounts = c * sTGC_chargeToPdoSlope + sTGC_chargeToPdoOffset;
+  }
+  return pdoCounts;
+}
+
 
 StatusCode Muon::NSWCalibTool::finalize()
 {
