@@ -6,8 +6,9 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-
+#include "xAODPrimitives/IsolationType.h"
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 
 
 using namespace TrigCompositeUtils;
@@ -191,8 +192,9 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
     Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+   float ptcone20(0), ptcone30(0), ptcone40(0), etcone20(0), etcone30(0), etcone40(0);
 
-    
+
   // variables based on HCAL
   // transverse energy in 1st scintillator of hadronic calorimeter/ET
   input.electron->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
@@ -225,6 +227,18 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   // E(+/-3)-E(+/-1)/E(+/-1)
   input.electron->showerShapeValue(fracm, xAOD::EgammaParameters::fracs1);
 
+  input.electron->isolationValue(ptcone20, xAOD::Iso::ptcone20);
+
+  input.electron->isolationValue(ptcone30, xAOD::Iso::ptcone30);
+
+  input.electron->isolationValue(ptcone40, xAOD::Iso::ptcone40);
+
+  input.electron->isolationValue(etcone20, xAOD::Iso::etcone20);
+
+  input.electron->isolationValue(etcone30, xAOD::Iso::etcone30);
+
+  input.electron->isolationValue(etcone40, xAOD::Iso::etcone40);
+
   ATH_MSG_DEBUG(" electron Cluster Et "<<ET);
   ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
   ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
@@ -238,9 +252,16 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   ATH_MSG_DEBUG( "  DeltaE " << DeltaE ) ;
   ATH_MSG_DEBUG( "  wtot   " << wtot ) ;
   ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
-  ATH_MSG_DEBUG(" trackPT "<<input.electron->trackParticle()->pt());
-  ATH_MSG_DEBUG(" d0 "<<input.electron->trackParticle()->d0());
-  ATH_MSG_DEBUG(" z0 "<<input.electron->trackParticle()->z0());
+  ATH_MSG_DEBUG( " trackPT "<<input.electron->trackParticle()->pt());
+  ATH_MSG_DEBUG( " d0      "<<input.electron->trackParticle()->d0());
+  ATH_MSG_DEBUG( " z0      "<<input.electron->trackParticle()->z0());
+  ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
+  ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
+  ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
+  ATH_MSG_DEBUG( " etcone20 " << etcone20 ) ;
+  ATH_MSG_DEBUG( " etcone30 " << etcone30 ) ;
+  ATH_MSG_DEBUG( " etcone40 " << etcone40 ) ;
+
 
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT Likelihood failed");
