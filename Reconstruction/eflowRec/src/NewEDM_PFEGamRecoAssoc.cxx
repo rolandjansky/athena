@@ -67,60 +67,81 @@ return StatusCode::SUCCESS;
 }
 StatusCode NewEDM_PFEGamRecoAssoc::execute()
 {
-// write decoration handles for the electron, photon and PFO containers -- these are the OUTPUT handles
-//Electron Write Handle
-SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronNeutralPFOWriteDecorHandle (m_electronNeutralPFOWriteDecorKey);   
-SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronChargedPFOWriteDecorHandle (m_electronChargedPFOWriteDecorKey);   
-SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > neutralpfoElectronWriteDecorHandle (m_neutralpfoElectronWriteDecorKey);   
-SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > chargedpfoElectronWriteDecorHandle (m_chargedpfoElectronWriteDecorKey); 
+  // This algorithm does the following:
+  // 1) Read the Input containers for Flow Elements, Electrons and Photons
+  // 2) Match the Clusters in the flow elements to the relevant E/Photon clusters
+  // 3) Link them
+  // 4) output the Electron/Photon containers with the linkers to the Flow element containers
 
-//Photon Write Handle
-SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonNeutralPFOWriteDecorHandle (m_photonNeutralPFOWriteDecorKey);
-SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonChargedPFOWriteDecorHandle (m_photonChargedPFOWriteDecorKey);
-SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > neutralpfoPhotonWriteDecorHandle (m_neutralpfoPhotonWriteDecorKey);
-SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > chargedpfoPhotonWriteDecorHandle (m_chargedpfoPhotonWriteDecorKey);  
+  // write decoration handles for the electron, photon and PFO containers -- these are the OUTPUT handles
+  //Electron Write Handle
+  SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronNeutralPFOWriteDecorHandle (m_electronNeutralPFOWriteDecorKey);   
+  SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronChargedPFOWriteDecorHandle (m_electronChargedPFOWriteDecorKey);   
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > neutralpfoElectronWriteDecorHandle (m_neutralpfoElectronWriteDecorKey);   
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > chargedpfoElectronWriteDecorHandle (m_chargedpfoElectronWriteDecorKey); 
 
-
-// This is the READ handles (so the input containers for electron, photon, PFO)
-
-SG::ReadHandle<xAOD::ElectronContainer>electronReadHandle (m_electronNeutralPFOWriteDecorKey.contHandleKey());
-SG::ReadHandle<xAOD::PhotonContainer> photonReadHandle (m_photonNeutralPFOWriteDecorKey.contHandleKey());
-
-// Charged and Neutral PFlow "Flow elements"
-SG::ReadHandle<xAOD::FlowElementContainer> neutralpfoReadHandle (m_neutralpfoElectronWriteDecorKey.contHandleKey());   
-SG::ReadHandle<xAOD::FlowElementContainer> chargedpfoReadHandle (m_chargedpfoElectronWriteDecorKey.contHandleKey());   
+  //Photon Write Handle
+  SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonNeutralPFOWriteDecorHandle (m_photonNeutralPFOWriteDecorKey);
+  SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonChargedPFOWriteDecorHandle (m_photonChargedPFOWriteDecorKey);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > neutralpfoPhotonWriteDecorHandle (m_neutralpfoPhotonWriteDecorKey);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > chargedpfoPhotonWriteDecorHandle (m_chargedpfoPhotonWriteDecorKey);  
   
-// now initialise some Flow element link containers
-std::vector<std::vector<FlowElementLink_t>> electronNeutralPFOVec(electronReadHandle->size());
-std::vector<std::vector<FlowElementLink_t>> electronChargedPFOVec(electronReadHandle->size());
+  
+  // This is the READ handles (so the input containers for electron, photon, PFO)
+  
+  SG::ReadHandle<xAOD::ElectronContainer>electronReadHandle (m_electronNeutralPFOWriteDecorKey.contHandleKey());
+  SG::ReadHandle<xAOD::PhotonContainer> photonReadHandle (m_photonNeutralPFOWriteDecorKey.contHandleKey());
+  
+  // Charged and Neutral PFlow "Flow elements"
+  SG::ReadHandle<xAOD::FlowElementContainer> neutralpfoReadHandle (m_neutralpfoElectronWriteDecorKey.contHandleKey());   
+  SG::ReadHandle<xAOD::FlowElementContainer> chargedpfoReadHandle (m_chargedpfoElectronWriteDecorKey.contHandleKey());   
+  
+  // now initialise some Flow element link containers
+  std::vector<std::vector<FlowElementLink_t>> electronNeutralPFOVec(electronReadHandle->size());
+  std::vector<std::vector<FlowElementLink_t>> electronChargedPFOVec(electronReadHandle->size());
+  
+  std::vector<std::vector<FlowElementLink_t>> photonNeutralPFOVec(photonReadHandle->size());
+  std::vector<std::vector<FlowElementLink_t>> photonChargedPFOVec(photonReadHandle->size());
+  //////////////////////////////////////////////////////////////////////////
+  ////                      DO MATCHING/LINKING
+  //////////////////////////////////////////////////////////////////////////
+  
 
-std::vector<std::vector<FlowElementLink_t>> photonNeutralPFOVec(photonReadHandle->size());
-std::vector<std::vector<FlowElementLink_t>> photonChargedPFOVec(photonReadHandle->size());
+  ///////////////////////////
+  // Loop over neutral flow elements (PFOs)
+  ///////////////////////////
+  std::cout<<"MATT'S DEBUG: PFO elements size "<<neutralpfoElectronWriteDecorHandle->size()<<std::endl;
+  for (const xAOD::FlowElement* pfo: *neutralpfoElectronWriteDecorHandle){
+    //Obtain the index of the PFO calo-cluster
+    size_t pfoClusterIndex=pfo->otherObjects().at(0)->index();
 
-///////////////////////////
-// Loop over neutral flow elements (PFOs)
-///////////////////////////
- std::cout<<"MATT'S DEBUG: PFO elements size "<<neutralpfoElectronWriteDecorHandle->size()<<std::endl;
- for (const xAOD::FlowElement* pfo: *neutralpfoElectronWriteDecorHandle){
-   //Obtain the index of the PFO topo-cluster
-   auto pfoClusterIndex = pfo->CaloCluster;
-   std::string mytype=typeid(pfoClusterIndex).name();
-   std::cout<<"Flow Element CaloCluster type: "<<mytype<<std::endl;
-   
- }
+    // init the linkers
+    std::vector<ElectronLink_t> pfoElectronLinks;
+    std::vector<PhotonLink_t> pfoPhotonLinks;
+    
+    std::cout<<"DEBUG 1:  pfoclusterindex: "<<pfoClusterIndex<<std::endl; 
+    //Loop over electrons:
+    for (const xAOD::Electron* electron: *electronNeutralPFOWriteDecorHandle){
+      // get the calo clusters from the electron
+      std::cout<<"DEBUG 2: Electron pt : "<<electron->pt()<<std::endl;
+      const std::vector<const xAOD::CaloCluster*> electronTopoClusters = xAOD::EgammaHelpers::getAssociatedTopoClusters(electron->caloCluster());
+	
+      for(const xAOD::CaloCluster* cluster : electronTopoClusters){
+
+	size_t electronClusterIndex=cluster->index();	
+	std::cout<<"DEBUG 3: Cluster index : "<<electronClusterIndex<<std::endl;
+
+      } // end loop over cluster
+      
+    } // end Electron loop
+
+    //Add vector of electron element links as decoration to FlowElement container
+    //    neutralpfoElectronWriteDecorHandle (*pfo)=pfoElectronLinks;
 
 
 
+  } // end neutral PFO loop
 
 
-
-
-
-
-
-
-
-
-
-return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }

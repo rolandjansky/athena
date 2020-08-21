@@ -243,8 +243,9 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
     PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
 
 topSequence += PFONeutralCreatorAlgorithm
-from eflowRec.eflowRecFlags import jobproperties
+from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
 jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
+jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    
@@ -252,13 +253,8 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
 
-   from eflowRec.eflowRecConf import NewEDM_PFEGamRecoAssoc
-   NewEDM_PFEGamRecoAssoc=NewEDM_PFEGamRecoAssoc("NewEDM_PFEGamRecoAssoc")
-   topSequence +=NewEDM_PFEGamRecoAssoc
-   
-
 #Add new FlowElement creators
-if jobproperties.eflowRecFlags.useFlowElements:
+if jobproperties.eflowRecFlags.useFlowElements: 
   from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
   PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
   topSequence += PFChargedFlowElementCreatorAlgorithm 
@@ -270,3 +266,7 @@ if jobproperties.eflowRecFlags.useFlowElements:
   from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import NewEDM_PFEGamRecoAssoc
+  NewEDM_PFEGamRecoAssoc=NewEDM_PFEGamRecoAssoc("NewEDM_PFEGamRecoAssoc")
+  topSequence +=NewEDM_PFEGamRecoAssoc
