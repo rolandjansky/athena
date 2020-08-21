@@ -19,7 +19,7 @@ DecisionObjectHandleEventInfo::DecisionObjectHandleEventInfo( SG::ReadHandleKey<
 TriggerInfo const * DecisionObjectHandleEventInfo::getDecision() const {
 
   if ( !m_object && !m_oldEventInfoKey->empty() ) {
-    const EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadHandle<EventInfo> oldEventInfo = SG::makeHandle(*m_oldEventInfoKey, ctx);
     if( ! oldEventInfo.isValid() ) {
       static bool warningPrinted = false;

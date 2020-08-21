@@ -5,6 +5,7 @@
 #include "TrigSteeringEvent/HLTResultMT.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include <algorithm>
+#include <utility>
 
 #define CONTEXT_NAME "HLT::HLTResultMT"
 
@@ -18,13 +19,13 @@ HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags
                               std::unordered_map<uint16_t, std::vector<uint32_t> > data,
                               std::vector<uint32_t> status,
                               std::set<uint16_t> truncatedModuleIds)
-: m_streamTags(streamTags),
-  m_hltPassRawBits(hltPassRawBits),
-  m_hltPrescaledBits(hltPrescaledBits),
-  m_hltRerunBits(hltRerunBits),
-  m_data(data),
-  m_status(status),
-  m_truncatedModuleIds(truncatedModuleIds) {}
+: m_streamTags(std::move(streamTags)),
+  m_hltPassRawBits(std::move(hltPassRawBits)),
+  m_hltPrescaledBits(std::move(hltPrescaledBits)),
+  m_hltRerunBits(std::move(hltRerunBits)),
+  m_data(std::move(data)),
+  m_status(std::move(status)),
+  m_truncatedModuleIds(std::move(truncatedModuleIds)) {}
 
 // =============================================================================
 // Getter/setter methods for stream tags
@@ -204,7 +205,7 @@ void HLT::HLTResultMT::setStatus(const std::vector<uint32_t>& status) {
 
 // -----------------------------------------------------------------------------
 void HLT::HLTResultMT::setErrorCodes(const std::vector<HLT::OnlineErrorCode>& errorCodes,
-                                     const eformat::helper::Status firstStatusWord) {
+                                     const eformat::helper::Status& firstStatusWord) {
   m_status.clear();
   m_status.push_back(firstStatusWord.code());
   for (const HLT::OnlineErrorCode& code : errorCodes)
@@ -213,7 +214,7 @@ void HLT::HLTResultMT::setErrorCodes(const std::vector<HLT::OnlineErrorCode>& er
 
 // -----------------------------------------------------------------------------
 void HLT::HLTResultMT::addErrorCode(const HLT::OnlineErrorCode& errorCode,
-                                    const eformat::helper::Status firstStatusWord) {
+                                    const eformat::helper::Status& firstStatusWord) {
   if (m_status.empty()) m_status.push_back(firstStatusWord.code());
   else m_status[0] |= firstStatusWord.code();
   m_status.push_back(static_cast<uint32_t>(errorCode));
