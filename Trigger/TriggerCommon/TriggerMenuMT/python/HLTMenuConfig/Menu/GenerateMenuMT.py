@@ -64,8 +64,8 @@ class GenerateMenuMT(object):
         self.signaturesToGenerate = []
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
-                              'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias', 'Test'] #, AFP
-        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+                              'Monitor', 'Calibration', 'Streaming', 'Combined', 'MinBias', 'Test'] #, AFP
+        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calibration'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
         self.doEgammaChains         = True
@@ -80,7 +80,7 @@ class GenerateMenuMT(object):
         self.doHeavyIonChains       = True
         self.doCosmicChains         = True
         self.doCalibrationChains    = True
-        self.doCalibChains    = True
+        # self.doCalibChains    = True
         self.doStreamingChains      = True
         self.doMonitorChains        = True
         self.doBeamspotChains       = True
@@ -365,14 +365,17 @@ class GenerateMenuMT(object):
         #ConfigFlags.lock()
 
         for sig in self.allSignatures:
-            if eval('TriggerFlags.' + sig + 'Slice.signatures()') and eval('self.do' + sig + 'Chains'):
-                log.debug("Adding %s chains to the list of chains to be configured", sig)
-                chains+= eval('TriggerFlags.' + sig + 'Slice.signatures()')
+            sig2 = sig
+            if sig2 == 'Calibration': 
+                sig2 = 'Calib'
+            if eval('TriggerFlags.' + sig2 + 'Slice.signatures()') and eval('self.do' + sig + 'Chains'):
+                log.debug("Adding %s chains to the list of chains to be configured", sig2)
+                chains+= eval('TriggerFlags.' + sig2 + 'Slice.signatures()')
                 self.signaturesToGenerate.append(sig)
-            elif not eval('TriggerFlags.' + sig + 'Slice.signatures()'):
-                log.debug('Signature %s is not switched on (no chains in menu)', sig)
+            elif not eval('TriggerFlags.' + sig2 + 'Slice.signatures()'):
+                log.debug('Signature %s is not switched on (no chains in menu)', sig2)
             elif not eval('self.do' + sig + 'Chains'):
-                log.debug('Signature %s is not switched on (disabled by flag)', sig)
+                log.debug('Signature %s is not switched on (disabled by flag)', sig2)
 
         log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
 
@@ -398,7 +401,11 @@ class GenerateMenuMT(object):
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
         # check if all the signature files can be imported files can be imported
+        log.debug("[__generateChainConfig] signaturesToGenerate: %s",  self.signaturesToGenerate)
+
         for sig in self.signaturesToGenerate:
+            log.debug("[__generateChainConfig] sig: %s", sig)
+            
             try:
                 if eval('self.do' + sig + 'Chains'):
                     if sig == 'Egamma':

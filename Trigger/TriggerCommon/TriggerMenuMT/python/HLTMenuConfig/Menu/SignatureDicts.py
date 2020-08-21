@@ -23,6 +23,7 @@ SliceIDDict = {
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
     'Calibration'   : 'calib',
+    #'Calib'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
@@ -38,7 +39,9 @@ AllowedSignatures = ["jet", "bjet", "ht",
                      "minbias", 
                      "heavyion", 
                      "cosmic", 
-                     "calibration", "streaming", "monitoring", 'eb']        
+                     "calibration",
+                     #"calib", 
+                     "streaming", "monitoring", 'eb']        
 
 #==========================================================
 # ---- Generic Template for all chains          ----
@@ -826,7 +829,7 @@ def getSignatureInformation(signature):
     if signature == "Test":
         return [TestChainParts_Default, TestChainParts]
     else:
-        raise RuntimeError("ERROR Cannot find corresponding dictionary")
+        raise RuntimeError("ERROR Cannot find corresponding dictionary for signature", signature)
 
 #==========================================================
 # Analysis the base pattern: <mult><signatureType><threshold><extraInfo>
