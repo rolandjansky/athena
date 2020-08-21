@@ -40,7 +40,9 @@
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
+#ifndef __FastCaloSimNoLWTNN__
 #include "ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h"
+#endif
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h"
@@ -306,7 +308,9 @@
 #pragma link C++ class TFCSEnergyParametrization+;
 #pragma link C++ class TFCSPCAEnergyParametrization-;
 #pragma link C++ class TFCSEnergyBinParametrization+;
+#ifndef __FastCaloSimNoLWTNN__
 #pragma link C++ class TFCSEnergyAndHitGAN-;
+#endif
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
