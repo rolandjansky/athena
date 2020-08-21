@@ -73,6 +73,30 @@ Some components of Hbb tagging also live here. These include:
      flavor tagging inputs. It also uses `HbbGraphConfig` and
      `HbbConstants`.
 
+   - `HbbTagTool`: ASG Tool interface around `HbbTag`.
+
+   - `VRJetOverlapDecorator`: Adds decorations which quantify the
+     degree of overlap between VR subjets. The validity of flavor
+     tagging calibrations depends on this overlap being small. Two
+     numbers in particular are added:
+
+      - `relativeDeltaRToVRJet`: smallest value of `dR / jet_radius`,
+        considering this jet paired with every other jet in the
+        event. Here `dR` is the angular separation between the two
+        jets, while `jet_radius` is the smallest the of the two jet
+        radii.
+
+      - `deltaRToVRJet`: corresponds to the `dR` to whatever jet has
+        the smallest _relative_ delta R. This isn't necessarily the
+        smallest delta R.
+
+     A smaller value in either of these corresponds to a larger
+     overlap. In general we recommend removing any jet where
+     `relativeDeltaRToVRJet < 1.0`.
+
+   - `VRJetOverlapDecoratorTool`: ASG interface around the class
+     above.
+
 
 ### Other Files ###
 
