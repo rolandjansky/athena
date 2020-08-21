@@ -48,54 +48,63 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
 
     /** Updator interface (full update for a layer): Dummy full update
     */
-    TrackParameters* update(const TrackParameters* parm,
-                            const Layer& sf,
-                            PropDirection dir = alongMomentum,
-                            ParticleHypothesis particle = pion,
-                            MaterialUpdateMode matupmode = addNoise) const override;
+    std::unique_ptr<TrackParameters> update(
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
 
     /** User updator interface (full update for a layer):
       The parmeters are given as a pointer, they are deleted inside the update method.
       Update occurs on the place where the parameters parm are according to the specified MaterialEffectsOnTrack
       */
-    virtual TrackParameters* update(const TrackParameters* parm,
-                                    const MaterialEffectsOnTrack& meff,
-                                    ParticleHypothesis particle = pion,
-                                    MaterialUpdateMode matupmode = addNoise) const override
-    {
+    virtual std::unique_ptr<TrackParameters> update(
+      const TrackParameters* parm,
+      const MaterialEffectsOnTrack& meff,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       (void)meff;
       (void)particle;
       (void)matupmode;
-      return parm->clone();
+      return std::unique_ptr<TrackParameters>(parm->clone());
     }
 
     /** Updator interface (pre-update for a layer): Dummy pre update
     */
-    virtual TrackParameters* preUpdate(const TrackParameters* parm,
-                                       const Layer& sf,
-                                       PropDirection dir = alongMomentum,
-                                       ParticleHypothesis particle = pion,
-                                       MaterialUpdateMode matupmode = addNoise) const override;
+    virtual std::unique_ptr<TrackParameters> preUpdate(
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
 
     /** Updator interface (post-update for a layer): Dummy post update
     */
-    virtual TrackParameters* postUpdate(const TrackParameters& parm,
-                                        const Layer& sf,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const override;
+    virtual std::unique_ptr<TrackParameters> postUpdate(
+      const TrackParameters& parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
 
     /** Updator interface:
       The parmeters are given as a pointer, they are delete inside the update method.
       MaterialProperties based material update
       - used by all Layer-based methods
       */
-    virtual TrackParameters* update(const TrackParameters& parm,
-                                    const MaterialProperties& mprop,
-                                    double pathcorrection,
-                                    PropDirection dir = alongMomentum,
-                                    ParticleHypothesis particle = pion,
-                                    MaterialUpdateMode matupmode = addNoise) const override;
+    virtual std::unique_ptr<TrackParameters> update(
+      const TrackParameters& parm,
+      const MaterialProperties& mprop,
+      double pathcorrection,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
 
     virtual void validationAction() const override {};
 
@@ -117,59 +126,61 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       return std::make_unique<Cache>();
     }
 
-    virtual TrackParameters* update(ICache& icache,
-                                    const TrackParameters* parm,
-                                    const Layer& sf,
-                                    PropDirection dir = alongMomentum,
-                                    ParticleHypothesis particle = pion,
-                                    MaterialUpdateMode matupmode = addNoise) const override
-    {
-
+    virtual std::unique_ptr<TrackParameters> update(
+      ICache& icache,
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       (void)icache;
       return update(parm, sf, dir, particle, matupmode);
     }
 
-    virtual TrackParameters* update(ICache& icache,
-                                    const TrackParameters* parm,
-                                    const MaterialEffectsOnTrack& meff,
-                                    Trk::ParticleHypothesis particle = pion,
-                                    MaterialUpdateMode matupmode = addNoise) const override
-    {
-
+    virtual std::unique_ptr<TrackParameters> update(
+      ICache& icache,
+      const TrackParameters* parm,
+      const MaterialEffectsOnTrack& meff,
+      Trk::ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       (void)icache;
       return update(parm, meff, particle, matupmode);
     }
 
-    virtual TrackParameters* preUpdate(ICache& icache,
-                                       const TrackParameters* parm,
-                                       const Layer& sf,
-                                       PropDirection dir = alongMomentum,
-                                       ParticleHypothesis particle = pion,
-                                       MaterialUpdateMode matupmode = addNoise) const override
-    {
-
+    virtual std::unique_ptr<TrackParameters> preUpdate(
+      ICache& icache,
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       (void)icache;
       return preUpdate(parm, sf, dir, particle, matupmode);
     }
 
-    virtual TrackParameters* postUpdate(ICache& icache,
-                                        const TrackParameters& parm,
-                                        const Layer& sf,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const override
-    {
-
+    virtual std::unique_ptr<TrackParameters> postUpdate(
+      ICache& icache,
+      const TrackParameters& parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       (void)icache;
       return postUpdate(parm,sf,dir,particle,matupmode);
     }
 
-    virtual TrackParameters*    update(ICache& icache, const TrackParameters& parm,
-                                       const MaterialProperties& mprop,
-                                       double pathcorrection,
-                                       PropDirection dir=alongMomentum,
-                                       ParticleHypothesis particle=pion,
-                                       MaterialUpdateMode matupmode=addNoise) const override{
+    virtual std::unique_ptr<TrackParameters> update(
+      ICache& icache, const TrackParameters& parm,
+      const MaterialProperties& mprop,
+      double pathcorrection,
+      PropDirection dir=alongMomentum,
+      ParticleHypothesis particle=pion,
+      MaterialUpdateMode matupmode=addNoise
+    ) const override {
       (void) icache;
       return update(parm,mprop,pathcorrection,dir,particle,matupmode);
     }
