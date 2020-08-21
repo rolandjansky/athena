@@ -7,11 +7,6 @@ import six
 #################################################################################
 # Define some default values
 
-clusterSigStates = {
-    'EMScale':0,
-    'LocHad':1,
-    'Mod':1
-}
 
 defaultSelection = {
     'Ele':'Medium',
@@ -83,10 +78,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.objType == 'Jet':
         tool = CfgMgr.met__METJetTool('MET_JetTool_'+suffix)
         tool.DoTracks = doTracks
-        if "EMTopo" in suffix:
-            tool.SignalState = clusterSigStates['EMScale']
-        else:
-            tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonTool('MET_MuonTool_'+suffix)
     if config.objType == 'SoftTrk':
@@ -95,17 +86,10 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.objType.endswith('SoftClus'):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
-        if doOriginCorrClus:
-            tool.SignalState = clusterSigStates['Mod']
-        else:
-            tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'SoftPFlow':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc,pfotool.name()):
-            ToolSvc += pfotool
         tool.PFOTool = pfotool
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
@@ -138,7 +122,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
             config.outputKey = tool.MissingETKey
         else:
             tool.MissingETKey = config.outputKey
-    from AthenaCommon.AppMgr import ToolSvc
     return tool
 
 #################################################################################
@@ -152,7 +135,6 @@ class RefConfig:
 def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,caloisotool=None):
     tool = None
 
-    from AthenaCommon.AppMgr import ToolSvc
     if config.type == 'TrackFilter':
         tool = CfgMgr.met__METTrackFilterTool('MET_TrackFilterTool_'+suffix)
         tool.InputPVKey = defaultInputKey['PrimaryVx']
@@ -184,7 +166,6 @@ def getRegions(config,suffix):
     tool.InputMETMap = 'METMap_'+suffix
     tool.InputMETKey = config.outputKey
     tool.RegionValues = [ 1.5, 3.2, 10 ]
-    from AthenaCommon.AppMgr import ToolSvc
     return tool
 
 #################################################################################
@@ -262,24 +243,14 @@ class METConfig:
         if doRegions:
             self.setupRegions(buildconfigs)
         #
-        from AthenaCommon.AppMgr import ToolSvc
         self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
                                                               CutLevel="TightPrimary",
                                                               maxZ0SinTheta=3,
                                                               maxD0=2,
                                                               minPt=500)
-        if not hasattr(ToolSvc,self.trkseltool.name()):
-            ToolSvc += self.trkseltool
-        #
         self.trkvxtool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
-        if not hasattr(ToolSvc,self.trkvxtool.name()):
-            ToolSvc += self.trkvxtool
-        #
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        if not hasattr(ToolSvc,self.trkisotool.name()):
-            ToolSvc += self.trkisotool
-        #
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         CaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
@@ -289,8 +260,6 @@ class METConfig:
                                                           addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
-        if not hasattr(ToolSvc,self.caloisotool.name()):
-            ToolSvc += self.caloisotool
 
         self.setupBuilders(buildconfigs)
         self.setupRefiners(refconfigs)
@@ -339,7 +308,6 @@ def getMETRecoAlg(algName='METReconstruction',configs={},tools=[]):
             regiontool = getRegionRecoTool(conf)
             recoTools.append(regiontool)
 
-    from AthenaCommon.AppMgr import ToolSvc
     for tool in recoTools:
         print (prefix, 'Added METRecoTool \''+tool.name()+'\' to alg '+algName)
 
