@@ -41,6 +41,10 @@ if 'LegacyEventInfo' in digitizationFlags.experimentalDigi() and \
     from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
     xAODEventInfoCnvAlgDefault (sequence = job)
 
+# Beam spot
+include( "Digitization/BeamSpot.py" )
+
+# Configure main algorithm
 job += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
 if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() or 'doFastTRT_Digi' in digitizationFlags.experimentalDigi():
     print ("WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf.")

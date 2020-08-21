@@ -216,6 +216,9 @@ include('EventOverlayJobTransforms/ConfiguredOverlayMT_jobOptions.py')  # noqa F
 # load the input properly
 include('EventOverlayJobTransforms/OverlayInput_jobOptions.py')  # noqa F821
 
+# Always schedule beam spot conditions for overlay
+include('Digitization/BeamSpot.py')  # noqa F821
+
 if DetFlags.overlay.Truth_on():
     include('EventOverlayJobTransforms/TruthOverlay_jobOptions.py')  # noqa F821
 
