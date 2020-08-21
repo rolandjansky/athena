@@ -5242,7 +5242,7 @@ namespace Trk {
     }
 
     if (per != nullptr) {
-      trajectory.setReferenceParameters(per);
+      trajectory.setReferenceParameters(std::unique_ptr<const TrackParameters>(per));
     }
 
     int nfitpar = trajectory.numberOfFitParameters();
@@ -5411,11 +5411,13 @@ namespace Trk {
       }
 
       const AmgVector(5) & perpars = finaltrajectory->referenceParameters()->parameters();
-      const TrackParameters *measper = finaltrajectory->referenceParameters()->associatedSurface().createTrackParameters(
-        perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], errmat
+      std::unique_ptr<const TrackParameters> measper(
+        finaltrajectory->referenceParameters()->associatedSurface().createTrackParameters(
+          perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], errmat
+        )
       );
       
-      finaltrajectory->setReferenceParameters(measper);
+      finaltrajectory->setReferenceParameters(std::move(measper));
       if (m_fillderivmatrix) {
         cache.m_fullcovmat = a_inv;
       }
@@ -6321,11 +6323,13 @@ namespace Trk {
       delta_ps[i] += result[nperparams + 2 * nscat + i];
     }
 
-    const TrackParameters *newper = trajectory.referenceParameters()->associatedSurface().createTrackParameters(
-      d0, z0, phi, theta, qoverp, nullptr
+    std::unique_ptr<const TrackParameters> newper(
+      trajectory.referenceParameters()->associatedSurface().createTrackParameters(
+        d0, z0, phi, theta, qoverp, nullptr
+      )
     );
     
-    trajectory.setReferenceParameters(newper);
+    trajectory.setReferenceParameters(std::move(newper));
     trajectory.setScatteringAngles(scatangles);
     trajectory.setBrems(delta_ps);
     
@@ -7263,7 +7267,7 @@ namespace Trk {
         )
       );
     } else {
-      per.reset(oldtrajectory.referenceParameters(true)->clone());
+      per.reset(oldtrajectory.referenceParameters()->clone());
     }
 
     return per;
