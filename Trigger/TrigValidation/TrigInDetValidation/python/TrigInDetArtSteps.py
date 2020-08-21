@@ -209,7 +209,7 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     '''
     Execute TIDAcpucost for expert-monitoring.root files.
     '''
-    def __init__(self, name='TrigInDetCpuCost'):
+    def __init__(self, name='TrigInDetCpuCost', ftf_times=True):
         super(TrigInDetCpuCostStep, self).__init__(name)
         self.input_file = 'expert-monitoring.root'
 ##        self.ref_file = 'expert-monitoring.root'   #### need to add reference file here 
@@ -218,13 +218,17 @@ class TrigInDetCpuCostStep(RefComparisonStep):
         self.auto_report_result = True
         self.required = True
         self.executable = 'TIDAcpucost'
+
+        if ftf_times:
+            self.args += ' -d TrigFastTrackFinder_'
+            self.output_dir = 'times-FTF'
     
     def configure(self, test):
         #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
         if (self.reference == None):
-            # if not reference found, run with "--noref" option
-            self.args += ' {} --noref -o {} '.format(self.input_file,self.output_dir)
+            ## if not reference found, run with "--noref" option
+            self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
         else:
-            self.args += ' {} {} -o {} '.format(self.input_file,self.reference,self.output_dir)
+            self.args += ' {} {} -o {} -p TIME'.format(self.input_file,self.reference,self.output_dir)
         super(TrigInDetCpuCostStep, self).configure(test)
 

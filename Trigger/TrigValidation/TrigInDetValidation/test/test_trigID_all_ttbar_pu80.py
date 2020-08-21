@@ -126,12 +126,10 @@ comp9.test='ttbar'
 test.check_steps.append(comp9)
 
 # CPU cost steps
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 
 
