@@ -4762,7 +4762,7 @@ def generic_dump_auxitem (x, auxid, f):
         fprint (f, '<unavailable>')
         return
     try:
-        obj = ROOT.TPython.ObjectProxy_FromVoidPtr (buf, tname)
+        obj = ROOT.TPython.CPPInstance_FromVoidPtr (buf, tname)
     except TypeError:
         fprint (f, '<unknown %s>'%tname)
         return
