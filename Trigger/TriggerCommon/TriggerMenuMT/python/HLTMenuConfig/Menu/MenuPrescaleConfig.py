@@ -26,8 +26,8 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     if menu_name.startswith('LS2_v1'):
         log.info('LS2_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu, Prescales
-        setupMenu()
+        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu
+        Prescales = setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
@@ -113,8 +113,8 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     elif menu_name.startswith('LS2_emu_v1'):
         log.info('LS2_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu, Prescales
-        setupMenu()
+        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu
+        Prescales = setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
@@ -158,7 +158,7 @@ def addSliceChainsToPrescales(flags, cosmic_prescales):
     from copy import deepcopy
     cosmic_prescales = deepcopy(combined)
 
-def addOnlineChains(flags, trigvalid_prescales):
+def disableChains(flags, trigvalid_prescales, type_group):
     signatures = []
     slice_props = [prop for prop in dir(flags) if prop.endswith("Slice")]
     for slice_prop in slice_props:
@@ -168,17 +168,15 @@ def addOnlineChains(flags, trigvalid_prescales):
         else:
             log.debug('SKIPPING ' + str(slice_prop))
 
-    s_online_list=[]
+    chain_online_list=[]
 
-    for s in signatures:
-        if s.groups=='Online':
-            print(s.name)
-            s_online_list.extend(s.name)
+    for chain in signatures:
+        if type_group in chain.groups:
+            print(chain.name)
+            chain_online_list.append(chain.name)
 
-    trigvalid_prescales.update(zip(s_online_list,len(s_online_list)*[ [-1, 0,-1] ]))
+    trigvalid_prescales.update(zip(chain_online_list,len(chain_online_list)*[ [-1, 0,-1] ]))
 
-    
-    #return s_online_list
 
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale, signaturesOverwritten):
     for item, prescales in iteritems(HLTPrescale):

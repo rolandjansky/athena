@@ -22,6 +22,8 @@ def setupMenu():
 
     physics_menu.setupMenu()
 
+    
+
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [

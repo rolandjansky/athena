@@ -9,7 +9,7 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,addOnlineChains
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,disableChains
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
@@ -26,6 +26,8 @@ def setupMenu():
     log = logging.getLogger( __name__ )
     log.info('setupMenu ...')
 
+
+   
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
@@ -299,24 +301,26 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
+    # --------------------------------------------------
+    # ---- Defining specific prescales to this menu ----
+    # --------------------------------------------------
+
+    Prescales = mc_menu.Prescales
+
+    ## Cosmics
 
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
-    #addOnlineChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale)
+    ## Trigger Validation (disabling high CPU chains)
 
-Prescales = mc_menu.Prescales
+    Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
 
-ps_online_list=[
-    'HLT_mb_sptrk_L1RD0_FILLED',
-    'HLT_timeburner_L1All'
-]
+    Prescales.HLTPrescales_trigvalid_mc_prescale = {}
 
-Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
-#for HLT only need to store any chains that have a prescale different from 1
-Prescales.HLTPrescales_trigvalid_mc_prescale = {}
+    disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
+    
+    # --------------------------------------------------
 
-disable_chain_list=ps_online_list
-#disable_chain_list=[]
-#addOnlineChains(TriggerFlags, disable_chain_list)
-Prescales.HLTPrescales_trigvalid_mc_prescale.update(zip(disable_chain_list,len(disable_chain_list)*[ [-1, 0,-1] ]))
+    return Prescales
+
 

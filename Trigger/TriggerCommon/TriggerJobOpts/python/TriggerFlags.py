@@ -518,8 +518,10 @@ class readLVL1configFromXML(JobProperty):
             import TriggerMenu.l1.Lvl1Flags  # noqa: F401
         
         if self.get_Value() is False:
-            TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
+            #TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
+            TriggerFlags.inputLVL1configFile = "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
             TriggerFlags.Lvl1.items.set_On()
+            log.info("Input LVL1 config is:  \""+TriggerFlags.inputLVL1configFile+"\"")
         else:
             xmlFile=TriggerFlags.inputLVL1configFile()
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
@@ -703,7 +705,7 @@ class inputLVL1configFile(JobProperty):
             return "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
-        
+
 _flags.append(inputLVL1configFile)
 
 # remove prescale suffixes
@@ -864,7 +866,9 @@ class triggerMenuSetup(JobProperty):
             
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
-            TriggerFlags.inputLVL1configFile = "LVL1config_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
+            #TriggerFlags.inputLVL1configFile = "LVL1config_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
+            TriggerFlags.inputLVL1configFile = "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
+            self._log.info("TriggerFlags.inputLVL1configFile set to '%s'", TriggerFlags.inputLVL1configFile)
         if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile is None):
             TriggerFlags.inputHLTconfigFile = "HLTconfig_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
 
