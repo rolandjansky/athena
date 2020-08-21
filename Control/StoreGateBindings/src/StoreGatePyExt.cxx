@@ -74,7 +74,7 @@ PyObject* pynameFromType (PyObject* tp)
     }
   }
   else {
-    pyname = PyObject_GetAttrString( tp, (char*)"__cppname__" );
+    pyname = PyObject_GetAttrString( tp, (char*)"__cpp_name__" );
     if (!pyname) {
       pyname = PyObject_GetAttrString( tp, (char*)"__name__" );
     }
