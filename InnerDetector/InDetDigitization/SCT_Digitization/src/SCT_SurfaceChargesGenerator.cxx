@@ -337,7 +337,7 @@ void SCT_SurfaceChargesGenerator::process(const SiDetectorElement* element,
                                           const TimedHitPtr<SiHit>& phit,
                                           const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const {
   ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::process starts");
-  processSiHit(element, *phit, inserter, phit.eventTime(), phit.pileupType(), rndmEngine);
+  processSiHit(element, *phit, inserter, phit.eventTime(), phit.pileupType(), phit.eventId(), rndmEngine);
   return;
 }
 
@@ -349,7 +349,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
                                                const SiHit& phit,
                                                const ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
-                                               unsigned short p_pileupType, CLHEP::HepRandomEngine * rndmEngine) const {
+                                               unsigned short p_pileupType, unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine) const {
   const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
@@ -414,11 +414,13 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
 
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
-  HepMcParticleLink trklink(phit.particleLink());
+  EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   if (m_needsMcEventCollHelper) {
     MsgStream* amsg = &(msg());
-    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(p_pileupType, amsg) );
+    evColl = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(p_pileupType, amsg);
   }
+  const bool isEventIndexIsPosition = (p_eventId==0);
+  HepMcParticleLink trklink(phit.trackNumber(), p_eventId, evColl, isEventIndexIsPosition);
   SiCharge::Process hitproc{SiCharge::track};
   if (phit.trackNumber() != 0) {
     if (not trklink.isValid()) {

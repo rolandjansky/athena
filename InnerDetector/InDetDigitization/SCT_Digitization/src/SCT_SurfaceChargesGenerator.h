@@ -111,7 +111,7 @@ private:
   
   /** create a list of surface charges from a hit */
   void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
-  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short pileupType, CLHEP::HepRandomEngine * rndmEngine) const;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short pileupType, unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine) const;
   
   // some diagnostics methods are needed here too
   float driftTime(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
