@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackSummaryAccessors_v1.cxx 576255 2013-12-19 12:54:41Z emoyse $
 
 // System include(s):
-extern "C" {
-#   include <stdint.h>
-}
+#include <cstdint>
 #include <iostream>
 
 // Local include(s):
@@ -110,7 +108,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
    
@@ -126,7 +124,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }   
 } // namespace xAOD
