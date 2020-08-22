@@ -240,7 +240,10 @@ def addVRJets(sequence, largeRColls = None, do_ghost=False, logger=None, doFlipT
       ungroomedName, getters = linkVRJetsToLargeRJets(sequence, collection, toAssociate)
       ungroomedNames.append(ungroomedName)
 
-    return ungroomedNames
+    return dict(
+        ungroomedNames=ungroomedNames,
+        VRJetName=VRName,
+        ghostJetLinkName=ghostLab)
 
 def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training='201810'):
 
