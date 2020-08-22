@@ -516,8 +516,8 @@ void Trk::SimpleAmbiguityProcessorTool::dumpTracks( const TrackCollection& track
 void 
 Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
   auto parseFileName=[](const std::string & fullname){
-    auto dotPosition = fullname.rfind(".");
-    auto slashPosition = fullname.rfind("/");
+    auto dotPosition = fullname.rfind('.');
+    auto slashPosition = fullname.rfind('/');
     auto stringLength = dotPosition - slashPosition;
     return fullname.substr(slashPosition, stringLength);
   };

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "RIO_OnTrackErrorScalingKit.h"
 #include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
 
-typedef char * CharPtr_t;
+using CharPtr_t = char *;
 class MuonEtaPhiRIO_OnTrackErrorScalingKit
   : public RIO_OnTrackErrorScalingSpecialisedKit<MuonEtaPhiRIO_OnTrackErrorScaling>
 {
