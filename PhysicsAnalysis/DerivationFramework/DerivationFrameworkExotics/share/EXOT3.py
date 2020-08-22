@@ -338,11 +338,25 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot3Seq)
 
 # Create TCC objects
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction, runUFOReconstruction
+
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(exot3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
+
+# running UFO reconstruction
+from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
+## Add PFlow constituents
+pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
+
+# add the pflow cssk sequence to the main jetalg if not already there :
+if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
+  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
+
+# Add UFO constituents
+runUFOReconstruction(exot3Seq, ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
+
 
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
@@ -353,7 +367,8 @@ reducedJetList = [
     "AntiKt4TruthJets",
     "AntiKt10TruthJets",
     "AntiKt10LCTopoJets",
-    "AntiKt10TrackCaloClusterJets"]
+    "AntiKt10TrackCaloClusterJets",
+    "AntiKt10UFOCSSKJets"]
 replaceAODReducedJets(reducedJetList,exot3Seq,"EXOT3")
 
 #AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
@@ -361,9 +376,10 @@ if isMC:
   from JetSimTools.JetSimToolsConf import JetChargedParticlesTool
   jtm += JetChargedParticlesTool("ChargedParticles", )
   jtm.modifiersMap['truth_groomed'] += [ jtm.ChargedParticles ]
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addTCCTrimmedJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addTCCTrimmedJets, addDefaultUFOSoftDropJets
 addDefaultTrimmedJets(exot3Seq,"EXOT3")
 addTCCTrimmedJets(exot3Seq,"EXOT3")
+addDefaultUFOSoftDropJets(exot3Seq,"EXOT3",dotruth=True)
 
 #
 # Adding ExCoM sub-jets for each trimmed large-R jet
@@ -379,6 +395,7 @@ BTaggingFlags.CalibrationChannelAliases += [
 largeRJetAlgs = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20",
     "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10",
     ]
 
 largeRJetCollections = []
@@ -460,7 +477,8 @@ EXOT3SlimmingHelper.ExtraVariables = ["AntiKt4EMTopoJets"+TruthAssociationVars,"
 # /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
 EXOT3SlimmingHelper.SmartCollections = EXOT3SmartContent
 EXOT3SlimmingHelper.SmartCollections += ["BTagging_AntiKtVR30Rmax4Rmin02Track_201903", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
-                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]
+                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 EXOT3SlimmingHelper.ExtraVariables = EXOT3ExtraVariables
 EXOT3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
@@ -474,7 +492,7 @@ EXOT3SlimmingHelper.StaticContent = EXOT3StaticContent
 # addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"], ["AntiKt4TruthJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"])
 
 EXOT3SlimmingHelper.AppendToDictionary = {}
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets', 'AntiKt10RCEMPFlowJets']
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets', 'AntiKt10RCEMPFlowJets','AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets']
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT3SlimmingHelper.AppendToDictionary = {
@@ -512,6 +530,19 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
+    "AntiKt10LCTopoJets.GhostAntiKt2TrackJet",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag",
+    "AntiKt10UFOCSSKJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+    "AntiKt10UFOCSSKJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
+    "AntiKt10UFOCSSKJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903",
+    "AntiKt10UFOCSSKJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag",
 ]
 
 if isMC:
