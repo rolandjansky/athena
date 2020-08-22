@@ -78,6 +78,7 @@ FullListOfSmartContainers = [
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag",
+   "BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag_expert",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag_expert",
    "BTagging_AntiKt8EMTopoExKt2Sub",
