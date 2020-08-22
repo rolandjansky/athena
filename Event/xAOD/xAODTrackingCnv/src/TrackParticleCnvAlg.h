@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCnvAlg.h 297747 2013-10-28 15:14:24Z krasznaa $
@@ -100,7 +100,6 @@ namespace xAODMaker {
 
 
     //Online Track monitoring
-    bool m_doMonitoring;
     ToolHandle< ITrackParticleMonitoring > m_trackMonitoringTool;
 
 
