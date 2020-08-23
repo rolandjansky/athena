@@ -2102,8 +2102,8 @@ def dump_CaloClusterCellLink (l, f):
 def dump_CaloCell (l, f):
     fprint (f, l.ID().getString())
     if l.__class__ == PyAthena.TileCell:
-        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene1(), l.time1(), ord(l.qual1()), ord(l.qbit1()), l.gain1()))
-        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene2(), l.time2(), ord(l.qual2()), ord(l.qbit2()), l.gain2()))
+        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene1(), l.time1(), l.qual1(), l.qbit1(), l.gain1()))
+        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene2(), l.time2(), l.qual2(), l.qbit2(), l.gain2()))
     else:
         fprint (f, '%.2f %.2f %d %d %d ' % (l.energy(), l.time(), l.quality(), l.provenance(), l.gain()))
     return
