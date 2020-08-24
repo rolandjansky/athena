@@ -8,12 +8,6 @@ import six
 #################################################################################
 # Define some default values
 
-clusterSigStates = {
-    'EMScale':0,
-    'LocHad':1,
-    'Mod':1
-}
-
 defaultInputKey = {
    'Ele'       :'Electrons',
    'Gamma'     :'Photons',
@@ -210,14 +204,9 @@ def getMETAssocTool(topconfig,msglvl):
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix)
     else:
-        tcstate = clusterSigStates['LocHad']
-        if 'EMTopo' in topconfig.suffix: tcstate = clusterSigStates['EMScale']
-        if topconfig.modConstKey!="":
-            tcstate = clusterSigStates['Mod']
         assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix,
-                                                   TCSignalState=tcstate,
                                                    TimingDetail=0,
                                                    OutputLevel=msglvl)
         if metFlags.AllowOverwrite:
@@ -232,11 +221,11 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
 
     from METReconstruction.METRecoFlags import metFlags
     if configs=={} and tools==[]:
-        print (prefix, 'Taking configurations from METRecoFlags')
+        print( prefix, 'Taking configurations from METRecoFlags')
         configs = metFlags.METAssocConfigs()
-        print (configs)
+        print(configs)
     for key,conf in six.iteritems(configs):
-        print (prefix, 'Generate METAssocTool for MET_'+key)
+        print( prefix, 'Generate METAssocTool for MET_'+key)
         assoctool = getMETAssocTool(conf,msglvl)
         assocTools.append(assoctool)
         metFlags.METAssocTools()[key] = assoctool

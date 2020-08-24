@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -8,6 +8,7 @@ from AthenaConfiguration.AutoConfigFlags import GetDetDescrInfo
 # Only some flags have been migrated. A full list of what the old
 # DetFlags provided is given for reference below:
 # detectors : ID = bpipe pixel SCT TRT BCM DBM
+#             ITk = bpipe ITkPixel ITkStrip BCMPrime (in future maybe PLR)
 #             Forward = Lucid ZDC ALFA AFP FwdRegion
 #             LAr = em HEC FCal
 #             Calo = em HEC FCal Tile
@@ -46,6 +47,13 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.GeometryID',    lambda prevFlags : (prevFlags.Detector.GeometryBCM or prevFlags.Detector.GeometryDBM or
                                                               prevFlags.Detector.GeometryPixel or prevFlags.Detector.GeometrySCT or
                                                               prevFlags.Detector.GeometryTRT))
+    
+    #Upgrade ITk Inner Tracker is a separate and parallel detector
+    dcf.addFlag('Detector.GeometryBCMPrime',   False)
+    dcf.addFlag('Detector.GeometryITkPixel',   False)
+    dcf.addFlag('Detector.GeometryITkStrip',   False)
+    dcf.addFlag('Detector.GeometryITk',    lambda prevFlags : (prevFlags.Detector.GeometryBCMPrime or prevFlags.Detector.GeometryITkPixel or prevFlags.Detector.GeometryITkStrip))
+
     dcf.addFlag('Detector.GeometryLAr',   False) # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.GeometryTile',  False)
     dcf.addFlag('Detector.GeometryCalo',  lambda prevFlags : (prevFlags.Detector.GeometryLAr or prevFlags.Detector.GeometryTile))
@@ -81,7 +89,14 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.SimulateHGTD',  False)
     dcf.addFlag('Detector.SimulateID',    lambda prevFlags : (prevFlags.Detector.SimulateBCM or prevFlags.Detector.SimulateDBM or
                                                               prevFlags.Detector.SimulatePixel or prevFlags.Detector.SimulateSCT or
-                                                              prevFlags.Detector.SimulateTRT or prevFlags.Detector.SimulateHGTD))
+                                                              prevFlags.Detector.SimulateTRT))
+    
+    #Upgrade ITk Inner Tracker is a separate and parallel detector
+    dcf.addFlag('Detector.SimulateBCMPrime',   False)
+    dcf.addFlag('Detector.SimulateITkPixel',   False)
+    dcf.addFlag('Detector.SimulateITkStrip',   False)
+    dcf.addFlag('Detector.SimulateITk',    lambda prevFlags : (prevFlags.Detector.SimulateBCMPrime or prevFlags.Detector.SimulateITkPixel or prevFlags.Detector.SimulateITkStrip or prevFlags.Detector.SimulateHGTD))
+
     dcf.addFlag('Detector.SimulateLAr',   False) # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.SimulateTile',  False)
     dcf.addFlag('Detector.SimulateCalo',  lambda prevFlags : (prevFlags.Detector.SimulateLAr or prevFlags.Detector.SimulateTile))
@@ -117,6 +132,12 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.OverlayID',    lambda prevFlags : (prevFlags.Detector.OverlayBCM or prevFlags.Detector.OverlayDBM or
                                                               prevFlags.Detector.OverlayPixel or prevFlags.Detector.OverlaySCT or
                                                               prevFlags.Detector.OverlayTRT))
+    
+    dcf.addFlag('Detector.OverlayBCMPrime',   False)
+    dcf.addFlag('Detector.OverlayITkPixel',   False)
+    dcf.addFlag('Detector.OverlayITkStrip',   False)
+    dcf.addFlag('Detector.OverlayITk',    lambda prevFlags : (prevFlags.Detector.OverlayBCMPrime or prevFlags.Detector.OverlayITkPixel or prevFlags.Detector.OverlayITkStrip))
+
     dcf.addFlag('Detector.OverlayLAr',   False) # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.OverlayTile',  False)
     dcf.addFlag('Detector.OverlayCalo',  lambda prevFlags : (prevFlags.Detector.OverlayLAr or prevFlags.Detector.OverlayTile))
@@ -131,8 +152,7 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.OverlayMuon',  lambda prevFlags : (prevFlags.Detector.OverlayCSC or prevFlags.Detector.OverlayMDT or
                                                              prevFlags.Detector.OverlayRPC or prevFlags.Detector.OverlayTGC or
                                                              prevFlags.Detector.OverlaysTGC or prevFlags.Detector.OverlayMM))
-    dcf.addFlag('Detector.Overlay',      lambda prevFlags : (prevFlags.Detector.OverlayID or prevFlags.Detector.OverlayCalo or
-                                                             prevFlags.Detector.OverlayMuon))
+    dcf.addFlag('Detector.Overlay',      lambda prevFlags : (prevFlags.Detector.OverlayID or prevFlags.Detector.OverlayCalo or prevFlags.Detector.OverlayMuon))
 
     dcf.addFlag('Detector.RecoBCM',   False)
     dcf.addFlag('Detector.RecoIBL', lambda prevFlags : (prevFlags.Detector.RecoPixel and prevFlags.GeoModel.Run in ["RUN2", "RUN3"])) # TODO Review if a separate RecoIBL flag is really required here
@@ -142,6 +162,12 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.RecoID',    lambda prevFlags : (prevFlags.Detector.RecoBCM or prevFlags.Detector.RecoIBL or
                                                           prevFlags.Detector.RecoPixel or prevFlags.Detector.RecoSCT or
                                                           prevFlags.Detector.RecoTRT))
+    
 #    dcf.addFlag('Detector.Reco',      lambda prevFlags : (prevFlags.Detector.RecoID or prevFlags.Detector.RecoCalo or
 #                                                          prevFlags.Detector.RecoMuon))
+    dcf.addFlag('Detector.RecoITkPixel', False)
+    dcf.addFlag('Detector.RecoITkStrip',   False)
+    dcf.addFlag('Detector.RecoBCMPrime',   False)
+    dcf.addFlag('Detector.RecoITk',    lambda prevFlags : (prevFlags.Detector.RecoITkPixel or prevFlags.Detector.RecoITkStrip or prevFlags.Detector.RecoBCMPrime))
+
     return dcf

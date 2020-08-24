@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -20,6 +20,8 @@ StatusCode PileUpToolsAlg::initialize()
   ATH_MSG_DEBUG ("Initializing " << name() << " - package version " << PACKAGE_VERSION);
   //locate the pu tools and initialize them
   ATH_CHECK(m_puTools.retrieve());
+  // initialise read handle keys
+  ATH_CHECK(m_eventInfoKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -38,8 +40,12 @@ StatusCode PileUpToolsAlg::execute()
   /////////////////////////////////////////////////////////////////////
   // Get the overlaid event header, print out event and run number
 
-  const xAOD::EventInfo *evt(nullptr); //FIXME should we use a read-handle here?
-  ATH_CHECK_RECOVERABLE(evtStore()->retrieve(evt));
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
+  if (!evt.isValid()) {
+    ATH_MSG_ERROR("Could not get xAOD::EventInfo " << evt.name() << " from store " << evt.store());
+    return StatusCode::FAILURE;
+  }
+
   ATH_MSG_INFO ("Hard-scatter xAOD::EventInfo : " << " event: " << evt->eventNumber() << " run: " << evt->runNumber());
 
   // access the sub events...

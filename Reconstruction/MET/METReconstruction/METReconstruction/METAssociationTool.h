@@ -105,7 +105,6 @@ namespace met{
     SG::WriteHandleKey<xAOD::MissingETAssociationMap> m_mapnameKey;
 
 
-    int m_signalstate;
     bool m_overwrite;
 
     ToolHandleArray<IMETAssocToolBase> m_metassociators;

@@ -137,7 +137,7 @@ namespace HLT {
 
     /// Replace error codes with the given codes
     void setErrorCodes(const std::vector<HLT::OnlineErrorCode>& errorCodes,
-                       const eformat::helper::Status firstStatusWord = {
+                       const eformat::helper::Status& firstStatusWord = {
                          eformat::GenericStatus::DATA_CORRUPTION,
                          eformat::FullEventStatus::PSC_PROBLEM
                        });
@@ -148,7 +148,7 @@ namespace HLT {
      *  to the vector of optional error codes
      **/
     void addErrorCode(const HLT::OnlineErrorCode& errorCode,
-                      const eformat::helper::Status firstStatusWord = {
+                      const eformat::helper::Status& firstStatusWord = {
                         eformat::GenericStatus::DATA_CORRUPTION,
                         eformat::FullEventStatus::PSC_PROBLEM
                       });

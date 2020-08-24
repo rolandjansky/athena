@@ -59,8 +59,10 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask1 \
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask2 \
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask3 \
-            xAOD::EventAuxInfo_v2_EventInfoAux.actualInteractionsPerCrossing \
-            xAOD::EventAuxInfo_v2_EventInfoAux.averageInteractionsPerCrossing
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.actualInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.averageInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDLowBits \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDHighBits
     rc3=$?
 fi
 echo "art-result: $rc3 comparison"

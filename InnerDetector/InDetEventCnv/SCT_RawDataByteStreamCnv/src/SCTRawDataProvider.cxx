@@ -57,8 +57,6 @@ StatusCode SCTRawDataProvider::initialize()
   return StatusCode::SUCCESS;
 }
 
-typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> dummySCTRDO_t;
-
 // Execute
 
 StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
@@ -139,19 +137,10 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1ID << " and BCID " << bcID << " in InDetTimeCollections");
   }
 
-  std::unique_ptr<dummySCTRDO_t> dummyRDO;
-  ISCT_RDO_Container *rdoInterface{nullptr};
-  if (externalCacheRDO) {
-    dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
-    rdoInterface = static_cast< ISCT_RDO_Container*> (dummyRDO.get());
-  }
-  else {
-    rdoInterface = static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
-  }
   if ( not hashIDs.empty() ) {
     int missingCount{};
     for ( IdentifierHash hash: hashIDs ) {
-      if ( not rdoInterface->tryAddFromCache( hash ) ) missingCount++;
+      if ( not rdoContainer->tryAddFromCache( hash ) ) missingCount++;
       bsIDCErrContainer->tryAddFromCache( hash );
     }
     ATH_MSG_DEBUG("Out of: " << hashIDs.size() << "Hash IDs missing: " << missingCount );
@@ -162,11 +151,10 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags,
-                             *rdoInterface,
+                             *(rdoContainer.ptr()),
 			     *bsIDCErrContainer).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 
-  if (dummyRDO) ATH_CHECK(dummyRDO->MergeToRealContainer(rdoContainer.ptr()));
   return StatusCode::SUCCESS;
 }
