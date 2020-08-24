@@ -482,19 +482,19 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // Fill a vector of deposits
     depositVector.clear();
     depositVector.reserve(std::distance(i,e));
-    EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+    EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
     int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
     for (TimedHitCollection<TRTUncompressedHit>::const_iterator hit_iter(i); hit_iter != e; ++hit_iter ) {
       const TimedHitPtr<TRTUncompressedHit> & phit(*hit_iter);
-      HepMcParticleLink trklink(phit->particleLink());
       if (m_needsMcEventCollHelper) {
         if(phit.pileupType()!=lastPileupType) {
           MsgStream* amsg = &(msg());
           currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
           lastPileupType=phit.pileupType();
         }
-        trklink.setEventCollection(currentMcEventCollection);
       }
+      const bool isEventIndexIsPosition = (phit.eventId()==0);
+      HepMcParticleLink trklink(phit->GetTrackID(), phit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
 
       // create a new deposit
       InDetSimData::Deposit deposit( trklink, phit->GetEnergyDeposit() );
