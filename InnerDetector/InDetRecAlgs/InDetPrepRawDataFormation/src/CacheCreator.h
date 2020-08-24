@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -53,6 +53,8 @@ namespace InDet{
           {this, "SCTRDOCacheKey", ""};
 	SG::WriteHandleKey<IDCInDetBSErrContainer_Cache> m_SCTBSErrCacheKey
 	  {this, "SCTBSErrCacheKey", ""};
+	SG::WriteHandleKey<IDCInDetBSErrContainer_Cache> m_SCTFlaggedCondCacheKey
+	  {this, "SCTFlaggedCondCacheKey", ""};
         SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey
           {this, "PixRDOCacheKey", ""};
 	SG::WriteHandleKey<IDCInDetBSErrContainer_Cache>  m_PixBSErrCacheKey
