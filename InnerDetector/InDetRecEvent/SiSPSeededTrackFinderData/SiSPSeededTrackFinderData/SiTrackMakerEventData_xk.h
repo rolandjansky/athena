@@ -37,7 +37,6 @@ namespace InDet {
 // Class for event dependent data used in SiTrackMaker_xk
 /////////////////////////////////////////////////////////////////////////////////
 
-
   class SiTrackMakerEventData_xk {
   public:
     SiTrackMakerEventData_xk();
@@ -59,6 +58,10 @@ namespace InDet {
     std::list<double>& hadR();
     std::list<double>& hadZ();
     std::array<double, 2>& xybeam();
+
+    std::array<std::array<std::array<int,SiCombinatorialTrackFinderData_xk::kNRapidityRanges>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>,SiCombinatorialTrackFinderData_xk::kNStatEtaTypes>& summaryStatUsedInTrack();
+    std::array<std::array<int,SiCombinatorialTrackFinderData_xk::kNSeedTypes>,SiCombinatorialTrackFinderData_xk::kNStatAllTypes>& summaryStatAll();
+
     SeedToTrackConversionData& conversionData();
     SiCombinatorialTrackFinderData_xk& combinatorialData();
 
@@ -93,6 +96,10 @@ namespace InDet {
     //@{
     bool m_dbm{false};
     //@}
+
+    /// Counters
+    std::array<std::array<std::array<int,SiCombinatorialTrackFinderData_xk::kNRapidityRanges>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>,SiCombinatorialTrackFinderData_xk::kNStatEtaTypes> m_summaryStatUsedInTrack {};
+    std::array<std::array<int,SiCombinatorialTrackFinderData_xk::kNSeedTypes>,SiCombinatorialTrackFinderData_xk::kNStatAllTypes> m_summaryStatAll {};
 
     /// @name Data members updated only by newEvent method
     //@{
