@@ -75,6 +75,9 @@ def generateMenu( flags ):
             counter += 1
             mainChainDict['chainCounter'] = counter
 
+            #set default chain prescale
+            mainChainDict['prescale'] = 1
+
             allChainDicts.append(mainChainDict)
 
             chainDicts = splitInterSignatureChainDict(mainChainDict)
