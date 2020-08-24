@@ -39,16 +39,13 @@ public:
   virtual ~GsfSmoother() = default;
 
   /** AlgTool initialise method */
-  StatusCode initialize();
-
-  /** AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode initialize() override final ;
 
   /** Configure the GSF smoother
       - Configure the extrapolator
       - Configure the measurement updator */
   virtual StatusCode configureTools(
-    const ToolHandle<IMultiStateExtrapolator>& extrapolator);
+    const ToolHandle<IMultiStateExtrapolator>& extrapolator) override final;
 
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(
@@ -56,7 +53,7 @@ public:
     Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting,
-    const CaloCluster_OnTrack* ccot = nullptr) const;
+    const CaloCluster_OnTrack* ccot = nullptr) const override final;
 
 private:
   /** Method for combining the forwards fitted state and the smoothed state */
