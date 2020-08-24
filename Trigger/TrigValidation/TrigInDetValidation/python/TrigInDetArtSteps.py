@@ -78,6 +78,9 @@ class TrigInDetReco(ExecStep):
             if (i=='beamspot') :
                 chains += "'HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15','HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15',"
                 flags += 'doBeamspotSlice=True;'
+            if (i=='minbias') :
+                chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
+                flags += 'doMinBiasSlice=True;'
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
@@ -194,6 +197,12 @@ class TrigInDetCompStep(RefComparisonStep):
             self.output_dir = 'HLTL2-plots'
             if (self.test=='ttbar'):
                 self.output_dir = self.output_dir+'-FS'
+        elif (self.flag == 'L2mb'):
+            self.chains = 'HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_FTF'
+            self.output_dir = 'HLTL2-plots'
+        elif (self.flag == 'EFmb'):
+            self.chains = 'HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig'
+            self.output_dir = 'HLTEF-plots'
         else:
             print('Unknown flag for comparitor step ', self.flag) 
 
