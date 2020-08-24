@@ -869,7 +869,7 @@ def getTauWPDecoratorEleBDT():
                                              CutEnumVals = 
                                              [ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTLoose, 
                                               ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTMedium, 
-                                              ROOT.xAOD.TauJetParameters.EIsTauFlag.leBDTTight],
+                                              ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTTight],
                                              SigEff1P = [0.95, 0.85, 0.75],
                                              SigEff3P = [0.95, 0.85, 0.75],
                                              ) 
