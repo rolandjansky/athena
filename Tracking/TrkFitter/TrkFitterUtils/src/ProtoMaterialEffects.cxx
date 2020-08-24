@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
@@ -10,10 +10,10 @@
 
 namespace Trk{
 ProtoMaterialEffects::ProtoMaterialEffects(){
-  m_eloss=0;
+  m_eloss=nullptr;
   m_scatphi=m_scattheta=m_sigmascatphi=m_sigmascattheta=m_x0=m_measscatphi=0;
-  m_surf=0;
-  m_matprop=0;
+  m_surf=nullptr;
+  m_matprop=nullptr;
   m_deltap=0;
   m_sigmadeltae=0;
   m_sigmadeltaepos=0;
@@ -39,11 +39,11 @@ ProtoMaterialEffects::ProtoMaterialEffects(const MaterialEffectsOnTrack *meot){
       m_owneloss=true;
     }
     else {
-      m_eloss=0;
+      m_eloss=nullptr;
     }
   }
   else {
-    m_eloss=0;
+    m_eloss=nullptr;
     m_deltae=0;
     m_sigmadeltaepos=0;
     m_sigmadeltaeneg=0;
@@ -70,7 +70,7 @@ ProtoMaterialEffects::ProtoMaterialEffects(const MaterialEffectsOnTrack *meot){
   m_surf=meot->associatedSurface().associatedDetectorElement() ?
          &meot->associatedSurface():
          meot->associatedSurface().clone();
-  m_matprop=0;
+  m_matprop=nullptr;
 
   m_iskink= false;//(m_scattheta>0.09) ? true : false;
   m_ismeasuredeloss=true;
@@ -79,7 +79,7 @@ ProtoMaterialEffects::ProtoMaterialEffects(const MaterialEffectsOnTrack *meot){
 }
 
 ProtoMaterialEffects::ProtoMaterialEffects(const ProtoMaterialEffects& rhs) {
-  m_eloss=rhs.m_eloss ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : 0;
+  m_eloss=rhs.m_eloss ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : nullptr;
   m_scatphi=rhs.m_scatphi;
   m_scattheta=rhs.m_scattheta;
   m_sigmascatphi=rhs.m_sigmascatphi;
@@ -95,7 +95,7 @@ ProtoMaterialEffects::ProtoMaterialEffects(const ProtoMaterialEffects& rhs) {
   if (rhs.m_surf) {
     m_surf = (!rhs.m_surf->associatedDetectorElement()) ?
       rhs.m_surf->clone() : rhs.m_surf;
-  } else { m_surf = 0; }
+  } else { m_surf = nullptr; }
   m_matprop=rhs.m_matprop;
   m_owneloss=rhs.m_owneloss;
   m_measscatphi=rhs.m_measscatphi;
@@ -105,7 +105,7 @@ ProtoMaterialEffects::ProtoMaterialEffects(const ProtoMaterialEffects& rhs) {
 
 ProtoMaterialEffects& ProtoMaterialEffects::operator=(const ProtoMaterialEffects& rhs) {
   if (this!=&rhs){
-    m_eloss=rhs.m_eloss ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : 0;
+    m_eloss=rhs.m_eloss ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : nullptr;
 
     m_scatphi=rhs.m_scatphi;   
     m_scattheta=rhs.m_scattheta;   
@@ -122,7 +122,7 @@ ProtoMaterialEffects& ProtoMaterialEffects::operator=(const ProtoMaterialEffects
     if (rhs.m_surf) {
       m_surf = (!rhs.m_surf->associatedDetectorElement()) ?
         rhs.m_surf->clone() : rhs.m_surf;
-    } else { m_surf = 0; }
+    } else { m_surf = nullptr; }
     m_matprop=rhs.m_matprop;
     m_measscatphi=rhs.m_measscatphi;
     m_sintheta=rhs.m_sintheta;
@@ -269,11 +269,11 @@ void ProtoMaterialEffects::setSurface(const Surface *surf){
 }
 
 MaterialEffectsBase *ProtoMaterialEffects::makeMEOT() const {
-  ScatteringAngles *scatangles=0;
+  ScatteringAngles *scatangles=nullptr;
   if (m_sigmascattheta!=0) scatangles=new ScatteringAngles(m_scatphi,m_scattheta,m_sigmascatphi,m_sigmascattheta);
   std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
   typePattern.set(MaterialEffectsBase::FittedMaterialEffects);
-  const Trk::EnergyLoss *neweloss=0;
+  const Trk::EnergyLoss *neweloss=nullptr;
   //std::cout << "eloss: " << m_eloss << " iskink: " << m_iskink << std::endl;
   if (m_deltae!=0){
     //if (m_owneloss) neweloss=m_eloss;
