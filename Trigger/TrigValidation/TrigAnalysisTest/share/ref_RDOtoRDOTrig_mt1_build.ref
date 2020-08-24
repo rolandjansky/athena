@@ -440,8 +440,8 @@ TrigSignatureMoniMT                                 INFO HLT_mu6_mu4_L12MU4 #171
 TrigSignatureMoniMT                                 INFO -- #1713982776 Events         4          4          0          0          0          0          4          4          4          4          -          -          -          -          4
 TrigSignatureMoniMT                                 INFO -- #1713982776 Features                             0          0          0          0          8          8          12         10         -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_mu6_mu6noL1_L1MU6 #451489897
-TrigSignatureMoniMT                                 INFO -- #451489897 Events          10         10         0          0          0          0          10         10         10         10         6          3          -          -          6
-TrigSignatureMoniMT                                 INFO -- #451489897 Features                              0          0          0          0          14         13         16         15         9          6          -          -
+TrigSignatureMoniMT                                 INFO -- #451489897 Events          10         10         0          0          0          0          10         10         10         10         6          4          -          -          6
+TrigSignatureMoniMT                                 INFO -- #451489897 Features                              0          0          0          0          14         13         16         15         9          7          -          -
 TrigSignatureMoniMT                                 INFO HLT_mu6fast_L1MU6 #3518031697
 TrigSignatureMoniMT                                 INFO -- #3518031697 Events         10         10         0          0          0          0          10         -          -          -          -          -          -          -          10
 TrigSignatureMoniMT                                 INFO -- #3518031697 Features                             0          0          0          0          14         -          -          -          -          -          -          -
