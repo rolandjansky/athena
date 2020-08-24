@@ -442,8 +442,6 @@ InternalSoA() : m_spi(0), m_spo(0), m_r(0), m_u(0), m_v(0), m_t(0), m_ti(0), m_t
 } INTERNAL_SOA;
 
 
-typedef std::vector<std::pair<float, TrigInDetTriplet*> > INTERNAL_TRIPLET_BUFFER;
-
 typedef std::pair<std::vector<const TrigSiSpacePointBase*>::const_iterator, std::vector<const TrigSiSpacePointBase*>::const_iterator> SP_RANGE;
 
 typedef class TrigTrackSeedGenerator {
@@ -456,7 +454,7 @@ typedef class TrigTrackSeedGenerator {
   void loadSpacePoints(const std::vector<TrigSiSpacePointBase>&);
   void createSeeds(const IRoiDescriptor*);
   void createSeeds(const IRoiDescriptor*, const std::vector<float>& vZv);
-  void getSeeds(std::vector<TrigInDetTriplet*>&);
+  void getSeeds(std::vector<TrigInDetTriplet>&);
 
 private:
   //bool validateLayerPair(int, int, float, float); 
@@ -465,9 +463,9 @@ private:
   bool getSpacepointRange(int, const std::vector<const TrigSiSpacePointBase*>&, SP_RANGE&);
   int processSpacepointRange(int, float, float, bool, const SP_RANGE&, const IRoiDescriptor*);
   int processSpacepointRangeZv(float, float, bool, const SP_RANGE&);
-  void createTriplets(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&, const IRoiDescriptor*);
-  void createTripletsNew(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&, const IRoiDescriptor*);
-  void storeTriplets(INTERNAL_TRIPLET_BUFFER&);
+  void createTriplets(const TrigSiSpacePointBase*, int, int, std::vector<TrigInDetTriplet>&, const IRoiDescriptor*);
+  void createTripletsNew(const TrigSiSpacePointBase*, int, int, std::vector<TrigInDetTriplet>&, const IRoiDescriptor*);
+  void storeTriplets(std::vector<TrigInDetTriplet>&);
 
   const TrigCombinatorialSettings& m_settings;
   double m_phiSliceWidth;
@@ -479,7 +477,7 @@ private:
 
   double m_CovMS, m_minR_squ, m_dtPreCut;
 
-  INTERNAL_TRIPLET_BUFFER m_triplets;
+  std::vector<TrigInDetTriplet> m_triplets;
 
   float m_zMinus, m_zPlus, m_minCoord, m_maxCoord;
 
