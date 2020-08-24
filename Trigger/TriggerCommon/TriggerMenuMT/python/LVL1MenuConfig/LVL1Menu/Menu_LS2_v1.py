@@ -1483,7 +1483,6 @@ def defineMenu():
 #        'L1_ALFA_SYST12' : 478,
 #        'L1_ALFA_SYST17' : 479,
 #        'L1_ALFA_SYST18' : 480,
-         'L1_ALFA_ANY' : 481,
 #        'L1_ALFA_ANY_EMPTY' : 482,
 #        'L1_ALFA_ANY_FIRSTEMPTY' : 483,
 #        'L1_ALFA_ANY_UNPAIRED_ISO' : 484,

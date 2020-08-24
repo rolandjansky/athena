@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
@@ -383,7 +384,9 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60',
         'L1_CEP-CJ50' ,
-        'L1_CEP-CJ50.ETA21'
+        'L1_CEP-CJ50.ETA21',
+        
+        'L1_ALFA_ANY'
 
         ]
     
