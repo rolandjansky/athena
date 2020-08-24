@@ -121,10 +121,10 @@ AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* 
 :AthMonitorAlgorithm(name,pSvcLocator)
 , m_afpHitContainerKey("AFPSiHitContainer")
 //, m_bunchCrossingCondTool("BunchCrossingCondData")
-, m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
+//, m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
 {
 	declareProperty( "AFPSiHitContainer", m_afpHitContainerKey );
-	declareProperty("BCTool", m_bcTool);
+//	declareProperty("BCTool", m_bcTool);
 	//declareProperty("BunchCrossingCondData", m_bunchCrossingCondTool);
 }
 
@@ -168,7 +168,7 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 	*/
 	//ATH_CHECK(m_bunchCrossingKey.initialize());
 	ATH_MSG_INFO("Initializing...");
-	CHECK(m_bcTool.retrieve());
+//	CHECK(m_bcTool.retrieve());
 	ATH_MSG_INFO("Retrieved the bunch crossing tool.");
 	return AthMonitorAlgorithm::initialize();
 }
@@ -184,11 +184,11 @@ StatusCode AFPSiLayerAlgorithm::execute(const EventContext& ctx) const {
 	//std::cout << "\n\tNumber of filled bunches: " << m_bunchCrossingCondTool.numberOfFilledBunches() << "\n";	
 	//std::cout << "\tNumber of bunch trains: " << m_bunchCrossingCondTool.numberOfBunchTrains() << "\n";
 	unsigned int bcid_type = GetEventInfo(ctx)->bcid();
-	if(m_bcTool->isFilled(bcid_type))
+/*	if(m_bcTool->isFilled(bcid_type))
 	{
 		std::cout << "Bunch is filled: " << bcid_type << " \n";
 	}
-
+*/
 	return StatusCode::SUCCESS;
 }
 
@@ -234,7 +234,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 	
 	lb = GetEventInfo(ctx)->lumiBlock();
-	muPerBCID = lbAverageInteractionsPerCrossing(ctx);
+	muPerBCID = 1;//lbAverageInteractionsPerCrossing(ctx);
 	//run = GetEventInfo(ctx)->runNumber();
 	fill("AFPSiLayerTool", lb, muPerBCID);
 	
@@ -326,6 +326,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 
 	
+
 	for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
 	{
 				
@@ -736,6 +737,5 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 	return StatusCode::SUCCESS;
 } // end of fillHistograms
-
 
 
