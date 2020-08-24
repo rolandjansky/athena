@@ -151,7 +151,7 @@ Can be used for formatting expressions that using longs in py2.
 # For root 6.08, need to use __cppname__ rather than __name__
 # for the name of a type if it's there.
 def typename(t):
-    return getattr (t, '__cppname__', t.__name__)
+    return getattr (t, '__cpp_name__', t.__name__)
 
 ### library methods ------------------------------------------------------------
 
