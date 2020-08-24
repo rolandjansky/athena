@@ -23,8 +23,8 @@ class DrawLabel {
 
 public:
 
-  DrawLabel(double x, double y, const std::string& s, int colour=kBlack, double size=0.033 ) : 
-    m_text(s), m_colour(colour), m_x(x), m_y(y), m_size(size)
+  DrawLabel(double x, double y, const std::string& s, int colour=kBlack, double size=0.033, double font=42 ) :
+    m_text(s), m_colour(colour), m_font(font), m_x(x), m_y(y), m_size(size)
   {
     //    std::cout << "DrawLabel::DrawLabel() " << m_text << std::endl;
     Draw(); 
@@ -37,6 +37,7 @@ public:
       tt->SetNDC();
       tt->SetTextColor(m_colour);
       tt->SetTextSize(m_size);
+      tt->SetTextFont(m_font);
       tt->DrawLatex(m_x, m_y, m_text.c_str() );
   }
 
@@ -47,6 +48,7 @@ private:
 
   std::string m_text;
   int         m_colour;
+  int         m_font;
 
   double      m_x;
   double      m_y;
