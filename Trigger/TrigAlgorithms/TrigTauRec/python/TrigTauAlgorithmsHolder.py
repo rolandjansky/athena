@@ -723,7 +723,7 @@ def getTauTrackClassifier():
         InputWeightsPath = input_file_name,
         Threshold        = BDTcut,
         DeltaZ0          = deltaZ0,
-        ExpectedFlag     = ROOT.xAOD.TauJetParameters.unclassified, 
+        ExpectedFlag     = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
         inTrigger        = True
     )
 
@@ -862,8 +862,8 @@ def getTauWPDecoratorJetRNN():
                                      flatteningFile1Prong = "rnnid_flat_1p_v4.root",
                                      flatteningFile3Prong = "rnnid_flat_mp_v4.root",
                                      CutEnumVals =
-                                     [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
-                                       ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
+                                     [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
+                                       ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
                                      SigEff0P = [0.98, 0.90, 0.65, 0.50],
                                      SigEff1P = [0.992, 0.99, 0.965, 0.94],
                                      SigEff3P = [0.99, 0.98, 0.865, 0.80],
