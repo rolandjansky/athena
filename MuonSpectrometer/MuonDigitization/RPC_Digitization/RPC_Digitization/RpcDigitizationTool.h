@@ -191,7 +191,7 @@ private:
   /** Average calibration methods and parameters */
   StatusCode  PrintCalibrationVector();
   /** Evaluate detection efficiency */
-  StatusCode DetectionEfficiency(const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, const RPCSimHit& thehit);
+  StatusCode DetectionEfficiency(const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, HepMcParticleLink& updatedlink);
   /** */
   int ClusterSizeEvaluation(const Identifier* id, float xstripnorm);
   /** CoolDB */

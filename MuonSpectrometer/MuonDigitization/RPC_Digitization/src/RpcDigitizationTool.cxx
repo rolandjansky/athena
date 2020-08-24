@@ -654,7 +654,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
     return StatusCode::FAILURE;
   }
 
-  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
   int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
 
   while( m_thpcRPC->nextDetectorElement(i, e) ) {
@@ -686,15 +686,15 @@ StatusCode RpcDigitizationTool::doDigitization() {
       double bunchTime(globalHitTime - hit.globalTime());
 
       // the HepMcParticleLink
-      HepMcParticleLink trklink(hit.particleLink());
       if (m_needsMcEventCollHelper) {
         if(phit.pileupType()!=lastPileupType) {
           MsgStream* amsg = &(msg());
           currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
           lastPileupType=phit.pileupType();
         }
-        trklink.setEventCollection(currentMcEventCollection);
       }
+      const bool isEventIndexIsPosition = (phit.eventId()==0);
+      HepMcParticleLink trklink(phit->trackNumber(), phit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
 
 
       ATH_MSG_DEBUG  ( "Global time " << globalHitTime << " G4 time " << G4Time  << " Bunch time " << bunchTime       );
@@ -765,7 +765,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
 
-      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, hit).isFailure()) return StatusCode::FAILURE ;
+      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, trklink).isFailure()) return StatusCode::FAILURE ;
       ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
@@ -1858,7 +1858,7 @@ StatusCode RpcDigitizationTool::readParameters(){
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, const RPCSimHit& thehit) {
+StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, HepMcParticleLink& updatedlink) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in DetectionEfficiency" );
 
@@ -2227,8 +2227,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     {1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.9998,1.0000,0.9991,0.9988,0.9913,0.9872,0.9917,0.9970,0.9964}};
 
   //link to truth particles and calculate the charge and betagamma
-  const HepMcParticleLink& trkParticle = thehit.particleLink();
-  const HepMC::GenParticle* genParticle = trkParticle.cptr();
+  const HepMC::GenParticle* genParticle = updatedlink.cptr();
   double qcharge = 1.;
   double qbetagamma = -1.;
   if(genParticle){
