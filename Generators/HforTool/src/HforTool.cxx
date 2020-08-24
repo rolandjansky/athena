@@ -25,6 +25,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 
+#include "AtlasHepMC/Relatives.h"
 
 HforTool::HforTool(const std::string& type, const std::string& name, const IInterface* parent)
 	: AthAlgTool(type, name, parent),
@@ -304,11 +305,11 @@ void HforTool::findHFQuarks() {
 	for (auto pin: prodvtx->particles_in()){
 #else
 	for (auto pin_it = prodvtx->particles_begin(HepMC::parents); pin_it != prodvtx->particles_end(HepMC::parents); pin_it++) {
-          auto pin=pin_it;
+          auto pin=*pin_it;
 #endif
           if(hasbchadronparent) break;
-	  ATH_MSG_DEBUG("    incoming: " << *pin);
-	  int pdgin(std::abs((*pin)->pdg_id())) ;
+	  ATH_MSG_DEBUG("    incoming: " << pin);
+	  int pdgin(std::abs(pin->pdg_id())) ;
 
 	  if ( (pdgin%10000)/1000 == apdg || (pdgin%1000)/100 == apdg )
 	    hasbchadronparent = true ;
@@ -316,7 +317,7 @@ void HforTool::findHFQuarks() {
 	  if ( apdg == 4 && ( pdgin == 5 || (pdgin%10000)/1000 == 5 ||(pdgin%1000)/100 == 5 ) )
 	    hasbchadronparent = true ;
 	  // Herwig specific
-	  if ( pdgin == 0 && (*pin)->status() == 120 )
+	  if ( pdgin == 0 && pin->status() == 120 )
 	    hasmpiparent = true ;
 	  if ( pdgin == 6 ) {
 	    hastopparent = true ;
