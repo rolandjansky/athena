@@ -124,6 +124,9 @@ def generateMenu( flags ):
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
     generateJSON_newJO( allChainDicts, menuChains, menuAcc.getSequence("HLTAllSteps") )
 
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
+    generatePrescaleJSON_newJO( allChainDicts, menuChains )
+
     return menuAcc
 
 

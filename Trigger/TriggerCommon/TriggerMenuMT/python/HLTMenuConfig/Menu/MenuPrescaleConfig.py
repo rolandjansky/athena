@@ -172,7 +172,6 @@ def disableChains(flags, trigvalid_prescales, type_group):
 
     for chain in signatures:
         if type_group in chain.groups:
-            print(chain.name)
             chain_online_list.append(chain.name)
 
     trigvalid_prescales.update(zip(chain_online_list,len(chain_online_list)*[ [-1, 0,-1] ]))

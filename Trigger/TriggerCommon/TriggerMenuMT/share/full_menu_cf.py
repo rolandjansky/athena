@@ -291,9 +291,8 @@ makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-createHLTPrescalesFileFromMenu(ConfigFlags)
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+generatePrescaleJSON()
    
 from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
