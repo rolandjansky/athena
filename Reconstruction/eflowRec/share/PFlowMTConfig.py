@@ -267,6 +267,6 @@ if jobproperties.eflowRecFlags.useFlowElements:
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
 
-  from eflowRec.eflowRecConf import NewEDM_PFEGamRecoAssoc
-  NewEDM_PFEGamRecoAssoc=NewEDM_PFEGamRecoAssoc("NewEDM_PFEGamRecoAssoc")
-  topSequence +=NewEDM_PFEGamRecoAssoc
+  from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
+  PFEGamFlowElementAssoc=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
+  topSequence +=PFEGamFlowElementAssoc

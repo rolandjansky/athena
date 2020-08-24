@@ -21,11 +21,13 @@
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
 #include "eflowRec/PFEGammaPFOAssoc.h"
 #include "eflowRec/NewEDM_PFEGamRecoAssoc.h"
+#include "eflowRec/PFEGamFlowElementAssoc.h"
 
 DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
 DECLARE_COMPONENT( PFEGammaPFOAssoc )
 DECLARE_COMPONENT( NewEDM_PFEGamRecoAssoc )
+DECLARE_COMPONENT( PFEGamFlowElementAssoc )
 DECLARE_COMPONENT( PFClusterSelectorTool )
 DECLARE_COMPONENT( PFTrackSelector )
 DECLARE_COMPONENT( PFAlgorithm )
