@@ -28,7 +28,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('TauAnalysisTools')
+    cppyy.load_library('libTauAnalysisTools')
 
     TauAugmentationTools = []
 
