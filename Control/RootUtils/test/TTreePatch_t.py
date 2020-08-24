@@ -19,8 +19,14 @@ def make_tree (name, offset):
     import struct
     f = ROOT.TFile.Open (name, 'RECREATE')
     t = ROOT.TTree ('tt', 'tt')
-    arr = array.array ('b')
-    arr.frombytes ((256*' ').encode())
+    if hasattr (array.array, 'frombytes'):
+        # py3
+        arr = array.array ('b')
+        arr.frombytes ((256*' ').encode())
+    else:
+        # py2
+        arr = array.array ('c')
+        arr.fromstring (256*' ')
     t.Branch ('b1', arr, 'i1/I:f1/F:d1[3]/D')
     obj = ROOT.RootUtilsTest.TreeTest()
     t.Branch ('b2', 'RootUtilsTest::TreeTest', obj)
