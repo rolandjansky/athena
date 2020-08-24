@@ -13,6 +13,8 @@ folder = '/EXT/DCS/MAGNETS/SENSORDATA'
 
 def createDB():
    """Create sqlite file with DCS currents"""
+   import os
+   os.environ['CLING_STANDARD_PCH'] = 'none' #See bug ROOT-10789
    from PyCool import cool
    from CoolConvUtilities import AtlCoolLib, AtlCoolTool
 
