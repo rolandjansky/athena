@@ -601,6 +601,14 @@ namespace Trk {
       GXFTrajectory&,
       bool) const;
 
+    std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> updateEnergyLoss(
+      const Surface &,
+      const GXFMaterialEffects &,
+      const TrackParameters &,
+      double,
+      int
+    ) const;
+
     void calculateDerivatives(GXFTrajectory &) const;
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;

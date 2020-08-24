@@ -7442,6 +7442,7 @@ namespace Trk {
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
     int nstatesupstream = trajectory.numberOfUpstreamStates();
     const TrackParameters *prevtrackpar = trajectory.referenceParameters();
+    std::unique_ptr<const TrackParameters> tmptrackpar;
     
     for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
       const Surface *surf = states[hitno]->surface();
@@ -7509,42 +7510,20 @@ namespace Trk {
       
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
 
-      if ((meff != nullptr) && hitno != 0) {
-        double newphi = currenttrackpar->parameters()[Trk::phi0] - meff->deltaPhi();
-        double newtheta = currenttrackpar->parameters()[Trk::theta] - meff->deltaTheta();
-        bool ok = correctAngles(newphi, newtheta);
-        
-        if (!ok) {
-          ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
-          return FitterStatusCode::InvalidAngles;
-        }
-        
-        double newqoverp;
-        double sign = (currenttrackpar->parameters()[Trk::qOverP] < 0) ? -1. : 1.;
-        
-        if (meff->sigmaDeltaE() <= 0) {
-          if (std::abs(currenttrackpar->parameters()[Trk::qOverP]) < 1.e-12) {
-            newqoverp = 0.;
-          } else {
-            double mass = trajectory.mass();
-            double oldp = std::abs(1 / currenttrackpar->parameters()[Trk::qOverP]);
-            newqoverp = sign / sqrt(oldp * oldp + 2 * std::abs(meff->deltaE()) * sqrt(mass * mass + oldp * oldp) + meff->deltaE() * meff->deltaE());
-          }
-        } else {
-          newqoverp = currenttrackpar->parameters()[Trk::qOverP] - .001 * meff->delta_p();
-        }
-        
-        currenttrackpar = surf->createTrackParameters(
-          currenttrackpar->parameters()[0],
-          currenttrackpar->parameters()[1],
-          newphi, 
-          newtheta, 
-          newqoverp, 
-          nullptr
+      if (meff != nullptr && hitno != 0) {
+        std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> r = updateEnergyLoss(
+          *surf, *meff, *states[hitno]->trackParameters(), trajectory.mass(), -1
         );
+
+        if (std::holds_alternative<FitterStatusCode>(r)) {
+          return std::get<FitterStatusCode>(r);
+        }
+
+        tmptrackpar = std::move(std::get<std::unique_ptr<const TrackParameters>>(r));
+        prevtrackpar = tmptrackpar.get();
+      } else {
+        prevtrackpar = currenttrackpar;
       }
-      
-      prevtrackpar = currenttrackpar;
     }
 
     prevtrackpar = trajectory.referenceParameters();
@@ -7613,48 +7592,15 @@ namespace Trk {
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
 
       if (meff != nullptr) {
-        AmgVector(5) newpars = rv.m_parameters->parameters();
-
-        double newphi = rv.m_parameters->parameters()[Trk::phi0] + meff->deltaPhi();
-        double newtheta = rv.m_parameters->parameters()[Trk::theta] + meff->deltaTheta();
-        
-        bool ok = correctAngles(newphi, newtheta);
-        if (!ok) {
-          ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
-          return FitterStatusCode::InvalidAngles;
-        }
-        
-        double newqoverp;
-        double sign = (rv.m_parameters->parameters()[Trk::qOverP] < 0) ? -1. : 1.;
-        
-        if (meff->sigmaDeltaE() <= 0) {
-          if (std::abs(rv.m_parameters->parameters()[Trk::qOverP]) < 1.e-12) {
-            newqoverp = 0.;
-          } else {
-            double mass = trajectory.mass();
-            double oldp = std::abs(1 / rv.m_parameters->parameters()[Trk::qOverP]);
-            double newp2 = oldp * oldp - 2 * std::abs(meff->deltaE()) * sqrt(mass * mass + oldp * oldp) + meff->deltaE() * meff->deltaE();
-            
-            if (newp2 < 0) {
-              ATH_MSG_DEBUG("Track killed by energy loss update");
-              return FitterStatusCode::ExtrapolationFailureDueToSmallMomentum;
-            }
-            
-            newqoverp = sign / sqrt(newp2);
-          }
-        } else {
-          newqoverp = rv.m_parameters->parameters()[Trk::qOverP] + .001 * meff->delta_p();
-        }
-
-        newpars[Trk::phi] = newphi;
-        newpars[Trk::theta] = newtheta;
-        newpars[Trk::qOverP] = newqoverp;
-
-        rv.m_parameters.reset(
-          surf->createTrackParameters(
-            newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
-          )
+        std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> r = updateEnergyLoss(
+          *surf, *meff, *rv.m_parameters, trajectory.mass(), +1
         );
+
+        if (std::holds_alternative<FitterStatusCode>(r)) {
+          return std::get<FitterStatusCode>(r);
+        }
+
+        rv.m_parameters = std::move(std::get<std::unique_ptr<const TrackParameters>>(r));
       }
 
       states[hitno]->setTrackParameters(std::move(rv.m_parameters));
@@ -7662,6 +7608,50 @@ namespace Trk {
     }
     
     return FitterStatusCode::Success;
+  }
+
+  std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> GlobalChi2Fitter::updateEnergyLoss(
+    const Surface & surf,
+    const GXFMaterialEffects & meff,
+    const TrackParameters & param,
+    double mass,
+    int sign
+  ) const {
+    const AmgVector(5) & old = param.parameters();
+
+    double newphi = old[Trk::phi0] + sign * meff.deltaPhi();
+    double newtheta = old[Trk::theta] + sign * meff.deltaTheta();
+
+    if (!correctAngles(newphi, newtheta)) {
+      ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
+      return FitterStatusCode::InvalidAngles;
+    }
+
+    double newqoverp;
+
+    if (meff.sigmaDeltaE() <= 0) {
+      if (std::abs(old[Trk::qOverP]) < 1.e-12) {
+        newqoverp = 0.;
+      } else {
+        double oldp = std::abs(1 / old[Trk::qOverP]);
+        double newp2 = oldp * oldp - sign * 2 * std::abs(meff.deltaE()) * sqrt(mass * mass + oldp * oldp) + meff.deltaE() * meff.deltaE();
+
+        if (newp2 < 0) {
+          ATH_MSG_DEBUG("Track killed by energy loss update");
+          return FitterStatusCode::ExtrapolationFailureDueToSmallMomentum;
+        }
+
+        newqoverp = std::copysign(1 / sqrt(newp2), old[Trk::qOverP]);
+      }
+    } else {
+      newqoverp = old[Trk::qOverP] + sign * .001 * meff.delta_p();
+    }
+
+    return std::unique_ptr<const TrackParameters>(
+      surf.createTrackParameters(
+        old[0], old[1], newphi, newtheta, newqoverp, nullptr
+      )
+    );
   }
 
   void GlobalChi2Fitter::calculateJac(
