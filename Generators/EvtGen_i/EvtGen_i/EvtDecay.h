@@ -42,20 +42,19 @@
 //#include "StoreGate/DataHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-using std::string;
 
 class IAtRndmGenSvc;
 
 class EvtCLHepRandom : public EvtRandomEngine {
 
 	public:
-		EvtCLHepRandom(IAtRndmGenSvc* atRndmGenSvc, string streamName);
+		EvtCLHepRandom(IAtRndmGenSvc* atRndmGenSvc, std::string streamName);
 		double random();
 		virtual ~EvtCLHepRandom();
 
 	private:
 		IAtRndmGenSvc*    m_atRndmGenSvc;
-		string            m_streamName;
+		std::string            m_streamName;
 };
 
 
@@ -100,10 +99,10 @@ class EvtDecay : public Algorithm {
 		IAtRndmGenSvc* m_atRndmGenSvc;
 	
 		// jobOption parameters
-		string m_DecayDec, m_PdtTable, m_userDecFileName;
+		std::string m_DecayDec, m_PdtTable, m_userDecFileName;
 		double m_LambdabPol;
 		bool   m_PolarizedLambdab;
-		string m_randomStreamName, m_inputKeyName;
+		std::string m_randomStreamName, m_inputKeyName;
 
 		IAtRndmGenSvc*  m_AtRndmGenSvc;
 };

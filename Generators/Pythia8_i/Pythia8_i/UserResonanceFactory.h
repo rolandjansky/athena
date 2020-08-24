@@ -12,8 +12,6 @@
 namespace Pythia8_UserResonance{
  
   using Pythia8::ResonanceWidths;
-  using std::string;
-  using std::map;
   
   class UserResonanceFactory{
     
@@ -24,7 +22,7 @@ namespace Pythia8_UserResonance{
      *  e.g. create("MyResonance", 23) will return a MyResonance instance that will be applied to the Z
      *
      */
-    static ResonanceWidths* create(const string &name, int pdgid);
+    static ResonanceWidths* create(const std::string &name, int pdgid);
     
   private:
     
@@ -42,7 +40,7 @@ namespace Pythia8_UserResonance{
     class Creator: public ICreator{
       
     public:
-      Creator(const string &name){
+      Creator(const std::string &name){
         m_name = name;
         UserResonanceFactory::s_creators()[name] = this;
       }
@@ -59,12 +57,12 @@ namespace Pythia8_UserResonance{
       
     private:
       
-      string m_name;
+      std::string m_name;
     };
     
   private:
     
-    static map<string, const ICreator*> &s_creators();
+    static std::map<std::string, const ICreator*> &s_creators();
     
   };
 }

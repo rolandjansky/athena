@@ -35,7 +35,7 @@ StatusCode MassRangeFilter::filterInitialize() {
 
 StatusCode MassRangeFilter::filterEvent() {
   double invMassMax = 0.;
-  bool samePDGID = (abs(m_PartId) == abs(m_PartId2));
+  bool samePDGID = (std::abs(m_PartId) == std::abs(m_PartId2));
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
     int n = 0;

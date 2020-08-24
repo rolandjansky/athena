@@ -13,14 +13,13 @@
 namespace Pythia8_UserHooks{
  
   using Pythia8::UserHooks;
-  using std::string;
   
   
   class UserHooksFactory{
     
   public:
     
-    static UserHooks* create(const string &hookName);
+    static UserHooks* create(const std::string &hookName);
     
   private:
     
@@ -39,7 +38,7 @@ namespace Pythia8_UserHooks{
       
     public:
       
-      Creator(const string &name){
+      Creator(const std::string &name){
         m_name = name;
         UserHooksFactory::s_creators()[name] = this;
       }
@@ -56,7 +55,7 @@ namespace Pythia8_UserHooks{
       
     private:
       
-      string m_name;
+      std::string m_name;
     };
     
     template<typename T>
@@ -68,7 +67,7 @@ namespace Pythia8_UserHooks{
     
   private:
     
-    static std::map<string, const ICreator*> &s_creators();
+    static std::map<std::string, const ICreator*> &s_creators();
     
   };
   
