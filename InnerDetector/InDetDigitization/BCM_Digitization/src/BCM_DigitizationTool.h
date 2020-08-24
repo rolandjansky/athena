@@ -52,7 +52,7 @@ class BCM_DigitizationTool : public PileUpToolBase {
  private:
   /** Create the RDO and SDO containers */
   StatusCode createOutputContainers();
-  void processSiHit(const SiHit &currentHit, double eventTime, int pileupType);
+  void processSiHit(const SiHit &currentHit, double eventTime, int pileupType, unsigned int evtIndex);
   void createRDOsAndSDOs();
 
   /** Compute energy deposit depending on hit position */

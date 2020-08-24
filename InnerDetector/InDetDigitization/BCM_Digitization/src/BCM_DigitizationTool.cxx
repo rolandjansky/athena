@@ -102,7 +102,7 @@ StatusCode BCM_DigitizationTool::createOutputContainers()
 //----------------------------------------------------------------------
 // ProcessSiHit method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, int pileupType)
+void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, int pileupType, unsigned int evtIndex)
 {
   int moduleNo = currentHit.getLayerDisk();
   float enerDep = computeEnergy(currentHit.energyLoss(), currentHit.localStartPosition(), currentHit.localEndPosition());
@@ -111,11 +111,13 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
   m_enerVect[moduleNo].push_back(enerDep);
   m_timeVect[moduleNo].push_back(hitTime);
   // Create new deposit and add to vector
-  HepMcParticleLink trklink(currentHit.particleLink());
+  EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   if (m_needsMcEventCollHelper) {
     MsgStream* amsg = &(msg());
-    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType, amsg) );
+    evColl = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType, amsg);
   }
+  const bool isEventIndexIsPosition = (evtIndex==0);
+  HepMcParticleLink trklink(currentHit.trackNumber(), evtIndex, evColl, isEventIndexIsPosition);
   InDetSimData::Deposit deposit(trklink,currentHit.energyLoss());
   int barcode = deposit.first.barcode();
   if (barcode == 0 || barcode == 10001){
@@ -195,13 +197,14 @@ StatusCode BCM_DigitizationTool::processAllSubEvents()
   TimedHitCollList::iterator endColl(hitCollList.end());
   for (; iColl != endColl; ++iColl) {
     int pileupType = iColl->first.type();
+    const unsigned int evtIndex = iColl->first.index();
     const SiHitCollection* tmpColl(iColl->second);
     ATH_MSG_DEBUG ( "SiHitCollection found with " << tmpColl->size() << " hits" );
     // Read hits from this collection
     SiHitCollection::const_iterator i = tmpColl->begin();
     SiHitCollection::const_iterator e = tmpColl->end();
     for (; i!=e; ++i) {
-      processSiHit(*i, (iColl->first).time(), pileupType);
+      processSiHit(*i, (iColl->first).time(), pileupType, evtIndex);
     }
   }
 
@@ -235,7 +238,7 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
     SiHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
     for (; i!=e; ++i) {
-      processSiHit(*i, iEvt->time(), iEvt->type());
+      processSiHit(*i, iEvt->time(), iEvt->type(), iEvt->index());
     }
   }
 
