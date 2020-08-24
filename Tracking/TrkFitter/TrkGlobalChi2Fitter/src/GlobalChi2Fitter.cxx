@@ -7492,14 +7492,17 @@ namespace Trk {
       surf = states[hitno]->surface();
 
       if (rv.m_jacobian != nullptr) {
-        if ((states[hitno]->materialEffects() != nullptr) && states[hitno]->materialEffects()->deltaE() != 0) {
-          if (states[hitno]->materialEffects()->sigmaDeltaE() <= 0 && !trajectory.m_straightline) {
-            double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
-            double de = std::abs(states[hitno]->materialEffects()->deltaE());
-            double mass = trajectory.mass();
-            double newp = sqrt(p * p + 2 * de * sqrt(mass * mass + p * p) + de * de);
-            (*rv.m_jacobian) (4, 4) = ((p + p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
-          }
+        if (
+          states[hitno]->materialEffects() != nullptr &&
+          states[hitno]->materialEffects()->deltaE() != 0 &&
+          states[hitno]->materialEffects()->sigmaDeltaE() <= 0 &&
+          !trajectory.m_straightline
+        ) {
+          double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
+          double de = std::abs(states[hitno]->materialEffects()->deltaE());
+          double mass = trajectory.mass();
+          double newp = sqrt(p * p + 2 * de * sqrt(mass * mass + p * p) + de * de);
+          (*rv.m_jacobian) (4, 4) = ((p + p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
         }
 
         states[hitno]->setJacobian(*rv.m_jacobian);
@@ -7568,19 +7571,22 @@ namespace Trk {
       }
 
       if (rv.m_jacobian != nullptr) {
-        if ((states[hitno]->materialEffects() != nullptr) && states[hitno]->materialEffects()->deltaE() != 0) {
-          if (states[hitno]->materialEffects()->sigmaDeltaE() <= 0 && !trajectory.m_straightline) {
-            double p = 1 / std::abs(rv.m_parameters->parameters()[Trk::qOverP]);
-            double de = std::abs(states[hitno]->materialEffects()->deltaE());
-            double mass = trajectory.mass();
-            double newp = p * p - 2 * de * sqrt(mass * mass + p * p) + de * de;
-            
-            if (newp > 0) {
-              newp = sqrt(newp);
-            }
-            
-            (*rv.m_jacobian) (4, 4) = ((p - p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
+        if (
+          states[hitno]->materialEffects() != nullptr &&
+          states[hitno]->materialEffects()->deltaE() != 0 &&
+          states[hitno]->materialEffects()->sigmaDeltaE() <= 0 &&
+          !trajectory.m_straightline
+        ) {
+          double p = 1 / std::abs(rv.m_parameters->parameters()[Trk::qOverP]);
+          double de = std::abs(states[hitno]->materialEffects()->deltaE());
+          double mass = trajectory.mass();
+          double newp = p * p - 2 * de * sqrt(mass * mass + p * p) + de * de;
+          
+          if (newp > 0) {
+            newp = sqrt(newp);
           }
+          
+          (*rv.m_jacobian) (4, 4) = ((p - p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
         }
         
         states[hitno]->setJacobian(*rv.m_jacobian);
