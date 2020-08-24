@@ -34,7 +34,6 @@
 #include <iostream>
 #include <sstream>
 
-using std::endl;
 
 EvtPythiaEngine::EvtPythiaEngine(std::string xmlDir, bool convertPhysCodes,
 				 bool useEvtGenRandom) {
@@ -47,11 +46,11 @@ EvtPythiaEngine::EvtPythiaEngine(std::string xmlDir, bool convertPhysCodes,
   // versions in one Pythia generator, we can use two generators to 
   // get the required behaviour.
 
-  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Creating generic Pythia generator"<<endl;
+  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Creating generic Pythia generator"<<std::endl;
   _genericPythiaGen = new Pythia8::Pythia(xmlDir);
   _genericPartData = _genericPythiaGen->particleData;
 
-  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Creating alias Pythia generator"<<endl;
+  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Creating alias Pythia generator"<<std::endl;
   _aliasPythiaGen  = new Pythia8::Pythia(xmlDir);
   _aliasPartData = _aliasPythiaGen->particleData;
 
@@ -154,7 +153,7 @@ bool EvtPythiaEngine::doDecay(EvtParticle* theParticle) {
   if (_initialised == false) {this->initialise();}
   
   if (theParticle == 0) {
-    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Error in EvtPythiaEngine::doDecay. The mother particle is null. Not doing any Pythia decay."<<endl;
+    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Error in EvtPythiaEngine::doDecay. The mother particle is null. Not doing any Pythia decay."<<std::endl;
     return false;
   }
 
@@ -291,7 +290,7 @@ void EvtPythiaEngine::storeDaughterInfo(EvtParticle* theParticle, int startInt) 
 void EvtPythiaEngine::createDaughterEvtParticles(EvtParticle* theParent) {
 
   if (theParent == 0) {
-    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Error in EvtPythiaEngine::createDaughterEvtParticles. The parent is null"<<endl;
+    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Error in EvtPythiaEngine::createDaughterEvtParticles. The parent is null"<<std::endl;
     return;
   }
 
@@ -479,10 +478,10 @@ void EvtPythiaEngine::updateParticleLists() {
 
   } // Loop over EvtPDL entries
 
-  //EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Writing out changed generic Pythia decay list"<<endl;
+  //EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Writing out changed generic Pythia decay list"<<std::endl;
   //_genericPythiaGen->particleData.listChanged();
 
-  //EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Writing out changed alias Pythia decay list"<<endl;
+  //EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Writing out changed alias Pythia decay list"<<std::endl;
   //_aliasPythiaGen->particleData.listChanged();
 
 }
@@ -577,14 +576,14 @@ void EvtPythiaEngine::updatePythiaDecayTable(EvtId& particleId, int aliasInt, in
 
 	EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Warning in EvtPythiaEngine. Trying to redefine Pythia table for "
 			     <<EvtPDL::name(particleId)<<" for a decay channel that has no daughters."
-			     <<" Keeping Pythia default (if available)."<<endl;	  
+			     <<" Keeping Pythia default (if available)."<<std::endl;	  
 
       }
 	
     } else {
 	
       EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Error in EvtPythiaEngine. decayModel is null for particle "
-			   <<EvtPDL::name(particleId)<<" mode number "<<iMode<<endl;
+			   <<EvtPDL::name(particleId)<<" mode number "<<iMode<<std::endl;
 	
     }
 
@@ -673,7 +672,7 @@ int EvtPythiaEngine::getModeInt(EvtDecayBase* decayModel) {
       modeInt = 0; // off mass shell particles.
     } else {
       EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Pythia mode integer "<<tmpModeInt
-			   <<" is not recognised. Using phase-space model"<<endl;
+			   <<" is not recognised. Using phase-space model"<<std::endl;
       modeInt = 0; // Use phase-space for anything else
     }
 
@@ -721,7 +720,7 @@ void EvtPythiaEngine::createPythiaParticle(EvtId& particleId, int PDGCode) {
 
   std::ostringstream oss;
   oss.setf(std::ios::scientific);
-  int absPDGCode = abs(PDGCode);
+  int absPDGCode = std::abs(PDGCode);
   oss << absPDGCode << ":new = " << aliasName << " " << antiName << " "
       << spin << " " << charge << " " << colour << " " 
       << m0 << " " << mWidth << " " << mMin << " " << mMax << " "
@@ -768,15 +767,15 @@ void EvtPythiaEngine::updatePhysicsParameters() {
     std::vector<std::string> commandStrings;
 
     if(command["VERSION"] == "PYTHIA6") {
-      EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Converting Pythia 6 command: "<<command["MODULE"]<<"("<<command["PARAM"]<<")="<<command["VALUE"]<<"..."<<endl;
+      EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Converting Pythia 6 command: "<<command["MODULE"]<<"("<<command["PARAM"]<<")="<<command["VALUE"]<<"..."<<std::endl;
       commandStrings = convertPythia6Command(command);
     } else if(command["VERSION"] == "PYTHIA8") {
       commandStrings.push_back(command["MODULE"]+":"+command["PARAM"]+" = "+command["VALUE"]);
     } else {
-      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "Pythia command received by EvtPythiaEngine has bad version:"<<endl;
-      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "Received "<<command["VERSION"]<<" but expected PYTHIA6 or PYTHIA8."<<endl;
-      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "The error is likely to be in EvtDecayTable.cpp"<<endl;
-      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "EvtGen will now abort."<<endl;
+      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "Pythia command received by EvtPythiaEngine has bad version:"<<std::endl;
+      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "Received "<<command["VERSION"]<<" but expected PYTHIA6 or PYTHIA8."<<std::endl;
+      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "The error is likely to be in EvtDecayTable.cpp"<<std::endl;
+      EvtGenReport(EVTGEN_ERROR, "EvtGen") << "EvtGen will now abort."<<std::endl;
       ::abort();
     }
     std::string generator = command["GENERATOR"];
@@ -784,7 +783,7 @@ void EvtPythiaEngine::updatePhysicsParameters() {
        generator == "BOTH" || generator == "Both" || generator == "both") {
       std::vector<std::string>::iterator it2 = commandStrings.begin();
       for( ; it2!=commandStrings.end(); it2++) {
-        EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Configuring generic Pythia generator: " << (*it2) << endl;
+        EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Configuring generic Pythia generator: " << (*it2) <<std::endl;
         _genericPythiaGen->readString(*it2);
       }
     }
@@ -792,7 +791,7 @@ void EvtPythiaEngine::updatePhysicsParameters() {
        generator == "BOTH" || generator == "Both" || generator == "both") {
       std::vector<std::string>::iterator it2 = commandStrings.begin();
       for( ; it2!=commandStrings.end(); it2++) {
-        EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Configuring alias Pythia generator: " << (*it2) << endl;
+        EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Configuring alias Pythia generator: " << (*it2) <<std::endl;
         _aliasPythiaGen->readString(*it2);
       }
     }

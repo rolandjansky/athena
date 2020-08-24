@@ -7,7 +7,6 @@
 #include <typeinfo>
 #include <stdio.h>
 #include <string>
-using std::string;
 
 // Main macro to run - returns 0 in case of success
 int RTTrun(TString jobOptionFile="",

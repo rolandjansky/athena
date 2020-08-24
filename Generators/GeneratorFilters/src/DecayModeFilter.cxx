@@ -10,7 +10,7 @@ using namespace std;
 
 
 inline bool isIn(const std::vector<unsigned int>& pdgs, int pdg) {
-  return std::find(pdgs.begin(), pdgs.end(), static_cast<unsigned int>(abs(pdg))) != pdgs.end();
+  return std::find(pdgs.begin(), pdgs.end(), static_cast<unsigned int>(std::abs(pdg))) != pdgs.end();
 }
 
 
@@ -140,8 +140,8 @@ StatusCode DecayModeFilter::filterEvent() {
 
       bool parent1ok(false), parent2ok(false);
       for (size_t i = 0; i < m_producedParticles_PDG.size(); ++i) {
-        if (abs(parent1->pdg_id()) == (int) m_producedParticles_PDG[i]) parent1ok = true;
-        if (abs(parent2->pdg_id()) == (int) m_producedParticles_PDG[i]) parent2ok = true;
+        if (std::abs(parent1->pdg_id()) == (int) m_producedParticles_PDG[i]) parent1ok = true;
+        if (std::abs(parent2->pdg_id()) == (int) m_producedParticles_PDG[i]) parent2ok = true;
       }
 
       if (!(parent1ok && parent2ok)) continue;

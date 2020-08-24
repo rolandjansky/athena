@@ -109,7 +109,7 @@ StatusCode VHtoVVFilter::filterEvent() {
 #else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
       // Loop over particles from the primary interaction that match the PDG Parent
-      if ( abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
+      if ( std::abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
         HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
         HepMC::GenVertex::particle_iterator thisMother = firstMother;
@@ -134,12 +134,12 @@ StatusCode VHtoVVFilter::filterEvent() {
             ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
             if (!okPDGHVChild1) {
               for (size_t i = 0; i < m_PDGHVChild1.size(); ++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
+                if (std::abs((*thisChild)->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
               if (okPDGHVChild1) break;
             }
             if (!okPDGHVChild2) {
               for (size_t i = 0; i < m_PDGHVChild2.size(); ++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGHVChild2[i]) okPDGHVChild2 = true;
+                if (std::abs((*thisChild)->pdg_id()) == m_PDGHVChild2[i]) okPDGHVChild2 = true;
               if (okPDGHVChild2) break;
             }
           }
@@ -154,7 +154,7 @@ StatusCode VHtoVVFilter::filterEvent() {
             ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
             if (!okPDGAssocVChild) {
               for (unsigned int i=0;i<m_PDGAssocVChild.size();++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGAssocVChild[i]) okPDGAssocVChild = true;
+                if (std::abs((*thisChild)->pdg_id()) == m_PDGAssocVChild[i]) okPDGAssocVChild = true;
               if (okPDGAssocVChild) break;
             }
 

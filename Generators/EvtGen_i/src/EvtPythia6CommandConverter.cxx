@@ -25,7 +25,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-using std::endl;
 
 std::vector<std::string> convertPythia6Command(Command command) {
   std::string module = command["MODULE"];
@@ -44,8 +43,8 @@ std::vector<std::string> convertPythia6Command(Command command) {
             break;
           case 1:
           case 4:
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(11)="<<value<<" is only implicitly supported."<<endl;
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please use MSTJ(11)=5 and ensure PARJ(46) and PARJ(47) are both set appropriately."<<endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(11)="<<value<<" is only implicitly supported."<<std::endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please use MSTJ(11)=5 and ensure PARJ(46) and PARJ(47) are both set appropriately."<<std::endl;
             ::abort();
           case 5:
             commandStrings.push_back("StringZ:usePetersonC = off");
@@ -53,8 +52,8 @@ std::vector<std::string> convertPythia6Command(Command command) {
             commandStrings.push_back("StringZ:usePetersonH = off");
             break;
           default:
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(11)="<<value<<" is not currently supported."<<endl;
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please use MSTJ(11)=3 or MSTJ(11)=5."<<endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(11)="<<value<<" is not currently supported."<<std::endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please use MSTJ(11)=3 or MSTJ(11)=5."<<std::endl;
             ::abort();
         }
         break;
@@ -67,8 +66,8 @@ std::vector<std::string> convertPythia6Command(Command command) {
             commandStrings.push_back("StringFlav:suppressLeadingB = on");
             break;
           default:
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(12)="<<value<<" is not currently supported."<<endl;
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please use MSTJ(12)=2 or MSTJ(12)=3."<<endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(12)="<<value<<" is not currently supported."<<std::endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please use MSTJ(12)=2 or MSTJ(12)=3."<<std::endl;
             ::abort();
         }
         break;
@@ -98,15 +97,15 @@ std::vector<std::string> convertPythia6Command(Command command) {
             commandStrings.push_back("BoseEinstein:Pion = on");
             break;
           default:
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(52)="<<value<<" is not allowed."<<endl;
-            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please select 3,7 or 9."<<endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Pythia6 parameter: MSTJ(52)="<<value<<" is not allowed."<<std::endl;
+            EvtGenReport(EVTGEN_ERROR,"EvtGen")<<"Please select 3,7 or 9."<<std::endl;
             ::abort();
         }
         break;
       //53-57,91-93,101-121
       default:
-        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"Pythia6 parameter: "<<module<<"("<<param<<") is not currently supported and will be ignored."<<endl;
-        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"A similar Pythia8 parameter may be available."<<endl;
+        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"Pythia6 parameter: "<<module<<"("<<param<<") is not currently supported and will be ignored."<<std::endl;
+        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"A similar Pythia8 parameter may be available."<<std::endl;
     }
   } else if(module == "PARJ") {
     switch(atoi(param.c_str())) {
@@ -227,12 +226,12 @@ std::vector<std::string> convertPythia6Command(Command command) {
       //121-171 parameters for ee event generation - can't find these in Pythia8
       //180-195 Various coupling constants & parameters related to couplings - can't find these in Pythia8
       default:
-        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"Pythia6 parameter: "<<module<<"("<<param<<") is not currently supported and will be ignored."<<endl;
-        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"A similar Pythia8 parameter may be available."<<endl;
+        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"Pythia6 parameter: "<<module<<"("<<param<<") is not currently supported and will be ignored."<<std::endl;
+        EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"A similar Pythia8 parameter may be available."<<std::endl;
     }
   } else {
-    EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"Pythia6 parameter: "<<module<<"("<<param<<") is not currently supported and will be ignored."<<endl;
-    EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"A similar Pythia8 parameter may be available."<<endl;
+    EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"Pythia6 parameter: "<<module<<"("<<param<<") is not currently supported and will be ignored."<<std::endl;
+    EvtGenReport(EVTGEN_WARNING,"EvtGen")<<"A similar Pythia8 parameter may be available."<<std::endl;
   }
     return commandStrings;
 }

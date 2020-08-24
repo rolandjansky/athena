@@ -110,7 +110,7 @@ bool BoostedHadTopAndTopPair::isFromTop(HepMC::ConstGenParticlePtr part) const{
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;firstParent!=endParent; ++firstParent){
     //if( part->barcode() < (*firstParent)->barcode() ) continue; /// protection for sherpa
-    if( abs( (*firstParent)->pdg_id() ) == 6 ) return true;
+    if( std::abs( (*firstParent)->pdg_id() ) == 6 ) return true;
   }
 #endif
   return false;

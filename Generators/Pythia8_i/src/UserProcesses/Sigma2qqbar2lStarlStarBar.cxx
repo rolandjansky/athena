@@ -139,18 +139,18 @@ namespace Pythia8 {
     }
     
     // Info on the subprocess.
-    virtual string name()       const {return nameSave;}
+    virtual std::string name()       const {return nameSave;}
     virtual int    code()       const {return codeSave;}
-    virtual string inFlux()     const {return "qqbarSame";}
-    virtual int    id3Mass()    const {return abs(idRes);}
-    virtual int    id4Mass()    const {return abs(idRes);}
+    virtual std::string inFlux()     const {return "qqbarSame";}
+    virtual int    id3Mass()    const {return std::abs(idRes);}
+    virtual int    id4Mass()    const {return std::abs(idRes);}
     
     virtual bool   convertM2()       const {return false;} //true is only suitable for resonance production pp->A->ll
     virtual bool   convert2mb()      const {return true;}
     
     // Parameters set at initialization or for current kinematics. 
     int    idl, idRes, codeSave;
-    string nameSave;
+    std::string nameSave;
     double Lambda, preFac, openFracPos, openFracNeg, sigma;
     double m2ResTimes4;
   };
