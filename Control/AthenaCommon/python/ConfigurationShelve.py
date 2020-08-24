@@ -224,7 +224,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
    import AthenaPython.PyAthena as PyAthena
    josvc = PyAthena.py_svc( 'JobOptionsSvc', iface = 'IJobOptionsSvc' )
 
-   clients = list( josvc.getClients() )
+   clients = [c for c in josvc.getClients()]
    for client in clients:
       props = josvc.getProperties( client )
       for prop in props:
@@ -273,6 +273,7 @@ def loadJobOptionsCatalogue( cfg_fname ):
    """Load properties from a pickle file, previously dumped by
    storeConfiguration, back into the JobOptionsSvc.
    """
+   import ROOT
 
  # read jobopt catalogue dump and pycomps back in
    cfg = open( cfg_fname, 'rb' )
