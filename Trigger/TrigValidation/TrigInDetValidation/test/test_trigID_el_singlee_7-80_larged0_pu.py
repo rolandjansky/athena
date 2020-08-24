@@ -55,7 +55,7 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['electron']
-rdo2aod.max_events = 5000 # TODO increase to 20k  
+rdo2aod.max_events = 20000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
@@ -90,6 +90,7 @@ test.check_steps.append(comp)
 comp2=TrigInDetCompStep('Comp_EFele')
 comp2.flag = 'EFele'
 test.check_steps.append(comp2)
+
 
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)

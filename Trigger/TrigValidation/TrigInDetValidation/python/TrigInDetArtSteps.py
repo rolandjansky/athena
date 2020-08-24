@@ -51,7 +51,7 @@ class TrigInDetReco(ExecStep):
             'from TriggerJobOpts.TriggerFlags import TriggerFlags',
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
-        self.postexec_trig = ' '
+        self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 
 
