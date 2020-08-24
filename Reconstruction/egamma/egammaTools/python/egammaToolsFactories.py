@@ -143,7 +143,7 @@ PhotonPIDBuilder = ToolFactory(
 # ForwardElectron Selectors
 
 ## Eventually we want to get rid of cppyy here
-#cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+#cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 LooseForwardElectronSelector = ToolFactory(
     ConfiguredAsgForwardElectronIsEMSelector,

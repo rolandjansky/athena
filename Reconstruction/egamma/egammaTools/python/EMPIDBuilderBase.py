@@ -10,7 +10,7 @@ from egammaTools.egammaToolsConf import EMPIDBuilder
 
 # Eventually we need to get rid of this
 #import cppyy
-#cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+#cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 
 class EMPIDBuilderElectronBase (EMPIDBuilder):
