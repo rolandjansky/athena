@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -100,7 +100,7 @@ StatusCode VxCandidateXAODVertex::finalize()
 //ok  there are some, let us convert them   
 // remember that the VxCandidate takes over the ownership, so it needs a copy..
      
-      const std::vector< Trk::VxTrackAtVertex > vtv = xAODVx.vxTrackAtVertex();
+      const std::vector< Trk::VxTrackAtVertex >& vtv = xAODVx.vxTrackAtVertex();
       unsigned int vtv_size = vtv.size();
       for(unsigned int i = 0;i<vtv_size;++i) tavCollection.push_back(vtv.at(i).clone());
       xaod_no_tracks = false;

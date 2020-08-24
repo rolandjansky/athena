@@ -134,7 +134,7 @@ EMTrackMatchBuilder::trackExecute(
     eg->setDeltaPhiLast(bestTrkMatch.deltaPhiLast);
 
     // set the element Links
-    typedef ElementLink<xAOD::TrackParticleContainer> EL;
+    using EL = ElementLink<xAOD::TrackParticleContainer>;
     std::vector<EL> trackParticleLinks;
     trackParticleLinks.reserve(trkMatches.size());
     const std::string key = EL(*trackPC, 0).dataID();
