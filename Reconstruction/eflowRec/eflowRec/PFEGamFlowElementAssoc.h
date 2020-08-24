@@ -3,15 +3,15 @@
 */
 
 /*
- * PFEgammaPFOAssoc.h
- * Header file for class PFEGammaPFOAssoc
+ * PFEGamFlowElementAssoc.h
+ * Header file for class PFEGamFlowElementAssoc
  *                                                                                                                                                                                     
  *  Created on: 13.03.19                                                                                                                                                            
  *      Author: J. C. MacDonald                                                                                                                                                      
  */
 
-#ifndef NEWEDM_PFEGAMRECOASSOC_H
-#define NEWEDM_PFEGAMRECOASSOC_H
+#ifndef PFEGAMFLOWELEMENTASSOC_H
+#define PFEGAMFLOWELEMENTASSOC_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -31,13 +31,13 @@ The algorithm also adds decorations to the "JetETMissNeutralParticleFlowObjects"
 "JetETMissChargedParticleFlowObjects" containers, 
 in the form of vectors of element links to the associated electrons and photons.
 */
-class NewEDM_PFEGamRecoAssoc : public AthAlgorithm {
+class PFEGamFlowElementAssoc : public AthAlgorithm {
 
 public:
 
-  NewEDM_PFEGamRecoAssoc(const std::string& name, ISvcLocator* pSvcLocator);
+  PFEGamFlowElementAssoc(const std::string& name, ISvcLocator* pSvcLocator);
   
-  virtual ~NewEDM_PFEGamRecoAssoc();
+  virtual ~PFEGamFlowElementAssoc();
 
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
@@ -65,4 +65,4 @@ private:
  
 };
 
-#endif // NEWEDM_PFEGAMRECOASSOC
+#endif // PFEGamFlowElementAssoc

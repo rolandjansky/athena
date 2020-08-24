@@ -1,7 +1,7 @@
 /*  
  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "eflowRec/NewEDM_PFEGamRecoAssoc.h" 
+
 #include "StoreGate/WriteDecorHandle.h" 
 #include "xAODEgamma/ElectronContainer.h" 
 #include "xAODEgamma/PhotonContainer.h"
@@ -16,13 +16,14 @@
 #include "xAODPFlow/FlowElementContainer.h"
 #include "xAODPFlow/FlowElement.h"
 
+#include "eflowRec/PFEGamFlowElementAssoc.h" 
 #include <typeinfo> // temp debug for type checks on objects
 
 typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t; 
 typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
 typedef ElementLink<xAOD::FlowElementContainer> FlowElementLink_t; 
 
-NewEDM_PFEGamRecoAssoc::NewEDM_PFEGamRecoAssoc(
+PFEGamFlowElementAssoc::PFEGamFlowElementAssoc(
 const std::string& name,
   ISvcLocator* pSvcLocator
   ):
@@ -43,9 +44,9 @@ declareProperty ("ChargedPFOPhotonDecorKey", m_chargedpfoPhotonWriteDecorKey = "
 }
 
 // Class destructor 
-NewEDM_PFEGamRecoAssoc::~NewEDM_PFEGamRecoAssoc(){}
+PFEGamFlowElementAssoc::~PFEGamFlowElementAssoc(){}
 
-StatusCode NewEDM_PFEGamRecoAssoc::initialize()
+StatusCode PFEGamFlowElementAssoc::initialize()
 {
 
 ATH_MSG_DEBUG("Initializing "<<name() << "...");
@@ -64,10 +65,10 @@ ATH_CHECK(m_chargedpfoPhotonWriteDecorKey.initialize());
 return StatusCode::SUCCESS;
 }
 
-StatusCode NewEDM_PFEGamRecoAssoc::finalize(){
+StatusCode PFEGamFlowElementAssoc::finalize(){
 return StatusCode::SUCCESS;
 }
-StatusCode NewEDM_PFEGamRecoAssoc::execute()
+StatusCode PFEGamFlowElementAssoc::execute()
 {
   // This algorithm does the following:
   // 1) Read the Input containers for Flow Elements, Electrons and Photons
