@@ -15,6 +15,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkTrack/Track.h"
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/EventContext.h"
@@ -97,6 +98,8 @@ namespace InDet {
 
       virtual void endEvent(SiCombinatorialTrackFinderData_xk& data) const =0;
       //@}
+      
+      virtual void fillStatistic(SiCombinatorialTrackFinderData_xk& data, std::array<bool,SiCombinatorialTrackFinderData_xk::kNCombStats>&) const=0;
 
       ///////////////////////////////////////////////////////////////////
       /// @name Print internal tool parameters and status
