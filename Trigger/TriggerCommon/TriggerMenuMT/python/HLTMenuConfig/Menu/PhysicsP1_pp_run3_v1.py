@@ -70,6 +70,13 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_idmon_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDMonitoring'],groups=['RATE:Monitoring','BW:Detector']),
         ChainProp(name='HLT_noalg_idmon_L1RD0_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['IDMonitoring'],groups=['RATE:Monitoring','BW:Detector']),
 
+        # L1 combined streamers
+        ChainProp(name='HLT_noalg_bkg_L1Bkg',      l1SeedThresholds=['FSNOSEED'], stream=['Background'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Standby',      l1SeedThresholds=['FSNOSEED'], stream=['Standby'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Calo',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_L1Calo_EMPTY',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+        ChainProp(name='HLT_noalg_l1calo_L1J400',      l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=['RATE:SeededStreamers', 'BW:Other']),
+
         # L1 calo streamers
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
         ChainProp(name='HLT_noalg_L1EM7',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
