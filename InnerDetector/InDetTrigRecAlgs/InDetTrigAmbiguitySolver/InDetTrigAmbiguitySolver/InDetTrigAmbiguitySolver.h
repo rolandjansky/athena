@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapExchangeTool.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk { class ITrackAmbiguityProcessorTool; }
 
@@ -49,6 +50,9 @@ namespace InDet {
     HLT::ErrorCode hltFinalize();
 
   private:
+    HLT::ErrorCode savePRDtoTrackMap ATLAS_NOT_THREAD_SAFE // Thread unsafe Trk::ITrackAmbiguityProcessorTool::setPRDtoTrackMap is used.
+      (std::unique_ptr<Trk::PRDtoTrackMap> map);
+
     bool                    m_resolveTracks;     //!whether to resolve tracks, defaults to true
     const TrackCollection  *m_oldTracks;
     TrackCollection        *m_tracks;

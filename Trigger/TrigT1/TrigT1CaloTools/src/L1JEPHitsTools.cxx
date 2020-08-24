@@ -27,7 +27,7 @@
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloTools/L1JEPHitsTools.h"
+#include "L1JEPHitsTools.h"
 
 namespace LVL1 {
 

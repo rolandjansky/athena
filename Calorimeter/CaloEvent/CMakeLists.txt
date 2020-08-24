@@ -7,8 +7,10 @@ atlas_subdir( CaloEvent )
 
 # Extra dependencies, based on the environment:
 set( extra_deps )
+set( extra_libs )
 if( NOT GENERATIONBASE )
    set( extra_deps LArCalorimeter/LArRawConditions ) # not ideal... LAr should depend on Calo
+   set( extra_libs LArRawConditions )
 endif()
 
 # Declare the package's dependencies:
@@ -46,7 +48,7 @@ atlas_add_library( CaloEvent CaloEvent/*.h CaloEvent/*.icc src/*.cxx
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES CaloConditions CaloGeoHelpers CaloIdentifier AthAllocators
    AthContainers AthLinks CxxUtils Navigation GeoPrimitives
-   Identifier EventKernel FourMom NavFourMom CaloDetDescrLib
+   Identifier EventKernel FourMom NavFourMom CaloDetDescrLib ${extra_libs}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel )
 
 atlas_add_dictionary( CaloEventDict

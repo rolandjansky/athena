@@ -181,10 +181,10 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
     evt->set_event_number( m_events );
 
     // Set the generator id
-    evt->set_signal_process_id(0);
+    HepMC::set_signal_process_id(evt,0);
 
     // Create the event vertex
-    HepMC::GenVertex* v1 = new HepMC::GenVertex();
+    HepMC::GenVertexPtr v1 = HepMC::newGenVertexPtr();
     evt->add_vertex( v1 );
 
     // Loop on all final particles and 
@@ -214,7 +214,7 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	ATH_MSG_DEBUG( "saving particle " << ipart  );
 
 	v1->add_particle_out( 
-			     new HepMC::GenParticle(HepMC::FourVector(px, py, pz, e), pid, 1) );
+			     HepMC::newGenParticlePtr(HepMC::FourVector(px, py, pz, e), pid, 1) );
       }
     ATH_MSG_DEBUG( "Saved " << ipart << " tracks "  );
 

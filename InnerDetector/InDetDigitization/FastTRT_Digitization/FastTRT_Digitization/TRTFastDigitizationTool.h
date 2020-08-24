@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRT_DIGITIZATION_FASTTRT_DIGITIZATIONTOOL_H
@@ -12,7 +12,6 @@
 
 #include "EventInfo/PileUpEventInfo.h"
 #include "PileUpTools/PileUpToolBase.h"
-#include "FastTRT_Digitization/ITRTFastDigitizationTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -60,7 +59,7 @@ class StoreGateSvc;
 class ITRT_DriftFunctionTool;
 
 
-class TRTFastDigitizationTool : public PileUpToolBase, virtual public ITRTFastDigitizationTool {
+class TRTFastDigitizationTool : public PileUpToolBase {
 public:
   TRTFastDigitizationTool( const std::string &type, const std::string &name, const IInterface *parent );
 

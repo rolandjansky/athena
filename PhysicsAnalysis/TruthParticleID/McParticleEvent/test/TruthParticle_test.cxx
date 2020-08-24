@@ -23,6 +23,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IService.h"
 
+#include "StoreGate/WriteHandle.h"
+
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -74,7 +76,7 @@ void throw_tp_test_err (const char* file, int line, const char* what)
 
 #define TP_ASSERT(X) myassert(X)
 
-typedef CLHEP::HepLorentzVector HLV_t;
+typedef HepMC::FourVector HLV_t;
 typedef TruthParticleContainer::Map_t Map_t;
 typedef TruthEtIsolations::EtIsol_t EtIsol_t;
 
@@ -85,7 +87,7 @@ make_map_t_pair(const HepMC::GenParticle &p,
                 const TruthParticle &tp)
 {
   const std::size_t genEventIdx = 0;
-  HepMcParticleLink link(p.barcode(), genEventIdx);
+  HepMcParticleLink link(p.barcode(), genEventIdx, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION);
   return Map_t::value_type(link.compress(), &tp);
 }
 
@@ -104,12 +106,12 @@ class TruthParticleTest
 public:
 
   HepMC::GenEvent * m_evt;
-  HepMC::GenVertex * m_vtx;
-  HepMC::GenParticle * m_top;
-  HepMC::GenParticle * m_w;
-  HepMC::GenParticle * m_b;
-  HepMC::GenParticle * m_g1;
-  HepMC::GenParticle * m_g2;
+  HepMC::GenVertexPtr m_vtx;
+  HepMC::GenParticlePtr m_top;
+  HepMC::GenParticlePtr m_w;
+  HepMC::GenParticlePtr m_b;
+  HepMC::GenParticlePtr m_g1;
+  HepMC::GenParticlePtr m_g2;
 
   unsigned int m_nPartsIn;
   unsigned int m_nPartsOut;
@@ -126,11 +128,11 @@ TruthParticleTest* makeTestData()
 {
   TruthParticleTest * test = new TruthParticleTest;
 
-  const int signalProcessId = 1000082;
-  const int evtNbr = 1;
-  HepMC::GenEvent * evt = new HepMC::GenEvent( signalProcessId, evtNbr );
+  HepMC::GenEvent * evt = new HepMC::GenEvent();
   test->m_evt = evt;
 
+  evt->set_event_number(1);
+  evt->set_signal_process_id(1000082);
   evt->set_event_scale( -1 );
   evt->set_alphaQCD( -1 );
   evt->set_alphaQED( -1 );
@@ -146,12 +148,12 @@ TruthParticleTest* makeTestData()
   evt->set_random_states( rdmStates );
     
   // Add a t->W+bgg
-  HepMC::GenVertex * vtx = new HepMC::GenVertex;
+  HepMC::GenVertexPtr vtx = HepMC::newGenVertexPtr();
 
   evt->add_vertex( vtx );
   // top
-  HepMC::GenParticle * top = 0;
-  top = new HepMC::GenParticle( HLV_t(-2.35e+05,
+  HepMC::GenParticlePtr top = 
+  HepMC::newGenParticlePtr( HLV_t(-2.35e+05,
 				      +7.34e+04,
 				      +3.60e+04,
 				      +3.04e+05),
@@ -160,40 +162,42 @@ TruthParticleTest* makeTestData()
   
 
   // Wbgg
-  HepMC::GenParticle * w = 0;
-  w = new HepMC::GenParticle( HLV_t(-1.09e+05,
+  HepMC::GenParticlePtr w = 
+  HepMC::newGenParticlePtr( HLV_t(-1.09e+05,
 				    +6.99e+04,
 				    -3.86e+04,
 				    +1.57e+05),
 			      24, 2 ) ;
   vtx->add_particle_out(w);
 
-  HepMC::GenParticle * b = 0;
-  b = new HepMC::GenParticle( HLV_t(-9.23e+04,
+  HepMC::GenParticlePtr b = 
+  HepMC::newGenParticlePtr( HLV_t(-9.23e+04,
 				    +2.54e+03,
 				    +5.32e+04,
 				    +1.07e+05),
 			      5, 2 );
   vtx->add_particle_out(b);
 
-  HepMC::GenParticle * g1 = 0;
-  g1 = new HepMC::GenParticle( HLV_t(-4.76e+03,
+  HepMC::GenParticlePtr g1 =
+  HepMC::newGenParticlePtr( HLV_t(-4.76e+03,
 				     +6.72e+02,
 				     +2.90e+03,
 				     +5.62e+03),
 			       21, 2 );
   vtx->add_particle_out( g1 );
 
-  HepMC::GenParticle * g2 = 0;
-  g2 = new HepMC::GenParticle( HLV_t(-2.93e+04,
+  HepMC::GenParticlePtr g2 =
+  HepMC::newGenParticlePtr( HLV_t(-2.93e+04,
 				     +2.13e+02,
 				     +1.85e+04,
 				     +3.46e+04),
 			       21, 2 );
   vtx->add_particle_out( g2 );
 
-  McEventCollection * genEvt = new McEventCollection;
-  genEvt->push_back( evt );
+  SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_AOD"};
+  inputTestDataHandle = std::make_unique<McEventCollection>();
+  inputTestDataHandle->push_back( evt );
+  McEventCollection * genEvt = &*inputTestDataHandle;
 
   // filling Data test members
   test->m_evt        = evt;
@@ -441,13 +445,6 @@ void testSettersAndGetters( TruthParticleTest* tp )
 	  ++i ) {
       etIsols.push_back( i*2.*CLHEP::GeV );
     }
-//     TP_ASSERT( mc.etIsol() == tp->m_etIsols );
-
-//     mc.setEtIsol( etIsols );
-//     TP_ASSERT( mc.etIsol() == etIsols );
-
-//     mc.setEtIsol( TruthParticleParameters::etcone, -300.*CLHEP::GeV );
-//     TP_ASSERT( mc.etIsol(TruthParticleParameters::etcone) == -300.*CLHEP::GeV );
   }
   
   return;

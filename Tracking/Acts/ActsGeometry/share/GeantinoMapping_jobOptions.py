@@ -42,7 +42,7 @@ if 'myRandomSeed2' not in dir() :
     myRandomSeed2 = int(random.uniform(0,time.time()))
 
 if 'myMaxEvent' not in dir() :
-    myMaxEvent = 10
+    myMaxEvent = 100
 
 if 'myPt' not in dir() :
     myPt = 'pt'  # values are 'p' or 'pt'
@@ -66,7 +66,7 @@ print globalflags.ConditionsTag
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
 athenaCommonFlags.PoolHitsOutput = 'Hits.pool.root'
-athenaCommonFlags.EvtMax = 1000
+athenaCommonFlags.EvtMax = 1000000
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import simFlags
@@ -74,19 +74,19 @@ simFlags.load_atlas_flags() # Going to use an ATLAS layout
 simFlags.SimLayout = myGeo
 simFlags.EventFilter.set_Off()
 
-myMinEta = -6.0
-myMaxEta =  6.0
+myMinEta = -2.5
+myMaxEta =  2.5
 
 myPDG    = 999   # 999 = Geantinos, 13 = Muons
 
 include("GeneratorUtils/StdEvgenSetup.py")
-theApp.EvtMax = 1000
+theApp.EvtMax = 20000
 
 import ParticleGun as PG
 pg = PG.ParticleGun()
 pg.sampler.pid = 999
 pg.randomSeed = 123456
-pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[-6.,6.])
+pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[myMinEta,myMaxEta])
 topSeq += pg
 
 simFlags.RandomSeedOffset = myRandomOffset
@@ -123,8 +123,6 @@ simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool')
 ############### The Material hit collection ##################
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-# --- check dictionary
-ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 # --- commit interval (test)
 ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
@@ -151,4 +149,3 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,25 +21,9 @@ using xAOD::CaloCluster;
 using CaloClusterCorr::interpolate;
  
 
- // -------------------------------------------------------------
- // Constructor 
- // -------------------------------------------------------------
-CaloTopoEMLongWeights::CaloTopoEMLongWeights(const std::string& type,
-                                     const std::string& name,
-                                     const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
-{ 
-  declareConstant("correction",      m_correction);
-  declareConstant("eta_start_crack", m_eta_start_crack);
-  declareConstant("eta_end_crack",   m_eta_end_crack);
-  declareConstant("etamax",          m_etamax);
-  declareConstant("degree",          m_degree);
-  declareConstant("use_raw_eta",     m_use_raw_eta);
-}
- 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -58,7 +42,7 @@ CaloTopoEMLongWeights::CaloTopoEMLongWeights(const std::string& type,
  *                the calorimeter region and sampling encoded.
  */
 void CaloTopoEMLongWeights::makeTheCorrection
-  (const EventContext& /*ctx*/,
+  (const Context& myctx,
    CaloCluster* cluster,
    const CaloDetDescrElement* /*elt*/,
    float eta,
@@ -71,41 +55,47 @@ void CaloTopoEMLongWeights::makeTheCorrection
   //     and range checks.  However, the v2 corrections were derived
   //     using regular eta instead.
   float the_aeta;
-  if (m_use_raw_eta)
+  if (m_use_raw_eta(myctx))
     the_aeta = std::abs (adj_eta);
   else
     the_aeta = std::abs (eta);
 
-  if (the_aeta >= m_etamax) return;
+  const float etamax = m_etamax (myctx);
+  if (the_aeta >= etamax) return;
+
+  const float eta_start_crack = m_eta_start_crack (myctx);
+  const float eta_end_crack = m_eta_end_crack (myctx);
 
   int si;
-  if (the_aeta < m_eta_start_crack)
+  if (the_aeta < eta_start_crack)
     si = 0;
-  else if (the_aeta > m_eta_end_crack)
+  else if (the_aeta > eta_end_crack)
     si = 1;
   else {
     // No corrections are applied for the crack region.
     return;
   }
 
+  const CxxUtils::Array<2> correction = m_correction (myctx);
+
   unsigned int shape[] = {2};
   CaloRec::WritableArrayData<1> interp_barriers (shape);
-  interp_barriers[0] = m_eta_start_crack;
-  interp_barriers[1] = m_eta_end_crack;
+  interp_barriers[0] = eta_start_crack;
+  interp_barriers[1] = eta_end_crack;
 
   float pars[6];
-  int ibin = static_cast<int> (the_aeta / m_etamax * m_correction.size());
-  pars[0] = m_correction[ibin][1];
-  pars[1] = m_correction[ibin][2];
-  pars[2] = m_correction[ibin][3];
-  pars[3] = m_correction[ibin][4];
-  pars[4] = m_correction[ibin][5];
-  pars[5] = m_correction[ibin][6];
+  int ibin = static_cast<int> (the_aeta / etamax * correction.size());
+  pars[0] = correction[ibin][1];
+  pars[1] = correction[ibin][2];
+  pars[2] = correction[ibin][3];
+  pars[3] = correction[ibin][4];
+  pars[4] = correction[ibin][5];
+  pars[5] = correction[ibin][6];
 
   //  for (int i=0; i<6; i++)
-  //  pars[i] = interpolate (m_correction,
+  //  pars[i] = interpolate (correction,
   //			   the_aeta,
-  //			   m_degree,
+  //			   degree,
   //			   i+1,
   //			   interp_barriers);
   

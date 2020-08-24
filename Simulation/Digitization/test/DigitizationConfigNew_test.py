@@ -9,7 +9,7 @@ from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from Digitization.DigitizationParametersConfig import writeDigitizationMetadata
@@ -24,6 +24,7 @@ from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
+from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -35,14 +36,21 @@ ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
+ConfigFlags.Concurrency.NumConcurrentEvents=1
 ConfigFlags.Beam.NumberOfCollisions = 0.
 ConfigFlags.lock()
 
 # Core components
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(PoolWriteCfg(ConfigFlags))
 acc.merge(writeDigitizationMetadata(ConfigFlags))
+
+# Old EventInfo conversion
+if "EventInfo" not in ConfigFlags.Input.Collections:
+    acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                 inputKey="McEventInfo",
+                                 outputKey="EventInfo"))
 
 # Inner Detector
 acc.merge(BCM_DigitizationCfg(ConfigFlags))

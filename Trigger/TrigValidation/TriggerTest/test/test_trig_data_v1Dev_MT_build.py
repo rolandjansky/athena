@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger BS->RDO_TRIG athena test of the Dev_pp_run3_v1 menu
 # art-type: build
@@ -28,12 +29,15 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
-# Add a step comparing counts in the log against reference
+# Add a step comparing counts in the log against reference from test_trig_data_v1Dev_build
 refcomp = CheckSteps.RegTestStep("CountRefComp")
-refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
+refcomp.regex = r'TrigSignatureMoniMT\s*INFO\sHLT_.*|TrigSignatureMoniMT\s*INFO\s-- #[0-9]+ (Events|Features).*'
 refcomp.reference = 'TriggerTest/ref_data_v1Dev_build.ref'
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
+
+# Use RootComp reference from test_trig_data_v1Dev_build
+test.get_step('RootComp').ref_test_name = 'trig_data_v1Dev_build'
 
 import sys
 sys.exit(test.run())

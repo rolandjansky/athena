@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Tool and service factories to instantiate MVA calibration for trigger"
 __author__ = "Jovan Mitrevski"
@@ -15,18 +15,16 @@ mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
 mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
 EgammaSliceFlags.calibMVAVersion.set_On()
 
-import cppyy
-cppyy.loadDictionary('xAODEgammaDict')
-from ROOT import xAOD
+from xAODEgamma.xAODEgammaParameters import xAOD
 
 
-TrigElectronMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool, 
+TrigElectronMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool,
                                   name = "TrigElectronMVATool",
                                   ParticleType = xAOD.EgammaParameters.electron,
                                   folder=EgammaSliceFlags.calibMVAVersion(),
                                   use_layer_corrected = False)
 
-TrigPhotonMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool, 
+TrigPhotonMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool,
                                 name = "TrigPhotonMVATool",
                                 ParticleType = xAOD.EgammaParameters.unconvertedPhoton,
                                 folder=EgammaSliceFlags.calibMVAVersion(),

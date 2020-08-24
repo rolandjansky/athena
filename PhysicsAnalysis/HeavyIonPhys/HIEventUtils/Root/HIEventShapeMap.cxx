@@ -11,7 +11,7 @@ HIEventShapeMap* HIEventShapeMap::getMap()
 {
   return &s_obj;
 }
- 
+
 const HIEventShapeIndex* HIEventShapeMap::insert(std::string key, const HIEventShapeIndex& index, bool clobber)
 {
   std::map<std::string,HIEventShapeIndex>::iterator mItr=s_obj.m_map.find(key);

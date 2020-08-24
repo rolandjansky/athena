@@ -1,32 +1,33 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_Chip.h
  * Header file storing infomration on the SCT chips: id, config, mask
  * @author Carl Gwilliam <gwilliam@mail.cern.ch>
-**/
+ **/
 
 #ifndef SCT_ConditionTools_SCT_Chip_h
 #define SCT_ConditionTools_SCT_Chip_h
 
-#include <iomanip>
-#include <cstdint>
-#include <vector>
-#include <string>
 #include <bitset>
+#include <cstdint>
+#include <iomanip>
 #include <iostream>
+#include <string>
+#include <vector>
 
 /**
  * @class SCT_Chip
- * Class which stores infomration on the SCT chips: id, config, mask
-**/
-
+ * @brief Class which stores infomration on the SCT chips: id, config, mask
+ **/
 class SCT_Chip {
 
-/** Outputstream operator for chip */
-friend std::ostream& operator<<(std::ostream& output, const SCT_Chip& chip);
+  /** Outputstream operator for chip */
+  friend std::ostream& operator<<(std::ostream& output, const SCT_Chip& chip);
  
 public:
 
@@ -81,7 +82,6 @@ private:
   bool                      m_end;         //!< Is chip an end
   bool                      m_master;      //!< Is chip a master
   std::bitset<nBitsMask>    m_mask;        //!< Chip strip mask 
-  //unsigned int              m_numMasked;   //!< Number of masked chips
 };
 
 /** Output stream for printing chip information*/
@@ -94,5 +94,4 @@ inline std::ostream& operator<<(std::ostream& output, const SCT_Chip& chip) {
   return output;
 }
 
-#endif
-
+#endif // SCT_ConditionTools_SCT_Chip_h

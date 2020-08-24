@@ -5,6 +5,9 @@
 # Declare the package name:
 atlas_subdir( ISF_FatrasToolsMS )
 
+# External dependencies:
+find_package( CLHEP )
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
@@ -23,13 +26,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces )
 
-# External dependencies:
-find_package( CLHEP )
-
 # Component(s) in the package:
 atlas_add_component( ISF_FatrasToolsMS
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel Identifier GaudiKernel MuonSimEvent ISF_FatrasInterfaces TrkParameters TrkExInterfaces MuonReadoutGeometry MuonIdHelpersLib ISF_Event ISF_Interfaces TrkTrack )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel Identifier GaudiKernel MuonSimEvent ISF_FatrasInterfaces TrkParameters TrkExInterfaces MuonReadoutGeometry MuonIdHelpersLib ISF_Event ISF_InterfacesLib TrkTrack MuonTGRecToolsLib )
 

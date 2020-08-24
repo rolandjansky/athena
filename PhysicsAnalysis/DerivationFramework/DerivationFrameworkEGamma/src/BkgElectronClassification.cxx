@@ -66,45 +66,12 @@ namespace DerivationFramework {
       if(tPL.isAvailable(*el) && tPL(*el).isValid() ){
 	tPdgID(*el)=(*tPL(*el))->pdgId();  
       }
-      //
-      //Additional info for electron coming from photons or another electron, 
-      //not produced by the std egamma reconstruction
-      //
-      //use the Classifier for the bkg Electron      
-      //Add Extra Decoration from Classifier in case of BkgElectron (Electron coming for a photon)
-      static SG::AuxElement::Decorator<int> bkgTT("bkgTruthType") ;
-      static SG::AuxElement::Decorator<int> bkgTO("bkgTruthOrigin") ;
-      static SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer> >  bkgTPL ("bkgTruthParticleLink");
-      static SG::AuxElement::Decorator<int> bkgMotherPdgID("bkgMotherPdgId") ;
-      bkgTT(*el)= 0;
-      bkgTO(*el)= 0;
-      bkgTPL(*el)=ElementLink<xAOD::TruthParticleContainer>();
-      bkgMotherPdgID(*el)=0;
- 
-      if(tT.isAvailable(*el)  && tO.isAvailable(*el) && 
-	 tPL.isAvailable(*el) && tPL(*el).isValid() &&
-	 tT(*el)==MCTruthPartClassifier::BkgElectron){      
 
-#ifdef MCTRUTHCLASSIFIER_CONST
-        IMCTruthClassifier::Info info;
-	auto res = m_mcTruthClassifier->checkOrigOfBkgElec(*tPL(*el), &info);
-	const xAOD::TruthParticle* truthParticle= info.bkgElecMother;
-#else
-	auto res = m_mcTruthClassifier->checkOrigOfBkgElec(*tPL(*el));
-	const xAOD::TruthParticle* truthParticle= m_mcTruthClassifier->getBkgElecMother();
-#endif
-	bkgTT(*el)= res.first;
-	bkgTO(*el)= res.second;
-	if(truthParticle){
-	    ElementLink<xAOD::TruthParticleContainer> link(truthParticle, *truthContainer);
-	    bkgTPL(*el)=link;
-	    bkgMotherPdgID(*el)=truthParticle->pdgId();  
-	}
-      }
-      //
-      //use the Helpers for electron from electron or photon
+      //Use the Helpers for electron from electron or photon
       //Add Extra Decoration from Egamma helpers in case of BkgElectron (Electron coming for a photon)
-      //Go back to the last electron/photon mother and classify this one
+      //Go back to the first/last electron/photon Generator mother and classify this one
+      
+      //First the one entering the Geant, the first we meet on the way back
       static SG::AuxElement::Decorator<int> firstEgMotherTT("firstEgMotherTruthType") ;
       static SG::AuxElement::Decorator<int> firstEgMotherTO("firstEgMotherTruthOrigin") ;
       static SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer> >  firstEgMotherTPL ("firstEgMotherTruthParticleLink");
@@ -113,18 +80,35 @@ namespace DerivationFramework {
       firstEgMotherTO(*el)= 0;
       firstEgMotherTPL(*el)=ElementLink<xAOD::TruthParticleContainer>();
       firstEgMotherPdgID(*el)=0;
-      //
-      const xAOD::TruthParticle* eltruth = xAOD::EgammaHelpers::getBkgElectronMother(el,m_barcodecut);
-      if(eltruth){
-	auto res = m_mcTruthClassifier->particleTruthClassifier(eltruth);
+      const xAOD::TruthParticle* firstElTruth = xAOD::EgammaHelpers::getBkgElectronMother(el,m_barcodecut);
+      if( firstElTruth ){
+	auto res = m_mcTruthClassifier->particleTruthClassifier(firstElTruth);
 	firstEgMotherTT(*el)= res.first;
 	firstEgMotherTO(*el)= res.second;
-	firstEgMotherPdgID(*el)=eltruth->pdgId();
-	ElementLink<xAOD::TruthParticleContainer> link(eltruth, *truthContainer);
+	firstEgMotherPdgID(*el)=firstElTruth->pdgId();
+	ElementLink<xAOD::TruthParticleContainer> link( firstElTruth , *truthContainer);
 	firstEgMotherTPL(*el)=link;
       }
-      //
-      //
+
+      //The last electron / photon  we meet on the way back towards the Generator vertex 
+      static SG::AuxElement::Decorator<int> lastEgMotherTT("lastEgMotherTruthType") ;
+      static SG::AuxElement::Decorator<int> lastEgMotherTO("lastEgMotherTruthOrigin") ;
+      static SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer> >  lastEgMotherTPL ("lastEgMotherTruthParticleLink");
+      static SG::AuxElement::Decorator<int> lastEgMotherPdgID("lastEgMotherPdgId") ;
+      lastEgMotherTT(*el)= 0;
+      lastEgMotherTO(*el)= 0;
+      lastEgMotherTPL(*el)=ElementLink<xAOD::TruthParticleContainer>();;
+      lastEgMotherPdgID(*el)=0;
+      const xAOD::TruthParticle* lastElTruth = xAOD::EgammaHelpers::getBkgElectronMother(el);
+      if( lastElTruth ){
+	auto res = m_mcTruthClassifier->particleTruthClassifier(lastElTruth);
+	lastEgMotherTT(*el)= res.first;
+	lastEgMotherTO(*el)= res.second;
+	lastEgMotherPdgID(*el)=lastElTruth->pdgId();
+	ElementLink<xAOD::TruthParticleContainer> link( lastElTruth , *truthContainer);
+	lastEgMotherTPL(*el)=link;
+      }
+
     }
     return StatusCode::SUCCESS;
   }

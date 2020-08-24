@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ StatusCode Trk::RecursiveGeometryProcessor::finalize()
 }
 
 // Processor Action to work on TrackingGeometry 
-StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingGeometry& tgeo) {
+StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingGeometry& tgeo) const {
   
   ATH_MSG_VERBOSE("Start processing the TrackingGeometry recursively");
   // retrieve the highest tracking volume
@@ -58,7 +58,7 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingGeometry&
 }
 
 // Processor Action to work on TrackingVolumes
-StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& tvol, size_t level) {
+StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& tvol, size_t level) const {
   
   std::stringstream displayBuffer;
   for (size_t il = 0; il < level; ++il) displayBuffer << " ";
@@ -121,7 +121,7 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& t
 }
 
 // Processor Action to work on Layers 
-StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::Layer& lay, size_t level) {
+StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::Layer& lay, size_t level) const {
 
     std::stringstream displayBuffer;
     for (size_t il = 0; il < level; ++il) displayBuffer << " ";
@@ -155,20 +155,20 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::Layer& lay, size_
 }
 
 // Processor Action to work on Surfaces 
-StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::Surface& surf, size_t level) {
+StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::Surface& surf, size_t level) const {
     return processNode(surf, level);
 }
 
 // Processor Action to work on TrackingVolume - to be overloaded 
-StatusCode Trk::RecursiveGeometryProcessor::processNode(const Trk::TrackingVolume&, size_t ) {
+StatusCode Trk::RecursiveGeometryProcessor::processNode(const Trk::TrackingVolume&, size_t ) const {
     return StatusCode::SUCCESS;
 }
 
 // Processor Action to work on Layers - to be overloaded 
-StatusCode Trk::RecursiveGeometryProcessor::processNode(const Trk::Layer&, size_t ) {
+StatusCode Trk::RecursiveGeometryProcessor::processNode(const Trk::Layer&, size_t ) const {
     return StatusCode::SUCCESS;
 }
 // Processor Action to work on Surfaces - to be overloaded
-StatusCode Trk::RecursiveGeometryProcessor::processNode(const Trk::Surface&, size_t ) {
+StatusCode Trk::RecursiveGeometryProcessor::processNode(const Trk::Surface&, size_t ) const {
     return StatusCode::SUCCESS;
 }

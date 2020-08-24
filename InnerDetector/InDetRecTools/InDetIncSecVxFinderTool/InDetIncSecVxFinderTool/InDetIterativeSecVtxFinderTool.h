@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  *
@@ -23,6 +23,7 @@
 
 #include "InDetRecToolInterfaces/IInDetIterativeSecVtxFinderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkTrack/TrackCollection.h" // type def ...
@@ -59,7 +60,7 @@ namespace InDet
 //  InnerDetector/InDetValidation/InDetVertexSplitter/InDetVertexSplitterHist
 //  InnerDetector/InDetDigitization/FastSiDigitization/SiSmearedDigitizationTool
 //  Tracking/TrkVertexFitter/TrkVertexSeedFinderUtils/share/ImagingSeedTuningAlg_jobOptions.py
- class InDetIterativeSecVtxFinderTool : public AthAlgTool, virtual public ISecVertexFinder
+ class ATLAS_NOT_THREAD_SAFE InDetIterativeSecVtxFinderTool : public AthAlgTool, virtual public ISecVertexFinder // mutable variables are used without protection.
  {
 
 public:

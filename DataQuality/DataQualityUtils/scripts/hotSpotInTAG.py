@@ -1,6 +1,6 @@
 #!/usr/bin env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Script to browse a TAG file and extract LBs for which at least N occurences of an object is found
 # in a region defined as noisy.
 # Uses the pathExtract library to extract the EOS path
@@ -18,20 +18,16 @@
 #  -n, --noplot          Do not plot LB map
 # Author : Benjamin Trocme (LPSC Grenoble) / Summer 2012, updated in 2015
 
+from __future__ import print_function
 
-import os, sys  
-import string,math
+import sys
 from math import fabs
 import argparse
-from DataQualityUtils import pathExtract
+from DataQualityUtils import pathExtract, returnFilesPath
 
-import ROOT
-from ROOT import *
-from ROOT import gROOT, gDirectory
-from ROOT import gStyle, TCanvas, TString
-from ROOT import TFile, TTree
-from ROOT import TH1F,TH2F,TBrowser
-from ROOT import TPaveText
+from ROOT import gStyle, TCanvas
+from ROOT import TChain
+from ROOT import TH1D, TH2D, TH1I
 
 # Analysis functions===========================================================================================================
 def analyzeTree():
@@ -121,9 +117,9 @@ gStyle.SetOptStat("em")
 if ("MET" in objectType):
   etaSpot=0
 
-print '\n'
-print '---------------------------------'
-print "Investigation on run "+str(run)+"/"+stream+" stream with ami TAG "+amiTag
+print('\n')
+print('---------------------------------')
+print("Investigation on run "+str(run)+"/"+stream+" stream with ami TAG "+amiTag)
 
 tree = TChain("POOLCollectionTree")
 if tagDirectory=="": # TAG files stored on EOS
@@ -131,18 +127,18 @@ if tagDirectory=="": # TAG files stored on EOS
   if len(listOfFiles)>0:
     for files in listOfFiles:
       tree.AddFile("root://eosatlas/%s"%(files))
-      print "I chained the file %s"%(files)
+      print("I chained the file %s"%(files))
   else:
-    print "No file found on EOS.Exiting..."
+    print("No file found on EOS.Exiting...")
     sys.exit()
 else: # TAG files on user account
   listOfFiles = returnFilesPath(tagDirectory,"TAG")
   if len(listOfFiles)>0:
     for files in listOfFiles:
       tree.AddFile("%s"%(files))
-      print "I chained the file %s"%(files)
+      print("I chained the file %s"%(files))
     else:
-      print "No TAG file found in directory %s.Exiting..."%(tagDirectory)
+      print("No TAG file found in directory %s.Exiting..."%(tagDirectory))
   
 
 entries = tree.GetEntries()
@@ -161,26 +157,26 @@ else:
   h0map = TH2D("map","General map of %s with Et/Pt > %d MeV"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
   h0mapClean = TH2D("mapClean","General map of %s with Et/Pt > %d MeV - LArFlags != ERROR"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
 
-print "I am looking for LBs with at least %d %s in a region of %.2f around (%.2f,%.2f) and Et/Pt > %d MeV"%(minInLB,objectType,deltaSpot,etaSpot,phiSpot,thresholdE)
-for jentry in xrange( entries ): # Loop on all events
+print("I am looking for LBs with at least %d %s in a region of %.2f around (%.2f,%.2f) and Et/Pt > %d MeV"%(minInLB,objectType,deltaSpot,etaSpot,phiSpot,thresholdE))
+for jentry in range( entries ): # Loop on all events
   if (jentry % 100000 == 0):
-    print "%d / %d evnt processed"%(jentry,entries)
+    print("%d / %d evnt processed"%(jentry,entries))
   nb = tree.GetEntry( jentry )
   if (tree.LumiBlockN>lowerLumiBlock and tree.LumiBlockN<upperLumiBlock):
     analyzeTree()     
 
-print "I have looked for LBs with at least %d %s in a region of %.2f around (%.2f,%.2f) and Et/Pt > %d MeV"%(minInLB,objectType,deltaSpot,etaSpot,phiSpot,thresholdE)
+print("I have looked for LBs with at least %d %s in a region of %.2f around (%.2f,%.2f) and Et/Pt > %d MeV"%(minInLB,objectType,deltaSpot,etaSpot,phiSpot,thresholdE))
 if (args.larcleaning):
-  print "WARNING : The LArCleaning for noise bursts (LArEventInfo != ERROR) has been DEACTIVATED!!!"
+  print("WARNING : The LArCleaning for noise bursts (LArEventInfo != ERROR) has been DEACTIVATED!!!")
 else:
-  print "The LArCleaning (LArEventInfo != ERROR) for noise bursts has been activated"
+  print("The LArCleaning (LArEventInfo != ERROR) for noise bursts has been activated")
 
 nLB_offending = []
 lowerLB = 2500
 upperLB = 0
 for i in range(nLB):
   if nbHitInHot[i]>=minInLB:
-    print "LB: %d -> %d hits (LAr flag in this LB : %d veto / In these events : %d Std / %d SatTight)"%(i,nbHitInHot[i],nbNoiseBurstVeto[i],nbLArNoisyRO_Std[i],nbLArNoisyRO_SatTight[i])
+    print("LB: %d -> %d hits (LAr flag in this LB : %d veto / In these events : %d Std / %d SatTight)"%(i,nbHitInHot[i],nbNoiseBurstVeto[i],nbLArNoisyRO_Std[i],nbLArNoisyRO_SatTight[i]))
     nLB_offending.append(i)
     if i<lowerLB : lowerLB = i
     if i>upperLB : upperLB = i
@@ -281,6 +277,6 @@ if (not args.noplot):
       tree.Draw("TauJetPt2 >> +h1Pt_%d"%(nLB_offending[i]),"abs(TauJetEta2-%.3f) < %.3f && abs(TauJetPhi2-%.3f) < %.3f  && LumiBlockN==%d && %s"%(etaSpot,deltaSpot,phiSpot,deltaSpot,nLB_offending[i],cutC))
     
 if ("Tau" in objectType):     
-  print 'WARNING : in recent TAGs, the TauJet were not filled - A double check is welcome: tree.Draw(\"TauJetEta1\")'
+  print('WARNING : in recent TAGs, the TauJet were not filled - A double check is welcome: tree.Draw(\"TauJetEta1\")')
 
-raw_input("I am done...")
+input("I am done...")

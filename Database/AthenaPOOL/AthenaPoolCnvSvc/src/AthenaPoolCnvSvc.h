@@ -183,10 +183,12 @@ private: // data
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc{this,"ChronoStatSvc","ChronoStatSvc"};
    ServiceHandle<IClassIDSvc>    m_clidSvc{this,"ClassIDSvc","ClassIDSvc"};
    ServiceHandle<IAthenaSerializeSvc> m_serializeSvc{this,"AthenaRootSerializeSvc","AthenaRootSerializeSvc"};
-   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool{this,"InputStreamingTool"};
+   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool{this,"InputStreamingTool",{}};
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
    //The following doesn't work because of Gaudi issue #122
    //ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool{this,"OutputStreamingTool", {} };
+   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
+   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
    std::size_t     m_streamServer=0;
    int m_metadataClient=0;
 
@@ -203,7 +205,7 @@ private: // properties
    StringProperty  m_branchNameHintProp{this,"SubLevelBranchName", "<type>/<key>"};
 
    /// Output PoolAttributes, vector with names and values of technology specific attributes for POOL
-   StringArrayProperty m_poolAttr{this,"PoolAttributes",{},"Pool Attributes","Set<std::string>"};
+   StringArrayProperty m_poolAttr{this,"PoolAttributes",{},"Pool Attributes","OrderedSet<std::string>"};
    std::vector<std::vector<std::string> > m_domainAttr;
    std::vector<std::vector<std::string> > m_databaseAttr;
    std::vector<std::vector<std::string> > m_containerAttr;

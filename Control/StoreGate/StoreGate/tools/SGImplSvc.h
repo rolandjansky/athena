@@ -23,7 +23,7 @@
 #include <GaudiKernel/IInterface.h>     // for InterfaceID
 #include <GaudiKernel/IMessageSvc.h>    // for Level
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"   /*StringArrayProperty*/
+#include "Gaudi/Property.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "GaudiKernel/DataObjID.h"
@@ -94,7 +94,6 @@ class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
 class SGDeleteAlg;
-class ThinningSvc;
 class ActiveStoreSvc;
 namespace SG { 
   class VarHandleBase; 
@@ -110,7 +109,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @author ATLAS Collaboration
  * $Id: SGImplSvc.h 797595 2017-02-16 18:36:10Z ssnyder $
  **/
-class SGImplSvc :
+class SGImplSvc final :
   public Service, 
   public IProxyDict, 
   public IHiveStoreMgr,
@@ -247,14 +246,14 @@ public:
   //@{
 
   /// register a callback function(2) with an already registered function(1)
-  StatusCode regFcn (const CallBackID c1,
-                     const CallBackID c2,
+  StatusCode regFcn (const CallBackID& c1,
+                     const CallBackID& c2,
                      const IOVSvcCallBackFcn& fcn,
                      bool trigger = false);
 
   /// register a callback function(2) with an already registered AlgTool
   StatusCode regFcn (const std::string& toolName,
-                     const CallBackID c2,
+                     const CallBackID& c2,
                      const IOVSvcCallBackFcn& fcn,
                      bool trigger = false);
   
@@ -615,7 +614,6 @@ private:
   friend class PileUpMergeSvc;      // FIXME needs to call tRange
   friend class StoreGateSvc;
   ///access typeless_record
-  friend class ThinningSvc;
   friend class SG::VarHandleBase;                                                      
 
   ///DEPRECATED: Return a _pointer_ to the DataStore
@@ -652,7 +650,7 @@ private:
                                      IResetable* ir, SG::DataProxy *&dp);
   bool bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
                                      IResetable* ir, SG::DataProxy *&dp,
-                                     const CallBackID c,
+                                     const CallBackID& c,
                                      const IOVSvcCallBackFcn& fcn,
                                      bool trigger);
 
@@ -667,7 +665,7 @@ private:
   void t2pRemove(const void* const pTrans);
 
   /// callback for output level property 
-  void msg_update_handler(Property& outputLevel);
+  void msg_update_handler(Gaudi::Details::PropertyBase& outputLevel);
 
   bool associateAux_impl (SG::AuxVectorBase* ptr,
                           const std::string& key,

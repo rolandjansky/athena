@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EMVERTEXBUILDER_H
@@ -11,6 +11,7 @@
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -28,9 +29,15 @@ class EMVertexBuilder : public AthAlgorithm {
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute() override final
+  {
+    return execute_r(Algorithm::getContext());
+  }
 
  private:
+  // This will become the normal execute when
+  // inheriting from AthReentrantAlgorithm
+  StatusCode execute_r(const EventContext& ctx) const;
 	
   /** Maximum radius accepted for conversion vertices **/
   Gaudi::Property<float> m_maxRadius {this, "MaxRadius", 800., 

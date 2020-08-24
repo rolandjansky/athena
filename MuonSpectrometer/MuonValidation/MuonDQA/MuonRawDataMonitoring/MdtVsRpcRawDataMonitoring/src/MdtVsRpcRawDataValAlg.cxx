@@ -20,9 +20,6 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 
-#include "Identifier/Identifier.h"
-
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -85,38 +82,14 @@ MdtVsRpcRawDataValAlg::~MdtVsRpcRawDataValAlg()
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-StatusCode MdtVsRpcRawDataValAlg::initialize(){
- 
+StatusCode MdtVsRpcRawDataValAlg::initialize() {
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_MSG_INFO ( "in initializing MdtVsRpcRawDataValAlg" );
-
-  StatusCode sc;
-
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "DetectorStore service not found !" );
-    return StatusCode::FAILURE;
-  }   
-  
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Cannot get MuonDetectorManager from detector store" );
-    return StatusCode::FAILURE;
-  }  
-  else {
-    ATH_MSG_DEBUG ( " Found the MuonDetectorManager from detector store. " );
-  }
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  
-  ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_key_mdt.initialize());
   ATH_CHECK(m_key_rpc.initialize());
-  
   return StatusCode::SUCCESS;
 }
 
@@ -146,7 +119,6 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
   
     //mdt stuff begin     
     int nPrdmdt  = 0;
-    Identifier ch_idmdt;
     Identifier dig_idmdt;
   
     SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_container(m_key_mdt);
@@ -163,7 +135,6 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
   
   
     int nPrd = 0;
-    Identifier ch_id;
     Identifier dig_id;
   
     std::string type="RPC";
@@ -210,16 +181,16 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 	      Identifier prd_id = (*rpcPrd)->identify();
 
-	      int irpcstationPhi	=   int(m_muonIdHelperTool->rpcIdHelper().stationPhi (prd_id))  ;		   
-	      int irpcstationName	=   int(m_muonIdHelperTool->rpcIdHelper().stationName(prd_id))  ;		   
-	      int irpcstationEta	=   int(m_muonIdHelperTool->rpcIdHelper().stationEta (prd_id))  ;			   
-	      int irpcdoubletR 	=   int(m_muonIdHelperTool->rpcIdHelper().doubletR   (prd_id))  ;		
-	      int irpcmeasuresPhi	=   int(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id))  ;
+	      int irpcstationPhi	=   int(m_idHelperSvc->rpcIdHelper().stationPhi (prd_id))  ;		   
+	      int irpcstationName	=   int(m_idHelperSvc->rpcIdHelper().stationName(prd_id))  ;		   
+	      int irpcstationEta	=   int(m_idHelperSvc->rpcIdHelper().stationEta (prd_id))  ;			   
+	      int irpcdoubletR 	=   int(m_idHelperSvc->rpcIdHelper().doubletR   (prd_id))  ;		
+	      int irpcmeasuresPhi	=   int(m_idHelperSvc->rpcIdHelper().measuresPhi(prd_id))  ;
 	      // only take eta hits
 	      if( irpcmeasuresPhi != 0 )continue;
-	      int irpcdoubletPhi	 =   int(m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id))  ;
-	      int irpcdoubletZ	 =   int(m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id))    ;
-	      int irpcstrip		 =   int(m_muonIdHelperTool->rpcIdHelper().strip(prd_id))       ;
+	      int irpcdoubletPhi	 =   int(m_idHelperSvc->rpcIdHelper().doubletPhi(prd_id))  ;
+	      int irpcdoubletZ	 =   int(m_idHelperSvc->rpcIdHelper().doubletZ(prd_id))    ;
+	      int irpcstrip		 =   int(m_idHelperSvc->rpcIdHelper().strip(prd_id))       ;
 	   
 	    
       
@@ -228,8 +199,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 	      std::string hardware_name=convertChamberName(irpcstationName,irpcstationEta,irpcstationPhi,type) ;
   	  	  
 	      if (selectChambersRange(hardware_name, m_chamberName, 
-				      m_muonIdHelperTool->rpcIdHelper().stationEta(dig_id), m_StationEta,
-				      m_muonIdHelperTool->rpcIdHelper().stationPhi(dig_id), m_StationPhi, m_StationSize) && chambersCosmicSetup(hardware_name,m_cosmicStation)) {	 
+				      m_idHelperSvc->rpcIdHelper().stationEta(dig_id), m_StationEta,
+				      m_idHelperSvc->rpcIdHelper().stationPhi(dig_id), m_StationPhi, m_StationSize) && chambersCosmicSetup(hardware_name,m_cosmicStation)) {	 
 
 		//define layer
                 int imdt_multi_near = 0;
@@ -379,21 +350,21 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		    for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*containerMdtIt)->begin(); mdtCollection!=(*containerMdtIt)->end(); ++mdtCollection ) 
 		      {
 			dig_idmdt = (*mdtCollection)->identify();
-			int imdt_station      =  int(m_muonIdHelperTool->mdtIdHelper().stationName (dig_idmdt));
+			int imdt_station      =  int(m_idHelperSvc->mdtIdHelper().stationName (dig_idmdt));
 			if (imdt_station != irpcstationName) continue;
-			int imdt_eta          =  int(m_muonIdHelperTool->mdtIdHelper().stationEta  (dig_idmdt));
+			int imdt_eta          =  int(m_idHelperSvc->mdtIdHelper().stationEta  (dig_idmdt));
 			if (imdt_eta     != irpcstationEta ) continue; 
-			int imdt_phi          =  int(m_muonIdHelperTool->mdtIdHelper().stationPhi  (dig_idmdt));
+			int imdt_phi          =  int(m_idHelperSvc->mdtIdHelper().stationPhi  (dig_idmdt));
 			if (imdt_phi     != irpcstationPhi ) continue;
 			dig_idmdt = (*mdtCollection)->identify();
-			int imdt_multi     =  int(m_muonIdHelperTool->mdtIdHelper().multilayer  (dig_idmdt));
+			int imdt_multi     =  int(m_idHelperSvc->mdtIdHelper().multilayer  (dig_idmdt));
 			// only look at near multilayer
 			if(imdt_multi  != imdt_multi_near) continue;
 			int imdt_adc       =  int((*mdtCollection)->adc());
 			//cut on noise
 			if( imdt_adc<ncutadc )continue;  
 			int imdt_tdc       =  int((*mdtCollection)->tdc());
-			int imdt_wire      =  int(m_muonIdHelperTool->mdtIdHelper().tube        (dig_idmdt));
+			int imdt_wire      =  int(m_idHelperSvc->mdtIdHelper().tube        (dig_idmdt));
 		    
  		    
 			//get mdt information from geomodel to book and fill mdtvsrpc histos with the right min and max range

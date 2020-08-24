@@ -34,7 +34,6 @@ namespace InDet {
 
   virtual StatusCode initialize() override;
   virtual void prepare() override {};
-  virtual StatusCode finalize() override;
 
   /** Computes the tracks origin */
   virtual int getTrackOrigin(const xAOD::TrackParticle* track) const override;

@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
   MuonCluster.cxx
   Muon cluster finding, creates an RoI cluster for track finding
 */
-#include "TMath.h"
 #include <cmath>
 #include <algorithm>
 #include <sstream>
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "TrigInterfaces/FexAlgo.h"

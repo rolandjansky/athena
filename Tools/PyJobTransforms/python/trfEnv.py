@@ -1,7 +1,7 @@
 from future.utils import iteritems
 
 from builtins import object
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfEnv
 #  @brief Support for environemnt variable manipulation in the transforms
@@ -13,8 +13,6 @@ import os.path as path
 
 import logging
 msg = logging.getLogger(__name__)
-
-import PyJobTransforms.trfUtils as trfUtils
 
 ## @brief Class holding the update to an environment that will be passed on to 
 #  an executor

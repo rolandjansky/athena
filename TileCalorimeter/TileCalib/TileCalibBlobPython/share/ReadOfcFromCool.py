@@ -24,7 +24,7 @@ def usage():
     print ("-g, -a, --adc=  specify gain (adc number), default is 0")
     print ("-i, --field=    specify field number, default is 0")
     print ("-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'")
-    
+
 letters = "hr:l:s:t:f:p:d:c:a:g:i:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","ros=","drawer=","channel=","adc=","gain=","field="]
 
@@ -35,7 +35,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = 2147483647
 lumi = 0
 schema = 'COOLONL_TILE/CONDBR2'
@@ -129,4 +129,3 @@ for iphase in range(abs(nphases)):
 
 #=== close DB
 db.closeDatabase()
-

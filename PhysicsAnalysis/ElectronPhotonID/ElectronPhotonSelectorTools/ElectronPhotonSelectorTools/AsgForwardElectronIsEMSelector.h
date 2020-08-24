@@ -27,10 +27,11 @@
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 
 #include "xAODTracking/VertexContainer.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "GaudiKernel/EventContext.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 #include <string>
+
+class EventContext;
 
 namespace Root{
   class TForwardElectronIsEMSelector;
@@ -106,7 +107,9 @@ private:
   unsigned int m_nPVdefault;
 
   ///  read handle key to primary vertex container
-  SG::ReadHandleKey<xAOD::VertexContainer> m_primVtxContKey;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_primVtxContKey {
+    this, "primaryVertexContainer", "PrimaryVertices",
+    "The primary vertex container name"};
 
 }; // End: class definition
 

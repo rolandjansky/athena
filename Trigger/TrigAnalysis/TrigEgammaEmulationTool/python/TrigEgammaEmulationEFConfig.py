@@ -1,12 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon                                                 import CfgMgr
 from AthenaCommon.AppMgr                                          import ToolSvc
 from egammaRec.Factories                                          import ToolFactory
 #from TrigEgammaHypo.TrigEgammaPidTools                            import ElectronToolName
 #from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf  import AsgElectronIsEMSelector
 #from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping      import ElectronIsEMMap,electronPIDmenu
-from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig        import OutputLevel
 
 
 #***********************************************************************

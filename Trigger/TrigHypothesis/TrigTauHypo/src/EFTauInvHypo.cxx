@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,6 +19,7 @@
 //
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/SystemOfUnits.h"
 //
 #include "EFTauInvHypo.h"
 //
@@ -51,7 +52,7 @@ EFTauInvHypo::EFTauInvHypo(const std::string& name,
   declareProperty("NTrkOnly1or3",m_numTrkOnly1or3 = false); 
   declareProperty("EMRadiusMax_1P",m_EMRadiusMax_1P = 100.);
   declareProperty("EMRadiusMax_MP",m_EMRadiusMax_MP = 100.);
-  declareProperty("EtCalibMin",m_EtCalibMin = -10.0*CLHEP::GeV);
+  declareProperty("EtCalibMin",m_EtCalibMin = -10.0*Gaudi::Units::GeV);
   declareProperty("DrTrkAvgMax_1P",m_DrTrkAvgMax_1P = 100.);
   declareProperty("DrTrkAvgMax_MP",m_DrTrkAvgMax_MP = 100.);
   declareProperty("EtovPtLeadMax_1P",m_EtovPtLeadMax_1P = 100.);

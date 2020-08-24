@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -133,16 +133,6 @@ namespace RungeKuttaUtils
   bool transformLocalToGlobal(bool, const Trk::PatternTrackParameters&, double*);
 
   /////////////////////////////////////////////////////////////////////////////////
-  // Transformations from local to global system coordinates
-  // for different surfaces
-  /////////////////////////////////////////////////////////////////////////////////
-
-  void transformDiscToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-  void transformPlaneToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-  void transformCylinderToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-  void transformLineToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-
-  /////////////////////////////////////////////////////////////////////////////////
   // Transformations from global to local system coordinates
   /////////////////////////////////////////////////////////////////////////////////
 
@@ -152,32 +142,6 @@ namespace RungeKuttaUtils
                               double* ATH_RESTRICT,
                               double* ATH_RESTRICT,
                               double* ATH_RESTRICT);
-  void transformGlobalToCone(const Trk::Surface*,
-                             bool,
-                             const double* ATH_RESTRICT,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT);
-  void transformGlobalToDisc(const Trk::Surface*,
-                             bool,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT);
-  void transformGlobalToPlane(const Trk::Surface*,
-                              bool,
-                              double* ATH_RESTRICT,
-                              double* ATH_RESTRICT,
-                              double* ATH_RESTRICT);
-  void transformGlobalToCylinder(const Trk::Surface*,
-                                 bool,
-                                 double* ATH_RESTRICT,
-                                 double* ATH_RESTRICT,
-                                 double* ATH_RESTRICT);
-  void transformGlobalToLine(const Trk::Surface*,
-                             bool,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT);
-
   /////////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////////////////////

@@ -26,7 +26,6 @@ RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 					      const std::string&	name, 
 					      const IInterface*		parent)
     :	base_class		(type, name, parent),
-	m_magFieldSvc		("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
 	m_productionMode	(true),
 	m_caloR0		(1900.*Gaudi::Units::mm),	// r min for calo high field gradient region
 	m_caloR1		(2500.*Gaudi::Units::mm),	// r max for calo high field gradient region
@@ -76,7 +75,6 @@ RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 	m_countStep		(0),
 	m_countStepReduction	(0)
 {
-    declareProperty("MagFieldSvc",		m_magFieldSvc ); 
     declareProperty("ProductionMode",		m_productionMode);
 }
 
@@ -89,10 +87,8 @@ RungeKuttaIntersector::initialize(){
     if (StatusCode::SUCCESS != AlgTool::initialize()) return StatusCode::FAILURE;
 
     // retrieve MagneticFieldTool and StraightLineIntersector
-    if (! m_magFieldSvc.empty()) ATH_CHECK(m_magFieldSvc.retrieve());
-	
-	  ATH_MSG_INFO( "Retrieved service " << m_magFieldSvc );
-	
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+
     // productionMode gives steplengths tuned for use in production (adequate precision),
     // otherwise take very small steps for maximum precision but with a heavy execution penalty
     if (! m_productionMode){
@@ -171,7 +167,9 @@ RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&		surface,
     const Amg::Vector3D& pos = isect->position();
     const double rStart = pos.perp();
     const double zStart = pos.z();
-    Amg::Vector3D fieldValue = field(pos);
+    MagField::AtlasFieldCache fieldCache;
+    initializeFieldCache(fieldCache);
+    Amg::Vector3D fieldValue = field(pos, fieldCache);
 
     // straight line distance along track to closest approach to line
     const Amg::Vector3D& lineDirection	= (surface.transform().rotation()).col(2);
@@ -190,7 +188,7 @@ RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&		surface,
             return nullptr;
         }
         assignStepLength(*isect, stepLength);
-	step(*isect, fieldValue, stepLength, qOverP);
+	step(*isect, fieldValue, stepLength, qOverP, fieldCache);
 	distance = distanceToLine (*isect, surface.center(),lineDirection, stepLength);
     }
 
@@ -211,7 +209,9 @@ RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&		s
     const Amg::Vector3D& pos = isect->position();
     const double rStart = pos.perp();
     const double zStart = pos.z();
-    Amg::Vector3D fieldValue = field(pos);
+    MagField::AtlasFieldCache fieldCache;
+    initializeFieldCache(fieldCache);
+    Amg::Vector3D fieldValue = field(pos, fieldCache);
 
     // straight line distance along track to closest approach to line
     const Amg::Vector3D& lineDirection	= (surface.transform().rotation()).col(2);
@@ -230,7 +230,7 @@ RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&		s
             return nullptr;
         }
 	assignStepLength(*isect, stepLength);
-	step(*isect, fieldValue, stepLength, qOverP);
+	step(*isect, fieldValue, stepLength, qOverP,fieldCache);
 	distance = distanceToLine (*isect, surface.center(),lineDirection, stepLength);
     }
 
@@ -251,7 +251,9 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&			surfac
     const Amg::Vector3D& pos = isect->position();
     const double rStart = pos.perp();
     const double zStart = pos.z();
-    Amg::Vector3D fieldValue = field(pos);
+    MagField::AtlasFieldCache fieldCache;
+    initializeFieldCache(fieldCache);
+    Amg::Vector3D fieldValue = field(pos, fieldCache);
 
     // calculate straight line distance along track to intersect with cylinder radius
     double cylinderRadius	= (surface.globalReferencePoint() - surface.center()).perp();
@@ -272,7 +274,7 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&			surfac
         }
 	assignStepLength(*isect, stepLength);
 	double rPrevious= rCurrent;
-	step(*isect, fieldValue, stepLength, qOverP);
+	step(*isect, fieldValue, stepLength, qOverP,fieldCache);
 	offset		= surface.center() - isect->position();
 	rCurrent	= offset.perp();
 	double deltaR1	= rCurrent - rPrevious;
@@ -321,7 +323,9 @@ RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&			surface,
     const Amg::Vector3D& pos = isect->position();
     const double rStart = pos.perp();
     const double zStart = pos.z();
-    Amg::Vector3D fieldValue = field(pos);
+    MagField::AtlasFieldCache fieldCache;
+    initializeFieldCache(fieldCache);
+    Amg::Vector3D fieldValue = field(pos, fieldCache);
 
     // straight line distance along track to intersect with disc
     double stepLength = 0;
@@ -339,7 +343,7 @@ RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&			surface,
             return nullptr;
         }
         assignStepLength(*isect, stepLength);
-	step(*isect, fieldValue, stepLength, qOverP);
+	step(*isect, fieldValue, stepLength, qOverP,fieldCache);
 	distance = distanceToDisc (*isect, surface.center().z(), stepLength);
     }
 
@@ -360,7 +364,9 @@ RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&		surface,
     const Amg::Vector3D& pos = isect->position();
     const double rStart = pos.perp();
     const double zStart = pos.z();
-    Amg::Vector3D fieldValue = field(pos);
+    MagField::AtlasFieldCache fieldCache;
+    initializeFieldCache(fieldCache);
+    Amg::Vector3D fieldValue = field(pos, fieldCache);
 
     // straight line distance along track to intersect with plane
     double stepLength = 0;
@@ -378,7 +384,7 @@ RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&		surface,
             return nullptr;
         }
         assignStepLength(*isect, stepLength);
-	step(*isect, fieldValue, stepLength, qOverP);
+	step(*isect, fieldValue, stepLength, qOverP, fieldCache);
 	distance = distanceToPlane (*isect, surface.center(),surface.normal(), stepLength);
     }
 
@@ -806,7 +812,8 @@ void
 RungeKuttaIntersector::step (TrackSurfaceIntersection& isect,
                              Amg::Vector3D& fieldValue,
                              double& stepLength,
-                             const double qOverP) const
+                             const double qOverP,
+                             MagField::AtlasFieldCache &fieldCache) const
 {
     Amg::Vector3D& pos = isect.position();
     Amg::Vector3D& dir = isect.direction();
@@ -817,7 +824,7 @@ RungeKuttaIntersector::step (TrackSurfaceIntersection& isect,
 
     // intermediate field look-up point (half way through step)
     Amg::Vector3D position1	=  pos + 0.5*stepLength*(dir + 0.5*product0);
-    Amg::Vector3D fieldValue1	=  field(position1);
+    Amg::Vector3D fieldValue1	=  field(position1, fieldCache);
     Amg::Vector3D direction1	=  dir + product0;
     Amg::Vector3D product1	=  stepOverP*direction1.cross(fieldValue1);
     Amg::Vector3D direction2	=  dir + product1;
@@ -825,7 +832,7 @@ RungeKuttaIntersector::step (TrackSurfaceIntersection& isect,
 
     // field look-up at step end point
     Amg::Vector3D offsetAtEnd	=  stepLength*(dir + m_third*(product0+product1+product2));
-    Amg::Vector3D fieldAtEnd	=  field(pos+offsetAtEnd);
+    Amg::Vector3D fieldAtEnd	=  field(pos+offsetAtEnd, fieldCache);
 
     // redo with reduced stepLength if non-uniform field derivative detected
     if ((fieldValue1 - 0.5*(fieldValue + fieldAtEnd)).mag() > 0.00001
@@ -873,7 +880,7 @@ RungeKuttaIntersector::step (TrackSurfaceIntersection& isect,
 	product0			=  stepOverP*dir.cross(fieldValue);
 	// intermediate point (half way through step)
 	Amg::Vector3D position1p	=  pos + 0.5*stepLength*(dir + 0.5*product0);
-	Amg::Vector3D fieldValue1p	=  field(position1p);
+	Amg::Vector3D fieldValue1p	=  field(position1p,fieldCache);
 	Amg::Vector3D direction1p	=  dir + product0;
 	product1			=  stepOverP*direction1p.cross(fieldValue1p);
 	Amg::Vector3D direction2p	=  dir + product1;
@@ -881,7 +888,7 @@ RungeKuttaIntersector::step (TrackSurfaceIntersection& isect,
 	// step end point
 	offsetAtEnd			=  stepLength *
 					   (dir + m_third*(product0+product1+product2));
-	fieldAtEnd			=  field(pos+offsetAtEnd);
+	fieldAtEnd			=  field(pos+offsetAtEnd,fieldCache);
     }
 
     Amg::Vector3D direction3	=  dir + 2.*product2;

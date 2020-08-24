@@ -52,13 +52,6 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         acc.merge(MediumLHSelectorAcc)
         acc.merge(TightLHSelectorAcc)
 
-    # Multi Lepton
-    AsgElectronMultiLeptonSelector=CompFactory.AsgElectronMultiLeptonSelector
-    if "genericIsEMselectors" not in kwargs:
-        MultiLeptonSelector = AsgElectronMultiLeptonSelector("MultiLeptonSelector")
-        kwargs["genericIsEMselectors"] = [MultiLeptonSelector]
-        kwargs["genericIsEMselectorResultNames"] = ["MultiLepton"]
-
     tool = EMPIDBuilder(name, **kwargs)
 
     acc.setPrivateTools(tool)

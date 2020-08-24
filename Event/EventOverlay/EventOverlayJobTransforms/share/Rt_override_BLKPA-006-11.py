@@ -29,7 +29,7 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions
 conddb.addOverride("/LAR/ElecCalibOfl/Shape/RTM/5samples1phase","LARElecCalibOflShapeRTM5samples1phase-UPD1-04")
 
 ###################################################
-print "Haas: RT OVERRIDE, for COMCOND-BLKPA-006-11"
+printfunc ("Haas: RT OVERRIDE, for COMCOND-BLKPA-006-11")
 #See https://twiki.cern.ch/twiki/pub/AtlasComputing/ConditionsTagComCondBlkpa00611/checkDB_COMCOND-BLKPA-006-11-17.2.10.6.txt
 
 #use data TRT T0 constants

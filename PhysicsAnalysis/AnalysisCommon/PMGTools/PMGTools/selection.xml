@@ -1,9 +1,10 @@
 <!-- $Id: selection.xml 772287 2016-09-08 13:53:24Z tripiana $ -->
 <lcgdict>
 
-  <class name="PMGTools::PMGSherpa22VJetsWeightTool" />
   <class name="PMGTools::PMGCrossSectionTool" />
+  <class name="PMGTools::PMGDecayProductsSelectionTool" />
+  <class name="PMGTools::PMGSherpa22VJetsWeightTool" />
   <class name="PMGTools::PMGSherpaVjetsSysTool" />
-  <class name="PMGTools::IPMGSherpaVjetsSysTool" />
+  <class name="PMGTools::PMGTruthWeightTool" />
 
 </lcgdict>

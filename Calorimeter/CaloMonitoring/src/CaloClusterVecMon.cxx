@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,14 +19,13 @@
 //********************************************************************
               
 
-#include "CaloMonitoring/CaloClusterVecMon.h"
+#include "CaloClusterVecMon.h"
 
 #include "AthenaMonitoring/DQBadLBFilterTool.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 
 #include "RecBackgroundEvent/BeamBackgroundData.h"
 
-#include "xAODEventInfo/EventInfo.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "AthenaKernel/Units.h"
 #include <math.h>
@@ -66,8 +65,6 @@ CaloClusterVecMon::CaloClusterVecMon(const std::string& type, const std::string&
   m_EMphi(0)
 {
   declareInterface<IMonitorToolBase>(this);
-
-  declareProperty("CaloClusterContainer", m_clusterContainerName="CaloCalTopoClusters"); 
 
   declareProperty("TimeGran",m_timeGran="lowStat");
 
@@ -169,6 +166,8 @@ StatusCode CaloClusterVecMon::initialize() {
   StatusCode sc = StatusCode::SUCCESS;
   sc = retrieveTools();
 
+  //Initialize read handle key
+  ATH_CHECK( m_clusterContainerName.initialize() );
 
   sc = ManagedMonitorToolBase::initialize();
   if(sc.isFailure()){
@@ -225,7 +224,7 @@ StatusCode CaloClusterVecMon::bookHistograms(){
     bookCellHists(theinterval);
     bookClusterHists(theinterval);
     bookClusterStatHists(theinterval);
-    if(  m_clusterContainerName == "CaloCalTopoClusters" ) {
+    if(  m_clusterContainerName.key() == "CaloCalTopoClusters" ) {
       fillTileHistRange();
       bookTileHists(theinterval);
     }
@@ -286,11 +285,11 @@ void CaloClusterVecMon::bookCellHists(const Interval_t theinterval){
     if (m_triggerChainProp == "")  TheTrigger="NoTrigSel";
     else TheTrigger = m_triggerChainProp;
 
-    MonGroup  cluster_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/General", theinterval);                
-    MonGroup  cluster_energytime_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Time_Energy", theinterval);
-    MonGroup  cluster_leadcell_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/LeadCell", theinterval);      
+    MonGroup  cluster_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/General", theinterval);                
+    MonGroup  cluster_energytime_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/Time_Energy", theinterval);
+    MonGroup  cluster_leadcell_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/LeadCell", theinterval);      
 
-    if (  m_clusterContainerName == "LArMuClusterCandidates" ) {
+    if (  m_clusterContainerName.key() == "LArMuClusterCandidates" ) {
       m_nCells = new TH1I("NCells","NCellsinCluster",20,0.,20.);
     }else {
       m_nCells = new TH1I("NCells","NCellsinCluster",200,0.,200.);
@@ -365,16 +364,16 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
     if (m_triggerChainProp == "")  TheTrigger="NoTrigSel";
     else TheTrigger = m_triggerChainProp;
 
-    MonGroup  cluster_1drates_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/1d_Rates", theinterval);
-    MonGroup  cluster_2drates_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/2d_Rates", theinterval);
-    MonGroup  cluster_2drates_shift ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/2d_Rates", theinterval);
-    MonGroup  cluster_2davge_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/2d_AvEnergy", theinterval);     
-    MonGroup  cluster_2davge_shift  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/2d_AvEnergy", theinterval);       
-    MonGroup  cluster_1davge_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/1d_AvEnergy", theinterval);     
-    MonGroup  cluster_2davgEt_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/TransEnergy", theinterval);    
-    MonGroup  cluster_2dTotale_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/TotalEnergy", theinterval);   
-    MonGroup  cluster_energytime_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Time_Energy", theinterval);
-    MonGroup  cluster_SummaryGroup_expert ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Summary", theinterval); 
+    MonGroup  cluster_1drates_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/1d_Rates", theinterval);
+    MonGroup  cluster_2drates_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/2d_Rates", theinterval);
+    MonGroup  cluster_2drates_shift ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/2d_Rates", theinterval);
+    MonGroup  cluster_2davge_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/2d_AvEnergy", theinterval);     
+    MonGroup  cluster_2davge_shift  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/2d_AvEnergy", theinterval);       
+    MonGroup  cluster_1davge_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/1d_AvEnergy", theinterval);     
+    MonGroup  cluster_2davgEt_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/TransEnergy", theinterval);    
+    MonGroup  cluster_2dTotale_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/TotalEnergy", theinterval);   
+    MonGroup  cluster_energytime_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/Time_Energy", theinterval);
+    MonGroup  cluster_SummaryGroup_expert ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/Summary", theinterval); 
     
     bookBaseHists(&cluster_SummaryGroup_expert).ignore(); //from base class
 
@@ -567,18 +566,18 @@ void CaloClusterVecMon::bookClusterStatHists(const Interval_t theinterval){
     if (m_triggerChainProp == "")  TheTrigger="NoTrigSel";
     else TheTrigger = m_triggerChainProp;
  
-    MonGroup  cluster_2davgEt_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/TransEnergy", theinterval);   
-    MonGroup  cluster_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/General", theinterval);                
-    MonGroup  cluster_2davge_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/2d_AvEnergy", theinterval);     
+    MonGroup  cluster_2davgEt_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/TransEnergy", theinterval);   
+    MonGroup  cluster_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/General", theinterval);                
+    MonGroup  cluster_2davge_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/2d_AvEnergy", theinterval);     
 
     if (m_dataType ==  AthenaMonManager::cosmics ){
-      if (  m_clusterContainerName == "LArMuClusterCandidates" ) {
+      if (  m_clusterContainerName.key() == "LArMuClusterCandidates" ) {
         m_nClusters = new TH1I("NClus","NCluster",200,0,200);
       }else  {
         m_nClusters = new TH1I("NClus","NCluster",50,0,50);
       }
     }else {
-      if ( m_clusterContainerName == "EMTopoCluster" ){
+      if ( m_clusterContainerName.key() == "EMTopoCluster" ){
         m_nClusters = new TH1I("NClus","NCluster",300,0,300);
       }else  {
         m_nClusters = new TH1I("NClus","NCluster",600,0,600);
@@ -644,7 +643,7 @@ void CaloClusterVecMon::bookTileHists(const Interval_t theinterval){
       if (m_triggerChainProp == "")  TheTrigger="NoTrigSel";
       else TheTrigger = m_triggerChainProp;
 
-      MonGroup  tile_cluster_shift  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/General", theinterval);    //SHIFT
+      MonGroup  tile_cluster_shift  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName.key()+TheTrigger+"/General", theinterval);    //SHIFT
 
       m_clustersCellsRatioEta    = new TProfile("TileCalXRatioXEta","Ratio: cluster E/ cluster cells",(int)m_binRangeEta[0],m_binRangeEta[1], m_binRangeEta[2]);
       m_clustersCellsRatioEta->GetXaxis()->SetTitle("Eta");
@@ -707,12 +706,9 @@ StatusCode CaloClusterVecMon::fillHistograms() {
   sc = checkFilters(ifPass);
   if(sc.isFailure() || !ifPass) return StatusCode::SUCCESS;
 
-  const xAOD::CaloClusterContainer* clusterCont = nullptr;
-  sc=evtStore()->retrieve( clusterCont, m_clusterContainerName);
-  if( sc.isFailure()  ||  !clusterCont ) {
-    ATH_MSG_WARNING( "No CaloCluster container found in TDS");
-    return sc;
-  } 
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusterContHandle{m_clusterContainerName};
+  if (! clusterContHandle.isValid()) { ATH_MSG_WARNING("No CaloCluster container found in TDS"); return StatusCode::FAILURE; }
+  const xAOD::CaloClusterContainer* clusterCont = clusterContHandle.get();
 
   initCounter(); 
 
@@ -734,7 +730,7 @@ StatusCode CaloClusterVecMon::fillHistograms() {
 
   fillClusterStatHist(clusterCont);
 
-  if(  m_clusterContainerName == "CaloCalTopoClusters" ) fillTileHist(clusterCont);
+  if(  m_clusterContainerName.key() == "CaloCalTopoClusters" ) fillTileHist(clusterCont);
 
   return sc;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/MMPrepData.h"
@@ -31,7 +31,8 @@ namespace Muon
     m_stripTimes(stripTimes),
     m_stripCharges(stripCharges),
     m_stripDriftDist(),
-    m_stripDriftErrors()
+    m_stripDriftErrors(),
+    m_author (SimpleClusterBuilder)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -51,7 +52,8 @@ namespace Muon
     m_chisqProb(0.0),
     m_stripNumbers(),
     m_stripTimes(),
-    m_stripCharges()
+    m_stripCharges(),
+    m_author (SimpleClusterBuilder)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -72,7 +74,8 @@ namespace Muon
     m_chisqProb(0.0),
     m_stripNumbers(),
     m_stripTimes(),
-    m_stripCharges()
+    m_stripCharges(),
+    m_author (SimpleClusterBuilder)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -92,7 +95,8 @@ namespace Muon
     m_stripTimes(),
     m_stripCharges(),
     m_stripDriftDist(),
-    m_stripDriftErrors()
+    m_stripDriftErrors(),
+    m_author (SimpleClusterBuilder)
   { }
 
   // Destructor:
@@ -114,7 +118,8 @@ namespace Muon
     m_stripTimes(),
     m_stripCharges(),
     m_stripDriftDist(),
-    m_stripDriftErrors()    
+    m_stripDriftErrors(),
+    m_author (SimpleClusterBuilder)
   { }
 
   //copy constructor:
@@ -130,23 +135,8 @@ namespace Muon
     m_stripTimes(RIO.m_stripTimes),
     m_stripCharges(RIO.m_stripCharges),
     m_stripDriftDist(RIO.m_stripDriftDist),
-    m_stripDriftErrors(RIO.m_stripDriftErrors)
-  { }
-
-  //move constructor:
-  MMPrepData::MMPrepData(MMPrepData&& RIO):
-    MuonCluster(std::move(RIO)),
-    m_detEl( RIO.m_detEl ),
-    m_time(RIO.m_time),
-    m_charge(RIO.m_charge),
-    m_driftDist(RIO.m_driftDist),
-    m_angle(RIO.m_angle),
-    m_chisqProb(RIO.m_chisqProb),
-    m_stripNumbers(RIO.m_stripNumbers),
-    m_stripTimes(RIO.m_stripTimes),
-    m_stripCharges(RIO.m_stripCharges),
-    m_stripDriftDist(RIO.m_stripDriftDist),
-    m_stripDriftErrors(RIO.m_stripDriftErrors)
+    m_stripDriftErrors(RIO.m_stripDriftErrors),
+    m_author(RIO.m_author)
   { }
 
   /// set the micro-tpc quantities
@@ -161,6 +151,26 @@ namespace Muon
   {
     m_stripDriftDist = driftDist;
     m_stripDriftErrors = driftDistErrors;
+  }
+
+
+  void MMPrepData::setDriftDist(const std::vector<float>& driftDist, const std::vector<float>& stripDriftErrors_0_0, const std::vector<float>& stripDriftErrors_1_1){
+    m_stripDriftDist = driftDist;
+    
+    if(stripDriftErrors_0_0.size() != stripDriftErrors_1_1.size()){
+      //ATH_MSG_FATAL("trying to set MMPrepData uncertainties with unequal number of elements");
+    }
+    m_stripDriftErrors.clear();
+    for(uint i_strip = 0; i_strip < stripDriftErrors_1_1.size(); i_strip++){
+      Amg::MatrixX tmp(2,2);
+      tmp(0,0) = stripDriftErrors_0_0.at(i_strip);
+      tmp(1,1) = stripDriftErrors_1_1.at(i_strip);
+      m_stripDriftErrors.push_back(tmp);
+    }
+  }
+
+  void MMPrepData::setAuthor(MMPrepData::Author author){
+    m_author = author;
   }
 
   //assignment operator
@@ -181,32 +191,12 @@ namespace Muon
 	m_stripCharges = RIO.m_stripCharges;
 	m_stripDriftDist = RIO.m_stripDriftDist;
 	m_stripDriftErrors = RIO.m_stripDriftErrors;
+	m_author = RIO.m_author;
       }
     return *this;
 
   }
 
-  MMPrepData&
-  MMPrepData::operator=(MMPrepData&& RIO)
-  {
-    if (&RIO !=this)
-      {
-	MuonCluster::operator=(std::move(RIO));
-	m_detEl =  RIO.m_detEl ;
-	m_time =  RIO.m_time ;
-	m_charge =  RIO.m_charge ;
-	m_driftDist = RIO.m_driftDist;
-	m_angle = RIO.m_angle;
-	m_chisqProb = RIO.m_chisqProb;
-	m_stripNumbers = RIO.m_stripNumbers;
-	m_stripTimes = RIO.m_stripTimes;
-	m_stripCharges = RIO.m_stripCharges;
-	m_stripDriftDist = RIO.m_stripDriftDist;
-	m_stripDriftErrors = RIO.m_stripDriftErrors;
-      }
-    return *this;
-
-  }
 
   MsgStream&
   MMPrepData::dump( MsgStream&    stream) const
@@ -231,6 +221,24 @@ namespace Muon
 
     return stream;
   }
+
+  const std::vector<float> MMPrepData::stripDriftErrors_0_0 () const {
+    std::vector<float> ret;
+    for (const Amg::MatrixX& mat: m_stripDriftErrors) {
+      ret.push_back(mat(0,0));
+    }
+    return ret;
+  }
+  
+  const std::vector<float> MMPrepData::stripDriftErrors_1_1 () const {
+    std::vector<float> ret;
+    for (const Amg::MatrixX& mat: m_stripDriftErrors) {
+      ret.push_back(mat(1,1));
+    }
+    return ret;
+  }
+
+
   //end of classdef
 }//end of ns
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //MuonCalib packages
@@ -27,8 +27,6 @@ namespace MuonCalib {
   bool MuonEventNtupleBranch::fillBranch(const MuonCalibEventInfo &eventInfo, const MuonCalibTriggerTimeInfo &trigTimeInfo ) {
     // check if branches where initialized
     if( !m_branchesInit ){
-      //std::cout << "MuonEventNtupleBranch::fillBranch  ERROR <branches where not initialized>"
-      //	<<  std::endl;
       return false;    
     }
     
@@ -72,8 +70,6 @@ namespace MuonCalib {
   bool  MuonEventNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
-      //std::cout << "MuonEventNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
-      //	<< std::endl;
       return false;
     }
 

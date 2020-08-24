@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Configuration classes for EF InDet Algs
@@ -72,7 +72,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
 
     #_line = algName+"_EF(\""+seqinstance+"\","+type")"
     #the TRTOnly sequence needs to instantiate a dedaicated set of cuts
-    if seqType is "TRTOnly" and (algName.startswith("TRT_TrigTrackSegmentsFinder") or algName.startswith("TRT_TrigStandaloneTrackFinder")):
+    if seqType == "TRTOnly" and (algName.startswith("TRT_TrigTrackSegmentsFinder") or algName.startswith("TRT_TrigStandaloneTrackFinder")):
       _line = "%s_EF(\"%s\",\"%s\",\"%s\")" % (algName,seqinstance,type,seqType)
     else:  
       _line = "%s_EF(\"%s\",\"%s\")" % (algName,seqinstance,type)

@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
 # not all possibility of CaloCellMaker_jobOptions.py integrated yet
 
-from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 
 class SubtractedCellGetter ( Configured )  :
@@ -27,31 +26,31 @@ class SubtractedCellGetter ( Configured )  :
 
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += cellCopyTool
-        
+
         from HIJetRec.HIJetRecConf import HISubtractedCellMakerTool
         cellSubtrTool=HISubtractedCellMakerTool()
         from HIJetRec.HIJetRecFlags import HIJetFlags
         cellSubtrTool.EventShapeKey=HIJetFlags.IteratedEventShapeKey()
         from HIJetRec.HIJetRecTools import jtm
         cellSubtrTool.Modulator=jtm.modulator
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        theMapTool=HIEventShapeMapTool()
+        cellSubtrTool.EventShapeMapTool=theMapTool
         ToolSvc += cellSubtrTool
-        
+
         from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
         cellFinalizerTool = CaloCellContainerFinalizerTool("HICaloCellFinalizerTool")
         ToolSvc += cellFinalizerTool
-        
+
         cellMaker.CaloCellMakerToolNames = [cellCopyTool,cellSubtrTool,cellFinalizerTool]
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence+=cellMaker;
+        topSequence+=cellMaker
         
         return True
 
     def outputKey(self):
         return self._output[self._outputType]
-    
+
     def outputType(self):
         return self._outputType
- 
-
-

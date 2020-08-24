@@ -4,7 +4,7 @@
  **     @author  ben sowden
  **     @date    Mon 04 Aug 2014 10:45:00 BST
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -34,19 +34,23 @@
 
 #include "computils.h"
 
+
+
 /// Prints usage instructions to standard output and returns given status
 int usage(const std::string& name, int status) {
   std::ostream& s = std::cout;
   s << "Usage: " << name << " [OPTIONS] expert-monitoring.root reference.root algorithm1 algorithm2 algorithm3 ...\n\n";
   s << "  TIDA \'" << name << "\' extracts timing histograms\n\n";
   s << "Options: \n";
-  s << "    -o,  --outputfolder value\t puts output in folder 'value' making it if it doesn't exist, \n";
+  s << "    -o,  --outputfolder value\t puts output in folder 'value' making it if it doesn't exist, \n\n";
   s << "    -t,  --tag value         \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value         \t prepends key 'value' to the front of output plot names, \n";
+  s << "    -k,  --key value         \t prepends key 'value' to the front of output plot names, \n\n";
   s << "    -a,  --auto              \t process all histograms that are in the file, \n";
   s << "    -d,  --directory value   \t if auto is set, search only in specifed directory, \n";
-  s << "    -p,  --pattern value     \t if auto is set, search for histograms containing this string, \n";
+  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
   s << "    -nr, --noref             \t do not use a reference file, \n";
+  s << "    -nr, --noref             \t do not use a reference file, \n";
+  s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
   s << "    -v,  --verbose           \t verbose output\n";
   s << "    -h,  --help              \t this help\n";
   s << std::endl;
@@ -109,6 +113,8 @@ int main(int argc, char** argv) {
 
   std::string frefname = "";
 
+  double xoffset = 0.17;
+
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -119,6 +125,10 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-o" || arg == "--outputfolder") {
       if (++argnum < argc) { dir = argv[argnum]; } 
+      else { return usage(argv[0], -1); }
+    }
+    else if (arg == "-x" || arg == "--xoffset") {
+      if (++argnum < argc) { xoffset = std::atof(argv[argnum]); } 
       else { return usage(argv[0], -1); }
     }
     else if (arg == "-t" || arg == "--tag") {
@@ -275,14 +285,16 @@ int main(int argc, char** argv) {
     // Loop over input algorithms
     //    for (unsigned int algorithm = 0; algorithm < algorithms.size(); ++algorithm) {
     for (unsigned int algorithm = algorithms.size(); algorithm-- ; ) {
+      
+      if ( algorithms[algorithm].find("LumiBlock")!=std::string::npos ) continue;
 
       std::cout << "\nmain() processing algorithm : " << algorithms[algorithm] << std::endl;
 
       TCanvas* c1 = new TCanvas( label("canvas-%d",int(histogram)).c_str(), "histogram", 800, 600 );
       c1->cd();
             
-      double x1 = 0.17;
-      double x2 = 0.25;
+      double x1 = xoffset;
+      double x2 = xoffset+0.25;
       double y1 = 0.69;
       double y2 = 0.90;
 
@@ -310,6 +322,8 @@ int main(int argc, char** argv) {
         continue;
       }
       
+      /// skip TH2 and TProfiles for the moment ... 
+      if ( std::string(testhist->ClassName()).find("TH1")==std::string::npos ) continue; 
       
       testhist->SetName( tail(algorithms[algorithm],"/").c_str() );
       testhist->Write(); 
@@ -334,6 +348,11 @@ int main(int argc, char** argv) {
       Plots plots;
 
       std::string algname = tail(algorithms[algorithm], "/" );
+
+      std::string algpname = algorithms[algorithm];
+      replace( algpname, "/", "_" );
+
+
       if ( algname.find("h_")==0 ) algname.erase(0, 2);
     
       //      size_t indetpos = algname.find("InDet");
@@ -341,7 +360,7 @@ int main(int argc, char** argv) {
 
       plots.push_back( Plotter( testhist, refhist, " "+algname ) );
 
-      std::string plotname = dir + key + algname + tag;
+      std::string plotname = dir + key + algpname + tag;
       //                              histograms.at(histogram).fname + tag;
 
 
@@ -353,40 +372,39 @@ int main(int argc, char** argv) {
       std::vector<std::string> chains;
       chains.push_back( algname + tag );
 
-      bool _ylog = ylog;
+      bool ylogt = ylog;
       
       double Nent     = plotable( testhist );
       double Nent_ref = plotable( refhist ); 
      
-      if ( fractional ) _ylog = false;
+      if ( fractional ) ylogt = false;
 
       if ( Nent==0 || Nent_ref==0 ) { 
-	_ylog = false;
+	ylogt = false;
 	std::cerr << "histograms empty: " << testhist->GetName() << std::endl;
 	continue;
       }
 
 
-      //      if ( ylog || histograms.at(histogram).fname == "_TotalTime") {
-        testhist->SetTitle("");
-        refhist->SetTitle("");
-	//    c1->SetLogy(true);
-	// plots.xrange();
-	//        plots.Max(5);
-
-        plots.SetLogy(_ylog);
+      testhist->SetTitle("");
+      refhist->SetTitle("");
 
 
-	double rmin = plots.realmin();
-	double rmax = plots.realmax();
+      plots.SetLogy(ylogt);
+
+      double rmin = plots.realmin();
+      double rmax = plots.realmax();
+      
+      if ( rmin == rmax ) rmin = 0;
 	
-	if ( _ylog ) { 
+      if ( ylogt ) { 
+	  if ( rmin == 0 ) rmin = rmax*0.0001; 
 	  double delta = std::log10(rmax)-std::log10(rmin);
-	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1)) );
-	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size())) );
+	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+2)) );
+	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1)) );
 	  plots.Min( rmin*std::pow(10,-delta*0.1) );
-	}
-	else { 
+      }
+      else { 
 	  double delta = rmax-rmin;
 	  plots.Max( rmax+delta*0.1*2*chains.size() );
 
@@ -394,13 +412,16 @@ int main(int argc, char** argv) {
 	  if ( pmin>0 ) plots.Min( pmin );
 	  else          plots.Min( 0 );
 	  
-	}
+      }
 	
-	//      }
-	//      else {
-	//	plots.SetLogy(false);
-	//        c1->SetLogy(false);
-	//   }
+      std::vector<double> range = plots.findxrange();
+
+      double upper = ( range[1]-range[0] )*1.1 + range[0];
+      double lower = range[0] - ( range[1]-range[0] )*0.1; 
+      
+      if ( lower<0 ) lower = 0;
+      
+      plots.SetRangeUser( lower, upper );
 
       plots.Draw( legend, true );
 

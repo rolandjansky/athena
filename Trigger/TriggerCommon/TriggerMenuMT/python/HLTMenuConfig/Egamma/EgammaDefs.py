@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------------------------
 # Static classes to configure photon chain container names
@@ -14,6 +15,7 @@ class TrigEgammaKeys(object):
       outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
+      TrigElectronTracksCollectionName = 'HLT_IDTrack_Electron_IDTrig'
       pidVersion = 'rel21_20180312'
 
 

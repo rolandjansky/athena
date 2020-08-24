@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( TruthJiveXML )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          graphics/JiveXML
-                          PRIVATE
-                          Control/StoreGate
-                          Event/EventPrimitives
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          Simulation/G4Sim/TrackRecord )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )
@@ -26,7 +14,7 @@ atlas_add_component( TruthJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel JiveXMLLib StoreGateLib SGtests EventPrimitives GeneratorObjects )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel JiveXMLLib StoreGateLib SGtests EventPrimitives GeneratorObjects TrackRecordLib )
 
 # Install files from the package:
 atlas_install_headers( TruthJiveXML )

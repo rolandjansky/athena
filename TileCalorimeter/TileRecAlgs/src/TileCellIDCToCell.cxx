@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -44,13 +44,9 @@ TileCellIDCToCell::TileCellIDCToCell(const std::string& name, ISvcLocator* pSvcL
   , m_tileInfo(0)
   , m_tileMgr(0)
 {
-  m_cellIDC = "TileCellIDC";
-  m_cellContainer = "TileCellContainer";
-  m_infoName = "TileInfo";
-
-  declareProperty("TileCellIDC", m_cellIDC);                    // Name of input container
-  declareProperty("TileCellContainer", m_cellContainer);        // Name of output container
-  declareProperty("TileInfoName", m_infoName);                  // name of TileInfo store
+  declareProperty("TileCellIDC", m_cellIDC = "TileCellIDC");                    // Name of input container
+  declareProperty("TileCellContainer", m_cellContainer = "TileCellContainer");        // Name of output container
+  declareProperty("TileInfoName", m_infoName = "TileInfo");                  // name of TileInfo store
 }
 
 TileCellIDCToCell::~TileCellIDCToCell()

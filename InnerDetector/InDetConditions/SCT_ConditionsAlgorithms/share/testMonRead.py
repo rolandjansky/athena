@@ -105,12 +105,6 @@ regSvc.RecreateFolders = False
 import AthenaPoolCnvSvc.WriteAthenaPool
 
 #--------------------------------------------------------------
-# AthenaPool details
-#--------------------------------------------------------------
-# Check the dictionary in memory for completeness
-ServiceMgr.AthenaSealSvc.CheckDictionary = TRUE
-
-#--------------------------------------------------------------
 import AthenaCommon.AtlasUnixGeneratorJob
 
 ServiceMgr.EventSelector.RunNumber  = 310809

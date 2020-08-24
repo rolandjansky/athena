@@ -5,29 +5,28 @@ include.block("LArMonitoring/LArMonitoring_jobOption.py")
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaCommon.GlobalFlags import globalflags
 
-#Add colltime algo to sequence
-
 from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
 BunchCrossingCondAlgDefault()
 
-if DQMonFlags.monManEnvironment() == 'tier0ESD':
-   from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
-   topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
-   if globalflags.DataSource()=='data':
-      from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
-      topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
+if 'ESD' not in DQMonFlags.monManEnvironment():
+    include ("LArCellRec/LArCollisionTime_jobOptions.py")
+    from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
+    topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
+    if globalflags.DataSource()=='data':
+        from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
+        topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
 
-if DQMonFlags.monManEnvironment() == 'tier0Raw':
+if 'ESD' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
     topSequence += LArNoisyROMonConfigOld(DQMonFlags)
 
-if globalflags.DataSource == 'data':
+if globalflags.DataSource == 'data' and 'online' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfigOld
     topSequence += LArHVCorrMonConfigOld(DQMonFlags)
 
-if DQMonFlags.monManEnvironment() == 'tier0Raw' and globalflags.DataSource == 'data':
+if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource == 'data':
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfigOld
-    topSequence +=LArDigitMonConfigOld(DQMonFlags, topSequence)
+    topSequence +=LArDigitMonConfigOld(DQMonFlags)
 
     from LArMonitoring.LArRODMonAlg import LArRODMonConfigOld
     topSequence +=LArRODMonConfigOld(DQMonFlags)
@@ -38,6 +37,6 @@ if DQMonFlags.monManEnvironment() == 'tier0Raw' and globalflags.DataSource == 'd
     from LArMonitoring.LArCoverageAlg import LArCoverageConfigOld
     topSequence +=LArCoverageConfigOld(DQMonFlags)
 
-#print topSequence
-
+    from LArMonitoring.LArCosmicsMonAlg import LArCosmicsMonConfigOld
+    topSequence +=LArCosmicsMonConfigOld(DQMonFlags)
 

@@ -111,7 +111,7 @@ if not jobproperties.Beam.beamType()=='cosmics':
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMonBeamSpot
         InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name                           = "InDetAlignMonBeamSpot_noTrig",
                                                               extrapolator                   = InDetExtrapolator,
-                                                              vxContainerName                = InDetKeys.PrimaryVertices(),
+                                                              vxContainerName                = InDetKeys.xAODVertexContainer(),
                                                               vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint())
         
         #ToolSvc += InDetAlignMonBeamSpot_noTrig
@@ -387,7 +387,7 @@ else:
                                                           VxPrimContainerName =  InDetKeys.xAODVertexContainer())
 
     InDetAlignMonBeamSpot = InDetAlignMonBeamSpot (name                          = "InDetAlignMonBeamSpot",
-                                                   vxContainerName               = InDetKeys.PrimaryVertices(),
+                                                   vxContainerName               = InDetKeys.xAODVertexContainer(),
                                                    vxContainerWithBeamConstraint = InDetFlags.useBeamConstraint())
 
     if jobproperties.Beam.beamType()=='collisions':

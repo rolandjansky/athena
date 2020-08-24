@@ -19,19 +19,23 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkEvent/TrkCaloClusterROI )
+                          Tracking/TrkEvent/TrkCaloClusterROI
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+                          Tools/PathResolver
+			  )
 
 
 
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
+find_package( lwtnn )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # tag rootMathLibs was not recognized in automatic conversion in cmt2cmake
@@ -40,8 +44,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( InDetTrackScoringTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces MagFieldInterfaces TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkCaloClusterROI)
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkCaloClusterROI MagFieldElements MagFieldConditions BeamSpotConditionsData PathResolver )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackScoringTools )

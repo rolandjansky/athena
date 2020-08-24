@@ -11,6 +11,8 @@
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
+class TH2;
+
 namespace TCS {
    
    class DeltaRApproxBoxCutIncl1 : public DecisionAlg {
@@ -42,6 +44,8 @@ namespace TCS {
       parType_t      p_MinET1 = { 0 };
       parType_t      p_MinET2 = { 0 };
 
+      TH2 * m_histAccept[3] = {};
+      TH2 * m_histReject[3] = {};
    };
    
 }

@@ -7,7 +7,6 @@
 
 from __future__ import print_function
 
-__version__= "$Revision: 734431 $"
 __author__ = "Alexandre Vaniachine <vaniachine@anl.gov>"
 __doc__ = "peek into APR files to read in-file metadata"
 
@@ -64,9 +63,7 @@ class FilePeekerTool():
 
         from AthenaPython.FilePeekerLib import toiter
 
-        from PyCool import coral
-
-        nb = meta.GetEntry( 0 )
+        meta.GetEntry( 0 )
 
         esiName= 'Stream'
         esiTypeName = 'EventStreamInfo'
@@ -268,7 +265,7 @@ class FilePeekerTool():
                         spec   = a.specification()
                         a_type = spec.typeName()
                         if a_type.find('string') >= 0:
-                            a_data = a.data('string')()
+                            a_data = a.data['string']()
 #                           a_data = getattr(a, 'data<std::basic_string<char> >') ()
                             try:
                                 a_data = eval(a_data,{},{})
@@ -277,7 +274,7 @@ class FilePeekerTool():
                                 pass
 #                           print (spec.name(),a_data, file=stdout)
                         else:
-                            a_data = a.data(a_type)()
+                            a_data = a.data[a_type]()
                         #print ("%s: %s  %s" (spec.name(), a_data, type(a_data) ), file=stdout)
                         attr_data.append( (spec.name(), a_data) )
                     attrs.append(dict(attr_data))
@@ -374,18 +371,18 @@ class FilePeekerTool():
             peeked_data['beam_energy']= [maybe_float(taginfo.get('beam_energy',
                                                                  'N/A'))]
 
-        if not 'evt_type' in peeked_data: # must be eventless MC file
+        if 'evt_type' not in peeked_data: # must be eventless MC file
             if '/Simulation/Parameters' in metadata:
                 peeked_data['evt_type'] = ['IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS']
                 peeked_data['run_number'] = [metadata['/Simulation/Parameters'].get('RunNumber','')]
             else:
                 peeked_data['evt_type'] = []
 
-        if not 'geometry' in peeked_data:
+        if 'geometry' not in peeked_data:
             peeked_data['geometry'] = None
-        if not 'conditions_tag' in peeked_data:
+        if 'conditions_tag' not in peeked_data:
             peeked_data['conditions_tag'] = None
-        if not 'det_descr_tags' in peeked_data:
+        if 'det_descr_tags' not in peeked_data:
             peeked_data['det_descr_tags'] = {}
 
         ## -- summary

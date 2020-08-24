@@ -19,7 +19,6 @@
 #include "D3PDMakerInterfaces/IMetadataTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 
 
 namespace D3PD {
@@ -60,9 +59,6 @@ public:
 
 
 private:
-  /// Property: Lumi metadata tool.
-  ToolHandle<ILumiBlockMetaDataTool> m_lumitool;
-
   /// Key for output metadata.
   std::string m_metakey;
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ namespace Simulation
   StatusCode GenEventVertexPositioner::manipulate(HepMC::GenEvent& ge) const
   {
     // Grab signal_process_vertex pointer
-    const HepMC::GenVertex *signalProcVtx(ge.signal_process_vertex());
+    auto signalProcVtx=HepMC::signal_process_vertex(&ge);
     if(!signalProcVtx) {
       ATH_MSG_ERROR("Expected GenEvent::signal_process_vertex() to already have been set at this point!");
       return StatusCode::FAILURE;
@@ -82,11 +82,16 @@ namespace Simulation
 
       // loop over the vertices in the event, they are in respect with another
       //   (code from Simulation/Fatras/FatrasAlgs/McEventPreProcessing.cxx)
+#ifdef HEPMC3
+      auto vtxIt    = ge.vertices().begin();
+      auto vtxItEnd = ge.vertices().end();
+#else
       auto vtxIt    = ge.vertices_begin();
       auto vtxItEnd = ge.vertices_end();
+#endif
       for( ; vtxIt != vtxItEnd; ++vtxIt) {
         // quick access:
-        HepMC::GenVertex *curVtx = (*vtxIt);
+        auto curVtx = (*vtxIt);
         const HepMC::FourVector &curPos = curVtx->position();
 
         // get a copy of the current vertex position
@@ -98,7 +103,7 @@ namespace Simulation
         ATH_MSG_VERBOSE( "Updated  vtx  position = " << newPos );
 
         // store the updated position in the vertex
-        curVtx->set_position( newPos);
+        curVtx->set_position( HepMC::FourVector(newPos.x(),newPos.y(),newPos.z(),newPos.t()));
         if(modifySigVtx && signalProcVtx==curVtx) {
           modifySigVtx=false;
         }
@@ -106,10 +111,10 @@ namespace Simulation
 
       // Do the same for the signal process vertex if still required.
       if (modifySigVtx) {
-        const HepMC::FourVector &curPos = ge.signal_process_vertex()->position();
+        const HepMC::FourVector &curPos = HepMC::signal_process_vertex(&ge)->position();
         CLHEP::HepLorentzVector newPos( curPos.x(), curPos.y(), curPos.z(), curPos.t() );
         newPos += (*curShift);
-        ge.signal_process_vertex()->set_position( newPos);
+        (HepMC::signal_process_vertex(&ge))->set_position( HepMC::FourVector(newPos.x(),newPos.y(),newPos.z(),newPos.t()) );
       }
 
       // memory cleanup

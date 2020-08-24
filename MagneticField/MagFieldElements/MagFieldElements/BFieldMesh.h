@@ -16,20 +16,21 @@
 
 #include "MagFieldElements/BFieldCache.h"
 #include "MagFieldElements/BFieldVector.h"
+#include <array>
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 template<class T>
 class BFieldMesh
 {
 public:
+  BFieldMesh() = default;
+  BFieldMesh(const BFieldMesh&) = default;
+  BFieldMesh(BFieldMesh&&) = default;
+  BFieldMesh& operator=(const BFieldMesh&) = default;
+  BFieldMesh& operator=(BFieldMesh&&) = default;
+  ~BFieldMesh() = default;
   // constructor
-  BFieldMesh()
-    : m_scale(1.0)
-  {
-    ;
-  }
   BFieldMesh(double zmin,
              double zmax,
              double rmin,
@@ -40,12 +41,8 @@ public:
     : m_scale(bscale)
     , m_nomScale(bscale)
   {
-    m_min[0] = zmin;
-    m_max[0] = zmax;
-    m_min[1] = rmin;
-    m_max[1] = rmax;
-    m_min[2] = phimin;
-    m_max[2] = phimax;
+    m_min = { zmin, rmin, phimin };
+    m_max = { zmax, rmax, phimax };
   }
   // set ranges
   void setRange(double zmin,
@@ -55,12 +52,8 @@ public:
                 double phimin,
                 double phimax)
   {
-    m_min[0] = zmin;
-    m_max[0] = zmax;
-    m_min[1] = rmin;
-    m_max[1] = rmax;
-    m_min[2] = phimin;
-    m_max[2] = phimax;
+    m_min = { zmin, rmin, phimin };
+    m_max = { zmax, rmax, phimax };
   }
   // set bscale
   void setBscale(double bscale) { m_scale = m_nomScale = bscale; }
@@ -75,7 +68,7 @@ public:
   // add elements to vectors
   void appendMesh(int i, double mesh) { m_mesh[i].push_back(mesh); }
   void appendField(const BFieldVector<T>& field) { m_field.push_back(field); }
-  // build LUT
+  // build Look Up Table
   void buildLUT();
   // test if a point is inside this zone
   bool inside(double z, double r, double phi) const;
@@ -86,35 +79,40 @@ public:
                 BFieldCache& cache,
                 double scaleFactor = 1.0) const;
   // get the B field
-  void getB(const double* xyz, double* B, double* deriv = nullptr) const;
+  void getB(const double* ATH_RESTRICT xyz,
+            double* ATH_RESTRICT B,
+            double* ATH_RESTRICT deriv = nullptr) const;
   // accessors
-  double min(int i) const { return m_min[i]; }
-  double max(int i) const { return m_max[i]; }
+  double min(size_t i) const { return m_min[i]; }
+  double max(size_t i) const { return m_max[i]; }
   double zmin() const { return m_min[0]; }
   double zmax() const { return m_max[0]; }
   double rmin() const { return m_min[1]; }
   double rmax() const { return m_max[1]; }
   double phimin() const { return m_min[2]; }
   double phimax() const { return m_max[2]; }
-  unsigned nmesh(int i) const { return m_mesh[i].size(); }
-  double mesh(int i, int j) const { return m_mesh[i][j]; }
+  unsigned nmesh(size_t i) const { return m_mesh[i].size(); }
+  double mesh(size_t i, size_t j) const { return m_mesh[i][j]; }
   unsigned nfield() const { return m_field.size(); }
-  const BFieldVector<T>& field(int i) const { return m_field[i]; }
+  const BFieldVector<T>& field(size_t i) const { return m_field[i]; }
   double bscale() const { return m_scale; }
   int memSize() const;
 
 protected:
-  double m_min[3], m_max[3];
-  std::vector<double> m_mesh[3];
+  std::array<double, 3> m_min;
+  std::array<double, 3> m_max;
+  std::array<std::vector<double>,3> m_mesh;
 
 private:
   std::vector<BFieldVector<T>> m_field;
-  double m_scale;
+  double m_scale = 1.0;
   double m_nomScale; // nominal m_scale from the map
+
   // look-up table and related variables
-  std::vector<int> m_LUT[3];
-  double m_invUnit[3]; // inverse unit size in the LUT
+  std::array<std::vector<int>,3> m_LUT;
+  std::array<double,3> m_invUnit; // inverse unit size in the LUT
   int m_roff, m_zoff;
+
 };
-#include "BFieldMesh.icc"
+#include "MagFieldElements/BFieldMesh.icc"
 #endif

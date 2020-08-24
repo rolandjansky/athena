@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,7 +16,7 @@
 //
 // ********************************************************************
 
-#include "TrigT2CaloCalibration/EgammaHitsCalibration.h"
+#include "EgammaHitsCalibration.h"
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "GaudiKernel/MsgStream.h"
@@ -26,46 +26,35 @@
 
 StatusCode EgammaHitsCalibration::initialize(){
 
-    CHECK (AthAlgTool::initialize());
-    CHECK (CaloRec::ToolWithConstantsMixin::initialize() );
+    CHECK (base_class::initialize());
     m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
     (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
 
 
 
-    unsigned int shape[] = {2};
-
-    m_interp_barriers = new CaloRec::WritableArrayData<1> (shape);
-
-    (*m_interp_barriers)[0] = m_eta_start_crack;
-    (*m_interp_barriers)[1] = m_eta_end_crack;
-
-    m_showerDepth = new EgammaHitsShowerDepth(m_sampling_depth,
-        m_eta_start_crack,
-        m_eta_end_crack,
-        m_etamax,
-        m_log);
-
     return StatusCode::SUCCESS;
 }
 
 StatusCode EgammaHitsCalibration::finalize(){
     (*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endmsg;
-    delete m_showerDepth;
     delete m_log;
-    delete m_interp_barriers;
     return StatusCode::SUCCESS;
 }
 
 void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     const void * /*param*/){
 
+    const float etamax = m_etamax();
+    const float eta_start_crack = m_eta_start_crack();
+    const float eta_end_crack = m_eta_end_crack();
+    const CxxUtils::Array<3> correction = m_correction();
+
     float the_aeta = (clus->eta());
 
     the_aeta = (the_aeta>0)?(the_aeta):(- the_aeta);
 
-    if (the_aeta >= m_etamax) return; 
+    if (the_aeta >= etamax) return; 
 
 #ifndef NDEBUG
     (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;
@@ -73,9 +62,9 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;       
 #endif
     int si;
-    if (the_aeta < m_eta_start_crack)
+    if (the_aeta < eta_start_crack)
         si = 0; //barrel
-    else if (the_aeta > m_eta_end_crack)
+    else if (the_aeta > eta_end_crack)
         si = 1; //endcap
     else {
         // No corrections are applied for the crack region.
@@ -83,11 +72,11 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     }
 
      
-    int ibin = (static_cast<int> (the_aeta / m_etamax * 100));
+    int ibin = (static_cast<int> (the_aeta / etamax * 100));
     int ibin_frontCorr = ibin; 
-    if (m_fix_v6_pathologies) {
+    if (m_fix_v6_pathologies()) {
       if ( the_aeta>2.35) 
-        ibin_frontCorr = (static_cast<int> (235. / m_etamax )); 
+        ibin_frontCorr = (static_cast<int> (235. / etamax )); 
    }
 
 #ifndef NDEBUG
@@ -95,15 +84,20 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
         (*m_log) << MSG::DEBUG << "Eta --> " << the_aeta << "  Bin --> " << ibin <<" Cluster eta = " << clus->eta() << endmsg;
 
         (*m_log) << MSG::DEBUG << "Check calibration coefficients -----------------------------------------------"<< endmsg;
-        (*m_log) << MSG::DEBUG << "Accordion   :  " << m_correction[0][ibin][0] <<"  " << m_correction[0][ibin][1] << " "  << m_correction[0][ibin][2] << " "  << m_correction[0][ibin][3] << endmsg;
-        (*m_log) << MSG::DEBUG << "OutOfCOne   :  " << m_correction[1][ibin][0] <<"  " << m_correction[1][ibin][1] << " "  << m_correction[1][ibin][2] << " "  << m_correction[1][ibin][3] << endmsg;
-        (*m_log) << MSG::DEBUG << "Leakage     :  " << m_correction[2][ibin][0] <<"  " << m_correction[2][ibin][1] << " " << m_correction[2][ibin][2] << " "  << m_correction[2][ibin][3] << endmsg;
-        (*m_log) << MSG::DEBUG << "Front offset:  " << m_correction[3][ibin_frontCorr][0] <<"  " <<m_correction[3][ibin_frontCorr][1]  << " " << m_correction[3][ibin_frontCorr][2] << " "  << m_correction[3][ibin_frontCorr][3] <<endmsg;
-        (*m_log) << MSG::DEBUG << "Front Slope  :  " << m_correction[4][ibin_frontCorr][0] <<"  " << m_correction[4][ibin_frontCorr][1] << " " << m_correction[4][ibin_frontCorr][2] << " "  << m_correction[4][ibin_frontCorr][3] <<  endmsg;
-        (*m_log) << MSG::DEBUG << "Second order:  " << m_correction[5][ibin_frontCorr][0] << "  " << m_correction[5][ibin_frontCorr][1] << "  "  << m_correction[5][ibin_frontCorr][2] << " " << m_correction[5][ibin_frontCorr][3] << endmsg;
+        (*m_log) << MSG::DEBUG << "Accordion   :  " << correction[0][ibin][0] <<"  " << correction[0][ibin][1] << " "  << correction[0][ibin][2] << " "  << correction[0][ibin][3] << endmsg;
+        (*m_log) << MSG::DEBUG << "OutOfCOne   :  " << correction[1][ibin][0] <<"  " << correction[1][ibin][1] << " "  << correction[1][ibin][2] << " "  << correction[1][ibin][3] << endmsg;
+        (*m_log) << MSG::DEBUG << "Leakage     :  " << correction[2][ibin][0] <<"  " << correction[2][ibin][1] << " " << correction[2][ibin][2] << " "  << correction[2][ibin][3] << endmsg;
+        (*m_log) << MSG::DEBUG << "Front offset:  " << correction[3][ibin_frontCorr][0] <<"  " <<correction[3][ibin_frontCorr][1]  << " " << correction[3][ibin_frontCorr][2] << " "  << correction[3][ibin_frontCorr][3] <<endmsg;
+        (*m_log) << MSG::DEBUG << "Front Slope  :  " << correction[4][ibin_frontCorr][0] <<"  " << correction[4][ibin_frontCorr][1] << " " << correction[4][ibin_frontCorr][2] << " "  << correction[4][ibin_frontCorr][3] <<  endmsg;
+        (*m_log) << MSG::DEBUG << "Second order:  " << correction[5][ibin_frontCorr][0] << "  " << correction[5][ibin_frontCorr][1] << "  "  << correction[5][ibin_frontCorr][2] << " " << correction[5][ibin_frontCorr][3] << endmsg;
 #endif
 
-    float shower_lbary = (*m_showerDepth).depth(the_aeta,clus);
+    float shower_lbary = m_showerDepth.depth(the_aeta,
+                                             eta_start_crack,
+                                             eta_end_crack,
+                                             m_sampling_depth(),
+                                             etamax,
+                                             clus);
     if (!shower_lbary)
       return;
 
@@ -154,14 +148,14 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     // Now calibrate the Accordion
     // -------------------------------------------------------------
 
-    float acc_corr = m_correction[0][ibin][1] + m_correction[0][ibin][2] * shower_lbary + m_correction[0][ibin][3] * shower_lbary * shower_lbary ;
+    float acc_corr = correction[0][ibin][1] + correction[0][ibin][2] * shower_lbary + correction[0][ibin][3] * shower_lbary * shower_lbary ;
 
     float e_out_perc = 0;
-    if (the_aeta < m_eta_start_crack) {
-        e_out_perc = m_correction[1][ibin][1] + m_correction[1][ibin][2] * shower_lbary + m_correction[1][ibin][3] * shower_lbary * shower_lbary ;
+    if (the_aeta < eta_start_crack) {
+        e_out_perc = correction[1][ibin][1] + correction[1][ibin][2] * shower_lbary + correction[1][ibin][3] * shower_lbary * shower_lbary ;
     }
     else {
-        e_out_perc = m_correction[1][ibin][1] + m_correction[1][ibin][2] * shower_lbary + m_correction[1][ibin][3] / shower_lbary ;
+        e_out_perc = correction[1][ibin][1] + correction[1][ibin][2] * shower_lbary + correction[1][ibin][3] / shower_lbary ;
     }   
 
     float e_acc_reco=acc_corr*(eacc_base )*(1+(e_out_perc)/100);
@@ -171,7 +165,7 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     // -------------------------------------------------------------
 
     float e_leak_perc = 0;
-    e_leak_perc = m_correction[2][ibin][3] + m_correction[2][ibin][1] * shower_lbary + m_correction[2][ibin][2] * exp(shower_lbary);
+    e_leak_perc = correction[2][ibin][3] + correction[2][ibin][1] * shower_lbary + correction[2][ibin][2] * exp(shower_lbary);
 
     if (e_leak_perc < 0 ) e_leak_perc = 0.;
     if (e_leak_perc > 100.) e_leak_perc = 100.;
@@ -190,15 +184,15 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     }
     else if (the_aeta < 1.8) {
 
-        if (the_aeta < m_eta_start_crack) {
-            float WpsOff      = m_correction[3][ibin_frontCorr][1] + m_correction[3][ibin_frontCorr][2] * raw_energy + m_correction[3][ibin_frontCorr][3] * raw_energy * raw_energy;
-            float WpsSlo      = m_correction[4][ibin_frontCorr][1]  * pow(log(raw_energy),m_correction[4][ibin_frontCorr][2]) + m_correction[4][ibin_frontCorr][3] *sqrt( raw_energy );
+        if (the_aeta < eta_start_crack) {
+            float WpsOff      = correction[3][ibin_frontCorr][1] + correction[3][ibin_frontCorr][2] * raw_energy + correction[3][ibin_frontCorr][3] * raw_energy * raw_energy;
+            float WpsSlo      = correction[4][ibin_frontCorr][1]  * pow(log(raw_energy),correction[4][ibin_frontCorr][2]) + correction[4][ibin_frontCorr][3] *sqrt( raw_energy );
             e_front_reco=WpsOff + WpsSlo*(eps_base);
 
 #ifndef NDEBUG
             (*m_log) << MSG::DEBUG  << " raw event  " << raw_energy << endmsg;
-            (*m_log) << MSG::DEBUG  << " froffset coeff " << m_correction[3][ibin_frontCorr][1] << " " << m_correction[3][ibin_frontCorr][2] << " " << m_correction[3][ibin_frontCorr][3]  << endmsg; 
-            (*m_log) << MSG::DEBUG  << " frslope coeff  " << m_correction[4][ibin_frontCorr][1] << " " << m_correction[4][ibin_frontCorr][2] << " " << m_correction[4][ibin_frontCorr][3] << endmsg; 
+            (*m_log) << MSG::DEBUG  << " froffset coeff " << correction[3][ibin_frontCorr][1] << " " << correction[3][ibin_frontCorr][2] << " " << correction[3][ibin_frontCorr][3]  << endmsg; 
+            (*m_log) << MSG::DEBUG  << " frslope coeff  " << correction[4][ibin_frontCorr][1] << " " << correction[4][ibin_frontCorr][2] << " " << correction[4][ibin_frontCorr][3] << endmsg; 
             (*m_log) << MSG::DEBUG  << " WpsOff,WpsSlo " << WpsOff << " " << WpsSlo << endmsg; 
             (*m_log) << MSG::DEBUG  << " eps_base, efront_reco " << eps_base << " " << e_front_reco << endmsg; 
 #endif
@@ -208,16 +202,16 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 
             if (raw_energy<20.) raw_energy=20.;
 
-            float WpsOff      = m_correction[3][ibin_frontCorr][1] + m_correction[3][ibin_frontCorr][2] * raw_energy + m_correction[3][ibin_frontCorr][3] * sqrt(raw_energy);
-            float WpsSlo      = m_correction[4][ibin_frontCorr][1]  + m_correction[4][ibin_frontCorr][2] * log(raw_energy) + m_correction[4][ibin_frontCorr][3] * sqrt(raw_energy);
-            float WpsSlo2     = m_correction[5][ibin_frontCorr][1]  + m_correction[5][ibin_frontCorr][2] * raw_energy - m_correction[5][ibin_frontCorr][3] / (raw_energy * raw_energy) ;
+            float WpsOff      = correction[3][ibin_frontCorr][1] + correction[3][ibin_frontCorr][2] * raw_energy + correction[3][ibin_frontCorr][3] * sqrt(raw_energy);
+            float WpsSlo      = correction[4][ibin_frontCorr][1]  + correction[4][ibin_frontCorr][2] * log(raw_energy) + correction[4][ibin_frontCorr][3] * sqrt(raw_energy);
+            float WpsSlo2     = correction[5][ibin_frontCorr][1]  + correction[5][ibin_frontCorr][2] * raw_energy - correction[5][ibin_frontCorr][3] / (raw_energy * raw_energy) ;
             e_front_reco=WpsOff + WpsSlo*(eps_base) + WpsSlo2*(eps_base)*(eps_base);
             if (e_front_reco<0.) e_front_reco= eps_base;
 #ifndef NDEBUG
             (*m_log) << MSG::DEBUG << " raw energy " << raw_energy << endmsg; 
-            (*m_log) << MSG::DEBUG << "p1 " << m_correction[3][ibin_frontCorr][1] << " " << m_correction[3][ibin_frontCorr][2] << " " << m_correction[3][ibin_frontCorr][3] <<  " " << WpsOff << endmsg;
-            (*m_log) << MSG::DEBUG << "p2 " << m_correction[4][ibin_frontCorr][1] << " " << m_correction[4][ibin_frontCorr][2] << " " << m_correction[4][ibin_frontCorr][3] << " " << WpsSlo << endmsg;
-            (*m_log) << MSG::DEBUG << "p3 " << m_correction[5][ibin_frontCorr][1] << " " << m_correction[5][ibin_frontCorr][2] << " " << m_correction[5][ibin_frontCorr][3] << " " << WpsSlo2 << endmsg;
+            (*m_log) << MSG::DEBUG << "p1 " << correction[3][ibin_frontCorr][1] << " " << correction[3][ibin_frontCorr][2] << " " << correction[3][ibin_frontCorr][3] <<  " " << WpsOff << endmsg;
+            (*m_log) << MSG::DEBUG << "p2 " << correction[4][ibin_frontCorr][1] << " " << correction[4][ibin_frontCorr][2] << " " << correction[4][ibin_frontCorr][3] << " " << WpsSlo << endmsg;
+            (*m_log) << MSG::DEBUG << "p3 " << correction[5][ibin_frontCorr][1] << " " << correction[5][ibin_frontCorr][2] << " " << correction[5][ibin_frontCorr][3] << " " << WpsSlo2 << endmsg;
             (*m_log) << MSG::DEBUG << " WpsOff, WpsSlo, WpsSlo2 " << WpsOff << " " << WpsSlo << " " << WpsSlo2 << endmsg; 
             (*m_log) << MSG::DEBUG << " eps_base, efront_reco " << eps_base << " " <<  e_front_reco << endmsg; 
 #endif
@@ -226,14 +220,14 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 
     }
     else {
-        float p1 =  m_correction[3][ibin_frontCorr][1] + m_correction[3][ibin_frontCorr][2] * raw_energy  + m_correction[3][ibin_frontCorr][3] * raw_energy  * raw_energy ;
-        float p2 =  m_correction[4][ibin_frontCorr][1] + m_correction[4][ibin_frontCorr][2] * raw_energy  + m_correction[4][ibin_frontCorr][3] * raw_energy  * raw_energy ;
-        float p3 =  m_correction[5][ibin_frontCorr][1] + m_correction[5][ibin_frontCorr][2] * raw_energy  + m_correction[5][ibin_frontCorr][3] * raw_energy  * raw_energy ;
+        float p1 =  correction[3][ibin_frontCorr][1] + correction[3][ibin_frontCorr][2] * raw_energy  + correction[3][ibin_frontCorr][3] * raw_energy  * raw_energy ;
+        float p2 =  correction[4][ibin_frontCorr][1] + correction[4][ibin_frontCorr][2] * raw_energy  + correction[4][ibin_frontCorr][3] * raw_energy  * raw_energy ;
+        float p3 =  correction[5][ibin_frontCorr][1] + correction[5][ibin_frontCorr][2] * raw_energy  + correction[5][ibin_frontCorr][3] * raw_energy  * raw_energy ;
 
 #ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "p1 " << m_correction[3][ibin_frontCorr][1] << " " << m_correction[3][ibin_frontCorr][2] << " " << m_correction[3][ibin_frontCorr][3] << endmsg;
-        (*m_log) << MSG::DEBUG << "p2 " << m_correction[4][ibin_frontCorr][1] << " " << m_correction[4][ibin_frontCorr][2] << " " << m_correction[4][ibin_frontCorr][3] << endmsg;
-        (*m_log) << MSG::DEBUG << "p3 " << m_correction[5][ibin_frontCorr][1] << " " << m_correction[5][ibin_frontCorr][2] << " " << m_correction[5][ibin_frontCorr][3] << endmsg;
+        (*m_log) << MSG::DEBUG << "p1 " << correction[3][ibin_frontCorr][1] << " " << correction[3][ibin_frontCorr][2] << " " << correction[3][ibin_frontCorr][3] << endmsg;
+        (*m_log) << MSG::DEBUG << "p2 " << correction[4][ibin_frontCorr][1] << " " << correction[4][ibin_frontCorr][2] << " " << correction[4][ibin_frontCorr][3] << endmsg;
+        (*m_log) << MSG::DEBUG << "p3 " << correction[5][ibin_frontCorr][1] << " " << correction[5][ibin_frontCorr][2] << " " << correction[5][ibin_frontCorr][3] << endmsg;
 #endif
 
         e_front_reco= (p1 + p2 * shower_lbary + p3 * shower_lbary * shower_lbary);
@@ -293,22 +287,5 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 
     clus->setEt(clus->energy()/cosh(the_aeta));
 
-}
-
-StatusCode
-EgammaHitsCalibration::setProperty (const std::string& propname,
-        const std::string& value)
-{
-    CHECK( AthAlgTool::setProperty(propname,value) );
-    CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
-    return StatusCode::SUCCESS;
-}
-
-StatusCode
-EgammaHitsCalibration::setProperty (const Property& p)
-{
-    CHECK( AthAlgTool::setProperty(p) );
-    CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
-    return StatusCode::SUCCESS;
 }
 

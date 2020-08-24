@@ -15,58 +15,8 @@
 #define ATHLINKS_TOOLS_SELECTION_NS
 
 // ROOT include(s):
-#include "RVersion.h"
 
-// Include the correct "selection header":
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 00 )
-#   include <Reflex/Builder/DictSelection.h>
-#else
-#   include <RootMetaSelection.h>
-#endif // ROOT 5
-
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 19, 0 )
-
-//
-// Definitions for *really* old ROOT versions:
-//
-
-#ifndef ROOT_SELECTION_NS
-#   define ROOT_SELECTION_NS ROOT::Reflex::Selection
-#endif
-
-#ifndef ENTER_ROOT_SELECTION_NS
-#   define ENTER_ROOT_SELECTION_NS                             \
-   namespace ROOT { namespace Reflex { namespace Selection {
-#endif
-
-#ifndef EXIT_ROOT_SELECTION_NS
-#   define EXIT_ROOT_SELECTION_NS }}}
-#endif
-
-#elif ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-//
-// Definitions for ROOT 5:
-//
-
-#ifndef ROOT_SELECTION_NS
-#   define ROOT_SELECTION_NS Reflex::Selection
-#endif
-
-#ifndef ENTER_ROOT_SELECTION_NS
-#   define ENTER_ROOT_SELECTION_NS              \
-   namespace Reflex { namespace Selection {
-#endif
-
-#ifndef EXIT_ROOT_SELECTION_NS
-#   define EXIT_ROOT_SELECTION_NS }}
-#endif
-
-#else
-
-//
-// Definitions for ROOT 6:
-//
+#include <RootMetaSelection.h>
 
 #ifndef ROOT_SELECTION_NS
 #   define ROOT_SELECTION_NS ROOT::Meta::Selection
@@ -80,7 +30,5 @@
 #ifndef EXIT_ROOT_SELECTION_NS
 #   define EXIT_ROOT_SELECTION_NS }}}
 #endif
-
-#endif // ROOT_VERSION
 
 #endif // not ATHLINKS_TOOLS_SELECTION_NS

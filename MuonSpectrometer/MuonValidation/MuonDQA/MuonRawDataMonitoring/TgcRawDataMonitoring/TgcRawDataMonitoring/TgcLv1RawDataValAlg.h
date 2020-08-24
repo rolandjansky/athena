@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,51 +15,27 @@
 #ifndef TgcLv1RawDataValAlg_H
 #define TgcLv1RawDataValAlg_H
 
-#include <sstream>
-#include <string.h>
-#include <vector>
-#include <map>
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "MuonDQAUtils/MuonDQAHistMap.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-#include "MuonReadoutGeometry/TgcReadoutElement.h"
-
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/StatusCode.h"
-//#include "StoreGate/DataHandle.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-#include "MuonTrigCoinData/TgcCoinDataCollection.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "xAODTrigger/JetRoIContainer.h"
 #include "xAODMuon/MuonContainer.h"
-
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
-#include "xAODTrigger/JetRoIContainer.h"
-#include "xAODTrigger/JetEtRoI.h"
 #include "xAODTrigger/EnergySumRoI.h"
-
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-
 #include "StoreGate/ReadHandleKey.h"
-
 #include "xAODEventInfo/EventInfo.h"
 
+#include <string>
+#include <vector>
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TGraphAsymmErrors.h"
 
-class TFile;
 template <class ConcreteAlgorithm> class AlgFactory;
 /////////////////////////////////////////////////////////////////////////////
 
@@ -68,21 +44,15 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
   public:
 
     TgcLv1RawDataValAlg ( const std::string & type, const std::string & name, const IInterface* parent );
-    virtual ~TgcLv1RawDataValAlg();
+    virtual ~TgcLv1RawDataValAlg()=default;
     StatusCode initialize(); 
-    // StatusCode finalize();   
 
-    //virtual StatusCode bookHistograms();
     virtual StatusCode bookHistogramsRecurrent();
     virtual StatusCode fillHistograms();
     virtual StatusCode procHistograms();
 
   private:
-
-    // Tool for TGC Id Helper
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     // Event Properties
     int m_event;
     int m_lumiblock;

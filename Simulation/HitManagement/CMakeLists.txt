@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( HitManagement )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthenaKernel
-                          Event/EventInfo
-                          GaudiKernel
-                          PRIVATE
-                          AtlasTest/TestTools )
-
 # Component(s) in the package:
 atlas_add_library( HitManagement
                    src/*.cxx

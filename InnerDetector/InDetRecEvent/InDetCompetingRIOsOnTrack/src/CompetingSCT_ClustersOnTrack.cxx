@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,36 +18,31 @@
 // default constructor
 InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack():
         Trk::CompetingRIOsOnTrack(),
-        m_globalPosition{},
-        m_containedChildRots(0)
+        m_globalPosition{}
         //
         {}
 
 // copy constructor
 InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack(const InDet::CompetingSCT_ClustersOnTrack& compROT) :
         Trk::CompetingRIOsOnTrack(compROT),
-        m_globalPosition{},
-        m_containedChildRots(0) {
-    m_containedChildRots = new std::vector< const InDet::SCT_ClusterOnTrack* >;
-    std::vector< const InDet::SCT_ClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
-    for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
-        m_containedChildRots->push_back((*rotIter)->clone());
+        m_globalPosition{} {
+    for (const InDet::SCT_ClusterOnTrack* rot : compROT.m_containedChildRots) {
+        m_containedChildRots.push_back(rot->clone());
     }
     if (compROT.m_globalPosition) {
-        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+        m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     }
 }
 
 // explicit constructor
 InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack(
-    //const Trk::Surface* sf,
-    std::vector<const InDet::SCT_ClusterOnTrack*>* childrots,
+    std::vector<const InDet::SCT_ClusterOnTrack*>&& childrots,
     std::vector<AssignmentProb>* assgnProb
     
 ):
 Trk::CompetingRIOsOnTrack(assgnProb),
 m_globalPosition{},
-m_containedChildRots(childrots)
+m_containedChildRots{childrots}
 {
   // initialize local position and error matrix
   setLocalParametersAndErrorMatrix();
@@ -60,15 +55,13 @@ InDet::CompetingSCT_ClustersOnTrack& InDet::CompetingSCT_ClustersOnTrack::operat
         Trk::CompetingRIOsOnTrack::operator=(compROT);
         // clear rots
         clearChildRotVector();
-        delete m_containedChildRots;
-        m_containedChildRots = new std::vector<const InDet::SCT_ClusterOnTrack*>;
+        m_containedChildRots.clear();
 
-        std::vector<const InDet::SCT_ClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
-        for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
-            m_containedChildRots->push_back((*rotIter)->clone());
-
+        for (const InDet::SCT_ClusterOnTrack* rot : compROT.m_containedChildRots) {
+            m_containedChildRots.push_back(rot->clone());
+        }
         if (compROT.m_globalPosition) {
-            m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+            m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
         } else if (m_globalPosition) {
             m_globalPosition.release().reset();
         }
@@ -78,13 +71,10 @@ InDet::CompetingSCT_ClustersOnTrack& InDet::CompetingSCT_ClustersOnTrack::operat
 
 InDet::CompetingSCT_ClustersOnTrack::~CompetingSCT_ClustersOnTrack() {
     clearChildRotVector();
-    delete m_containedChildRots;
 }
 
 void InDet::CompetingSCT_ClustersOnTrack::clearChildRotVector() {
-    std::vector<const InDet::SCT_ClusterOnTrack*>::const_iterator rotIter = m_containedChildRots->begin();
-    for (; rotIter!=m_containedChildRots->end(); ++rotIter)
-        delete (*rotIter);
+    for (const InDet::SCT_ClusterOnTrack* rot : m_containedChildRots) delete rot;
 }
 
 MsgStream& InDet::CompetingSCT_ClustersOnTrack::dump( MsgStream& out ) const {

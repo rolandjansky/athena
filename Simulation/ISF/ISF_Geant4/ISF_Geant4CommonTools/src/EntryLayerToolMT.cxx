@@ -133,7 +133,7 @@ ISF::EntryLayer ISF::EntryLayerToolMT::registerParticle(const ISF::ISFParticle& 
     // Use barcode assigend to ISFParticle only if no generation zero particle is present.
     auto                truthBinding = particle.getTruthBinding();
     auto generationZeroTruthParticle = truthBinding ? truthBinding->getGenerationZeroTruthParticle() : nullptr;
-    Barcode::ParticleBarcode barcode = generationZeroTruthParticle ? generationZeroTruthParticle->barcode()
+    Barcode::ParticleBarcode barcode = generationZeroTruthParticle ? HepMC::barcode(generationZeroTruthParticle)
                                                                    : particle.barcode();
 
     (*m_collectionHolder.get())[layerHit]->Emplace(particle.pdgCode(),

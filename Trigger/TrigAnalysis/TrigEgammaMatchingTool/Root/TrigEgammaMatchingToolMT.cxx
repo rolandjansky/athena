@@ -11,7 +11,6 @@
 #include <typeinfo>
 #include <string>
 
-
 using namespace TrigCompositeUtils;
 using namespace Trig;
 
@@ -47,9 +46,9 @@ StatusCode TrigEgammaMatchingToolMT::initialize()
   m_keys[ "Photon"]     = "HLT_egamma_Photons" ;
   m_keys[ "Track"]      = "";
   m_keys[ "EFCalo"]     = "HLT_CaloEMClusters" ;
-  m_keys[ "L2Electron"] = "HLT_L2Electrons" ;
-  m_keys[ "L2Photon"]   = "HLT_L2Photons" ;
-  m_keys[ "L2Calo"]     = "HLT_L2CaloEMClusters" ;
+  m_keys[ "L2Electron"] = "HLT_FastElectrons" ;
+  m_keys[ "L2Photon"]   = "HLT_FastPhotons" ;
+  m_keys[ "L2Calo"]     = "HLT_FastCaloEMClusters" ;
   m_keys[ "L1Calo"]     = "LVL1EmTauRoIs" ;
 
   return StatusCode::SUCCESS;
@@ -65,6 +64,7 @@ std::string TrigEgammaMatchingToolMT::key( std::string key) const
 
 bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 {
+
   ATH_MSG_DEBUG("Match decec with trigger " << trigger);
   if(xAOD::EgammaHelpers::isElectron(eg)){
     const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
@@ -87,6 +87,8 @@ bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &t
     const xAOD::Photon* ph =static_cast<const xAOD::Photon*> (eg);
     if( matchL2Photon(ph,trigger,dec) ) return true;
   }
+  
+  if( matchL2Calo(eg,trigger,dec) ) return true;
 
   if( matchL1(eg,trigger,dec) ) return true;
   ATH_MSG_DEBUG("match() failed!");
@@ -160,6 +162,7 @@ bool TrigEgammaMatchingToolMT::matchL1( const xAOD::Egamma* eg, const std::strin
   double deltaR=0.;
   auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",
                                                                 TrigDefs::allFeaturesOfType,"initialRoI");       
+  
   if( initRois.size() < 1) return false;
   for( auto &initRoi: initRois ){               
     if( !initRoi.link.isValid() ) continue;      

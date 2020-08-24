@@ -1,29 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "MuonPatternSegmentMaker/MuonPatternCalibration.h"
 
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <set>
-
 #include "MuonPattern/MuonPatternChamberIntersect.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
-namespace Muon {
+#include <iostream>
+#include <sstream>
+#include <set>
 
+namespace Muon {
 
   MuonPatternCalibration::MuonPatternCalibration(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
@@ -48,23 +42,14 @@ namespace Muon {
     declareProperty("RemoveDoubleMdtHits",m_removeDoubleMdtHits = true);
   }
 
-  MuonPatternCalibration::~MuonPatternCalibration()
-  {
-  }
-
   StatusCode MuonPatternCalibration::initialize() {
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-
     ATH_MSG_VERBOSE("MuonPatternCalibration::Initializing");
- 
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
-
     ATH_CHECK(m_keyRpc.initialize());
     ATH_CHECK(m_keyTgc.initialize());
-
     return StatusCode::SUCCESS; 
   }
   
@@ -215,11 +200,11 @@ namespace Muon {
 	  if( (hits.neta > 0 && hits.nphi == 0) || (hits.nphi > 0 && hits.neta == 0) ){
 	    if( m_idHelperSvc->isRpc(id) && m_rpcPrdContainer ){
 	      
-	      RpcPrepDataContainer::const_iterator pos = m_rpcPrdContainer->indexFind(chit->first);
-	      if( pos == m_rpcPrdContainer->end() ) ATH_MSG_DEBUG("RpcPrepDataCollection not found in container!!");
+	      auto pos = m_rpcPrdContainer->indexFindPtr(chit->first);
+	      if( pos == nullptr ) ATH_MSG_DEBUG("RpcPrepDataCollection not found in container!!");
 	      else{
-		RpcPrepDataCollection::const_iterator rpcit = (*pos)->begin();
-		RpcPrepDataCollection::const_iterator rpcit_end = (*pos)->end();
+		RpcPrepDataCollection::const_iterator rpcit = pos->begin();
+		RpcPrepDataCollection::const_iterator rpcit_end = pos->end();
 		for( ;rpcit!=rpcit_end;++rpcit ){
 		  if( clusterIds.count( (*rpcit)->identify() ) ) continue;
 		  const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*rpcit);
@@ -228,11 +213,11 @@ namespace Muon {
 		}
 	      }
 	    }else if( m_idHelperSvc->isTgc(id) && m_tgcPrdContainer ){
-	      TgcPrepDataContainer::const_iterator pos = m_tgcPrdContainer->indexFind(chit->first);
-	      if( pos == m_tgcPrdContainer->end() ) ATH_MSG_DEBUG("TgcPrepDataCollection not found in container!!");
+	      auto pos = m_tgcPrdContainer->indexFindPtr(chit->first);
+	      if( pos == nullptr ) ATH_MSG_DEBUG("TgcPrepDataCollection not found in container!!");
 	      else{
-		TgcPrepDataCollection::const_iterator tgcit = (*pos)->begin();
-		TgcPrepDataCollection::const_iterator tgcit_end = (*pos)->end();
+		TgcPrepDataCollection::const_iterator tgcit = pos->begin();
+		TgcPrepDataCollection::const_iterator tgcit_end = pos->end();
 		for( ;tgcit!=tgcit_end;++tgcit ){
 		  if( clusterIds.count( (*tgcit)->identify() ) ) continue;
 		  const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*tgcit);

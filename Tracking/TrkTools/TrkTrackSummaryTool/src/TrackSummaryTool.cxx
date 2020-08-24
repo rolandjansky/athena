@@ -61,9 +61,9 @@ StatusCode
         ATH_MSG_ERROR ("Failed to retrieve InDet helper tool "<< m_idTool);
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
-    } else {
+    } 
         if ( !m_idTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_idTool << endmsg;
-    }
+    
 
   // Troels.Petersen@cern.ch:
     if ( !m_eProbabilityTool.empty() && m_eProbabilityTool.retrieve().isFailure() ) 
@@ -71,9 +71,9 @@ StatusCode
         ATH_MSG_ERROR ("Failed to retrieve electron probability tool " << m_eProbabilityTool);
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
-    } else { 
+    } 
        if ( !m_eProbabilityTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_eProbabilityTool << endmsg;
-    }
+    
 
     if (!m_trt_dEdxTool.empty()) {
       ATH_CHECK( m_trt_dEdxTool.retrieve() );
@@ -85,9 +85,9 @@ StatusCode
         ATH_MSG_ERROR ("Failed to retrieve pixel dEdx tool " << m_dedxtool);
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
-    } else {
+    } 
        if ( !m_dedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_dedxtool << endmsg;
-    }
+    
 
     if ( !m_muonTool.empty() && m_muonTool.retrieve().isFailure() ) 
     {
@@ -223,6 +223,7 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
     information [numberOfTRTOutliers]              = 0;
     information [numberOfTRTHighThresholdOutliers] = 0;
     information [numberOfTRTTubeHits]              = 0;
+    information [numberOfTRTSharedHits]            = 0;
 
     // Troels.Petersen@cern.ch:
     if ( !m_eProbabilityTool.empty() ) {
@@ -291,8 +292,8 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
 
   if (!m_trt_dEdxTool.empty()) {
     if (information[Trk::numberOfTRTHits]+information[Trk::numberOfTRTOutliers]>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
-      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track) );
+      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track) : 0.0);
       eProbability.push_back(fvalue);
       information[ numberOfTRTHitsUsedFordEdx] = static_cast<uint8_t>(std::max(nhits,0));
     }
@@ -331,13 +332,14 @@ void Trk::TrackSummaryTool::updateTrack(Track& track,const Trk::PRDtoTrackMap *p
   computeAndReplaceTrackSummary(track,prd_to_track_map,false /*DO NOT suppress hole search*/);
 }
 
-void Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const
+void
+Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track,
+                                               const Trk::PRDtoTrackMap* prd_to_track_map) const
 {
   // first check if track has summary already.
-  computeAndReplaceTrackSummary(track,prd_to_track_map,true /*suppress hole search*/);
-  m_idTool->updateExpectedHitInfo(track,  *track.m_trackSummary); // @TODO why ? 
+  computeAndReplaceTrackSummary(track, prd_to_track_map, true /*suppress hole search*/);
+  m_idTool->updateExpectedHitInfo(track, *track.m_trackSummary); /*Needed for expected B-Layer*/
 }
-
 
 void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map,TrackSummary &summary) const
 {
@@ -353,8 +355,8 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::
 
   if (!m_trt_dEdxTool.empty()) {
     if (summary.get(Trk::numberOfTRTHits)+summary.get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
-      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track) );
+      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track) : 0.0);
       eProbability.push_back(fvalue);
       if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {
         ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
@@ -460,21 +462,29 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
 					       std::vector<int>& information,
 					       std::bitset<numberOfDetectorTypes>& hitPattern) const
 {
-  const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*> (meas);
-  
+
+  // Check if the measurement type is RIO on Track (ROT)
+  const RIO_OnTrack* rot = nullptr;
+  if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    rot = static_cast<const RIO_OnTrack*>(meas);
+  }
+
   if ( rot ){
     // have RIO_OnTrack
     const Trk::IExtendedTrackSummaryHelperTool* tool = getTool(rot->identify());
     if (tool==nullptr){
       ATH_MSG_WARNING("Cannot find tool to match ROT. Skipping.");
     } else {
-
       tool->analyse(track,prd_to_track_map, rot,tsos,information, hitPattern);
     }
   } else {
-    // Something other than a ROT.
-    const Trk::CompetingRIOsOnTrack *compROT = 
-      dynamic_cast<const Trk::CompetingRIOsOnTrack*>(meas);
+    //check if the measurement type is CompetingRIOsOnTrack
+    //
+    const Trk::CompetingRIOsOnTrack *compROT =nullptr;
+    if ( meas->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
+      compROT = static_cast<const CompetingRIOsOnTrack *>(meas);
+    }
+
     if (compROT) {
       // if this works we have a CompetingRIOsOnTrack.
       rot = &compROT->rioOnTrack(0); // get 1st rot
@@ -494,15 +504,15 @@ Trk::TrackSummaryTool::getTool(const Identifier& id)
   if (m_detID->is_indet(id)){
     if (!m_idTool.empty()){
       return &*m_idTool;
-    } else { 
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
-    }
+    
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
       return &*m_muonTool;
-    } else {
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
-    }
+    
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
@@ -515,15 +525,15 @@ Trk::TrackSummaryTool::getTool(const Identifier& id) const
   if (m_detID->is_indet(id)){
     if (!m_idTool.empty()){
       return &*m_idTool;
-    } else { 
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
-    }
+    
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
       return &*m_muonTool;
-    } else {
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
-    }
+    
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
@@ -561,8 +571,8 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
     information [numberOfMmHoles]              = -1;
     return;
   }
-  else
-  {
+  
+  
     if (doHolesInDet)
     {
       // -------- perform the InDet hole search
@@ -594,6 +604,6 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
       information [numberOfMmHoles] = 0;        
       m_muonTool->searchForHoles(track,information,Trk::muon) ;
     }
-  }
+  
   }
 

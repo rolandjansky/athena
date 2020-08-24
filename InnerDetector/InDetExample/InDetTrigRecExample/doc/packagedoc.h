@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -94,59 +94,6 @@ InDetTrigConfigRecBackTracking.py - are algorithms specific to backtracking or T
 <li>python::InDetTrigConfigRecBackTracking::TRT_TrigStandaloneTrackFinder_EF
 <li>python::InDetTrigConfigRecBackTracking::TrkTrigTrackCollectionMerger_EF
 </ul>
-
-
-@section InDetTrigRecExample_InDetTrigRecExamplejo End user job options
-
-The package contains jobOptions which can be run by users for testing purposes
-
-   - testEFID_basic.py
-   - jobOptionsNewSteering.py     
-
-The second uses CSC datasets and runs the complete EF InDet reconstruction in the trigger.
-jobOptionsNewSteering.py is copied from /share to the run/
-directory and it is suggested that you modify it there. In general you
-should only need to alter the doBlah flags (i.e. set
-doTruth=FALSE/TRUE) and the InDetTrigFlags. You may also need to modify
-the dataset used. The jobOptions can be steered by general RecExCommon flags.
-
-
-
-@section InDetTrigRecExample_InDetTrigRecExampleRTT RTT tests
-
-The global RTT configuration is found in test/InDetTrigRecExample_TestConfiguration.xml. The current configuration runs 
-<ul>
-<li>
-a full chain-test based on official transformations rerunning trigger on the 2008 cosmics data BS followed by Tier0 reconstruction of the output BS file
-<li>
-tracking in top events with testEFID_RTT_InDetTrigRecExample.py
-</ul>
-
-jobOptions of earlier RTT tests are still kept in 
-
-   - jobOptions_RTT_InDetTrigRecExample.py - performs the EF InDet inside-out reconstruction from RDO for 450 top events.
-     Three LVL1 RoI sorts are taken into account: electron-, muon- and tau-like. As output monitoring histograms 
-qy     (expert-monitoring.root) and CBNTAA ntuple (ntuple.root) are stored.
-   - jobOptions_RTT_InDetTrigRecExample_doReadBS.py  - performs the EF InDet reconstruction from byte stream for 50 top events.
-     In this case one runs with doTruth=False as no MC truth info is available in byte-stream files. The EF InDet inside-out reconstruction
-     is performed in a full-scan mode.
-     As output the monitoring histograms (expert-monitoring.root) are stored. They also contain timing measurements (doTimer=True).
-
-   - jobOptions_RTT_InDetTrigRecExample.py - RTT test of the EF InDet reconstruction for 
-       450 top events from RDO,
-   - jobOptions_RTT_InDetTrigRecExample_doReadBS.py - RTT test of the EF InDet reconstruction for 50 top events from byte stream.
-   
-
-
-@section InDetTrigRecExample_InDetTrigRecExampleLeaks Memory-leak test
-
-There are two jobOptions files to run a memory-leak test. They are put in /TESTS:
-
-	- testEFIDReadBSMemAudit.py - main jobOptions file to read 10k events from byte-stream input and give MemAudit statistics,
-	- testEFIDreadBS_Flags.py - auxiliary file to run the EF InDet inside-out reconstruction for the egamma slice.
-
-A recipe how to run the memory-leak test is given in the README file in /TESTS.
-
 
 
 */

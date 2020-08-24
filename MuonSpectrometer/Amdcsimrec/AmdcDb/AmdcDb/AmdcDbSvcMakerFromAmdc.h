@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AmdcDbSvcMakerFromAmdc_H
@@ -23,7 +23,7 @@ class AmdcDbRecord;
 class AmdcDbSvcMakerFromAmdc{
 public:
     AmdcDbSvcMakerFromAmdc();
-    virtual ~AmdcDbSvcMakerFromAmdc();
+    virtual ~AmdcDbSvcMakerFromAmdc()=default;
 
 public:
 ///////////////////////////////////
@@ -54,10 +54,9 @@ private:
    int GetEpsAngle   (std::string NameOfTheSet) ;
    
    void AMDC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
-
+   void AGDD(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    void ATYP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    void ACUT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
-
    void WRPC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    void AWLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    void WTGC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);

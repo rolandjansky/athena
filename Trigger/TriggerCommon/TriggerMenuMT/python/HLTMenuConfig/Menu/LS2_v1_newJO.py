@@ -57,12 +57,12 @@ def setupMenu(flags):
     flags.Trigger.menu.jet = [
        ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
        ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
-       ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup),
+       ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
     ]
 
-    # flags.Trigger.menu.combined = [
-    #     get_flag_item('HLT_e8_mu8_L1EM6_MU6', [], ['RATE:SingleMuon', 'BW:Muon'])
-    # ]
+    flags.Trigger.menu.combined = [
+        ChainProp(name='HLT_e7_mu10_L1EM7_MU10', groups=SingleElectronGroup)
+    ]
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable

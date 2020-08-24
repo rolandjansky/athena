@@ -26,7 +26,7 @@
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 
 // Gaudi
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
 
 // STL

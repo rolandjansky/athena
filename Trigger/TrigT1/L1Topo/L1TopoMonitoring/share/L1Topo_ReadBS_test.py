@@ -21,10 +21,10 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# older file, has wrong ROD id: svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/m/mzinser/public/l1calo-event.sim"]
-#svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/m/mzinser/public/InputSimon/Mode7/l1calo-event.sim" ]
-svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/m/mzinser/public/InputSimon/Mode8/l1calo-event.sim" ]
-#svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/s/sgeorge/atlaspublic/L1TopoCnv/mergedsim._0001.data" ]
+# older file, has wrong ROD id: svcMgr.EventSelector.Input = [ "/afs/cern.ch/user/m/mzinser/public/l1calo-event.sim"]
+#svcMgr.EventSelector.Input = [ "/afs/cern.ch/user/m/mzinser/public/InputSimon/Mode7/l1calo-event.sim" ]
+svcMgr.EventSelector.Input = [ "/afs/cern.ch/user/m/mzinser/public/InputSimon/Mode8/l1calo-event.sim" ]
+#svcMgr.EventSelector.Input = [ "/afs/cern.ch/user/s/sgeorge/atlaspublic/L1TopoCnv/mergedsim._0001.data" ]
 
 svcMgr.ByteStreamInputSvc.ValidateEvent = True
 svcMgr.EventSelector.ProcessBadEvent = True

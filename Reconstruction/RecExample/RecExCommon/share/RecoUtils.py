@@ -11,7 +11,6 @@ softas, hardas = resource.getrlimit( resource.RLIMIT_RSS )
 logRecoUtils.info( 'Memory resident state RSS soft limit : %s hard limit: %s ',softas == -1 and 'unlimited' or str(softas),  hardas == -1 and 'unlimited' or str(hardas))
 
 # make IOV calls in reproducible order
-Service("AthenaSealSvc").OutputLevel=WARNING
 Service('IOVSvc').sortKeys=True
 
 ############
@@ -107,15 +106,20 @@ except Exception:
 
 if rec.doPerfMon() :
     try:
-        # see https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonComps
-        # and https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonSD
+        from AthenaCommon.ConcurrencyFlags import jobproperties as jp
         from PerfMonComps.PerfMonFlags import jobproperties
-        jobproperties.PerfMonFlags.OutputFile = "ntuple_"+OutFileName+".root"
-        jobproperties.PerfMonFlags.doMonitoring = True
-        jobproperties.PerfMonFlags.doFastMon = not rec.doDetailedPerfMon()
-        jobproperties.PerfMonFlags.doDetailedMonitoring = rec.doDetailedPerfMon()
-        jobproperties.PerfMonFlags.doSemiDetailedMonitoring = rec.doSemiDetailedPerfMon()
-        include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
+        if jp.ConcurrencyFlags.NumThreads() <= 1:
+            # see https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonComps
+            # and https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonSD
+            jobproperties.PerfMonFlags.OutputFile = "ntuple_"+OutFileName+".root"
+            jobproperties.PerfMonFlags.doMonitoring = True
+            jobproperties.PerfMonFlags.doFastMon = not rec.doDetailedPerfMon()
+            jobproperties.PerfMonFlags.doDetailedMonitoring = rec.doDetailedPerfMon()
+            jobproperties.PerfMonFlags.doSemiDetailedMonitoring = rec.doSemiDetailedPerfMon()
+            include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
+        else:
+            include( "PerfMonComps/PerfMonMTSvc_jobOptions.py" )
+            svcMgr.PerfMonMTSvc.jsonFileName = "perfmonmt_"+OutFileName+".json"
 
     except Exception:
         treatException("Could not load PerfMon" )
@@ -124,9 +128,12 @@ if rec.doPerfMon() :
 #######################
 # ChronoStatSvc
 
-#disable
-#if hasattr(svcMgr, 'ChronoStatSvc'):
-#    svcMgr.ChronoStatSvc.AsciiStatsOutputFile = "chrono_"+OutFileName+".txt"
+# Disable LOG printing
+if hasattr(svcMgr, 'ChronoStatSvc'):
+    svcMgr.ChronoStatSvc.ChronoPrintOutTable = False
+    svcMgr.ChronoStatSvc.PrintUserTime       = False
+    svcMgr.ChronoStatSvc.StatPrintOutTable   = False
+    #svcMgr.ChronoStatSvc.AsciiStatsOutputFile = "chrono_"+OutFileName+".txt"
     
 #################
 # Time limit
@@ -175,8 +182,14 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 #  - don't overwrite blindly with the default
 if not rec.OutputLevel.isDefault():
     ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
-#increase the number of letter reserved to the alg/tool name from 18 to 30
-ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
+
+#Adjust the message format for threaded vs serial jobs
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    ServiceMgr.MessageSvc.Format = "% F%50W%S%4W%R%e%s%8W%R%T %0W%M"
+else:
+    ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
+
+
 #ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
 ServiceMgr.MessageSvc.useColors = False
 ServiceMgr.MessageSvc.defaultLimit=500

@@ -9,12 +9,13 @@
 //#define TRK2DDISTANCESEEDER_DEBUG
 
 #include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
-#include "TrkVertexSeedFinderUtils/TwoTracks.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "TrkParameters/TrackParameters.h"
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include <math.h>
+#include "MagFieldElements/AtlasFieldCache.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkVertexSeedFinderUtils/TwoTracks.h"
 #include <TMath.h>
+#include <cmath>
 
 namespace {
   inline double dist2d(const Amg::Vector3D & a, const Amg::Vector3D & b) {
@@ -71,13 +72,13 @@ namespace {
   inline double getRadiusOfCurvature(const Trk::Perigee & myPerigee,const double Bzfield) {
     return sin(myPerigee.parameters()[Trk::theta])/(Bzfield*myPerigee.parameters()[Trk::qOverP]);
   }
-  inline const Amg::Vector3D getCenterOfCurvature(const Trk::Perigee & myPerigee,const double RadiusOfCurvature,const double phipoca) {
+  inline Amg::Vector3D getCenterOfCurvature(const Trk::Perigee & myPerigee,const double RadiusOfCurvature,const double phipoca) {
     return Amg::Vector3D(myPerigee.associatedSurface().center().x()+myPerigee.parameters()[Trk::d0]*cos(phipoca)-RadiusOfCurvature*cos(phipoca),
 			 myPerigee.associatedSurface().center().y()+myPerigee.parameters()[Trk::d0]*sin(phipoca)-RadiusOfCurvature*sin(phipoca),
 			 myPerigee.associatedSurface().center().z()+myPerigee.parameters()[Trk::z0]+RadiusOfCurvature*
 			 myPerigee.parameters()[Trk::phi0]/tan(myPerigee.parameters()[Trk::theta]));
   }
-  inline const Amg::Vector3D getSeedPoint(const Trk::Perigee & myPerigee,const Amg::Vector3D & center,
+  inline Amg::Vector3D getSeedPoint(const Trk::Perigee & myPerigee,const Amg::Vector3D & center,
 					  const double radius,const double newphi) {
     //    short int sgnd0=(short int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
     return Amg::Vector3D(center.x()+radius*cos(newphi+M_PI/2.),
@@ -85,7 +86,7 @@ namespace {
 			       //		eliminated sgnd0 from center.z()-radius*(newphi-sgnd0*M_PI/2.)/tan(myPerigee.parameters()[Trk::theta]));
 			       center.z()-radius*newphi/tan(myPerigee.parameters()[Trk::theta]));
   }
-  inline const Amg::Vector3D getSeedPoint(const Amg::Vector3D & center,
+  inline Amg::Vector3D getSeedPoint(const Amg::Vector3D & center,
 					  const double radius,const double newphi) {
     //    short int sgnd0=(short int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
     return Amg::Vector3D(center.x()+radius*cos(newphi+M_PI/2.),
@@ -99,20 +100,18 @@ namespace Trk
 {
   Trk2dDistanceSeeder::Trk2dDistanceSeeder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
-    m_solveAmbiguityUsingZ(true),
-    m_magFieldSvc("AtlasFieldSvc", n)
+    m_solveAmbiguityUsingZ(true)
   {   
-    declareProperty("MagFieldSvc",     m_magFieldSvc);
     declareProperty("SolveAmbiguityUsingZ",m_solveAmbiguityUsingZ);
     declareInterface<Trk2dDistanceSeeder>(this);
   }
 
-  Trk2dDistanceSeeder::~Trk2dDistanceSeeder() {}
+  Trk2dDistanceSeeder::~Trk2dDistanceSeeder() = default;
 
   StatusCode Trk2dDistanceSeeder::initialize() 
   { 
     ATH_CHECK( AlgTool::initialize() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
     ATH_MSG_DEBUG( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
@@ -124,12 +123,18 @@ StatusCode Trk2dDistanceSeeder::finalize()
   }
 
 
-  const TwoPointOnTrack
+  TwoPointOnTrack
   Trk2dDistanceSeeder::GetSeed (const TwoTracks & mytracks,
                                 TwoPoints* twopoints /*=nullptr*/) const
   {
-    const double bfield1 = getBField (mytracks.getFirstPerigee());
-    const double bfield2 = getBField (mytracks.getSecondPerigee());
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    const double bfield1 = getBField (mytracks.getFirstPerigee(), fieldCache);
+    const double bfield2 = getBField (mytracks.getSecondPerigee(), fieldCache);
 
     //phitanpoca here means not the tan to poca (which is phi0) but the direction from perigee to the center of curvature (I don't know 
     //why I chose this strange name, sorry!)
@@ -374,21 +379,22 @@ StatusCode Trk2dDistanceSeeder::finalize()
   }
 
 
-  double Trk2dDistanceSeeder::getBField (const Perigee& p) const
+  double Trk2dDistanceSeeder::getBField (const Perigee& p, MagField::AtlasFieldCache& cache) const
   {
     double magnFieldVect[3];
     double posXYZ[3];
     posXYZ[0] = p.associatedSurface().center().x();
     posXYZ[1] = p.associatedSurface().center().y();
     posXYZ[2] = p.associatedSurface().center().z();
-    m_magFieldSvc->getField(posXYZ,magnFieldVect);
+
+    cache.getField(posXYZ,magnFieldVect);
     const double bfield = magnFieldVect[2]*299.792;//should be in GeV/mm
     if (bfield==0. || isnan(bfield)) {
       ATH_MSG_DEBUG( "Could not find a magnetic field different from zero: very very strange" );
       return 0.60407; //Value in GeV/mm (ATLAS units)
-    } else {
+    } 
       ATH_MSG_DEBUG( "Magnetic field projection of z axis in the perigee position is: " << bfield << " GeV/mm " );
-    }
+    
     return bfield;
   }
 

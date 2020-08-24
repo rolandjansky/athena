@@ -1,11 +1,11 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 from RecExConfig.RecFlags import rec
 
-import ROOT, cppyy
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
+# Import the xAOD isolation parameters.
+from xAODPrimitives.xAODIso import xAODIso as isoPar
 ptconeList = [[isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20]]
 
 ## Put the new algs before egamma locker... (so right after default IsolationBuilder)

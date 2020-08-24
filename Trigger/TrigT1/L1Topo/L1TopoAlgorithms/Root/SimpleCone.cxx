@@ -163,9 +163,9 @@ TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
       output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(leadingET,0,0) ) ));
     }
     if(fillAccept)
-        m_histAcceptSimpleCone[i]->Fill(leadingET);
+        fillHist1D(m_histAcceptSimpleCone[i]->GetName(),leadingET);
     else if(fillReject)
-        m_histRejectSimpleCone[i]->Fill(leadingET);
+        fillHist1D(m_histRejectSimpleCone[i]->GetName(),leadingET);
     
     
     TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " SimpleCone = " << leadingET);

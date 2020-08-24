@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DepletionDepthCalibration_C
@@ -148,7 +148,7 @@ bool DepletionDepthCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex
 	double theta = 180.* 2. * atan(exp(- Eta)) / M_PI;
 	if(  Layer == m_curLayer ){
 		passed = kTRUE;
-		static std::vector<Double_t> Pars(2);
+                std::vector<Double_t> Pars(2);
 		Pars[1] = PhiIndex;
 		Pars[0] = EtaIndex;
 			

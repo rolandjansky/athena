@@ -1,39 +1,22 @@
-################################################################################
-# Package: FilePeekers
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( FilePeeker )
 
 # Possible extra dependencies:
-set( extra_dep )
 set( extra_libs )
 if( NOT SIMULATIONBASE )
-  set( extra_dep Event/ByteStreamEventTPCnv )
   set( extra_libs ByteStreamEventTPCnv )
 endif()
 
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          PRIVATE
-                          Event/EventTPCnv
-                          Database/IOVDbTPCnv
-                          ${extra_dep})
-
-
 # External dependencies:
+find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree RIO)
 if( NOT SIMULATIONBASE )
-  find_package( tdaq-common COMPONENTS DataReader EventStorage ers )
+  find_package( tdaq-common COMPONENTS DataReader EventStorage )
 endif()
 
-find_package( Boost )
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
-
 # Component(s) in the package:
-
 atlas_add_executable( PoolFilePeeker
                       src/PoolFilePeeker.cxx
                       src/FileMetaData.cxx
@@ -50,4 +33,4 @@ if( NOT SIMULATIONBASE )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

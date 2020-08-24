@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfArgs.py
 #  @brief Unittests for trfArgs.py
@@ -46,7 +46,7 @@ class trfArgsUnitTests(unittest.TestCase):
         addStandardTrfArgs(myParser)
         args = ['--help']
         self.assertRaises(SystemExit, myParser.parse_args, args)
-        
+      
     def test_subStep(self):
         myParser = trfArgParser()
         addStandardTrfArgs(myParser)
@@ -55,7 +55,7 @@ class trfArgsUnitTests(unittest.TestCase):
         myArgDict = vars(myParser.parse_args(args))
         properArgDict = {'r2e': ['stuff', 'somemorestuff'], 'e2e': ['something', 'somethingElse']}
         self.assertTrue(isinstance(myArgDict, dict))
-        self.assertEquals(myArgDict['preExec']._value, properArgDict)
+        self.assertEqual(myArgDict['preExec']._value, properArgDict)
 
     def test_triggerConfig(self):
         myParser = trfArgParser()
@@ -65,7 +65,7 @@ class trfArgsUnitTests(unittest.TestCase):
         myArgDict = vars(myParser.parse_args(args))
         properArgDict = {'r2e': 'MC:TRIGGERDB:124,154,132', 'e2e': 'MC:TRIGGERDB:124,154,132'}
         self.assertTrue(isinstance(myArgDict, dict))
-        self.assertEquals(myArgDict['triggerConfig']._value, properArgDict)
+        self.assertEqual(myArgDict['triggerConfig']._value, properArgDict)
 
 
 class trfIntArgsUnitTests(unittest.TestCase):
@@ -75,7 +75,7 @@ class trfIntArgsUnitTests(unittest.TestCase):
         from PyJobTransforms.transform import transform
         tf = transform()
         addTeaArguments(tf.parser)
-        self.assertEquals(tf.parseCmdLineArgs(['--cupsOfTea', '123']), None)
+        self.assertEqual(tf.parseCmdLineArgs(['--cupsOfTea', '123']), None)
 
     @silent
     def test_EchoIntFail(self):
@@ -91,7 +91,7 @@ class trfFloatArgsUnitTests(unittest.TestCase):
         from PyJobTransforms.transform import transform
         tf = transform()
         addTeaArguments(tf.parser)
-        self.assertEquals(tf.parseCmdLineArgs(['--mugVolume', '1.23']), None)
+        self.assertEqual(tf.parseCmdLineArgs(['--mugVolume', '1.23']), None)
 
     @silent
     def test_EchoFloatFail(self):
@@ -110,7 +110,7 @@ class configureFromJSON(unittest.TestCase):
                               "skipEvents": {"first": 10},
                               "testFloat": 4.67,
                               "testInt": 5}''')
-    
+  
     def tearDown(self):
         for f in 'argdict.json', 'rewrite.json':
             try:

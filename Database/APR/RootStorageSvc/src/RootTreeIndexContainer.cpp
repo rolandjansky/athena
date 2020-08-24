@@ -14,10 +14,12 @@
 #include "TTree.h"
 #include "TBranch.h"
 
+#include <iostream>
+
 using namespace pool;
 using namespace std;
 
-RootTreeIndexContainer::RootTreeIndexContainer() : RootTreeContainer(), m_index_ref(nullptr), m_index_foreign(nullptr), m_index_multi(0), m_index(nullptr) {
+RootTreeIndexContainer::RootTreeIndexContainer() : RootTreeContainer(), m_index_ref(nullptr), m_index_entries(0), m_index_multi(0), m_index(nullptr) {
    m_index = new long long int;
    m_index_multi = getpid();
 }
@@ -31,17 +33,10 @@ RootTreeIndexContainer::~RootTreeIndexContainer() {
 long long int RootTreeIndexContainer::nextRecordId()    {
    long long int s = m_index_multi;
    s = s << 32;
-   if (m_tree != nullptr) {
-      if (m_index_foreign != nullptr) {
-         s += m_index_foreign->GetEntries();
-      } else {
-         m_index_foreign = (TBranch*)m_tree->GetBranch("index_ref");
-         if (m_index_foreign != nullptr) {
-            s += m_index_foreign->GetEntries();
-         } else {
-            s += RootTreeContainer::nextRecordId();
-         }
-      }
+   if (m_tree->GetBranch("index_ref") != nullptr) {
+      s += m_index_entries;
+   } else {
+      s += RootTreeContainer::nextRecordId();
    }
    return s;
 }
@@ -49,27 +44,30 @@ long long int RootTreeIndexContainer::nextRecordId()    {
 
 DbStatus RootTreeIndexContainer::writeObject(ActionList::value_type& action) {
    long long int s = 0;
-   if( isBranchContainer() ) {
+   if (isBranchContainer()) {
       TBranch * pBranch = m_tree->GetBranch(m_branchName.c_str());
       if (pBranch != nullptr) s = pBranch->GetEntries();
    } else {
       s = m_tree->GetEntries();
    }
-   if (m_index_ref  == nullptr && m_index_foreign == nullptr) {
-      if (m_tree->GetBranch("index_ref") == nullptr) {
-         m_index_ref = (TBranch*)m_tree->Branch("index_ref", m_index);
-      } else {
-         m_index_foreign = (TBranch*)m_tree->GetBranch("index_ref");
-      }
+   if (m_index_ref == nullptr && m_tree->GetBranch("index_ref") == nullptr) {
+      m_index_ref = (TBranch*)m_tree->Branch("index_ref", m_index);
    }
    if (m_index_ref != nullptr && s >= m_index_ref->GetEntries()) {
       *m_index = this->nextRecordId();
       m_index_ref->SetAddress(m_index);
-      if( isBranchContainer() && !m_treeFillMode ) m_index_ref->Fill();
+      if (isBranchContainer() && !m_treeFillMode) m_index_ref->Fill();
    }
-   if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s);
+   if (isBranchContainer() && !m_treeFillMode) {
+      m_tree->SetEntries(s);
+      m_index_entries++;
+   }
    DbStatus status = RootTreeContainer::writeObject(action);
-   if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s + 1);
+   if (isBranchContainer() && !m_treeFillMode) {
+      m_tree->SetEntries(s + 1);
+   } else {
+      m_index_entries++;
+   }
    return status;
 }
 
@@ -78,7 +76,7 @@ DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
    DbStatus status = RootTreeContainer::transAct(action);
    if (action == Transaction::TRANSACT_FLUSH) {
       if (m_tree == nullptr) return Error;
-      if (m_index_ref != nullptr && m_tree->GetEntryNumberWithIndex(nextRecordId()) == -1) {
+      if (m_index_ref != nullptr && m_tree->GetEntries() > 0 && m_tree->GetEntryNumberWithIndex(nextRecordId()) == -1) {
          m_tree->BuildIndex("index_ref");
       }
    }

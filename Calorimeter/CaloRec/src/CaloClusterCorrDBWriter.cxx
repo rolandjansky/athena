@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -55,7 +55,7 @@ StatusCode CaloClusterCorrDBWriter::initialize()
   // allocate tools derived from ToolsWithConstants
   std::vector<std::string>::const_iterator firstTool=m_correctionToolNames.begin();
   std::vector<std::string>::const_iterator lastTool =m_correctionToolNames.end();
-  for ( ; firstTool != lastTool; firstTool++ ) {
+  for ( ; firstTool != lastTool; ++firstTool ) {
     IAlgTool* algToolPtr;
     ListItem  clusAlgoTool(*firstTool);
     StatusCode scTool = p_toolSvc->retrieveTool(clusAlgoTool.type(),

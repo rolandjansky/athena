@@ -1,22 +1,7 @@
-################################################################################
-# Package: MagFieldServices
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MagFieldServices )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          MagneticField/MagFieldInterfaces
-                          MagneticField/MagFieldConditions
-			  Control/CxxUtils
-                          PRIVATE
-                          MagneticField/MagFieldElements
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          GaudiKernel
-                          Tools/PathResolver )
 
 # External dependencies:
 find_package( CLHEP )
@@ -27,15 +12,20 @@ atlas_add_component( MagFieldServices
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-		     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} MagFieldElements MagFieldConditions CxxUtils 
-		     AthenaBaseComps MagFieldInterfaces StoreGateLib SGtests AthenaPoolUtilities GaudiKernel PathResolver )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaPoolUtilities CxxUtils EventInfo GaudiKernel MagFieldConditions MagFieldElements MagFieldInterfaces PathResolver StoreGateLib )
 
 # Install files from the package:
 atlas_install_headers( MagFieldServices )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 if( NOT SIMULATIONBASE )
-  atlas_add_test( MagFieldServicesConfig    SCRIPT python -m MagFieldServices.MagFieldServicesConfig
+  atlas_add_test( MagFieldServicesConfig
+                  SCRIPT python -m MagFieldServices.MagFieldServicesConfig
                   PROPERTIES TIMEOUT 300
                   POST_EXEC_SCRIPT nopost.sh )
+
+  atlas_add_test( MagFieldCondAlg
+                  SCRIPT athena --threads=1 ${CMAKE_CURRENT_SOURCE_DIR}/share/test_magFieldCondAlg.py
+                  PROPERTIES TIMEOUT 300
+                  LOG_SELECT_PATTERN "MagFieldCondReader" )
 endif()

@@ -23,6 +23,7 @@
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
 //typedef
 #include "InDetRawData/TRT_RDO_Container.h"
+#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
 #include <string>
 
@@ -60,6 +61,7 @@ namespace InDet {
     ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
     ToolHandle<ITRTRawDataProviderTool> m_rawDataTool;
     ServiceHandle<ITRT_CablingSvc>      m_IdMapping;
+    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_bsErrorSvc;
     const TRT_ID*                       m_id; 
     //! the RDO container
     TRT_RDO_Container*                  m_container;

@@ -26,7 +26,7 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODCore/AuxContainerBase.h"
 
-#include "egammaMVACalib/egammaMVATool.h"
+#include "egammaMVACalibAnalysis/egammaMVATool.h"
 #include "AsgTools/AsgMessaging.h"
 
 // Infrastructure include(s):

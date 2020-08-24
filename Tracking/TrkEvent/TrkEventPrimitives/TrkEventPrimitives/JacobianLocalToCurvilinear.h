@@ -71,18 +71,12 @@ namespace Trk {
                                   const Amg::Vector3D& locY);
 
      /**Constructor for helical track model */
-     JacobianLocalToCurvilinear(  const Amg::Vector3D& bfield,
-								  double qOp,
-								  double sinTheta,
-                                  const CurvilinearUVT& curvUVT,
-                                  const Amg::Vector3D& locX,
-                                  const Amg::Vector3D& locY);
-
-     /** destructor */
-     ~JacobianLocalToCurvilinear();
-
-    private:
-
+     JacobianLocalToCurvilinear(const Amg::Vector3D& bfield,
+                                double qOp,
+                                double sinTheta,
+                                const CurvilinearUVT& curvUVT,
+                                const Amg::Vector3D& locX,
+                                const Amg::Vector3D& locY);
  };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 

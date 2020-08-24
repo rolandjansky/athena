@@ -23,10 +23,10 @@
 
 #include "TH2D.h"
 
+#include "AthenaMonitoringKernel/MonitoredScalar.h"
 #include "../src/HistogramFiller/HistogramFillerRebinable.h"
 
 #include "mocks/MockHistogramProvider.h"
-#include "mocks/MockMonitoredVariable.h"
 
 using namespace std;
 using namespace Monitored;
@@ -48,12 +48,9 @@ class HistogramFillerRebinable2DTestSuite {
     void beforeEach() {
         m_histogramDef.kAddBinsDynamically = true;
         m_histogramProvider.reset(new MockHistogramProvider());
-        m_var1.reset(new MockMonitoredVariable(""));
-        m_var2.reset(new MockMonitoredVariable(""));
         m_histogram.reset(new TH2D("MockHistogram", "Mock Histogram", 8, 1.0, 3.0, 5, 1.0, 5.0));
         m_testObj.reset(new HistogramFillerRebinable2D(m_histogramDef, m_histogramProvider));
 
-        m_testObj->setMonitoredVariables({ *m_var1, *m_var2 });
         m_histogramProvider->mock_histogram = [this]() { return m_histogram.get(); };
     }
 
@@ -61,8 +58,9 @@ class HistogramFillerRebinable2DTestSuite {
     }
 
     void test_shouldKeepNumberOfBinsForValueInHistogramsRange() {
-      m_var1->mock_getVectorRepresentation = []() -> vector<double> { return {2.9}; };
-      m_var2->mock_getVectorRepresentation = []() -> vector<double> { return {4.9}; };
+      Monitored::Scalar<double> var1("var1", 2.9);
+      Monitored::Scalar<double> var2("var2", 4.9);
+      m_testObj->setMonitoredVariables({var1, var2});
 
       auto check = [&](){
         VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
@@ -79,8 +77,9 @@ class HistogramFillerRebinable2DTestSuite {
     }
 
     void test_shouldDoubleNumberOfBinsForValueOutsideRange() {
-      m_var1->mock_getVectorRepresentation = []() -> vector<double> { return {3.0}; };
-      m_var2->mock_getVectorRepresentation = []() -> vector<double> { return {5.0}; };
+      Monitored::Scalar<double> var1("var1", 3.0);
+      Monitored::Scalar<double> var2("var2", 5.0);
+      m_testObj->setMonitoredVariables({var1, var2});
 
       m_testObj->fill();
 
@@ -125,7 +124,6 @@ class HistogramFillerRebinable2DTestSuite {
 
     HistogramDef m_histogramDef;
     shared_ptr<MockHistogramProvider> m_histogramProvider;
-    shared_ptr<MockMonitoredVariable> m_var1, m_var2;
     shared_ptr<TH2D> m_histogram;
     
     shared_ptr<HistogramFillerRebinable2D> m_testObj;

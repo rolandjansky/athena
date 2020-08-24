@@ -1,6 +1,5 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 //
 //  main.cpp
 //  TestTopo
@@ -10,9 +9,9 @@
 
 #include <iostream>
 
-#include "L1TopoCoreSimulation/TopoSteering.h"
-#include "L1TopoCoreSimulation/TopoASCIIReader.h"
-#include "L1TopoCoreSimulation/TopoInputEvent.h"
+#include "L1TopoCoreSim/TopoSteering.h"
+#include "L1TopoCoreSim/TopoASCIIReader.h"
+#include "L1TopoCoreSim/TopoInputEvent.h"
 #include "TrigConfL1TopoData/L1TopoConfigReader.h"
 
 using namespace std;

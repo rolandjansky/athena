@@ -3,43 +3,96 @@
 */
 
 inline void
-BFieldCache::getB(const double* xyz,
+BFieldCache::invalidate()
+{
+  m_phimin = 0.0;
+  m_phimax = -1.0;
+}
+inline void
+BFieldCache::setRange(double zmin,
+                      double zmax,
+                      double rmin,
+                      double rmax,
+                      double phimin,
+                      double phimax)
+{
+  m_zmin = zmin;
+  m_zmax = zmax;
+  m_rmin = rmin;
+  m_rmax = rmax;
+  m_phimin = phimin;
+  m_phimax = phimax;
+  m_invz = 1.0 / (zmax - zmin);
+  m_invr = 1.0 / (rmax - rmin);
+  m_invphi = 1.0 / (phimax - phimin);
+}
+
+// set field array, filled externally
+inline void
+BFieldCache::setField(double field[][8])
+{
+  std::copy(&field[0][0], &field[0][0] + 3 * 8, &m_field[0][0]);
+}
+
+inline void
+BFieldCache::setBscale(double bscale)
+{
+  m_scale = bscale;
+}
+
+inline float
+BFieldCache::bscale() const
+{
+  return m_scale;
+}
+
+inline bool
+BFieldCache::inside(double z, double r, double phi) const
+{
+  if (phi < m_phimin) {
+    phi += 2.0 * M_PI;
+  }
+  return (phi >= m_phimin && phi <= m_phimax && z >= m_zmin && z <= m_zmax &&
+          r >= m_rmin && r <= m_rmax);
+}
+
+inline void
+BFieldCache::getB(const double* ATH_RESTRICT xyz,
                   double r,
                   double phi,
-                  double* B,
-                  double* deriv) const
+                  double* ATH_RESTRICT B,
+                  double* ATH_RESTRICT deriv) const
 {
 
-  const double& x(xyz[0]);
-  const double& y(xyz[1]);
-  const double& z(xyz[2]);
+  const double x = xyz[0];
+  const double y = xyz[1];
+  const double z = xyz[2];
 
   // make sure phi is inside [m_phimin,m_phimax]
   if (phi < m_phimin) {
     phi += 2 * M_PI;
   }
   // fractional position inside this bin
-  float fz = (z - m_zmin) * m_invz;
-  float gz = 1.0 - fz;
-  float fr = (r - m_rmin) * m_invr;
-  float gr = 1.0 - fr;
-  float fphi = (phi - m_phimin) * m_invphi;
-  float gphi = 1.0 - fphi;
+  const double fz = (z - m_zmin) * m_invz;
+  const double gz = 1.0 - fz;
+  const double fr = (r - m_rmin) * m_invr;
+  const double gr = 1.0 - fr;
+  const double fphi = (phi - m_phimin) * m_invphi;
+  const double gphi = 1.0 - fphi;
+  const double scale = m_scale;
   // interpolate field values in z, r, phi
-  float Bzrphi[3];
-  for (int i = 0; i < 3; i++) { // z, r, phi components
-    const float* field = m_field[i];
-    Bzrphi[i] = m_scale * (gz * (gr * (gphi * field[0] + fphi * field[1]) +
-                                 fr * (gphi * field[2] + fphi * field[3])) +
-                           fz * (gr * (gphi * field[4] + fphi * field[5]) +
-                                 fr * (gphi * field[6] + fphi * field[7])));
+  double Bzrphi[3];
+  for (int i = 0; i < 3; ++i) { // z, r, phi components
+    const double* field = m_field[i];
+    Bzrphi[i] = scale * (gz * (gr * (gphi * field[0] + fphi * field[1]) +
+                               fr * (gphi * field[2] + fphi * field[3])) +
+                         fz * (gr * (gphi * field[4] + fphi * field[5]) +
+                               fr * (gphi * field[6] + fphi * field[7])));
   }
   // convert (Bz,Br,Bphi) to (Bx,By,Bz)
-  float invr;
-
-  float c;
-
-  float s;
+  double invr;
+  double c;
+  double s;
   if (r > 0.0) {
     invr = 1.0 / r;
     c = x * invr;
@@ -55,16 +108,16 @@ BFieldCache::getB(const double* xyz,
 
   // compute field derivatives if requested
   if (deriv) {
-    float sz = m_scale * m_invz;
-    float sr = m_scale * m_invr;
-    float sphi = m_scale * m_invphi;
-    float dBdz[3];
+    const double sz = m_scale * m_invz;
+    const double sr = m_scale * m_invr;
+    const double sphi = m_scale * m_invphi;
 
-    float dBdr[3];
+    std::array<double, 3> dBdz;
+    std::array<double, 3> dBdr;
+    std::array<double, 3> dBdphi;
 
-    float dBdphi[3];
-    for (int j = 0; j < 3; j++) { // Bz, Br, Bphi components
-      const float* field = m_field[j];
+    for (int j = 0; j < 3; ++j) { // Bz, Br, Bphi components
+      const double* field = m_field[j];
       dBdz[j] =
         sz *
         (gr * (gphi * (field[4] - field[0]) + fphi * (field[5] - field[1])) +
@@ -78,14 +131,14 @@ BFieldCache::getB(const double* xyz,
                 fz * (gr * (field[5] - field[4]) + fr * (field[7] - field[6])));
     }
     // convert to cartesian coordinates
-    float cc = c * c;
-    float cs = c * s;
-    float ss = s * s;
-    float ccinvr = cc * invr;
-    float csinvr = cs * invr;
-    float ssinvr = ss * invr;
-    float sinvr = s * invr;
-    float cinvr = c * invr;
+    const double cc = c * c;
+    const double cs = c * s;
+    const double ss = s * s;
+    const double ccinvr = cc * invr;
+    const double csinvr = cs * invr;
+    const double ssinvr = ss * invr;
+    const double sinvr = s * invr;
+    const double cinvr = c * invr;
     deriv[0] = cc * dBdr[1] - cs * dBdr[2] - csinvr * dBdphi[1] +
                ssinvr * dBdphi[2] + sinvr * B[1];
     deriv[1] = cs * dBdr[1] - ss * dBdr[2] + ccinvr * dBdphi[1] -
@@ -101,5 +154,4 @@ BFieldCache::getB(const double* xyz,
     deriv[8] = dBdz[0];
   }
 }
-
 

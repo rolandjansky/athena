@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloMonAlgBase.h" 
-#include "xAODEventInfo/EventInfo.h"
 
 CaloMonAlgBase::CaloMonAlgBase(const std::string& name, ISvcLocator* pSvcLocator) 
   :AthMonitorAlgorithm(name, pSvcLocator),
@@ -81,14 +80,9 @@ StatusCode CaloMonAlgBase::checkFilters(bool &ifPass, bool &passBeamBackgroundRe
     ifPass = 1;
   }
 
-  ATH_MSG_DEBUG("CaloCellVecMon::checkFilters()  ATLAS Ready done");
+  ATH_MSG_DEBUG("CaloMonAlgBase::checkFilters()  ATLAS Ready done");
 
-  const xAOD::EventInfo* eventInfo;
-  sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Event info not found !" );
-    return sc;
-  }
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{GetEventInfo(ctx)};
 
   if (m_useBadLBTool) {
     if (m_BadLBTool->accept()) { 
@@ -103,7 +97,7 @@ StatusCode CaloMonAlgBase::checkFilters(bool &ifPass, bool &passBeamBackgroundRe
     if(ifPass) {evtbin=3; fill(MonGroupName,evtbin);} 
   }
 
-  ATH_MSG_DEBUG("CaloCellVecMon::checkFilters() BadLBTool  done");
+  ATH_MSG_DEBUG("CaloMonAlgBase::checkFilters() BadLBTool  done");
 
   // Filter the events identfied as collision by the LAr system
   // Useful in CosmicCalo to reject collision candidates
@@ -126,7 +120,7 @@ StatusCode CaloMonAlgBase::checkFilters(bool &ifPass, bool &passBeamBackgroundRe
   else{
     if(ifPass) {evtbin=4; fill(MonGroupName,evtbin);} 
   }
-  ATH_MSG_DEBUG("CaloCellVecMon::checkFilters() CollisionFilterTool  done");
+  ATH_MSG_DEBUG("CaloMonAlgBase::checkFilters() CollisionFilterTool  done");
 
 
   passBeamBackgroundRemoval=true;
@@ -153,7 +147,7 @@ StatusCode CaloMonAlgBase::checkFilters(bool &ifPass, bool &passBeamBackgroundRe
     if(ifPass) {evtbin=5; fill(MonGroupName,evtbin);}  //All events with ATLAS Ready and Good LB and Good LAr collision time and not Beam Background
   
   }
-  ATH_MSG_DEBUG("CaloCellVecMon::checkFilters() m_useBeamBackgroundRemoval  done");
+  ATH_MSG_DEBUG("CaloMonAlgBase::checkFilters() m_useBeamBackgroundRemoval  done");
 
   std::string TheTrigger;
   if ( m_vTrigChainNames.size()==0) {  
@@ -174,6 +168,6 @@ StatusCode CaloMonAlgBase::checkFilters(bool &ifPass, bool &passBeamBackgroundRe
     if(ifPass) {evtbin=7; fill(MonGroupName,evtbin);} //All events with ATLAS Ready and Good LB and Good LAr collision time and not Beam Background and Trigger Filter pass and no Lar Error
   }
 
-  ATH_MSG_DEBUG("CaloMonALgBase::checkFilters() is done");
+  ATH_MSG_DEBUG("CaloMonAlgBase::checkFilters() is done");
   return StatusCode::SUCCESS;
 }

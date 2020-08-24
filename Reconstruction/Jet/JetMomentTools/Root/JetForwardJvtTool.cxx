@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.cxx
@@ -13,14 +13,6 @@
 #include "JetMomentTools/JetForwardJvtTool.h"
 
 // Jet EDM
-#include "xAODJet/JetAttributes.h"
-
-// Shallow copy
-//#include "xAODCore/ShallowCopy.h"
-
-    static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
-    static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
-    static SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -29,27 +21,8 @@
   // Constructors
   ////////////////
   JetForwardJvtTool::JetForwardJvtTool(const std::string& name) :
-    AsgTool(name),
-    m_fjvtThresh(15e3)
-  {
-    declareProperty("OverlapDec",          m_orLabel            = ""                );
-    declareProperty("OutputDec",           m_outLabel           = "passFJVT"        );
-    declareProperty("EtaThresh",        m_etaThresh          = 2.5              );
-    declareProperty("ForwardMinPt",        m_forwardMinPt          = 20e3              );
-    declareProperty("ForwardMaxPt",        m_forwardMaxPt          = 50e3              );
-    declareProperty("CentralMinPt",        m_centerMinPt          = 20e3              );
-    declareProperty("CentralMaxPt",        m_centerMaxPt          = -1              );
-    declareProperty("CentralJvtThresh",        m_centerJvtThresh          = 0.14              );
-    declareProperty("JvtMomentName",   m_jvtMomentName   = "Jvt"               );
-    declareProperty("CentralDrptThresh",       m_centerDrptThresh          = 0.2              );
-    declareProperty("CentralMaxStochPt",          m_maxStochPt         = 35e3              );
-    declareProperty("JetScaleFactor",          m_jetScaleFactor         = 0.4              );
-    //declareProperty("FJVTThreshold",          m_fjvtThresh         = 15e3              );//15GeV->92%,11GeV->85%
-    declareProperty("UseTightOP",          m_tightOP         = false              );//Tight or Loose
-
-    declareProperty("VertexContainer", m_vertexContainer_key="PrimaryVertices");
-    declareProperty("Met_Track", m_trkMET_key="Met_Track");
-
+    AsgTool(name) {
+    declareInterface<IJetDecorator>(this);
   }
 
   // Destructor
@@ -61,15 +34,34 @@
   ////////////////////////////
   StatusCode JetForwardJvtTool::initialize()
   {
-    ATH_MSG_DEBUG("initializing version with data handles");
     ATH_MSG_INFO ("Initializing " << name() << "...");
     if (m_tightOP) m_fjvtThresh = 0.4;
     else m_fjvtThresh = 0.5;
-    if (m_orLabel!="")  m_Dec_OR = new SG::AuxElement::Decorator<char>(m_orLabel);
-    m_Dec_out = new SG::AuxElement::Decorator<char>(m_outLabel);
 
-    ATH_CHECK(m_vertexContainer_key.initialize());
-    ATH_CHECK(m_trkMET_key.initialize());
+    ATH_CHECK(m_vertexContainerName.initialize());
+    ATH_CHECK(m_trkMETName.initialize());
+
+    if(m_jetContainerName.empty()) {
+      ATH_MSG_ERROR("JetForwardJvtTool needs to have its input jet container configured!");
+      return StatusCode::FAILURE;
+    }
+    m_orKey = m_jetContainerName + "." + m_orKey.key();
+    m_outKey = m_jetContainerName + "." + m_outKey.key();
+    m_isHSKey = m_jetContainerName + "." + m_isHSKey.key();
+    m_isPUKey = m_jetContainerName + "." + m_isPUKey.key();
+    m_fjvtDecKey = m_jetContainerName + "." + m_fjvtDecKey.key();
+    m_widthKey = m_jetContainerName + "." + m_widthKey.key();
+    m_jvtMomentKey = m_jetContainerName + "." + m_jvtMomentKey.key();
+    m_sumPtsKey = m_jetContainerName + "." + m_sumPtsKey.key();
+
+    ATH_CHECK(m_orKey.initialize());
+    ATH_CHECK(m_outKey.initialize());
+    ATH_CHECK(m_isHSKey.initialize());
+    ATH_CHECK(m_isPUKey.initialize());
+    ATH_CHECK(m_fjvtDecKey.initialize());
+    ATH_CHECK(m_widthKey.initialize());
+    ATH_CHECK(m_jvtMomentKey.initialize());
+    ATH_CHECK(m_sumPtsKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -80,16 +72,19 @@
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetForwardJvtTool::modify(xAOD::JetContainer& jetCont) const {
+  StatusCode JetForwardJvtTool::decorate(const xAOD::JetContainer& jetCont) const {
+    SG::WriteDecorHandle<xAOD::JetContainer, char> outHandle(m_outKey);
+    SG::WriteDecorHandle<xAOD::JetContainer, float> fjvtDecHandle(m_fjvtDecKey);
+
     getPV();
     if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
     for(const auto& jetF : jetCont) {
-      (*m_Dec_out)(*jetF) = 1;
-      fjvt_dec(*jetF) = 0;
+      outHandle(*jetF) = 1;
+      fjvtDecHandle(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
       double fjvt = getFJVT(jetF)/jetF->pt();
-      if (fjvt>m_fjvtThresh) (*m_Dec_out)(*jetF) = 0;
-      fjvt_dec(*jetF) = fjvt;
+      if (fjvt>m_fjvtThresh) outHandle(*jetF) = 0;
+      fjvtDecHandle(*jetF) = fjvt;
     }
     return StatusCode::SUCCESS;
   }
@@ -109,28 +104,25 @@
   void JetForwardJvtTool::calculateVertexMomenta(const xAOD::JetContainer *jets) const {
     m_pileupMomenta.clear();
 
-    auto trkMETContainer = SG::makeHandle (m_trkMET_key);
-    if (!trkMETContainer.isValid()){
-      ATH_MSG_WARNING("Invalid  xAOD::MissingETContainer datahandle");
+    SG::ReadHandle<xAOD::MissingETContainer> trkMetHandle(m_trkMETName);
+    SG::ReadHandle<xAOD::VertexContainer> vertexContainerHandle(m_vertexContainerName);
+    if( !trkMetHandle.isValid() ) {
+      ATH_MSG_WARNING("xAOD::MissingETContainer " << m_trkMETName.key() << " is invalid");
       return;
     }
-    auto trkMet = trkMETContainer.cptr();
-
-    auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
-    if (!vertexContainer.isValid()){
-      ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle");
+    if( !vertexContainerHandle.isValid() ) {
+      ATH_MSG_WARNING("xAOD::VertexContainer " << m_vertexContainerName.key() << " is invalid");
       return;
     }
-    auto vxCont = vertexContainer.cptr();
 
-    for(const auto& vx : *vxCont) {
+    for(const auto& vx : *vertexContainerHandle) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
       TString vname = "PVTrack_vx";
       vname += vx->index();
       m_pileupMomenta.push_back(\
                                 (vx->index()==m_pvind ? \
                                  0:\
-                                 -(1./m_jetScaleFactor))*TVector2(0.5*(*trkMet)[vname.Data()]->mpx(),0.5*(*trkMet)[vname.Data()]->mpy()));
+                                 -(1./m_jetScaleFactor))*TVector2(0.5*(*trkMetHandle)[vname.Data()]->mpx(),0.5*(*trkMetHandle)[vname.Data()]->mpy()));
     }
 
     for (const auto& jet : *jets) {
@@ -144,7 +136,8 @@
     float Width = 0;
     float CWidth = 0;
     float ptsum = 0;
-    jet->getAttribute(xAOD::JetAttribute::Width,Width);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> widthHandle(m_widthKey);
+    Width = widthHandle(*jet);
     xAOD::JetConstituentVector constvec = jet->getConstituents();
     for (xAOD::JetConstituentVector::iterator it = constvec.begin(); it != constvec.end(); it++) {
       const xAOD::CaloCluster *cl = static_cast<const xAOD::CaloCluster*>((*it)->rawConstituent());
@@ -164,11 +157,13 @@
   }
 
   bool JetForwardJvtTool::centralJet(const xAOD::Jet *jet) const {
+    SG::ReadDecorHandle<xAOD::JetContainer, char> orHandle(m_orKey);
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
-    if (m_Dec_OR && !(*m_Dec_OR)(*jet)) return false;
+    if ( !orHandle(*jet) ) return false;
     float jvt = 0;
-    jet->getAttribute<float>(m_jvtMomentName,jvt);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> jvtMomentHandle(m_jvtMomentKey);
+    jvt = jvtMomentHandle(*jet);
     if (jvt>m_centerJvtThresh) return false;
     if (jet->pt()<m_maxStochPt && getDrpt(jet)<m_centerDrptThresh) return false;
     return true;
@@ -176,7 +171,8 @@
 
   int JetForwardJvtTool::getJetVertex(const xAOD::Jet *jet) const {
     std::vector<float> sumpts;
-    jet->getAttribute<std::vector<float> >("SumPtTrkPt500",sumpts);
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtsHandle(m_sumPtsKey);
+    sumpts = sumPtsHandle(*jet);
     double firstVal = 0;
     int bestMatch = -1;
     for (size_t i = 0; i < sumpts.size(); i++) {
@@ -190,7 +186,8 @@
 
   float JetForwardJvtTool::getDrpt(const xAOD::Jet *jet) const {
     std::vector<float> sumpts;
-    jet->getAttribute<std::vector<float> >("SumPtTrkPt500",sumpts);
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtsHandle(m_sumPtsKey);
+    sumpts = sumPtsHandle(*jet);
     if (sumpts.size()<2) return 0;
 
     std::nth_element(sumpts.begin(),sumpts.begin()+sumpts.size()/2,sumpts.end(),std::greater<int>());
@@ -202,7 +199,7 @@
 
   void JetForwardJvtTool::getPV() const {
 
-    auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
+    auto vertexContainer = SG::makeHandle (m_vertexContainerName);
     if (!vertexContainer.isValid()){
       ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle");
       return;
@@ -222,6 +219,8 @@
   }
 
   StatusCode JetForwardJvtTool::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {
+    SG::WriteDecorHandle<xAOD::JetContainer, bool> isHSHandle(m_isHSKey);
+    SG::WriteDecorHandle<xAOD::JetContainer, bool> isPUHandle(m_isPUKey);
     for(const auto& jet : *jets) {
       bool ishs = false;
       bool ispu = true;
@@ -229,8 +228,8 @@
         if (tjet->p4().DeltaR(jet->p4())<0.3 && tjet->pt()>10e3) ishs = true;
         if (tjet->p4().DeltaR(jet->p4())<0.6) ispu = false;
       }
-      isHS(*jet)=ishs;
-      isPU(*jet)=ispu;
+      isHSHandle(*jet)=ishs;
+      isPUHandle(*jet)=ispu;
     }
     return StatusCode::SUCCESS;
   }

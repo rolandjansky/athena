@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------
@@ -10,6 +10,8 @@
 //
 //----------------------------------------
 #include <math.h>
+
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
@@ -37,7 +39,7 @@ T2IDCoreTauHypo::T2IDCoreTauHypo(const std::string& name, ISvcLocator* pSvcLocat
   // Cut on maximum number of tracks Ntrk <= NtrkMaxCut
   declareProperty("NTrkMax",    m_nTrkMax_Cut = -1 ); 
   // Cut for minimum leading track Pt
-  declareProperty("LdTrkPtMin", m_ldTrkPt_Cut = -9999.9 *CLHEP::GeV ); //disabled by default
+  declareProperty("LdTrkPtMin", m_ldTrkPt_Cut = -9999.9 *Gaudi::Units::GeV ); //disabled by default
 
 
   // Cut counter

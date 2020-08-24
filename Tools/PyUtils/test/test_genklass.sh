@@ -16,7 +16,6 @@ mkdir -p ${srcdir}/MyPkg/src/components
 if [ ! -f ${srcdir}/MyPkg/CMakeLists.txt ]; then
     cat <<EOF > ${srcdir}/MyPkg/CMakeLists.txt
 atlas_subdir( MyPkg )
-atlas_depends_on_subdirs( PRIVATE Control/AthenaBaseComps )
 atlas_add_component( MyPkg
                      src/components/*.cxx src/*.cxx
                      LINK_LIBRARIES AthenaBaseComps

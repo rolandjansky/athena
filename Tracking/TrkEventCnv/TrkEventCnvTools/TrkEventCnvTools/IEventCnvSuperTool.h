@@ -25,10 +25,13 @@ namespace Trk
   class IEventCnvSuperTool : virtual public IAlgTool
   {
   public:
+    /// Key and index types used for an EL to IdentifiableContainer.
+    typedef std::string ELKey_t;
+    typedef unsigned int ELIndex_t;
+
+    DeclareInterfaceID( IEventCnvSuperTool, 1, 0 );
 
     IEventCnvSuperTool() {};
-
-    static const InterfaceID& interfaceID();
 
     virtual const Trk::ITrkEventCnvTool* getCnvTool(const Identifier& id) const =0;
 
@@ -40,6 +43,11 @@ namespace Trk
 
    /** Take the passed RoT and prepare the PRD ElementLink for writing to disc*/
     virtual void prepareRIO_OnTrack( RIO_OnTrack* Rot) const = 0;
+
+   /** Take the passed RoT and return the EL components to write to disc */
+    virtual void prepareRIO_OnTrackLink( const RIO_OnTrack* Rot,
+                                         ELKey_t& key,
+                                         ELIndex_t& index ) const = 0;
 
     /**This templated method will return the hashAndIndex of the passed RIO_OnTrack.*/
     template <class CONT, class ROT> bool getHashAndIndex(const ROT* rot,
@@ -59,11 +67,6 @@ namespace Trk
     virtual int maxNumberOfErrors() const =0;
     
   };
-}
-
-inline const InterfaceID& Trk::IEventCnvSuperTool::interfaceID()
-{
-  return IID_IIEventCnvSuperTool;
 }
 
 #include "TrkEventCnvTools/IEventCnvSuperTool.icc"

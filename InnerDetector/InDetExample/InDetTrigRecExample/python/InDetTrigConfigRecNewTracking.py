@@ -432,7 +432,7 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
       #
       from AthenaCommon.DetFlags    import DetFlags
       if (DetFlags.haveRIO.TRT_on()):
-         if InDetTrigFlags.trtExtensionType() is 'xk' :
+         if InDetTrigFlags.trtExtensionType() == 'xk' :
          
             from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
@@ -452,7 +452,7 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
                                                  RoadWidth             = 20.,
                                                  UseParameterization   = EFIDTrackingCuts.useParameterizedTRTCuts()
                                                  )
-         elif InDetTrigFlags.trtExtensionType() is 'DAF' :
+         elif InDetTrigFlags.trtExtensionType() == 'DAF' :
             # load TRT Competing ROT tool
             from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DAF_SimpleWeightCalculator
             InDetTrigWeightCalculator =  Trk__DAF_SimpleWeightCalculator( name = 'InDetTrigWeightCalculator')
@@ -509,7 +509,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter, InDetTrigPatternUpdator, InDetTrigExtrapolator, InDetTrigTrackSummaryTool
 
-    if InDetTrigFlags.trtExtensionType() is 'DAF' :
+    if InDetTrigFlags.trtExtensionType() == 'DAF' :
 
       # DAF Fitter setup
       #
@@ -598,9 +598,10 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
 
       
     self.TrackFitter  = InDetTrigExtensionFitter
+    self.SummaryTool  = InDetTrigTrackSummaryTool
     self.ScoringTool  = InDet__InDetAmbiScoringTool('InDetTrigExtScoringTool_'+type)
                                                           
-    self.RefitPrds    = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() is 'DAF'))
+    self.RefitPrds    = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() == 'DAF'))
     self.suppressHoleSearch = False    # does not work properly      
     if type=="cosmicsN":
       self.ScoringTool = InDetTrigScoringToolCosmics_TRT

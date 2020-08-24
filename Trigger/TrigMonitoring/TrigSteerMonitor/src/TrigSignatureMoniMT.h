@@ -7,6 +7,7 @@
 #include <string>
 #include <mutex>
 #include <memory>
+#include <vector>
 #include <TH2.h>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"

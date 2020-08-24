@@ -1,37 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSEGMENTFITTINGTOOL_H
 #define MUONSEGMENTFITTINGTOOL_H
 
+#include "MuonRecToolInterfaces/IMuonSegmentFittingTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
-
-#include "MuonRecToolInterfaces/IMuonSegmentFittingTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-
+#include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include <string>
 #include <vector>
 
 namespace Trk {
   class PlaneSurface;
-  class IPropagator;
-  class ITrackFitter;
   class LocalDirection;
   class MeasurementBase;
 }
 
-
 namespace Muon {
-  class IMuonTrackCleaner;
-  class MuonIdHelperTool;
   class MuonSegment;
 }
-
-
-class MsgStream;
 
 namespace Muon {
 
@@ -43,17 +37,11 @@ namespace Muon {
   */
   class MuonSegmentFittingTool :  virtual public IMuonSegmentFittingTool, public AthAlgTool   {
   public:
-    /** default AlgTool constructor */
     MuonSegmentFittingTool(const std::string&,const std::string&,const IInterface*);
     
-    /** destructor */
-    virtual ~MuonSegmentFittingTool ();
+    virtual ~MuonSegmentFittingTool()=default;
     
-    /** initialize method, method taken from bass-class AlgTool */
     virtual StatusCode initialize();
-
-    /** finialize method, method taken from bass-class AlgTool */
-    virtual StatusCode finalize();
 
     /** fit segment parameters + hits producing a track */
     Trk::Track* fit( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, const Trk::PlaneSurface& surf, 
@@ -72,7 +60,6 @@ namespace Muon {
     ToolHandle<Trk::ITrackFitter>             m_slTrackFitter;          //<! fitter, always use straightline
     ToolHandle<Trk::ITrackFitter>             m_curvedTrackFitter;      //<! fitter, curved tracks
     ToolHandle<Muon::IMuonTrackCleaner>       m_trackCleaner;
-    ToolHandle<MuonIdHelperTool>              m_idHelperTool;   //<! Id helper tool
 
     bool m_updatePrecisionCoordinate; //<! flag to select update of precision coordinate in fit
   };

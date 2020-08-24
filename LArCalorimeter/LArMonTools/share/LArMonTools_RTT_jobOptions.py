@@ -69,7 +69,7 @@ ByteStreamInputSvc = Service( "ByteStreamInputSvc" )
 ByteStreamInputSvc.InputDirectory = [ InputDir ]
 ByteStreamInputSvc.FilePrefix     = [ FilePrefix ]
 ByteStreamInputSvc.RunNumber      = [ RunNumber ]
-# ByteStreamInputSvc.FullFileName += [ InputFileName ]
+# EventSelector.Input += [ InputFileName ]
 
 ByteStreamEventStorageInputSvc = Service( "ByteStreamEventStorageInputSvc" )
 ByteStreamEventStorageInputSvc.ReaderType = "Castor"

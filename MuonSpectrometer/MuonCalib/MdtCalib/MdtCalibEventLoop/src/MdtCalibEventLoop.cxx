@@ -1,22 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibEventLoop/MdtCalibEventLoop.h"
-
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
-
 #include "MdtCalibInterfaces/IMdtCalibration.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 #include <algorithm>
 
 namespace MuonCalib {
 
-  MdtCalibEventLoop::MdtCalibEventLoop(std::string regionKey) 
-    : m_calibrationImp(NULL),
-    m_calibrationResult(NULL),
+  MdtCalibEventLoop::MdtCalibEventLoop(std::string regionKey) :
+    m_calibrationImp(nullptr),
+    m_calibrationResult(nullptr),
     m_regionKey(regionKey)
   {
     m_printLevel = 1;
@@ -31,14 +31,18 @@ namespace MuonCalib {
 
   void MdtCalibEventLoop::performAnalysis()
   {
-    if( m_printLevel >= 1 ) 
-      std::cout << "MdtCalibEventLoop::performAnalysis for region " << m_regionKey << std::endl;
+    if( m_printLevel >= 1 ) {
+      MsgStream log(Athena::getMessageSvc(),"MdtCalibEventLoop");
+      log<<MSG::VERBOSE<<"MdtCalibEventLoop::performAnalysis for region " << m_regionKey<<endmsg;
+    }
 
     // perform rt-calibration 
     m_calibrationResult = m_calibrationImp->analyseSegments( m_segments );
 
-    if( m_printLevel >= 2 ) 
-      std::cout << "new rtOutput " << m_calibrationResult << std::endl;
+    if( m_printLevel >= 2 ) {
+      MsgStream log(Athena::getMessageSvc(),"MdtCalibEventLoop");
+      log<<MSG::DEBUG<<"new rtOutput " << m_calibrationResult<<endmsg;
+    }
 
   
   }
@@ -46,8 +50,10 @@ namespace MuonCalib {
 
   bool MdtCalibEventLoop::handleSegment( const MuonCalibSegment* cseg )
   {
-    if( m_printLevel >= 4 ) 
-      std::cout << "MdtCalibEventLoop::handleSegment " << cseg << std::endl;
+    if( m_printLevel >= 4 ) {
+      MsgStream log(Athena::getMessageSvc(),"MdtCalibEventLoop");
+      log<<MSG::WARNING<<"MdtCalibEventLoop::handleSegment " << cseg<<endmsg;
+    }
 
     if( cseg ){
       // eventloop owns the segments so it should make a copy
@@ -57,7 +63,8 @@ namespace MuonCalib {
       m_segments.push_back(seg);
 
     }else{
-      std::cout << "MdtCalibEventLoop::handleSegment ERROR got NULL pointer " << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MdtCalibEventLoop");
+      log<<MSG::WARNING<<"MdtCalibEventLoop::handleSegment: got nullptr "<<endmsg;
       return false;
     }
     return true;
@@ -65,13 +72,15 @@ namespace MuonCalib {
 
   void MdtCalibEventLoop::setCalibImp( IMdtCalibration* calibImp)
   {
-    if( m_printLevel >= 2 ) 
-      std::cout << "MdtCalibEventLoop::setRtCalibTool >> new tool " 
-		<< calibImp << std::endl;
+    if( m_printLevel >= 2 ) {
+      MsgStream log(Athena::getMessageSvc(),"MdtCalibEventLoop");
+      log<<MSG::DEBUG<<"MdtCalibEventLoop::setRtCalibTool >> new tool "<<calibImp<<endmsg;
+    }
     if( calibImp ){
       m_calibrationImp = calibImp;
     }else{
-      std::cout << "MdtCalibEventLoop::setCalibImp ERROR got NULL pointer " << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MdtCalibEventLoop");
+      log<<MSG::WARNING<<"MdtCalibEventLoop::setCalibImp: got nullptr "<<endmsg;
       m_calibrationImp = 0;
     }
   }

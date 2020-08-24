@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -38,7 +38,7 @@
 //
 // Constructor
 //
-TileCellToTTL1::TileCellToTTL1(std::string name, ISvcLocator* pSvcLocator)
+TileCellToTTL1::TileCellToTTL1(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_tileID(0)
   , m_TT_ID(0)

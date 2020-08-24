@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************************
@@ -11,7 +11,7 @@
 //			Lianyou SHAN  ( update for run2 )
 //*********************************************************************
 
-#include "tauMonitoring/tauMonTool.h"
+#include "tauMonTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" 
@@ -28,7 +28,6 @@ using Gaudi::Units::GeV;
 tauMonTool::tauMonTool( const std::string & type,
 		const std::string & name,
 		const IInterface* parent ) :ManagedMonitorToolBase( type, name, parent ),
-		m_tauJetKey("TauJets"),
                 m_doTrigger(false), 
 		m_maxNLB(1000) 
 // m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool") 
@@ -40,6 +39,13 @@ tauMonTool::tauMonTool( const std::string & type,
 }
 
 tauMonTool::~tauMonTool() {}
+
+StatusCode tauMonTool::initialize() {
+	ATH_CHECK( ManagedMonitorToolBase::initialize() );
+	ATH_CHECK( m_tauJetKey.initialize() );
+	ATH_CHECK( m_eventInfoKey.initialize() );
+	return StatusCode::SUCCESS;
+}
 
 //--------------------------------------------------------------------------------
 // Book Histograms
@@ -146,8 +152,8 @@ StatusCode tauMonTool::fillHistograms()
 	//--------------------
 	//figure out current LB
 	//--------------------
-	const DataHandle<xAOD::EventInfo> evtInfo;
-	if ( (evtStore()->retrieve(evtInfo)) . isFailure()) {
+	SG::ReadHandle<xAOD::EventInfo> evtInfo{m_eventInfoKey};
+	if (!evtInfo.isValid()) {
 		ATH_MSG_ERROR("couldn't retrieve event info");
 		return StatusCode::FAILURE;
 	}
@@ -207,9 +213,9 @@ StatusCode tauMonTool::fillHistograms()
 	//--------------------
 	//Get Tau container
 	//--------------------
-	const xAOD::TauJetContainer  *tau_container;
-	if ( (evtStore()->retrieve(tau_container,m_tauJetKey)).isFailure() ) {
-		ATH_MSG_WARNING("Cannot retrieve " << m_tauJetKey);
+	SG::ReadHandle<xAOD::TauJetContainer> tau_container{m_tauJetKey};
+	if ( !tau_container.isValid() ) {
+		ATH_MSG_WARNING("Cannot retrieve " << m_tauJetKey.key());
 		return StatusCode::FAILURE;
 	}
 

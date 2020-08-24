@@ -68,8 +68,6 @@ Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, co
   , m_bounds(csf.m_bounds)
 {}
 
-// destructor (will call destructor from base class which deletes objects)
-Trk::StraightLineSurface::~StraightLineSurface() = default;
 
 // assignment operator
 Trk::StraightLineSurface&
@@ -110,7 +108,7 @@ Trk::StraightLineSurface::localToGlobal(const Amg::Vector2D& locpos,
 }
 
 // specialized version for providing different Z -  local to global method - from LocalParameters/
-const Amg::Vector3D*
+Amg::Vector3D*
 Trk::StraightLineSurface::localToGlobal(const Trk::LocalParameters& locpars,
                                         const Amg::Vector3D& glomom,
                                         double locZ) const
@@ -119,6 +117,17 @@ Trk::StraightLineSurface::localToGlobal(const Trk::LocalParameters& locpars,
   Amg::Vector2D locPos(locpars[Trk::driftRadius], locZ);
   return Surface::localToGlobal(locPos, glomom);
 }
+
+Amg::Vector3D
+Trk::StraightLineSurface::localToGlobalPos(const Trk::LocalParameters& locpars,
+                                           const Amg::Vector3D& glomom,
+                                           double locZ) const
+{
+  // create a local Position
+  Amg::Vector2D locPos(locpars[Trk::driftRadius], locZ);
+  return Surface::localToGlobalPos(locPos, glomom);
+}
+
 
 // true global to local method - fully defined
 bool

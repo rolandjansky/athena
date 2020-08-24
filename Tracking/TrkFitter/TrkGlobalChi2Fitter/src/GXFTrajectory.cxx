@@ -15,7 +15,6 @@ using CLHEP::HepVector;
 namespace Trk {
   GXFTrajectory::GXFTrajectory() {
     m_straightline = true;
-    m_fieldprop = nullptr;
     m_ndof = 0;
     m_nperpars = -1;
     m_nscatterers = 0;
@@ -35,11 +34,10 @@ namespace Trk {
     m_prevchi2 = 0;
     m_converged = false;
     m_prefit = 0;
-    m_refpar = nullptr;
+    m_refpar.reset(nullptr);
     m_totx0 = 0;
     m_toteloss = 0;
     m_mass = 0;
-    m_ownrefpar = false;
     m_caloelossstate = nullptr;
   } 
   
@@ -65,7 +63,7 @@ namespace Trk {
     m_prevchi2 = rhs.m_prevchi2;
     m_converged = rhs.m_converged;
     m_prefit = rhs.m_prefit;
-    m_refpar = rhs.m_ownrefpar ? rhs.m_refpar->clone() : rhs.m_refpar;
+    m_refpar.reset(rhs.m_refpar != nullptr ? rhs.m_refpar->clone() : nullptr);
     m_states = rhs.m_states;
     
     for (int i = 0; i < (int) m_states.size(); i++) {
@@ -81,7 +79,6 @@ namespace Trk {
     m_totx0 = rhs.m_totx0;
     m_toteloss = rhs.m_toteloss;
     m_mass = rhs.m_mass;
-    m_ownrefpar = rhs.m_ownrefpar;
     m_caloelossstate = nullptr;
     
     if (rhs.m_caloelossstate != nullptr) {
@@ -103,10 +100,6 @@ namespace Trk {
   }
 
   GXFTrajectory::~GXFTrajectory() {
-    if (m_ownrefpar) {
-      delete m_refpar;
-    }
-    
     for (auto & state : m_states) {
       delete state;
     }
@@ -135,8 +128,7 @@ namespace Trk {
       m_prevchi2 = rhs.m_prevchi2;
       m_converged = rhs.m_converged;
       m_prefit = rhs.m_prefit;
-      delete m_refpar;
-      m_refpar = rhs.m_ownrefpar ? rhs.m_refpar->clone() : rhs.m_refpar;
+      m_refpar.reset(rhs.m_refpar != nullptr ? rhs.m_refpar->clone() : nullptr);
       
       for (auto & state : m_states) {
         delete state;
@@ -157,7 +149,6 @@ namespace Trk {
       m_totx0 = rhs.m_totx0;
       m_toteloss = rhs.m_toteloss;
       m_mass = rhs.m_mass;
-      m_ownrefpar = rhs.m_ownrefpar;
       m_caloelossstate = nullptr;
       
       if (rhs.m_caloelossstate != nullptr) {
@@ -234,18 +225,9 @@ namespace Trk {
     return true;
   }
 
-  void GXFTrajectory::addHoleState(const TrackParameters * par) {
-    GXFTrackState *state = new GXFTrackState(par);
-    m_states.push_back(state);
-  }
-
-  void GXFTrajectory::addMaterialState(GXFTrackState * state, int index, bool owntp) {
+  void GXFTrajectory::addMaterialState(GXFTrackState * state, int index) {
     const TrackParameters *par = state->trackParameters();
     GXFMaterialEffects *meff = state->materialEffects();
-
-    if (owntp) {
-      state->setTrackParameters(par);
-    }
     
     if (index == -1) {
       m_states.push_back(state);
@@ -297,16 +279,11 @@ namespace Trk {
     m_totx0 += meff->x0();
   }
 
-  void
-    GXFTrajectory::setReferenceParameters(const TrackParameters * per) {
+  void GXFTrajectory::setReferenceParameters(std::unique_ptr<const TrackParameters> per) {
     if (m_refpar != nullptr) {
-      if (m_ownrefpar) {
-        delete m_refpar;
-      }
-      
-      m_refpar = per;
+      m_refpar = std::move(per);
     } else {
-      m_refpar = per;
+      m_refpar = std::move(per);
       m_nupstreamstates = m_nupstreamscatterers = m_nupstreamcaloscatterers = m_nupstreambrems = 0;
 
       std::vector < GXFTrackState * >::iterator it = m_states.begin();
@@ -317,14 +294,14 @@ namespace Trk {
         bool isdownstream = false;
         
         if ((**it2).trackParameters() != nullptr) {
-          distance = ((**it2).position() - per->position()).mag();
-          double inprod = per->momentum().dot((**it2).position() - per->position());
+          distance = ((**it2).position() - m_refpar->position()).mag();
+          double inprod = m_refpar->momentum().dot((**it2).position() - m_refpar->position());
           
           if (inprod > 0) {
             isdownstream = true;
           }
         } else {
-          DistanceSolution distsol = (**it2).surface()->straightLineDistanceEstimate(per->position(),per->momentum().unit());
+          DistanceSolution distsol = (**it2).surface()->straightLineDistanceEstimate(m_refpar->position(),m_refpar->momentum().unit());
           
           if (distsol.numberOfSolutions() == 1) {
             distance = distsol.first();
@@ -369,25 +346,14 @@ namespace Trk {
         it2++;
       }
     }
-
-    m_ownrefpar = true;
   }
 
-  const TrackParameters *GXFTrajectory::referenceParameters(bool takeownership) {
-    const TrackParameters *returnpar = m_refpar;
-
-    if (takeownership) {
-      if (!m_ownrefpar) {
-        returnpar = returnpar->clone();
-      }
-      
-      m_ownrefpar = false;
-    }
-    return returnpar;
+  const TrackParameters *GXFTrajectory::referenceParameters() {
+    return m_refpar.get();
   }
 
   void GXFTrajectory::resetReferenceParameters() {
-    m_refpar = nullptr;
+    m_refpar.reset(nullptr);
   }
 
   void GXFTrajectory::setNumberOfPerigeeParameters(int nperpar) {
@@ -436,16 +402,13 @@ namespace Trk {
   }
 
   void GXFTrajectory::reset() {
-    m_res.clear();
-    m_weightresderiv.clear();
-    m_errors.clear();
+    m_res.resize(0);
+    m_weightresderiv.resize(0, 0);
+    m_errors.resize(0);
     m_scatteringangles.clear();
     m_scatteringsigmas.clear();
     m_converged = false;
-    if (m_ownrefpar) {
-      delete m_refpar;
-    }
-    m_refpar = nullptr;
+    m_refpar.reset(nullptr);
   }
 
   bool GXFTrajectory::converged() {
@@ -521,7 +484,7 @@ namespace Trk {
     return m_nperpars + numberOfBrems() + 2 * numberOfScatterers();
   }
 
-  double GXFTrajectory::chi2() {
+  double GXFTrajectory::chi2() const {
     return m_chi2;
   }
 
@@ -537,7 +500,7 @@ namespace Trk {
     m_prevchi2 = chi2;
   }
 
-  int GXFTrajectory::nDOF() {
+  int GXFTrajectory::nDOF() const {
     return m_ndof;
   }
 
@@ -570,7 +533,7 @@ namespace Trk {
     return m_scatteringsigmas;
   }
 
-  std::vector < double >& GXFTrajectory::brems() {
+  std::vector<double> & GXFTrajectory::brems() {
     return m_brems;
   }
 
@@ -592,14 +555,14 @@ namespace Trk {
   }
 
   void
-    GXFTrajectory::setBrems(std::vector < double >&brems) {
+    GXFTrajectory::setBrems(std::vector<double> & brems) {
     // if (m_prefit==1) return;
     m_brems = brems;
     int bremno = 0;
     for (auto & state : m_states) {
       if (((*state).materialEffects() != nullptr)
           && (*state).materialEffects()->sigmaDeltaE() > 0) {
-        (*state).materialEffects()->setdelta_p(brems[bremno]);
+        (*state).materialEffects()->setdelta_p(m_brems[bremno]);
         bremno++;
       }
     }
@@ -614,39 +577,26 @@ namespace Trk {
     m_states = states;
   }
 
-  std::vector < double >& GXFTrajectory::residuals() {
-    if (m_res.empty()) {
-      m_res =
-        std::vector <
-        double >( /* 2*m_nscatterers+ */ numberOfBrems() + m_ndof +
-                 m_nperpars + m_nmeasoutl, 0);
+  Amg::VectorX & GXFTrajectory::residuals() {
+    if (m_res.size() == 0) {
+      m_res.setZero(numberOfBrems() + m_ndof + m_nperpars + m_nmeasoutl);
     }
     return m_res;
   }
 
-  std::vector < double >& GXFTrajectory::errors() {
-    if (m_errors.empty()) {
-      m_errors =
-        std::vector <
-        double >( /* 2*m_nscatterers+ */ numberOfBrems() + m_ndof +
-                 m_nperpars + m_nmeasoutl, 0);
+  Amg::VectorX & GXFTrajectory::errors() {
+    if (m_errors.size() == 0) {
+      m_errors.setZero(numberOfBrems() + m_ndof + m_nperpars + m_nmeasoutl);
     }
     return m_errors;
   }
 
-  std::vector < std::vector < double >>&
-    GXFTrajectory::weightedResidualDerivatives() {
-    if (m_weightresderiv.empty()) {
-      m_weightresderiv.resize(numberOfBrems() + m_ndof + m_nperpars +
-                              m_nmeasoutl);
-      // std::cout << "nmeas: " << 2*m_nscatterers+m_nbrems+m_ndof+m_nperpars+m_nmeasoutl << " capacity: " <<
-      // m_resderiv.capacity() << " numberOfFitParameters: " << numberOfFitParameters() << std::endl;
-      int nfitpar = numberOfFitParameters();
-      // std::cout << "capacity: " << m_resderiv.capacity() << " nbrems: " << numberOfBrems() << " ndof: " << m_ndof <<
-      // " perpars: " << m_nperpars << " noutl: " << m_nmeasoutl << std::endl;
-      for (auto & i : m_weightresderiv) {
-        i.resize(nfitpar);
-      }
+  Amg::MatrixX & GXFTrajectory::weightedResidualDerivatives() {
+    if (m_weightresderiv.size() == 0) {
+      m_weightresderiv.setZero(
+        numberOfBrems() + m_ndof + m_nperpars + m_nmeasoutl,
+        numberOfFitParameters()
+      );
     }
     return m_weightresderiv;
   }
@@ -678,5 +628,55 @@ namespace Trk {
   std::vector < std::pair < const Layer *, const Layer *>>&
     GXFTrajectory::upstreamMaterialLayers() {
     return m_upstreammat;
+  }
+
+  std::pair<GXFTrackState *, GXFTrackState *> GXFTrajectory::findFirstLastMeasurement(void) {
+    GXFTrackState *firstmeasstate = nullptr;
+    GXFTrackState *lastmeasstate = nullptr;
+
+    for (GXFTrackState * hit : trackStates()) {
+      if (hit->measurement() != nullptr) {
+        if (firstmeasstate == nullptr) {
+          firstmeasstate = hit;
+        }
+        lastmeasstate = hit;
+      }
+    }
+
+    if (firstmeasstate == nullptr) {
+      throw std::logic_error("no first measurement.");
+    }
+
+    return std::make_pair(firstmeasstate, lastmeasstate);
+  }
+
+  bool GXFTrajectory::hasKink(void) {
+    for (auto & hit : trackStates()) {
+      if (
+        hit->measurementType() == TrackState::Pseudo &&
+        hit->trackStateType() == TrackState::GeneralOutlier
+      ) {
+        continue;
+      }
+      
+      if (
+        (hit->materialEffects() != nullptr) && 
+        hit->materialEffects()->isKink()
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  void GXFTrajectory::resetCovariances(void) {
+    for (GXFTrackState *hit : trackStates()) {
+      hit->setTrackCovariance(nullptr);
+    }
+  }
+
+  std::unique_ptr<const FitQuality> GXFTrajectory::quality(void) const {
+    return std::make_unique<const FitQuality>(chi2(), nDOF());
   }
 }

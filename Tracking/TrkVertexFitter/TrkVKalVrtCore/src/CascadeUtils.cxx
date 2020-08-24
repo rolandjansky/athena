@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <iostream>
-#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
+#include <iostream>
 
 namespace Trk {
 
@@ -113,13 +113,13 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
 //
 VKTrack * getCombinedVTrack(VKVertex * vk)
 {
-    if(!vk->nextCascadeVrt) return 0;                 //nonpointing vertex
+    if(!vk->nextCascadeVrt) return nullptr;                 //nonpointing vertex
     int NV=vk->nextCascadeVrt->includedVrt.size();
-    if(NV==0) return 0;                               //Error in structure
+    if(NV==0) return nullptr;                               //Error in structure
 
     int itv=-1;
     for(int it=0; it<NV; it++) if(vk->nextCascadeVrt->includedVrt[it] == vk) {itv=it; break;};
-    if(itv<0) return 0;                               // Not found in list
+    if(itv<0) return nullptr;                               // Not found in list
 
     int totNT = vk->nextCascadeVrt->TrackList.size();
     return vk->nextCascadeVrt->TrackList[totNT - NV + itv].get(); // pointer to combined track in next vertex

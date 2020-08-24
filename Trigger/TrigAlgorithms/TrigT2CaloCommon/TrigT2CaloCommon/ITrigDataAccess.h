@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -25,7 +25,8 @@
 #include "LArRecEvent/LArFebEnergyCollection.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileL2Container.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRoiDescriptor.h"
+#include "IRegionSelector/RegSelEnums.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 

@@ -26,6 +26,11 @@ size_t Variable::getCalls() const {
 }
 
 
+float Variable::getAccumulator() const {
+  return m_accumulator;
+}
+
+
 void Variable::setDenominator(float value) {
   // Stored as reciprocal so as to be able to check for /0 here
   if (fabs(value) < 1e-10) {

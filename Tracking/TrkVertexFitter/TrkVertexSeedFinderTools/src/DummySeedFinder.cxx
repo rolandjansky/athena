@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -7,10 +7,10 @@
 *********************************************************************/
 
 #include "TrkVertexSeedFinderTools/DummySeedFinder.h"
-#include "TrkTrack/Track.h"
-#include "TrkEventPrimitives/ParamDefs.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include <math.h>
+#include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkTrack/Track.h"
+#include <cmath>
 
 
 namespace Trk
@@ -62,7 +62,7 @@ namespace Trk
                                    const xAOD::Vertex * /* constraint */) const
   {
     std::vector<Amg::Vector3D> retvec;
-    retvec.push_back( Amg::Vector3D(0.,0.,0.) );
+    retvec.emplace_back(0.,0.,0. );
     return retvec;
   }
 
@@ -72,7 +72,7 @@ namespace Trk
                                   const xAOD::Vertex * /* constraint */) const
   {
     std::vector<Amg::Vector3D> retvec;
-    retvec.push_back( Amg::Vector3D(0.,0.,0.) );
+    retvec.emplace_back(0.,0.,0. );
     return retvec;
   }
 

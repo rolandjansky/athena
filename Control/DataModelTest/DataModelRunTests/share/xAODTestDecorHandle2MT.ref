@@ -1,7 +1,7 @@
-Fri Sep 13 19:45:46 CEST 2019
+Wed Jun  3 16:04:52 PDT 2020
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [atlas-work3/85aadd0a07c] -- built on [2019-09-13T1706]
+Py:Athena            INFO using release [WorkDir-22.0.15] [x86_64-centos7-gcc8-opt] [Unknown/07d2aec7427] -- built on [2020-06-03T1534]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
@@ -9,15 +9,10 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle2MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle2_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5537 configurables from 45 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 45 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -DMTest__xAODTestWriteCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataWrite.DataModelTestDataWriteConf']
-Py:ConfigurableDb WARNING   -DMTest__xAODTestReadCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataRead.DataModelTestDataReadConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 5530 configurables from 17 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
+Py:Athena            INFO including file "DataModelRunTests/commonTrailer.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -25,78 +20,79 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r1)
-                                          running on lxplus737.cern.ch on Fri Sep 13 19:46:00 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on zeus on Wed Jun  3 16:04:58 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-AthDictLoaderSvc                                   INFO in initialize...
-AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 3920 CLIDRegistry entries for module ALL
-CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
-CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
-MetaDataSvc                                        INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
-PoolSvc                                            INFO Frontier compression level set to 5
-DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-12T2129/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus737.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
-PoolSvc                                            INFO Successfully setup replica sorting algorithm
-PoolSvc                                            INFO Setting up APR FileCatalog and Streams
-PoolSvc                                            INFO POOL WriteCatalog is file:xAODTestDecorHandle2MT_catalog.xml
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-MetaDataSvc                                        INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
-EventSelector                                      INFO EventSelection with query 
-PoolSvc                                            INFO File is not in Catalog! Attempt to open it anyway.
-Warning in <TClass::Init>: no dictionary for class DMTest::C_v1 is available
+ApplicationMgr                                      INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+AthDictLoaderSvc                                    INFO in initialize...
+AthDictLoaderSvc                                    INFO acquired Dso-registry
+ClassIDSvc                                          INFO  getRegistryEntries: read 3835 CLIDRegistry entries for module ALL
+CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaHiveEventLoopMgr                              INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
+MetaDataSvc                                         INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc                                    INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+PoolSvc                                             INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc                                             INFO Frontier compression level set to 5
+DBReplicaSvc                                        INFO Frontier server at (serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas1.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas2.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas3.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier05.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://frontiercache.nersc.gov:3128)(proxyurl=http://atlsquid.slac.stanford.edu:3128)(proxyurl=http://atlasbpfrontier.fnal.gov:3127)(proxyurl=http://atlasbpfrontier.cern.ch:3127) will be considered for COOL data
+DBReplicaSvc                                        INFO Read replica configuration from /bld3/build/master/build/install/Athena/22.0.15/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                        INFO No specific match for domain found - use default fallback
+DBReplicaSvc                                        INFO Total of 2 servers found for host zeus [ATLF atlas_dd ]
+PoolSvc                                             INFO Successfully setup replica sorting algorithm
+PoolSvc                                             INFO Setting up APR FileCatalog and Streams
+PoolSvc                                             INFO POOL WriteCatalog is file:xAODTestDecorHandle2MT_catalog.xml
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc                                         INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
+EventSelector                                       INFO EventSelection with query 
+PoolSvc                                             INFO File is not in Catalog! Attempt to open it anyway.
 Warning in <TClass::Init>: no dictionary for class DMTest::CAuxContainer_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::CInfoAuxContainer_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::CTrigAuxContainer_v1 is available
-Warning in <TClass::Init>: no dictionary for class DMTest::G_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::GAuxContainer_v1 is available
+Warning in <TClass::Init>: no dictionary for class DMTest::HAuxContainer_v1 is available
+Warning in <TClass::Init>: no dictionary for class DMTest::C_v1 is available
+Warning in <TClass::Init>: no dictionary for class DMTest::G_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::CVecWithData_v1 is available
 Warning in <TClass::Init>: no dictionary for class ViewVector<DataVector<DMTest::C_v1> > is available
 Warning in <TClass::Init>: no dictionary for class DMTest::H_v1 is available
-Warning in <TClass::Init>: no dictionary for class DMTest::HAuxContainer_v1 is available
 Warning in <TClass::Init>: no dictionary for class ViewVector<DataVector<DMTest::H_v1> > is available
 Warning in <TClass::Init>: no dictionary for class DMTest::S2 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::S1 is available
 Warning in <TClass::Init>: no dictionary for class ElementLink<DataVector<DMTest::C_v1> > is available
 Warning in <TClass::Init>: no dictionary for class DataVector<DMTest::C_v1> is available
 Warning in <TClass::Init>: no dictionary for class DataVector<DMTest::H_v1> is available
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61800
-xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-PoolSvc                                            INFO File is not in Catalog! Attempt to open it anyway.
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61800
-xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
-Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61800
-ClassIDSvc                                         INFO  getRegistryEntries: read 2112 CLIDRegistry entries for module ALL
-EventPersistencySvc                                INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 1326 CLIDRegistry entries for module ALL
-PyComponentMgr                              0      INFO Initializing PyComponentMgr...
-LoadReadDicts                               0      INFO Initializing LoadReadDicts...
-ThreadPoolSvc                               0      INFO no thread init tools attached
-AvalancheSchedulerSvc                       0      INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                       0      INFO Found 7 algorithms
-AvalancheSchedulerSvc                       0      INFO Data Dependencies for Algorithms:
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO                           xaoddata.root
+RootDatabase.open                                   INFO xaoddata.root File version:62002
+xaoddata.root                                       INFO Database being retired...
+Domain[ROOT_All]                                    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+PoolSvc                                             INFO File is not in Catalog! Attempt to open it anyway.
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]                                    INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO                           xaoddata.root
+RootDatabase.open                                   INFO xaoddata.root File version:62002
+xaoddata.root                                       INFO Database being retired...
+Domain[ROOT_All]                                    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]                                    INFO ->  Access   DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+Domain[ROOT_All]                                    INFO                           xaoddata.root
+RootDatabase.open                                   INFO xaoddata.root File version:62002
+ClassIDSvc                                          INFO  getRegistryEntries: read 2248 CLIDRegistry entries for module ALL
+EventPersistencySvc                                 INFO Added successfully Conversion service:AthenaPoolCnvSvc
+ClassIDSvc                                          INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1537 CLIDRegistry entries for module ALL
+PyComponentMgr                                 0    INFO Initializing PyComponentMgr...
+LoadReadDicts                                  0    INFO Initializing LoadReadDicts...
+ThreadPoolSvc                                  0    INFO no thread init tools attached
+AvalancheSchedulerSvc                          0    INFO Activating scheduler in a separate thread
+AvalancheSchedulerSvc                          0    INFO Found 7 algorithms
+AvalancheSchedulerSvc                          0    INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg
       none
   IncidentProcAlg1
@@ -113,173 +109,175 @@ AvalancheSchedulerSvc                       0      INFO Data Dependencies for Al
       none
   IncidentProcAlg2
       none
-AvalancheSchedulerSvc                       0      INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
+AvalancheSchedulerSvc                          0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
    o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' )     required by Algorithm: 
        * xAODTestReadDecor
    o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1' )     required by Algorithm: 
        * xAODTestReadDecor
    o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1Base' )     required by Algorithm: 
        * xAODTestReadDecor
-PrecedenceSvc                               0      INFO Assembling CF and DF task precedence rules
-PrecedenceSvc                               0      INFO PrecedenceSvc initialized successfully
-AvalancheSchedulerSvc                       0      INFO Concurrency level information:
-AvalancheSchedulerSvc                       0      INFO  o Number of events in flight: 1
-AvalancheSchedulerSvc                       0      INFO  o TBB thread pool size:  'ThreadPoolSize':1
-HistogramPersistencySvc                     0   WARNING Histograms saving not required.
-AthenaHiveEventLoopMgr                      0      INFO Setup EventSelector service EventSelector
-ApplicationMgr                              0      INFO Application Manager Initialized successfully
-PoolSvc                                     0      INFO Enabled implicit multithreading in ROOT via PersistencySvc to: 1
-xaoddata.root                               0      INFO Database being retired...
-Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
-Domain[ROOT_All]                            0      INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-DbSession                                   0      INFO     Open     DbSession    
-Domain[ROOT_All]                            0      INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
-Domain[ROOT_All]                            0      INFO                           xaoddata.root
-RootDatabase.open                           0      INFO xaoddata.root File version:61800
-ApplicationMgr                              0      INFO Application Manager Started successfully
-AthenaHiveEventLoopMgr                      0      INFO Starting loop on events
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 7101 CLIDRegistry entries for module ALL
-AthenaPoolConverter                     0   0      INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
-AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
-xAODTestReadDecor                       0   0      INFO cvec.dInt1: 401 402 403 404 405 406 407 408 409 410
-xAODTestReadDecor                       0   0      INFO cinfo.dInt1: 3000
-xAODTestReadDecor                       0   0      INFO cinfo.dInt1Base: 3001
-xAODTestReadDecor                       0   0      INFO cinfo.dInt1: 3000
-AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
-ClassIDSvc                              1   0      INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
-AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  start processing event #1, run #0 on slot 0,  1 events processed so far  <<<===
-xAODTestReadDecor                       1   0      INFO cvec.dInt1: 801 802 803 804 805 806 807 808 809 810
-xAODTestReadDecor                       1   0      INFO cinfo.dInt1: 6000
-xAODTestReadDecor                       1   0      INFO cinfo.dInt1Base: 6001
-xAODTestReadDecor                       1   0      INFO cinfo.dInt1: 6000
-AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  start processing event #2, run #0 on slot 0,  2 events processed so far  <<<===
-xAODTestReadDecor                       2   0      INFO cvec.dInt1: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
-xAODTestReadDecor                       2   0      INFO cinfo.dInt1: 9000
-xAODTestReadDecor                       2   0      INFO cinfo.dInt1Base: 9001
-xAODTestReadDecor                       2   0      INFO cinfo.dInt1: 9000
-AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  start processing event #3, run #0 on slot 0,  3 events processed so far  <<<===
-xAODTestReadDecor                       3   0      INFO cvec.dInt1: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
-xAODTestReadDecor                       3   0      INFO cinfo.dInt1: 12000
-xAODTestReadDecor                       3   0      INFO cinfo.dInt1Base: 12001
-xAODTestReadDecor                       3   0      INFO cinfo.dInt1: 12000
-AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  start processing event #4, run #0 on slot 0,  4 events processed so far  <<<===
-xAODTestReadDecor                       4   0      INFO cvec.dInt1:
-xAODTestReadDecor                       4   0      INFO cinfo.dInt1: 15000
-xAODTestReadDecor                       4   0      INFO cinfo.dInt1Base: 15001
-xAODTestReadDecor                       4   0      INFO cinfo.dInt1: 15000
-AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  start processing event #5, run #0 on slot 0,  5 events processed so far  <<<===
-xAODTestReadDecor                       5   0      INFO cvec.dInt1: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
-xAODTestReadDecor                       5   0      INFO cinfo.dInt1: 18000
-xAODTestReadDecor                       5   0      INFO cinfo.dInt1Base: 18001
-xAODTestReadDecor                       5   0      INFO cinfo.dInt1: 18000
-AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  start processing event #6, run #0 on slot 0,  6 events processed so far  <<<===
-xAODTestReadDecor                       6   0      INFO cvec.dInt1: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
-xAODTestReadDecor                       6   0      INFO cinfo.dInt1: 21000
-xAODTestReadDecor                       6   0      INFO cinfo.dInt1Base: 21001
-xAODTestReadDecor                       6   0      INFO cinfo.dInt1: 21000
-AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  start processing event #7, run #0 on slot 0,  7 events processed so far  <<<===
-xAODTestReadDecor                       7   0      INFO cvec.dInt1: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
-xAODTestReadDecor                       7   0      INFO cinfo.dInt1: 24000
-xAODTestReadDecor                       7   0      INFO cinfo.dInt1Base: 24001
-xAODTestReadDecor                       7   0      INFO cinfo.dInt1: 24000
-AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  start processing event #8, run #0 on slot 0,  8 events processed so far  <<<===
-xAODTestReadDecor                       8   0      INFO cvec.dInt1: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
-xAODTestReadDecor                       8   0      INFO cinfo.dInt1: 27000
-xAODTestReadDecor                       8   0      INFO cinfo.dInt1Base: 27001
-xAODTestReadDecor                       8   0      INFO cinfo.dInt1: 27000
-AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  start processing event #9, run #0 on slot 0,  9 events processed so far  <<<===
-xAODTestReadDecor                       9   0      INFO cvec.dInt1: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
-xAODTestReadDecor                       9   0      INFO cinfo.dInt1: 30000
-xAODTestReadDecor                       9   0      INFO cinfo.dInt1Base: 30001
-xAODTestReadDecor                       9   0      INFO cinfo.dInt1: 30000
-AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  start processing event #10, run #0 on slot 0,  10 events processed so far  <<<===
-xAODTestReadDecor                       10  0      INFO cvec.dInt1: 4401 4402 4403 4404 4405 4406 4407 4408 4409 4410
-xAODTestReadDecor                       10  0      INFO cinfo.dInt1: 33000
-xAODTestReadDecor                       10  0      INFO cinfo.dInt1Base: 33001
-xAODTestReadDecor                       10  0      INFO cinfo.dInt1: 33000
-AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  start processing event #11, run #0 on slot 0,  11 events processed so far  <<<===
-xAODTestReadDecor                       11  0      INFO cvec.dInt1: 4801 4802 4803 4804 4805 4806 4807 4808 4809 4810
-xAODTestReadDecor                       11  0      INFO cinfo.dInt1: 36000
-xAODTestReadDecor                       11  0      INFO cinfo.dInt1Base: 36001
-xAODTestReadDecor                       11  0      INFO cinfo.dInt1: 36000
-AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  start processing event #12, run #0 on slot 0,  12 events processed so far  <<<===
-xAODTestReadDecor                       12  0      INFO cvec.dInt1: 5201 5202 5203 5204 5205 5206 5207 5208 5209 5210
-xAODTestReadDecor                       12  0      INFO cinfo.dInt1: 39000
-xAODTestReadDecor                       12  0      INFO cinfo.dInt1Base: 39001
-xAODTestReadDecor                       12  0      INFO cinfo.dInt1: 39000
-AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  start processing event #13, run #0 on slot 0,  13 events processed so far  <<<===
-xAODTestReadDecor                       13  0      INFO cvec.dInt1: 5601 5602 5603 5604 5605 5606 5607 5608 5609 5610
-xAODTestReadDecor                       13  0      INFO cinfo.dInt1: 42000
-xAODTestReadDecor                       13  0      INFO cinfo.dInt1Base: 42001
-xAODTestReadDecor                       13  0      INFO cinfo.dInt1: 42000
-AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  start processing event #14, run #0 on slot 0,  14 events processed so far  <<<===
-xAODTestReadDecor                       14  0      INFO cvec.dInt1: 6001 6002 6003 6004 6005 6006 6007 6008 6009 6010
-xAODTestReadDecor                       14  0      INFO cinfo.dInt1: 45000
-xAODTestReadDecor                       14  0      INFO cinfo.dInt1Base: 45001
-xAODTestReadDecor                       14  0      INFO cinfo.dInt1: 45000
-AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  start processing event #15, run #0 on slot 0,  15 events processed so far  <<<===
-xAODTestReadDecor                       15  0      INFO cvec.dInt1: 6401 6402 6403 6404 6405 6406 6407 6408 6409 6410
-xAODTestReadDecor                       15  0      INFO cinfo.dInt1: 48000
-xAODTestReadDecor                       15  0      INFO cinfo.dInt1Base: 48001
-xAODTestReadDecor                       15  0      INFO cinfo.dInt1: 48000
-AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  start processing event #16, run #0 on slot 0,  16 events processed so far  <<<===
-xAODTestReadDecor                       16  0      INFO cvec.dInt1: 6801 6802 6803 6804 6805 6806 6807 6808 6809 6810
-xAODTestReadDecor                       16  0      INFO cinfo.dInt1: 51000
-xAODTestReadDecor                       16  0      INFO cinfo.dInt1Base: 51001
-xAODTestReadDecor                       16  0      INFO cinfo.dInt1: 51000
-AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  start processing event #17, run #0 on slot 0,  17 events processed so far  <<<===
-xAODTestReadDecor                       17  0      INFO cvec.dInt1: 7201 7202 7203 7204 7205 7206 7207 7208 7209 7210
-xAODTestReadDecor                       17  0      INFO cinfo.dInt1: 54000
-xAODTestReadDecor                       17  0      INFO cinfo.dInt1Base: 54001
-xAODTestReadDecor                       17  0      INFO cinfo.dInt1: 54000
-AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  start processing event #18, run #0 on slot 0,  18 events processed so far  <<<===
-xAODTestReadDecor                       18  0      INFO cvec.dInt1: 7601 7602 7603 7604 7605 7606 7607 7608 7609 7610
-xAODTestReadDecor                       18  0      INFO cinfo.dInt1: 57000
-xAODTestReadDecor                       18  0      INFO cinfo.dInt1Base: 57001
-xAODTestReadDecor                       18  0      INFO cinfo.dInt1: 57000
-AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processing event #19, run #0 on slot 0,  19 events processed so far  <<<===
-xAODTestReadDecor                       19  0      INFO cvec.dInt1: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
-xAODTestReadDecor                       19  0      INFO cinfo.dInt1: 60000
-xAODTestReadDecor                       19  0      INFO cinfo.dInt1Base: 60001
-xAODTestReadDecor                       19  0      INFO cinfo.dInt1: 60000
-AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  19  0      INFO ---> Loop Finished (seconds): 0.123189
-xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
-ApplicationMgr                                     INFO Application Manager Stopped successfully
-IncidentProcAlg1                                   INFO Finalize
-SGInputLoader                                      INFO Finalizing SGInputLoader...
-LoadReadDicts                                      INFO Finalizing LoadReadDicts...
-IncidentProcAlg2                                   INFO Finalize
-AvalancheSchedulerSvc                              INFO Joining Scheduler thread
-PyComponentMgr                                     INFO Finalizing PyComponentMgr...
-EventDataSvc                                       INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
-Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-XMLCatalog                                         INFO File 'xAODTestDecorHandle2MT_catalog.xml' does not exist. New file created.
-AthDictLoaderSvc                                   INFO in finalize...
-ToolSvc                                            INFO Removing all tools created by ToolSvc
-ChronoStatSvc.finalize()                           INFO  Service finalized successfully 
-ApplicationMgr                                     INFO Application Manager Finalized successfully
-ApplicationMgr                                     INFO Application Manager Terminated successfully
+PrecedenceSvc                                  0    INFO Assembling CF and DF task precedence rules
+PrecedenceSvc                                  0    INFO PrecedenceSvc initialized successfully
+AvalancheSchedulerSvc                          0    INFO Concurrency level information:
+AvalancheSchedulerSvc                          0    INFO  o Number of events in flight: 1
+AvalancheSchedulerSvc                          0    INFO  o TBB thread pool size:  'ThreadPoolSize':1
+AvalancheSchedulerSvc                          0    INFO Task scheduling settings:
+AvalancheSchedulerSvc                          0    INFO  o Avalanche generation mode: disabled
+AvalancheSchedulerSvc                          0    INFO  o Preemptive scheduling of CPU-blocking tasks: disabled
+AvalancheSchedulerSvc                          0    INFO  o Scheduling of condition tasks: disabled
+AthenaHiveEventLoopMgr                         0    INFO Setup EventSelector service EventSelector
+ApplicationMgr                                 0    INFO Application Manager Initialized successfully
+xaoddata.root                                  0    INFO Database being retired...
+Domain[ROOT_All]                               0    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+Domain[ROOT_All]                               0    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession                                      0    INFO     Open     DbSession    
+Domain[ROOT_All]                               0    INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]                               0    INFO ->  Access   DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+Domain[ROOT_All]                               0    INFO                           xaoddata.root
+RootDatabase.open                              0    INFO xaoddata.root File version:62002
+ApplicationMgr                                 0    INFO Application Manager Started successfully
+AthenaHiveEventLoopMgr                         0    INFO Starting loop on events
+ClassIDSvc                                 0   0    INFO  getRegistryEntries: read 8913 CLIDRegistry entries for module ALL
+AthenaPoolConverter                        0   0    INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
+AthenaHiveEventLoopMgr                     0   0    INFO   ===>>>  start of run 0    <<<===
+AthenaHiveEventLoopMgr                     0   0    INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
+ClassIDSvc                                 0   0    INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
+xAODTestReadDecor                          0   0    INFO cvec.dInt1: 401 402 403 404 405 406 407 408 409 410
+xAODTestReadDecor                          0   0    INFO cinfo.dInt1: 3000
+xAODTestReadDecor                          0   0    INFO cinfo.dInt1Base: 3001
+xAODTestReadDecor                          0   0    INFO cinfo.dInt1: 3000
+AthenaHiveEventLoopMgr                     0   0    INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
+ClassIDSvc                                 1   0    INFO  getRegistryEntries: read 57 CLIDRegistry entries for module ALL
+AthenaHiveEventLoopMgr                     1   0    INFO   ===>>>  start processing event #1, run #0 on slot 0,  1 events processed so far  <<<===
+xAODTestReadDecor                          1   0    INFO cvec.dInt1: 801 802 803 804 805 806 807 808 809 810
+xAODTestReadDecor                          1   0    INFO cinfo.dInt1: 6000
+xAODTestReadDecor                          1   0    INFO cinfo.dInt1Base: 6001
+xAODTestReadDecor                          1   0    INFO cinfo.dInt1: 6000
+AthenaHiveEventLoopMgr                     1   0    INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     2   0    INFO   ===>>>  start processing event #2, run #0 on slot 0,  2 events processed so far  <<<===
+xAODTestReadDecor                          2   0    INFO cvec.dInt1: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
+xAODTestReadDecor                          2   0    INFO cinfo.dInt1: 9000
+xAODTestReadDecor                          2   0    INFO cinfo.dInt1Base: 9001
+xAODTestReadDecor                          2   0    INFO cinfo.dInt1: 9000
+AthenaHiveEventLoopMgr                     2   0    INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     3   0    INFO   ===>>>  start processing event #3, run #0 on slot 0,  3 events processed so far  <<<===
+xAODTestReadDecor                          3   0    INFO cvec.dInt1: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
+xAODTestReadDecor                          3   0    INFO cinfo.dInt1: 12000
+xAODTestReadDecor                          3   0    INFO cinfo.dInt1Base: 12001
+xAODTestReadDecor                          3   0    INFO cinfo.dInt1: 12000
+AthenaHiveEventLoopMgr                     3   0    INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     4   0    INFO   ===>>>  start processing event #4, run #0 on slot 0,  4 events processed so far  <<<===
+xAODTestReadDecor                          4   0    INFO cvec.dInt1:
+xAODTestReadDecor                          4   0    INFO cinfo.dInt1: 15000
+xAODTestReadDecor                          4   0    INFO cinfo.dInt1Base: 15001
+xAODTestReadDecor                          4   0    INFO cinfo.dInt1: 15000
+AthenaHiveEventLoopMgr                     4   0    INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     5   0    INFO   ===>>>  start processing event #5, run #0 on slot 0,  5 events processed so far  <<<===
+xAODTestReadDecor                          5   0    INFO cvec.dInt1: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
+xAODTestReadDecor                          5   0    INFO cinfo.dInt1: 18000
+xAODTestReadDecor                          5   0    INFO cinfo.dInt1Base: 18001
+xAODTestReadDecor                          5   0    INFO cinfo.dInt1: 18000
+AthenaHiveEventLoopMgr                     5   0    INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     6   0    INFO   ===>>>  start processing event #6, run #0 on slot 0,  6 events processed so far  <<<===
+xAODTestReadDecor                          6   0    INFO cvec.dInt1: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
+xAODTestReadDecor                          6   0    INFO cinfo.dInt1: 21000
+xAODTestReadDecor                          6   0    INFO cinfo.dInt1Base: 21001
+xAODTestReadDecor                          6   0    INFO cinfo.dInt1: 21000
+AthenaHiveEventLoopMgr                     6   0    INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     7   0    INFO   ===>>>  start processing event #7, run #0 on slot 0,  7 events processed so far  <<<===
+xAODTestReadDecor                          7   0    INFO cvec.dInt1: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
+xAODTestReadDecor                          7   0    INFO cinfo.dInt1: 24000
+xAODTestReadDecor                          7   0    INFO cinfo.dInt1Base: 24001
+xAODTestReadDecor                          7   0    INFO cinfo.dInt1: 24000
+AthenaHiveEventLoopMgr                     7   0    INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     8   0    INFO   ===>>>  start processing event #8, run #0 on slot 0,  8 events processed so far  <<<===
+xAODTestReadDecor                          8   0    INFO cvec.dInt1: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
+xAODTestReadDecor                          8   0    INFO cinfo.dInt1: 27000
+xAODTestReadDecor                          8   0    INFO cinfo.dInt1Base: 27001
+xAODTestReadDecor                          8   0    INFO cinfo.dInt1: 27000
+AthenaHiveEventLoopMgr                     8   0    INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     9   0    INFO   ===>>>  start processing event #9, run #0 on slot 0,  9 events processed so far  <<<===
+xAODTestReadDecor                          9   0    INFO cvec.dInt1: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
+xAODTestReadDecor                          9   0    INFO cinfo.dInt1: 30000
+xAODTestReadDecor                          9   0    INFO cinfo.dInt1Base: 30001
+xAODTestReadDecor                          9   0    INFO cinfo.dInt1: 30000
+AthenaHiveEventLoopMgr                     9   0    INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    10   0    INFO   ===>>>  start processing event #10, run #0 on slot 0,  10 events processed so far  <<<===
+xAODTestReadDecor                         10   0    INFO cvec.dInt1: 4401 4402 4403 4404 4405 4406 4407 4408 4409 4410
+xAODTestReadDecor                         10   0    INFO cinfo.dInt1: 33000
+xAODTestReadDecor                         10   0    INFO cinfo.dInt1Base: 33001
+xAODTestReadDecor                         10   0    INFO cinfo.dInt1: 33000
+AthenaHiveEventLoopMgr                    10   0    INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    11   0    INFO   ===>>>  start processing event #11, run #0 on slot 0,  11 events processed so far  <<<===
+xAODTestReadDecor                         11   0    INFO cvec.dInt1: 4801 4802 4803 4804 4805 4806 4807 4808 4809 4810
+xAODTestReadDecor                         11   0    INFO cinfo.dInt1: 36000
+xAODTestReadDecor                         11   0    INFO cinfo.dInt1Base: 36001
+xAODTestReadDecor                         11   0    INFO cinfo.dInt1: 36000
+AthenaHiveEventLoopMgr                    11   0    INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    12   0    INFO   ===>>>  start processing event #12, run #0 on slot 0,  12 events processed so far  <<<===
+xAODTestReadDecor                         12   0    INFO cvec.dInt1: 5201 5202 5203 5204 5205 5206 5207 5208 5209 5210
+xAODTestReadDecor                         12   0    INFO cinfo.dInt1: 39000
+xAODTestReadDecor                         12   0    INFO cinfo.dInt1Base: 39001
+xAODTestReadDecor                         12   0    INFO cinfo.dInt1: 39000
+AthenaHiveEventLoopMgr                    12   0    INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    13   0    INFO   ===>>>  start processing event #13, run #0 on slot 0,  13 events processed so far  <<<===
+xAODTestReadDecor                         13   0    INFO cvec.dInt1: 5601 5602 5603 5604 5605 5606 5607 5608 5609 5610
+xAODTestReadDecor                         13   0    INFO cinfo.dInt1: 42000
+xAODTestReadDecor                         13   0    INFO cinfo.dInt1Base: 42001
+xAODTestReadDecor                         13   0    INFO cinfo.dInt1: 42000
+AthenaHiveEventLoopMgr                    13   0    INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    14   0    INFO   ===>>>  start processing event #14, run #0 on slot 0,  14 events processed so far  <<<===
+xAODTestReadDecor                         14   0    INFO cvec.dInt1: 6001 6002 6003 6004 6005 6006 6007 6008 6009 6010
+xAODTestReadDecor                         14   0    INFO cinfo.dInt1: 45000
+xAODTestReadDecor                         14   0    INFO cinfo.dInt1Base: 45001
+xAODTestReadDecor                         14   0    INFO cinfo.dInt1: 45000
+AthenaHiveEventLoopMgr                    14   0    INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    15   0    INFO   ===>>>  start processing event #15, run #0 on slot 0,  15 events processed so far  <<<===
+xAODTestReadDecor                         15   0    INFO cvec.dInt1: 6401 6402 6403 6404 6405 6406 6407 6408 6409 6410
+xAODTestReadDecor                         15   0    INFO cinfo.dInt1: 48000
+xAODTestReadDecor                         15   0    INFO cinfo.dInt1Base: 48001
+xAODTestReadDecor                         15   0    INFO cinfo.dInt1: 48000
+AthenaHiveEventLoopMgr                    15   0    INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    16   0    INFO   ===>>>  start processing event #16, run #0 on slot 0,  16 events processed so far  <<<===
+xAODTestReadDecor                         16   0    INFO cvec.dInt1: 6801 6802 6803 6804 6805 6806 6807 6808 6809 6810
+xAODTestReadDecor                         16   0    INFO cinfo.dInt1: 51000
+xAODTestReadDecor                         16   0    INFO cinfo.dInt1Base: 51001
+xAODTestReadDecor                         16   0    INFO cinfo.dInt1: 51000
+AthenaHiveEventLoopMgr                    16   0    INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    17   0    INFO   ===>>>  start processing event #17, run #0 on slot 0,  17 events processed so far  <<<===
+xAODTestReadDecor                         17   0    INFO cvec.dInt1: 7201 7202 7203 7204 7205 7206 7207 7208 7209 7210
+xAODTestReadDecor                         17   0    INFO cinfo.dInt1: 54000
+xAODTestReadDecor                         17   0    INFO cinfo.dInt1Base: 54001
+xAODTestReadDecor                         17   0    INFO cinfo.dInt1: 54000
+AthenaHiveEventLoopMgr                    17   0    INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    18   0    INFO   ===>>>  start processing event #18, run #0 on slot 0,  18 events processed so far  <<<===
+xAODTestReadDecor                         18   0    INFO cvec.dInt1: 7601 7602 7603 7604 7605 7606 7607 7608 7609 7610
+xAODTestReadDecor                         18   0    INFO cinfo.dInt1: 57000
+xAODTestReadDecor                         18   0    INFO cinfo.dInt1Base: 57001
+xAODTestReadDecor                         18   0    INFO cinfo.dInt1: 57000
+AthenaHiveEventLoopMgr                    18   0    INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    19   0    INFO   ===>>>  start processing event #19, run #0 on slot 0,  19 events processed so far  <<<===
+xAODTestReadDecor                         19   0    INFO cvec.dInt1: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
+xAODTestReadDecor                         19   0    INFO cinfo.dInt1: 60000
+xAODTestReadDecor                         19   0    INFO cinfo.dInt1Base: 60001
+xAODTestReadDecor                         19   0    INFO cinfo.dInt1: 60000
+AthenaHiveEventLoopMgr                    19   0    INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    19   0    INFO ---> Loop Finished (seconds): 0.11467
+xaoddata.root                                       INFO Database being retired...
+Domain[ROOT_All]                                    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+ApplicationMgr                                      INFO Application Manager Stopped successfully
+IncidentProcAlg1                                    INFO Finalize
+SGInputLoader                                       INFO Finalizing SGInputLoader...
+LoadReadDicts                                       INFO Finalizing LoadReadDicts...
+IncidentProcAlg2                                    INFO Finalize
+AvalancheSchedulerSvc                               INFO Joining Scheduler thread
+PyComponentMgr                                      INFO Finalizing PyComponentMgr...
+EventDataSvc                                        INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
+Domain[ROOT_All]                                    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+XMLCatalog                                          INFO File 'xAODTestDecorHandle2MT_catalog.xml' does not exist. New file created.
+AthDictLoaderSvc                                    INFO in finalize...
+ToolSvc                                             INFO Removing all tools created by ToolSvc
+ChronoStatSvc.finalize()                            INFO  Service finalized successfully 
+ApplicationMgr                                      INFO Application Manager Finalized successfully
+ApplicationMgr                                      INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"

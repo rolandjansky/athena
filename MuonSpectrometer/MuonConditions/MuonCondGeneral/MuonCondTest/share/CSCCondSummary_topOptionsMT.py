@@ -102,16 +102,8 @@ conddb.addFolder("CSC_OFL", "/CSC/T0PHASE", className='CondAttrListCollection');
 ## NEW Data Base Algorithms
 ##--------------------------------------------------------------
 
-from AthenaCommon.CfgGetter import getPublicTool
-
-from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
-MuonIdHelperTool = Muon__MuonIdHelperTool("Muon::MuonIdHelperTool")
-ToolSvc += MuonIdHelperTool
-#MuonIdHelperTool.OutputLevel = DEBUG
-
-
 from MuonCondAlg.MuonCondAlgConf import CscCondDbAlg
-alg = CscCondDbAlg("CscCondDbAlg", IdHelper=getPublicTool("Muon::MuonIdHelperTool"))
+alg = CscCondDbAlg("CscCondDbAlg")
 
 if "mc" in run:
 	alg.isData = False

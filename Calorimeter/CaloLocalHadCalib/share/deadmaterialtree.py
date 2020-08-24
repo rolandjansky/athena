@@ -18,7 +18,6 @@ from AthenaCommon.AppMgr import theApp
 
 ## load POOL support
 import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.AthenaSealSvc.OutputLevel = Lvl.ERROR
 
 ## general job configuration
 from AthenaCommon.AlgSequence import AlgSequence

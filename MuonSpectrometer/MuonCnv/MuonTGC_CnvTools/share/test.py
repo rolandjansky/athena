@@ -57,4 +57,6 @@ print TgcRdoToPrepDataTool
 from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
 TgcRdoToTgcPrepData = TgcRdoToTgcPrepData()
 TgcRdoToTgcPrepData.PrintPrepData = True
+from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
+TgcRdoToTgcPrepData.RegSel_TGC = makeRegSelTool_TGC()
 topSequence += TgcRdoToTgcPrepData

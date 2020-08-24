@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RAWDATABYTESTREAMCNV_TRTRAWDATAPROVIDERTOOL_H
@@ -10,7 +10,6 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "InDetRawData/InDetTimeCollection.h"
-#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_RawDataByteStreamCnv/ITRT_RodDecoder.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -23,6 +22,8 @@
 
 // the tool to decode a ROB frament
 
+class TRT_BSErrorContainer;
+
 class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool, 
                                 public AthAlgTool
 {
@@ -34,7 +35,7 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   
   //! constructor
   TRTRawDataProviderTool( const std::string& type, const std::string& name,
-			    const IInterface* parent ) ;
+			  const IInterface* parent ) ;
 
   //! destructor 
   virtual ~TRTRawDataProviderTool() ;
@@ -47,14 +48,14 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   
   //! this is the main decoding method
   virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      TRT_RDO_Container*               rdoIdc ) override;
+			     TRT_RDO_Container* rdoIdc,
+			     TRT_BSErrContainer* bsErrCont
+			     ) override;
 
 private: 
   TRTRawDataProviderTool( ); //Not implemented
   
   ToolHandle<ITRT_RodDecoder>  m_decoder;   
-
-  ServiceHandle<ITRT_ByteStream_ConditionsSvc>   m_bsErrSvc;
 
   // bookkeeping if we have decoded a ROB already
   mutable std::mutex m_mutex;

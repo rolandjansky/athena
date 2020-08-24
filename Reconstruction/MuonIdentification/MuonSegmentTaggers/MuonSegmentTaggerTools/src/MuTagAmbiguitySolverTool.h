@@ -1,25 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuTagAmbiguitySolverTool_H
 #define MuTagAmbiguitySolverTool_H
 
+#include "MuonSegmentTaggerToolInterfaces/IMuTagAmbiguitySolverTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <string>
+
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
-#include "MuonSegmentTaggerToolInterfaces/IMuTagAmbiguitySolverTool.h"
-#include "MuonCombinedEvent/MuonSegmentInfo.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonCombinedEvent/MuonSegmentInfo.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class StoreGateSvc;
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
+#include <string>
 
 /**
    @class MuTagAmbiguitySolverTool
@@ -30,18 +28,14 @@ class TgcIdHelper;
 
 namespace Muon {
   class MuonSegment;
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-  class IMuonSegmentMatchingTool;
 }
 
 class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, public AthAlgTool{
  public:
   MuTagAmbiguitySolverTool(const std::string& t ,const std::string& n ,const IInterface* p);
-  virtual ~MuTagAmbiguitySolverTool          ();
+  virtual ~MuTagAmbiguitySolverTool()=default;
   
-  virtual StatusCode initialize        ();
-  virtual StatusCode finalize          ();
+  virtual StatusCode initialize();
   
   std::vector<  MuonCombined::MuonSegmentInfo > solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) const ;
 
@@ -56,14 +50,8 @@ class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, publi
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" }; //!< Pointer on IMuonEDMHelperSvc
   ToolHandle< Muon::MuonEDMPrinterTool > p_muonPrinter ; //!< Pointer on MuonEDMPrinterTool
-  ToolHandle< Muon::MuonIdHelperTool >   p_muonIdHelper ; //!< Pointer on MuonIdHelperTool
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle< Muon::IMuonSegmentMatchingTool> p_segmentMatchingTool ; //!< Pointer on MuonSegmentMatchingTool
-  StoreGateSvc* p_StoreGateSvc ; //!< Pointer On StoreGateSvc
-   
-  const MdtIdHelper*  m_mdtIdHelper;
-  const CscIdHelper*  m_cscIdHelper;
-  const RpcIdHelper*  m_rpcIdHelper;
-  const TgcIdHelper*  m_tgcIdHelper;
 
   bool m_hitOverlapMatching; //!< check hit overlap of segments in ambi solving
   bool m_slOverlapMatching; //!< for segments in a SL overlap in the same station layer, check whether from same particle

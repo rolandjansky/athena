@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#ifndef MUONCALIBIDENTIFIER_MULTIDIMARRAY_H
+#define MUONCALIBIDENTIFIER_MULTIDIMARRAY_H
 
 /***************************************************************************
  * Variable Multidimensional Array
@@ -11,16 +14,10 @@
  * Last Update  : 26 April 2005
  ***************************************************************************/
 
-#ifndef MUONCALIBIDENTIFIER_MULTIDIMARRAY_H
-# define MUONCALIBIDENTIFIER_MULTIDIMARRAY_H
-// std
 #include <iostream>
 #include <sstream>
 #include <limits.h>
 #include <float.h>
-// other packages
-
-// this package
 
 // general default value calls default constructor
 
@@ -167,9 +164,8 @@ inline MultiDimArray<T,N>::MultiDimArray()
 {
 #ifdef MULTIDIMARRAY_DEBUG
    ++s_objectCount;
-   std::cout << "Creating MultiDimArray<" << N << ">"
-	     << " at " << this << " #objects: " << s_objectCount
-	     << std::endl;
+   MsgStream log(Athena::getMessageSvc(),"MultiDimArray<T,N>");
+   log<<MSG::DEBUG<<"Creating MultiDimArray<" << N << ">" << " at " << this << " #objects: " << s_objectCount<<endmsg;
 #endif
 }
 
@@ -177,9 +173,8 @@ template <class T, unsigned int N>
 inline MultiDimArray<T,N>::~MultiDimArray() {
 #ifdef MULTIDIMARRAY_DEBUG
    --s_objectCount;
-   std::cout << "Deleting MultiDimArray<" << N << ">"
-	     << " at " << this << " #objects: " << s_objectCount
-	     << std::endl;
+   MsgStream log(Athena::getMessageSvc(),"MultiDimArray<T,N>");
+   log<<MSG::DEBUG<<"Deleting MultiDimArray<" << N << ">" << " at " << this << " #objects: " << s_objectCount<<endmsg;
 #endif
    delete[] m_data;
 }
@@ -190,9 +185,8 @@ inline MultiDimArray<T,N>::MultiDimArray( const MultiDimArray& rhs )
 {
 #ifdef MULTIDIMARRAY_DEBUG
    ++s_objectCount;
-   std::cout << "Copying  MultiDimArray<" << N << ">"
-	     << " at " << this << " #objects: " << s_objectCount
-	     << std::endl;
+   MsgStream log(Athena::getMessageSvc(),"MultiDimArray<T,N>");
+   log<<MSG::DEBUG<<"Copying  MultiDimArray<" << N << ">" << " at " << this << " #objects: " << s_objectCount<<endmsg;
 #endif
    operator=( rhs );
 }
@@ -233,8 +227,8 @@ inline bool MultiDimArray<T,N>::isInRange( int index ) const {
 template <class T, unsigned int N>
 MultiDimArray<T,N>& MultiDimArray<T,N>::operator=( const MultiDimArray<T,N>& rhs ) {
 #ifdef MULTIDIMARRAY_DEBUG
-   std::cout << "Assigning MultiDimArray<" << N << ">"
-	     << " to " << this << " from " << &rhs << std::endl;
+   MsgStream log(Athena::getMessageSvc(),"MultiDimArray<T,N>");
+   log<<MSG::DEBUG<<"Assigning MultiDimArray<" << N << ">" << " to " << this << " from " << &rhs<<endmsg;
 #endif
    // ensure equal data size
    if ( m_size != rhs.m_size ) {
@@ -257,9 +251,8 @@ MultiDimArray<T,N>& MultiDimArray<T,N>::operator=( const MultiDimArray<T,N>& rhs
 template <class T, unsigned int N>
 inline const typename MultiDimArray<T,N>::SubType& MultiDimArray<T,N>::operator[]( int index ) const {
    if ( !isInRange( index ) ) {
-      std::cout << "MultiDimArray<" << N << ">::operator["<< index << "]"
-		<< " ERROR: index out of range ("
-		<< minIndex() << "," << maxIndex() << ")" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MultiDimArray<T,N>");
+      log<<MSG::WARNING<<"MultiDimArray<" << N << ">::operator["<< index << "]" << " index out of range (" << minIndex() << "," << maxIndex() << ")"<<endmsg;
       return s_invalidSubType;
    }
    return m_data[index - m_minIndex];
@@ -267,16 +260,15 @@ inline const typename MultiDimArray<T,N>::SubType& MultiDimArray<T,N>::operator[
 
 template <class T, unsigned int N>
 typename MultiDimArray<T,N>::SubType& MultiDimArray<T,N>::operator[]( int index ) {
-   if ( !m_data ) {
+#ifdef MULTIDIMARRAY_DEBUG
+      MsgStream log(Athena::getMessageSvc(),"MultiDimArray<T,N>");
+#endif   if ( !m_data ) {
       m_minIndex = index;
       m_size = 1;
       m_data = new SubType[1];
       m_data[0] = s_invalidSubType;
 #ifdef MULTIDIMARRAY_DEBUG
-      std::cout << "MultiDimArray<" << N << ">::operator["<< index << "]"
-		<< " at " << this << ":"
-		<< " new data array. size=" << m_size
-		<< " range=(" << minIndex() << "," << maxIndex() << ")" << std::endl;
+      log<<MSG::DEBUG<<"MultiDimArray<" << N << ">::operator["<< index << "]" << " at " << this << ":" << " new data array. size=" << m_size << " range=(" << minIndex() << "," << maxIndex() << ")"<<endmsg;
 #endif
    } else if ( index > maxIndex() ) {
       // add to vector at back
@@ -291,10 +283,7 @@ typename MultiDimArray<T,N>::SubType& MultiDimArray<T,N>::operator[]( int index 
       delete[] m_data;
       m_data = newData;
 #ifdef MULTIDIMARRAY_DEBUG
-      std::cout << "MultiDimArray<" << N << ">::operator["<< index << "]"
-		<< " at " << this << ":"
-		<< " added " << nAdd << " at back. size=" << m_size
-		<< " range=(" << minIndex() << "," << maxIndex() << ")" << std::endl;
+      log<<MSG::DEBUG<<"MultiDimArray<" << N << ">::operator["<< index << "]" << " at " << this << ":" << " added " << nAdd << " at back. size=" << m_size << " range=(" << minIndex() << "," << maxIndex() << ")"<<endmsg;
 #endif
    } else if ( index < minIndex() ) {
       // add to vector at front
@@ -309,10 +298,7 @@ typename MultiDimArray<T,N>::SubType& MultiDimArray<T,N>::operator[]( int index 
       m_data = newData;
       m_minIndex = index;
 #ifdef MULTIDIMARRAY_DEBUG
-      std::cout << "MultiDimArray<" << N << ">::operator["<< index << "]"
-		<< " at " << this << ":"
-		<< " added " << nAdd << " at front. size=" << m_size
-		<< " range=(" << minIndex() << "," << maxIndex() << ")" << std::endl;
+      log<<MSG::DEBUG<<"MultiDimArray<" << N << ">::operator["<< index << "]" << " at " << this << ":" << " added " << nAdd << " at front. size=" << m_size << " range=(" << minIndex() << "," << maxIndex() << ")"<<endmsg;
 #endif
    }
    // return ref to indexed value

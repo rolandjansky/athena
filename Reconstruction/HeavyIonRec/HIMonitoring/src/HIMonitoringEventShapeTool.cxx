@@ -13,25 +13,26 @@
 #include "LWHists/TProfile_LW.h"
 
 HIMonitoringEventShapeTool::
- HIMonitoringEventShapeTool(const std::string& type, const std::string& name,
-                            const IInterface* parent) : ManagedMonitorToolBase(type, name, parent) {
-  m_FCalEt = 0;
-  m_FCalEt_A = 0;
-  m_FCalEt_C = 0;
-  m_ZDC_HG = 0;
-  m_ZDC_LG = 0;
-  m_h_FCalEt = 0;
-  m_h_FCalEt_vs_eta = 0;
-  m_FCalEt_nbins = 95;
-  m_low_FCalEt = -0.15;
-  m_high_FCalEt = 0.8;
-  m_nbins_phi = 64;
-  m_nbins_eta = s_num_of_eta_bins;
-  m_eta_range = 5.0;
-  m_Pi = 3.14159265359;
-  declareProperty("ZDCmon", m_ZDCmon = true);
-  declareProperty("ESmon", m_ESmon = true);
-  declareProperty("FCalEt_eta_hist_cut", m_FCalEt_eta_hist_cut = 0.05); // in TeV
+HIMonitoringEventShapeTool( const std::string & type, const std::string & name,
+                            const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )
+{
+	m_FCalEt=0;
+	m_FCalEt_A=0;
+	m_FCalEt_C=0;
+	m_ZDC_HG=0;
+	m_ZDC_LG=0;
+	m_h_FCalEt=0;
+	m_h_FCalEt_vs_eta=0;
+	m_nbins_phi=64;
+	m_nbins_eta=s_num_of_eta_bins;
+	m_eta_range=5.0;
+	m_Pi = 3.14159265359;
+	declareProperty( "ZDCmon", m_ZDCmon=true);
+	declareProperty( "ESmon", m_ESmon=true);
+	declareProperty( "FCalEt_eta_hist_cut", m_FCalEt_eta_hist_cut=0.05); // in TeV
+	declareProperty( "FCalEt_nbins", m_FCalEt_nbins=95);
+	declareProperty( "lowFCalEt", m_low_FCalEt=-0.15);
+	declareProperty( "highFCalEt", m_high_FCalEt=0.8);
 }
 
 HIMonitoringEventShapeTool::~HIMonitoringEventShapeTool() {
@@ -360,16 +361,15 @@ void HIMonitoringEventShapeTool::bookZDC_hist() {
 }
 
 void HIMonitoringEventShapeTool::getZDC(const xAOD::TrigT2ZdcSignalsContainer* TrigZdc_p) {
-  double zdc_energies[2] = {
-    0.0, 0.0
-  }; // {High gain, Low gain}
+
+  double zdc_energies[2] = { 0.0, 0.0 }; // {High gain, Low gain}
   int size = TrigZdc_p->size();
 
   for (int i = 0; i < size; i++) {
     const xAOD::TrigT2ZdcSignals* zdc = TrigZdc_p->at(i);
     std::vector<float> triggerEnergies = zdc->triggerEnergies();
-    for (int j = 0; j < (int) triggerEnergies.size(); j++)
-      zdc_energies[i] += triggerEnergies.at(j);
+    for (auto & zdc_towers  : triggerEnergies)
+			zdc_energies[i]+= zdc_towers;
   }
 
   m_ZDC_HG = zdc_energies[0] * 1e-3;

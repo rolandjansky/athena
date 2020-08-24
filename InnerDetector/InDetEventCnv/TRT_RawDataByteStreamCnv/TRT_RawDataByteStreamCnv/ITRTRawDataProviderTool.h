@@ -13,6 +13,8 @@
 
 #include <vector>
 
+class TRT_BSErrContainer;
+
 // the tool to decode a ROB frament
 
 class ITRTRawDataProviderTool : virtual public IAlgTool
@@ -26,7 +28,8 @@ class ITRTRawDataProviderTool : virtual public IAlgTool
   
   //! this is the main decoding method
   virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      TRT_RDO_Container*               rdoIdc ) = 0;
+			     TRT_RDO_Container* rdoIdc,
+			     TRT_BSErrContainer* bserr) = 0;
 
 };
 

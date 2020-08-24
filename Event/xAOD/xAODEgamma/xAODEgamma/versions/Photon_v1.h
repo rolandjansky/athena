@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.h 667341 2015-05-15 14:39:34Z christos $
 #ifndef XAODEGAMMA_VERSIONS_PHOTON_V1_H
 #define XAODEGAMMA_VERSIONS_PHOTON_V1_H
 
@@ -19,6 +18,10 @@
 // Local include(s):
 #include "xAODEgamma/versions/Egamma_v1.h"
 #include "xAODEgamma/PhotonxAODHelpers.h"
+
+//Already include the DataVector specialization for this type
+#include "xAODEgamma/PhotonContainerFwd.h"
+
 
 namespace xAOD {
 
@@ -119,5 +122,6 @@ namespace xAOD {
 
 }//  xAOD namespace
 
-
+//Finish declaration of Egamma as base class of Photon_v1
+DATAVECTOR_BASE_FIN(xAOD::Photon_v1, xAOD::Egamma);
 #endif // XAODEGAMMA_VERSIONS_PHOTON_V1_H

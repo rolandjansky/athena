@@ -5,7 +5,7 @@
 // ********************************************************************
 //
 // NAME:     DQTDetSynchMonAlg.cxx
-// PACKAGE:  DataQualityTools  
+// PACKAGE:  DataQualityTools
 //
 // AUTHORS:   Luca Fiorini <Luca.Fiorini@cern.ch>
 //            Updated by:
@@ -13,7 +13,7 @@
 //            and Max Baak (mbaakcern.ch)
 //            and Sam King (samking@physics.ubc.ca)
 //            and Simon Viel (svielcern.ch)
-//            and Peter Onyisi 
+//            and Peter Onyisi
 //
 // ********************************************************************
 
@@ -23,16 +23,9 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 #include "TProfile.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
 
 //----------------------------------------------------------------------------------
 DQTDetSynchMonAlg::DQTDetSynchMonAlg( const std::string& name,
@@ -63,11 +56,7 @@ StatusCode DQTDetSynchMonAlg::initialize() {
   ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
   ATH_CHECK( m_TileDigitsContainerKey.initialize() );
   ATH_CHECK( m_RpcPadContainerKey.initialize() );
-  ATH_CHECK( m_field.retrieve() );
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -83,7 +72,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    std::multiset<uint32_t> tilebcidset;
    std::multiset<uint32_t> rpcbcidset;
    std::multiset<uint32_t> pixelbcidset;
-   
+
    std::multiset<uint32_t> sctl1idset;
    std::multiset<uint32_t> trtl1idset;
    std::multiset<uint32_t> larl1idset;
@@ -102,7 +91,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    uint32_t ctpl1id(9999999); // handled specially
 
    uint32_t lumi(0), evtNum(0);
-   
+
    //Retrieve CTP, other things from EventInfo
    SG::ReadHandle<xAOD::EventInfo> thisEventInfo { GetEventInfo(ctx) } ;
    if(! thisEventInfo.isValid())
@@ -122,7 +111,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
 
    if (inDetTimeCollections[0].isValid()) {
      auto& TRT_BCIDColl(inDetTimeCollections[0]);
-     for ( InDetTimeCollection::const_iterator itrt_bcid 
+     for ( InDetTimeCollection::const_iterator itrt_bcid
 	     = TRT_BCIDColl->begin();
 	   itrt_bcid != TRT_BCIDColl->end(); ++itrt_bcid ) {
        //Current bcid
@@ -133,10 +122,10 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      ATH_MSG_WARNING( "Could not get any TRT_BCID containers " );
    }
 
-   
+
    if (inDetTimeCollections[1].isValid()) {
      auto& SCT_BCIDColl(inDetTimeCollections[1]);
-     for ( InDetTimeCollection::const_iterator isct_bcid 
+     for ( InDetTimeCollection::const_iterator isct_bcid
 	     = SCT_BCIDColl->begin();
 	   isct_bcid != SCT_BCIDColl->end(); ++isct_bcid ) {
        //Current bcid
@@ -146,11 +135,11 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    else {
      ATH_MSG_WARNING( "Could not get any SCT_BCID containers " );
    }
-     
+
 
    if (inDetTimeCollections[2].isValid()) {
      auto& Pixel_BCIDColl(inDetTimeCollections[2]);
-     for ( InDetTimeCollection::const_iterator ipixel_bcid 
+     for ( InDetTimeCollection::const_iterator ipixel_bcid
 	     = Pixel_BCIDColl->begin();
 	   ipixel_bcid != Pixel_BCIDColl->end(); ++ipixel_bcid ) {
        //Current bcid
@@ -164,7 +153,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
 
    if (inDetTimeCollections[3].isValid()) {
      auto& TRT_LVL1IDColl(inDetTimeCollections[3]);
-     for ( InDetTimeCollection::const_iterator itrt_lvl1id 
+     for ( InDetTimeCollection::const_iterator itrt_lvl1id
 	     = TRT_LVL1IDColl->begin();
 	   itrt_lvl1id != TRT_LVL1IDColl->end(); ++itrt_lvl1id ) {
        //Current lvl1id
@@ -178,7 +167,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
 
    if (inDetTimeCollections[4].isValid()) {
      auto& SCT_LVL1IDColl(inDetTimeCollections[4]);
-     for ( InDetTimeCollection::const_iterator isct_lvl1id 
+     for ( InDetTimeCollection::const_iterator isct_lvl1id
 	     = SCT_LVL1IDColl->begin();
 	   isct_lvl1id != SCT_LVL1IDColl->end(); ++isct_lvl1id ) {
        //Current lvl1id
@@ -188,11 +177,11 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    else {
      ATH_MSG_WARNING( "Could not get SCT_LVL1ID container " );
    }
-  
+
 
    if (inDetTimeCollections[5].isValid()) {
      auto& Pixel_LVL1IDColl(inDetTimeCollections[5]);
-     for ( InDetTimeCollection::const_iterator ipixel_lvl1id 
+     for ( InDetTimeCollection::const_iterator ipixel_lvl1id
 	     = Pixel_LVL1IDColl->begin();
 	   ipixel_lvl1id != Pixel_LVL1IDColl->end(); ++ipixel_lvl1id ) {
        //Current lvl1id
@@ -213,15 +202,15 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    pixell1id=findid(pixell1idset);
    pixelbcid=findid(pixelbcidset);
    pixelfrac=findfrac(pixelbcidset,ctpbcid);
-   
+
    SG::ReadHandle<LArFebHeaderContainer> hdrCont(m_LArFebHeaderContainerKey, ctx);
    if (! hdrCont.isValid()) {
       ATH_MSG_WARNING( "No LArFEB container found in TDS" );
    }
    else {
-      //log << MSG::DEBUG << "LArFEB container found" <<endmsg; 
-      LArFebHeaderContainer::const_iterator it = hdrCont->begin(); 
-      LArFebHeaderContainer::const_iterator itend = hdrCont->end(); 
+      //log << MSG::DEBUG << "LArFEB container found" <<endmsg;
+      LArFebHeaderContainer::const_iterator it = hdrCont->begin();
+      LArFebHeaderContainer::const_iterator itend = hdrCont->end();
       for ( ; it!=itend;++it) {
 	//HWIdentifier febid=(*it)->FEBId();
         unsigned int febid=((*it)->FEBId()).get_identifier32().get_compact();
@@ -234,11 +223,11 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    larbcid=findid(larbcidset);
    larfrac=findfrac(larbcidset,larbcid);
    larl1id=findid(larl1idset);
-   
+
    SG::ReadHandle<TileDigitsContainer> DigitsCnt(m_TileDigitsContainerKey, ctx);
    if (! DigitsCnt.isValid()) {
      ATH_MSG_WARNING( "No Tile Digits container found in TDS" );
-   } 
+   }
    else {
      TileDigitsContainer::const_iterator collItr=DigitsCnt->begin();
      TileDigitsContainer::const_iterator lastColl=DigitsCnt->end();
@@ -253,7 +242,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
 
    if (m_doRPC) {
      SG::ReadHandle<RpcPadContainer> rpcRDO(m_RpcPadContainerKey, ctx);
-     if (! rpcRDO.isValid()) { 
+     if (! rpcRDO.isValid()) {
        ATH_MSG_WARNING( "No RPC Pad container found in TDS" );
      } else {
        RpcPadContainer::const_iterator pad = rpcRDO->begin();
@@ -273,7 +262,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    rpcbcid=findid(rpcbcidset);
    rpcfrac=findfrac(rpcbcidset,rpcbcid);
    rpcl1id=findid(rpcl1idset);
-  
+
    auto ctp_l1id16 = Monitored::Scalar<uint32_t>("ctpl1id", ctpl1id & 0xFFFF);
    uint32_t ctp_l1id9 = ctpl1id & 0x1FF;
    auto tile_l1id16 = Monitored::Scalar<uint32_t>("tilel1id", tilel1id & 0xFFFF);
@@ -292,8 +281,8 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
 
    auto bcidrates_idx = Monitored::Collection( "bcidrates_idx",
 					       bcidrates_idx_base );
-   
-   
+
+
    std::vector<Int_t> bcidvals { ctpbcid, sctbcid, trtbcid, larbcid,
        tilebcid, rpcbcid, pixelbcid };
    std::vector<int> diffx_base, diffy_base;
@@ -337,7 +326,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      auto diffjunk = Monitored::Scalar("diff_0_6", bcidvals[0]-bcidvals[6]);
      fill("bcid", diffjunk, lb);
    }
-   
+
    auto diffx = Monitored::Collection("diffx", diffx_base);
    auto diffy = Monitored::Collection("diffy", diffy_base);
    fill("bcid", ctpbcid, sctbcid, trtbcid, larbcid, tilebcid, rpcbcid,
@@ -359,7 +348,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      for (size_t iy = ix+1; iy < NDETS; ++iy) {
        UInt_t xl1id, yl1id;
        // RPC (index 5) is an exception
-       if (iy == 5) { 
+       if (iy == 5) {
 	 yl1id = rpcl1id; xl1id = l1idvals_d9[ix];
        } else if (ix == 5) {
 	 xl1id = rpcl1id; yl1id = l1idvals_d9[iy];
@@ -393,33 +382,24 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    fill("l1id", ctp_l1id16, sctl1id, trtl1id, larl1id,
 	tile_l1id16, rpcl1id, pixell1id, diffx, diffy);
 
-
- ////////////////////////////////////////////////////////////////////////////////////////////////////
    // B field
-   Amg::Vector3D f; 
+   Amg::Vector3D f;
    Amg::Vector3D gP1(m_solenoidPositionX, m_solenoidPositionY, m_solenoidPositionZ);
    MagField::AtlasFieldCache    fieldCache;
-   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
    if (fieldCondObj == nullptr) {
-       ATH_MSG_ERROR("DQTDetSynchMonAlg: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+       ATH_MSG_ERROR("DQTDetSynchMonAlg: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
        return StatusCode::FAILURE;
    }
    fieldCondObj->getInitializedCache (fieldCache);
-
-   // MT version uses cache, temporarily keep old version
-   if (fieldCache.useNewBfieldCache()) fieldCache.getField(gP1.data(),f.data());
-   else                                 m_field->getField(&gP1,&f);
+   fieldCache.getField(gP1.data(),f.data());
 
    // field is in kilotesla (!)
    auto solenoid_bz = Monitored::Scalar("solenoid_bz", f[2]*1000.);
 
    Amg::Vector3D  gP2(m_toroidPositionX, m_toroidPositionY, m_toroidPositionZ);
-
-   // MT version uses cache, temporarily keep old version
    if (fieldCache.useNewBfieldCache()) fieldCache.getField(gP2.data(),f.data());
- ////////////////////////////////////////////////////////////////////////////////////////////////////
 
    auto toroid_bx = Monitored::Scalar("toroid_bx", f[0]*1000.);
 
@@ -477,7 +457,7 @@ float DQTDetSynchMonAlg::findfrac(const std::multiset<uint32_t>& mset, uint16_t 
   int nonctpIdCounter=0;
   float frac = 0.0;
 
-  if (it!=itend && !mset.empty()){ 
+  if (it!=itend && !mset.empty()){
     for (;it!=itend;++it) {
       totalCounter++;
       if ( (*it) != ctpid ) nonctpIdCounter++;

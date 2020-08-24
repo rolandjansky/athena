@@ -312,7 +312,7 @@ InDetFlags.doTrkD3PD         = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True
-#InDetFlags.doStandardPlots   = True
+#InDetFlags.doPhysValMon   = True
 InDetFlags.doSGDeletion      = False
 
 from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags

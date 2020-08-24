@@ -19,6 +19,14 @@ OfflineJetCollections = [
   'AntiKt4EMPFlowJets',
 ]
 
+# L1 monitoring
+L1JetCollections = ['LVL1JetRoIs']
+Chain2L1JetCollDict = {
+  'L1_J15'  : 'LVL1JetRoIs',
+  'L1_J20'  : 'LVL1JetRoIs',
+  'L1_J100' : 'LVL1JetRoIs',
+}
+
 # AthenaMT
 JetCollections['MT']    = [
   'HLT_AntiKt4EMTopoJets_subjesIS',                   # default small-R
@@ -55,7 +63,7 @@ Chain2JetCollDict['Legacy'] = {
   'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
 }
 
-from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec #VarSpec can be added to define specific/custom variables
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def TrigJetMonConfig(inputFlags):
@@ -72,6 +80,16 @@ def TrigJetMonConfig(inputFlags):
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
 
+  # Loop over L1 jet collectoins
+  for jetcoll in L1JetCollections:
+    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll)
+    l1jetconf.toAlg(helper)
+
+  # Loop over L1 jet chains
+  for chain,jetcoll in Chain2L1JetCollDict.items():
+    l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
+    l1chainconf.toAlg(helper)
+
   # Loop over offline jet collections
   for jetcoll in OfflineJetCollections:
     offlineMonitorConf = jetMonitoringConfig(inputFlags,jetcoll,AthenaMT)
@@ -85,7 +103,7 @@ def TrigJetMonConfig(inputFlags):
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].iteritems():
+  for chain,jetcoll in Chain2JetCollDict[InputType].items():
     chainMonitorConf = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
 
@@ -97,12 +115,15 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
   # we use a specialized dictionnary (JetMonAlgSpec) which will be translated into the final C++ tool
   path = 'NoTriggerSelection' if isOnline else 'standardHistos/'
 
+  TopLevelDir  = 'HLT/JetMon/'
+  TopLevelDir += 'Online/' if isOnline else 'Offline/'
+
   # Remap online Run 2 jet collections
   from TrigJetMonitoring import JetCollRemapping
   jetcollFolder = jetcoll
   if jetcoll in JetCollRemapping.JetCollRun2ToRun3 and not athenaMT:
     jetcollFolder = JetCollRemapping.JetCollRun2ToRun3[jetcoll]
-  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, topLevelDir="HLT/JetMon/", bottomLevelDir=jetcollFolder)
+  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, topLevelDir=TopLevelDir, bottomLevelDir=jetcollFolder, failureOnMissingContainer=False)
 
   # Now start filling the histo spec list    
   Conf.appendHistos(
@@ -110,6 +131,7 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     "pt",  
     "m",
     "eta",
+    "phi",
     "e",
     "et",
     # or we can directly add our custom histo specification in the form of a HistoSpec:
@@ -133,6 +155,14 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
 
     SelectSpec( 'central', '|eta|<3.2', path, FillerTools = ["pt","et","m"] ),
     SelectSpec( 'forward', '3.2<|eta|', path, FillerTools = ["pt","et","m"] ),
+    SelectSpec( 'lowmu', 'avgMu<30', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
+    SelectSpec( 'highmu', '30<avgMu', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
+
+    EventHistoSpec('njetsPt20', (20,0,20), title='NJetsPt20;NJetsPt20;Entries' ),
+    # Jet multiplicity histograms can be added by using an EventHistoSpec
+    # Their specifications (pT cut, ET cut, eta cuts) must be defined in the knownEventVar dictionary within JetStandardHistoSpecs.py
+    # The following line is an example for a jet multiplicity histogram with ET>40 GeV, 1.0<|eta|<2.0, and binning of (10,0,10):
+    # EventHistoSpec('njetsEt40Eta1_2', (10,0,10), title='NJetsEt40Eta1_2;NJetsEt40Eta1_2;Entries' ),
 
     # TProfile2D : just use 3 variables. For now the sytem will automatically
     #  interpret it as a TProfile2D (the 3rd variable being profiled)
@@ -158,37 +188,72 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
 
 # Additional histograms for offline jets
 ExtraOfflineHists = [
-  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;entries" ),
-  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;entries" ),
-  HistoSpec('Jvt', (50,-0.1,1), title="JVT;JVT;entries" ),
+  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
+  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
+  HistoSpec('Jvt', (50,-0.1,1), title="JVT;JVT;Entries" ),
+  "JVFCorr",
+  "JvtRpt",
   "NumTrkPt1000[0]",
   "TrackWidthPt1000[0]",
+  "SumPtTrkPt500[0]",
+  SelectSpec( 'LooseBadFailedJets', 'LooseBad', InverseJetSel=True, FillerTools = ["pt","phi","eta"]),
 ]
 
 # Additional histograms for online jets
 ExtraSmallROnlineHists = [
-  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;entries" ),
-  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;entries" ),
+  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
+  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
+  HistoSpec('DetectorEta', (100,-5,5), title="DetectorEta;Detector #eta;Entries" ), 
+  HistoSpec('ActiveArea', (80,0,0.8), title="ActiveArea;Active Area;Entries" ), 
+  HistoSpec('et:GeV;eta',  (100,0,750, 50,-5,5) , title='#eta vs E_{T};E_{T} [GeV];#eta;Entries'),
+  "EM3Frac",
+  "Tile0Frac",
 ]
 
 ExtraLargeROnlineHists = [
 ]
+
+#Additional online & offline histograms to include kinematics at various jet calibration scales
+OfflineScaleMomenta = [ "ConstitScale", "EMScale", "PileupScale", "EtaJESScale"]
+OnlineScaleMomenta = [ "ConstitScale" ]
+
+for var in [ "pt", "eta", "m" ]:
+  for offlinescale in OfflineScaleMomenta:
+    ExtraOfflineHists.append("Jet"+offlinescale+"Momentum_"+var)
+  for onlinescale in OnlineScaleMomenta:
+    ExtraSmallROnlineHists.append("Jet"+onlinescale+"Momentum_"+var)
+
 
 def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''
 
    # Declare a configuration dictionnary for a JetContainer
    isOnline = True if 'HLT' in jetcoll else False
-   conf = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
+   conf     = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
    if isOnline:
-     if 'AntiKt4' in jetcoll:
+     if 'AntiKt4' in jetcoll or 'a4tcem' in jetcoll:
        for hist in ExtraSmallROnlineHists: conf.appendHistos(hist)
+       if 'ftf' in jetcoll:
+         conf.appendHistos("JVFCorr")
+         conf.appendHistos("JvtRpt")
+         conf.appendHistos("SumPtTrkPt500[0]")
+         conf.appendHistos("NumTrkPt1000[0]")
+         conf.appendHistos("TrackWidthPt1000[0]")
      else:
        for hist in ExtraLargeROnlineHists: conf.appendHistos(hist)
    else: # offline
      for hist in ExtraOfflineHists: conf.appendHistos(hist)
+     if 'pf' in jetcoll or 'PF' in jetcoll:
+       conf.appendHistos("SumPtChargedPFOPt500[0]")
+       conf.appendHistos("fCharged")
 
    return conf
+
+def l1JetMonitoringConfig(inputFlags,jetcoll,chain=''):
+  from TrigJetMonitoring.L1JetMonitoringConfig import L1JetMonAlg
+  name = jetcoll if chain=='' else jetcoll+'_'+chain
+  conf = L1JetMonAlg(name,jetcoll,chain)
+  return conf
 
 def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''
@@ -199,6 +264,13 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    if jetcoll in JetCollRemapping.JetCollRun2ToRun3 and not athenaMT:
      jetcollFolder = JetCollRemapping.JetCollRun2ToRun3[jetcoll]
 
+   # Remap Run 2 jet chain name to Run 3 jet chain
+   from TrigJetMonitoring import JetChainRemapping
+   if chain in JetChainRemapping.JetChainRun2ToRun3:
+     chainFolder = JetChainRemapping.JetChainRun2ToRun3[chain]
+   else:
+     chainFolder = chain
+
    # We schedule a new JetAlg which will be acting only when a TriggerChain fired (using the TriggerChain from the base classes).
    # We'll plot 1 histo build by a dedicated JetHistoTriggEfficiency tool.
    # So we'll have to explicitely give a specification via the generic dicionnary 'ToolSpec'
@@ -208,22 +280,24 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
        # create a monitoring group with the histo path starting from the parentAlg
        group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
        # define the histogram
-       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chain, xbins=100 , xmin=0, xmax=500000. ,)
+       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=100 , xmin=0, xmax=500000. ,)
 
    from JetMonitoring.JetMonitoringConfig import retrieveVarToolConf
    trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
        chain+"TrigMon",
        JetContainerName = jetcoll,
        TriggerChain = chain,
-       defaultPath = chain,
-       topLevelDir="HLT/JetMon/",
+       defaultPath = chainFolder,
+       topLevelDir="HLT/JetMon/Online/",
        bottomLevelDir=jetcollFolder,
+       failureOnMissingContainer=True,
        )
    trigConf.appendHistos(
            "pt",
            "m",
            "eta",
            "et",
+           "phi",
            # we pass directly the ToolSpec
            ToolSpec('JetHistoTriggEfficiency', chain,
                     # below we pass the Properties of this JetHistoTriggEfficiency tool :
@@ -235,14 +309,14 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
 
    if 'smc' in chain:
      trigConf.appendHistos(
-             SelectSpec( 'm50', '50<m', chain, FillerTools = [
+             SelectSpec( 'm50', '50<m', chainFolder, FillerTools = [
                ToolSpec('JetHistoTriggEfficiency', chain,
                  Group='jetTrigGroup_'+chain+'_m50',
                  Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
-             SelectSpec( 'et500', '500<et', chain, FillerTools = [
+             SelectSpec( 'et500', '500<et', chainFolder, FillerTools = [
                ToolSpec('JetHistoTriggEfficiency', chain,
                  Group='jetTrigGroup_'+chain+'_et500',
                  Var=retrieveVarToolConf("m"), # In this context we can not just pass a str alias to describe a histo variable
@@ -293,9 +367,9 @@ if __name__=='__main__':
   ConfigFlags.lock()
 
   # Initialize configuration object, add accumulator, merge, and run.
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-  cfg = MainServicesSerialCfg()
+  cfg = MainServicesCfg(ConfigFlags)
   cfg.merge(PoolReadCfg(ConfigFlags))
 
   # The following class will make a sequence, configure algorithms, and link
@@ -305,6 +379,16 @@ if __name__=='__main__':
 
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
+
+  # Loop over L1 jet collectoins
+  for jetcoll in L1JetCollections:
+    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll)
+    l1jetconf.toAlg(helper)
+
+  # Loop over L1 jet chains
+  for chain,jetcoll in Chain2L1JetCollDict.items():
+    l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
+    l1chainconf.toAlg(helper)
 
   # Loop over offline jet collections
   for jetcoll in OfflineJetCollections:
@@ -319,7 +403,7 @@ if __name__=='__main__':
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].iteritems():
+  for chain,jetcoll in Chain2JetCollDict[InputType].items():
     chainMonitorConf = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
 

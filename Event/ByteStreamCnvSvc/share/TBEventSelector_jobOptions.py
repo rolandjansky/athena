@@ -21,7 +21,7 @@ svcMgr += ByteStreamCnvSvc()
 
 # Properties 
 EventSelector = svcMgr.EventSelector
-EventSelector.ByteStreamInputSvc     = "ByteStreamInputSvc"; 
+EventSelector.ByteStreamInputSvc = "ByteStreamInputSvc"; 
 EventPersistencySvc = svcMgr.EventPersistencySvc
 EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
 

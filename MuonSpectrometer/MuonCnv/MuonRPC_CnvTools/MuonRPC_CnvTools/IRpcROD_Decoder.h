@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IMUONRPCRODDECODER_H
@@ -9,13 +9,9 @@
 #include "ByteStreamData/RawEvent.h"
 #include "eformat/SourceIdentifier.h"
 
-
-//using eformat::helper::SourceIdentifier;
-
-
 class RpcPadContainer;
 class RpcSectorLogicContainer;
-//using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+class IdentifierHash;
 
 namespace Muon
 {

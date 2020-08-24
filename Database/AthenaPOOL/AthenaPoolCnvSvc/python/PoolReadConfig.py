@@ -34,7 +34,9 @@ def PoolReadCfg(configFlags):
     if filenamesSecondary:
         # Create DoubleEventSelector (universal for any seconday input type)
         evSel = DoubleEventSelectorAthenaPool("DoubleEventSelector",
-                                              InputCollections=filenames)
+                                              InputCollections=filenames,
+                                              SkipEvents=configFlags.Exec.SkipEvents)
+
 
         if configFlags.Overlay.DataOverlay:
             # We have to check if we're running data overlay - BS is needed in this case
@@ -74,7 +76,9 @@ def PoolReadCfg(configFlags):
         result.addService(apaps)
         result.addService(ProxyProviderSvc(ProviderNames=[apaps.getFullJobOptName(),])) #No service handle yet???
 
-        evSel=EventSelectorAthenaPool("EventSelector", InputCollections = filenames)
+        evSel=EventSelectorAthenaPool("EventSelector", 
+                                      InputCollections = filenames, 
+                                      SkipEvents=configFlags.Exec.SkipEvents)
 
     result.addService(evSel)
     result.setAppProperty("EvtSel",evSel.getFullJobOptName())

@@ -16,12 +16,15 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           Database/AthenaPOOL/AthenaPoolUtilities )
 
+atlas_add_library( ParticleEventAthenaPoolLib
+                   ParticleEventAthenaPool/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS ParticleEventAthenaPool
+                   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib StoreGateLib ParticleEvent ParticleEventTPCnv )
+
 # Component(s) in the package:
 atlas_add_poolcnv_library( ParticleEventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES ParticleEvent/ParticleBaseContainer.h ParticleEvent/NeutrinoContainer.h ParticleEvent/CompositeParticleContainer.h ParticleEvent/ParticleShallowCloneContainer.h ParticleEvent/SelectedParticles.h ParticleEvent/TrackParticleAssocs.h ParticleEvent/INav4MomToTrackParticleAssocs.h
-                           LINK_LIBRARIES StoreGateLib SGtests GaudiKernel ParticleEvent ParticleEventTPCnv AthenaPoolCnvSvcLib AthenaPoolUtilities )
-
-# Install files from the package:
-atlas_install_headers( ParticleEventAthenaPool )
+                           LINK_LIBRARIES ParticleEventAthenaPoolLib SGtests AthenaPoolUtilities )
 

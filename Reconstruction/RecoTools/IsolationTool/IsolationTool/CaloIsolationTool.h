@@ -6,8 +6,9 @@
 #define ISOLATIONTOOL_CALOISOLATIONTOOL_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "AsgTools/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 #ifndef XAOD_ANALYSIS
 // #include "GaudiKernel/ToolHandle.h"

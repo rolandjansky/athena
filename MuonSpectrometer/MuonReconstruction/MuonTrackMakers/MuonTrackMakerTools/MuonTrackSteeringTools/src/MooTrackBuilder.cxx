@@ -42,7 +42,7 @@ namespace Muon {
 
     ATH_CHECK( m_fitter.retrieve() );
     ATH_CHECK( m_slFitter.retrieve() );
-    ATH_CHECK(m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
     if( !m_errorOptimisationTool.empty() ) ATH_CHECK( m_errorOptimisationTool.retrieve() );
     ATH_CHECK( m_candidateHandler.retrieve() );
     ATH_CHECK( m_candidateMatchingTool.retrieve() );
@@ -72,13 +72,31 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  Trk::Track* MooTrackBuilder::refit( const Trk::Track& track ) const {
+  Trk::Track* MooTrackBuilder::refit(Trk::Track& track ) const {
 
-    if( m_edmHelperSvc->isSLTrack(track) || !m_magFieldSvc->toroidOn() ) return m_slFitter->refit(track);
+    // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+      
+    if( m_edmHelperSvc->isSLTrack(track) ) return m_slFitter->refit(track);
+
+    // Also check if toriod is off:
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("refit: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return nullptr;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    if( !fieldCache.toroidOn() ) return m_slFitter->refit(track);
 
     // if not refit tool specified do a pure refit
     if( m_errorOptimisationTool.empty() ) return m_fitter->refit(track);
-    return m_errorOptimisationTool->optimiseErrors(track);
+    std::unique_ptr<Trk::Track> optTrack=m_errorOptimisationTool->optimiseErrors(&track);
+    //have to use release until the whole tool uses unique_ptr
+    return optTrack.release();
   }
 
   MuPatTrack* MooTrackBuilder::refine( MuPatTrack& track ) const {
@@ -86,7 +104,7 @@ namespace Muon {
     Trk::Track* finalTrack = m_hitRecoverTool->recover(track.track());
     if( !finalTrack ) {
       ATH_MSG_WARNING(" final track lost, this should not happen " );
-      return 0;
+      return nullptr;
     }
     ATH_MSG_VERBOSE("refine: after recovery " << std::endl
         << m_printer->print(*finalTrack) << std::endl
@@ -147,7 +165,7 @@ namespace Muon {
     // try to get track
     Trk::Track* track = combine( seg1, seg2, externalPhiHits );
 
-    if( !track ) return 0;
+    if( !track ) return nullptr;
 
     // create MuonSegment
     MuonSegment* seg = m_trackToSegmentTool->convert(*track);
@@ -164,12 +182,12 @@ namespace Muon {
   Trk::Track* MooTrackBuilder::combine( const MuonSegment& seg1, const MuonSegment& seg2, const PrepVec* externalPhiHits ) const {
     // convert segments
     MuPatSegment* segInfo1 = m_candidateHandler->createSegInfo(seg1);
-    if( !segInfo1 ) return 0;
+    if( !segInfo1 ) return nullptr;
 
     MuPatSegment* segInfo2 = m_candidateHandler->createSegInfo(seg2);
     if( !segInfo2 ) {
       delete segInfo1;
-      return 0;
+      return nullptr;
     }
 
     // call fit()
@@ -186,7 +204,7 @@ namespace Muon {
     // try to get track
     Trk::Track* track = combine( firstCandidate, secondCandidate, externalPhiHits );
 
-    if( !track ) return 0;
+    if( !track ) return nullptr;
 
     // create MuonSegment
     MuonSegment* seg = m_trackToSegmentTool->convert(*track);
@@ -208,7 +226,7 @@ namespace Muon {
     if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
       ATH_MSG_DEBUG("Timeout reached. Aborting sequence." );
       ++m_nTimedOut;
-      return 0;
+      return nullptr;
     }
 
 
@@ -255,7 +273,7 @@ namespace Muon {
            esit != candidate->excludedSegments().end(); ++esit ) {
         if(*esit == segment) {
           ATH_MSG_DEBUG(" Rejected segment based on exclusion list" );
-          return 0;
+          return nullptr;
         }
       }
     }
@@ -297,7 +315,7 @@ namespace Muon {
           // if all segments are already part of an existing track, don't perform the fit
           if( foundSegments.size() == segments.size() ){
             ATH_MSG_DEBUG("Combination already part of an existing track");
-            return 0;
+            return nullptr;
           }
 
           // if all segments but one are already part of an existing track, check the exclusion list
@@ -317,13 +335,13 @@ namespace Muon {
               if( unassociatedSegments.size() != 1 ) {
                 ATH_MSG_DEBUG("Inconsistent result from set difference: size result " << unassociatedSegments.size()
                   << " candidate " << segments.size() << " found " << foundSegments.size() );
-                return 0;
+                return nullptr;
               }
 
               // check that the result is indeed part of the original set
               if( !segments.count(unassociatedSegments.front()) ){
                 ATH_MSG_DEBUG("Segment point not part of the original set, aborting!");
-                return 0;
+                return nullptr;
               }
 
               // now check whether the segment is part of the excluded segments
@@ -332,7 +350,7 @@ namespace Muon {
                           unassociatedSegments.front() );
               if( pos != candidate->excludedSegments().end() ){
                 ATH_MSG_DEBUG("Segment found in exclusion list, not performing fit");
-                return 0;
+                return nullptr;
               }
             }
           }
@@ -341,8 +359,25 @@ namespace Muon {
       //ATH_MSG_INFO(" Performing fit"  );
     }
 
-    if( slFit || !m_magFieldSvc->toroidOn() ) return m_slFitter->fit(firstCandidate,secondCandidate,externalPhiHits);
-    else                                      return m_fitter->fit(firstCandidate,secondCandidate,externalPhiHits);
+
+    // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+    
+    if( slFit ) return m_slFitter->fit(firstCandidate,secondCandidate,externalPhiHits);
+
+    EventContext ctx = Gaudi::Hive::currentContext();
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("combine: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return nullptr;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    if( !fieldCache.toroidOn() ) return m_slFitter->fit(firstCandidate,secondCandidate,externalPhiHits);
+
+    return m_fitter->fit(firstCandidate,secondCandidate,externalPhiHits);
   }
 
 
@@ -350,12 +385,12 @@ namespace Muon {
                                         const PrepVec* externalPhiHits ) const {
     // convert segments
     MuPatTrack* candidate = m_candidateHandler->createCandidate(new Trk::Track(track));
-    if( !candidate ) return 0;
+    if( !candidate ) return nullptr;
 
     MuPatSegment* segInfo = m_candidateHandler->createSegInfo(seg);
     if( !segInfo ) {
       delete candidate;
-      return 0;
+      return nullptr;
     }
 
     // call fit()
@@ -372,12 +407,12 @@ namespace Muon {
                                                                         const PrepVec* externalPhiHits ) const {
     // convert segments
     MuPatTrack* candidate = m_candidateHandler->createCandidate(new Trk::Track(track));
-    if( !candidate ) return 0;
+    if( !candidate ) return nullptr;
 
     MuPatSegment* segInfo = m_candidateHandler->createSegInfo(seg);
     if( !segInfo ) {
       delete candidate;
-      return 0;
+      return nullptr;
     }
 
     // call fit()
@@ -406,7 +441,7 @@ namespace Muon {
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_DEBUG(" track without states! " );
-      return 0;
+      return nullptr;
     }
 
     // loop over TSOSs
@@ -450,7 +485,7 @@ namespace Muon {
 
     // return clone of parameters
     if( closestParameters ) return closestParameters->clone();
-    return 0;
+    return nullptr;
   }
 
 
@@ -477,7 +512,7 @@ namespace Muon {
                                                                         const PrepVec* patternPhiHits ) const {
     // convert track
     MuPatTrack* can = m_candidateHandler->createCandidate(new Trk::Track(track));
-    if( !can ) return 0;
+    if( !can ) return nullptr;
 
     std::vector<Trk::Track*>* tracks = combineWithSegmentFinding(*can,pars,chIds,patternPhiHits);
     delete can;
@@ -500,19 +535,19 @@ namespace Muon {
     // get chamber Id of segment
     std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(seg);
 
-    if( chIds.empty() ) return 0;
+    if( chIds.empty() ) return nullptr;
 
 
     // for now do not redo segment making for CSCs
     if( m_idHelperSvc->isCsc( *chIds.begin() ) ){
       if( m_candidateMatchingTool->match(candidate,segInfo,true) ) {
         Trk::Track* newtrack = m_fitter->fit(candidate,segInfo,externalPhiHits);
-        if( !newtrack ) return 0;
+        if( !newtrack ) return nullptr;
         std::vector<Trk::Track*>* newTracks = new std::vector<Trk::Track*>;
         newTracks->push_back(newtrack);
         return newTracks;
       }else{
-        return 0;
+        return nullptr;
       }
     }
 
@@ -525,7 +560,7 @@ namespace Muon {
 
     if( !closestPars ) {
       ATH_MSG_WARNING( " unable to find closest TrackParameters " );
-      return 0;
+      return nullptr;
     }
 
     ATH_MSG_VERBOSE(" closest parameter " << m_printer->print(*closestPars) );
@@ -539,7 +574,7 @@ namespace Muon {
 
     if( !exPars ) {
       ATH_MSG_WARNING( " Propagation failed!! " );
-      return 0;
+      return nullptr;
     }
 
     ATH_MSG_VERBOSE(" extrapolated parameter " << m_printer->print(*exPars) );
@@ -619,11 +654,11 @@ namespace Muon {
                                                                         const std::set<Identifier>& chIds,
                                                                         const PrepVec* externalPhiHits ) const {
 
-    if( chIds.empty() )      return 0;
+    if( chIds.empty() )      return nullptr;
 
     if( !m_idHelperSvc->isMdt(*chIds.begin()) ) {
       ATH_MSG_WARNING("combineWithSegmentFinding called with CSC hits!! retuning zero pointer");
-      return 0;
+      return nullptr;
     }
 
     // redo segment finding
@@ -632,11 +667,11 @@ namespace Muon {
     // check whether we got segments
     if( !segments ) {
       ATH_MSG_DEBUG(" failed to find new segments " );
-      return 0;
+      return nullptr;
     }
     if( segments->empty() ){
       ATH_MSG_DEBUG(" got empty vector!! " );
-      return 0;
+      return nullptr;
     }
 
     unsigned int nseg=segments->size();
@@ -698,7 +733,7 @@ namespace Muon {
 
     if( !newTracks || newTracks->empty() ){
       delete newTracks;
-      return 0;
+      return nullptr;
     }
 
     ATH_MSG_DEBUG(" found new tracks for segment " << newTracks->size() );
@@ -712,7 +747,7 @@ namespace Muon {
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_DEBUG(" track without states, discarding track " );
-      return 0;
+      return nullptr;
     }
     if( msgLvl(MSG::DEBUG) ) {
       msg(MSG::DEBUG) << MSG::DEBUG << " recalibrating hits on track " << std::endl
@@ -729,8 +764,6 @@ namespace Muon {
     // If any new state is created, all states will be cloned and a new track will beformed from them.
     std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
     newStates.reserve(states->size()+5);
-
-    Identifier currentMdtChId;
 
     // loop over TSOSs
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
@@ -1013,13 +1046,34 @@ namespace Muon {
   }
 
   std::pair<Trk::Track*,Trk::Track*> MooTrackBuilder::splitTrack( const Trk::Track& track ) const {
-    return m_edmHelperSvc->isSLTrack(track) || !m_magFieldSvc->toroidOn() ?  m_slFitter->splitTrack(track) : m_fitter->splitTrack(track);
+
+    // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+      
+    if ( m_edmHelperSvc->isSLTrack(track) ) return m_slFitter->splitTrack(track);
+      
+    EventContext ctx = Gaudi::Hive::currentContext();
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("splitTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      std::pair<Trk::Track*,Trk::Track*> emptyPair;
+      return emptyPair;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if ( !fieldCache.toroidOn() ) return m_slFitter->splitTrack(track);
+
+    return m_fitter->splitTrack(track);
+
   }
 
   std::vector<MuPatTrack*>* MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec ) const {
 
     // check whether we have segments
-    if( segVec.empty() ) return 0;
+    if( segVec.empty() ) return nullptr;
 
     std::vector<MuPatTrack*>* candidates = new std::vector<MuPatTrack*>();
     std::set<MuPatSegment*> usedSegments;
@@ -1523,7 +1577,7 @@ namespace Muon {
     }
 
     // did we find any?
-    if( !foundSplitTracks ) return 0;
+    if( !foundSplitTracks ) return nullptr;
     // loop over the new track vector and create a new TrackCollection
     TrackCollection* newTracks = new TrackCollection();
     newTracks->reserve(goodTracks.size());

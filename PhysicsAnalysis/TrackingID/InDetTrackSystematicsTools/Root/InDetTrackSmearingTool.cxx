@@ -85,7 +85,7 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode InDetTrackSmearingTool::finalize()
+  InDetTrackSmearingTool::~InDetTrackSmearingTool()
   {
     delete m_smearD0Dead; m_smearD0Dead = nullptr;
     delete m_smearZ0Dead; m_smearZ0Dead = nullptr;
@@ -96,7 +96,6 @@ namespace InDet {
     delete m_smearZ0_sys_up; m_smearZ0_sys_up = nullptr;
     delete m_smearD0_sys_dw; m_smearD0_sys_dw = nullptr;
     delete m_smearZ0_sys_dw; m_smearZ0_sys_dw = nullptr;
-    return StatusCode::SUCCESS;
   }
 
   float InDetTrackSmearingTool::GetSmearD0Sigma(const xAOD::TrackParticle& track) {

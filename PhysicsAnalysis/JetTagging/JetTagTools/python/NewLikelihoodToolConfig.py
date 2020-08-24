@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 # import the NewLikelihoodTool configurable
 Analysis__NewLikelihoodTool=CompFactory.Analysis.NewLikelihoodTool
 
-def NewLikelihoodToolCfg( flags, name = 'NewLikelihoodTool', taggername = 'IP2D', useBTagFlagsDefaults = True, **options):
+def NewLikelihoodToolCfg( flags, name = 'NewLikelihoodTool', taggername = 'IP2D', scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a NewLikelihoodTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -31,6 +31,9 @@ def NewLikelihoodToolCfg( flags, name = 'NewLikelihoodTool', taggername = 'IP2D'
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
     acc.setPrivateTools(Analysis__NewLikelihoodTool(**options))
 
     return acc
+

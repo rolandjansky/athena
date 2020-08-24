@@ -17,7 +17,7 @@ Purpose : build the JetMissingEt Tag objects - ParticleJetTagCollection.h and Mi
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODJet/JetContainer.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include <map>
 

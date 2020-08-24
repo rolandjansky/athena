@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxInfoBase.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -25,7 +25,6 @@ namespace xAOD {
 
    AuxInfoBase::AuxInfoBase( bool allowDynamicVars )
       : SG::IAuxStore(),
-        m_selection(),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
         m_locked( false ),
@@ -47,18 +46,20 @@ namespace xAOD {
    ///
    AuxInfoBase::AuxInfoBase( const AuxInfoBase& parent )
       : SG::IAuxStore(),
-        m_selection( parent.m_selection ),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
-        m_locked( false ),
-        m_name( parent.m_name ) {
+        m_locked( false )
+   {
+      // Keep the source unmutable during copy
+      guard_t guard( parent.m_mutex );
+      m_name = parent.m_name;
 
       // Unfortunately the dynamic variables can not be copied this easily...
       if( parent.m_store ) {
-         m_store = parent.m_store;
+         // cppcheck-suppress copyCtorPointerCopying
          m_ownsStore = false;
+         m_store = parent.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
-         m_selection = parent.m_selection;
          m_auxids.insert( m_store->getAuxIDs().begin(),
                           m_store->getAuxIDs().end() );
       }
@@ -71,7 +72,6 @@ namespace xAOD {
    ///
    AuxInfoBase::AuxInfoBase( SG::IAuxStore* store )
       : SG::IAuxStore(),
-        m_selection(),
         m_auxids(), m_vecs(),
         m_store( store ),
         m_storeIO( 0 ), m_ownsStore( false ),
@@ -108,7 +108,8 @@ namespace xAOD {
       // Protect against self-assignment:
       if( this == &rhs ) return *this;
 
-      m_selection = rhs.m_selection;
+      // Keep the source unmutable during copy
+      std::scoped_lock  lck{m_mutex, rhs.m_mutex};
 
       // Clean up after the old dynamic store:
       if( m_store && m_ownsStore ) {
@@ -121,8 +122,8 @@ namespace xAOD {
 
       // Take posession of the new dynamic store:
       if( rhs.m_store ) {
-         m_store = rhs.m_store;
          m_ownsStore = false;
+         m_store = rhs.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
          m_auxids.insert (m_store->getAuxIDs());
       }
@@ -577,15 +578,6 @@ namespace xAOD {
       return dummy;
    }
 
-   void AuxInfoBase::selectAux( const std::set< std::string >& attributes ) {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      m_selection.selectAux( attributes );
-      return;
-   }
-
    AuxInfoBase::auxid_set_t
    AuxInfoBase::getSelectedAuxIDs() const {
 
@@ -598,7 +590,7 @@ namespace xAOD {
          // I mean, all the variables. Not just the ones reported as dynamic
          // by the internal object. Because the internal object may be something
          // that was put into this one in order to achieve data slimming.
-         return m_selection.getSelectedAuxIDs( m_store->getAuxIDs() );
+         return m_store->getAuxIDs();
       }
 
       // In case we don't use an internal store, there are no dynamic

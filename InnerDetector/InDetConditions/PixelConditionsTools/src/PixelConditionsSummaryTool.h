@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsTools/PixelConditionsSummaryTool.h
@@ -14,12 +14,10 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
-#ifndef SIMULATIONBASE
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#endif
-
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/PixelID.h"
@@ -30,6 +28,7 @@
 #include "PixelConditionsData/PixelDCSStatusData.h"
 #include "PixelConditionsData/PixelTDAQData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "PixelCabling/IPixelCablingSvc.h"
 
 class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
   public:
@@ -52,6 +51,8 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool isBSActive(const IdentifierHash & moduleHash) const override final;
     virtual bool isBSError(const IdentifierHash & moduleHash) const override final;
 
+    bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid) const;
+
   private:
     const PixelID* m_pixelID;
 
@@ -69,24 +70,35 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     {this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
 
     SG::ReadCondHandleKey<PixelTDAQData> m_condTDAQKey
-    {this, "PixelTDAQCondData", "PixelTDAQCondData", "Pixel TDAQ conditions key"};
+    {this, "PixelTDAQCondData", "", "Pixel TDAQ conditions key"}; //Default empty - legacy option
 
     SG::ReadCondHandleKey<PixelModuleData> m_condDeadMapKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel deadmap conditions key"};
 
-//    SG::ReadCondHandleKey<PixelDeadMapCondData> m_condDeadMapKey
-//    {this, "PixelDeadMapCondData", "PixelDeadMapCondData", "Pixel deadmap conditions key"};
+// NEW FOR RUN3    SG::ReadCondHandleKey<PixelDeadMapCondData> m_condDeadMapKey
+// NEW FOR RUN3    {this, "PixelDeadMapCondData", "PixelDeadMapCondData", "Pixel deadmap conditions key"};
 
-#ifndef SIMULATIONBASE
+    ServiceHandle<IPixelCablingSvc> m_pixelCabling
+    {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+
     SG::ReadHandleKey<InDetBSErrContainer>  m_BSErrContReadKey
     {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
-#endif
 
 };
 
 inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){
   static InterfaceID IID_PixelConditionsSummaryTool("PixelConditionsSummaryTool", 1, 0);
   return IID_PixelConditionsSummaryTool;
+}
+
+inline bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHash, Identifier pixid) const {
+  std::bitset<16> chipStatus(SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getChipStatus(moduleHash));
+  if (chipStatus.any()) {
+    Identifier moduleID = m_pixelID->wafer_id(pixid);
+    std::bitset<16> circ; circ.set(m_pixelCabling->getFE(&pixid,moduleID));
+    if ((chipStatus&circ).any()) { return false; }
+  }
+  return true;
 }
 
 #endif

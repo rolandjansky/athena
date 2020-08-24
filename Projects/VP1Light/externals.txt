@@ -6,4 +6,4 @@
 # forbidden.
 
 # The version of atlas/atlasexternals to use:
-VP1LightExternalsVersion = 2.0.64
+VP1LightExternalsVersion = 2.0.74

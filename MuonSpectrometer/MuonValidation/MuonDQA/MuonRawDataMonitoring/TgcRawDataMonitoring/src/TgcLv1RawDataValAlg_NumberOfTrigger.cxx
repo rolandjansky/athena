@@ -684,7 +684,6 @@ TgcLv1RawDataValAlg::fillNumberOfTrigger(){
 	if(pcn==CURR){
 	  if(t_isInner){
 	    if(ws==0){
-	      //std::cout<<"bEIFI "<<b_EI0<<"/"<<b_FI0<<"/"<<b_EI1<<"/"<<b_FI1<<"/"<<b_EI2<<"/"<<b_FI2<<std::endl;
 	      if (b_EI0 == 1)m_tgclv1hptstripinlbvssecteifilumi[ac]->Fill(m_lumiblock,0);
 	      if (b_FI0 == 1)m_tgclv1hptstripinlbvssecteifilumi[ac]->Fill(m_lumiblock,1);
 	      if (b_EI1 == 1)m_tgclv1hptstripinlbvssecteifilumi[ac]->Fill(m_lumiblock,2);

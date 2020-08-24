@@ -61,14 +61,13 @@
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 class ICscCalibTool;
 class ICscStripFitter;
 class ICscClusterFitter;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-class CscIdHelper;
 namespace Muon {
   class CscPrepData;
   class CscStripPrepData;
@@ -137,11 +136,11 @@ private:  // data
   ToolHandle<ICscClusterFitter> m_pfitter_prec;
   ToolHandle<ICscClusterFitter> m_pfitter_split;
 
-  // Pointer to muon geometry manager.
-  const MuonGM::MuonDetectorManager* m_pmuon_detmgr;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  // Geometry helper.
-  const CscIdHelper* m_phelper;
+  /** retrieve MuonDetectorManager from the conditions store */     
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 	
+      "MuonDetectorManager", 	"Key of input MuonDetectorManager condition data"};    
 
   // keep track of full event being already processed
   bool m_fullEventDone;

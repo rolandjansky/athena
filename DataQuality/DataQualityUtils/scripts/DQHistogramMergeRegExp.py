@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-## *****************************************************************************
-VERSION = '$Id: DQHistogramMergeRegExp.py 509709 2012-07-10 16:03:00Z vogel $'
-## *****************************************************************************
-
+from __future__ import print_function
 import DataQualityUtils.DQHistogramMergeMod as mod
 import sys, os
 
@@ -14,8 +11,8 @@ os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS'] = '1'
 
 def usage():
   cmd = sys.argv[0].split("/")[-1]
-  print "Usage: ", cmd, "<input_list_file_name> <merged_file_name> [directory_regexp] [histogram_regexp] [run_post_processing [is_incremental_merge]]"
-  print "If you don't give any regular expressions, this script will act like DQHistogramMerge.py <infilelist> <outfile> False"
+  print("Usage: ", cmd, "<input_list_file_name> <merged_file_name> [directory_regexp] [histogram_regexp] [run_post_processing [is_incremental_merge]]")
+  print("If you don't give any regular expressions, this script will act like DQHistogramMerge.py <infilelist> <outfile> False")
 
 ########################################
 

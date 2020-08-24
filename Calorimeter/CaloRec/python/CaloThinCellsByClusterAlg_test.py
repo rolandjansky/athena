@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: CaloRec/python/CaloThinCellsByClusterAlg_test.py
 # Author: scott snyder
@@ -134,6 +134,11 @@ def testCfg (configFlags):
     return result
 
 
+# Work around issue with cling in root 6.20.06 getting confused
+# by forward declarations.
+ROOT.xAOD.CaloClusterContainer_v1
+
+
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -147,8 +152,8 @@ ConfigFlags.needFlagsCategory('Tile')
 ConfigFlags.needFlagsCategory('LAr')
 
 ConfigFlags.lock()
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-acc=MainServicesSerialCfg()
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+acc=MainServicesCfg(ConfigFlags)
 
 from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
 acc.merge (McEventSelectorCfg (ConfigFlags))

@@ -30,13 +30,7 @@ atlas_add_library( RPC_CondCablingLib
                    LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface MuonCablingTools SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier MuonIdHelpersLib PathResolver )
 
 atlas_add_component( RPC_CondCabling
-                     src/RPCCablingDbTool.cxx
-                     src/RPCTriggerDbTool.cxx
-                     src/RpcCablingCondAlg.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES}  RPC_CondCablingLib)
-
-# Install files from the package:
-atlas_install_headers( RPC_CondCabling )
 

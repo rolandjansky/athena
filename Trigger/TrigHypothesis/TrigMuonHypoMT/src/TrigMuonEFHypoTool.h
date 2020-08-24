@@ -8,7 +8,7 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h" 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "xAODMuon/MuonContainer.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // include Muon SelectionTool for quality criteria 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -52,7 +52,7 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
     this, "PtBins", { {0, 2.5} }, "Bins range of each pT threshold" };
   Gaudi::Property< std::vector<std::vector<double>> > m_ptThresholds {
-    this, "PtThresholds", { {5.49*CLHEP::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
+    this, "PtThresholds", { {5.49*Gaudi::Units::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
   Gaudi::Property< bool > m_acceptAll {
     this, "AcceptAll", false, "Ignore selection" };
   Gaudi::Property<bool>  m_decisionPerRoI { 

@@ -1,11 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 #include "MuonIdHelpers/MuonIdHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-
-
-
-using namespace Muon;
-
-DECLARE_COMPONENT( MuonIdHelperSvc )
-DECLARE_COMPONENT( MuonIdHelperTool )
-
+DECLARE_COMPONENT( Muon::MuonIdHelperSvc )

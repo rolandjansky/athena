@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheLArMinBiasAlg.h
@@ -22,9 +22,9 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
-#include "LArElecCalib/ILArMCSymTool.h"
 #include "LArElecCalib/ILArMinBias.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRawConditions/LArMCSym.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
@@ -56,11 +56,12 @@
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  ToolHandle<ILArMCSymTool>  m_larmcsym;
   int m_datasetID_lowPt;
   int m_datasetID_highPt;
   double m_weight_lowPt;
   double m_weight_highPt;
+  SG::ReadCondHandleKey<LArMCSym> m_mcSymKey
+  { this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   const CaloDetDescrManager* m_calodetdescrmgr = nullptr;

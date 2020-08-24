@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscOverlay/CscOverlay.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
-#include "MuonIdHelpers/CscIdHelper.h"
-
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -19,18 +16,13 @@ namespace {
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator)
-{
+  AthReentrantAlgorithm(name, pSvcLocator) {
 }
 
 //================================================================
-StatusCode CscOverlay::initialize()
-{
+StatusCode CscOverlay::initialize() {
   ATH_MSG_DEBUG("CscOverlay initialized");
-
-  /** access to the CSC Identifier helper */
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_MSG_DEBUG(" Found the MuonIdHelperTool. ");
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK(m_cscCalibTool.retrieve());
@@ -90,25 +82,22 @@ StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
 {
   ATH_MSG_DEBUG("overlayContainer() begin");
 
-  // Get all the hashes for the signal and background containers
-  const std::vector<IdentifierHash> bkgHashes = bkgContainer->GetAllCurrentHashes();
-  const std::vector<IdentifierHash> signalHashes = signalContainer->GetAllCurrentHashes();
-
   // The MC signal container should typically be smaller than bkgContainer,
   // because the latter contains all the noise, minimum bias and pile up.
   // Thus we firstly iterate over signal hashes and store them in a map.
-  std::map<IdentifierHash, bool> overlapMap;
-  for (const IdentifierHash &hashId : signalHashes) {
-    overlapMap.emplace(hashId, false);
+  std::vector < std::pair<IdentifierHash, bool> > overlapMap;
+  overlapMap.reserve(signalContainer->numberOfCollections());
+  for (const auto &[hashId, ptr] : signalContainer->GetAllHashPtrPair()) {
+    overlapMap.emplace_back(hashId, false);
   }
 
   // Now loop through the background hashes and copy unique ones over
-  for (const IdentifierHash &hashId : bkgHashes) {
-    auto search = overlapMap.find(hashId);
-    if (search == overlapMap.end()) {
+  for (const auto &[hashId, ptr] : bkgContainer->GetAllHashPtrPair()) {
+    auto search = std::lower_bound( overlapMap.begin(), overlapMap.end(), hashId,
+     [](const std::pair<IdentifierHash, bool> &lhs,  IdentifierHash rhs) -> bool { return lhs.first < rhs; } );
+    if (search == overlapMap.end() || search->first != hashId) {
       // Copy the background collection
-      std::unique_ptr<CscRawDataCollection> bkgCollection
-        = copyCollection(bkgContainer->indexFindPtr(hashId));
+      std::unique_ptr<CscRawDataCollection> bkgCollection  = copyCollection(ptr);
 
       if (outputContainer->addCollection(bkgCollection.get(), hashId).isFailure()) {
         ATH_MSG_ERROR("Adding background Collection with hashId " << hashId << " failed");
@@ -202,7 +191,7 @@ StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
         bool good = true;
         for (uint16_t j = 0; j < width; ++j) {
           const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(rdo.get(), j);
-          if (!m_muonIdHelperTool->cscIdHelper().valid(channelId)) {
+          if (!m_idHelperSvc->cscIdHelper().valid(channelId)) {
             ATH_MSG_WARNING("Invalid CSC Identifier! - skipping " << channelId);
             good = false;
             break;
@@ -388,7 +377,7 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
           int stationName =  ( ( address & 0x00010000) >> 16 ) + 50;
           int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
           int stationPhi  =  ( ( address & 0x0000E000) >> 13 ) + 1;
-          Identifier me= m_muonIdHelperTool->cscIdHelper().elementID(stationName,stationEta,stationPhi);
+          Identifier me= m_idHelperSvc->cscIdHelper().elementID(stationName,stationEta,stationPhi);
           ATH_MSG_VERBOSE("stationName,Eta,Phi="<<stationName<<","<<stationEta<<","<<stationPhi<<" - me="<<me);
           bool good=true;
           for (unsigned int j=0; j<datum->width(); ++j) {
@@ -406,10 +395,10 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
               }
             }
             insertedstrips.insert(strip);//for checks
-            Identifier mechan= m_muonIdHelperTool->cscIdHelper().channelID(me,chamberLayer,wireLayer,measuresPhi,strip);
+            Identifier mechan= m_idHelperSvc->cscIdHelper().channelID(me,chamberLayer,wireLayer,measuresPhi,strip);
             ATH_MSG_VERBOSE("mechan="<<mechan);
             const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(datum, j);
-            if(!(m_muonIdHelperTool->cscIdHelper().valid(channelId))) {
+            if(!(m_idHelperSvc->cscIdHelper().valid(channelId))) {
               ATH_MSG_WARNING("Invalid CSC Identifier in merge! - skipping " << channelId );
               good=false;
             }
@@ -453,14 +442,11 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
   ATH_MSG_DEBUG("stripData<>() begin: gasLayer="<<gasLayer<<" spuID="<<spuID<<" isdata="<<isdata);
 
   samples.clear();
-  IdContext context = m_muonIdHelperTool->cscIdHelper().channel_context();
+  IdContext context = m_idHelperSvc->cscIdHelper().channel_context();
 
   uint32_t maxInt  = 2147483640;
   uint32_t address = maxInt;
   hash             = maxInt;
-
-  //int max = 192;
-  //if ( spuID == 4 || spuID == 9 ) max = 48;
 
   /** loop over the data in the SPU */
   std::vector<const CscRawData*>::const_iterator idata = data.begin();
@@ -471,9 +457,9 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
 
     /** find the strip Identifier given the strip hash ID */
     Identifier stripId;
-    m_muonIdHelperTool->cscIdHelper().get_id(hashOffset, stripId, &context);
-    unsigned int strip = static_cast<unsigned int> ( m_muonIdHelperTool->cscIdHelper().strip( stripId ) );
-    int layer          = m_muonIdHelperTool->cscIdHelper().wireLayer( stripId );
+    m_idHelperSvc->cscIdHelper().get_id(hashOffset, stripId, &context);
+    unsigned int strip = static_cast<unsigned int> ( m_idHelperSvc->cscIdHelper().strip( stripId ) );
+    int layer          = m_idHelperSvc->cscIdHelper().wireLayer( stripId );
     uint16_t width = datum->width();
 
     /** create the map only layer by layer

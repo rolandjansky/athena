@@ -30,17 +30,17 @@ def TrigCaloMonConfig(inputFlags):
 
 
     ################################
-    #     HLT_L2CaloEMClusters     #
+    #     HLT_FastCaloEMClusters     #
     ################################
 
 
 
     # Add monitor algorithm
     from AthenaConfiguration.ComponentFactory import CompFactory
-    L2CaloEMClustersMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_L2CaloEMClustersMonitor, 'HLT_L2CaloEMClustersMonAlg')
+    L2CaloEMClustersMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_L2CaloEMClustersMonitor, 'HLT_FastCaloEMClustersMonAlg')
 
     # Set properties
-    L2CaloEMClustersMonAlg.HLTContainer = 'HLT_L2CaloEMClusters'
+    L2CaloEMClustersMonAlg.HLTContainer = 'HLT_FastCaloEMClusters'
     L2CaloEMClustersMonAlg.OFFContainer = 'egammaClusters'
     L2CaloEMClustersMonAlg.MonGroupName = 'TrigCaloMonitor'
     L2CaloEMClustersMonAlg.OFFTypes = []
@@ -57,7 +57,7 @@ def TrigCaloMonConfig(inputFlags):
     ########################
 
     # Declare HLT histograms
-    hist_path='HLT_L2CaloEMClusters/HLT_Clusters'
+    hist_path='HLT_FastCaloEMClusters/HLT_Clusters'
     L2CaloEMClustersMonGroup.defineHistogram('HLT_num',title='Number of HLT Clusters; Num Clusters; Entries',
                                 path=hist_path,xbins=51,xmin=-0.5,xmax=50.5)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_eta,HLT_phi',title='Number of HLT Clusters; #eta; #phi; ', type='TH2F',
@@ -94,7 +94,7 @@ def TrigCaloMonConfig(inputFlags):
     ########################
 
     # Declare OFF histograms
-    hist_path='HLT_L2CaloEMClusters/OFF_Clusters'
+    hist_path='HLT_FastCaloEMClusters/OFF_Clusters'
     L2CaloEMClustersMonGroup.defineHistogram('OFF_num',title='Number of OFF Clusters; Num Clusters; Entries',
                                 path=hist_path,xbins=101,xmin=-1.0,xmax=201.0)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_eta,OFF_phi',title='Number of OFF Clusters; #eta; #phi; ', type='TH2F',
@@ -115,7 +115,7 @@ def TrigCaloMonConfig(inputFlags):
     ########################
 
     # Declare HLT matched HLT vs. OFF cluster histograms
-    hist_path='HLT_L2CaloEMClusters/HLT_Matched_to_OFF'
+    hist_path='HLT_FastCaloEMClusters/HLT_Matched_to_OFF'
     L2CaloEMClustersMonGroup.defineHistogram('HLT_matched_fraction',title='Fraction of HLT clusters matched to HLT clusters; Matched fraction; Entries',
                                 path=hist_path,xbins=100,xmin=0.0,xmax=1.0)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_vs_OFF_minimum_delta_r',title='HLT vs OFF Cluster #DeltaR; #DeltaR; Entries',
@@ -170,7 +170,7 @@ def TrigCaloMonConfig(inputFlags):
     ########################
 
     # Declare OFF matched HLT vs. OFF cluster histograms
-    hist_path='HLT_L2CaloEMClusters/OFF_Matched_to_HLT'
+    hist_path='HLT_FastCaloEMClusters/OFF_Matched_to_HLT'
     L2CaloEMClustersMonGroup.defineHistogram('OFF_matched_fraction',title='Fraction of OFF clusters matched to HLT clusters; Matched fraction; Entries',
                                 path=hist_path,xbins=100,xmin=0.0,xmax=1.0)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_vs_HLT_minimum_delta_r',title='HLT vs OFF Cluster #DeltaR; #DeltaR; Entries',
@@ -496,9 +496,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     trigCaloMonitorAcc = TrigCaloMonConfig(ConfigFlags)

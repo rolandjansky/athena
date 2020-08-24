@@ -119,11 +119,10 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   // Strip Response
   m_StripsResponseSimulation(0),
   m_qThreshold(0),							// Strips Charge Threshold
-  m_transverseDiffusionSigma(0),				// Transverse Diffusion
-  m_longitudinalDiffusionSigma(0),			// Longitudinal Diffusion
-  m_driftVelocity(0),							// Drift Velocity
   m_crossTalk1(0),							// Cross talk with nearest strip
   m_crossTalk2(0),							// Cross talk with 2nd nearest strip
+
+  m_avalancheGain(0),
   
   // Electronics Response
   m_ElectronicsResponseSimulation(0),
@@ -154,7 +153,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   m_n_hitIncomingAngle(-99999999.),
   m_n_StrRespTrg_Time(-99999999.),
   m_n_hitIncomingAngleRads(-99999999.),
-  m_n_hitKineticEnergy(-99999999.),
+  m_n_hitKineticEnergy(-99999999.), 
   m_n_hitDepositEnergy(-99999999.),
   m_exitcode(0),
   
@@ -164,7 +163,8 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   m_globalHitTime(-99999999.),
   m_eventTime(-99999999.),
   m_doSmearing(false),
-  m_smearingTool("Muon::NSWCalibSmearingTool/MMCalibSmearingTool",this)
+  m_smearingTool("Muon::NSWCalibSmearingTool/MMCalibSmearingTool",this),
+  m_calibrationTool("Muon::NSWCalibTool/NSWCalibTool",this)
 {
   
   declareInterface<IMuonDigitizationTool>(this);
@@ -194,13 +194,15 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   
   // Constants vars for the MM_StripsResponseSimulation class
   // qThreshold=2e, we accept a good strip if the charge is >=2e
+
+  //Three gas mixture mode,	Ar/CO2=93/7, Ar/CO2=80/20, Ar/CO2/Iso=93/5/2
+  //each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
   declareProperty("qThreshold",                 m_qThreshold = 0.001);     // Charge Threshold
-  declareProperty("TransverseDiffusionSigma",   m_transverseDiffusionSigma = 0.360/10.);   // Diffusion Constants for electron propagation
-  declareProperty("LongitudinalDiffusionSigma", m_longitudinalDiffusionSigma = 0.190/10.);
   declareProperty("DriftGapWidth",              m_driftGapWidth = 5.168);  // Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)
-  declareProperty("DriftVelocity",              m_driftVelocity = 0.047);  // Drift velocity in [mm/ns]
   declareProperty("crossTalk1",		          m_crossTalk1 = 0.1);       // Strip Cross Talk with Nearest Neighbor
   declareProperty("crossTalk2",		          m_crossTalk2 = 0.03);      // Strip Cross Talk with 2nd Nearest Neighbor
+
+  declareProperty("AvalancheGain",				m_avalancheGain = 8.0e3); //avalanche Gain for rach gas mixture
   
   declareProperty("vmmReadoutMode",             m_vmmReadoutMode = "peak"      ); // For readout (DAQ) path. Can be "peak" or "threshold"
   declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
@@ -214,6 +216,8 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 
   declareProperty("doSmearing", m_doSmearing=false);    // set the usage or not of the smearing tool for realistic detector performance
   declareProperty("SmearingTool",m_smearingTool);
+
+  declareProperty("CalibrationTool", m_calibrationTool);
   
 }
 
@@ -223,23 +227,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool:: in initialize()") ;
-	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
-	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
-	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
-	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService    );
-	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
-	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
-	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
-	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
-	ATH_MSG_DEBUG ( "UseTimeWindow          " << m_useTimeWindow       );
-	ATH_MSG_DEBUG ( "CheckSimHits           " << m_checkMMSimHits      );
-	ATH_MSG_DEBUG ( "Threshold              " << m_qThreshold          );
-	ATH_MSG_DEBUG ( "DiffusSigma            " << m_transverseDiffusionSigma		);
-	ATH_MSG_DEBUG ( "LogitundinalDiffusSigma" << m_longitudinalDiffusionSigma 	);
-	ATH_MSG_DEBUG ( "DriftVelocity          " << m_driftVelocity      	 		);
-	ATH_MSG_DEBUG ( "crossTalk1             " << m_crossTalk1 	     			);
-	ATH_MSG_DEBUG ( "crossTalk2             " << m_crossTalk2 	     			);
-	ATH_MSG_DEBUG ( "EnergyThreshold        " << m_energyThreshold     			);
 
 	// Initialize transient event store
 	ATH_CHECK(m_storeGateService.retrieve());
@@ -269,6 +256,7 @@ StatusCode MM_DigitizationTool::initialize() {
 		return StatusCode::FAILURE;
 	}
 
+
     //initialize the output WriteHandleKeys
     if(m_outputDigitCollectionKey.key()=="") {
       ATH_MSG_FATAL("Property OutputObjectName not set !");
@@ -279,6 +267,7 @@ StatusCode MM_DigitizationTool::initialize() {
     ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
 
     ATH_CHECK(m_fieldCondObjInputKey.initialize());
+	  ATH_CHECK(m_calibrationTool.retrieve());
 
 	//simulation identifier helper
 	m_muonHelper = MicromegasHitIdHelper::GetHelper();
@@ -324,12 +313,25 @@ StatusCode MM_DigitizationTool::initialize() {
 	// StripsResponseSimulation Creation
 	m_StripsResponseSimulation = new MM_StripsResponseSimulation();
 	m_StripsResponseSimulation->setQThreshold(m_qThreshold);
-	m_StripsResponseSimulation->setTransverseDiffusionSigma(m_transverseDiffusionSigma);
-	m_StripsResponseSimulation->setLongitudinalDiffusionSigma(m_longitudinalDiffusionSigma);
 	m_StripsResponseSimulation->setDriftGapWidth(m_driftGapWidth);
-	m_StripsResponseSimulation->setDriftVelocity(m_driftVelocity);
 	m_StripsResponseSimulation->setCrossTalk1(m_crossTalk1);
 	m_StripsResponseSimulation->setCrossTalk2(m_crossTalk2);
+	
+	// get gas properties from calibration tool 
+    float longDiff, transDiff, vDrift, interactionDensityMean, interactionDensitySigma;
+    TF1* lorentzAngleFunction;
+
+    ATH_CHECK(m_calibrationTool->mmGasProperties(vDrift, longDiff, transDiff, interactionDensityMean, interactionDensitySigma,  lorentzAngleFunction));
+
+	m_driftVelocity = vDrift;
+
+	m_StripsResponseSimulation->setTransverseDiffusionSigma(transDiff);
+	m_StripsResponseSimulation->setLongitudinalDiffusionSigma(longDiff);
+	m_StripsResponseSimulation->setDriftVelocity(vDrift);
+	m_StripsResponseSimulation->setAvalancheGain(m_avalancheGain);
+	m_StripsResponseSimulation->setInteractionDensityMean(interactionDensityMean);
+	m_StripsResponseSimulation->setInteractionDensitySigma(interactionDensitySigma);
+	m_StripsResponseSimulation->setLorentzAngleFunction(lorentzAngleFunction);
 	m_StripsResponseSimulation->initialize();
 
 	// ElectronicsResponseSimulation Creation
@@ -368,6 +370,30 @@ StatusCode MM_DigitizationTool::initialize() {
 	  ATH_MSG_INFO("Running in smeared mode!");
 
 	}
+
+
+	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
+	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
+	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
+	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService    );
+	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
+	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
+	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
+	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
+	ATH_MSG_DEBUG ( "UseTimeWindow          " << m_useTimeWindow       );
+	ATH_MSG_DEBUG ( "CheckSimHits           " << m_checkMMSimHits      );
+	ATH_MSG_DEBUG ( "Threshold              " << m_qThreshold          );
+	ATH_MSG_DEBUG ( "TransverseDiffusSigma  " << m_StripsResponseSimulation->getTransversDiffusionSigma() );
+	ATH_MSG_DEBUG ( "LogitundinalDiffusSigma" << m_StripsResponseSimulation->getLongitudinalDiffusionSigma() );
+	ATH_MSG_DEBUG ( "Interaction density mean: " << m_StripsResponseSimulation->getInteractionDensityMean() );
+	ATH_MSG_DEBUG ( "Interaction density sigma: " << m_StripsResponseSimulation->getInteractionDensitySigma() );
+	ATH_MSG_DEBUG ( "DriftVelocity stripResponse: " << m_StripsResponseSimulation->getDriftVelocity() );
+	ATH_MSG_DEBUG ( "LorentzAngleFunktion stripResponse: " << m_StripsResponseSimulation->getLorentzAngleFunction()->GetName() );
+	ATH_MSG_DEBUG ( "DriftVelocity          " << m_driftVelocity       	 		);
+	ATH_MSG_DEBUG ( "crossTalk1             " << m_crossTalk1 	     			);
+	ATH_MSG_DEBUG ( "crossTalk2             " << m_crossTalk2 	     			);
+	ATH_MSG_DEBUG ( "EnergyThreshold        " << m_energyThreshold     			);
+
 
 	return StatusCode::SUCCESS;
 }
@@ -633,7 +659,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       // see what are the members of MMSimHit
       
       // convert sim id helper to offline id
-      MM_SimIdToOfflineId simToOffline(m_idHelperSvc->mmIdHelper());
+      MM_SimIdToOfflineId simToOffline(&m_idHelperSvc->mmIdHelper());
       
       //get the hit Identifier and info
       int simId=hit.MMId();
@@ -648,7 +674,9 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 	  continue;
 	}
       }
-      
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink particleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag);
       // Read the information about the Micro Megas hit
       ATH_MSG_DEBUG ( "> hitID  "
 		      <<     hitID
@@ -665,7 +693,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		      << " z "
 		      <<     globalHitPosition.z()
 		      << " mclink "
-		      <<     hit.particleLink()
+		      <<     particleLink
 		      << " station eta "
 		      <<     m_idHelperSvc->mmIdHelper().stationEta(layerID)
 		      << " station phi "
@@ -683,7 +711,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
                                      hit.kineticEnergy(),
                                      hit.globalDirection(),
                                      hit.depositEnergy(),
-                                     hit.trackNumber()
+                                     particleLink
                                      );
       
       inputSimHitColl->Insert(*copyHit);
@@ -702,7 +730,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       // Sanity Checks
       //      
-      if( !m_idHelperSvc->mmIdHelper().is_mm(layerID) ){
+      if( !m_idHelperSvc->isMM(layerID) ){
 	ATH_MSG_WARNING("layerID does not represent a valid MM layer: "
 			<< m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(layerID)) );
 	continue;
@@ -711,11 +739,11 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       std::string stName = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(layerID));
       int isSmall = stName[2] == 'S';
       
-      if( m_idHelperSvc->mmIdHelper().is_mdt(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_rpc(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_tgc(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_csc(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_stgc(layerID)
+      if( m_idHelperSvc->isMdt(layerID)
+	  || m_idHelperSvc->isRpc(layerID)
+	  || m_idHelperSvc->isTgc(layerID)
+	  || m_idHelperSvc->isCsc(layerID)
+	  || m_idHelperSvc->issTgc(layerID)
 	  ){
 	ATH_MSG_WARNING("MM id has wrong technology type! ");
 	m_exitcode = 9;
@@ -984,7 +1012,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 					       inAngle_XZ,
 					       inAngle_YZ,
 					       localMagneticField,
-					       detectorReadoutElement->numberOfMissingBottomStrips(layerID),
+					       detectorReadoutElement->numberOfMissingBottomStrips(layerID)+1,
 					       detectorReadoutElement->numberOfStrips(layerID)-detectorReadoutElement->numberOfMissingTopStrips(layerID),
 					       m_idHelperSvc->mmIdHelper().gasGap(layerID),
 					       m_eventTime+m_globalHitTime
@@ -998,7 +1026,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       // digitize input for strip response
       
-      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      MuonSimData::Deposit deposit(particleLink, MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
       
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
@@ -1214,19 +1242,23 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     // IdentifierHash detIdhash ;
     // set RE hash id
     const Identifier elemId = m_idHelperSvc->mmIdHelper().elementID( stripDigitOutputAllHits.digitID() );
+    if (!m_idHelperSvc->isMM(elemId)) {
+        ATH_MSG_WARNING("given Identifier "<<elemId.get_compact()<<" is not a MM Identifier, skipping");
+        continue;
+    }
     m_idHelperSvc->mmIdHelper().get_module_hash( elemId, moduleHash );
     
     MmDigitCollection* digitCollection = nullptr;
     // put new collection in storegate
     // Get the messaging service, print where you are
-    MmDigitContainer::const_iterator it_coll = digitContainer->indexFind(moduleHash );
-    if (digitContainer->end() ==  it_coll) {
+    const MmDigitCollection* coll = digitContainer->indexFindPtr(moduleHash );
+    if (nullptr ==  coll) {
       digitCollection = new MmDigitCollection( elemId, moduleHash );
       digitCollection->push_back(std::move(newDigit));
       ATH_CHECK(digitContainer->addCollection(digitCollection, moduleHash ) );
     }
     else {
-      digitCollection = const_cast<MmDigitCollection*>( *it_coll );
+      digitCollection = const_cast<MmDigitCollection*>( coll );
       digitCollection->push_back(std::move(newDigit));
     }
     

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.dump_root_file
 # @purpose ascii-fy a ROOT file
@@ -7,7 +7,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 438720 $"
 __doc__ = "ASCII-fy a ROOT file"
 __author__ = "Sebastien Binet"
 
@@ -41,7 +40,7 @@ def main(args):
     import PyUtils.RootUtils as ru
     root = ru.import_root()
 
-    _inspect = root.RootUtils.PyROOTInspector.pyroot_inspect2
+    _inspect = root.RootUtils.PyROOTInspector.pyroot_inspect2  # noqa: F841
 
     import PyUtils.Logging as L
     msg = L.logging.getLogger('dump-root')
@@ -50,8 +49,7 @@ def main(args):
     msg.info('fname: [%s]', args.fname)
     root_file = root.TFile.Open(args.fname)
     if (root_file is None or
-        not isinstance(root_file, root.TFile) or
-        not root_file.IsOpen()):
+        not isinstance(root_file, root.TFile) or not root_file.IsOpen()):
         msg.error('could not open [%s]', args.fname)
         return 1
 
@@ -68,7 +66,6 @@ def main(args):
                 
     msg.info('dumping trees:  %s', tree_names)
 
-    rc = 0
     for tree_name in tree_names:
         f = ru.RootFileDumper(args.fname, tree_name)
         nentries = f.tree.GetEntries()

@@ -3,7 +3,7 @@
 */
 
 #include "LArHV2Ntuple.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 #include "LArHV/LArHVManager.h"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 # Configure L2 and EF monitoring chains
@@ -82,7 +82,7 @@ class L2EFChain_Monitoring(L2EFChainDef):
     ####################################
     ####################################
     def setupL1BCCorrMonChains(self,chainname):
-        from TrigGenericAlgs.TrigGenericAlgsConfig import L1CorrelationAlgoConfig
+        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import L1CorrelationAlgoConfig
         l1correlation_output = ''
         if 'mistimemonj400' in chainname:
             L1CorrAlgo = L1CorrelationAlgoConfig("L1CorrAlgoNoMuonCBCIncl")
@@ -154,7 +154,7 @@ class L2EFChain_Monitoring(L2EFChainDef):
         # self.EFsignatureList += [ [[output0]] ]
         # self.EFsignatureList += [ [[output1]] ]
 
-        from TrigGenericAlgs.TrigGenericAlgsConfig import DetectorTimingAlgoConfig
+        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import DetectorTimingAlgoConfig
 
         ### Now also retrieve triggertowers
         from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerMaker

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HI_HIEVENTSHAPESUMMARYUTILS_H
-#define HI_HIEVENTSHAPESUMMARYUTILS_H
+#ifndef HIEVENTUTILS_HIEVENTSHAPESUMMARYUTILS_H
+#define HIEVENTUTILS_HIEVENTSHAPESUMMARYUTILS_H
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODHIEvent/HIEventShape.h"
@@ -20,8 +20,8 @@ namespace HI
 
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
 		   std::function<bool (const xAOD::HIEventShape*)> incFunction);
-  
-  
+
+
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
 		   const std::set<unsigned int> indices,
 		   std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)> addFunction);
@@ -30,7 +30,7 @@ namespace HI
   {
 
     bool match_num_harmonics;
-    
+
     AddEventShape(float ww) :  match_num_harmonics(true), m_weight(ww){};
     constexpr AddEventShape() : match_num_harmonics(true), m_weight(1){};
     void operator()(xAOD::HIEventShape* slice, const xAOD::HIEventShape* in_slice) const;
@@ -43,7 +43,7 @@ namespace HI
 
 
   // Predicates
-  
+
   struct ByLayer
   {
     int layer;
@@ -57,14 +57,14 @@ namespace HI
     constexpr ByLayers(std::initializer_list<int> ll) : layers(ll) {};
     bool operator()(const xAOD::HIEventShape* in_slice)
     {
-      for(int i : layers) 
+      for(int i : layers)
       {
 	if(i==in_slice->layer()) return true;
       }
       return false;
     };
   };
-	
+
   struct ByEtaRange
   {
     float eta_min;
@@ -77,7 +77,7 @@ namespace HI
   {
     ByLayers layers_sel;
     ByEtaRange range_sel;
-      
+
     constexpr ByLayersWithEtaRange(ByLayers& ll,float eta_min_i, float eta_max_i) : layers_sel(ll), range_sel(eta_min_i,eta_max_i){};
     bool operator()(const xAOD::HIEventShape* in_slice) {return (layers_sel(in_slice) && range_sel(in_slice));};
   };
@@ -103,5 +103,3 @@ namespace HI
 }
 
 #endif
-
-

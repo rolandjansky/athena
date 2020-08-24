@@ -63,13 +63,13 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'IParticlesToThin' property
-  void setupIParticlesToThin( Property& /*prop*/ );
+  void setupIParticlesToThin( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'InputContainerList' property
-  void setupInputContainerList( Property& /*prop*/ );
+  void setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'Selection' property
-  void setupSelection( Property& /*prop*/ );
+  void setupSelection( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
   ///////////////////////////////////////////////////////////////////
@@ -121,19 +121,19 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 /// This internal method will realize if a user sets the 'IParticlesToThin' property
-inline void ThinIParticlesAlg::setupIParticlesToThin( Property& /*prop*/ ) {
+inline void ThinIParticlesAlg::setupIParticlesToThin( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setIPartKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'InputContainerList' property
-inline void ThinIParticlesAlg::setupInputContainerList( Property& /*prop*/ ) {
+inline void ThinIParticlesAlg::setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'Selection' property
-inline void ThinIParticlesAlg::setupSelection( Property& /*prop*/ ) {
+inline void ThinIParticlesAlg::setupSelection( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setSelection = true;
   return;
 }

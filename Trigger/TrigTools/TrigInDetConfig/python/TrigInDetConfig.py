@@ -122,7 +122,7 @@ def TrigInDetCondConfig( flags ):
       PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelDCSCondHVAlgCfg,
       PixelDCSCondTempAlgCfg, PixelAlignCondAlgCfg, PixelDetectorElementCondAlgCfg,
       PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
-      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg,
+      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg,
       PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
 # NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
   )
@@ -158,7 +158,6 @@ def TrigInDetCondConfig( flags ):
   acc.merge(PixelDCSCondStateAlgCfg(flags))
   acc.merge(PixelDCSCondStatusAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
-  acc.merge(PixelTDAQCondAlgCfg(flags))
   # offline calibration
   acc.merge(PixelDistortionAlgCfg(flags))
   acc.merge(PixelOfflineCalibCondAlgCfg(flags))
@@ -171,6 +170,7 @@ def TrigInDetCondConfig( flags ):
 
   BeamSpotCondAlg=CompFactory.BeamSpotCondAlg
   acc.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg" ))
+
 
   from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
   mfsc = MagneticFieldSvcCfg(flags)
@@ -186,6 +186,24 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   from InDetRecExample.InDetKeys import InDetKeys
 
+  # Region selector tool for SCT
+  from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
+  RegSelTool_SCT = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
+
+  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
+                                                    DataObjects= [('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
+                                                                  ('PixelRDO_Cache', 'PixRDOCache'),
+                                                                  ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
+                                                                  ('SCT_RDO_Cache', 'SctRDOCache'),
+                                                                  ('SpacePointCache', 'PixelSpacePointCache'),
+                                                                  ('SpacePointCache', 'SctSpacePointCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
+                                                                  ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
+                                                                      # ('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_L2CaloEMClusters'),
+                                                                  ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
+                                                                  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
+
+  acc.addEventAlgo(verifier)
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
   if not isMC:
@@ -193,6 +211,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
     PixelRodDecoder=CompFactory.PixelRodDecoder
     InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
+    # Disable duplcated pixel check for data15 because duplication mechanism was used.
+    if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
+      InDetPixelRodDecoder.CheckDuplicatedPixel=False
     acc.addPublicTool(InDetPixelRodDecoder)
 
     PixelRawDataProviderTool=CompFactory.PixelRawDataProviderTool
@@ -234,6 +255,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = roisKey
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
+
+    InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT
 
     acc.addEventAlgo(InDetSCTRawDataProvider)
 
@@ -284,6 +307,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                   MinimalSplitProbability = 0,
                                                   DoIBLSplitting = True,
                                                   )
+  # Enable duplcated RDO check for data15 because duplication mechanism was used.
+  if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
+    InDetMergedPixelsTool.CheckDuplicatedRDO = True
   acc.addPublicTool(InDetMergedPixelsTool)
 
   InDet__PixelGangedAmbiguitiesFinder=CompFactory.InDet.PixelGangedAmbiguitiesFinder
@@ -303,7 +329,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   acc.addEventAlgo(InDetPixelClusterization)
 
   from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
+  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False, withTdaqTool=False))
 
 
   #
@@ -328,6 +354,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSCT_Clusterization.RoIs = roisKey
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
 
+  InDetSCT_Clusterization.RegSelTool = RegSelTool_SCT
+
   acc.addEventAlgo(InDetSCT_Clusterization)
 
 
@@ -336,6 +364,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDet__SiSpacePointMakerTool=CompFactory.InDet.SiSpacePointMakerTool
   InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
   acc.addPublicTool(InDetSiSpacePointMakerTool)
+
+  acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") )
 
   from AthenaCommon.DetFlags import DetFlags
   InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
@@ -405,14 +435,13 @@ if __name__ == "__main__":
     eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
     eventDataSvc.NSlots = nThreads
     acc.addService( eventDataSvc )
-    #from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    #acc.merge( MainServicesThreadedCfg( ConfigFlags ) )
+    #from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    #acc.merge( MainServicesCfg( ConfigFlags ) )
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
-    acc.addEventAlgo(l1DecoderAlg)
+    l1DecoderAcc = L1DecoderCfg( ConfigFlags )
     acc.merge(l1DecoderAcc)
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge(TrigBSReadCfg(ConfigFlags))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge(ByteStreamReadCfg(ConfigFlags))
 
     acc.merge( TrigInDetConfig( ConfigFlags ) )
     from RegionSelector.RegSelConfig import regSelCfg

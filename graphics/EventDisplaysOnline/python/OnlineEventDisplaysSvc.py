@@ -33,9 +33,6 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		self.StreamToFileTool = None
 		self.StreamToServerTool = None
 		self.VP1EventProducer = None
-		self.TrigBSExtraction = None
-		self.TrigDecMaker = None 
-		self.TrigDecTool = None
 
 		self.run = 0
 		self.event = 0
@@ -74,33 +71,19 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		if not (self.StreamToFileTool and self.StreamToServerTool and self.VP1EventProducer):
 			self.getJobOptions()
 
-		if not self.TrigDecTool:
-			try:
-				self.TrigBSExtraction = PyAthena.py_alg('TrigBSExtraction')
-				self.TrigDecMaker = PyAthena.py_alg('TrigDecMaker')
-				self.TrigDecTool = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool', iface='Trig::TrigDecisionTool')
-				self.msg.info("TrigDecTool: %s" % self.TrigDecTool)
-			except Exception as err:
-				self.msg.warning("Coult not retrieve TrigDecisionTool: %s" % err)
-
 		try:
-			eventInfo = PyEventTools.getEventInfo('')
+			eventInfo = PyEventTools.getEventInfo('EventInfo')
 		except LookupError as err:
 			self.msg.error("Could not retrieve EventInfo: %s" % err)
 			return StatusCode.Recoverable
 
 		try:
 			# Read event info
-			eventID = eventInfo.event_ID()
-			self.run = eventID.run_number()
-			self.event = eventID.event_number()
+			self.run = eventInfo.runNumber()
+			self.event = eventInfo.eventNumber()
 
 			# Retrieve trigger info
-			triggerInfo = eventInfo.trigger_info()
-			if triggerInfo:
-				streamTags = triggerInfo.streamTags()
-			else:
-				streamTags = []
+			streamTags = eventInfo.streamTags()
 		except Exception as err:
 			self.msg.error("Exception occured while reading event/trigger info: %s" % err)
 			return StatusCode.Recoverable
@@ -119,32 +102,18 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			if tag.type() == 'physics' and tag.name():
 				streams += [tag.type()+'_'+tag.name()]
 
-		# Add special streams to the list (JetTriggers, Public)
-		try:
-			if self.TrigDecTool:
-				self.TrigBSExtraction.execute()
-				self.TrigDecMaker.execute()
-
-				if self.TrigDecTool.isPassed('L1_J5') or self.TrigDecTool.isPassed('L1_J10') or self.TrigDecTool.isPassed('L1_J15'):
-					streams += ['JetTriggers']
-				#if self.TrigDecTool.isPassed('L1_MBTS_1_1'):
-				#	streams += ['MinBias']
-				#if self.TrigDecTool.isPassed('L1_MU0') or self.TrigDecTool.isPassed('L1_MU6') or self.TrigDecTool.isPassed('L1_MU10'):
-				#	streams += ['Muons']
-		except Exception as err:
-			self.msg.error("Exception occured while using TrigDecTool: %s" % err)
-
+		# Add special streams to the list Public
 		try:
 			for stream in streams:
 				if stream in self.public:
 					ready4physics = ISInfoAny()
 					self.dict.getValue('RunParams.Ready4Physics', ready4physics)
-					print ("Ready for physics: %s " % ready4physics.get())
+					print("Ready for physics: %s " % ready4physics.get())
 					runparams = ISObject(self.partition, 'RunParams.RunParams','RunParams')
 					runparams.checkout()
 					physicsReady = ISObject(self.partition, 'RunParams.Ready4Physics','Ready4PhysicsInfo')
 					physicsReady.checkout()
-					print ("Ready for physics: %r" % (physicsReady.ready4physics))
+					print("Ready for physics: %r" % (physicsReady.ready4physics))
 					#if ready4physics.get() and physicsReady.ready4physics and runparams.T0_project_tag in self.projecttags:
 					if physicsReady.ready4physics and runparams.T0_project_tag in self.projecttags:
 						streams += ['Public']
@@ -197,7 +166,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			self.StreamToFileTool.getProperty('FileNamePrefix').setValue("%s/JiveXML" % self.directory)
 
 			# And also for the VP1 event producer algorithm
-			self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory)
+			#self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory) # lshi June 22 2020
 		except Exception as err:
 			self.msg.error("Exception occured while setting job options: %s" % err)
 			return StatusCode.Failure
@@ -222,7 +191,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		self.msg.verbose("Received incident %s from %s" % (incident.type(), incident.source()))
 
 		# Event and trigger info present, decide stream
-		if incident.type() == 'BeginEvent' and incident.source() == 'AthenaEventLoopMgr':
+		if incident.type() == 'BeginEvent' and incident.source() == 'BeginIncFiringAlg':
 			self.beginEvent()
 
 		# VP1 writes its file at EndEvent, so we can do cleanup at StoreCleared

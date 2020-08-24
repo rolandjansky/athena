@@ -1,36 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Author: Ketevi A. Assamagan
-// BNL, October 27 2003
-// Digitization algorithm for the CSC hits
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-
 #include "CSC_Digitization/CscDigitizationTool.h"
-
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandFlat.h"
 
 using namespace MuonGM;
 
-CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
-  : PileUpToolBase(type, name, pIID)
- {
- }
-
-
-CscDigitizationTool::~CscDigitizationTool()  {
-  delete m_cscDigitizer;
+CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID) :
+  PileUpToolBase(type, name, pIID) {
 }
-
 
 StatusCode CscDigitizationTool::initialize() {
 
@@ -66,11 +53,8 @@ StatusCode CscDigitizationTool::initialize() {
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK(m_pcalib.retrieve());
 
-  ICscCalibTool * cscCalibTool = &*(m_pcalib);
-
   //initialize the CSC digitizer
-  CscHitIdHelper * cscHitHelper = CscHitIdHelper::GetHelper();
-  m_cscDigitizer = new CSC_Digitizer(cscHitHelper, m_geoMgr, cscCalibTool);
+  m_cscDigitizer = std::make_unique<CSC_Digitizer>(CscHitIdHelper::GetHelper(), m_geoMgr, &*(m_pcalib));
   m_cscDigitizer->setAmplification(m_amplification);
   m_cscDigitizer->setDebug        ( msgLvl(MSG::DEBUG) );
   m_cscDigitizer->setDriftVelocity(m_driftVelocity);
@@ -78,12 +62,10 @@ StatusCode CscDigitizationTool::initialize() {
   if (m_NInterFixed) {
     m_cscDigitizer->setNInterFixed();
   }
-
+  m_cscDigitizer->setWindow(m_timeWindowLowerOffset, m_timeWindowUpperOffset);
   ATH_CHECK(m_cscDigitizer->initialize());
   
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-  m_cscDigitizer->setWindow(m_timeWindowLowerOffset, m_timeWindowUpperOffset);
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   // check the input object name
   if (m_hitsContainerKey.key().empty()) {
@@ -99,14 +81,6 @@ StatusCode CscDigitizationTool::initialize() {
   // +++ Initialize WriteHandleKey
   ATH_CHECK(m_cscDigitContainerKey.initialize());
   ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
-
-  ATH_MSG_DEBUG("WP Current MSG Level FATAL ? " << msgLvl(MSG::FATAL) );
-  ATH_MSG_DEBUG("WP Current MSG Level ERROR ? " << msgLvl(MSG::ERROR) );
-  ATH_MSG_DEBUG("WP Current MSG Level WARNING ? " << msgLvl(MSG::WARNING) );
-  ATH_MSG_DEBUG("WP Current MSG Level INFO ? " << msgLvl(MSG::INFO) );
-  ATH_MSG_DEBUG("WP Current MSG Level DEBUG ? " << msgLvl(MSG::DEBUG) );
-  ATH_MSG_DEBUG("WP Current MSG Level VERBOSE ? " << msgLvl(MSG::VERBOSE) );
-
 
   return StatusCode::SUCCESS;
 
@@ -130,7 +104,7 @@ StatusCode CscDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   //create and record CscDigitContainer in SG
   SG::WriteHandle<CscDigitContainer> cscDigits(m_cscDigitContainerKey, ctx);
-  ATH_CHECK(cscDigits.record(std::make_unique<CscDigitContainer>(m_muonIdHelperTool->cscIdHelper().module_hash_max())));
+  ATH_CHECK(cscDigits.record(std::make_unique<CscDigitContainer>(m_idHelperSvc->cscIdHelper().module_hash_max())));
   ATH_MSG_DEBUG("recorded CscDigitContainer with name "<<cscDigits.key());
 
   if (m_isPileUp) return StatusCode::SUCCESS;
@@ -140,7 +114,6 @@ StatusCode CscDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_CHECK(cscSimData.record(std::make_unique<CscSimDataCollection>()));
 
   //merging of the hit collection in getNextEvent method
-
   if (0 == m_thpcCSC ) {
     StatusCode sc = getNextEvent(ctx);
     if (StatusCode::FAILURE == sc) {
@@ -169,6 +142,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
     return StatusCode::FAILURE;
   }
 
+  const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   // get the iterator pairs for this DetEl
   while( m_thpcCSC->nextDetectorElement(i, e) ) {
 
@@ -203,7 +177,6 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
 
       std::vector<IdentifierHash>::const_iterator vecBeg = hashVec.begin();
       std::vector<IdentifierHash>::const_iterator vecEnd = hashVec.end();
-      //const HepMcParticleLink & particleLink = hit.particleLink();
       // Fetch the energy deposit.
       const double energy = hit.energyDeposit();
       // Determine where hit crosses the wire plane (x=0).
@@ -229,9 +202,10 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
         hashVec.clear();
         continue;
       }
-
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink trackLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag);
       for (; vecBeg != vecEnd; vecBeg++) {
-        CscSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), CscMcData(energy, ypos, zpos));
+        CscSimData::Deposit deposit(trackLink, CscMcData(energy, ypos, zpos));
         myDeposits[(*vecBeg)].push_back(deposit);
       }
       hashVec.clear();
@@ -269,8 +243,8 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
 
   CscDigitCollection * collection = 0;
 
-  IdContext context    = m_muonIdHelperTool->cscIdHelper().channel_context();
-  IdContext cscContext = m_muonIdHelperTool->cscIdHelper().module_context();
+  IdContext context    = m_idHelperSvc->cscIdHelper().channel_context();
+  IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
   Identifier prevId;
 
@@ -280,14 +254,14 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
   for (; cscMap != cscMapEnd; ++cscMap) {
     Identifier digitId;
     IdentifierHash hashId = (*cscMap).first;
-    if (m_muonIdHelperTool->cscIdHelper().get_id( hashId, digitId, &context ) ) {
+    if (m_idHelperSvc->cscIdHelper().get_id( hashId, digitId, &context ) ) {
       ATH_MSG_ERROR ( "cannot get CSC channel identifier from hash " << hashId );
       return StatusCode::FAILURE;
     }
 
-    Identifier elementId = m_muonIdHelperTool->cscIdHelper().parentID(digitId);
+    Identifier elementId = m_idHelperSvc->cscIdHelper().parentID(digitId);
     IdentifierHash coll_hash;
-    if (m_muonIdHelperTool->cscIdHelper().get_hash(elementId, coll_hash, &cscContext)) {
+    if (m_idHelperSvc->cscIdHelper().get_hash(elementId, coll_hash, &cscContext)) {
       ATH_MSG_ERROR ( "Unable to get CSC hash id from CSC Digit collection "
                       << "context begin_index = " << cscContext.begin_index()
                       << " context end_index  = " << cscContext.end_index()
@@ -299,19 +273,11 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     // get the charge
     double stripCharge = 0.0;
     double driftTime = 0.0;
-    //if (stripCharge < m_noiseLevel) continue;
-
-
     const std::vector<float> samples = (*cscMap).second;
-    //    csc_newmap::iterator ii= data_SampleMapOddPhase.find(hashId);
-    //    const std::vector<float> samplesOddPhase = (*ii).second;
 
-
-    //    if (msgLvl(MSG::DEBUG)) {
     unsigned int samplingPhase =0;
     double samplingTime = m_pcalib->getSamplingTime();
     m_pcalib->findCharge(samplingTime, samplingPhase, samples, stripCharge, driftTime);
-    //    }
     driftTime += m_pcalib->getLatency();
 
     /** mask this readout channel if it is a dead channel or a hot channel */
@@ -320,13 +286,13 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
       driftTime   = 2*m_timeWindowUpperOffset;
     }
 
-    int zsec = m_muonIdHelperTool->cscIdHelper().stationEta(digitId);
-    int phisec = m_muonIdHelperTool->cscIdHelper().stationPhi(digitId);
-    int istation = m_muonIdHelperTool->cscIdHelper().stationName(digitId) - 49;
+    int zsec = m_idHelperSvc->cscIdHelper().stationEta(digitId);
+    int phisec = m_idHelperSvc->cscIdHelper().stationPhi(digitId);
+    int istation = m_idHelperSvc->cscIdHelper().stationName(digitId) - 49;
 
-    int wlay = m_muonIdHelperTool->cscIdHelper().wireLayer(digitId);
-    int measphi = m_muonIdHelperTool->cscIdHelper().measuresPhi(digitId);
-    int istrip = m_muonIdHelperTool->cscIdHelper().strip(digitId);
+    int wlay = m_idHelperSvc->cscIdHelper().wireLayer(digitId);
+    int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(digitId);
+    int istrip = m_idHelperSvc->cscIdHelper().strip(digitId);
 
     int sector = zsec*(2*phisec-istation+1);
 
@@ -337,24 +303,16 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     }
 
     // fill the digit collections in StoreGate
-    //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
     // Now, we pass driftTime as well as stripCharge.
     // SimHIT time should be added to distinguish prompt muons from secondary.... 11/19/2009 WP
-
-    //   CscDigit * newDigit  = new CscDigit(digitId, samples);
-    //    CscDigit * newDigitOddPhase  = new CscDigit(digitId, samplesOddPhase);
-
     ATH_MSG_DEBUG ( "NEWDigit sec:measphi:wlay:istr:chg:t(w/latency) "
-                    << m_muonIdHelperTool->cscIdHelper().show_to_string(digitId,&context)
+                    << m_idHelperSvc->cscIdHelper().show_to_string(digitId,&context)
                     << " hash:eleId = " << hashId << " " << elementId << " " << prevId << "   "
                     << sector << " " << measphi << " " <<  wlay << " " << istrip << "   "
                     << int(stripCharge+1) << " " << float(driftTime)
                     << " phase=" << phaseToSet
                     << "  samps: " << samples[0] << " " << samples[1] << " "
                     << samples[2] << " " << samples[3]
-                    //                    << "  sampsOddPh: " << samplesOddPhase[0] << " " << samplesOddPhase[1] << " "
-                    //                    << samplesOddPhase[2] << " " << samplesOddPhase[3]
-                    //                    << "    "  << (newDigit->sampleCharges()).size()
                     );
 
     if (prevId != elementId) {
@@ -364,23 +322,17 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
 
         if (phaseToSet) newCollection->set_samplingPhase();
 
-        //        const std::vector<float> samplesToPut
-        //          = (phaseToSet) ? samplesOddPhase : samples ;
-
         CscDigit * newDigit  = new CscDigit(digitId, samples);
         newCollection->push_back(newDigit);
 
         if ( cscDigits->addCollection(newCollection, coll_hash).isFailure() )
-          ATH_MSG_ERROR ( "Couldn't record CscDigitCollection with key=" << coll_hash
-                          << " in StoreGate!" );
+          ATH_MSG_ERROR( "Couldn't record CscDigitCollection with key=" << coll_hash << " in StoreGate!");
 
         collection = newCollection;
 
       } else {
         CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll );
         if (phaseToSet) existingCollection->set_samplingPhase();
-        //        const std::vector<float> samplesToPut
-        //          = (existingCollection->samplingPhase()) ? samplesOddPhase : samples ;
 
         CscDigit * newDigit  = new CscDigit(digitId, samples);
 
@@ -396,8 +348,6 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
       }
 
       if (phaseToSet) collection->set_samplingPhase();
-      //      const std::vector<float> samplesToPut
-      //        = (collection->samplingPhase()) ? samplesOddPhase : samples ;
 
       CscDigit * newDigit  = new CscDigit(digitId, samples);
 
@@ -412,8 +362,8 @@ StatusCode CscDigitizationTool::
 FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposits>& myDeposits,CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData) {
 
   CscDigitCollection * collection = 0;
-  IdContext context    = m_muonIdHelperTool->cscIdHelper().channel_context();
-  IdContext cscContext = m_muonIdHelperTool->cscIdHelper().module_context();
+  IdContext context    = m_idHelperSvc->cscIdHelper().channel_context();
+  IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
   Identifier prevId;
   csc_map::const_iterator cscMap    = data_map.begin();
@@ -421,21 +371,15 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
   for (; cscMap != cscMapEnd; ++cscMap) {
     Identifier digitId;
     IdentifierHash hashId = (*cscMap).first;
-    if (m_muonIdHelperTool->cscIdHelper().get_id( hashId, digitId, &context ) ) {
+    if (m_idHelperSvc->cscIdHelper().get_id( hashId, digitId, &context ) ) {
       ATH_MSG_ERROR ( "cannot get CSC channel identifier from hash " << hashId );
       return StatusCode::FAILURE;
     }
 
     // get the charge
     double stripCharge = 0.0;
-    //double gaus = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0,1.0);
-
-    //if (stripCharge < m_noiseLevel) continue;
     stripCharge   = ((*cscMap).second).second + m_pedestal; // + m_noiseLevel*gaus;
     double driftTime =((*cscMap).second).first;  // SimHIT time is added yet 12/03/2009
-
-    //    stripCharge   = ((*cscMap).second).stripCharge + m_pedestal; // + m_noiseLevel*gaus;  v2
-    //    double driftTime =((*cscMap).second).driftTime0; // for version2 v2
 
     /** mask this readout channel if it is a dead channel or a hot channel */
     if ( !m_pcalib->isGood( hashId ) && m_maskBadChannel ) {
@@ -443,17 +387,17 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
       driftTime   = 2*m_timeWindowUpperOffset;
     }
 
-    ATH_MSG_VERBOSE ( "CSC Digit Id = " << m_muonIdHelperTool->cscIdHelper().show_to_string(digitId,&context)
+    ATH_MSG_VERBOSE ( "CSC Digit Id = " << m_idHelperSvc->cscIdHelper().show_to_string(digitId,&context)
                       << " hash = " << hashId
                       << " charge = " << int (stripCharge+1) );
 
-    int zsec = m_muonIdHelperTool->cscIdHelper().stationEta(digitId);
-    int phisec = m_muonIdHelperTool->cscIdHelper().stationPhi(digitId);
-    int istation = m_muonIdHelperTool->cscIdHelper().stationName(digitId) - 49;
+    int zsec = m_idHelperSvc->cscIdHelper().stationEta(digitId);
+    int phisec = m_idHelperSvc->cscIdHelper().stationPhi(digitId);
+    int istation = m_idHelperSvc->cscIdHelper().stationName(digitId) - 49;
 
-    int wlay = m_muonIdHelperTool->cscIdHelper().wireLayer(digitId);
-    int measphi = m_muonIdHelperTool->cscIdHelper().measuresPhi(digitId);
-    int istrip = m_muonIdHelperTool->cscIdHelper().strip(digitId);
+    int wlay = m_idHelperSvc->cscIdHelper().wireLayer(digitId);
+    int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(digitId);
+    int istrip = m_idHelperSvc->cscIdHelper().strip(digitId);
 
     int sector = zsec*(2*phisec-istation+1);
 
@@ -464,11 +408,10 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     }
 
     // fill the digit collections in StoreGate
-    //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
     // Now, we pass driftTime as well as stripCharge.
     // SimHIT time should be added to distinguish prompt muons from secondary.... 11/19/2009 WP
     CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1), float(driftTime) );
-    Identifier elementId = m_muonIdHelperTool->cscIdHelper().parentID(digitId);
+    Identifier elementId = m_idHelperSvc->cscIdHelper().parentID(digitId);
 
     ATH_MSG_DEBUG ( "CSC Digit sector:measphi:wlay:istrip:charge "
                     << sector << " "
@@ -477,7 +420,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
 
 
     IdentifierHash coll_hash;
-    if (m_muonIdHelperTool->cscIdHelper().get_hash(elementId, coll_hash, &cscContext)) {
+    if (m_idHelperSvc->cscIdHelper().get_hash(elementId, coll_hash, &cscContext)) {
       ATH_MSG_ERROR ( "Unable to get CSC hash id from CSC Digit collection "
                       << "context begin_index = " << cscContext.begin_index()
                       << " context end_index  = " << cscContext.end_index()
@@ -622,7 +565,7 @@ StatusCode CscDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   //create and record CscDigitContainer in SG
   SG::WriteHandle<CscDigitContainer> cscDigits(m_cscDigitContainerKey, ctx);
-  ATH_CHECK(cscDigits.record(std::make_unique<CscDigitContainer>(m_muonIdHelperTool->cscIdHelper().module_hash_max())));
+  ATH_CHECK(cscDigits.record(std::make_unique<CscDigitContainer>(m_idHelperSvc->cscIdHelper().module_hash_max())));
   ATH_MSG_DEBUG("recorded CscDigitContainer with name "<<cscDigits.key());
 
   // create and record the SDO container in StoreGate

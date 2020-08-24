@@ -163,6 +163,8 @@ namespace MuonGM {
     m_manager->setCachingFlag(m_caching);
     m_manager->setCacheFillingFlag(m_cacheFillingFlag);
     m_manager->setControlAlinesFlag(m_controlAlines);
+    m_manager->setNSWABLinesAsciiSideA(m_NSWABLinesSideA);
+    m_manager->setNSWABLinesAsciiSideC(m_NSWABLinesSideC);
     // set here the flag defining the geometry granularity
     // minimalgeo = 1 => The geo tree is built up to the Detector Level (Full PhysVol)
     //                     no internal structure of the Detector is built
@@ -197,49 +199,43 @@ namespace MuonGM {
 
     StatusCode sc = StatusCode::SUCCESS;
 
-    const DataHandle<MdtIdHelper> mdtidh;
+    const MdtIdHelper* mdtidh=nullptr;
     sc = m_pDetStore->retrieve(mdtidh,"MDTIDHELPER");
     if ( sc.isFailure()) log << MSG::ERROR << " not found MDT " << endmsg;
     else log << MSG::INFO << "MDTIDHELPER retrieved from DetStore" << endmsg;
-
     m_manager->set_mdtIdHelper(mdtidh);
-    const DataHandle<RpcIdHelper> rpcidh;
+
+    const RpcIdHelper* rpcidh=nullptr;
     sc = m_pDetStore->retrieve(rpcidh,"RPCIDHELPER");
     if ( sc.isFailure() ) log << MSG::ERROR << " not found RPC " << endmsg;
     else log << MSG::INFO << "RPCIDHELPER retrieved from DetStore" << endmsg;
-
     m_manager->set_rpcIdHelper(rpcidh);
-    const DataHandle<TgcIdHelper> tgcidh;
+
+    const TgcIdHelper* tgcidh=nullptr;
     sc = m_pDetStore->retrieve(tgcidh,"TGCIDHELPER");
     if ( sc.isFailure() ) log << MSG::ERROR << " not found TGC " << endmsg;
     else log << MSG::INFO << "TGCIDHELPER retrieved from DetStore" << endmsg;
-
     m_manager->set_tgcIdHelper(tgcidh);
-    if (m_hasCSC) {
-        const DataHandle<CscIdHelper> cscidh;
-        sc = m_pDetStore->retrieve(cscidh,"CSCIDHELPER");
 
+    if (m_hasCSC) {
+        const CscIdHelper* cscidh=nullptr;
+        sc = m_pDetStore->retrieve(cscidh,"CSCIDHELPER");
         if ( sc.isFailure() ) log << MSG::ERROR << " not found CSC " << endmsg;
         else log << MSG::INFO << "CSCIDHELPER retrieved from DetStore" << endmsg;
-
         m_manager->set_cscIdHelper(cscidh);
     }
     if (m_hasSTgc) {
-        const DataHandle<sTgcIdHelper> stgcidh;
+        const sTgcIdHelper* stgcidh=nullptr;
         sc = m_pDetStore->retrieve(stgcidh,"STGCIDHELPER");
-
         if ( sc.isFailure() ) log << MSG::ERROR << " not found sTGC " << endmsg;
         else log << MSG::INFO << "STGCIDHELPER retrieved from DetStore" << endmsg;
-
         m_manager->set_stgcIdHelper(stgcidh);
     }
     if (m_hasMM) {
-        const DataHandle<MmIdHelper> mmidh;
+        const MmIdHelper* mmidh=nullptr;
         sc = m_pDetStore->retrieve(mmidh,"MMIDHELPER");
-
         if ( sc.isFailure() ) log << MSG::ERROR << " not found MicroMegas " << endmsg;
         else log << MSG::INFO << "MMIDHELPER retrieved from DetStore" << endmsg;
-
         m_manager->set_mmIdHelper(mmidh);
     }
 
@@ -259,24 +255,18 @@ namespace MuonGM {
     log << " *** Start building the Muon Geometry Tree **********************"
         << endmsg;
 
-    DBReader* dbr = NULL;
     std::string OracleTag =  m_DBkey;
     std::string OracleNode = m_DBnode;
 
-    // Production Rome Final
-    // OracleTag = "ATLAS-Rome-Final-00";
-    // dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode);
-
     if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "calling RDBReaderAtlas with m_altAsciiDBMap" << endmsg;
 
-    dbr = new RDBReaderAtlas(
+    RDBReaderAtlas* dbr = new RDBReaderAtlas(
       m_pDetStore, m_pRDBAccess,
       OracleTag, OracleNode,
       m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, &m_altAsciiDBMap
     );
 
-    RDBReaderAtlas* thisDbr = (RDBReaderAtlas*)dbr;
-    thisDbr->setControlCscIntAlines(m_controlCscIntAlines);
+    dbr->setControlCscIntAlines(m_controlCscIntAlines);
 
     // set here the flag deciding whether to include cutouts:
     // m_includeCutouts = 1 => include cutouts
@@ -382,78 +372,113 @@ namespace MuonGM {
     GeoLogVol*  l4;
     GeoPcon* c4 = new GeoPcon( 0, 360*Gaudi::Units::deg );
 
-    //--- --- --- CREATE ENVELOPE --- --- ---
-    // First try to get data from the GeomDB
-    IRDBRecordset_ptr muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem",OracleTag,OracleNode);
-
-    // -- Next two lines allow to use MuonSystem-00 by default instead of hardwired numbers
-    //    even for geometry tags where MuonSystem was not collected
-    if(muonSysRec->size()==0) {
-      muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem","MuonSystem-00");
-      log << MSG::INFO
-          << "MuonSystem description from default node in GeomDB, i.e. MuonSystem-00"
-          << endmsg;
+    if(m_isAmdcDb) {
+      log<< MSG::INFO <<" Using hardcoded envelope dimesions from MuonSystem-11 table" <<endmsg;
+      c4->addPlane(-26046. , 1050.  ,  1500.  );
+      c4->addPlane(-23001. , 1050.  ,  1500.  );
+      c4->addPlane(-23001. , 1050.  ,  2750.  );
+      c4->addPlane(-22030. , 1050.  ,  2750.  );
+      c4->addPlane(-22030. ,  436.  , 12650.  );
+      c4->addPlane(-18650. ,  436.  , 12650.  );
+      c4->addPlane(-18650. ,  279.  , 13400.  );
+      c4->addPlane(-12900. ,  279.  , 13400.  );
+      c4->addPlane(-12900. ,   70.  , 13910.  );
+      c4->addPlane( -6783. ,   70.  , 13910.  );
+      c4->addPlane( -6783. ,  420.  , 13910.  );
+      c4->addPlane( -6736. ,  420.  , 13910.  );
+      c4->addPlane( -6736. , 3800.  , 13910.  );
+      c4->addPlane( -6550. , 3800.  , 13910.  );
+      c4->addPlane( -6550. , 4255.  , 13000.  );
+      c4->addPlane(  6550. , 4255.  , 13000.  );
+      c4->addPlane(  6550. , 3800.  , 13910.  );
+      c4->addPlane(  6736. , 3800.  , 13910.  );
+      c4->addPlane(  6736. ,  420.  , 13910.  );
+      c4->addPlane(  6783. ,  420.  , 13910.  );
+      c4->addPlane(  6783. ,   70.  , 13910.  );
+      c4->addPlane( 12900. ,   70.  , 13910.  );
+      c4->addPlane( 12900. ,  279.  , 13400.  );
+      c4->addPlane( 18650. ,  279.  , 13400.  );
+      c4->addPlane( 18650. ,  436.  , 12650.  );
+      c4->addPlane( 22030. ,  436.  , 12650.  );
+      c4->addPlane( 22030. , 1050.  ,  2750.  );
+      c4->addPlane( 23001. , 1050.  ,  2750.  );
+      c4->addPlane( 23001. , 1050.  ,  1500.  );
+      c4->addPlane( 26046. , 1050.  ,  1500.  );         
     } else {
-      log << MSG::INFO
-          << "MuonSystem description from OracleTag=<" << OracleTag << "> and node=<" << OracleNode << ">"
-          << endmsg;
-    }
 
-    // --- Envelope from DB ....
-    if(muonSysRec->size()!=0) {
-      // Data retrieved
-      muonsysIndMap indmap;
-      muonsysIndMap::const_iterator iter;
-      const IRDBRecord* currentRecord;
+      //--- --- --- CREATE ENVELOPE --- --- ---
+      // First try to get data from the GeomDB
+      IRDBRecordset_ptr muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem",OracleTag,OracleNode);
 
-      // First fill the contents of muonsysIndMap
-      for (unsigned int ind=0; ind<muonSysRec->size(); ind++) {
-        int key = (*muonSysRec)[ind]->getInt("PLANE_ID");
-        indmap[key] = ind;
+      // -- Next two lines allow to use MuonSystem-00 by default instead of hardwired numbers
+      //    even for geometry tags where MuonSystem was not collected
+      if(muonSysRec->size()==0) {
+        muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem","MuonSystem-00");
+        log << MSG::INFO
+            << "MuonSystem description from default node in GeomDB, i.e. MuonSystem-00"
+            << endmsg;
+      } else {
+        log << MSG::INFO
+            << "MuonSystem description from OracleTag=<" << OracleTag << "> and node=<" << OracleNode << ">"
+            << endmsg;
       }
 
-      // Create the polycone
-      for(unsigned int ind=0; ind<indmap.size(); ind++) {
-        iter = indmap.find(ind);
+      // --- Envelope from DB ....
+      if(muonSysRec->size()!=0) {
+        // Data retrieved
+        muonsysIndMap indmap;
+        muonsysIndMap::const_iterator iter;
+        const IRDBRecord* currentRecord;
 
-        if(iter==indmap.end()) {
-          throw std::runtime_error("Error in MuonDetectorFactory, missing plane in MuonSystem");
-        } else {
-          currentRecord = (*muonSysRec)[(*iter).second];
-          c4->addPlane(currentRecord->getDouble("ZPLANE"),
-                       currentRecord->getDouble("RMIN"),
-                       currentRecord->getDouble("RMAX"));
+        // First fill the contents of muonsysIndMap
+        for (unsigned int ind=0; ind<muonSysRec->size(); ind++) {
+          int key = (*muonSysRec)[ind]->getInt("PLANE_ID");
+          indmap[key] = ind;
         }
-      }
-    } else {// ... end if  Envelope from DB ---
-      // Muon System node is not present, go for handcoded version
-      log << MSG::INFO
-          << "MuonSystem description not available in GeomDB - using hard-wired description"
-          << endmsg;
 
-      double ir   = m_muon->barrelInnerRadius;
-      double pir  = m_muon->innerRadius;
-      double orad = m_muon->outerRadius;
-      double l    = m_muon->length;
-      double eff  = m_muon->endcapFrontFace;
+        // Create the polycone
+        for(unsigned int ind=0; ind<indmap.size(); ind++) {
+          iter = indmap.find(ind);
 
-      double extraR = m_muon->extraR;
-      double extraZ = m_muon->extraZ;
+          if(iter==indmap.end()) {
+            throw std::runtime_error("Error in MuonDetectorFactory, missing plane in MuonSystem");
+          } else {
+            currentRecord = (*muonSysRec)[(*iter).second];
+            c4->addPlane(currentRecord->getDouble("ZPLANE"),
+                         currentRecord->getDouble("RMIN"),
+                         currentRecord->getDouble("RMAX"));
+          }
+        }
+      } else {// ... end if  Envelope from DB ---
+        // Muon System node is not present, go for handcoded version
+        log << MSG::INFO
+            << "MuonSystem description not available in GeomDB - using hard-wired description"
+            << endmsg;
+
+        double ir   = m_muon->barrelInnerRadius;
+        double pir  = m_muon->innerRadius;
+        double orad = m_muon->outerRadius;
+        double l    = m_muon->length;
+        double eff  = m_muon->endcapFrontFace;
+
+        double extraR = m_muon->extraR;
+        double extraZ = m_muon->extraZ;
 
 
-      c4->addPlane(     -l, pir, extraR);
-      c4->addPlane(-extraZ, pir, extraR);
-      c4->addPlane(-extraZ, pir, orad);
+        c4->addPlane(     -l, pir, extraR);
+        c4->addPlane(-extraZ, pir, extraR);
+        c4->addPlane(-extraZ, pir, orad);
 
-      c4->addPlane(-eff, pir, orad);
-      c4->addPlane(-eff,  ir, orad);
-      c4->addPlane(+eff,  ir, orad);
-      c4->addPlane(+eff, pir, orad);
+        c4->addPlane(-eff, pir, orad);
+        c4->addPlane(-eff,  ir, orad);
+        c4->addPlane(+eff,  ir, orad);
+        c4->addPlane(+eff, pir, orad);
 
-      c4->addPlane(extraZ, pir, orad);
-      c4->addPlane(extraZ, pir, extraR);
-      c4->addPlane(     l, pir, extraR);
-    } // ... end if  Envelope from DB ---
+        c4->addPlane(extraZ, pir, orad);
+        c4->addPlane(extraZ, pir, extraR);
+        c4->addPlane(     l, pir, extraR);
+      } // ... end if  Envelope from DB ---
+    } // end if not m_isAmdcDb
 
     l4 = new GeoLogVol( "MuonSys", c4, m4 );
 
@@ -618,7 +643,7 @@ namespace MuonGM {
         }
 
         mst->setTransform(xf);
-        GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90*CLHEP::deg)*GeoTrf::RotateY3D(-90*CLHEP::deg);
+        GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90*Gaudi::Units::degree)*GeoTrf::RotateY3D(-90*Gaudi::Units::degree);
 
         mst->setNativeToAmdbLRS(
           Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame( (*pit).second ))

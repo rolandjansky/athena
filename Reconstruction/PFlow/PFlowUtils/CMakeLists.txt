@@ -34,7 +34,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( PFlowUtils
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthenaBaseComps xAODJet xAODPFlow GaudiKernel xAODTruth
-      PFlowUtilsLib )
+      PFlowUtilsLib CaloCalibHitRecLib )
 endif()
 
 # Install files from the package:

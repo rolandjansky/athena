@@ -14,7 +14,7 @@
 #include <iostream>
 #include <math.h>
 
-#include "TrigmuIso/muIsoUtil.h"
+#include "muIsoUtil.h"
 
 namespace muIsoUtil {
 

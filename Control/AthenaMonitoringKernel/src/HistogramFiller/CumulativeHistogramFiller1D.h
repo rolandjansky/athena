@@ -40,18 +40,14 @@ namespace Monitored {
 
       unsigned i(0);
       auto histogram = this->histogram<TH1>();
-      auto valuesVector{m_monVariables[0].get().getVectorRepresentation()};
-      std::scoped_lock lock(*m_mutex);
-      size_t idx = 0;
-      for (auto value : valuesVector) {
-        if (!cutMaskValue(idx++)) { continue; }
-        unsigned bin = histogram->FindBin(value);
+      const IMonitoredVariable& var = m_monVariables[0].get();
+      for (size_t i = 0; i < var.size(); i++) {
+        if (!cutMaskValue(i)) { continue; }
+        const unsigned bin = histogram->FindBin(var.get(i));
 
         for (unsigned j = bin; j > 0; --j) {
           histogram->AddBinContent(j);
         }
-
-        ++i;
       }
 
       return i;  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,7 +44,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     m_dir=plot()->getBasePath();
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
 
-    for(const auto trigName:m_trigInputList){ 
+    for(const auto& trigName:m_trigInputList){ 
         if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){ 
             if(plot()->getTrigInfoMap().count(trigName) != 0)
                 ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);

@@ -59,7 +59,6 @@ atlas_add_test( SCT_ConditionsConfig_test
                 PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
-atlas_install_headers( SCT_ConditionsTools )
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( share/*.py )
 

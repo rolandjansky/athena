@@ -8,11 +8,9 @@
 
 #include "TGC_RawDataProviderToolCore.h"
 
-#include "MuonTGC_CnvTools/ITGC_RodDecoder.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -31,53 +29,30 @@ Muon::TGC_RawDataProviderToolCore::TGC_RawDataProviderToolCore(
   declareProperty("Decoder",     m_decoder);
 }
 
-//================ Destructor =================================================
-
-Muon::TGC_RawDataProviderToolCore::~TGC_RawDataProviderToolCore()
-{}
-
 //================ Initialisation =================================================
 
 StatusCode Muon::TGC_RawDataProviderToolCore::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-
-  if(sc.isFailure()) return sc;
-
+  ATH_CHECK(AthAlgTool::initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
 
-  if(m_decoder.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_decoder );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( "Retrieved tool " << m_decoder );
-  }
+  ATH_CHECK(m_decoder.retrieve());
+  ATH_MSG_DEBUG( "Retrieved tool " << m_decoder );
 
   // Get ROBDataProviderSvc
-  if(m_robDataProvider.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve serive " << m_robDataProvider );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( "Retrieved service " << m_robDataProvider );
-  }
+  ATH_CHECK(m_robDataProvider.retrieve());
+  ATH_MSG_DEBUG( "Retrieved service " << m_robDataProvider );
 
   m_maxhashtoUse = m_idHelperSvc->tgcIdHelper().module_hash_max();  
 
   ATH_CHECK(m_rdoContainerKey.initialize());
 
   //try to configure the cabling service
-  sc = getCabling();
+  StatusCode sc = getCabling();
   if(sc.isFailure()) {
       ATH_MSG_INFO( "TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event. " );
   }
   
-  return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode Muon::TGC_RawDataProviderToolCore::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
@@ -86,7 +61,8 @@ StatusCode Muon::TGC_RawDataProviderToolCore::finalize()
 StatusCode Muon::TGC_RawDataProviderToolCore::convertIntoContainer(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, TgcRdoContainer& tgcRdoContainer) 
 {    
 
-  static int DecodeErrCount = 0;
+  /// Static variables are not thread safe
+  static thread_local int DecodeErrCount = 0;
 
   // Update to range based loop
   for(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* fragment : vecRobs){

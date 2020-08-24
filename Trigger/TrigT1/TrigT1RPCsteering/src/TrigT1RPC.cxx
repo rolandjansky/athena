@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1RPCsteering/TrigT1RPC.h"
+#include "TrigT1RPC.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"
@@ -21,15 +21,11 @@
 #include <algorithm>
 #include <cmath>
 
-static int digit_num = 0;
-static int digit_out = 0;
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
 TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_MuonMgr(nullptr),
   m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
   m_cabling(nullptr) {
 }
@@ -38,20 +34,14 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
 
 StatusCode TrigT1RPC::initialize(){
     ATH_MSG_INFO("Initializing");
-    
-    ATH_CHECK(detStore()->retrieve( m_MuonMgr ));
     ATH_CHECK(m_idHelperSvc.retrieve());
-    
     ATH_CHECK(m_cabling_getter.retrieve());
     ATH_CHECK(m_cabling_getter->giveCabling(m_cabling));
-
     ATH_CHECK(m_readKey.initialize());
-    
     ATH_CHECK(m_rpcDigitKey.initialize());
-
     ATH_CHECK(m_muctpiPhase1Key.initialize(m_useRun3Config));
     ATH_CHECK(m_muctpiKey.initialize(!m_useRun3Config));
-    
+    ATH_CHECK(m_muDetMgrKey.initialize());
     return StatusCode::SUCCESS;
 }
  
@@ -65,11 +55,13 @@ StatusCode TrigT1RPC::execute() {
 
     ATH_MSG_DEBUG ("in execute()");
 
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey, Gaudi::Hive::currentContext()};
     const RpcCablingCondData* readCdo{*readHandle};
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+    const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
     
     RPCsimuData data;         // instanciate the container for the RPC digits
-    CHECK(fill_RPCdata(data, readCdo));  // fill the data with RPC simulated digts
+    CHECK(fill_RPCdata(data, readCdo, muDetMgr));  // fill the data with RPC simulated digts
     
     ATH_MSG_DEBUG(
         "RPC data loaded from G3:" << std::endl
@@ -264,7 +256,7 @@ StatusCode TrigT1RPC::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* readCdo)
+StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* readCdo, const MuonGM::MuonDetectorManager* muDetMgr)
 {
     std::string space = "                          ";
 
@@ -290,7 +282,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
  
         Identifier moduleId = rpcCollection->identify();
 
-	if (m_idHelperSvc->rpcIdHelper().is_rpc(moduleId))
+	if (m_idHelperSvc->isRpc(moduleId))
         {
             digit_iterator it1_digit = rpcCollection->begin();
             digit_iterator it2_digit = rpcCollection->end();
@@ -314,7 +306,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
                     int Strip               = m_idHelperSvc->rpcIdHelper().strip(channelId);
                     
                     const MuonGM::RpcReadoutElement* descriptor =
-                                    m_MuonMgr->getRpcReadoutElement(channelId);
+                                    muDetMgr->getRpcReadoutElement(channelId);
 
 		    //Get the global position of RPC strip from MuonDetDesc
 		    Amg::Vector3D pos = descriptor->stripPos(channelId);		    
@@ -333,9 +325,6 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
                         xyz[0] = rpcDigit->time();  //time of digits
                         
 			
-			++digit_num;
-			if(xyz[0]<0. || xyz[0]>25.) ++digit_out;
-
                         int param[3] = {0,0,0};
 
                         RPCsimuDigit digit(0,strip_code_cab,param,xyz);

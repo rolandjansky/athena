@@ -13,7 +13,7 @@
 #include <algorithm>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // HepMC includes
 #include "AtlasHepMC/GenEvent.h"
@@ -450,7 +450,7 @@ bool McVtxFilterTool::keepParticle( const VtxType::Flag vtxType,
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void McVtxFilterTool::setupFilters( Property& /*decayPatterns*/ )
+void McVtxFilterTool::setupFilters( Gaudi::Details::PropertyBase& /*decayPatterns*/ )
 {
   m_filters.clear();
   m_counter.clear();

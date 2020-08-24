@@ -6,30 +6,33 @@
 #include "xAODTracking/NeutralParticleContainer.h"
 #include "xAODTracking/NeutralParticle.h"
 
+namespace Trk {
+LinkToXAODNeutralParticle::LinkToXAODNeutralParticle()
+  : ElementLink<xAOD::NeutralParticleContainer>()
+{}
 
-namespace Trk
+LinkToXAODNeutralParticle::LinkToXAODNeutralParticle(
+  ElementLink<xAOD::NeutralParticleContainer>& link)
+  : ElementLink<xAOD::NeutralParticleContainer>(link)
+{}
+
+const NeutralParameters*
+LinkToXAODNeutralParticle::neutralParameters() const
 {
-	LinkToXAODNeutralParticle::LinkToXAODNeutralParticle() : ElementLink<xAOD::NeutralParticleContainer>()
-	{}
+  if (isValid()) {
+    const xAOD::NeutralParticle* neut = this->cachedElement();
+    if (nullptr != neut) {
+      return &(neut->perigeeParameters());
+    }
+    return nullptr;
+  }
+  return nullptr;
+} // end of parameters method
 
-	LinkToXAODNeutralParticle::LinkToXAODNeutralParticle ( ElementLink<xAOD::NeutralParticleContainer>& link ) : ElementLink<xAOD::NeutralParticleContainer> ( link )
-	{}
-
-        const NeutralParameters* LinkToXAODNeutralParticle::neutralParameters() const
-	{
-		if ( isValid() )
-		{
-			const xAOD::NeutralParticle * neut = this->cachedElement();
-			if ( nullptr != neut ) { return dynamic_cast<const Trk::NeutralParameters* > ( &neut->perigeeParameters() );
+Trk::LinkToXAODNeutralParticle*
+Trk::LinkToXAODNeutralParticle::clone() const
+{
+  return new LinkToXAODNeutralParticle(*this);
 }
-			return nullptr;
-		}
-		return nullptr;
-	}//end of parameters method
 
-        Trk::LinkToXAODNeutralParticle* Trk::LinkToXAODNeutralParticle::clone() const
-	{
-		return new LinkToXAODNeutralParticle ( *this );
-	}
-
-}//end of namespace definitions
+} // end of namespace definitions

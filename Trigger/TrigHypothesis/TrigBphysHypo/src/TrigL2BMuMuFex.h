@@ -15,18 +15,11 @@
 
 #include <string>
 
-#include "GaudiKernel/ToolHandle.h"
-
 #include "TrigInterfaces/ComboAlgo.h"
 
-#include "TrigInDetEvent/TrigVertexCollection.h"
-#include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
 
 //#include "TrigParticle/TrigL2BphysContainer.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
-#include "xAODTrigBphys/TrigBphysAuxContainer.h"
-#include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 
@@ -34,10 +27,6 @@
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-class TriggerElement;
-//class CombinedMuonFeature;
-
-class ITrigVertexFitter;
 class ITrigL2VertexFitter;
 class ITrigVertexingTool;
 
@@ -58,11 +47,6 @@ class TrigL2BMuMuFex: public HLT::ComboAlgo {
   private:
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
 
-    // Invariant mass helper calculators (TODO: move to InvMass.cxx tool-box)
-    //    double invariantMass(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2);
-    //    double invariantMass(const CombinedMuonFeature* mu1, const MuonFeature* mu2);
-
-    //bool isUnique(const  TrigInDetTrack* id1, const  TrigInDetTrack* id2);
     bool isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const;
     ElementLink<xAOD::TrackParticleContainer> remap_container(const ElementLink<xAOD::TrackParticleContainer> & oldElink,const ElementLinkVector<xAOD::TrackParticleContainer> &newContainer) const;
     //    ElementLink<xAOD::IParticleContainer> remap_container(const ElementLink<xAOD::IParticleContainer> & oldElink,const ElementLinkVector<xAOD::IParticleContainer> &newContainer) const;
@@ -110,8 +94,6 @@ class TrigL2BMuMuFex: public HLT::ComboAlgo {
     unsigned int m_countPassedVtxFit;
 
     // Output collections
-    //TrigL2BphysContainer* m_trigBphysColl;
-    TrigVertexCollection* m_VertexColl;
 
     std::vector<xAOD::TrigBphys*> m_resultHolder; /// Hold results between accept and execute
     

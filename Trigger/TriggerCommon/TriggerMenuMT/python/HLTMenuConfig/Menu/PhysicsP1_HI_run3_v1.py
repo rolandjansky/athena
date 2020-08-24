@@ -14,12 +14,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import SingleMuonGroup,
 
 HardProbesStream="HardProbes"
 MinBiasStream="MinBias"
-UPCStream="UPC"
-UCCStream="UCC"
-PCStream="PC"
-CCStream="CC"
-PCpebStream="PCPEB"
-CCpebStream="CCPEB"
+### following stream tags not used yet, need to be implemented in StreamInfo.py before use
+#UPCStream="UPC"
+#UCCStream="UCC"
+#PCStream="PC"
+#CCStream="CC"
+#PCpebStream="PCPEB"
+#CCpebStream="CCPEB"
 
 def setupMenu():
 

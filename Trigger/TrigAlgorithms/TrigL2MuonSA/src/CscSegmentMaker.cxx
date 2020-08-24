@@ -1,108 +1,59 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef XAOD_ANALYSIS
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#endif
 
-#include "TrigL2MuonSA/CscSegmentMaker.h"
+#include "CscSegmentMaker.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include <cmath>
 
-static const InterfaceID IID_CscSegmentMaker("IID_CscSegmentMaker", 1, 0);
-
-
 
 namespace TrigL2MuonSA {
 
 
-
-const InterfaceID& CscSegmentMaker::interfaceID() { return IID_CscSegmentMaker; }
-
-
 CscSegmentMaker::CscSegmentMaker(const std::string& type, const std::string& name, const IInterface*  parent)
-  : AthAlgTool(type, name, parent), 
-  m_util(0) 
-#ifndef XAOD_ANALYSIS
-  ,m_muonMgr(0)
-#endif
+  : AthAlgTool(type, name, parent),
+    m_util()
 {
-  declareInterface<TrigL2MuonSA::CscSegmentMaker>(this);
 }
 
 
-CscSegmentMaker :: ~CscSegmentMaker(){}
-
-
-StatusCode CscSegmentMaker :: initialize(){
-
-  ATH_MSG_DEBUG("Initializing TrigL2MuonSA::CscSegmentMaker - package version " << PACKAGE_VERSION);
-  
-  StatusCode sc = AthAlgTool::initialize();
-  if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-  
-  if (!m_util) m_util = new UtilTools();
-  sc = m_cscregdict.retrieve();
-  if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize CscRegDict");
-    return sc;
-  }
-  
-#ifndef XAOD_ANALYSIS
-  if(detStore()->retrieve(m_muonMgr).isFailure()){
-    ATH_MSG_WARNING("Cannot retrieve MuonDetectorManager");
-    return StatusCode::SUCCESS;
-  }
-#endif
-  
-
-  
+StatusCode CscSegmentMaker::initialize(){
+  ATH_CHECK(m_cscregdict.retrieve());
+  ATH_CHECK(m_muDetMgrKey.initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode CscSegmentMaker :: finalize(){
-  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
-  
-  delete m_util; m_util=0;
-  
-  StatusCode sc = AthAlgTool::finalize();
-  
-  return sc;
-}
-
-
-
-
-ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits,
+ReturnCode CscSegmentMaker::FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits,
                                                 std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns,
                                                 const TrigL2MuonSA::TgcFitResult &tgcFitResult,
                                                 const TrigL2MuonSA::MuonRoad &muroad)
 {
   ATH_MSG_DEBUG( "FindSuperPointCsc" );
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   
   if( !cscHits.empty() ){
     
     std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
     for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) { // loop for track candidates
       
-        //get module hash  to read
+      //get module hash  to read
       int hash_clusters[32]={0};      
       
       TrigL2MuonSA::CscHits clusters[32][8];
       for(unsigned int iclu=0; iclu<cscHits.size(); ++iclu){
         const TrigL2MuonSA::CscHitData &cscHit = cscHits[iclu];
         
-          //outlier or not
+	//outlier or not
         double width = (cscHit.MeasuresPhi == 0 ) ? m_max_residual_eta : m_max_residual_phi;
         if ( width < fabs(cscHit.Residual) )  continue;
         
@@ -119,7 +70,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
       }//for clusters
       
       
-        //decide which module to read
+      //decide which module to read
       int hashSPs[2]={999,999};
       if( getModuleSP( hashSPs, tgcFitResult, (*itTrack).phiBin, muroad, hash_clusters)!=ReturnCode::FAILURE ){
         
@@ -132,7 +83,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
           
 	  //making segment
 	  CscSegment cscsegment, cscsegment_noip;
-	  if (this->make_segment(hashSP, clusters[hashSP] , cscsegment, cscsegment_noip) != ReturnCode::FAILURE  ){
+	  if (this->make_segment(hashSP, clusters[hashSP] , cscsegment, cscsegment_noip, muDetMgr) != ReturnCode::FAILURE  ){
 	    found_segment=true;
 	    (*itTrack).hashID_CSC = hashSP;
 
@@ -158,7 +109,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 	    double CSCR=cscsegment_ext.x()*cos(phiMod)+cscsegment_ext.y()*sin(phiMod);
 	    double CSCZ=cscsegment_ext.z();
 	    double PhiAtCsc = phimiddle/* - fabs(CSCZ-tgcmidZ)*dPhidz*/;
-	    double CSCSPR = CSCR/cos( m_util->calc_dphi(PhiAtCsc,phiMod) );
+	    double CSCSPR = CSCR/cos( m_util.calc_dphi(PhiAtCsc,phiMod) );
 	    
 	    
 	    superPoint->Z = CSCZ;
@@ -174,7 +125,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 	    
 	    //calculate outerSP's correction (dphidz of tgcFitResult)
 	    double phiouter = phimiddle+fabs(outerz-tgcmidZ)*dPhidz;
-	    outerCorFactor = cos( m_util->calc_dphi(phiouter,phiMod) )/cos( m_util->calc_dphi(phimiddle,phiMod) );
+	    outerCorFactor = cos( m_util.calc_dphi(phiouter,phiMod) )/cos( m_util.calc_dphi(phimiddle,phiMod) );
 	    ATH_MSG_DEBUG("outerCorFactor=" << outerCorFactor);
 	    
 	  }//if there is a segment.
@@ -190,9 +141,9 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 
 
 
-ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8],
+ReturnCode  CscSegmentMaker::make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8],
                                             CscSegment &cscsegment,
-                                            CscSegment &cscsegment_noip)
+                                            CscSegment &cscsegment_noip, const MuonGM::MuonDetectorManager* muDetMgr)
 {
   ATH_MSG_DEBUG("################################## make_segment #####################################");
   
@@ -206,12 +157,9 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
 
  
   Amg::Transform3D gToLocal;
-#ifndef XAOD_ANALYSIS
   if(m_use_geometry){
-    const CscIdHelper *idHelper = m_muonMgr->cscIdHelper();
-
-    Identifier Id = idHelper->channelID(m_cscregdict->stationName(mod_hash), m_cscregdict->stationEta(mod_hash),m_cscregdict->stationPhi(mod_hash),2/*chamberLayer*/, 1, 0, 1);
-    const MuonGM::CscReadoutElement *csc = m_muonMgr->getCscReadoutElement(Id);
+    Identifier Id = m_idHelperSvc->cscIdHelper().channelID(m_cscregdict->stationName(mod_hash), m_cscregdict->stationEta(mod_hash),m_cscregdict->stationPhi(mod_hash),2/*chamberLayer*/, 1, 0, 1);
+    const MuonGM::CscReadoutElement *csc = muDetMgr->getCscReadoutElement(Id);
     if (csc == NULL){
       ATH_MSG_DEBUG( "Csc Readout Element not found ---- skip");
       return ReturnCode::FAILURE;
@@ -219,16 +167,13 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
     ATH_MSG_DEBUG("CscReadoutElement");
     gToLocal = csc->GlobalToAmdbLRSTransform();
   }else{
-#endif
   double rotpi = (m_cscregdict->stationEta(mod_hash)>0) ? -M_PI/2. : M_PI/2.;
   Amg::AngleAxis3D rotZamg( (-1)*(m_cscregdict->phiMod(mod_hash)), Amg::Vector3D(0,0,1));
   Amg::AngleAxis3D rotYamg( (-1)*(m_cscregdict->actualAtanNormal(mod_hash)), Amg::Vector3D(0,1,0) );
   Amg::AngleAxis3D rotPIamg( rotpi, Amg::Vector3D(0,0,1));
   Amg::Translation3D translation( 0.0, 0.0, (-1)*(m_cscregdict->displacement(mod_hash)) );
   gToLocal=translation*rotPIamg*rotYamg*rotZamg;
-#ifndef XAOD_ANALYSIS
   }
-#endif
 
 
   localCscHit ip_loc;  
@@ -250,7 +195,6 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
       double r = cschit.r;
       double phi = cschit.phi;
       double z = cschit.z;
-        //l1id=cschit.m_l1id;
       
         //move to local coordinate system
       Amg::Vector3D vect(r*cos(phi),r*sin(phi),z);
@@ -262,9 +206,8 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
       loc_hit.loc_y = loc_vect(Amg::y);
       loc_hit.loc_z = loc_vect(Amg::z);
       loc_hit.measphi=cschit.MeasuresPhi;
-      loc_hit.error = (loc_hit.measphi==0) ? m_err_eta : m_err_phi;//cschit.eta;
+      loc_hit.error = (loc_hit.measphi==0) ? m_err_eta : m_err_phi;
       loc_hit.residual = cschit.Residual;
-      //loc_hit.index4=ihit; not used
       loc_hit.enabled=true;
       loc_hit.isIP=false;
       loc_hit.stationname=cschit.StationName;
@@ -306,18 +249,16 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
   cscsegment.set(seg_pos,seg_dir, seg2d_eta.chi2, seg2d_phi.chi2);
   cscsegment.setNHitEta(seg2d_eta.nhit);
   cscsegment.setNHitPhi(seg2d_phi.nhit);
-  //cscsegment.setL1id(l1id);
   cscsegment_noip.set(seg_pos_noip,seg_dir_noip, seg2d_eta_noip.chi2, seg2d_phi_noip.chi2);
   cscsegment_noip.setNHitEta(seg2d_eta_noip.nhit);
   cscsegment_noip.setNHitPhi(seg2d_phi_noip.nhit);
-  //cscsegment_noip.setL1id(l1id);
   
   
   return ReturnCode::SUCCESS;
 }
 
 
-  ReturnCode CscSegmentMaker :: make_2dsegment(int measphi, const localCscHit &ip_loc, const std::vector<localCscHit> hits_loc[4],
+  ReturnCode CscSegmentMaker::make_2dsegment(int measphi, const localCscHit &ip_loc, const std::vector<localCscHit> hits_loc[4],
                                              local2dSegment &seg2d,
                                              local2dSegment &seg2d_ipremoved,
                                              int &nhit)
@@ -378,11 +319,11 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
   
   if( this->fit_clusters(measphi,seg2d.localHits,seg2d_ipremoved)!=ReturnCode::SUCCESS ) return ReturnCode::FAILURE;
   
-  return ReturnCode :: SUCCESS;
+  return ReturnCode::SUCCESS;
   
 }
 
-ReturnCode CscSegmentMaker :: make_2dseg4hit(int measphi, const localCscHit &ip_loc,
+ReturnCode CscSegmentMaker::make_2dseg4hit(int measphi, const localCscHit &ip_loc,
                                              std::vector<localCscHit>  hits_loc[4], //removing hits used in fit with 4 hits
                                              std::vector<local2dSegment> &seg2d_4hitCollection,
                                              int &nhit)
@@ -449,7 +390,7 @@ ReturnCode CscSegmentMaker :: make_2dseg4hit(int measphi, const localCscHit &ip_
 }
 
 
-ReturnCode CscSegmentMaker :: make_2dseg3hit(int measphi, const localCscHit &ip_loc,
+ReturnCode CscSegmentMaker::make_2dseg3hit(int measphi, const localCscHit &ip_loc,
                                              const std::vector<localCscHit> hits_loc[4],
                                              std::vector<local2dSegment> &seg2d_3hitCollection,
                                              int &nhit)
@@ -510,7 +451,7 @@ ReturnCode CscSegmentMaker :: make_2dseg3hit(int measphi, const localCscHit &ip_
 }
 
 
-ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localCscHit> &hits_fit, local2dSegment &seg2d){
+ReturnCode CscSegmentMaker::fit_clusters(int measphi, const std::vector<localCscHit> &hits_fit, local2dSegment &seg2d){
   
   
   double S=0.;
@@ -555,8 +496,6 @@ ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localC
   seg2d.zshift=rp/rq;
   
   seg2d.residual=aver_res/rq;
-  //int outlier=1; not used
-  //double displace=99999.; not used
   
   
   for (unsigned int ihit=0; ihit< hits_fit.size(); ++ihit) {
@@ -570,16 +509,9 @@ ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localC
     Sxx += w*x*x;
     Syy += w*y*y;
     Sxy += w*x*y;
-    //double displace_tmp = fabs( seg2d.residual - w*x);
     
-    /*obsolete
-    if( !hits_fit[ihit].isIP && displace>displace_tmp ){
-      displace = displace_tmp;
-      outlier = ihit;//most distant hit as outlier
-      }*/
   }//ihit
     
-  //  seg2d.outlier=outlier;
     
   
   if(nhit_with_ip>1){
@@ -599,7 +531,7 @@ ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localC
 
 
 
-ReturnCode CscSegmentMaker :: make_4dsegment(const local2dSegment &seg2d_eta,
+ReturnCode CscSegmentMaker::make_4dsegment(const local2dSegment &seg2d_eta,
                                              const local2dSegment &seg2d_phi,
                                              Amg::Vector3D &seg_pos,
                                              Amg::Vector3D &seg_dir)
@@ -646,7 +578,7 @@ ReturnCode CscSegmentMaker :: make_4dsegment(const local2dSegment &seg2d_eta,
 
 
 
-ReturnCode CscSegmentMaker :: getModuleSP(int mod_hashes[2], const TrigL2MuonSA::TgcFitResult &tgcFitResult, int phibin, const MuonRoad &muroad, const int hash_clusters[32]){
+ReturnCode CscSegmentMaker::getModuleSP(int mod_hashes[2], const TrigL2MuonSA::TgcFitResult &tgcFitResult, int phibin, const MuonRoad &muroad, const int hash_clusters[32]){
   ATH_MSG_DEBUG("getModuleSP()");
   
   
@@ -656,7 +588,7 @@ ReturnCode CscSegmentMaker :: getModuleSP(int mod_hashes[2], const TrigL2MuonSA:
     int stationeta = m_cscregdict->stationEta(imod);
     int side = (muroad.side) ? 1 : -1;
     double phiMod = m_cscregdict->phiMod(imod);
-    double dphi = m_util->calc_dphi(phiMod, tgcFitResult.phi);
+    double dphi = m_util.calc_dphi(phiMod, tgcFitResult.phi);
     ATH_MSG_DEBUG("getModuleSP()::(phi,side) modlue:(" << phiMod << "," << stationeta << ") tgcroad:(" << tgcFitResult.phi << "," << side << ")");
     if( fabs(dphi)>M_PI/8. || side != stationeta) continue;
 
@@ -691,7 +623,7 @@ ReturnCode CscSegmentMaker :: getModuleSP(int mod_hashes[2], const TrigL2MuonSA:
 }
 
 
-CscSegment CscSegmentMaker :: segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg){
+CscSegment CscSegmentMaker::segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg){
   
   
   double alpha = m_cscregdict->displacement(mod_hash);
@@ -700,9 +632,6 @@ CscSegment CscSegmentMaker :: segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::Cs
   double b0=mu_seg->x(), b1=mu_seg->y(),b2=mu_seg->z();
   double t = ( alpha-(n(0)*b0+n(1)*b1+n(2)*b2) )/( n(0)*a0+n(1)*a1+n(2)*a2 );
   double x0=a0*t+b0,x1=a1*t+b1,x2=a2*t+b2;
-  //double phiMod=m_cscregdict->phiMod(mod_hash);
-  //double slope=( (a0*cos(phiMod)+a1*sin(phiMod))/a2 );
-  //double intercept= x0*cos(phiMod)+x1*sin(phiMod) + slope*x2  ;
   double chisquare=mu_seg->chiSquare();  
   double chisquare_phi=mu_seg->chiSquarePhi();  
 
@@ -716,7 +645,7 @@ CscSegment CscSegmentMaker :: segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::Cs
 
 
 
-ReturnCode CscSegmentMaker :: display_hits(const std::vector<localCscHit> localHits[4]){
+ReturnCode CscSegmentMaker::display_hits(const std::vector<localCscHit> localHits[4]){
   
   
   for(unsigned int ilyr=0; ilyr<4; ++ilyr){
@@ -734,7 +663,7 @@ ReturnCode CscSegmentMaker :: display_hits(const std::vector<localCscHit> localH
 
 
 
-CscSegment :: CscSegment(){
+CscSegment::CscSegment(){
 
   m_x=0.;
   m_y=0.;
@@ -750,11 +679,7 @@ CscSegment :: CscSegment(){
   m_chisquare_phi=0.;
 }
 
-CscSegment :: ~CscSegment(){}
-
-
-
-ReturnCode CscSegment :: set(double x, double y, double z, double px, double py, double pz, double chisquare, double chisquare_phi)
+ReturnCode CscSegment::set(double x, double y, double z, double px, double py, double pz, double chisquare, double chisquare_phi)
 {
   
   m_x=x;
@@ -773,7 +698,7 @@ ReturnCode CscSegment :: set(double x, double y, double z, double px, double py,
   
 }
 
-ReturnCode CscSegment :: set( Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, double chisquare, double chisquare_phi)
+ReturnCode CscSegment::set( Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, double chisquare, double chisquare_phi)
 {
   
   m_x = seg_pos(Amg::x);
@@ -794,7 +719,7 @@ ReturnCode CscSegment :: set( Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, do
 
 
 
-bool CscSegment :: isClean(){
+bool CscSegment::isClean(){
   
   bool eta_clean=false;
   bool phi_clean=false;

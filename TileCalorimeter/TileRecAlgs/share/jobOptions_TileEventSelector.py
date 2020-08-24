@@ -1,5 +1,9 @@
 if not 'RUN2' in dir():
     RUN2=True
+if not 'RUCIO' in dir():
+    RUCIO=True
+if not 'WORKDIR' in dir():
+    WORKDIR='.'
 if RUN2:
     from AthenaCommon.GlobalFlags import globalflags
     globalflags.DetGeo.set_Value_and_Lock('atlas')
@@ -36,7 +40,7 @@ else:
     filter='RAW'
 
 if not 'WriteESD' in dir():
-    WriteESD=True
+    WriteESD=False
 
 if not 'TileUseDCS' in dir():
     TileUseDCS = True
@@ -69,7 +73,12 @@ if not 'InputFile' in dir():
             RunStream = ("express_express" if ReadESD else "physics_Main") if RUN2 else "physics_JetTauEtmiss"
         if not 'DataProject' in dir():
             DataProject = "data18_13TeV" if RUN2 else "data12_8TeV"
-        if RUN2:
+        if RUCIO:
+            TopDir="/castor/cern.ch/grid/atlas/rucio/raw/%(D)s/%(S)s/%(R)08d" % {'D':DataProject, 'S':RunStream, 'R':RunNumber}
+            for f in popen("nsls %(path)s | grep %(filt)s | grep -v -i -e log -e tgz | sort -r | tail -1" % {'path': TopDir, 'filt':filter }):
+                temp=f.split('\n')
+                InputDirectory=TopDir+'/'+temp[0]
+        elif RUN2:
             TopDir="/eos/atlas/atlastier0/rucio/%(D)s/%(S)s/%(R)08d" % {'D':DataProject, 'S':RunStream, 'R':RunNumber}
             for f in popen("xrdfs eosatlas ls %(path)s | grep %(filt)s | grep -v -i -e log -e tgz | awk '{print $NF}' | sort -r | tail -1" % {'path': TopDir, 'filt':filter }):
                 temp=f.split('\n')
@@ -99,13 +108,23 @@ if not 'InputFile' in dir():
     else:       dummy="dummy.RAW.data"
     if path.isfile(dummy): InputFile=[dummy]
     else:                  InputFile=[]
+    first=1
     for name in files:
         if InputDirectory.startswith('/castor'):
-            InputFile.append('rfio:'+InputDirectory+'/'+name)
+            if first:
+                if path.exists(WORKDIR+'/'+name):
+                    print "Using file",name,"from workdir",WORKDIR
+                else:
+                    print "Copying file",name,"from",InputDirectory,"to workdir",WORKDIR
+                    popen("/lib64/ld-linux-x86-64.so.2 --library-path /usr/lib64 /usr/bin/xrdcp -s -OSsvcClass=t0atlas root://castoratlas/%(dir)s/%(file)s %(work)s" % {'dir': InputDirectory, 'file': name, 'work': WORKDIR})
+                InputFile.append(WORKDIR+'/'+name)
+            else:
+                InputFile.append('root://castoratlas/'+InputDirectory+'/'+name+'?svcClass=t0atlas')
         elif InputDirectory.startswith('/eos'):
             InputFile.append('root://eosatlas.cern.ch/'+name)
         else:
             InputFile.append(InputDirectory+'/'+name)
+        first=0
 
     #import glob
     #InputFile = glob.glob(InputDirectory)
@@ -250,19 +269,30 @@ if not ReadESD:
 #                     (191920, 34336488) ]
 
 
-from TileRecUtils.TileDQstatusDefault import TileDQstatusDefault
-TileDQstatusDefault()
-
+from TileRecUtils.TileRecUtilsConf import TileDQstatusAlg
 from TileRecAlgs.TileRecAlgsConf import TileCellSelector
-tileSelector = TileCellSelector('TileSelector')
 if ReadESD:
-    tileSelector.CellContainerName = "AllCalo"
-    tileSelector.DigitsContainerName = "TileDigitsFlt"
-    tileSelector.RawChannelContainerName = "TileRawChannelFlt"
+    dq = TileDQstatusAlg('TileDQstatusAlgSel',
+                         TileRawChannelContainer = '',
+                         TileDigitsContainer = '',
+                         TileBeamElemContainer = '',
+                         TileDQstatus = 'TileDQstatusSel')
+    tileSelector = TileCellSelector('TileSelector',
+                                    CellContainerName = "AllCalo",
+                                    DigitsContainerName = "TileDigitsFlt",
+                                    RawChannelContainerName = "TileRawChannelFlt",
+                                    TileDQstatus = 'TileDQstatusSel')
 else:
-    tileSelector.CellContainerName = ""
-    tileSelector.DigitsContainerName = "TileDigitsCnt"
-    tileSelector.RawChannelContainerName = "TileRawChannelCnt"
+    dq = TileDQstatusAlg('TileDQstatusAlgSel',
+                         TileRawChannelContainer = 'TileRawChannelCnt',
+                         TileDigitsContainer = 'TileDigitsCnt',
+                         TileBeamElemContainer = '',
+                         TileDQstatus = 'TileDQstatusSel')
+    tileSelector = TileCellSelector('TileSelector',
+                                    CellContainerName = "",
+                                    DigitsContainerName = "TileDigitsCnt",
+                                    RawChannelContainerName = "TileRawChannelCnt",
+                                    TileDQstatus = 'TileDQstatusSel')
 
 # example how to select events with completely masked cells in few drawers
 #tileSelector.DrawerToCheck=[0x30b,0x327,0x400]
@@ -314,13 +344,20 @@ tileSelector.CheckDCS=TileUseDCS
 tileSelector.SkipMBTS=True
 tileSelector.CheckDMUs=True
 tileSelector.CheckJumps=True
+tileSelector.OverflowLG=-0.1
 tileSelector.CheckOverLG=True
+tileSelector.UnderflowLG=0.1
+tileSelector.CheckUnderHG=False
+tileSelector.OverflowHG=-1.1
 tileSelector.CheckOverHG=False
+tileSelector.UnderflowHG=2.1
+tileSelector.CheckUnderLG=False
 tileSelector.MaxVerboseCnt=20
 tileSelector.OutputLevel=1
 
 from AthenaCommon.AlgSequence import AlgSequence
 condSeq = AthSequencer("AthCondSeq")
+condSeq.insert(len(condSeq), dq)
 condSeq.insert(len(condSeq), tileSelector)
 
 # get a handle on the job main sequence                                         

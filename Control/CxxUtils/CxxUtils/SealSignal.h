@@ -283,7 +283,7 @@ private:
 
     static bool			s_crashed;
     static int			s_inFatal;
-    static unsigned long        s_lastSP;
+    static thread_local unsigned long s_lastSP;
     static const char		*s_applicationName;
     static IOFD			s_fatalFd;
     static FatalHook		s_fatalHook;

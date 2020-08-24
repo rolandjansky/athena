@@ -80,14 +80,15 @@ atlas_add_executable( han-results-print
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} DataQualityInterfaces DataQualityUtils )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_scripts( scripts/CreateDB.py scripts/CreateDB_Histo.py scripts/DQHistogramMerge.py scripts/DQHistogramPrintStatistics.py scripts/DQWebDisplay.py scripts/hancool_histo.py scripts/hancool.py scripts/handi.py scripts/DQFileMove.py scripts/CreateMDTConfig_algos.sh scripts/CreateMDTConfig_chambers.sh scripts/CreateMDTConfig_config.sh scripts/CreateMDTConfig_files.sh scripts/CreateMDTConfig_readme.sh scripts/DQM_Tier0Wrapper_trf.py scripts/DQM_Tier0Wrapper_tf.py scripts/DQHistogramMergeRegExp.py scripts/dq_make_web_display.py scripts/ScanHistFile.py scripts/physval_make_web_display.py )
+atlas_install_python_modules( python/*.py
+   POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,E402,W1 --extend-ignore E731 )
+
+atlas_install_scripts( scripts/DQHistogramMerge.py scripts/DQHistogramPrintStatistics.py scripts/DQWebDisplay.py scripts/hancool_histo.py scripts/hancool.py scripts/handi.py scripts/DQFileMove.py scripts/CreateMDTConfig_algos.sh scripts/CreateMDTConfig_chambers.sh scripts/CreateMDTConfig_config.sh scripts/CreateMDTConfig_files.sh scripts/CreateMDTConfig_readme.sh scripts/DQM_Tier0Wrapper_trf.py scripts/DQM_Tier0Wrapper_tf.py scripts/DQHistogramMergeRegExp.py scripts/dq_make_web_display.py scripts/ScanHistFile.py scripts/physval_make_web_display.py )
 
 # Aliases:
 atlas_add_alias( DQHistogramPrintStatistics "DQHistogramPrintStatistics.py" )
 atlas_add_alias( CreateMDTConfig_files "CreateMDTConfig_files.sh" )
 atlas_add_alias( CreateMDTConfig_algos "CreateMDTConfig_algos.sh" )
-atlas_add_alias( CreateDB_Histo "CreateDB_Histo.py" )
 atlas_add_alias( hancool "hancool.py" )
 atlas_add_alias( handi "handi.py" )
 atlas_add_alias( CreateMDTConfig_config "CreateMDTConfig_config.sh" )
@@ -96,8 +97,3 @@ atlas_add_alias( CreateMDTConfig_readme "CreateMDTConfig_readme.sh" )
 atlas_add_alias( DQHistogramMerge "DQHistogramMerge.py" )
 atlas_add_alias( DQWebDisplay "DQWebDisplay.py" )
 atlas_add_alias( CreateMDTConfig_chambers "CreateMDTConfig_chambers.sh" )
-
-# Code quality check
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,E11,E402,E71,E72,E9,W1,W6,F ${CMAKE_CURRENT_SOURCE_DIR}/python/
-   POST_EXEC_SCRIPT nopost.sh )

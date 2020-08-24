@@ -8,6 +8,7 @@
 //#include "xAODEgamma/Photon.h"
 //#include "xAODEgamma/PhotonContainer.h"
 #include "ParticleHistograms.h"
+#include "TH2D.h"
 namespace xAOD{
   class IParticle;
 }
@@ -19,6 +20,8 @@ namespace egammaMonitoring {
 
     using ParticleHistograms::ParticleHistograms;
     using ParticleHistograms::initializePlots;
+
+    std::map<std::string, TH2D* > histo2DMap;
 
     StatusCode initializePlots();
 

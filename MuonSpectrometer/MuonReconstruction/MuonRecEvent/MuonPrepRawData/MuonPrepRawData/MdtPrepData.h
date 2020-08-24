@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,16 +27,12 @@
 
 class MdtPrepDataContainerCnv;
 
-namespace MuonGM {
-  class MdtReadoutElement;
-}
-
 namespace Muon
 {
 
   class MdtPrepDataContainerCnv_p1;
 
-/** @brief Class to represent measurements from the Monitored Drift Tubes*/    
+/** @brief Class to represent measurements from the Monitored Drift Tubes*/
 class MdtPrepData :   public Trk::PrepRawData
 {
 
@@ -51,12 +47,12 @@ public:
 
     MdtPrepData();
     MdtPrepData(const MdtPrepData &);
-    MdtPrepData(MdtPrepData &&);
+    MdtPrepData(MdtPrepData &&) noexcept;
     MdtPrepData &operator=(const MdtPrepData &);
-    MdtPrepData &operator=(MdtPrepData &&);
+    MdtPrepData &operator=(MdtPrepData &&) noexcept;
 
     /** Constructor with parameters: this class owns the pointers passed (except the MuonDetectorElement)
-    @param id Identifier of the tube which generated DriftCircle, 
+    @param id Identifier of the tube which generated DriftCircle,
     @param collectionHash IdentifierHash of the PRD collection in which the MdtPrepData is stored
     @param driftRadius this local position object should contain the drift radius
     @param errDriftRadius the error on the driftRadius (i.e. 1d error matix)
@@ -90,32 +86,38 @@ public:
 
     /** @brief Destructor*/
     virtual ~MdtPrepData();
-    
-    /** @brief Returns the global position of the CENTER of the drift tube (i.e. it is important to realise that this is NOT the true position of the measurement). 
+
+    /** @brief Returns the global position of the CENTER of the drift tube (i.e. it is important to realise that this is NOT the true position of the measurement).
     The reason that this is done here, and not simply through the detector element is that here it can be cached for better performance.*/
     virtual const Amg::Vector3D& globalPosition() const;
 
     /** @brief Returns the detector element corresponding to this PRD.
     The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
-    virtual const MuonGM::MdtReadoutElement* detectorElement() const;
+    virtual const MuonGM::MdtReadoutElement* detectorElement() const override;
+
+    /** Interface method checking the type*/
+    virtual bool type(Trk::PrepRawDataType::Type type) const override
+    {
+      return type == Trk::PrepRawDataType::MdtPrepData;
+    }
 
     /** @brief Returns the TDC (typically range is 0 to 2500). */
     int tdc() const;
 
     /** @brief Returns the ADC (typically range is 0 to 250)*/
     int adc() const;
-    
+
     /** @brief Returns the status of the measurement */
     MdtDriftCircleStatus status() const;
-    
+
     /** @brief Returns the IdentifierHash corresponding to the Mdt tube which was hit. */
     virtual IdentifierHash collectionHash() const;
 
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override;
 
 private:
 
@@ -132,7 +134,7 @@ private:
     MdtDriftCircleStatus m_status;
 
 protected :
-    
+
     /**@brief Global position of measurement.
     Calculated on demand and cached (not deleted in destructor, not written to disk)*/
     CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;

@@ -3,65 +3,128 @@
 */
 
 /**
- * @file AlignedDynArray.h
- * @date   26th November 2019
- * @author amorley, christos
+
+ * @author Anthony Morley, Christos Anastopoulos
  * @brief  Dynamic array fullfilling alignment requirements
- *********************************************************************************/
+ */
 
 #ifndef GSFUtils_AlignedDynArray_H
 #define GSFUtils_AlignedDynArray_H
 #include <cstdlib>
+#include <memory>
 namespace GSFUtils {
-template<typename T, int Alignment>
+
+/*
+ * Use GCC and Clang attributes to express that we return aligned ouputs
+ * If we have a std implementing ideas from
+ * http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0886r0.pdf
+ * prb we do not need this.
+ */
+#if defined(__GNUC__) && !defined(__CLING__) && !defined(__ICC)
+#define GSF_ALIGN_RETURN(X) __attribute__((assume_aligned(X)))
+#else
+#define GSF_ALIGN_RETURN(X)
+#endif
+
 /**
- * @bried A wrapper around std::aligned_alloc
- * https://en.cppreference.com/w/cpp/memory/c/aligned_alloc
+ * A wrapper around std::aligned_alloc
+ *
+ * The main usage is to create an alligned buffer
+ * array to be used with vector instructions
  *
  * Provides
- * - Additional RAII functionality 
+ * - Additional RAII functionality
  * - Default initialization of elements
- * - Value initialization of elements
+ * - Value initialization of elements.
  */
-
-class AlignedDynArray
+template<typename T, size_t ALIGNMENT>
+struct AlignedDynArray
 {
-public:
+
+  // These come from the posix_memalign
+  // which is the typical underlying implementation
+  static_assert(ALIGNMENT != 0, "Zero alignment 0");
+  static_assert((ALIGNMENT & (ALIGNMENT - 1)) == 0,
+                "Alignment not a power of 2");
+  static_assert((ALIGNMENT % sizeof(void*)) == 0,
+                "Alignment not an integral multiple of sizeof(void*)");
+
+  ///@{
+  // Standard typedefs
+  typedef T value_type;
+  typedef T* pointer;
+  typedef const T* const_pointer;
+  typedef value_type& reference;
+  typedef const value_type& const_reference;
+  typedef value_type* iterator;
+  typedef const value_type* const_iterator;
+  typedef std::size_t size_type;
+  typedef std::ptrdiff_t difference_type;
+  /// @}
+
   /// Deleted default constructor
   AlignedDynArray() = delete;
+
   /// Deleted default copy constructor
   AlignedDynArray(AlignedDynArray const&) = delete;
+
   /// Deleted default assignment operator
   AlignedDynArray& operator=(AlignedDynArray const&) = delete;
 
-  /// Constructor default initializing elements
-  explicit AlignedDynArray(size_t n);
+  /// Constructor with default initializing elements
+  explicit AlignedDynArray(const size_type n);
+
   /// Constructor initializing elements to value
-  explicit AlignedDynArray(size_t n, const T& value);
+  explicit AlignedDynArray(const size_type n, const T& value);
 
   /// Move copy constructor
-  AlignedDynArray(AlignedDynArray&&);
+  AlignedDynArray(AlignedDynArray&&) noexcept;
+
   /// Move assignment operator
-  AlignedDynArray& operator=(AlignedDynArray&&);
+  AlignedDynArray& operator=(AlignedDynArray&&) noexcept;
+
   /// Destructor
   ~AlignedDynArray();
 
-  /// Conversions to T*
-  operator T*();
-  /// Conversions to const T*
-  operator const T*() const;
+  /// Get the underlying buffer
+  pointer buffer() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
 
-  /// index array operators
-  T& operator[](const std::size_t pos);
-  const T& operator[](const std::size_t pos) const;
+  /// Get the underlying buffer  (const)
+  const_pointer buffer() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
 
-  /// size of allocated buffer
-  std::size_t size() const;
+  /// index array operator
+  reference operator[](size_type pos) noexcept;
+
+  /// index array operator (const)
+  const_reference operator[](size_type pos) const noexcept;
+
+  /// iterator pointing to the first element
+  iterator begin() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+
+  /// const iterator pointing to the first element
+  const_iterator begin() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+
+  /// iterator pointing to the past-the-end  element
+  iterator end() noexcept;
+
+  /// const iterator pointing to the past-the-end  element
+  const_iterator end() const noexcept;
+
+  ///  number of elements/size
+  size_type size() const noexcept;
+
+  /// returns true is size == 0
+  bool empty() const noexcept;
 
 private:
+  /// Helper method for calling the dtor for the elements
   void cleanup();
-  T* m_buffer = nullptr;
-  size_t m_size = 0;
+
+  /// Pointer to the underlying buffer
+  pointer m_buffer = nullptr;
+
+  /// Num of elements/size
+  size_type m_size = 0;
 };
 
 } // namespace GSFUtils

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SIDLocRecoEvent_p1_h
@@ -16,7 +16,8 @@ class AFP_SIDLocRecoEvent_p1
   
  private: 
   
-	int m_iAlgoNum = 0;
+	
+        int m_iAlgoNum = 0;
 	int m_nStationID = 0;
 	
 	float m_x = 0;
@@ -28,7 +29,7 @@ class AFP_SIDLocRecoEvent_p1
 	
 	float m_nHits = 0;
 	float m_nHoles = 0;
-	float m_fChi2 = 0;	
+        float m_fChi2 = 0;
 
 };
 

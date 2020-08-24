@@ -55,7 +55,6 @@ class ITRT_CalDbTool;
 class ITRT_StrawStatusSummaryTool;
 class ITRT_ConditionsSvc;
 class ITRT_DAQ_ConditionsSvc;
-class ITRT_ByteStream_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
 
 class TRTMonitoringRun3ESD_Alg : public AthMonitorAlgorithm {
@@ -65,7 +64,7 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
-    bool m_ArgonXenonSplitter;
+    BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
 
     const AtlasDetectorID * m_idHelper;

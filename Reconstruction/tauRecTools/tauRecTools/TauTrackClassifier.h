@@ -42,7 +42,7 @@ public:
   ~TauTrackClassifier();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer ) const override;
   virtual StatusCode finalize() override;
 
 private:

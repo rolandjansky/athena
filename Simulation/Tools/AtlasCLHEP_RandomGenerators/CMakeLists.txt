@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( AtlasCLHEP_RandomGenerators )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

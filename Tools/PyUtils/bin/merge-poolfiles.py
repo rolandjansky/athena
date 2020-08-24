@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ## @file PyUtils/bin/merge-poolfiles.py
 ## @brief take a bunch of input pool files and produce a single one
 ##          autoconfiguration is (attempted to be) performed
 ## @author Sebastien Binet <binet@cern.ch>
 
-__version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __doc__ = """take a bunch of input pool files and produce a single one.
 autoconfiguration is (attempted to be) performed
 """
 
 import sys
-import os
 
 if __name__ == "__main__":
    
@@ -42,7 +40,7 @@ if __name__ == "__main__":
     
     
     msg.info(':'*40)
-    msg.info('welcome to poolfiles merger version %s', __version__)
+    msg.info('welcome to poolfiles merger')
     
     (options, args) = parser.parse_args()
 

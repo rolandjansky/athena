@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaContainerCnv_tlp1.h"
@@ -20,8 +20,8 @@ void InDetLowBetaContainerCnv_tlp1::setPStorage(
   m_lowBetaCandidateCnv.setPStorage(&storage->m_lowBetaCandidate);
 }
 
-void T_TPCnv<InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>::
-persToTrans ATLAS_NOT_THREAD_SAFE (const InDetLowBetaContainer_tlp1 *pers,
+void T_TPCnv<InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>::persToTrans ATLAS_NOT_THREAD_SAFE // const_cast is used.
+            (const InDetLowBetaContainer_tlp1 *pers,
              InDet::InDetLowBetaContainer *trans,
              MsgStream &msg) {
   this->setTLPersObject(const_cast<InDetLowBetaContainer_tlp1*>(pers));

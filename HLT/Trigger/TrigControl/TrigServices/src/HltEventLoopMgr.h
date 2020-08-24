@@ -49,6 +49,7 @@ class IJobOptionsSvc;
 class IScheduler;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
+class TrigSORFromPtreeHelper;
 class IIoComponentMgr;
 
 namespace coral {
@@ -81,6 +82,7 @@ public:
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
+  virtual StatusCode prepareForStart (const boost::property_tree::ptree &) override;
   virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt) override;
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt) override;
   ///@}
@@ -122,9 +124,6 @@ private:
 
   /// Read DataFlow configuration properties
   void updateDFProps();
-
-  /// Do whatever is necessary with RunParams (prepare) ptree
-  StatusCode processRunParams(const boost::property_tree::ptree& pt);
 
   // Update internally kept data from new sor
   void updateInternal(const coral::AttributeList & sor_attrlist);
@@ -191,6 +190,8 @@ private:
   SmartIF<IAlgExecStateSvc> m_aess;
   SmartIF<IScheduler> m_schedulerSvc;
 
+  std::unique_ptr<TrigSORFromPtreeHelper> m_sorHelper;
+
   // ------------------------- Other properties --------------------------------------
   Gaudi::Property<std::string> m_schedulerName{
     this, "SchedulerSvc", "AvalancheSchedulerSvc", "Name of the scheduler"};
@@ -205,7 +206,7 @@ private:
     this, "SoftTimeoutFraction", 0.8, "Fraction of the hard timeout to be set as the soft timeout"};
 
   Gaudi::Property<int> m_maxFrameworkErrors{
-    this, "MaxFrameworkErrors", 0,
+    this, "MaxFrameworkErrors", 10,
     "Tolerable number of recovered framework errors before exiting (<0 means all are tolerated)"};
 
   Gaudi::Property<std::string> m_fwkErrorDebugStreamName{
@@ -271,6 +272,8 @@ private:
   IEvtSelector::Context* m_evtSelContext{nullptr};
   /// Vector of event start-processing time stamps in each slot
   std::vector<std::chrono::steady_clock::time_point> m_eventTimerStartPoint;
+  /// Vector of time stamps telling when each scheduler slot was freed
+  std::vector<std::chrono::steady_clock::time_point> m_freeSlotStartPoint;
   /// Vector of flags to tell if a slot is idle or processing
   std::vector<bool> m_isSlotProcessing; // be aware of vector<bool> specialisation
   /// Timeout mutex
@@ -280,7 +283,7 @@ private:
   /// Timeout thread
   std::unique_ptr<std::thread> m_timeoutThread;
   /// Soft timeout value set to HardTimeout*SoftTimeoutFraction at initialisation
-  int m_softTimeoutValue{0};
+  std::chrono::milliseconds m_softTimeoutValue{0};
   /// Flag set to false if timer thread should be stopped
   std::atomic<bool> m_runEventTimer{true};
   /// Counter of framework errors

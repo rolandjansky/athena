@@ -39,6 +39,10 @@ cmp = lambda x, y: (x > y) - (x < y)
 etcone10 = 0
 nucone10 = 8
 
+# Without these, cling gets confused by forward declarations.
+getattr (ROOT.xAOD, 'TrackParticleContainer_v1', None)
+getattr (ROOT.xAOD, 'Jet_v1', None)
+
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):
     ROOT.TrackParticleTruthCollection()[ROOT.Rec.TrackParticleTruthKey()]
@@ -4100,7 +4104,7 @@ def dump_SCT_RDORawData (p, f):
 def dump_IDC (payload_dumper, p, f):
     beg = p.begin()
     end = p.end()
-    nextfunc = beg.__next__ if hasattr (beg, '__next__') else beg.next
+    nextfunc = beg.__next__ if hasattr (beg.__class__, '__next__') else beg.next
     while beg != end:
         coll = beg.cptr()
         fprint (f, 'IDC', beg.hashId().value(), coll.identifyHash().value(), coll.size())
@@ -4265,7 +4269,7 @@ def dump_TileDigitsContainer (p, f):
     fwrite (f, '\n')
     beg = p.begin()
     end = p.end()
-    nextfunc = beg.__next__ if hasattr (beg, '__next__') else beg.next
+    nextfunc = beg.__next__ if hasattr (beg.__class__, '__next__') else beg.next
     while beg != end:
         coll = beg.cptr()
         fprint (f, 'TDC',

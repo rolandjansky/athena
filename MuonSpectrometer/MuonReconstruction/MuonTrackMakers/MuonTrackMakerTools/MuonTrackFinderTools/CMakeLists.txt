@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PRIVATE
                           DetectorDescription/RoiDescriptor
                           Event/EventPrimitives
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
                           MuonSpectrometer/MuonAlignment/MuonAlignError/MuonAlignErrorBase
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
@@ -30,6 +29,8 @@ atlas_depends_on_subdirs( PRIVATE
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerInterfaces
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils
                           MuonSpectrometer/MuonReconstruction/MuonTrackMakers/MuonTrackMakerUtils
+			  Reconstruction/MuonIdentification/MuidInterfaces
+			  Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkGeometry
@@ -47,10 +48,12 @@ atlas_depends_on_subdirs( PRIVATE
 			  Tracking/TrkEvent/TrkSegment
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkUtilityPackages/TrkDriftCircleMath 
-			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData )
+			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( Eigen )
@@ -61,5 +64,5 @@ atlas_add_component( MuonTrackFinderTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives IRegionSelector Identifier RoiDescriptor EventPrimitives GaudiKernel MagFieldInterfaces MuonAlignErrorBase MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonStationIntersectSvcLib MuonSegmentMakerUtils TrkDetDescrInterfaces TrkDetElementBase TrkGeometry TrkSurfaces TrkVolumes TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkRoad TrkTrack TrkSegment TrkTrackSummary TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkDriftCircleMath MuonCondData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives IRegionSelector Identifier RoiDescriptor EventPrimitives GaudiKernel MuonAlignErrorBase MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonStationIntersectSvcLib MuonSegmentMakerUtils MuidInterfaces TrkFitterInterfaces TrkDetDescrInterfaces TrkDetElementBase TrkGeometry TrkSurfaces TrkVolumes TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkRoad TrkTrack TrkSegment TrkTrackSummary TrkExInterfaces TrkToolInterfaces TrkDriftCircleMath MuonCondData MagFieldElements MagFieldConditions MuonSegmentMakerInterfacesLib MuonTrackMakerUtils )
 

@@ -34,7 +34,7 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 ##====================================================================
 if rec.OutputLevel() <= DEBUG:
     muonDPDStream_msg.info('Values of all PerfDESDM_MS flags:')
-    print primDPDAlignTrigMu
+    print(primDPDAlignTrigMu)
     pass
 
 # ============================================================================
@@ -86,18 +86,18 @@ MuonNoAlgTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   
                                                                                                   "HLT_noalg_L1MU11","HLT_noalg_L1MU15","HLT_noalg_L1MU20",
                                                                                                   "HLT_noalg_L12MU4","HLT_noalg_L12MU6","HLT_noalg_L12MU10"] )
 ToolSvc += MuonNoAlgTrig_TriggerSkimmingTool
-print MuonNoAlgTrig_TriggerSkimmingTool
+print(MuonNoAlgTrig_TriggerSkimmingTool)
 
 MuonNoAlgTrig_PrescaleSkimmingTool = DerivationFramework__PrescaleTool ( name = "MuonNoAlgTrig_PrescaleSkimmingTool",
                                                                          Prescale = 1)
 
 ToolSvc += MuonNoAlgTrig_PrescaleSkimmingTool
-print MuonNoAlgTrig_PrescaleSkimmingTool
+print(MuonNoAlgTrig_PrescaleSkimmingTool)
 
 
 MuonNoAlgTrig_EventSkimmingTool = DerivationFramework__FilterCombinationAND(name="MuonNoAlgTrig_EventSkimmingTool",FilterList=[MuonNoAlgTrig_TriggerSkimmingTool, MuonNoAlgTrig_PrescaleSkimmingTool])
 ToolSvc += MuonNoAlgTrig_EventSkimmingTool
-print MuonNoAlgTrig_EventSkimmingTool
+print(MuonNoAlgTrig_EventSkimmingTool)
 
 # ------------------------------------------------
 # Orthogonal triggers (RPC needs)
@@ -122,7 +122,7 @@ ideta|smooth)_(HLTCalo|iloose|L1EM[0-9]*VH|L1EM[0-9]*)",
                                                                                              "HLT_mb.*"] )
 
 ToolSvc += OrthoTrig_TriggerSkimmingTool
-print OrthoTrig_TriggerSkimmingTool
+print(OrthoTrig_TriggerSkimmingTool)
 
 # ------------------------------------------------
 # Offline orthogonal trigger selection (low pT)
@@ -130,17 +130,17 @@ print OrthoTrig_TriggerSkimmingTool
 OrthoTrig_LowpTMuonEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "OrthoTrig_LowpTMuonEventStringSkimmingTool",
                                                                                          expression = "(count(Muons.muonType == 0 && Muons.pt > 4*GeV && Muons.pt < 15*GeV) > 0)")
 ToolSvc += OrthoTrig_LowpTMuonEventStringSkimmingTool
-print OrthoTrig_LowpTMuonEventStringSkimmingTool
+print(OrthoTrig_LowpTMuonEventStringSkimmingTool)
 
 OrthoTrig_LowpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "OrthoTrig_LowpTMuonPrescaleSkimmingTool",
                                                                                Prescale = 10)
 ToolSvc += OrthoTrig_LowpTMuonPrescaleSkimmingTool
-print OrthoTrig_LowpTMuonPrescaleSkimmingTool
+print(OrthoTrig_LowpTMuonPrescaleSkimmingTool)
 
 OrthoTrig_LowpTMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="OrthoTrig_LowpTMuonEventSkimmingTool",FilterList=[OrthoTrig_LowpTMuonEventStringSkimmingTool, OrthoTrig_LowpTMuonPrescaleSkimmingTool])
 
 ToolSvc += OrthoTrig_LowpTMuonEventSkimmingTool
-print OrthoTrig_LowpTMuonEventSkimmingTool
+print(OrthoTrig_LowpTMuonEventSkimmingTool)
 
 # ------------------------------------------------
 # Offline orthogonal trigger selection (mid pT)
@@ -149,17 +149,17 @@ OrthoTrig_MidpTMuonEventStringSkimmingTool = DerivationFramework__xAODStringSkim
                                                                                          expression = "(count(Muons.muonType == 0 && Muons.pt >= 15*GeV) > 0)")
 
 ToolSvc += OrthoTrig_MidpTMuonEventStringSkimmingTool
-print OrthoTrig_MidpTMuonEventStringSkimmingTool
+print(OrthoTrig_MidpTMuonEventStringSkimmingTool)
 
 OrthoTrig_MidpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool ( name = "OrthoTrig_MidpTMuonPrescaleSkimmingTool",
                                                                               Prescale = 1)
 
 ToolSvc += OrthoTrig_MidpTMuonPrescaleSkimmingTool
-print OrthoTrig_MidpTMuonPrescaleSkimmingTool
+print(OrthoTrig_MidpTMuonPrescaleSkimmingTool)
 
 OrthoTrig_MidpTMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="OrthoTrig_MidpTMuonEventSkimmingTool",FilterList=[OrthoTrig_MidpTMuonEventStringSkimmingTool, OrthoTrig_MidpTMuonPrescaleSkimmingTool])
 ToolSvc += OrthoTrig_MidpTMuonEventSkimmingTool
-print OrthoTrig_MidpTMuonEventSkimmingTool
+print(OrthoTrig_MidpTMuonEventSkimmingTool)
 
 # ------------------------------------------------
 # Ortho trig events accepted if there is: 
@@ -168,12 +168,12 @@ print OrthoTrig_MidpTMuonEventSkimmingTool
 
 OrthoTrig_pTMuonEventSkimmingTool=DerivationFramework__FilterCombinationOR(name="OrthoTrig_pTMuonEventSkimmingTool",FilterList=[OrthoTrig_LowpTMuonEventSkimmingTool, OrthoTrig_MidpTMuonEventSkimmingTool])
 ToolSvc += OrthoTrig_pTMuonEventSkimmingTool
-print OrthoTrig_pTMuonEventSkimmingTool
+print(OrthoTrig_pTMuonEventSkimmingTool)
 
 OrthoTrig_EventSkimmingTool=DerivationFramework__FilterCombinationAND(name="OrthoTrig_EventSkimmingTool",FilterList=[OrthoTrig_pTMuonEventSkimmingTool, OrthoTrig_TriggerSkimmingTool])
 
 ToolSvc += OrthoTrig_EventSkimmingTool
-print OrthoTrig_EventSkimmingTool
+print(OrthoTrig_EventSkimmingTool)
 
 # ------------------------------------------------
 # JPsi Trigger selection
@@ -184,12 +184,12 @@ JPsiTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name 
                                                                                             "HLT_mu6_bJpsi_Trkloose", "HLT_mu18_bJpsi_Trkloose", 
                                                                                             "HLT_mu4_bJpsi_Trkloose", "HLT_mu20_msonly_mu6noL1_msonly_nscan05"] )
 ToolSvc += JPsiTrig_TriggerSkimmingTool
-print JPsiTrig_TriggerSkimmingTool
+print(JPsiTrig_TriggerSkimmingTool)
 
 JPsiTrig_PrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "JPsiTrig_PrescaleSkimmingTool",
                                                                      Prescale = 2)
 ToolSvc += JPsiTrig_PrescaleSkimmingTool
-print JPsiTrig_PrescaleSkimmingTool
+print(JPsiTrig_PrescaleSkimmingTool)
 
 # ------------------------------------------------
 # Jpsi trig events accepted if there is:
@@ -197,7 +197,7 @@ print JPsiTrig_PrescaleSkimmingTool
 JpsiTrig_EventSkimmingTool = DerivationFramework__FilterCombinationAND(name="JpsiTrig_EventSkimmingTool",FilterList=[JPsiTrig_PrescaleSkimmingTool, JPsiTrig_TriggerSkimmingTool])
 
 ToolSvc += JpsiTrig_EventSkimmingTool
-print JpsiTrig_EventSkimmingTool
+print(JpsiTrig_EventSkimmingTool)
 
 # ------------------------------------------------
 #For TGC, Muon HLT triggers:
@@ -207,51 +207,51 @@ MuonHLTTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   na
                                                                               TriggerListOR =  ["HLT_mu.*"] )
 
 ToolSvc += MuonHLTTrig_TriggerSkimmingTool
-print MuonHLTTrig_TriggerSkimmingTool
+print(MuonHLTTrig_TriggerSkimmingTool)
 
 # ------------------------------------------------
 # Dimuon selection
 MuonHLTTrig_DiMuonEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "MuonHLTTrig_DiMuonEventStringSkimmingTool",
                                                                                         expression = "( (count(Muons.muonType == 0 && Muons.pt > 25*GeV)  > 0) && (count(Muons.muonType == 0 && Muons.pt > 10*GeV)  > 1) )")
 ToolSvc += MuonHLTTrig_DiMuonEventStringSkimmingTool
-print MuonHLTTrig_DiMuonEventStringSkimmingTool
+print(MuonHLTTrig_DiMuonEventStringSkimmingTool)
 
 MuonHLTTrig_DiMuonEventPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "MuonHLTTrig_DiMuonEventPrescaleSkimmingTool",
                                                                                    Prescale = 1)
 ToolSvc += MuonHLTTrig_DiMuonEventPrescaleSkimmingTool
-print MuonHLTTrig_DiMuonEventPrescaleSkimmingTool
+print(MuonHLTTrig_DiMuonEventPrescaleSkimmingTool)
 
 MuonHLTTrig_DiMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_DiMuonEventSkimmingTool",FilterList=[MuonHLTTrig_DiMuonEventStringSkimmingTool,\
                                                                                                                                            MuonHLTTrig_DiMuonEventPrescaleSkimmingTool])
 ToolSvc += MuonHLTTrig_DiMuonEventSkimmingTool
-print MuonHLTTrig_DiMuonEventSkimmingTool
+print(MuonHLTTrig_DiMuonEventSkimmingTool)
 
 # ------------------------------------------------
 # Mid pT muon selection
 MuonHLTTrig_MidpTEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "MuonHLTTrig_MidpTEventStringSkimmingTool",
                                                                                        expression = "(count(Muons.muonType == 0 && Muons.pt > 25*GeV) > 0)")
 ToolSvc += MuonHLTTrig_MidpTEventStringSkimmingTool
-print MuonHLTTrig_MidpTEventStringSkimmingTool
+print(MuonHLTTrig_MidpTEventStringSkimmingTool)
 
 MuonHLTTrig_MidpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "MuonHLTTrig_MidpTMuonPrescaleSkimmingTool",
                                                                                  Prescale = 2) #okay with 2
 ToolSvc += MuonHLTTrig_MidpTMuonPrescaleSkimmingTool
-print MuonHLTTrig_MidpTMuonPrescaleSkimmingTool
+print(MuonHLTTrig_MidpTMuonPrescaleSkimmingTool)
 
 MuonHLTTrig_MidpTMuonEventSkimmingTool=DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_MidpTMuonEventSkimmingTool",FilterList=[MuonHLTTrig_MidpTEventStringSkimmingTool, MuonHLTTrig_MidpTMuonPrescaleSkimmingTool])
 ToolSvc += MuonHLTTrig_MidpTMuonEventSkimmingTool
-print MuonHLTTrig_MidpTMuonEventSkimmingTool
+print(MuonHLTTrig_MidpTMuonEventSkimmingTool)
 
 # ------------------------------------------------
 # Muon HLT selection with combined logic
 
 MuonHLTTrig_pTMuonEventSkimmingTool=DerivationFramework__FilterCombinationOR(name="MuonHLTTrig_pTMuonEventSkimmingTool",FilterList=[MuonHLTTrig_MidpTMuonEventSkimmingTool, MuonHLTTrig_DiMuonEventSkimmingTool])
 ToolSvc += MuonHLTTrig_pTMuonEventSkimmingTool
-print MuonHLTTrig_pTMuonEventSkimmingTool
+print(MuonHLTTrig_pTMuonEventSkimmingTool)
 
 MuonHLTTrig_EventSkimmingTool=DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_EventSkimmingTool",FilterList=[MuonHLTTrig_pTMuonEventSkimmingTool, MuonHLTTrig_TriggerSkimmingTool])
 ToolSvc += MuonHLTTrig_EventSkimmingTool
-print MuonHLTTrig_EventSkimmingTool
+print(MuonHLTTrig_EventSkimmingTool)
 
 # ================================================
 # ------------------------------------------------
@@ -264,7 +264,7 @@ if primDPDAlignTrigMu.doAlignmentFormat():
                                                                                    expression = "(count(Muons.muonType == 0 && Muons.pt > 5*GeV) > 0)")
     
     ToolSvc += AlignmentEventStringSkimmingTool
-    print AlignmentEventStringSkimmingTool
+    print(AlignmentEventStringSkimmingTool)
     desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[AlignmentEventStringSkimmingTool])
     
 else:
@@ -283,7 +283,7 @@ if hasMuons:
     filAlg_CT=muonTrkTrackThinTool("muonTrkTrackThinTool_CT", TrackCollectionKey = "CombinedMuonTracks")
     desdAlignmentTriggerMuonSequence+=filAlg_CT
     pass
-print topSequence
+print(topSequence)
         
 ##====================================================================
 ## Define this Muon DPD output stream

@@ -22,6 +22,7 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doMuon', True)
     acf.addFlag('DQ.Steering.HLT.doBphys', True)
     acf.addFlag('DQ.Steering.HLT.doMinBias', True)
+    acf.addFlag('DQ.Steering.HLT.doTau', True)
 
     return acf
 
@@ -74,6 +75,9 @@ def TrigHLTMonTopConfig(inputFlags):
         from TrigMinBiasMonitoring.TrigMinBiasMonitoringMT import TrigMinBias
         result.merge(TrigMinBias(inputFlags))
 
+    if inputFlags.DQ.Steering.HLT.doTau:
+        from TrigTauMonitoring.TrigTauMonitorAlgorithm import TrigTauMonConfig
+        result.merge(TrigTauMonConfig(inputFlags))
 
     return result
 
@@ -153,9 +157,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     trigHLTMonitorAcc = TrigHLTMonConfig(ConfigFlags)

@@ -25,18 +25,13 @@
 //#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigEFBMuMuXHypo.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-// #include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
-
-//#include "TrigVKalFitter/TrigVKalFitter.h"
-//#include "TrigVKalFitter/VKalVrtAtlas.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 class ISvcLocator;
 
@@ -193,19 +188,10 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
     int IdEvent = 0;
     
     // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
+        ATH_MSG_WARNING("Failed to get xAOD::EventInfo " );
         // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            ATH_MSG_DEBUG("Failed to get EventInfo " );
-            //mon_Errors.push_back( ERROR_No_EventInfo );
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent );
-        }// found old event info
     }else { // found the xAOD event info
         ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() );
         IdRun   = evtInfo->runNumber();
@@ -230,7 +216,6 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   
   // create vector for TrigEFBphys particles
-    //  const TrigEFBphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer * xAODTrigBphysColl(0);
     
   // get vector of TrigEFBphys particles from outputTE

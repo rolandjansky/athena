@@ -30,7 +30,7 @@ namespace MC {
   /// The receipe for this is barcode < 200k and status = 1. Gen-stable particles decayed by
   /// G4 are not set to have status = 2 in ATLAS, but simply have more status = 1 children,
   /// with barcodes > 200k.
-  inline bool isGenStable(const HepMC::GenParticle* p) {
+  inline bool isGenStable(HepMC::ConstGenParticlePtr p) {
     return isGenStable(p->status(), p->barcode());
   }
 
@@ -39,7 +39,7 @@ namespace MC {
 
 
   /// @brief Identify if the particle is considered stable at the post-detector-sim stage
-  inline bool isSimStable(const HepMC::GenParticle* p) {
+  inline bool isSimStable(HepMC::ConstGenParticlePtr p) {
     if (p->status() != 1) return false;
     if (isGenStable(p)) return p->end_vertex() == NULL;
     return true;
@@ -48,25 +48,25 @@ namespace MC {
   /// @brief Identify if the particle is considered stable at the post-detector-sim stage
   /// @todo I'm sure this shouldn't be exactly the same as isGenStable, but it is...
   /// @deprecated Use isSimulStable: this function _will_ be removed!
-  inline bool isGenSimulStable(const HepMC::GenParticle* p) {
+  inline bool isGenSimulStable(HepMC::ConstGenParticlePtr p) {
     return isSimStable(p);
   }
 
 
   /// @brief Identify if the particle would not interact with the detector, i.e. not a neutrino or WIMP
-  inline bool isNonInteracting(const HepMC::GenParticle* p) {
+  inline bool isNonInteracting(HepMC::ConstGenParticlePtr p) {
     return MC::isNonInteracting(p->pdg_id()); //< From TruthUtils/PIDHelpers.h
   }
 
   /// @brief Identify if the particle could interact with the detector during the simulation, e.g. not a neutrino or WIMP
-  inline bool isSimInteracting(const HepMC::GenParticle* p) {
+  inline bool isSimInteracting(HepMC::ConstGenParticlePtr p) {
     if (! MC::isGenStable(p)) return false; //skip particles which the simulation would not see
     return !MC::isNonInteracting(p);
   }
 
   /// @brief Oddly-named alias for isSimInteracting
   /// @deprecated Use isSimInteracting: this function _will_ be removed!
-  inline bool isGenInteracting(const HepMC::GenParticle* p) {
+  inline bool isGenInteracting(HepMC::ConstGenParticlePtr p) {
     return isSimInteracting(p);
   }
 

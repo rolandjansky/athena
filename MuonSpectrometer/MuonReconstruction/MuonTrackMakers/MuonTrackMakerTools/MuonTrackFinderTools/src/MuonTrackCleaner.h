@@ -23,7 +23,8 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include <string>
@@ -289,8 +290,11 @@ namespace Muon {
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer           {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc       {this, "MagFieldSvc", "AtlasFieldSvc"}; 
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
+    ToolHandle<Trk::IExtrapolator>                   m_slextrapolator      {this, "SlExtrapolator", "Trk::Extrapolator/MuonStraightLineExtrapolator"};
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                               "Name of the Magnetic Field conditions object key"};
 
     Gaudi::Property<bool> m_useMdtResiCut             {this, "UseMdtResiCut", false};
     Gaudi::Property<double> m_chi2Cut                 {this, "Chi2Cut", 100.};
@@ -306,6 +310,8 @@ namespace Muon {
     Gaudi::Property<bool> m_onlyUseHitErrorInRecovery {this, "OnlyUseHitErrorInRecovery", true};
     Gaudi::Property<double> m_adcCut                  {this, "AdcCut", 50.};
     Gaudi::Property<bool> m_iterate                   {this, "Iterate", 0.7};
+    Gaudi::Property<bool> m_use_slFit                 {this, "UseSLFit", false};
+    
 
     /** helper function to extract chambers that are to be removed */
     bool extractChambersToBeRemoved( CleaningState& state, std::set<Identifier>& chambersToBeRemovedSet, bool usePhi=false ) const;

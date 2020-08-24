@@ -11,19 +11,31 @@
 
 #undef NDEBUG
 #include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/expect_exception.h"
 #include "CxxUtils/ubsan_suppress.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/EventContext.h"
 #include "TInterpreter.h"
 #include <iostream>
 #include <cassert>
 #include <cmath>
 
+// for the field map
+#include "PathResolver/PathResolver.h"
+#include "TFile.h"
+#include "TTree.h"
+
+// for populating conditions store
+#include "SGTools/TestStore.h"
+#include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/WriteCondHandle.h"
+
+// for the conditions data
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 std::ostream& printVec3D (const Amg::Vector3D& a)
 {
@@ -74,9 +86,8 @@ void test1 (Trk::ITrkDistanceFinder& tool)
   op = tool.CalculateMinimumDistance (p2a, p2b);
   assert( op );
   pp = op.value();
-
-  assertVec3D (pp.first,  { -27.3934, -27.3934, 0 });
-  assertVec3D (pp.second, { -27.3934, -27.3934, 0 });
+  assertVec3D (pp.first,  {30.3934, 30.3934, 0 });
+  assertVec3D(pp.second, { 30.3934, 30.3934, 0 });
 
   Amg::Vector3D pos3a { 10, 2, 2 };
   Amg::Vector3D mom3a { 10000, 30000, 50000 };
@@ -92,6 +103,53 @@ void test1 (Trk::ITrkDistanceFinder& tool)
   assertVec3D (pp.second, { 12.501, 9.50104, 0 });
 }
 
+std::unique_ptr<MagField::AtlasFieldMap> getFieldMap(const std::string& mapFile, double sol_current, double tor_current) {
+       // find the path to the map file
+    std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
+    assert ( !resolvedMapFile.empty() );
+    // Do checks and extract root file to initialize the map
+    assert ( resolvedMapFile.find(".root") != std::string::npos );
+
+    std::unique_ptr<TFile> rootfile( std::make_unique<TFile>(resolvedMapFile.c_str(), "OLD") );
+    assert ( rootfile );
+    assert ( rootfile->cd() );
+    // open the tree
+    TTree* tree = (TTree*)rootfile->Get("BFieldMap");
+    assert(tree);
+
+    // create map
+    std::unique_ptr<MagField::AtlasFieldMap> field_map=std::make_unique<MagField::AtlasFieldMap>();
+
+    // initialize map
+    assert (field_map->initializeMap( rootfile.get(), sol_current, tor_current ));
+    return field_map;
+
+}
+
+void createNewtonTrkDistanceFinderCondData(SGTest::TestStore &store) {
+   SG::WriteCondHandleKey<AtlasFieldCacheCondObj> fieldKey {"fieldCondObj"};
+   assert( fieldKey.initialize().isSuccess());
+
+   // from StoreGate/test/WriteCondHandle_test.cxx
+   EventIDBase now(0, EventIDBase::UNDEFEVT, 1);
+   EventContext ctx(1, 1);
+   ctx.setEventID( now );
+   ctx.setExtension( Atlas::ExtendedEventContext(&store) );
+   Gaudi::Hive::setCurrentContext(ctx);
+
+   EventIDBase s1_1(0, EventIDBase::UNDEFEVT, 0);
+   EventIDBase e1_1(0, EventIDBase::UNDEFEVT, 3);
+   EventIDRange r1_1 (s1_1,e1_1);
+
+
+   SG::WriteCondHandle<AtlasFieldCacheCondObj> fieldHandle {fieldKey};
+   {
+      std::unique_ptr<MagField::AtlasFieldMap> fieldMap=getFieldMap("MagneticFieldMaps/bfieldmap_7730_20400_14m.root",7730,20400);
+      auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
+      fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.release());
+      assert( fieldHandle.record(r1_1, std::move(fieldCondObj)).isSuccess());
+   }
+}
 
 int main()
 {
@@ -99,9 +157,12 @@ int main()
   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
   ISvcLocator* svcloc = nullptr;
   Athena_test::initGaudi ("TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt", svcloc);
-  ServiceHandle<MagField::IMagFieldSvc> field ("MagField::AtlasFieldSvc/AtlasFieldSvc", "test");
-  Incident inc_br ("test", IncidentType::BeginRun);
-  dynamic_cast<IIncidentListener*>(&*field)->handle (inc_br);
+
+  StoreGateSvc *cs=nullptr;
+  assert (svcloc->service("StoreGateSvc/ConditionStore",cs).isSuccess());
+
+  SGTest::TestStore dumstore;
+  createNewtonTrkDistanceFinderCondData(dumstore);
 
   ToolHandle<Trk::ITrkDistanceFinder> tool ("Trk::Trk2DDistanceFinder");
   assert( tool.retrieve().isSuccess() );

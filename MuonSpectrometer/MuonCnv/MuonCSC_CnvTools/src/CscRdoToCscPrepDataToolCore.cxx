@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -35,7 +35,6 @@ const InterfaceID& CscRdoToCscPrepDataToolCore::interfaceID()
 CscRdoToCscPrepDataToolCore::CscRdoToCscPrepDataToolCore
 (const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_muonMgr(nullptr),
     m_cscCalibTool( "CscCalibTool/CscCalibTool", this),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder", this),
     m_cabling( "CSCcablingSvc" ,name),
@@ -53,18 +52,14 @@ CscRdoToCscPrepDataToolCore::CscRdoToCscPrepDataToolCore
 }  
 
 StatusCode CscRdoToCscPrepDataToolCore::initialize(){
-  ATH_MSG_DEBUG(" in initialize()");
-  ATH_CHECK(detStore()->retrieve( m_muonMgr ));
-  ATH_MSG_INFO("The Geometry version is " << m_muonMgr->get_DBMuonVersion());
-
   ATH_CHECK(m_cscCalibTool.retrieve());
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_cabling.retrieve());
-
   // check if initializing of DataHandle objects success
-  ATH_CHECK( m_rdoContainerKey.initialize() );
-  ATH_CHECK( m_outputCollectionKey.initialize() );
+  ATH_CHECK(m_rdoContainerKey.initialize());
+  ATH_CHECK(m_outputCollectionKey.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -75,8 +70,12 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(std::vector<IdentifierHash>&, std
 
 //*****************************************
 //************** Process for the givenId EF Filter case...
-StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {  
+/// This decode function is for single-thread running only
+StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {  
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
+
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   
   // if CSC decoding is switched off stop here
   if( !m_decodeData ) {
@@ -91,7 +90,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
   }
 
   // identifiers of collections already decoded and stored in the container will be skipped
-  if (m_outputCollection->indexFind(givenHashId) != m_outputCollection->end()) {
+  if (m_outputCollection->numberOfCollections() != 0) {
     decodedIdhs.push_back(givenHashId);
     ATH_MSG_DEBUG ("A collection already exists in the container for offline id hash. "
                    << (int) givenHashId);
@@ -105,15 +104,14 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
   // retrieve specific collection for the givenID
   uint16_t idColl = 0xffff;
   m_cabling->hash2CollectionId(givenHashId,idColl);
-  CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
-  if (rdoContainer->end() ==  it_coll) {
+  const CscRawDataCollection * rawCollection = rdoContainer->indexFindPtr(idColl);
+  if (nullptr ==  rawCollection) {
     // unsigned int coll_hash = idColl;  
     ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << idColl );
     return StatusCode::SUCCESS;
   }
 
 
-  const CscRawDataCollection * rawCollection = *it_coll;
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
   //************************************************
   Identifier oldId;
@@ -158,8 +156,8 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
     }
 
     if (oldId != stationId) {
-      Muon::CscStripPrepDataContainer::const_iterator it_coll = m_outputCollection->indexFind(cscHashId);
-      if (m_outputCollection->end() == it_coll) {
+      auto it_coll = m_outputCollection->indexFindPtr(cscHashId);
+      if (nullptr == it_coll) {
 	CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
 	newCollection->setIdentifier(stationId);
 	collection = newCollection;
@@ -170,7 +168,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
       } else {  // It won't be needed because we already skipped decoded one (should be checked it's true)
 
 //Hack for transition to athenaMT classes
-	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
+	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll );
 	collection = oldCollection;
 	cscHashId = collection->identifyHash();
       }
@@ -181,7 +179,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
       const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
       ATH_MSG_DEBUG ( "        LOOP over width  " << j <<  " " << channelId );
 
-      const CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(channelId);
+      const CscReadoutElement* descriptor = muDetMgr->getCscReadoutElement(channelId);
       //calculate local positions on the strip planes
       if ( !descriptor ) {
         ATH_MSG_WARNING ( "Invalid descriptor for " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
@@ -261,12 +259,15 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
 
 
 //************** Process for all in case of Offline
-StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
+/// This decode function is for single-thread running only
+StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
 {
   
   typedef CscRawDataContainer::const_iterator collection_iterator;
   
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
  
   // if CSC decoding is switched off stop here
   if( !m_decodeData ) {
@@ -324,8 +325,8 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
 	}
 
 	if (oldId != stationId) {
-	  Muon::CscStripPrepDataContainer::const_iterator it_coll = m_outputCollection->indexFind(cscHashId);
-	  if (m_outputCollection->end() == it_coll) {
+	  auto it_coll = m_outputCollection->indexFindPtr(cscHashId);
+	  if (nullptr == it_coll) {
 	    CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
 	    newCollection->setIdentifier(stationId);
 	    collection = newCollection;
@@ -336,7 +337,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
 	    
 	  } else {  
 //Hack for transition to athenaMT classes
-            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
+            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll );
 
 	    collection = oldCollection;
 	    cscHashId = collection->identifyHash();
@@ -350,7 +351,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
           const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
           ATH_MSG_DEBUG ( "DecodeAll**LOOP over width  " << j <<  " " << channelId );
 
-          const CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(channelId);
+          const CscReadoutElement* descriptor = muDetMgr->getCscReadoutElement(channelId);
           //calculate local positions on the strip planes
           if ( !descriptor ) {
             ATH_MSG_WARNING ( "Invalid descriptor for " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)

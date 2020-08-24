@@ -11,14 +11,11 @@ __all__ = [ 'TransformError', 'TransformDefinitionError', 'TransformArgumentErro
             'JobOptionsNotFoundError', 'TransformErrorHandler', 'AthenaLogChecker',
             'TransformThreadTimeout', 'TransformThreadError' ]
 
-import sys,re,os,copy
+import re
+import os
 from PyJobTransformsCore import fileutil, trfconsts, AtlasErrorCodes, VTimer
-from PyJobTransformsCore.xmlutil import XMLNode
-from PyJobTransformsCore.envutil import *
 from PyJobTransformsCore.TransformLogger import TransformLogger
-#from AthenaCommon.Logging import logging
 from AthenaCommon.Include import IncludeError
-from PyJobTransformsCore.JobReport import *
 
 from future import standard_library
 standard_library.install_aliases()
@@ -42,6 +39,8 @@ _shLibREs = [ re.compile(r'[cC]ould not load module ' + _libraryRE),
 
 def examineLoadLibrary(lib):
     """Return tuple (acronym,diagnosis) for library <lib>"""
+    from PyJobTransformsCore.envutil import examine_library
+
     # turn module name into library name
     if not lib.startswith('lib') and not lib.endswith('.so'):
         lib = 'lib' + lib + '.so'
@@ -248,8 +247,8 @@ class AthenaLogChecker:
             releaseName = 'ALL'
             if self.release:
                 releaseName += ',' + self.release 
-            logger.info("Scanning athena logfile %s assuming ATLAS release %s ..." % \
-                        (filename,releaseName) )
+            logger.info("Scanning athena logfile %s assuming ATLAS release %s ...",
+                        filename, releaseName)
             logger.info("Athena initialise()...")
         logFile = open(filename)
         nLines = 0
@@ -259,7 +258,7 @@ class AthenaLogChecker:
             report.addError( self.processLine( line, logger ) )
         logFile.close()
         if logger:
-            logger.info("Done scanning %d lines of file %s. Summary:" % (nLines,filename) )
+            logger.info("Done scanning %d lines of file %s. Summary:", nLines, filename)
             logger.info("   Ignored : %d", self.ignoreCount )
             logger.info("   Warnings: %d", self.warningCount )
             logger.info("   Errors  : %d", self.errorCount )
@@ -301,27 +300,27 @@ class AthenaLogChecker:
         # match ignore patterns
         ignore = AtlasErrorCodes.matchIgnorePattern(line,self.release)
         if ignore:
-            if ignore.re.pattern == '.*?\s+?INFO .+':
+            if ignore.re.pattern == r'.*?\s+?INFO .+':
                 return None
             self.ignoreCount += 1
             if logger:
-                logger.debug("ignoring error in line: \"%s\"" % line)
-                logger.debug("    because it matched: \"%s\"" % ignore.re.pattern)
+                logger.debug("ignoring error in line: \"%s\"", line)
+                logger.debug("    because it matched: \"%s\"", ignore.re.pattern)
             return None
         # then match known error patterns
         match, err = AtlasErrorCodes.matchErrorPattern(line,self.release)
         if err:
             self.processError(err)
             if logger:
-                logger.debug("matched error category %s in line: %s" % (err.category.acronym,line))
-                logger.debug("    because it matched: \"%s\"" % match.re.pattern)
+                logger.debug("matched error category %s in line: %s", err.category.acronym, line)
+                logger.debug("    because it matched: \"%s\"", match.re.pattern)
             return err
         # finally, perform generic error match
         err = self.extractError(line)
         if err:
             self.processError(err)
             if logger:
-                logger.verbose("non-matched error in line: %s" % line)
+                logger.verbose("non-matched error in line: %s", line)
             return err
         return None
 
@@ -339,7 +338,7 @@ class AthenaLogChecker:
         with who, severity and message field filled. For all other messages
         return None"""
         line=line.rstrip()
-        lineREC = re.compile("(^\S*\s*(?=WARNING|ERROR|FATAL))(WARNING|ERROR|FATAL)\:?\s+(.+$)")
+        lineREC = re.compile(r"(^\S*\s*(?=WARNING|ERROR|FATAL))(WARNING|ERROR|FATAL)\:?\s+(.+$)")
         match = lineREC.search(line)
         if match:
             who = match.group(1).strip()
@@ -485,7 +484,7 @@ class TransformErrorHandler(TransformLogger):
         # add filename to EnvironmentError for printout
         if isinstance(e,EnvironmentError):
             fn = e.filename
-            if fn != None and fn not in e.args: e.args += (fn,)
+            if fn is not None and fn not in e.args: e.args += (fn,)
         #
         # specific processing
         #
@@ -499,9 +498,8 @@ class TransformErrorHandler(TransformLogger):
         elif isinstance(e,Exception):
             if hasattr(e,'args') and type(e.args) == list and e.args:
                 args0 = e.args[0]
-                argType0 = type(args0)
                 # test for some known strings
-                if argType0 == type(''):
+                if isinstance(args0, str):
                     if args0.find('Failed to load DLL') != -1:
                         return self.handleDllLoadError(e)
         # error was not handled
@@ -529,7 +527,7 @@ class TransformErrorHandler(TransformLogger):
     def handleSystemExit(self,e):
         try:
             status = e.args[ 0 ]
-        except:
+        except Exception:
             status = 0
         if status == 0:
             return AtlasErrorCodes.ErrorInfo( acronym = 'OK' )
@@ -556,13 +554,17 @@ class TransformErrorHandler(TransformLogger):
     
     def handleDllLoadError(self,e):
         # try to find the guilty one
+        import subprocess
+        from PyJobTransformsCore.trfutil import TRACEBACK_TEXT, find_in_stack
+        from PyJobTransformsCore.envutil import find_library
+
         mess = None
         diag = None
-        dllRE = "^theApp.Dlls\s*[+]?="
+        dllRE = r"^theApp.Dlls\s*[+]?="
         stack = find_in_stack( dllRE )
         if stack:
             text = stack[TRACEBACK_TEXT]
-            dllNameRE = "([\w\.\-]+)"
+            dllNameRE = r"([\w\.\-]+)"
             subRE = "%s%s%s%s" % (dllRE,r"\s*\[\s*\"", dllNameRE, r"\"\s*\]")
             dll = re.sub( subRE, r"\1", text )
             lib = 'lib%s.so' % (dll)
@@ -572,7 +574,7 @@ class TransformErrorHandler(TransformLogger):
             if not full_lib:
                 diag += '%s not found.' % (lib)
             else:
-                self.logger().debug( "Found %s. Checking dependencies..." % full_lib )
+                self.logger().debug( "Found %s. Checking dependencies...", full_lib )
                 lddOut = subprocess.getoutput( 'ldd %s' % (full_lib) )
                 missLibs = [ ]
                 subRE = "%s%s%s" % (r"^\s*",dllNameRE,r"\s+.*not found\s*.*$")

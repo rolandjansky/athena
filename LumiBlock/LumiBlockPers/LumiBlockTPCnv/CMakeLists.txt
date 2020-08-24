@@ -1,44 +1,27 @@
-################################################################################
-# Package: LumiBlockTPCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LumiBlockTPCnv )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          LumiBlock/LumiBlockData
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthenaKernel
-                          GaudiKernel )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( LumiBlockTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS LumiBlockTPCnv
-                         PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LumiBlockData TestTools AthenaKernel GaudiKernel )
+                         LINK_LIBRARIES AthenaPoolCnvSvcLib LumiBlockData
+                         PRIVATE_LINK_LIBRARIES AthenaKernel )
 
 atlas_add_dictionary( LumiBlockTPCnvDict
                       LumiBlockTPCnv/LumiBlockTPCnvDict.h
                       LumiBlockTPCnv/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LumiBlockData TestTools AthenaKernel GaudiKernel LumiBlockTPCnv )
+                      LINK_LIBRARIES LumiBlockTPCnv )
 
+# Tests in the package:
 atlas_add_test( LumiBlockRangeCnv_p1_test
                 SOURCES
                 test/LumiBlockRangeCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LumiBlockData TestTools AthenaKernel GaudiKernel LumiBlockTPCnv )
+                LINK_LIBRARIES GaudiKernel TestTools LumiBlockTPCnv )
 
 atlas_add_test( LumiBlockRangeCnv_p2_test
                 SOURCES
                 test/LumiBlockRangeCnv_p2_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LumiBlockData TestTools AthenaKernel GaudiKernel LumiBlockTPCnv )
-
+                LINK_LIBRARIES GaudiKernel TestTools LumiBlockTPCnv )

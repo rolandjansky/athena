@@ -58,4 +58,4 @@ atlas_add_component( TrkParticleCreator
    AthContainers AtlasDetDescr GeoPrimitives IdDictDetDescr InDetPrepRawData
    InDetRIO_OnTrack MagFieldInterfaces Particle ITrackToVertex TrkSurfaces
    TrkPseudoMeasurementOnTrack VxVertex TrkExInterfaces PixelGeoModelLib
-   TrkParticleCreatorLib MagFieldElements MagFieldConditions)
+   TrkParticleCreatorLib MagFieldElements MagFieldConditions BeamSpotConditionsData )

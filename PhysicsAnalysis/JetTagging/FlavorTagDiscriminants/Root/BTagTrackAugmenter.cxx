@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
@@ -7,13 +7,22 @@
 #include <cmath>
 #include <cstddef>
 
-BTagTrackAugmenter::BTagTrackAugmenter():
-  m_ip_d0("btagIp_d0"),
-  m_ip_z0("btagIp_z0SinTheta"),
-  m_ip_d0_sigma("btagIp_d0Uncertainty"),
-  m_ip_z0_sigma("btagIp_z0SinThetaUncertainty"),
-  m_track_displacement("btagIp_trackDisplacement"),
-  m_track_momentum("btagIp_trackMomentum"),
+namespace str {
+  const std::string d0 = "d0";
+  const std::string z0SinTheta = "z0SinTheta";
+  const std::string d0Uncertainty = "d0Uncertainty";
+  const std::string z0SinThetaUncertainty = "z0SinThetaUncertainty";
+  const std::string trackDisplacement = "trackDisplacement";
+  const std::string trackMomentum = "trackMomentum";
+}
+
+BTagTrackAugmenter::BTagTrackAugmenter(const std::string& prefix):
+  m_ip_d0(prefix + str::d0),
+  m_ip_z0(prefix + str::z0SinTheta),
+  m_ip_d0_sigma(prefix + str::d0Uncertainty),
+  m_ip_z0_sigma(prefix + str::z0SinThetaUncertainty),
+  m_track_displacement(prefix + str::trackDisplacement),
+  m_track_momentum(prefix + str::trackMomentum),
   m_ip2d_trackParticleLinks("IP2D_TrackParticleLinks"),
   m_ip3d_trackParticleLinks("IP3D_TrackParticleLinks"),
   m_ip2d_gradeOfTracks("IP2D_gradeOfTracks"),
@@ -24,7 +33,8 @@ BTagTrackAugmenter::BTagTrackAugmenter():
   m_ip3d_signed_d0_significance("IP3D_signed_d0_significance"),
   m_ip3d_signed_z0_significance("IP3D_signed_z0_significance"),
   m_ip2d_grade("IP2D_grade"),
-  m_ip3d_grade("IP3D_grade")
+  m_ip3d_grade("IP3D_grade"),
+  m_prefix(prefix)
 {
 }
 
@@ -108,3 +118,15 @@ void BTagTrackAugmenter::augment_with_grades(const xAOD::TrackParticle &track, c
   }
   m_ip2d_grade(track) = ip2d_grade;
 }
+
+std::set<std::string> BTagTrackAugmenter::getTrackIpDataDependencyNames() const
+{
+  return {
+    m_prefix + str::d0,
+    m_prefix + str::z0SinTheta,
+    m_prefix + str::d0Uncertainty,
+    m_prefix + str::z0SinThetaUncertainty,
+    m_prefix + str::trackDisplacement,
+    m_prefix + str::trackMomentum};
+}
+

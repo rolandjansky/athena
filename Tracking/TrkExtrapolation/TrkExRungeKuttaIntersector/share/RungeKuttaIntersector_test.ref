@@ -1,36 +1,21 @@
 RungeKuttaIntersector_test
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/RungeKuttaIntersector_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/RungeKuttaIntersector_test.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["MagField::AtlasFieldSvc/AtlasFieldSvc"]
-JobOptionsSvc        INFO # (2,1): AtlasFieldSvc.UseDCS = 0
-JobOptionsSvc        INFO # (3,1): AtlasFieldSvc.UseMapsFromCool = 0
-JobOptionsSvc        INFO Job options successfully read in from ../share/RungeKuttaIntersector_test.txt
+Initializing Gaudi ApplicationMgr using job opts /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/athena/Tracking/TrkExtrapolation/TrkExRungeKuttaIntersector/share/RungeKuttaIntersector_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/athena/Tracking/TrkExtrapolation/TrkExRungeKuttaIntersector/share/RungeKuttaIntersector_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sun Jan 27 10:54:23 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on ccwige0002 on Tue May 26 22:52:36 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-AtlasFieldSvc        INFO initialize() ...
-AtlasFieldSvc        INFO Currents are set-up by jobOptions - delaying map initialization until BeginRun incident happens
-AtlasFieldSvc        INFO Added listener to BeginRun incident
-AtlasFieldSvc        INFO initialize() successful
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-ToolSvc.Trk::Ru...   INFO Retrieved service MagFieldSvc = ServiceHandle('MagField::AtlasFieldSvc/AtlasFieldSvc')
-AtlasFieldSvc        INFO handling incidents ...
-AtlasFieldSvc        INFO importCurrents() ...
-AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7730 toroidCurrent=20400)
-AtlasFieldSvc        INFO reading the map from /home/sss/nobackup/atlas/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Initialized the field map from /home/sss/nobackup/atlas/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Currents imported and map initialized
-AtlasFieldSvc        INFO BeginRun incident handled
-AtlasFieldSvc        INFO incidents handled successfully
+ClassIDSvc           INFO  getRegistryEntries: read 1480 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2276 CLIDRegistry entries for module ALL
 test_plane
 test_line
 test_cylinder

@@ -26,6 +26,7 @@ public:
 	virtual StatusCode execute(const EventContext& ctx) const override;
 	
 private:
+<<<<<<< HEAD
 	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
 	std::map<std::string,int> m_TrackGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
@@ -38,6 +39,11 @@ private:
 	//ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 	//ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool",""};
 	
+=======
+    std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
+    std::map<std::string,int> m_TrackGroup; 
+    SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
+>>>>>>> upstream/master
 
 protected:
 	std::vector<std::string> m_pixlayers = { "P0", "P1", "P2", "P3"};

@@ -23,18 +23,6 @@ const int    CpmMappingTool::s_etaBinsPerRow;
 const double CpmMappingTool::s_etaGran = 0.1;
 const double CpmMappingTool::s_phiGran = M_PI/32.;
 
-CpmMappingTool::CpmMappingTool(const std::string& type,
-                               const std::string& name,
-			       const IInterface*  parent)
-			     : AthAlgTool(type, name, parent)
-{
-  declareInterface<IL1CaloMappingTool>(this);
-}
-
-CpmMappingTool::~CpmMappingTool()
-{
-}
-
 // Initialise the mappings
 
 #ifndef PACKAGE_VERSION
@@ -58,7 +46,7 @@ StatusCode CpmMappingTool::finalize()
 // Return eta, phi and layer mapping for given crate/module/channel
 
 bool CpmMappingTool::mapping(const int crate, const int module,
-               const int channel, double& eta, double& phi, int& layer)
+               const int channel, double& eta, double& phi, int& layer) const
 {
   if (crate < 0 || crate >= s_crates || module < 1 || module > s_modules ||
       channel < 0 || channel >= s_channels) return false;
@@ -99,7 +87,7 @@ bool CpmMappingTool::mapping(const int crate, const int module,
 // Return crate, module and channel mapping for given eta/phi/layer
 
 bool CpmMappingTool::mapping(const double /*eta*/, const double /*phi*/,
-                    const int /*layer*/, int& crate, int& module, int& channel)
+                    const int /*layer*/, int& crate, int& module, int& channel) const
 {
   // Not implemented
   crate   = 0;

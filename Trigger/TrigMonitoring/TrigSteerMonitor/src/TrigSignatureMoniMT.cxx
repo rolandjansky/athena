@@ -3,8 +3,11 @@
 */
 #include <algorithm>
 #include <regex>
+
+#include<boost/algorithm/string.hpp>
+
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaInterprocess/Incidents.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
@@ -52,20 +55,33 @@ StatusCode TrigSignatureMoniMT::start() {
       }
     }
 
-    for ( const auto& stream : chain.streams() ){
-      m_streamToChainMap[stream.getAttribute("name")].insert( HLT::Identifier(chain.name()) );
+    for ( const std::string& stream : chain.streams() ){
+      m_streamToChainMap[stream].insert( HLT::Identifier(chain.name()) );
     }
 
     if( gotL1Menu && !chain.l1item().empty() ) {
+      bool isMultiItemSeeded = chain.l1item().find(',') != std::string::npos;
       try {
-	TrigConf::L1Item item = l1MenuHandle->item(chain.l1item());
-	for ( const std::string & group : item.bunchgroups() ) {
-	  if ( group != "BGRP0" ) {
-	    m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
-	  }
-	}
-      } catch(...) {
-	ATH_MSG_WARNING("The item " << chain.l1item() << " is not part of the L1 menu" );
+        std::vector<std::string> seedingItems{};
+        if( isMultiItemSeeded ) {
+          boost::split(seedingItems, chain.l1item(), boost::is_any_of(","));
+        } else {
+          seedingItems = { chain.l1item() };
+        }
+        for( const std::string & itemName : seedingItems ) {
+          TrigConf::L1Item item = l1MenuHandle->item(itemName);
+          for ( const std::string & group : item.bunchgroups() ) {
+            if ( group != "BGRP0" ) {
+              m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
+            }
+          }
+        }
+      } catch(std::exception & ex) {
+        if( isMultiItemSeeded ) {
+          ATH_MSG_INFO("The L1 seed to multi-item-seeded chain " << chain.name() << " could not be completely resolved. This is currently OK. Exception from menu access: " << ex.what());
+        } else {
+          ATH_MSG_WARNING("The L1 seed to chain " << chain.name() << " could not be resolved. Exception from menu access: " << ex.what());
+        }
       }
     }
   }
@@ -152,7 +168,9 @@ StatusCode TrigSignatureMoniMT::stop() {
 
   // retrieve information whether chain was active in Step
   std::map<std::string, std::set<std::string>> chainToSteps;
+  std::map<std::string, std::set<int>> chainToStepsId;
   for ( const TrigConf::Chain& chain: *hltMenuHandle ){
+    int nstep=1; //let's start from step=1
     for ( const auto& seq : chain.getList("sequencers", true) ){
       // example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
       const std::string seqName = seq.getValue();
@@ -162,6 +180,11 @@ StatusCode TrigSignatureMoniMT::stop() {
       std::string stepName = stepNameMatch[0];
       stepName[0] = std::toupper(stepName[0]); // fix for "step1" names
       chainToSteps[chain.name()].insert( stepName );
+      chainToStepsId[chain.name()].insert( nstep );
+      //check that the step name is set with the same position in the execution
+      if ("Step"+std::to_string(nstep) != stepName)
+	ATH_MSG_INFO("Sequence "<<seqName<<" (step "<<stepName<<") used at step "<<nstep<<" in chain "<<chain.name());
+      nstep++;
     }
   }
 
@@ -173,8 +196,8 @@ StatusCode TrigSignatureMoniMT::stop() {
         // skip steps where chain wasn't active
         // ybins are for all axis labes, steps are in bins from 3 to stepsSize + 2
         const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(xbin);
-        ybin < 3 || ybin > stepsSize + 2 || chainToSteps[chainName].find("Step" + std::to_string(ybin - 2)) != chainToSteps[chainName].end() ?
-          v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 )
+        ybin < 3 || ybin > stepsSize + 2 || chainToStepsId[chainName].find(ybin - 2) != chainToStepsId[chainName].end() ?
+	  v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 )
           : v += fixedWidth( "-", 11 );
       } else {
         v += fixedWidth( " ", 11 );

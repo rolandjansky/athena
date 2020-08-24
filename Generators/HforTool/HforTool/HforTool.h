@@ -123,11 +123,11 @@ private:
   void findHFQuarks();
 
   /// Specific fn for finding HF quarks in HERWIG6 event record
-  void findHFQuarksHerwig(const std::map< int,std::vector<const HepMC::GenParticle*> >& finalstate_q);
+  void findHFQuarksHerwig(const std::map< int,std::vector<HepMC::ConstGenParticlePtr> >& finalstate_q);
   /// Specific fn for finding HF quarks in PYTHIA6 event record
-  void findHFQuarksPythia(const std::map< int,std::vector<const HepMC::GenParticle*> >& finalstate_q);
+  void findHFQuarksPythia(const std::map< int,std::vector<HepMC::ConstGenParticlePtr> >& finalstate_q);
   /// If we don't know the shower generator, use this to set all to "unknown"
-  void findHFQuarksUnknown(const std::map< int,std::vector<const HepMC::GenParticle*> >& finalstate_q);
+  void findHFQuarksUnknown(const std::map< int,std::vector<HepMC::ConstGenParticlePtr> >& finalstate_q);
 
   void jetBasedRemoval();
   void angularBasedRemoval();

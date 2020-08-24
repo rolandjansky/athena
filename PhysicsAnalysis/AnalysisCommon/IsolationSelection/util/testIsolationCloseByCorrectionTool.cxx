@@ -173,20 +173,20 @@ int main(int argc, char** argv) {
         if (!RetrieveContainer(event, "Photons", Photons, AuxPhotons).isSuccess()) break;
         for (const auto ielec : *Electrons) {
             //Store if the electron passes the isolation
-            dec_PassIsol(*ielec) = m_isoSelTool->accept(*ielec);
+            dec_PassIsol(*ielec) = bool (m_isoSelTool->accept(*ielec));
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
         }
 
         for (const auto iphot : *Photons) {
             //Store if the photon passes the isolation (only needed for later comparisons)
-            dec_PassIsol(*iphot) = m_isoSelTool->accept(*iphot);
+            dec_PassIsol(*iphot) = bool (m_isoSelTool->accept(*iphot));
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
         }
         for (const auto imuon : *Muons) {
             //Store if the muon passes the isolation
-            dec_PassIsol(*imuon) = m_isoSelTool->accept(*imuon);
+            dec_PassIsol(*imuon) = bool (m_isoSelTool->accept(*imuon));
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
         }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -975,13 +975,13 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
   reading calibration containers
   ******************************************** */
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_CalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_cchc.push_back(cchc.cptr());
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_DMCalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_DMCalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_dmcchc.push_back(cchc.cptr());
   }
@@ -1202,13 +1202,13 @@ int GetLCSinglePionsPerf::fill_calibhits (const xAOD::CaloClusterContainer& clus
   reading calibration containers
   ******************************************** */
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_CalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_cchc.push_back(cchc.cptr());
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_DMCalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_DMCalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_dmcchc.push_back(cchc.cptr());
   }
@@ -1345,14 +1345,14 @@ convert incident particle eta,phi from testbeam to ATLAS-like values
 void GetLCSinglePionsPerf::as_in_atlas ( double &eta,  double &phi, 
                     double X0,  double Y0,  double xCryo, int iCalo)
 {
-  static const int Ncalo = 3;
-  static double Zcalo[Ncalo] = { 3691.0, 4329.5, 4668.5 };
-  static double Z0 = -21600.;
-  static double Alpha = 4.668*M_PI/180.; //  [degree]
-  static double PhiSh = 45.*M_PI/180.;
-  static double Eta0 = 2.8;
-  static double z0emec = 11115;
-  static double Yrun2 = 70;
+  constexpr int Ncalo = 3;
+  constexpr double Zcalo[Ncalo] = { 3691.0, 4329.5, 4668.5 };
+  constexpr double Z0 = -21600.;
+  constexpr double Alpha = 4.668*M_PI/180.; //  [degree]
+  constexpr double PhiSh = 45.*M_PI/180.;
+  constexpr double Eta0 = 2.8;
+  constexpr double z0emec = 11115;
+  constexpr double Yrun2 = 70;
 
   //  Get transformation parameters
   double Beta = 2*atan( exp(-Eta0) );

@@ -19,26 +19,19 @@
 #include <vector>
 #include <map>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/MdtReadoutElement.h"
-
- 
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
-class TFile;
+class TH1;
+class TH2;
+
 template <class ConcreteAlgorithm> class AlgFactory;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -74,16 +67,13 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
    
   void bookMDTvsRPCHistograms(std::string m_hardware_name, std::string m_layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx );
   void bookMDTvsRPCsectorHistograms(std::string m_sector_name, std::string m_layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax );
 
-
   MuonDQAHistMap m_stationHists;
 
- 
   bool m_doClusters;
   std::string m_clusterContainerName;
   bool m_checkCabling;
@@ -93,11 +83,9 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   int  m_mdtvsrpcreducerpcnbins    ;  
   int  m_mdtvsrpcreducemdtnbins    ;   
   int  m_mdtvsrpcreducemdttdcnbins ; 
-  
+
   bool m_doMdtvsRpcESD ;
 
-  //Declare Properties  
-  
   std::string m_chamberName;
   std::string m_StationSize;
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
@@ -107,9 +95,7 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   int m_lastEvent;
   int m_cosmicStation;
  
- 
   TH1*    m_MdtRpcZdiff             ; 
- 
   TH2*    m_MdtNHitsvsRpcNHits      ;
 };
 

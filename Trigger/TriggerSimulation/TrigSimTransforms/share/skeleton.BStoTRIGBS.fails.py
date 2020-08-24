@@ -196,7 +196,7 @@ include ("RecExCond/AllDet_detDescr.py")
 if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    from ByteStreamCnvSvc import ReadByteStream
    # Define the input
-   svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.BSRDOInput()
+   svcMgr.EventSelector.Input = athenaCommonFlags.BSRDOInput()
    theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 # Online specific setup of BS converters

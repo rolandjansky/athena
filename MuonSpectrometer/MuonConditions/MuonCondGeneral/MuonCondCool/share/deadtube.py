@@ -15,7 +15,7 @@ theApp.EvtMax = 10
 # define two instances of the ReadWriteCoolStrFile algorithm to manipulate
 # the data files
 #
-theApp.DLLs+=["MuonCondCool"]
+theApp.Dlls+=["MuonCondCool"]
 
 theApp.TopAlg+=["MuonCalib::MdtTubeCondCool/RWInstA"]
                 

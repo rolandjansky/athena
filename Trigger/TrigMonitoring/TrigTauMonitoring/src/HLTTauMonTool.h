@@ -188,12 +188,10 @@ class HLTTauMonTool : public IHLTMonTool {
   ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
 
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
-  SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey
-  { this, "LuminosityCondDataKey", "LuminosityCondDataOnline", "" };
-//  ToolHandle<ILuminosityTool>  m_luminosityToolOnline;
+
   float m_mu_offline;
   int m_mu_online;
-        int m_LB;
+  int m_LB;
 
 
   ///Name of the trigger items to be monitored.

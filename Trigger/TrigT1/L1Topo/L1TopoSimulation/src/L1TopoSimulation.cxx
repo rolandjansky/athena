@@ -311,9 +311,11 @@ L1TopoSimulation::execute() {
    // TODO: get the output combination data and put into SG
 
    // fill histograms
-   for (auto mt : m_monitors )
-      if ( ! mt->preSelector() ) 
-         mt->fillHists().ignore();
+   // Commenting out temporarily to avoid crash 
+   //when L1TopoSimulation run without menu confifuration.
+   //for (auto mt : m_monitors )
+   //   if ( ! mt->preSelector() ) 
+   //      mt->fillHists().ignore();
 
    return StatusCode::SUCCESS;
 }

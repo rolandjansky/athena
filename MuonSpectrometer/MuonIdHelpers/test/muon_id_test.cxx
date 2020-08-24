@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ROOTCORE
-
-int main() { return 0; }
-
-#else
-
 #include "IdDictParser/IdDictParser.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MmIdHelper.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonIdHelpers/TgcIdHelper.h"
 #include "GaudiKernel/System.h" 
 #include <iostream> 
 
@@ -182,5 +181,3 @@ int main ()
 
     return 0;
 }  
-
-#endif // ROOTCORE

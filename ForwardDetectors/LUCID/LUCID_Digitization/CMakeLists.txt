@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( LUCID_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/PileUpTools
-                          Event/xAOD/xAODEventInfo
-                          ForwardDetectors/LUCID/LUCID_RawEvent
-                          ForwardDetectors/LUCID/LUCID_SimUtils/LUCID_SimEvent
-                          GaudiKernel
-                          Generators/GeneratorObjects
-                          Simulation/HitManagement )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

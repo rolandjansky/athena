@@ -87,8 +87,6 @@ StatusCode QCDTruthJetFilter::filterEvent() {
   double pt_lead = -1;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
-//    if (fabs( (*it_truth)->eta() ) > m_MaxEta) continue;
-//    if ((*it_truth)->eta()  > m_MaxEta || (*it_truth)->eta()  <= m_MinEta) continue;
     if ((*it_truth)->eta()>m_MaxEta || ( (*it_truth)->eta()<=m_MinEta && !m_SymEta) || ((*it_truth)->eta()<=m_MinEta && (*it_truth)->eta()>=-m_MinEta && m_SymEta)) continue;
     if (pt_lead < (*it_truth)->pt()) pt_lead = (*it_truth)->pt();
   }

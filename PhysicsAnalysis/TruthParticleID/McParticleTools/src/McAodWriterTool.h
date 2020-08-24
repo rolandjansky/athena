@@ -73,7 +73,7 @@ class McAodWriterTool : virtual public IIOMcAodTool,
   /** @brief Method to configure the back-end to write out the
    *  @c TruthParticleContainer.
    */
-  void setupBackend( Property& ioBackendURL );
+  void setupBackend( Gaudi::Details::PropertyBase& ioBackendURL );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

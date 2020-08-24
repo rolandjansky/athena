@@ -13,4 +13,5 @@
 <class name="JetVertexFractionTool"/>
 <class name="JetVertexTaggerTool"/>
 <class name="JetWidthTool"/>
+<class name="JetQGTaggerVariableTool"/>
 </lcgdict>

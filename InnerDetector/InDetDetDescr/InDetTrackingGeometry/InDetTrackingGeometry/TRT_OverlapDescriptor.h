@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ namespace InDet {
                           const Amg::Vector3D& pos,
                           const Amg::Vector3D& dir) const;
            
-         mutable const TRT_ID* m_trtIdHelper;     //!< the Id helper
+         const TRT_ID* m_trtIdHelper;     //!< the Id helper
          double                m_breakTolerance;  //!< if the straight line intersection is within this fraction of the bounds - don't look for neighbours
          double                m_outsideTolerance; //!< accept even if it outside the bounds by this tolerance
               

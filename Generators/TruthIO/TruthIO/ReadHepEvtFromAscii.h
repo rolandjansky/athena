@@ -21,5 +21,8 @@ private:
   // Setable Properties:-
   std::string m_key; 
   std::string m_input_file;
+  std::ifstream m_file;
+  bool read_hepevt_particle( int i);
+  bool read_hepevt_event_header();
   
 };

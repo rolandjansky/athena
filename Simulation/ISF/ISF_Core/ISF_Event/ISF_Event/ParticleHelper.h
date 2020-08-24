@@ -35,7 +35,7 @@ namespace ISF {
         ~ParticleHelper() {} ;
 
         /** convert the given particle to HepMC format */
-        static HepMC::GenParticle *convert( const ISF::ISFParticle &p);
+        static HepMC::GenParticlePtr convert( const ISF::ISFParticle &p);
         
     private :
   };

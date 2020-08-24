@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.cxx
@@ -244,7 +244,6 @@ StatusCode HLTTauMonTool::init() {
     
     if(m_L1StringCondition=="allowResurrectedDecision") m_L1TriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
     if(m_HLTStringCondition=="allowResurrectedDecision") m_HLTTriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
-    ATH_CHECK( m_luminosityCondDataKey.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -328,19 +327,18 @@ StatusCode HLTTauMonTool::fill() {
     m_mu_offline = avg_mu;
     ATH_MSG_DEBUG("offline mu "<<avg_mu);
   }
-  SG::ReadCondHandle<LuminosityCondData> lumiData (m_luminosityCondDataKey);
-  float avg_mu = lumiData->lbAverageInteractionsPerCrossing();
-  m_mu_online = avg_mu;
-  ATH_MSG_DEBUG("online mu "<<avg_mu);
 
   m_muCut40Passed = (!m_domuCut40 || (m_domuCut40 && (m_mu_offline<40.)));
 
   const xAOD::EventInfo* evtInfo = 0;
   if( !evtStore()->retrieve(evtInfo, "EventInfo" ).isSuccess() ){
-    ATH_MSG_DEBUG("Failed to retrieve EventInfo container, aborting!");
+    ATH_MSG_WARNING("Failed to retrieve EventInfo container, aborting!");
     return StatusCode::SUCCESS;
   }
- m_LB = evtInfo->lumiBlock();
+  m_LB = evtInfo->lumiBlock();
+
+  ATH_MSG_DEBUG("actual mu: "<<evtInfo->actualInteractionsPerCrossing() );
+  m_mu_online = evtInfo->actualInteractionsPerCrossing();
 
   // fill true taus vectors
   m_true_taus.clear(); 
@@ -415,7 +413,7 @@ StatusCode HLTTauMonTool::fill() {
         bool good_tau_BDT = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
         bool good_tau_RNN = (*offlinetau)->isTau(xAOD::TauJetParameters::JetRNNSigMedium);
         if(!Selection(*offlinetau)) continue;
-        if( !(good_tau_BDT || good_tau_BDT) ) continue;
+        if( !(good_tau_BDT || good_tau_RNN) ) continue;
         if (good_tau_BDT) m_taus_BDT.push_back( *offlinetau );
         if (good_tau_RNN) m_taus_RNN.push_back( *offlinetau );
       }
@@ -506,7 +504,7 @@ StatusCode HLTTauMonTool::fill() {
         for(;comb!=combEnd;++comb){
           const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
           std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator topoTau = vec_HLTtau.begin(), topoTau_e = vec_HLTtau.end();
-          if(topoTau==topoTau_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
+          if(topoTau==topoTau_e) ATH_MSG_WARNING("TrigTauMerged TauJet container EMPTY in " << chain);
           ATH_MSG_DEBUG("Item "<< chain << ": " << vec_HLTtau.size() << " " << topoTau->label() << " containers");
           for(; topoTau != topoTau_e; ++topoTau){
             if(topoTau->cptr()){
@@ -524,17 +522,17 @@ StatusCode HLTTauMonTool::fill() {
       } else { // TriggerComposite
 
         const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features = 
-          getTDT()->features<xAOD::TauJetContainer>( chain, m_HLTTriggerCondition, "TrigTauRecMerged" );
+          getTDT()->features<xAOD::TauJetContainer>( chain, m_HLTTriggerCondition, "TrigTauRecMerged_MVA" );
 
         if(features.size()!=2){
           ATH_MSG_DEBUG("Number of features for chain " << chain << " is "<< features.size());
           if (features.size() == 0) {
-            ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
+            ATH_MSG_WARNING("TrigTauMerged TauJet container EMPTY in " << chain);
           }
         }
         for(const auto& tauJetLinkInfo : features){
           if (!tauJetLinkInfo.isValid()) {
-            ATH_MSG_WARNING("Invalid tauJet");
+            ATH_MSG_WARNING("Invalid tauJet from TrigTauRecMerged_MVA");
             continue;
           }
           ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
@@ -564,12 +562,6 @@ StatusCode HLTTauMonTool::fill() {
       hist("hHLTdR")->Fill(min_dR);
     }
   }
-
-
-
-
-
-
 
   // muCut on filling the histograms
   if (m_muCut40Passed)
@@ -644,11 +636,6 @@ void HLTTauMonTool::cloneHistogram2(const std::string name, const std::string fo
 }
 
 
-
-
-
-
-
 StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType){
     
   ATH_MSG_DEBUG ("HLTTauMonTool::fillHistogramsForItem " << trigItem);
@@ -658,10 +645,11 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
   std::string trig_item_EF = "HLT_"+trigItem;
   std::string trig_item_L1(LowerChain( trig_item_EF ) );
   if(trig_item_L1=="") {
-    ATH_MSG_DEBUG("L1 chain for "<< trig_item_EF << " not found");
+    ATH_MSG_WARNING("L1 chain for "<< trig_item_EF << " not found");
   }
     
   // protection against AODSLIM that misses HLT tau tracks and HLT clusters, for RNN monitoring
+  // FixMe use new container names for R22
   bool isAODFULL = evtStore()->contains<xAOD::TauTrackContainer>("HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks") 
     && evtStore()->contains<xAOD::CaloClusterContainer>("HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker");
 
@@ -696,15 +684,15 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       ATH_CHECK(fillL1TauVsOffline(*itEMTau, goodTauRefType));
     }
     const xAOD::TauJetContainer * tauJetCont = 0;
-    if( !evtStore()->retrieve(tauJetCont, "HLT_xAOD__TauJetContainer_TrigTauRecMerged").isSuccess() ){
-      ATH_MSG_WARNING("Failed to retrieve HLT_xAOD__TauJetContainer_TrigTauRecMerged container. Exiting!");
-      return StatusCode::FAILURE;
+    StatusCode sc = evtStore()->retrieve(tauJetCont, "HLT_xAOD__TauJetContainer_TrigTauRecMerged");
+    if( sc.isFailure() || !tauJetCont ){
+      ATH_MSG_DEBUG("Failed to retrieve HLT_xAOD__TauJetContainer_TrigTauRecMerged container. Exiting.");
+      sc = evtStore()->retrieve(tauJetCont, "HLT_TrigTauRecMerged_MVA");
+      if( sc.isFailure() || !tauJetCont ){
+        ATH_MSG_WARNING("Failed to retrieve HLT_TrigTauRecMerged_MVA container. Exiting.");
+        return StatusCode::FAILURE;
+      }
     }
-
-
-
-
-
 
     xAOD::TauJetContainer::const_iterator CI = tauJetCont->begin(),tauJetCont_end = tauJetCont->end();
 
@@ -740,19 +728,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
          
       ATH_MSG_DEBUG ("HLTTauMonTool::fillHistogramsForItem passed " << trig_item_EF);
      
-
-
-
-
-
-
-
-
-
-
-
-
-
       std::vector< uint32_t > tau_roIWord;
       std::vector< float > tau_roi_eta;
       std::vector< float > tau_roi_phi;
@@ -840,7 +815,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
          // L1 Histograms, but looking only at RoIs seeding events passing HLT. Otherwise we are biased to events accepted by other chains
         for(const auto& tauJetLinkInfo : features){
           if (!tauJetLinkInfo.isValid()) {
-            ATH_MSG_WARNING("Invalid tauJet");
+            ATH_MSG_WARNING("Invalid tauJet 1");
             continue;
           }
           const TrigCompositeUtils::Decision* decision = tauJetLinkInfo.source;
@@ -1026,7 +1001,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
         }
         for(const auto& tauJetLinkInfo : featuresPreselect){
           if (!tauJetLinkInfo.isValid()) {
-            ATH_MSG_WARNING("Invalid tauJet");
+            ATH_MSG_WARNING("Invalid tauJet Preselection");
             continue;
           }
           const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
@@ -1048,7 +1023,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
         }
         for(const auto& tauJetLinkInfo : featuresMerged){
           if (!tauJetLinkInfo.isValid()) {
-            ATH_MSG_WARNING("Invalid tauJet");
+            ATH_MSG_WARNING("Invalid tauJet MVA 2");
             continue;
           }
           const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
@@ -1082,23 +1057,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       } // TriggerElement or TrigComposite
 
     } // end events passing HLT chain
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // L1Topo Tests
     if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM" && getTDT()->isPassed(trig_item_EF)){
 
@@ -1137,7 +1095,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 
         for(const auto& tauJetLinkInfo : features){
           if (!tauJetLinkInfo.isValid()) {
-            ATH_MSG_WARNING("Invalid tauJet");
+            ATH_MSG_WARNING("Invalid tauJet MVA 3");
             continue;
           }          
           const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
@@ -1180,11 +1138,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
     //      if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill combo eff curves. Exiting!"); return StatusCode::FAILURE;}
   }  
 
-
-
-
-
-
   if (!sc.isSuccess()) {
     ATH_MSG_WARNING("Could not fill histograms for given item.");
   }
@@ -1192,13 +1145,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
   return sc;  
 
 }
-
-
-
-
-
-
-
 
 StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
 
@@ -1209,15 +1155,12 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("Check01");
+
   hist("hL1RoIEta")->Fill(aL1Tau->eta());
-  ATH_MSG_DEBUG("Check02");
   hist("hL1RoIPhi")->Fill(aL1Tau->phi());
-  ATH_MSG_DEBUG("Check03");
   hist2("hL1EtaVsPhi")->Fill(aL1Tau->eta(),aL1Tau->phi());
-  ATH_MSG_DEBUG("Check04");
   hist("hL1RoIeT")->Fill(aL1Tau->eT()/GeV);
-  ATH_MSG_DEBUG("Check05");
+  ATH_MSG_DEBUG("L1Et: " << aL1Tau->eT()/GeV);
 
   uint8_t isoBit = aL1Tau->isol();
   if(isoBit/128) hist("hL1RoIisol")->Fill(8);
@@ -1228,22 +1171,15 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   if((isoBit/4)%2) hist("hL1RoIisol")->Fill(3);
   if((isoBit/2)%2) hist("hL1RoIisol")->Fill(2);
   if((isoBit/1)%2) hist("hL1RoIisol")->Fill(1);
-  ATH_MSG_DEBUG("Check06");
+
   hist("hL1RoITauClus")->Fill(aL1Tau->tauClus()/GeV);
-  ATH_MSG_DEBUG("Check07");
   //hist("hL1RoITauClus2")->Fill(aL1Tau->tauClus()/GeV);
   hist("hL1RoIEMIso")->Fill(aL1Tau->emIsol()/GeV);
-  ATH_MSG_DEBUG("Check08");
   hist("hL1RoIHadCore")->Fill(aL1Tau->hadCore()/GeV);
-  ATH_MSG_DEBUG("Check09");
   hist("hL1RoIHadIsol")->Fill(aL1Tau->hadIsol()/GeV);
-  ATH_MSG_DEBUG("Check10");
   hist2("hL1RoITauClusEMIso")->Fill(aL1Tau->tauClus()/GeV,aL1Tau->emIsol()/GeV);
-  ATH_MSG_DEBUG("Check11");
   hist2("hL1EtVsPhi")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->phi());
-  ATH_MSG_DEBUG("Check12");
   hist2("hL1EtVsEta")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->eta());
-  ATH_MSG_DEBUG("Check13");
 
   const xAOD::JetRoIContainer *l1jets = 0;
   if ( !evtStore()->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
@@ -1259,12 +1195,10 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
    float dPhi = deltaPhi(aL1Tau->phi(),(*itL1Jet)->phi());
    if(deltaR(aL1Tau->eta(), (*itL1Jet)->eta(), aL1Tau->phi(), (*itL1Jet)->phi()) > 0.3) continue;
    hist2("hL1RoITauVsJet")->Fill(aL1Tau->eT()/CLHEP::GeV,(*itL1Jet)->etLarge()/CLHEP::GeV);
-   ATH_MSG_DEBUG("Check014");
+   ATH_MSG_DEBUG("L1 Jet etLarge" << (*itL1Jet)->etLarge()/CLHEP::GeV);
    if(aL1Tau->eT()>(*itL1Jet)->etLarge()) {
   hist2("hL1RoITauVsJetMismatch")->Fill(dEta,dPhi);
-  ATH_MSG_DEBUG("Check015");
   hist2("hL1RoITauVsJetDEt")->Fill(aL1Tau->eT()/CLHEP::GeV,aL1Tau->eT()/CLHEP::GeV-(*itL1Jet)->etLarge()/CLHEP::GeV);
-  ATH_MSG_DEBUG("Check016");
    } 
   }
 
@@ -1490,6 +1424,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       }
           if(aEFTau->detail(xAOD::TauJetParameters::centFrac, centFrac))
       {
+        ATH_MSG_DEBUG("centFrac: " << centFrac << " " << trigItem);
         hist("hEFcentFrac1PNCorr")->Fill(centFrac);
               if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))  profile("hEFcentFrac1PNCmu")->Fill(mu, centFrac);
       }
@@ -2473,7 +2408,7 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
     } else { // TrigComposite
 
       const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features
-         = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "TrigTauRecMerged" );
+         = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "HLT_TrigTauRecMerged_MVA" );
 
       const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
       if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){
@@ -2485,7 +2420,7 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
 
         for(const auto& tauJetLinkInfo : features){
           if (!tauJetLinkInfo.isValid()) {
-            ATH_MSG_WARNING("Invalid tauJet");
+            ATH_MSG_WARNING("Invalid tauJet MVA 4");
             continue;
           }  
           const TrigCompositeUtils::Decision* decision = tauJetLinkInfo.source;
@@ -2645,7 +2580,7 @@ bool HLTTauMonTool::Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std:
 
       for(const auto& tauJetLinkInfo : features){
         if (!tauJetLinkInfo.isValid()) {
-          ATH_MSG_WARNING("Invalid tauJet");
+          ATH_MSG_WARNING("Invalid tauJet 5");
           continue;
         }  
         const TrigCompositeUtils::Decision* decision = tauJetLinkInfo.source;
@@ -2702,7 +2637,7 @@ bool HLTTauMonTool::Match_Offline_EF(const xAOD::TauJet *aOfflineTau, const std:
 
       for(const auto& tauJetLinkInfo : features){
         if (!tauJetLinkInfo.isValid()) {
-          ATH_MSG_WARNING("Invalid tauJet");
+          ATH_MSG_WARNING("Invalid tauJet 6");
           continue;
         }  
         const TrigCompositeUtils::Decision* decision = tauJetLinkInfo.source;
@@ -2928,10 +2863,15 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
                 if( (TauDenom.find("Truth")==std::string::npos || !m_truth) && TauDenom.find("Reco")==std::string::npos) addToDenom = true;
     
     const xAOD::TauJetContainer * hlt_cont = 0;
-    if( !evtStore()->retrieve(hlt_cont, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection").isSuccess() ){
-          ATH_MSG_WARNING("Failed to retrieve  HLT_xAOD__TauJetContainer_TrigTauRecPreselection container. Exiting.");
+    StatusCode sc = evtStore()->retrieve(hlt_cont, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection"); 
+    if( sc.isFailure() || !hlt_cont ){
+      ATH_MSG_DEBUG("Failed to retrieve  HLT_xAOD__TauJetContainer_TrigTauRecPreselection container. Exiting.");
+      sc = evtStore()->retrieve(hlt_cont, "HLT_TrigTauRecMerged_Presel");
+      if( sc.isFailure() || !hlt_cont ){
+          ATH_MSG_WARNING("Failed to retrieve HLT_TrigTauRecMerged_Presel container. Exiting.");
           return StatusCode::FAILURE;
       }
+    }
     xAOD::TauJetContainer::const_iterator hltItr, hlt_cont_end = hlt_cont->end();
     for(hltItr=hlt_cont->begin(); hltItr!=hlt_cont_end; ++hltItr){
       TLorentzVector hltTLV = (*hltItr)->p4();
@@ -2956,26 +2896,26 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
       if(trigItem.find("125")!=std::string::npos) if(hltTLV.Pt()<125000.) continue;
       if(trigItem.find("160")!=std::string::npos) if(hltTLV.Pt()<160000.) continue;
       if(addToDenom){
-                                tlv_TauDenom.push_back(hltTLV);
-                                ntrk_TauDenom.push_back(ntrack_TAU);
-                                good_TauDenom.push_back(true);
-                        }
-                        if(!addToDenom){
-                                tlv_tmp.push_back(hltTLV);
-                        }
+         tlv_TauDenom.push_back(hltTLV);
+         ntrk_TauDenom.push_back(ntrack_TAU);
+         good_TauDenom.push_back(true);
+      }
+      if(!addToDenom){
+         tlv_tmp.push_back(hltTLV);
+      }
     }
 
     if(!addToDenom){
-                        for(unsigned int i=0;i<tlv_TauDenom.size();i++){
-                                if(!good_TauDenom.at(i)) continue;
-                                bool matched(false);
-                                for(unsigned int j=0;j<tlv_tmp.size();j++){
-                                        if(tlv_tmp.at(j).DeltaR(tlv_TauDenom.at(i))<0.2) matched = true;
-                                }
-                                if(!matched) good_TauDenom.at(i) = false;
-                        }
-                        tlv_tmp.clear();
-                }
+      for(unsigned int i=0;i<tlv_TauDenom.size();i++){
+         if(!good_TauDenom.at(i)) continue;
+         bool matched(false);
+         for(unsigned int j=0;j<tlv_tmp.size();j++){
+            if(tlv_tmp.at(j).DeltaR(tlv_TauDenom.at(i))<0.2) matched = true;
+         }
+         if(!matched) good_TauDenom.at(i) = false;
+      }
+      tlv_tmp.clear();
+    }
   }
 
   std::string trigItemShort=trigItem;
@@ -3061,6 +3001,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     profile("TProfRecoL1HighPtEfficiency")->Fill(pt/GeV,L1matched);
     profile("TProfRecoL1EtaEfficiency")->Fill(eta,L1matched);
     profile("TProfRecoL1PhiEfficiency")->Fill(phi,L1matched);
+    ATH_MSG_DEBUG("This is the tau phi: " << phi << " is it L1 matched? " << L1matched << "trig Item" << trigItem);
     profile("TProfRecoL1NTrackEfficiency")->Fill(ntracks,L1matched);
     profile("TProfRecoL1NVtxEfficiency")->Fill(nvtx,L1matched);
     profile("TProfRecoL1MuEfficiency")->Fill(mu,L1matched);
@@ -3815,6 +3756,8 @@ bool HLTTauMonTool::L1TauMatching(const std::string & trigItem, const TLorentzVe
   }
 
   std::string HLT_item = "HLT_"+trigItem;
+  ATH_MSG_DEBUG("HLT_item: " << HLT_item << " Trig Item: " << trigItem);
+
 
   if(getTDT()->isPassed( HLT_item,(TrigDefs::Physics | TrigDefs::allowResurrectedDecision | TrigDefs::alsoDeactivateTEs)  )) {     
     ATH_MSG_DEBUG("HTLTauMonTool::L1TauMatching event passed " << HLT_item << ", obtaining list of features now");
@@ -3853,11 +3796,14 @@ bool HLTTauMonTool::L1TauMatching(const std::string & trigItem, const TLorentzVe
       const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features
          = getTDT()->features<xAOD::TauJetContainer>( HLT_item, TrigDefs::includeFailedDecisions );
 
+      int counter=0;
       for(const auto& tauJetLinkInfo : features){
         if (!tauJetLinkInfo.isValid()) {
-          ATH_MSG_WARNING("Invalid tauJet");
+          ATH_MSG_WARNING("Invalid tauJet on L1TauMatching");
           continue;
         }  
+        counter++;
+        ATH_MSG_DEBUG("Counter: " << counter);
         const TrigCompositeUtils::Decision* decision = tauJetLinkInfo.source;
 
         const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> initialRoILinkInfo = 

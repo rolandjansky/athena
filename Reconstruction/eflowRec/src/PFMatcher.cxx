@@ -14,9 +14,9 @@
 #include <fstream>
 namespace PFMatch {
 
-MatchDistance TrackClusterMatcher::match(const ITrack* track, const ICluster* cluster) {
+MatchDistance TrackClusterMatcher::match(const ITrack* track, const ICluster* cluster) const {
   double distance = m_distanceProvider->distanceBetween(track, cluster);
-  return MatchDistance(cluster, distance, distance<m_matchCut);
+  return MatchDistance(cluster, distance);
 }
 void TrackClusterMatcher::setDRParameters(){
   std::string theFileName = PathResolver::find_file ("rmsvsdr.dat", "DATAPATH");

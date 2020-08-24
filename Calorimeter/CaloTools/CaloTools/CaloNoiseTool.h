@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -256,8 +256,8 @@ private:
 				  const float &Nminbias,
 				  std::string function_name);
   StatusCode checkCellDatabase(const Identifier & id, int igain,
-			       std::string function_name);
-  void updateDiagnostic(int reason,std::string reason_name,int igain);
+			       const std::string& function_name);
+  void updateDiagnostic(int reason,const std::string& reason_name,int igain);
 
   std::vector<float> 
     calculateElecNoiseForLAR(const IdentifierHash &idCaloHash,

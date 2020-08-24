@@ -66,10 +66,6 @@ class ITRT_ByteStream_ConditionsSvc : virtual public IService {
 
    virtual void add_rob_error( uint32_t robSourceId, uint32_t robStatus ) = 0;
    
-   virtual StatusCode readData( void ) = 0;
-   virtual StatusCode recordData( void ) = 0;
-
-
 };
 
 inline const InterfaceID& ITRT_ByteStream_ConditionsSvc::interfaceID() {

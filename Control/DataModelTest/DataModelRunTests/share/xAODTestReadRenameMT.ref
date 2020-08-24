@@ -1,7 +1,7 @@
-Fri Sep 13 19:39:51 CEST 2019
+Wed Jun  3 16:01:21 PDT 2020
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [atlas-work3/85aadd0a07c] -- built on [2019-09-13T1706]
+Py:Athena            INFO using release [WorkDir-22.0.15] [x86_64-centos7-gcc8-opt] [Unknown/07d2aec7427] -- built on [2020-06-03T1534]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
@@ -9,15 +9,10 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestReadRenameMT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestReadRename_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5537 configurables from 45 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 45 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -DMTest__xAODTestWriteCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataWrite.DataModelTestDataWriteConf']
-Py:ConfigurableDb WARNING   -DMTest__xAODTestReadCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataRead.DataModelTestDataReadConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 5530 configurables from 17 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
+Py:Athena            INFO including file "DataModelRunTests/commonTrailer.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -25,79 +20,79 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r1)
-                                          running on lxplus737.cern.ch on Fri Sep 13 19:40:01 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on zeus on Wed Jun  3 16:01:27 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-AthDictLoaderSvc                                   INFO in initialize...
-AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 3920 CLIDRegistry entries for module ALL
-CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
-CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
-MetaDataSvc                                        INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
-PoolSvc                                            INFO Frontier compression level set to 5
-DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-12T2129/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus737.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
-PoolSvc                                            INFO Successfully setup replica sorting algorithm
-PoolSvc                                            INFO Setting up APR FileCatalog and Streams
-PoolSvc                                            INFO POOL WriteCatalog is file:xAODTestReadRenameMT_catalog.xml
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-MetaDataSvc                                        INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
-EventSelector                                      INFO EventSelection with query 
-PoolSvc                                            INFO File is not in Catalog! Attempt to open it anyway.
-Warning in <TClass::Init>: no dictionary for class DMTest::C_v1 is available
+ApplicationMgr                                      INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+AthDictLoaderSvc                                    INFO in initialize...
+AthDictLoaderSvc                                    INFO acquired Dso-registry
+ClassIDSvc                                          INFO  getRegistryEntries: read 3835 CLIDRegistry entries for module ALL
+CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaHiveEventLoopMgr                              INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
+MetaDataSvc                                         INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc                                    INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+PoolSvc                                             INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc                                             INFO Frontier compression level set to 5
+DBReplicaSvc                                        INFO Frontier server at (serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas1.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas2.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas3.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier05.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://frontiercache.nersc.gov:3128)(proxyurl=http://atlsquid.slac.stanford.edu:3128)(proxyurl=http://atlasbpfrontier.fnal.gov:3127)(proxyurl=http://atlasbpfrontier.cern.ch:3127) will be considered for COOL data
+DBReplicaSvc                                        INFO Read replica configuration from /bld3/build/master/build/install/Athena/22.0.15/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                        INFO No specific match for domain found - use default fallback
+DBReplicaSvc                                        INFO Total of 2 servers found for host zeus [ATLF atlas_dd ]
+PoolSvc                                             INFO Successfully setup replica sorting algorithm
+PoolSvc                                             INFO Setting up APR FileCatalog and Streams
+PoolSvc                                             INFO POOL WriteCatalog is file:xAODTestReadRenameMT_catalog.xml
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc                                         INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
+EventSelector                                       INFO EventSelection with query 
+PoolSvc                                             INFO File is not in Catalog! Attempt to open it anyway.
 Warning in <TClass::Init>: no dictionary for class DMTest::CAuxContainer_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::CInfoAuxContainer_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::CTrigAuxContainer_v1 is available
-Warning in <TClass::Init>: no dictionary for class DMTest::G_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::GAuxContainer_v1 is available
+Warning in <TClass::Init>: no dictionary for class DMTest::HAuxContainer_v1 is available
+Warning in <TClass::Init>: no dictionary for class DMTest::C_v1 is available
+Warning in <TClass::Init>: no dictionary for class DMTest::G_v1 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::CVecWithData_v1 is available
 Warning in <TClass::Init>: no dictionary for class ViewVector<DataVector<DMTest::C_v1> > is available
 Warning in <TClass::Init>: no dictionary for class DMTest::H_v1 is available
-Warning in <TClass::Init>: no dictionary for class DMTest::HAuxContainer_v1 is available
 Warning in <TClass::Init>: no dictionary for class ViewVector<DataVector<DMTest::H_v1> > is available
 Warning in <TClass::Init>: no dictionary for class DMTest::S2 is available
 Warning in <TClass::Init>: no dictionary for class DMTest::S1 is available
 Warning in <TClass::Init>: no dictionary for class ElementLink<DataVector<DMTest::C_v1> > is available
 Warning in <TClass::Init>: no dictionary for class DataVector<DMTest::C_v1> is available
 Warning in <TClass::Init>: no dictionary for class DataVector<DMTest::H_v1> is available
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61800
-xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-PoolSvc                                            INFO File is not in Catalog! Attempt to open it anyway.
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61800
-xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-DbSession                                          INFO     Open     DbSession    
-Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] D3751002-CCED-BF42-88FB-9BA4998B981D
-Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61800
-ClassIDSvc                                         INFO  getRegistryEntries: read 2112 CLIDRegistry entries for module ALL
-EventPersistencySvc                                INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc                                         INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 1324 CLIDRegistry entries for module ALL
-PyComponentMgr                              0      INFO Initializing PyComponentMgr...
-LoadReadDicts                               0      INFO Initializing LoadReadDicts...
-ThreadPoolSvc                               0      INFO no thread init tools attached
-AvalancheSchedulerSvc                       0      INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                       0      INFO Found 8 algorithms
-AvalancheSchedulerSvc                       0      INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO                           xaoddata.root
+RootDatabase.open                                   INFO xaoddata.root File version:62002
+xaoddata.root                                       INFO Database being retired...
+Domain[ROOT_All]                                    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+PoolSvc                                             INFO File is not in Catalog! Attempt to open it anyway.
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]                                    INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO                           xaoddata.root
+RootDatabase.open                                   INFO xaoddata.root File version:62002
+xaoddata.root                                       INFO Database being retired...
+Domain[ROOT_All]                                    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All]                                    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]                                    INFO ->  Access   DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+Domain[ROOT_All]                                    INFO                           xaoddata.root
+RootDatabase.open                                   INFO xaoddata.root File version:62002
+ClassIDSvc                                          INFO  getRegistryEntries: read 2248 CLIDRegistry entries for module ALL
+EventPersistencySvc                                 INFO Added successfully Conversion service:AthenaPoolCnvSvc
+ClassIDSvc                                          INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1537 CLIDRegistry entries for module ALL
+PyComponentMgr                                 0    INFO Initializing PyComponentMgr...
+LoadReadDicts                                  0    INFO Initializing LoadReadDicts...
+ThreadPoolSvc                                  0    INFO no thread init tools attached
+AvalancheSchedulerSvc                          0    INFO Activating scheduler in a separate thread
+AvalancheSchedulerSvc                          0    INFO Found 8 algorithms
+AvalancheSchedulerSvc                          0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
    o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec_renamed' )     required by Algorithm: 
        * xAODTestReadCVec
    o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec_renamed.dInt1_renamed' )     required by Algorithm: 
@@ -106,1157 +101,1159 @@ AvalancheSchedulerSvc                       0      INFO Will attribute the follo
        * xAODTestReadDecor
    o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1_renamedBase' )     required by Algorithm: 
        * xAODTestReadDecor
-PrecedenceSvc                               0      INFO Assembling CF and DF task precedence rules
-PrecedenceSvc                               0      INFO PrecedenceSvc initialized successfully
-AvalancheSchedulerSvc                       0      INFO Concurrency level information:
-AvalancheSchedulerSvc                       0      INFO  o Number of events in flight: 1
-AvalancheSchedulerSvc                       0      INFO  o TBB thread pool size:  'ThreadPoolSize':1
-HistogramPersistencySvc                     0   WARNING Histograms saving not required.
-AthenaHiveEventLoopMgr                      0      INFO Setup EventSelector service EventSelector
-ApplicationMgr                              0      INFO Application Manager Initialized successfully
-PoolSvc                                     0      INFO Enabled implicit multithreading in ROOT via PersistencySvc to: 1
-xaoddata.root                               0      INFO Database being retired...
-Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D3751002-CCED-BF42-88FB-9BA4998B981D
-Domain[ROOT_All]                            0      INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-DbSession                                   0      INFO     Open     DbSession    
-Domain[ROOT_All]                            0      INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] D3751002-CCED-BF42-88FB-9BA4998B981D
-Domain[ROOT_All]                            0      INFO                           xaoddata.root
-RootDatabase.open                           0      INFO xaoddata.root File version:61800
-ApplicationMgr                              0      INFO Application Manager Started successfully
-AthenaHiveEventLoopMgr                      0      INFO Starting loop on events
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 7101 CLIDRegistry entries for module ALL
-AthenaPoolConverter                     0   0      INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
-AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
-xAODTestReadCVec                        0   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        0   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-RootAuxDynReader                        0   0      INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=225 typename=f) has different type than the branch vector<int>
-xAODTestReadCVec                        0   0      INFO  anInt1 101 aFloat: 200 pInt: 501 pFloat: 0.01 anInt2: 301 dVar1: 451 dpInt1: 51 cEL: cvec_renamed[9]
+PrecedenceSvc                                  0    INFO Assembling CF and DF task precedence rules
+PrecedenceSvc                                  0    INFO PrecedenceSvc initialized successfully
+AvalancheSchedulerSvc                          0    INFO Concurrency level information:
+AvalancheSchedulerSvc                          0    INFO  o Number of events in flight: 1
+AvalancheSchedulerSvc                          0    INFO  o TBB thread pool size:  'ThreadPoolSize':1
+AvalancheSchedulerSvc                          0    INFO Task scheduling settings:
+AvalancheSchedulerSvc                          0    INFO  o Avalanche generation mode: disabled
+AvalancheSchedulerSvc                          0    INFO  o Preemptive scheduling of CPU-blocking tasks: disabled
+AvalancheSchedulerSvc                          0    INFO  o Scheduling of condition tasks: disabled
+AthenaHiveEventLoopMgr                         0    INFO Setup EventSelector service EventSelector
+ApplicationMgr                                 0    INFO Application Manager Initialized successfully
+xaoddata.root                                  0    INFO Database being retired...
+Domain[ROOT_All]                               0    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+Domain[ROOT_All]                               0    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession                                      0    INFO     Open     DbSession    
+Domain[ROOT_All]                               0    INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]                               0    INFO ->  Access   DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+Domain[ROOT_All]                               0    INFO                           xaoddata.root
+RootDatabase.open                              0    INFO xaoddata.root File version:62002
+ApplicationMgr                                 0    INFO Application Manager Started successfully
+AthenaHiveEventLoopMgr                         0    INFO Starting loop on events
+ClassIDSvc                                 0   0    INFO  getRegistryEntries: read 8913 CLIDRegistry entries for module ALL
+AthenaPoolConverter                        0   0    INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
+AthenaHiveEventLoopMgr                     0   0    INFO   ===>>>  start of run 0    <<<===
+AthenaHiveEventLoopMgr                     0   0    INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
+ClassIDSvc                                 0   0    INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
+xAODTestReadCVec                           0   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           0   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+RootAuxDynReader                           0   0    INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=234 typename=f) has different type than the branch vector<int>
+xAODTestReadCVec                           0   0    INFO  anInt1 101 aFloat: 200 pInt: 501 pFloat: 0.01 anInt2: 301 dVar1: 451 dpInt1: 51 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        0   0      INFO  anInt1 102 aFloat: 200.1 pInt: 502 pFloat: 1.01 anInt2: 302 dVar1: 452 dpInt1: 52 cEL: cvec_renamed[8]
+xAODTestReadCVec                           0   0    INFO  anInt1 102 aFloat: 200.1 pInt: 502 pFloat: 1.01 anInt2: 302 dVar1: 452 dpInt1: 52 cEL: cvec_renamed[8]
   pvInt: [-390 ]
   pvFloat: [-0.489 ]
   dpvFloat: [0.110 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 103 aFloat: 200.2 pInt: 503 pFloat: 2.01 anInt2: 303 dVar1: 453 dpInt1: 53 cEL: cvec_renamed[7]
+xAODTestReadCVec                           0   0    INFO  anInt1 103 aFloat: 200.2 pInt: 503 pFloat: 2.01 anInt2: 303 dVar1: 453 dpInt1: 53 cEL: cvec_renamed[7]
   pvInt: [-380 -379 ]
   pvFloat: [-0.479 -0.379 ]
   dpvFloat: [0.210 0.211 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 104 aFloat: 200.3 pInt: 504 pFloat: 3.01 anInt2: 304 dVar1: 454 dpInt1: 54 cEL: cvec_renamed[6]
+xAODTestReadCVec                           0   0    INFO  anInt1 104 aFloat: 200.3 pInt: 504 pFloat: 3.01 anInt2: 304 dVar1: 454 dpInt1: 54 cEL: cvec_renamed[6]
   pvInt: [-370 -369 -368 ]
   pvFloat: [-0.469 -0.369 -0.269 ]
   dpvFloat: [0.310 0.311 0.312 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 105 aFloat: 200.4 pInt: 505 pFloat: 4.01 anInt2: 305 dVar1: 455 dpInt1: 55 cEL: cvec_renamed[5]
+xAODTestReadCVec                           0   0    INFO  anInt1 105 aFloat: 200.4 pInt: 505 pFloat: 4.01 anInt2: 305 dVar1: 455 dpInt1: 55 cEL: cvec_renamed[5]
   pvInt: [-360 -359 -358 -357 ]
   pvFloat: [-0.459 -0.359 -0.259 -0.159 ]
   dpvFloat: [0.410 0.411 0.412 0.413 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 106 aFloat: 200.5 pInt: 506 pFloat: 5.01 anInt2: 306 dVar1: 456 dpInt1: 56 cEL: cvec_renamed[4]
+xAODTestReadCVec                           0   0    INFO  anInt1 106 aFloat: 200.5 pInt: 506 pFloat: 5.01 anInt2: 306 dVar1: 456 dpInt1: 56 cEL: cvec_renamed[4]
   pvInt: [-350 -349 -348 -347 -346 ]
   pvFloat: [-0.449 -0.349 -0.249 -0.149 -0.049 ]
   dpvFloat: [0.510 0.511 0.512 0.513 0.514 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 107 aFloat: 200.6 pInt: 507 pFloat: 6.01 anInt2: 307 dVar1: 457 dpInt1: 57 cEL: cvec_renamed[3]
+xAODTestReadCVec                           0   0    INFO  anInt1 107 aFloat: 200.6 pInt: 507 pFloat: 6.01 anInt2: 307 dVar1: 457 dpInt1: 57 cEL: cvec_renamed[3]
   pvInt: [-340 -339 -338 -337 -336 -335 ]
   pvFloat: [-0.439 -0.339 -0.239 -0.139 -0.039 0.061 ]
   dpvFloat: [0.610 0.611 0.612 0.613 0.614 0.615 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 108 aFloat: 200.7 pInt: 508 pFloat: 7.01 anInt2: 308 dVar1: 458 dpInt1: 58 cEL: cvec_renamed[2]
+xAODTestReadCVec                           0   0    INFO  anInt1 108 aFloat: 200.7 pInt: 508 pFloat: 7.01 anInt2: 308 dVar1: 458 dpInt1: 58 cEL: cvec_renamed[2]
   pvInt: [-330 -329 -328 -327 -326 -325 -324 ]
   pvFloat: [-0.429 -0.329 -0.229 -0.129 -0.029 0.071 0.171 ]
   dpvFloat: [0.710 0.711 0.712 0.713 0.714 0.715 0.716 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 109 aFloat: 200.8 pInt: 509 pFloat: 8.01 anInt2: 309 dVar1: 459 dpInt1: 59 cEL: cvec_renamed[1]
+xAODTestReadCVec                           0   0    INFO  anInt1 109 aFloat: 200.8 pInt: 509 pFloat: 8.01 anInt2: 309 dVar1: 459 dpInt1: 59 cEL: cvec_renamed[1]
   pvInt: [-320 -319 -318 -317 -316 -315 -314 -313 ]
   pvFloat: [-0.419 -0.319 -0.219 -0.119 -0.019 0.081 0.181 0.281 ]
   dpvFloat: [0.810 0.811 0.812 0.813 0.814 0.815 0.816 0.817 ]
 
-xAODTestReadCVec                        0   0      INFO  anInt1 110 aFloat: 200.9 pInt: 510 pFloat: 9.01 anInt2: 310 dVar1: 460 dpInt1: 60 cEL: cvec_renamed[0]
+xAODTestReadCVec                           0   0    INFO  anInt1 110 aFloat: 200.9 pInt: 510 pFloat: 9.01 anInt2: 310 dVar1: 460 dpInt1: 60 cEL: cvec_renamed[0]
   pvInt: [-310 -309 -308 -307 -306 -305 -304 -303 -302 ]
   pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 0.391 ]
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 0.918 ]
 
-xAODTestReadDecor                       0   0      INFO cvec_renamed.dInt1_renamed: 401 402 403 404 405 406 407 408 409 410
-xAODTestReadDecor                       0   0      INFO cinfo.dInt1_renamed: 3000
-xAODTestReadDecor                       0   0      INFO cinfo.dInt1_renamedBase: 3001
-xAODTestReadDecor                       0   0      INFO cinfo.dInt1_renamed: 3000
-AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
-ClassIDSvc                              1   0      INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
-AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  start processing event #1, run #0 on slot 0,  1 events processed so far  <<<===
-xAODTestReadCVec                        1   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        1   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        1   0      INFO  anInt1 201 aFloat: 400 pInt: 1001 pFloat: 0.02 anInt2: 601 dVar1: 901 dpInt1: 101 cEL: cvec_renamed[9]
+xAODTestReadDecor                          0   0    INFO cvec_renamed.dInt1_renamed: 401 402 403 404 405 406 407 408 409 410
+xAODTestReadDecor                          0   0    INFO cinfo.dInt1_renamed: 3000
+xAODTestReadDecor                          0   0    INFO cinfo.dInt1_renamedBase: 3001
+xAODTestReadDecor                          0   0    INFO cinfo.dInt1_renamed: 3000
+AthenaHiveEventLoopMgr                     0   0    INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
+ClassIDSvc                                 1   0    INFO  getRegistryEntries: read 57 CLIDRegistry entries for module ALL
+AthenaHiveEventLoopMgr                     1   0    INFO   ===>>>  start processing event #1, run #0 on slot 0,  1 events processed so far  <<<===
+xAODTestReadCVec                           1   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           1   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           1   0    INFO  anInt1 201 aFloat: 400 pInt: 1001 pFloat: 0.02 anInt2: 601 dVar1: 901 dpInt1: 101 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        1   0      INFO  anInt1 202 aFloat: 400.1 pInt: 1002 pFloat: 1.02 anInt2: 602 dVar1: 902 dpInt1: 102 cEL: cvec_renamed[8]
+xAODTestReadCVec                           1   0    INFO  anInt1 202 aFloat: 400.1 pInt: 1002 pFloat: 1.02 anInt2: 602 dVar1: 902 dpInt1: 102 cEL: cvec_renamed[8]
   pvInt: [-290 ]
   pvFloat: [-0.488 ]
   dpvFloat: [0.120 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 203 aFloat: 400.2 pInt: 1003 pFloat: 2.02 anInt2: 603 dVar1: 903 dpInt1: 103 cEL: cvec_renamed[7]
+xAODTestReadCVec                           1   0    INFO  anInt1 203 aFloat: 400.2 pInt: 1003 pFloat: 2.02 anInt2: 603 dVar1: 903 dpInt1: 103 cEL: cvec_renamed[7]
   pvInt: [-280 -279 ]
   pvFloat: [-0.478 -0.378 ]
   dpvFloat: [0.220 0.221 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 204 aFloat: 400.3 pInt: 1004 pFloat: 3.02 anInt2: 604 dVar1: 904 dpInt1: 104 cEL: cvec_renamed[6]
+xAODTestReadCVec                           1   0    INFO  anInt1 204 aFloat: 400.3 pInt: 1004 pFloat: 3.02 anInt2: 604 dVar1: 904 dpInt1: 104 cEL: cvec_renamed[6]
   pvInt: [-270 -269 -268 ]
   pvFloat: [-0.468 -0.368 -0.268 ]
   dpvFloat: [0.320 0.321 0.322 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 205 aFloat: 400.4 pInt: 1005 pFloat: 4.02 anInt2: 605 dVar1: 905 dpInt1: 105 cEL: cvec_renamed[5]
+xAODTestReadCVec                           1   0    INFO  anInt1 205 aFloat: 400.4 pInt: 1005 pFloat: 4.02 anInt2: 605 dVar1: 905 dpInt1: 105 cEL: cvec_renamed[5]
   pvInt: [-260 -259 -258 -257 ]
   pvFloat: [-0.458 -0.358 -0.258 -0.158 ]
   dpvFloat: [0.420 0.421 0.422 0.423 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 206 aFloat: 400.5 pInt: 1006 pFloat: 5.02 anInt2: 606 dVar1: 906 dpInt1: 106 cEL: cvec_renamed[4]
+xAODTestReadCVec                           1   0    INFO  anInt1 206 aFloat: 400.5 pInt: 1006 pFloat: 5.02 anInt2: 606 dVar1: 906 dpInt1: 106 cEL: cvec_renamed[4]
   pvInt: [-250 -249 -248 -247 -246 ]
   pvFloat: [-0.448 -0.348 -0.248 -0.148 -0.048 ]
   dpvFloat: [0.520 0.521 0.522 0.523 0.524 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 207 aFloat: 400.6 pInt: 1007 pFloat: 6.02 anInt2: 607 dVar1: 907 dpInt1: 107 cEL: cvec_renamed[3]
+xAODTestReadCVec                           1   0    INFO  anInt1 207 aFloat: 400.6 pInt: 1007 pFloat: 6.02 anInt2: 607 dVar1: 907 dpInt1: 107 cEL: cvec_renamed[3]
   pvInt: [-240 -239 -238 -237 -236 -235 ]
   pvFloat: [-0.438 -0.338 -0.238 -0.138 -0.038 0.062 ]
   dpvFloat: [0.620 0.621 0.622 0.623 0.624 0.625 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 208 aFloat: 400.7 pInt: 1008 pFloat: 7.02 anInt2: 608 dVar1: 908 dpInt1: 108 cEL: cvec_renamed[2]
+xAODTestReadCVec                           1   0    INFO  anInt1 208 aFloat: 400.7 pInt: 1008 pFloat: 7.02 anInt2: 608 dVar1: 908 dpInt1: 108 cEL: cvec_renamed[2]
   pvInt: [-230 -229 -228 -227 -226 -225 -224 ]
   pvFloat: [-0.428 -0.328 -0.228 -0.128 -0.028 0.072 0.172 ]
   dpvFloat: [0.720 0.721 0.722 0.723 0.724 0.725 0.726 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 209 aFloat: 400.8 pInt: 1009 pFloat: 8.02 anInt2: 609 dVar1: 909 dpInt1: 109 cEL: cvec_renamed[1]
+xAODTestReadCVec                           1   0    INFO  anInt1 209 aFloat: 400.8 pInt: 1009 pFloat: 8.02 anInt2: 609 dVar1: 909 dpInt1: 109 cEL: cvec_renamed[1]
   pvInt: [-220 -219 -218 -217 -216 -215 -214 -213 ]
   pvFloat: [-0.418 -0.318 -0.218 -0.118 -0.018 0.082 0.182 0.282 ]
   dpvFloat: [0.820 0.821 0.822 0.823 0.824 0.825 0.826 0.827 ]
 
-xAODTestReadCVec                        1   0      INFO  anInt1 210 aFloat: 400.9 pInt: 1010 pFloat: 9.02 anInt2: 610 dVar1: 910 dpInt1: 110 cEL: cvec_renamed[0]
+xAODTestReadCVec                           1   0    INFO  anInt1 210 aFloat: 400.9 pInt: 1010 pFloat: 9.02 anInt2: 610 dVar1: 910 dpInt1: 110 cEL: cvec_renamed[0]
   pvInt: [-210 -209 -208 -207 -206 -205 -204 -203 -202 ]
   pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 0.392 ]
   dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 0.928 ]
 
-xAODTestReadDecor                       1   0      INFO cvec_renamed.dInt1_renamed: 801 802 803 804 805 806 807 808 809 810
-xAODTestReadDecor                       1   0      INFO cinfo.dInt1_renamed: 6000
-xAODTestReadDecor                       1   0      INFO cinfo.dInt1_renamedBase: 6001
-xAODTestReadDecor                       1   0      INFO cinfo.dInt1_renamed: 6000
-AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  start processing event #2, run #0 on slot 0,  2 events processed so far  <<<===
-xAODTestReadCVec                        2   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        2   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        2   0      INFO  anInt1 301 aFloat: 600 pInt: 1501 pFloat: 0.03 anInt2: 901 dVar1: 1351 dpInt1: 151 cEL: cvec_renamed[9]
+xAODTestReadDecor                          1   0    INFO cvec_renamed.dInt1_renamed: 801 802 803 804 805 806 807 808 809 810
+xAODTestReadDecor                          1   0    INFO cinfo.dInt1_renamed: 6000
+xAODTestReadDecor                          1   0    INFO cinfo.dInt1_renamedBase: 6001
+xAODTestReadDecor                          1   0    INFO cinfo.dInt1_renamed: 6000
+AthenaHiveEventLoopMgr                     1   0    INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     2   0    INFO   ===>>>  start processing event #2, run #0 on slot 0,  2 events processed so far  <<<===
+xAODTestReadCVec                           2   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           2   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           2   0    INFO  anInt1 301 aFloat: 600 pInt: 1501 pFloat: 0.03 anInt2: 901 dVar1: 1351 dpInt1: 151 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        2   0      INFO  anInt1 302 aFloat: 600.1 pInt: 1502 pFloat: 1.03 anInt2: 902 dVar1: 1352 dpInt1: 152 cEL: cvec_renamed[8]
+xAODTestReadCVec                           2   0    INFO  anInt1 302 aFloat: 600.1 pInt: 1502 pFloat: 1.03 anInt2: 902 dVar1: 1352 dpInt1: 152 cEL: cvec_renamed[8]
   pvInt: [-190 ]
   pvFloat: [-0.487 ]
   dpvFloat: [0.130 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 303 aFloat: 600.2 pInt: 1503 pFloat: 2.03 anInt2: 903 dVar1: 1353 dpInt1: 153 cEL: cvec_renamed[7]
+xAODTestReadCVec                           2   0    INFO  anInt1 303 aFloat: 600.2 pInt: 1503 pFloat: 2.03 anInt2: 903 dVar1: 1353 dpInt1: 153 cEL: cvec_renamed[7]
   pvInt: [-180 -179 ]
   pvFloat: [-0.477 -0.377 ]
   dpvFloat: [0.230 0.231 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 304 aFloat: 600.3 pInt: 1504 pFloat: 3.03 anInt2: 904 dVar1: 1354 dpInt1: 154 cEL: cvec_renamed[6]
+xAODTestReadCVec                           2   0    INFO  anInt1 304 aFloat: 600.3 pInt: 1504 pFloat: 3.03 anInt2: 904 dVar1: 1354 dpInt1: 154 cEL: cvec_renamed[6]
   pvInt: [-170 -169 -168 ]
   pvFloat: [-0.467 -0.367 -0.267 ]
   dpvFloat: [0.330 0.331 0.332 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 305 aFloat: 600.4 pInt: 1505 pFloat: 4.03 anInt2: 905 dVar1: 1355 dpInt1: 155 cEL: cvec_renamed[5]
+xAODTestReadCVec                           2   0    INFO  anInt1 305 aFloat: 600.4 pInt: 1505 pFloat: 4.03 anInt2: 905 dVar1: 1355 dpInt1: 155 cEL: cvec_renamed[5]
   pvInt: [-160 -159 -158 -157 ]
   pvFloat: [-0.457 -0.357 -0.257 -0.157 ]
   dpvFloat: [0.430 0.431 0.432 0.433 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 306 aFloat: 600.5 pInt: 1506 pFloat: 5.03 anInt2: 906 dVar1: 1356 dpInt1: 156 cEL: cvec_renamed[4]
+xAODTestReadCVec                           2   0    INFO  anInt1 306 aFloat: 600.5 pInt: 1506 pFloat: 5.03 anInt2: 906 dVar1: 1356 dpInt1: 156 cEL: cvec_renamed[4]
   pvInt: [-150 -149 -148 -147 -146 ]
   pvFloat: [-0.447 -0.347 -0.247 -0.147 -0.047 ]
   dpvFloat: [0.530 0.531 0.532 0.533 0.534 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 307 aFloat: 600.6 pInt: 1507 pFloat: 6.03 anInt2: 907 dVar1: 1357 dpInt1: 157 cEL: cvec_renamed[3]
+xAODTestReadCVec                           2   0    INFO  anInt1 307 aFloat: 600.6 pInt: 1507 pFloat: 6.03 anInt2: 907 dVar1: 1357 dpInt1: 157 cEL: cvec_renamed[3]
   pvInt: [-140 -139 -138 -137 -136 -135 ]
   pvFloat: [-0.437 -0.337 -0.237 -0.137 -0.037 0.063 ]
   dpvFloat: [0.630 0.631 0.632 0.633 0.634 0.635 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 308 aFloat: 600.7 pInt: 1508 pFloat: 7.03 anInt2: 908 dVar1: 1358 dpInt1: 158 cEL: cvec_renamed[2]
+xAODTestReadCVec                           2   0    INFO  anInt1 308 aFloat: 600.7 pInt: 1508 pFloat: 7.03 anInt2: 908 dVar1: 1358 dpInt1: 158 cEL: cvec_renamed[2]
   pvInt: [-130 -129 -128 -127 -126 -125 -124 ]
   pvFloat: [-0.427 -0.327 -0.227 -0.127 -0.027 0.073 0.173 ]
   dpvFloat: [0.730 0.731 0.732 0.733 0.734 0.735 0.736 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 309 aFloat: 600.8 pInt: 1509 pFloat: 8.03 anInt2: 909 dVar1: 1359 dpInt1: 159 cEL: cvec_renamed[1]
+xAODTestReadCVec                           2   0    INFO  anInt1 309 aFloat: 600.8 pInt: 1509 pFloat: 8.03 anInt2: 909 dVar1: 1359 dpInt1: 159 cEL: cvec_renamed[1]
   pvInt: [-120 -119 -118 -117 -116 -115 -114 -113 ]
   pvFloat: [-0.417 -0.317 -0.217 -0.117 -0.017 0.083 0.183 0.283 ]
   dpvFloat: [0.830 0.831 0.832 0.833 0.834 0.835 0.836 0.837 ]
 
-xAODTestReadCVec                        2   0      INFO  anInt1 310 aFloat: 600.9 pInt: 1510 pFloat: 9.03 anInt2: 910 dVar1: 1360 dpInt1: 160 cEL: cvec_renamed[0]
+xAODTestReadCVec                           2   0    INFO  anInt1 310 aFloat: 600.9 pInt: 1510 pFloat: 9.03 anInt2: 910 dVar1: 1360 dpInt1: 160 cEL: cvec_renamed[0]
   pvInt: [-110 -109 -108 -107 -106 -105 -104 -103 -102 ]
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 0.393 ]
   dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 0.938 ]
 
-xAODTestReadDecor                       2   0      INFO cvec_renamed.dInt1_renamed: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
-xAODTestReadDecor                       2   0      INFO cinfo.dInt1_renamed: 9000
-xAODTestReadDecor                       2   0      INFO cinfo.dInt1_renamedBase: 9001
-xAODTestReadDecor                       2   0      INFO cinfo.dInt1_renamed: 9000
-AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  start processing event #3, run #0 on slot 0,  3 events processed so far  <<<===
-xAODTestReadCVec                        3   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        3   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        3   0      INFO  anInt1 401 aFloat: 800 pInt: 2001 pFloat: 0.04 anInt2: 1201 dVar1: 1801 dpInt1: 201 cEL: cvec_renamed[9]
+xAODTestReadDecor                          2   0    INFO cvec_renamed.dInt1_renamed: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
+xAODTestReadDecor                          2   0    INFO cinfo.dInt1_renamed: 9000
+xAODTestReadDecor                          2   0    INFO cinfo.dInt1_renamedBase: 9001
+xAODTestReadDecor                          2   0    INFO cinfo.dInt1_renamed: 9000
+AthenaHiveEventLoopMgr                     2   0    INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     3   0    INFO   ===>>>  start processing event #3, run #0 on slot 0,  3 events processed so far  <<<===
+xAODTestReadCVec                           3   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           3   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           3   0    INFO  anInt1 401 aFloat: 800 pInt: 2001 pFloat: 0.04 anInt2: 1201 dVar1: 1801 dpInt1: 201 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        3   0      INFO  anInt1 402 aFloat: 800.1 pInt: 2002 pFloat: 1.04 anInt2: 1202 dVar1: 1802 dpInt1: 202 cEL: cvec_renamed[8]
+xAODTestReadCVec                           3   0    INFO  anInt1 402 aFloat: 800.1 pInt: 2002 pFloat: 1.04 anInt2: 1202 dVar1: 1802 dpInt1: 202 cEL: cvec_renamed[8]
   pvInt: [-90 ]
   pvFloat: [-0.486 ]
   dpvFloat: [0.140 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 403 aFloat: 800.2 pInt: 2003 pFloat: 2.04 anInt2: 1203 dVar1: 1803 dpInt1: 203 cEL: cvec_renamed[7]
+xAODTestReadCVec                           3   0    INFO  anInt1 403 aFloat: 800.2 pInt: 2003 pFloat: 2.04 anInt2: 1203 dVar1: 1803 dpInt1: 203 cEL: cvec_renamed[7]
   pvInt: [-80 -79 ]
   pvFloat: [-0.476 -0.376 ]
   dpvFloat: [0.240 0.241 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 404 aFloat: 800.3 pInt: 2004 pFloat: 3.04 anInt2: 1204 dVar1: 1804 dpInt1: 204 cEL: cvec_renamed[6]
+xAODTestReadCVec                           3   0    INFO  anInt1 404 aFloat: 800.3 pInt: 2004 pFloat: 3.04 anInt2: 1204 dVar1: 1804 dpInt1: 204 cEL: cvec_renamed[6]
   pvInt: [-70 -69 -68 ]
   pvFloat: [-0.466 -0.366 -0.266 ]
   dpvFloat: [0.340 0.341 0.342 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 405 aFloat: 800.4 pInt: 2005 pFloat: 4.04 anInt2: 1205 dVar1: 1805 dpInt1: 205 cEL: cvec_renamed[5]
+xAODTestReadCVec                           3   0    INFO  anInt1 405 aFloat: 800.4 pInt: 2005 pFloat: 4.04 anInt2: 1205 dVar1: 1805 dpInt1: 205 cEL: cvec_renamed[5]
   pvInt: [-60 -59 -58 -57 ]
   pvFloat: [-0.456 -0.356 -0.256 -0.156 ]
   dpvFloat: [0.440 0.441 0.442 0.443 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 406 aFloat: 800.5 pInt: 2006 pFloat: 5.04 anInt2: 1206 dVar1: 1806 dpInt1: 206 cEL: cvec_renamed[4]
+xAODTestReadCVec                           3   0    INFO  anInt1 406 aFloat: 800.5 pInt: 2006 pFloat: 5.04 anInt2: 1206 dVar1: 1806 dpInt1: 206 cEL: cvec_renamed[4]
   pvInt: [-50 -49 -48 -47 -46 ]
   pvFloat: [-0.446 -0.346 -0.246 -0.146 -0.046 ]
   dpvFloat: [0.540 0.541 0.542 0.543 0.544 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 407 aFloat: 800.6 pInt: 2007 pFloat: 6.04 anInt2: 1207 dVar1: 1807 dpInt1: 207 cEL: cvec_renamed[3]
+xAODTestReadCVec                           3   0    INFO  anInt1 407 aFloat: 800.6 pInt: 2007 pFloat: 6.04 anInt2: 1207 dVar1: 1807 dpInt1: 207 cEL: cvec_renamed[3]
   pvInt: [-40 -39 -38 -37 -36 -35 ]
   pvFloat: [-0.436 -0.336 -0.236 -0.136 -0.036 0.064 ]
   dpvFloat: [0.640 0.641 0.642 0.643 0.644 0.645 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 408 aFloat: 800.7 pInt: 2008 pFloat: 7.04 anInt2: 1208 dVar1: 1808 dpInt1: 208 cEL: cvec_renamed[2]
+xAODTestReadCVec                           3   0    INFO  anInt1 408 aFloat: 800.7 pInt: 2008 pFloat: 7.04 anInt2: 1208 dVar1: 1808 dpInt1: 208 cEL: cvec_renamed[2]
   pvInt: [-30 -29 -28 -27 -26 -25 -24 ]
   pvFloat: [-0.426 -0.326 -0.226 -0.126 -0.026 0.074 0.174 ]
   dpvFloat: [0.740 0.741 0.742 0.743 0.744 0.745 0.746 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 409 aFloat: 800.8 pInt: 2009 pFloat: 8.04 anInt2: 1209 dVar1: 1809 dpInt1: 209 cEL: cvec_renamed[1]
+xAODTestReadCVec                           3   0    INFO  anInt1 409 aFloat: 800.8 pInt: 2009 pFloat: 8.04 anInt2: 1209 dVar1: 1809 dpInt1: 209 cEL: cvec_renamed[1]
   pvInt: [-20 -19 -18 -17 -16 -15 -14 -13 ]
   pvFloat: [-0.416 -0.316 -0.216 -0.116 -0.016 0.084 0.184 0.284 ]
   dpvFloat: [0.840 0.841 0.842 0.843 0.844 0.845 0.846 0.847 ]
 
-xAODTestReadCVec                        3   0      INFO  anInt1 410 aFloat: 800.9 pInt: 2010 pFloat: 9.04 anInt2: 1210 dVar1: 1810 dpInt1: 210 cEL: cvec_renamed[0]
+xAODTestReadCVec                           3   0    INFO  anInt1 410 aFloat: 800.9 pInt: 2010 pFloat: 9.04 anInt2: 1210 dVar1: 1810 dpInt1: 210 cEL: cvec_renamed[0]
   pvInt: [-10 -9 -8 -7 -6 -5 -4 -3 -2 ]
   pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 0.394 ]
   dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 0.948 ]
 
-xAODTestReadDecor                       3   0      INFO cvec_renamed.dInt1_renamed: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
-xAODTestReadDecor                       3   0      INFO cinfo.dInt1_renamed: 12000
-xAODTestReadDecor                       3   0      INFO cinfo.dInt1_renamedBase: 12001
-xAODTestReadDecor                       3   0      INFO cinfo.dInt1_renamed: 12000
-AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  start processing event #4, run #0 on slot 0,  4 events processed so far  <<<===
-xAODTestReadCVec                        4   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        4   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadDecor                       4   0      INFO cvec_renamed.dInt1_renamed:
-xAODTestReadDecor                       4   0      INFO cinfo.dInt1_renamed: 15000
-xAODTestReadDecor                       4   0      INFO cinfo.dInt1_renamedBase: 15001
-xAODTestReadDecor                       4   0      INFO cinfo.dInt1_renamed: 15000
-AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  start processing event #5, run #0 on slot 0,  5 events processed so far  <<<===
-xAODTestReadCVec                        5   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        5   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        5   0      INFO  anInt1 601 aFloat: 1200 pInt: 3001 pFloat: 0.06 anInt2: 1801 dVar1: 2701 dpInt1: 301 cEL: cvec_renamed[9]
+xAODTestReadDecor                          3   0    INFO cvec_renamed.dInt1_renamed: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
+xAODTestReadDecor                          3   0    INFO cinfo.dInt1_renamed: 12000
+xAODTestReadDecor                          3   0    INFO cinfo.dInt1_renamedBase: 12001
+xAODTestReadDecor                          3   0    INFO cinfo.dInt1_renamed: 12000
+AthenaHiveEventLoopMgr                     3   0    INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     4   0    INFO   ===>>>  start processing event #4, run #0 on slot 0,  4 events processed so far  <<<===
+xAODTestReadCVec                           4   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           4   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadDecor                          4   0    INFO cvec_renamed.dInt1_renamed:
+xAODTestReadDecor                          4   0    INFO cinfo.dInt1_renamed: 15000
+xAODTestReadDecor                          4   0    INFO cinfo.dInt1_renamedBase: 15001
+xAODTestReadDecor                          4   0    INFO cinfo.dInt1_renamed: 15000
+AthenaHiveEventLoopMgr                     4   0    INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     5   0    INFO   ===>>>  start processing event #5, run #0 on slot 0,  5 events processed so far  <<<===
+xAODTestReadCVec                           5   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           5   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           5   0    INFO  anInt1 601 aFloat: 1200 pInt: 3001 pFloat: 0.06 anInt2: 1801 dVar1: 2701 dpInt1: 301 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        5   0      INFO  anInt1 602 aFloat: 1200.1 pInt: 3002 pFloat: 1.06 anInt2: 1802 dVar1: 2702 dpInt1: 302 cEL: cvec_renamed[8]
+xAODTestReadCVec                           5   0    INFO  anInt1 602 aFloat: 1200.1 pInt: 3002 pFloat: 1.06 anInt2: 1802 dVar1: 2702 dpInt1: 302 cEL: cvec_renamed[8]
   pvInt: [110 ]
   pvFloat: [-0.484 ]
   dpvFloat: [0.160 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 603 aFloat: 1200.2 pInt: 3003 pFloat: 2.06 anInt2: 1803 dVar1: 2703 dpInt1: 303 cEL: cvec_renamed[7]
+xAODTestReadCVec                           5   0    INFO  anInt1 603 aFloat: 1200.2 pInt: 3003 pFloat: 2.06 anInt2: 1803 dVar1: 2703 dpInt1: 303 cEL: cvec_renamed[7]
   pvInt: [120 121 ]
   pvFloat: [-0.474 -0.374 ]
   dpvFloat: [0.260 0.261 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 604 aFloat: 1200.3 pInt: 3004 pFloat: 3.06 anInt2: 1804 dVar1: 2704 dpInt1: 304 cEL: cvec_renamed[6]
+xAODTestReadCVec                           5   0    INFO  anInt1 604 aFloat: 1200.3 pInt: 3004 pFloat: 3.06 anInt2: 1804 dVar1: 2704 dpInt1: 304 cEL: cvec_renamed[6]
   pvInt: [130 131 132 ]
   pvFloat: [-0.464 -0.364 -0.264 ]
   dpvFloat: [0.360 0.361 0.362 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 605 aFloat: 1200.4 pInt: 3005 pFloat: 4.06 anInt2: 1805 dVar1: 2705 dpInt1: 305 cEL: cvec_renamed[5]
+xAODTestReadCVec                           5   0    INFO  anInt1 605 aFloat: 1200.4 pInt: 3005 pFloat: 4.06 anInt2: 1805 dVar1: 2705 dpInt1: 305 cEL: cvec_renamed[5]
   pvInt: [140 141 142 143 ]
   pvFloat: [-0.454 -0.354 -0.254 -0.154 ]
   dpvFloat: [0.460 0.461 0.462 0.463 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 606 aFloat: 1200.5 pInt: 3006 pFloat: 5.06 anInt2: 1806 dVar1: 2706 dpInt1: 306 cEL: cvec_renamed[4]
+xAODTestReadCVec                           5   0    INFO  anInt1 606 aFloat: 1200.5 pInt: 3006 pFloat: 5.06 anInt2: 1806 dVar1: 2706 dpInt1: 306 cEL: cvec_renamed[4]
   pvInt: [150 151 152 153 154 ]
   pvFloat: [-0.444 -0.344 -0.244 -0.144 -0.044 ]
   dpvFloat: [0.560 0.561 0.562 0.563 0.564 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 607 aFloat: 1200.6 pInt: 3007 pFloat: 6.06 anInt2: 1807 dVar1: 2707 dpInt1: 307 cEL: cvec_renamed[3]
+xAODTestReadCVec                           5   0    INFO  anInt1 607 aFloat: 1200.6 pInt: 3007 pFloat: 6.06 anInt2: 1807 dVar1: 2707 dpInt1: 307 cEL: cvec_renamed[3]
   pvInt: [160 161 162 163 164 165 ]
   pvFloat: [-0.434 -0.334 -0.234 -0.134 -0.034 0.066 ]
   dpvFloat: [0.660 0.661 0.662 0.663 0.664 0.665 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 608 aFloat: 1200.7 pInt: 3008 pFloat: 7.06 anInt2: 1808 dVar1: 2708 dpInt1: 308 cEL: cvec_renamed[2]
+xAODTestReadCVec                           5   0    INFO  anInt1 608 aFloat: 1200.7 pInt: 3008 pFloat: 7.06 anInt2: 1808 dVar1: 2708 dpInt1: 308 cEL: cvec_renamed[2]
   pvInt: [170 171 172 173 174 175 176 ]
   pvFloat: [-0.424 -0.324 -0.224 -0.124 -0.024 0.076 0.176 ]
   dpvFloat: [0.760 0.761 0.762 0.763 0.764 0.765 0.766 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 609 aFloat: 1200.8 pInt: 3009 pFloat: 8.06 anInt2: 1809 dVar1: 2709 dpInt1: 309 cEL: cvec_renamed[1]
+xAODTestReadCVec                           5   0    INFO  anInt1 609 aFloat: 1200.8 pInt: 3009 pFloat: 8.06 anInt2: 1809 dVar1: 2709 dpInt1: 309 cEL: cvec_renamed[1]
   pvInt: [180 181 182 183 184 185 186 187 ]
   pvFloat: [-0.414 -0.314 -0.214 -0.114 -0.014 0.086 0.186 0.286 ]
   dpvFloat: [0.860 0.861 0.862 0.863 0.864 0.865 0.866 0.867 ]
 
-xAODTestReadCVec                        5   0      INFO  anInt1 610 aFloat: 1200.9 pInt: 3010 pFloat: 9.06 anInt2: 1810 dVar1: 2710 dpInt1: 310 cEL: cvec_renamed[0]
+xAODTestReadCVec                           5   0    INFO  anInt1 610 aFloat: 1200.9 pInt: 3010 pFloat: 9.06 anInt2: 1810 dVar1: 2710 dpInt1: 310 cEL: cvec_renamed[0]
   pvInt: [190 191 192 193 194 195 196 197 198 ]
   pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 0.396 ]
   dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 0.968 ]
 
-xAODTestReadDecor                       5   0      INFO cvec_renamed.dInt1_renamed: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
-xAODTestReadDecor                       5   0      INFO cinfo.dInt1_renamed: 18000
-xAODTestReadDecor                       5   0      INFO cinfo.dInt1_renamedBase: 18001
-xAODTestReadDecor                       5   0      INFO cinfo.dInt1_renamed: 18000
-AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  start processing event #6, run #0 on slot 0,  6 events processed so far  <<<===
-xAODTestReadCVec                        6   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        6   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        6   0      INFO  anInt1 701 aFloat: 1400 pInt: 3501 pFloat: 0.07 anInt2: 2101 dVar1: 3151 dpInt1: 351 cEL: cvec_renamed[9]
+xAODTestReadDecor                          5   0    INFO cvec_renamed.dInt1_renamed: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
+xAODTestReadDecor                          5   0    INFO cinfo.dInt1_renamed: 18000
+xAODTestReadDecor                          5   0    INFO cinfo.dInt1_renamedBase: 18001
+xAODTestReadDecor                          5   0    INFO cinfo.dInt1_renamed: 18000
+AthenaHiveEventLoopMgr                     5   0    INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     6   0    INFO   ===>>>  start processing event #6, run #0 on slot 0,  6 events processed so far  <<<===
+xAODTestReadCVec                           6   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           6   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           6   0    INFO  anInt1 701 aFloat: 1400 pInt: 3501 pFloat: 0.07 anInt2: 2101 dVar1: 3151 dpInt1: 351 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        6   0      INFO  anInt1 702 aFloat: 1400.1 pInt: 3502 pFloat: 1.07 anInt2: 2102 dVar1: 3152 dpInt1: 352 cEL: cvec_renamed[8]
+xAODTestReadCVec                           6   0    INFO  anInt1 702 aFloat: 1400.1 pInt: 3502 pFloat: 1.07 anInt2: 2102 dVar1: 3152 dpInt1: 352 cEL: cvec_renamed[8]
   pvInt: [210 ]
   pvFloat: [-0.483 ]
   dpvFloat: [0.170 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 703 aFloat: 1400.2 pInt: 3503 pFloat: 2.07 anInt2: 2103 dVar1: 3153 dpInt1: 353 cEL: cvec_renamed[7]
+xAODTestReadCVec                           6   0    INFO  anInt1 703 aFloat: 1400.2 pInt: 3503 pFloat: 2.07 anInt2: 2103 dVar1: 3153 dpInt1: 353 cEL: cvec_renamed[7]
   pvInt: [220 221 ]
   pvFloat: [-0.473 -0.373 ]
   dpvFloat: [0.270 0.271 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 704 aFloat: 1400.3 pInt: 3504 pFloat: 3.07 anInt2: 2104 dVar1: 3154 dpInt1: 354 cEL: cvec_renamed[6]
+xAODTestReadCVec                           6   0    INFO  anInt1 704 aFloat: 1400.3 pInt: 3504 pFloat: 3.07 anInt2: 2104 dVar1: 3154 dpInt1: 354 cEL: cvec_renamed[6]
   pvInt: [230 231 232 ]
   pvFloat: [-0.463 -0.363 -0.263 ]
   dpvFloat: [0.370 0.371 0.372 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 705 aFloat: 1400.4 pInt: 3505 pFloat: 4.07 anInt2: 2105 dVar1: 3155 dpInt1: 355 cEL: cvec_renamed[5]
+xAODTestReadCVec                           6   0    INFO  anInt1 705 aFloat: 1400.4 pInt: 3505 pFloat: 4.07 anInt2: 2105 dVar1: 3155 dpInt1: 355 cEL: cvec_renamed[5]
   pvInt: [240 241 242 243 ]
   pvFloat: [-0.453 -0.353 -0.253 -0.153 ]
   dpvFloat: [0.470 0.471 0.472 0.473 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 706 aFloat: 1400.5 pInt: 3506 pFloat: 5.07 anInt2: 2106 dVar1: 3156 dpInt1: 356 cEL: cvec_renamed[4]
+xAODTestReadCVec                           6   0    INFO  anInt1 706 aFloat: 1400.5 pInt: 3506 pFloat: 5.07 anInt2: 2106 dVar1: 3156 dpInt1: 356 cEL: cvec_renamed[4]
   pvInt: [250 251 252 253 254 ]
   pvFloat: [-0.443 -0.343 -0.243 -0.143 -0.043 ]
   dpvFloat: [0.570 0.571 0.572 0.573 0.574 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 707 aFloat: 1400.6 pInt: 3507 pFloat: 6.07 anInt2: 2107 dVar1: 3157 dpInt1: 357 cEL: cvec_renamed[3]
+xAODTestReadCVec                           6   0    INFO  anInt1 707 aFloat: 1400.6 pInt: 3507 pFloat: 6.07 anInt2: 2107 dVar1: 3157 dpInt1: 357 cEL: cvec_renamed[3]
   pvInt: [260 261 262 263 264 265 ]
   pvFloat: [-0.433 -0.333 -0.233 -0.133 -0.033 0.067 ]
   dpvFloat: [0.670 0.671 0.672 0.673 0.674 0.675 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 708 aFloat: 1400.7 pInt: 3508 pFloat: 7.07 anInt2: 2108 dVar1: 3158 dpInt1: 358 cEL: cvec_renamed[2]
+xAODTestReadCVec                           6   0    INFO  anInt1 708 aFloat: 1400.7 pInt: 3508 pFloat: 7.07 anInt2: 2108 dVar1: 3158 dpInt1: 358 cEL: cvec_renamed[2]
   pvInt: [270 271 272 273 274 275 276 ]
   pvFloat: [-0.423 -0.323 -0.223 -0.123 -0.023 0.077 0.177 ]
   dpvFloat: [0.770 0.771 0.772 0.773 0.774 0.775 0.776 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 709 aFloat: 1400.8 pInt: 3509 pFloat: 8.07 anInt2: 2109 dVar1: 3159 dpInt1: 359 cEL: cvec_renamed[1]
+xAODTestReadCVec                           6   0    INFO  anInt1 709 aFloat: 1400.8 pInt: 3509 pFloat: 8.07 anInt2: 2109 dVar1: 3159 dpInt1: 359 cEL: cvec_renamed[1]
   pvInt: [280 281 282 283 284 285 286 287 ]
   pvFloat: [-0.413 -0.313 -0.213 -0.113 -0.013 0.087 0.187 0.287 ]
   dpvFloat: [0.870 0.871 0.872 0.873 0.874 0.875 0.876 0.877 ]
 
-xAODTestReadCVec                        6   0      INFO  anInt1 710 aFloat: 1400.9 pInt: 3510 pFloat: 9.07 anInt2: 2110 dVar1: 3160 dpInt1: 360 cEL: cvec_renamed[0]
+xAODTestReadCVec                           6   0    INFO  anInt1 710 aFloat: 1400.9 pInt: 3510 pFloat: 9.07 anInt2: 2110 dVar1: 3160 dpInt1: 360 cEL: cvec_renamed[0]
   pvInt: [290 291 292 293 294 295 296 297 298 ]
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 0.397 ]
   dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 0.978 ]
 
-xAODTestReadDecor                       6   0      INFO cvec_renamed.dInt1_renamed: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
-xAODTestReadDecor                       6   0      INFO cinfo.dInt1_renamed: 21000
-xAODTestReadDecor                       6   0      INFO cinfo.dInt1_renamedBase: 21001
-xAODTestReadDecor                       6   0      INFO cinfo.dInt1_renamed: 21000
-AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  start processing event #7, run #0 on slot 0,  7 events processed so far  <<<===
-xAODTestReadCVec                        7   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        7   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        7   0      INFO  anInt1 801 aFloat: 1600 pInt: 4001 pFloat: 0.08 anInt2: 2401 dVar1: 3601 dpInt1: 401 cEL: cvec_renamed[9]
+xAODTestReadDecor                          6   0    INFO cvec_renamed.dInt1_renamed: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
+xAODTestReadDecor                          6   0    INFO cinfo.dInt1_renamed: 21000
+xAODTestReadDecor                          6   0    INFO cinfo.dInt1_renamedBase: 21001
+xAODTestReadDecor                          6   0    INFO cinfo.dInt1_renamed: 21000
+AthenaHiveEventLoopMgr                     6   0    INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     7   0    INFO   ===>>>  start processing event #7, run #0 on slot 0,  7 events processed so far  <<<===
+xAODTestReadCVec                           7   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           7   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           7   0    INFO  anInt1 801 aFloat: 1600 pInt: 4001 pFloat: 0.08 anInt2: 2401 dVar1: 3601 dpInt1: 401 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        7   0      INFO  anInt1 802 aFloat: 1600.1 pInt: 4002 pFloat: 1.08 anInt2: 2402 dVar1: 3602 dpInt1: 402 cEL: cvec_renamed[8]
+xAODTestReadCVec                           7   0    INFO  anInt1 802 aFloat: 1600.1 pInt: 4002 pFloat: 1.08 anInt2: 2402 dVar1: 3602 dpInt1: 402 cEL: cvec_renamed[8]
   pvInt: [310 ]
   pvFloat: [-0.482 ]
   dpvFloat: [0.180 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 803 aFloat: 1600.2 pInt: 4003 pFloat: 2.08 anInt2: 2403 dVar1: 3603 dpInt1: 403 cEL: cvec_renamed[7]
+xAODTestReadCVec                           7   0    INFO  anInt1 803 aFloat: 1600.2 pInt: 4003 pFloat: 2.08 anInt2: 2403 dVar1: 3603 dpInt1: 403 cEL: cvec_renamed[7]
   pvInt: [320 321 ]
   pvFloat: [-0.472 -0.372 ]
   dpvFloat: [0.280 0.281 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 804 aFloat: 1600.3 pInt: 4004 pFloat: 3.08 anInt2: 2404 dVar1: 3604 dpInt1: 404 cEL: cvec_renamed[6]
+xAODTestReadCVec                           7   0    INFO  anInt1 804 aFloat: 1600.3 pInt: 4004 pFloat: 3.08 anInt2: 2404 dVar1: 3604 dpInt1: 404 cEL: cvec_renamed[6]
   pvInt: [330 331 332 ]
   pvFloat: [-0.462 -0.362 -0.262 ]
   dpvFloat: [0.380 0.381 0.382 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 805 aFloat: 1600.4 pInt: 4005 pFloat: 4.08 anInt2: 2405 dVar1: 3605 dpInt1: 405 cEL: cvec_renamed[5]
+xAODTestReadCVec                           7   0    INFO  anInt1 805 aFloat: 1600.4 pInt: 4005 pFloat: 4.08 anInt2: 2405 dVar1: 3605 dpInt1: 405 cEL: cvec_renamed[5]
   pvInt: [340 341 342 343 ]
   pvFloat: [-0.452 -0.352 -0.252 -0.152 ]
   dpvFloat: [0.480 0.481 0.482 0.483 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 806 aFloat: 1600.5 pInt: 4006 pFloat: 5.08 anInt2: 2406 dVar1: 3606 dpInt1: 406 cEL: cvec_renamed[4]
+xAODTestReadCVec                           7   0    INFO  anInt1 806 aFloat: 1600.5 pInt: 4006 pFloat: 5.08 anInt2: 2406 dVar1: 3606 dpInt1: 406 cEL: cvec_renamed[4]
   pvInt: [350 351 352 353 354 ]
   pvFloat: [-0.442 -0.342 -0.242 -0.142 -0.042 ]
   dpvFloat: [0.580 0.581 0.582 0.583 0.584 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 807 aFloat: 1600.6 pInt: 4007 pFloat: 6.08 anInt2: 2407 dVar1: 3607 dpInt1: 407 cEL: cvec_renamed[3]
+xAODTestReadCVec                           7   0    INFO  anInt1 807 aFloat: 1600.6 pInt: 4007 pFloat: 6.08 anInt2: 2407 dVar1: 3607 dpInt1: 407 cEL: cvec_renamed[3]
   pvInt: [360 361 362 363 364 365 ]
   pvFloat: [-0.432 -0.332 -0.232 -0.132 -0.032 0.068 ]
   dpvFloat: [0.680 0.681 0.682 0.683 0.684 0.685 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 808 aFloat: 1600.7 pInt: 4008 pFloat: 7.08 anInt2: 2408 dVar1: 3608 dpInt1: 408 cEL: cvec_renamed[2]
+xAODTestReadCVec                           7   0    INFO  anInt1 808 aFloat: 1600.7 pInt: 4008 pFloat: 7.08 anInt2: 2408 dVar1: 3608 dpInt1: 408 cEL: cvec_renamed[2]
   pvInt: [370 371 372 373 374 375 376 ]
   pvFloat: [-0.422 -0.322 -0.222 -0.122 -0.022 0.078 0.178 ]
   dpvFloat: [0.780 0.781 0.782 0.783 0.784 0.785 0.786 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 809 aFloat: 1600.8 pInt: 4009 pFloat: 8.08 anInt2: 2409 dVar1: 3609 dpInt1: 409 cEL: cvec_renamed[1]
+xAODTestReadCVec                           7   0    INFO  anInt1 809 aFloat: 1600.8 pInt: 4009 pFloat: 8.08 anInt2: 2409 dVar1: 3609 dpInt1: 409 cEL: cvec_renamed[1]
   pvInt: [380 381 382 383 384 385 386 387 ]
   pvFloat: [-0.412 -0.312 -0.212 -0.112 -0.012 0.088 0.188 0.288 ]
   dpvFloat: [0.880 0.881 0.882 0.883 0.884 0.885 0.886 0.887 ]
 
-xAODTestReadCVec                        7   0      INFO  anInt1 810 aFloat: 1600.9 pInt: 4010 pFloat: 9.08 anInt2: 2410 dVar1: 3610 dpInt1: 410 cEL: cvec_renamed[0]
+xAODTestReadCVec                           7   0    INFO  anInt1 810 aFloat: 1600.9 pInt: 4010 pFloat: 9.08 anInt2: 2410 dVar1: 3610 dpInt1: 410 cEL: cvec_renamed[0]
   pvInt: [390 391 392 393 394 395 396 397 398 ]
   pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 0.398 ]
   dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 0.988 ]
 
-xAODTestReadDecor                       7   0      INFO cvec_renamed.dInt1_renamed: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
-xAODTestReadDecor                       7   0      INFO cinfo.dInt1_renamed: 24000
-xAODTestReadDecor                       7   0      INFO cinfo.dInt1_renamedBase: 24001
-xAODTestReadDecor                       7   0      INFO cinfo.dInt1_renamed: 24000
-AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  start processing event #8, run #0 on slot 0,  8 events processed so far  <<<===
-xAODTestReadCVec                        8   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        8   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        8   0      INFO  anInt1 901 aFloat: 1800 pInt: 4501 pFloat: 0.09 anInt2: 2701 dVar1: 4051 dpInt1: 451 cEL: cvec_renamed[9]
+xAODTestReadDecor                          7   0    INFO cvec_renamed.dInt1_renamed: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
+xAODTestReadDecor                          7   0    INFO cinfo.dInt1_renamed: 24000
+xAODTestReadDecor                          7   0    INFO cinfo.dInt1_renamedBase: 24001
+xAODTestReadDecor                          7   0    INFO cinfo.dInt1_renamed: 24000
+AthenaHiveEventLoopMgr                     7   0    INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     8   0    INFO   ===>>>  start processing event #8, run #0 on slot 0,  8 events processed so far  <<<===
+xAODTestReadCVec                           8   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           8   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           8   0    INFO  anInt1 901 aFloat: 1800 pInt: 4501 pFloat: 0.09 anInt2: 2701 dVar1: 4051 dpInt1: 451 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        8   0      INFO  anInt1 902 aFloat: 1800.1 pInt: 4502 pFloat: 1.09 anInt2: 2702 dVar1: 4052 dpInt1: 452 cEL: cvec_renamed[8]
+xAODTestReadCVec                           8   0    INFO  anInt1 902 aFloat: 1800.1 pInt: 4502 pFloat: 1.09 anInt2: 2702 dVar1: 4052 dpInt1: 452 cEL: cvec_renamed[8]
   pvInt: [410 ]
   pvFloat: [-0.481 ]
   dpvFloat: [0.190 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 903 aFloat: 1800.2 pInt: 4503 pFloat: 2.09 anInt2: 2703 dVar1: 4053 dpInt1: 453 cEL: cvec_renamed[7]
+xAODTestReadCVec                           8   0    INFO  anInt1 903 aFloat: 1800.2 pInt: 4503 pFloat: 2.09 anInt2: 2703 dVar1: 4053 dpInt1: 453 cEL: cvec_renamed[7]
   pvInt: [420 421 ]
   pvFloat: [-0.471 -0.371 ]
   dpvFloat: [0.290 0.291 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 904 aFloat: 1800.3 pInt: 4504 pFloat: 3.09 anInt2: 2704 dVar1: 4054 dpInt1: 454 cEL: cvec_renamed[6]
+xAODTestReadCVec                           8   0    INFO  anInt1 904 aFloat: 1800.3 pInt: 4504 pFloat: 3.09 anInt2: 2704 dVar1: 4054 dpInt1: 454 cEL: cvec_renamed[6]
   pvInt: [430 431 432 ]
   pvFloat: [-0.461 -0.361 -0.261 ]
   dpvFloat: [0.390 0.391 0.392 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 905 aFloat: 1800.4 pInt: 4505 pFloat: 4.09 anInt2: 2705 dVar1: 4055 dpInt1: 455 cEL: cvec_renamed[5]
+xAODTestReadCVec                           8   0    INFO  anInt1 905 aFloat: 1800.4 pInt: 4505 pFloat: 4.09 anInt2: 2705 dVar1: 4055 dpInt1: 455 cEL: cvec_renamed[5]
   pvInt: [440 441 442 443 ]
   pvFloat: [-0.451 -0.351 -0.251 -0.151 ]
   dpvFloat: [0.490 0.491 0.492 0.493 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 906 aFloat: 1800.5 pInt: 4506 pFloat: 5.09 anInt2: 2706 dVar1: 4056 dpInt1: 456 cEL: cvec_renamed[4]
+xAODTestReadCVec                           8   0    INFO  anInt1 906 aFloat: 1800.5 pInt: 4506 pFloat: 5.09 anInt2: 2706 dVar1: 4056 dpInt1: 456 cEL: cvec_renamed[4]
   pvInt: [450 451 452 453 454 ]
   pvFloat: [-0.441 -0.341 -0.241 -0.141 -0.041 ]
   dpvFloat: [0.590 0.591 0.592 0.593 0.594 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 907 aFloat: 1800.6 pInt: 4507 pFloat: 6.09 anInt2: 2707 dVar1: 4057 dpInt1: 457 cEL: cvec_renamed[3]
+xAODTestReadCVec                           8   0    INFO  anInt1 907 aFloat: 1800.6 pInt: 4507 pFloat: 6.09 anInt2: 2707 dVar1: 4057 dpInt1: 457 cEL: cvec_renamed[3]
   pvInt: [460 461 462 463 464 465 ]
   pvFloat: [-0.431 -0.331 -0.231 -0.131 -0.031 0.069 ]
   dpvFloat: [0.690 0.691 0.692 0.693 0.694 0.695 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 908 aFloat: 1800.7 pInt: 4508 pFloat: 7.09 anInt2: 2708 dVar1: 4058 dpInt1: 458 cEL: cvec_renamed[2]
+xAODTestReadCVec                           8   0    INFO  anInt1 908 aFloat: 1800.7 pInt: 4508 pFloat: 7.09 anInt2: 2708 dVar1: 4058 dpInt1: 458 cEL: cvec_renamed[2]
   pvInt: [470 471 472 473 474 475 476 ]
   pvFloat: [-0.421 -0.321 -0.221 -0.121 -0.021 0.079 0.179 ]
   dpvFloat: [0.790 0.791 0.792 0.793 0.794 0.795 0.796 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 909 aFloat: 1800.8 pInt: 4509 pFloat: 8.09 anInt2: 2709 dVar1: 4059 dpInt1: 459 cEL: cvec_renamed[1]
+xAODTestReadCVec                           8   0    INFO  anInt1 909 aFloat: 1800.8 pInt: 4509 pFloat: 8.09 anInt2: 2709 dVar1: 4059 dpInt1: 459 cEL: cvec_renamed[1]
   pvInt: [480 481 482 483 484 485 486 487 ]
   pvFloat: [-0.411 -0.311 -0.211 -0.111 -0.011 0.089 0.189 0.289 ]
   dpvFloat: [0.890 0.891 0.892 0.893 0.894 0.895 0.896 0.897 ]
 
-xAODTestReadCVec                        8   0      INFO  anInt1 910 aFloat: 1800.9 pInt: 4510 pFloat: 9.09 anInt2: 2710 dVar1: 4060 dpInt1: 460 cEL: cvec_renamed[0]
+xAODTestReadCVec                           8   0    INFO  anInt1 910 aFloat: 1800.9 pInt: 4510 pFloat: 9.09 anInt2: 2710 dVar1: 4060 dpInt1: 460 cEL: cvec_renamed[0]
   pvInt: [490 491 492 493 494 495 496 497 498 ]
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 0.399 ]
   dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 0.998 ]
 
-xAODTestReadDecor                       8   0      INFO cvec_renamed.dInt1_renamed: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
-xAODTestReadDecor                       8   0      INFO cinfo.dInt1_renamed: 27000
-xAODTestReadDecor                       8   0      INFO cinfo.dInt1_renamedBase: 27001
-xAODTestReadDecor                       8   0      INFO cinfo.dInt1_renamed: 27000
-AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  start processing event #9, run #0 on slot 0,  9 events processed so far  <<<===
-xAODTestReadCVec                        9   0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        9   0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        9   0      INFO  anInt1 1001 aFloat: 2000 pInt: 5001 pFloat: 0.10 anInt2: 3001 dVar1: 4501 dpInt1: 501 cEL: cvec_renamed[9]
+xAODTestReadDecor                          8   0    INFO cvec_renamed.dInt1_renamed: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
+xAODTestReadDecor                          8   0    INFO cinfo.dInt1_renamed: 27000
+xAODTestReadDecor                          8   0    INFO cinfo.dInt1_renamedBase: 27001
+xAODTestReadDecor                          8   0    INFO cinfo.dInt1_renamed: 27000
+AthenaHiveEventLoopMgr                     8   0    INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                     9   0    INFO   ===>>>  start processing event #9, run #0 on slot 0,  9 events processed so far  <<<===
+xAODTestReadCVec                           9   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                           9   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                           9   0    INFO  anInt1 1001 aFloat: 2000 pInt: 5001 pFloat: 0.10 anInt2: 3001 dVar1: 4501 dpInt1: 501 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1002 aFloat: 2000.1 pInt: 5002 pFloat: 1.10 anInt2: 3002 dVar1: 4502 dpInt1: 502 cEL: cvec_renamed[8]
+xAODTestReadCVec                           9   0    INFO  anInt1 1002 aFloat: 2000.1 pInt: 5002 pFloat: 1.10 anInt2: 3002 dVar1: 4502 dpInt1: 502 cEL: cvec_renamed[8]
   pvInt: [510 ]
   pvFloat: [-0.480 ]
   dpvFloat: [0.200 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1003 aFloat: 2000.2 pInt: 5003 pFloat: 2.10 anInt2: 3003 dVar1: 4503 dpInt1: 503 cEL: cvec_renamed[7]
+xAODTestReadCVec                           9   0    INFO  anInt1 1003 aFloat: 2000.2 pInt: 5003 pFloat: 2.10 anInt2: 3003 dVar1: 4503 dpInt1: 503 cEL: cvec_renamed[7]
   pvInt: [520 521 ]
   pvFloat: [-0.470 -0.370 ]
   dpvFloat: [0.300 0.301 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1004 aFloat: 2000.3 pInt: 5004 pFloat: 3.10 anInt2: 3004 dVar1: 4504 dpInt1: 504 cEL: cvec_renamed[6]
+xAODTestReadCVec                           9   0    INFO  anInt1 1004 aFloat: 2000.3 pInt: 5004 pFloat: 3.10 anInt2: 3004 dVar1: 4504 dpInt1: 504 cEL: cvec_renamed[6]
   pvInt: [530 531 532 ]
   pvFloat: [-0.460 -0.360 -0.260 ]
   dpvFloat: [0.400 0.401 0.402 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1005 aFloat: 2000.4 pInt: 5005 pFloat: 4.10 anInt2: 3005 dVar1: 4505 dpInt1: 505 cEL: cvec_renamed[5]
+xAODTestReadCVec                           9   0    INFO  anInt1 1005 aFloat: 2000.4 pInt: 5005 pFloat: 4.10 anInt2: 3005 dVar1: 4505 dpInt1: 505 cEL: cvec_renamed[5]
   pvInt: [540 541 542 543 ]
   pvFloat: [-0.450 -0.350 -0.250 -0.150 ]
   dpvFloat: [0.500 0.501 0.502 0.503 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1006 aFloat: 2000.5 pInt: 5006 pFloat: 5.10 anInt2: 3006 dVar1: 4506 dpInt1: 506 cEL: cvec_renamed[4]
+xAODTestReadCVec                           9   0    INFO  anInt1 1006 aFloat: 2000.5 pInt: 5006 pFloat: 5.10 anInt2: 3006 dVar1: 4506 dpInt1: 506 cEL: cvec_renamed[4]
   pvInt: [550 551 552 553 554 ]
   pvFloat: [-0.440 -0.340 -0.240 -0.140 -0.040 ]
   dpvFloat: [0.600 0.601 0.602 0.603 0.604 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1007 aFloat: 2000.6 pInt: 5007 pFloat: 6.10 anInt2: 3007 dVar1: 4507 dpInt1: 507 cEL: cvec_renamed[3]
+xAODTestReadCVec                           9   0    INFO  anInt1 1007 aFloat: 2000.6 pInt: 5007 pFloat: 6.10 anInt2: 3007 dVar1: 4507 dpInt1: 507 cEL: cvec_renamed[3]
   pvInt: [560 561 562 563 564 565 ]
   pvFloat: [-0.430 -0.330 -0.230 -0.130 -0.030 0.070 ]
   dpvFloat: [0.700 0.701 0.702 0.703 0.704 0.705 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1008 aFloat: 2000.7 pInt: 5008 pFloat: 7.10 anInt2: 3008 dVar1: 4508 dpInt1: 508 cEL: cvec_renamed[2]
+xAODTestReadCVec                           9   0    INFO  anInt1 1008 aFloat: 2000.7 pInt: 5008 pFloat: 7.10 anInt2: 3008 dVar1: 4508 dpInt1: 508 cEL: cvec_renamed[2]
   pvInt: [570 571 572 573 574 575 576 ]
   pvFloat: [-0.420 -0.320 -0.220 -0.120 -0.020 0.080 0.180 ]
   dpvFloat: [0.800 0.801 0.802 0.803 0.804 0.805 0.806 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1009 aFloat: 2000.8 pInt: 5009 pFloat: 8.10 anInt2: 3009 dVar1: 4509 dpInt1: 509 cEL: cvec_renamed[1]
+xAODTestReadCVec                           9   0    INFO  anInt1 1009 aFloat: 2000.8 pInt: 5009 pFloat: 8.10 anInt2: 3009 dVar1: 4509 dpInt1: 509 cEL: cvec_renamed[1]
   pvInt: [580 581 582 583 584 585 586 587 ]
   pvFloat: [-0.410 -0.310 -0.210 -0.110 -0.010 0.090 0.190 0.290 ]
   dpvFloat: [0.900 0.901 0.902 0.903 0.904 0.905 0.906 0.907 ]
 
-xAODTestReadCVec                        9   0      INFO  anInt1 1010 aFloat: 2000.9 pInt: 5010 pFloat: 9.10 anInt2: 3010 dVar1: 4510 dpInt1: 510 cEL: cvec_renamed[0]
+xAODTestReadCVec                           9   0    INFO  anInt1 1010 aFloat: 2000.9 pInt: 5010 pFloat: 9.10 anInt2: 3010 dVar1: 4510 dpInt1: 510 cEL: cvec_renamed[0]
   pvInt: [590 591 592 593 594 595 596 597 598 ]
   pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 0.400 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       9   0      INFO cvec_renamed.dInt1_renamed: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
-xAODTestReadDecor                       9   0      INFO cinfo.dInt1_renamed: 30000
-xAODTestReadDecor                       9   0      INFO cinfo.dInt1_renamedBase: 30001
-xAODTestReadDecor                       9   0      INFO cinfo.dInt1_renamed: 30000
-AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  start processing event #10, run #0 on slot 0,  10 events processed so far  <<<===
-xAODTestReadCVec                        10  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        10  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        10  0      INFO  anInt1 1101 aFloat: 2200 pInt: 5501 pFloat: 0.11 anInt2: 3301 dVar1: 4951 dpInt1: 551 cEL: cvec_renamed[9]
+xAODTestReadDecor                          9   0    INFO cvec_renamed.dInt1_renamed: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
+xAODTestReadDecor                          9   0    INFO cinfo.dInt1_renamed: 30000
+xAODTestReadDecor                          9   0    INFO cinfo.dInt1_renamedBase: 30001
+xAODTestReadDecor                          9   0    INFO cinfo.dInt1_renamed: 30000
+AthenaHiveEventLoopMgr                     9   0    INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    10   0    INFO   ===>>>  start processing event #10, run #0 on slot 0,  10 events processed so far  <<<===
+xAODTestReadCVec                          10   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          10   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          10   0    INFO  anInt1 1101 aFloat: 2200 pInt: 5501 pFloat: 0.11 anInt2: 3301 dVar1: 4951 dpInt1: 551 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1102 aFloat: 2200.1 pInt: 5502 pFloat: 1.11 anInt2: 3302 dVar1: 4952 dpInt1: 552 cEL: cvec_renamed[8]
+xAODTestReadCVec                          10   0    INFO  anInt1 1102 aFloat: 2200.1 pInt: 5502 pFloat: 1.11 anInt2: 3302 dVar1: 4952 dpInt1: 552 cEL: cvec_renamed[8]
   pvInt: [610 ]
   pvFloat: [-0.479 ]
   dpvFloat: [0.210 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1103 aFloat: 2200.2 pInt: 5503 pFloat: 2.11 anInt2: 3303 dVar1: 4953 dpInt1: 553 cEL: cvec_renamed[7]
+xAODTestReadCVec                          10   0    INFO  anInt1 1103 aFloat: 2200.2 pInt: 5503 pFloat: 2.11 anInt2: 3303 dVar1: 4953 dpInt1: 553 cEL: cvec_renamed[7]
   pvInt: [620 621 ]
   pvFloat: [-0.469 -0.369 ]
   dpvFloat: [0.310 0.311 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1104 aFloat: 2200.3 pInt: 5504 pFloat: 3.11 anInt2: 3304 dVar1: 4954 dpInt1: 554 cEL: cvec_renamed[6]
+xAODTestReadCVec                          10   0    INFO  anInt1 1104 aFloat: 2200.3 pInt: 5504 pFloat: 3.11 anInt2: 3304 dVar1: 4954 dpInt1: 554 cEL: cvec_renamed[6]
   pvInt: [630 631 632 ]
   pvFloat: [-0.459 -0.359 -0.259 ]
   dpvFloat: [0.410 0.411 0.412 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1105 aFloat: 2200.4 pInt: 5505 pFloat: 4.11 anInt2: 3305 dVar1: 4955 dpInt1: 555 cEL: cvec_renamed[5]
+xAODTestReadCVec                          10   0    INFO  anInt1 1105 aFloat: 2200.4 pInt: 5505 pFloat: 4.11 anInt2: 3305 dVar1: 4955 dpInt1: 555 cEL: cvec_renamed[5]
   pvInt: [640 641 642 643 ]
   pvFloat: [-0.449 -0.349 -0.249 -0.149 ]
   dpvFloat: [0.510 0.511 0.512 0.513 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1106 aFloat: 2200.5 pInt: 5506 pFloat: 5.11 anInt2: 3306 dVar1: 4956 dpInt1: 556 cEL: cvec_renamed[4]
+xAODTestReadCVec                          10   0    INFO  anInt1 1106 aFloat: 2200.5 pInt: 5506 pFloat: 5.11 anInt2: 3306 dVar1: 4956 dpInt1: 556 cEL: cvec_renamed[4]
   pvInt: [650 651 652 653 654 ]
   pvFloat: [-0.439 -0.339 -0.239 -0.139 -0.039 ]
   dpvFloat: [0.610 0.611 0.612 0.613 0.614 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1107 aFloat: 2200.6 pInt: 5507 pFloat: 6.11 anInt2: 3307 dVar1: 4957 dpInt1: 557 cEL: cvec_renamed[3]
+xAODTestReadCVec                          10   0    INFO  anInt1 1107 aFloat: 2200.6 pInt: 5507 pFloat: 6.11 anInt2: 3307 dVar1: 4957 dpInt1: 557 cEL: cvec_renamed[3]
   pvInt: [660 661 662 663 664 665 ]
   pvFloat: [-0.429 -0.329 -0.229 -0.129 -0.029 0.071 ]
   dpvFloat: [0.710 0.711 0.712 0.713 0.714 0.715 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1108 aFloat: 2200.7 pInt: 5508 pFloat: 7.11 anInt2: 3308 dVar1: 4958 dpInt1: 558 cEL: cvec_renamed[2]
+xAODTestReadCVec                          10   0    INFO  anInt1 1108 aFloat: 2200.7 pInt: 5508 pFloat: 7.11 anInt2: 3308 dVar1: 4958 dpInt1: 558 cEL: cvec_renamed[2]
   pvInt: [670 671 672 673 674 675 676 ]
   pvFloat: [-0.419 -0.319 -0.219 -0.119 -0.019 0.081 0.181 ]
   dpvFloat: [0.810 0.811 0.812 0.813 0.814 0.815 0.816 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1109 aFloat: 2200.8 pInt: 5509 pFloat: 8.11 anInt2: 3309 dVar1: 4959 dpInt1: 559 cEL: cvec_renamed[1]
+xAODTestReadCVec                          10   0    INFO  anInt1 1109 aFloat: 2200.8 pInt: 5509 pFloat: 8.11 anInt2: 3309 dVar1: 4959 dpInt1: 559 cEL: cvec_renamed[1]
   pvInt: [680 681 682 683 684 685 686 687 ]
   pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 ]
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 ]
 
-xAODTestReadCVec                        10  0      INFO  anInt1 1110 aFloat: 2200.9 pInt: 5510 pFloat: 9.11 anInt2: 3310 dVar1: 4960 dpInt1: 560 cEL: cvec_renamed[0]
+xAODTestReadCVec                          10   0    INFO  anInt1 1110 aFloat: 2200.9 pInt: 5510 pFloat: 9.11 anInt2: 3310 dVar1: 4960 dpInt1: 560 cEL: cvec_renamed[0]
   pvInt: [690 691 692 693 694 695 696 697 698 ]
   pvFloat: [-0.399 -0.299 -0.199 -0.099 0.001 0.101 0.201 0.301 0.401 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       10  0      INFO cvec_renamed.dInt1_renamed: 4401 4402 4403 4404 4405 4406 4407 4408 4409 4410
-xAODTestReadDecor                       10  0      INFO cinfo.dInt1_renamed: 33000
-xAODTestReadDecor                       10  0      INFO cinfo.dInt1_renamedBase: 33001
-xAODTestReadDecor                       10  0      INFO cinfo.dInt1_renamed: 33000
-AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  start processing event #11, run #0 on slot 0,  11 events processed so far  <<<===
-xAODTestReadCVec                        11  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        11  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        11  0      INFO  anInt1 1201 aFloat: 2400 pInt: 6001 pFloat: 0.12 anInt2: 3601 dVar1: 5401 dpInt1: 601 cEL: cvec_renamed[9]
+xAODTestReadDecor                         10   0    INFO cvec_renamed.dInt1_renamed: 4401 4402 4403 4404 4405 4406 4407 4408 4409 4410
+xAODTestReadDecor                         10   0    INFO cinfo.dInt1_renamed: 33000
+xAODTestReadDecor                         10   0    INFO cinfo.dInt1_renamedBase: 33001
+xAODTestReadDecor                         10   0    INFO cinfo.dInt1_renamed: 33000
+AthenaHiveEventLoopMgr                    10   0    INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    11   0    INFO   ===>>>  start processing event #11, run #0 on slot 0,  11 events processed so far  <<<===
+xAODTestReadCVec                          11   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          11   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          11   0    INFO  anInt1 1201 aFloat: 2400 pInt: 6001 pFloat: 0.12 anInt2: 3601 dVar1: 5401 dpInt1: 601 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1202 aFloat: 2400.1 pInt: 6002 pFloat: 1.12 anInt2: 3602 dVar1: 5402 dpInt1: 602 cEL: cvec_renamed[8]
+xAODTestReadCVec                          11   0    INFO  anInt1 1202 aFloat: 2400.1 pInt: 6002 pFloat: 1.12 anInt2: 3602 dVar1: 5402 dpInt1: 602 cEL: cvec_renamed[8]
   pvInt: [710 ]
   pvFloat: [-0.478 ]
   dpvFloat: [0.220 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1203 aFloat: 2400.2 pInt: 6003 pFloat: 2.12 anInt2: 3603 dVar1: 5403 dpInt1: 603 cEL: cvec_renamed[7]
+xAODTestReadCVec                          11   0    INFO  anInt1 1203 aFloat: 2400.2 pInt: 6003 pFloat: 2.12 anInt2: 3603 dVar1: 5403 dpInt1: 603 cEL: cvec_renamed[7]
   pvInt: [720 721 ]
   pvFloat: [-0.468 -0.368 ]
   dpvFloat: [0.320 0.321 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1204 aFloat: 2400.3 pInt: 6004 pFloat: 3.12 anInt2: 3604 dVar1: 5404 dpInt1: 604 cEL: cvec_renamed[6]
+xAODTestReadCVec                          11   0    INFO  anInt1 1204 aFloat: 2400.3 pInt: 6004 pFloat: 3.12 anInt2: 3604 dVar1: 5404 dpInt1: 604 cEL: cvec_renamed[6]
   pvInt: [730 731 732 ]
   pvFloat: [-0.458 -0.358 -0.258 ]
   dpvFloat: [0.420 0.421 0.422 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1205 aFloat: 2400.4 pInt: 6005 pFloat: 4.12 anInt2: 3605 dVar1: 5405 dpInt1: 605 cEL: cvec_renamed[5]
+xAODTestReadCVec                          11   0    INFO  anInt1 1205 aFloat: 2400.4 pInt: 6005 pFloat: 4.12 anInt2: 3605 dVar1: 5405 dpInt1: 605 cEL: cvec_renamed[5]
   pvInt: [740 741 742 743 ]
   pvFloat: [-0.448 -0.348 -0.248 -0.148 ]
   dpvFloat: [0.520 0.521 0.522 0.523 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1206 aFloat: 2400.5 pInt: 6006 pFloat: 5.12 anInt2: 3606 dVar1: 5406 dpInt1: 606 cEL: cvec_renamed[4]
+xAODTestReadCVec                          11   0    INFO  anInt1 1206 aFloat: 2400.5 pInt: 6006 pFloat: 5.12 anInt2: 3606 dVar1: 5406 dpInt1: 606 cEL: cvec_renamed[4]
   pvInt: [750 751 752 753 754 ]
   pvFloat: [-0.438 -0.338 -0.238 -0.138 -0.038 ]
   dpvFloat: [0.620 0.621 0.622 0.623 0.624 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1207 aFloat: 2400.6 pInt: 6007 pFloat: 6.12 anInt2: 3607 dVar1: 5407 dpInt1: 607 cEL: cvec_renamed[3]
+xAODTestReadCVec                          11   0    INFO  anInt1 1207 aFloat: 2400.6 pInt: 6007 pFloat: 6.12 anInt2: 3607 dVar1: 5407 dpInt1: 607 cEL: cvec_renamed[3]
   pvInt: [760 761 762 763 764 765 ]
   pvFloat: [-0.428 -0.328 -0.228 -0.128 -0.028 0.072 ]
   dpvFloat: [0.720 0.721 0.722 0.723 0.724 0.725 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1208 aFloat: 2400.7 pInt: 6008 pFloat: 7.12 anInt2: 3608 dVar1: 5408 dpInt1: 608 cEL: cvec_renamed[2]
+xAODTestReadCVec                          11   0    INFO  anInt1 1208 aFloat: 2400.7 pInt: 6008 pFloat: 7.12 anInt2: 3608 dVar1: 5408 dpInt1: 608 cEL: cvec_renamed[2]
   pvInt: [770 771 772 773 774 775 776 ]
   pvFloat: [-0.418 -0.318 -0.218 -0.118 -0.018 0.082 0.182 ]
   dpvFloat: [0.820 0.821 0.822 0.823 0.824 0.825 0.826 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1209 aFloat: 2400.8 pInt: 6009 pFloat: 8.12 anInt2: 3609 dVar1: 5409 dpInt1: 609 cEL: cvec_renamed[1]
+xAODTestReadCVec                          11   0    INFO  anInt1 1209 aFloat: 2400.8 pInt: 6009 pFloat: 8.12 anInt2: 3609 dVar1: 5409 dpInt1: 609 cEL: cvec_renamed[1]
   pvInt: [780 781 782 783 784 785 786 787 ]
   pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 ]
   dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 ]
 
-xAODTestReadCVec                        11  0      INFO  anInt1 1210 aFloat: 2400.9 pInt: 6010 pFloat: 9.12 anInt2: 3610 dVar1: 5410 dpInt1: 610 cEL: cvec_renamed[0]
+xAODTestReadCVec                          11   0    INFO  anInt1 1210 aFloat: 2400.9 pInt: 6010 pFloat: 9.12 anInt2: 3610 dVar1: 5410 dpInt1: 610 cEL: cvec_renamed[0]
   pvInt: [790 791 792 793 794 795 796 797 798 ]
   pvFloat: [-0.398 -0.298 -0.198 -0.098 0.002 0.102 0.202 0.302 0.402 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       11  0      INFO cvec_renamed.dInt1_renamed: 4801 4802 4803 4804 4805 4806 4807 4808 4809 4810
-xAODTestReadDecor                       11  0      INFO cinfo.dInt1_renamed: 36000
-xAODTestReadDecor                       11  0      INFO cinfo.dInt1_renamedBase: 36001
-xAODTestReadDecor                       11  0      INFO cinfo.dInt1_renamed: 36000
-AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  start processing event #12, run #0 on slot 0,  12 events processed so far  <<<===
-xAODTestReadCVec                        12  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        12  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        12  0      INFO  anInt1 1301 aFloat: 2600 pInt: 6501 pFloat: 0.13 anInt2: 3901 dVar1: 5851 dpInt1: 651 cEL: cvec_renamed[9]
+xAODTestReadDecor                         11   0    INFO cvec_renamed.dInt1_renamed: 4801 4802 4803 4804 4805 4806 4807 4808 4809 4810
+xAODTestReadDecor                         11   0    INFO cinfo.dInt1_renamed: 36000
+xAODTestReadDecor                         11   0    INFO cinfo.dInt1_renamedBase: 36001
+xAODTestReadDecor                         11   0    INFO cinfo.dInt1_renamed: 36000
+AthenaHiveEventLoopMgr                    11   0    INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    12   0    INFO   ===>>>  start processing event #12, run #0 on slot 0,  12 events processed so far  <<<===
+xAODTestReadCVec                          12   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          12   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          12   0    INFO  anInt1 1301 aFloat: 2600 pInt: 6501 pFloat: 0.13 anInt2: 3901 dVar1: 5851 dpInt1: 651 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1302 aFloat: 2600.1 pInt: 6502 pFloat: 1.13 anInt2: 3902 dVar1: 5852 dpInt1: 652 cEL: cvec_renamed[8]
+xAODTestReadCVec                          12   0    INFO  anInt1 1302 aFloat: 2600.1 pInt: 6502 pFloat: 1.13 anInt2: 3902 dVar1: 5852 dpInt1: 652 cEL: cvec_renamed[8]
   pvInt: [810 ]
   pvFloat: [-0.477 ]
   dpvFloat: [0.230 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1303 aFloat: 2600.2 pInt: 6503 pFloat: 2.13 anInt2: 3903 dVar1: 5853 dpInt1: 653 cEL: cvec_renamed[7]
+xAODTestReadCVec                          12   0    INFO  anInt1 1303 aFloat: 2600.2 pInt: 6503 pFloat: 2.13 anInt2: 3903 dVar1: 5853 dpInt1: 653 cEL: cvec_renamed[7]
   pvInt: [820 821 ]
   pvFloat: [-0.467 -0.367 ]
   dpvFloat: [0.330 0.331 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1304 aFloat: 2600.3 pInt: 6504 pFloat: 3.13 anInt2: 3904 dVar1: 5854 dpInt1: 654 cEL: cvec_renamed[6]
+xAODTestReadCVec                          12   0    INFO  anInt1 1304 aFloat: 2600.3 pInt: 6504 pFloat: 3.13 anInt2: 3904 dVar1: 5854 dpInt1: 654 cEL: cvec_renamed[6]
   pvInt: [830 831 832 ]
   pvFloat: [-0.457 -0.357 -0.257 ]
   dpvFloat: [0.430 0.431 0.432 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1305 aFloat: 2600.4 pInt: 6505 pFloat: 4.13 anInt2: 3905 dVar1: 5855 dpInt1: 655 cEL: cvec_renamed[5]
+xAODTestReadCVec                          12   0    INFO  anInt1 1305 aFloat: 2600.4 pInt: 6505 pFloat: 4.13 anInt2: 3905 dVar1: 5855 dpInt1: 655 cEL: cvec_renamed[5]
   pvInt: [840 841 842 843 ]
   pvFloat: [-0.447 -0.347 -0.247 -0.147 ]
   dpvFloat: [0.530 0.531 0.532 0.533 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1306 aFloat: 2600.5 pInt: 6506 pFloat: 5.13 anInt2: 3906 dVar1: 5856 dpInt1: 656 cEL: cvec_renamed[4]
+xAODTestReadCVec                          12   0    INFO  anInt1 1306 aFloat: 2600.5 pInt: 6506 pFloat: 5.13 anInt2: 3906 dVar1: 5856 dpInt1: 656 cEL: cvec_renamed[4]
   pvInt: [850 851 852 853 854 ]
   pvFloat: [-0.437 -0.337 -0.237 -0.137 -0.037 ]
   dpvFloat: [0.630 0.631 0.632 0.633 0.634 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1307 aFloat: 2600.6 pInt: 6507 pFloat: 6.13 anInt2: 3907 dVar1: 5857 dpInt1: 657 cEL: cvec_renamed[3]
+xAODTestReadCVec                          12   0    INFO  anInt1 1307 aFloat: 2600.6 pInt: 6507 pFloat: 6.13 anInt2: 3907 dVar1: 5857 dpInt1: 657 cEL: cvec_renamed[3]
   pvInt: [860 861 862 863 864 865 ]
   pvFloat: [-0.427 -0.327 -0.227 -0.127 -0.027 0.073 ]
   dpvFloat: [0.730 0.731 0.732 0.733 0.734 0.735 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1308 aFloat: 2600.7 pInt: 6508 pFloat: 7.13 anInt2: 3908 dVar1: 5858 dpInt1: 658 cEL: cvec_renamed[2]
+xAODTestReadCVec                          12   0    INFO  anInt1 1308 aFloat: 2600.7 pInt: 6508 pFloat: 7.13 anInt2: 3908 dVar1: 5858 dpInt1: 658 cEL: cvec_renamed[2]
   pvInt: [870 871 872 873 874 875 876 ]
   pvFloat: [-0.417 -0.317 -0.217 -0.117 -0.017 0.083 0.183 ]
   dpvFloat: [0.830 0.831 0.832 0.833 0.834 0.835 0.836 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1309 aFloat: 2600.8 pInt: 6509 pFloat: 8.13 anInt2: 3909 dVar1: 5859 dpInt1: 659 cEL: cvec_renamed[1]
+xAODTestReadCVec                          12   0    INFO  anInt1 1309 aFloat: 2600.8 pInt: 6509 pFloat: 8.13 anInt2: 3909 dVar1: 5859 dpInt1: 659 cEL: cvec_renamed[1]
   pvInt: [880 881 882 883 884 885 886 887 ]
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 ]
   dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 ]
 
-xAODTestReadCVec                        12  0      INFO  anInt1 1310 aFloat: 2600.9 pInt: 6510 pFloat: 9.13 anInt2: 3910 dVar1: 5860 dpInt1: 660 cEL: cvec_renamed[0]
+xAODTestReadCVec                          12   0    INFO  anInt1 1310 aFloat: 2600.9 pInt: 6510 pFloat: 9.13 anInt2: 3910 dVar1: 5860 dpInt1: 660 cEL: cvec_renamed[0]
   pvInt: [890 891 892 893 894 895 896 897 898 ]
   pvFloat: [-0.397 -0.297 -0.197 -0.097 0.003 0.103 0.203 0.303 0.403 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       12  0      INFO cvec_renamed.dInt1_renamed: 5201 5202 5203 5204 5205 5206 5207 5208 5209 5210
-xAODTestReadDecor                       12  0      INFO cinfo.dInt1_renamed: 39000
-xAODTestReadDecor                       12  0      INFO cinfo.dInt1_renamedBase: 39001
-xAODTestReadDecor                       12  0      INFO cinfo.dInt1_renamed: 39000
-AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  start processing event #13, run #0 on slot 0,  13 events processed so far  <<<===
-xAODTestReadCVec                        13  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        13  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        13  0      INFO  anInt1 1401 aFloat: 2800 pInt: 7001 pFloat: 0.14 anInt2: 4201 dVar1: 6301 dpInt1: 701 cEL: cvec_renamed[9]
+xAODTestReadDecor                         12   0    INFO cvec_renamed.dInt1_renamed: 5201 5202 5203 5204 5205 5206 5207 5208 5209 5210
+xAODTestReadDecor                         12   0    INFO cinfo.dInt1_renamed: 39000
+xAODTestReadDecor                         12   0    INFO cinfo.dInt1_renamedBase: 39001
+xAODTestReadDecor                         12   0    INFO cinfo.dInt1_renamed: 39000
+AthenaHiveEventLoopMgr                    12   0    INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    13   0    INFO   ===>>>  start processing event #13, run #0 on slot 0,  13 events processed so far  <<<===
+xAODTestReadCVec                          13   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          13   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          13   0    INFO  anInt1 1401 aFloat: 2800 pInt: 7001 pFloat: 0.14 anInt2: 4201 dVar1: 6301 dpInt1: 701 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1402 aFloat: 2800.1 pInt: 7002 pFloat: 1.14 anInt2: 4202 dVar1: 6302 dpInt1: 702 cEL: cvec_renamed[8]
+xAODTestReadCVec                          13   0    INFO  anInt1 1402 aFloat: 2800.1 pInt: 7002 pFloat: 1.14 anInt2: 4202 dVar1: 6302 dpInt1: 702 cEL: cvec_renamed[8]
   pvInt: [910 ]
   pvFloat: [-0.476 ]
   dpvFloat: [0.240 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1403 aFloat: 2800.2 pInt: 7003 pFloat: 2.14 anInt2: 4203 dVar1: 6303 dpInt1: 703 cEL: cvec_renamed[7]
+xAODTestReadCVec                          13   0    INFO  anInt1 1403 aFloat: 2800.2 pInt: 7003 pFloat: 2.14 anInt2: 4203 dVar1: 6303 dpInt1: 703 cEL: cvec_renamed[7]
   pvInt: [920 921 ]
   pvFloat: [-0.466 -0.366 ]
   dpvFloat: [0.340 0.341 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1404 aFloat: 2800.3 pInt: 7004 pFloat: 3.14 anInt2: 4204 dVar1: 6304 dpInt1: 704 cEL: cvec_renamed[6]
+xAODTestReadCVec                          13   0    INFO  anInt1 1404 aFloat: 2800.3 pInt: 7004 pFloat: 3.14 anInt2: 4204 dVar1: 6304 dpInt1: 704 cEL: cvec_renamed[6]
   pvInt: [930 931 932 ]
   pvFloat: [-0.456 -0.356 -0.256 ]
   dpvFloat: [0.440 0.441 0.442 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1405 aFloat: 2800.4 pInt: 7005 pFloat: 4.14 anInt2: 4205 dVar1: 6305 dpInt1: 705 cEL: cvec_renamed[5]
+xAODTestReadCVec                          13   0    INFO  anInt1 1405 aFloat: 2800.4 pInt: 7005 pFloat: 4.14 anInt2: 4205 dVar1: 6305 dpInt1: 705 cEL: cvec_renamed[5]
   pvInt: [940 941 942 943 ]
   pvFloat: [-0.446 -0.346 -0.246 -0.146 ]
   dpvFloat: [0.540 0.541 0.542 0.543 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1406 aFloat: 2800.5 pInt: 7006 pFloat: 5.14 anInt2: 4206 dVar1: 6306 dpInt1: 706 cEL: cvec_renamed[4]
+xAODTestReadCVec                          13   0    INFO  anInt1 1406 aFloat: 2800.5 pInt: 7006 pFloat: 5.14 anInt2: 4206 dVar1: 6306 dpInt1: 706 cEL: cvec_renamed[4]
   pvInt: [950 951 952 953 954 ]
   pvFloat: [-0.436 -0.336 -0.236 -0.136 -0.036 ]
   dpvFloat: [0.640 0.641 0.642 0.643 0.644 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1407 aFloat: 2800.6 pInt: 7007 pFloat: 6.14 anInt2: 4207 dVar1: 6307 dpInt1: 707 cEL: cvec_renamed[3]
+xAODTestReadCVec                          13   0    INFO  anInt1 1407 aFloat: 2800.6 pInt: 7007 pFloat: 6.14 anInt2: 4207 dVar1: 6307 dpInt1: 707 cEL: cvec_renamed[3]
   pvInt: [960 961 962 963 964 965 ]
   pvFloat: [-0.426 -0.326 -0.226 -0.126 -0.026 0.074 ]
   dpvFloat: [0.740 0.741 0.742 0.743 0.744 0.745 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1408 aFloat: 2800.7 pInt: 7008 pFloat: 7.14 anInt2: 4208 dVar1: 6308 dpInt1: 708 cEL: cvec_renamed[2]
+xAODTestReadCVec                          13   0    INFO  anInt1 1408 aFloat: 2800.7 pInt: 7008 pFloat: 7.14 anInt2: 4208 dVar1: 6308 dpInt1: 708 cEL: cvec_renamed[2]
   pvInt: [970 971 972 973 974 975 976 ]
   pvFloat: [-0.416 -0.316 -0.216 -0.116 -0.016 0.084 0.184 ]
   dpvFloat: [0.840 0.841 0.842 0.843 0.844 0.845 0.846 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1409 aFloat: 2800.8 pInt: 7009 pFloat: 8.14 anInt2: 4209 dVar1: 6309 dpInt1: 709 cEL: cvec_renamed[1]
+xAODTestReadCVec                          13   0    INFO  anInt1 1409 aFloat: 2800.8 pInt: 7009 pFloat: 8.14 anInt2: 4209 dVar1: 6309 dpInt1: 709 cEL: cvec_renamed[1]
   pvInt: [980 981 982 983 984 985 986 987 ]
   pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 ]
   dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 ]
 
-xAODTestReadCVec                        13  0      INFO  anInt1 1410 aFloat: 2800.9 pInt: 7010 pFloat: 9.14 anInt2: 4210 dVar1: 6310 dpInt1: 710 cEL: cvec_renamed[0]
+xAODTestReadCVec                          13   0    INFO  anInt1 1410 aFloat: 2800.9 pInt: 7010 pFloat: 9.14 anInt2: 4210 dVar1: 6310 dpInt1: 710 cEL: cvec_renamed[0]
   pvInt: [990 991 992 993 994 995 996 997 998 ]
   pvFloat: [-0.396 -0.296 -0.196 -0.096 0.004 0.104 0.204 0.304 0.404 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       13  0      INFO cvec_renamed.dInt1_renamed: 5601 5602 5603 5604 5605 5606 5607 5608 5609 5610
-xAODTestReadDecor                       13  0      INFO cinfo.dInt1_renamed: 42000
-xAODTestReadDecor                       13  0      INFO cinfo.dInt1_renamedBase: 42001
-xAODTestReadDecor                       13  0      INFO cinfo.dInt1_renamed: 42000
-AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  start processing event #14, run #0 on slot 0,  14 events processed so far  <<<===
-xAODTestReadCVec                        14  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        14  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        14  0      INFO  anInt1 1501 aFloat: 3000 pInt: 7501 pFloat: 0.15 anInt2: 4501 dVar1: 6751 dpInt1: 751 cEL: cvec_renamed[9]
+xAODTestReadDecor                         13   0    INFO cvec_renamed.dInt1_renamed: 5601 5602 5603 5604 5605 5606 5607 5608 5609 5610
+xAODTestReadDecor                         13   0    INFO cinfo.dInt1_renamed: 42000
+xAODTestReadDecor                         13   0    INFO cinfo.dInt1_renamedBase: 42001
+xAODTestReadDecor                         13   0    INFO cinfo.dInt1_renamed: 42000
+AthenaHiveEventLoopMgr                    13   0    INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    14   0    INFO   ===>>>  start processing event #14, run #0 on slot 0,  14 events processed so far  <<<===
+xAODTestReadCVec                          14   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          14   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          14   0    INFO  anInt1 1501 aFloat: 3000 pInt: 7501 pFloat: 0.15 anInt2: 4501 dVar1: 6751 dpInt1: 751 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1502 aFloat: 3000.1 pInt: 7502 pFloat: 1.15 anInt2: 4502 dVar1: 6752 dpInt1: 752 cEL: cvec_renamed[8]
+xAODTestReadCVec                          14   0    INFO  anInt1 1502 aFloat: 3000.1 pInt: 7502 pFloat: 1.15 anInt2: 4502 dVar1: 6752 dpInt1: 752 cEL: cvec_renamed[8]
   pvInt: [1010 ]
   pvFloat: [-0.475 ]
   dpvFloat: [0.250 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1503 aFloat: 3000.2 pInt: 7503 pFloat: 2.15 anInt2: 4503 dVar1: 6753 dpInt1: 753 cEL: cvec_renamed[7]
+xAODTestReadCVec                          14   0    INFO  anInt1 1503 aFloat: 3000.2 pInt: 7503 pFloat: 2.15 anInt2: 4503 dVar1: 6753 dpInt1: 753 cEL: cvec_renamed[7]
   pvInt: [1020 1021 ]
   pvFloat: [-0.465 -0.365 ]
   dpvFloat: [0.350 0.351 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1504 aFloat: 3000.3 pInt: 7504 pFloat: 3.15 anInt2: 4504 dVar1: 6754 dpInt1: 754 cEL: cvec_renamed[6]
+xAODTestReadCVec                          14   0    INFO  anInt1 1504 aFloat: 3000.3 pInt: 7504 pFloat: 3.15 anInt2: 4504 dVar1: 6754 dpInt1: 754 cEL: cvec_renamed[6]
   pvInt: [1030 1031 1032 ]
   pvFloat: [-0.455 -0.355 -0.255 ]
   dpvFloat: [0.450 0.451 0.452 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1505 aFloat: 3000.4 pInt: 7505 pFloat: 4.15 anInt2: 4505 dVar1: 6755 dpInt1: 755 cEL: cvec_renamed[5]
+xAODTestReadCVec                          14   0    INFO  anInt1 1505 aFloat: 3000.4 pInt: 7505 pFloat: 4.15 anInt2: 4505 dVar1: 6755 dpInt1: 755 cEL: cvec_renamed[5]
   pvInt: [1040 1041 1042 1043 ]
   pvFloat: [-0.445 -0.345 -0.245 -0.145 ]
   dpvFloat: [0.550 0.551 0.552 0.553 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1506 aFloat: 3000.5 pInt: 7506 pFloat: 5.15 anInt2: 4506 dVar1: 6756 dpInt1: 756 cEL: cvec_renamed[4]
+xAODTestReadCVec                          14   0    INFO  anInt1 1506 aFloat: 3000.5 pInt: 7506 pFloat: 5.15 anInt2: 4506 dVar1: 6756 dpInt1: 756 cEL: cvec_renamed[4]
   pvInt: [1050 1051 1052 1053 1054 ]
   pvFloat: [-0.435 -0.335 -0.235 -0.135 -0.035 ]
   dpvFloat: [0.650 0.651 0.652 0.653 0.654 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1507 aFloat: 3000.6 pInt: 7507 pFloat: 6.15 anInt2: 4507 dVar1: 6757 dpInt1: 757 cEL: cvec_renamed[3]
+xAODTestReadCVec                          14   0    INFO  anInt1 1507 aFloat: 3000.6 pInt: 7507 pFloat: 6.15 anInt2: 4507 dVar1: 6757 dpInt1: 757 cEL: cvec_renamed[3]
   pvInt: [1060 1061 1062 1063 1064 1065 ]
   pvFloat: [-0.425 -0.325 -0.225 -0.125 -0.025 0.075 ]
   dpvFloat: [0.750 0.751 0.752 0.753 0.754 0.755 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1508 aFloat: 3000.7 pInt: 7508 pFloat: 7.15 anInt2: 4508 dVar1: 6758 dpInt1: 758 cEL: cvec_renamed[2]
+xAODTestReadCVec                          14   0    INFO  anInt1 1508 aFloat: 3000.7 pInt: 7508 pFloat: 7.15 anInt2: 4508 dVar1: 6758 dpInt1: 758 cEL: cvec_renamed[2]
   pvInt: [1070 1071 1072 1073 1074 1075 1076 ]
   pvFloat: [-0.415 -0.315 -0.215 -0.115 -0.015 0.085 0.185 ]
   dpvFloat: [0.850 0.851 0.852 0.853 0.854 0.855 0.856 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1509 aFloat: 3000.8 pInt: 7509 pFloat: 8.15 anInt2: 4509 dVar1: 6759 dpInt1: 759 cEL: cvec_renamed[1]
+xAODTestReadCVec                          14   0    INFO  anInt1 1509 aFloat: 3000.8 pInt: 7509 pFloat: 8.15 anInt2: 4509 dVar1: 6759 dpInt1: 759 cEL: cvec_renamed[1]
   pvInt: [1080 1081 1082 1083 1084 1085 1086 1087 ]
   pvFloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 ]
   dpvFloat: [0.950 0.951 0.952 0.953 0.954 0.955 0.956 0.957 ]
 
-xAODTestReadCVec                        14  0      INFO  anInt1 1510 aFloat: 3000.9 pInt: 7510 pFloat: 9.15 anInt2: 4510 dVar1: 6760 dpInt1: 760 cEL: cvec_renamed[0]
+xAODTestReadCVec                          14   0    INFO  anInt1 1510 aFloat: 3000.9 pInt: 7510 pFloat: 9.15 anInt2: 4510 dVar1: 6760 dpInt1: 760 cEL: cvec_renamed[0]
   pvInt: [1090 1091 1092 1093 1094 1095 1096 1097 1098 ]
   pvFloat: [-0.395 -0.295 -0.195 -0.095 0.005 0.105 0.205 0.305 0.405 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       14  0      INFO cvec_renamed.dInt1_renamed: 6001 6002 6003 6004 6005 6006 6007 6008 6009 6010
-xAODTestReadDecor                       14  0      INFO cinfo.dInt1_renamed: 45000
-xAODTestReadDecor                       14  0      INFO cinfo.dInt1_renamedBase: 45001
-xAODTestReadDecor                       14  0      INFO cinfo.dInt1_renamed: 45000
-AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  start processing event #15, run #0 on slot 0,  15 events processed so far  <<<===
-xAODTestReadCVec                        15  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        15  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        15  0      INFO  anInt1 1601 aFloat: 3200 pInt: 8001 pFloat: 0.16 anInt2: 4801 dVar1: 7201 dpInt1: 801 cEL: cvec_renamed[9]
+xAODTestReadDecor                         14   0    INFO cvec_renamed.dInt1_renamed: 6001 6002 6003 6004 6005 6006 6007 6008 6009 6010
+xAODTestReadDecor                         14   0    INFO cinfo.dInt1_renamed: 45000
+xAODTestReadDecor                         14   0    INFO cinfo.dInt1_renamedBase: 45001
+xAODTestReadDecor                         14   0    INFO cinfo.dInt1_renamed: 45000
+AthenaHiveEventLoopMgr                    14   0    INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    15   0    INFO   ===>>>  start processing event #15, run #0 on slot 0,  15 events processed so far  <<<===
+xAODTestReadCVec                          15   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          15   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          15   0    INFO  anInt1 1601 aFloat: 3200 pInt: 8001 pFloat: 0.16 anInt2: 4801 dVar1: 7201 dpInt1: 801 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1602 aFloat: 3200.1 pInt: 8002 pFloat: 1.16 anInt2: 4802 dVar1: 7202 dpInt1: 802 cEL: cvec_renamed[8]
+xAODTestReadCVec                          15   0    INFO  anInt1 1602 aFloat: 3200.1 pInt: 8002 pFloat: 1.16 anInt2: 4802 dVar1: 7202 dpInt1: 802 cEL: cvec_renamed[8]
   pvInt: [1110 ]
   pvFloat: [-0.474 ]
   dpvFloat: [0.260 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1603 aFloat: 3200.2 pInt: 8003 pFloat: 2.16 anInt2: 4803 dVar1: 7203 dpInt1: 803 cEL: cvec_renamed[7]
+xAODTestReadCVec                          15   0    INFO  anInt1 1603 aFloat: 3200.2 pInt: 8003 pFloat: 2.16 anInt2: 4803 dVar1: 7203 dpInt1: 803 cEL: cvec_renamed[7]
   pvInt: [1120 1121 ]
   pvFloat: [-0.464 -0.364 ]
   dpvFloat: [0.360 0.361 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1604 aFloat: 3200.3 pInt: 8004 pFloat: 3.16 anInt2: 4804 dVar1: 7204 dpInt1: 804 cEL: cvec_renamed[6]
+xAODTestReadCVec                          15   0    INFO  anInt1 1604 aFloat: 3200.3 pInt: 8004 pFloat: 3.16 anInt2: 4804 dVar1: 7204 dpInt1: 804 cEL: cvec_renamed[6]
   pvInt: [1130 1131 1132 ]
   pvFloat: [-0.454 -0.354 -0.254 ]
   dpvFloat: [0.460 0.461 0.462 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1605 aFloat: 3200.4 pInt: 8005 pFloat: 4.16 anInt2: 4805 dVar1: 7205 dpInt1: 805 cEL: cvec_renamed[5]
+xAODTestReadCVec                          15   0    INFO  anInt1 1605 aFloat: 3200.4 pInt: 8005 pFloat: 4.16 anInt2: 4805 dVar1: 7205 dpInt1: 805 cEL: cvec_renamed[5]
   pvInt: [1140 1141 1142 1143 ]
   pvFloat: [-0.444 -0.344 -0.244 -0.144 ]
   dpvFloat: [0.560 0.561 0.562 0.563 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1606 aFloat: 3200.5 pInt: 8006 pFloat: 5.16 anInt2: 4806 dVar1: 7206 dpInt1: 806 cEL: cvec_renamed[4]
+xAODTestReadCVec                          15   0    INFO  anInt1 1606 aFloat: 3200.5 pInt: 8006 pFloat: 5.16 anInt2: 4806 dVar1: 7206 dpInt1: 806 cEL: cvec_renamed[4]
   pvInt: [1150 1151 1152 1153 1154 ]
   pvFloat: [-0.434 -0.334 -0.234 -0.134 -0.034 ]
   dpvFloat: [0.660 0.661 0.662 0.663 0.664 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1607 aFloat: 3200.6 pInt: 8007 pFloat: 6.16 anInt2: 4807 dVar1: 7207 dpInt1: 807 cEL: cvec_renamed[3]
+xAODTestReadCVec                          15   0    INFO  anInt1 1607 aFloat: 3200.6 pInt: 8007 pFloat: 6.16 anInt2: 4807 dVar1: 7207 dpInt1: 807 cEL: cvec_renamed[3]
   pvInt: [1160 1161 1162 1163 1164 1165 ]
   pvFloat: [-0.424 -0.324 -0.224 -0.124 -0.024 0.076 ]
   dpvFloat: [0.760 0.761 0.762 0.763 0.764 0.765 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1608 aFloat: 3200.7 pInt: 8008 pFloat: 7.16 anInt2: 4808 dVar1: 7208 dpInt1: 808 cEL: cvec_renamed[2]
+xAODTestReadCVec                          15   0    INFO  anInt1 1608 aFloat: 3200.7 pInt: 8008 pFloat: 7.16 anInt2: 4808 dVar1: 7208 dpInt1: 808 cEL: cvec_renamed[2]
   pvInt: [1170 1171 1172 1173 1174 1175 1176 ]
   pvFloat: [-0.414 -0.314 -0.214 -0.114 -0.014 0.086 0.186 ]
   dpvFloat: [0.860 0.861 0.862 0.863 0.864 0.865 0.866 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1609 aFloat: 3200.8 pInt: 8009 pFloat: 8.16 anInt2: 4809 dVar1: 7209 dpInt1: 809 cEL: cvec_renamed[1]
+xAODTestReadCVec                          15   0    INFO  anInt1 1609 aFloat: 3200.8 pInt: 8009 pFloat: 8.16 anInt2: 4809 dVar1: 7209 dpInt1: 809 cEL: cvec_renamed[1]
   pvInt: [1180 1181 1182 1183 1184 1185 1186 1187 ]
   pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 ]
   dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 ]
 
-xAODTestReadCVec                        15  0      INFO  anInt1 1610 aFloat: 3200.9 pInt: 8010 pFloat: 9.16 anInt2: 4810 dVar1: 7210 dpInt1: 810 cEL: cvec_renamed[0]
+xAODTestReadCVec                          15   0    INFO  anInt1 1610 aFloat: 3200.9 pInt: 8010 pFloat: 9.16 anInt2: 4810 dVar1: 7210 dpInt1: 810 cEL: cvec_renamed[0]
   pvInt: [1190 1191 1192 1193 1194 1195 1196 1197 1198 ]
   pvFloat: [-0.394 -0.294 -0.194 -0.094 0.006 0.106 0.206 0.306 0.406 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       15  0      INFO cvec_renamed.dInt1_renamed: 6401 6402 6403 6404 6405 6406 6407 6408 6409 6410
-xAODTestReadDecor                       15  0      INFO cinfo.dInt1_renamed: 48000
-xAODTestReadDecor                       15  0      INFO cinfo.dInt1_renamedBase: 48001
-xAODTestReadDecor                       15  0      INFO cinfo.dInt1_renamed: 48000
-AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  start processing event #16, run #0 on slot 0,  16 events processed so far  <<<===
-xAODTestReadCVec                        16  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        16  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        16  0      INFO  anInt1 1701 aFloat: 3400 pInt: 8501 pFloat: 0.17 anInt2: 5101 dVar1: 7651 dpInt1: 851 cEL: cvec_renamed[9]
+xAODTestReadDecor                         15   0    INFO cvec_renamed.dInt1_renamed: 6401 6402 6403 6404 6405 6406 6407 6408 6409 6410
+xAODTestReadDecor                         15   0    INFO cinfo.dInt1_renamed: 48000
+xAODTestReadDecor                         15   0    INFO cinfo.dInt1_renamedBase: 48001
+xAODTestReadDecor                         15   0    INFO cinfo.dInt1_renamed: 48000
+AthenaHiveEventLoopMgr                    15   0    INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    16   0    INFO   ===>>>  start processing event #16, run #0 on slot 0,  16 events processed so far  <<<===
+xAODTestReadCVec                          16   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          16   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          16   0    INFO  anInt1 1701 aFloat: 3400 pInt: 8501 pFloat: 0.17 anInt2: 5101 dVar1: 7651 dpInt1: 851 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1702 aFloat: 3400.1 pInt: 8502 pFloat: 1.17 anInt2: 5102 dVar1: 7652 dpInt1: 852 cEL: cvec_renamed[8]
+xAODTestReadCVec                          16   0    INFO  anInt1 1702 aFloat: 3400.1 pInt: 8502 pFloat: 1.17 anInt2: 5102 dVar1: 7652 dpInt1: 852 cEL: cvec_renamed[8]
   pvInt: [1210 ]
   pvFloat: [-0.473 ]
   dpvFloat: [0.270 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1703 aFloat: 3400.2 pInt: 8503 pFloat: 2.17 anInt2: 5103 dVar1: 7653 dpInt1: 853 cEL: cvec_renamed[7]
+xAODTestReadCVec                          16   0    INFO  anInt1 1703 aFloat: 3400.2 pInt: 8503 pFloat: 2.17 anInt2: 5103 dVar1: 7653 dpInt1: 853 cEL: cvec_renamed[7]
   pvInt: [1220 1221 ]
   pvFloat: [-0.463 -0.363 ]
   dpvFloat: [0.370 0.371 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1704 aFloat: 3400.3 pInt: 8504 pFloat: 3.17 anInt2: 5104 dVar1: 7654 dpInt1: 854 cEL: cvec_renamed[6]
+xAODTestReadCVec                          16   0    INFO  anInt1 1704 aFloat: 3400.3 pInt: 8504 pFloat: 3.17 anInt2: 5104 dVar1: 7654 dpInt1: 854 cEL: cvec_renamed[6]
   pvInt: [1230 1231 1232 ]
   pvFloat: [-0.453 -0.353 -0.253 ]
   dpvFloat: [0.470 0.471 0.472 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1705 aFloat: 3400.4 pInt: 8505 pFloat: 4.17 anInt2: 5105 dVar1: 7655 dpInt1: 855 cEL: cvec_renamed[5]
+xAODTestReadCVec                          16   0    INFO  anInt1 1705 aFloat: 3400.4 pInt: 8505 pFloat: 4.17 anInt2: 5105 dVar1: 7655 dpInt1: 855 cEL: cvec_renamed[5]
   pvInt: [1240 1241 1242 1243 ]
   pvFloat: [-0.443 -0.343 -0.243 -0.143 ]
   dpvFloat: [0.570 0.571 0.572 0.573 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1706 aFloat: 3400.5 pInt: 8506 pFloat: 5.17 anInt2: 5106 dVar1: 7656 dpInt1: 856 cEL: cvec_renamed[4]
+xAODTestReadCVec                          16   0    INFO  anInt1 1706 aFloat: 3400.5 pInt: 8506 pFloat: 5.17 anInt2: 5106 dVar1: 7656 dpInt1: 856 cEL: cvec_renamed[4]
   pvInt: [1250 1251 1252 1253 1254 ]
   pvFloat: [-0.433 -0.333 -0.233 -0.133 -0.033 ]
   dpvFloat: [0.670 0.671 0.672 0.673 0.674 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1707 aFloat: 3400.6 pInt: 8507 pFloat: 6.17 anInt2: 5107 dVar1: 7657 dpInt1: 857 cEL: cvec_renamed[3]
+xAODTestReadCVec                          16   0    INFO  anInt1 1707 aFloat: 3400.6 pInt: 8507 pFloat: 6.17 anInt2: 5107 dVar1: 7657 dpInt1: 857 cEL: cvec_renamed[3]
   pvInt: [1260 1261 1262 1263 1264 1265 ]
   pvFloat: [-0.423 -0.323 -0.223 -0.123 -0.023 0.077 ]
   dpvFloat: [0.770 0.771 0.772 0.773 0.774 0.775 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1708 aFloat: 3400.7 pInt: 8508 pFloat: 7.17 anInt2: 5108 dVar1: 7658 dpInt1: 858 cEL: cvec_renamed[2]
+xAODTestReadCVec                          16   0    INFO  anInt1 1708 aFloat: 3400.7 pInt: 8508 pFloat: 7.17 anInt2: 5108 dVar1: 7658 dpInt1: 858 cEL: cvec_renamed[2]
   pvInt: [1270 1271 1272 1273 1274 1275 1276 ]
   pvFloat: [-0.413 -0.313 -0.213 -0.113 -0.013 0.087 0.187 ]
   dpvFloat: [0.870 0.871 0.872 0.873 0.874 0.875 0.876 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1709 aFloat: 3400.8 pInt: 8509 pFloat: 8.17 anInt2: 5109 dVar1: 7659 dpInt1: 859 cEL: cvec_renamed[1]
+xAODTestReadCVec                          16   0    INFO  anInt1 1709 aFloat: 3400.8 pInt: 8509 pFloat: 8.17 anInt2: 5109 dVar1: 7659 dpInt1: 859 cEL: cvec_renamed[1]
   pvInt: [1280 1281 1282 1283 1284 1285 1286 1287 ]
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 ]
   dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 ]
 
-xAODTestReadCVec                        16  0      INFO  anInt1 1710 aFloat: 3400.9 pInt: 8510 pFloat: 9.17 anInt2: 5110 dVar1: 7660 dpInt1: 860 cEL: cvec_renamed[0]
+xAODTestReadCVec                          16   0    INFO  anInt1 1710 aFloat: 3400.9 pInt: 8510 pFloat: 9.17 anInt2: 5110 dVar1: 7660 dpInt1: 860 cEL: cvec_renamed[0]
   pvInt: [1290 1291 1292 1293 1294 1295 1296 1297 1298 ]
   pvFloat: [-0.393 -0.293 -0.193 -0.093 0.007 0.107 0.207 0.307 0.407 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       16  0      INFO cvec_renamed.dInt1_renamed: 6801 6802 6803 6804 6805 6806 6807 6808 6809 6810
-xAODTestReadDecor                       16  0      INFO cinfo.dInt1_renamed: 51000
-xAODTestReadDecor                       16  0      INFO cinfo.dInt1_renamedBase: 51001
-xAODTestReadDecor                       16  0      INFO cinfo.dInt1_renamed: 51000
-AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  start processing event #17, run #0 on slot 0,  17 events processed so far  <<<===
-xAODTestReadCVec                        17  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        17  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        17  0      INFO  anInt1 1801 aFloat: 3600 pInt: 9001 pFloat: 0.18 anInt2: 5401 dVar1: 8101 dpInt1: 901 cEL: cvec_renamed[9]
+xAODTestReadDecor                         16   0    INFO cvec_renamed.dInt1_renamed: 6801 6802 6803 6804 6805 6806 6807 6808 6809 6810
+xAODTestReadDecor                         16   0    INFO cinfo.dInt1_renamed: 51000
+xAODTestReadDecor                         16   0    INFO cinfo.dInt1_renamedBase: 51001
+xAODTestReadDecor                         16   0    INFO cinfo.dInt1_renamed: 51000
+AthenaHiveEventLoopMgr                    16   0    INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    17   0    INFO   ===>>>  start processing event #17, run #0 on slot 0,  17 events processed so far  <<<===
+xAODTestReadCVec                          17   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          17   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          17   0    INFO  anInt1 1801 aFloat: 3600 pInt: 9001 pFloat: 0.18 anInt2: 5401 dVar1: 8101 dpInt1: 901 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1802 aFloat: 3600.1 pInt: 9002 pFloat: 1.18 anInt2: 5402 dVar1: 8102 dpInt1: 902 cEL: cvec_renamed[8]
+xAODTestReadCVec                          17   0    INFO  anInt1 1802 aFloat: 3600.1 pInt: 9002 pFloat: 1.18 anInt2: 5402 dVar1: 8102 dpInt1: 902 cEL: cvec_renamed[8]
   pvInt: [1310 ]
   pvFloat: [-0.472 ]
   dpvFloat: [0.280 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1803 aFloat: 3600.2 pInt: 9003 pFloat: 2.18 anInt2: 5403 dVar1: 8103 dpInt1: 903 cEL: cvec_renamed[7]
+xAODTestReadCVec                          17   0    INFO  anInt1 1803 aFloat: 3600.2 pInt: 9003 pFloat: 2.18 anInt2: 5403 dVar1: 8103 dpInt1: 903 cEL: cvec_renamed[7]
   pvInt: [1320 1321 ]
   pvFloat: [-0.462 -0.362 ]
   dpvFloat: [0.380 0.381 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1804 aFloat: 3600.3 pInt: 9004 pFloat: 3.18 anInt2: 5404 dVar1: 8104 dpInt1: 904 cEL: cvec_renamed[6]
+xAODTestReadCVec                          17   0    INFO  anInt1 1804 aFloat: 3600.3 pInt: 9004 pFloat: 3.18 anInt2: 5404 dVar1: 8104 dpInt1: 904 cEL: cvec_renamed[6]
   pvInt: [1330 1331 1332 ]
   pvFloat: [-0.452 -0.352 -0.252 ]
   dpvFloat: [0.480 0.481 0.482 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1805 aFloat: 3600.4 pInt: 9005 pFloat: 4.18 anInt2: 5405 dVar1: 8105 dpInt1: 905 cEL: cvec_renamed[5]
+xAODTestReadCVec                          17   0    INFO  anInt1 1805 aFloat: 3600.4 pInt: 9005 pFloat: 4.18 anInt2: 5405 dVar1: 8105 dpInt1: 905 cEL: cvec_renamed[5]
   pvInt: [1340 1341 1342 1343 ]
   pvFloat: [-0.442 -0.342 -0.242 -0.142 ]
   dpvFloat: [0.580 0.581 0.582 0.583 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1806 aFloat: 3600.5 pInt: 9006 pFloat: 5.18 anInt2: 5406 dVar1: 8106 dpInt1: 906 cEL: cvec_renamed[4]
+xAODTestReadCVec                          17   0    INFO  anInt1 1806 aFloat: 3600.5 pInt: 9006 pFloat: 5.18 anInt2: 5406 dVar1: 8106 dpInt1: 906 cEL: cvec_renamed[4]
   pvInt: [1350 1351 1352 1353 1354 ]
   pvFloat: [-0.432 -0.332 -0.232 -0.132 -0.032 ]
   dpvFloat: [0.680 0.681 0.682 0.683 0.684 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1807 aFloat: 3600.6 pInt: 9007 pFloat: 6.18 anInt2: 5407 dVar1: 8107 dpInt1: 907 cEL: cvec_renamed[3]
+xAODTestReadCVec                          17   0    INFO  anInt1 1807 aFloat: 3600.6 pInt: 9007 pFloat: 6.18 anInt2: 5407 dVar1: 8107 dpInt1: 907 cEL: cvec_renamed[3]
   pvInt: [1360 1361 1362 1363 1364 1365 ]
   pvFloat: [-0.422 -0.322 -0.222 -0.122 -0.022 0.078 ]
   dpvFloat: [0.780 0.781 0.782 0.783 0.784 0.785 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1808 aFloat: 3600.7 pInt: 9008 pFloat: 7.18 anInt2: 5408 dVar1: 8108 dpInt1: 908 cEL: cvec_renamed[2]
+xAODTestReadCVec                          17   0    INFO  anInt1 1808 aFloat: 3600.7 pInt: 9008 pFloat: 7.18 anInt2: 5408 dVar1: 8108 dpInt1: 908 cEL: cvec_renamed[2]
   pvInt: [1370 1371 1372 1373 1374 1375 1376 ]
   pvFloat: [-0.412 -0.312 -0.212 -0.112 -0.012 0.088 0.188 ]
   dpvFloat: [0.880 0.881 0.882 0.883 0.884 0.885 0.886 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1809 aFloat: 3600.8 pInt: 9009 pFloat: 8.18 anInt2: 5409 dVar1: 8109 dpInt1: 909 cEL: cvec_renamed[1]
+xAODTestReadCVec                          17   0    INFO  anInt1 1809 aFloat: 3600.8 pInt: 9009 pFloat: 8.18 anInt2: 5409 dVar1: 8109 dpInt1: 909 cEL: cvec_renamed[1]
   pvInt: [1380 1381 1382 1383 1384 1385 1386 1387 ]
   pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 ]
   dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 ]
 
-xAODTestReadCVec                        17  0      INFO  anInt1 1810 aFloat: 3600.9 pInt: 9010 pFloat: 9.18 anInt2: 5410 dVar1: 8110 dpInt1: 910 cEL: cvec_renamed[0]
+xAODTestReadCVec                          17   0    INFO  anInt1 1810 aFloat: 3600.9 pInt: 9010 pFloat: 9.18 anInt2: 5410 dVar1: 8110 dpInt1: 910 cEL: cvec_renamed[0]
   pvInt: [1390 1391 1392 1393 1394 1395 1396 1397 1398 ]
   pvFloat: [-0.392 -0.292 -0.192 -0.092 0.008 0.108 0.208 0.308 0.408 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       17  0      INFO cvec_renamed.dInt1_renamed: 7201 7202 7203 7204 7205 7206 7207 7208 7209 7210
-xAODTestReadDecor                       17  0      INFO cinfo.dInt1_renamed: 54000
-xAODTestReadDecor                       17  0      INFO cinfo.dInt1_renamedBase: 54001
-xAODTestReadDecor                       17  0      INFO cinfo.dInt1_renamed: 54000
-AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  start processing event #18, run #0 on slot 0,  18 events processed so far  <<<===
-xAODTestReadCVec                        18  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        18  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        18  0      INFO  anInt1 1901 aFloat: 3800 pInt: 9501 pFloat: 0.19 anInt2: 5701 dVar1: 8551 dpInt1: 951 cEL: cvec_renamed[9]
+xAODTestReadDecor                         17   0    INFO cvec_renamed.dInt1_renamed: 7201 7202 7203 7204 7205 7206 7207 7208 7209 7210
+xAODTestReadDecor                         17   0    INFO cinfo.dInt1_renamed: 54000
+xAODTestReadDecor                         17   0    INFO cinfo.dInt1_renamedBase: 54001
+xAODTestReadDecor                         17   0    INFO cinfo.dInt1_renamed: 54000
+AthenaHiveEventLoopMgr                    17   0    INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    18   0    INFO   ===>>>  start processing event #18, run #0 on slot 0,  18 events processed so far  <<<===
+xAODTestReadCVec                          18   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          18   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          18   0    INFO  anInt1 1901 aFloat: 3800 pInt: 9501 pFloat: 0.19 anInt2: 5701 dVar1: 8551 dpInt1: 951 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1902 aFloat: 3800.1 pInt: 9502 pFloat: 1.19 anInt2: 5702 dVar1: 8552 dpInt1: 952 cEL: cvec_renamed[8]
+xAODTestReadCVec                          18   0    INFO  anInt1 1902 aFloat: 3800.1 pInt: 9502 pFloat: 1.19 anInt2: 5702 dVar1: 8552 dpInt1: 952 cEL: cvec_renamed[8]
   pvInt: [1410 ]
   pvFloat: [-0.471 ]
   dpvFloat: [0.290 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1903 aFloat: 3800.2 pInt: 9503 pFloat: 2.19 anInt2: 5703 dVar1: 8553 dpInt1: 953 cEL: cvec_renamed[7]
+xAODTestReadCVec                          18   0    INFO  anInt1 1903 aFloat: 3800.2 pInt: 9503 pFloat: 2.19 anInt2: 5703 dVar1: 8553 dpInt1: 953 cEL: cvec_renamed[7]
   pvInt: [1420 1421 ]
   pvFloat: [-0.461 -0.361 ]
   dpvFloat: [0.390 0.391 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1904 aFloat: 3800.3 pInt: 9504 pFloat: 3.19 anInt2: 5704 dVar1: 8554 dpInt1: 954 cEL: cvec_renamed[6]
+xAODTestReadCVec                          18   0    INFO  anInt1 1904 aFloat: 3800.3 pInt: 9504 pFloat: 3.19 anInt2: 5704 dVar1: 8554 dpInt1: 954 cEL: cvec_renamed[6]
   pvInt: [1430 1431 1432 ]
   pvFloat: [-0.451 -0.351 -0.251 ]
   dpvFloat: [0.490 0.491 0.492 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1905 aFloat: 3800.4 pInt: 9505 pFloat: 4.19 anInt2: 5705 dVar1: 8555 dpInt1: 955 cEL: cvec_renamed[5]
+xAODTestReadCVec                          18   0    INFO  anInt1 1905 aFloat: 3800.4 pInt: 9505 pFloat: 4.19 anInt2: 5705 dVar1: 8555 dpInt1: 955 cEL: cvec_renamed[5]
   pvInt: [1440 1441 1442 1443 ]
   pvFloat: [-0.441 -0.341 -0.241 -0.141 ]
   dpvFloat: [0.590 0.591 0.592 0.593 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1906 aFloat: 3800.5 pInt: 9506 pFloat: 5.19 anInt2: 5706 dVar1: 8556 dpInt1: 956 cEL: cvec_renamed[4]
+xAODTestReadCVec                          18   0    INFO  anInt1 1906 aFloat: 3800.5 pInt: 9506 pFloat: 5.19 anInt2: 5706 dVar1: 8556 dpInt1: 956 cEL: cvec_renamed[4]
   pvInt: [1450 1451 1452 1453 1454 ]
   pvFloat: [-0.431 -0.331 -0.231 -0.131 -0.031 ]
   dpvFloat: [0.690 0.691 0.692 0.693 0.694 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1907 aFloat: 3800.6 pInt: 9507 pFloat: 6.19 anInt2: 5707 dVar1: 8557 dpInt1: 957 cEL: cvec_renamed[3]
+xAODTestReadCVec                          18   0    INFO  anInt1 1907 aFloat: 3800.6 pInt: 9507 pFloat: 6.19 anInt2: 5707 dVar1: 8557 dpInt1: 957 cEL: cvec_renamed[3]
   pvInt: [1460 1461 1462 1463 1464 1465 ]
   pvFloat: [-0.421 -0.321 -0.221 -0.121 -0.021 0.079 ]
   dpvFloat: [0.790 0.791 0.792 0.793 0.794 0.795 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1908 aFloat: 3800.7 pInt: 9508 pFloat: 7.19 anInt2: 5708 dVar1: 8558 dpInt1: 958 cEL: cvec_renamed[2]
+xAODTestReadCVec                          18   0    INFO  anInt1 1908 aFloat: 3800.7 pInt: 9508 pFloat: 7.19 anInt2: 5708 dVar1: 8558 dpInt1: 958 cEL: cvec_renamed[2]
   pvInt: [1470 1471 1472 1473 1474 1475 1476 ]
   pvFloat: [-0.411 -0.311 -0.211 -0.111 -0.011 0.089 0.189 ]
   dpvFloat: [0.890 0.891 0.892 0.893 0.894 0.895 0.896 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1909 aFloat: 3800.8 pInt: 9509 pFloat: 8.19 anInt2: 5709 dVar1: 8559 dpInt1: 959 cEL: cvec_renamed[1]
+xAODTestReadCVec                          18   0    INFO  anInt1 1909 aFloat: 3800.8 pInt: 9509 pFloat: 8.19 anInt2: 5709 dVar1: 8559 dpInt1: 959 cEL: cvec_renamed[1]
   pvInt: [1480 1481 1482 1483 1484 1485 1486 1487 ]
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 ]
   dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 ]
 
-xAODTestReadCVec                        18  0      INFO  anInt1 1910 aFloat: 3800.9 pInt: 9510 pFloat: 9.19 anInt2: 5710 dVar1: 8560 dpInt1: 960 cEL: cvec_renamed[0]
+xAODTestReadCVec                          18   0    INFO  anInt1 1910 aFloat: 3800.9 pInt: 9510 pFloat: 9.19 anInt2: 5710 dVar1: 8560 dpInt1: 960 cEL: cvec_renamed[0]
   pvInt: [1490 1491 1492 1493 1494 1495 1496 1497 1498 ]
   pvFloat: [-0.391 -0.291 -0.191 -0.091 0.009 0.109 0.209 0.309 0.409 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       18  0      INFO cvec_renamed.dInt1_renamed: 7601 7602 7603 7604 7605 7606 7607 7608 7609 7610
-xAODTestReadDecor                       18  0      INFO cinfo.dInt1_renamed: 57000
-xAODTestReadDecor                       18  0      INFO cinfo.dInt1_renamedBase: 57001
-xAODTestReadDecor                       18  0      INFO cinfo.dInt1_renamed: 57000
-AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processing event #19, run #0 on slot 0,  19 events processed so far  <<<===
-xAODTestReadCVec                        19  0      INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
-xAODTestReadCVec                        19  0      INFO Type of aux store: DMTest::CAuxContainer_v1
-xAODTestReadCVec                        19  0      INFO  anInt1 2001 aFloat: 4000 pInt: 10001 pFloat: 0.20 anInt2: 6001 dVar1: 9001 dpInt1: 1001 cEL: cvec_renamed[9]
+xAODTestReadDecor                         18   0    INFO cvec_renamed.dInt1_renamed: 7601 7602 7603 7604 7605 7606 7607 7608 7609 7610
+xAODTestReadDecor                         18   0    INFO cinfo.dInt1_renamed: 57000
+xAODTestReadDecor                         18   0    INFO cinfo.dInt1_renamedBase: 57001
+xAODTestReadDecor                         18   0    INFO cinfo.dInt1_renamed: 57000
+AthenaHiveEventLoopMgr                    18   0    INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    19   0    INFO   ===>>>  start processing event #19, run #0 on slot 0,  19 events processed so far  <<<===
+xAODTestReadCVec                          19   0    INFO cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+xAODTestReadCVec                          19   0    INFO Type of aux store: DMTest::CAuxContainer_v1
+xAODTestReadCVec                          19   0    INFO  anInt1 2001 aFloat: 4000 pInt: 10001 pFloat: 0.20 anInt2: 6001 dVar1: 9001 dpInt1: 1001 cEL: cvec_renamed[9]
   pvInt: []
   pvFloat: []
   dpvFloat: []
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2002 aFloat: 4000.1 pInt: 10002 pFloat: 1.20 anInt2: 6002 dVar1: 9002 dpInt1: 1002 cEL: cvec_renamed[8]
+xAODTestReadCVec                          19   0    INFO  anInt1 2002 aFloat: 4000.1 pInt: 10002 pFloat: 1.20 anInt2: 6002 dVar1: 9002 dpInt1: 1002 cEL: cvec_renamed[8]
   pvInt: [1510 ]
   pvFloat: [-0.470 ]
   dpvFloat: [0.300 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2003 aFloat: 4000.2 pInt: 10003 pFloat: 2.20 anInt2: 6003 dVar1: 9003 dpInt1: 1003 cEL: cvec_renamed[7]
+xAODTestReadCVec                          19   0    INFO  anInt1 2003 aFloat: 4000.2 pInt: 10003 pFloat: 2.20 anInt2: 6003 dVar1: 9003 dpInt1: 1003 cEL: cvec_renamed[7]
   pvInt: [1520 1521 ]
   pvFloat: [-0.460 -0.360 ]
   dpvFloat: [0.400 0.401 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2004 aFloat: 4000.3 pInt: 10004 pFloat: 3.20 anInt2: 6004 dVar1: 9004 dpInt1: 1004 cEL: cvec_renamed[6]
+xAODTestReadCVec                          19   0    INFO  anInt1 2004 aFloat: 4000.3 pInt: 10004 pFloat: 3.20 anInt2: 6004 dVar1: 9004 dpInt1: 1004 cEL: cvec_renamed[6]
   pvInt: [1530 1531 1532 ]
   pvFloat: [-0.450 -0.350 -0.250 ]
   dpvFloat: [0.500 0.501 0.502 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2005 aFloat: 4000.4 pInt: 10005 pFloat: 4.20 anInt2: 6005 dVar1: 9005 dpInt1: 1005 cEL: cvec_renamed[5]
+xAODTestReadCVec                          19   0    INFO  anInt1 2005 aFloat: 4000.4 pInt: 10005 pFloat: 4.20 anInt2: 6005 dVar1: 9005 dpInt1: 1005 cEL: cvec_renamed[5]
   pvInt: [1540 1541 1542 1543 ]
   pvFloat: [-0.440 -0.340 -0.240 -0.140 ]
   dpvFloat: [0.600 0.601 0.602 0.603 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2006 aFloat: 4000.5 pInt: 10006 pFloat: 5.20 anInt2: 6006 dVar1: 9006 dpInt1: 1006 cEL: cvec_renamed[4]
+xAODTestReadCVec                          19   0    INFO  anInt1 2006 aFloat: 4000.5 pInt: 10006 pFloat: 5.20 anInt2: 6006 dVar1: 9006 dpInt1: 1006 cEL: cvec_renamed[4]
   pvInt: [1550 1551 1552 1553 1554 ]
   pvFloat: [-0.430 -0.330 -0.230 -0.130 -0.030 ]
   dpvFloat: [0.700 0.701 0.702 0.703 0.704 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2007 aFloat: 4000.6 pInt: 10007 pFloat: 6.20 anInt2: 6007 dVar1: 9007 dpInt1: 1007 cEL: cvec_renamed[3]
+xAODTestReadCVec                          19   0    INFO  anInt1 2007 aFloat: 4000.6 pInt: 10007 pFloat: 6.20 anInt2: 6007 dVar1: 9007 dpInt1: 1007 cEL: cvec_renamed[3]
   pvInt: [1560 1561 1562 1563 1564 1565 ]
   pvFloat: [-0.420 -0.320 -0.220 -0.120 -0.020 0.080 ]
   dpvFloat: [0.800 0.801 0.802 0.803 0.804 0.805 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2008 aFloat: 4000.7 pInt: 10008 pFloat: 7.20 anInt2: 6008 dVar1: 9008 dpInt1: 1008 cEL: cvec_renamed[2]
+xAODTestReadCVec                          19   0    INFO  anInt1 2008 aFloat: 4000.7 pInt: 10008 pFloat: 7.20 anInt2: 6008 dVar1: 9008 dpInt1: 1008 cEL: cvec_renamed[2]
   pvInt: [1570 1571 1572 1573 1574 1575 1576 ]
   pvFloat: [-0.410 -0.310 -0.210 -0.110 -0.010 0.090 0.190 ]
   dpvFloat: [0.900 0.901 0.902 0.903 0.904 0.905 0.906 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2009 aFloat: 4000.8 pInt: 10009 pFloat: 8.20 anInt2: 6009 dVar1: 9009 dpInt1: 1009 cEL: cvec_renamed[1]
+xAODTestReadCVec                          19   0    INFO  anInt1 2009 aFloat: 4000.8 pInt: 10009 pFloat: 8.20 anInt2: 6009 dVar1: 9009 dpInt1: 1009 cEL: cvec_renamed[1]
   pvInt: [1580 1581 1582 1583 1584 1585 1586 1587 ]
   pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadCVec                        19  0      INFO  anInt1 2010 aFloat: 4000.9 pInt: 10010 pFloat: 9.20 anInt2: 6010 dVar1: 9010 dpInt1: 1010 cEL: cvec_renamed[0]
+xAODTestReadCVec                          19   0    INFO  anInt1 2010 aFloat: 4000.9 pInt: 10010 pFloat: 9.20 anInt2: 6010 dVar1: 9010 dpInt1: 1010 cEL: cvec_renamed[0]
   pvInt: [1590 1591 1592 1593 1594 1595 1596 1597 1598 ]
   pvFloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 
-xAODTestReadDecor                       19  0      INFO cvec_renamed.dInt1_renamed: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
-xAODTestReadDecor                       19  0      INFO cinfo.dInt1_renamed: 60000
-xAODTestReadDecor                       19  0      INFO cinfo.dInt1_renamedBase: 60001
-xAODTestReadDecor                       19  0      INFO cinfo.dInt1_renamed: 60000
-AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  19  0      INFO ---> Loop Finished (seconds): 0.482688
-xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D3751002-CCED-BF42-88FB-9BA4998B981D
-ApplicationMgr                                     INFO Application Manager Stopped successfully
-IncidentProcAlg1                                   INFO Finalize
-SGInputLoader                                      INFO Finalizing SGInputLoader...
-LoadReadDicts                                      INFO Finalizing LoadReadDicts...
-IncidentProcAlg2                                   INFO Finalize
-AvalancheSchedulerSvc                              INFO Joining Scheduler thread
-PyComponentMgr                                     INFO Finalizing PyComponentMgr...
-EventDataSvc                                       INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
-Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-XMLCatalog                                         INFO File 'xAODTestReadRenameMT_catalog.xml' does not exist. New file created.
-AthDictLoaderSvc                                   INFO in finalize...
-ToolSvc                                            INFO Removing all tools created by ToolSvc
-ChronoStatSvc.finalize()                           INFO  Service finalized successfully 
-ApplicationMgr                                     INFO Application Manager Finalized successfully
-ApplicationMgr                                     INFO Application Manager Terminated successfully
+xAODTestReadDecor                         19   0    INFO cvec_renamed.dInt1_renamed: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
+xAODTestReadDecor                         19   0    INFO cinfo.dInt1_renamed: 60000
+xAODTestReadDecor                         19   0    INFO cinfo.dInt1_renamedBase: 60001
+xAODTestReadDecor                         19   0    INFO cinfo.dInt1_renamed: 60000
+AthenaHiveEventLoopMgr                    19   0    INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
+AthenaHiveEventLoopMgr                    19   0    INFO ---> Loop Finished (seconds): 0.115362
+xaoddata.root                                       INFO Database being retired...
+Domain[ROOT_All]                                    INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3547F1CD-7D92-F642-8E05-67B6B000CD54
+ApplicationMgr                                      INFO Application Manager Stopped successfully
+IncidentProcAlg1                                    INFO Finalize
+SGInputLoader                                       INFO Finalizing SGInputLoader...
+LoadReadDicts                                       INFO Finalizing LoadReadDicts...
+IncidentProcAlg2                                    INFO Finalize
+AvalancheSchedulerSvc                               INFO Joining Scheduler thread
+PyComponentMgr                                      INFO Finalizing PyComponentMgr...
+EventDataSvc                                        INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
+Domain[ROOT_All]                                    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+XMLCatalog                                          INFO File 'xAODTestReadRenameMT_catalog.xml' does not exist. New file created.
+AthDictLoaderSvc                                    INFO in finalize...
+ToolSvc                                             INFO Removing all tools created by ToolSvc
+ChronoStatSvc.finalize()                            INFO  Service finalized successfully 
+ApplicationMgr                                      INFO Application Manager Finalized successfully
+ApplicationMgr                                      INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"

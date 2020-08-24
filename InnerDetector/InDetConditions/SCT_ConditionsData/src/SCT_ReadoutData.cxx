@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsData/SCT_ReadoutData.h"
@@ -35,22 +35,8 @@ static bool modified1(Identifier moduleId) {
 using namespace SCT_Parameters;
 
 // Constructor
-SCT_ReadoutData::SCT_ReadoutData(IMessageSvc* msgSvc):
-  m_chips{},
-  m_chipMap{},
-  m_linkActive{},
-  m_chipInReadout{},
-  m_type{SCT_Parameters::BARREL},
-  m_chipsOnLink0{},
-  m_chipsOnLink1{},
-  m_msg{nullptr}
-{
-  if (msgSvc) m_msg = new Athena::MsgStreamMember{msgSvc, "SCT_ReadoutData"};
-}
-
-// Destructor
-SCT_ReadoutData::~SCT_ReadoutData() {
-  delete m_msg;
+SCT_ReadoutData::SCT_ReadoutData(IMessageSvc* msgSvc) {
+  if (msgSvc) m_msg = std::make_unique<Athena::MsgStreamMember>(msgSvc, "SCT_ReadoutData");
 }
 
 void SCT_ReadoutData::setModuleType(const Identifier& moduleId, int bec) {
@@ -133,14 +119,14 @@ void SCT_ReadoutData::checkLink(int link) {
   // and if readout is sane. 
 
   // Follow chip from the start chip for each side
-  SCT_Chip& startChip{*m_chips.at(link*6)};
+  SCT_Chip& startChip{m_chips->at(link*6)};
   bool linkSane{followReadoutUpstream(link, startChip)};
 
   if (not linkSane) {
     std::vector<int>& chipsOnThisLink{(link==0) ? m_chipsOnLink0 : m_chipsOnLink1};
 
     // Remove chips in that link from the readout
-    for (const int linkItr: chipsOnThisLink) setChipOut(*m_chips.at(linkItr));
+    for (const int linkItr: chipsOnThisLink) setChipOut(m_chips->at(linkItr));
 
     // We do not have ERROR/FAILURE if the readout is not sane as it possibly only affects one of the SCT modules
     if (m_msg) ATH_MSG_WARNING("Readout for link " << link << " not sane");
@@ -164,7 +150,7 @@ bool SCT_ReadoutData::hasConnectedInput(const SCT_Chip& chip) const {
   
   // The mapped chip should be talking on the same port as this chip is listening (if the chip is not an end)
   // Again, otherwise it'll never get to an end giving a timeout
-  if (m_chips.at(inChipId)->outPort()!=chip.inPort()) {
+  if (m_chips->at(inChipId).outPort()!=chip.inPort()) {
     if (m_msg) ATH_MSG_WARNING("Chip" << chip.id() << " is not an end and is listening on Port " << chip.inPort() << " but nothing is talking to it");
     return false;
   }
@@ -179,8 +165,8 @@ bool SCT_ReadoutData::isEndBeingTalkedTo(const SCT_Chip& chip) const {
   if (not chip.isEnd()) return false;
 
   // Is anything trying to talk to the end.
-  for (SCT_Chip* chipItr: m_chips) {
-    if (outputChip(*chipItr) == chip.id()) {
+  for (SCT_Chip& thisChip: *m_chips) {
+    if (outputChip(thisChip) == chip.id()) {
       if (m_msg) ATH_MSG_WARNING("Chip " << chip.id() << " is configured as end but something is trying to talk to it");
       return true;
     }
@@ -191,11 +177,11 @@ bool SCT_ReadoutData::isEndBeingTalkedTo(const SCT_Chip& chip) const {
 void SCT_ReadoutData::maskChipsNotInReadout() {
   // Mask chip (is set mask to 0 0 0 0) if not in readout
   // If the readout of a particular link is not sane mask all chips on that link
-  for (SCT_Chip* thisChip: m_chips) {
-    if (not isChipReadOut(*thisChip)) {
-      if (m_msg) ATH_MSG_DEBUG("Masking chip " <<  thisChip->id());
+  for (SCT_Chip& thisChip: *m_chips) {
+    if (not isChipReadOut(thisChip)) {
+      if (m_msg) ATH_MSG_DEBUG("Masking chip " <<  thisChip.id());
       uint32_t masked{0};
-      thisChip->initializeMaskFromInts(masked, masked, masked, masked);
+      thisChip.initializeMaskFromInts(masked, masked, masked, masked);
     }
   }
 }
@@ -254,7 +240,7 @@ bool SCT_ReadoutData::followReadoutUpstream(int link, const SCT_Chip& chip, int 
 
   // Find the next chip if there is one connected
   if (not hasConnectedInput(chip)) return false;
-  SCT_Chip& nextChip{*m_chips.at(inputChip(chip))};
+  SCT_Chip& nextChip{m_chips->at(inputChip(chip))};
   return followReadoutUpstream(link, nextChip, remainingDepth-1);
 }
 
@@ -282,7 +268,7 @@ bool SCT_ReadoutData::isLinkStandard(int link) const {
 
 void SCT_ReadoutData::printStatus(const Identifier& moduleId) const {
   // Print status for module (a la online) and whether it is standard or not
-  if (m_msg==nullptr) return;
+  if (not m_msg) return;
   if (not msgLvl(MSG::DEBUG)) return;
 
   bool standard{isLinkStandard(0) and isLinkStandard(1)};
@@ -315,10 +301,10 @@ void SCT_ReadoutData::printStatus(const Identifier& moduleId) const {
   msg(MSG::DEBUG) << ") " << (standard ? "Standard" : "Non-standard") << endmsg;
 }
 
-void SCT_ReadoutData::setChips(std::vector<SCT_Chip*>& chips) {
+void SCT_ReadoutData::setChips(std::vector<SCT_Chip>& chips) {
   // Set the chips and sort in order of ID
-  m_chips = chips;
-  std::sort(m_chips.begin(), m_chips.end(), [](SCT_Chip* a, SCT_Chip* b) { return a->id() < b->id(); });
+  m_chips = &chips;
+  std::sort(m_chips->begin(), m_chips->end(), [](SCT_Chip& a, SCT_Chip& b) { return a.id() < b.id(); });
 }
 
 void SCT_ReadoutData::setLinkStatus(bool link0ok, bool link1ok) {

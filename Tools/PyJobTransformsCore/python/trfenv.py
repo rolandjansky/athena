@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # prepare the runtime environment for the transformations
 import os,re,sys
@@ -9,7 +9,7 @@ if sys.hexversion < minPyVersion:
     minVersion = "%d.%d.%d" % ( (minPyVersion >> 24) & 0xFF, (minPyVersion >> 16) & 0xFF, (minPyVersion >> 8 ) & 0xFF )
     raise EnvironmentError( "Used python version (%s) too old. Requiring at least version %s" % (gotVersion,minVersion) )
 
-from PyJobTransformsCore.trferr import *
+from PyJobTransformsCore.trferr import TransformEnvironmentError
 from PyJobTransformsCore import trfconsts,envutil
 
 # no imports out of scope!

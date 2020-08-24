@@ -1,34 +1,7 @@
-################################################################################
-# Package: CaloUtils
-################################################################################
+#Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Calorimeter/CaloConditions
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloEvent
-   Calorimeter/CaloGeoHelpers
-   Calorimeter/CaloIdentifier
-   Calorimeter/CaloInterface
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/Navigation
-   Control/StoreGate
-   Control/CxxUtils
-   Event/FourMom
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODCore
-   GaudiKernel
-   PRIVATE
-   AtlasTest/TestTools
-   Control/SGTools
-   DetectorDescription/GeoModel/GeoModelInterfaces
-   DetectorDescription/IdDictParser
-   DetectorDescription/Identifier )
 
 # External dependencies:
 find_package( Boost )
@@ -40,7 +13,7 @@ atlas_add_library( CaloUtilsLib CaloUtils/*.h CaloUtils/*.icc src/*.h src/*.cxx
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES CaloConditions CaloEvent CaloGeoHelpers CaloIdentifier
    AthenaBaseComps AthenaKernel Navigation FourMom xAODCaloEvent xAODCore GaudiKernel
-   CaloDetDescrLib StoreGateLib
+   CaloDetDescrLib StoreGateLib CaloInterfaceLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils
    SGTools IdDictParser Identifier )
 
@@ -81,6 +54,10 @@ atlas_add_test( CaloVertexedCluster_test
    LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
+atlas_add_test( exceptions_test
+   SOURCES test/exceptions_test.cxx
+   LINK_LIBRARIES CaloUtilsLib )
+
 atlas_add_test( CaloTowerStore_test
    SCRIPT test/CaloTowerStore_test.sh
    LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
@@ -89,8 +66,12 @@ atlas_add_test( CaloTowerStore_test
 atlas_add_test( CaloTowerBuilderTool_test
    SCRIPT test/CaloTowerBuilderTool_test.sh
    LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
-   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-11"
+   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-13"
    PROPERTIES TIMEOUT 500 )
+
+atlas_add_test( ToolWithConstants_test
+   SCRIPT test/ToolWithConstants_test.py
+   LOG_IGNORE_PATTERN "no dictionary for|by peeking into|Current filenames:" )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt share/*.py )

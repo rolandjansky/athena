@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCalibHitRec/CalibHitToCaloCellTool.h"
@@ -26,10 +26,6 @@
 CalibHitToCaloCellTool::CalibHitToCaloCellTool(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t,n,p),
     m_caloGain((int)CaloGain::LARLOWGAIN),
-    m_store_Tot(false),
-    m_store_Vis(false),
-    m_store_Em(false),
-    m_store_NonEm(false),
     m_caloCell_Tot("TotalCalibCell"), m_caloCell_Vis("VisCalibCell"), 
     m_caloCell_Em(""), m_caloCell_NonEm(""),
     m_caloCell_ID(0),

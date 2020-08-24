@@ -43,9 +43,6 @@ class L1Menu(object):
             self.items.menuName = smk_psk_Name["smkName"]
             self.items.pssName  = smk_psk_Name["pskName"]
 
-
-
-
     @staticmethod
     def partitioning():
         from Lvl1Flags import Lvl1Flags
@@ -71,6 +68,7 @@ class L1Menu(object):
 
 
     def addTopoAlgo(self, algo, category):
+        algo.setThresholds( self.thresholds ) # each algo gets a pointer to the full thresholds definition (for the extrainfo)
         self.topoAlgos.addAlgo(algo, category)
 
 

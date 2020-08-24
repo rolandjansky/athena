@@ -33,8 +33,8 @@ muTriggers = ['HLT_mu20_iloose_L1MU15','HLT_mu24_ivarmedium','HLT_mu24_imedium']
 # Event selection string: 
 draw_ttbar = '( count('+sel_muon+')==1 && count('+sel_jet+')>=3 && count('+sel_bjet+')>=1 && count('+sel_el+') == 0 && count('+met+') >=1 ) && (' + " || ".join(muTriggers) + ')'
 
-print "This is the selection string that will be used for DRAW_TOPSLMU:"
-print draw_ttbar
+print("This is the selection string that will be used for DRAW_TOPSLMU:")
+print(draw_ttbar)
 
 # Event selection tool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -43,8 +43,8 @@ DRAW_TOPSLMU_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "
 
 ToolSvc += DRAW_TOPSLMU_SkimmingTool
 
-print "Skimming tool:"
-print DRAW_TOPSLMU_SkimmingTool
+print("Skimming tool:")
+print(DRAW_TOPSLMU_SkimmingTool)
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

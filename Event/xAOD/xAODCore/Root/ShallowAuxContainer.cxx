@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -35,15 +35,17 @@ namespace xAOD {
 
    ShallowAuxContainer::ShallowAuxContainer( const ShallowAuxContainer& parent )
       : SG::IAuxStore(), SG::IAuxStoreIO(), SG::IAuxStoreHolder(),
-        m_selection( parent.m_selection ), 
         m_store( parent.m_store ), m_storeIO( parent.m_storeIO ),
         m_ownsStore( false ), m_locked( parent.m_locked ),
         m_parentLink( parent.m_parentLink ),
         m_parentIO( parent.m_parentIO ), m_shallowIO( parent.m_shallowIO ),
         m_auxids (),
-        m_auxidsValid (false),
-        m_name( parent.m_name ) {
-
+        m_auxidsValid (false)
+   {
+      // Keep the source unmutable during copy
+      guard_t guard( parent.m_mutex );
+      m_selection = parent.m_selection;
+      m_name = parent.m_name;
    }
 
    /// @param parent The parent object to make a shallow copy of
@@ -75,11 +77,13 @@ namespace xAOD {
    ShallowAuxContainer&
    ShallowAuxContainer::operator= ( const ShallowAuxContainer& rhs ) {
 
-      guard_t guard (m_mutex);
       // Check if anything needs to be done:
       if( this == &rhs ) {
          return *this;
       }
+
+      // Keep the source unmutable during copy
+      std::scoped_lock  lck{m_mutex, rhs.m_mutex};
 
       // Clean up if necessary:
       if( m_ownsStore && m_store ) {
@@ -88,9 +92,9 @@ namespace xAOD {
       }
 
       m_selection  = rhs.m_selection;
+      m_ownsStore  = false;
       m_store      = rhs.m_store;
       m_storeIO    = rhs.m_storeIO;
-      m_ownsStore  = false;
       m_locked     = rhs.m_locked;
       m_parentLink = rhs.m_parentLink;
       m_parentIO   = rhs.m_parentIO;
@@ -462,14 +466,6 @@ namespace xAOD {
       } else {
          return getAuxIDs();
       }
-   }
-
-   void ShallowAuxContainer::
-   selectAux( const std::set< std::string >& attributes ) {
-
-      guard_t guard (m_mutex);
-      m_selection.selectAux( attributes );
-      return;
    }
 
    ShallowAuxContainer::auxid_set_t

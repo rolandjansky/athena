@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCALIBALGS_PIXELCHARGETOTCONVERSION_H
@@ -34,11 +34,10 @@ class PixelChargeToTConversion: public AthAlgorithm{
   
  private:
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
-  
-  //std::vector<unsigned int> m_modules;
-  std::string m_PixelsClustersName;
-  const InDet::PixelClusterContainer* m_Pixel_clcontainer;
-  
+
+  SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixelsClustersKey
+  {this, "PixelClusterContainer",  "PixelClusters", ""};
+
   ServiceHandle<IPixelCablingSvc> m_pixelCabling
   {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
 

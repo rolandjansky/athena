@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/IBoundaryCheckTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkParameters/TrackParameters.h"
@@ -111,33 +112,21 @@ namespace InDet
       
       /** Pointer to Extrapolator AlgTool*/
       ToolHandle< Trk::IExtrapolator >  m_extrapolator;
-
-      /** Handles to IConditionsSummaryTools for Pixels and SCT*/
-      ToolHandle <IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
-      ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelSummaryTool", "PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
-      
-      ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
-
-      /** Handle for IGeoModelSvc to retrieve geo model information */
-      ServiceHandle<IGeoModelSvc> m_geoModelSvc;
+      ToolHandle<Trk::IBoundaryCheckTool> m_boundaryCheckTool {
+         this,
+         "BoundaryCheckTool",
+         "InDet::InDetBoundaryCheckTool",
+         "Boundary checking tool for detector sensitivities"
+      };
 
       /** Configure outwards hole search */
       bool m_extendedListOfHoles,m_cosmic;
-
-      /** Control usage of pixel, SCT and TRT info */
-      bool m_usepix, m_usesct;
-
-      /** Control check of bad SCT chip (should be false for ITk Strip) */
-      bool m_checkBadSCTChip;
 
       /** Min number of hits **/
       int m_minSiHits;
 
       /* searching for dead modules after the last measurement (needed for robustness of SW)*/
       bool m_countDeadModulesAfterLastHit;
-
-      /** eta and phi tolerances **/
-      float m_etatol, m_phitol; 
 
       /** number of warnings printed when no track parameters available **/
       mutable std::atomic_int m_warning;
@@ -170,19 +159,10 @@ namespace InDet
       */
       const Trk::TrackStateOnSurface* createHoleTSOS(const Trk::TrackParameters* trackPar) const;
 
-
-      /**  This method returns true, if the detector element the input parameters correspond to is sensitive detector material,
-	   otherwise it returns false.
-      */
-      bool isSensitive(const Trk::TrackParameters* parameters, bool &isgood) const ;
-
       /** This Method creates a new Track from the TSOS of the input track combined with the TSOS from listOfHoles
        */
       const Trk::Track*  addHolesToTrack(const Trk::Track& oldTrack, 
 					 std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const;
-
-      /** This method checks the SCT ABCD chip and SCT strip where the track passes through is bad or not */
-      bool isBadSCTChipStrip(const Identifier& waferId, const Trk::TrackParameters& parameters, const InDetDD::SiDetectorElement& siElement) const;
     };
 
 } // end of namespace

@@ -2,10 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
+#include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
-#include "TrkVKalVrtCore/CommonPars.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {
@@ -235,8 +235,7 @@ L40:
 
     }
 
-    return;
-} 
+    } 
 #undef xyz
 #undef zt
 #undef yt

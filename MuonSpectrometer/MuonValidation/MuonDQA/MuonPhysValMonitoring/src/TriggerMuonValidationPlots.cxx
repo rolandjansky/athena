@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TriggerMuonValidationPlots.h"
@@ -185,22 +185,22 @@ void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::Muon &Trigmu, 
     if (Trigmu.isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] )) {
       //if (Trigmu.isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] ) || m_selectedAuthors[i]==xAOD::Muon::NumberOfMuonAuthors) {
       m_oEFTriggerMuonResolutionPlots[i]->fill(Trigmu, Recomu);
-      if(fabs(Recomu.eta())<1.05) m_oEFTriggerMuonBarrelResolutionPlots[i]->fill(Trigmu, Recomu);
-      if(fabs(Recomu.eta())>1.05) m_oEFTriggerMuonEndcapsResolutionPlots[i]->fill(Trigmu, Recomu);
+      if(std::abs(Recomu.eta())<1.05) m_oEFTriggerMuonBarrelResolutionPlots[i]->fill(Trigmu, Recomu);
+      if(std::abs(Recomu.eta())>1.05) m_oEFTriggerMuonEndcapsResolutionPlots[i]->fill(Trigmu, Recomu);
     }
   }
 }
 
 void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::L2StandAloneMuon &L2SAmu, const xAOD::Muon &Recomu) {
       m_oL2TriggerMuonResolutionPlots[0]->fill(L2SAmu, Recomu);
-      if(fabs(Recomu.eta())<1.05) m_oL2TriggerMuonBarrelResolutionPlots[0]->fill(L2SAmu, Recomu);
-      if(fabs(Recomu.eta())>1.05) m_oL2TriggerMuonEndcapsResolutionPlots[0]->fill(L2SAmu, Recomu);
+      if(std::abs(Recomu.eta())<1.05) m_oL2TriggerMuonBarrelResolutionPlots[0]->fill(L2SAmu, Recomu);
+      if(std::abs(Recomu.eta())>1.05) m_oL2TriggerMuonEndcapsResolutionPlots[0]->fill(L2SAmu, Recomu);
 }
 
 void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::L2CombinedMuon &L2CBmu, const xAOD::Muon &Recomu) {
       m_oL2TriggerMuonResolutionPlots[1]->fill(L2CBmu, Recomu);
-      if(fabs(Recomu.eta())<1.05) m_oL2TriggerMuonBarrelResolutionPlots[1]->fill(L2CBmu, Recomu);
-      if(fabs(Recomu.eta())>1.05) m_oL2TriggerMuonEndcapsResolutionPlots[1]->fill(L2CBmu, Recomu);
+      if(std::abs(Recomu.eta())<1.05) m_oL2TriggerMuonBarrelResolutionPlots[1]->fill(L2CBmu, Recomu);
+      if(std::abs(Recomu.eta())>1.05) m_oL2TriggerMuonEndcapsResolutionPlots[1]->fill(L2CBmu, Recomu);
 }
 
 

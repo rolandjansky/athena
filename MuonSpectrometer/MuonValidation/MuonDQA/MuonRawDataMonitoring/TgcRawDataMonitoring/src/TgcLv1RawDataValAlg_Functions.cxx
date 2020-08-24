@@ -134,7 +134,7 @@ TgcLv1RawDataValAlg::deltaR(float eta1, float phi1, float eta2, float phi2){
   float deta = eta1 - eta2;
   float dphi = acos(cos(phi1-phi2));
 
-  return sqrt( deta*deta + dphi*dphi );
+  return std::sqrt( deta*deta + dphi*dphi );
 }
 
 ///////////////////////////////////////////////////////////////////////////

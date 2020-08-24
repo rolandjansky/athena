@@ -29,11 +29,11 @@ class eflowCellEOverPTool_mc12_JetETMiss : public IEFlowCellEOverPTool {
  public:
 
   eflowCellEOverPTool_mc12_JetETMiss(const std::string& type,const std::string& name,const IInterface* parent);
-  
+
   ~eflowCellEOverPTool_mc12_JetETMiss() {};
 
   StatusCode initialize();
-  StatusCode execute(eflowEEtaBinnedParameters *binnedParameters) ;
+  StatusCode fillBinnedParameters(eflowEEtaBinnedParameters *binnedParameters) const;
   StatusCode finalize() ;
 
  private:

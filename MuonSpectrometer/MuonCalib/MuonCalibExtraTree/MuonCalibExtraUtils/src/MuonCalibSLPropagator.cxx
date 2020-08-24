@@ -4,6 +4,9 @@
 
 #include "MuonCalibExtraUtils/MuonCalibSLPropagator.h"
 #include "MuonCalibExtraUtils/MuonCalibSimpleGeometry.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <iostream>
 
 namespace MuonCalib {
@@ -68,8 +71,8 @@ namespace MuonCalib {
 
     const MuonCalibCylinder* cylinder = dynamic_cast<const MuonCalibCylinder*>(&surf);
     if( cylinder ) return propagate(pos,dir,*cylinder);
-    
-    std::cout << " propagation failed, unkown surface type" << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"MuonCalibSLPropagator");
+    log<<MSG::WARNING<<"propagation failed, unkown surface type"<<endmsg;
     return Amg::Vector3D(0.,0.,0.);
   }
 

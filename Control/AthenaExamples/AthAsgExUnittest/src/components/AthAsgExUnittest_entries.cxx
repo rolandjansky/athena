@@ -3,6 +3,6 @@
 DECLARE_COMPONENT( MyPackageAlg )
 
 
-#include "AthAsgExUnittest/MyPackageTool.h"
+#include "../MyPackageTool.h"
 DECLARE_COMPONENT( MyPackageTool )
 

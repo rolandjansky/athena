@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -101,10 +101,10 @@ StatusCode GetDetectorPositions::execute() {
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "execute() check global position" << endmsg;
   
   //StatusCode sc = StatusCode::SUCCESS;
-    static int eventCount(-1); eventCount++;
+  m_eventCount++;
     
     /** run only for one event */
-    if (eventCount!=0) 
+    if (m_eventCount!=0) 
       return StatusCode::SUCCESS; 
     
     std::cout << "========================================================================================" <<std::endl;

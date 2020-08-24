@@ -290,6 +290,12 @@ class doR3LargeD0(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue   = False
 
+class storeSeparateLargeD0Container(InDetFlagsJobProperty):
+    """Separate the LargeD0 container from the main track container"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class useExistingTracksAsInput(InDetFlagsJobProperty):
     """Use already processed Track from a (D)ESD input file.
     This flag is related with ProcessedESDTracks InDetKey """
@@ -302,8 +308,8 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-    StoredValue  = 16
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+    StoredValue  = 19
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -502,6 +508,12 @@ class doHolesOnTrack(InDetFlagsJobProperty):
 
 class useZvertexTool(InDetFlagsJobProperty):
     """ start with Zvertex finding """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class useActsPriVertexing(InDetFlagsJobProperty):
+    """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -721,12 +733,6 @@ class doStatistics(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
-class doStandardPlots(InDetFlagsJobProperty):
-    """ Use to turn on creating the Standard Plots of tracking performance """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    
 class doPhysValMon(InDetFlagsJobProperty):
     """ Use to turn on Physics Validation Monitoring """
     statusOn     = True
@@ -1187,6 +1193,11 @@ class doDigitalROTCreation(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class nnCutLargeD0Threshold(InDetFlagsJobProperty):
+  """ Threshold for NN cut in large D0 tracking for tracks in ambi"""
+  statusOn     = True
+  allowedTypes = ['float']
+  StoredValue  = -1.0
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1803,9 +1814,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control whether to do statistics package
       self.doStatistics            = self.postProcessing() and self.doStatistics()
-      # control to run Standard Plots
-      self.doStandardPlots         = self.postProcessing() and self.doStandardPlots()
-      # control to run Standard Plots
+      # control to run InDetPhysValMonitoring
       self.doPhysValMon            = self.postProcessing() and self.doPhysValMon()
       #
       # --------------------------------------------------------------------
@@ -2375,6 +2384,8 @@ class InDetJobProperties(JobPropertyContainer):
        print('* - primary vertexing cut setup   : ',self.primaryVertexCutSetup())
        if self.doPrimaryVertex3DFinding() :
           print('* - use 3D seed finding')
+       if self.useActsPriVertexing():
+          print('* - use Acts primary vertex finding')
        print('* - privtx cut level : ', self.priVtxCutLevel())
     if self.doParticleCreation() :
        print('* create TrackParticles')
@@ -2412,8 +2423,6 @@ class InDetJobProperties(JobPropertyContainer):
     # -----------------------------------------
     if self.doStatistics() :
        print('* run statistics packages')
-    if self.doStandardPlots() :
-       print('* run Standard Plots package')
     if self.doPhysValMon() :
        print('* run Physics Validation Monitoring')
     if self.doNtupleCreation():
@@ -2625,6 +2634,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowPtLargeD0,
                             doLargeD0,
                             doR3LargeD0,
+                            storeSeparateLargeD0Container,
                             useExistingTracksAsInput,
                             cutLevel,
                             priVtxCutLevel,
@@ -2661,6 +2671,7 @@ _list_InDetJobProperties = [Enabled,
                             trackFitterType,
                             doHolesOnTrack,
                             useZvertexTool,
+                            useActsPriVertexing,
                             doSiSPSeededTrackFinder,
 #                            doTRTExtension,
                             doTRTExtensionNew,
@@ -2695,7 +2706,6 @@ _list_InDetJobProperties = [Enabled,
                             doSecVertexFinder,
                             doConversions,
                             doStatistics,
-                            doStandardPlots,
                             doPhysValMon,
                             materialInteractions,
                             materialInteractionsType,
@@ -2772,6 +2782,7 @@ _list_InDetJobProperties = [Enabled,
                             doHIP300,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
+                            nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling
                            ]
 for j in _list_InDetJobProperties: 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPC_STATUSCONDITIONSSVC_H
@@ -10,25 +10,20 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"
-
-//#include "MuonIdHelpers/MdtIdHelper.h"
-
 #include "MuonCondInterface/IRPC_STATUSConditionsSvc.h"
 #include "MuonCondInterface/IRpcDetectorStatusDbTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include <vector>
-#include <list>
-#include <string>
-#include <map>
-//
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "MuonCondSvc/MuonHierarchy.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h" 
 
+#include <vector>
+#include <list>
+#include <string>
+#include <map>
 
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
@@ -42,9 +37,6 @@ friend class SvcFactory<RPC_STATUSConditionsSvc>;
  public:
   RPC_STATUSConditionsSvc (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~RPC_STATUSConditionsSvc();
-  
-  //static const InterfaceID& interfaceID() { return InterfaceID_IRPC_STATUSConditionsSvc; }
-  //virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF);
 
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
@@ -57,9 +49,7 @@ friend class SvcFactory<RPC_STATUSConditionsSvc>;
 
   virtual StatusCode finalize(void);
 
-
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
-  //virtual bool canReportAbout(MuonConditions::Hierarchy h);
     
   virtual bool isGoodPanel(const Identifier & Id) const;
   virtual bool isGoodStrip(const Identifier & Id) const;

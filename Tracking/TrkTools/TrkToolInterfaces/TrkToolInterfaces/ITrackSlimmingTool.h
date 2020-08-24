@@ -43,6 +43,12 @@ namespace Trk
           @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured
           */
         virtual std::unique_ptr<Trk::Track> slimCopy(const Trk::Track& track) const=0;
+
+       /**
+        * Slim/skim a non const Track. (m_setPersistificationHints is not used)
+        * @param track A reference to the track to be skimmed. It will be modified.
+        */
+        virtual void slimTrack(Trk::Track& track) const = 0;
     };
 
 inline const InterfaceID& Trk::ITrackSlimmingTool::interfaceID()

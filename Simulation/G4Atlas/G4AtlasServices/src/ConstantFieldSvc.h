@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_ConstantFieldSvc_H
@@ -22,7 +22,7 @@ class ConstantFieldSvc final : public G4MagFieldSvcBase
 
   /// Basic constructor and destructor
   ConstantFieldSvc(const std::string& name, ISvcLocator* pSvcLocator);
-  ~ConstantFieldSvc() {}
+  ~ConstantFieldSvc() = default;
 
   /** Athena method. called at initialization time, being customized here */
   StatusCode initialize() override final;
@@ -34,11 +34,11 @@ class ConstantFieldSvc final : public G4MagFieldSvcBase
 
  private:
 
-  /// @name Field vector components
+  /// @name Field vector components - What are the units??
   /// @{
-  double m_fieldX;
-  double m_fieldY;
-  double m_fieldZ;
+  Gaudi::Property<double> m_fieldX{this, "FieldX", 0., "Field X component"};
+  Gaudi::Property<double> m_fieldY{this, "FieldY", 0., "Field Y component"};
+  Gaudi::Property<double> m_fieldZ{this, "FieldZ", 0., "Field Z component"};
   /// @}
 };
 

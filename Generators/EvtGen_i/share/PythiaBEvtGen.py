@@ -127,9 +127,6 @@ Stream1.OutputFile = "pythiaB.pool.root"
 # 133273 = MCTruth (HepMC)
 Stream1.ItemList += [ "2101#*", "133273#*" ]
 
-include("AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.CheckDictionary = TRUE
-
 #==============================================================
 #
 # End of job options file

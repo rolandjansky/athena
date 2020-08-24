@@ -29,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
-find_package( ROOT COMPONENTS Core Geometry Tree MathCore Hist RIO pthread TBB )
+find_package( ROOT COMPONENTS Core Tree Hist RIO )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( InDetTruthVertexValidationLib _cintDictSource
@@ -41,14 +41,14 @@ atlas_add_root_dictionary( InDetTruthVertexValidationLib _cintDictSource
 atlas_add_library( InDetTruthVertexValidationLib
                    Root/*.cxx ${_cintDictSource}
                    PUBLIC_HEADERS InDetTruthVertexValidation
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} 
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} EventPrimitives xAODTracking AsgTools xAODEventInfo xAODTruth ${extra_libs})
 
 if( NOT XAOD_STANDALONE )
     atlas_add_component( InDetTruthVertexValidation
                      src/*.cxx src/*.h
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} ${extra_libs} EventPrimitives xAODTracking AthenaBaseComps AsgTools xAODEventInfo xAODTruth InDetTruthVertexValidationLib )
 endif()
 

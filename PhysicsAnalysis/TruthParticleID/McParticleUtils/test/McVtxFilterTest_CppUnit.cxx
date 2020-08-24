@@ -18,13 +18,13 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // CLHEP includes
-#include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // HepMC includes
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 #include "AthContainers/DataVector.h"
 
@@ -57,7 +57,7 @@ private:
   int               m_bcZee;
   int               m_bcZgee;
   int               m_bcTopWbgg;
-  typedef HepLorentzVector HLV_t;
+  typedef HepMC::FourVector HLV_t;
   
 public:
 

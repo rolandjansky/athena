@@ -1,28 +1,27 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_MM_FASTDIGITIZER_H
 #define MUONDIGITIZATION_MM_FASTDIGITIZER_H 
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandleKey.h"
-
-//Random
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandGauss.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+
+#include <string>
 
 class TTree;
 class TFile;
 
-class MmIdHelper;
 namespace MuonGM {
   class MuonDetectorManager;
 }
@@ -32,8 +31,6 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
-
-class IAtRndmGenSvc;
 class ActiveStoreSvc;
 class MuonSimDataCollection;
 
@@ -42,7 +39,7 @@ class MM_FastDigitizer : public AthAlgorithm {
  public:
 
   MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MM_FastDigitizer();
+  ~MM_FastDigitizer()=default;
     
   StatusCode initialize();
   StatusCode execute();
@@ -54,11 +51,8 @@ class MM_FastDigitizer : public AthAlgorithm {
   float RadsToDegrees(float Radians);
  
  private:
-
   ActiveStoreSvc*             m_activeStore;
-
   const MuonGM::MuonDetectorManager* m_detManager;
-  const MmIdHelper* m_idHelper;
   
   TFile* m_file;
   TTree* m_ntuple;
@@ -116,7 +110,7 @@ class MM_FastDigitizer : public AthAlgorithm {
   float  m_surfcentz;
 
  protected:
-  ToolHandle <Muon::MuonIdHelperTool> m_idHelperTool;  
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle <Muon::IMuonClusterOnTrackCreator> m_muonClusterCreator;
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization

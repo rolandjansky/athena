@@ -54,6 +54,9 @@ namespace TrigConf {
        */
       const_iterator end() const;
 
+      /** Accessor to the connected output streams */
+      std::vector<DataStructure> streams() const;
+
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 

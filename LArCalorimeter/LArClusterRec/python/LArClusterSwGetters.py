@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: LArClusterSwGetters.py,v 1.4 2008/04/14 16:24:22 laplace Exp $
@@ -12,6 +12,11 @@ from CaloRec.CaloClusterSwGetterBase import make_CaloClusterSwGetter
 
 # Helper so that we don't need to type the name twice.
 def _make_getter (*args, **kw):
+    if 'corrversion' not in kw:
+        # Temporary until metatool / ToolWithConstant issues are worked out.
+        kw = kw.copy()
+        from egammaRec.egammaRecFlags import jobproperties
+        kw['corrversion'] = jobproperties.egammaRecFlags.clusterCorrectionVersion()
     g = make_CaloClusterSwGetter (*args, **kw)
     globals()[g.__name__] = g
     return g

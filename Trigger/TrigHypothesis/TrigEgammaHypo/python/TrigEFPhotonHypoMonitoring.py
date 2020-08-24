@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
@@ -64,12 +64,8 @@ class TrigEFPhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-	#AT Aug2011: deactivate histogram egIsEM - outdated
-        #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFEgammaHypo isEM; Cut",
-        #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
-       
         self.Histograms += [ defineHistogram('Ph_ClusterEt', 	type='TH1F', title="EFPhoton Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
      
         self.Histograms += [ defineHistogram('Ph_F1', 	type='TH1F', title="EFPhoton Hypo fraction of energy found in 1st em sampling;Fraction",
                                              xbins=50, xmin=-0.1, xmax=1.1 ) ]
@@ -208,10 +204,6 @@ class TrigEFPhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-	#AT Aug2011: deactivate histogram egIsEM - outdated
-        #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFEgammaHypo isEM; Cut",
-        #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
-
         self.Histograms += [ defineHistogram('Ph_ClusterEt', 	type='TH1F', title="EFPhoton Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
                                             xbins=50, xmin=-2000, xmax=100000) ]
         
@@ -285,10 +277,6 @@ class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-	#AT Aug2011: deactivate histogram egIsEM - outdated
-        #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFEgammaHypo isEM; Cut",
-        #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
-       
         self.Histograms += [ defineHistogram('Ph_ClusterEt', 	type='TH1F', title="EFPhoton Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
                                             xbins=50, xmin=-2000, xmax=100000) ]
      
@@ -318,25 +306,25 @@ class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('Ph_Phi',	 type='TH1F', title="EFPhoton Hypo Phi; #eta ",xbins=160, xmin=-3.2, xmax=3.2) ]       
         
         self.Histograms += [ defineHistogram('Ph_ClusterEt37', 	type='TH1F', title="EFPhoton Hypo Cluster(3x7) E_{T}; E_{T}^{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
         
         self.Histograms += [ defineHistogram('Ph_EnergyBE0', 	type='TH1F', title="EFPhoton Hypo Cluster E0; E_{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
         
         self.Histograms += [ defineHistogram('Ph_EnergyBE1', 	type='TH1F', title="EFPhoton Hypo Cluster E1; E_{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
         
         self.Histograms += [ defineHistogram('Ph_EnergyBE2', 	type='TH1F', title="EFPhoton Hypo Cluster E2; E_{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
         
         self.Histograms += [ defineHistogram('Ph_EnergyBE3', 	type='TH1F', title="EFPhoton Hypo Cluster E3; E_{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
         
         self.Histograms += [ defineHistogram('Ph_Eaccordion', 	type='TH1F', title="EFPhoton Hypo Cluster (E1+E2+E3); E_{T}^{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
         
         self.Histograms += [ defineHistogram('Ph_E0Eaccordion', 	type='TH1F', title="EFPhton Hypo Cluster E0/(E1+E2+E3); E_{T}^{em} [MeV]",
-                                            xbins=50, xmin=-2000, xmax=100000) ]
+                                             xbins=50, xmin=-2000, xmax=100000) ]
         self.Histograms += [ defineHistogram('Ph_Eratio', 	type='TH1F', title="EFPhoton Hypo Eratio = (emax1 - emax2) / (emax1 + emax2) ; Eratio ",
                                              xbins=32, xmin=-0.1, xmax=1.5 ) ]
 

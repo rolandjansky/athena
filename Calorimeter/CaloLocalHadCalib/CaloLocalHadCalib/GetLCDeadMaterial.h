@@ -21,13 +21,14 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include <vector>
 #include <string>
+#include "CxxUtils/checker_macros.h"
 
 class TChain;
 class TProfile;
 class CaloLocalHadCoeff;
 
 
-class GetLCDeadMaterial : public AthAlgorithm {
+class ATLAS_NOT_THREAD_SAFE GetLCDeadMaterial : public AthAlgorithm {
 
   public:
 

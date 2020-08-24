@@ -19,7 +19,6 @@ TrigConf::Chain::update()
    if(! isInitialized() || empty() ) {
       return;
    }
-   m_name = getAttribute("name");
 }
 
 TrigConf::Chain::~Chain()
@@ -66,18 +65,21 @@ TrigConf::Chain::l1thresholds() const
 }
 
 
-std::vector<TrigConf::DataStructure>
+std::vector<std::string>
 TrigConf::Chain::streams() const
 {
-   std::vector<DataStructure> strlist;
-   const auto & streams = data().get_child("streams");
-   strlist.reserve(streams.size());
 
-   for( auto & strData : streams )
-      strlist.emplace_back( strData.second );
-   
+   std::vector<std::string> strlist;
+   const auto & streams = getList("streams");
+   if( !streams.empty() ) {
+      strlist.reserve(streams.size());
+      for( auto & stream : streams ) {
+         strlist.emplace_back( stream.getValue<std::string>() );
+      }
+   }
    return strlist;
 }
+
 
 std::vector<std::string>
 TrigConf::Chain::groups() const

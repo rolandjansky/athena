@@ -36,27 +36,15 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_atlasId(nullptr),
   m_extrapolator("Trk::Extrapolator"),
-  m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
-  m_geoModelSvc("GeoModelSvc", n),
   m_extendedListOfHoles(false),
   m_cosmic(false),
-  m_usepix(true),
-  m_usesct(true),
-  m_checkBadSCTChip(true),
   m_warning(0) {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
-  declareProperty("PixelLayerTool"       , m_pixelLayerTool);
-  declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
-  declareProperty("usePixel"             , m_usepix);
-  declareProperty("useSCT"               , m_usesct);
-  declareProperty("checkBadSCTChip"      , m_checkBadSCTChip);
   declareProperty("minSiHits"            , m_minSiHits = 3);  
   declareProperty("CountDeadModulesAfterLastHit", m_countDeadModulesAfterLastHit = true);  
-  declareProperty("phitol"               , m_phitol = 3.);
-  declareProperty("etatol"               , m_etatol = 3.);
 }
 
 //================ Destructor =================================================
@@ -74,33 +62,6 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize() {
   // Get TrkExtrapolator from ToolService
   ATH_CHECK(m_extrapolator.retrieve());
   ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-
-  if (m_usepix) {
-    // Get PixelConditionsSummaryTool
-    ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
-    // Get InDetPixelLayerTool from ToolService
-    ATH_CHECK(m_pixelLayerTool.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_pixelLayerTool);
-  }
-
-  if (m_usesct) {
-    // Get SctConditionsSummaryTool
-    ATH_CHECK(m_sctCondSummaryTool.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_sctCondSummaryTool);
-  } else {
-    m_sctCondSummaryTool.disable();
-  }
-
-  if (m_checkBadSCTChip) {
-    // Check if ITk Strip is used because isBadSCTChipStrip method is valid only for SCT.
-    ATH_CHECK(m_geoModelSvc.retrieve());
-    if (m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4 or
-        m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk) {
-      ATH_MSG_WARNING("Since ITk Strip is used, m_checkBadSCTChip is turned off.");
-      m_checkBadSCTChip = false;
-    }
-  }
 
   if (m_extendedListOfHoles) ATH_MSG_INFO("Search for extended list of holes ");
 
@@ -394,7 +355,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
     while (iterTSOS!=track.trackStateOnSurfaces()->end()
            && (!(*iterTSOS)->type(Trk::TrackStateOnSurface::Measurement)
                || (*iterTSOS)->measurementOnTrack()->associatedSurface().type()!=Trk::Surface::Plane)) {
-      iterTSOS++;
+      ++iterTSOS;
     }
   }
 
@@ -631,24 +592,24 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
     std::map<const Identifier, const Trk::TrackStateOnSurface*>::iterator iTSOS = mapOfHits.find(id);
       
     if (iTSOS == mapOfHits.end()) { 
-      bool isgood = true;
-      if (!isSensitive(nextParameters, isgood)) {
-        if (isgood) ATH_MSG_VERBOSE("Extrapolation not in sensitive area, ignore and continue");
-
-        if (!isgood) {
+      switch (m_boundaryCheckTool->boundaryCheck(*nextParameters)) {
+        case Trk::BoundaryCheckResult::DeadElement:
           if (m_atlasId->is_pixel(id)) {
-        
+
             ATH_MSG_VERBOSE("Found element is a dead pixel module, add it to the list and continue");
             ++PixelDead;
           } else if (m_atlasId->is_sct(id)) {
-        
+
             ATH_MSG_VERBOSE("Found element is a dead SCT module, add it to the list and continue");
             ++SctDead;
           }
-        }
-        continue;
-      }
-    
+        case Trk::BoundaryCheckResult::Insensitive:
+        case Trk::BoundaryCheckResult::Error:
+          continue;
+        case Trk::BoundaryCheckResult::Candidate:
+          break;
+      }   
+ 
       // increment tmp counters only if this detElement should be considered for a proper holesearch
       // this info is the boolean in the (mapOfPredictions->second).second
       if (((it->second).second)) {
@@ -745,113 +706,6 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 }
 
 // ====================================================================================================================
-bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* parameters, bool &isgood) const {
-  // do strict boundary check for SCT and Pixels to make sure we are in active area
-  
-  if (!parameters ||
-      !parameters->associatedSurface().associatedDetectorElement()) return false;
-  
-  const InDetDD::SiDetectorElement* siElement =
-    dynamic_cast<const InDetDD::SiDetectorElement*> (parameters->associatedSurface().associatedDetectorElement());
-  if (siElement == nullptr) {
-    // -------  in dubio pro reo --> return false (is assumed insensitive)
-    ATH_MSG_DEBUG("TrackParameters do not belong to a Si Element");
-    return false;
-  }
-  
-  double phitol;
-  double etatol;
-  
-  if (parameters->covariance()) {
-    phitol = m_phitol * sqrt((*parameters->covariance())(Trk::locX,Trk::locX));
-    etatol = m_etatol * sqrt((*parameters->covariance())(Trk::locY,Trk::locY));
-  } else {
-    phitol = 2.5;
-    etatol = 5.0;
-  }
-  // not on bond gap within tolerance
-  if (siElement->nearBondGap(parameters->localPosition(), etatol)) {
-    ATH_MSG_VERBOSE("---> extrapolation on bond gap within " << etatol << ", return");
-    return false;
-  }
-
-  bool isActiveElement = true;
-  // inside detector within tolerance
-  InDetDD::SiIntersect siIn = siElement->inDetector(parameters->localPosition(), phitol, etatol);
-  if (!siIn.in()) {
-    ATH_MSG_VERBOSE("---> extrapolation not inside (active?) det"
-                    << "ector within "<<phitol<<" "<<etatol<<", but check for dead module anyway");
-    isActiveElement=false;
-  }
-  
-  // errors might be too big (especially for track seeds or short tracks)
-  // check for dead modules if extrapolation with smaller errors are in active detector (2.5 5.)
-  if (!isActiveElement) {
-    if (phitol>2.5 || etatol>5) {
-      siIn = siElement->inDetector(parameters->localPosition(), 2.5, 5.);
-      if (!siIn.in()) {
-        ATH_MSG_VERBOSE("extrapolation too close to inactive detector; abort search for dead module");
-        return false;
-      }
-    } else {
-      ATH_MSG_VERBOSE("extrapolation precise enough and too close to inactive detector; abort search for dead module");
-      return false;
-    }
-  }
-
-  Identifier     id     = siElement->identify();
-  IdentifierHash idHash = siElement->identifyHash();
-  // check if it is a dead module using conditions services ! 
-  if (m_atlasId->is_pixel(id)) { 
-    if (m_usepix) {
-      ATH_MSG_VERBOSE("Found element is a Pixel module without a hit, see if it might be dead");
-      isgood=m_pixelCondSummaryTool->isGood(idHash);
-      isgood=m_pixelLayerTool->expectHit(parameters);
-      if (isgood) {
-        // this detElement is only cosidered as hole if the extrapolation of
-        // the track plus its error hits the active material
-        if (isActiveElement) {
-          ATH_MSG_VERBOSE("Pixel module is good, this is a hole canditate !");
-          return true;
-        }
-      } else {
-        ATH_MSG_VERBOSE("Track is hitting a bad Pixel module, this is not a hole candidate!");
-        return false;
-      }
-    }
-  } else if (m_atlasId->is_sct(id)) {
-    if (m_usesct) {
-      ATH_MSG_VERBOSE("Found element is a SCT module without a hit, see if it might be dead");
-      isgood=m_sctCondSummaryTool->isGood(idHash);
-      if (isgood) {
-        // this detElement is only cosidered as hole if the extrapolation of
-        // the track plus its error hits the active material
-        if (isActiveElement) {
-
-          if (m_checkBadSCTChip and isBadSCTChipStrip(id, *parameters, *siElement)) {
-            ATH_MSG_VERBOSE("Track is hiting a bad SCT chip, this is not a hole candidate!");
-            isgood = false;
-            return false;
-          }
-
-          ATH_MSG_VERBOSE("SCT module is good, this is a hole candidate !");
-          return true;
-        }
-      } else {
-        ATH_MSG_VERBOSE("Track is hiting a bad SCT module, this is not a hole candidate!");
-        return false;
-      }
-    }
-  } else {
-    ATH_MSG_WARNING("unknown identifier type, this should not happen !"); 
-    return false;
-  }
-  // the extrapolation of the track plus its error might not 
-  // be inside the active detector for a good module
-  return false; 
-}
-
-// ====================================================================================================================
 const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) const {
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(Trk::TrackStateOnSurface::Hole);
@@ -914,32 +768,3 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   return newTrack;
 }
 
-// ====================================================================================================================
-bool InDet::InDetTrackHoleSearchTool::isBadSCTChipStrip(const Identifier& waferId, 
-                                                        const Trk::TrackParameters& parameters,
-                                                        const InDetDD::SiDetectorElement& siElement) const {
-  // Check if the track passes through a bad SCT ABCD chip or a bad SCT strip.
-  // A chip and a strip are determined by the extrapolated position.
-  // Algorithm is based on InnerDetector/InDetMonitoring/SCT_Monitoring/src/SCTHitEffMonTool.cxx
-
-  // Check the input.
-  if (not m_atlasId->is_sct(waferId)) {
-    ATH_MSG_WARNING(waferId << " is not an SCT Identifier");
-    return true;
-  }
-
-  // Get strip id from local position.
-  // Due to the limited position resolution, we may pick up a neighboring strip...
-  const Amg::Vector2D localPos(parameters.localPosition());
-  const Identifier stripIdentifier(siElement.identifierOfPosition(localPos));
-  if (not m_atlasId->is_sct(stripIdentifier)) {
-    ATH_MSG_WARNING(stripIdentifier << " is not an SCT Identifier");
-    return true;
-  }
-
-  // The extrapolated position is on a bad chip.
-  if (not m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP)) return true;
-  // The extrapolated position is on a bad strip. (We may need to check neighboring strips.)
-  if (not m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_STRIP)) return true;
-  return false;
-}

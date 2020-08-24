@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkPrepRawData/PrepRawData.h"
@@ -9,6 +9,8 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
+#include <memory>
+
 namespace InDet
 {
   //-------------------------------------------------------------
@@ -16,41 +18,14 @@ namespace InDet
   SCT_SpacePoint::SCT_SpacePoint()
     :
     Trk::SpacePoint()
-  {}
-
-  //-------------------------------------------------------------
-
-  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-				 const Amg::Vector3D* position,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
-    :
-    Trk::SpacePoint()
   {
-    setup(elementIdList,*position,clusList);
-    setupLocalCovarianceSCT();
-    setupGlobalFromLocalCovariance();
-    delete position;
   }
 
   //-------------------------------------------------------------
-
-  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-				 const Amg::Vector3D* position,
-				 const Amg::MatrixX* loccov,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
-    :
-    Trk::SpacePoint()
-  {
-    Trk::MeasurementBase::m_localCovariance = *loccov;
-    setup(elementIdList,*position,clusList);
-    setupGlobalFromLocalCovariance();
-    delete loccov;
-    delete position;
-  }
 
   SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
 				 const Amg::Vector3D& position,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
+				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*> &clusList) 
     :
     Trk::SpacePoint()
   {
@@ -58,38 +33,22 @@ namespace InDet
     setupLocalCovarianceSCT();
     setupGlobalFromLocalCovariance();
   }
-
-  //-------------------------------------------------------------
-
-  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-				 const Amg::Vector3D& position,
-				 const Amg::MatrixX& loccov,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
-    :
-    Trk::SpacePoint()
-  {
-    Trk::MeasurementBase::m_localCovariance = loccov;
-    setup(elementIdList,position,clusList);
-    setupGlobalFromLocalCovariance();
-  }
-
   
   //-------------------------------------------------------------
   
   void SCT_SpacePoint::setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
 			     const Amg::Vector3D& position,
-			     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList)
+			     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>& clusList)
   {
     m_clusList = clusList ;
     m_position = position ;
     m_elemIdList.first = elementIdList.first ;
     m_elemIdList.second = elementIdList.second ;
-    assert( (clusList->first!=0) && (clusList->second!=0) );
-    assert(clusList->first->detectorElement()) ;
-    const Amg::Vector2D* locpos = (clusList->first->detectorElement()->surface().globalToLocal(position)) ;  
+    assert( (clusList.first!=0) && (clusList.second!=0) );
+    assert(clusList.first->detectorElement()) ;
+    std::unique_ptr<const Amg::Vector2D> locpos{clusList.first->detectorElement()->surface().globalToLocal(position)};
     assert(locpos);
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(*locpos ) ;
-    delete locpos ;
 
   }
 

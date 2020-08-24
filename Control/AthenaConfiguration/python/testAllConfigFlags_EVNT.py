@@ -1,10 +1,17 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 ConfigFlags.Input.Files = defaultTestFiles.EVNT
-ConfigFlags._loadDynaFlags("Detector")
+
+havedet = True
+try:
+    import DetDescrCnvSvc # noqa: F401
+except ImportError:
+    havedet = False
+if havedet:
+    ConfigFlags._loadDynaFlags("Detector")
 
 # Don't fail just because G4AtlasApps isn't present in this build.
 havesim = True

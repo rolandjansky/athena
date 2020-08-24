@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactoryDC3.h"
@@ -35,6 +35,8 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
@@ -52,7 +54,7 @@ InDetServMatFactoryDC3::~InDetServMatFactoryDC3()
 
 
 //## Other Operations (implementation)
-void InDetServMatFactoryDC3::create(GeoPhysVol *world )
+void InDetServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world ) // Thread unsafe rdbAccessSvc method is used.
 {
 
 

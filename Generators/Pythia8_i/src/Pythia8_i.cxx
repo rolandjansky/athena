@@ -406,7 +406,7 @@ StatusCode Pythia8_i::callGenerator(){
   double eventWeight = m_pythia->info.mergingWeight()*m_pythia->info.weight();
   
   if(returnCode != StatusCode::FAILURE &&
-     (fabs(eventWeight) < 1.e-18 ||
+     (std::abs(eventWeight) < 1.e-18 ||
       m_pythia->event.size() < 2)){
        
        returnCode = this->callGenerator();
@@ -435,6 +435,15 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   // in debug mode you can check whether the pdf information is stored
   if(evt->pdf_info()){
+#ifdef HEPMC3
+    ATH_MSG_DEBUG("PDFinfo id1:" << evt->pdf_info()->parton_id[0]);
+    ATH_MSG_DEBUG("PDFinfo id2:" << evt->pdf_info()->parton_id[1]);
+    ATH_MSG_DEBUG("PDFinfo x1:" << evt->pdf_info()->x[0]);
+    ATH_MSG_DEBUG("PDFinfo x2:" << evt->pdf_info()->x[1]);
+    ATH_MSG_DEBUG("PDFinfo scalePDF:" << evt->pdf_info()->scale);
+    ATH_MSG_DEBUG("PDFinfo pdf1:" << evt->pdf_info()->pdf_id[0]);
+    ATH_MSG_DEBUG("PDFinfo pdf2:" << evt->pdf_info()->pdf_id[1]);
+#else
     ATH_MSG_DEBUG("PDFinfo id1:" << evt->pdf_info()->id1());
     ATH_MSG_DEBUG("PDFinfo id2:" << evt->pdf_info()->id2());
     ATH_MSG_DEBUG("PDFinfo x1:" << evt->pdf_info()->x1());
@@ -442,19 +451,20 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
     ATH_MSG_DEBUG("PDFinfo scalePDF:" << evt->pdf_info()->scalePDF());
     ATH_MSG_DEBUG("PDFinfo pdf1:" << evt->pdf_info()->pdf1());
     ATH_MSG_DEBUG("PDFinfo pdf2:" << evt->pdf_info()->pdf2());
+#endif
   }
   else
     ATH_MSG_DEBUG("No PDF information available in HepMC::GenEvent!");
 
   // set the randomseeds
-  if(m_useRndmGenSvc)evt->set_random_states(m_seeds);
+  if(m_useRndmGenSvc) HepMC::set_random_states(evt,m_seeds);
   
   double phaseSpaceWeight = m_pythia->info.weight();
   double mergingWeight    = m_pythia->info.mergingWeight();
   double eventWeight = phaseSpaceWeight*mergingWeight;
   
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
-  evt->weights().clear();
+  std::map<std::string,double> fWeights;
   
   std::vector<string>::const_iterator id = m_weightIDs.begin();
   
@@ -475,9 +485,9 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
       
       std::map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia->info.init_weights->find(wgt->first);
       if(weightName != m_pythia->info.init_weights->end()){
-        evt->weights()[weightName->second.contents] = mergingWeight * wgt->second.contents;
+        fWeights[weightName->second.contents] = mergingWeight * wgt->second.contents;
       }else{
-        evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
+        fWeights[wgt->first] = mergingWeight * wgt->second.contents;
       }
       
     }
@@ -491,12 +501,23 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
     
     if(m_pythia->info.nWeights() != 1){
       if(m_internal_event_number == 1) m_weightIDs.push_back(wtName);
-      evt->weights()[wtName] = mergingWeight*m_pythia->info.weight(iw);
+      fWeights[wtName] = mergingWeight*m_pythia->info.weight(iw);
     }else{
-      evt->weights().push_back(eventWeight);
+      fWeights["Default"]=eventWeight;
     }
   }
 
+#ifdef HEPMC3
+  if(m_internal_event_number == 1){
+    std::vector<std::string> names;
+    for (auto w: fWeights)   names.push_back(w.first);
+    evt->run_info()->set_weight_names(names);
+  }
+  for (auto w: fWeights) {evt->weight(w.first)=w.second;}  
+#else
+  evt->weights().clear();
+  for (auto w: fWeights) {evt->weights()[w.first]=w.second;}  
+#endif
   // Units correction
   /// @todo We shouldn't be having to rescale these events if they're already in MeV :S Where's the screw-up: HepMC or Py8?
   /// Hopefully this is permanently fixed in version 8.170 onwards

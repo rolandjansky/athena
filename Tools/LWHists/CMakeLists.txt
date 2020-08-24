@@ -1,12 +1,7 @@
-# $Id: CMakeLists.txt 763045 2016-07-19 20:30:19Z ssnyder $
-################################################################################
-# Package: LWHists
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LWHists )
-
-atlas_depends_on_subdirs( PUBLIC Control/CxxUtils )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist RIO Core MathCore )

@@ -36,7 +36,6 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IClassIDSvc.h"
-#include <boost/preprocessor/stringize.hpp>
 
 #include <cmath>
 #include <fstream>

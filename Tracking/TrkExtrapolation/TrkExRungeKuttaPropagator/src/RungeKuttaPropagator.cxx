@@ -19,6 +19,11 @@
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 
+
+/// enables -ftree-vectorize in gcc 
+#include "CxxUtils/vectorize.h"
+ATH_ENABLE_VECTORIZATION;
+
 /////////////////////////////////////////////////////////////////////////////////
 // Constructor
 /////////////////////////////////////////////////////////////////////////////////
@@ -51,12 +56,9 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
   // temporarily protect the use of the field cond object/field cache for clients with IOV callbacks
       
   // Read handle for AtlasFieldCacheCondObj
-  ATH_CHECK( m_fieldCondObjInputKey.initialize(m_useCondObj) );
-  if (m_useCondObj) ATH_MSG_INFO("initialize() init key: " << m_fieldCondObjInputKey.key());
-  else              ATH_MSG_INFO("initialize() DID NOT init key: " << m_fieldCondObjInputKey.key());
-  
+  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+  ATH_MSG_DEBUG("initialize() init key: " << m_fieldCondObjInputKey.key());
 
-//  msg(MSG::INFO) << name() <<" initialize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -66,7 +68,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
 
 StatusCode  Trk::RungeKuttaPropagator::finalize()
 {
-  ATH_MSG_INFO(name() <<" finalize() successful");
+  ATH_MSG_VERBOSE(name() <<" finalize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -1986,21 +1988,18 @@ void Trk::RungeKuttaPropagator::propagateStep(const EventContext& ctx,
 void Trk::RungeKuttaPropagator::getFieldCacheObject( Cache& cache,const EventContext& ctx) const
 {
 
-    if (m_useCondObj) {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
 
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-        if (fieldCondObj == nullptr) {
+        // temporarily protect for when cache a cannot be retrieved in an IOV callback
+        ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key()
+                      << ". Skipping use of field cache!");
 
-            // temporarily protect for when cache a cannot be retrieved in an IOV callback
-            ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key()
-                          << ". Skipping use of field cache!");
-
-            // ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-            // return;
-        }
-        fieldCondObj->getInitializedCache (cache.m_fieldCache);
+        // ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        // return;
     }
+    fieldCondObj->getInitializedCache (cache.m_fieldCache);
 
 }
 

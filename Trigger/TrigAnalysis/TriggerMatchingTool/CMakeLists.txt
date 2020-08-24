@@ -1,28 +1,7 @@
-# $Id: CMakeLists.txt 780705 2016-10-27 11:45:18Z krasznaa $
-################################################################################
-# Package: TriggerMatchingTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TriggerMatchingTool )
-
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/AthAnalysisBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODBase
-   Trigger/TrigAnalysis/TrigDecisionTool
-   Trigger/TrigEvent/TrigNavStructure
-   Trigger/TrigEvent/TrigDecisionInterface
-   PRIVATE
-   Event/FourMomUtils
-   ${extra_deps} )
 
 # External dependencies:
 find_package( Boost )
@@ -34,14 +13,13 @@ atlas_add_library( TriggerMatchingToolLib
    PUBLIC_HEADERS TriggerMatchingTool
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODBase TrigNavStructure TrigDecisionToolLib
-   TrigDecisionInterface
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} FourMomUtils )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} FourMomUtils xAODTrigger )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TriggerMatchingTool
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase GaudiKernel
+      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
       AthAnalysisBaseCompsLib TriggerMatchingToolLib )
 endif()
 

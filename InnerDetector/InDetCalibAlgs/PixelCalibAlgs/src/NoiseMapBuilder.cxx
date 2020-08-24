@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -16,6 +16,9 @@
 
 // geometry
 #include "InDetIdentifier/PixelID.h"
+
+// Thread safety check
+#include "CxxUtils/checker_macros.h"
 
 // ROOT
 #include "TH2.h"
@@ -311,7 +314,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
 // execute
 //
 //=========================================================
-StatusCode NoiseMapBuilder::execute(){
+StatusCode NoiseMapBuilder::execute ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe DataHandle template is used.
   ATH_MSG_DEBUG( "Executing NoiseMapBuilder" );
 
   // retrieve EventInfo
@@ -340,7 +343,7 @@ StatusCode NoiseMapBuilder::execute(){
 
   // loop in RDO container
   for(PixelRDO_Container::const_iterator coll=pixelRDOs->begin(); 
-      coll!=pixelRDOs->end(); coll++){
+      coll!=pixelRDOs->end(); ++coll){
 
     const InDetRawDataCollection<PixelRDORawData>* PixelRDOCollection(*coll);
     if(PixelRDOCollection != 0){

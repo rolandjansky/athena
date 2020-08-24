@@ -6,28 +6,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FatrasEventTPCnv )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   Database/AthenaPOOL/AthenaPoolUtilities
-   DetectorDescription/Identifier
-   InnerDetector/InDetEventCnv/InDetEventTPCnv
-   Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
-   Simulation/ISF/ISF_Fatras/ISF_FatrasEvent
-   Tracking/TrkEventCnv/TrkEventTPCnv
-   PRIVATE
-   AtlasTest/TestTools
-   Control/AthenaKernel
-   Control/AthAllocators
-   Control/StoreGate
-   DetectorDescription/GeoPrimitives
-   DetectorDescription/IdDictParser
-   Event/EventPrimitives
-   GaudiKernel
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   Tracking/TrkDetDescr/TrkGeometry )
-
 # Component(s) in the package:
 atlas_add_tpcnv_library( ISF_FatrasEventTPCnv
    ISF_FatrasEventTPCnv/*.h ISF_FatrasEventTPCnv/ISF_FatrasEvent/*.h

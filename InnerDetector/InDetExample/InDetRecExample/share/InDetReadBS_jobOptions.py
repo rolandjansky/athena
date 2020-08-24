@@ -6,6 +6,10 @@ include ("InDetRecExample/InDetRecCabling.py")
 if DetFlags.readRDOBS.pixel_on():
   from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
   InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder")
+  # Disable duplcated pixel check for data15 because duplication mechanism was used.
+  from RecExConfig.RecFlags import rec
+  if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+    InDetPixelRodDecoder.CheckDuplicatedPixel=False
   ToolSvc += InDetPixelRodDecoder
   if (InDetFlags.doPrintConfigurables()):
     printfunc      (InDetPixelRodDecoder)

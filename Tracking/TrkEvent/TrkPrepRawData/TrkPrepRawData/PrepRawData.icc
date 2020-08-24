@@ -1,0 +1,44 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk{
+
+inline Identifier
+PrepRawData::identify() const
+{
+  return m_clusId;
+}
+
+inline const Amg::Vector2D&
+PrepRawData::localPosition() const
+{
+  return m_localPos;
+}
+
+inline const Amg::MatrixX&
+PrepRawData::localCovariance() const
+{
+  return *m_localCovariance;
+}
+
+inline const std::vector<Identifier>&
+PrepRawData::rdoList() const
+{
+  return m_rdoList;
+}
+
+/** TEMP for testing: might make some classes friends later ... */
+inline void
+PrepRawData::setHashAndIndex(unsigned short collHash, unsigned short objIndex)
+{
+  m_indexAndHash.setCollHash(collHash);
+  m_indexAndHash.setObjIndex(objIndex);
+}
+inline const IdentContIndex&
+PrepRawData::getHashAndIndex() const
+{
+  return m_indexAndHash;
+}
+
+}

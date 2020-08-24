@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,10 +33,6 @@ namespace InDetDD
 
     SiDetectorManager::~SiDetectorManager()
     {
-      for (const SiDetectorDesign* design : m_designs) {
-        delete design;
-      }
-      delete m_commonItems;
     }
 
     const std::string& SiDetectorManager::tag() const
@@ -139,9 +135,9 @@ namespace InDetDD
         }
     }
 
-    void SiDetectorManager::addDesign(const SiDetectorDesign * design)
+    void SiDetectorManager::addDesign(std::unique_ptr<const SiDetectorDesign>&& design)
     {
-        m_designs.push_back(design);
+        m_designs.push_back(std::move(design));
     }
 
     int SiDetectorManager::numDesigns() const
@@ -152,12 +148,12 @@ namespace InDetDD
 
     const SiDetectorDesign* SiDetectorManager::getDesign(int i) const
     {
-        return m_designs[i];
+        return m_designs[i].get();
     }
 
-    void SiDetectorManager::setCommonItems(const SiCommonItems* commonItems)
+    void SiDetectorManager::setCommonItems(std::unique_ptr<const SiCommonItems>&& commonItems)
     {
-        m_commonItems = commonItems;
+        m_commonItems = std::move(commonItems);
     }
 
 }// namespace InDetDD

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -303,11 +303,7 @@ StatusCode CosmicGenerator::callGenerator() {
 
           ATH_MSG_VERBOSE( evt );
 
-          double polx = 0;
-          double poly = 0;
-          double polz = 0;
-          HepMC::Polarization thePolarization;
-          thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,poly,polz));
+          HepMC::Polarization thePolarization(0.0,0.0);
           m_polarization.push_back(thePolarization);
 
           //
@@ -355,11 +351,11 @@ StatusCode CosmicGenerator::callGenerator() {
 
           if (vert_radius>m_radius) {
             phi1=atan2(vert.z(),vert.x())+M_PI;
-            float delta_phi=asin(m_radius/vert_radius);
+            float delta_phi=std::asin(m_radius/vert_radius);
             phi1=phi1+CLHEP::RandFlat::shoot(engine, -delta_phi, delta_phi);
           }
-          pp.setX(mag1*sin(theta1)*cos(phi1));
-          pp.setY(mag1*sin(theta1)*sin(phi1));
+          pp.setX(mag1*sin(theta1)*std::cos(phi1));
+          pp.setY(mag1*sin(theta1)*std::sin(phi1));
 
         } else {
           vert = generateVertex();
@@ -372,9 +368,9 @@ StatusCode CosmicGenerator::callGenerator() {
           mag1=pp.rho();
         }
 
-        CLHEP::Hep3Vector pp_corr(mag1*sin(theta1)*cos(phi1),
-                           -mag1*cos(theta1),
-                           mag1*sin(theta1)*sin(phi1));
+        CLHEP::Hep3Vector pp_corr(mag1*sin(theta1)*std::cos(phi1),
+                           -mag1*std::cos(theta1),
+                           mag1*std::sin(theta1)*std::sin(phi1));
         CLHEP::Hep3Vector direction(pp_corr.x(),pp_corr.y(), pp_corr.z());
 
         // if optimization activated, check for the direction of the generated muon
@@ -382,9 +378,9 @@ StatusCode CosmicGenerator::callGenerator() {
 
           CLHEP::Hep3Vector center_dir=m_center-vert3;
           double beta=direction.angle(center_dir);
-          double alpha=asin(m_radius/center_dir.r());
+          double alpha=std::asin(m_radius/center_dir.r());
 
-          if(fabs(beta)<alpha) {
+          if(std::abs(beta)<alpha) {
 
             if(m_exzCut) {
               // Old optimization code - is it still useful?
@@ -555,26 +551,8 @@ StatusCode CosmicGenerator::callGenerator() {
         m_fourPos.push_back(CLHEP::HepLorentzVector(x,z,y,t));
 
       // Set the polarization.  Realistically, this is going to be zero
-      // for most studies, but you never know...
-      double polx = 0;
-      double poly = 0;
-      double polz = 0;
-      //m_polarization.set_normal3d(HepGeom::Normal3D<double>(polx,poly,polz));
-      HepMC::Polarization thePolarization;
-
-      // Do we need to swap Y- and Z-axis for the PixelEndCap C Cosmic test ?
-      // if not...do nothing...if so, invert position of y- and z- coordinate
-      //
-      // well and don't forget about the direction of the incoming cosmic muon(s) either
-      // that means:  y -> -y
-      //
-      if(!m_swapYZAxis){
-        // thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,-poly,polz));
-        thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,poly,polz));
-      }
-      else
-        thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,polz,-poly));
-
+      // for most studies.
+      HepMC::Polarization thePolarization(0.0);
       m_polarization.push_back(thePolarization);
 
 
@@ -627,10 +605,7 @@ StatusCode CosmicGenerator::callGenerator() {
           << m_fourMom.back().e()  << ")" );
       ATH_MSG_DEBUG(
              "  (theta,phi) = (" << theta << "," << phi << "), "
-          << "polarization(x,y,z) = ("
-          << m_polarization.back().normal3d().x() << ","
-          << m_polarization.back().normal3d().y() << ","
-          << m_polarization.back().normal3d().z() << ")" );
+          << "polarization(theta,phi) = ("<< m_polarization.back().theta() << ","<< m_polarization.back().phi()  << ")" );
     }
   return StatusCode::SUCCESS;
 
@@ -720,11 +695,11 @@ StatusCode CosmicGenerator::fillEvt(HepMC::GenEvent* event) {
 
       // Create the particle, and specify its polarization.
 
-      HepMC::GenParticle* particle = new HepMC::GenParticle( m_fourMom[v], m_pdgCode[v], 1);
-      particle->set_polarization( m_polarization[v] );
+      HepMC::GenParticlePtr particle =  HepMC::newGenParticlePtr( HepMC::FourVector(m_fourMom[v].px(),m_fourMom[v].py(),m_fourMom[v].pz(),m_fourMom[v].e()), m_pdgCode[v], 1);
+      HepMC::set_polarization(particle, m_polarization[v] );
 
       // Create the vertex, and add the particle to the vertex.
-      HepMC::GenVertex* vertex = new HepMC::GenVertex(m_fourPos[v]);
+      HepMC::GenVertexPtr vertex = HepMC::newGenVertexPtr(HepMC::FourVector(m_fourPos[v].x(),m_fourPos[v].y(),m_fourPos[v].z(),m_fourPos[v].t()));
       vertex->add_particle_out( particle );
 
       // Add the vertex to the event.
@@ -753,13 +728,13 @@ bool CosmicGenerator::exzCut(const CLHEP::Hep3Vector& pos,const CLHEP::HepLorent
         double r =0;
         bool cut = false;
         if(pos.z()<0){
-          r = sqrt((pow(pos.x(),2)+pow(pos.z()+28000,2))) ; //FIXME Hardcoded values!
+          r = std::sqrt((std::pow(pos.x(),2)+std::pow(pos.z()+28000,2))) ; //FIXME Hardcoded values!
           double e = 0.45238*r+5000 ;  //FIXME Hardcoded values!
           cut = p.e()*m_GeV>e;
         }
         else
         {
-          r = sqrt((pow(pos.x(),2)+pow(pos.z()-20000,2))) ; //FIXME Hardcoded values!
+          r = std::sqrt((std::pow(pos.x(),2)+std::pow(pos.z()-20000,2))) ; //FIXME Hardcoded values!
           if(r<15000) { //FIXME Hardcoded values!
             cut = true;
           } else
@@ -792,10 +767,10 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
 
   // direction of trajectory
   // x=x0 - t sinth cosphi; y=y0 + t costh; z=z0 - t sinth sinphi
-  double cosphi = cos(phi);
-  double sinphi = sin(phi);
-  double costh = cos(theta);
-  double sinth = sin(theta);
+  double cosphi = std::cos(phi);
+  double sinphi = std::sin(phi);
+  double costh = std::cos(theta);
+  double sinth = std::sin(theta);
 
   double y0 = m_ysurface;
   double t = (ygen-y0)/costh;
@@ -807,13 +782,13 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
 
   // does trajectory intersect p14 cylinder?
   double z_mid14 = (x0-p14_x)*sinphi-(z0-p14_z)*cosphi;
-  double min_dist14 = fabs(z_mid14);  //minimum distance of line from center
+  double min_dist14 = std::abs(z_mid14);  //minimum distance of line from center
   double shaft_distance14 = 0.;
   if (min_dist14<p14_radius) {
 
     // z values at intersections
-    double z_plus14  = -cosphi*z_mid14+sinphi*sqrt(pow(p14_radius,2.)-pow(z_mid14,2.)) + p14_z;
-    double z_minus14 = -cosphi*z_mid14-sinphi*sqrt(pow(p14_radius,2.)-pow(z_mid14,2.)) + p14_z;
+    double z_plus14  = -cosphi*z_mid14+sinphi*std::sqrt(std::pow(p14_radius,2.)-std::pow(z_mid14,2.)) + p14_z;
+    double z_minus14 = -cosphi*z_mid14-sinphi*std::sqrt(std::pow(p14_radius,2.)-std::pow(z_mid14,2.)) + p14_z;
 
     // y values at intersections
     double y_plus14  = y0-costh*(z_plus14-z0)/sinth/sinphi;
@@ -831,13 +806,13 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
 
   // does trajectory intersect p16 cylinder?
   double z_mid16 = (x0-p16_x)*sinphi-(z0-p16_z)*cosphi;
-  double min_dist16 = fabs(z_mid16);
+  double min_dist16 = std::abs(z_mid16);
   double shaft_distance16 = 0.;
   if (min_dist16<p16_radius) {
 
     // z values at intersections
-    double z_plus16  = -cosphi*z_mid16+sinphi*sqrt(pow(p16_radius,2.)-pow(z_mid16,2.)) + p16_z;
-    double z_minus16 = -cosphi*z_mid16-sinphi*sqrt(pow(p16_radius,2.)-pow(z_mid16,2.)) + p16_z;
+    double z_plus16  = -cosphi*z_mid16+sinphi*std::sqrt(std::pow(p16_radius,2.)-std::pow(z_mid16,2.)) + p16_z;
+    double z_minus16 = -cosphi*z_mid16-sinphi*std::sqrt(std::pow(p16_radius,2.)-std::pow(z_mid16,2.)) + p16_z;
 
     // determine y values at intersections
     double y_plus16  = y0-costh*(z_plus16-z0)/sinth/sinphi;
@@ -865,17 +840,17 @@ bool CosmicGenerator::pointsAtPixels(double xgen, double ygen, double zgen, doub
 
   // direction of trajectory
   // x=xgen+ t sinth cosphi; y=ygen+t costh; z=zgen+t sinth sinphi
-  double cosphi = cos(phi);
-  double sinphi = sin(phi);
-  double costh = cos(theta);
-  double sinth = sin(theta);
+  double cosphi = std::cos(phi);
+  double sinphi = std::sin(phi);
+  double costh = std::cos(theta);
+  double sinth = std::sin(theta);
   double t = ygen/costh;  //for parameterized trajectory
   double x_pos = xgen + t*sinth*cosphi; //x position at y=0
   double z_pos = zgen + t*sinth*sinphi; //z position at y=0
 
   ATH_MSG_VERBOSE("x_pos = " << x_pos << ", z_pos = " << z_pos);
 
-  if((fabs(x_pos)<m_pixelplanemaxx)&&(fabs(z_pos)<m_pixelplanemaxz)){
+  if((std::abs(x_pos)<m_pixelplanemaxx)&&(std::abs(z_pos)<m_pixelplanemaxz)){
     does=true;
   }
 

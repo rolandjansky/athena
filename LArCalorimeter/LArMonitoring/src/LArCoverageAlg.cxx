@@ -108,8 +108,8 @@ LArCoverageAlg::initialize()
   m_CoverageToolArrayHECC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"HECC",m_availableErrorCodes);
   m_CoverageToolArrayFCalC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"FCalC",m_availableErrorCodes);
 
-  m_BadChannelToolArrayBarrel = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName,m_Sides);
-  m_BadChannelToolArrayEndcap = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName,m_Sides);
+  m_BadChannelToolArrayBarrel = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName+"Barrel",m_Sides);
+  m_BadChannelToolArrayEndcap = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName+"EndCap",m_Sides);
 
   /** End Initialize */
   return AthMonitorAlgorithm::initialize();
@@ -265,10 +265,10 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
       if (flag!=0) {//only fill bad channels
 	std::string the_side= (etaChan >= 0 ? "A" : "C");
 	if(m_LArOnlineIDHelper->isEMBchannel(id)){
-	  mon_FtSlot=ft*m_NftEMB+slot;
+	  mon_FtSlot=ft*m_NslotEMB+slot;
 	  fill(m_tools[m_BadChannelToolArrayBarrel.at(the_side)],mon_FtSlot,single_channel,flag);
 	}else{
-	  mon_FtSlot=ft*m_NftEMEC+slot;
+	  mon_FtSlot=ft*m_NslotEMEC+slot;
 	  fill(m_tools[m_BadChannelToolArrayEndcap.at(the_side)],mon_FtSlot,single_channel,flag);
 	}
       }

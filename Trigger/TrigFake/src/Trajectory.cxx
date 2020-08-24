@@ -3,7 +3,7 @@
 */
 
 #include<cmath>
-#include "TrigFake/Trajectory.h"
+#include "Trajectory.h"
 
 namespace TrigFake{
 Trajectory::Trajectory(double px_MeV, double py_MeV, double pz_MeV, 

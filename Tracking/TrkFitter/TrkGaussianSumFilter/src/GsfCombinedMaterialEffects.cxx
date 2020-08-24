@@ -13,19 +13,20 @@ decription           : Implementation code for GsfCombinedMaterialEffects class
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkSurfaces/Surface.h"
-#include "TrkGeometry/Layer.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkGeometry/Layer.h"
+#include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkSurfaces/Surface.h"
 
 namespace {
 const Trk::ParticleMasses s_particleMasses{};
 }
 
-Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(const std::string& type,
-                                                            const std::string& name,
-                                                            const IInterface* parent)
+Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(
+  const std::string& type,
+  const std::string& name,
+  const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {
   declareInterface<IMultiStateMaterialEffects>(this);
@@ -36,11 +37,13 @@ Trk::GsfCombinedMaterialEffects::~GsfCombinedMaterialEffects() = default;
 StatusCode
 Trk::GsfCombinedMaterialEffects::initialize()
 {
-  // Retrieve and configure multiple scattering effects for multi-state operation
+  // Retrieve and configure multiple scattering effects for multi-state
+  // operation
   ATH_MSG_INFO("Configuring for multiple scattering");
   ATH_CHECK(m_msUpdator.retrieve());
 
-  // Retrieve and configure the std energy loss effects for multi-state operation
+  // Retrieve and configure the std energy loss effects for multi-state
+  // operation
   ATH_MSG_INFO("Configuring for normal energy loss");
   ATH_CHECK(m_EnergyLossUpdator.retrieve());
 
@@ -69,7 +72,7 @@ Trk::GsfCombinedMaterialEffects::compute(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG("Computing combined material effects");
+  ATH_MSG_DEBUG("Computing combined material effects, P : " << componentParameters.first->momentum().norm() << " W " << componentParameters.second );
 
   // Reset everything before computation
   cache.reset();
@@ -104,10 +107,18 @@ Trk::GsfCombinedMaterialEffects::compute(
 
   IMultiStateMaterialEffects::Cache cache_energyLoss;
   if (particleHypothesis == electron) {
-    m_betheHeitlerEffects->compute(cache_energyLoss, componentParameters, materialProperties, pathLength, direction);
+    m_betheHeitlerEffects->compute(cache_energyLoss,
+                                   componentParameters,
+                                   materialProperties,
+                                   pathLength,
+                                   direction);
   } else if (particleHypothesis != nonInteracting) {
-    this->energyLoss(
-      cache_energyLoss, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
+    this->energyLoss(cache_energyLoss,
+                     componentParameters,
+                     materialProperties,
+                     pathLength,
+                     direction,
+                     particleHypothesis);
   }
 
   // Protect if there are no new components
@@ -126,7 +137,8 @@ Trk::GsfCombinedMaterialEffects::compute(
   // Iterators over the multiple scattering components
   auto multipleScatter_weightsIterator = cache_multipleScatter.weights.begin();
   auto multipleScatter_deltaPsIterator = cache_multipleScatter.deltaPs.begin();
-  auto multipleScatter_deltaCovariancesIterator = cache_multipleScatter.deltaCovariances.begin();
+  auto multipleScatter_deltaCovariancesIterator =
+    cache_multipleScatter.deltaCovariances.begin();
 
   // Loop over multiple scattering components
   for (; multipleScatter_weightsIterator != cache_multipleScatter.weights.end();
@@ -137,22 +149,27 @@ Trk::GsfCombinedMaterialEffects::compute(
     // Iterators over the energy loss components
     auto energyLoss_weightsIterator = cache_energyLoss.weights.begin();
     auto energyLoss_deltaPsIterator = cache_energyLoss.deltaPs.begin();
-    auto energyLoss_deltaCovariancesIterator = cache_energyLoss.deltaCovariances.begin();
+    auto energyLoss_deltaCovariancesIterator =
+      cache_energyLoss.deltaCovariances.begin();
 
     // Loop over energy loss components
 
     for (; energyLoss_weightsIterator != cache_energyLoss.weights.end();
-         ++energyLoss_weightsIterator, ++energyLoss_deltaPsIterator, ++energyLoss_deltaCovariancesIterator) {
+         ++energyLoss_weightsIterator,
+         ++energyLoss_deltaPsIterator,
+         ++energyLoss_deltaCovariancesIterator) {
 
-      double combinedWeight = (*multipleScatter_weightsIterator) * (*energyLoss_weightsIterator);
-      double combinedDeltaP = (*multipleScatter_deltaPsIterator) + (*energyLoss_deltaPsIterator);
-
+      double combinedWeight =
+        (*multipleScatter_weightsIterator) * (*energyLoss_weightsIterator);
+      double combinedDeltaP =
+        (*multipleScatter_deltaPsIterator) + (*energyLoss_deltaPsIterator);
       cache.weights.push_back(combinedWeight);
       cache.deltaPs.push_back(combinedDeltaP);
 
       if (measuredCov) {
         AmgSymMatrix(5) summedCovariance =
-          (*multipleScatter_deltaCovariancesIterator) + (*energyLoss_deltaCovariancesIterator);
+          (*multipleScatter_deltaCovariancesIterator) +
+          (*energyLoss_deltaCovariancesIterator);
         cache.deltaCovariances.push_back(std::move(summedCovariance));
       }
     } // end for loop over energy loss components
@@ -171,13 +188,14 @@ Trk::GsfCombinedMaterialEffects::scattering(
 {
   // Reset the cache
   cache.reset();
-  
+
   // Request track parameters from component parameters
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
 
   if (!measuredTrackCov) {
-    ATH_MSG_DEBUG("No measurement associated with track parameters... returning original parameters");
+    ATH_MSG_DEBUG("No measurement associated with track parameters... "
+                  "returning original parameters");
     return;
   }
 
@@ -185,13 +203,17 @@ Trk::GsfCombinedMaterialEffects::scattering(
   double p = globalMomentum.mag();
 
   double pathcorrection = 1.;
-  if (materialProperties.thickness() != 0)
+  if (materialProperties.thickness() != 0) {
     pathcorrection = pathLength / materialProperties.thickness();
+  }
 
-  // Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
-  // and create a dummy materialProperties with the properties we are interested in
-  MaterialProperties mprop(materialProperties.thicknessInX0(), 1., 0., 0., 0., 0.);
-  const double angularVariation = m_msUpdator->sigmaSquare(mprop, p, pathcorrection, Trk::muon);
+  // Here we know the path length to be meff.thicknessX0, so we set
+  // pathcorrection = 1 and create a dummy materialProperties with the
+  // properties we are interested in
+  MaterialProperties mprop(
+    materialProperties.thicknessInX0(), 1., 0., 0., 0., 0.);
+  const double angularVariation =
+    m_msUpdator->sigmaSquare(mprop, p, pathcorrection, Trk::muon);
 
   AmgSymMatrix(5) deltaCov;
   deltaCov.setZero();
@@ -220,14 +242,19 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
   if (!measuredCov) {
-    ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
+    ATH_MSG_DEBUG("No measurement on track parameters... returning original "
+                  "track parameters");
     return;
   }
   double pathcorrection = pathLength / materialProperties.thickness();
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
 
-  EnergyLoss* energyLoss = m_EnergyLossUpdator->energyLoss(
-    materialProperties, globalMomentum.mag(), pathcorrection, direction, particleHypothesis, true);
+  EnergyLoss* energyLoss = m_EnergyLossUpdator->energyLoss(materialProperties,
+                                                           globalMomentum.mag(),
+                                                           pathcorrection,
+                                                           direction,
+                                                           particleHypothesis,
+                                                           true);
 
   // update for mean energy loss
   const double deltaE = energyLoss ? energyLoss->deltaE() : 0;

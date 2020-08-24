@@ -10,6 +10,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "ITrackToVertex/ITrackToVertex.h"
+
 #include <string>
 #include <bitset>
 
@@ -109,7 +111,7 @@ private:
   int m_ntrf;
   mutable std::atomic<int> m_ntrc[numCuts];
 
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
+  ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool{this, "trackToVertexTool", "Reco::TrackToVertex"};
 
   std::bitset<numCuts> m_passedCuts;
 

@@ -58,7 +58,7 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(const Trk::Compe
 
 Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(Trk::CompetingRIOsOnTrack&& compROT) {
     if (this!=&compROT) {
-      Trk::MeasurementBase::operator=(std::move(compROT));
+      Trk::MeasurementBase::operator=(compROT);
 
       delete m_assignProb;
       m_assignProb = compROT.m_assignProb;

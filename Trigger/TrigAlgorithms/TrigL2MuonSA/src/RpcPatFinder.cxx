@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/RpcPatFinder.h"
+#include "RpcPatFinder.h"
 
 #include <math.h>
 #include <bitset>
@@ -15,44 +15,11 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_RpcPatFinder("IID_RpcPatFinder", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::RpcPatFinder::interfaceID() { return IID_RpcPatFinder; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::RpcPatFinder::RpcPatFinder(const std::string& type,
 					 const std::string& name,
 					 const IInterface*  parent):
   AthAlgTool(type, name, parent)  
 {  
-  declareInterface<TrigL2MuonSA::RpcPatFinder>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::RpcPatFinder::~RpcPatFinder()
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::RpcPatFinder::initialize()
-{
-  ATH_MSG_DEBUG("Initializing RpcPatFinder - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -92,7 +59,7 @@ void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
   ilay+=gasGap-1;
 
   double R=sqrt(gPosX*gPosX+gPosY*gPosY);
-  double Phi=atan2(gPosY,gPosX);
+  const double Phi=atan2(gPosY,gPosX);
 
   if (!measuresPhi){
     // if eta measurement then save Z/R
@@ -417,7 +384,7 @@ bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, double Phi){
+double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, double Phi) const{
   double DeltaPhi, temp_phi;
   double calibPhi = acos(cos(Phi)); // 0 < Phi < 2PI
   
@@ -584,13 +551,3 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::RpcPatFinder::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing RpcPatFinder - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

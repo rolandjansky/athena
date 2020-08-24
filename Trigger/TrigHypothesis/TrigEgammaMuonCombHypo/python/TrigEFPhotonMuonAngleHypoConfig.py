@@ -1,15 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigEgammaMuonCombHypo.TrigEgammaMuonCombHypoConf import TrigEFPhotonMuonAngleFexAlgo, TrigEFElectronMuonAngleHypo
 from AthenaCommon.SystemOfUnits import GeV
-from TrigEgammaMuonCombHypo.TrigEFElectronMuonAngleHypoMonitoring import *
+import TrigEgammaMuonCombHypo.TrigEFElectronMuonAngleHypoMonitoring as mon
 
 class TrigEFPhotonMuonAngleFex ( TrigEFPhotonMuonAngleFexAlgo ):
     __slots__ = []
     def __init__(self, name="TrigEFPhotonMuonAngleFex"):
         super(TrigEFPhotonMuonAngleFex, self).__init__(name)
 
-        self.AthenaMonTools = [ TrigEFPhotonMuonAngleOnlineMonitoring() ] 
+        self.AthenaMonTools = [ mon.TrigEFPhotonMuonAngleOnlineMonitoring() ]
   
   
 class TrigEFPhotonMuonAngleHypo_tau ( TrigEFElectronMuonAngleHypo ):
@@ -30,4 +30,4 @@ class TrigEFPhotonMuonAngleHypo_tau ( TrigEFElectronMuonAngleHypo ):
         self.MinDRCut=0.
         self.MaxDPhiCut=1.5
 
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineHypoMonitoring(), mon.TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ]

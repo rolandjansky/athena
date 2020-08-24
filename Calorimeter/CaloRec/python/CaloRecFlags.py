@@ -64,7 +64,7 @@ class doEmCluster(CaloRecFlagsJobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class doCaloCluster(CaloRecFlagsJobProperty):
     """ switch for combined calo cluster
@@ -135,7 +135,7 @@ class doEMDigits(CaloRecFlagsJobProperty):
    """
    statusOn = True
    allowedTypes=['bool']
-   StoredValue=True
+   StoredValue=False
 
 class doFillMBTSBackgroundBit(CaloRecFlagsJobProperty):
     """ swtich to active filling of MBTS bit in the background word of the EventInfo object

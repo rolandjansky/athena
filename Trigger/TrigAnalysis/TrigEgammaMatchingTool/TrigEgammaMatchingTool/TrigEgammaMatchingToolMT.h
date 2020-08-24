@@ -5,7 +5,7 @@
 #ifndef TrigEgammaMatchingToolMT_H
 #define TrigEgammaMatchingToolMT_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -51,7 +51,9 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
         
         const xAOD::EmTauRoI* getL1Feature( const TrigCompositeUtils::Decision * ) const;
     
-    
+   
+
+
     private:
         
         bool matchHLTElectron(const xAOD::Electron *,const std::string &, const TrigCompositeUtils::Decision *&) const;

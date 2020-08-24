@@ -51,7 +51,7 @@ int stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry
     std::string stName3 = stName.substr(0,3);
     int stphi = 0;
 
-    int zi = abs(zi_input);
+    int zi = std::abs(zi_input);
     fi -= 1; // start from 0 
     
 
@@ -98,7 +98,7 @@ int stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry
     {
         int nch = 3;
         if ( (stName).substr(2,1) == "E" ) nch=6;
-        int fioff = abs(zi);
+        int fioff = std::abs(zi);
         if (fioff>3 && (stName).substr(2,1) == "F")  fioff = fioff-3;
         // minumum stPhi at phi 0
         if ((stName).substr(2,1) == "F") fioff = fioff -1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -134,7 +134,7 @@ void TRTParametersOfWheelsC::DefineParameters()
 
   // Called by TRTParametersOfWheelsC
 
-void TRTParametersOfWheelsC::PrintParameters() const
+void TRTParametersOfWheelsC::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTUtilities and TRTOutputFile classes are used.
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::PrintParameters" << endmsg;
 

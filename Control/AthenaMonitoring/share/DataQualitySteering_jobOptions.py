@@ -124,12 +124,6 @@ if DQMonFlags.doMonitoring():
    # LAr monitoring   #
    #------------------#
    if DQMonFlags.doLArMon():
-      # FIXME: don't use global flags here
-      if 'doLArCollisionTimeMon' not in dir():
-         doLArCollisionTimeMon=True
-      if doLArCollisionTimeMon:
-         include ("LArCellRec/LArCollisionTime_jobOptions.py")
-         include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
       try:
          LArMon = AthenaMonManager(name="LArMonManager",
                           FileKey             = DQMonFlags.monManFileKey(),
@@ -148,6 +142,7 @@ if DQMonFlags.doMonitoring():
    if DQMonFlags.doCaloMon():
       try:
          include("CaloMonitoring/CaloAllMonitoring_jobOptions.py")
+         include("CaloMonitoring/CaloNewMonitoring_jobOptions.py")
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up Calo monitoring")
 
@@ -250,6 +245,13 @@ if DQMonFlags.doMonitoring():
    #--------------------------#
    # Post-setup configuration #
    #--------------------------#
+   # force conditions update because the converter can't do it
+   if DQMonFlags.monManEnvironment in ('tier0ESD', 'AOD'):
+      from AthenaCommon.AlgSequence import AthSequencer
+      from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+      asq = AthSequencer("AthBeginSeq") 
+      asq += [ForceIDConditionsAlg()]
+
    if rec.triggerStream()=='express':
       include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
    local_logger.debug('DQ Post-Setup Configuration')

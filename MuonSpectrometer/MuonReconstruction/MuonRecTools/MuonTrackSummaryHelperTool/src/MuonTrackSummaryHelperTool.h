@@ -1,39 +1,34 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKSUMMARYHELPERTOOL_H
 #define MUONTRACKSUMMARYHELPERTOOL_H
 
 #include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
-//
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
 #include "StoreGate/ReadHandleKey.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <vector>
+#include <string>
 #include <bitset>
-
-class Identifier;
 
 namespace Trk {
   class RIO_OnTrack;
   class TrackStateOnSurface;
   class CompetingRIOsOnTrack;
-  class TrackSummary;
 }
 
 namespace MuonGM {
@@ -46,7 +41,7 @@ namespace Muon {
   public:
     MuonTrackSummaryHelperTool(const std::string&,const std::string&,const IInterface*);
         
-    virtual ~MuonTrackSummaryHelperTool ();
+    virtual ~MuonTrackSummaryHelperTool()=default;
         
     virtual StatusCode initialize() override;
         
@@ -109,8 +104,7 @@ private:
     /**increment the 'type'*/
     void increment(int& type) const;
 
-    /* used to work out layer ids etc*/
-    ToolHandle<MuonIdHelperTool> m_idHelperTool{"Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     /* used to do hits-in-road search for straight tracks */
     ToolHandle<Trk::IExtrapolator> m_slExtrapolator{"Trk::Extrapolator/MuonStraightLineExtrapolator"};

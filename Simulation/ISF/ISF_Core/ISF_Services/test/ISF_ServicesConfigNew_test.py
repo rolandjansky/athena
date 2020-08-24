@@ -4,7 +4,7 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   import os
 
   # Set up logging and config behaviour
@@ -28,10 +28,11 @@ if __name__ == '__main__':
   # Finalize 
   ConfigFlags.lock()
 
-  from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
+  from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, InputConverterCfg
+  from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 
   ## Initialize a new component accumulator
-  cfg = MainServicesSerialCfg()
+  cfg = MainServicesCfg(ConfigFlags)
 
   #add the algorithm
   cfg.merge(MC15aPlusTruthServiceCfg(ConfigFlags))

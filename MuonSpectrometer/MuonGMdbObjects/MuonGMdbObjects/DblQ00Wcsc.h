@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_WCSC_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Wcsc {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wcsc {
 public:
     DblQ00Wcsc(){};
     ~DblQ00Wcsc();
     DblQ00Wcsc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcsc(AmdcDb* wcsc);
 
     // data members for DblQ00/WCSC fields
     struct WCSC {

@@ -270,23 +270,23 @@ if iov:
         COOL_chan = 1000
 
     try:
-      dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
-      if (dbobjs is None):
-          raise Exception("No DB objects retrieved when building IOV list!")
-      while dbobjs.goToNext():
-        obj = dbobjs.currentRef()
-        objsince = obj.since()
-        sinceRun = objsince >> 32
-        sinceLum = objsince & 0xFFFFFFFF
-        since    = (sinceRun, sinceLum)
-        objuntil = obj.until()
-        untilRun = objuntil >> 32
-        untilLum = objuntil & 0xFFFFFFFF
-        until    = (untilRun, untilLum)
-        iovList.append((since, until))
+        dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
+        if (dbobjs is None):
+            raise Exception("No DB objects retrieved when building IOV list!")
+        while dbobjs.goToNext():
+            obj = dbobjs.currentRef()
+            objsince = obj.since()
+            sinceRun = objsince >> 32
+            sinceLum = objsince & 0xFFFFFFFF
+            since    = (sinceRun, sinceLum)
+            objuntil = obj.until()
+            untilRun = objuntil >> 32
+            untilLum = objuntil & 0xFFFFFFFF
+            until    = (untilRun, untilLum)
+            iovList.append((since, until))
     except Exception:
-      log.warning( "Warning: can not read IOVs from input DB file" )
-      sys.exit(2)
+        log.warning( "Warning: can not read IOVs from input DB file" )
+        sys.exit(2)
 
     be=iovList[0][0][0]
     en=iovList[-1][0][0]
@@ -433,4 +433,3 @@ for iovs in iovList:
 
 #=== close DB
 db.closeDatabase()
-

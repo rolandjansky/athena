@@ -25,7 +25,6 @@ StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 7169 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 6156 CLIDRegistry entries for module ALL
@@ -4509,7 +4508,7 @@ xAODTestRead_scopy   INFO  anInt1 10008 aFloat: 12000.7 anInt2: 14008 dInt1: 960
 xAODTestRead_scopy   INFO scopy_cvecWD 1020: 4001(800100) 4002(800200) 4003(800300) 4004(800400) 4005(800500) 4006(800600) 4007(800700) 4008(800800) 4009(800900) 4010(801000)
 xAODTestReadHVe...   INFO scopy_hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 xaoddata2.root       INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 4F961BD3-E159-8444-A1E3-3399BA53FC3A
 xaoddata2x.root      INFO Database being retired...

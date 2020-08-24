@@ -1,46 +1,31 @@
-################################################################################
-# Package: DecisionHandling
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DecisionHandling )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODTrigger
-                          GaudiKernel
-                          Control/AthContainers
-                          Control/AthLinks 
-                          Trigger/TrigSteer/TrigCompositeUtils
-                          PRIVATE
-                          Control/AthViews
-                          Control/StoreGate
-                          Control/AthenaBaseComps
-                          Control/CxxUtils
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODBase
-                          AtlasTest/TestTools
-                          Control/StoreGate
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigTools/TrigTimeAlgs
-                          Trigger/TrigMonitoring/TrigCostMonitorMT
-                          Trigger/TrigSteer/TrigCompositeUtils
-                          Control/AthenaMonitoringKernel )
-
 atlas_add_library( DecisionHandlingLib
-                   src/*.cxx
+                   src/ComboHypo.cxx
+                   src/ComboHypoToolBase.cxx
+                   src/DumpDecisions.cxx
+                   src/HypoBase.cxx
+                   src/InputMakerBase.cxx
+		   src/ITestHypoTool.cxx		   
                    PUBLIC_HEADERS DecisionHandling
-                   LINK_LIBRARIES xAODTrigger GaudiKernel TrigSteeringEvent TrigCompositeUtilsLib
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigTimeAlgsLib AthenaMonitoringKernelLib )
+                   LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib
+                   PRIVATE_LINK_LIBRARIES AthContainers AthViews xAODTrigger )
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
                      src/components/*.cxx
-                     LINK_LIBRARIES DecisionHandlingLib TrigCompositeUtilsLib )
+                     src/DeltaRRoIComboHypoTool.cxx
+                     src/InputMakerForRoI.cxx
+                     src/TriggerSummaryAlg.cxx
+                     src/RoRSeqFilter.cxx
+                     src/ViewCreator*.cxx
+		     src/TestRecoAlg.cxx
+		     src/TestInputMaker.cxx
+		     src/TestHypoTool.cxx
+		     src/TestHypoAlg.cxx
+                     LINK_LIBRARIES DecisionHandlingLib xAODTrigCalo AthViews xAODTracking xAODJet )
 
-atlas_install_python_modules( python/*.py )
-
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
-   POST_EXEC_SCRIPT nopost.sh )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

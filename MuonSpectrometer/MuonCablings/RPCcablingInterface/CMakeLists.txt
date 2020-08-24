@@ -20,8 +20,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( RPCcablingInterfaceLib
                    src/*.cxx
                    PUBLIC_HEADERS RPCcablingInterface
-                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel MuonCablingTools CablingTools MuonIdHelpersLib StoreGateLib SGtests RPC_CondCablingLib)
-
-# Install files from the package:
-atlas_install_python_modules( python/__init__.py )
+                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel MuonCablingTools MuonIdHelpersLib StoreGateLib SGtests RPC_CondCablingLib)
 

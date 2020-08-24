@@ -15,7 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
@@ -48,7 +48,7 @@ ImagingSeedTuningAlg::ImagingSeedTuningAlg( const std::string& name,
   m_seedFinder("Trk::ImagingSeedFinder"),
   m_impactPoint3dEstimator("Trk::ImpactPoint3dEstimator"),
   m_iTHistSvc("THistSvc", name),
-  m_h_nTruthVertices(NULL), m_h_zTruthVertices(NULL), m_t_seeds(NULL),
+  m_h_nTruthVertices(nullptr), m_h_zTruthVertices(nullptr), m_t_seeds(nullptr),
   m_b_nTruth(0), m_b_nConditions(0), m_iCondition(0)
 {
   //
@@ -72,7 +72,7 @@ ImagingSeedTuningAlg::ImagingSeedTuningAlg( const std::string& name,
 // Destructor
 ///////////////
 ImagingSeedTuningAlg::~ImagingSeedTuningAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////
@@ -181,7 +181,7 @@ StatusCode ImagingSeedTuningAlg::finalize()
     float efficiency = ((float)(nAllTruth - nLost - nMerge))/((float)nAllTruth);
     float purity = ((float)(nAllSeeds - nFake - nSplit))/((float)nAllSeeds);
     std::pair<float,float> p(efficiency, purity);
-    performance.push_back(performance_entry(desc, p));
+    performance.emplace_back(desc, p);
   }
   std::sort(performance.begin(), performance.end(), [](const performance_entry& a, const performance_entry& b) 
 	    {return a.second.first*a.second.second > b.second.first*b.second.second;});
@@ -351,7 +351,7 @@ StatusCode ImagingSeedTuningAlg::setupConditions(std::string& conditions)
   return StatusCode::SUCCESS;
 }
 
-void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
+void ImagingSeedTuningAlg::analyzeSeeds(const std::string& conditions,
 					const std::vector<Amg::Vector3D>& seeds, 
 					const std::vector<Amg::Vector3D>& truth)
 {
@@ -495,7 +495,7 @@ void ImagingSeedTuningAlg::selectTracks(const xAOD::TrackParticleContainer* trac
     if (selectionPassed)
     {
       ElementLink<xAOD::TrackParticleContainer> link;
-      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+      link.setElement(*itr);
       Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
       linkTT->setStorableObject(*trackParticles);
       trackVector.push_back(linkTT);
@@ -526,7 +526,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
 	  if (isAssoc)
 	  {
 	    auto assocParticle = truthParticleAssoc(**(*lxtp));
-	    for (auto truthParticle : evt->truthParticleLinks())
+	    for (const auto& truthParticle : evt->truthParticleLinks())
 	    {
 	      if (assocParticle == truthParticle)
 	      {
@@ -559,7 +559,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
 	if (isAssoc)
 	{
 	  auto assocParticle = truthParticleAssoc(**(*lxtp));
-	  for (auto truthParticle : evt->truthParticleLinks())
+	  for (const auto& truthParticle : evt->truthParticleLinks())
 	  {
 	    if (assocParticle == truthParticle)
 	    {

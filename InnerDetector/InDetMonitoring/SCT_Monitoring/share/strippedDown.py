@@ -57,7 +57,7 @@ if globalflags.InputFormat() == 'pool':
   ServiceMgr.EventSelector.InputCollections = collection
 elif globalflags.InputFormat() == 'bytestream':
   include("InDetRecExample/InDetReadBS_jobOptions.py")
-  ServiceMgr.ByteStreamInputSvc.FullFileName = collection
+  ServiceMgr.EventSelector.Input = collection
   
 #--------------------------------------------------------------
 # include SCT Clusterization

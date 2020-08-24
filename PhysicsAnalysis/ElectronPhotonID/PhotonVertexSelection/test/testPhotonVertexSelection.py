@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Script / jobOptions to test PhotonVertexSelectionTool using an AOD from
 mc15_13TeV:mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.merge.AOD.e3806_s2608_r7772_r7676"""
@@ -16,8 +16,9 @@ def getViewContainer(container):
   """getViewContainer(container) --> return a view container with at most 2 egamma
   objects from the given container, ignoring topo-seeded photons and fwd electrons"""
   import ROOT
+  from xAODEgamma.xAODEgammaParameters import xAOD
   def filterAuthor(x):
-    return x.author() not in [ROOT.xAOD.EgammaParameters.AuthorCaloTopo35, ROOT.xAOD.EgammaParameters.AuthorFwdElectron]
+    return x.author() not in [xAOD.EgammaParameters.AuthorCaloTopo35, xAOD.EgammaParameters.AuthorFwdElectron]
 
   egammas = container.__class__(ROOT.SG.VIEW_ELEMENTS)
   for eg in filter(filterAuthor, container)[:2]:
@@ -40,9 +41,9 @@ def setupAthenaJob(algoClass, inputfile = defaultFile, EvtMax = None):
   import AthenaPoolCnvSvc.ReadAthenaPool # EventSelector
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-  svcMgr.EventSelector.InputCollections = [inputfile] 
+  svcMgr.EventSelector.InputCollections = [inputfile]
 
-  # Redefine the function InputFileNames to make autoconfiguration work 
+  # Redefine the function InputFileNames to make autoconfiguration work
   # outside RecExCommon
   from RecExConfig import RecoFunctions
   RecoFunctions.InputFileNames = lambda : svcMgr.EventSelector.InputCollections
@@ -53,7 +54,7 @@ def setupAthenaJob(algoClass, inputfile = defaultFile, EvtMax = None):
 
   from egammaRec.Factories import ToolFactory, AlgFactory
   from RecExConfig.RecFlags  import rec
-  import PhotonVertexSelection.PhotonVertexSelectionConf as PVS 
+  import PhotonVertexSelection.PhotonVertexSelectionConf as PVS
 
   # Configure and PhotonVertexSelectionTool
   PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool)
@@ -126,7 +127,7 @@ else:
   import ROOT
   ROOT.gROOT.Macro( '$ROOTCOREDIR/scripts/load_packages.C' )
 
-  # Initialize the xAOD infrastructure: 
+  # Initialize the xAOD infrastructure:
   ROOT.xAOD.Init().ignore()
 
   # Setup the tools

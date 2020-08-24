@@ -83,16 +83,6 @@ EventSelector.InitialTimeStamp  = 0
 EventSelector.TimeStampInterval = 5
 theApp.EvtMax                   = 5
 
-
-
-#--------------------------------------------------------------
-# AthenaPool details
-#--------------------------------------------------------------
-
-# Check the dictionary in memory for completeness
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.CheckDictionary = TRUE
-
 #--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------

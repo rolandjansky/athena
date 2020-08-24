@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TestTools/random.h
@@ -52,7 +52,7 @@ uint32_t rng_seed (uint32_t& seed)
 inline
 float randf_seed (uint32_t& seed, float rmax, float rmin = 0)
 {
-  return static_cast<float>(rng_seed(seed)) / rngmax * (rmax-rmin) + rmin;
+  return static_cast<float>(rng_seed(seed)) / static_cast<float>(rngmax) * (rmax-rmin) + rmin;
 }
 
 

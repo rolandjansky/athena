@@ -1,80 +1,68 @@
+// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef xAODTrigMinBias_xAODTrigMinBias_DICT_H
 #define xAODTrigMinBias_xAODTrigMinBias_DICT_H
 
-// Include all headers here that need to have dictionaries
-// generated for them.
-
-// EDM include(s):
-#include "AthLinks/DataLink.h"
-#include "AthLinks/ElementLink.h"
-
+// Local include(s).
+#include "xAODTrigMinBias/TrigSpacePointCounts.h"
+#include "xAODTrigMinBias/TrigSpacePointCountsContainer.h"
+#include "xAODTrigMinBias/TrigSpacePointCountsAuxContainer.h"
 #include "xAODTrigMinBias/versions/TrigSpacePointCounts_v1.h"
 #include "xAODTrigMinBias/versions/TrigSpacePointCountsContainer_v1.h"
 #include "xAODTrigMinBias/versions/TrigSpacePointCountsAuxContainer_v1.h"
 
+#include "xAODTrigMinBias/TrigT2MbtsBits.h"
+#include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
+#include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "xAODTrigMinBias/versions/TrigT2MbtsBits_v1.h"
 #include "xAODTrigMinBias/versions/TrigT2MbtsBitsContainer_v1.h"
 #include "xAODTrigMinBias/versions/TrigT2MbtsBitsAuxContainer_v1.h"
 
+#include "xAODTrigMinBias/TrigHisto2D.h"
+#include "xAODTrigMinBias/TrigHisto2DContainer.h"
+#include "xAODTrigMinBias/TrigHisto2DAuxContainer.h"
 #include "xAODTrigMinBias/versions/TrigHisto2D_v1.h"
 #include "xAODTrigMinBias/versions/TrigHisto2DContainer_v1.h"
 #include "xAODTrigMinBias/versions/TrigHisto2DAuxContainer_v1.h"
 
+#include "xAODTrigMinBias/TrigVertexCounts.h"
+#include "xAODTrigMinBias/TrigVertexCountsContainer.h"
+#include "xAODTrigMinBias/TrigVertexCountsAuxContainer.h"
 #include "xAODTrigMinBias/versions/TrigVertexCounts_v1.h"
 #include "xAODTrigMinBias/versions/TrigVertexCountsContainer_v1.h"
 #include "xAODTrigMinBias/versions/TrigVertexCountsAuxContainer_v1.h"
 
+#include "xAODTrigMinBias/TrigTrackCounts.h"
+#include "xAODTrigMinBias/TrigTrackCountsContainer.h"
+#include "xAODTrigMinBias/TrigTrackCountsAuxContainer.h"
 #include "xAODTrigMinBias/versions/TrigTrackCounts_v1.h"
 #include "xAODTrigMinBias/versions/TrigTrackCountsContainer_v1.h"
 #include "xAODTrigMinBias/versions/TrigTrackCountsAuxContainer_v1.h"
 
+#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignalsContainer.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignalsAuxContainer.h"
 #include "xAODTrigMinBias/versions/TrigT2ZdcSignals_v1.h"
 #include "xAODTrigMinBias/versions/TrigT2ZdcSignalsContainer_v1.h"
 #include "xAODTrigMinBias/versions/TrigT2ZdcSignalsAuxContainer_v1.h"
 
-//i don't know what for
+// EDM include(s).
+#include "xAODCore/tools/DictHelpers.h"
+
+// Instantiate all necessary types for the dictionary.
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGMINBIAS {
-      xAOD::TrigSpacePointCountsContainer_v1 c1;
-      DataLink< xAOD::TrigSpacePointCountsContainer_v1 > dl1;
-      std::vector< DataLink< xAOD::TrigSpacePointCountsContainer_v1 > > dl2;
-      ElementLink< xAOD::TrigSpacePointCountsContainer_v1 > el1;
-      std::vector< ElementLink< xAOD::TrigSpacePointCountsContainer_v1 > > el2;
-      std::vector< std::vector< ElementLink< xAOD::TrigSpacePointCountsContainer_v1 > > > el3;
-      
-      xAOD::TrigT2MbtsBitsContainer_v1 ct1;
-      DataLink< xAOD::TrigT2MbtsBitsContainer_v1 > dlt1;
-      std::vector< DataLink< xAOD::TrigT2MbtsBitsContainer_v1 > > dlt2;
-      ElementLink< xAOD::TrigT2MbtsBitsContainer_v1 > elt1;
-      std::vector< ElementLink< xAOD::TrigT2MbtsBitsContainer_v1 > > elt2;
-      std::vector< std::vector< ElementLink< xAOD::TrigT2MbtsBitsContainer_v1 > > > elt3;
-      
-      xAOD::TrigVertexCountsContainer_v1 cv1;
-      DataLink< xAOD::TrigVertexCountsContainer_v1 > dlv1;
-      std::vector< DataLink< xAOD::TrigVertexCountsContainer_v1 > > dlv2;
-      ElementLink< xAOD::TrigVertexCountsContainer_v1 > elv1;
-      std::vector< ElementLink< xAOD::TrigVertexCountsContainer_v1 > > elv2;
-      std::vector< std::vector< ElementLink< xAOD::TrigVertexCountsContainer_v1 > > > elv3;
-      
-      xAOD::TrigTrackCountsContainer_v1 ctt1;
-      DataLink< xAOD::TrigTrackCountsContainer_v1 > dltt1;
-      std::vector< DataLink< xAOD::TrigTrackCountsContainer_v1 > > dltt2;
-      ElementLink< xAOD::TrigTrackCountsContainer_v1 > eltt1;
-      std::vector< ElementLink< xAOD::TrigTrackCountsContainer_v1 > > eltt2;
-      std::vector< std::vector< ElementLink< xAOD::TrigTrackCountsContainer_v1 > > > eltt3;
-
-      xAOD::TrigT2ZdcSignalsContainer_v1 czdct1;
-      DataLink< xAOD::TrigT2ZdcSignalsContainer_v1 > dlzdct1;
-      std::vector< DataLink< xAOD::TrigT2ZdcSignalsContainer_v1 > > dlzdct2;
-      ElementLink< xAOD::TrigT2ZdcSignalsContainer_v1 > elzdct1;
-      std::vector< ElementLink< xAOD::TrigT2ZdcSignalsContainer_v1 > > elzdct2;
-      std::vector< std::vector< ElementLink< xAOD::TrigT2ZdcSignalsContainer_v1 > > > elzdct3;
-
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD,
+                                           TrigSpacePointCountsContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigT2MbtsBitsContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigHisto2DContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigVertexCountsContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigTrackCountsContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigT2ZdcSignalsContainer_v1 );
    };
-} // private namespace
+}
 
-#endif
+#endif // xAODTrigMinBias_xAODTrigMinBias_DICT_H

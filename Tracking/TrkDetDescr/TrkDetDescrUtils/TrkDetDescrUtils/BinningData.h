@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// BinUtility.h, (c) ATLAS Detector software
+// BinningData.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef TRKDETDESCRUTILS_BINNINGDATA_H
@@ -55,11 +55,18 @@ public:
   float max;
   float step;
   float subStep;
-  std::vector<float> boundaries;
   float refphi;                               // ref Phi for binH
+  std::vector<float> boundaries;
   std::vector<std::pair<int, float>> hbounds; // boundary for binH
 
-  /** Constructor */
+  /* Default ctor,copy,move assignment,dtor*/
+  BinningData(const BinningData&) = default;
+  BinningData(BinningData&&) = default;
+  BinningData& operator=(const BinningData&) = default;
+  BinningData& operator=(BinningData&&) = default;
+  ~BinningData() = default;
+  
+  /** Constructor with arguments*/
   BinningData(BinningType bType,
               BinningOption bOption,
               BinningValue bValue,
@@ -77,8 +84,8 @@ public:
     , max(bMax)
     , step(bStep != 0. ? bStep : 1.)
     , subStep(bSubStep)
-    , boundaries(std::move(bBoundaries))
     , refphi(0.)
+    , boundaries(std::move(bBoundaries))
     , hbounds(std::vector<std::pair<int, float>>())
     , m_mixPtr(nullptr)
   {
@@ -91,7 +98,9 @@ public:
   }
 
   /** Constructor for binH type : non-equidistant binning assumed */
-  BinningData(BinningOption bOption, float bRefPhi, const std::vector<std::pair<int, float>>& bBoundaries)
+  BinningData(BinningOption bOption,
+              float bRefPhi,
+              const std::vector<std::pair<int, float>>& bBoundaries)
     : type(Trk::arbitrary)
     , option(bOption)
     , binvalue(Trk::binH)
@@ -99,10 +108,9 @@ public:
     , min(bBoundaries.front().second)
     , max(bBoundaries.back().second)
     , step(1.)
-    , // non-zero value needed for next()
-    subStep(0.)
-    , boundaries(std::vector<float>())
+    , subStep(0.) // non-zero value needed for next()
     , refphi(bRefPhi)
+    , boundaries(std::vector<float>())
     , hbounds(bBoundaries)
     , m_functionPtr(nullptr)
     , m_mixPtr(&searchInVectorWithMixedBoundary)

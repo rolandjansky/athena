@@ -1,43 +1,41 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-  AlignedDynArray.icc  -  description
-  -------------------------------------------------
- begin                : 26th November 2019
- author               : amorley, Christos
- decription           : Dynamic array fullfilling alignment requirements
- *********************************************************************************/
+/**
+ * @file AlignedDynArray.icc
+ * @date   26th November 2019
+ * @author Anthony Morley, Christos Anastopoulos
+ * @brief  AlignedDynArray implementation
+ */
 
 namespace GSFUtils {
 
-template<typename T, int Alignment>
-inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n)
+template<typename T, size_t ALIGNMENT>
+inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(const size_type n)
   : m_buffer(nullptr)
   , m_size(n)
 {
-  const size_t bufferSize = n * sizeof(T);
-  m_buffer = static_cast<T*>(aligned_alloc(Alignment, bufferSize));
-  for (size_t i = 0; i < m_size; ++i) {
-    m_buffer[i] = T();
-  }
+
+  const  size_t bufferSize = n * sizeof(T);
+  m_buffer = static_cast<T*>(std::aligned_alloc(ALIGNMENT, bufferSize));
+  std::uninitialized_default_construct(m_buffer, m_buffer + m_size);
 }
 
-template<typename T, int Alignment>
-inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n, const T& value)
+template<typename T, size_t ALIGNMENT>
+inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(const size_type n,
+                                                      const T& value)
   : m_buffer(nullptr)
   , m_size(n)
 {
-  const size_t bufferSize = n * sizeof(T);
-  m_buffer = static_cast<T*>(aligned_alloc(Alignment, bufferSize));
-  for (size_t i = 0; i < m_size; ++i) {
-    m_buffer[i] = value;
-  }
+  const  size_t bufferSize = n * sizeof(T);
+  m_buffer = static_cast<T*>(std::aligned_alloc(ALIGNMENT, bufferSize));
+  std::uninitialized_fill(m_buffer, m_buffer + m_size, value);
 }
 
-template<typename T, int Alignment>
-inline AlignedDynArray<T, Alignment>::AlignedDynArray(AlignedDynArray&& other)
+template<typename T, size_t ALIGNMENT>
+inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(
+  AlignedDynArray&& other) noexcept
   : m_buffer(nullptr)
   , m_size(0)
 {
@@ -49,67 +47,107 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(AlignedDynArray&& other)
   other.m_size = 0;
 }
 
-template<typename T, int Alignment>
-inline AlignedDynArray<T, Alignment>&
-AlignedDynArray<T, Alignment>::operator=(AlignedDynArray&& other)
+template<typename T, size_t ALIGNMENT>
+inline AlignedDynArray<T, ALIGNMENT>&
+AlignedDynArray<T, ALIGNMENT>::operator=(AlignedDynArray&& other) noexcept
 {
+  // cleanup this object
+  cleanup();
+  // copy over other
+  m_buffer = other.m_buffer;
+  m_size = other.m_size;
+  // set other to invalid
+  other.m_buffer = nullptr;
+  other.m_size = 0;
 
-  if (this != &other) {
-    // cleanup this object
-    cleanup();
-    // copy over other
-    m_buffer = other.m_buffer;
-    m_size = other.m_size;
-    // set other to invalid
-    other.m_buffer = nullptr;
-    other.m_size = 0;
-  }
   return *this;
 }
 
-template<typename T, int Alignment>
-inline AlignedDynArray<T, Alignment>::~AlignedDynArray()
+template<typename T, size_t ALIGNMENT>
+inline AlignedDynArray<T, ALIGNMENT>::~AlignedDynArray()
 {
   cleanup();
 }
 
-template<typename T, int Alignment>
-inline AlignedDynArray<T, Alignment>::operator T*()
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::pointer
+AlignedDynArray<T, ALIGNMENT>::buffer() noexcept
 {
   return m_buffer;
 }
 
-template<typename T, int Alignment>
-inline AlignedDynArray<T, Alignment>::operator const T*() const
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::const_pointer
+AlignedDynArray<T, ALIGNMENT>::buffer() const noexcept
 {
   return m_buffer;
 }
 
-template<typename T, int Alignment>
-inline T& AlignedDynArray<T, Alignment>::operator[](const std::size_t pos)
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::reference
+AlignedDynArray<T, ALIGNMENT>::operator[](const std::size_t pos) noexcept
 {
   return m_buffer[pos];
 }
 
-template<typename T, int Alignment>
-inline const T& AlignedDynArray<T, Alignment>::operator[](const std::size_t pos) const
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::const_reference
+AlignedDynArray<T, ALIGNMENT>::operator[](
+  const AlignedDynArray<T, ALIGNMENT>::size_type pos) const noexcept
 {
   return m_buffer[pos];
 }
 
-template<typename T, int Alignment>
-inline std::size_t
-AlignedDynArray<T, Alignment>::size() const
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::iterator
+AlignedDynArray<T, ALIGNMENT>::begin() noexcept
+{
+  return iterator(buffer());
+}
+
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::const_iterator
+AlignedDynArray<T, ALIGNMENT>::begin() const noexcept
+{
+
+  return const_iterator(buffer());
+}
+
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::iterator
+AlignedDynArray<T, ALIGNMENT>::end() noexcept
+{
+  return iterator(buffer() + m_size);
+}
+
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::const_iterator
+AlignedDynArray<T, ALIGNMENT>::end() const noexcept
+{
+  return const_iterator(buffer() + m_size);
+}
+
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::size_type
+AlignedDynArray<T, ALIGNMENT>::size() const noexcept
 {
   return m_size;
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t ALIGNMENT>
+bool
+AlignedDynArray<T, ALIGNMENT>::empty() const noexcept
+{
+  return (size() == 0);
+}
+
+// private cleanup helper
+template<typename T, size_t ALIGNMENT>
 inline void
-AlignedDynArray<T, Alignment>::cleanup()
+AlignedDynArray<T, ALIGNMENT>::cleanup()
 {
   if (m_buffer) {
-    for (std::size_t pos = 0; pos < m_size; ++pos) {
+    for (size_type pos = 0; pos < m_size; ++pos) {
       m_buffer[pos].~T();
     }
     std::free(m_buffer);
@@ -117,4 +155,3 @@ AlignedDynArray<T, Alignment>::cleanup()
 }
 
 } // namespace GSFUtils
-

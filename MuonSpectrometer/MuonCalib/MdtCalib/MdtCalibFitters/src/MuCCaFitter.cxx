@@ -3,6 +3,9 @@
 */
 
 #include "MdtCalibFitters/MuCCaFitter.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include <cmath>
 
 namespace MuonCalib {
 
@@ -12,20 +15,16 @@ void MuCCaFitter::printLevel(int level) {
 
 bool MuCCaFitter::fit( MuonCalibSegment& seg ) const
 {
-
   // select all hits
   HitSelection selection(seg.mdtHitsOnTrack(),0);
-
   // call fit function
   return fit(seg,selection);
 }
-  
 
 bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
 {
-  // bool m_debug = false;
-  if(m_debug) std::cout << "New seg: " << std::endl; //<< seg;
-
+  MsgStream log(Athena::getMessageSvc(),"MuCCaFitter");
+  if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"fit() New seg:"<<endmsg;
 
   int N = seg.mdtHitsOnTrack();
 
@@ -42,7 +41,7 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
       if(selection[i] == 0) ++used;
     }
     if(used < 2){
-      std::cout << "TO FEW HITS SELECTED" << std::endl;
+      log<<MSG::WARNING<<"fit() TO FEW HITS SELECTED"<<endmsg;
       return false;
     }
   }
@@ -78,9 +77,7 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
 	w[ii] = 0.;
 	sr[ii]=0.;
       }
-      if(m_debug)
-	std::cout << "MuCCaFitter:  (" << x[ii] << "," << y[ii] << ")  R = " << r[ii]
-		  << " W " << w[ii] << std::endl;
+      if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"fit() MuCCaFitter: (" << x[ii] << "," << y[ii] << ")  R = " << r[ii] << " W " << w[ii]<<endmsg;
       rw[ii]  = r[ii]*w[ii];
       if(selection[jj]){
 	++hit;++jj;
@@ -96,22 +93,20 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   Yc = Sy/S;
 
   MuCCaFitterImplementation *Fitter=new MuCCaFitterImplementation();
-  if(m_debug){
+  if(log.level()<=MSG::DEBUG){
   for (int i = 0; i != ii; i++)  
     {  
-     std::cout<<"      MuCCaFitter hits passed to computepam Z=" 
-              <<x[i]<<" phi="<<y[i]<<" zzz="<<z[i]<<" drift="<<r[i]<<" error="<<w[i]<<std::endl;  
+      log<<MSG::DEBUG<<"fit() MuCCaFitter hits passed to computepam Z=" << x[i]<<" phi="<<y[i]<<" zzz="<<z[i]<<" drift="<<r[i]<<" error="<<w[i]<<endmsg;
     } 
   }
   Fitter->Computeparam3(ii,z,y,r,sr);
-  if(m_debug){
-    std::cout<<"      MuCCaFitter computed track a= "<<Fitter->get_a()
-	     <<" da= "<<Fitter->get_da()
-	     <<" b= "<<Fitter->get_b()
-	     <<" db= "<<Fitter->get_db()
-	     <<" corrab= "<<Fitter->get_corrab()
-	     <<" chi2f= "<<Fitter->get_chi2f()
-	     <<std::endl;  
+  if(log.level()<=MSG::DEBUG){
+    log<<MSG::DEBUG<<"fit() MuCCaFitter computed track a=" <<Fitter->get_a()
+       <<" da= "<<Fitter->get_da()
+       <<" b= "<<Fitter->get_b()
+       <<" db= "<<Fitter->get_db()
+       <<" corrab= "<<Fitter->get_corrab()
+       <<" chi2f= "<<Fitter->get_chi2f()<<endmsg;
   }
 
   double afit=Fitter->get_a();
@@ -120,14 +115,14 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   std::vector<double> dist(N);
   std::vector<double> ddist(N);
   double R,dis;
-  double theta = atan(afit);
+  double theta = std::atan(afit);
   if(theta<0.) theta= M_PI+theta;
   double sinus = std::sin(theta);
   double cosin = std::cos(theta);
   double d = -( getZ( pos )-Zc)*sinus+( getY( pos )-Yc)*cosin;
-  if(m_debug){
-    std::cout << "MuCCaFitter>>> theta= " << theta << " sinus= " << sinus << " cosin= " << cosin << std::endl;
-    std::cout << "MuCCaFitter>>> getZ( pos )= " << getZ( pos ) << " getY( pos )= " << getY( pos ) << " Zc= " << Zc << " Yc= " << Yc<< std::endl;
+  if(log.level()<=MSG::DEBUG){
+    log<<MSG::DEBUG<<"fit() MuCCaFitter>>> theta= " << theta << " sinus= " << sinus << " cosin= " << cosin<<endmsg;
+    log<<MSG::DEBUG<<"fit() MuCCaFitter>>> getZ( pos )= " << getZ( pos ) << " getY( pos )= " << getY( pos ) << " Zc= " << Zc << " Yc= " << Yc<<endmsg;
   }
   double Szz(0),Syy(0),Szy(0),Syyzz(0),Att(0);
   R=0;
@@ -146,20 +141,18 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   }
   Att = Syy + cosin*(2*sinus*Szy - cosin*Syyzz);
   d = R/S;
-  if(m_debug)
-      std::cout << "MuCCaFitter>>> d= " << d << " R= " 
-                << R << " S= " << S << " Att= " << Att << std::endl;
+  if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"fit() MuCCaFitter>>> d= " << d << " R= " << R << " S= " << S << " Att= " << Att<<endmsg;
   for(int i=0;i<N;++i){
     if(selection[i]) continue;
     dist[i] = cosin*(y[i]-Yc) - sinus*(z[i]-Zc) - d;
     double dth = -(sinus*(y[i]-Yc) + cosin*(z[i]-Zc))*(std::sqrt(1./Att));
     ddist[i] = std::sqrt( dth*dth + (1./S) );  
   }
-  if(m_debug) std::cout << "Transforming back to real world" << std::endl;
+  if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"fit() Transforming back to real world"<<endmsg;
   Amg::Vector3D ndir = getVec( 0., sinus, cosin );
   Amg::Vector3D npos = getVec( 0., Yc + cosin*d, Zc - sinus*d );
   
-  if(m_debug) std::cout << "New line: position " << npos << " direction " << ndir << " chi2f " << chi2f << std::endl;
+  if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"fit() New line: position " << npos << " direction " << ndir << " chi2f " << chi2f<<endmsg;
    
    seg.set( chi2f/(N-2), npos, ndir );
    
@@ -174,7 +167,7 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
    }
    
    delete Fitter;
-   if(m_debug) std::cout << "fit done" << std::endl;
+   if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"fit() fit done"<<endmsg;
    return true;
 }
 void MuCCaFitterImplementation::Computeparam3(int number_of_hits,std::vector<double> x,std::vector<double> y,std::vector<double> r,std::vector<double> sr)
@@ -342,23 +335,23 @@ void MuCCaFitterImplementation::Computelinparnew(double x1, double y1, double r1
 
    int f=1;
    phi = averagephi+f*dphiex;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[0] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[0] = std::tan(phi);
 
    f=-1;
    phi = averagephi+f*dphiex;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[1] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[1] = std::tan(phi);
 
    f=1;
    phi = averagephi+f*dphiin;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[2] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[2] = std::tan(phi);
 
    f=-1;
    phi = averagephi+f*dphiin;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[3] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[3] = std::tan(phi);
 
 /* Compute b parameters */
    for(i=0;i<4;i++){
@@ -416,14 +409,10 @@ void MuCCaFitterImplementation::Computelin(double x1, double y1, double r1, doub
    double delta;
    double averagephi,dist,dphiin,dphiex;
    double bpar[4],phi;
-   //   double distfp[4];
    double bfparn[2];
    bfparn[0]=0; bfparn[1]=0;
    double bcand[2][4];
-   // int segnobf[4],segnobfn[2];
-   //   double sol[4];
    int segnob[]={1,-1,1,-1};
-   // int segnoc[2][4],ncandid[4],ncand;
    int ncandid[4],ncand;
    int i,firsttime; 
    double angularcoefficient[4];
@@ -444,23 +433,23 @@ void MuCCaFitterImplementation::Computelin(double x1, double y1, double r1, doub
 
    int f=1;
    phi = averagephi+f*dphiex;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[0] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[0] = std::tan(phi);
 
    f=-1;
    phi = averagephi+f*dphiex;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[1] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[1] = std::tan(phi);
 
    f=1;
    phi = averagephi+f*dphiin;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[2] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[2] = std::tan(phi);
 
    f=-1;
    phi = averagephi+f*dphiin;
-   if(phi < 0){phi = 6.2831853+(phi);}
-   angularcoefficient[3] = tan(phi);
+   if(phi < 0){phi = 2*M_PI+(phi);}
+   angularcoefficient[3] = std::tan(phi);
 
 /* Compute b parameters */
    for(i=0;i<4;i++){

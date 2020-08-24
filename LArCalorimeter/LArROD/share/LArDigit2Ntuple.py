@@ -15,7 +15,7 @@ include("LArConditionsCommon/LArMinimalSetup.py")
 svcMgr.IOVDbSvc.GlobalTag="COMCOND-ES1C-001-00"
 
 #Specify the input file(s)
-svcMgr.ByteStreamInputSvc.FullFileName=CafJobInputs[0]
+svcMgr.EventSelector.Input=CafJobInputs[0]
 
 # Specify the object you want to read from ByteStream
 theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc

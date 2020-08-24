@@ -617,45 +617,45 @@ void VP1EventDisplayEditor::addLogo()
 
 	// load the right version of the ATLAS logo
 	if ( m_d->ui.radioButton_300px->isChecked() ) {
-		if ( m_d->ui.radioButton_gray->isChecked() )
+		if ( m_d->ui.radioButton_logo_white->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-Logo-New_300pixels.png");
-		if (m_d->ui.radioButton_blue->isChecked() )
-			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_300px.png");
+		if ( m_d->ui.radioButton_logo_main->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-Ref-RGB-transpBkg-300px.png");
 		name = "logo_300px";
 	}
 	else if ( m_d->ui.radioButton_450px->isChecked() ) {
-		if ( m_d->ui.radioButton_gray->isChecked() )
+		if ( m_d->ui.radioButton_logo_white->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-Logo-New_450pixels.png");
-		if (m_d->ui.radioButton_blue->isChecked() )
-			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_450px.png");
+		if ( m_d->ui.radioButton_logo_main->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-Ref-RGB-transpBkg-450px.png");
 		name = "logo_450px";
 	}
 	else if ( m_d->ui.radioButton_600px->isChecked() ) {
-		if ( m_d->ui.radioButton_gray->isChecked() )
+		if ( m_d->ui.radioButton_logo_white->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-Logo-New_600pixels.png");
-		if (m_d->ui.radioButton_blue->isChecked() )
-			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
+		if ( m_d->ui.radioButton_logo_main->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-Ref-RGB-transpBkg-600px.png");
 		name = "logo_600px";
 	}
 	else if ( m_d->ui.radioButton_800px->isChecked() ) {
-		if ( m_d->ui.radioButton_gray->isChecked() )
+		if ( m_d->ui.radioButton_logo_white->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-Logo-New_800pixels.png");
-//		if (m_d->ui.radioButton_blue->isChecked() )
-//			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
+		if ( m_d->ui.radioButton_logo_main->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-Ref-RGB-transpBkg-800px.png");
 		name = "logo_800px";
 	}
 	else if ( m_d->ui.radioButton_1000px->isChecked() ) {
-		if ( m_d->ui.radioButton_gray->isChecked() )
+		if ( m_d->ui.radioButton_logo_white->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-Logo-New_1000pixels.png");
-//		if (m_d->ui.radioButton_blue->isChecked() )
-//			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
+		if ( m_d->ui.radioButton_logo_main->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-Ref-RGB-transpBkg-1000px.png");
 		name = "logo_1000px";
 	}
 	else if ( m_d->ui.radioButton_1200px->isChecked() ) {
-		if ( m_d->ui.radioButton_gray->isChecked() )
+		if ( m_d->ui.radioButton_logo_white->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-Logo-New_1200pixels.png");
-//		if (m_d->ui.radioButton_blue->isChecked() )
-//			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
+		if ( m_d->ui.radioButton_logo_main->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-Ref-RGB-transpBkg-1200px.png");
 		name = "logo_1200px";
 	}
 

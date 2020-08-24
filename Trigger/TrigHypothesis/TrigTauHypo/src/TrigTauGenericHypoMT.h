@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigTauGenericHypoMT_H
@@ -24,8 +24,7 @@
 //#include "TrigInterfaces/HypoAlgo.h"
 
 
-#include "GaudiKernel/Property.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "Gaudi/Property.h"
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

@@ -6,6 +6,8 @@
 
 // Framework includes
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 // GeneratorObjectsAthenaPool includes
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p2.h"
@@ -39,7 +41,7 @@ void HepMcParticleLinkCnv_p2::persToTrans( const HepMcParticleLink_p2* persObj,
 
 void HepMcParticleLinkCnv_p2::transToPers( const HepMcParticleLink* transObj,
                                            HepMcParticleLink_p2* persObj,
-                                           MsgStream &/*msg*/ )
+                                           MsgStream &msg )
 {
   // In the case that the standard production workflow is being used
   // then the first event in the McEventCollection is the only one
@@ -48,9 +50,18 @@ void HepMcParticleLinkCnv_p2::transToPers( const HepMcParticleLink* transObj,
   // m_mcEvtIndex of zero as a special case, in which m_mcEvtIndex
   // should be interpreted as the position in the McEventCollection
   // rather than the value of GenEvent::event_number().
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const IProxyDict* proxy = Atlas::getExtendedEventContext(ctx).proxy();
   unsigned short index{0};
-  if (transObj->getEventPositionInCollection(SG::CurrentEventStore::store())!=0) {
+  const HepMcParticleLink::index_type position =
+    HepMcParticleLink::getEventPositionInCollection(transObj->eventIndex(),
+                                                    transObj->getEventCollection(),
+                                                    proxy).at(0);
+  if (position!=0) {
     index = transObj->eventIndex();
+    if(transObj->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
+      msg << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
+    }
   }
   persObj->m_mcEvtIndex = index;
   persObj->m_barcode    = transObj->barcode();

@@ -18,33 +18,33 @@ namespace Monitored {
     }
 
     virtual unsigned fill() const override {
-      if (m_monVariables.size() != 1) {
-        return 0;
-      }
+      if (m_monVariables.size() != 1) { return 0; }
+      const IMonitoredVariable& var = m_monVariables[0].get();
 
-      // handling of the cutmask
-      auto cutMaskValuePair = getCutMaskFunc();
-      if (cutMaskValuePair.first == 0) { return 0; }
-      auto cutMaskAccessor = cutMaskValuePair.second;
+      std::function<bool(size_t)> cutMaskAccessor;
+      if (m_monCutMask) {
+        // handling of the cutmask
+        auto cutMaskValuePair = getCutMaskFunc();
+        if (cutMaskValuePair.first == 0) { return 0; }
+        if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != var.size())) {
+          MsgStream log(Athena::getMessageSvc(), "VecHistogramFiller1D");
+          log << MSG::ERROR << "CutMask does not match the size of plotted variable: "
+              << cutMaskValuePair.first << " " << var.size() << endmsg;
+        }
+        cutMaskAccessor = cutMaskValuePair.second;
+      }
 
       auto histogram = this->histogram<TH1>();
-      const auto valuesVector{m_monVariables[0].get().getVectorRepresentation()};
-      if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != valuesVector.size())) {
-        MsgStream log(Athena::getMessageSvc(), "VecHistogramFiller1D");
-        log << MSG::ERROR << "CutMask does not match the size of plotted variable: " 
-            << cutMaskValuePair.first << " " << valuesVector.size() << endmsg;
-      }
-      std::scoped_lock lock(*m_mutex);
-
-      for (unsigned i = 0; i < std::size(valuesVector); ++i) {
-        if (cutMaskAccessor(i)) {
-          auto value = valuesVector[i];
-          histogram->AddBinContent(i+1, value);
+      const unsigned offset = m_histDef->kVecUO ? 0 : 1;
+      for (unsigned i = 0; i < var.size(); ++i) {
+        if (cutMaskAccessor && cutMaskAccessor(i)) {
+          const double value = var.get(i);
+          histogram->AddBinContent(i+offset, value);
           histogram->SetEntries(histogram->GetEntries() + value);
         }
       }
 
-      return std::size(valuesVector);  
+      return var.size();
     }
   };
 }

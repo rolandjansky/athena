@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetConversionTrackSelectorTool.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -22,8 +20,6 @@ namespace InDet
 
  InDetConversionTrackSelectorTool::InDetConversionTrackSelectorTool(const std::string& t, const std::string& n, const IInterface*  p)
  :AthAlgTool(t,n,p),
-  m_trkSumTool("Trk::TrackSummaryTool"),
-  m_extrapolator("Trk::Extrapolator"),
   m_maxSiD0   (35.),
   m_maxTrtD0 (100.),
   m_maxSiZ0  (200.),
@@ -40,8 +36,6 @@ namespace InDet
   m_isConv(true)
  {
    declareInterface<ITrackSelectorTool>(this);
-   declareProperty("TrackSummaryTool",     m_trkSumTool);
-   declareProperty("Extrapolator",         m_extrapolator);
    declareProperty("maxSiD0",              m_maxSiD0);
    declareProperty("maxTrtD0",             m_maxTrtD0);
    declareProperty("maxSiZ0",              m_maxSiZ0);
@@ -60,27 +54,21 @@ namespace InDet
      "Only check TRT PID if all hits are Xe hits");
  }
 
- InDetConversionTrackSelectorTool::~InDetConversionTrackSelectorTool()
- {}
-  
+
  StatusCode  InDetConversionTrackSelectorTool::initialize()
  {
-   /* Get the track summary tool from ToolSvc */
-   ATH_CHECK( m_trkSumTool.retrieve());
-   /* Get the extrapolator tool from ToolSvc */
    ATH_CHECK( m_extrapolator.retrieve() );
-   
    ATH_CHECK(m_beamSpotKey.initialize());
    return StatusCode::SUCCESS;
  }
-    
-    
+
+
  bool InDetConversionTrackSelectorTool::decision(const Trk::Track& track,const Trk::Vertex* vx) const
- {  
+ {
    bool pass = false;
    const Trk::Perigee* perigee=dynamic_cast<const Trk::Perigee*>(track.perigeeParameters());
    const bool vertexSuppliedByUser{vx!=nullptr};
-   const Trk::Vertex* myVertex=vx;    
+   const Trk::Vertex* myVertex=vx;
    //in case no Vertex is provided by the user, beam position will be used if available
    if (not vertexSuppliedByUser) {
      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
@@ -112,8 +100,7 @@ namespace InDet
    }
 
    const Trk::TrackParameters * extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() );
-//   const Trk::TrackParameters * extrapolatedParameters= firstmeaspar ? m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ) : 0;
-   perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
+   perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0;
    if (perigee==0 || !perigee->covariance() ) {
      ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
      if (extrapolatedParameters!=0) {
@@ -130,7 +117,7 @@ namespace InDet
    double pt = std::fabs(1./qOverP)*std::sin(perigee->parameters()[Trk::theta]);
    double d0 = perigee->parameters()[Trk::d0];
    double z0 = perigee->parameters()[Trk::z0];
-   const Trk::TrackSummary* tSum = m_trkSumTool->createSummaryNoHoleSearch(track);
+   const Trk::TrackSummary* tSum = track.trackSummary();
    if(tSum){
      double ratioTrk = 1.0;
      int nclus  = tSum->get(Trk::numberOfPixelHits) + tSum->get(Trk::numberOfSCTHits);
@@ -149,7 +136,7 @@ namespace InDet
                if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
                 (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
                 (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
-             } else if (ratioTrk>=m_trRatioTRT) pass = true;  
+             } else if (ratioTrk>=m_trRatioTRT) pass = true;
            }
          }
        }
@@ -171,7 +158,6 @@ namespace InDet
        if(ratioTrk>m_trRatioV0) pass = false;
      }
 
-     delete tSum;
    } else pass = false;
    if (not vertexSuppliedByUser) delete myVertex;
    if (perigee!=track.perigeeParameters()) delete perigee;
@@ -214,7 +200,7 @@ namespace InDet
      }
    }
    const Trk::TrackParameters * extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,Trk::pion );
-   perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
+   perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0;
    if (perigee==0 || !perigee->covariance()) {
      ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
      if (extrapolatedParameters!=0) {
@@ -226,7 +212,7 @@ namespace InDet
      if (not vertexSuppliedByUser) delete myVertex;
      return false;
    }
-    
+
    double qOverP = perigee->parameters()[Trk::qOverP];
    double pt = std::fabs(1./qOverP)*std::sin(perigee->parameters()[Trk::theta]);
    double d0 = perigee->parameters()[Trk::d0];
@@ -251,7 +237,7 @@ namespace InDet
                if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
                 (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
                 (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
-             } else if (ratioTrk>=m_trRatioTRT) pass = true;  
+             } else if (ratioTrk>=m_trRatioTRT) pass = true;
            }
          }
        }
@@ -276,10 +262,10 @@ namespace InDet
    } else pass = false;
    if (not vertexSuppliedByUser) delete myVertex;
    if (perigee!=&(track.definingParameters())) delete perigee;
-    
+
    return pass;
  }
- 
+
  Amg::Vector3D InDetConversionTrackSelectorTool::getPosOrBeamSpot(const xAOD::Vertex* vertex) const
  {
     if(vertex) return vertex->position();
@@ -287,9 +273,9 @@ namespace InDet
     if(beamSpotHandle.isValid()) return beamSpotHandle->beamVtx().position();
     else return Amg::Vector3D(0,0,0);
  }
- 
+
    // ---------------------------------------------------------------------
-  bool InDetConversionTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const 
+  bool InDetConversionTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const
   {
     bool pass = false;
     const Trk::Perigee& perigee=tp.perigeeParameters();
@@ -317,7 +303,7 @@ namespace InDet
      if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){ // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
       ratioTrk = tp.summaryValue(temp,xAOD::eProbabilityHT)  ?  temp: 0 ;
      }
- 
+
      if ( pt >= m_minPt ) {
        if ( (nclus==0 && std::fabs(d0)<=m_maxTrtD0) || (nclus>0 && std::fabs(d0)<=m_maxSiD0) ) {
          if ( (nclus==0 && std::fabs(z0)<=m_maxTrtZ0) || (nclus>0 && std::fabs(z0)<=m_maxSiZ0) ) {
@@ -325,7 +311,7 @@ namespace InDet
              if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
               (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
               (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
-           } else if (ratioTrk>=m_trRatioTRT) pass = true;  
+           } else if (ratioTrk>=m_trRatioTRT) pass = true;
          }
        }
      }
@@ -348,8 +334,8 @@ namespace InDet
      if(ratioTrk>m_trRatioV0) pass = false;
     }
 
-        
+
     delete extrapolatedParameters;
     return pass;
-  } 
+  }
 }//end of namespace definitions

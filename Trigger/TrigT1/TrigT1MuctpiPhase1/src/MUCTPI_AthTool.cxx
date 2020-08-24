@@ -30,6 +30,8 @@
 
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPIRoI.h"
+#include "xAODTrigger/MuonRoI.h"
+#include "xAODTrigger/MuonRoIAuxContainer.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 
@@ -45,7 +47,7 @@ namespace LVL1MUCTPIPHASE1 {
   const std::string MUCTPI_AthTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
   const std::string MUCTPI_AthTool::m_DEFAULT_AODLocID                 = "LVL1_ROI";
   const std::string MUCTPI_AthTool::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
-  const std::string MUCTPI_AthTool::m_DEFAULT_geometryXMLFile          = "TrigT1MuctpiPhase1/L1MuonGeometry.xml";
+  const std::string MUCTPI_AthTool::m_DEFAULT_geometryXMLFile          = "TrigConfMuctpi/L1MuonGeometry_20200629.xml";
 
   MUCTPI_AthTool::MUCTPI_AthTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent)
@@ -142,7 +144,7 @@ namespace LVL1MUCTPIPHASE1 {
     CHECK(m_configSvc.retrieve());
 
     //initialize MSP ROI configuration
-    const std::string fullFileName = PathResolverFindXMLFile( m_geometryXMLFile );
+    const std::string fullFileName = PathResolverFindCalibFile( m_geometryXMLFile );
     m_theMuctpi->configureMSP(fullFileName);
 
     m_theMuctpi->getTriggerProcessor()->setThresholds(m_configSvc->thresholdConfig()->getThresholdVector(TrigConf::L1DataDef::MUON));
@@ -188,6 +190,7 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_CHECK(m_muctpiPhase1KeyTGC.initialize());
     ATH_CHECK(m_MuCTPI_RDOReadKey.initialize(m_inputSource == "RDO"));
     ATH_CHECK(m_MuCTPI_RDOWriteKey.initialize(m_inputSource != "RDO"));
+    ATH_CHECK(m_MuCTPI_xAODWriteKey.initialize());
     ATH_CHECK(m_MuCTPIL1TopoKey.initialize());
 
     m_MuCTPIL1TopoKey_m2 = m_MuCTPIL1TopoKey.key()+std::to_string(-2);
@@ -423,9 +426,15 @@ namespace LVL1MUCTPIPHASE1 {
       ATH_CHECK(wh_muctpi_rdo.record(std::make_unique<MuCTPI_RDO>(*muCTPI_RDO)));
       ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate");
 
-
-
-
+      // create MuCTPI xAOD
+      auto xAODRoIs = SG::makeHandle(m_MuCTPI_xAODWriteKey);
+      ATH_CHECK(xAODRoIs.record(std::make_unique<xAOD::MuonRoIContainer>(), std::make_unique<xAOD::MuonRoIAuxContainer>()));
+      ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << m_MuCTPI_xAODWriteKey.key());
+      for (const unsigned int word : dataWords) {
+        xAODRoIs->push_back(new xAOD::MuonRoI);
+        // RB: dummy values just to have the objects for downstream code development
+        xAODRoIs->back()->initialize(word, 99, 99, "DummyThreshold", 99);
+      }
 
       // get outputs for L1Topo and store into Storegate
       ATH_MSG_DEBUG("Getting the output for L1Topo");

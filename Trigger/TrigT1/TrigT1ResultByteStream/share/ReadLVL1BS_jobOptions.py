@@ -27,7 +27,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 # Set up the reading of the BS file:
 #
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-svcMgr.ByteStreamInputSvc.FullFileName = [
+svcMgr.EventSelector.Input = [
   "daq.lvl1test.0000000.Single.Stream.LB0000.Athena._0001.data"
 ]
 
@@ -35,14 +35,6 @@ include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RIO_jobOptions.py" )
 
 log.info( "Set input BS file" )
-
-#
-# Force-load AthenaSealSvc (to have all the dictionaries for CBNT
-# writing):
-#
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-from AthenaCommon.AppMgr import theApp
-theApp.CreateSvc += [ ServiceMgr.AthenaSealSvc.getFullName() ]
 
 #
 # Set up writing of the AANT file:

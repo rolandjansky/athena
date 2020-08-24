@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscCalibEvent/CscCalibDataContainer.h"
@@ -7,29 +7,11 @@
 #include <map>
 #include <cassert>
 #include <iostream>
-
-using std::ostream;
-
-/********************************************
- Implementation of CscCalibDataContainer
- Author: Ketevi A. Assamagan
-*********************************************/
+#include <TString.h> // for Form
 
 CscCalibDataContainer::CscCalibDataContainer(int maxhash) 
 	: IdentifiableContainer<CscCalibDataCollection>(maxhash) {
-  //m_hashFunc.setHelper(helper);
-  //DataLinkVector<CscCalibDataCollection>::init(m_hashFunc.max(), offset);
 }
-
-/** Destructor */
-CscCalibDataContainer::~CscCalibDataContainer() {
-}
-
-/** for the default constructor without parameters */
-// void CscCalibDataContainer::setHashFunc (const CscIdHelper* helper, int offset) {
-//   m_hashFunc.setHelper(helper);
-//   DataLinkVector<CscCalibDataCollection>::init(m_hashFunc.max(), offset);
-// }
 
 /** return the class ID */
 const CLID& CscCalibDataContainer::classID() {
@@ -43,20 +25,13 @@ void CscCalibDataContainer::push_back(CscCalibData* calibData) {
   IdentifierHash channelHash = calibData->idHash(); 
   // I don't think there's any need for this any more. EJWM
   // Not sure if the "Identifier existing" check is important though
-//  const CscIdHelper * cscHelper = m_hashFunc.cscIdHelper();
-//  IdContext context = cscHelper->channel_context();
-//  Identifier channelId;
-//  if (!cscHelper->get_id(channelHash,channelId,&context)) {
-//     Identifier elemId = cscHelper->elementID(channelHash);
-     MyBase::const_iterator it = MyBase::indexFind(channelHash);
-     if(it!=MyBase::end()) {
-       const CscCalibDataCollection* const_coll = (*it)  ;
+     const CscCalibDataCollection* const_coll = MyBase::indexFindPtr(channelHash);
+     if(const_coll!=nullptr) {
        CscCalibDataCollection * coll = const_cast<CscCalibDataCollection*>(const_coll);
        coll->push_back(calibData); 
-     } else 
-       std::cout <<"CscCalibDataContainer::ERROR : Collection does not exist "<<std::endl;
-//  } else std::cout << "CscCalibDataContainer::ERROR : could find Idenitfier for this element " 
-//                   << channelHash << std::endl;
+     } else {
+      throw std::runtime_error(Form("File: %s, Line: %d\nCscCalibDataContainer::push_back() - ERROR: Collection does not exist", __FILE__, __LINE__));
+     }
   return ; 
 }
 
@@ -73,7 +48,7 @@ CscCalibDataContainer::size_type CscCalibDataContainer::calibData_size() const {
 
 
 /** Output stream - for printing */ 
-ostream& operator<<(ostream& lhs, const CscCalibDataContainer& rhs) {
+std::ostream& operator<<(std::ostream& lhs, const CscCalibDataContainer& rhs) {
   lhs << "CscDataCollectionContainer has " << rhs.calibData_size() << " CalibData:" << std::endl;
   typedef SelectAllObject<CscCalibDataContainer> SELECTOR; 
   SELECTOR sel(&rhs);
@@ -90,5 +65,4 @@ ostream& operator<<(ostream& lhs, const CscCalibDataContainer& rhs) {
   }
   return lhs;
 }
-
 

@@ -11,7 +11,7 @@ Purpose : User Analysis Overlap Checking - see UserAnalysisOverlapCheckingTool.h
 *****************************************************************************/
 
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Accessing data:
 #include "CLHEP/Units/PhysicalConstants.h"

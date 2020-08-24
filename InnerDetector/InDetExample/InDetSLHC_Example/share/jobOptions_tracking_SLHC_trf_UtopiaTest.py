@@ -152,7 +152,7 @@ else:
 
     # --- activate creation of ntuples, standard plots
     #InDetFlags.doTrkNtuple      = False
-    InDetFlags.doStandardPlots  = False
+    InDetFlags.doPhysValMon     = False
     InDetFlags.doSGDeletion     = False
 
 # --- activate (memory/cpu) monitoring

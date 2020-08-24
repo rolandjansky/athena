@@ -82,9 +82,8 @@ StatusCode Muon::TGC_RodDecoderRawdata::fillCollection(const ROBFragment& robFra
   uint16_t rdoId = TgcRdo::calculateOnlineId(sid.subdetector_id(), sid.module_id());
   TgcRdoIdHash rdoIdHash;
   int idHash = rdoIdHash(rdoId);
-  TgcRdoContainer::const_iterator itColl = rdoIdc.indexFind(idHash);
         
-  if(itColl == rdoIdc.end())
+  if(rdoIdc.indexFindPtr(idHash) == nullptr)
     {	
       OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs;
       robFrag.rod_data(bs);

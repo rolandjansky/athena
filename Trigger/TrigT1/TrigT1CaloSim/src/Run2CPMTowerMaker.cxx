@@ -12,7 +12,7 @@
 #include <cmath>
 
 // This algorithm includes
-#include "TrigT1CaloSim/Run2CPMTowerMaker.h"
+#include "Run2CPMTowerMaker.h"
 #include "TrigT1CaloEvent/CPMTower_ClassDEF.h"
 
 

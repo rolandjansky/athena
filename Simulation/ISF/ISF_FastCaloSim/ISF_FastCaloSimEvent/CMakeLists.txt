@@ -6,18 +6,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FastCaloSimEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthenaKernel
-   Control/AthenaBaseComps
-   Calorimeter/CaloGeoHelpers
-   TileCalorimeter/TileSimEvent
-   PRIVATE
-   Calorimeter/CaloDetDescr
-   GaudiKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )
@@ -46,7 +34,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCS2DFunction.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h 
-                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationExpHistogram.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
@@ -94,7 +83,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx
    PUBLIC_HEADERS ISF_FastCaloSimEvent
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR}
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR} ${LWTNN_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaKernel AthenaBaseComps CaloDetDescrLib ${LWTNN_LIBRARIES} ${LIBXML2_LIBRARIES}
    CaloGeoHelpers TileSimEvent

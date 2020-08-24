@@ -1,73 +1,29 @@
-################################################################################
-# Package: TrigT2CaloCommon
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT2CaloCommon )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Control/CxxUtils
-                          DetectorDescription/IRegionSelector
-                          DetectorDescription/Identifier
-                          Event/ByteStreamCnvSvcBase
-                          Event/EventInfo
-                          Event/xAOD/xAODTrigCalo
-                          ForwardDetectors/ZDC/ZdcCnv/ZdcByteStream
-                          ForwardDetectors/ZDC/ZdcEvent
-                          ForwardDetectors/ZDC/ZdcRec
-                          GaudiKernel
-                          LArCalorimeter/LArCnv/LArByteStream
-                          LArCalorimeter/LArRawUtils
-                          LArCalorimeter/LArRecEvent
-                          LArCalorimeter/LArCabling
-                          TileCalorimeter/TileEvent
-                          TileCalorimeter/TileSvc/TileByteStream
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloUtils
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/ByteStreamData
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArBadChannelTool
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArRecUtils
-                          Trigger/TrigT1/TrigT1Interfaces )
-
 # External dependencies:
 find_package( tdaq-common )
+find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( TrigT2CaloCommonLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT2CaloCommon
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel IRegionSelector Identifier EventInfo xAODTrigCalo ZdcEvent GaudiKernel LArRecEvent TileEvent TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ZdcByteStreamLib ZdcRecLib LArByteStreamLib LArRawUtilsLib LArCablingLib TileByteStreamLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloUtilsLib ByteStreamData_test LArRecUtilsLib 
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities ByteStreamData LArIdentifier LArRecConditions TrigT1Interfaces CxxUtils )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel CaloEvent CaloGeoHelpers CaloIdentifier CxxUtils GaudiKernel IRegionSelector Identifier LArByteStreamLib LArCablingLib LArRawUtilsLib LArRecEvent TileByteStreamLib TileEvent TrigInterfacesLib TrigSteeringEvent TrigTimeAlgsLib ZdcByteStreamLib ZdcEvent ZdcRecLib xAODEventInfo xAODTrigCalo
+                   PRIVATE_LINK_LIBRARIES ${TBB_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaMonitoringKernelLib AthenaPoolUtilities ByteStreamCnvSvcBaseLib ByteStreamData CaloDetDescrLib CaloUtilsLib EventInfo LArBadChannelToolLib LArElecCalib LArIdentifier LArRecConditions LArRecUtilsLib LumiBlockCompsLib StoreGateLib TestTools TrigCaloEvent TrigT1Interfaces )
 
 atlas_add_component( TrigT2CaloCommon
                      src/components/*.cxx
                      LINK_LIBRARIES TrigT2CaloCommonLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 # Tests:
-atlas_add_test( flake8
-        SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
-        POST_EXEC_SCRIPT nopost.sh )
 
 # Helper to define unit tests running in a separate directory
 function( _add_test name script )
@@ -82,3 +38,5 @@ endfunction( _add_test )
 
 _add_test( TestService test/test_dataaccess.sh )
 _add_test( TestServiceNewJO test/test_dataaccessNewJO.sh )
+_add_test( caloOnly  test/test_t2calo_only_build.sh )
+_add_test( caloRinger test/test_t2calo_ringer_only_build.sh )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,6 +8,9 @@
 
 #ifndef ISF_TOOLS_KINEMATICSIMSELECTOR_H
 #define ISF_TOOLS_KINEMATICSIMSELECTOR_H 1
+
+#include "GaudiKernel/IPartPropSvc.h"
+
 
 // ISF includes
 #include "ISF_Event/KinematicParticleCuts.h"
@@ -25,6 +28,8 @@ namespace ISF
   class KinematicSimSelector final : public BaseSimulationSelector, public KinematicParticleCuts
   {
 
+  ServiceHandle<IPartPropSvc> m_partPropSvc; 
+  
   public:
     /** Constructor with parameters */
     KinematicSimSelector( const std::string& t, const std::string& n, const IInterface* p );

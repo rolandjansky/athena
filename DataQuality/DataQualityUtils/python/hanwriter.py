@@ -88,7 +88,11 @@ class Node(DQHanConfMaker.Node):
         """
         convert the object in a formatted han string
         """
-        writer = DQHanConfMaker._get_StringIO()
+        # restore the following in a future tdaq release
+        # writer = DQHanConfMaker._get_StringIO()
+        import io
+        import six
+        writer = io.BytesIO() if six.PY2 else io.StringIO()
         if encoding is not None:
             import codecs
             writer = codecs.lookup(encoding)[3](writer)
@@ -110,7 +114,7 @@ class Node(DQHanConfMaker.Node):
         if self.nodeType != Node.DOCUMENT:
             writer.write(" { %s" % (newl))
         if self.attributes:
-            for key, attribute in self.attributes.iteritems():
+            for key, attribute in self.attributes.items():
                 writer.write("%s %s = %s%s" % (indent, key, attribute, newl))
         if self.subnodes:
             for node in self.subnodes:
@@ -703,7 +707,7 @@ def _findAllDQBaseObjects(rootlist):
         if not isinstance(dqbase, DQBase):
             raise ValueError(
                 '%s is not a valid DQBase object; this should never happen' % dqbase)
-        retset = set([dqbase])
+        retset = {dqbase}
         for rel in dqbase.getAllRelatedObjects():
             retset |= recurse(rel)
         return retset
@@ -769,3 +773,4 @@ def writeHanConfiguration(filename='dq.han.config', roots=[]):
 
     fileout = open(filename, 'w')
     print(doc.toprettyhan(" "), file=fileout)
+    

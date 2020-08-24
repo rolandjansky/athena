@@ -30,14 +30,21 @@ if not jetFlags.useVertices():
   calibopt = "aj"
   jetlog.info(myname + "No vertices -- switch calibopt to " + calibopt)
 
+ptminFilter_topo = 15000
+ptminFilter_pFlow = 10000
+if not jetFlags.useCalibJetThreshold:
+  ptminFilter_topo = 1
+  ptminFilter_pFlow = 1
+  jetlog.info(myname + "Switching off the jet pT threshold applied at the calibrated scale")
+
 # Finders.
 if jetFlags.detailLevel()==JetContentDetail.Reduced:
   if jetFlags.useTopo():
-    jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo_reduced", "emtopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 15000, calibOpt=calibopt)
-    jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo_reduced", "lctopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 15000, calibOpt=calibopt)
+    jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo_reduced", "emtopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_topo, calibOpt=calibopt)
+    jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo_reduced", "lctopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_topo, calibOpt=calibopt)
     jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo_reduced", "lctopo_ungroomed", ghostArea=0.01, ptmin= 40000, ptminFilter=50000, calibOpt="none")
   if jetFlags.usePFlow():
-    jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow_reduced", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 10000, calibOpt=calibopt+":pflow")
+    jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow_reduced", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= ptminFilter_pFlow, calibOpt=calibopt+":pflow")
   if jetFlags.useTruth():
     jtm.addJetFinder("AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ptmin= 5000)
 elif jetFlags.detailLevel()>=JetContentDetail.Full:
@@ -50,11 +57,11 @@ elif jetFlags.detailLevel()>=JetContentDetail.Full:
     jtm.addJetFinder("AntiKt2PV0TrackJets", "AntiKt", 0.2, "pv0track", ptmin= 2000)
     jtm.addJetFinder("AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ptmin= 2000)
   if jetFlags.useTopo():
-    jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "emtopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 15000, calibOpt=calibopt)
-    jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 15000, calibOpt=calibopt)
+    jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "emtopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_topo, calibOpt=calibopt)
+    jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_topo, calibOpt=calibopt)
     jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 40000, ptminFilter=50000, calibOpt="none")
   if jetFlags.usePFlow():
-    jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 10000, calibOpt=calibopt+":pflow")
+    jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_pFlow, calibOpt=calibopt+":pflow")
 if jetFlags.detailLevel()==JetContentDetail.Validation:
   jtm.addJetTrimmer( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                      rclus=0.2, ptfrac=0.05, input="AntiKt10LCTopoJets", modifiersin="lctopo_groomed" )

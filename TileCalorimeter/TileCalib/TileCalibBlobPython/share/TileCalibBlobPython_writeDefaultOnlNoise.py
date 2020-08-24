@@ -25,4 +25,3 @@ defaultWriter.writeNoiseOnl(tag)
 
 #=== close the database connection
 db.closeDatabase()
-

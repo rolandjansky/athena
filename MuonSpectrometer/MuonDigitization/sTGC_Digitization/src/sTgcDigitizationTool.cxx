@@ -439,7 +439,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       else {
           msg(MSG::DEBUG) << "This hit came from the in time bunch." << endmsg;
       }
-      sTgcSimIdToOfflineId simToOffline(m_idHelperSvc->stgcIdHelper());
+      sTgcSimIdToOfflineId simToOffline(&m_idHelperSvc->stgcIdHelper());
       const int idHit = hit.sTGCId();
       ATH_MSG_VERBOSE("Hit ID " << idHit );
       Identifier layid = simToOffline.convert(idHit);
@@ -519,13 +519,17 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
 
-      const sTGCSimHit temp_hit(hit.sTGCId(), hit.globalTime(), 
-           G_HITONSURFACE_WIRE,
-             hit.particleEncoding(),
-             hit.globalDirection(),
-             hit.depositEnergy(),
-             hit.particleLink()
-             );
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (eventId==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const int barcode = hit.particleLink().barcode();
+      const HepMcParticleLink particleLink(barcode, eventId, evColl, idxFlag);
+      const sTGCSimHit temp_hit(hit.sTGCId(), hit.globalTime(),
+                                G_HITONSURFACE_WIRE,
+                                hit.particleEncoding(),
+                                hit.globalDirection(),
+                                hit.depositEnergy(),
+                                particleLink
+                                );
 
 
       float globalHitTime = temp_hit.globalTime() + eventTime;
@@ -590,7 +594,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         ATH_MSG_VERBOSE(" charge = "    << newDigit->charge()) ;
 
         // Create a MuonSimData (SDO) corresponding to the digit
-        MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.depositEnergy(), tof));
+        MuonSimData::Deposit deposit(particleLink, MuonMCData(hit.depositEnergy(), tof));
         std::vector<MuonSimData::Deposit> deposits;
         deposits.push_back(deposit);
         MuonSimData simData(deposits, hit.particleEncoding());
@@ -983,6 +987,13 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   } 
 
   if ( acceptDigit ) { 
+
+	  if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
+	    //Only strips since strips are readout in PDO counts and not charge
+      chargeAfterSmearing = 1000*chargeAfterSmearing; // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
+	    chargeAfterSmearing = chargeAfterSmearing*1.0304 + 59.997; // conversion from potential to PDO for VMM1 configuration, mV*1.0304 + 59.997; from Shandong cosmics tests
+      // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
+	  }
 
 	  std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
 									      it_digit->bcTag(), 

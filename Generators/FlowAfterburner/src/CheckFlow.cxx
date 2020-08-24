@@ -28,7 +28,7 @@
 
 using namespace TruthHelper;
 
-typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+typedef std::vector<const HepMC::GenParticlePtr>  MCparticleCollection ;
 
 CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -156,7 +156,6 @@ StatusCode CheckFlow::initialize(){
 
   m_tesIO = new GenAccessIO();
 
-  // return StatusCode::SUCCESS;
   return result;
 }
 
@@ -180,7 +179,6 @@ StatusCode CheckFlow::execute() {
 
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
-//  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
     msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"
 	   << endmsg;
     return StatusCode::FAILURE;
@@ -188,13 +186,6 @@ StatusCode CheckFlow::execute() {
   float b = hijing_pars->get_b();
   float phiR = hijing_pars->get_bphi();
 
-  //msglog << MSG::DEBUG<<"SOUMYA  "
-  // <<hijing_pars->get_psi(1)
-  // <<"   "<<hijing_pars->get_psi(2)
-  // <<"  "<<hijing_pars->get_psi(3)
-  // <<hijing_pars->get_psi(4)
-  // <<"   "<<hijing_pars->get_psi(5)
-  // <<"  "<<hijing_pars->get_psi(6)  << endmsg;
 
   // Check cut on impact parameter b
   if(b<m_bcut_min || b>m_bcut_max) 
@@ -212,7 +203,7 @@ StatusCode CheckFlow::execute() {
   // Iterate over MC particles  We are using the IsGenStable predicate from
   // IsGenStable ifs;
   GenAll ifs;
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
@@ -230,8 +221,8 @@ StatusCode CheckFlow::execute() {
 	   << " Eta = " << rapid << "  Phi = " << phi 
 	   << " PhiR = " << phiR << endmsg;
     
-    if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
+    if( (std::abs(rapid) >= m_rapcut_min) && (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt) >= m_ptcut_min) && (std::abs(pt) <= m_ptcut_max) ) {
       ngenerated++;
       m_phi->Fill(phi, 1.);
       double phi_corr = phi - phiR;

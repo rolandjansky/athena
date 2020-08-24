@@ -11,7 +11,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "IsolationTool/CaloIsolationTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include "StoreGate/ReadHandle.h"
+#include "AsgDataHandles/ReadHandle.h"
 
 #ifndef XAOD_ANALYSIS
 #include "CaloEvent/CaloCell.h"
@@ -132,6 +132,11 @@ namespace xAOD {
             CaloCorrection corrlist, 
             const CaloCellContainer* container) const {
 #ifdef XAOD_ANALYSIS
+   (void) result;
+   (void) particle;
+   (void) cones;
+   (void) corrlist;
+   (void) container;
     return false;
 #else // XAOD_ANALYSIS
     derefMap_t derefMap;

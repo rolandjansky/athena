@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -63,7 +63,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
     if (boost::starts_with(info.trigName, "L1" )){
         const auto initRois = fc.get<TrigRoiDescriptor>();
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(const auto feat : initRois){
+        for(const auto& feat : initRois){
             if(feat.te()==nullptr) {
                 ATH_MSG_DEBUG("initial RoI feature nullptr");
                 continue;
@@ -79,7 +79,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
     }
     else {
         
-        for(const auto pairObj : pairObjs){
+        for(const auto& pairObj : pairObjs){
             fillShowerShapes(dir+"Offline",pairObj.first); // Fill Offline shower shapes
             if(xAOD::EgammaHelpers::isElectron(pairObj.first)) { // Fill offline tracking
                 const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
@@ -91,7 +91,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
         if(m_tp){
             if(info.trigType=="electron"){
                 const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
-                for (const auto feat : vec_el){
+                for (const auto& feat : vec_el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
                     std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::ElectronContainer>(feat.te(),cont);
@@ -123,7 +123,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
 
             const auto initRois = fcl1.get<TrigRoiDescriptor>();
             ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-            for(const auto feat : initRois){
+            for(const auto& feat : initRois){
                 if(feat.te()==nullptr) {
                     ATH_MSG_DEBUG("initial RoI feature nullptr");
                     continue;
@@ -140,7 +140,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 fillL1Calo(dir+"L1Calo",l1);
             }
             const auto vec_l2em = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
-            for (const auto feat : vec_l2em){
+            for (const auto& feat : vec_l2em){
                 if(feat.te()==nullptr) continue;
                 const auto* obj = getFeature<xAOD::TrigEMCluster>(feat.te());
                 // Only consider passing objects
@@ -154,7 +154,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
 
 
             const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
-            for(const auto feat : vec_clus){
+            for(const auto& feat : vec_clus){
                 if(feat.te()==nullptr) continue;
                 const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te(),"TrigEFCaloCalibFex");
                 ATH_MSG_DEBUG("Retreive clusters, bits");
@@ -177,7 +177,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             // Loop over features, get PassBits from TE for Electron
             if(info.trigType=="electron"){
                 const auto vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-                for (const auto feat : vec_l2el){
+                for (const auto& feat : vec_l2el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::TrigElectronContainer>(feat.te());
                     std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::TrigElectronContainer>(feat.te(),cont);
@@ -195,7 +195,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 }
                 const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
                 ATH_MSG_DEBUG("Retrieved egamma_Electrons: " << vec_el.size());
-                for (const auto feat : vec_el){
+                for (const auto& feat : vec_el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
                     std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::ElectronContainer>(feat.te(),cont);
@@ -219,7 +219,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             else if(info.trigType=="photon"){
                 const auto vec_ph = fc.get<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
                 ATH_MSG_DEBUG("Retrieved egamma_Photons: " << vec_ph.size());
-                for (const auto feat : vec_ph){
+                for (const auto& feat : vec_ph){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
                     std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::PhotonContainer>(feat.te(),cont);

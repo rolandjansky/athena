@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TagAndProbeExAlg.cxx 785295 2016-11-19 03:18:52Z ssnyder $
@@ -84,7 +84,7 @@ StatusCode TagAndProbeExAlg::initialize() {
    CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/TriggerAcceptsRaw", m_h_triggerAcceptsRaw ) );
    CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/TriggerPrescaled", m_h_triggerPrescaled ) );
    CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/ZMass", m_h_zMass ) );
-   for(const std::string chain:m_hltchainList){
+   for(const std::string& chain:m_hltchainList){
        m_numSelectedEvents[chain]=0;
        m_numHLTPassedEvents[chain]=0;
        std::string histName="Eff_et_"+chain;
@@ -94,7 +94,7 @@ StatusCode TagAndProbeExAlg::initialize() {
        m_h_eff_eta[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, (-1.*m_etaMax), m_etaMax );
        CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/"+histName, m_h_eff_eta[chain] ) );
    }
-   for(const std::string chain:m_hltchainList){
+   for(const std::string& chain:m_hltchainList){
        m_numSelectedEvents[chain]=0;
        m_numL1PassedEvents[chain]=0;
    }
@@ -147,7 +147,7 @@ StatusCode TagAndProbeExAlg::finalize() {
    ATH_MSG_INFO( "lepton |eta| < " << m_etaMax );
    ATH_MSG_INFO( m_massMin << " GeV < mZ < " << m_massMax << " GeV" );
    ATH_MSG_INFO( "Number of events with a tag muon: " << m_numTaggedEvents );
-   for(const std::string chain:m_hltchainList){
+   for(const std::string& chain:m_hltchainList){
        ATH_MSG_INFO( " Chain " << chain);
        ATH_MSG_INFO( "Number of selected events: " << m_numSelectedEvents[chain] );
        //ATH_MSG_INFO( "Number of events with a L1 passed matched probe: " << m_numL1PassedEvents[chain] );
@@ -158,7 +158,7 @@ StatusCode TagAndProbeExAlg::finalize() {
        //        << (float)m_numHLTPassedEvents[chain]/(float)m_numL1PassedEvents[chain] * 100. << "%" );
        ATH_MSG_INFO( "" );
    }
-   for(const std::string chain:m_l1chainList){
+   for(const std::string& chain:m_l1chainList){
        ATH_MSG_INFO( " Chain " << chain);
        ATH_MSG_INFO( "Number of events with a L1 passed matched probe: " << m_numL1PassedEvents[chain] );
        ATH_MSG_INFO(" L1 Trigger efficiency (relative to offline): " 
@@ -173,7 +173,7 @@ StatusCode TagAndProbeExAlg::finalize() {
 StatusCode TagAndProbeExAlg::collectTriggerStatistics() {
 
    // Now we'd like to collect some trigger statistics for the chains specified 
-    for(const auto chain : m_hltchainList){
+    for(const auto& chain : m_hltchainList){
         // Get the bits, this tell us more 
         const unsigned int bits = m_trigDec->isPassedBits(chain);
         bool efprescale=bits & TrigDefs::EF_prescaled;
@@ -212,7 +212,7 @@ StatusCode TagAndProbeExAlg::collectTriggerStatistics() {
  * *******************************************************************************************/
 StatusCode TagAndProbeExAlg::TriggerAnalysis (const xAOD::IParticleContainer *cont){
     bool isTriggered=false; 
-    for(const auto chain : m_hltchainList)
+    for(const auto& chain : m_hltchainList)
         if( m_trigDec->isPassed( chain ) ) isTriggered=true;
 
 
@@ -263,12 +263,12 @@ StatusCode TagAndProbeExAlg::TriggerAnalysis (const xAOD::IParticleContainer *co
         probeEt=(z.second->e()/cosh(z.second->eta()))/GeV;
         ATH_MSG_INFO("Z Mass " << mass << " Probe et: " << probeEt << " eta: " << probeEta);
         m_h_zMass->Fill(mass);
-        for(const std::string chain:m_l1chainList){
+        for(const std::string& chain:m_l1chainList){
             m_numSelectedEvents[chain]+=1;
             if(passL1(*z.second,chain))
                 m_numL1PassedEvents[chain]+=1;
         }
-        for(const std::string chain:m_hltchainList){
+        for(const std::string& chain:m_hltchainList){
             ATH_MSG_INFO("Mathcing to chain " << chain);
             m_numSelectedEvents[chain]+=1;
             // L1 measurement
@@ -288,7 +288,7 @@ StatusCode TagAndProbeExAlg::TriggerAnalysis (const xAOD::IParticleContainer *co
                     // Retrieve a vector of Trigger Element (TE) features, i.e. collect all the TEs that contain ElectronContainers
                     std::vector<Trig::Feature<xAOD::ElectronContainer> > vec = f.get<xAOD::ElectronContainer>("egamma_Electrons");
                     // Loop over the features of type ElectornContainer
-                    for( const Trig::Feature<xAOD::ElectronContainer> feat : vec ) {
+                    for( const Trig::Feature<xAOD::ElectronContainer>& feat : vec ) {
                         // Use the helper util to retrieve trigger decision at each step in electron trigger sequence 
                         ATH_MSG_INFO( "TagAndProbe L2Calo Active " << m_tah->ancestorPassed<xAOD::TrigEMCluster>(feat.te())
                                 << " L2Electron Active " << m_tah->ancestorPassed<xAOD::TrigElectronContainer>(feat.te())
@@ -419,7 +419,7 @@ bool TagAndProbeExAlg::passHLT( const xAOD::IParticle &recoObj, const std::strin
 //Just find a match to any trigger in a list or group
 bool TagAndProbeExAlg::passHLT( const xAOD::IParticle &recoObj, std::vector<std::string> chainList) {
     bool match=false;
-    for(const std::string chain:chainList){
+    for(const std::string& chain:chainList){
         if(m_matchTool->match(recoObj,chain,m_dRMax))
             match=true;
     }

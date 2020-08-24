@@ -21,10 +21,6 @@ IdToFixedIdTool::IdToFixedIdTool(const std::string& t,
   declareProperty("print_level" , m_print_level);
 }
 
-IdToFixedIdTool::~IdToFixedIdTool()
-{
-}
-
 StatusCode IdToFixedIdTool::initialize() 
 {
   ATH_MSG_VERBOSE("Initialisation started");
@@ -98,11 +94,6 @@ MuonFixedId IdToFixedIdTool::idToFixedId(const Identifier& id) const
   return fixedId;
 }
 
-StatusCode IdToFixedIdTool::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 {
   ATH_MSG_VERBOSE("FixedIdToId started     ");
@@ -152,8 +143,8 @@ Identifier IdToFixedIdTool::regionKeyToId(std::string region) const
   std::string::size_type separator1=region.find_first_of("_");
   std::string::size_type separator2=region.find_last_of("_");
   if((separator1==std::string::npos)||(separator2==std::string::npos)||(separator1==separator2)) {
-     std::cout <<"IdToFixedIdTool::regionKeyToId : invalid region key "<<region<<std::endl;
-     return Identifier(0);
+     ATH_MSG_WARNING("IdToFixedIdTool::regionKeyToId : invalid region key "<<region);
+     return Identifier();
   }    
   std::string::size_type separator3=region.find( "_", separator1+1);
   if(separator3!=separator2){

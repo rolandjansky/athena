@@ -31,7 +31,7 @@ namespace TruthHelper {
 }
 
 
-  bool IsGenType::operator()(const HepMC::GenParticle* const p ) const {
+  bool IsGenType::operator()(const HepMC::ConstGenParticlePtr p ) const {
     for (std::vector<int>::const_iterator itype = m_TypeList.begin(); itype != m_TypeList.end(); ++itype) {
       if (abs(p->pdg_id()) == (*itype)) return true;
     }

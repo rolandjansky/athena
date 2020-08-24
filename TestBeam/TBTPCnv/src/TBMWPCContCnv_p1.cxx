@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBMWPCContCnv_p1.h"
@@ -86,7 +86,7 @@ TBMWPCContCnv_p1::transToPers(const TBMWPCCont* trans,
   TBMWPCCont::const_iterator MWPCIt_e = trans->end();
 
   // copy all the MWPCs from the trans to the pers
-  for (; MWPCIt!=MWPCIt_e; MWPCIt++) {
+  for (; MWPCIt!=MWPCIt_e; ++MWPCIt) {
     const TBMWPC * MWPC = * MWPCIt;
 
     // fill in the MWPC properties

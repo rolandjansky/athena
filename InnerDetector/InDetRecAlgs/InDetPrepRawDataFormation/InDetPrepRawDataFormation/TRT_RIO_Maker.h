@@ -19,7 +19,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 
 //InDet
@@ -43,7 +43,7 @@ namespace InDet{
    * Top Algorithm for InDetRawDataContainer<TRT_RDORawData> conversion
    * to TRT_DriftCircleContainer
    **/
-  class TRT_RIO_Maker : public AthAlgorithm {
+  class TRT_RIO_Maker : public AthReentrantAlgorithm {
   public:
     ///constructor
     TRT_RIO_Maker(const std::string &name, ISvcLocator *pSvcLocator);
@@ -51,9 +51,9 @@ namespace InDet{
     virtual ~TRT_RIO_Maker()  ;
     /**    @name Usual algorithm methods */
     //@{
-    StatusCode initialize ()  override;
-    StatusCode execute    ()  override;
-    StatusCode finalize   ()  override;
+    virtual StatusCode initialize ()  override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode finalize   ()  override;
     //@}
   private:
   

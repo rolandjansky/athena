@@ -522,11 +522,11 @@ bool InDet::SiTrajectory_xk::initialize
     if (de->isPixel()) {
       if (PIX) {
         InDet::PixelClusterCollection::const_iterator sib, sie;
-        InDet::PixelClusterContainer::const_iterator w = (*PIXc).indexFind(id);
+        const InDet::PixelClusterCollection *w = (*PIXc).indexFindPtr(id);
 
-        if (w!=(*PIXc).end() && (*w)->begin()!=(*w)->end()) {
+        if (w!=nullptr && w->begin()!=w->end()) {
 
-          sib = (*w)->begin(); sie = (*w)->end();
+          sib = w->begin(); sie = w->end();
 
           for (c=lSiCluster.begin(); c!=lSiCluster.end(); ++c) {
             if ((*c)->detectorElement()==de) {
@@ -551,11 +551,11 @@ bool InDet::SiTrajectory_xk::initialize
       }
     } else if (SCT) {
       InDet::SCT_ClusterCollection::const_iterator sib, sie;
-      InDet::SCT_ClusterContainer::const_iterator w = (*SCTc).indexFind(id);
+      const InDet::SCT_ClusterCollection *w = (*SCTc).indexFindPtr(id);
 
-      if (w!=(*SCTc).end() && (*w)->begin()!=(*w)->end()) {
+      if (w!=nullptr && w->begin()!=w->end()) {
 
-        sib = (*w)->begin(); sie = (*w)->end();
+        sib = w->begin(); sie = w->end();
 
         for (c=lSiCluster.begin(); c!=lSiCluster.end(); ++c) {
           if ((*c)->detectorElement()==de) {
@@ -695,22 +695,22 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
 
     if (!sct) {
       InDet::PixelClusterCollection::const_iterator sib, sie;
-      InDet::PixelClusterContainer::const_iterator w = (*PIXc).indexFind(id);
+      const InDet::PixelClusterCollection *w = (*PIXc).indexFindPtr(id);
 
-      if (w!=(*PIXc).end() && (*w)->begin()!=(*w)->end()) {
-        sib = (*w)->begin();
-        sie = (*w)->end  ();
+      if (w!=nullptr && w->begin()!=w->end()) {
+        sib = w->begin();
+        sie = w->end  ();
       } else {
         continue;
       }
       if (!m_elements[0].ForwardPropagationForClusterSeach(m_nElements,Tp,(*r),sib,sie)) return false;
     } else {
       InDet::SCT_ClusterCollection::const_iterator sib, sie;
-      InDet::SCT_ClusterContainer::const_iterator w = (*SCTc).indexFind(id);
+      const InDet::SCT_ClusterCollection *w = (*SCTc).indexFindPtr(id);
 
-      if (w!=(*SCTc).end() && (*w)->begin()!=(*w)->end()) {
-        sib = (*w)->begin();
-        sie = (*w)->end  ();
+      if (w!=nullptr && w->begin()!=w->end()) {
+        sib = w->begin();
+        sie = w->end  ();
       } else {
         continue;
       }
@@ -798,19 +798,19 @@ bool InDet::SiTrajectory_xk::globalPositionsToClusters
     
     bool sct = d->isSCT();
     if (!sct) {
-      InDet::PixelClusterContainer::const_iterator w = (*PIXc).indexFind(id);
-      if (w!=(*PIXc).end() && (*w)->begin()!=(*w)->end()) {
-        pib = (*w)->begin();
-        pie = (*w)->end  ();
+      const InDet::PixelClusterCollection *w = (*PIXc).indexFindPtr(id);
+      if (w!=nullptr && w->begin()!=w->end()) {
+        pib = w->begin();
+        pie = w->end  ();
       } else {
         continue;
       }
     } else {
       zcut = 1.;
-      InDet::SCT_ClusterContainer::const_iterator w = (*SCTc).indexFind(id);
-      if (w!=(*SCTc).end() && (*w)->begin()!=(*w)->end()) {
-        sib = (*w)->begin();
-        sie = (*w)->end  ();
+      const InDet::SCT_ClusterCollection *w = (*SCTc).indexFindPtr(id);
+      if (w!=nullptr && w->begin()!=w->end()) {
+        sib = w->begin();
+        sie = w->end  ();
       } else {
         continue;
       }

@@ -58,37 +58,37 @@ public:
     //! Algorithm functions
     //-------------------------------------------------------------
     virtual StatusCode initialize() override;
-    virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
+    virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon, const xAOD::TrackParticleContainer* trackContainer = nullptr) const override;
     virtual StatusCode finalize() override;
     
 private:
     //-------------------------------------------------------------
     //! Extrapolate track eta and phi to the calorimeter middle surface
     //-------------------------------------------------------------
-    StatusCode extrapolateToCaloSurface(xAOD::TauJet& pTau);
+    StatusCode extrapolateToCaloSurface(xAOD::TauJet& pTau) const;
 
     TauTrackType tauTrackType( const xAOD::TauJet& tauJet,
     		const xAOD::TrackParticle& trackParticle,
-    		const xAOD::Vertex* primaryVertex);
+    		const xAOD::Vertex* primaryVertex) const;
 
     void getTauTracksFromPV( const xAOD::TauJet& tauJet,
     		const xAOD::TrackParticleContainer& trackParticleCont,
     		const xAOD::Vertex* primaryVertex,
     		std::vector<const xAOD::TrackParticle*> &tauTracks,
     		std::vector<const xAOD::TrackParticle*> &wideTracks,
-    		std::vector<const xAOD::TrackParticle*> &otherTracks);
+    		std::vector<const xAOD::TrackParticle*> &otherTracks) const;
 
     // new xAOD version
     void removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::TrackParticle*> &tauTracks,
                                            std::vector<const xAOD::TrackParticle*> &wideTracks,
                                            std::vector<const xAOD::TrackParticle*> &otherTracks,
                                            const xAOD::Vertex* tauOrigin,
-                                           double maxDeltaZ0);
+                                           double maxDeltaZ0) const;
 
     //-------------------------------------------------------------
     //! Some internally used functions
     //-------------------------------------------------------------
-    float getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex);   //xAOD version
+    float getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex) const;   //xAOD version
 
     //-------------------------------------------------------------
     //! tools

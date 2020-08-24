@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file ParticleEventTPCnv/test/ParticleShallowCloneContainerCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -65,6 +63,8 @@ void test1()
     // or we'll deadlock.
     DataPool<Analysis::ParticleShallowClone> pooldum;
   }
+
+  IParticleContainer::dvlinfo();
 
   Athena_test::Leakcheck check;
 

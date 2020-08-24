@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDD/MuonAGDDTool.h"
@@ -16,19 +16,23 @@
 
 using namespace MuonGM;
 
-MuonAGDDTool::MuonAGDDTool(const std::string& type, const std::string& name, 
-				 const IInterface* parent):AGDDToolBase(type,name,parent),
-					m_overrideConfiguration(false),m_buildNSW(true)
+MuonAGDDTool::MuonAGDDTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AGDDToolBase(type,name,parent),
+    m_outPREsqlName(""),
+    m_overrideConfiguration(false),
+    m_buildNSW(true)
 #ifndef SIMULATIONBASE
 					, p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
 #endif
 {
   	declareProperty( "Structures" ,     m_structuresToBuild);
 	declareProperty( "ReadAGDD",   		m_readAGDD = true);
-	declareProperty( "DumpAGDD",		m_dumpAGDD = false);
+	declareProperty( "DumpAGDD",		m_dumpAGDD = false, "write blob from DB into text file");
 	declareProperty( "OverrideConfiguration",m_overrideConfiguration = false);
 	declareProperty( "BuildNSW",		m_buildNSW = true);
 	declareProperty( "OutputFileType",	m_outFileType = "AGDD", "Name for database table");
+	declareProperty( "OutputFileName",	m_DBFileName = "", "specify name for DB text file");
+	declareProperty( "AGDDtoGeoSvcName", m_agdd2GeoSvcName = "AGDDtoGeoSvc", "specify name of AGDDtoGeoSvc");
 }
 
 StatusCode MuonAGDDTool::initialize()
@@ -39,6 +43,10 @@ StatusCode MuonAGDDTool::initialize()
 
 	ATH_CHECK(AGDDToolBase::initialize());
 
+	if (m_DBFileName.empty()) {
+		m_DBFileName = "Generated_" + m_outFileType + "_pool.txt";
+	}
+
 	// please see more details on regarding the dependency on AMDB on ATLASSIM-3636
 	// and the CMakeLists.txt . the NSWAGDDTool avoids the dependency already
 #ifndef SIMULATIONBASE
@@ -48,6 +56,7 @@ StatusCode MuonAGDDTool::initialize()
 	if (m_buildNSW) 
 	{
 		MuonAGDDToolHelper theHelper;
+		theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
 		theHelper.SetNSWComponents();
 	}
 	
@@ -58,7 +67,8 @@ StatusCode MuonAGDDTool::initialize()
 StatusCode MuonAGDDTool::construct() 
 {
 	MuonAGDDToolHelper theHelper;
-		
+	theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
+
 	m_controller->UseGeoModelDetector("Muon");
 	
 	if (!m_locked)
@@ -81,8 +91,8 @@ StatusCode MuonAGDDTool::construct()
 	}
 	
 	ATH_MSG_INFO(" now reading AGDD blob ");
-	
-	std::string AGDDfile=theHelper.GetAGDD(m_dumpAGDD, m_outFileType);
+
+	std::string AGDDfile=theHelper.GetAGDD(m_dumpAGDD, m_outFileType, m_DBFileName);
 #ifndef SIMULATIONBASE
 	if(m_writeDBfile) AGDDfile = p_AmdcsimrecAthenaSvc->GetAgddString();
 #endif
@@ -146,7 +156,7 @@ StatusCode MuonAGDDTool::construct()
 bool MuonAGDDTool::WritePREsqlFile() const
 {
 
-	std::ifstream outfile(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
+	std::ifstream outfile(m_outFileName.value().c_str(), std::ifstream::in | std::ifstream::binary);
 
 	std::vector<std::string> newoutfilelines;
 	std::string outfileline;
@@ -161,14 +171,14 @@ bool MuonAGDDTool::WritePREsqlFile() const
 		}
 	outfile.close();
 
-	std::ofstream newoutfile(m_outFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::ofstream newoutfile(m_outFileName.value().c_str(), std::ofstream::out | std::ofstream::trunc);
 	for(auto it = newoutfilelines.begin(); it != newoutfilelines.end(); ++it)
 	{
 		if(it != newoutfilelines.begin()) newoutfile << "\n";
 		newoutfile << *it;
 	}
 	newoutfile.close();
-	outfile.open(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
+	outfile.open(m_outFileName.value().c_str(), std::ifstream::in | std::ifstream::binary);
 
 	int fileSize = 0;
 	if(outfile.is_open())

@@ -6,6 +6,17 @@ transform the raw outputs from vertex finding into flavor tagging
 outputs. It is meant as "stand-alone" code: it should be usable in
 both Athena and AnalysisBase.
 
+This code is meant to run in all actively developed ATLAS projects. This means that the following features should _not_ be used:
+
+   - Read / Write Handles: These are not supported in 21.2, and thus
+     won't work in analysis code. Revisit in mid 2021.
+
+   - Any C++ features beyond C++11: Upgrade physics will use
+     [LCG_88][lcg88] for the foreseeable future. This release ships
+     with GCC 6.2, which predates C++17. Revisit in 2024.
+
+[lcg88]: http://lcginfo.cern.ch/release/88/
+
 Package Overview
 ----------------
 
@@ -62,6 +73,30 @@ Some components of Hbb tagging also live here. These include:
      flavor tagging inputs. It also uses `HbbGraphConfig` and
      `HbbConstants`.
 
+   - `HbbTagTool`: ASG Tool interface around `HbbTag`.
+
+   - `VRJetOverlapDecorator`: Adds decorations which quantify the
+     degree of overlap between VR subjets. The validity of flavor
+     tagging calibrations depends on this overlap being small. Two
+     numbers in particular are added:
+
+      - `relativeDeltaRToVRJet`: smallest value of `dR / jet_radius`,
+        considering this jet paired with every other jet in the
+        event. Here `dR` is the angular separation between the two
+        jets, while `jet_radius` is the smallest the of the two jet
+        radii.
+
+      - `deltaRToVRJet`: corresponds to the `dR` to whatever jet has
+        the smallest _relative_ delta R. This isn't necessarily the
+        smallest delta R.
+
+     A smaller value in either of these corresponds to a larger
+     overlap. In general we recommend removing any jet where
+     `relativeDeltaRToVRJet < 1.0`.
+
+   - `VRJetOverlapDecoratorTool`: ASG interface around the class
+     above.
+
 
 ### Other Files ###
 
@@ -80,7 +115,7 @@ The neural networks we use in DL2 are saved as JSON files in the
 [ATLAS groupdata area][gd]. They follow the naming scheme
 
 ```
-[dev/]flavtag/<timestamp>/<tagger>/<tagger-specific-name>.json
+[dev/]BTagging/<timestamp>/<tagger>/<jet-collection>/<tagger-specific-name>.json
 ```
 
 where the `dev/` is for taggers which are in development (i.e. should

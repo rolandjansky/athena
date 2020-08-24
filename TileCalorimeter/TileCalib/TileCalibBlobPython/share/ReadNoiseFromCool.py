@@ -23,7 +23,7 @@ def usage():
     print ("-c, --channel=  specify channel number, default is 0")
     print ("-g, -a, --adc=  specify gain (adc number), default is 0")
     print ("-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'")
-    
+
 letters = "hr:l:s:t:p:d:c:a:g:"
 keywords = ["help","run=","lumi=","schema=","tag=","ros=","drawer=","channel=","adc=","gain="]
 
@@ -34,7 +34,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = 2147483647
 lumi = 0
 schema = 'COOLONL_TILE/CONDBR2'
@@ -50,7 +50,7 @@ for o, a in opts:
     elif o in ("-s","--schema"):
         schema = a
     elif o in ("-r","--run"):
-        run = int(a) 
+        run = int(a)
     elif o in ("-l","--lumi"):
         lumi = int(a)
     elif o in ("-p","--ros"):
@@ -67,12 +67,12 @@ for o, a in opts:
     else:
         assert False, "unhandeled option"
 
-        
+
 if 'COOLONL_TILE' not in schema and 'sqlite' not in schema:
     print ("This script works on the 'COOLONL_TILE/COMP200' or 'COOLONL_TILE/CONDBR2' schema" )
     sys.exit(2)
 
-        
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import TileCalibUtils
 
@@ -102,10 +102,10 @@ for folderPath in [folder1, folder2]:
         ped = blob.getData(channel, adc, 0)
         hfn = blob.getData(channel, adc, 1)
         lfn = blob.getData(channel, adc, 2)
-    else:    
+    else:
         rms = blob.getData(channel, adc, 0)
         plp = blob.getData(channel, adc, 1)
-        
+
 log.info( "\n" )
 print ( "%s ch %i gn %i :  PED = %f  HFN = %f  LFN = %f    OF_RMS = %f  PILEUP = %f" %
         ( TileCalibUtils.getDrawerString(ros,drawer), channel, adc,
@@ -113,4 +113,3 @@ print ( "%s ch %i gn %i :  PED = %f  HFN = %f  LFN = %f    OF_RMS = %f  PILEUP =
 
 #=== close DB
 db.closeDatabase()
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -99,10 +99,7 @@ namespace Trk
   bool CaloCellSelectorRoughdR::select( const CaloCell& cell )const {
     const CaloDetDescrElement* dde = cell.caloDDE();
     if(!dde) return false;
-    if( Utils::deltaR2( m_midEta,dde->eta(),m_midPhi,dde->phi()) < m_maxDiff){
-      return true;
-    }
-    return false;
+    return Utils::deltaR2( m_midEta,dde->eta(),m_midPhi,dde->phi()) < m_maxDiff;
   }
 
 } // end of namespace

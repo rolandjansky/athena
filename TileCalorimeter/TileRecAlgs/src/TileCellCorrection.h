@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECALGS_TILECELLCORRECTION_H
@@ -62,7 +62,7 @@ class TileCellCorrection: public AthService, virtual public IIncidentListener {
     friend class SvcFactory<TileCellCorrection> ;
 
   public:
-    TileCellCorrection(const std::string name, ISvcLocator* pSvcLocator);
+    TileCellCorrection(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual ~TileCellCorrection(); //!< Destructor
 

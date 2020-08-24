@@ -113,6 +113,8 @@ class SCT_RDOAnalysis : public AthAlgorithm {
   TH1* m_h_eventIndex;
   TH1* m_h_charge;
   TH2* m_h_phi_v_eta_sdo;
+  TH1* m_h_TruthMatchedRDOs;
+
 
   TTree* m_tree;
   StringProperty m_ntupleFileName{this, "NtupleFileName", "/ntuples/file1"};

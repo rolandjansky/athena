@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Sat Aug 30 2014 14:38:03 CEST  
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <sys/types.h> 
 #include <glob.h>
+#include <stdint.h>
 
 #include <iostream>
 #include <string>
@@ -33,6 +34,9 @@
 #include "TColor.h"
 
 #include "computils.h"
+
+bool LINEF = true;
+bool LINES = false;
 
 
 bool Plots::watermark = true;
@@ -68,6 +72,89 @@ void Norm( TH1* h, double scale ) {
   
 }
 
+
+
+
+
+
+ 
+union floaty_t {
+    floaty_t( float n = 0.0f ) : f(n) {}
+
+    /// portable extraction of components
+    /// sign
+    bool negative() const { return i < 0; }
+
+    /// float has 23 bit mentissa
+    int32_t raw_mantissa() const { return i & ((1 << 23) - 1); }
+    /// and an 8 bit exponent 
+    int32_t raw_exponent() const { return (i >> 23) & 0xff; }
+ 
+    int32_t i;
+    float   f;
+};
+ 
+
+bool almost_equal( floaty_t a, floaty_t b, int max_diff ) {
+
+  // Check for trivial equality to make sure +0==-0
+  if ( a.f == b.f ) return true;
+  
+  // Different signs means they do not match.
+  if ( a.negative() != b.negative() ) return false;
+  
+  // Find the difference in last place units
+  int ulps_diff = std::abs( a.i - b.i );
+  if (ulps_diff <= max_diff) return true;
+  
+  return false;
+}
+
+
+bool almost_equal( float a, float b, int max_diff ) {
+    return almost_equal( floaty_t(a), floaty_t(b), max_diff );
+}
+
+
+bool operator==( floaty_t a, floaty_t b ) { 
+  /// use a maximum 5 float separation between the two - could be more precise
+  return almost_equal( a, b, 5 ); 
+}
+
+
+void trim_tgraph( TH1* h, TGraphAsymmErrors* t ) {
+  
+  double ylo = h->GetMinimum();
+
+  int ih=1; 
+
+  for ( int i=0 ; i<t->GetN() && ih<=h->GetNbinsX() ; i++, ih++ ) { 
+   
+    double yt = 0;
+    double xt = 0;
+    double ye = 0;
+
+    t->GetPoint( i, xt, yt );
+    ye = t->GetErrorYlow( i );
+
+    double yh = h->GetBinContent(ih);
+    double xh = h->GetBinCenter(ih);
+
+    while( !almost_equal( xh, xt, 5 ) && ih<=h->GetNbinsX() ) { 
+      ih++;
+      yh = h->GetBinContent(ih);
+      xh = h->GetBinCenter(ih);
+    }
+
+    if ( !almost_equal( yh, yt, 5 ) ) throw data_mismatch(std::string("for histogram ")+h->GetName());
+
+    if ( (yt-ye) < ylo ) { 
+      h->SetBinContent(ih, ylo-100 );
+      t->SetPoint( i, xt, ylo-100 ); 
+    }
+
+  }
+}
 
 
 void ATLASFORAPP_LABEL( double x, double  y, int color, double size ) 
@@ -217,7 +304,7 @@ void contents( std::vector<std::string>&  keys, TDirectory* td,
       /// not a directory so include this ...
       if ( directory == "" || contains( path, directory ) ) {
 	
-	if ( print ) std::cout << "will process " << tobj->GetName() << std::endl;
+	if ( print ) std::cout << "will process " << td->GetName() << " \t:: " << tobj->GetName() << std::endl;
 	print = false;
 	
 	if ( pattern == "" || contains(std::string(tobj->GetName()), pattern ) ) { 

@@ -1,24 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAMCNVTEST_CSCRDOTOCSCDIGIT_H
 #define MUONBYTESTREAMCNVTEST_CSCRDOTOCSCDIGIT_H
 
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "CscCalibTools/ICscCalibTool.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-// class CscDigitContainer;
-// class CscDigitCollection;
-// class CscRawDataCollection;
-// namespace Muon {
-//   class ICSC_RDO_Decoder;
-// }
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class CscRdoToCscDigit : public AthReentrantAlgorithm {
 
@@ -36,8 +31,7 @@ class CscRdoToCscDigit : public AthReentrantAlgorithm {
 
   ToolHandle<ICscCalibTool>     m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", ""};
   ToolHandle<Muon::ICSC_RDO_Decoder>  m_cscRdoDecoderTool{this, "cscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   SG::ReadHandleKey<CscRawDataContainer> m_cscRdoKey{this, "CscRdoContainer", "CSCRDO", "Csc RDO Input"};
   SG::WriteHandleKey<CscDigitContainer> m_cscDigitKey{this, "CscDigitContainer", "CSC_DIGITS", "Csc Digit Output"};
 };

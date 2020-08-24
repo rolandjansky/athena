@@ -23,7 +23,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
 
 import tokenize
-from cStringIO import StringIO
+from io import StringIO
 
 class LogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
     

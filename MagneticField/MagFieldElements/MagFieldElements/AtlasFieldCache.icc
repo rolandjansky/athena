@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 /** fill given magnetic field zone */
 inline bool
 MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
@@ -10,17 +9,14 @@ MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
   // search for the zone
   const BFieldZone* zone =
     m_fieldMap ? m_fieldMap->findBFieldZone(z, r, phi) : nullptr;
-  if (zone == nullptr) {
+
+  if (!zone) {
     // outsize all zones
     return false;
   }
 
   // set scale for field
-  if (zone->id() == m_solZoneId) {
-    m_scaleToUse = m_solScale;
-  } else {
-    m_scaleToUse = m_torScale;
-  }
+  m_scaleToUse = (zone->id() == m_solZoneId) ? m_solScale : m_torScale;
 
   // fill the cache, pass in current scale factor
   zone->getCache(z, r, phi, m_cache3d, m_scaleToUse);
@@ -35,16 +31,16 @@ MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
 inline bool
 MagField::AtlasFieldCache::fillFieldCacheZR(double z, double r)
 {
-  // is it inside the solenoid zone?
-  if (m_meshZR && m_meshZR->inside(z, r)) {
-
-    // fill the cache, pass in current scale factor
-    m_meshZR->getCache(z, r, m_cacheZR, m_solScale);
-
-  } else {
-    // outside solenoid
+  // No mesh available
+  if (!m_meshZR) {
     return false;
   }
+  // Not inside the solenoid zone?
+  if (!m_meshZR->inside(z, r)) {
+    return false;
+  }
+  // fill the cache, pass in current scale factor
+  m_meshZR->getCache(z, r, m_cacheZR, m_solScale);
   return true;
 }
 
@@ -53,11 +49,25 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
                                     double* ATH_RESTRICT bxyz,
                                     double* ATH_RESTRICT deriv)
 {
-  const double& x(xyz[0]);
-  const double& y(xyz[1]);
-  const double& z(xyz[2]);
-  double r = std::sqrt(x * x + y * y);
-  double phi = std::atan2(y, x);
+  // Allow for the case of no map for testing
+  if (m_fieldMap == nullptr) {
+    // constant ATLAS magnetic field if no map has been set - for testing
+    constexpr double TEST_BFIELD = 1.997;
+    bxyz[0] = bxyz[1] = 0;
+    bxyz[2] = TEST_BFIELD;
+    if (deriv) {
+      for (int i = 0; i < 9; i++) {
+        deriv[i] = 0.;
+      }
+    }
+    return;
+  }
+
+  const double x = xyz[0];
+  const double y = xyz[1];
+  const double z = xyz[2];
+  const double r = std::sqrt(x * x + y * y);
+  const double phi = std::atan2(y, x);
 
   // test if initialised and the cache is valid
   if (!m_cache3d.inside(z, r, phi)) {
@@ -65,7 +75,7 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
     if (!fillFieldCache(z, r, phi)) {
       // caching failed -> outside the valid map volume
       // return default field (0.1 gauss)
-      const double defaultB(0.1 * CLHEP::gauss);
+      const double defaultB(0.1 * Gaudi::Units::gauss);
       bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
       // return zero gradient if requested
       if (deriv) {
@@ -79,13 +89,15 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
 
   // do interpolation (cache3d has correct scale factor)
   m_cache3d.getB(xyz, r, phi, bxyz, deriv);
+
+  if (!m_cond) {
+    return;
+  }
   // add biot savart component - must add in scale factor to avoid changing
   // conductor SF since the conductor is part of the static magnetic field model
-  if (m_cond) {
-    const size_t condSize = m_cond->size();
-    for (size_t i = 0; i < condSize; i++) {
-      (*m_cond)[i].addBiotSavart(m_scaleToUse, xyz, bxyz, deriv);
-    }
+  const size_t condSize = m_cond->size();
+  for (size_t i = 0; i < condSize; i++) {
+    (*m_cond)[i].addBiotSavart(m_scaleToUse, xyz, bxyz, deriv);
   }
 }
 
@@ -94,10 +106,25 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
                                       double* ATH_RESTRICT bxyz,
                                       double* ATH_RESTRICT deriv)
 {
-  const double& x(xyz[0]);
-  const double& y(xyz[1]);
-  const double& z(xyz[2]);
-  double r = sqrt(x * x + y * y);
+
+  // Allow for the case of no map for testing
+  if (m_fieldMap == nullptr) {
+    // constant ATLAS magnetic field if no map has been set - for testing
+    constexpr double TEST_BFIELD = 1.997;
+    bxyz[0] = bxyz[1] = 0;
+    bxyz[2] = TEST_BFIELD;
+    if (deriv) {
+      for (int i = 0; i < 9; i++) {
+        deriv[i] = 0.;
+      }
+    }
+    return;
+  }
+
+  const double x = xyz[0];
+  const double y = xyz[1];
+  const double z = xyz[2];
+  const double r = sqrt(x * x + y * y);
 
   // test if the cache was initialized and the ZR cache is valid for current
   // position
@@ -116,4 +143,14 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
   m_cacheZR.getB(xyz, r, bxyz, deriv);
 }
 
+inline bool
+MagField::AtlasFieldCache::solenoidOn() const
+{
+  return m_fieldMap ? m_fieldMap->solenoidOn() && m_solScale > 0.0 : false;
+}
 
+inline bool
+MagField::AtlasFieldCache::toroidOn() const
+{
+  return m_fieldMap ? m_fieldMap->toroidOn() && m_torScale > 0.0 : false;
+}

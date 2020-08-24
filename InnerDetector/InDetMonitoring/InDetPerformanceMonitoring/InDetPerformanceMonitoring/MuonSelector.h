@@ -9,6 +9,7 @@
 // Include files...
 //==============================================================================
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
+#include "CxxUtils/checker_macros.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -20,7 +21,7 @@
 //==============================================================================
 //class Muon;
 
-class MuonSelector : public EventAnalysis
+class ATLAS_NOT_THREAD_SAFE MuonSelector : public EventAnalysis // static member variable is used.
 {
  public:
   MuonSelector();

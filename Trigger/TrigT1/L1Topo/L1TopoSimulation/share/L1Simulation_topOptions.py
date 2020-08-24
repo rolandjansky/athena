@@ -1,6 +1,5 @@
 include.block ("L1TopoSimulation/L1Simulation_topOptions.py")
 
-svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 
 from AthenaCommon.Logging import logging
@@ -127,9 +126,11 @@ if globalflags.InputFormat.is_pool():
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg") ):
         from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-        xAODEventInfoCnvAlgDefault(sequence=topSequence)
+        xAODEventInfoCnvAlgDefault(sequence=condSeq)
 
 if rec.doTrigger:
     try:

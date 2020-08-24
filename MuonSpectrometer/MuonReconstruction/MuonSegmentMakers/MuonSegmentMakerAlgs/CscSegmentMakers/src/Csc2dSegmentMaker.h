@@ -12,43 +12,31 @@
 // each chamber (with segments) and separate r and phi collections
 // for each combination.
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h" 
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
 
 class Csc2dSegmentMaker : virtual public ICscSegmentFinder, public AthAlgTool {
 
-public:  // methods
-
-  // Constructor.
+public:
   Csc2dSegmentMaker(const std::string&, const std::string&, const IInterface*);
 
-  // Destructor.
   ~Csc2dSegmentMaker()=default;
 
-  // Initialization.
   StatusCode initialize();
-
-  // Finalization.
-  StatusCode finalize();
 
   std::unique_ptr<MuonSegmentCombinationCollection> find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;
   std::unique_ptr<MuonSegmentCombinationCollection> find( const MuonSegmentCombinationCollection& ) const;
 
-private:  // methods
-
+private:
   Muon::MuonSegmentCombination* findSegmentCombination( const Muon::CscPrepDataCollection& pcol ) const;
-  
 
-private:  // data
-
-  // Output container.
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   Gaudi::Property<std::string> m_cscdig_sg_inkey{this, "scdig_sg_inkey", "CSC_Measurements"};

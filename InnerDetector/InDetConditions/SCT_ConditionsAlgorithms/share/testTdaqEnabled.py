@@ -85,6 +85,12 @@ condSeq = AthSequencer("AthCondSeq")
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 condSeq+=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
+condAlgName = "SCT_CablingCondAlgFromCoraCool"
+if not hasattr(condSeq, condAlgName):
+    from AthenaCommon.CfgGetter import getAlgorithm
+    SCT_CablingCondAlgFromCoraCool = getAlgorithm(condAlgName)
+    condSeq += SCT_CablingCondAlgFromCoraCool
+
 from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
 sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
 sct_TdaqEnabledToolSetup.setup()

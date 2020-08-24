@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 namespace MuonCalib {
   //Retrieve a requested parameter by strip hashID from the local cache for the client.
@@ -20,28 +19,27 @@ namespace MuonCalib {
     {
       if(parName == "t0phase" || parName == "t0base"){
         static bool firstTime = true;
-        if(firstTime) m_log << MSG::WARNING << "Attempted to request t0 parameters (t0phase or t0base) from CscCoolStrSvc. These are not yet implemented but will be in the near future. You can probably ignore this WARNING." << std::endl;
+        if(firstTime) ATH_MSG_WARNING("Attempted to request t0 parameters (t0phase or t0base) from CscCoolStrSvc. These are not yet implemented but will be in the near future. You can probably ignore this WARNING.");
         firstTime = false;
         return StatusCode::RECOVERABLE;
       }
       
-      m_log << MSG::ERROR << "There is no parameter loaded with name " << parName << ". Check spelling, or ensure you had it added in your jobOptions." << endmsg; 
+      ATH_MSG_ERROR("There is no parameter loaded with name " << parName << ". Check spelling, or ensure you had it added in your jobOptions."); 
       return StatusCode::RECOVERABLE;
     }
 
     CscCondDataCollection<data_type> * coll = dynamic_cast<CscCondDataCollection<data_type> *>( itr->second);
     if(!coll){
-      m_log << MSG::ERROR  <<  "Failed to cast datatype properly for parameter \"" << parName << "\"" << endmsg;
+      ATH_MSG_ERROR("Failed to cast datatype properly for parameter \"" << parName << "\"");
       return StatusCode::RECOVERABLE;
     }
 
     if(index > coll->size() -1)
     {
-      m_log << MSG::ERROR 
-        << "Requested index " << (coll->getParCat() == "CHANNEL" ? " (channel hash) ":"") << index 
+      ATH_MSG_ERROR("Requested index " << (coll->getParCat() == "CHANNEL" ? " (channel hash) ":"") << index 
         << " is too large for " << parName <<". The requested parameter (" << coll->getParName() << ") is of the  \"" << coll->getParCat() 
         << "\" category, which has a defined maximum value of "  << (coll->getSize()-1)
-        << ". This is likely an error upstream of CscCoolStrSvc creating an invalid identifier or hash id." <<  endmsg;
+        << ". This is likely an error upstream of CscCoolStrSvc creating an invalid identifier or hash id.");
       retData = coll->getParDefault();
       return StatusCode::RECOVERABLE;
     }
@@ -55,21 +53,19 @@ namespace MuonCalib {
 
       //If we are looking at invalid chamber layer (1), check corresponding channel in chamber layer 2
       Identifier id;
-      m_muonIdHelperTool->cscIdHelper().get_id(index,id,&m_channelContext);
-      if(m_muonIdHelperTool->cscIdHelper().chamberLayer(id) == 1)
+      m_idHelperSvc->cscIdHelper().get_id(index,id,&m_channelContext);
+      if(m_idHelperSvc->cscIdHelper().chamberLayer(id) == 1)
       {
         int newHash = swapChamberLayerReturnHash(id); 
         condData = coll->at(newHash);
         if(condData)  
         {
           if(m_numFailedRequests < m_maxFailedRequests)
-            m_log << MSG::WARNING << "Invalid chamber layer requested when retrieveing "
+            ATH_MSG_WARNING("Invalid chamber layer requested when retrieveing "
                   << parName
-                  << ". Tried corresponding channel in valid chamber layer and found good data."
-                  << endmsg;
+                  << ". Tried corresponding channel in valid chamber layer and found good data.");
           if(m_numFailedRequests++ == m_maxFailedRequests)
-            m_log << MSG::WARNING << "Reached maximum number of problematic requests to CscCoolStrSvc. No further warnings will be printed."
-                  << endmsg;
+            ATH_MSG_WARNING("Reached maximum number of problematic requests to CscCoolStrSvc. No further warnings will be printed.");
         }
       }
     }//end if "CHANNEL" category
@@ -81,9 +77,9 @@ namespace MuonCalib {
       //Return a default value
       retData = coll->getParDefault();
       if(m_numFailedRequests < m_maxFailedRequests) {
-        m_log << MSG::WARNING << "Requested index " << index << " has no data cached for parameter " << parName << ". Either its not valid (such as a hash Id for a chamber never installed) or there was a problem caching the database to memory. Returning default value of " << retData << endmsg;
+        ATH_MSG_WARNING("Requested index " << index << " has no data cached for parameter " << parName << ". Either its not valid (such as a hash Id for a chamber never installed) or there was a problem caching the database to memory. Returning default value of " << retData);
       }
-      if(m_numFailedRequests++ == m_maxFailedRequests) m_log << MSG::WARNING << "Reached maximum number of failed requests to CscCoolStrSvc. No further warnings will be printed." << endmsg; 
+      if(m_numFailedRequests++ == m_maxFailedRequests) ATH_MSG_WARNING("Reached maximum number of failed requests to CscCoolStrSvc. No further warnings will be printed."); 
     }
     else
     {
@@ -104,17 +100,17 @@ namespace MuonCalib {
   template <typename data_type> StatusCode CscCoolStrSvc::mergeCollections(const CscCondDataCollectionBase * & newCollBase, 
       const CscCondDataCollectionBase * & refCollBase)
   {
-    if(m_debug) m_log << MSG::DEBUG << "Merging collections for parameter " << newCollBase->getParName() << endmsg;
+    if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Merging collections for parameter " << newCollBase->getParName());
 
     const CscCondDataCollection<data_type> * newColl = dynamic_cast<const CscCondDataCollection<data_type>*>(newCollBase);
     if(!newColl){
-      m_log << MSG::ERROR  <<  "Failed to cast datatype properly for newColl in mergeCollections. Maybe a configuration problem in CSCCondDB.py?" << endmsg;
+      ATH_MSG_ERROR("Failed to cast datatype properly for newColl in mergeCollections. Maybe a configuration problem in CSCCondDB.py?");
       return StatusCode::RECOVERABLE;
     }
 
     const CscCondDataCollection<data_type> * refColl = dynamic_cast<const CscCondDataCollection<data_type>*>(refCollBase);
     if(!refColl){
-      m_log << MSG::ERROR  <<  "Failed to cast datatype properly for refColl in mergeCollections. Maybe a configuration problem in CSCCondDB.py?" << endmsg;
+      ATH_MSG_ERROR("Failed to cast datatype properly for refColl in mergeCollections. Maybe a configuration problem in CSCCondDB.py?");
       return StatusCode::RECOVERABLE;
     }
 
@@ -124,8 +120,8 @@ namespace MuonCalib {
     unsigned int numEntries = newColl->size();
     if(numEntries != newColl->size() )
     {
-      m_log << MSG::ERROR << "New collection has " << newColl->size() 
-        << " entries. Reference has " << refColl->size() << "." << endmsg;
+      ATH_MSG_ERROR("New collection has " << newColl->size() 
+        << " entries. Reference has " << refColl->size() << ".");
       return StatusCode::RECOVERABLE;
     }
 
@@ -134,8 +130,8 @@ namespace MuonCalib {
     //getChamberCoolChannel
 
     const unsigned int maxCoolChan = refColl->getNumCoolChan(); //cool channels start at 1
-    if(m_verbose) m_log << MSG::VERBOSE << "Maximum cool channel for this parameter is " 
-      << maxCoolChan << endmsg;
+    if(msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE("Maximum cool channel for this parameter is " 
+      << maxCoolChan);
 
     //strVec is a vector of the strings we'll store in the database. The indices of the
     //vector are the cool channel -1.
@@ -173,8 +169,8 @@ namespace MuonCalib {
       else if(refDatum && m_doMerge)
         mergeDatum = refDatum;
 
-      if(m_verbose) m_log << MSG::VERBOSE << "Merged index: " << index 
-        << " with pointer at ref " << mergeDatum << endmsg;
+      if(msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE("Merged index: " << index 
+        << " with pointer at ref " << mergeDatum);
 
       //Only put data if there is data available for it!
       if(mergeDatum) { 
@@ -208,8 +204,8 @@ namespace MuonCalib {
 
           unsigned int onlineId;
           if(!coolChamberChannelToOnlineId(index+1, onlineId ).isSuccess()){
-            m_log << MSG::ERROR << "Failed to retrieve online Id for chamber during merge." 
-              << endmsg;
+            ATH_MSG_ERROR("Failed to retrieve online Id for chamber during merge." 
+             );
           }
 
           ss << " " << std::hex << onlineId <<  " " << std::dec <<  mergeDatum->getValue();
@@ -220,53 +216,53 @@ namespace MuonCalib {
 
           unsigned int onlineId;
           if(!(layerHashToOnlineId(index, onlineId).isSuccess())) {
-            m_log << MSG::ERROR << "Failed at gettin layer hash" << endmsg;
+            ATH_MSG_ERROR("Failed at gettin layer hash");
             return StatusCode::RECOVERABLE;
           }
 
           ss << " " << std::hex << onlineId << " " <<  std::dec <<  mergeDatum->getValue();
 
           if(!onlineIdToCoolChamberChannel(onlineId, coolChan)) {
-            m_log << MSG::ERROR << "Failed at getting cool chamber channel from online Id " << std::hex << onlineId << std::dec << endmsg;
+            ATH_MSG_ERROR("Failed at getting cool chamber channel from online Id " << std::hex << onlineId << std::dec);
 
             return StatusCode::RECOVERABLE;
           }
         }
         else if (cat == "CHANNEL") {
           Identifier id;
-          m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
+          m_idHelperSvc->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
           unsigned int onlineId; 
           if(!offlineToOnlineId(id, onlineId).isSuccess()) {
-            m_log << MSG::ERROR << "Failed at geting online id!" << endmsg; 
+            ATH_MSG_ERROR("Failed at geting online id!"); 
             return StatusCode::RECOVERABLE;
           }
 
           ss << " " << std::hex << onlineId <<  " "  << std::dec << mergeDatum->getValue();
 
           if(!onlineIdToCoolChamberChannel(onlineId, coolChan)) {
-            m_log << MSG::ERROR << "Failed at getting cool chamber channel from online Id " 
-              << std::hex << onlineId << std::dec << endmsg;
+            ATH_MSG_ERROR("Failed at getting cool chamber channel from online Id " 
+              << std::hex << onlineId << std::dec);
             return StatusCode::RECOVERABLE;
           }
-          if(m_verbose) m_log << MSG::VERBOSE << "Storing into COOL channel " 
-            << coolChan << endmsg;
+          if(msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE("Storing into COOL channel " 
+            << coolChan);
         }
 
         else if (cat == "ASM")
         { Identifier id;
-          m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
+          m_idHelperSvc->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
 
           unsigned int iChamber;
           unsigned int iASM;
           std::string AsmId;
           if(!offlineToAsmId(id, AsmId, iChamber, iASM).isSuccess())
-          { m_log << MSG::ERROR << "Failed at geting ASM id!" << endmsg;
+          { ATH_MSG_ERROR("Failed at geting ASM id!");
             return StatusCode::RECOVERABLE;
           }
 
           unsigned int onlineId;
           if(!offlineToOnlineId(id, onlineId).isSuccess())
-          { m_log << MSG::ERROR << "Failed at geting online id!" << endmsg;
+          { ATH_MSG_ERROR("Failed at geting online id!");
             return StatusCode::RECOVERABLE;
           }
 
@@ -274,19 +270,19 @@ namespace MuonCalib {
           { ss << " " << AsmId << " " << mergeDatum->getValue();
             CoolAsmValsFilled[iChamber][iASM-1] = true;
             if ( !onlineIdToCoolChamberChannel(onlineId, coolChan) )
-            { m_log << MSG::ERROR << "Failed at getting cool chamber channel from online Id "
-                << std::hex << onlineId << std::dec << endmsg;
+            { ATH_MSG_ERROR("Failed at getting cool chamber channel from online Id "
+                << std::hex << onlineId << std::dec);
               return StatusCode::RECOVERABLE;
             }
-            if(m_verbose) m_log << MSG::VERBOSE << "Storing into COOL channel "
-              << coolChan << endmsg;
+            if(msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE("Storing into COOL channel "
+              << coolChan);
           }
         }//end if cat==asm
 
 
         if ( (coolChan==0) && !(cat=="ASM") )  {
-          m_log << MSG::ERROR << "Cool chan of 0 reqeusted for update. This is likely a bug."
-            << endmsg;
+          ATH_MSG_ERROR("Cool chan of 0 reqeusted for update. This is likely a bug."
+           );
           return StatusCode::RECOVERABLE;
         }
 
@@ -302,16 +298,16 @@ namespace MuonCalib {
     ///Store a CondAttrListCollection in TDS 
     std::string folder = refColl->getParFolder();
     CondAttrListCollection* atrc=0;
-    m_log << MSG::INFO << "Putting data for parameter " << parName 
-      << " into database folder " << folder  << endmsg;
+    ATH_MSG_DEBUG("Putting data for parameter " << parName 
+      << " into database folder " << folder );
 
     if (!p_detstore->contains<CondAttrListCollection>(folder)) {
-      m_log << MSG::DEBUG << "Creating new CondAttrListCollection for folder "
-        << folder << endmsg;
+      ATH_MSG_DEBUG("Creating new CondAttrListCollection for folder "
+        << folder);
       CondAttrListCollection* atrc=new CondAttrListCollection(true);
       if (StatusCode::SUCCESS!=p_detstore->record(atrc,folder)) {  //create new collection record in TDS
-        m_log << MSG::ERROR << "Could not create CondAttrListCollection "
-          <<  folder << endmsg;
+        ATH_MSG_ERROR("Could not create CondAttrListCollection "
+          <<  folder);
         return StatusCode::RECOVERABLE;
       }
     }
@@ -319,20 +315,20 @@ namespace MuonCalib {
     //Retrieve pointer to collection in TDS
     //do const cast here so we can add to already exisiting collections
     const CondAttrListCollection* catrc=0;
-    if(m_debug) m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endmsg;
+    if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Attempting to retrieve collection (const)");
     if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,folder)) {
-      m_log << MSG::ERROR << "Could not retrieve CondAttrListCollection " 
-        <<  folder << endmsg;
+      ATH_MSG_ERROR("Could not retrieve CondAttrListCollection " 
+        <<  folder);
       return StatusCode::RECOVERABLE;
     } 
-    if(m_debug) m_log << MSG::DEBUG << "Retrieved. Casting away constness." << endmsg;
+    if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieved. Casting away constness.");
     atrc=const_cast<CondAttrListCollection*>(catrc);
     if (atrc==0) {
-      m_log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" 
-        << endmsg;
+      ATH_MSG_ERROR("Could not retrieve non-const pointer to atrc" 
+       );
       return StatusCode::RECOVERABLE;
     }
-    if(m_debug) m_log << MSG::DEBUG << "Casted away." << endmsg;
+    if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Casted away.");
 
     //AthenaAttributeList holds info for a single COOL channel
       
@@ -392,9 +388,7 @@ namespace MuonCalib {
       {
         unsigned int onlineId;
         if(!coolChamberChannelToOnlineId(coolChan, onlineId).isSuccess()) {
-          m_log << MSG::ERROR 
-            << "Failed to retrieve online Id using chamber channel during final write to db." 
-            << endmsg;
+          ATH_MSG_ERROR("Failed to retrieve online Id using chamber channel during final write to db.");
           return StatusCode::SUCCESS;
         }
         identifier = onlineId;

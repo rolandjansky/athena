@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -319,6 +319,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
   RZPairVector& bpDefs = m_enclosingEnvelopeSvc->getBeamPipeRZValues(0);
   
   ATH_MSG_VERBOSE( "BeamPipe envelope definition retrieved:" );   
+  m_bpCutouts.clear();
   for (unsigned int i=0; i<bpDefs.size(); i++) {
     ATH_MSG_VERBOSE( "Rz pair:"<< i<<":"<< bpDefs[i].first<<","<<bpDefs[i].second );   
     // beam pipe within calo : pick 10. < R < 200;  envEnclosingVolumeHalfZ   =< z  <= msCutouts.back().second;

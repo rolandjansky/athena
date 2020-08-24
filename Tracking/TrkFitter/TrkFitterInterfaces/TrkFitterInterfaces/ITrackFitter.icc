@@ -1,0 +1,94 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline Track*
+ITrackFitter::fit(const Track& track,
+                  const RunOutlierRemoval runOutlier,
+                  const ParticleHypothesis matEffects) const
+{
+  return fit(Gaudi::Hive::currentContext(), track, runOutlier, matEffects)
+    .release();
+}
+
+inline Track*
+ITrackFitter::fit(const Track& track,
+                  const PrepRawDataSet& prepRawSet,
+                  const RunOutlierRemoval runOutlier,
+                  const ParticleHypothesis matEffects) const
+{
+
+  return fit(Gaudi::Hive::currentContext(),
+             track,
+             prepRawSet,
+             runOutlier,
+             matEffects)
+    .release();
+}
+
+inline Track*
+ITrackFitter::fit(const PrepRawDataSet& prepRawSet,
+                  const TrackParameters& params,
+                  const RunOutlierRemoval runOutlier,
+                  const ParticleHypothesis matEffects) const
+{
+  return fit(Gaudi::Hive::currentContext(),
+             prepRawSet,
+             params,
+             runOutlier,
+             matEffects)
+    .release();
+}
+
+inline Track*
+ITrackFitter::fit(const Track& track,
+                  const MeasurementSet& measSet,
+                  const RunOutlierRemoval runOutlier,
+                  const ParticleHypothesis matEffects) const
+{
+  return fit(Gaudi::Hive::currentContext(),
+             track,
+             measSet,
+             runOutlier,
+             matEffects)
+    .release();
+}
+
+inline Track*
+ITrackFitter::fit(const MeasurementSet& measSet,
+                  const TrackParameters& params,
+                  const RunOutlierRemoval runOutlier,
+                  const ParticleHypothesis matEffects) const
+{
+
+  return fit(Gaudi::Hive::currentContext(),
+             measSet,
+             params,
+             runOutlier,
+             matEffects)
+    .release();
+}
+
+inline Track*
+ITrackFitter::fit(const Track& track1,
+                  const Track& track2,
+                  const RunOutlierRemoval runOutlier,
+                  const ParticleHypothesis matEffects) const
+{
+  return fit(Gaudi::Hive::currentContext(),
+             track1,
+             track2,
+             runOutlier,
+             matEffects)
+    .release();
+}
+
+inline FitterStatusCode
+ITrackFitter::statusCodeOfLastFit() const
+{
+  return Trk::FitterStatusCode::Success;
+}
+
+}

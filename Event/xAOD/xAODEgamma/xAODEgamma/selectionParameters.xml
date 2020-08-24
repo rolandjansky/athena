@@ -1,0 +1,11 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+   <!-- Objects from the namespace. -->
+   <variable pattern="xAOD::EgammaParameters::*" />
+   <class name="xAOD::EgammaParameters::ROOT6_NamespaceAutoloadHook" />
+
+   <!-- Enum(s). -->
+   <enum pattern="xAOD::EgammaParameters::*" />
+
+</lcgdict>

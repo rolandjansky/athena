@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -59,16 +59,12 @@ Trk::MaterialStep::MaterialStep(
     {}
 
 Trk::MaterialStep::MaterialStep(const MaterialStep& mstep)
-    : m_steplength(mstep.m_steplength),
-    m_hitX(mstep.m_hitX),
-    m_hitY(mstep.m_hitY),
-    m_hitZ(mstep.m_hitZ),
-    m_hitR(mstep.m_hitR),
-    m_material(mstep.m_material)
+    
+    
 
-    {}
+    = default;
 
-Trk::MaterialStep::~MaterialStep() {}
+Trk::MaterialStep::~MaterialStep() = default;
 
 Trk::MaterialStep& Trk::MaterialStep::operator =( const Trk::MaterialStep& mstep ) 
 {

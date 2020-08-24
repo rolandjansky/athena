@@ -6,7 +6,7 @@ if not hasattr(svcMgr,'EvtIdModifierSvc'):
     from AthenaCommon.AppMgr import theApp
     theApp.CreateSvc += ["EvtIdModifierSvc"]
 else:
-    print 'g4runnumber.py: Will override the settings of the EvtIdModifierSvc that was previously set up!'
+    printfunc ('g4runnumber.py: Will override the settings of the EvtIdModifierSvc that was previously set up!')
     ## remove any existing settings
     svcMgr.EvtIdModifierSvc.Modifiers = []
 svcMgr.EvtIdModifierSvc.OutputLevel=DEBUG
@@ -20,10 +20,10 @@ fname=overlayFlags.EventIDTextFile()
 #fname=runArgs.inputTXT_EVENTIDFile[0]
 
 if fname == None:
-    print 'g4runnumber.py: No eventID file provided!'
+    printfunc ('g4runnumber.py: No eventID file provided!')
     raise RuntimeError
 
-print "fname  ", fname
+printfunc ("fname  " + fname)
 
 include(fname)
 
@@ -32,8 +32,8 @@ num_lines = 0
 with open(fname, 'r') as f:
     for line in f:
         num_lines += 1
-        print line,
-print "Number of lines in TXT_EVENTID is "+str(num_lines)
+        printfunc (line, end = '')
+printfunc ("Number of lines in TXT_EVENTID is "+str(num_lines))
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax.unlock()
 athenaCommonFlags.EvtMax.set_Value_and_Lock(num_lines)
@@ -49,6 +49,6 @@ if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
 svcMgr.EventSelector.RunNumber = svcMgr.EvtIdModifierSvc.Modifiers[0]
 svcMgr.EventSelector.OverrideRunNumber = True
 svcMgr.EventSelector.InitialTimeStamp = svcMgr.EvtIdModifierSvc.Modifiers[2]
-print svcMgr.EventSelector
+printfunc (svcMgr.EventSelector)
 svcMgr.TagInfoMgr.OutputLevel=DEBUG
     

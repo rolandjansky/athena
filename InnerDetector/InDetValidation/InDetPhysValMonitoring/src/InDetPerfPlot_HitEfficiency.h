@@ -22,6 +22,7 @@
 
 
 // std includes
+#include <atomic>
 #include <string>
 
 class TProfile;
@@ -50,6 +51,8 @@ private:
   //TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
   TEfficiency* m_HitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];
   bool m_debug;
+
+  mutable std::atomic<int> m_warnCount{0};
 };
 
 

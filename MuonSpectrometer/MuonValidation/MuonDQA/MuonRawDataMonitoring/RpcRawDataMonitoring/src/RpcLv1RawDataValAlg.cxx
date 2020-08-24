@@ -1826,10 +1826,10 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
 	 if (kName>10 && kName!=53) continue; 
 	for (int iz=0; iz!=3; iz++ ) {
 	  int irc = ir ;	
-	  if(abs(ieta-8)==7&&ir==1&&kName==2)continue;	
-	  if(isec==12&&abs(ieta-8)==6&&ir==1&&kName==2)continue;
-	  if(abs(ieta-8)==7&&ir==2)irc=1; 
-	  if(isec==12&&abs(ieta-8)==6&&ir==2)irc=1;	 
+	  if(std::abs(ieta-8)==7&&ir==1&&kName==2)continue;	
+	  if(isec==12&&std::abs(ieta-8)==6&&ir==1&&kName==2)continue;
+	  if(std::abs(ieta-8)==7&&ir==2)irc=1; 
+	  if(isec==12&&std::abs(ieta-8)==6&&ir==2)irc=1;	 
 											   
     	  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcRElement_fromIdFields(kName, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1);  
     	  if( rpc == NULL ) continue;   

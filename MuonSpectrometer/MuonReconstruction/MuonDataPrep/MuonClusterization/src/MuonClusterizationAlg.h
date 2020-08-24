@@ -1,19 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCLUSTERIZATIONALG_H
 #define MUONCLUSTERIZATIONALG_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonClusterization/IMuonClusterizationTool.h"
 
-namespace Muon {
-  class MuonIdHelperTool;
-  class IMuonClusterizationTool;
-}
+#include <string>
 
 class MuonClusterizationAlg : public AthAlgorithm
 {
@@ -21,11 +17,10 @@ class MuonClusterizationAlg : public AthAlgorithm
   MuonClusterizationAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
  public:
-  virtual ~MuonClusterizationAlg();
+  virtual ~MuonClusterizationAlg()=default;
 
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
 
  private:
 
@@ -35,9 +30,7 @@ class MuonClusterizationAlg : public AthAlgorithm
   std::string m_rpcPrdLocationInput;        //!< Location of input RpcPrepData
   std::string m_rpcPrdLocationOutput;       //!< Location of output RpcPrepData
 
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelper;    //!< id helper Tool 
   ToolHandle<Muon::IMuonClusterizationTool> m_clusterTool;    //!< clustering Tool 
-
 };
 
 #endif 

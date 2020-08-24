@@ -42,7 +42,7 @@ atlas_add_component( iPatRecAlgs
                      src/IntersectorTest.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel iPatRecEvent iPatTrack GeoPrimitives xAODEventInfo InDetPrepRawData iPatInterfaces iPatTrackParameters iPatUtility TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkSpacePoint TrkTrack TrkTruthData TrkExInterfaces TrkExUtils TrkFitterInterfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel iPatRecEvent iPatTrack GeoPrimitives xAODEventInfo InDetPrepRawData iPatInterfaces iPatTrackParameters iPatUtility TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkSpacePoint TrkTrack TrkTruthData TrkExInterfaces TrkExUtils TrkFitterInterfaces GenInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( iPatRecAlgs )

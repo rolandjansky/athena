@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELLADDER_H
@@ -10,7 +10,7 @@ class GeoLogVol;
 class GeoPixelSiCrystal;
 class GeoPixelStaveSupport;
 
-class GeoPixelLadder : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelLadder : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
  public:
   GeoPixelLadder(GeoPixelSiCrystal& theSensor,
 		 GeoPixelStaveSupport * staveSupport);

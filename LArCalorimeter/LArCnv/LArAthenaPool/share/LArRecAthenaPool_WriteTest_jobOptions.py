@@ -72,7 +72,7 @@ include( "CaloRec/CaloCluster_jobOptions.py" )
 
 from CaloIdentifier import SUBCALO
 
-theApp.DLLs += [ "CaloTools" ]
+theApp.Dlls += [ "CaloTools" ]
 
 include( "CBNT_Athena/CBNT_Athena_jobOptions.py" )
 theApp.TopAlg += [ "CBNT_Athena/CBNT_Calo" ]

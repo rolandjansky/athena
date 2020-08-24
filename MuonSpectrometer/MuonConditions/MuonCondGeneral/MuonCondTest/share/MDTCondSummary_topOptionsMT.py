@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 run = "mc" ## "mc" or "dataR1" or "dataR2"
 
@@ -104,16 +104,8 @@ elif run=="dataR2":
 ## NEW Data Base Algorithms
 ##--------------------------------------------------------------
 
-from AthenaCommon.CfgGetter import getPublicTool
-
-from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
-MuonIdHelperTool = Muon__MuonIdHelperTool("Muon::MuonIdHelperTool")
-ToolSvc += MuonIdHelperTool
-#MuonIdHelperTool.OutputLevel = DEBUG
-
-
 from MuonCondAlg.MuonCondAlgConf import MdtCondDbAlg
-alg = MdtCondDbAlg("MdtCondDbAlg", IdHelper=getPublicTool("Muon::MuonIdHelperTool"))
+alg = MdtCondDbAlg("MdtCondDbAlg")
 
 if "mc" in run:
 	alg.isData = False

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 import xml.etree.cElementTree as ET
@@ -31,7 +31,7 @@ class TrigXMLElement:
         self._childtagdict = {}
         for c in self.children:
             self._childtagdict.setdefault(c.tag,[]).append(TrigXMLElement(c))
-            if not c.tag in self.childtags: self.childtags += [c.tag]
+            if c.tag not in self.childtags: self.childtags += [c.tag]
         for t in self.childtags:
             self.__dict__['%ss'%t] = self._childtagdict[t]
             if len(self._childtagdict[t])==1:
@@ -72,4 +72,4 @@ class MioctGeometryXMLReader(TrigXMLDocumentReader):
 if __name__ == "__main__":
     from PathResolver import PathResolver
     xmlfile = PathResolver.FindCalibFile("TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml")
-    l1menu = L1MenuXMLReader(xmlfile)
+    l1menu = MioctGeometryXMLReader(xmlfile)

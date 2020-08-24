@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODHIEvent/HIEventShape.h"
@@ -32,7 +32,7 @@ HLT::ErrorCode TrigHIEventShapeMaker::hltInitialize() {
   if( m_fillerTool.retrieve().isFailure() ) {
     return HLT::ERROR;
   }
-  m_fillerTool->SetContainerName(m_HIEventShapeContainerKey);
+  m_fillerTool->setContainerName(m_HIEventShapeContainerKey);
   return HLT::OK;
 }
 
@@ -56,40 +56,40 @@ HLT::ErrorCode TrigHIEventShapeMaker::hltExecute(const HLT::TriggerElement* inpu
     }
   */
 
-  if( m_fillerTool->InitializeCollection(shape).isFailure() ) {
+  if( m_fillerTool->initializeCollection(shape).isFailure() ) {
     ATH_MSG_ERROR("TrigHIEventShapeMaker failing on init");
     return HLT::ERROR;
   }
-  
 
-  if (m_use_calo_cell) 
+
+  if (m_use_calo_cell)
     {ATH_MSG_DEBUG("TrigHIEventShapeMaker will use cells");
-     if (m_fillerTool->FillCollectionFromCells(m_cell_container_key).isFailure() ) 
+     if (m_fillerTool->fillCollectionFromCells(m_cell_container_key).isFailure() )
        {ATH_MSG_ERROR("TrigHIEventShapeMaker failing on filling from cells");
         return HLT::ERROR;
        }
     }
   else
     {ATH_MSG_DEBUG("TrigHIEventShapeMaker will use towers");
-     if (m_fillerTool->FillCollectionFromTowers(m_tower_container_key).isFailure() )
+     if (m_fillerTool->fillCollectionFromTowers(m_tower_container_key).isFailure() )
        {ATH_MSG_ERROR("TrigHIEventShapeMaker failing on filling from towers");
         return HLT::ERROR;
-       }      
+       }
     }
 
 
 
-  ATH_MSG_DEBUG("Container name in TrigHIEventShapeMaker: " << m_fillerTool->GetContainerName() );
+  ATH_MSG_DEBUG("Container name in TrigHIEventShapeMaker: " << m_fillerTool->getContainerName() );
 
   auto status = attachFeature(outputTE, shape, m_HIEventShapeContainerKey);
   if ( status != HLT::OK ) {
     ATH_MSG_ERROR("TrigHIEventShapeMaker could not attach the event shape container");
-    return status;      
+    return status;
   }
   ATH_MSG_DEBUG("The event shape collection was attached as: " << m_HIEventShapeContainerKey);
 
-  
-  
+
+
 return HLT::OK;
 }
 

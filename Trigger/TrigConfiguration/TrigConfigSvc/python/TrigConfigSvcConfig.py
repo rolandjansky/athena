@@ -357,7 +357,7 @@ class SetupTrigConfigSvc(object):
                 if TriggerFlags.doLVL2() or TriggerFlags.doEF() or TriggerFlags.doHLT() or TriggerFlags.configForStartup()=='HLToffline':
                     self.mlog.info( "setup HLTConfigSvc and add instance to ServiceMgr (xml file="+self.hltXmlFile+")" )
                     hlt = HLTConfigSvc("HLTConfigSvc")
-                    hlt.XMLMenuFile = findFileInXMLPATH(self.hltXmlFile)
+                    hlt.XMLMenuFile = self.hltXmlFile
                     hlt.doMergedHLT = TriggerFlags.doHLT()
                     ServiceMgr += hlt
                 else:
@@ -366,12 +366,12 @@ class SetupTrigConfigSvc(object):
 
                 self.mlog.info( "setup LVL1ConfigSvc and add instance to ServiceMgr (xml file="+self.l1XmlFile+")" )
                 l1 = LVL1ConfigSvc("LVL1ConfigSvc")
-                l1.XMLMenuFile = findFileInXMLPATH(self.l1XmlFile)
+                l1.XMLMenuFile = self.l1XmlFile
                 ServiceMgr += l1
 
                 self.mlog.info( "setup L1TopoConfigSvc and add instance to ServiceMgr (xml file="+self.l1topoXmlFile+")" )
                 l1topo = L1TopoConfigSvc()
-                l1topo.XMLMenuFile = findFileInXMLPATH(self.l1topoXmlFile)
+                l1topo.XMLMenuFile = self.l1topoXmlFile
                 ServiceMgr += l1topo
 
 

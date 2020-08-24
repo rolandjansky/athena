@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 #include "TrkGeometry/LayerMaterialMap.h"
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
@@ -42,7 +42,7 @@ namespace Trk {
   
       @author Andreas.Salzburger@cern.ch */
      
-  class TrackingGeometrySvc : public AthService, virtual public ITrackingGeometrySvc {
+  class ATLAS_NOT_THREAD_SAFE TrackingGeometrySvc : public AthService, virtual public ITrackingGeometrySvc {
   
     public:
   

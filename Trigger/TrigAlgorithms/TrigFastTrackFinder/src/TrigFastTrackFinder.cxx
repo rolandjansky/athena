@@ -22,6 +22,7 @@
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
@@ -37,14 +38,11 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
-
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
 
-#include "TrigInDetPattRecoEvent/TrigL2TimeoutException.h"
 #include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 
 
@@ -56,13 +54,18 @@
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
-#include "TrigInDetToolInterfaces/ITrigL2ResidualCalculator.h"
 #include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
+
+//for GPU acceleration
+
+#include "TrigInDetAccelerationTool/ITrigInDetAccelerationTool.h"
+#include "TrigInDetAccelerationService/ITrigInDetAccelerationSvc.h"
+
 #include "TrigFastTrackFinder.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "CxxUtils/phihelper.h"
@@ -72,16 +75,22 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
+//for GPU acceleration
+
+#include "TrigAccelEvent/TrigInDetAccelEDM.h"
+#include "TrigAccelEvent/TrigInDetAccelCodes.h"
+
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
   HLT::FexAlgo(name, pSvcLocator), 
   m_numberingTool("TrigL2LayerNumberTool"), 
   m_spacePointTool("TrigSpacePointConversionTool"),
-  m_trigL2ResidualCalculator("TrigL2ResidualCalculator"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
-  m_trigZFinder("TrigZFinder"),
+  m_trigZFinder("TrigZFinder/TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
+  m_accelTool("TrigInDetAccelerationTool"), 
+  m_accelSvc("TrigInDetAccelerationSvc", name),
   m_doCloneRemoval(true),
   m_useBeamSpot(true),
   m_doZFinder(false),
@@ -97,7 +106,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_sctId(0),
   m_idHelper(0),
   m_particleHypothesis(Trk::pion),
-  m_useNewLayerNumberScheme(false)
+  m_useNewLayerNumberScheme(false), 
+  m_useGPU(false)
 {
 
   /** Doublet finding properties. */
@@ -149,7 +159,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "initialTrackMaker", m_trackMaker);
   declareProperty( "trigInDetTrackFitter",   m_trigInDetTrackFitter );
   declareProperty( "trigZFinder",   m_trigZFinder );
-  declareProperty( "TrigL2ResidualCalculator",   m_trigZFinder );
 
   declareProperty("TrackSummaryTool", m_trackSummaryTool);
   declareProperty( "doResMon",       m_doResMonitoring = true);
@@ -158,6 +167,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
 
   declareProperty("useNewLayerNumberScheme", m_useNewLayerNumberScheme = false);
+
+  declareProperty("useGPU", m_useGPU = false);
 
   // declare monitoring histograms
 
@@ -234,16 +245,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
   }
 
-  if (m_doResMonitoring) {
-    sc = m_trigL2ResidualCalculator.retrieve();
-    if ( sc.isFailure() ) {
-      msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endmsg;
-      return HLT::BAD_JOB_SETUP;
-    }
-  } else {
-    m_trigL2ResidualCalculator.disable();
-  }
-
   //Get ID helper
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
     ATH_MSG_ERROR("Could not get AtlasDetectorID helper AtlasID");
@@ -281,6 +282,28 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
+
+  if(m_useGPU) {//for GPU acceleration
+    sc = m_accelSvc.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve "<<m_accelSvc); 
+      m_useGPU = false;
+    }
+    if(!m_accelSvc->isReady()) {
+      ATH_MSG_INFO("Acceleration service not ready - no GPU found"); 
+      m_useGPU = false;
+    }
+    else {
+      sc = m_accelTool.retrieve();
+      if(sc.isFailure()) {
+        ATH_MSG_ERROR("Could not retrieve "<<m_accelTool); 
+        m_useGPU = false;
+      }
+    }
+  }
+
+  ATH_MSG_INFO("Use GPU acceleration : "<<std::boolalpha<<m_useGPU);
+  
   ATH_MSG_DEBUG(" Initialized successfully"); 
   return HLT::OK;
 }
@@ -312,9 +335,9 @@ namespace InDet {
   class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
   {
   public:
-    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key, const EventContext& ctx) { 
       if (!key.key().empty()) {
-        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key, ctx);
         if (!m_prdToTrackMap.isValid()) {
           throw std::runtime_error(std::string("Failed to get PRD to track map:") + key.key());
         }
@@ -356,8 +379,9 @@ namespace InDet {
 }
 
 StatusCode TrigFastTrackFinder::execute() {
+  auto ctx = getContext();
   //RoI preparation/update 
-  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
   ATH_CHECK(roiCollection.isValid());
   TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
   TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
@@ -368,11 +392,11 @@ StatusCode TrigFastTrackFinder::execute() {
   internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_countTotalRoI++;
 
-  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
+  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey, ctx);
   outputTracks = std::make_unique<TrackCollection>();
 
-  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
-  ATH_CHECK(findTracks(trackEventData, internalRoI, *outputTracks));
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap, ctx);
+  ATH_CHECK(findTracks(trackEventData, internalRoI, *outputTracks, ctx));
   
   return StatusCode::SUCCESS;
 }
@@ -388,7 +412,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
   }
   TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
   InDet::FexSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap.key());
-  StatusCode sc = findTracks(trackEventData, *internalRoI, *outputTracks);
+
+  StatusCode sc = findTracks(trackEventData, *internalRoI, *outputTracks, getContext());
   HLT::ErrorCode code = HLT::OK;
   if (sc != StatusCode::SUCCESS) {
     delete outputTracks;
@@ -407,7 +432,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
 
 StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trackEventData,
                                            const TrigRoiDescriptor& roi,
-                                           TrackCollection& outputTracks) const {
+                                           TrackCollection& outputTracks,
+                                           const EventContext& ctx) const {
   // Run3 monitoring ---------->
   auto mnt_roi_nTracks = Monitored::Scalar<int>("roi_nTracks", 0);
   auto mnt_roi_nSPs    = Monitored::Scalar<int>("roi_nSPs",    0);
@@ -433,7 +459,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   std::vector<TrigSiSpacePointBase> convertedSpacePoints;
   convertedSpacePoints.reserve(5000);
-  ATH_CHECK(m_spacePointTool->getSpacePoints( roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT));
+  ATH_CHECK(m_spacePointTool->getSpacePoints(roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT, ctx));
 
   mnt_timer_SpacePointConversion.stop();
   mnt_roi_nSPs    = mnt_roi_nSPsPIX + mnt_roi_nSPsSCT;
@@ -507,20 +533,31 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   mnt_timer_TripletMaking.start();
 
-  TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
+  std::vector<TrigInDetTriplet> triplets;
 
-  seedGen.loadSpacePoints(convertedSpacePoints);
 
-  if (m_doZFinder && m_doFastZVseeding) {
-    seedGen.createSeeds(tmpRoi.get(), vZv);
+  if(!m_useGPU) {
+    TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
+
+    seedGen.loadSpacePoints(convertedSpacePoints);
+
+    if (m_doZFinder && m_doFastZVseeding) {
+      seedGen.createSeeds(tmpRoi.get(), vZv);
+    }
+    else {
+      seedGen.createSeeds(tmpRoi.get());
+    }
+
+    seedGen.getSeeds(triplets);
   }
   else {
-    seedGen.createSeeds(tmpRoi.get());
+    //GPU offloading begins ...
+
+    makeSeedsOnGPU(m_tcs, tmpRoi.get(), convertedSpacePoints, triplets);
+
+    //GPU offloading ends ...
   }
-
-  std::vector<TrigInDetTriplet*> triplets;
-  seedGen.getSeeds(triplets);
-
+  
   ATH_MSG_DEBUG("number of triplets: " << triplets.size());
   mnt_timer_TripletMaking.stop();
   mnt_roi_lastStageExecuted = 4;
@@ -541,15 +578,15 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   bool PIX = true;
   bool SCT = true;
-  m_trackMaker->newTrigEvent(Gaudi::Hive::currentContext(), trackEventData, PIX, SCT);
+  m_trackMaker->newTrigEvent(ctx, trackEventData, PIX, SCT);
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
-    TrigInDetTriplet* seed = triplets[tripletIdx];
+    TrigInDetTriplet seed = triplets[tripletIdx];
 
-    const Trk::SpacePoint* osp1 = seed->s1().offlineSpacePoint();
-    const Trk::SpacePoint* osp2 = seed->s2().offlineSpacePoint();
-    const Trk::SpacePoint* osp3 = seed->s3().offlineSpacePoint();
+    const Trk::SpacePoint* osp1 = seed.s1().offlineSpacePoint();
+    const Trk::SpacePoint* osp2 = seed.s2().offlineSpacePoint();
+    const Trk::SpacePoint* osp3 = seed.s3().offlineSpacePoint();
 
     if(m_checkSeedRedundancy) {
       //check if clusters do not belong to any track
@@ -566,7 +603,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
     ++mnt_roi_nSeeds;
 
-    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, spVec);
+    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(ctx, trackEventData, spVec);
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {
@@ -592,7 +629,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   }
 
   m_trackMaker->endEvent(trackEventData);
-  for(auto& seed : triplets) delete seed;
 
   //clone removal
   if(m_doCloneRemoval) {
@@ -621,7 +657,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   mnt_timer_TrackFitter.start(); // Run3 monitoring
 
-  m_trigInDetTrackFitter->fit(initialTracks, outputTracks, m_particleHypothesis);
+  m_trigInDetTrackFitter->fit(initialTracks, outputTracks, ctx, m_particleHypothesis);
 
   if( outputTracks.empty() ) {
     ATH_MSG_DEBUG("REGTEST / No tracks fitted");
@@ -665,7 +701,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     m_countRoIwithTracks++;
 
   ///////////// fill vectors of quantities to be monitored
-  fillMon(outputTracks, *vertices, roi);
+  fillMon(outputTracks, *vertices, roi, ctx);
 
   mnt_roi_lastStageExecuted = 7; // Run3 monitoring
 
@@ -794,8 +830,8 @@ bool TrigFastTrackFinder::usedByAnyTrack(const std::vector<Identifier>& vIds, st
   return !xSection.empty();
 }
 
-void TrigFastTrackFinder::getBeamSpot(float& shift_x, float& shift_y) const {
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+void TrigFastTrackFinder::getBeamSpot(float& shift_x, float& shift_y, const EventContext& ctx) const {
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   Amg::Vector3D vertex = beamSpotHandle->beamPos();
   ATH_MSG_VERBOSE("Beam spot position " << vertex);
   double xVTX = vertex.x();
@@ -830,11 +866,11 @@ HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, 
 }
 
 void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, 
-                                  const TrigRoiDescriptor& roi) const {
+                                  const TrigRoiDescriptor& roi, const EventContext& ctx) const {
   float shift_x = 0;
   float shift_y = 0;
   if(m_useBeamSpot) {
-    getBeamSpot(shift_x, shift_y);
+    getBeamSpot(shift_x, shift_y, ctx);
   }
   auto mnt_roi_eta      = Monitored::Scalar<float>("roi_eta",      0.0);
   auto mnt_roi_phi      = Monitored::Scalar<float>("roi_phi",      0.0);
@@ -968,12 +1004,12 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
     // tighter selection for unbiased residuals
     bool goodTrack = std::fabs(pT)>1000. && (nPix + nSct/2) > 3 && nSct > 0;
     if (goodTrack && m_doResMonitoring) {
-      runResidualMonitoring(*track);
+      runResidualMonitoring(*track, ctx);
     }
   }
 }
 
-void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) const {
+void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const EventContext& ctx) const {
 
   // Run3 monitoring ---------->
   std::vector<float> mnt_layer_IBL;
@@ -1074,7 +1110,7 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) const {
 
   std::vector<TrigL2HitResidual> vResid;
   vResid.clear();
-  StatusCode scRes = m_trigL2ResidualCalculator->getUnbiasedResiduals(track,vResid);
+  StatusCode scRes = m_trigInDetTrackFitter->getUnbiasedResiduals(track,vResid, ctx);
   if(!scRes.isSuccess()) return;
   for(std::vector<TrigL2HitResidual>::iterator it=vResid.begin();it!=vResid.end();++it) {
     Identifier id = it->identify();
@@ -1202,3 +1238,48 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) const {
   }
 }
 
+void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, const IRoiDescriptor* roi, const std
+::vector<TrigSiSpacePointBase>& vsp, std::vector<TrigInDetTriplet>& output) const {
+  
+  output.clear();
+
+  TrigAccel::DATA_EXPORT_BUFFER* dataBuffer = new TrigAccel::DATA_EXPORT_BUFFER(5000);//i.e. 5KB
+
+  size_t actualSize = m_accelTool->exportSeedMakingJob(tcs, roi, vsp, *dataBuffer);
+
+  ATH_MSG_DEBUG("SeedMakingJob is ready, data size for transfer = " <<actualSize);
+
+  std::shared_ptr<TrigAccel::OffloadBuffer> pBuff = std::make_shared<TrigAccel::OffloadBuffer>(dataBuffer);
+  
+  TrigAccel::Work* pJob = m_accelSvc->createWork(TrigAccel::InDetJobControlCode::MAKE_SEEDS, pBuff);
+
+  if(pJob) {
+    ATH_MSG_DEBUG("Work item created for task "<<TrigAccel::InDetJobControlCode::MAKE_SEEDS);
+    
+    pJob->run();
+    
+    
+    std::shared_ptr<TrigAccel::OffloadBuffer> pOB = pJob->getOutput();
+    
+    TrigAccel::OUTPUT_SEED_STORAGE* pOutput = reinterpret_cast<TrigAccel::OUTPUT_SEED_STORAGE *>(pOB->m_rawBuffer);
+    
+    ATH_MSG_DEBUG("Found "<<pOutput->m_nSeeds<<" triplets on GPU");
+
+    int nTriplets = pOutput->m_nSeeds;
+
+    //copy seeds into the output buffer
+
+    output.clear();
+
+    for(int k=0;k<nTriplets;k++) {
+      const TrigSiSpacePointBase& SPi = vsp[pOutput->m_innerIndex[k]];
+      const TrigSiSpacePointBase& SPm = vsp[pOutput->m_middleIndex[k]];
+      const TrigSiSpacePointBase& SPo = vsp[pOutput->m_outerIndex[k]];
+      TrigInDetTriplet t(SPi, SPm, SPo, pOutput->m_Q[k]);
+      output.push_back(t);
+    }
+  }
+
+  delete pJob;
+  delete dataBuffer;
+}

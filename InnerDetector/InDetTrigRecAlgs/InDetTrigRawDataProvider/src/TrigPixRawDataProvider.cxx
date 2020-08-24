@@ -77,7 +77,7 @@ namespace InDet {
     } 
 
     //RDO container
-    m_container = new PixelRDO_Container(m_id->wafer_hash_max()); 
+    m_container = new PixelRDO_Container(m_id->wafer_hash_max(), EventContainers::Mode::OfflineFast); 
     m_container ->addRef();       // make sure it is never deleted
 
 

@@ -47,7 +47,6 @@ atlas_add_component( CaloCalibHitRec
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent xAODTruth GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver CxxUtils )
 
 # Install files from the package:
-atlas_install_headers( CaloCalibHitRec )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

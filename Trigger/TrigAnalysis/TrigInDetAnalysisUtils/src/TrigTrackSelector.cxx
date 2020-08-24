@@ -10,11 +10,13 @@
 
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
 
-  //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
-TrigTrackSelector::TrigTrackSelector( TrackFilter* selector ) : 
+#include "xAODTruth/TruthVertexContainer.h"
+
+
+TrigTrackSelector::TrigTrackSelector( TrackFilter* selector, double radius ) : 
     TrackSelector(selector), m_id(0), m_xBeam(0), m_yBeam(0), m_zBeam(0),
-    //m_first(true),
-    m_correctTrkTracks(false) {  } 
+    m_correctTrkTracks(false), 
+    m_radius(radius) {  } 
 
 
 bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap ) {     
@@ -260,7 +262,7 @@ void TrigTrackSelector::selectTracks( const Rec::TrackParticleContainer* trigtra
 
 
 
-// extract all the tracks from a TrackParticle collection and add them
+// extract all the tracks from a TruthParticle collection and add them
 void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks ) { 
     
     //    std::cout << "\t\t\tSUTT \tTrackParticleContainer->size() = " << trigtracks->size() << std::endl;
@@ -278,6 +280,24 @@ void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks 
     
 }
 
+// extract all the tracks from a xAOD::TruthParticle collection and add them
+void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* truthtracks ) { 
+    
+  xAOD::TruthParticleContainer::const_iterator  trackitr = truthtracks->begin();
+  xAOD::TruthParticleContainer::const_iterator  trackend = truthtracks->end();
+  
+  while ( trackitr!=trackend ) { 
+    
+    selectTrack( *trackitr );
+      
+    trackitr++;
+
+  } // loop over tracks
+    
+}
+
+
+// add a TruthParticle from a GenParticle - easy, bet it doesn't work 
 bool TrigTrackSelector::selectTrack( const HepMC::GenParticle* track ) {
   
     /// not a "final state" particle
@@ -312,6 +332,147 @@ bool TrigTrackSelector::selectTrack( const TruthParticle* track ) {
     }
     return true;
 }
+
+
+
+
+// add an xAOD::TruthParticle 
+bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) { 
+
+  if ( track ) { 
+        
+    // check it is a final state particle - documentation particles have status() == 3     
+    if ( track->status() != 1 ) return false;
+
+    /// lazy just to avoid a find-replace of measPer to track
+    const xAOD::TruthParticle* measPer = track;
+
+    double pT    = measPer->pt(); 
+    double eta   = measPer->eta();
+    double phi   = measPer->phi();
+  
+    // AAARCH!!!!! the TrackParticle pT is NOT SIGNED!!!! ( I ask you! ) 
+    if ( measPer->charge()<0 && pT>0 ) pT *= -1;
+
+    /// need to calculate the origin, and the beamline, and the d0 and z0 
+    /// with respect to the beamline
+    /// leave this in until we have checked whether everything is implemented correctly
+    //      double xbeam = getBeamX(); // track->vx(); 
+    //      double ybeam = getBeamY(); // track->vy(); 
+    //      double zbeam = getBeamZ(); // track->vz(); 
+      
+    if ( !track->hasProdVtx() ) return false; 
+
+    /// need to calculate d0 and z0 correctly.
+
+    double xp[3] = { measPer->prodVtx()->x(), measPer->prodVtx()->y(), measPer->prodVtx()->z() };
+
+    double theta = 2*std::atan( std::exp( -eta ) );
+    double z0 = xp[2] - (xp[0]*std::cos(phi) + xp[1]*std::sin(phi))/std::tan(theta);
+    double d0 = xp[1]*std::cos(phi) -  xp[0]*std::sin(phi);
+      
+    double xd[3] = { 0, 0, 0 };
+      
+    if ( track->hasDecayVtx() ) { 
+      xd[0] = track->decayVtx()->x();
+      xd[1] = track->decayVtx()->y();
+      xd[2] = track->decayVtx()->z();
+    }
+      
+    double rp = std::sqrt( xp[0]*xp[0] + xp[1]*xp[1] ); 
+    double rd = std::sqrt( xd[0]*xd[0] + xd[1]*xd[1] ); 
+      
+      
+    bool final_state = false; 
+      
+    /// the is our new "final state" requirement
+    /// the inner and outer radii are in some sense 
+    /// arbitrary - these correspond to an envelope
+    /// around the pixel detector, so the track must 
+    /// pass through the entire pixel detector 
+    /// NB: In order to ensure you don't miss any 
+    ///     tracks they really need to be the same
+    ///     ie if a track brems in your "volume"
+    ///     then you will miss that track, and
+    ///     also the resulting track, even if it is
+    ///     a high et track  
+    const double inner_radius = m_radius; /// was hardcoded as 47 - now this can be set from the constructor
+    const double outer_radius = m_radius;
+
+    if ( (  track->hasProdVtx() && rp<=inner_radius ) && 
+	 ( !track->hasDecayVtx() || rd>outer_radius ) ) final_state = true; 
+      
+    if ( !final_state ) return false; 
+    
+    double deta = 0;
+    double dphi = 0;
+    double dz0  = 0;
+    double dd0  = 0;
+
+    double dpT  = 0; 
+
+    int nBlayerHits = 0;
+    int nPixelHits  = 0;
+    int nSctHits    = 0;
+    int nStrawHits  = 0;
+    int nTrtHits    = 0;
+      
+    double chi2 = 0;
+    double dof  = 0;
+
+    bool expectBL = false;
+
+    nSctHits   += 0;
+    nPixelHits += 0;
+
+    /// get the total number of holes as well
+    int nSiHits     = 0;
+
+    unsigned long id = (unsigned long)track;
+
+    unsigned bitmap = 0;
+
+    int trackAuthor = track->pdgId();
+    int barcode     = track->barcode();
+
+#if 0
+    std::cout << "\t\t\tSUTT TP track" 
+	      << "\teta=" << eta  
+	      << "\tphi=" << phi  
+	      << "\tz0="  << z0 
+	      << "\tpT="  << pT 
+	      << "\td0="  << d0
+	      << "\tfitter=" << fitter
+	      << "\tauthor=" << trackAuthor
+	      << "\tVTX x " << xp[0]<< "\ty " << xp[1] << "\tz " << xp[2] 
+	      << std::endl;
+#endif
+
+    // Create and save Track
+      
+    TIDA::Track* t = new TIDA::Track( eta,   phi,  z0,  d0,  pT, chi2, dof,
+				      deta,  dphi, dz0, dd0, dpT,
+				      nBlayerHits, nPixelHits, nSctHits, nSiHits,
+				      nStrawHits,  nTrtHits,   bitmap, 0,
+				      trackAuthor,  false, barcode, -1,  
+				      expectBL, id) ;  
+
+    /// useful debug info - leave in
+    //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
+      
+    if ( !addTrack( t ) ){
+      delete t;
+      return false;
+    }
+
+    return true;
+      
+  }
+  return false;
+     
+}
+
+
 
 
 // make a TIDA::Track from a GenParticle 
@@ -838,11 +999,11 @@ bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 	if ( patternrec[ipr] ) {
 	  icount++;
 	  trackAuthor |= (ipr >> 16);
-	  static bool first = true;
-	  if ( first && icount>1 ) { 
-	    std::cerr << "more than one pattern rec strategy " << ipr << "\t(suppressing further output)" << std::endl;
-	    first = false;
-	  }
+	  // static bool first = true;
+	  // if ( first && icount>1 ) { 
+	  //   std::cerr << "more than one pattern rec strategy " << ipr << "\t(suppressing further output)" << std::endl;
+	  //   first = false;
+	  // }
 	}
       }
       

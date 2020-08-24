@@ -21,17 +21,7 @@
 
 // standard stuff
 #include <string>
-// general athena stuff
-//#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/IToolSvc.h"
-//#include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/HypoAlgo.h"
-
-////#include "TrigTimeAlgs/TrigTimerSvc.h"
-//#include "TrigInDetEvent/TrigVertexCollection.h"
-//#include "TrigParticle/TrigL2Bphys.h"
-//#include "TrigParticle/TrigL2BphysContainer.h"
-//
 
 class TrigBphysHelperUtilsTool;
 

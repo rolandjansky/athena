@@ -61,6 +61,8 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
+#include "CxxUtils/checker_macros.h"
+
 //#include "driftCircle.h" // local copy for debugging and development
 
 //_____________________________________________________________________________
@@ -87,7 +89,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::initialize()
+StatusCode TRTDigitizationTool::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe detStore()->regFcn (callback) is used.
 {
 
   ATH_MSG_DEBUG ( name()<<"::initialize() begin" );
@@ -153,10 +155,12 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
   //Retrieve TRT_CalDbTool
-  ATH_CHECK(m_calDbTool.retrieve());
-
-  // Get the magnetic field service
-  ATH_CHECK(m_magneticfieldsvc.retrieve());
+  if (m_settings->getT0FromData()) {
+    ATH_CHECK(m_calDbTool.retrieve());
+  }
+  else {
+    m_calDbTool.disable();
+  }
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
 
@@ -186,7 +190,7 @@ StatusCode TRTDigitizationTool::initialize()
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return StatusCode::SUCCESS;
@@ -321,14 +325,15 @@ StatusCode TRTDigitizationTool::lateInitialize(const EventContext& ctx) {
 
   ITRT_SimDriftTimeTool *pTRTsimdrifttimetool = &(*m_TRTsimdrifttimetool);
 
-  MagField::IMagFieldSvc *pMagfieldsvc = &(*m_magneticfieldsvc);
-  const ITRT_CalDbTool* calDbTool=m_calDbTool.get();
+  const ITRT_CalDbTool* calDbTool = nullptr;
+  if (m_settings->getT0FromData()) {
+    calDbTool = m_calDbTool.get();
+  }
   m_pProcessingOfStraw =
     new TRTProcessingOfStraw( m_settings,
                               m_manager,
                               TRTpaiToolXe,
                               pTRTsimdrifttimetool,
-                              pMagfieldsvc,
                               m_pElectronicsProcessing,
                               m_pNoise,
                               m_pDigConditions,
@@ -361,11 +366,11 @@ StatusCode TRTDigitizationTool::processStraws(const EventContext& ctx,
   if (m_settings->useMagneticFieldMap()) {
       
     // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
     if (fieldCondObj == nullptr) {
-        ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
         return StatusCode::FAILURE;
     }
     fieldCondObj->getInitializedCache (fieldCache);
@@ -428,10 +433,11 @@ StatusCode TRTDigitizationTool::processStraws(const EventContext& ctx,
     // Fill a vector of deposits
     depositVector.clear();
     depositVector.reserve(std::distance(i,e));
+    const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
     for (TimedHitCollection<TRTUncompressedHit>::const_iterator hit_iter(i); hit_iter != e; ++hit_iter ) {
-
+      const HepMcParticleLink::PositionFlag idxFlag = (hit_iter->eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX; // suspect that we could use evtIndex here rather than hit_iter->eventId()
       // create a new deposit
-      InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId()), (*hit_iter)->GetEnergyDeposit() );
+      InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId(), evColl, idxFlag), (*hit_iter)->GetEnergyDeposit() );
       if(deposit.first.barcode()==0 || deposit.first.barcode() == m_vetoThisBarcode){
         continue;
       }

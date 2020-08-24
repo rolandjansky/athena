@@ -1,9 +1,6 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-// $Id$
 /**
  * @file DataModelTestDataCommon/src/CondReaderAlg.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -113,6 +110,7 @@ StatusCode CondReaderAlg::execute (const EventContext& ctx) const
     for (size_t i = 0; i < m_spins; i++) {
       {
         SG::ReadCondHandle<AthenaAttributeList> attrList (m_attrListKey, ctx);
+        // cppcheck-suppress internalAstError;  work around cppcheck 2.0 parse failure
         xx += (**attrList)[xint].template data<int>();
       }
       {

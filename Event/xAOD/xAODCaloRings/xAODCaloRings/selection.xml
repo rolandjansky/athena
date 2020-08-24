@@ -1,92 +1,46 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <enum pattern="Ringer::*"/>
+   <!-- xAOD::RingSet interface type(s). -->
+   <class name="xAOD::RingSet_v1" />
+   <class name="xAOD::RingSetContainer_v1"
+          id="C9CFE7DE-44E4-40AF-8CBF-6CCCB8FB0A8F" />
+   <typedef name="xAOD::RingSet" />
+   <typedef name="xAOD::RingSetContainer" />
 
-  <!-- RingSet dictionaries: -->
-  <class name="xAOD::RingSet_v1" />
-  <class name="AtlasGeoPoint" />
+   <!-- xAOD::RingSet auxiliary type(s). -->
+   <class name="xAOD::RingSetAuxContainer_v1"
+          id="18C4774A-EE60-4E78-843D-02B6235FBCF4" />
+   <typedef name="xAOD::RingSetAuxContainer" />
 
-  <!-- RingSet_v1 (Aux)Container -->
-  <class name="xAOD::RingSetContainer_v1"
-         id="C9CFE7DE-44E4-40AF-8CBF-6CCCB8FB0A8F" />
-  <class name="xAOD::RingSetAuxContainer_v1"
-         id="18C4774A-EE60-4E78-843D-02B6235FBCF4" />
+   <!-- xAOD::RingSetConf interface type(s). -->
+   <class name="xAOD::RingSetConf_v1" />
+   <class name="xAOD::RingSetConf_v1::RawConf" />
+   <class name="xAOD::RingSetConf_v1::RawConfCollection" />
+   <class name="xAOD::RingSetConfContainer_v1"
+          id="A3E47D26-235E-49BC-8D9A-52A9CA097D7D" />
+   <typedef name="xAOD::RingSetConf" />
+   <typedef name="xAOD::RingSetConfContainer" />
 
-  <!-- Smart pointers to RingSet_v1: -->
-  <class name="DataLink<xAOD::RingSetContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::RingSetContainer_v1> >" />
-  <class name="ElementLink<xAOD::RingSetContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::RingSetContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::RingSetContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::RingSetContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<DataVector<xAOD::RingSet_v1> > > >" />
+   <!-- xAOD::RingSetConf auxiliary type(s). -->
+   <class name="xAOD::RingSetConfAuxContainer_v1"
+          id="B080CC3F-D375-49BE-B400-F4B3115417FD" />
+   <typedef name="xAOD::RingSetConfAuxContainer" />
 
-  <!-- RingSetConf dictionaries: -->
-  <class name="xAOD::RingSetConf_v1" />
-  <class name="xAOD::RingSetConf_v1::RawConf" />
-  <class name="xAOD::RingSetConf_v1::RawConfCollection" />
+   <!-- xAOD::CaloRings interface type(s). -->
+   <class name="xAOD::CaloRings_v1" />
+   <class name="xAOD::CaloRingsContainer_v1"
+          id="AC758B30-A488-4AC5-AB42-34B1C97CFE44" />
+   <typedef name="xAOD::CaloRings" />
+   <typedef name="xAOD::CaloRingsContainer" />
 
-  <!-- RingSet_v1 (Aux)Container -->
-  <class name="xAOD::RingSetConfContainer_v1"
-         id="A3E47D26-235E-49BC-8D9A-52A9CA097D7D" />
-  <class name="xAOD::RingSetConfAuxContainer_v1"
-         id="B080CC3F-D375-49BE-B400-F4B3115417FD" />
+   <!-- xAOD::CaloRings auxiliary type(s). -->
+   <class name="xAOD::CaloRingsAuxContainer_v1"
+          id="581CAE9D-55D9-445A-9D64-2013091FE019" />
+   <typedef name="xAOD::CaloRingsAuxContainer" />
 
-  <!-- Smart pointers to RingSet_v1: -->
-  <class name="DataLink<xAOD::RingSetConfContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::RingSetConfContainer_v1> >" />
-  <class name="ElementLink<xAOD::RingSetConfContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::RingSetConfContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::RingSetConfContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::RingSetConfContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<DataVector<xAOD::RingSetConf_v1> > > >" />
-
-  <!-- Needed by RootCore -->
-  <class name="std::vector<CaloSampling::CaloSample>" />
-
-  <!-- CaloRings_v1 dictionaries: -->
-  <class name="xAOD::CaloRings_v1">
-    <!--<field name="m_ringsets" transient="true" /> -->
-  </class>
-
-  <!-- Pool read xAOD::CaloRings_v1  -->
-  <!--
-  <read sourceClass="xAOD::CaloRings_v1" version="[1-]"
-    targetClass="xAOD::CaloRings_v1" source="" 
-    target="m_isRingSetCached" >
-    <![CDATA[
-       m_isRingSetCached = false;
-    ]]>
-  </read>
-  -->
-
-  <!-- CaloRings_v1 (Aux)Container -->
-  <class name="xAOD::CaloRingsContainer_v1"
-         id="AC758B30-A488-4AC5-AB42-34B1C97CFE44" />
-  <class name="xAOD::CaloRingsAuxContainer_v1"
-         id="581CAE9D-55D9-445A-9D64-2013091FE019" />
-
-  <!-- Smart pointers to CaloRings_v1: -->
-  <class name="DataLink<xAOD::CaloRingsContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::CaloRingsContainer_v1> >" />
-  <class name="ElementLink<xAOD::CaloRingsContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::CaloRingsContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::CaloRingsContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::CaloRingsContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<DataVector<xAOD::CaloRings_v1> > > >" />
-
-  <!-- FIXME Copied from xAODEgamma. Kept for future reference, if needed. -->
-
-  <!-- Objects from the namespace -->
-  <!-- <variable pattern="xAOD::EgammaParameters::*" /> -->
-  
-  <!--Add Helper Functions -->
-  <!--<function pattern="xAOD::EgammaHelpers::*" /> --> 
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <!-- <exclusion>
-    <class pattern="*CollectionItr*" />
-  </exclusion> -->
+   <!-- Additional type(s). -->
+   <class name="AtlasGeoPoint" />
+   <enum pattern="Ringer::*" />
 
 </lcgdict>

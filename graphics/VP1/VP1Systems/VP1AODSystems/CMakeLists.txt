@@ -62,4 +62,4 @@ else()
 endif()
 
 # Install files from the package:
-atlas_install_runtime( textures/*.png )
+atlas_install_runtime( textures/*.jpg )

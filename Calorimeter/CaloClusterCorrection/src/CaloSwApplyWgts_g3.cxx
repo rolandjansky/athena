@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -149,24 +149,9 @@ const float CaloSwApplyWgts_g3::m_table_p[4][s_numEtaBins] = {
   }
 };
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
-CaloSwApplyWgts_g3::CaloSwApplyWgts_g3(const std::string& type,
-                                       const std::string& name,
-                                       const IInterface* parent)
-  : CaloClusterCorrection(type, name, parent)
-{ }
-
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloSwApplyWgts_g3::~CaloSwApplyWgts_g3()
-{ }
-
 // make correction to one cluster 
-void CaloSwApplyWgts_g3::makeCorrection(const EventContext& /*ctx*/,
-                                        CaloCluster* cluster) const
+void CaloSwApplyWgts_g3::makeCorrection (const Context& /*myctx*/,
+                                         CaloCluster* cluster) const
 {
 
   

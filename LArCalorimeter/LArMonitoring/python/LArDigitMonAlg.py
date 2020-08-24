@@ -2,7 +2,7 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-def LArDigitMonConfigOld(inputFlags, topSequence):
+def LArDigitMonConfigOld(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArDigitMonAlg
 

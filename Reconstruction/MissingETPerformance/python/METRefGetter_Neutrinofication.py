@@ -71,8 +71,9 @@ def getStandardCalibTool(doAtlfastII=False):
 
     if(doAtlfastII) : tag = "CaloH1WeightsConeTopoAtlfastII-00-000"					            
 													            
-    cellcalibtool.detStoreKey = key									            
-    conddb.addFolder("CALO",folder+' <tag>'+tag+'</tag>')						            
+    cellcalibtool.DBHandleKey = key
+    conddb.addFolder("CALO",folder+' <tag>'+tag+'</tag>',
+                     className = 'CaloRec::ToolConstants')
 
     # checking....											            
     # print (' tname is ',tname )

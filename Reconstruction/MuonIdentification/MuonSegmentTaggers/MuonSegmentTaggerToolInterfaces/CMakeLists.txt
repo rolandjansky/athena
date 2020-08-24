@@ -13,6 +13,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters )
 
-# Install files from the package:
-atlas_install_headers( MuonSegmentTaggerToolInterfaces )
+atlas_add_library( MuonSegmentTaggerToolInterfaces
+                   MuonSegmentTaggerToolInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonSegmentTaggerToolInterfaces
+                   LINK_LIBRARIES GaudiKernel MuonCombinedEvent TrkEventPrimitives MuonSegmentMakerToolInterfaces TrkParameters )
+
 

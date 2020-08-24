@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,12 +65,11 @@ namespace InDet {
                             const Identifier& ideh, const IdentifierHash& ideHash ) const 
         {
           // find the collection
-          typename Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >::const_iterator prdCollIter = cont.indexFind(ideHash);
-          if ( prdCollIter == cont.end() ){
+          const Trk::PrepRawDataCollection< PrdT >* prdCollection = cont.indexFindPtr(ideHash);
+          if ( prdCollection == nullptr ){
               ATH_MSG_VERBOSE("PRD Collection to IdentifierHash could not be found. Return 0.");
               return 0;
           }
-          const Trk::PrepRawDataCollection< PrdT >* prdCollection = (*prdCollIter);
           // search for the PRD in the collection --- do a loop, can be done better with std::find probably
           const PrdT* prd = 0;
           // iterate through the collections
@@ -90,19 +89,19 @@ namespace InDet {
                                                     
         const PixelID*                              m_pixIdHelper;
         std::string                                 m_pixClusterContainerName;          
-        mutable const PixelClusterContainer*        m_pixClusterContainer;              
+        const PixelClusterContainer*                m_pixClusterContainer;
         // For P->T converter of Pixel Clusters
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
         
         const SCT_ID*                               m_sctIdHelper;                      
         std::string                                 m_sctClusterContainerName;          
-        mutable const SCT_ClusterContainer*         m_sctClusterContainer;              
+        const SCT_ClusterContainer*                 m_sctClusterContainer;
         // For P->T converter of SCT_Clusters
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
         
         const TRT_ID*                               m_trtIdHelper;                      
         std::string                                 m_trtDriftCircleContainerName;      
-        mutable const TRT_DriftCircleContainer*     m_trtDriftCircleContainer;          
+        const TRT_DriftCircleContainer*             m_trtDriftCircleContainer;
 
   };
 

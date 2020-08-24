@@ -1,25 +1,7 @@
-################################################################################
-# Package: ControlTest
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ControlTest )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   AtlasTest/TestTools
-   Control/AthenaExamples/AthExFortranAlgorithm
-   Control/AthenaExamples/AthExStoreGateExample
-   Control/AthenaPython
-   PRIVATE
-   Control/AthContainers
-   Control/AthLinks
-   Control/AthenaExamples/ToyConversion
-   Control/AthenaKernel
-   Control/SGTools
-   Control/StoreGate
-   GaudiKernel )
 
 # Helper variable(s):
 set( _jobOPath

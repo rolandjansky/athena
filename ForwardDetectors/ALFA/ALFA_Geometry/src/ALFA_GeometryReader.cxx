@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdlib.h>
@@ -149,7 +149,7 @@ void ALFA_GeometryReader::TransformFiberPositionsFCSCladding(PFIBERPARAMS pFiber
 	{
 	case EFT_UFIBER:
 	case EFT_VFIBER:
-		if(pFiberParams->nPlateID<1 && pFiberParams->nPlateID>10)
+		if(pFiberParams->nPlateID<1 || pFiberParams->nPlateID>10)
 		{
 			LogStream<<MSG::ERROR<<"Wrong PlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endmsg;
 			return;
@@ -163,7 +163,7 @@ void ALFA_GeometryReader::TransformFiberPositionsFCSCladding(PFIBERPARAMS pFiber
 		case EFT_ODFIBERU1:
 		case EFT_ODFIBERV0:
 		case EFT_ODFIBERV1:
-		if(pFiberParams->nPlateID<1 && pFiberParams->nPlateID>3)
+		if(pFiberParams->nPlateID<1 || pFiberParams->nPlateID>3)
 		{
 			LogStream<<MSG::ERROR<<"Wrong ODPlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endmsg;
 			return;
@@ -1654,7 +1654,7 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::PrintGeometry");
 
-	if(m_eFCoordSystem!=EFCS_CLADDING || m_eFCoordSystem!=EFCS_ATLAS){
+	if(m_eFCoordSystem!=EFCS_CLADDING && m_eFCoordSystem!=EFCS_ATLAS){
 		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
 		return;
 	}

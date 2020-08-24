@@ -35,7 +35,7 @@ nEvents = -1
 
 # Tell Athena about the input file(s)
 from ByteStreamCnvSvc import ReadByteStream
-svcMgr.ByteStreamInputSvc.FullFileName = InFiles
+svcMgr.EventSelector.Input = InFiles
 
 topSequence = CfgMgr.AthSequencer("AthAlgSeq")
 

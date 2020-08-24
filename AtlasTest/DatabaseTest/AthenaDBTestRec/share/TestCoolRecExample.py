@@ -21,12 +21,6 @@ svcMgr.IOVDbSvc.OutputLevel=3
 svcMgr.IOVDbSvc.ManageConnections=False
 
 #--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-# include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-svcMgr.AthenaSealSvc.CheckDictionary=True
-
-#--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 from AthenaDBTestRec.AthenaDBTestRecConf import TestCoolRecRead

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 
 __doc__ = "ToolFactories to configure egammaAlgs to be used at the HLT" 
@@ -17,7 +17,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEMShowerBuilder, TrigEgammaDecorationTools
 
 """ Importing all the tool components """
-from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVASvc, EGammaAmbiguityTool
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper
     
@@ -38,7 +38,7 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
                                               name = 'TrigElectronSuperClusterBuilder',
                                               InputEgammaRecContainerName = TrigEgammaKeys.EgammaRecKey,
                                               SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-                                              ClusterCorrectionTool=egammaSwTool,
+                                              ClusterCorrectionTool=egammaSwSuperClusterTool,
                                               MVACalibSvc=egammaMVASvc,
                                               EtThresholdCut=1000,
                                               TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
@@ -71,4 +71,3 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
             #MonTool = monTool
             )
     return TrigTopoEgammaElectron()
-

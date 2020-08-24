@@ -9,7 +9,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 1.3 $"
 __author__  = "Sebastien Binet"
 
 import os
@@ -146,7 +145,7 @@ if __name__ == "__main__":
             capabilities = dsoDb.capabilities(libName)
             print ("::: capabilities of [%s]" % libName)
             print (os.linesep.join( [ "  "+str(c) for c in capabilities ] ))
-        except ValueError as err:
+        except ValueError:
             sc = 1
             pass
 
@@ -159,7 +158,7 @@ if __name__ == "__main__":
                 print (" -",k)
                 print (os.linesep.join( [ "  "+str(v) for v in dups[k] ] ))
             if len(dups.keys())>0: sc = 1
-        except ValueError as err:
+        except ValueError:
             sc = 1
             pass
         

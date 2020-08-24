@@ -13,7 +13,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // PerfMonTests includes
 #include "PerfMonTestLeakyAlg.h"

@@ -41,12 +41,9 @@
 - PhysicsAnalysis/JetPhys/SemileptonicCorr
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
-#- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
-- PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
-- Reconstruction/Jet/JetJvtEfficiency
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 
@@ -54,9 +51,6 @@
 # until we have Run 3 Tier-0 ops
 #- DataQuality/DataQualityConfigurations
 #- DataQuality/DCSCalculator2
-
-# obsolete packages to be removed in a second step
-- Tracking/TrkTools/TrkSegmentConverter
 
 # Huge D3PD librarys not really useful any more
 - PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
@@ -69,5 +63,3 @@
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
 
-# MdtCalibDbAsciiTool might be removed from athena, disable compilation
-- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibDbAsciiTool

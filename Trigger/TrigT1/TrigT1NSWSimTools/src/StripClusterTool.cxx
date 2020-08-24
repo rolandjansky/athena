@@ -1,24 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
+#include "TrigT1NSWSimTools/StripClusterTool.h"
+
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-
-// local includes
-#include "TrigT1NSWSimTools/StripClusterTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
-
-// Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
-// random numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -29,17 +23,14 @@
 #include <map>
 #include <utility>
 
-
-
 namespace NSWL1 {
 
     StripClusterTool::StripClusterTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
       m_rndmSvc("AtRndmGenSvc",name),
-      m_detManager(0),
-      m_sTgcIdHelper(0),
-      m_tree(0),
+      m_detManager(nullptr),
+      m_tree(nullptr),
       m_clusters()
     {
       declareInterface<NSWL1::IStripClusterTool>(this);
@@ -47,17 +38,12 @@ namespace NSWL1 {
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
     }
 
-    StripClusterTool::~StripClusterTool() {
-    }
-
-
-
   StatusCode StripClusterTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
     ATH_MSG_INFO( name() << " configuration:");
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-    std::string algo_name = pnamed->name();
+    const std::string& algo_name = pnamed->name();
     if ( m_doNtuple && algo_name=="NSWL1Simulation" ){
       ITHistSvc* tHistSvc;
       ATH_CHECK(service("THistSvc", tHistSvc));
@@ -74,11 +60,9 @@ namespace NSWL1 {
 
     // retrieve the Random Service
     ATH_CHECK(m_rndmSvc.retrieve());
-    //  retrieve the MuonDetectormanager
+    // retrieve the MuonDetectormanager
     ATH_CHECK(detStore()->retrieve( m_detManager ));
-    //  retrieve the sTGC offline Id helper
-    ATH_CHECK(detStore()->retrieve( m_sTgcIdHelper ));
-
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -387,7 +371,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       
       StripData* prev_hit=nullptr;
       int first_ch=(*hit)->channelId();//channel id of the first strip
-      ATH_MSG_DEBUG("Cluster Hits :" << (*hit)->channelId() << " " << m_sTgcIdHelper->gasGap( (*hit)->Identity())
+      ATH_MSG_DEBUG("Cluster Hits :" << (*hit)->channelId() << " " << m_idHelperSvc->stgcIdHelper().gasGap( (*hit)->Identity())
 		    << "   " <<   (*hit)->moduleId() << "   " << (*hit)->sectorId() << "   " <<(*hit)->wedge()
 		    << "  "<< (*hit)->sideId()  );
       hit++;//S.I is this ncessary ?
@@ -395,7 +379,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       for(auto & this_hit : strips){
 	      if(!(this_hit)->readStrip() )continue;
           if( ((this_hit)->bandId()==-1 || this_hit->phiId()==-1) ){
-	       ATH_MSG_WARNING("Read Strip without BandId :" << (this_hit)->channelId() << " " << m_sTgcIdHelper->gasGap( (this_hit)->Identity())
+	       ATH_MSG_WARNING("Read Strip without BandId :" << (this_hit)->channelId() << " " << m_idHelperSvc->stgcIdHelper().gasGap( (this_hit)->Identity())
 		      << "   " <<   (this_hit)->moduleId() << "   " << (this_hit)->sectorId() << "   " <<(this_hit)->wedge()
 		      << "  "<< (this_hit)->sideId()   );
 	       continue;

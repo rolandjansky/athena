@@ -59,13 +59,13 @@ namespace Muon {
     virtual ~MuonClusterOnTrack();
     
     /** @brief Clone this ROT */
-    virtual MuonClusterOnTrack* clone()const=0  ;
+    virtual MuonClusterOnTrack* clone() const override = 0;
 
     /** @brief Returns the Trk::PrepRawData - is a MuonCluster in this scope*/
-    virtual const MuonCluster* prepRawData() const = 0;
+    virtual const MuonCluster* prepRawData() const override = 0;
 
     /** @brief Returns global position */
-    virtual const Amg::Vector3D& globalPosition() const;
+    virtual const Amg::Vector3D& globalPosition() const override;
 
     virtual double positionAlongStrip() const {
       return m_positionAlongStrip;
@@ -75,17 +75,21 @@ namespace Muon {
     virtual IdentifierHash collectionHash() const;
 
     /** @brief Returns an invalid hash */
-    virtual IdentifierHash idDE() const ; 
-    
-    /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual IdentifierHash idDE() const override;
+
+    virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
+    {
+      return (type == Trk::RIO_OnTrackType::MuonCluster);
+    }
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override;
+
+    /** @brief Dumps information about the PRD*/
+    virtual std::ostream& dump( std::ostream& stream) const override;
     
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
-    virtual const MuonGM::MuonClusterReadoutElement* detectorElement() const = 0;
-
+    virtual const MuonGM::MuonClusterReadoutElement* detectorElement() const override = 0;
 
   protected:
     /** cache global position, the global position has to be calculated in the inheriting classes */
@@ -98,7 +102,7 @@ namespace Muon {
     friend class  ::MuonClusterOnTrackCnv_p1;
 
     /** Used by custom convertors*/
-    virtual void setValues(const Trk::TrkDetElementBase*, const Trk::PrepRawData*) = 0 ;
+    virtual void setValues(const Trk::TrkDetElementBase*, const Trk::PrepRawData*) override = 0 ;
     
   };
 

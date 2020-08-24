@@ -124,14 +124,13 @@ class PixelConditionsServicesSetup:
           elif (runNum >= 222222 and runNum < 289350): # 2015
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
           else:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                     UseDeadmapConditions=self.usePixMap,
                                     UseDCSStateConditions=self.useDCS,
                                     UseDCSStatusConditions=self.useDCS,
                                     UseTDAQConditions=self.useTDAQ,     # should be false. This is only valid in RUN-1.
-                                    ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                     UseCalibConditions=True,
                                     UseCablingConditions=useCablingConditions,
                                     CablingMapFileName=IdMappingDat)
@@ -190,16 +189,15 @@ class PixelConditionsServicesSetup:
     #########################
     # TDAQ Conditions Setup #
     #########################
-    TrigPixelTDAQConditionsTool = None
-    PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
     if self.useTDAQ:
+      PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
       PixelTDAQInstance = "TDAQ_ONL"
       if not conddb.folderRequested(PixelTDAQFolder):
         conddb.addFolder(PixelTDAQInstance, PixelTDAQFolder, className="CondAttrListCollection")
 
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-      condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
+      if not hasattr(condSeq, "PixelTDAQCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
 
     ############################
     # Conditions Summary Setup #
@@ -638,6 +636,18 @@ class TRTConditionsServicesSetup:
     # Argon straw list
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
+
+    #these conditions were instantiated together with specific tools using them in InDetTrigRecLoadTools
+    #now required for the condAlg
+    if not (conddb.folderRequested("/TRT/Calib/PID_vector") or \
+            conddb.folderRequested("/TRT/Onl/Calib/PID_vector")):
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector",className='CondAttrListVec')
+    if not (conddb.folderRequested("/TRT/Calib/ToT/ToTVectors") or \
+            conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTVectors")):
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTVectors","/TRT/Calib/ToT/ToTVectors",className='CondAttrListVec')
+    if not (conddb.folderRequested("/TRT/Calib/ToT/ToTValue") or \
+            conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
     # Straw status tool (now private, cannot be passed by name)
     from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool

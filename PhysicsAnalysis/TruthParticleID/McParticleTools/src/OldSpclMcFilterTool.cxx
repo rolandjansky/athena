@@ -162,7 +162,7 @@ StatusCode OldSpclMcFilterTool::selectSpclMcBarcodes()
 
   // Get all of the generated particles (does not have Geant secondaries)
 
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   if ( m_includeSimul ) {
     sc = m_tesIO->getMC(particles,  m_mcEventsReadHandleKey.key());
   } else {
@@ -179,26 +179,24 @@ StatusCode OldSpclMcFilterTool::selectSpclMcBarcodes()
 
   // Loop over all particles, selecting special ones
   // keep track of them using their barcodes
-  std::vector<const HepMC::GenParticle*>::iterator part  = particles.begin();
-  std::vector<const HepMC::GenParticle*>::iterator partE = particles.end();
 
-  for ( ; part != partE; ++part ) {
+  for (auto part : particles) {
 
-    const int id      = (*part)->pdg_id();
+    const int id      = part->pdg_id();
     const int ida     = std::abs(id);
-    const HepMC::FourVector hlv = (*part)->momentum();
+    const HepMC::FourVector hlv = part->momentum();
     const double pt   = hlv.perp();
     const double eta  = hlv.pseudoRapidity();
     const double mass = hlv.m();
-    const int barcode = (*part)->barcode();
+    const int barcode = part->barcode();
 
-    const HepMC::GenVertex * decayVtx = (*part)->end_vertex();
-    const HepMC::GenVertex * prodVtx  = (*part)->production_vertex();
+    const HepMC::GenVertex * decayVtx = part->end_vertex();
+    const HepMC::GenVertex * prodVtx  = part->production_vertex();
 
     bool isSpcl = false;
 
     /// skip stuff with no end-vertex
-    if( (*part)->status() != 1 && !decayVtx ) continue;
+    if( part->status() != 1 && !decayVtx ) continue;
 
     const bool accept = pt > m_ptMin;
 
@@ -208,19 +206,19 @@ StatusCode OldSpclMcFilterTool::selectSpclMcBarcodes()
 
     /// stable particles
     if (m_includeSimul ) {
-        if ( isGSStable(*part) && accept && std::fabs(eta) < m_etaRange ) isSpcl = true;
+        if ( isGSStable(part) && accept && std::abs(eta) < m_etaRange ) isSpcl = true;
     } else {
-        if ( isStable(*part) && accept && std::fabs(eta) < m_etaRange ) isSpcl = true;
+        if ( isStable(part) && accept && std::abs(eta) < m_etaRange ) isSpcl = true;
     }
     // e, mu, tau, neutrino 
     // Hard coded cut pt>2GeV to remove beam-jet Dalitz decays, etc.
-    if( ida>10 && ida<17 && pt>2.*GeV && std::fabs(eta) < m_etaRange ) isSpcl = true;
+    if( ida>10 && ida<17 && pt>2.*GeV && std::abs(eta) < m_etaRange ) isSpcl = true;
 
    /// Save photons
    ///
-   if ( ida==22 && pt>m_ptGamMin && std::fabs(eta) < m_etaRange ) {
+   if ( ida==22 && pt>m_ptGamMin && std::abs(eta) < m_etaRange ) {
      /// Save photon only if it does not decay (ie no end_vertex)
-     if ( 0 == (*part)->end_vertex() ) {
+     if ( 0 == part->end_vertex() ) {
         isSpcl=true;
      } 
    } 
@@ -262,7 +260,7 @@ StatusCode OldSpclMcFilterTool::selectSpclMcBarcodes()
     // eliminates (if asked to) parton showers like q -> qg.
     // But should not delete particle if child is from GEANT.
     if( isSpcl && decayVtx ) {
-      HepMC::GenVertex * dcyVtx = (*part)->end_vertex();
+      HepMC::GenVertex * dcyVtx = part->end_vertex();
       HepMC::GenVertex::particle_iterator child  = dcyVtx->particles_begin(HepMC::children);
       HepMC::GenVertex::particle_iterator childE = dcyVtx->particles_end(HepMC::children);
       for(; child != childE; ++child) {
@@ -301,8 +299,8 @@ StatusCode OldSpclMcFilterTool::selectSpclMcBarcodes()
 
     // Children
     if( isSpcl && decayVtx ) {
-      HepMC::GenVertex::particle_iterator child  = (*part)->end_vertex()->particles_begin(HepMC::children);
-      HepMC::GenVertex::particle_iterator childE = (*part)->end_vertex()->particles_end(HepMC::children);
+      HepMC::GenVertex::particle_iterator child  = part->end_vertex()->particles_begin(HepMC::children);
+      HepMC::GenVertex::particle_iterator childE = part->end_vertex()->particles_end(HepMC::children);
       for(; child != childE; ++child) {
         if( isGenerator(*child) && !m_removeDecayToSelf) { 
 	  m_barcodes.insert((*child)->barcode());// its not there already

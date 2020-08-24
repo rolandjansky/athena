@@ -14,7 +14,6 @@
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "GaudiKernel/SystemOfUnits.h"
 // std
@@ -27,7 +26,6 @@ Trk::ExtrapolatorTest::ExtrapolatorTest(const std::string& name, ISvcLocator* pS
   AthAlgorithm(name,pSvcLocator),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_propagator("Trk::RungeKuttaPropagator/RungeKuttaPropagator"),
-  m_magFieldSvc("AtlasFieldSvc",name),
   m_magFieldProperties(0),
   m_gaussDist(0),
   m_flatDist(0),
@@ -48,7 +46,6 @@ Trk::ExtrapolatorTest::ExtrapolatorTest(const std::string& name, ISvcLocator* pS
   // used algorithms and alg tools
   declareProperty("Extrapolator",                m_extrapolator);
   declareProperty("Propagator",                  m_propagator);
-  declareProperty("MagFieldSvc",   m_magFieldSvc );
 
   // algorithm steering
   declareProperty("StartPerigeeSigmaD0"       , m_sigmaD0);
@@ -109,10 +106,6 @@ StatusCode Trk::ExtrapolatorTest::initialize()
         return StatusCode::FAILURE;
   }
 
-  if (m_magFieldSvc.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve Tool " << m_magFieldSvc << ". Exiting."<<endmsg;
-        return StatusCode::FAILURE;
-  }
   m_magFieldProperties = new Trk::MagneticFieldProperties();
 
   if (m_referenceSurfaceRadius.size() == m_referenceSurfaceHalflength.size()) {

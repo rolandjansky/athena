@@ -1,41 +1,20 @@
-################################################################################
-# Package: TrigMonitoringEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigMonitoringEvent )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
-                          Control/AthenaKernel
-                          Trigger/TrigDataAccess/TrigSerializeCnvSvc
-                          Trigger/TrigEvent/TrigNavigation )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-find_package( tdaq-common )
 
 # Component(s) in the package:
 atlas_add_library( TrigMonitoringEvent
                    src/*.cxx
                    PUBLIC_HEADERS TrigMonitoringEvent
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthContainers TrigSteeringEvent TrigSerializeCnvSvcLib TrigNavigationLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel )
+                   LINK_LIBRARIES AthContainers AthenaKernel TrigSerializeCnvSvcLib
+                   PRIVATE_LINK_LIBRARIES TrigNavigationLib )
 
 atlas_add_sercnv_library( TrigMonitoringEventSerCnv
                           FILES TrigMonitoringEvent/TrigMonEvent.h TrigMonitoringEvent/TrigMonEventCollection.h TrigMonitoringEvent/TrigMonConfig.h TrigMonitoringEvent/TrigMonConfigCollection.h
-                          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                          LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers TrigSteeringEvent AthenaKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigMonitoringEvent )
+                          LINK_LIBRARIES TrigMonitoringEvent )
 
 atlas_add_dictionary( TrigMonitoringEventDict
                       TrigMonitoringEvent/TrigMonitoringEventDict.h
                       TrigMonitoringEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers TrigSteeringEvent AthenaKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigMonitoringEvent )
-
+                      LINK_LIBRARIES TrigMonitoringEvent )

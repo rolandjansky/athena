@@ -1,14 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MdtRdoToPrepDataTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMdtRdoToPrepDataTool_H
 #define MUONMdtRdoToPrepDataTool_H
-
+     
 #include "MdtRdoToPrepDataToolCore.h"
 
 namespace Muon 
@@ -31,13 +27,10 @@ namespace Muon
     MdtRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);
 
     /** default destructor */
-    virtual ~MdtRdoToPrepDataTool ();
+    virtual ~MdtRdoToPrepDataTool()=default;
 
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
-    
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize() override;
       
   protected:
     virtual SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer() override;

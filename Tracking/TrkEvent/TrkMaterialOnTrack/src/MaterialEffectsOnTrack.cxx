@@ -3,12 +3,12 @@
 */
 
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
+#include "GaudiKernel/MsgStream.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkSurfaces/Surface.h"
-#include "GaudiKernel/MsgStream.h"
+#include <cassert>
 #include <string>
-#include <assert.h>
 
 // typedef Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes nmetypes;
 

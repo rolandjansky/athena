@@ -23,19 +23,17 @@ def generateChainConfigs(chainDict):
         Muon = MuonChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Muon]
-
         
 
     if len(listOfChainDefs)>1:
-         ## if 'noL1' in chainDict['chainName']:
-         ##    theChainDef = mergeSerial(listOfChainDefs)
-         ## else:
-            theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
+        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 
     return theChainDef
 
+
+# this is obsolete: can we remove ? FP
 def mergeSerial(listOfChainDefs):
 
     chaindef = listOfChainDefs[0]

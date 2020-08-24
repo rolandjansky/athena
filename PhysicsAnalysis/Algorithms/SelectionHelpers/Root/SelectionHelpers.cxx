@@ -11,7 +11,7 @@
 
 #include <SelectionHelpers/SelectionHelpers.h>
 
-#include <PATCore/TAccept.h>
+#include <PATCore/AcceptData.h>
 
 //
 // method implementations
@@ -29,7 +29,7 @@ namespace CP
 
 
 
-  SelectionType selectionFromAccept (const Root::TAccept& accept)
+  SelectionType selectionFromAccept (const asg::AcceptData& accept)
   {
     return ~SelectionType (accept.getCutResultInvertedBitSet().to_ulong());
   }

@@ -1,16 +1,12 @@
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Authors: joao victor pinto <jodafons@cern.ch>
 
 
 from TrigMultiVarHypo.TrigMultiVarHypoConf        import TrigL2CaloRingerFex, TrigL2CaloRingerHypo
 from AthenaCommon.SystemOfUnits                   import GeV
 from TrigMultiVarHypo.TrigL2CaloRingerHypoTool    import _GetPath
-from TrigMultiVarHypo.TrigL2CaloRingerHypoMonitoring import TrigL2CaloRingerHypoValidationMonitoring, \
-                                                            TrigL2CaloRingerHypoOnlineMonitoring,\
-                                                            TrigL2CaloRingerHypoTimeMonitoring,\
-                                                            TrigL2CaloRingerFexTimeMonitoring
- 
+
 
 # Call all Trigger Ringer Fast configurations here!
 class TrigL2CaloRingerFexBase( TrigL2CaloRingerFex ):
@@ -21,10 +17,6 @@ class TrigL2CaloRingerFexBase( TrigL2CaloRingerFex ):
     self.HltFeature = "TrigRingerNeuralFex"
     self.Feature    = "TrigT2CaloEgamma"
     
-    #time       = TrigL2CaloRingerFexTimeMonitoring()
-    #self.AthenaMonTools = [ time ]
-    #self.doTiming = True
-
 
 #  The multi layer perceptron and preprocessing step is called by
 #  Fex because we store the output network. So to complete the trigger
@@ -34,7 +26,6 @@ class TrigL2CaloRingerFex( TrigL2CaloRingerFexBase ):
   def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerFex, self ).__init__( name ) 
 
-    from AthenaCommon.AppMgr import ToolSvc
     from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
     LuminosityCondAlgOnlineDefault()
     pconstants,pthresholds=_GetPath(trigType,IDinfo)
@@ -91,12 +82,6 @@ class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
     self.EmEtCut    = (float(threshold) - 3)*GeV
     pconstants,pthresholds=_GetPath(trigType,IDinfo)
     self.CalibPath = pthresholds
-    #validation = TrigL2CaloRingerHypoValidationMonitoring()       
-    #online     = TrigL2CaloRingerHypoOnlineMonitoring()
-    #time       = TrigL2CaloRingerHypoTimeMonitoring()
-    #self.AthenaMonTools = [ time, validation, online ]
-    #self.doTiming = True
-
 
 
 class TrigL2CaloRingerHypo_NoCut(TrigL2CaloRingerHypo):
@@ -106,11 +91,6 @@ class TrigL2CaloRingerHypo_NoCut(TrigL2CaloRingerHypo):
     super( TrigL2CaloRingerHypo_NoCut, self ).__init__( name ) 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = True
-    #validation = TrigL2CaloRingerHypoValidationMonitoring()       
-    #online     = TrigL2CaloRingerHypoOnlineMonitoring()
-    #time       = TrigL2CaloRingerHypoTimeMonitoring()
-    #self.AthenaMonTools = [ time, validation, online ]
-    #self.doTiming = True
 
 
 class TrigL2CaloRingerHypo_EtCut(TrigL2CaloRingerHypo):
@@ -121,13 +101,6 @@ class TrigL2CaloRingerHypo_EtCut(TrigL2CaloRingerHypo):
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
     self.EmEtCut    = (float(threshold) - 3)*GeV
-    #validation = TrigL2CaloRingerHypoValidationMonitoring()       
-    #online     = TrigL2CaloRingerHypoOnlineMonitoring()
-    #time       = TrigL2CaloRingerHypoTimeMonitoring()
-    #self.AthenaMonTools = [ time, validation, online ]
-    #self.doTiming = True
-
-
 
 
 #helper function for combined

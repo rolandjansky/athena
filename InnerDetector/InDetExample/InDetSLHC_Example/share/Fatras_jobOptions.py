@@ -210,7 +210,7 @@ if FatrasFlags.ReconstructionID() :
          TrkValNtupleWriter.TrackTruthCollection += [ FatrasKeyFlags.RefittedTrackCollection()+'Truth' ]
 
 if not FatrasFlags.ReconstructionID() :
-   if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()):
+   if (InDetFlags.doNtupleCreation() or InDetFlags.doPhysValMon()):
 
     if 'TrkValNtupleWriter' in dir() :
      # get the keys from outside

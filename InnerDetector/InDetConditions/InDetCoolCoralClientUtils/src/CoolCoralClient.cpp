@@ -7419,7 +7419,7 @@ void COOLCORALClient::UpdateIoVROCTable(int uid,long long time, const std::strin
 //------------------------------------------------------
 /// Read TTC information from the DB for one TTC module
 /// identified by an input int (identifier) and print on std out
-int COOLCORALClient::GetTags(){
+int COOLCORALClient::GetTags ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ctime is used.
     
   std::string TAG_TABLE="HISTORY";
 
@@ -9279,7 +9279,7 @@ int COOLCORALClient::DiffHistValues(const std::vector<Detector_t>& Detectors){
 //------------------------------------------------------
 /// Read TTC information from the DB for one TTC module
 /// identified by an input int (identifier) and print on std out
-int COOLCORALClient::GetRichTags(){
+int COOLCORALClient::GetRichTags ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ctime is used.
     
   std::string TAG_TABLE="HISTORY";
 

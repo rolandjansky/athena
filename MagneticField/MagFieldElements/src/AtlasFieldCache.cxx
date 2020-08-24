@@ -12,24 +12,22 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 
 /// Constructor
-MagField::AtlasFieldCache::AtlasFieldCache() {}
+MagField::AtlasFieldCache::AtlasFieldCache() = default;
 
 MagField::AtlasFieldCache::AtlasFieldCache(double solFieldScale,
                                            double torFieldScale,
-                                           const AtlasFieldMap* fieldMap,
-                                           bool useNewBfieldCache)
-  : // temporary flag
-  m_useNewBfieldCache(useNewBfieldCache)
-  , m_solScale(solFieldScale)
-  , m_torScale(torFieldScale)
-  ,
-  // Get solenoid zone id from field service
-  m_solZoneId(fieldMap->solenoidZoneId())
-  ,
-  // set field service
-  m_fieldMap(fieldMap)
+                                           const AtlasFieldMap* fieldMap)
+  :
+    m_solScale(solFieldScale),
+    m_torScale(torFieldScale),
+    // set field service
+    m_fieldMap(fieldMap)
 
 {
-  // save ZR bfield
-  m_meshZR = m_fieldMap->getBFieldMesh();
+    if (m_fieldMap) {
+        // save ZR bfield
+        m_meshZR = m_fieldMap->getBFieldMesh() ;
+        // Get solenoid zone id from field service
+        m_solZoneId = fieldMap->solenoidZoneId();
+    }
 }

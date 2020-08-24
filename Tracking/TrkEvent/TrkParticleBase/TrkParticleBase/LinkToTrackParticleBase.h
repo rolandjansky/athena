@@ -5,37 +5,41 @@
 #ifndef TRKPARTICLEBASE_LINKTOTRACKPARTICLEBASE_H
 #define TRKPARTICLEBASE_LINKTOTRACKPARTICLEBASE_H
 
-#include "TrkTrackLink/ITrackLink.h"
-#include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "AthLinks/ElementLink.h"
+#include "TrkParticleBase/TrackParticleBaseCollection.h"
+#include "TrkTrackLink/ITrackLink.h"
 
-namespace Trk
+namespace Trk {
+
+class LinkToTrackParticleBase
+  : public ITrackLink
+  , public ElementLink<TrackParticleBaseCollection>
 {
 
- 
- class LinkToTrackParticleBase : public ITrackLink, public ElementLink<TrackParticleBaseCollection>
- {
- 
-   public:
-    /** default constructor (needed for persistency) */
-    LinkToTrackParticleBase( );
-    
-    /** constructor with ElementLink */
-    LinkToTrackParticleBase( ElementLink<TrackParticleBaseCollection>& link);
-    
-    /** default destructor */
-    virtual ~LinkToTrackParticleBase() = default;
-   
-    /** return the track parameters of the track (to which the EL< TrackParticleBaseCollection > points) */
-    const TrackParameters * parameters() const;
+public:
+  /** default constructor (needed for persistency) */
+  LinkToTrackParticleBase();
 
-    /** return the neutral parameters of the NeutralParticle) */
-    const NeutralParameters* neutralParameters() const {return nullptr;};
-    
-    /** method to clone the LinkToTrack object */
-    LinkToTrackParticleBase * clone() const ;
-    
- };//end of class definitions
-}//end of namespace definitions
+  /** constructor with ElementLink */
+  LinkToTrackParticleBase(ElementLink<TrackParticleBaseCollection>& link);
 
-#endif //LINKTOTRACKPARTICLEBASE_H
+  /** default destructor */
+  virtual ~LinkToTrackParticleBase() = default;
+
+  /** return the track parameters of the track (to which the EL<
+   * TrackParticleBaseCollection > points) */
+  virtual const TrackParameters* parameters() const override final;
+
+  /** return the neutral parameters of the NeutralParticle) */
+  virtual const NeutralParameters* neutralParameters() const override final { return nullptr; }
+
+  /** method to clone the LinkToTrack object */
+  virtual LinkToTrackParticleBase* clone() const override final;
+
+  virtual ITrackLinkType type() const override final {
+    return ToTrackParticleBase;
+  }
+}; // end of class definitions
+} // end of namespace definitions
+
+#endif // LINKTOTRACKPARTICLEBASE_H

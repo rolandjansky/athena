@@ -17,7 +17,7 @@
 #define MUONPREPRAWDATA_MUONCLUSTER_H
 
 // Base classes
-#include "TrkPrepRawData/PrepRawData.h" 
+#include "TrkPrepRawData/PrepRawData.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -37,21 +37,21 @@ namespace Muon
   {
 
   public:
-    
+
     /**@brief Default constructor.
-    
+
     For use by POOL only - do not use! */
     MuonCluster();
     MuonCluster(const MuonCluster &);
-    MuonCluster(MuonCluster &&);
+    MuonCluster(MuonCluster &&) noexcept = default;
     MuonCluster &operator=(const MuonCluster &);
-    MuonCluster &operator=(MuonCluster &&);
+    MuonCluster &operator=(MuonCluster &&) noexcept = default;
 
     /** @brief Full constructor.
        @param RDOId The channel identifier of the central measurement of the cluster.
        @param collectionHash the hash associated with the PRD collection in storegate
        @param locpos The position of the cluster in the surface reference frame.
-                the first coordinate is the precision coordinate, the second is set to 
+                the first coordinate is the precision coordinate, the second is set to
                 the centre of the strip. Ownership passes to this object!
        @param rdoList List of channels associated with cluster
        @param locErrMat The measurement errors. Ownership passes to this object!
@@ -65,7 +65,7 @@ namespace Muon
 
     /** @brief Destructor*/
     virtual ~MuonCluster();
-    
+
     /** @brief Returns the global position of the measurement (calculated on the fly) */
     virtual const Amg::Vector3D& globalPosition() const = 0;
 
@@ -74,19 +74,22 @@ namespace Muon
 
     /** @brief Returns the detector element corresponding to this PRD.
     The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
-    virtual const MuonGM::MuonClusterReadoutElement* detectorElement() const = 0;
+    virtual const MuonGM::MuonClusterReadoutElement* detectorElement() const override = 0;
+
+    /** Interface method checking the type*/
+    virtual bool type(Trk::PrepRawDataType::Type type) const override = 0;
 
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override;
 
   protected:
     /**@brief Global position of measurement.
     Calculated on demand and cached */
     CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
-    
+
   };
 
   // /////////////////////////////////////////////////////////////////
@@ -99,7 +102,7 @@ namespace Muon
   {
       return getHashAndIndex().collHash();
   }
-  
+
 
 }
 

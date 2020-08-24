@@ -17,6 +17,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include "TrigBphysMonitoring/IBphysTrigDiMuDecoratorTool.h"
 
@@ -61,10 +62,10 @@ class BphysTrigDecoratorAlg
   /// Default constructor: 
   BphysTrigDecoratorAlg();
 
-    ToolHandleArray<IBphysTrigDiMuDecoratorTool> m_decorators;
+  ToolHandleArray<IBphysTrigDiMuDecoratorTool> m_decorators{this, "Decorators", {}};
     
   /// Containers
-    std::string m_pvCandidatesKey,m_JpsiCandidatesKey;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_JpsiCandidatesKey{this, "JpsiContainerName", "JpsiCandidates"};
 
 
 }; 

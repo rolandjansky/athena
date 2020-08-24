@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -10,8 +10,10 @@
 //               Michiel Sanders, Ludwig-Maximilans-Universitaet Muenchen
 //
 /////////////////////////////////////////////////////////////
+#include <cmath>
+#include <set>
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "TruthUtils/GeneratorName.h"
@@ -23,9 +25,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 
-#include <cmath>
-#include <set>
-
+#include "AtlasHepMC/Relatives.h"
 
 HforTool::HforTool(const std::string& type, const std::string& name, const IInterface* parent)
 	: AthAlgTool(type, name, parent),
@@ -80,7 +80,6 @@ StatusCode HforTool::execute() {
 
         testSampleType();
 
- 	//checkSampleType();
  	if (m_sampleType == "") {
 	  ATH_MSG_DEBUG("Used sample doesn't need any heavy flavor overlap removal!");
 	  return StatusCode::FAILURE;
@@ -224,7 +223,6 @@ void HforTool::findHFQuarks() {
   m_Quarks_unknown.clear() ;
   m_ShowerGenerator.clear() ;
 
-  // AtlasReconstruction/15.6.6/PhysicsAnalysis/AnalysisCommon/ParticleJetTools/src/JetQuarkLabel.cxx
   // get the McEventCollection from StoreGate
 
   // if we don't know yet which store gate key to use, find it here
@@ -263,7 +261,7 @@ void HforTool::findHFQuarks() {
     return ;
   }
   // find out which generator was used for this event,
-  int g_id(evt->signal_process_id()) ;
+  int g_id(HepMC::signal_process_id(evt)) ;
   const std::string gen1 = generator_string(first_generator(g_id));
   const std::string gen2 = generator_string(second_generator(g_id));
   const std::string gen3 = generator_string(third_generator(g_id));
@@ -274,54 +272,52 @@ void HforTool::findHFQuarks() {
     m_ShowerGenerator = "HERWIG" ;
   if ( !m_ShowerGenerator.size() ) {
     if ( m_DefaultShowerGenerator.size() ) {
-      ATH_MSG_INFO("Shower generator type not found in the event; using "
-		    << m_DefaultShowerGenerator << " instead") ;
+      ATH_MSG_INFO("Shower generator type not found in the event; using "<< m_DefaultShowerGenerator << " instead") ;
       m_ShowerGenerator = m_DefaultShowerGenerator ;
     } else {
-      ATH_MSG_WARNING("Shower generator type unknown ("
-		      << gen1 << "," << gen2 << "," << gen3 << ")") ;
+      ATH_MSG_WARNING("Shower generator type unknown ("<< gen1 << "," << gen2 << "," << gen3 << ")") ;
       return ;
     }
   }
 
   // vectors with the initial and final state b/c quarks; ie, initial or final
   // in the parton shower; ignore b/c quarks from b/c-hadron decays
-  std::map< int,std::vector<const HepMC::GenParticle*> > finalstate_q ;
+  std::map< int,std::vector<HepMC::ConstGenParticlePtr> > finalstate_q ;
 
   // get the GenEvent, assume it's the first one in the McEventCollection
-  HepMC::GenEvent::particle_const_iterator pitr = evt->particles_begin();
-  for (; pitr != evt->particles_end(); ++pitr) {
-    int pdg = (*pitr)->pdg_id();
+  for (auto  bcpart: *evt) {
+    int pdg = bcpart->pdg_id();
     int apdg = std::abs(pdg) ;
     if (apdg == 5 || apdg == 4) { // b or c quark
-      const HepMC::GenParticle * bcpart = (*pitr) ;
-      ATH_MSG_DEBUG("pdg = " << pdg << ": " << *bcpart);
+      ATH_MSG_DEBUG("pdg = " << pdg << ": " << bcpart);
 
       // find the production vertex and parents
-      HepMC::GenVertex * prodvtx = bcpart->production_vertex() ;
+      auto prodvtx = bcpart->production_vertex() ;
       bool hasbchadronparent(false) ;
       bool hasmpiparent(false) ;
       bool hastopparent(false) ;
       bool hasWparent(false) ;
       if ( prodvtx ) {
-	ATH_MSG_DEBUG("  prod vtx: " << *prodvtx);
-
+	ATH_MSG_DEBUG("  prod vtx: " << prodvtx);
 	// check that there is no b/c-hadron as a parent
 	// also find mpi and top parents
-	HepMC::GenVertex::particle_iterator pin =
-	  prodvtx->particles_begin(HepMC::parents) ;
-	for (; pin != prodvtx->particles_end(HepMC::parents) && !hasbchadronparent; pin++) {
-	  ATH_MSG_DEBUG("    incoming: " << *(*pin));
-	  int pdgin(abs((*pin)->pdg_id())) ;
+#ifdef HEPMC3
+	for (auto pin: prodvtx->particles_in()){
+#else
+	for (auto pin_it = prodvtx->particles_begin(HepMC::parents); pin_it != prodvtx->particles_end(HepMC::parents); pin_it++) {
+          auto pin=*pin_it;
+#endif
+          if(hasbchadronparent) break;
+	  ATH_MSG_DEBUG("    incoming: " << pin);
+	  int pdgin(std::abs(pin->pdg_id())) ;
 
 	  if ( (pdgin%10000)/1000 == apdg || (pdgin%1000)/100 == apdg )
 	    hasbchadronparent = true ;
 	  // also reject the c-quarks from a b-quark/hadron decay
-	  if ( apdg == 4 && ( pdgin == 5 || (pdgin%10000)/1000 == 5 ||
-			      (pdgin%1000)/100 == 5 ) )
+	  if ( apdg == 4 && ( pdgin == 5 || (pdgin%10000)/1000 == 5 ||(pdgin%1000)/100 == 5 ) )
 	    hasbchadronparent = true ;
 	  // Herwig specific
-	  if ( pdgin == 0 && (*pin)->status() == 120 )
+	  if ( pdgin == 0 && pin->status() == 120 )
 	    hasmpiparent = true ;
 	  if ( pdgin == 6 ) {
 	    hastopparent = true ;
@@ -343,14 +339,14 @@ void HforTool::findHFQuarks() {
       auto decayvtx = bcpart->end_vertex() ;
       bool hasbcquarkdaughter(false) ;
       if ( !hasbchadronparent && decayvtx ) {
-	ATH_MSG_DEBUG("  decay vtx: " << *decayvtx);
+	ATH_MSG_DEBUG("  decay vtx: " << decayvtx);
 
 	// check whether there are only non-b/c-quark daughters
-	HepMC::GenVertex::particle_iterator pout =
-	  decayvtx->particles_begin(HepMC::children) ;
-	for (; pout != decayvtx->particles_end(HepMC::children) && !hasbcquarkdaughter; pout++) {
-	  ATH_MSG_DEBUG("    outgoing: " << *(*pout));
-	  int pdgout(abs((*pout)->pdg_id())) ;
+	for (auto pout: *decayvtx)
+        {
+          if (hasbcquarkdaughter) break;
+	  ATH_MSG_DEBUG("    outgoing: " << pout);
+	  int pdgout(std::abs(pout->pdg_id())) ;
 	    if ( pdgout == apdg )
 	      hasbcquarkdaughter = true ;
 	}
@@ -360,7 +356,7 @@ void HforTool::findHFQuarks() {
 
 	// if no b/c-hadron parent and no b/c-quark daughter, keep it!
       if (!hasbchadronparent && !hasbcquarkdaughter) {
-	ATH_MSG_DEBUG("  final state b/c-quark, barcode = "<< bcpart->barcode());
+	ATH_MSG_DEBUG("  final state b/c-quark, barcode = "<< HepMC::barcode(bcpart));
 	finalstate_q[apdg].push_back(bcpart) ;
       }
 
@@ -376,8 +372,8 @@ void HforTool::findHFQuarks() {
     } // particle is a b or a c quark
 
   } // loop over all particles in the GenEvent
-
-  // the rest of the classification depends on whether the shower
+  
+    // the rest of the classification depends on whether the shower
   // was generated with Pythia or with Herwig
   if ( m_ShowerGenerator == "HERWIG" )
     findHFQuarksHerwig(finalstate_q) ;
@@ -385,18 +381,18 @@ void HforTool::findHFQuarks() {
     findHFQuarksPythia(finalstate_q) ;
     // print out vtx -5 (the Alpgen ME process) if there are HF quarks and
     // only in DEBUG mode
+    // Actually it does not make much sense.
     if ( msgLvl(MSG::DEBUG) && finalstate_q.size() ) {
       ATH_MSG_DEBUG("print out vertex -5") ;
-      auto vtx5(evt->barcode_to_vertex(-5)) ;
+      auto vtx5=HepMC::barcode_to_vertex(evt,-5) ;
       if (vtx5) {
-	for ( HepMC::GenVertex::particle_iterator pin =
-		vtx5->particles_begin(HepMC::parents) ;
-	      pin != vtx5->particles_end(HepMC::parents); pin++)
-	  ATH_MSG_DEBUG("    incoming: " << *(*pin));
-	for ( HepMC::GenVertex::particle_iterator pout =
-		vtx5->particles_begin(HepMC::children) ;
-	      pout != vtx5->particles_end(HepMC::children); pout++)
-	  ATH_MSG_DEBUG("    outgoing: " << *(*pout));
+#ifdef HEPMC3
+	for ( auto pin = vtx5->particles_in().begin() ; pin != vtx5->particles_in().end(); pin++)      ATH_MSG_DEBUG("    incoming: " << (*pin));
+	for ( auto pout = vtx5->particles_out().begin() ; pout != vtx5->particles_out().end(); pout++) ATH_MSG_DEBUG("    outgoing: " << (*pout));
+#else
+	for ( auto pin = vtx5->particles_begin(HepMC::parents) ; pin != vtx5->particles_end(HepMC::parents); pin++)      ATH_MSG_DEBUG("    incoming: " << (*pin));
+	for ( auto pout = vtx5->particles_begin(HepMC::children) ; pout != vtx5->particles_end(HepMC::children); pout++) ATH_MSG_DEBUG("    outgoing: " << (*pout));
+#endif
       }
     } // print out vtx -5 if there are HF quarks and in DEBUG mode
   } // Pythia shower
@@ -415,7 +411,7 @@ void HforTool::findHFQuarks() {
 ////////////////////////////////////////////////////////////////////////
 // Find the specifics for HF quarks in a Herwig shower
 void HforTool::findHFQuarksHerwig
-  (const std::map< int,std::vector<const HepMC::GenParticle*> >
+  (const std::map< int,std::vector<HepMC::ConstGenParticlePtr> >
    & finalstate_q )
 ////////////////////////////////////////////////////////////////////////
 {
@@ -429,8 +425,8 @@ void HforTool::findHFQuarksHerwig
 
     // second loop over the final state quarks
     for ( auto bcpart: ipdg.second) {
-      ATH_MSG_DEBUG("final state b/c " << *bcpart);
-      auto prodvtx(bcpart->production_vertex()) ;
+      ATH_MSG_DEBUG("final state b/c " << bcpart);
+      auto prodvtx=bcpart->production_vertex() ;
       bool isMPI(false) ;
       bool isGS(false) ;
       bool isME(false) ;
@@ -445,20 +441,27 @@ void HforTool::findHFQuarksHerwig
 	isPDF = true ;
       }
       if ( !isPDF && prodvtx ) {
-	HepMC::GenVertex::particle_iterator pin = prodvtx->particles_begin(HepMC::ancestors) ;
-	for ( ; pin != prodvtx->particles_end(HepMC::ancestors) && !iscquarkfromb && !isPDF ; pin++ ) {
-	  int apdgin = std::abs((*pin)->pdg_id()) ;
+#ifdef HEPMC3
+	for (auto  pin: HepMC::ancestor_particles(prodvtx)) {
+#else
+	HepMC::GenVertex::particle_iterator prodvtx_particles_begin = prodvtx->particles_begin(HepMC::ancestors) ;
+	HepMC::GenVertex::particle_iterator prodvtx_particles_end =    prodvtx->particles_end(HepMC::ancestors) ;
+	for (auto  pin_it=prodvtx_particles_begin;  pin_it!= prodvtx_particles_end ; pin_it++ ) {
+          auto pin=*pin_it;
+#endif
+          if (iscquarkfromb || isPDF) break;
+	  int apdgin = std::abs(pin->pdg_id()) ;
 	  if (apdgin != apdg ) {
-	    ATH_MSG_DEBUG("  non b/c parent " << *(*pin));
+	    ATH_MSG_DEBUG("  non b/c parent " << pin);
 	    // if MPI as a non-b parent, label it
-	    if ( apdgin == 0 && (*pin)->status() == 120 ) {
+	    if ( apdgin == 0 && pin->status() == 120 ) {
 	      ATH_MSG_DEBUG("  MPI !!");
 	      isMPI = true ;
 	    }
 	    // gluon splitting or ME origin: in evgen files,
 	    // proton (id 2212) seems to be saved in all events; not so in
 	    // AOD files... Thus look for non-HF origin with status 121 or 122
-	    if ( (*pin)->status() == 121 || (*pin)->status() == 122 ) {
+	    if ( pin->status() == 121 || pin->status() == 122 ) {
 	      ATH_MSG_DEBUG("  GS !!");
 	      isGS = true ;
 	    }
@@ -486,14 +489,14 @@ void HforTool::findHFQuarksHerwig
 	      isWDecay = true ;
 	    }
 	  } else {
-	    ATH_MSG_DEBUG("  b/c parent " << *(*pin));
+	    ATH_MSG_DEBUG("  b/c parent " << pin);
 	    // if the status of a b-quark is 123 or 124, then it is a ME b-quark
-	    if ( (*pin)->status() == 123 || (*pin)->status() == 124 ) {
+	    if ( pin->status() == 123 || pin->status() == 124 ) {
 	      ATH_MSG_DEBUG("  ME !!");
 	      isME = true ;
 	    }
 	    // if status 141 or 142 then it came from the PDF, ignore those!!
-	    if ( (*pin)->status() == 141 || (*pin)->status() == 142 ) {
+	    if ( pin->status() == 141 || pin->status() == 142 ) {
 	      ATH_MSG_DEBUG("  PDF !!");
 	      isPDF = true ;
 	    }
@@ -543,7 +546,7 @@ void HforTool::findHFQuarksHerwig
 ////////////////////////////////////////////////////////////////////////
 // Find the specifics for HF quarks in a Pythia shower
 void HforTool::findHFQuarksPythia
-  (const std::map< int,std::vector<const HepMC::GenParticle*> >
+  (const std::map< int,std::vector<HepMC::ConstGenParticlePtr> >
    & finalstate_q)
 ////////////////////////////////////////////////////////////////////////
 {
@@ -559,14 +562,12 @@ void HforTool::findHFQuarksPythia
     // included in the event record with stat=3 particles
     // the partons that we need are *not* these ones, but if
     // these stat=3 partons exist, then the correct partons are in the event too
-    std::set<const HepMC::GenParticle*> MEParton ;
-    std::set<const HepMC::GenParticle*> PDFParton ;
-
+    std::set<HepMC::ConstGenParticlePtr> MEParton ;
+    std::set<HepMC::ConstGenParticlePtr> PDFParton ;
     // loop over the stat=3 final state quarks
     for ( auto bcpart: ipdg.second) {
       if ( bcpart->status() == 3 ) {
-	ATH_MSG_DEBUG("final state b/c (stat=3) " << *bcpart
-		      << ", m = " << bcpart->momentum().m() );
+	ATH_MSG_DEBUG("final state b/c (stat=3) " << bcpart << ", m = " << bcpart->momentum().m() );
 	// if this parton has no descendants, then it's a ME parton
 	if ( !bcpart->end_vertex() ) {
 	  ATH_MSG_DEBUG("  ME parton") ;
@@ -574,14 +575,17 @@ void HforTool::findHFQuarksPythia
 	  MEParton.insert(bcpart) ;
 	  // if there is a direct stat=3 ancestor with the same flavour,
 	  // then there is PDF parton too (eg, qc->q'Wc)
-	  auto prodvtx(bcpart->production_vertex()) ;
+	  auto prodvtx=bcpart->production_vertex() ;
 	  if ( prodvtx ) {
-	    HepMC::GenVertex::particle_iterator pin =
-	      prodvtx->particles_begin(HepMC::parents) ;
-	    for (; pin != prodvtx->particles_end(HepMC::parents); pin++) {
-	      ATH_MSG_DEBUG("    incoming: " << *(*pin));
+#ifdef HEPMC3
+	    for (auto pin=prodvtx->particles_in().begin(); pin != prodvtx->particles_in().end(); pin++)
+#else
+	    for (auto pin=prodvtx->particles_begin(HepMC::parents); pin != prodvtx->particles_end(HepMC::parents); pin++) 
+#endif
+            {
+	      ATH_MSG_DEBUG("    incoming: " << (*pin));
 	      int pdgin((*pin)->pdg_id()) ;
-	      if ( abs(pdgin) == apdg && (*pin)->status() == 3 ) {
+	      if ( std::abs(pdgin) == apdg && (*pin)->status() == 3 ) {
 		ATH_MSG_DEBUG("   PDF parton") ;
 		PDFParton.insert((*pin)) ;
 	      }
@@ -601,9 +605,8 @@ void HforTool::findHFQuarksPythia
     // loop over the other final state quarks
     for ( auto bcpart: ipdg.second) {
       if ( bcpart->status() != 3 ) {
-	ATH_MSG_DEBUG("final state b/c " << *bcpart
-		      << ", m = " << bcpart->momentum().m() );
-	auto prodvtx(bcpart->production_vertex()) ;
+	ATH_MSG_DEBUG("final state b/c " << bcpart << ", m = " << bcpart->momentum().m() );
+	auto prodvtx=bcpart->production_vertex() ;
 	bool isTopDecay(false) ;
 	bool isWDecay(false) ; // subset of top-decays, for hadronic top-decays
 	bool iscquarkfromb(false) ;
@@ -617,29 +620,31 @@ void HforTool::findHFQuarksPythia
 	if ( prodvtx ) {
 	  // check whether there is a proton ancestor,
 	  // and how many ancestors there are
-	  HepMC::GenVertex::particle_iterator pin = prodvtx->particles_begin(HepMC::ancestors) ;
-	  for ( ; pin != prodvtx->particles_end(HepMC::ancestors) && !iscquarkfromb ; pin++ ) {
-	    int apdgin = std::abs((*pin)->pdg_id()) ;
+#ifdef HEPMC3
+          for ( auto pin: prodvtx->particles_in()) {
+#else
+          for ( auto pin_it = prodvtx->particles_begin(HepMC::ancestors); pin_it != prodvtx->particles_end(HepMC::ancestors) ; pin_it++ ) {
+            auto pin=*pin_it;
+#endif 
+            if (iscquarkfromb ) break;
+	    int apdgin = std::abs(pin->pdg_id()) ;
 	    if ( apdgin != apdg ) {
-	      ATH_MSG_DEBUG("  non b/c ancestor " << *(*pin));
+	      ATH_MSG_DEBUG("  non b/c ancestor " << pin);
 	      // proton parent
 	      if ( apdgin == 2212 ) {
-		// ATH_MSG_DEBUG("  Proton!") ;
 		hasPAncestor = true ;
 	      }
 	      // count number of ancestors
 	      nAncestors += 1 ;
 
 	      // c quark from a b quark (in b-hadron decays)
-	      if ( apdg == 4 && ( apdgin == 5 || (apdgin%10000)/1000 == 5 ||
-				  (apdgin%1000)/100 == 5 ) ) {
+	      if ( apdg == 4 && ( apdgin == 5 || (apdgin%10000)/1000 == 5 || (apdgin%1000)/100 == 5 ) ) {
 		ATH_MSG_WARNING("  c quark from b quark or b hadron");
 		iscquarkfromb = true ;
 	      }
 	      // b quark from a b-hadron decay
 	      // (b directly from b-hadron already rejected)
-	      if ( apdg == 5 && ( (apdgin%10000)/1000 == 5 ||
-				  (apdgin%1000)/100 == 5 ) ) {
+	      if ( apdg == 5 && ( (apdgin%10000)/1000 == 5 || (apdgin%1000)/100 == 5 ) ) {
 		ATH_MSG_WARNING("  b quark from b hadron");
 		iscquarkfromb = true ;
 	      }
@@ -654,7 +659,7 @@ void HforTool::findHFQuarksPythia
 		isWDecay = true ;
 	      }
 	    } else {
-	      ATH_MSG_DEBUG("  b/c or ME/PDF parent " << *(*pin));
+	      ATH_MSG_DEBUG("  b/c or ME/PDF parent " << pin);
 	    } // b/c or non-b/c quark as parent
 
 	  } // loop over all ancestors
@@ -694,23 +699,21 @@ void HforTool::findHFQuarksPythia
 	      //    prod vtx of stat=3 PDF parton, and opposite pdgid
 
 	      // first check that showered ME/PDF parton has prod. vtx -3 or -4
-	      HepMC::GenVertex * pvtx34(prodvtx) ;
-	      bool bc34(pvtx34->barcode()==-3 || pvtx34->barcode()==-4) ;
+	      auto pvtx34=prodvtx ;
+	      bool bc34=(HepMC::barcode(pvtx34)==-3 || HepMC::barcode(pvtx34)==-4) ;
 	      if ( !bc34 ) {
-		// ATH_MSG_DEBUG("Production vtx with barcode not -3 or -4") ;
-		HepMC::GenVertex::particle_iterator pin =
-		  prodvtx->particles_begin(HepMC::ancestors) ;
-		for (;pin!=prodvtx->particles_end(HepMC::ancestors)&&!bc34 ;
-		     pin++ ) {
+#ifdef HEPMC3
+                for (auto pin: HepMC::ancestor_particles(prodvtx) ) {
+#else
+                for (auto pin_it=prodvtx->particles_begin(HepMC::ancestors);pin_it!=prodvtx->particles_end(HepMC::ancestors); pin_it++ ) {
+                 auto pin=*pin_it;
+#endif
+                  if (bc34) break;
 		  int bcpv(-1) ;
-		  if ( (*pin)->production_vertex() )
-		    bcpv = (*pin)->production_vertex()->barcode() ;
-		  // ATH_MSG_DEBUG("  ancestor particle barcode "
-		  //		<<(*pin)->barcode() << ", prodvtx "
-		  //		<< bcpv) ;
-		  if ( (*pin)->pdg_id() == pdg && (bcpv==-3 || bcpv==-4) ) {
-		    // ATH_MSG_DEBUG("  found vtx with barcode -3 or -4") ;
-		    pvtx34 = (*pin)->production_vertex() ;
+		  if ( pin->production_vertex() )
+		    bcpv = HepMC::barcode(pin->production_vertex()) ;
+		  if ( pin->pdg_id() == pdg && (bcpv==-3 || bcpv==-4) ) {
+		    pvtx34 = pin->production_vertex() ;
 		    bc34 = true ;
 		  }
 		} // loop over ancestors
@@ -730,14 +733,16 @@ void HforTool::findHFQuarksPythia
 		// ME parton
 		bool isME(false) ;
 		for ( auto ime:  MEParton) { if (isME) break;
-		  HepMC::GenVertex* mepvtx(ime->production_vertex()) ;
+		  auto mepvtx=ime->production_vertex() ;
 		  // check the prod.vertices of the parents
 		  if ( mepvtx ) {
-		    HepMC::GenVertex::particle_iterator pin =
-		      mepvtx->particles_begin(HepMC::parents) ;
-		    for (; pin != mepvtx->particles_end(HepMC::parents); pin++) {
-		      if ( (*pin)->production_vertex() == pvtx34 &&
-			   ime->pdg_id() == pdg ) {
+#ifdef HEPMC3
+                  for (auto  pin = mepvtx->particles_in().begin() ; pin != mepvtx->particles_in().end(); pin++) 
+#else
+                  for (auto  pin = mepvtx->particles_begin(HepMC::parents) ; pin != mepvtx->particles_end(HepMC::parents); pin++) 
+#endif
+                  {
+		      if ( (*pin)->production_vertex() == pvtx34 && ime->pdg_id() == pdg ) {
 			ATH_MSG_DEBUG("  -> ME parton") ;
 			nid += 1 ;
 			isME = true ;
@@ -779,20 +784,15 @@ void HforTool::findHFQuarksPythia
     // print out wrongly identified PDF/GS partons
     if ( msgLvl(MSG::WARNING) ) {
       if ( m_Quarks_PDF[apdg].size() != PDFParton.size() ) {
-	ATH_MSG_WARNING("Mismatch in number of id-d PDF partons, apdg = "
-			<< apdg ) ;
+	ATH_MSG_WARNING("Mismatch in number of id-d PDF partons, apdg = "<< apdg ) ;
 	ATH_MSG_DEBUG("PDF partons from ME:") ;
 	for ( auto ipdf: PDFParton) {
 	  const HepMC::FourVector & mom(ipdf->momentum()) ;
-	  ATH_MSG_DEBUG(mom.px()<<", "<< mom.py()<<", "<<mom.pz()<<
-			"  pT = "<<mom.perp()/1000.<<", eta = "<<mom.eta()) ;
+	  ATH_MSG_DEBUG(mom.px()<<", "<< mom.py()<<", "<<mom.pz()<<"  pT = "<<mom.perp()/1000.<<", eta = "<<mom.eta()) ;
 	}
 	ATH_MSG_DEBUG("PDF partons identified:") ;
-	for ( std::vector<HepMC::FourVector>::const_iterator iq =
-		m_Quarks_PDF[apdg].begin(); iq!=m_Quarks_PDF[apdg].end();iq++) {
-	  const HepMC::FourVector & mom((*iq)) ;
-	  ATH_MSG_DEBUG(mom.px()<<", "<< mom.py()<<", "<<mom.pz()<<
-			"  pT = "<<mom.perp()/1000.<<", eta = "<<mom.eta()) ;
+	for ( auto mom:  m_Quarks_PDF[apdg]) {
+	  ATH_MSG_DEBUG(mom.px()<<", "<< mom.py()<<", "<<mom.pz()<<"  pT = "<<mom.perp()/1000.<<", eta = "<<mom.eta());
 	}
 
 	// Could move the pdf parton with smaller eta to gs, but only if
@@ -809,7 +809,7 @@ void HforTool::findHFQuarksPythia
 ////////////////////////////////////////////////////////////////////////
 // Label all the final state partons to "unknown"
 void HforTool::findHFQuarksUnknown
-  (const std::map< int,std::vector<const HepMC::GenParticle*> >
+  (const std::map< int,std::vector<HepMC::ConstGenParticlePtr> >
    & finalstate_q )
 ////////////////////////////////////////////////////////////////////////
 {
@@ -825,29 +825,32 @@ void HforTool::findHFQuarksUnknown
 
     // second loop over the final state quarks
     for ( auto  bcpart: ipdg.second) {
-      ATH_MSG_DEBUG("final state b/c " << *bcpart);
+      ATH_MSG_DEBUG("final state b/c " << bcpart);
       // still filter out the b/c partons directly from a b/c/bhadron
       // or from top or W decay
-      HepMC::GenVertex * prodvtx(bcpart->production_vertex()) ;
+      auto prodvtx=bcpart->production_vertex();
       bool isTopDecay(false) ;
       bool isWDecay(false) ; // subset of top-decays, for hadronic top-decays
       bool iscquarkfromb(false) ;
       if ( prodvtx ) {
-	HepMC::GenVertex::particle_iterator pin = prodvtx->particles_begin(HepMC::ancestors) ;
-	for ( ; pin != prodvtx->particles_end(HepMC::ancestors) && !iscquarkfromb ; pin++ ) {
-	  int apdgin = std::abs((*pin)->pdg_id()) ;
+#ifdef HEPMC3
+	for ( auto pin: prodvtx->particles_in()) {
+#else
+	for ( auto pin_it = prodvtx->particles_begin(HepMC::ancestors); pin_it != prodvtx->particles_end(HepMC::ancestors) ; pin_it++ ) {
+        auto pin=*pin_it;
+#endif
+        if (!!iscquarkfromb ) break;
+	  int apdgin = std::abs(pin->pdg_id()) ;
 	  if (apdgin != apdg ) {
-	    ATH_MSG_DEBUG("  non b/c parent " << *(*pin));
+	    ATH_MSG_DEBUG("  non b/c parent " << pin);
 	    // c quark from a b quark (in b-hadron decays)
-	    if ( apdg == 4 && ( apdgin == 5 || (apdgin%10000)/1000 == 5 ||
-				(apdgin%1000)/100 == 5 ) ) {
+	    if ( apdg == 4 && ( apdgin == 5 || (apdgin%10000)/1000 == 5 ||(apdgin%1000)/100 == 5 ) ) {
 	      ATH_MSG_DEBUG("  c quark from b quark or b hadron");
 	      iscquarkfromb = true ;
 	    }
 	    // b quark from a b-hadron decay
 	    // (b directly from b-hadron already rejected)
-	    if ( apdg == 5 && ( (apdgin%10000)/1000 == 5 ||
-				(apdgin%1000)/100 == 5 ) ) {
+	    if ( apdg == 5 && ( (apdgin%10000)/1000 == 5 ||(apdgin%1000)/100 == 5 ) ) {
 	      ATH_MSG_DEBUG("  b quark from b hadron");
 	      iscquarkfromb = true ;
 	    }
@@ -920,18 +923,13 @@ void HforTool::jetBasedRemoval()
   StatusCode sc = evtStore()->retrieve( aod_jets, m_JetContainer );
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("No ESD/AOD/DPD jet container found: key = " <<m_JetContainer);
-    // return StatusCode::SUCCESS ;
     return ;
   }
   m_jets = aod_jets;
   ATH_MSG_DEBUG(" Size of Jet Collection " << aod_jets->size());
-  //	JetCollection::const_iterator jetItr  = aod_jets->begin();
-  //	JetCollection::const_iterator jetItrE = aod_jets->end();
-
 
   ATH_MSG_DEBUG("There are " << m_jets->size()<<" jets in this event");
-  for ( JetCollection::const_iterator jetItr  = m_jets->begin();
-	jetItr != m_jets->end(); jetItr++ ) {
+  for ( JetCollection::const_iterator jetItr  = m_jets->begin(); jetItr != m_jets->end(); jetItr++ ) {
 
 
     const Jet* thisjet = *jetItr;
@@ -1076,15 +1074,7 @@ void HforTool::jetBasedRemoval()
       m_result = "kill";
 
   }
-
-
-
-
-
-
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////
 // Do the angular based overlap removal
@@ -1371,14 +1361,8 @@ void HforTool::checkSampleType()
        )
     m_sampleType = "isBB";
 
-
-
-
-
 }
-
 
 HforTool::~HforTool() {
 }
-
 

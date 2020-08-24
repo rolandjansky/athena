@@ -12,14 +12,8 @@
 // Subject: TGCLV1-->Offline Muon Data Quality/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
-
-// GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
-#include "Identifier/Identifier.h"
-
-// MuonRDO
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "MuonRDO/TgcRdoContainer.h"
@@ -37,7 +31,7 @@
 #include <inttypes.h> 
 
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 StatusCode 
 TgcRawDataValAlg::bookHistogramsEfficiency(){
@@ -450,7 +444,7 @@ TgcRawDataValAlg::fillEfficiency(){
         // channel number +offset for wires and strips in each layer
         int chIds[2][9] = {{-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,},
                            {-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,}};//[ws][layer]
-        // Eta and Phi positions of channels　(layer2 has no strips)
+        // Eta and Phi positions of channels (layer2 has no strips)
         double chEtas[2][9] = {{-99,-99,-99,-99,-99,-99,-99,-99,-99,},
                                {-99, -1,-99,-99,-99,-99,-99,-99,-99,}};//[ws][layer]
         double chPhis[2][9] = {{-99,-99,-99,-99,-99,-99,-99,-99,-99,},
@@ -468,7 +462,7 @@ TgcRawDataValAlg::fillEfficiency(){
             // If exactly one channel with hit
             if(m_hitIdVects[CURR][ac][ws][eta][phi48][l].size()==1){
               // Fill channel variables
-              chIds[ws][l] = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)) + m_SLBoffset[ws][ac][eta][l];
+              chIds[ws][l] = m_idHelperSvc->tgcIdHelper().channel(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)) + m_SLBoffset[ws][ac][eta][l];
               const MuonGM::TgcReadoutElement*  pReadoutElementTGC = MuonDetMgr->getTgcReadoutElement(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0));
               const Amg::Vector3D channelPos = pReadoutElementTGC->channelPos(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)); //global position 
               chEtas[ws][l] = channelPos.eta();
@@ -482,10 +476,10 @@ TgcRawDataValAlg::fillEfficiency(){
           // Flag wire edge hits
           int wsize = m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].size();
           for(int hit=0;hit<wsize;hit++){
-            int stationName = m_muonIdHelperTool->tgcIdHelper().stationName(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
-            int stationEta  = abs(m_muonIdHelperTool->tgcIdHelper().stationEta(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit)));
-            int channel     = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
-            int stationPhi  = m_muonIdHelperTool->tgcIdHelper().stationPhi(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
+            int stationName = m_idHelperSvc->tgcIdHelper().stationName(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
+            int stationEta  = std::abs(m_idHelperSvc->tgcIdHelper().stationEta(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit)));
+            int channel     = m_idHelperSvc->tgcIdHelper().channel(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
+            int stationPhi  = m_idHelperSvc->tgcIdHelper().stationPhi(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
             // Flag as edge hit if within 3 channels of chamber edge
             if(channel<=3 || channel>=getNumberOfWires(stationName, l, stationEta, stationPhi)-3){
               edgehit[WIRE][l] = true;
@@ -495,7 +489,7 @@ TgcRawDataValAlg::fillEfficiency(){
           // Flag strip edge hits
           int ssize = m_hitIdVects[CURR][ac][STRP][eta][phi48][l].size();
           for(int hit=0;hit<ssize;hit++){
-            int ch = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[1][ac][1][eta][phi48][l].at(hit));
+            int ch = m_idHelperSvc->tgcIdHelper().channel(m_hitIdVects[1][ac][1][eta][phi48][l].at(hit));
             // Flag as edge hit if within 3 channels of chamber edge
             if(ch<= 3 || ch>=30){
               edgehit[STRP][l] = true;
@@ -557,10 +551,10 @@ TgcRawDataValAlg::fillEfficiency(){
           for(int wsLpT=0;wsLpT<2;wsLpT++){
             for(int i=0;i<nLpT[wsLpT];i++){
               // Flag wire if LpT matches layer 2&3 hits
-              if((fabs(chEtas[WIRE][refLayer[WIRE]]-LptEta[wsLpT][ac][i]) <deta[WIRE][wsLpT])&&
-                 (fabs(chPhis[WIRE][refLayer[WIRE]]-LptPhi[wsLpT][ac][i]) <dphi[WIRE][wsLpT])&&
-                 (fabs(chEtas[STRP][refLayer[STRP]]-LptEta[wsLpT][ac][i]) <deta[STRP][wsLpT])&&
-                 (fabs(chPhis[STRP][refLayer[STRP]]-LptPhi[wsLpT][ac][i]) <dphi[STRP][wsLpT])){
+              if((std::abs(chEtas[WIRE][refLayer[WIRE]]-LptEta[wsLpT][ac][i]) <deta[WIRE][wsLpT])&&
+                 (std::abs(chPhis[WIRE][refLayer[WIRE]]-LptPhi[wsLpT][ac][i]) <dphi[WIRE][wsLpT])&&
+                 (std::abs(chEtas[STRP][refLayer[STRP]]-LptEta[wsLpT][ac][i]) <deta[STRP][wsLpT])&&
+                 (std::abs(chPhis[STRP][refLayer[STRP]]-LptPhi[wsLpT][ac][i]) <dphi[STRP][wsLpT])){
                 LpTmatch[wsLpT]=true;
                 break;
               }
@@ -640,10 +634,10 @@ TgcRawDataValAlg::fillEfficiency(){
           for(int wsEIFI=0;wsEIFI<2;wsEIFI++){
             for(int i=0;i<nEIFI[wsEIFI];i++){
               // Flag wire if LpT matches layer 2&3 hits
-              if((fabs(chEtas[WIRE][refLayerEIFI]-EIFIEta[wsEIFI][ac][i]) <deta[WIRE][wsEIFI])&&
-                 (fabs(chPhis[WIRE][refLayerEIFI]-EIFIPhi[wsEIFI][ac][i]) <dphi[WIRE][wsEIFI])&&
-                 (fabs(chEtas[STRP][refLayerEIFI]-EIFIEta[wsEIFI][ac][i]) <deta[STRP][wsEIFI])&&
-                 (fabs(chPhis[STRP][refLayerEIFI]-EIFIPhi[wsEIFI][ac][i]) <dphi[STRP][wsEIFI])){
+              if((std::abs(chEtas[WIRE][refLayerEIFI]-EIFIEta[wsEIFI][ac][i]) <deta[WIRE][wsEIFI])&&
+                 (std::abs(chPhis[WIRE][refLayerEIFI]-EIFIPhi[wsEIFI][ac][i]) <dphi[WIRE][wsEIFI])&&
+                 (std::abs(chEtas[STRP][refLayerEIFI]-EIFIEta[wsEIFI][ac][i]) <deta[STRP][wsEIFI])&&
+                 (std::abs(chPhis[STRP][refLayerEIFI]-EIFIPhi[wsEIFI][ac][i]) <dphi[STRP][wsEIFI])){
                 EIFImatch[wsEIFI]=true;
                 break;
               }
@@ -703,7 +697,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   else if(layer==8) refLayer = 7;
   else refLayer = 2;
 
-  int referenceChannel = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[CURR][ac][ws][eta][phi48][refLayer].at(0));
+  int referenceChannel = m_idHelperSvc->tgcIdHelper().channel(m_hitIdVects[CURR][ac][ws][eta][phi48][refLayer].at(0));
   referenceChannel+=m_SLBoffset[ws][ac][eta][refLayer];
   
   // Loop over Current PRD
@@ -711,7 +705,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[CURR][ac][ws][eta][phi48][layer].begin();
       it!=itc_end;
       it++){
-    int prdChannel = m_muonIdHelperTool->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
+    int prdChannel = m_idHelperSvc->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
@@ -730,14 +724,12 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[PREV][ac][ws][eta][phi48][layer].begin();
       it!=itp_end;
       it++){
-    int prdChannel = m_muonIdHelperTool->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
+    int prdChannel = m_idHelperSvc->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       ATH_MSG_DEBUG("calculate efficiency previous layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire"  );
-      //if(!isEIFI){
         m_tgceffmapnumbc[ac][ws][PREV]->Fill(binx, biny);
-      //}
       break;
     }
   }
@@ -747,14 +739,12 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[NEXT][ac][ws][eta][phi48][layer].begin();
       it!=itn_end;
       it++){
-    int prdChannel = m_muonIdHelperTool->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
+    int prdChannel = m_idHelperSvc->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       ATH_MSG_DEBUG("calculate efficiency next layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire"  );
-      //if(!isEIFI){
         m_tgceffmapnumbc[ac][ws][NEXT-1]->Fill(binx, biny); // only prev/next defined, array index should be 1 for NEXT PRD
-      //}
       break;
     }
   }

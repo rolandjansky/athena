@@ -9,7 +9,7 @@ topSequence += SingleTrackValidation()
 # The following lines are to construct our ntuple:
 
 if "RootFileName" not in dir() :
-	RootFileName = "sp.tuple.root"
+        RootFileName = "sp.tuple.root"
  
 NtupleSvc = Service( "NTupleSvc" )
 NtupleSvc.Output = [ "FILE DATAFILE=\'" + RootFileName + "\' OPT='NEW'" ]

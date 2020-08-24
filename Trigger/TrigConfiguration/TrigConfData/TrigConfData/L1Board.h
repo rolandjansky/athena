@@ -45,7 +45,9 @@ namespace TrigConf {
       /** Accessor to the number of connectors */
       std::size_t size() const;
 
-      BoardType type() const;
+      std::string type() const;
+
+      BoardType boardType() const;
 
       /** Accessor to the connector type */
       bool legacy() const;
@@ -58,7 +60,7 @@ namespace TrigConf {
       /** Update the internal members */
       virtual void update();
 
-      BoardType m_type;
+      BoardType m_boardType;
       bool m_legacy;
       std::vector<std::string> m_connectorNames;     
    };

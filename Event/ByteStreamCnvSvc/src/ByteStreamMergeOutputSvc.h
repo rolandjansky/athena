@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMMERGEOUTPUTSVC_H
@@ -27,12 +27,13 @@ public:
    /// Destructor.
    virtual ~ByteStreamMergeOutputSvc();
 
-   virtual StatusCode initialize();
+   virtual StatusCode initialize() override;
    /// Implementation of the ByteStreamOutputSvc interface methods.
-   virtual bool putEvent(RawEvent* re);
+   virtual bool putEvent(RawEvent* re) override;
+   virtual bool putEvent(RawEvent* re, const EventContext& ctx) override;
 
    /// Required of all Gaudi services:  see Gaudi documentation for details
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
 private:
    uint32_t reducedROBid(uint32_t);

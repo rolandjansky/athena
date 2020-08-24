@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DCS_CONDITIONSSVC_H
@@ -12,6 +12,7 @@
  **/
 #include <vector>
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "TRT_ConditionsServices/ITRT_DCS_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "AthenaBaseComps/AthService.h"
@@ -101,13 +102,13 @@ class TRT_DCS_ConditionsSvc : public AthService,
   SG::ReadCondHandleKey<CondAttrListCollection> m_barrelReadKey{this,"BarrelKeyName","in","HV Barrel in-key"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_EAReadKey{this,"EAKeyName","in","HV EA in-key"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_ECReadKey{this,"ECKeyName","in","HV EC in-key"};
-  mutable std::vector<const CondAttrListCollection*> m_Barrel_HV_COOLCont;
-  mutable std::vector<const CondAttrListCollection*> m_EndcapA_HV_COOLCont;
-  mutable std::vector<const CondAttrListCollection*> m_EndcapC_HV_COOLCont;
+  mutable std::vector<const CondAttrListCollection*> m_Barrel_HV_COOLCont ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+  mutable std::vector<const CondAttrListCollection*> m_EndcapA_HV_COOLCont ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+  mutable std::vector<const CondAttrListCollection*> m_EndcapC_HV_COOLCont ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
   mutable std::mutex m_cacheMutex;
-  mutable std::vector<EventContext::ContextEvt_t> m_evtBA;
-  mutable std::vector<EventContext::ContextEvt_t> m_evtEA;
-  mutable std::vector<EventContext::ContextEvt_t> m_evtEC;
+  mutable std::vector<EventContext::ContextEvt_t> m_evtBA ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+  mutable std::vector<EventContext::ContextEvt_t> m_evtEA ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+  mutable std::vector<EventContext::ContextEvt_t> m_evtEC ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
 
   int m_IOVmaxLength;
   bool m_doIOVchecking;

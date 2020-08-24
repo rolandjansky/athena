@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 #define FASTSIDIGITIZATION_PIXELFASTDIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "FastSiDigitization/IPixelFastDigitizationTool.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimEvent/SiHitCollection.h" // cannot fwd declare
@@ -58,7 +57,7 @@ namespace InDet {
 }
 
 class PixelFastDigitizationTool :
-  virtual public PileUpToolBase, virtual public IPixelFastDigitizationTool
+  virtual public PileUpToolBase
 {
 
 public:
@@ -123,8 +122,6 @@ private:
   bool                                  m_pixEmulateSurfaceCharge;  //!< emulate the surface charge
   double                                m_pixSmearPathLength;       //!< the 2. model parameter: smear the path
   bool                                  m_pixSmearLandau;           //!< if true : landau else: gauss
-  mutable int                           m_siDeltaPhiCut;
-  mutable int                           m_siDeltaEtaCut;
   double                                m_pixMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in pixel
   double                                m_pixPathLengthTotConv;     //!< from path length to tot
   bool                                  m_pixModuleDistortion;       //!< simulationn of module bowing

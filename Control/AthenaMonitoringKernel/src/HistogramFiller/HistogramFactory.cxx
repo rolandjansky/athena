@@ -247,11 +247,14 @@ void HistogramFactory::setLabels(TAxis* axis, const std::vector<std::string>& la
   }
 }
 
+namespace {
+  const static std::set<std::string> onlinePaths( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRESS" } );
+}
 std::string HistogramFactory::getFullName(const HistogramDef& def) const {
-  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRESS" } );
+
   
   std::string path;
-  if ( online.count( def.path)!=0 ) {
+  if ( onlinePaths.count( def.path)!=0 ) {
     path =  "/" + def.path + "/" + m_streamName + "/" + m_groupName;
   } else if ( def.path=="DEFAULT" ) {
     path = "/" + m_streamName + "/" + m_groupName;
@@ -267,4 +270,17 @@ std::string HistogramFactory::getFullName(const HistogramDef& def) const {
     } ), fullName.end() );
 
   return fullName;
+}
+
+void HistogramFactory::remove(const HistogramDef& def) {
+  std::string path = getFullName( def );
+
+  // see docu here:
+  // https://acode-browser1.usatlas.bnl.gov/lxr/source/Gaudi/GaudiSvc/src/THistSvc/THistSvc.h#0146
+  // and here:
+  // https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/HLT/Trigger/TrigControl/TrigServices/src/TrigMonTHistSvc.cxx#0216
+  // online implementation actually claims ownership of the object and we ever need to call this in online situation
+  //
+  if ( m_histSvc->exists( path) )
+    m_histSvc->deReg(path).ignore(); // we actually ignore if that was sucessfull as we plan to use is eagerly to cleanup LumiBlock histograms history
 }

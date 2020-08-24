@@ -5,12 +5,7 @@
 */
 
 // $Id: IdentifiableCacheBase.h 791541 2017-01-09 10:43:53Z smh $
-/**
- * @file IdentifiableCacheBase.h
- * @author scott snyder <snyder@bnl.gov>
- * @date Mar, 2016
- * @brief 
- */
+
 
 
 #ifndef EVENTCONTAINERS_IDENTIFIABLECACHEBASE_H
@@ -37,43 +32,13 @@ public:
 //here for access from other classes
 static constexpr uintptr_t INVALIDflag = UINTPTR_MAX;
 static constexpr uintptr_t ABORTEDflag = UINTPTR_MAX-1;
-static constexpr size_t s_defaultBucketSize =6;
+static constexpr size_t s_defaultBucketSize =2;
 
 typedef std::true_type thread_safe;
 typedef std::set<IdentifierHash> idset_t;
 
-#if 0
-  struct deleter
-  {
-    void operator() (const void* p);
-  };
-#endif
+#include "EventContainers/deleter.h"
 
-  typedef void deleter_f (const void* p);
-
-  class void_unique_ptr
-    : public std::unique_ptr<const void, deleter_f*>
-  {
-  public:
-    using std::unique_ptr<const void, deleter_f*>::unique_ptr;
-
-    template <class T>
-    struct Deleter
-    {
-      static void deleter (const void* p)
-      {
-        delete reinterpret_cast<const T*>(p);
-      }
-    };
-
-    template <class T>
-    void_unique_ptr(std::unique_ptr<T> p)
-      : std::unique_ptr<const void, deleter_f*> (p.release(),
-                                                 Deleter<T>::deleter)
-    {
-    }
-  };
-  
   struct IMaker
   {
     bool m_IsReEntrant = false;
@@ -92,13 +57,13 @@ typedef std::set<IdentifierHash> idset_t;
   ///In a threaded situation this collection will be valid but will not container hashes later added
   std::vector<IdentifierHash> ids();
   
-  bool add (IdentifierHash hash, const void* p) noexcept;
+  std::pair<bool, const void*> add (IdentifierHash hash, const void* p) noexcept;
 
   // addLock is same as method above except we check for invalid state first,
   // more optimal for calling using writehandle lock method
-  bool addLock (IdentifierHash hash, const void* p) noexcept;
-  bool addLock (IdentifierHash hash, void_unique_ptr p) noexcept;
-  bool add (IdentifierHash hash, void_unique_ptr p) noexcept;
+  std::pair<bool, const void*> addLock (IdentifierHash hash, const void* p) noexcept;
+  std::pair<bool, const void*> addLock (IdentifierHash hash, void_unique_ptr p) noexcept;
+  std::pair<bool, const void*> add (IdentifierHash hash, void_unique_ptr p) noexcept;
 
   bool IMakerPresent() const { return m_maker!=nullptr; }
 
@@ -128,9 +93,7 @@ typedef std::set<IdentifierHash> idset_t;
   size_t fullSize() const { return m_vec.size(); }
   ///In a concurrent situation this number isn't necessarily perfectly synchronised with ids().size()
   size_t numberOfHashes();
-#ifndef NDEBUG
-  void cancelWait(IdentifierHash hash);
-#endif
+
 protected:
   IdentifiableCacheBase (IdentifierHash maxHash, const IMaker* maker, size_t lockBucketSize);
   IdentifiableCacheBase (IdentifierHash maxHash, const IMaker* maker);
@@ -140,11 +103,11 @@ protected:
   void notifyHash(IdentifierHash hash);
 private:
   std::vector<std::atomic<const void*> > m_vec;
-  
+  friend class InternalOnline;
   const IMaker* m_maker;
 
   typedef std::mutex mutex_t;
-  typedef std::lock_guard<mutex_t> lock_t;
+  typedef std::scoped_lock<mutex_t> lock_t;
   typedef std::unique_lock<mutex_t> uniqueLock;
   mutex_t m_mutex;
   ///Pool of mutexes used for waiting on completion if in a concurrent environment

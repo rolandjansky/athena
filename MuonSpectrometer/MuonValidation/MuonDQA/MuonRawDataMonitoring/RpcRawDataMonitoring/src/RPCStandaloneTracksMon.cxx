@@ -767,7 +767,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	                if( !metrack   ) continue;		        
 			
 			ATH_MSG_DEBUG("xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle found for this muon ");
-		        if(  std::sqrt(std::fabs(irpc_clus_posetaII-metrack->eta())*std::fabs(irpc_clus_posetaII-metrack->eta()) +  fabs(irpc_clus_posphi-metrack->phi())*fabs(irpc_clus_posphi-metrack->phi())) <   m_MuonDeltaRMatching) foundmatch3DwithMuon = true ;
+		        if(  std::sqrt(std::abs(irpc_clus_posetaII-metrack->eta())*std::abs(irpc_clus_posetaII-metrack->eta()) +  std::abs(irpc_clus_posphi-metrack->phi())*std::abs(irpc_clus_posphi-metrack->phi())) <   m_MuonDeltaRMatching) foundmatch3DwithMuon = true ;
 		    	      
 		     }}//end muons
 		    
@@ -960,7 +960,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	    const xAOD::TrackParticle* metrack = muons->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
             
 	    if( !metrack   ) continue;
-	    if( std::fabs(metrack->eta())>1) continue;
+	    if( std::abs(metrack->eta())>1) continue;
 	    sc = rpc_triggerefficiency.getHist( m_hMEtracks  ,"hMEtracks" ) ;		  
 	    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get " << " hMEtracks " );
 	    if(m_hMEtracks)m_hMEtracks->Fill( metrack->pt() / 1000.);
@@ -1011,7 +1011,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	     
 	     
              if(m_idHelperSvc->rpcIdHelper().measuresPhi(prdcoll_id))continue;
-	     if( std::sqrt( std::fabs(eta_atlas-metrack->eta())*std::fabs(eta_atlas-metrack->eta()) +  std::fabs(phi_atlas-metrack->phi())*std::fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) { 
+	     if( std::sqrt( std::abs(eta_atlas-metrack->eta())*std::abs(eta_atlas-metrack->eta()) +  std::abs(phi_atlas-metrack->phi())*std::abs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) { 
 	      //Second coin phi view
 	      for( it_container_phi = rpc_coin_container->begin(); it_container_phi != rpc_coin_container->end(); ++it_container_phi ) {
                for ( Muon::RpcCoinDataCollection::const_iterator it_collection_phi = (*it_container_phi)->begin(); it_collection_phi != (*it_container_phi)->end(); ++it_collection_phi ) { // each collection is a trigger signal
@@ -1027,14 +1027,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		 if(m_idHelperSvc->rpcIdHelper().doubletPhi (prdcoll_id) != m_idHelperSvc->rpcIdHelper().doubletPhi (prdcoll_id_phi))  continue ;
 		 if(m_idHelperSvc->rpcIdHelper().gasGap     (prdcoll_id) != m_idHelperSvc->rpcIdHelper().gasGap	(prdcoll_id_phi))  continue ;  
             
-		 if( std::fabs((*it_collection)->time() -  (*it_collection_phi)->time()) > 50. ) continue ;  
+		 if( std::abs((*it_collection)->time() -  (*it_collection_phi)->time()) > 50. ) continue ;  
 		 if( (*it_collection)->isLowPtCoin() != (*it_collection_phi)->isLowPtCoin()  || (*it_collection)->isHighPtCoin() != (*it_collection_phi)->isHighPtCoin()) continue ; 
 	     
 	          
                  descriptor_Atl = MuonDetMgr->getRpcReadoutElement( prdcoll_id_phi );
                  eta_atlas = descriptor_Atl->stripPos(prdcoll_id_phi ).eta();
                  phi_atlas = descriptor_Atl->stripPos(prdcoll_id_phi ).phi(); 
-		 if( std::sqrt( std::fabs(eta_atlas-metrack->eta())*std::fabs(eta_atlas-metrack->eta()) + std::fabs(phi_atlas-metrack->phi())*std::fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) {		    
+		 if( std::sqrt( std::abs(eta_atlas-metrack->eta())*std::abs(eta_atlas-metrack->eta()) + std::abs(phi_atlas-metrack->phi())*std::abs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) {		    
 		    
 		    int minthrview = cointhr ; if(cointhrphi<minthrview)minthrview = cointhrphi; 
 		    if( (*it_collection)-> isLowPtCoin() &&  (*it_collection_phi)-> isLowPtCoin()){
@@ -1215,8 +1215,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		
 		  for (int i_3DII=0;i_3DII!=N_Rpc_Clusters3D;i_3DII++) {
 	            if( !(Rpc_Matched_mu.at(i_3DII)) && m_StandAloneMatchedWithTrack )continue;
-		    if(  abs(Rpc_Eta_3D.at(i_3DII)-Rpc_Eta_3D.at(i_3DI)) > EtaStationSpan )continue;
-		    if(  abs(Rpc_Phi_3D.at(i_3DII)-Rpc_Phi_3D.at(i_3DI)) > DoublePhiSpan  )continue;
+		    if(  std::abs(Rpc_Eta_3D.at(i_3DII)-Rpc_Eta_3D.at(i_3DI)) > EtaStationSpan )continue;
+		    if(  std::abs(Rpc_Phi_3D.at(i_3DII)-Rpc_Phi_3D.at(i_3DI)) > DoublePhiSpan  )continue;
 		    if(LayerType.at(i_3DII)==ilayertype &&  ilayertype!=6  )continue;
 		    if(Rpc_track[ i_3DII ]>0)continue;//Third no-track assigned LowPt or Pivot or HighPt plane
 		  
@@ -1398,7 +1398,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    if ( ilayertype==6  )  {
 		      m_rpcchi2dof         -> Fill (chi2dof) ;
 		      m_rpcetavsphichi2dof -> Fill (chi2dofphi,chi2dofeta) ;
-		      trms = std::sqrt(std::fabs(t2av - tav*tav));
+		      trms = std::sqrt(std::abs(t2av - tav*tav));
 		      m_rpcTimeTrackRMS -> Fill (trms) ;
 		      for (int i_3D=0;i_3D!=N_Rpc_Clusters3D;i_3D++) {
 			if(Rpc_track[ i_3D ] != N_Rpc_Tracks) continue;
@@ -1444,7 +1444,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    }
 		  		  
 
-		    float anglephi = 90-std::atan(std::fabs(xyPhi))*180/M_PI   ; //atan between -pi/2 and pi/2 , anglephi from 180 to 0	
+		    float anglephi = 90-std::atan(std::abs(xyPhi))*180/M_PI   ; //atan between -pi/2 and pi/2 , anglephi from 180 to 0	
 		    if(xyPhi<0) anglephi = 180.-anglephi;	   
 	    	      
 		    float rho    = std::sqrt( xyPhi*xyPhi + 1 + zyEta*zyEta);
@@ -2221,7 +2221,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  Inters3DL	 = ((rpc->transform(prd_id)).inverse())* Inters3DG   ;  				    
 		  stripPosCL	 = ((rpc->transform(prd_id)).inverse())* stripPosC   ;				    
                   
-		  float distance = std::fabs(Inters3DL.x() -  stripPosCL.x());
+		  float distance = std::abs(Inters3DL.x() -  stripPosCL.x());
 	        
 		
 		  if(distance<MergePointDistance) {
@@ -5150,8 +5150,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  if ( RPCLyTrkPrj>0 ) {
 	    RPCLyHitOnTr = m_LayerHitOnTrack ->GetBinContent ( ibin + 1 ) ;
 	    RPCLyEff     = RPCLyHitOnTr / RPCLyTrkPrj ;
-	    RPCLyEff_err = std::sqrt( std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
+	    RPCLyEff_err = std::sqrt( std::abs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
 	      std::sqrt( RPCLyTrkPrj ) ;
 	  
 	    m_LayerEff->SetBinContent ( ibin + 1 , RPCLyEff     ) ;
@@ -5161,8 +5161,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  if ( RPCLyTrkPrj>0 ) {
 	    RPCLyHitOnTr = RPCBA_layerHitOnTrack ->GetBinContent ( ibin + 1 ) ;
 	    RPCLyEff     = RPCLyHitOnTr / RPCLyTrkPrj ;
-	    RPCLyEff_err = std::sqrt( std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
-	      std::sqrt( 1. - fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
+	    RPCLyEff_err = std::sqrt( std::abs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
 	      std::sqrt( RPCLyTrkPrj ) ;
 	  
 	    RPCBA_layerEfficiency->SetBinContent ( ibin + 1 , RPCLyEff     ) ;
@@ -5172,8 +5172,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  if ( RPCLyTrkPrj>0 ) {
 	    RPCLyHitOnTr = RPCBC_layerHitOnTrack ->GetBinContent ( ibin + 1 ) ;
 	    RPCLyEff     = RPCLyHitOnTr / RPCLyTrkPrj ;
-	    RPCLyEff_err = std::sqrt( std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
-	      std::sqrt( 1. - fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
+	    RPCLyEff_err = std::sqrt( std::abs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
 	      std::sqrt( RPCLyTrkPrj ) ;
 	  
 	    RPCBC_layerEfficiency->SetBinContent ( ibin + 1 , RPCLyEff     ) ;
@@ -5191,8 +5191,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPhiEtaCoinThr0
 	      int   RPCOnTr    = m_hRPCPhiEtaCoinThr[0] ->GetBinContent ( ibin + 1 ) ;
 	      float RPCEff     = RPCOnTr / TrkPrj ;
-	      float RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      float RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5200,8 +5200,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPhiEtaCoinThr1
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[1] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5209,8 +5209,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPhiEtaCoinThr2
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[2] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5218,8 +5218,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPhiEtaCoinThr3
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[3] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5227,8 +5227,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPhiEtaCoinThr4
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[4] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5236,16 +5236,16 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPhiEtaCoinThr5
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[5] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	    //hRPCPadThr0
 	      RPCOnTr	 = m_hRPCPadThr[0] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff	 = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5253,8 +5253,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPadThr1
 	      RPCOnTr      = m_hRPCPadThr[1] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5262,8 +5262,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPadThr2
 	      RPCOnTr      = m_hRPCPadThr[2] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5271,8 +5271,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPadThr3
 	      RPCOnTr      = m_hRPCPadThr[3] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5280,8 +5280,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPadThr4
 	      RPCOnTr      = m_hRPCPadThr[4] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5289,16 +5289,16 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPadThr5
 	      RPCOnTr      = m_hRPCPadThr[5] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	    //hRPCMuctpiThr0
 	      RPCOnTr	 = m_hRPCMuctpiThr[0] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff	 = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5306,8 +5306,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCMuctpiThr1
 	      RPCOnTr      = m_hRPCMuctpiThr[1] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5315,8 +5315,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCMuctpiThr2
 	      RPCOnTr      = m_hRPCMuctpiThr[2] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5324,8 +5324,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCMuctpiThr3
 	      RPCOnTr      = m_hRPCMuctpiThr[3] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5333,8 +5333,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCMuctpiThr4
 	      RPCOnTr      = m_hRPCMuctpiThr[4] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5342,8 +5342,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCMuctpiThr5
 	      RPCOnTr      = m_hRPCMuctpiThr[5] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      RPCEff_err = std::sqrt( std::abs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::abs( RPCOnTr-0.5*0) / TrkPrj ) /
 	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
@@ -5387,8 +5387,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  PanelVal = 0 ;
 	  if ( PanelTrackProj != 0 )  {
 	    PanelVal     = PanelHitOnTrack/PanelTrackProj ;
-	    PanelVal_err = std::sqrt( std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
-	      std::sqrt( 1. - std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
+	    PanelVal_err = std::sqrt( std::abs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
+	      std::sqrt( 1. - std::abs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
 	      std::sqrt( PanelTrackProj ) ;
 	    SummaryEfficiency 	   -> SetBinContent ( pos + shift_pos , PanelVal     ) ;
 	    SummaryEfficiency 	   -> SetBinError   ( pos + shift_pos , PanelVal_err ) ;
@@ -5407,8 +5407,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  PanelVal = 0 ;
 	  if ( PanelTrackProj != 0 )  {
 	    PanelVal     = PanelHitOnTrack/PanelTrackProj ;
-	    PanelVal_err = std::sqrt( std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
-	      std::sqrt( 1. - std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
+	    PanelVal_err = std::sqrt( std::abs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
+	      std::sqrt( 1. - std::abs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
 	      std::sqrt( PanelTrackProj ) ;
 	    m_SummaryHist[enumSumGapEfficiency+m_SummaryHist_Idx]-> SetBinContent ( pos + shift_pos , PanelVal	 ) ;
 	    m_SummaryHist[enumSumGapEfficiency+m_SummaryHist_Idx]-> SetBinError	( pos + shift_pos , PanelVal_err ) ;	      
@@ -5466,7 +5466,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::abs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  // rpcAverageCS	 -> Fill(PanelVal) ; 
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvCS] -> Fill(PanelVal) ; } 
 	  else         { m_rpcAverageSide_C[enumAvCS] -> Fill(PanelVal) ; }
@@ -5486,7 +5486,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::abs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvRes_CS1] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvRes_CS1] -> Fill(PanelVal) ;  } 
 	  SummaryRes_CS1DistriPerSector    -> Fill(PanelVal) ;
@@ -5507,7 +5507,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::abs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvRes_CS2] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvRes_CS2] -> Fill(PanelVal) ;  }  
 	  SummaryRes_CS2DistriPerSector   -> Fill(PanelVal) ;
@@ -5529,7 +5529,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::abs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvRes_CSmore2] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvRes_CSmore2] -> Fill(PanelVal) ;  }  
 	  SummaryRes_CSmore2DistriPerSector   -> Fill(PanelVal) ;
@@ -5580,7 +5580,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::abs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvTime] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvTime] -> Fill(PanelVal) ;  }  
 	  SummaryTimeDistriPerSector    -> Fill(PanelVal) ;	

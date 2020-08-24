@@ -277,7 +277,7 @@ ReadLArRaw.HistogramID = 128 ;
 ReadLArRaw.NtupleLocID = "/FILE1/LARG" ;
 
 // specify the LAr Converter and LArROD type and key for output. 
-ApplicationMgr.DLLs   += { "LArByteStream" };
+ApplicationMgr.Dlls   += { "LArByteStream" };
 StreamBS.ItemList +={"2721#*"};
 
 The first part should be replaced by jobOptions that can make your RDOs.

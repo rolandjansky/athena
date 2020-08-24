@@ -27,7 +27,6 @@
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MuonSegment/MuonSegment.h"
 
@@ -67,7 +66,7 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
 :ManagedMonitorToolBase( type, name, parent ),
  m_mg(0),
  m_masked_tubes(NULL),
- m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
+ m_muonSelectionTool(this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
  m_trig_BARREL(false),
@@ -77,8 +76,6 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
  m_overalltdccut_segm_Lumi(0),
  m_overalladc_segm_Lumi(0),
  m_overalladc_Lumi(0),
- //overalltdccut_RPCtrig(0),
- //overalltdccut_TGCtrig(0),
  m_overalltdcadcHighOcc(0),
  m_overalltdcHighOcc(0),
  m_overalltdcHighOcc_ADCCut(0),
@@ -90,8 +87,6 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
  m_mdteventscutLumi_big(0),
  m_mdteventsLumi(0),
  m_mdteventsLumi_big(0),
- //mdthitsvseventnum(0),
- //mdthitsvseventnumcut(0),
  m_mdtglobalhitstime(0),
  m_nummdtchamberswithhits(0),
  m_nummdtchamberswithhits_ADCCut(0),
@@ -113,9 +108,6 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
   declareProperty("StationPhi",              m_StationPhi=-100);
   declareProperty("ADCCut",                  m_ADCCut=50.);
   declareProperty("ADCCutForBackground",     m_ADCCut_Bkgrd=80.);
-//  declareProperty("MaxTDCCutForBackground",  m_TDCCut_Bkgrd=50.);
-//  declareProperty("RPCTrigKey",              m_RPCKey=144);
-//  declareProperty("TGCTrigKey",              m_TGCKey=136);
   declareProperty("Eff_nHits",               m_nb_hits=5.);
   declareProperty("Eff_roadWidth",           m_road_width=2.);
   declareProperty("Eff_chi2Cut",             m_chi2_cut=10.);
@@ -171,10 +163,7 @@ MdtRawDataValAlg::~MdtRawDataValAlg()
 StatusCode MdtRawDataValAlg::initialize()
 /*---------------------------------------------------------*/
 {
-
   //initialize to stop coverity bugs
-   //mdtevents_RPCtrig = 0;
-   //mdtevents_TGCtrig=0;
    m_MdtNHitsvsRpcNHits = 0;
    m_lumiblock = 0;
    m_eventNum = 0;
@@ -212,17 +201,12 @@ StatusCode MdtRawDataValAlg::initialize()
      m_mdtchamberstatphislice[i]=0;
      }
 
-
-  
-  
   // init message stream
   ATH_MSG_INFO("initialize MdtRawDataValAlg" );
 
   ATH_MSG_DEBUG("******************" );
   ATH_MSG_DEBUG("doMdtESD: " << m_doMdtESD );
   ATH_MSG_DEBUG("******************" );
-
-  StatusCode sc;
 
   //If Online ensure that lowStat histograms are made at the runLevel and that _lowStat suffix is suppressed
   if(m_isOnline) m_mg = new MDTMonGroupStruct(this, m_title, ManagedMonitorToolBase::run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED, "");
@@ -233,22 +217,8 @@ StatusCode MdtRawDataValAlg::initialize()
 
 // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
-  sc = m_muonIdHelperTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot get MuonIdHelperTool" );
-    return StatusCode::FAILURE;
-  }  
-  else {
-    ATH_MSG_DEBUG(" Found the MuonIdHelperTool. " );
-  }
-  
-  sc = m_DQFilterTools.retrieve();
-  if( !sc ) {
-    ATH_MSG_ERROR("Could Not Retrieve AtlasFilterTool " << m_DQFilterTools);
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_DQFilterTools.retrieve());
   ATH_CHECK(m_muonSelectionTool.retrieve());
 
    //back to MDTS... 
@@ -267,17 +237,14 @@ StatusCode MdtRawDataValAlg::initialize()
 
   // MuonDetectorManager from the Detector Store
   std::string managerName="Muon";
-  const MuonGM::MuonDetectorManager* MuonDetMgrDS;
-  sc = detStore()->retrieve(MuonDetMgrDS);
-  if (sc.isFailure()) {
-    ATH_MSG_INFO("Could not find the MuonGeoModel Manager: " << managerName << " from the Detector Store! " );
-    return StatusCode::FAILURE;
-  } else { ATH_MSG_DEBUG(" Found the MuonGeoModel Manager from the Detector Store" );}
+  const MuonGM::MuonDetectorManager* MuonDetMgrDS=nullptr;
+  ATH_CHECK(detStore()->retrieve(MuonDetMgrDS));
+  ATH_MSG_DEBUG(" Found the MuonGeoModel Manager from the Detector Store" );
 
-  m_BMGpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
+  m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
   if(m_BMGpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_BMGid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
+    m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
     for(int phi=6; phi<8; phi++) { // phi sectors
       for(int eta=1; eta<4; eta++) { // eta sectors
         for(int side=-1; side<2; side+=2) { // side
@@ -341,8 +308,8 @@ StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, b
      ATH_MSG_DEBUG("MdtRawDataValAlg::MDT RawData Monitoring Histograms being filled" );
 
     for(std::vector<Identifier>::const_iterator itr = m_chambersId.begin(); itr != m_chambersId.end(); ++itr, ++counter){
-      std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(*itr),m_muonIdHelperTool->mdtIdHelper().stationEta(*itr),
-          m_muonIdHelperTool->mdtIdHelper().stationPhi(*itr),"MDT");
+      std::string hardware_name = convertChamberName(m_idHelperSvc->mdtIdHelper().stationName(*itr),m_idHelperSvc->mdtIdHelper().stationEta(*itr),
+          m_idHelperSvc->mdtIdHelper().stationPhi(*itr),"MDT");
       //Skip Chambers That Do NOT Exist
       if(hardware_name=="BML6A13" || hardware_name=="BML6C13") continue;
 
@@ -478,12 +445,11 @@ StatusCode MdtRawDataValAlg::fillHistograms()
           for (const Trk::MeasurementBase* hit : *trk->measurementsOnTrack()) {
 	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(hit);
 	    if(!rot_from_track) continue;
-	    //              rot_from_track->dump(msg());
 	    Identifier rotId = rot_from_track->identify();
-	    if(!m_muonIdHelperTool->mdtIdHelper().is_mdt(rotId)) continue;
+	    if(!m_idHelperSvc->isMdt(rotId)) continue;
 	    IdentifierHash mdt_idHash;
 	    MDTChamber* mdt_chamber = 0;
-	    m_muonIdHelperTool->mdtIdHelper().get_module_hash( rotId, mdt_idHash );
+	    m_idHelperSvc->mdtIdHelper().get_module_hash( rotId, mdt_idHash );
 	    sc = getChamber(mdt_idHash, mdt_chamber);
 	    std::string mdt_chambername = mdt_chamber->getName();
 	    chambers_from_tracks.insert(mdt_chambername);
@@ -510,12 +476,6 @@ StatusCode MdtRawDataValAlg::fillHistograms()
             nPrdcut++;
             isHit_above_ADCCut = true;
           }
-          //      Identifier digcoll_id = (*mdtCollection)->identify();
-
-
-          //Relic from cosmic days nolonger relevant      
-          //      if (selectChambersRange(hardware_name, m_chamberName, m_muonIdHelperTool->mdtIdHelper().stationEta(digcoll_id), m_StationEta, m_muonIdHelperTool->mdtIdHelper().stationPhi(digcoll_id), m_StationPhi, m_StationSize) ) 
-          //        {
 
           sc = fillMDTOverviewHistograms(*mdtCollection, isNoiseBurstCandidate);
           if(sc.isSuccess()) { 
@@ -526,7 +486,6 @@ StatusCode MdtRawDataValAlg::fillHistograms()
             return sc;
           }
 
-	  //          sc = fillMDTSummaryHistograms(*mdtCollection, isNoiseBurstCandidate);
 	  sc = fillMDTSummaryHistograms(*mdtCollection,  chambers_from_tracks, isNoiseBurstCandidate);
           if(sc.isSuccess())
           {
@@ -677,27 +636,6 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
     sc = regHist((TH1F*) m_overalltdccutPRLumi[enumBarrelC]->Clone(), m_mg->mongroup_brC_shift);
     sc = regHist((TH1F*) m_overalltdccutPRLumi[enumEndCapA]->Clone(), m_mg->mongroup_ecA_shift);
     sc = regHist((TH1F*) m_overalltdccutPRLumi[enumEndCapC]->Clone(), m_mg->mongroup_ecC_shift);
-
-    /*sc = regHist((TH1F*) m_overalltdcPR_HighOcc[enumBarrelA]->Clone(), m_mg->mongroup_brA_shift);
-    sc = regHist((TH1F*) m_overalltdcPR_HighOcc[enumBarrelC]->Clone(), m_mg->mongroup_brC_shift);
-    sc = regHist((TH1F*) m_overalltdcPR_HighOcc[enumEndCapA]->Clone(), m_mg->mongroup_ecA_shift);
-    sc = regHist((TH1F*) m_overalltdcPR_HighOcc[enumEndCapC]->Clone(), m_mg->mongroup_ecC_shift);
-    
-    sc = regHist((TH1F*) m_overalltdcPR_HighOcc_ADCCut[enumBarrelA]->Clone(), m_mg->mongroup_brA_shift);
-    sc = regHist((TH1F*) m_overalltdcPR_HighOcc_ADCCut[enumBarrelC]->Clone(), m_mg->mongroup_brC_shift);
-    sc = regHist((TH1F*) m_overalltdcPR_HighOcc_ADCCut[enumEndCapA]->Clone(), m_mg->mongroup_ecA_shift);
-    sc = regHist((TH1F*) m_overalltdcPR_HighOcc_ADCCut[enumEndCapC]->Clone(), m_mg->mongroup_ecC_shift);
-    
-    sc = regHist((TH1F*) m_overalladcPR_HighOcc[enumBarrelA]->Clone(), m_mg->mongroup_brA_shift);
-    sc = regHist((TH1F*) m_overalladcPR_HighOcc[enumBarrelC]->Clone(), m_mg->mongroup_brC_shift);
-    sc = regHist((TH1F*) m_overalladcPR_HighOcc[enumEndCapA]->Clone(), m_mg->mongroup_ecA_shift);
-    sc = regHist((TH1F*) m_overalladcPR_HighOcc[enumEndCapC]->Clone(), m_mg->mongroup_ecC_shift);
-    
-    //Book tdcadc per region per lowStat, NoiseBurst cut
-    sc = regHist((TH2F*) m_overalltdcadcPR_HighOcc[enumBarrelA]->Clone(), m_mg->mongroup_brA_shift);        
-    sc = regHist((TH2F*) m_overalltdcadcPR_HighOcc[enumBarrelC]->Clone(), m_mg->mongroup_brC_shift);        
-    sc = regHist((TH2F*) m_overalltdcadcPR_HighOcc[enumEndCapA]->Clone(), m_mg->mongroup_ecA_shift);        
-    sc = regHist((TH2F*) m_overalltdcadcPR_HighOcc[enumEndCapC]->Clone(), m_mg->mongroup_ecC_shift);       */   
     
     //Book adc adccut per region on & off segment
     sc = regHist((TH1F*) m_overalladc_segm_PR_Lumi[enumBarrelA]->Clone(), m_mg->mongroup_brA_shift);
@@ -863,7 +801,7 @@ StatusCode MdtRawDataValAlg::bookMDTHistograms( MDTChamber* chamber, Identifier 
 
   std::string hardware_name = chamber->getName();
   IdentifierHash idHash;
-  m_muonIdHelperTool->mdtIdHelper().get_module_hash(digcoll_id, idHash);
+  m_idHelperSvc->mdtIdHelper().get_module_hash(digcoll_id, idHash);
 
   int tubeIdMax = GetTubeMax(digcoll_id, hardware_name);
 
@@ -906,34 +844,6 @@ StatusCode MdtRawDataValAlg::bookMDTHistograms( MDTChamber* chamber, Identifier 
         100, 0, 2000.,  *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
-  //histo path for mdt tdc trigger type RPC ML1 ADC Cut
-  //////////////////////////////////////////////////////////////////////////////////////   
- /* if(m_do_mdttdccut_RPCtrig_ML1) 
-    sc = bookMDTHisto_chambers(chamber->mdttdccut_RPCtrig_ML1, hardware_name + "_MDT_Station_TDC_ADCCut_RPCtrig_ML1", "[nsec]", "Number of Entries",
-        100, 0, 2000.,  *mongroup_chambers_expert);
-
-  ////////////////////////////////////////////////////////////////////////////////////// 
-  //histo path for mdt tdc trigger type TGC ML1
-  //////////////////////////////////////////////////////////////////////////////////////   
-  if(m_do_mdttdccut_TGCtrig_ML1) 
-    sc = bookMDTHisto_chambers(chamber->mdttdccut_TGCtrig_ML1, hardware_name + "_MDT_Station_TDC_ADCCut_TGCtrig_ML1", "[nsec]", "Number of Entries",
-        100, 0, 2000.,  *mongroup_chambers_expert);
-
-  ////////////////////////////////////////////////////////////////////////////////////// 
-  //histo path for mdt tdc trigger type RPC ML2 ADC Cut
-  //////////////////////////////////////////////////////////////////////////////////////   
-  if(m_do_mdttdccut_RPCtrig_ML2) 
-    sc = bookMDTHisto_chambers(chamber->mdttdccut_RPCtrig_ML2, hardware_name + "_MDT_Station_TDC_ADCCut_RPCtrig_ML2", "[nsec]", "Number of Entries",
-        100, 0, 2000.,  *mongroup_chambers_expert);
-
-  ////////////////////////////////////////////////////////////////////////////////////// 
-  //histo path for mdt tdc trigger type TGC ML2
-  //////////////////////////////////////////////////////////////////////////////////////   
-  if(m_do_mdttdccut_TGCtrig_ML2) 
-    sc = bookMDTHisto_chambers(chamber->mdttdccut_TGCtrig_ML2, hardware_name + "_MDT_Station_TDC_ADCCut_TGCtrig_ML2", "[nsec]", "Number of Entries",
-        100, 0, 2000.,  *mongroup_chambers_expert);
-*/
-  ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tdccut ML1
   ////////////////////////////////////////////////////////////////////////////////////// 
   if(m_do_mdttdccut_ML1) 
@@ -968,12 +878,6 @@ StatusCode MdtRawDataValAlg::bookMDTHistograms( MDTChamber* chamber, Identifier 
         100, 0, 400., *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
-  //histo path for mdt multilayer 
-/*  if(m_do_mdtmultil) 
-    sc = bookMDTHisto_chambers(chamber->mdtmultil, hardware_name + "_MDT_Station_MULTIL_ADCCut", "multilayerID", "Number of Entries",
-        4, 0, 4., *mongroup_chambers_expert);
-*/
-  ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt layer 
   if(m_do_mdtlayer) 
     sc = bookMDTHisto_chambers(chamber->mdtlayer, hardware_name + "_MDT_Station_LAYER_ADCCut", "layerID", "Number of Entries",
@@ -985,18 +889,6 @@ StatusCode MdtRawDataValAlg::bookMDTHistograms( MDTChamber* chamber, Identifier 
     sc = bookMDTHisto_chambers(chamber->mdttube, hardware_name + "_MDT_Station_TUBE_ADCCut", "tubeID", "Number of Entries",
         tubeIdMax, 1, tubeIdMax+1, *mongroup_chambers_expert);
 
-  ////////////////////////////////////////////////////////////////////////////////////// 
-  //histo path for mdt tube bkgrd hits
-  /*if(m_do_mdttube_bkgrd) 
-    sc = bookMDTHisto_chambers(chamber->mdttube_bkgrd, hardware_name + "_MDT_Station_TUBE_BKGRD_ADCCut", "tubeID", "Total Number of Hits",
-        tubeIdMax, 1, tubeIdMax+1, *mongroup_chambers_expert);
-
-  ////////////////////////////////////////////////////////////////////////////////////// 
-  //histo path for mdt tube counts for offline noise calculation
-  if(m_do_mdttube_fornoise) 
-    sc = bookMDTHisto_chambers(chamber->mdttube_fornoise, hardware_name + "_MDT_Station_TUBE_fornoise", "tubeID", "Number of Entries",
-        tubeIdMax, 1, tubeIdMax+1, *mongroup_chambers_expert);
-*/
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tube masked info
   if(m_do_mdttube_masked) {
@@ -1194,18 +1086,6 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
   if(newRun){
     //     //Book t0 tmax tdrift summary plots
     //     //Just create these in the post-processing    
-    //     sc = bookMDTHisto_overview(mdttdccut_t0[enumBarrelA], "MDT_t0_BA", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_brA_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_t0[enumBarrelC], "MDT_t0_BC", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_brC_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_t0[enumEndCapA], "MDT_t0_EA", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_ecA_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_t0[enumEndCapC], "MDT_t0_EC", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_ecC_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tmax[enumBarrelA], "MDT_tmax_BA", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_brA_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tmax[enumBarrelC], "MDT_tmax_BC", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_brC_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tmax[enumEndCapA], "MDT_tmax_EA", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_ecA_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tmax[enumEndCapC], "MDT_tmax_EC", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_ecC_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tdrift[enumBarrelA], "MDT_tdrift_BA", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_brA_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tdrift[enumBarrelC], "MDT_tdrift_BC", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_brC_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tdrift[enumEndCapA], "MDT_tdrift_EA", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_ecA_shift);
-    //     sc = bookMDTHisto_overview(mdttdccut_tdrift[enumEndCapC], "MDT_tdrift_EC", "sector", "[nsec]", 1, 0, 1,m_mg->mongroup_ecC_shift);
 
     //histo path for MDT Summary plots Barrel-EndCap 
     std::string ecap[4]={"BA","BC","EA","EC"};
@@ -1553,27 +1433,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
     //histo path for TotalNumber_of_MDT_hits_per_event without a cut on ADC  (for high mult. events)
     sc = bookMDTHisto_overview(m_mdteventsLumi_big, "TotalNumber_of_MDT_hits_per_event_big", "[counts]", "Number of Events",
                                200, 0., 100000., m_mg->mongroup_overview_shiftLumi);
-    ////////////////////////////////////////////////////////////////////////////////////// 
-    //histo path for TotalNumber_of_MDT_hits_per_event_RPCtrig 
-    /* sc = bookMDTHisto_overview(mdtevents_RPCtrig, "TotalNumber_of_MDT_hits_per_event_RPCtrig_ADCCut", "[counts]",
-       "Number of Events", 200, 0., 800., m_mg->mongroup_overview_shiftLumi);
 
-       ////////////////////////////////////////////////////////////////////////////////////// 
-       //histo path for TotalNumber_of_MDT_hits_per_event_TGCtrig 
-       sc = bookMDTHisto_overview(mdtevents_TGCtrig, "TotalNumber_of_MDT_hits_per_event_TGCtrig_ADCCut", "[counts]",
-       "Number of Events", 200, 0., 800., m_mg->mongroup_overview_shiftLumi);
-
-       ////////////////////////////////////////////////////////////////////////////////////// 
-       //histo path for overall tdccut RPCtrig spectrum 
-       sc = bookMDTHisto_overview(m_overalltdccut_RPCtrig, "Overall_TDC_ADCCut_RPCtrig_spectrum", "[nsec]", "Number of Entries",
-       120, 0., 2000., m_mg->mongroup_overview_shiftLumi);
-
-       ////////////////////////////////////////////////////////////////////////////////////// 
-       //histo path for overall tdccut TGCtrig spectrum 
-       sc = bookMDTHisto_overview(m_overalltdccut_TGCtrig, "Overall_TDC_ADCCut_TGCtrig_spectrum", "[nsec]", "Number of Entries",
-       120, 0., 2000., m_mg->mongroup_overview_shiftLumi);
-   
-    */
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdc vs adc spectrum 
     sc = bookMDTHisto_overview_2D(m_overalltdcadcLumi, "Overall_TDCADC_spectrum", "[nsec]", "[adc counts]", 50, 0, 2000.,
@@ -1587,14 +1447,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
     //histo path for Time_large_global_hits with a cut on ADC 
     sc = bookMDTHisto_overview(m_mdtglobalhitstime, "Time_large_global_hits", "time", "Number of Events",
                                10000, 0., 10000., m_mg->mongroup_overview_shift);
-    /*
-    //histo path for TotalNumber_of_MDT_hits_vs_event_number without a cut on ADC 
-    sc = bookMDTHisto_overview(mdthitsvseventnum, "TotalNumber_of_MDT_hits_vs_event_number", "event #", "Number of Hits",
-    10000, 0., 10000., m_mg->mongroup_overview_shift);
-    //histo path for TotalNumber_of_MDT_hits_vs_event_number with a cut on ADC 
-    sc = bookMDTHisto_overview(mdthitsvseventnumcut, "TotalNumber_of_MDT_hits_vs_event_number_ADCCut", "event #", "Number of Hits",
-    10000, 0., 10000., m_mg->mongroup_overview_shift);
-    */
+
     //histo path for m_MdtNHitsvsRpcNHits
     sc = bookMDTHisto_overview_2D(m_MdtNHitsvsRpcNHits, "m_MdtNHitsvsRpcNHits", "# MDT hits","# RPC hits", 1000, 0., 100000., 100, 0., 10000., m_mg->mongroup_overview_shift);
     ////////////////////////////////////////////////////////////////////////////////////// 
@@ -1629,8 +1482,6 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
                                1, 0., 1., m_mg->mongroup_overview_expert);
     for(std::vector<Identifier>::const_iterator itr = m_chambersId.begin(); itr != m_chambersId.end(); ++itr){
       std::string hardware_name = getChamberName( *itr );
-      //       std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(*itr),m_muonIdHelperTool->mdtIdHelper().stationEta(*itr),
-      //                 m_muonIdHelperTool->mdtIdHelper().stationPhi(*itr),"MDT");
       //Skip Chambers That Do NOT Exist
       if(hardware_name=="BML6A13" || hardware_name=="BML6C13") continue;
       m_mdtchamberstat->Fill( hardware_name.c_str(), 0.0);
@@ -1676,30 +1527,17 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   //      //convert layer numbering from 1->4 to 1->8
   //      //check if we are in 2nd multilayer
   //      //then add 4 if large chamber, 3 if small chamber 
-  int mdtlayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(digcoll_id);
-  if (m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id)==2) {
+  int mdtlayer = m_idHelperSvc->mdtIdHelper().tubeLayer(digcoll_id);
+  if (m_idHelperSvc->mdtIdHelper().multilayer(digcoll_id)==2) {
     if ( hardware_name.at(1) == 'I' && hardware_name.at(3) != '8' )
       mdtlayer += 4;
     else 
       mdtlayer += 3;
   }   
-  int mdttube= m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id) + (mdtlayer-1) * m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id);
-  ChamberTubeNumberCorrection(mdttube, hardware_name, m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id), mdtlayer-1);
+  int mdttube= m_idHelperSvc->mdtIdHelper().tube(digcoll_id) + (mdtlayer-1) * m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id);
+  ChamberTubeNumberCorrection(mdttube, hardware_name, m_idHelperSvc->mdtIdHelper().tube(digcoll_id), mdtlayer-1);
 
   bool isNoisy = m_masked_tubes->isNoisy( mdtCollection );
-  //   //// Verifiy back-conversion of tubeID -> tube/layer/ML
-  //   int test_tube = 0;
-  //   int test_layer = 0;
-  //   int test_ML = 0;
-  //   TubeID_to_ID_L_ML(mdttube, hardware_name, test_tube, test_layer, test_ML, GetTubeMax(digcoll_id,hardware_name));
-  //   if( test_tube != m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id) || test_layer != m_muonIdHelperTool->mdtIdHelper().tubeLayer(digcoll_id) || test_ML != m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id) ) {
-  //     ATH_MSG_DEBUG("FAIL:" << hardware_name << ": true (ML,tubeLayer,tube): (" << m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id) << ", " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(digcoll_id) << ", " << m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id) << "), derived: (" << test_ML << ", " << test_layer << ", " << test_tube << "), [" << m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id) << "," << m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(digcoll_id) << "]");
-  //     if( (hardware_name.substr(0,4) == "BIR1" || hardware_name.substr(0,4) == "BIR4") && m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id) == 1 ) {
-  //       ATH_MSG_DEBUG(" Probably OK: shift due to cutout!" );      
-  //     }
-  //     else ATH_MSG_DEBUG("\n");
-  //   }
-  //   //// end back-conversion verification
 
   std::string tube_str = returnString(mdttube);
 
@@ -1715,16 +1553,12 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   }
   else { ATH_MSG_DEBUG("mdttdc not in hist list!" ); }
 
-  int mdtMultLayer = m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id);
+  int mdtMultLayer = m_idHelperSvc->mdtIdHelper().multilayer(digcoll_id);
 
   // trigger specific
   if ( adc >m_ADCCut && !isNoisy ) {
     if (chamber->mdttdccut_ML1 && mdtMultLayer==1) { chamber->mdttdccut_ML1->Fill(tdc); }
     if (chamber->mdttdccut_ML2 && mdtMultLayer==2) { chamber->mdttdccut_ML2->Fill(tdc); }
-    //if (chamber->mdttdccut_RPCtrig_ML1 && HasTrigBARREL() && mdtMultLayer==1) { chamber->mdttdccut_RPCtrig_ML1->Fill(tdc); }
-    //if (chamber->mdttdccut_TGCtrig_ML1 && HasTrigENDCAP() && mdtMultLayer==1) { chamber->mdttdccut_TGCtrig_ML1->Fill(tdc); }
-    //if (chamber->mdttdccut_RPCtrig_ML2 && HasTrigBARREL() && mdtMultLayer==2) { chamber->mdttdccut_RPCtrig_ML2->Fill(tdc); }
-    //if (chamber->mdttdccut_TGCtrig_ML2 && HasTrigENDCAP() && mdtMultLayer==2) { chamber->mdttdccut_TGCtrig_ML2->Fill(tdc); }
   }
 
   if (chamber->mdtadc) { chamber->mdtadc->Fill(adc); }
@@ -1734,20 +1568,11 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   if (chamber->mdtlayer) { if((adc >m_ADCCut && !isNoisy)) chamber->mdtlayer->Fill(mdtlayer); }
 
   if (chamber->mdttube) { if((adc >m_ADCCut) ) chamber->mdttube->Fill(mdttube); }
-/*
-  if (chamber->mdttube_bkgrd ) { 
-    if(adc > m_ADCCut_Bkgrd && tdc < m_TDCCut_Bkgrd) chamber->mdttube_bkgrd->Fill(m_mdttube); 
-  }
-  if (chamber->mdtmultil) { if((mdtCollection->adc()>m_ADCCut && !isNoisy)) chamber->mdtmultil->Fill(m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id)); }
-
-    if (chamber->mdttube_fornoise) { if(tdc < m_TDCCut_Bkgrd) chamber->mdttube_fornoise->Fill(mdttube); }
-  */
   if (chamber->mdtmezz) { if( adc > m_ADCCut) chamber->mdtmezz->Fill( mezzmdt( digcoll_id ) ); }
 
   return sc;
 }
 
-//StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, bool &isNoiseBurstCandidate ) {
 StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, std::set<std::string>  chambers_from_tracks, bool &isNoiseBurstCandidate ) {
 
   StatusCode sc = StatusCode::SUCCESS;
@@ -1783,7 +1608,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   if( m_mdtChamberHits[iregion][ilayer][stationPhi] && adc > m_ADCCut )
     m_mdtChamberHits[iregion][ilayer][stationPhi]->Fill(std::abs(stationEta));
 
-  int mlayer_n = m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id);
+  int mlayer_n = m_idHelperSvc->mdtIdHelper().multilayer(digcoll_id);
 
   // Fill Barrel - Endcap Multilayer Hits
   if(!isNoisy && adc > 0){
@@ -1849,10 +1674,6 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
 StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData* mdtCollection, bool &isNoiseBurstCandidate ) {
   StatusCode sc = StatusCode::SUCCESS;
   Identifier digcoll_id = (mdtCollection)->identify();
-  //  std::string type="MDT";
-  //   std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(digcoll_id),
-  //             m_muonIdHelperTool->mdtIdHelper().stationEta(digcoll_id),
-  //             m_muonIdHelperTool->mdtIdHelper().stationPhi(digcoll_id),type);
 
   std::string hardware_name = getChamberName( mdtCollection );
   bool isNoisy = m_masked_tubes->isNoisy( mdtCollection );
@@ -1881,11 +1702,11 @@ StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
 
   //Barrel -->Fill MDT Global RZ and YX
   if( adc>m_ADCCut ) {
-    if(fabs(mdt_tube_eta)>0. && fabs(mdt_tube_eta)<0.9){m_mdtrzdet[0]->Fill(mdt_tube_z,mdt_tube_perp); m_mdtxydet[0]->Fill(mdt_tube_x,mdt_tube_y);}     
+    if(std::abs(mdt_tube_eta)>0. && std::abs(mdt_tube_eta)<0.9){m_mdtrzdet[0]->Fill(mdt_tube_z,mdt_tube_perp); m_mdtxydet[0]->Fill(mdt_tube_x,mdt_tube_y);}     
     //OverLap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>0.9 && fabs(mdt_tube_eta)<1.2){m_mdtrzdet[1]->Fill(mdt_tube_z,mdt_tube_perp); m_mdtxydet[1]->Fill(mdt_tube_x,mdt_tube_y);}      
+    if(std::abs(mdt_tube_eta)>0.9 && std::abs(mdt_tube_eta)<1.2){m_mdtrzdet[1]->Fill(mdt_tube_z,mdt_tube_perp); m_mdtxydet[1]->Fill(mdt_tube_x,mdt_tube_y);}      
     //EndCap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>1.2 && fabs(mdt_tube_eta)<2.7){m_mdtrzdet[2]->Fill(mdt_tube_z,mdt_tube_perp); m_mdtxydet[2]->Fill(mdt_tube_x,mdt_tube_y);}      
+    if(std::abs(mdt_tube_eta)>1.2 && std::abs(mdt_tube_eta)<2.7){m_mdtrzdet[2]->Fill(mdt_tube_z,mdt_tube_perp); m_mdtxydet[2]->Fill(mdt_tube_x,mdt_tube_y);}      
   }
 
   if(m_overalltdcadcLumi && !isNoisy && adc > 0) m_overalltdcadcLumi->Fill(tdc, adc);
@@ -1909,15 +1730,7 @@ StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
     if(m_overalltdccutLumi && !isNoisy) m_overalltdccutLumi->Fill(tdc);
     if(!m_overalltdccutLumi) ATH_MSG_DEBUG("overalltdccut not in hist list");
   }
-/*  if (adc>m_ADCCut && HasTrigBARREL()) {
-    if(m_overalltdccut_RPCtrig) m_overalltdccut_RPCtrig->Fill(tdc);
-    else ATH_MSG_DEBUG("overalltdccut not in hist list!" );	
-  }
-  if (adc>m_ADCCut && HasTrigENDCAP()) {
-    if(m_overalltdccut_TGCtrig) m_overalltdccut_TGCtrig->Fill(tdc);
-    else ATH_MSG_DEBUG("overalltdccut not in hist list!" );
-  }
-*/
+
   return sc;
 } 
 
@@ -1975,7 +1788,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         Identifier tmpid = rot->identify();
         IdentifierHash idHash;
         MDTChamber* chamber = 0;
-        m_muonIdHelperTool->mdtIdHelper().get_module_hash( tmpid, idHash );  
+        m_idHelperSvc->mdtIdHelper().get_module_hash( tmpid, idHash );  
         sc = getChamber(idHash, chamber);
         std::string chambername = chamber->getName();
         float adc = mrot->prepRawData()->adc();
@@ -2010,26 +1823,21 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]->SetEntries(m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]->GetEntries()+1);
             }
           }
-          int mdtMultLayer = m_muonIdHelperTool->mdtIdHelper().multilayer(tmpid);
-          //chamber->mdtadc_onSegm->Fill(mrot->prepRawData()->adc());
+          int mdtMultLayer = m_idHelperSvc->mdtIdHelper().multilayer(tmpid);
   	  if(chamber->mdtadc_onSegm_ML1 && mdtMultLayer == 1){
         	  chamber->mdtadc_onSegm_ML1->Fill(adc); 
-          	  //sumADC_ML1 += mrot->prepRawData()->adc();
-	  	 // numHits_ML1++;
 	  }
           if(chamber->mdtadc_onSegm_ML2&& mdtMultLayer == 2){
         	  chamber->mdtadc_onSegm_ML2->Fill(adc);       	  
-     		 // sumADC_ML2 += mrot->prepRawData()->adc();
-		 // numHits_ML2++;
  	     }
         }
         // This information needs to be stored fully for each segment (for calculations below), so deal with these duplicates later
         // (otherwise we may not check a traversed ML for a differently pointing overlapping segment, for example)
 
         ROTs_chamber.push_back( tmpid );
-        ROTs_ML.push_back( m_muonIdHelperTool->mdtIdHelper().multilayer(tmpid) );
-        ROTs_L.push_back( m_muonIdHelperTool->mdtIdHelper().tubeLayer(tmpid) );
-        ROTs_tube.push_back( m_muonIdHelperTool->mdtIdHelper().tube(tmpid) );
+        ROTs_ML.push_back( m_idHelperSvc->mdtIdHelper().multilayer(tmpid) );
+        ROTs_L.push_back( m_idHelperSvc->mdtIdHelper().tubeLayer(tmpid) );
+        ROTs_tube.push_back( m_idHelperSvc->mdtIdHelper().tube(tmpid) );
         ROTs_DR.push_back( mrot->driftRadius() );
         ROTs_DRerr.push_back( (mrot->localCovariance())(Trk::driftRadius,Trk::driftRadius) ) ;       // always returns value 2.0
         ROTs_DT.push_back( mrot->driftTime() );
@@ -2047,8 +1855,6 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         bool isUnique = true;
         for(unsigned j=0; j<unique_chambers.size(); j++) {
           if( getChamberName(ROTs_chamber.at(i)) == getChamberName(unique_chambers.at(j)) ){
-            //    if( convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(ROTs_chamber.at(i)), m_muonIdHelperTool->mdtIdHelper().stationEta(ROTs_chamber.at(i)), m_muonIdHelperTool->mdtIdHelper().stationPhi(ROTs_chamber.at(i)),type)
-            //        == convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(unique_chambers.at(j)), m_muonIdHelperTool->mdtIdHelper().stationEta(unique_chambers.at(j)), m_muonIdHelperTool->mdtIdHelper().stationPhi(unique_chambers.at(j)),type) ) {
             isUnique = false;
             if( !AinB( ROTs_ML.at(i), unique_chambers_ML.at(j) ) ) 
               unique_chambers_ML.at(j).push_back( ROTs_ML.at(i) );
@@ -2071,10 +1877,9 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
       std::vector<float> traversed_distance;    
       for( unsigned i_chamber=0; i_chamber<unique_chambers.size(); i_chamber++) {
         Identifier station_id = unique_chambers.at(i_chamber);
-        if( !m_muonIdHelperTool->mdtIdHelper().is_mdt( station_id ) ) {
-          ATH_MSG_DEBUG("is_mdt() returned false in segm-based mdt eff calc" );
+        if( !m_idHelperSvc->isMdt( station_id ) ) {
+          ATH_MSG_DEBUG("Found non-MDT station identifier in segm-based mdt eff calc" );
         }
-        //  std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(station_id), m_muonIdHelperTool->mdtIdHelper().stationEta(station_id), m_muonIdHelperTool->mdtIdHelper().stationPhi(station_id),type);
         std::string hardware_name = getChamberName(station_id); 
 
         // SEGMENT track
@@ -2089,20 +1894,20 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         // Loop over tubes in chamber, find those along segment
         for(unsigned i_ML=0; i_ML<unique_chambers_ML.at(i_chamber).size(); i_ML++) {
           int ML = unique_chambers_ML.at(i_chamber).at(i_ML);
-          Identifier newId = m_muonIdHelperTool->mdtIdHelper().channelID(hardware_name.substr(0,3), m_muonIdHelperTool->mdtIdHelper().stationEta(station_id), m_muonIdHelperTool->mdtIdHelper().stationPhi(station_id), ML, 1, 1);   
-          int tubeMax = m_muonIdHelperTool->mdtIdHelper().tubeMax(newId);
-          int tubeLayerMax = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(newId);
+          Identifier newId = m_idHelperSvc->mdtIdHelper().channelID(hardware_name.substr(0,3), m_idHelperSvc->mdtIdHelper().stationEta(station_id), m_idHelperSvc->mdtIdHelper().stationPhi(station_id), ML, 1, 1);   
+          int tubeMax = m_idHelperSvc->mdtIdHelper().tubeMax(newId);
+          int tubeLayerMax = m_idHelperSvc->mdtIdHelper().tubeLayerMax(newId);
           CorrectTubeMax(hardware_name, tubeMax);
           CorrectLayerMax(hardware_name, tubeLayerMax);
-          for(int i_tube=m_muonIdHelperTool->mdtIdHelper().tubeMin(newId); i_tube<=tubeMax; i_tube++) {
-            for(int i_layer=m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(newId); i_layer<=tubeLayerMax; i_layer++) {
+          for(int i_tube=m_idHelperSvc->mdtIdHelper().tubeMin(newId); i_tube<=tubeMax; i_tube++) {
+            for(int i_layer=m_idHelperSvc->mdtIdHelper().tubeLayerMin(newId); i_layer<=tubeLayerMax; i_layer++) {
               const MuonGM::MdtReadoutElement* MdtRoEl = MuonDetMgr->getMdtReadoutElement( newId );
-              if(m_BMGpresent && m_muonIdHelperTool->mdtIdHelper().stationName(newId) == m_BMGid ) {
+              if(m_BMGpresent && m_idHelperSvc->mdtIdHelper().stationName(newId) == m_BMGid ) {
                 std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(MdtRoEl->identify());
                 if( myIt != m_DeadChannels.end() ){
-                  Identifier tubeId = m_muonIdHelperTool->mdtIdHelper().channelID(hardware_name.substr(0,3), m_muonIdHelperTool->mdtIdHelper().stationEta(station_id), m_muonIdHelperTool->mdtIdHelper().stationPhi(station_id), ML, i_layer, i_tube );
+                  Identifier tubeId = m_idHelperSvc->mdtIdHelper().channelID(hardware_name.substr(0,3), m_idHelperSvc->mdtIdHelper().stationEta(station_id), m_idHelperSvc->mdtIdHelper().stationPhi(station_id), ML, i_layer, i_tube );
                   if( std::find( (myIt->second).begin(), (myIt->second).end(), tubeId) != (myIt->second).end() ) {
-                    ATH_MSG_DEBUG("Skipping tube with identifier " << m_muonIdHelperTool->mdtIdHelper().show_to_string(tubeId) );
+                    ATH_MSG_DEBUG("Skipping tube with identifier " << m_idHelperSvc->mdtIdHelper().show_to_string(tubeId) );
                     continue;
                   }
                 }
@@ -2129,11 +1934,10 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
       // Here we fill the DRvsDT/DRvsSegD histos, as well is unique hits and traversed tubes to calculate efficiencies
       if(traversed_tube.size() < 20) { // quality cut here -- 20 traversed tubes is ridiculous and generates low efficiencies (these are due to non-pointing segments)
         for (unsigned k=0; k<traversed_tube.size(); k++) {
-          //    std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(traversed_station_id.at(k)), m_muonIdHelperTool->mdtIdHelper().stationEta(traversed_station_id.at(k)), m_muonIdHelperTool->mdtIdHelper().stationPhi(traversed_station_id.at(k)),type);
           std::string hardware_name = getChamberName(traversed_station_id.at(k));
           // GET HISTS
           IdentifierHash idHash;
-          m_muonIdHelperTool->mdtIdHelper().get_module_hash( traversed_station_id.at(k), idHash );
+          m_idHelperSvc->mdtIdHelper().get_module_hash( traversed_station_id.at(k), idHash );
           MDTChamber* chamber;
           sc = getChamber( idHash, chamber );
           if(!sc.isSuccess()){
@@ -2143,8 +1947,6 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 
           bool hit_flag = false;  
           for (unsigned j=0; j<ROTs_tube.size(); j++) {
-            //      if( (convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(ROTs_chamber.at(j)), m_muonIdHelperTool->mdtIdHelper().stationEta(ROTs_chamber.at(j)), m_muonIdHelperTool->mdtIdHelper().stationPhi(ROTs_chamber.at(j)),type) == hardware_name) 
-            //    && (traversed_tube.at(k)==ROTs_tube.at(j)) && (traversed_L.at(k)==ROTs_L.at(j)) && (traversed_ML.at(k)==ROTs_ML.at(j))) { // found traversed tube with hit used in segment 
             if( (getChamberName(ROTs_chamber.at(j)) == hardware_name)
                 && (traversed_tube.at(k)==ROTs_tube.at(j)) && (traversed_L.at(k)==ROTs_L.at(j)) && (traversed_ML.at(k)==ROTs_ML.at(j))) { // found traversed tube with hit used in segment 
               hit_flag = true;
@@ -2154,13 +1956,13 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               break;
             }
           }
-          Identifier newId = m_muonIdHelperTool->mdtIdHelper().channelID(hardware_name.substr(0,3), m_muonIdHelperTool->mdtIdHelper().stationEta(traversed_station_id.at(k)), m_muonIdHelperTool->mdtIdHelper().stationPhi(traversed_station_id.at(k)), traversed_ML.at(k), 1, 1);
-          int tubeLayerMax = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(newId);
-          m_muonIdHelperTool->mdtIdHelper().get_module_hash( newId, idHash );
+          Identifier newId = m_idHelperSvc->mdtIdHelper().channelID(hardware_name.substr(0,3), m_idHelperSvc->mdtIdHelper().stationEta(traversed_station_id.at(k)), m_idHelperSvc->mdtIdHelper().stationPhi(traversed_station_id.at(k)), traversed_ML.at(k), 1, 1);
+          int tubeLayerMax = m_idHelperSvc->mdtIdHelper().tubeLayerMax(newId);
+          m_idHelperSvc->mdtIdHelper().get_module_hash( newId, idHash );
 
           CorrectLayerMax(hardware_name, tubeLayerMax); // ChamberTubeNumberCorrection handles the tubeMax problem
           int mdtlayer = ( (traversed_L.at(k) - 1) + (traversed_ML.at(k) - 1) * tubeLayerMax );
-          int ibin = traversed_tube.at(k) + mdtlayer * m_muonIdHelperTool->mdtIdHelper().tubeMax(newId);
+          int ibin = traversed_tube.at(k) + mdtlayer * m_idHelperSvc->mdtIdHelper().tubeMax(newId);
           ChamberTubeNumberCorrection(ibin, hardware_name, traversed_tube.at(k), mdtlayer);
           // Store info for eff calc
           // (Here we make sure we are removing duplicates from overlapping segments by using sets)
@@ -2211,10 +2013,10 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
 
   Identifier detElId = mydetEl->identify();
 
-  int name = m_muonIdHelperTool->mdtIdHelper().stationName(detElId);
-  int eta = m_muonIdHelperTool->mdtIdHelper().stationEta(detElId);
-  int phi = m_muonIdHelperTool->mdtIdHelper().stationPhi(detElId);
-  int ml = m_muonIdHelperTool->mdtIdHelper().multilayer(detElId);
+  int name = m_idHelperSvc->mdtIdHelper().stationName(detElId);
+  int eta = m_idHelperSvc->mdtIdHelper().stationEta(detElId);
+  int phi = m_idHelperSvc->mdtIdHelper().stationPhi(detElId);
+  int ml = m_idHelperSvc->mdtIdHelper().multilayer(detElId);
   std::vector<Identifier> deadTubes;
 
   std::vector<int>::iterator it = tubes.begin();
@@ -2230,7 +2032,7 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
           ++it;
         }
         else {
-          Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
+          Identifier deadTubeId = m_idHelperSvc->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
           deadTubes.push_back( deadTubeId );
           ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
                           << "), phi(" << phi << "), eta(" << eta << "), name(" << name

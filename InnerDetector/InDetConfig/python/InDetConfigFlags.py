@@ -106,7 +106,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doSecVertexFinder", False) # switch on/off conversion finder fitting V0s 
   icf.addFlag("InDet.doConversions", False) # switch on/off conversion finder 
   icf.addFlag("InDet.doStatistics", True)
-  icf.addFlag("InDet.doStandardPlots", False) # Use to turn on creating the Standard Plots of tracking performance 
   icf.addFlag("InDet.doPhysValMon", False) # Use to turn on Physics Validation Monitoring 
   icf.addFlag("InDet.materialInteractions", True) 
   icf.addFlag("InDet.materialInteractionsType", 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
@@ -182,6 +181,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs 
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
-  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.PixelOn))
-  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.SCTOn))
+  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoPixel))
+  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoSCT))
   return icf

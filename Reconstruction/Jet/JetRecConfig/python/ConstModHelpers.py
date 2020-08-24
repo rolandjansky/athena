@@ -14,14 +14,10 @@ except Exception:
 from ROOT import xAODType
 xAODType.ObjectType
 
-
 from AthenaCommon import Logging
 constmodlog = Logging.logging.getLogger('ConstModHelpers')
 
-from JetRec import JetRecConf
-from JetRecTools import JetRecToolsConf
-from PFlowUtils import PFlowUtilsConf
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Tool types and configs can be expanded if the user
 # wishes to add their own custom definitions
@@ -29,16 +25,16 @@ from PFlowUtils import PFlowUtilsConf
 # Maybe we need a config class in JetDefinition?
 ConstModTools = {
     # Topoclusters
-    "Origin": JetRecToolsConf.CaloClusterConstituentsOrigin,
-    "EM":     JetRecToolsConf.ClusterAtEMScaleTool,
+    "Origin": CompFactory.CaloClusterConstituentsOrigin,
+    "EM":     CompFactory.ClusterAtEMScaleTool,
     # Particle flow
-    "CorrectPFO":
-              JetRecToolsConf.CorrectPFOTool,
-    "CHS":    JetRecToolsConf.ChargedHadronSubtractionTool,
+    "CorrectPFO": 
+              CompFactory.CorrectPFOTool,
+    "CHS":    CompFactory.ChargedHadronSubtractionTool,
     # Pileup suppression
-    "Vor":    JetRecToolsConf.VoronoiWeightTool,
-    "CS":     JetRecToolsConf.ConstituentSubtractorTool,
-    "SK":     JetRecToolsConf.SoftKillerWeightTool
+    "Vor":    CompFactory.VoronoiWeightTool,
+    "CS":     CompFactory.ConstituentSubtractorTool,
+    "SK":     CompFactory.SoftKillerWeightTool
 }
 
 ConstModConfigs = {
@@ -47,7 +43,7 @@ ConstModConfigs = {
     "EM":     {},
     # Particle flow
     "CorrectPFO":
-              {"WeightPFOTool": PFlowUtilsConf.CP__WeightPFOTool("weightPFO")},
+              {"WeightPFOTool": CompFactory.getComp("CP::WeightPFOTool")("weightPFO")},
     "CHS":    {},
     # Pileup suppression
     "Vor":    {"doSpread":False, "nSigma":0},
@@ -55,7 +51,7 @@ ConstModConfigs = {
     "SK":     {}
 }
 
-def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssociation",vtxKey="PrimaryVertices"):
+def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssoc",vtxKey="PrimaryVertices",monTool=None):
     inputtype = constit.basetype
 
     # Need to extend to TCC
@@ -114,14 +110,15 @@ def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssociation",vtxKey="P
         inputcontainer = chopPFO(inputcontainer)
         outputcontainer = chopPFO(outputcontainer)
 
-    modseq = JetRecToolsConf.JetConstituentModSequence(seqname,
+    modseq = CompFactory.JetConstituentModSequence(seqname,
         InputType=inputtype,
         OutputContainer = outputcontainer,
         InputContainer= inputcontainer,
-        Modifiers = modlist
+        Modifiers = modlist,
+        MonTool = monTool
     )
 
-    constitmodalg = JetRecConf.JetAlgorithm("jetalg_{0}".format(modseq.getName()))
+    constitmodalg = CompFactory.JetAlgorithm("jetalg_{0}".format(modseq.getName()))
     constitmodalg.Tools = [modseq]
 
     return constitmodalg

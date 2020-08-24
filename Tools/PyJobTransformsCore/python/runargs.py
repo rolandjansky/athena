@@ -5,8 +5,7 @@ from __future__ import print_function
 __author__ = "clat@hep.ph.bham.ac.uk"
 
 import os
-from PyJobTransformsCore.TransformConfig import *
-from PyJobTransformsCore.TransformLogger import TransformLogger
+from PyJobTransformsCore.TransformConfig import Descriptor, JobConfig
 from PyJobTransformsCore.trfutil import VALIDATION_DICT
 from PyJobTransformsCore.trferr import TransformArgumentError
 
@@ -81,7 +80,7 @@ class CommandLineOption( Descriptor ):
         if not func: return
         if self.__takesArgument:
             func(value)
-        elif value == True:
+        elif value is True:
             func()
     
     
@@ -98,7 +97,7 @@ class CommandLineOption( Descriptor ):
                 # convert to boolean if possible.
                 try:
                     value = { 'TRUE' : True, 'FALSE' : False, '' : True }[ value.upper() ]
-                except:
+                except Exception:
                     raise TransformArgumentError( '%s value of %s not recognised.' % ( variableName, value ) )
             elif not isinstance( value, bool ):
                 raise TransformArgumentError( '%s should be boolean. Got %s (%s) instead.' % (variableName, value, valType) )
@@ -113,7 +112,7 @@ class CommandLineOption( Descriptor ):
             choices = self.allowedValues()
             try:
                 valueList = value.split( ',' )
-            except:
+            except Exception:
                 valueList = [ value ]
             # Convert value to the correct case, if there is a list of string choices
             if choices:
@@ -136,7 +135,7 @@ class CommandLineOption( Descriptor ):
                         raise TransformArgumentError( '%s value %r is not in %s' % ( variableName, v, choices ) )
                 try: # string list
                     return ','.join( newValueList )
-                except: # assume boolean
+                except Exception: # assume boolean
                     return newValueList[0]
         # check against list of possible values
         return Descriptor._checkValue(self,variableName,value)
@@ -185,7 +184,7 @@ class CommandLineOption( Descriptor ):
         # Check all allowed values
         if not self.__takesArgument:
             for val in allowedValues:
-                if val != True and val != False:
+                if val is not True and val is not False:
                     raise TransformArgumentError( '%s should be True or False. Got %s (%s) instead.' % (variableName, val, type(val).__name__) )
         else:
             for val in allowedValues:
@@ -369,7 +368,7 @@ class RunOptions(JobConfig):
                     # convert to boolean if possible.
                     try:
                         value = { 'TRUE' : True, 'FALSE' : False }[ value.upper() ]
-                    except:
+                    except Exception:
                         pass
                 else:
                     value=''
@@ -396,7 +395,7 @@ class RunOptions(JobConfig):
                     try:
                         # test if it is a negative number
                         float(name)  # covers both float and int
-                    except:
+                    except Exception:
                         raise TransformArgumentError('option %s not supported' % name)
                     else:
                         # it is a negative number: add it to the list, and go to next
@@ -416,7 +415,7 @@ class RunOptions(JobConfig):
                     # convert to boolean if possible.
                     try:
                         value = { 'TRUE' : True, 'FALSE' : False }[ value.upper() ]
-                    except:
+                    except Exception:
                         pass
                     setattr(self,longName,value)
                 else:

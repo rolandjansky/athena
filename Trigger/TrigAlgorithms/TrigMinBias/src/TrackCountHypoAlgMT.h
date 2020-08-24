@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGMINBIAS_TRACKCOUNTHYPOALGMT_H
 #define TRIGMINBIAS_TRACKCOUNTHYPOALGMT_H
@@ -12,7 +12,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include <map>
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthViews/View.h"
 
 // STL includes
@@ -30,8 +30,8 @@ private:
   ToolHandleArray< TrackCountHypoTool > m_hypoTools {this, "HypoTools", {},"Tools that perform actual selection"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksKey{this,"tracksKey","Undefined",""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trackCountKey{this,"trackCountKey","Undefined",""};
-  Gaudi::Property<std::vector<float>> m_min_pt{this, "min_pt",{0.1,0.2,4.0}, "Accept events with momentum higher than this limit"};
-  Gaudi::Property<std::vector<float>> m_max_z0{this, "max_z0",{100,200,300}, "Accept events with absolute value of vertex position lower \
+  Gaudi::Property<std::vector<float>> m_min_pt{this, "min_pt",{0.1,0.2,4.0,5.0}, "Accept events with momentum higher than this limit"};
+  Gaudi::Property<std::vector<float>> m_max_z0{this, "max_z0",{100,401,200,300}, "Accept events with absolute value of vertex position lower \
   than this limit in mm; this vector has to be of the same size as min_pT vector, repetition of cut values are allowed if that makes the number of elements the same"};
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };

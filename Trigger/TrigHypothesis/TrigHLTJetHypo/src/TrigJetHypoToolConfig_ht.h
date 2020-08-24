@@ -50,13 +50,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers{
     this, "conditionMakers", {}, "hypo tree node to conditiionMaker map"};
 
-  Gaudi::Property<std::vector<std::size_t>> m_treeVec{
-    this, "treeVector", {}, "integer sequence representation of jet hypo tree"};
-
-  Gaudi::Property<std::vector<int>> m_sharedNodesVec{
-    this, "sharedVector", {}, "nodeID groups for nodes that see input jets"};
-
-  std::vector<std::vector<int>> m_sharedNodes{};
+  
  
 };
 #endif

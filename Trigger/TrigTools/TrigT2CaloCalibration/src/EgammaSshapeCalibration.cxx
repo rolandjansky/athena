@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2CaloCalibration/EgammaSshapeCalibration.h"
+#include "EgammaSshapeCalibration.h"
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -12,32 +12,11 @@
 #include <iomanip>
 
 //====================================================================
-//
-// EgammaSshapeCalibration constructor
-//
-//====================================================================
-EgammaSshapeCalibration::EgammaSshapeCalibration(const std::string &type,
-						 const std::string &name, 
-						 const IInterface* parent) 
-  : AthAlgTool(type,name,parent), CaloRec::ToolWithConstantsMixin()
-{
-  declareInterface<IEgammaCalibration>(this);
-  declareConstant("correction",    m_correction);
-  declareConstant("regions",       m_regions);
-  declareConstant("energies",      m_energies);
-  declareConstant("energy_degree", m_energy_degree=3);  
-  declareConstant("rangeBarrel",   m_isRange_barrel=true);  
-  declareConstant ("forms",        m_forms, true);
-  finish_ctor();
-}
-
-//====================================================================
 // initialize
 //====================================================================
 StatusCode EgammaSshapeCalibration::initialize(){
   m_log = new MsgStream(AthAlgTool::msgSvc(), name() ); 
-  CHECK(AthAlgTool::initialize());
-  CHECK(CaloRec::ToolWithConstantsMixin::initialize());
+  CHECK(base_class::initialize());
   (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -59,13 +38,15 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
   if(arg!=0){
     const CaloDetDescrElement *caloDDE = (const CaloDetDescrElement*) arg;
 
+    bool isRange_barrel = m_isRange_barrel();
+
 #ifndef NDEBUG    
     (*m_log) << MSG::DEBUG << "caloDDE->descriptor()->is_lar_em_barrel() = " 
 	     << caloDDE->descriptor()->is_lar_em_barrel() << endmsg;
     (*m_log) << MSG::DEBUG << "caloDDE->descriptor()->is_lar_em_endcap() = " 
 	     << caloDDE->descriptor()->is_lar_em_endcap() << endmsg;
 
-    (*m_log) << MSG::DEBUG << "m_isRange_barrel=" << m_isRange_barrel << endmsg;
+    (*m_log) << MSG::DEBUG << "m_isRange_barrel=" << isRange_barrel << endmsg;
 
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::PreSamplerB) = " 
 	     << clus->energy(CaloSampling::PreSamplerB) << endmsg;
@@ -84,19 +65,19 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EME3)        = " 
 	     << clus->energy(CaloSampling::EME3) << endmsg;
 
-    if((caloDDE->descriptor()->is_lar_em_barrel() &&  m_isRange_barrel) ||
-       (caloDDE->descriptor()->is_lar_em_endcap() && !m_isRange_barrel))
+    if((caloDDE->descriptor()->is_lar_em_barrel() &&  isRange_barrel) ||
+       (caloDDE->descriptor()->is_lar_em_endcap() && !isRange_barrel))
       (*m_log) << MSG::DEBUG 
 	       << "[GOOD]: seedCell location and selected eta range agree" << endmsg;
-    else if((caloDDE->descriptor()->is_lar_em_barrel() && !m_isRange_barrel) ||
-	    (caloDDE->descriptor()->is_lar_em_endcap() &&  m_isRange_barrel))
+    else if((caloDDE->descriptor()->is_lar_em_barrel() && !isRange_barrel) ||
+	    (caloDDE->descriptor()->is_lar_em_endcap() &&  isRange_barrel))
       (*m_log) << MSG::DEBUG 
 	       << "[BAD]: seedCell location and selected eta range disagree !!" << endmsg;
 #endif
   
     // check if seedCell is in barrel or end-cap for correct range selection
-    if((caloDDE->descriptor()->is_lar_em_barrel() && !m_isRange_barrel) ||
-       (caloDDE->descriptor()->is_lar_em_endcap() &&  m_isRange_barrel))
+    if((caloDDE->descriptor()->is_lar_em_barrel() && !isRange_barrel) ||
+       (caloDDE->descriptor()->is_lar_em_endcap() &&  isRange_barrel))
       return;
     
     double eta      = clus->eta();     // cluster position in eta     
@@ -132,11 +113,12 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     
     // Find the appropriate region 
     int region_ndx=-1;
-    unsigned int nreg = m_regions.size();
+    const CxxUtils::Array<2> regions = m_regions();
+    unsigned int nreg = regions.size();
 
     // find correct region
     for (unsigned int i=0; i<nreg; i++) {
-      if(aeta>=m_regions[i][REG_LO] && aeta<m_regions[i][REG_HI]){
+      if(aeta>=regions[i][REG_LO] && aeta<regions[i][REG_HI]){
 	region_ndx=i;
 	break;
       }
@@ -149,8 +131,8 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 
     // In a few regions, the fit was done using a cell size different
     // from what we actually have.  Need to recalculate u in this case.
-    if(std::abs(m_regions[region_ndx][REG_CELLSIZE]-elt_deta) > 1e-3) {
-      float cellsize = m_regions[region_ndx][REG_CELLSIZE];
+    if(std::abs(regions[region_ndx][REG_CELLSIZE]-elt_deta) > 1e-3) {
+      float cellsize = regions[region_ndx][REG_CELLSIZE];
       u = fmod(aeta,cellsize)/cellsize*2 - 1;
     }
 
@@ -159,7 +141,8 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     Builder *builder = new Builder(*this, aeta, u, region_ndx);
     
     // Calculate the correction for each energy.
-    unsigned int n_energies = m_energies.size();
+    const CxxUtils::Array<1> energies = m_energies();
+    unsigned int n_energies = energies.size();
     unsigned int shape[] = {n_energies, 2};
     CaloRec::WritableArrayData<2> corrtab (shape);
     
@@ -168,24 +151,24 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     // that one point in that case.
     unsigned int beg = 0;
     unsigned int end = n_energies;
-    if(energy <= m_energies[0]) // ok. m_energies also in MeV
+    if(energy <= energies[0]) // ok. energies also in MeV
       end = 1;
-    else if(energy >= m_energies[n_energies-1])// ok. m_energies also in MeV
+    else if(energy >= energies[n_energies-1])// ok. energies also in MeV
       beg = n_energies-1;
     
     // Build the table.
     int n_good = 0;
     for (unsigned int i=beg; i<end; i++)
-      docalc(i, *builder, m_energies, corrtab, n_good); 
+      docalc(i, *builder, energies, corrtab, n_good); 
     
     // If we only evaluated one point, but it wasn't good, keep
     // searching until we find a good one.
     while (n_good==0 && beg>0) {
       --beg;
-      docalc (beg, *builder, m_energies, corrtab, n_good);
+      docalc (beg, *builder, energies, corrtab, n_good);
     }
     while (n_good == 0 && end<n_energies) {
-      docalc(end, *builder, m_energies, corrtab, n_good);
+      docalc(end, *builder, energies, corrtab, n_good);
       ++end;
     }
     
@@ -210,7 +193,7 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     else{ // Do the interpolation.
       offs = CaloClusterCorr::interpolate(corrtab, 
 					  energy, 
-					  m_energy_degree,
+					  m_energy_degree(),
 					  1, 
 					  CaloRec::Array<1>(), 
 					  n_good);
@@ -248,26 +231,6 @@ inline void EgammaSshapeCalibration::docalc (int i,
 
 
 //====================================================================
-// EgammaSshapeCalibration::setProperty
-//====================================================================
-StatusCode EgammaSshapeCalibration::setProperty (const std::string& propname,
-						 const std::string& value){
-  CHECK( AthAlgTool::setProperty(propname,value) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
-  return StatusCode::SUCCESS;
-}
-
-
-//====================================================================
-// EgammaSshapeCalibration::setProperty
-//====================================================================
-StatusCode EgammaSshapeCalibration::setProperty (const Property& p){
-  CHECK( AthAlgTool::setProperty(p) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
-  return StatusCode::SUCCESS;
-}
-
-//====================================================================
 //
 // Builder constructor
 //
@@ -280,7 +243,7 @@ EgammaSshapeCalibration::Builder::Builder (const EgammaSshapeCalibration& corr,
     m_aeta(aeta),
     m_u(u),
     m_region_ndx(region_ndx),
-    m_form (m_corr.m_regions[region_ndx][REG_FORM])
+    m_form (m_corr.m_regions()[region_ndx][REG_FORM])
 { }
 
 //====================================================================
@@ -290,7 +253,7 @@ float EgammaSshapeCalibration::Builder::calculate(int energy_ndx,
 						  bool& good) const {
 
   // Find the proper array of coefficients.
-  CaloRec::Array<2> coef = m_corr.m_correction[energy_ndx][m_region_ndx];
+  CaloRec::Array<2> coef = m_corr.m_correction()[energy_ndx][m_region_ndx];
   
   // If we don't have coefficients for this energy/region, skip it.
   if(coef[0].end()[-1]==0) {
@@ -300,8 +263,9 @@ float EgammaSshapeCalibration::Builder::calculate(int energy_ndx,
 
   // Which functional form to use?
   int form;
-  if (m_corr.m_forms.size() != 0)
-    form = m_corr.m_forms[m_region_ndx][energy_ndx];
+  CxxUtils::Array<2> forms = m_corr.m_forms();
+  if (forms.size(0) != 0 && forms.size(1) != 0)
+    form = forms[m_region_ndx][energy_ndx];
   else
     form = m_form;
 

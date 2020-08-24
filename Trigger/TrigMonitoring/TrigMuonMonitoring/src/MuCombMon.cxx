@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @Afile HLTMuonMonTool.cxx
@@ -408,11 +408,11 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 		  error = true;
 		}
 		if(!error){
-	     hist("muComb_MF_error", m_histdirmucomb)->Fill(0);
+                  hist("muComb_MF_error", m_histdirmucomb)->Fill(0);
 		}
-	   else continue;
+                else continue;
     
-	   //Plot muComb eta vs phi for standard chain
+                //Plot muComb eta vs phi for standard chain
 		float mc_pt =  cb_cont->at(0)->pt();
 		float mc_eta = cb_cont->at(0)->eta();
 		float mc_phi = cb_cont->at(0)->phi();

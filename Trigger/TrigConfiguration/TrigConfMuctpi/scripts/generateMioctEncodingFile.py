@@ -1,11 +1,12 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import sys,os
 from itertools import groupby
 from operator import attrgetter
-from math import copysign, pi as PI
+from math import pi as PI
 
 # settings temporary
 global shiftPhi
@@ -43,7 +44,7 @@ class Entry:
 
 
         if self.phimin * self.phimax < -1:
-            print "WARNING",str(self)
+            print("WARNING %s" % str(self))
 
 
     def __str__(self):
@@ -62,9 +63,9 @@ class Entry:
 def writeXML(g):
     filename = os.path.basename(sys.argv[1]).replace('.dat','.xml')
     xml = open(filename,"w")
-    print >>xml,'<?xml version="1.0" ?>\n'
-    print >>xml,'<!DOCTYPE MuCTPiGeometry SYSTEM "MUCTPIGeometry.dtd">\n'
-    print >>xml,'<MuCTPiGeometry>'
+    print('<?xml version="1.0" ?>\n', file=xml)
+    print('<!DOCTYPE MuCTPiGeometry SYSTEM "MUCTPIGeometry.dtd">\n', file=xml)
+    print('<MuCTPiGeometry>', file=xml)
     for mioct in sorted(g.keys()):
 
         allSlots = set()
@@ -77,41 +78,41 @@ def writeXML(g):
         slot = allSlots.pop()
         allSectorNames = sorted(list( allSectorNames ))
         
-        print >>xml,'    <MIOCT id="%i" slot="%s">' % ( mioct, slot )
-        print >>xml,'        <!-- contains sectors %s -->' % ", ".join(allSectorNames)
+        print('    <MIOCT id="%i" slot="%s">' % ( mioct, slot ), file=xml)
+        print('        <!-- contains sectors %s -->' % ", ".join(allSectorNames), file=xml)
         for connector in sorted(g[mioct].keys()):
             sector = sorted(g[mioct][connector], key=attrgetter('eta','phi','etacode','phicode'))
-            print >>xml,'        <Sector connector="%s" name="%s">' % (connector, ", ".join(set([str(e.sectorname) for e in sector])) )
-            print >>xml,'            <!-- contains %i ROIs -->' % len(sector)
-            print >>xml,'            <!-- mapping from ROI to coding scheme -->'
+            print('        <Sector connector="%s" name="%s">' % (connector, ", ".join(set([str(e.sectorname) for e in sector])) ), file=xml)
+            print('            <!-- contains %i ROIs -->' % len(sector), file=xml)
+            print('            <!-- mapping from ROI to coding scheme -->', file=xml)
             for e in sector:
-                print >>xml,'            <ROI eta="%f" phi="%f" etacode="%s" phicode="%s" etamin="%f" etamax="%f" phimin="%f" phimax="%f" roiid="%i"/>' % (e.eta, e.phi, e.etacode, e.phicode, e.etamin, e.etamax, e.phimin, e.phimax, e.roi)
-            print >>xml,'        </Sector>'
+                print('            <ROI eta="%f" phi="%f" etacode="%s" phicode="%s" etamin="%f" etamax="%f" phimin="%f" phimax="%f" roiid="%i"/>' % (e.eta, e.phi, e.etacode, e.phicode, e.etamin, e.etamax, e.phimin, e.phimax, e.roi), file=xml)
+            print('        </Sector>', file=xml)
 
         allROIsInMIOCT = []
         map(allROIsInMIOCT.extend, g[mioct].values()) # add all ROIs in this MIOCT
 
-        print >>xml,'        <Decode>'
+        print('        <Decode>', file=xml)
 
         for (eta_code,phi_code), rois in groupby(sorted(allROIsInMIOCT,key=attrgetter('etacode','phicode')), key=attrgetter('etacode','phicode')):
 
             (eta, phi, ieta, iphi, etamin, etamax, phimin, phimax) = getTopoCellPosition(rois)
 
-            print >>xml,'            <TopoCell etacode="%s" phicode="%s" eta="%f" phi="%f" ieta="%i" iphi="%i" etamin="%f" etamax="%f" phimin="%f" phimax="%f"/>' % (eta_code, phi_code, eta, phi, ieta, iphi, etamin, etamax, phimin, phimax)
-        print >>xml,'        </Decode>'
-        print >>xml,'    </MIOCT>'
+            print('            <TopoCell etacode="%s" phicode="%s" eta="%f" phi="%f" ieta="%i" iphi="%i" etamin="%f" etamax="%f" phimin="%f" phimax="%f"/>' % (eta_code, phi_code, eta, phi, ieta, iphi, etamin, etamax, phimin, phimax), file=xml)
+        print('        </Decode>', file=xml)
+        print('    </MIOCT>', file=xml)
     # hardcoding the PT at the moment
-    print >>xml,'    <PtEncoding>'
-    print >>xml,'        <PtCodeElement pt="1" code="0" value="4"/>'
-    print >>xml,'        <PtCodeElement pt="2" code="1" value="6"/>'
-    print >>xml,'        <PtCodeElement pt="3" code="2" value="10"/>'
-    print >>xml,'        <PtCodeElement pt="4" code="2" value="11"/>'
-    print >>xml,'        <PtCodeElement pt="5" code="2" value="15"/>'
-    print >>xml,'        <PtCodeElement pt="6" code="2" value="20"/>'
-    print >>xml,'    </PtEncoding>'
-    print >>xml,'</MuCTPiGeometry>'
+    print('    <PtEncoding>', file=xml)
+    print('        <PtCodeElement pt="1" code="0" value="4"/>', file=xml)
+    print('        <PtCodeElement pt="2" code="1" value="6"/>', file=xml)
+    print('        <PtCodeElement pt="3" code="2" value="10"/>', file=xml)
+    print('        <PtCodeElement pt="4" code="2" value="11"/>', file=xml)
+    print('        <PtCodeElement pt="5" code="2" value="15"/>', file=xml)
+    print('        <PtCodeElement pt="6" code="2" value="20"/>', file=xml)
+    print('    </PtEncoding>', file=xml)
+    print('</MuCTPiGeometry>', file=xml)
     xml.close()
-    print "Wrote %s" % filename
+    print("Wrote %s" % filename)
 
 
 
@@ -194,7 +195,7 @@ def getTopoCellPosition(rois):
 
 def main():
     if len(sys.argv)!=2:
-        print "Usage: %s <geomety.dat>" % os.path.basename(sys.argv[0])
+        print("Usage: %s <geomety.dat>" % os.path.basename(sys.argv[0]))
         return
 
     # read in the data files containing the ROI information
@@ -219,7 +220,7 @@ def main():
 if __name__=="__main__":
     try:
         sys.exit(main())
-    except Exception, ex:
+    except Exception:
         import traceback
         traceback.print_exc()
         sys.exit(1)

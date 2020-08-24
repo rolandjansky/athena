@@ -8,7 +8,6 @@
 #define JETMONITORING_JETVARIABLE_H
 #include <vector>
 
-
 #include "xAODJet/Jet.h"
 
 ///////////////////////////////////////////////////////////
@@ -90,7 +89,10 @@ namespace JetVar {
   template<typename T>
   struct VariableAtt : public Variable {
     VariableAtt(const std::string & name) : Variable(name), m_acc(name) {}
-    virtual float value(const xAOD::Jet & j) const { return m_acc(j)*m_scale;}
+    virtual float value(const xAOD::Jet & j) const { 
+      if ( m_acc.isAvailable( j ) ) return m_acc(j)*m_scale;
+      else return -999.;
+    }
     Accessor<T> m_acc;    
   };
 
@@ -120,11 +122,21 @@ namespace JetVar {
     virtual bool isVector() const {return m_index==-1;}
 
     // use only if the index is valid
-    virtual float value(const xAOD::Jet & j) const { return m_acc(j)[m_index]*m_scale;}
+    virtual float value(const xAOD::Jet & j) const {
+      if ( m_acc.isAvailable( j ) ) return m_acc(j)[m_index]*m_scale;
+      else return -999.;
+    }
 
     virtual VectorValue vector(const xAOD::Jet &j) const {
-      VectorValue v( new VectorWrapperT(&m_acc(j)) , m_scale ) ;
-      return v;
+      if ( m_acc.isAvailable( j ) ) {
+        VectorValue v( new VectorWrapperT(&m_acc(j)) , m_scale ) ;
+        return v;
+      }
+      else {
+        vect_t dummy(1,-999.);
+        VectorValue junk( new VectorWrapperT(&dummy), m_scale );
+        return junk;
+      }
     }
 
 
@@ -167,7 +179,54 @@ namespace JetVar {
     using Variable::Variable;
     virtual float value(const xAOD::Jet & j) const { return j.p4().Et()*m_scale;}
   };
+
+  struct FChargedVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const { 
+      bool status = false;
+      float constScalePt = 0.; 
+      std::vector<float> SumPtChargedPFOPt500;
+      status = j.getAttribute<float>("JetConstitScaleMomentum_pt", constScalePt ); // Jet pT at the constituent scale
+      if (!status) return 0;
+      status = j.getAttribute<std::vector<float> >("SumPtChargedPFOPt500", SumPtChargedPFOPt500 ); //Vector over all vertices in the event, each element contains the sum pT of all charged PFO with a pT > 0.5 GeV associated to the vertex.
+      if (!status) return 0;
+      return SumPtChargedPFOPt500.at(0)/=constScalePt; //definition of "fCharge", index 0 points to the primary vertex
+    }
+  };
   
+  struct EM3FracVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const {
+      float constitScaleEnergy = 0.;
+      std::vector<float> samplingFrac;
+      xAOD::JetFourMom_t fourVec;
+      bool status = false;
+
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec ); // Jet four-momentum at constituent scale 
+      if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
+      else return 0.;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac ); //EnergyPerSampling is a vector of size 24; element i refers to the energy deposited in calo sampling i, see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2JetMoments#Sampling_layers
+      if( status ) return (samplingFrac[3]+samplingFrac[7])/constitScaleEnergy; //3 is 'EMB3' in the LAr barrel, 7 is 'EME3' in the LAr EM endcap
+      else return 0.;
+    } 
+  };
+
+  struct Tile0FracVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const {
+      float constitScaleEnergy = 0.;
+      std::vector<float> samplingFrac;
+      xAOD::JetFourMom_t fourVec;
+      bool status = false;
+
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec ); // Jet four-momentum at constituent scale 
+      if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
+      else return 0.;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac ); // refer to EM3FracVar above
+      if( status ) return (samplingFrac[12]+samplingFrac[18])/constitScaleEnergy; //12 is 'TileBar0' in the Tile barrel, 18 is 'TileExt0' in the Tile extended barrel
+      else return 0.;
+    } 
+  };
 
 }
 

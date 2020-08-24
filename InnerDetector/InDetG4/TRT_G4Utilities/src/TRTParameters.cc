@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_G4Utilities/TRTParameters.hh"
@@ -42,7 +42,7 @@ TRTParameters::~TRTParameters()
 
   // Called by TRTParameters
 
-void TRTParameters::ReadInputFile(std::string fileName)
+void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) // Thread unsafe exit function is used.
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile" << endmsg;
 
@@ -149,7 +149,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
 
   // Called by TRTParameters
 
-void TRTParameters::PrintListOfParameters() const
+void TRTParameters::PrintListOfParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTOutputFile class is used.
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters" << endmsg;
 
@@ -171,7 +171,7 @@ void TRTParameters::PrintListOfParameters() const
 
   // Called on demand
 
-int TRTParameters::GetInteger(std::string parameterName) const
+int TRTParameters::GetInteger ATLAS_NOT_THREAD_SAFE (std::string parameterName) const // Thread unsafe exit function is used.
 {
   int numberOfItems = m_multimapOfParameters.count(parameterName);
 
@@ -203,7 +203,7 @@ int TRTParameters::GetInteger(std::string parameterName) const
 
   // Called on demand
 
-double TRTParameters::GetDouble(std::string parameterName) const
+double TRTParameters::GetDouble ATLAS_NOT_THREAD_SAFE (std::string parameterName) const // Thread unsafe exit function is used.
 {
   int numberOfItems = m_multimapOfParameters.count(parameterName);
 
@@ -235,7 +235,7 @@ double TRTParameters::GetDouble(std::string parameterName) const
 
   // Called on demand
 
-void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
+void TRTParameters::GetIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, int arraySize, // Thread unsafe exit function is used.
   int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -269,7 +269,7 @@ void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
 
   // Called on demand
 
-void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
+void TRTParameters::GetDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, int arraySize, // Thread unsafe exit function is used.
   double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -303,7 +303,7 @@ void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
 
   // Called on demand
 
-void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
+void TRTParameters::GetPartOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, // Thread unsafe exit function is used.
   int numberOfDemandedElements, int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -338,7 +338,7 @@ void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
 
   // Called on demand
 
-void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
+void TRTParameters::GetPartOfDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, // Thread unsafe exit function is used.
   int numberOfDemandedElements, double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -373,7 +373,7 @@ void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
 
   // Called on demand
 
-int TRTParameters::GetElementOfIntegerArray(std::string arrayName,
+int TRTParameters::GetElementOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, // Thread unsafe exit function is used.
   int elementIndex) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);

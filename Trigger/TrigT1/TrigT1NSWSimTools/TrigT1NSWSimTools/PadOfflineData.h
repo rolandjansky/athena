@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PADOFFLINEDATA_H
@@ -7,7 +7,6 @@
 
 // Identifier includes
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 
 // local includes
 #include "TrigT1NSWSimTools/PadData.h"

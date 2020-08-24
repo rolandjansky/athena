@@ -61,15 +61,15 @@ class AssocBuilder : public AthAlgorithm
 
   /** Callback method to setup the "ObjectContainers" property
    */
-  void setupInputContainers( Property& inputNames );
+  void setupInputContainers( Gaudi::Details::PropertyBase& inputNames );
 
   /** Callback method to setup the "AssocContainers" property
    */
-  void setupInputAssocContainers( Property& inputAssocNames );
+  void setupInputAssocContainers( Gaudi::Details::PropertyBase& inputAssocNames );
 
   /** Callback method to setup the "AssocsOutput" property
    */
-  void setupAssocsOutput( Property& assocsOutputName );
+  void setupAssocsOutput( Gaudi::Details::PropertyBase& assocsOutputName );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

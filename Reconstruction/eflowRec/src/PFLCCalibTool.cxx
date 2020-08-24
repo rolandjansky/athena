@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFLCCalibTool.h"
@@ -69,15 +69,9 @@ StatusCode PFLCCalibTool::finalize() {
 }
 
 
-void PFLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTool, xAOD::CaloCluster* cluster) {
-
-  if (m_useLocalWeight) ATH_MSG_WARNING("Applying recalculated weights, when configuraiton requested to use original weights");
-  CaloClusterCollectionProcessor* myCollectionProcessor = &(*calibTool);
-  CaloClusterProcessor* myCalibProcessor = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor);
-  if (myCalibProcessor) {
-    if (myCalibProcessor->execute(cluster).isFailure()) ATH_MSG_WARNING("Could not execute " << calibTool.name());
-  }
-  else ATH_MSG_WARNING("Dynamic_cast provided NULL pointer to CaloClusterProcessor");
+void PFLCCalibTool::apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::CaloCluster* cluster) {
+  if (m_useLocalWeight) ATH_MSG_WARNING("Applying recalculated weights, when configuration requested to use original weights");
+  if (calibTool->execute(cluster).isFailure()) ATH_MSG_WARNING("Could not execute " << calibTool.name());
 }
 
 void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {

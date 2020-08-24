@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 __author__  = 'J. Stelzer'
@@ -62,10 +62,10 @@ class TriggerConfigGetter(Configured):
             return True
 
         if rec.readESD() or rec.readAOD(): # and globalflags.DataSource()=='data':  # need this for MC as well
-            protectedInclude("TrigTier0/TriggerConfigCheckMetadata.py")
+            protectedInclude("TriggerJobOpts/TriggerConfigCheckMetadata.py")
 
         if rec.readRDO() and globalflags.InputFormat()=='bytestream' and globalflags.DataSource()=='data' and TriggerFlags.configForStartup()!='HLToffline':
-            protectedInclude("TrigTier0/TriggerConfigCheckHLTpsk.py")
+            protectedInclude("TriggerJobOpts/TriggerConfigCheckHLTpsk.py")
 
         log.info("The following flags are set:")
         log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
@@ -250,8 +250,9 @@ class TriggerConfigGetter(Configured):
             else: # Does not have xAODMeta
                 # Run-3 Trigger Configuration Services
                 from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
-                svcMgr += getL1ConfigSvc()
-                svcMgr += getHLTConfigSvc()
+                from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                svcMgr += getL1ConfigSvc(ConfigFlags)
+                svcMgr += getHLTConfigSvc(ConfigFlags)
 
                 # Needed for TrigConf::xAODMenuWriterMT
                 from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc

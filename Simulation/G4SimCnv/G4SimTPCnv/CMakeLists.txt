@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4SimTPCnv )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolServices
-                          Simulation/G4Sim/TrackRecord
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthenaKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -25,7 +16,7 @@ atlas_add_tpcnv_library( G4SimTPCnv
                          INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                          DEFINITIONS ${CLHEP_DEFINITIONS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib AthenaKernel )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolServicesLib AthenaKernel TrackRecordLib )
 
 atlas_add_dictionary( G4SimTPCnvDict
                       G4SimTPCnv/G4SimTPCnvDict.h

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_METADATASVC_H
@@ -12,14 +12,14 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
+#include "Gaudi/Property.h"  // no forward decl: typedef
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IMetaDataTool.h"
-#include "AthenaKernel/IMetadataTransition.h"
+#include "AthenaKernel/IMetaDataSvc.h"
 
 #include "boost/bind.hpp"
 
@@ -29,6 +29,7 @@
 class IAddressCreator;
 class StoreGateSvc;
 class IAlgTool;
+class OutputStreamSequencerSvc;
 
 namespace Io {
    class FileAttr;
@@ -44,7 +45,7 @@ template <class TYPE> class SvcFactory;
 class ATLAS_CHECK_THREAD_SAFETY MetaDataSvc : public ::AthService,
 	virtual public IAddressProvider,
 	virtual public IIncidentListener,
-        virtual public IMetadataTransition,
+        virtual public IMetaDataSvc,
 	virtual public IIoComponent {
    // Allow the factory class access to the constructor
    friend class SvcFactory<MetaDataSvc>;
@@ -68,15 +69,18 @@ public: // Non-static members
    /// Required of all Gaudi services:  see Gaudi documentation for details
 
    /// Function called when a new metadata source becomes available
-   virtual StatusCode newMetadataSource(const Incident&) override;
+   virtual StatusCode newMetadataSource(const Incident&);
 
    /// Function called when a metadata source is closed
-   virtual StatusCode retireMetadataSource(const Incident&) override;
+   virtual StatusCode retireMetadataSource(const Incident&);
 
    /// Function called when the current state of metadata must be made 
    /// ready for output
-   virtual StatusCode prepareOutput() override;
+   virtual StatusCode prepareOutput();
 
+   /// version of prepareOutput() for parallel streams
+   virtual StatusCode prepareOutput(const std::string& outputName);
+  
    virtual StatusCode shmProxy(const std::string& filename) override;
 
    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
@@ -98,12 +102,18 @@ public: // Non-static members
    virtual void handle(const Incident& incident) override;
 
    /// Transition output metadata file - fire MeteDataStop incident to transition OutputStream
-   StatusCode transitionMetaDataFile(bool ignoreInputFile = false);
+   StatusCode transitionMetaDataFile();
 
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    virtual StatusCode io_reinit() override;
 
    StatusCode rootOpenAction(FILEMGR_CALLBACK_ARGS);
+
+   virtual StoreGateSvc* outputDataStore() const override final { return &*m_outputDataStore; }
+
+   virtual const std::string currentRangeID() const override final;
+
+   CLID remapMetaContCLID( const CLID& item_id ) const;
 
 private:
    /// Add proxy to input metadata store - can be called directly or via BeginInputFile incident
@@ -117,7 +127,8 @@ private: // data
    ServiceHandle<IAddressCreator> m_addrCrtr;
    ServiceHandle<IFileMgr> m_fileMgr;
    ServiceHandle<IIncidentSvc> m_incSvc;
-
+   ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
+ 
    long m_storageType;
    bool m_clearedInputDataStore;
    bool m_clearedOutputDataStore;
@@ -133,6 +144,5 @@ private: // properties
    /// MetaDataTools, vector with the MetaData tools.
    ToolHandleArray<IMetaDataTool> m_metaDataTools;
 };
-
+ 
 #endif
-

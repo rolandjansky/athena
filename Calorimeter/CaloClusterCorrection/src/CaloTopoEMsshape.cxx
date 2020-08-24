@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -22,43 +22,9 @@ Updated:  March 12, 2005   (MB)
 #include "GaudiKernel/MsgStream.h"
 #include <math.h> 
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
-CaloTopoEMsshape::CaloTopoEMsshape(const std::string& type, const std::string& name, const IInterface* parent) 
-  : CaloClusterCorrectionCommon(type, name, parent)
-{ 
-  declareConstant("P0",                      m_P0);
-  declareConstant("P1",                      m_P1);
-  declareConstant("P2",                      m_P2);
-  declareConstant("P3",                      m_P3);
-  declareConstant("P4",                      m_P4);
-  declareConstant("Granularity",             m_Granularity);
-  declareConstant("EtaFrontier",             m_EtaFrontier);
-}
-
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloTopoEMsshape::~CaloTopoEMsshape()
-{ }
-
-// Initialization
-/*StatusCode CaloTopoEMsshape::initialize()
-{
-  ATH_MSG_DEBUG( " S-shape parameters : " << endmsg);
-  ATH_MSG_DEBUG( "   P0 =             " << m_P0 << endmsg);
-  ATH_MSG_DEBUG( "   P1 =             " << m_P1 << endmsg);
-  ATH_MSG_DEBUG( "   P2 =             " << m_P2 << endmsg);
-  ATH_MSG_DEBUG( "   P3 =             " << m_P3 << endmsg);
-  ATH_MSG_DEBUG( "   P4 =             " << m_P4 << endmsg);
-  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endmsg);
-  ATH_MSG_DEBUG( "   Eta frontiers =  " << m_EtaFrontier << endmsg);
-  return StatusCode::SUCCESS;
-}*/
 
 // make correction to one cluster 
-void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
+void CaloTopoEMsshape::makeTheCorrection(const Context& myctx,
                                          xAOD::CaloCluster* cluster,
 					 const CaloDetDescrElement* elt,
 					 float eta,
@@ -69,7 +35,7 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
 {
   float qsshape = 0.;
   float aeta = fabs(adj_eta);
-  int iEtaBin = (int)(aeta/m_Granularity);
+  int iEtaBin = (int)(aeta/m_Granularity(myctx));
   // u is the normalized coordinate along eta (within a cell)
   // -0.5 < u < 0.5
   float u = (eta - elt->eta()) / elt->deta();
@@ -82,13 +48,16 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
   ATH_MSG_DEBUG( " ... s-shapes BEGIN ; u = " << u << " " << eta << " " << adj_eta << " " << elt->eta() << " " << elt->deta() << endmsg);
   ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
 
+  const CxxUtils::Array<1> EtaFrontier = m_EtaFrontier (myctx);
+
   // Compute the correction
-  if (aeta < m_EtaFrontier[0] || (aeta > m_EtaFrontier[1] && aeta < m_EtaFrontier[2])) 
+  if (aeta < EtaFrontier[0] || (aeta > EtaFrontier[1] && aeta < EtaFrontier[2])) 
     { 
       if (samp == CaloSampling::EMB2 || samp == CaloSampling::EME2) 
 	{
-	  qsshape = m_P0[iEtaBin]*0.01*std::atan(m_P1[iEtaBin]*u)
-	    + m_P2[iEtaBin]*0.01*u + m_P3[iEtaBin]*1e-3*fabs(u) + m_P4[iEtaBin]*1e-3;
+	  qsshape = m_P0(myctx)[iEtaBin]*0.01*std::atan(m_P1(myctx)[iEtaBin]*u)
+	    + m_P2(myctx)[iEtaBin]*0.01*u + m_P3(myctx)[iEtaBin]*1e-3*fabs(u)
+            + m_P4(myctx)[iEtaBin]*1e-3;
 	}
       else // wrong samp value
 	{

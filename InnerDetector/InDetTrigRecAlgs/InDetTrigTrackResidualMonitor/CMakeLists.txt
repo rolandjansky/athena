@@ -46,7 +46,7 @@ atlas_add_component( InDetTrigTrackResidualMonitor
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers AtlasDetDescr Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkParameters TrkTrack TrkValEvent TrigSteeringEvent TrigInterfacesLib IdDictDetDescr InDetIdentifier MagFieldInterfaces TrkGeometry TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces TrigParticle )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers AtlasDetDescr Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkParameters TrkTrack TrkValEvent TrigSteeringEvent TrigInterfacesLib IdDictDetDescr InDetIdentifier MagFieldInterfaces TrkGeometry TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces TrigParticle TrkValToolsLib InDetAlignGenToolsLib )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigTrackResidualMonitor )

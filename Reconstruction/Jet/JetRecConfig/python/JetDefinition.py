@@ -13,14 +13,7 @@ __all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAODType"]
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetDefinition')
 
-# Trigger xAODType.ObjectType dict entry loading
-import cppyy
-try:
-    cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except Exception:
-    pass
-from ROOT import xAODType
-xAODType.ObjectType
+from xAODBase.xAODType import xAODType
 
 # Code from JetRecUtils
 # define the convention that we write R truncating the decimal point
@@ -84,6 +77,10 @@ class JetConstit(object):
     def basetype(self,basetype):
         self.__basetype = basetype
         self.defineLabelAndContainerNames()
+
+    @property
+    def prefix(self):
+        return self.__prefix
 
     @property
     def modifiers(self):
@@ -228,7 +225,7 @@ class JetDefinition(object):
 
         self.ptmin = ptmin # The pt down to which FastJet is run
         self.ptminfilter = ptminfilter # The pt above which xAOD::Jets are kept, may include calibration
-        if ptmin<1000. or ptminfilter<1000.:
+        if ptmin<1000.*MeV or ptminfilter<1000.*MeV:
             jetlog.warning("Very low filter threshold set: ptmin {0:.0f} MeV, ptminfilter {1:.0f} MeV. Are you sure?")
 
         self.ghostdefs = ghostdefs     # Objects to ghost-associate
@@ -348,7 +345,7 @@ class JetModifier(object):
 
     def getGenericModifier(self,**kwargs):
         from AthenaConfiguration.ComponentFactory import CompFactory
-        tool = getattr(CompFactory,self.tooltype)(self.toolname)
+        tool = CompFactory.getComp(self.tooltype)(self.toolname)
         return tool
 
     def getPrereqs(self,modspec="",jetdef=None):

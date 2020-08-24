@@ -6,23 +6,23 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-    from DerivationFrameworkTau.TauTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
 
 orstr  = ' || '
 andstr = ' && '
@@ -40,6 +40,11 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 JETM2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM2SkimmingTool1",
                                                                     expression = expression)
 ToolSvc += JETM2SkimmingTool
+
+#Trigger matching decorations
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM2",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
@@ -92,7 +97,7 @@ thinningTools.append(JETM2PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 JETM2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM2TauTPThinningTool",
-                                                                        StreamName              = streamName,
+                                                                        StreamName      = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM2TauTPThinningTool
@@ -137,7 +142,29 @@ DerivationFrameworkJob += jetm2Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm2Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM2Kernel",
                                                          SkimmingTools = [JETM2SkimmingTool],
-                                                         ThinningTools = thinningTools)
+                                                         ThinningTools = thinningTools,
+                                                         AugmentationTools = [TrigMatchAug])
+
+#=======================================
+# SCHEDULE SMALL-R JETS WITH LOW PT CUT
+#=======================================
+
+OutputJets["JETM2"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,jetm2Seq,"JETM2")
+
+
+#======================================= 
+# SCHEDUKE BTAGGING FOR PFLOW JETS
+#======================================= 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=jetm2Seq)
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
@@ -161,15 +188,22 @@ JETM2SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         ]
 JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
+JETM2SlimmingHelper.ExtraVariables = ["Electrons."+NewTrigVars["Electrons"],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"],
                                       "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
+
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

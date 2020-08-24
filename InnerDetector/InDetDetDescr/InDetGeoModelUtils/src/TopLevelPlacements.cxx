@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
@@ -8,7 +8,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include <iostream>
 
-GeoTrf::Transform3D TopLevelPlacements::s_identityTransform = GeoTrf::Transform3D::Identity();
+const GeoTrf::Transform3D TopLevelPlacements::s_identityTransform = GeoTrf::Transform3D::Identity();
 
 TopLevelPlacements::TopLevelPlacements(IRDBRecordset_ptr topLevelTable)
   : m_noTopLevelTable(true) {

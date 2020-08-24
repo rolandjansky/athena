@@ -78,7 +78,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
     const xAOD::JetContainer* truthjetTES;
     CHECK(evtStore()->retrieve( truthjetTES, m_TruthJetContainerName));
     for (xAOD::JetContainer::const_iterator j = truthjetTES->begin(); j != truthjetTES->end() ; ++j) {
-      if ((*j)->pt() > m_jetPtMin && fabs((*j)->eta()) < m_jetEtaMax) {
+      if ((*j)->pt() > m_jetPtMin && std::abs((*j)->eta()) < m_jetEtaMax) {
         jets.push_back(j);
       }
     }
@@ -88,7 +88,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = *itr;
 
     // Loop over all truth particles in the event
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+    for (auto part: *genEvt) {
       /// @todo This could be so much more efficient! And with so much less code duplication...
 
       // b-quarks
@@ -97,11 +97,11 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // between the final quark in the decay chain and intermediates
       // That means the code is NOT appropriate for counting the number
       // of heavy flavor quarks!
-      if (m_Request_bQuark && std::abs((*pitr)->pdg_id())==5 &&
-          (*pitr)->momentum().perp()>m_bPtMin &&
-          fabs((*pitr)->momentum().pseudoRapidity())<m_bEtaMax) {
+      if (m_Request_bQuark && std::abs(part->pdg_id())==5 &&
+          part->momentum().perp()>m_bPtMin &&
+          std::abs(part->momentum().pseudoRapidity())<m_bEtaMax) {
         if (m_RequireTruthJet) {
-          HepMC::FourVector tmp = (*pitr)->momentum();
+          HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
             double dR = (*jets[i])->p4().DeltaR(genpart);
@@ -119,11 +119,11 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // That means the code is NOT appropriate for counting the number
       // of heavy flavor quarks!
       if (m_Request_cQuark &&
-          std::abs((*pitr)->pdg_id())==4 &&
-          (*pitr)->momentum().perp()>m_cPtMin &&
-          fabs((*pitr)->momentum().pseudoRapidity())<m_cEtaMax) {
+          std::abs(part->pdg_id())==4 &&
+          part->momentum().perp()>m_cPtMin &&
+          std::abs(part->momentum().pseudoRapidity())<m_cEtaMax) {
         if (m_RequireTruthJet) {
-          HepMC::FourVector tmp = (*pitr)->momentum();
+          HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
             double dR = (*jets[i])->p4().DeltaR(genpart);
@@ -137,11 +137,11 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // B hadrons
       // =========
       if (m_RequestBottom &&
-          isBwithWeakDK((*pitr)->pdg_id()) &&
-          (*pitr)->momentum().perp()>m_bottomPtMin &&
-          fabs((*pitr)->momentum().pseudoRapidity())<m_bottomEtaMax) {
+          isBwithWeakDK(part->pdg_id()) &&
+          part->momentum().perp()>m_bottomPtMin &&
+          std::abs(part->momentum().pseudoRapidity())<m_bottomEtaMax) {
         if (m_RequireTruthJet) {
-          HepMC::FourVector tmp = (*pitr)->momentum();
+          HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
             double dR = (*jets[i])->p4().DeltaR(genpart);
@@ -155,11 +155,11 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // Charm Hadrons
       // ==============
       if (m_RequestCharm &&
-          isDwithWeakDK((*pitr)->pdg_id()) &&
-          (*pitr)->momentum().perp()>m_charmPtMin &&
-          fabs((*pitr)->momentum().pseudoRapidity())<m_charmEtaMax) {
+          isDwithWeakDK(part->pdg_id()) &&
+          part->momentum().perp()>m_charmPtMin &&
+          std::abs(part->momentum().pseudoRapidity())<m_charmEtaMax) {
         if (m_RequireTruthJet) {
-          HepMC::FourVector tmp = (*pitr)->momentum();
+          HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
             double dR = (*jets[i])->p4().DeltaR(genpart);
@@ -173,12 +173,12 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // Request Specific PDGID
       // =========================
       bool pdgok = m_RequestSpecificPDGID &&
-        ((*pitr)->pdg_id() == m_PDGID ||
-         (m_PDGAntiParticleToo && std::abs((*pitr)->pdg_id()) == m_PDGID));
-      if (pdgok && (*pitr)->momentum().perp() > m_PDGPtMin &&
-          fabs((*pitr)->momentum().pseudoRapidity()) < m_PDGEtaMax) {
+        (part->pdg_id() == m_PDGID ||
+         (m_PDGAntiParticleToo && std::abs(part->pdg_id()) == m_PDGID));
+      if (pdgok && part->momentum().perp() > m_PDGPtMin &&
+          std::abs(part->momentum().pseudoRapidity()) < m_PDGEtaMax) {
         if (m_RequireTruthJet) {
-          HepMC::FourVector tmp = (*pitr)->momentum();
+          HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (size_t i = 0; i < jets.size(); ++i) {
             double dR = (*jets[i])->p4().DeltaR(genpart);

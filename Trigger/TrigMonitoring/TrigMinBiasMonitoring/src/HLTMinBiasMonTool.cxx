@@ -25,7 +25,7 @@
  *
  *    Based on HLTMonTool example by Christiane Risler and Martin zur Nedden
  */
-#include "TrigMinBiasMonitoring/HLTMinBiasMonTool.h" 
+#include "HLTMinBiasMonTool.h" 
  
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"

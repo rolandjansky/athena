@@ -3,7 +3,7 @@ INav4MomAssocsCnv_p1_test
 
 Initializing Gaudi ApplicationMgr using job opts ../share/EventCommonTPCnv_test.txt
 JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/EventCommonTPCnv_test.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.Dlls += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/EventCommonTPCnv_test.txt
 ApplicationMgr    SUCCESS 

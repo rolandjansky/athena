@@ -14,9 +14,7 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibTrack_E.h"
 #include "AthContainers/DataVector.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -35,7 +33,6 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h" 
 
 #include "TrkEventPrimitives/ResidualPull.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "CxxUtils/sincos.h"
 
 #include "EventPrimitives/EventPrimitives.h"
@@ -45,15 +42,11 @@ namespace MuonCalib {
 ExtraTreeTrackFillerTool::ExtraTreeTrackFillerTool(const std::string &type, const std::string &name, const IInterface *parent) : 
   IExtraTreeFillerTool(), 
   AthAlgTool(type, name, parent),
-  m_idToFixedIdTool( "MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool" ),
-  m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
   m_author(0) {
   declareInterface<IExtraTreeFillerTool>(this);
   declareProperty("TrackCollectionKey", m_trackCollectionKey);
   declareProperty("SegmentAuthors", m_segment_authors);
   declareProperty("TrackAuthor", m_author);
-  declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
-  declareProperty("PullCalculator", m_pullCalculator);
 }
 	
 StatusCode ExtraTreeTrackFillerTool::initialize() {
@@ -68,10 +61,6 @@ StatusCode ExtraTreeTrackFillerTool::initialize() {
     ATH_MSG_FATAL("Retrieve Tools failed!");
     return StatusCode::FAILURE;
   }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode ExtraTreeTrackFillerTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
@@ -373,7 +362,7 @@ inline double ExtraTreeTrackFillerTool::errorCompetingRot( const Trk::CompetingR
     Er(1, 1) = rotc->localCovariance()(1,1);
     Er(1, 0) = Er(0,1);   
       
-    double chi = Er(0,0) != Er(1,1) ? atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
+    double chi = Er(0,0) != Er(1,1) ? std::atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
  
     double sincoschi[2];
     CxxUtils::sincos scchi(chi);
@@ -402,7 +391,7 @@ inline double ExtraTreeTrackFillerTool::errorRot( const Trk::RIO_OnTrack* rot) {
     Er(1,1) = rot->localCovariance()(2,2);
     Er(1,0) = Er(0,1);   
       
-    double chi = Er(0,0) != Er(1,1) ? atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
+    double chi = Er(0,0) != Er(1,1) ? std::atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
  
     double sincoschi[2];
     CxxUtils::sincos scchi(chi);

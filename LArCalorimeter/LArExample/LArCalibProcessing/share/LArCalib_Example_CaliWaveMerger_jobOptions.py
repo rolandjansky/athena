@@ -40,9 +40,6 @@ DetFlags.em_setOn()
 #
 # Read POOL file(s)
 #
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.CheckDictionary = True 
-
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 theApp.Dlls += ["EventSelectorAthenaPool"] 
 theApp.Dlls += ["LArAthenaPoolPoolCnv"]
@@ -55,8 +52,6 @@ CondProxyProvider.InputCollections = PoolFileList
 
 EventPersistencySvc = Service( "EventPersistencySvc" )
 EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
-
-include("AthenaServices/AthenaSealSvc_joboptions.py")
 
 #
 # Merge LArCaliWaveContainers
@@ -81,9 +76,6 @@ if ( WriteNtuple ) :
 	NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFileName+"' OPT='NEW'" ]
 
 if ( WritePOOLFile ) :
-        include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-        AthenaSealSvc.CheckDictionary = True 
-
         include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
         theApp.Dlls   += [ "LArAthenaPoolPoolCnv" ]
         theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]

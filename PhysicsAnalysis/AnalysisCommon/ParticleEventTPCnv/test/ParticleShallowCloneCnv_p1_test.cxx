@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file ParticleEventTPCnv/test/ParticleShallowCloneCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -61,6 +59,8 @@ void test1()
   c->push_back (std::make_unique<Neutrino>());
   SGTest::store.record (c, "cont");
   ElementLink<VxContainer> origin ("vx", 0);
+
+  IParticleContainer::dvlinfo();
 
   Athena_test::Leakcheck check;
   P4Momentum_t mom (100, 200, 300, 400);

@@ -47,7 +47,7 @@ class Lvl1ResultBuilderGetter(Configured):
                 if jobproperties.Global.InputFormat() == 'bytestream':
                     # Decode ROIB::RoIBResult from ByteStream
                     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-                    L1ByteStreamDecodersRecExSetup(enableRun2L1=True, enableRun3L1=False)
+                    L1ByteStreamDecodersRecExSetup()
                 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
                     RoIBResultToAOD
                 topSequence += RoIBResultToAOD("RoIBResultToxAOD")

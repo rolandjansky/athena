@@ -1,21 +1,26 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTDIGCONDBASE_H
 #define TRT_DIGITIZATION_TRTDIGCONDBASE_H
 
-#include "CLHEP/Random/RandomEngine.h"
-#include <set>
-#include <map>
-#include "Identifier/Identifier.h"
 #include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "CxxUtils/checker_macros.h"
+#include "Identifier/Identifier.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" // added by Sasha for Argon
 
-class TRT_ID;
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+
+#include <atomic>
+#include <map>
+#include <mutex>
+#include <set>
+
+class TRT_ID;
 
 namespace InDetDD {
   class TRT_DetectorManager;
@@ -172,9 +177,10 @@ private:
   /** Iterator pointing to last straw in straw state map */
   std::map<int,StrawState>::const_iterator m_it_hitid_to_StrawState_End;
   /** Iterator used for caching (ought to be called _Previous) */
-  mutable std::map<int,StrawState>::const_iterator m_it_hitid_to_StrawState_Last;
+  mutable std::map<int,StrawState>::const_iterator m_it_hitid_to_StrawState_Last ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::mutex m_mutex;
 
-  mutable float m_averageNoiseLevel; /**< Average noise level */
+  mutable std::atomic<float> m_averageNoiseLevel; /**< Average noise level */
   double m_crosstalk_noiselevel;
   double m_crosstalk_noiselevel_other_end;
 
@@ -185,7 +191,7 @@ private:
   std::map<int,StrawState>::iterator m_all_it_hitid_to_StrawState_previous;
 
 protected:
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   int m_UseGasMix;
   ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // added by Sasha for Argon
@@ -195,13 +201,13 @@ protected:
 ////////////////
 /// INLINES ////
 ////////////////
-//Fixme: cache last access!!
 
 //___________________________________________________________________________
 inline void TRTDigCondBase::getStrawData( const int& hitID,
                                           double& lowthreshold,
                                           double& noiseamplitude ) const {
   //fixme: do we actually benefit from this caching?
+  std::lock_guard<std::mutex> lock(m_mutex);
   if (m_it_hitid_to_StrawState_Last->first != hitID)
     m_it_hitid_to_StrawState_Last = m_hitid_to_StrawState.find(hitID);
 

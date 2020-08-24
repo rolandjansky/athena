@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrackingConfigurationWorkaround.py
@@ -75,13 +75,17 @@ def TrackSummaryToolWorkaround(flags):
                                                              CheckDeadRegions=True,
                                                              CheckDisabledFEs=True)
     result.addPublicTool(InDetTestPixelLayerTool)
+    InDetBoundaryCheckTool = CompFactory.InDet.InDetBoundaryCheckTool(
+        name="InDetBoundaryCheckTool",
+        UsePixel=flags.Detector.GeometryPixel,
+        UseSCT=flags.Detector.GeometrySCT,
+        PixelLayerTool=InDetTestPixelLayerTool
+    )
+    result.addPublicTool(InDetBoundaryCheckTool)
     InDetHoleSearchTool = CompFactory.InDet.InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                           Extrapolator = InDetExtrapolator,
-                                                          PixelSummaryTool = InDetPixelConditionsSummaryTool,
-                                                          usePixel      = flags.Detector.GeometryPixel,
-                                                          useSCT        = flags.Detector.GeometrySCT,
                                                           CountDeadModulesAfterLastHit = True,
-                                                          PixelLayerTool = InDetTestPixelLayerTool)
+                                                          BoundaryCheckTool=InDetBoundaryCheckTool)
     result.addPublicTool(InDetHoleSearchTool)
     InDetPrdAssociationTool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
                                                                           PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap",
@@ -107,4 +111,12 @@ def TrackSummaryToolWorkaround(flags):
                                                   PixelToTPIDTool        = None)
     result.setPrivateTools(InDetTrackSummaryTool)
     ############################## WORKAROUND (END) ############################
+
+    # To run job only with ID
+    if hasattr(flags, "Detector") and hasattr(flags.Detector, "GeometryMuon") and hasattr(flags.Detector, "GeometryID"):
+        TrkEventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool(name = "EventCnvSuperTool",
+                                                                 DoMuons = flags.Detector.GeometryMuon,
+                                                                 DoID = flags.Detector.GeometryID)
+        result.addPublicTool(TrkEventCnvSuperTool)
+
     return result

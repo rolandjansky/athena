@@ -1,53 +1,47 @@
-Tue Oct  2 15:11:22 CEST 2018
+Wed Aug 12 22:07:02 CEST 2020
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [warn_lar/7b7c03e74d] -- built on [2018-10-02T1309]
+Py:Athena            INFO using release [WorkDir-22.0.17] [x86_64-centos7-gcc8-opt] [atlas-work3/ed2484eb9f5] -- built on [2020-08-12T1632]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "LArCellRec/LArCellDeadOTXCorr_test.py"
-[?1034hSetGeometryVersion.py obtained major release version 22
+Py:Athena            INFO SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfigurableDb    INFO Read module info for 5500 configurables from 6 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5547 configurables from 32 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  Athena-22.0.1
+EventInfoMgtInit: Got release version  Athena-22.0.17
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:Athena            INFO including file "CaloIdCnv/CaloIdCnv_joboptions.py"
 Py:Athena            INFO including file "CaloConditions/CaloConditions_jobOptions.py"
 Py:Athena            INFO including file "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py"
 Py:Athena            INFO including file "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py"
 Py:Athena            INFO including file "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py"
-ATLAS-R2-2016-01-00-01
+Py:JobPropertyContainer::    INFO ATLAS-R2-2016-01-00-01
 Py:JobPropertyContainer::    INFO  use global tag for all LArElecCalibMC constants 
 Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_MC_jobOptions.py"
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/OnOffIdMap with tag LARIdentifierOnOffIdMap-012
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/CalibIdMap with tag LARIdentifierCalibIdMap-012
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/FebRodMap with tag LARIdentifierFebRodMap-005
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on pc-tbed-pub-31.cern.ch on Tue Oct  2 15:11:35 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r2)
+                                          running on lxplus770.cern.ch on Wed Aug 12 22:07:13 2020
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3219 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+ClassIDSvc           INFO  getRegistryEntries: read 3589 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host pc-tbed-pub-31.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus770.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -56,6 +50,8 @@ PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atla
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray([])
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
 IOVDbSvc             INFO Cache alignment will be done in 3 slices
@@ -63,14 +59,15 @@ IOVDbSvc             INFO Global tag: OFLCOND-RUN12-SDR-35 set from joboptions
 IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap, adding new key tag with value LARIdentifierOnOffIdMap-012
 IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap, adding new key tag with value LARIdentifierCalibIdMap-012
 IOVDbSvc             INFO Folder /LAR/Identifier/FebRodMap, adding new key tag with value LARIdentifierFebRodMap-005
-IOVDbSvc             INFO Read from meta data only for folder /TagInfo
+IOVDbFolder          INFO Read from meta data only for folder /TagInfo
 IOVDbSvc             INFO Initialised with 3 connections and 25 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+ClassIDSvc           INFO  getRegistryEntries: read 1488 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
-ClassIDSvc           INFO  getRegistryEntries: read 2071 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 268 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_CALO/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_CALO/OFLP200
@@ -98,9 +95,9 @@ IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/Shape
 IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/LArTTCellMapAtlas
 IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/fSampl
 IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/uA2MeV
-ClassIDSvc           INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 4897 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 24 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2436 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 35 CLIDRegistry entries for module ALL
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
 DetDescrCnvSvc       INFO  filling proxies for detector managers 
@@ -135,8 +132,6 @@ DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and st
 DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for STGCIDHELPER with CLID 4174 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for MMIDHELPER with CLID 4175 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
@@ -146,21 +141,8 @@ GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
-GeoModelSvc.LAr...   INFO Keys for LAr are ATLAS-R2-2016-01-00-01  ATLAS
-GeoModelSvc.LAr...   INFO Building LAr version LAr-Revised-17-01 while ATLAS version is ATLAS-R2-2016-01-00-01
-GeoModelSvc.LAr...   INFO LAr Geometry Options:
-GeoModelSvc.LAr...   INFO   Sagging           = false
-GeoModelSvc.LAr...   INFO   Barrel            = ON
-GeoModelSvc.LAr...   INFO   Endcap            = ON
-BarrelConstruction   INFO Getting primary numbers for ATLAS, ATLAS-R2-2016-01-00-01
-BarrelConstruction   INFO   Makes detailed absorber sandwich  ? 1 1
-BarrelConstruction   INFO   Use sagging in geometry  ? 0
-============== EMEC Construction ===============
-  multi-layered version of absorbers activated, mlabs == 1
-================================================
 EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 3150 CLIDRegistry entries for module ALL
-CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
+LArElectrodeIDD...   INFO in createObj: creating a LArElectrodeID helper object in the detector store
 IdDictDetDescrCnv    INFO in initialize
 IdDictDetDescrCnv    INFO in createObj: creating a IdDictManager object in the detector store
 IdDictDetDescrCnv    INFO IdDictName:  IdDictParser/ATLAS_IDS.xml
@@ -181,19 +163,46 @@ IdDictDetDescrCnv    INFO Dictionary LArElectrode         version fullAtlas     
 IdDictDetDescrCnv    INFO Dictionary LArHighVoltage       version fullAtlas            DetDescr tag (using default) file 
 IdDictDetDescrCnv    INFO Dictionary MuonSpectrometer     version R.03                 DetDescr tag MuonIdentifier-08         file IdDictParser/IdDictMuonSpectrometer_R.03.xml
 IdDictDetDescrCnv    INFO Dictionary TileCalorimeter      version fullAtlasAndTestBeam DetDescr tag TileIdentifier-00         file IdDictParser/IdDictTileCalorimeter.xml
+LArElectrodeID       INFO  => initialize_from_dictionary()
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArHVLineIDDetD...   INFO in createObj: creating a LArHVLineID helper object in the detector store
+LArHVLineID          INFO  => initialize_from_dictionary()
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArHVLineID          INFO  => initialize_from_dictionary(dict_mgr) =0
+LArHVLineID          INFO Register_dict_tag of LArHighVoltage is OK
+LArHVLineID          INFO setDictVersion of LArHighVoltage is OK
+LArHVLineID          INFO [initLevelsFromDict] m_dict OK ... 
+LArHVLineID          INFO [initialize_from_dictionary] >  HV line range -> 11/1/48:79/0:15 | 11/1/148:179/0:15 | 11/1/80:93/0:7 | 11/1/180:193/0:7 | 11/1/200:231/0:15 | 11/1/232:263/0:15 | 11/1/296,297,306,307/0:15 | 11/1/299,304,305,308,309/0:15 | 11/1/264:279/0:15 | 11/1/280:295/0:15 | 11/1/0:47/0:15 | 11/1/320:322/0:15 | 11/1/100:147/0:15 | 11/1/324,325/0:15 | 11/1/312:315/0:15 | 11/1/316:319/0:15 | 11/1/300:303/0:15 | 11/1/310,311/0:15 | 11/1/323/0:15 | 11/1/326,327/0:15 | 11/1/94:99/0:15 | 11/1/194:199/0:15
+LArHVLineID          INFO [init_hashes()] > Hvline_size= 5008
+GeoModelSvc.LAr...   INFO Keys for LAr are ATLAS-R2-2016-01-00-01  ATLAS
+GeoModelSvc.LAr...   INFO Building LAr version LAr-Revised-17-01 while ATLAS version is ATLAS-R2-2016-01-00-01
+GeoModelSvc.LAr...   INFO LAr Geometry Options:
+GeoModelSvc.LAr...   INFO   Sagging           = false
+GeoModelSvc.LAr...   INFO   Barrel            = ON
+GeoModelSvc.LAr...   INFO   Endcap            = ON
+BarrelConstruction   INFO Getting primary numbers for ATLAS, ATLAS-R2-2016-01-00-01
+BarrelConstruction   INFO   Makes detailed absorber sandwich  ? 1 1
+BarrelConstruction   INFO   Use sagging in geometry  ? 0
+EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction     INFO activating LAr::EMEC::Pos::InnerWheel
+EMECConstruction     INFO activating LAr::EMEC::Pos::OuterWheel
+ClassIDSvc           INFO  getRegistryEntries: read 3602 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
 TileTBID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 EndcapDMConstru...   INFO Start building EC electronics geometry
-============== EMEC Construction ===============
-  multi-layered version of absorbers activated, mlabs == 1
-================================================
+EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction     INFO activating LAr::EMEC::Neg::InnerWheel
+EMECConstruction     INFO activating LAr::EMEC::Neg::OuterWheel
 EndcapDMConstru...   INFO Start building EC electronics geometry
-GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 21940Kb 	 Time = 0.56S
-ClassIDSvc           INFO  getRegistryEntries: read 213 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 24348Kb 	 Time = 0.58S
+ClassIDSvc           INFO  getRegistryEntries: read 66 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 6725 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 670 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 5546 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 608 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2989 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
   +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/BadChannels/MissingFEBs' )   ->
@@ -201,6 +210,7 @@ CondInputLoader      INFO Adding base classes:
   +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' )   ->
   +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )   ->
   +  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/CellCorrOfl/deadOTX' )   ->
   +  ( 'LArAutoCorrMC' , 'ConditionStore+LArAutoCorr' )   -> ILArAutoCorr (8124)
   +  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' )   -> ILArDAC2uA (579584)
   +  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' )   -> ILArHVScaleCorr (93397263)
@@ -219,6 +229,7 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' ) 
     +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/CellCorrOfl/deadOTX' ) 
     +  ( 'ILArAutoCorr' , 'ConditionStore+LArAutoCorr' ) 
     +  ( 'ILArDAC2uA' , 'ConditionStore+LArDAC2uA' ) 
     +  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorr' ) 
@@ -245,7 +256,7 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' ) 
 PyComponentMgr       INFO Initializing PyComponentMgr...
 testalg1             INFO Initializing testalg1...
-ClassIDSvc           INFO  getRegistryEntries: read 642 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1123 CLIDRegistry entries for module ALL
 CaloIdMgrDetDes...   INFO in createObj: creating a CaloDescrManager object in the detector store
 CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_ID helper object in the detector store
 CaloIDHelper_ID...   INFO in createObj: creating a LArEM_ID helper object in the detector store
@@ -254,15 +265,15 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in th
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal2DNeighbors-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsNext-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsPrev-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
 CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileNeighbour_reduced.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/TileNeighbour_reduced.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a CaloDM_ID helper object in the detector store
 CaloDM_ID            INFO initialize_from_dictionary
@@ -280,77 +291,48 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper ob
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
 CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-01T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileSuperCellNeighbour.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-08-11T2101/Athena/22.0.17/InstallArea/x86_64-centos7-gcc8-opt/share/TileSuperCellNeighbour.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDes...   INFO  Finished 
 CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
-ClassIDSvc           INFO  getRegistryEntries: read 39 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 301 CLIDRegistry entries for module ALL
 LArOnlineIDDetD...   INFO in createObj: creating a LArOnlineID helper object in the detector store
 LArOnlineID          INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-ClassIDSvc           INFO  getRegistryEntries: read 283 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 64 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 39 CLIDRegistry entries for module ALL
-CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
-DetectorStore     WARNING retrieve(default): No valid proxy for default object 
- of type TileDetDescrManager(CLID 2941)
-CaloMgrDetDescrCnvWARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
-ClassIDSvc           INFO  getRegistryEntries: read 186 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 4041 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 66 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1454 CLIDRegistry entries for module ALL
 ToolSvc.tool1        INFO Initializing LArCellDeadOTXCorr
-ClassIDSvc           INFO  getRegistryEntries: read 99 CLIDRegistry entries for module ALL
-IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for Blob2ToolConstants[0x3d2ac900]+7fb4da898e70 bound to CondAttrListCollection[/LAR/CellCorrOfl/deadOTX]
-ToolSvc.Blob2To...   INFO Successfully registered callback for CondAttributeListCollection object with key /LAR/CellCorrOfl/deadOTX
-IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCellDeadOTXCorr[0x3cbec820]+89 bound to /LAR/CellCorrOfl/deadOTX
 ToolSvc.tool1        INFO L1Calo database won't be used. Pedestal values will be constant and equal to 32.
-ClassIDSvc           INFO  getRegistryEntries: read 64 CLIDRegistry entries for module ALL
-IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCablingService[0x2cb71200]+7fb4ded5e650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
-ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/OnOffIdMap
-ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/CalibIdMap
-ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/FebRodMap
-ToolSvc.LArCabl...   INFO Sucessfully initialized LArCablingService with 3 callbacks.
 ToolSvc.CaloTri...   INFO  => CaloTriggerTowerService::initialize() 
 LArIdMgrDetDesc...   INFO in createObj: creating a LArDescrManager object in the detector store
 LArIdMgrDetDesc...   INFO Set LArOnlineID helper in LArIdMgr 
-LArHVLineIDDetD...   INFO in createObj: creating a LArHVLineID helper object in the detector store
-LArHVLineID          INFO  => initialize_from_dictionary()
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArHVLineID          INFO  => initialize_from_dictionary(dict_mgr) =0
-LArHVLineID          INFO Register_dict_tag of LArHighVoltage is OK
-LArHVLineID          INFO setDictVersion of LArHighVoltage is OK
-LArHVLineID          INFO [initLevelsFromDict] m_dict OK ... 
-LArHVLineID          INFO [initialize_from_dictionary] >  HV line range -> 11/1/48:79/0:15 | 11/1/148:179/0:15 | 11/1/80:93/0:7 | 11/1/180:193/0:7 | 11/1/200:231/0:15 | 11/1/232:263/0:15 | 11/1/296,297,306,307/0:15 | 11/1/299,304,305,308,309/0:15 | 11/1/264:279/0:15 | 11/1/280:295/0:15 | 11/1/0:47/0:15 | 11/1/320:322/0:15 | 11/1/100:147/0:15 | 11/1/324,325/0:15 | 11/1/312:315/0:15 | 11/1/316:319/0:15 | 11/1/300:303/0:15 | 11/1/310,311/0:15 | 11/1/323/0:15 | 11/1/326,327/0:15 | 11/1/94:99/0:15 | 11/1/194:199/0:15
-LArHVLineID          INFO [init_hashes()] > Hvline_size= 5008
 LArIdMgrDetDesc...   INFO Set LArHVLineID helper in LArIdMgr 
-LArElectrodeIDD...   INFO in createObj: creating a LArElectrodeID helper object in the detector store
-LArElectrodeID       INFO  => initialize_from_dictionary()
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArIdMgrDetDesc...   INFO Set LArElectrodeID helper in LArIdMgr 
 LArIdMgrDetDesc...   INFO Set CaloCell_ID helper in LArIdMgr 
 LArIdMgrDetDesc...   INFO Initializing LArIdMgr from values in LArIdMgrDetDescrCnv 
 ClassIDSvc           INFO  getRegistryEntries: read 59 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 66 CLIDRegistry entries for module ALL
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCablingLegacyService[0x3230e000]+7f214a4ac2b0 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
+ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/OnOffIdMap
+ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/CalibIdMap
+ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/FebRodMap
+ToolSvc.LArCabl...   INFO Sucessfully initialized LArCablingLegacyService with 3 callbacks.
 ToolSvc.CaloTri...   INFO  ====> ...CaloTriggerTowerService::init() OK 
-ToolSvc.deadotx...   INFO Read 0 lines in total (for all COOL channels and missing FEBs together) 
 ToolSvc.tool2        INFO Initializing LArCellDeadOTXCorr
-IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCellDeadOTXCorr[0x6d3e820]+89 bound to /LAR/CellCorrOfl/deadOTX
 ToolSvc.tool2        INFO L1Calo database won't be used. Pedestal values will be constant and equal to 32.
-ToolSvc.deadotx...   INFO Decoded 3 lines from FEB file deadotx_badchan2.badfebs
-ToolSvc.deadotx...   INFO Read 3 lines in total (for all COOL channels and missing FEBs together) 
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 127 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 131 CLIDRegistry entries for module ALL
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/BadChannels/MissingFEBs'
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/CalibIdMap'
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/FebRodMap'
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/OnOffIdMap'
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/LAR/BadChannels/BadChannels'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/LAR/CellCorrOfl/deadOTX'
 CondInputLoader      INFO created CondCont<LArAutoCorrMC> with key 'ConditionStore+LArAutoCorr'
 CondInputLoader      INFO created CondCont<LArDAC2uAMC> with key 'ConditionStore+LArDAC2uA'
 CondInputLoader      INFO created CondCont<LArHVScaleCorrComplete> with key 'ConditionStore+LArHVScaleCorr'
@@ -367,41 +349,43 @@ ApplicationMgr       INFO Application Manager Started successfully
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
-ClassIDSvc           INFO  getRegistryEntries: read 109 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 118 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARAlign-IOVDEP-00 for folder /LAR/Align
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LArBadChannelsBadChannels-IOVDEP-06 for folder /LAR/BadChannels/BadChannels
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LArBadChannelsMissingFEBs-IOVDEP-04 for folder /LAR/BadChannels/MissingFEBs
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARCellCorrOflDeadOTX-000-00 for folder /LAR/CellCorrOfl/deadOTX
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCAutoCorr-Apr2010 for folder /LAR/ElecCalibMC/AutoCorr
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LArCellPositionShift-ideal for folder /LAR/LArCellPositionShift
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCDAC2uA-CSC02-J for folder /LAR/ElecCalibMC/DAC2uA
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCHVScaleCorr-IOVDEP-00 for folder /LAR/ElecCalibMC/HVScaleCorr
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCMinBias-IOVDEP-01 for folder /LAR/ElecCalibMC/MinBias
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCMinBiasAverage-IOVDEP-01 for folder /LAR/ElecCalibMC/MinBiasAverage
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCMphysOverMcal-CSC02-I for folder /LAR/ElecCalibMC/MphysOverMcal
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCNoise-Apr2010 for folder /LAR/ElecCalibMC/Noise
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCPedestal-DC3-B-IdFix7 for folder /LAR/ElecCalibMC/Pedestal
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCRamp-CSC02-K for folder /LAR/ElecCalibMC/Ramp
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCShape-Apr2010 for folder /LAR/ElecCalibMC/Shape
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARIdentifierLArTTCellMapAtlas-HadFcalFix2 for folder /LAR/Identifier/LArTTCellMapAtlas
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK for folder /LAR/ElecCalibMC/fSampl
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARuA2MeV-Feb2011 for folder /LAR/ElecCalibMC/uA2MeV
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARAlign-IOVDEP-00 for folder /LAR/Align
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LArBadChannelsBadChannels-IOVDEP-06 for folder /LAR/BadChannels/BadChannels
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LArBadChannelsMissingFEBs-IOVDEP-04 for folder /LAR/BadChannels/MissingFEBs
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARCellCorrOflDeadOTX-000-00 for folder /LAR/CellCorrOfl/deadOTX
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCAutoCorr-Apr2010 for folder /LAR/ElecCalibMC/AutoCorr
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LArCellPositionShift-ideal for folder /LAR/LArCellPositionShift
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCDAC2uA-CSC02-J for folder /LAR/ElecCalibMC/DAC2uA
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCHVScaleCorr-IOVDEP-00 for folder /LAR/ElecCalibMC/HVScaleCorr
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCMinBias-IOVDEP-01 for folder /LAR/ElecCalibMC/MinBias
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCMinBiasAverage-IOVDEP-01 for folder /LAR/ElecCalibMC/MinBiasAverage
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCMphysOverMcal-CSC02-I for folder /LAR/ElecCalibMC/MphysOverMcal
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCNoise-Apr2010 for folder /LAR/ElecCalibMC/Noise
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCPedestal-DC3-B-IdFix7 for folder /LAR/ElecCalibMC/Pedestal
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCRamp-CSC02-K for folder /LAR/ElecCalibMC/Ramp
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCShape-Apr2010 for folder /LAR/ElecCalibMC/Shape
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARIdentifierLArTTCellMapAtlas-HadFcalFix2 for folder /LAR/Identifier/LArTTCellMapAtlas
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK for folder /LAR/ElecCalibMC/fSampl
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to LARuA2MeV-Feb2011 for folder /LAR/ElecCalibMC/uA2MeV
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_CALO/OFLP200
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to CALOOflIdentifierCaloTTOnAttrIdMapAtlas-0001 for folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to CALOOflIdentifierCaloTTOnOffIdMapAtlas-0002 for folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas
-IOVDbSvc             INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to CALOOflIdentifierCaloTTPpmRxIdMapAtlas-0000 for folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to CALOOflIdentifierCaloTTOnAttrIdMapAtlas-0001 for folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to CALOOflIdentifierCaloTTOnOffIdMapAtlas-0002 for folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas
+IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to CALOOflIdentifierCaloTTPpmRxIdMapAtlas-0000 for folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas
 IOVDbSvc             INFO Disconnecting from COOLOFL_CALO/OFLP200
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] EACFEBD4-9BD2-E211-848A-02163E006B20
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000057.gen.COND/cond09_mc.000057.gen.COND._0001.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000057.gen.COND/cond09_mc.000057.gen.COND._0001.pool.root File version:52200
+ToolSvc.CaloTri...   INFO  ====> iovCallBack 
 ToolSvc.LArCabl...   INFO  ====> iovCallBack 
 ToolSvc.LArCabl...   INFO Done reading online/offline identifier mapping
 ToolSvc.LArCabl...   INFO Found 195072 online identifier and 182468 offline identifier. 12604 disconnected channels.
-ToolSvc.CaloTri...   INFO  ====> iovCallBack 
+CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
+DetectorStore     WARNING retrieve(default): No valid proxy for default object 
+ of type TileDetDescrManager(CLID 2941)
+CaloMgrDetDescrCnvWARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
@@ -409,16 +393,19 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events p
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 9229AE70-AC4C-DF11-A934-003048D2BC4A
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0011.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0011.pool.root File version:52200
-ToolSvc.LArMCSy...   INFO IOV callback
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 64ADE389-CABD-DD11-8D4C-000423D950B0
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0053.pool.root
 Warning in <TClass::Init>: no dictionary for class DataHeader_p2 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p2 is available
 Warning in <TClass::Init>: no dictionary for class PoolToken_p1 is available
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0053.pool.root File version:51800
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] EACFEBD4-9BD2-E211-848A-02163E006B20
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 7C42BC12-BD96-E011-B8EC-003048F0E01C
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000032.gen.COND/cond09_mc.000032.gen.COND._0001.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000032.gen.COND/cond09_mc.000032.gen.COND._0001.pool.root File version:52600
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 687EA080-E4B6-DD11-A149-000423D9907C
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0067.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0067.pool.root File version:51800
@@ -443,21 +430,23 @@ Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/r
 Warning in <TClass::Init>: no dictionary for class DataHeader_p1 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p1 is available
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/cmccond.000001.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0053.pool.root__DQ2-1250193473 File version:51000
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FE8535CE-AD50-DC11-952F-000423D67862
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 303FCBD8-653E-DD11-ABBD-000423D99862
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0061.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0061.pool.root File version:51800
 /cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FE8535CE-AD50-DC11-952F-000423D67862
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3CE29BA7-A6DC-DC11-BF61-000423D65662
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0013.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0013.pool.root File version:52200
 /cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3CE29BA7-A6DC-DC11-BF61-000423D65662
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9229AE70-AC4C-DF11-A934-003048D2BC4A
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 445FAD9A-5DB3-E14A-81DB-BA6244602734
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000084.gen.COND/cond09_mc.000084.gen.COND._0001.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000084.gen.COND/cond09_mc.000084.gen.COND._0001.pool.root File version:53413
 /cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9229AE70-AC4C-DF11-A934-003048D2BC4A
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 180A4AF2-F47E-DB11-9E8F-000E0C4DEA2D
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root File version:52600
@@ -471,48 +460,66 @@ LArCalibLineMap...   INFO recorded new LArCalibLineMap with range {[0,l:0] - [IN
 LArFebRodMappin...   INFO Done reading Feb/Rod mapping. Found 1524 Febs and 762 Rods
 LArFebRodMappin...   INFO recorded new LArFebRodMap with range {[0,l:0] - [INVALID]} into Conditions Store
 LArBadChannelCo...   INFO Read a total of 0 problematic channels from database
+LArBadChannelCo...   INFO Recorded LArRawChannelCont object with key LArBadChannel with EventRange {[0,t:0,l:0] - [1,l:4294967294]} into Conditions Store
 LArBadFebCondAlg     INFO Read a total of 0 problematic febs from database
-ClassIDSvc           INFO  getRegistryEntries: read 2360 CLIDRegistry entries for module ALL
+LArBadFebCondAlg     INFO Recorded LArBadFebCont object with LArBadFeb with EventRange {[0,l:0] - [115301,l:0]} into Conditions Store
+LArKnownBadFebAlg    INFO Read a total of 0 problematic febs from database
+LArKnownBadFebAlg    INFO Recorded LArBadFebCont object with LArKnownBadFEBs with EventRange {[0,l:0] - [4294967294,l:4294967294]} into Conditions Store
+LArKnownMNBFebAlg    INFO Read a total of 0 problematic febs from database
+LArKnownMNBFebAlg    INFO Recorded LArBadFebCont object with LArKnownMNBFEBs with EventRange {[0,l:0] - [4294967294,l:4294967294]} into Conditions Store
+LArMCSymCondAlg      INFO recorded new LArMCSym with range {[0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArRampSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArAutoCorrSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArDAC2uASym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArNoiseSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArfSamplSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LAruA2MeVSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArMinBiasSym with range {[0,t:0,l:0] - [222222,l:0]} into Conditions Store
+LArSymCondition...   INFO recorded new LArMinBiasAverageSym with range {[0,t:0,l:0] - [222222,l:0]} into Conditions Store
+LArSymCondition...   INFO recorded new LArShapeSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArMphysOverMcalSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArBadFebCondAl...   INFO Read a total of 0 problematic febs from database
+LArBadFebCondAl...   INFO Recorded LArBadFebCont object with GoodFebs with EventRange {[0,l:0] - [4294967294,l:4294967294]} into Conditions Store
+LArBadFebCondAl...   INFO Read a total of 3 problematic febs from database
+LArBadFebCondAl...   INFO Recorded LArBadFebCont object with BadFebs with EventRange {[0,l:0] - [4294967294,l:4294967294]} into Conditions Store
+ClassIDSvc           INFO  getRegistryEntries: read 1123 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 130 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 180A4AF2-F47E-DB11-9E8F-000E0C4DEA2D
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] EACFEBD4-9BD2-E211-848A-02163E006B20
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
 LArTTCellMapCnv      INFO initialize()
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] B2E3B2B6-B76C-DF11-A505-000423D5ADDA
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000013.gen.COND/cond09_mc.000013.gen.COND._0001.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000013.gen.COND/cond09_mc.000013.gen.COND._0001.pool.root File version:52200
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
 CaloTTOnOffIdMa...   INFO initialize()
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] EC2448FE-EFE2-DD11-80D3-000423D98B8C
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0004.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0004.pool.root File version:51800
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 445FAD9A-5DB3-E14A-81DB-BA6244602734
 CaloTTOnAttrIdM...   INFO initialize()
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] CE5211E9-F51F-DC11-87A7-000423D6460E
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/comcond.000001.conditions.recon.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0026.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/comcond.000001.conditions.recon.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0026.pool.root File version:51400
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 445FAD9A-5DB3-E14A-81DB-BA6244602734
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] EC2448FE-EFE2-DD11-80D3-000423D98B8C
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] CE5211E9-F51F-DC11-87A7-000423D6460E
 /cvmfs/atlas-co...   INFO Database being retired...
@@ -525,43 +532,43 @@ testalg1             INFO Finalizing testalg1...
 IncidentProcAlg2     INFO Finalize
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv    INFO in finalize
-IOVDbSvc             INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.64 ))s
-IOVDbSvc             INFO Folder /LAR/BadChannels/BadChannels (AttrListColl) db-read 1/1 objs/chan/bytes 0/8/0 ((     0.55 ))s
-IOVDbSvc             INFO Folder /LAR/BadChannels/MissingFEBs (AttrList) db-read 1/1 objs/chan/bytes 1/1/16 ((     0.46 ))s
-IOVDbSvc             INFO Folder /LAR/CellCorrOfl/deadOTX (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/705 ((     0.65 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/1520148 ((     0.19 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/6100 ((     0.01 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/780292 ((     0.03 ))s
-IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/183 ((     1.14 ))s
-IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.83 ))s
-IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.76 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/AutoCorr (PoolColl) db-read 1/1 objs/chan/bytes 3/3/486 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/DAC2uA (PoolColl) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolColl) db-read 1/1 objs/chan/bytes 12/12/1980 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBias (PoolColl) db-read 1/1 objs/chan/bytes 1/1/174 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBiasAverage (PoolColl) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MphysOverMcal (PoolColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Noise (PoolColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Pedestal (PoolRef) db-read 1/1 objs/chan/bytes 1/1/167 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Ramp (PoolColl) db-read 1/1 objs/chan/bytes 3/3/489 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Shape (PoolColl) db-read 1/1 objs/chan/bytes 3/3/477 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/173 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/fSampl (PoolColl) db-read 1/1 objs/chan/bytes 1/1/194 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/uA2MeV (PoolColl) db-read 1/1 objs/chan/bytes 1/1/165 ((     0.02 ))s
-IOVDbSvc             INFO Total payload read from COOL: 2313859 bytes in ((      5.52 ))s
+IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.03 ))s
+IOVDbFolder          INFO Folder /LAR/BadChannels/BadChannels (AttrListColl) db-read 1/1 objs/chan/bytes 0/8/0 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/BadChannels/MissingFEBs (AttrList) db-read 1/1 objs/chan/bytes 1/1/16 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/CellCorrOfl/deadOTX (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/705 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/1520148 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/6100 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/780292 ((     0.02 ))s
+IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/183 ((     0.03 ))s
+IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.02 ))s
+IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/AutoCorr (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/486 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/DAC2uA (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolRefColl) db-read 1/1 objs/chan/bytes 12/12/1980 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/MinBias (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/174 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/MinBiasAverage (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/MphysOverMcal (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Noise (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Pedestal (PoolRef) db-read 1/1 objs/chan/bytes 1/1/167 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Ramp (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/489 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Shape (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/477 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/1 objs/chan/bytes 1/1/173 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/fSampl (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/194 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/uA2MeV (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/165 ((     0.02 ))s
+IOVDbSvc             INFO  bytes in ((      0.38 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 21 ReadTime: ((     2.79 ))s
-IOVDbSvc             INFO Connection COOLOFL_CALO/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     2.73 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 21 ReadTime: ((     0.32 ))s
+IOVDbSvc             INFO Connection COOLOFL_CALO/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.07 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.CaloTri...   INFO  => CaloTriggerTowerService::finalize() 
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=  480 [ms] Ave/Min/Max= 12.6(+- 51.6)/    0/  320 [ms] #= 38
-cObj_ALL             INFO Time User   : Tot= 0.76  [s] Ave/Min/Max=0.0317(+-0.0772)/    0/ 0.36  [s] #= 24
-ChronoStatSvc        INFO Time User   : Tot= 44.6  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot= 0.53  [s] Ave/Min/Max=  0.0139(+-   0.064)/       0/     0.4  [s] #= 38
+cObj_ALL             INFO Time User   : Tot= 0.76  [s] Ave/Min/Max=  0.0317(+-  0.0842)/       0/    0.41  [s] #= 24
+ChronoStatSvc        INFO Time User   : Tot=   49  [s]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

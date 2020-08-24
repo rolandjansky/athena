@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_SISPACEPOINTRETRIEVER_H
@@ -55,8 +55,9 @@ namespace JiveXML{
       const std::string m_typeName;
 
       /// A tool handle to the geo model tool
-      const ToolHandle<IInDetGeoModelTool> m_geo;
-     
+      const ToolHandle<IInDetGeoModelTool> m_geo
+         {this,"GeoModelTool","JiveXML::InDetGeoModelTool/InDetGeoModelTool",""};
+
       /** StoreGate key for Pixel space points*/
       SG::ReadHandleKey<SpacePointContainer> m_PixelSPContainerName;
       /** StoreGate key for SCT space points*/

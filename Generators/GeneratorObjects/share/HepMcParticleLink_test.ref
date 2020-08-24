@@ -1,4 +1,4 @@
-[==========] Running 4 tests from 1 test case.
+[==========] Running 9 tests from 1 test case.
 [----------] Global test environment set-up.
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
@@ -10,23 +10,35 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-[----------] 4 tests from HepMcParticleLink_test
+[----------] 9 tests from HepMcParticleLink_test
 [ RUN      ] HepMcParticleLink_test.old_test
 *** HepMcParticleLink_test starts ***
 ClassIDSvc           INFO  getRegistryEntries: read 817 CLIDRegistry entries for module ALL
-Testing HepMcParticleLink streamer Event index 0, Barcode 10005, McEventCollection CollectionNotSet(a) --- Event index 1, Barcode 10005, McEventCollection CollectionNotSet(a)
 HepMcParticleLink    INFO find_proxy: Using TruthEvent as McEventCollection key for this job 
 *** HepMcParticleLink_test OK ***
 [       OK ] HepMcParticleLink_test.old_test (53 ms)
 [ RUN      ] HepMcParticleLink_test.broken_event_link
 ClassIDSvc           INFO  getRegistryEntries: read 1070 CLIDRegistry entries for module ALL
 [       OK ] HepMcParticleLink_test.broken_event_link (1 ms)
-[ RUN      ] HepMcParticleLink_test.truth_event_link
-[       OK ] HepMcParticleLink_test.truth_event_link (0 ms)
+[ RUN      ] HepMcParticleLink_test.truth_event_link_first_event
+[       OK ] HepMcParticleLink_test.truth_event_link_first_event (0 ms)
+[ RUN      ] HepMcParticleLink_test.truth_event_link_second_event
+[       OK ] HepMcParticleLink_test.truth_event_link_second_event (0 ms)
+[ RUN      ] HepMcParticleLink_test.truth_event_link_third_event
+[       OK ] HepMcParticleLink_test.truth_event_link_third_event (0 ms)
+[ RUN      ] HepMcParticleLink_test.truth_event_link_fourth_event
+[       OK ] HepMcParticleLink_test.truth_event_link_fourth_event (0 ms)
+[ RUN      ] HepMcParticleLink_test.truth_event_link_delta_rays
+[       OK ] HepMcParticleLink_test.truth_event_link_delta_rays (0 ms)
+[ RUN      ] HepMcParticleLink_test.truth_event_link_cut_events
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+[       OK ] HepMcParticleLink_test.truth_event_link_cut_events (0 ms)
 [ RUN      ] HepMcParticleLink_test.max_event_number
 [       OK ] HepMcParticleLink_test.max_event_number (0 ms)
-[----------] 4 tests from HepMcParticleLink_test (54 ms total)
+[----------] 9 tests from HepMcParticleLink_test (54 ms total)
 
 [----------] Global test environment tear-down
-[==========] 4 tests from 1 test case ran. (176 ms total)
-[  PASSED  ] 4 tests.
+[==========] 9 tests from 1 test case ran. (176 ms total)
+[  PASSED  ] 9 tests.

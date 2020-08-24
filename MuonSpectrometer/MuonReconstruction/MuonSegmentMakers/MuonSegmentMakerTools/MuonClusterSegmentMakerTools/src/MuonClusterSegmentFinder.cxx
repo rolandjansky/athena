@@ -1,42 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinder.h"
-#include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
-#include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
 
-// ROOT includes
-#include "TTree.h"
-#include "TFile.h"
-
-// AthExHistNtup includes
 #include "MuonLinearSegmentMakerUtilities/ClusterAnalysis.h"
-     
-// EDM
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "AtlasHepMC/GenEvent.h"
-
-// interfaces
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
-#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-#include "MuonClusterization/IMuonClusterizationTool.h"
-     
+
+#include "TTree.h"
+#include "TFile.h"
+
 namespace Muon {
 
  MuonClusterSegmentFinder::MuonClusterSegmentFinder(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_layerHashProvider("Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool", this),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool", this),
@@ -53,7 +33,6 @@ namespace Muon {
     declareInterface<IMuonClusterSegmentFinder>(this);
     
     declareProperty("MuonClusterizationTool", m_clusterTool);
-    declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
     declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
     declareProperty("MdtSegmentMaker",m_segmentMaker);
@@ -64,8 +43,6 @@ namespace Muon {
     declareProperty("TrackCleaner",        m_trackCleaner);
 
   }
-
- MuonClusterSegmentFinder::~MuonClusterSegmentFinder() { }
 
   StatusCode MuonClusterSegmentFinder::finalize() {
 
@@ -83,7 +60,7 @@ namespace Muon {
 
   StatusCode MuonClusterSegmentFinder::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_layerHashProvider.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
@@ -145,7 +122,7 @@ return (fabs(i.z()) < fabs(j.z()));}
 						    Trk::SegmentCollection* segColl) const {
 
     if(tgcCols){
-      Muon::TgcPrepDataContainer* clusterPRD=new Muon::TgcPrepDataContainer(m_idHelper->tgcIdHelper().module_hash_max());
+      Muon::TgcPrepDataContainer* clusterPRD=new Muon::TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max());
       for(const auto tgcCol : *tgcCols){
 	Muon::TgcPrepDataCollection* clusteredCol = m_clusterTool->cluster(*tgcCol);
 	if(clusteredCol) clusterPRD->addCollection(clusteredCol, tgcCol->identifyHash() ).ignore();
@@ -165,7 +142,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     }//end if TGC
 
     if(rpcCols){
-      Muon::RpcPrepDataContainer* clusterPRD=new Muon::RpcPrepDataContainer(m_idHelper->rpcIdHelper().module_hash_max());
+      Muon::RpcPrepDataContainer* clusterPRD=new Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max());
       for(const auto rpcCol : *rpcCols){
 	Muon::RpcPrepDataCollection* clusteredCol = m_clusterTool->cluster(*rpcCol);
         if(clusteredCol) clusterPRD->addCollection(clusteredCol, rpcCol->identifyHash() ).ignore();
@@ -322,9 +299,8 @@ return (fabs(i.z()) < fabs(j.z()));}
 	
       if( !m_edmHelperSvc->goodTrack(*segtrack,30) && vec2.size() > 4) {
         if(msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "bad segment fit:" ;
-          if (segtrack->fitQuality()) msg(MSG::DEBUG) << "with chi^2/nDoF = " << segtrack->fitQuality()->chiSquared() << "/" << segtrack->fitQuality()->numberDoF() ;
-          msg(MSG::DEBUG) << endmsg;
+          ATH_MSG_DEBUG("bad segment fit:");
+          if (segtrack->fitQuality()) ATH_MSG_DEBUG("with chi^2/nDoF = " << segtrack->fitQuality()->chiSquared() << "/" << segtrack->fitQuality()->numberDoF());
         }
         delete segtrack;
         segtrack = 0;
@@ -336,10 +312,10 @@ return (fabs(i.z()) < fabs(j.z()));}
   void MuonClusterSegmentFinder::makeClusterVecs(const std::vector<const Muon::MuonClusterOnTrack*>& clustCol,candEvent* theEvent) const {
     for( std::vector<const Muon::MuonClusterOnTrack*>::const_iterator colIt = clustCol.begin(); colIt != clustCol.end(); ++ colIt ){
       const MuonClusterOnTrack* clust = *colIt;
-      MuonStationIndex::PhiIndex pIndex = m_idHelper->phiIndex(clust->identify());
+      MuonStationIndex::PhiIndex pIndex = m_idHelperSvc->phiIndex(clust->identify());
       bool tmatch(false);
       int barcode(0);
-      if (m_idHelper->measuresPhi( clust->identify())){
+      if (m_idHelperSvc->measuresPhi( clust->identify())){
         theEvent->clusters().push_back(clust);
         ClusterSeg::Cluster* cluster = new ClusterSeg::Cluster(clust->globalPosition().x(),clust->globalPosition().y(),clust->globalPosition().z(),true,MuonStationIndex::TechnologyIndex::TGC,pIndex,tmatch,barcode);
         theEvent->Clust().push_back(cluster);
@@ -364,8 +340,8 @@ return (fabs(i.z()) < fabs(j.z()));}
           tmatch = matchTruth(*truthCollectionTGC,id,barcode);
         }
         const MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
-        MuonStationIndex::PhiIndex pIndex = m_idHelper->phiIndex(clust->identify());
-        if (m_idHelper->measuresPhi( clust->identify())){
+        MuonStationIndex::PhiIndex pIndex = m_idHelperSvc->phiIndex(clust->identify());
+        if (m_idHelperSvc->measuresPhi( clust->identify())){
           theEvent->clusters().push_back(clust);
           ClusterSeg::Cluster* cluster = new ClusterSeg::Cluster(clust->globalPosition().x(),clust->globalPosition().y(),clust->globalPosition().z(),true,MuonStationIndex::TechnologyIndex::TGC,pIndex,tmatch,barcode);
           theEvent->Clust().push_back(cluster);
@@ -391,8 +367,8 @@ return (fabs(i.z()) < fabs(j.z()));}
           tmatch = matchTruth(*truthCollectionRPC,id,barcode);
         }
         const MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
-        MuonStationIndex::PhiIndex pIndex = m_idHelper->phiIndex(clust->identify());
-        if (m_idHelper->measuresPhi( clust->identify())){
+        MuonStationIndex::PhiIndex pIndex = m_idHelperSvc->phiIndex(clust->identify());
+        if (m_idHelperSvc->measuresPhi( clust->identify())){
           theEvent->clusters().push_back(clust);
           ClusterSeg::Cluster* cluster = new ClusterSeg::Cluster(clust->globalPosition().x(),clust->globalPosition().y(),clust->globalPosition().z(),true,MuonStationIndex::TechnologyIndex::RPC,pIndex,tmatch,barcode);
           theEvent->Clust().push_back(cluster);
@@ -492,8 +468,8 @@ return (fabs(i.z()) < fabs(j.z()));}
 
  
       const Identifier& id = MCOTs.front()->identify();
-      MuonStationIndex::DetectorRegionIndex regionIndex = m_idHelper->regionIndex(id); 
-      MuonStationIndex::LayerIndex layerIndex = m_idHelper->layerIndex(id);
+      MuonStationIndex::DetectorRegionIndex regionIndex = m_idHelperSvc->regionIndex(id); 
+      MuonStationIndex::LayerIndex layerIndex = m_idHelperSvc->layerIndex(id);
       
       MuonLayerSurface::SurfacePtr surfacePtr(startPars.associatedSurface().clone());
       std::shared_ptr<const Trk::TrackParameters> parsPtr(startPars.clone());
@@ -544,14 +520,14 @@ return (fabs(i.z()) < fabs(j.z()));}
     // loop over hashes
     for( MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
       // skip if not found
-      Muon::MdtPrepDataContainer::const_iterator colIt = input->indexFind(*it);
-      if( colIt == input->end() ) {
+      auto col = input->indexFindPtr(*it);
+      if( col == nullptr ) {
 	//ATH_MSG_WARNING("Cannot find hash " << *it << " in container at " << location);
 	continue;
       }
-      ATH_MSG_VERBOSE("  adding " << m_idHelper->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
+      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(col->identify()) << " size " << col->size());
       // else add
-      output.push_back(*colIt);
+      output.push_back(col);
     }
     return true;
   }

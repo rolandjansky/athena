@@ -12,6 +12,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileConditions/ITileDCSTool.h"
+#include "TileConditions/ITileBadChanTool.h"
 
 // Calo includes
 #include "CaloEvent/CaloCellContainer.h"
@@ -31,7 +32,6 @@ class TileID;
 class TileHWID;
 class TileCell;
 class TileCablingService;
-class ITileBadChanTool;
 class TileInfo;
 
 
@@ -61,6 +61,8 @@ class TileCellSelector: public AthAlgorithm {
     unsigned int m_const;
     unsigned int m_overLG;
     unsigned int m_overHG;
+    unsigned int m_underLG;
+    unsigned int m_underHG;
     unsigned int m_dqerr;
     unsigned int m_dmuerr;
     unsigned int m_warnerr;
@@ -68,8 +70,8 @@ class TileCellSelector: public AthAlgorithm {
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
     const TileCablingService* m_cabling;
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
-    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this, "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey{this, "TileDQstatus", "TileDQstatus", "TileDQstatus key"};
     ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 
     unsigned int m_runNum;
@@ -102,9 +104,9 @@ class TileCellSelector: public AthAlgorithm {
     std::vector<bool> m_chanToSkip;
     std::vector<bool> m_drawerToSkip;
 
-    std::string m_cellsContName;
-    std::string m_digitsContName;
-    std::string m_rchContName;
+    bool m_readCells;
+    bool m_readRawChannels;
+    bool m_readDigits;
 
     SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey{this,"CellContainerName",
                                                             "AllCalo", "Input Calo cell container key"};
@@ -155,6 +157,12 @@ class TileCellSelector: public AthAlgorithm {
     bool m_checkDMUs;
     bool m_checkOverLG;
     bool m_checkOverHG;
+    bool m_checkUnderLG;
+    bool m_checkUnderHG;
+    float m_overflowLG;
+    float m_overflowHG;
+    float m_underflowLG;
+    float m_underflowHG;
     bool m_checkWarning;
     bool m_checkError;
     bool m_printOnly;

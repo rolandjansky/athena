@@ -9,7 +9,7 @@ using namespace std;
 
 std::string HLTTauMonTool::LowerChain(std::string hlt_item){
 
-  ATH_MSG_DEBUG("HLTTauMonTool::LowerChain()");
+  ATH_MSG_DEBUG("HLTTauMonTool::LowerChain() " << hlt_item);
   
   std::string l1_chain("");
 
@@ -17,9 +17,16 @@ std::string HLTTauMonTool::LowerChain(std::string hlt_item){
   if( (hlt_chain = m_configsvc->chainList()->chain(hlt_item)) ){ 
     ATH_MSG_DEBUG("HLT Chain " << hlt_item << " found in TrigConfSvc!");
     std::string lower_chain( hlt_chain->lower_chain_name() );
-    ATH_MSG_DEBUG("L1 Chain " << lower_chain << " found in TrigConfSvc!");
     l1_chain = lower_chain;
+  }else{
+    auto trig_conf = getTDT()->ExperimentalAndExpertMethods()->getChainConfigurationDetails(hlt_item);
+    if(trig_conf != nullptr){
+      ATH_MSG_DEBUG("TrigConf is available");
+      l1_chain = trig_conf->lower_chain_name(); //L1 trigger seed
+    }    
   }
+
+  ATH_MSG_DEBUG("L1 Chain " << l1_chain << " found in TrigConfSvc!");
 
   return l1_chain;
 }
@@ -63,17 +70,27 @@ StatusCode HLTTauMonTool::Emulation(){
 
   // retrieve HLT containers
   const xAOD::TauJetContainer * tauPreselCont = 0;
-  if( evtStore()->retrieve(tauPreselCont, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection").isFailure() ){
-	ATH_MSG_WARNING("Failed to retrieve HLT_xAOD__TauJetContainer_TrigTauRecPreselection container. Exiting!");
-	return StatusCode::FAILURE;
+  StatusCode sc = evtStore()->retrieve(tauPreselCont, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection");
+  if( sc.isFailure() || !tauPreselCont ){
+    ATH_MSG_DEBUG("Failed to retrieve  HLT_xAOD__TauJetContainer_TrigTauRecPreselection container. Exiting.");
+    sc = evtStore()->retrieve(tauPreselCont, "HLT_TrigTauRecMerged_Presel");
+    if( sc.isFailure() || !tauPreselCont ){
+      ATH_MSG_WARNING("Failed to retrieve HLT_TrigTauRecMerged_Presel container. Exiting.");
+      return sc;
+    }
   }
 
+  // retrieve HLT containers                                                                                                                  
   const xAOD::TauJetContainer * tauHLTCont = 0;
-  if( evtStore()->retrieve(tauHLTCont, "HLT_xAOD__TauJetContainer_TrigTauRecMerged").isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve HLT_xAOD__TauJetContainer_TrigTauRecMerged container. Exiting!");
-        return StatusCode::FAILURE;
+  sc = evtStore()->retrieve(tauHLTCont, "HLT_xAOD__TauJetContainer_TrigTauRecMerged");
+  if( sc.isFailure() || !tauHLTCont ){
+    ATH_MSG_DEBUG("Failed to retrieve  HLT_xAOD__TauJetContainer_TrigTauRecMerged container. Exiting.");
+    sc = evtStore()->retrieve(tauHLTCont, "HLT_TrigTauRecMerged_MVA");
+    if( sc.isFailure() || !tauPreselCont ){
+      ATH_MSG_WARNING("Failed to retrieve HLT_TrigTauRecMerged_MVA container. Exiting.");
+      return sc;
+    }
   }
-
 
  ATH_CHECK(m_l1emulationTool->calculate(l1taus, l1jets, l1muons, l1xe));
 //  //m_l1emulationTool->PrintCounters();

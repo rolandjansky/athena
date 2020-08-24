@@ -25,7 +25,7 @@ atlas_add_library( AthenaPoolExampleConverter
                    PUBLIC_HEADERS AthenaPoolExampleConverter
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolExampleData AthenaPoolUtilities DataModelAthenaPoolLib AthenaPoolCnvSvcLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolExampleData AthenaPoolUtilities DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolServicesLib )
 
 atlas_add_poolcnv_library( AthenaPoolExampleConverterPoolCnv
                            FILES AthenaPoolExampleData/ExampleHitContainer.h AthenaPoolExampleData/ExampleTrackContainer.h

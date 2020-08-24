@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodtrigger_trigcomposite_test.cxx 761887 2016-07-14 13:16:16Z tbold $
@@ -221,8 +221,7 @@ int main() {
    xAOD::TrigComposite* obj_edm_b = new xAOD::TrigComposite();
    c_edm_b.push_back(obj_edm_b);
    // Copy
-   SG::copyAuxStoreThinned( aux_v1, aux_vlatest,
-                            static_cast<const SG::ThinningDecisionBase*>(nullptr)); 
+   SG::copyAuxStoreThinned( aux_v1, aux_vlatest, nullptr);
 
    std::cout << "Testing initial TC object" << std::endl;
    SIMPLE_ASSERT( testObject(obj) == 0 );

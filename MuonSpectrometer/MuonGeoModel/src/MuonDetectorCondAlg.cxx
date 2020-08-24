@@ -5,6 +5,7 @@
 #include "MuonGeoModel/MuonDetectorCondAlg.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 #include "MuonGeoModel/MuonDetectorTool.h"
+#include "MuonDetDescrUtils/BuildNSWReadoutGeometry.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -73,7 +74,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // =======================
   // Create the MuonDetectorManager by calling the MuonDetectorFactory001
   // =======================
-  MuonDetectorTool* MuDetTool = m_iGeoModelTool.get();
+  const MuonDetectorTool* MuDetTool = m_iGeoModelTool.get();
   MuonGM::MuonDetectorFactory001 theFactory(detStore().operator->());
   if(MuDetTool->createFactory(theFactory).isFailure()){
     ATH_MSG_FATAL("unable to create MuonDetectorFactory001 ");
@@ -82,6 +83,16 @@ StatusCode MuonDetectorCondAlg::execute()
 
   std::unique_ptr<MuonGM::MuonDetectorManager> MuonMgrData
     (theFactory.getDetectorManager());
+
+  // =======================
+  // Add NSW to the MuonDetectorManager by calling BuildReadoutGeometry from MuonAGDDToolHelper
+  // =======================
+  if (MuonMgrData->mmIdHelper() && MuonMgrData->stgcIdHelper()) {
+    BuildNSWReadoutGeometry theBuilder = BuildNSWReadoutGeometry();
+    if (!theBuilder.BuildReadoutGeometry(MuonMgrData.get())) {
+      ATH_MSG_FATAL("unable to add NSW ReadoutGeometry in the MuonDetectorManager in conditions store");
+    }
+  }
 
   // =======================
   // Update CSC Internal Alignment if requested
@@ -148,4 +159,3 @@ StatusCode MuonDetectorCondAlg::finalize()
   ATH_MSG_DEBUG( "finalize " << name() );
   return StatusCode::SUCCESS;
  }
-

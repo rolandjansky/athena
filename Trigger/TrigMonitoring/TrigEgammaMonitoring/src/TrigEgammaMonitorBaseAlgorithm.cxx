@@ -140,10 +140,10 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
 
 
     asg::AcceptInfo accept;
-    for(const auto cut:m_trigLevel) accept.addCut(cut,cut);
+    for(const auto& cut:m_trigLevel) accept.addCut(cut,cut);
     asg::AcceptData acceptData (&accept);
 
-
+   
     bool passedL1Calo=false;
     bool passedL2Calo=false;
     bool passedEFCalo=false;
@@ -151,6 +151,8 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     bool passedEFTrk=false;
     bool passedEF=false;
 
+ 
+    
     auto trigger = info.trigName;
    
     passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois");
@@ -158,20 +160,28 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     if(!info.trigL1){ // HLT item get full decision
         ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
 
-        passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_L2CaloEMClusters");  
+        passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_FastCaloEMClusters");  
         passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters");
 
 
         if(info.trigType == "electron"){
             ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
-            passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_L2Electrons");
-            passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons");
+            passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons");
+            if (info.trigEtcut){
+              passedEF=true;
+            }else{
+              passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons");
+            }
             passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
         }
         else if(info.trigType == "photon"){
             ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
-            passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_L2Photons");
-            passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons");
+            passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons");
+            if (info.trigEtcut){
+              passedEF=true;
+            }else{
+              passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons");
+            }
             passedEFTrk=true;// Assume true for photons
         }
     }

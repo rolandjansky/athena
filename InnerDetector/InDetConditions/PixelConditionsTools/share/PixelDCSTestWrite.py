@@ -66,10 +66,6 @@ from AthenaCommon.AppMgr import ToolSvc
 #include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 import AthenaPoolCnvSvc.AthenaPool
 
-from AthenaServices.AthenaServicesConf import AthenaSealSvc
-ServiceMgr += AthenaSealSvc(CheckDictionary = TRUE)
-
-
 from PoolSvc.PoolSvcConf import PoolSvc
 ServiceMgr += PoolSvc( DbOpen = "update" )
 

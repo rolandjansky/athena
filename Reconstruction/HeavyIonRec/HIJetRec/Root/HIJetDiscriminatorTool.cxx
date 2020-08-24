@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetDiscriminatorTool.h"
+#include "HIJetDiscriminatorTool.h"
 
 namespace{
   struct  Discrim{
     Discrim(float maxOverMean, float ETMin) :  _maxOverMean(maxOverMean),
 					       _ETMin(ETMin){};
-    
+
     float _maxOverMean;
     float _ETMin;
 
@@ -27,15 +27,13 @@ namespace{
 
 HIJetDiscriminatorTool::HIJetDiscriminatorTool(const std::string& t) : JetModifierBase(t)
 {
-  declareProperty("MaxOverMeanCut",m_MaxOverMean_cut=4.);
-  declareProperty("MinimumETMaxCut",m_ET_min_cut=3000.);
 }
 
 StatusCode HIJetDiscriminatorTool::modify(xAOD::JetContainer& jets) const
 {
   xAOD::JetContainer::iterator itB = jets.begin();
   xAOD::JetContainer::iterator itE = jets.end();
-  xAOD::JetContainer::iterator lastFiltered=std::remove_if(itB, itE, Discrim(m_MaxOverMean_cut,m_ET_min_cut));
+  xAOD::JetContainer::iterator lastFiltered=std::remove_if(itB, itE, Discrim(m_MaxOverMeanCut,m_ETminCut));
   jets.erase( lastFiltered, itE );
   return StatusCode::SUCCESS;
 }

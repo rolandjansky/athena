@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AcceptL1TopoMonitor.h"
@@ -25,7 +25,6 @@
 
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-//#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include <TH1F.h>
 //#include <TH2F.h>
@@ -415,7 +414,7 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltStart()
         ATH_MSG_DEBUG( "Number of trigger lines configured "<<topoTriggers.size() );
         // Label histogram bins
         std::map<unsigned int, std::string> topoCounterToName;
-        for(const TXC::TriggerLine tl : topoTriggers) {
+        for(const TXC::TriggerLine& tl : topoTriggers) {
             ATH_MSG_VERBOSE( tl.name()<<" "<<tl.counter() );
             topoCounterToName.emplace(tl.counter(), tl.name());
         }

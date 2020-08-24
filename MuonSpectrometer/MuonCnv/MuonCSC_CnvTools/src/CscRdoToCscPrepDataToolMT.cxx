@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -64,7 +64,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
   const bool externalCachePRD = !m_prdContainerCacheKey.key().empty();
   if (!externalCachePRD) {
     // without the cache we just record the container
-    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
+    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_idHelperSvc->cscIdHelper().module_hash_max()));
     if (status.isFailure() || !outputHandle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
       return StatusCode::FAILURE;
@@ -135,6 +135,8 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   
     
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   
   // if CSC decoding is switched off stop here
   if( !m_decodeData ) {
@@ -154,13 +156,12 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   // retrieve specific collection for the givenID
   uint16_t idColl = 0xffff;
   m_cabling->hash2CollectionId(givenHashId,idColl);
-  CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
-  if (rdoContainer->end() ==  it_coll) {
+  const CscRawDataCollection * rawCollection  = rdoContainer->indexFindPtr(idColl);
+  if (nullptr ==  rawCollection) {
     ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << idColl );
     return StatusCode::SUCCESS;
   }
 
-  const CscRawDataCollection * rawCollection = *it_coll;
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
   //return if the input raw collection is empty (can happen for seeded decoding in trigger)
   if(rawCollection->size()==0) return StatusCode::SUCCESS;
@@ -226,7 +227,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
       const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
       ATH_MSG_DEBUG ( "        LOOP over width  " << j <<  " " << channelId );
 
-      const CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(channelId);
+      const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
       //calculate local positions on the strip planes
       if ( !descriptor ) {
         ATH_MSG_WARNING ( "Invalid descriptor for " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
@@ -317,6 +318,8 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   typedef CscRawDataContainer::const_iterator collection_iterator;
   
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
  
   // if CSC decoding is switched off stop here
   if( !m_decodeData ) {
@@ -333,9 +336,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   std::vector<uint16_t> samples;
   samples.reserve(4);
 
-  Identifier oldId;
   IdentifierHash cscHashId;
-  Identifier stationId;
   for (; rdoColl!=lastRdoColl; ++rdoColl) {
     if ( (*rdoColl)->size() > 0 ) {
       ATH_MSG_DEBUG ( " Number of RawData in this rdo " << (*rdoColl)->size() );
@@ -394,7 +395,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
           const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
           ATH_MSG_DEBUG ( "DecodeAll**LOOP over width  " << j <<  " " << channelId );
 
-          const CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(channelId);
+          const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
           //calculate local positions on the strip planes
           if ( !descriptor ) {
             ATH_MSG_WARNING ( "Invalid descriptor for " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)

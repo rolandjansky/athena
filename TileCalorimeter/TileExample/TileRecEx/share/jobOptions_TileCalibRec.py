@@ -206,8 +206,10 @@ else:
                 Year = 2017
             elif RunNumber < 367980:
                 Year = 2018
-            else:
+            elif RunNumber < 374260:
                 Year = 2019
+            else:
+                Year = 2020
 
 
             if 'RunStream' in dir():
@@ -615,6 +617,13 @@ if not 'doCaloCell' in dir():
 if not 'TileD3PDSavePosition' in dir():
     TileD3PDSavePosition = False
 
+if not 'TileFragIDsToIgnoreDMUErrors' in dir():
+    # List of Tile module frag IDs for which ignore DMU errors
+    if RunNumber > 370000:
+        TileFragIDsToIgnoreDMUErrors = [0x10D] # Tile Demonstrator
+    else:
+        TileFragIDsToIgnoreDMUErrors = []
+
 #---------------
 # end of options
 #---------------
@@ -707,7 +716,7 @@ if ReadPool:
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
         if RUN2:
-            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+            DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
         else:
             DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 else:
@@ -716,8 +725,8 @@ else:
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-03'
-            else:                        CondDbTag = 'CONDBR2-ES1PA-2018-02'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-16'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2018-05'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
@@ -727,7 +736,7 @@ else:
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
         if RUN2:
-            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+            DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
         else:
             DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
@@ -802,16 +811,13 @@ OfcFromCoolOF1 = doTileOF1 and OfcFromCOOL and (conddb.GetInstance() == 'CONDBR2
 #============================================================
 #=== configure TileCondToolOfc
 #============================================================
+tileCondToolOfc = None
 if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
     from TileConditions.TileConditionsConf import TileCondToolOfc
     tileCondToolOfc = TileCondToolOfc()
     tileCondToolOfc.nSamples = TileFrameLength # default = 7
     tileCondToolOfc.OptFilterDeltaCorrelation = False # False - use matrix from DB
     tileCondToolOfc.OutputLevel = OutputLevel
-
-    ToolSvc += tileCondToolOfc
-
-    #  'LAS' or "CIS" or 'PHY' pulse shape
 
     printfunc (tileCondToolOfc)
 
@@ -831,11 +837,6 @@ if not 'newRDO' in dir() or newRDO is None:
     else:
         newRDO = True
 
-if ReadPool and newRDO:
-    topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
-else:
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
 
 #============================================================
 #=== configure BunchCrossingTool
@@ -847,6 +848,9 @@ ToolSvc += BunchCrossingTool("LHC" if globalflags.DataSource() == "data" else "M
 #=== read ByteStream and reconstruct data
 #=============================================================
 tileRawChannelBuilderFitFilter = None
+tileRawChannelBuilderFitFilterCool = None
+tileRawChannelBuilderMF = None
+tileRawChannelBuilderOF1 = None
 tileRawChannelBuilderOpt2Filter = None
 tileRawChannelBuilderOptATLAS = None
 tileRawChannelBuilderWienerFilter = None
@@ -871,6 +875,9 @@ else:
         from TileRecUtils.TileRawChannelGetter import *
         theTileRawChannelGetter=TileRawChannelGetter()
         tileRawChannelBuilderFitFilter = theTileRawChannelGetter.TileRawChannelBuilderFitFilter()
+        tileRawChannelBuilderFitFilterCool = theTileRawChannelGetter.TileRawChannelBuilderFitFilterCool()
+        tileRawChannelBuilderMF = theTileRawChannelGetter.TileRawChannelBuilderMF()
+        tileRawChannelBuilderOF1 = theTileRawChannelGetter.TileRawChannelBuilderOF1()
         tileRawChannelBuilderOpt2Filter = theTileRawChannelGetter.TileRawChannelBuilderOpt2Filter()
         tileRawChannelBuilderOptATLAS = theTileRawChannelGetter.TileRawChannelBuilderOptATLAS()
         tileRawChannelBuilderWienerFilter = theTileRawChannelGetter.TileRawChannelBuilderWienerFilter()
@@ -889,11 +896,11 @@ if doTileFit and tileRawChannelBuilderFitFilter:
 
     printfunc (tileRawChannelBuilderFitFilter)
 
-if doTileFitCool:
-    ToolSvc.TileRawChannelBuilderFitFilterCool.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
-    ToolSvc.TileRawChannelBuilderFitFilterCool.UseDSPCorrection = not TileBiGainRun
+if doTileFitCool and tileRawChannelBuilderFitFilterCool:
+    tileRawChannelBuilderFitFilterCool.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30
+    tileRawChannelBuilderFitFilterCool.UseDSPCorrection = not TileBiGainRun
     
-    printfunc (ToolSvc.TileRawChannelBuilderFitFilterCool)
+    printfunc (tileRawChannelBuilderFitFilterCool)
 
 if doTileOpt2:
 
@@ -903,6 +910,8 @@ if doTileOpt2:
             if TileCompareMode or TileEmulateDSP:
                 tileRawChannelBuilderOpt2Filter.EmulateDSP = True # use dsp emulation
         tileRawChannelBuilderOpt2Filter.UseDSPCorrection = not TileBiGainRun
+        if tileCondToolOfc:
+            tileRawChannelBuilderOpt2Filter.TileCondToolOfc = tileCondToolOfc
 
         printfunc (tileRawChannelBuilderOpt2Filter)
 
@@ -917,38 +926,37 @@ if doTileOptATLAS and tileRawChannelBuilderOptATLAS:
     if TileCompareMode or TileEmulateDSP:
         tileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
     tileRawChannelBuilderOptATLAS.UseDSPCorrection = not TileBiGainRun
+    if tileCondToolOfc:
+        tileRawChannelBuilderOptATLAS.TileCondToolOfc = tileCondToolOfc
 
     printfunc (tileRawChannelBuilderOptATLAS)
     
-if doTileMF:
+if doTileMF and tileRawChannelBuilderMF:
 
     if PhaseFromCOOL:
-        ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
+        tileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
-    ToolSvc.TileRawChannelBuilderMF.UseDSPCorrection = not TileBiGainRun
+    tileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
+    tileRawChannelBuilderMF.UseDSPCorrection = not TileBiGainRun
+    if tileCondToolOfc:
+        tileRawChannelBuilderMF.TileCondToolOfc = tileCondToolOfc
 
-    if OfcFromCOOL and not doTileFitCool:
-        TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
-        TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
+    printfunc (tileRawChannelBuilderMF )
 
-        tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
-        tileInfoConfigurator.setupCOOLAutoCr()
-
-    printfunc (ToolSvc.TileRawChannelBuilderMF )
-
-if doTileOF1:
-    ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
+if doTileOF1 and tileRawChannelBuilderOF1:
+    tileRawChannelBuilderOF1.PedestalMode = TileOF1Ped
 
     if PhaseFromCOOL:
-        ToolSvc.TileRawChannelBuilderOF1.correctTime = False # do not need to correct time with best phase
+        tileRawChannelBuilderOF1.correctTime = False # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderOF1.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
+    tileRawChannelBuilderOF1.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
     if TileCompareMode or TileEmulateDSP:
-        ToolSvc.TileRawChannelBuilderOF1.EmulateDSP = True # use dsp emulation
-    ToolSvc.TileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
+        tileRawChannelBuilderOF1.EmulateDSP = True # use dsp emulation
+    tileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
+    if tileCondToolOfc:
+        tileRawChannelBuilderOF1.TileCondToolOfc = tileCondToolOfc
 
-    printfunc (ToolSvc.TileRawChannelBuilderOF1    )
+    printfunc (tileRawChannelBuilderOF1)
 
 if doTileWiener and tileRawChannelBuilderWienerFilter:
     if PhaseFromCOOL:
@@ -976,20 +984,18 @@ if doCaloCell:
    # create TileCell from TileRawChannel and store it in CaloCellContainer
    if TileBiGainRun: 
        include( "TileRec/TileCellMaker_jobOptions_doublegain.py" )
-       ToolSvc.TileCellBuilderLG.SkipGain = 1
-       ToolSvc.TileCellBuilderHG.SkipGain = 0
        if OldRun: # disable masking on the fly
-           ToolSvc.TileCellBuilderLG.TileDSPRawChannelContainer=""
-           ToolSvc.TileCellBuilderHG.TileDSPRawChannelContainer=""
+           topSequence.CaloCellMakerLG.CaloCellMakerToolNames["TileCellBuilderLG"].TileDSPRawChannelContainer=""
+           topSequence.CaloCellMakerHG.CaloCellMakerToolNames["TileCellBuilderHG"].TileDSPRawChannelContainer=""
    else: 
        include( "TileRec/TileCellMaker_jobOptions.py" )
        if OldRun: # disable masking on the fly
-           ToolSvc.TileCellBuilder.TileDSPRawChannelContainer=""
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].TileDSPRawChannelContainer=""
        if doRecoESD:
            topSequence.CaloCellMaker.CaloCellsOutputName = "AllCaloNewReco"
-           ToolSvc.TileCellBuilder.MBTSContainer = "MBTSContainerNewReco"
-           ToolSvc.TileCellBuilder.E4prContainer = "E4prContainerNewReco"
-           ToolSvc.TileCellBuilder.TileDSPRawChannelContainer=""
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].MBTSContainer = "MBTSContainerNewReco"
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].E4prContainer = "E4prContainerNewReco"
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].TileDSPRawChannelContainer=""
 
 if doTileTower:
     include( "CaloRec/CaloCombinedTower_jobOptions.py" )
@@ -1025,27 +1031,27 @@ if doTileTMDBRawChannel:
     # Set up TileCondToolPulseShape to be used in
     # TileCondToolOfc
     from TileConditions.TileCondToolConf import getTileCondToolMuRcvPulseShape
-    ToolSvc += getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
+    muRcvPulseShape = getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
     
     # Set up TileCondToolOfc to be used in TileRawChannelBuilderMF
-    ToolSvc += CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
+    muRcvOfc = CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
                                       , OptFilterDeltaCorrelation = True
-                                      , TileCondToolPulseShape = ToolSvc.TileCondToolMuRcvPulseShape)
+                                      , TileCondToolPulseShape = muRcvPulseShape)
     
     
     # Set up TileRawChannelBuilderOpt2 to be used
-    ToolSvc += CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
-                                                      , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
-                                                      , PedestalMode = 1
-                                                      , Minus1Iteration = TRUE
-                                                      , calibrateEnergy = False
-                                                      , correctTime = False
-                                                      , TileCondToolOfc = ToolSvc.TileCondToolMuRcvOfc)
+    muRcvRawChannelBuilder = CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
+                                                                    , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
+                                                                    , PedestalMode = 1
+                                                                    , Minus1Iteration = TRUE
+                                                                    , calibrateEnergy = False
+                                                                    , correctTime = False
+                                                                    , TileCondToolOfc = muRcvOfc)
     
     
     topSequence += CfgMgr.TileRawChannelMaker(name = 'TileMuRcvRChMaker'
                                               , TileDigitsContainer = 'MuRcvDigitsCnt'
-                                              , TileRawChannelBuilder = [ ToolSvc.TileMuRcvRawChannelBuilderOpt2 ])
+                                              , TileRawChannelBuilder = [ muRcvRawChannelBuilder ])
 
 if (doTileNtuple or doD3PD):
 
@@ -1282,8 +1288,9 @@ if doTileMon:
                                                histoPathBase   = "/Tile/Digits",
                                                book2D          = b2d,
                                                runType         = runType,
+                                               FragIDsToIgnoreDMUErrors = TileFragIDsToIgnoreDMUErrors,
                                                FillPedestalDifference = True)
-        #ToolSvc += theTileDigitsMon
+
         TileMon.AthenaMonTools += [ theTileDigitsMon ]
         printfunc (theTileDigitsMon)
 
@@ -1293,8 +1300,9 @@ if doTileMon:
                                                        histoPathBase   = "/Tile/RawChannel",
                                                        book2D          = b2d,
                                                        PlotDSP         = useRODReco,
+                                                       FragIDsToIgnoreDMUErrors = TileFragIDsToIgnoreDMUErrors,
                                                        runType         = runType )
-        #ToolSvc += theTileRawChannelMon
+
         TileMon.AthenaMonTools += [ theTileRawChannelMon ]
 
         theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelCnt"; # default for simulation
@@ -1359,7 +1367,6 @@ if doTileMon:
         if useRODReco:
             theTileDQFragMon.TileRawChannelContainerDSP = "TileRawChannelCnt"
 
-        #ToolSvc += theTileDQFragMon;
         TileMon.AthenaMonTools += [ theTileDQFragMon ];
         printfunc (theTileDQFragMon)
 
@@ -1372,7 +1379,7 @@ if doTileMon:
                                              negEnergyThreshold = -2000,
                                              energyThreshold    = 300,
                                              histoPathBase      = "/Tile/Cell");
-            #ToolSvc += theTileCellMonHG;
+
             TileMon.AthenaMonTools += [ theTileCellMonHG ];
             printfunc (theTileCellMonHG)
 
@@ -1388,7 +1395,6 @@ if doTileMon:
             #theTileCellMon.energyThreshold = 300.
             #theTileCellMon.energyThresholdForTime = 150.
             #theTileCellMon.FillTimeHistograms = True
-            #ToolSvc += theTileCellMon;
             TileMon.AthenaMonTools += [ theTileCellMon ];
             printfunc (theTileCellMon)
 
@@ -1397,10 +1403,11 @@ if doTileMon:
                                                 OutputLevel        = OutputLevel,
                                                 TileDigitsContainer = "TileDigitsCnt",
                                                 CheckDCS           = TileUseDCS,
+                                                FragIDsToIgnoreDMUErrors = TileFragIDsToIgnoreDMUErrors,
                                                 histoPathBase = "/Tile/DigiNoise" );
         
         if not TileBiGainRun: TileDigiNoiseMon.TriggerTypes = [ 0x82 ]
-        #ToolSvc += TileDigiNoiseMon;
+
         TileMon.AthenaMonTools += [ TileDigiNoiseMon ];
         printfunc (TileDigiNoiseMon)
 
@@ -1412,7 +1419,6 @@ if doTileMon:
                                                   histoPathBase = "/Tile/CellNoise/LG");
         TileCellNoiseMonLG.Xmin          = -2000.;
         TileCellNoiseMonLG.Xmax          =  2000.;
-        #ToolSvc += TileCellNoiseMonLG;
         TileMon.AthenaMonTools += [ TileCellNoiseMonLG ];
         printfunc (TileCellNoiseMonLG)
 
@@ -1424,7 +1430,6 @@ if doTileMon:
                                                   histoPathBase = "/Tile/CellNoise/HG");
         TileCellNoiseMonHG.Xmin          = -300.;
         TileCellNoiseMonHG.Xmax          =  300.;
-        #ToolSvc += TileCellNoiseMonHG;
         TileMon.AthenaMonTools += [ TileCellNoiseMonHG ];
         printfunc (TileCellNoiseMonHG)
 
@@ -1436,7 +1441,6 @@ if doTileMon:
                                                 histoPathBase = "/Tile/CellNoise");
         TileCellNoiseMon.Xmin          = -2000.;
         TileCellNoiseMon.Xmax          =  2000.;
-        #ToolSvc += TileCellNoiseMon;
         TileMon.AthenaMonTools += [ TileCellNoiseMon ];
         printfunc (TileCellNoiseMon)
 
@@ -1451,7 +1455,6 @@ if doTileMon:
                                                            CheckDCS           = TileUseDCS,
                                                            TileRawChannelContainer = "TileRawChannelFit")
 
-        #ToolSvc += TileRawChannelTimeMon
         TileMon.AthenaMonTools += [ TileRawChannelTimeMon ];
         printfunc (TileRawChannelTimeMon)
 
@@ -1472,7 +1475,6 @@ if doTileMon:
                                                               CheckDCS           = TileUseDCS,
                                                               SummaryUpdateFrequency = 0 );
 
-        #ToolSvc += TileRawChannelNoiseMonLG;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMonLG ];
         printfunc (TileRawChannelNoiseMonLG)
 
@@ -1488,8 +1490,6 @@ if doTileMon:
                                                               # doFit         = True,
                                                               SummaryUpdateFrequency = 0 );
 
-
-        #ToolSvc += TileRawChannelNoiseMonHG;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMonHG ];
         printfunc (TileRawChannelNoiseMonHG)
 
@@ -1509,7 +1509,6 @@ if doTileMon:
         # if not defined here, then by default all triggers will be considered
         TileRawChannelNoiseMon.TriggerTypes           = [ 0x82 ];
 
-        #ToolSvc += TileRawChannelNoiseMon;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMon ];
         printfunc (TileRawChannelNoiseMon)
 

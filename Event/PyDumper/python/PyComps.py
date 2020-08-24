@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    PyDumper/python/PyComps.py
 # @purpose: A set of PyAthena components to test reading/writing EDM classes
@@ -156,7 +156,7 @@ class PyReader (PyAthena.Alg):
                            str(self.ofile), type(self.ofile))
             return StatusCode.Failure
         
-        from Dumpers import get_dumper_fct
+        from PyDuper.Dumpers import get_dumper_fct
         try:
             cont_type = getattr(PyAthena, self.cont_type)
         except AttributeError as err:
@@ -268,7 +268,7 @@ class PySgDumper (PyAthena.Alg):
                            str(self.ofile), type(self.ofile))
             return StatusCode.Failure
         
-        from Dumpers import get_dumper_fct
+        from PyDumper.Dumpers import get_dumper_fct
         self._dumper_fct = get_dumper_fct
 
         if hasattr(self.ofile, 'name'):
@@ -319,9 +319,9 @@ class PySgDumper (PyAthena.Alg):
                                       n, clid)
                     _add_fail ((n,clid,'no typename from clid'))
                     
-            items = [(i[1], i[0]) for i in sg.iteritems() if i[1] != "EventInfo"]
+            items = [(i[1], i[0]) for i in sg.items() if i[1] != "EventInfo"]
             items.sort()
-            evt_info = [(clid, key) for key,clid in sg.iteritems() if clid=="EventInfo"]
+            evt_info = [(clid, key) for key,clid in sg.items() if clid=="EventInfo"]
             if len(evt_info)==1:
                 items.insert (0, evt_info[0])
         else:
@@ -394,7 +394,7 @@ class PySgDumper (PyAthena.Alg):
             reasons = defaultdict(list)
             for name,klass,reason in self.failed_dumps:
                 reasons[reason].append ((name,klass))
-            for reason in reasons.iterkeys():
+            for reason in reasons.keys():
                 _info (' ==> [%s]', reason)
                 for name,klass in reasons[reason]:
                     _info ("     [%s#%s]", klass, name)
@@ -490,7 +490,7 @@ class DataProxyLoader(PyAthena.Alg):
             reasons = defaultdict(list)
             for name,klass,reason in self.failed_dumps:
                 reasons[reason].append ((name,klass))
-            for reason in reasons.iterkeys():
+            for reason in reasons.keys():
                 _info (' ==> [%s]', reason)
                 for name,klass in reasons[reason]:
                     _info ("     [%s#%s]", klass, name)

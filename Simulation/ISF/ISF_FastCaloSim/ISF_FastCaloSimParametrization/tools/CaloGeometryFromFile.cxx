@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloGeometryFromFile.h"
@@ -241,9 +241,8 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
 
 void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	
-	stringstream ss;
-	ss << "FCal" << isam - 20 << endl;
-	TString name = ss.str().c_str();
+	stringstream namestr;
+	namestr << "FCal" << isam - 20 << endl;
 	
 	const int size=m_cells_in_sampling[isam].size();
 	
@@ -264,7 +263,7 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	//h->Draw();
 	TGraph* graph = new TGraph(size, &x[0], &y[0]);
 	graph->SetLineColor(color);
-	graph->SetTitle(name);
+	graph->SetTitle(namestr.str());
 	graph->SetMarkerStyle(21);
 	graph->SetMarkerColor(color);
 	graph->SetMarkerSize(0.5);

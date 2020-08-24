@@ -25,7 +25,7 @@ namespace Analysis
     //get photon from Navigable
     if (this->size() ==0) 
       return nullptr;
-    else if (this->size() > 1)
+    if (this->size() > 1)
       return nullptr;
     // this shouldn't happen
     else 

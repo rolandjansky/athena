@@ -29,11 +29,6 @@ globalflags.print_JobProperties()
 
 if globalflags.DataSource == "data":
     #--------------------------------------------------------------
-    # JobOptions for the loading of the AthenaSealSvc
-	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-	# Add in dictionary name:
-	AthenaSealSvc = Service( "AthenaSealSvc" )
 	IOVDbSvc = Service( "IOVDbSvc" )
 	from IOVDbSvc.CondDB import conddb
 
@@ -64,9 +59,6 @@ if globalflags.DataSource == "data":
 	#IOVDbSvc.Folders += ["/RPO/DCS/RADMON"]
 	#IOVDbSvc.Folders += ["/RPO/DCS/TRIGGERRATES"]
 	#IOVDbSvc.Folders += ["/RPO/DCS/TRIGGERSETTINGS"]
-
-    # Check the dictionary in memory for completeness
-	AthenaSealSvc.CheckDictionary = TRUE
 
 ## Load algorithm to TopSequence
 #
@@ -108,7 +100,4 @@ MessageSvc.defaultLimit = 9999999
 
 ClassIDSvc = Service( "ClassIDSvc" )
 ClassIDSvc.OutputLevel = 5
-
-if globalflags.DataSource == "data":
-	AthenaSealSvc.OutputLevel = 5
 

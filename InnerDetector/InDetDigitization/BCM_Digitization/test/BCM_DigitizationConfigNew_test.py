@@ -9,7 +9,7 @@ from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
@@ -23,7 +23,7 @@ ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.lock()
 # Construct our accumulator to run
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(BCM_DigitizationCfg(ConfigFlags))
 # Dump config

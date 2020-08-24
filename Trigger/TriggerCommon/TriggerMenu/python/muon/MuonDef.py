@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -1281,7 +1281,7 @@ class L2EFChain_mu(L2EFChainDef):
 
   def setup_muXX_dR(self):
     
-    from TrigGenericAlgs.TrigGenericAlgsConfig import OverlapRemovalConfig
+    from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import OverlapRemovalConfig
     OverlapRemoval_algo = OverlapRemovalConfig('OvlRem', MinCentDist = 1)
     
     self.L2sequenceList += [[self.L2InputTE,

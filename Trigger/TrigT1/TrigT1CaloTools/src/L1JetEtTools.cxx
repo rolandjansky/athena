@@ -5,7 +5,7 @@
 // L1JetEtTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1JetEtTools.h"
+#include "L1JetEtTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"

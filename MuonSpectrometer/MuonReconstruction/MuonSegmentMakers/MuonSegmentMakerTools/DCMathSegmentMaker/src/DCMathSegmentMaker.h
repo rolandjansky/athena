@@ -1,35 +1,42 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATHSEGMENTMAKER_H
 #define DCMATHSEGMENTMAKER_H
 
+#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonSegment/MuonSegment.h"
-
 #include "TrkDriftCircleMath/DCSLFitter.h"
 #include "TrkDriftCircleMath/DCSLHitSelector.h"
 #include "TrkDriftCircleMath/MdtChamberGeometry.h"
 #include "TrkDriftCircleMath/DCStatistics.h"
 #include "TrkDriftCircleMath/Cluster.h"
 #include "TrkDriftCircleMath/DriftCircle.h"
-
 #include "TrkSurfaces/Surface.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-
 #include "MuonCondData/MdtCondDbData.h"
-
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMdtSegmentFinder.h"
+#include "MuonRecToolInterfaces/IMuonSegmentFittingTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
+#include "MuonSegmentMakerInterfaces/IDCSLFitProvider.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 
 #include <vector>
 #include <set>
@@ -42,10 +49,8 @@ namespace Trk {
 }
 
 namespace TrkDriftCircleMath {
-  class Line;
   class MdtMultiChamberGeometry;
   class Segment;
-  class DCSLFitter;
 }
 
 namespace MuonGM {
@@ -53,27 +58,8 @@ namespace MuonGM {
 }
 
 namespace Muon {
-  class IMuonCompetingClustersOnTrackCreator;
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
-  class IMdtSegmentFinder;
-  class IMuonTrackCleaner;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class IMuonSegmentFittingTool;
-  class IMuonSegmentSelectionTool;
-  class IDCSLFitProvider;
   class MdtPrepData;
 }
-
-class MdtCondDbData;
-class MdtIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class Identifier;
-class MuonStationIntersectSvc;
-
-class MsgStream;
 
 namespace Muon {
 
@@ -219,17 +205,11 @@ class MdtDriftCircleOnTrack;
     };
 
   public:
-    /** default AlgTool constructor */
     DCMathSegmentMaker(const std::string&,const std::string&,const IInterface*);
     
-    /** destructor */
-    virtual ~DCMathSegmentMaker ();
+    virtual ~DCMathSegmentMaker()=default;
     
-    /** initialize method, method taken from bass-class AlgTool */
     virtual StatusCode initialize();
-
-    /** finialize method, method taken from bass-class AlgTool */
-    virtual StatusCode finalize();
 
     /** find segments starting from a list of RIO_OnTrack objects, implementation of IMuonSegmentMaker interface routine.
  
@@ -406,7 +386,7 @@ class MdtDriftCircleOnTrack;
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreatorT0;       //<! mdt rio ontrack creator
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;     //<! cluster rio ontrack creator
     ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator;   //<! competing clusters rio ontrack creator
-    ToolHandle<MuonIdHelperTool>              m_idHelperTool;    //<! Id helper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
     ServiceHandle<IMuonEDMHelperSvc>          m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

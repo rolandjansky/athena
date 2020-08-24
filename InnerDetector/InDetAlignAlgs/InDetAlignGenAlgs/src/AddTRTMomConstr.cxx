@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // @file AddTRTMomConstr.cxx
@@ -178,7 +178,8 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
 
   float chisqpdof = track.fitQuality()->chiSquared() / track.fitQuality()->numberDoF() ;
   if( m_selChiSqPerDOFMin > 0 && chisqpdof > m_selChiSqPerDOFMin ) rc = false ;
-  const Trk::TrackSummary* summary = m_trackSummaryTool->createSummary( *pTrack ) ;
+  std::unique_ptr<const Trk::TrackSummary> summary
+    = m_trackSummaryTool->summary( *pTrack ) ;
   if( summary->get(Trk::numberOfPixelHits) < m_selNHitPIXMin ) {
     ++m_nRejectPIX ;
     rc = false;
@@ -212,7 +213,6 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
         << "\n\t nTRT   = " << summary->get(Trk::numberOfTRTHits)
                ) ;
   ATH_MSG_DEBUG( "leaving accept(.)" ) ;
-  delete summary;
   return rc ;
 } // accept(.)
 

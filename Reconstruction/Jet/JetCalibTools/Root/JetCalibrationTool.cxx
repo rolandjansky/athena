@@ -13,6 +13,7 @@
 // JetCalibTools includes
 #include "JetCalibTools/JetCalibrationTool.h"
 #include "PathResolver/PathResolver.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 // Constructors
 ////////////////
@@ -21,7 +22,6 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_rhkEvtInfo("EventInfo"),
     m_rhkRhoKey(""),
-    m_rhkPV("PrimaryVertices"),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
     m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_gscDepth("auto"),
     m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL)
@@ -38,7 +38,6 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
   declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
   declareProperty( "rhkRhoKey", m_rhkRhoKey);
-  declareProperty( "PrimaryVerticesContainerName", m_rhkPV = "PrimaryVertices");
   declareProperty( "GSCDepth", m_gscDepth);
 
 }
@@ -69,6 +68,7 @@ StatusCode JetCalibrationTool::initialize() {
 
   // Initialise ReadHandle(s)
   ATH_CHECK( m_rhkEvtInfo.initialize() );
+  ATH_CHECK( m_rdhkEvtInfo.initialize() );
   if(m_rhkPV.empty()) {
     // No PV key: -- check if it is required
     if(m_doResidual) {
@@ -430,9 +430,15 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     }
 
     // If we are applying the reisdual, then store mu
-    if (m_doResidual)
-      jetEventInfo.setMu( eventObj->averageInteractionsPerCrossing() );
-    
+    if (m_doResidual) {
+      SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo);
+      if(!eventInfoDecor.isPresent()) {
+	ATH_MSG_ERROR("EventInfo decoration not available!");
+	return StatusCode::FAILURE;
+      }
+      jetEventInfo.setMu( eventInfoDecor(0) );
+    }
+
     // If this is GSC, we need EventInfo to determine the PV to use
     // This is support for groups where PV0 is not the vertex of interest (H->gamgam, etc)
     if (m_doGSC)

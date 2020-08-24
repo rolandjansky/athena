@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file AthenaServices/test/ConditionsCleanerSvc_test.cxx
  * @author scott snyder
@@ -181,7 +179,7 @@ int main()
 {
   std::cout << "ConditionsCleanerSvc_test\n";
   ISvcLocator* svcloc = nullptr;
-  if (!Athena_test::initGaudi("ConditionsCleanerSvc_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/ConditionsCleanerSvc_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }  

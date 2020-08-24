@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // T_TilePoolContainerCnv.h 
@@ -84,7 +84,7 @@ public:
     }
 
     std::vector<IdentifierHash> hashes = mutableContainer->GetAllCurrentHashes();
-    for (const IdentifierHash hash : hashes) {
+    for (const IdentifierHash& hash : hashes) {
       Collection* coll = mutableContainer->indexFindPtr(hash);
       auto newColl = std::make_unique<Collection>(std::move(*coll));
       if (trans->addOrDelete(std::move(newColl), hash).isFailure()) {

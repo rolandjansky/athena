@@ -2,9 +2,6 @@
 
 from __future__ import print_function
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-
-
 
 # Used for combination MC, collisions or cosmics
 

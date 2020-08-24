@@ -35,11 +35,6 @@
 #include <stdexcept>
 
 
-#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
-R__EXTERN TTree* gTree;
-#endif
-
-
 namespace {
 // Helper to increment/decrement a value with exception protection.
 struct Inc
@@ -321,11 +316,6 @@ TBranchTPConvert::addToTree (TTreeTrans* tree,
     }
     clsname = cl->GetName();
   }
-
-#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
-  // Required for creating a new TBranch.
-  gTree = tree;
-#endif
 
   // May be needed by constructors.
   TTreeTrans::Push save_tree (tree);

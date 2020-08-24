@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -28,14 +28,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <map>
 #include <cmath>
 
 #define MAX_BUFFER_LEN 1024
 #undef DEBUG
-
-CaloDmDescrManager* CaloDmDescrManager::s_instance = 0;
-
 
 /* **************************************************************************
 
@@ -69,11 +65,8 @@ CaloDmDescrManager::~CaloDmDescrManager()
 ************************************************************************** */
 const CaloDmDescrManager* CaloDmDescrManager::instance()
 {
-  if(s_instance==0)
-  {
-    s_instance = new CaloDmDescrManager();
-  }
-  return s_instance;
+  static const CaloDmDescrManager s_instance;
+  return &s_instance;
 }
 
 
@@ -146,13 +139,13 @@ CaloDmDescrElement* CaloDmDescrManager::get_element(const Identifier& cellId) co
     hash = m_caloDM_ID->lar_zone_hash_max() + m_caloDM_ID->tile_zone_hash(cellId);
   } else {
     std::cout <<  "CaloDmDescrManager::get_element-> Error! Wrong dead material identifier! " << m_id_helper->show_to_string(cellId) << std::endl;
-    return 0;
+    return nullptr;
   }
   if(hash < m_DmElementVector.size()) {
     return m_DmElementVector[hash];
   } else {
     std::cout << "CaloDmDescrManager::get_element-> Error! Bad hash id for dead material identifier " << hash << std::endl;
-    return 0; 
+    return nullptr; 
   }
 }
 
@@ -199,13 +192,13 @@ CaloDmRegion* CaloDmDescrManager::get_dm_region(const Identifier& cellId) const
     hash_reg = m_caloDM_ID->lar_region_hash_max() + m_caloDM_ID->tile_region_hash(id_reg);
   } else {
     std::cout <<  "CaloDmDescrManager::get_dm_region-> Error! Wrong dead material identifier! " << m_id_helper->show_to_string(cellId) << std::endl;
-    return 0;
+    return nullptr;
   }
   if(hash_reg < m_DmRegionVector.size()) {
     return m_DmRegionVector[hash_reg];
   } else {
     std::cout << "CaloDmDescrManager::get_dm_region-> Error! Bad region hash id!" << m_id_helper->show_to_string(cellId) << std::endl;
-    return 0; 
+    return nullptr; 
   }
 }
 

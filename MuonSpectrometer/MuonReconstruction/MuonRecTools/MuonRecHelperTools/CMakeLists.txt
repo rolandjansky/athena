@@ -44,10 +44,10 @@ atlas_add_library( MuonRecHelperToolsLib
                    PUBLIC_HEADERS MuonRecHelperTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel MuonPattern MuonSegment TrkParameters TrkToolInterfaces MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks xAODMuon MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks xAODMuon MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces MuonSegmentMakerToolInterfaces xAODMuonCnvLib )
 
 atlas_add_component( MuonRecHelperTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps Identifier GaudiKernel MuonPattern MuonSegment TrkParameters TrkToolInterfaces AthLinks xAODMuon MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces MuonRecHelperToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps Identifier GaudiKernel MuonPattern MuonSegment TrkParameters TrkToolInterfaces AthLinks xAODMuon MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces MuonRecHelperToolsLib MuonSegmentMakerToolInterfaces xAODMuonCnvLib )
 

@@ -827,9 +827,6 @@ if doWriteESD:
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
     Stream1 = AthenaPoolOutputStream( "Stream1" )
 
-    #check dictionary
-    svcMgr.AthenaSealSvc.CheckDictionary = True
-
     # Define the output file name
 #    if not doSim:
     Stream1.OutputFile    = OutputESDFile

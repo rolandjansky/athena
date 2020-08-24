@@ -33,6 +33,7 @@
 #include "CoraCool/CoraCoolObject.h"
 #include "CoraCool/CoraCoolObjectIter.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/AthenaAttrListAddress.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -73,55 +74,20 @@ namespace{
 }
 
 IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
-                         const IOVDbParser& folderprop, MsgStream & /*msg*/,
+                         const IOVDbParser& folderprop, MsgStream& msg,
                          IClassIDSvc* clidsvc, const bool checklock, const bool outputToFile,
                          const std::string & source):
-  
-  p_detStore(0),
+  AthMessaging(Athena::getMessageSvc(), "IOVDbFolder"),
   p_clidSvc(clidsvc),
-  p_metaDataTool(0),
   m_conn(conn),
-  m_foldername(""),
-  m_key(""),
-  m_multiversion(false),
-  m_timestamp(false),
-  m_tagoverride(false),
-  m_notagoverride(false),
-  m_writemeta(false),
-  m_fromMetaDataOnly(false),
-  m_extensible(false),
-  m_named(false),
-  m_iovoverridden(false),
-  m_jokey(false),
-  m_dropped(false),
-  m_autocache(true),
   m_checklock(checklock),
-  m_iovoverride(0),
   m_foldertype(AttrList),
-  m_metacon(0),
-  m_cachelength(0),
-  m_cachehint(0),
-  m_cacheinc(0),
   m_chansel(cool::ChannelSelection::all()),
-  m_jotag(""),
-  m_tag(""),
-  m_typename(""),
-  m_eventstore(""),
-  m_cachepar(""),
-  m_addrheader(""),
-  m_clid(0),
-  m_ndbread(0),
-  m_ncacheread(0),
-  m_nobjread(0),
-  m_nbytesread(0),
-  m_readtime(0.),
-  m_nchan(0),
-  m_retrieved(false),
-  m_cachespec(0),
   m_outputToFile{outputToFile},
-  m_source{source},
-  m_msg("IOVDbFolder")
+  m_source{source}
 {
+  // set message same message level as our parent (IOVDbSvc)
+  setLevel(msg.level());
   // extract settings from the properties
   // foldername from the 'unnamed' property
   m_foldername=folderprop.folderName();
@@ -143,13 +109,13 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   // channel selection from 'channelSelection' property
   // syntax is A:B,C:D,E:F
   // :B implies zero lower limit, A: implies zero upper limit
-  std::string chanspec,rangespec;
+  std::string chanspec;
   if (folderprop.getKey("channelSelection","",chanspec) && chanspec!="") {
     m_chanrange=IOVDbNamespace::parseChannelSpec<cool::ChannelId>(chanspec);
     // explicit setting of channel selection
-    bool first(true);
-    //push to the channel selection
+    // push to the channel selection
     try{
+      bool first(true);
       for(const auto & i:m_chanrange){
         if (first){
           first = false;
@@ -943,7 +909,7 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, 
     }
   }
   // parse the description string
-  IOVDbParser folderpar(folderdesc,m_msg.get());
+  IOVDbParser folderpar(folderdesc,msg());
   //use the overrides in the folderdescription, return nullptr immediately if something went wrong
   if (not overrideOptionsFromParsedDescription(folderpar)) return nullptr;
   // setup channel list and folder type

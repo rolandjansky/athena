@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/MdtPrepDataRetriever.h"
 
 #include "MuonJiveXML/MuonFullIDHelper.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
@@ -30,9 +28,9 @@ namespace JiveXML {
 
   StatusCode MdtPrepDataRetriever::initialize(){
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
 
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -42,11 +40,11 @@ namespace JiveXML {
   StatusCode MdtPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
 
-    const Muon::MdtPrepDataContainer *mdtContainer;
+    const Muon::MdtPrepDataContainer *mdtContainer=nullptr;
     if ( evtStore()->retrieve(mdtContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer '" << m_sgKey << "' was not retrieved." << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::MdtPrepDataContainer '" << m_sgKey << "' was not retrieved.");
       return StatusCode::SUCCESS;
     }
 
@@ -79,7 +77,7 @@ namespace JiveXML {
         Identifier id = data->identify();
 
         if (!element) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::MdtReadoutElement for hit " << id << endmsg;
+          if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING("No MuonGM::MdtReadoutElement for hit " << id);
           continue;
         }
 
@@ -103,16 +101,15 @@ namespace JiveXML {
           z.push_back(DataType(globalPos.z()/CLHEP::cm));
           driftRVec.push_back(DataType(localPos[Trk::driftRadius]/CLHEP::cm));
           lengthVec.push_back(DataType(tubeLength/CLHEP::cm));
-          identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->mdtIdHelper())));
+          identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_idHelperSvc->mdtIdHelper())));
           idVec.push_back(DataType( id.get_compact() ));
           barcode.push_back(DataType(0));
         }
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " MdtPrepData x, y, z, driftR, lenght " << globalPos.x() << " " 
+        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(" MdtPrepData x, y, z, driftR, lenght " << globalPos.x() << " " 
                                                 << globalPos.y() << " " << globalPos.z() << " " << localPos[Trk::driftRadius] 
-                                                << " " << tubeLength << " adc: " << adcCount; 
-        if ( notMasked ){ if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " *notMasked* "; }  
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
+                                                << " " << tubeLength << " adc: " << adcCount); 
+        if ( notMasked ){ if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(" *notMasked* "); }
       }
     }
 
@@ -127,7 +124,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     //forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

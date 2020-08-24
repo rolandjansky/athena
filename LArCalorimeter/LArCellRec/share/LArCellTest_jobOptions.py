@@ -1,5 +1,5 @@
 # jobOptions file for testing LArCell
-# ApplicationMgr.DLLs += {  "LArCellRec" };
+# ApplicationMgr.Dlls += {  "LArCellRec" };
 theApp.TopAlg += [
 "LArCellTest/LArCellTestEM",
 "LArCellTest/LArCellTestHEC",

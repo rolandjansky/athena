@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 
 class IInterface;
 class InterfaceID;
@@ -34,23 +35,27 @@ class L1CaloErrorByteStreamTool : public AthAlgTool {
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// Set ROB status error
-   void robError(uint32_t robid, unsigned int err);
+   void robError(uint32_t robid, unsigned int err) const;
    /// Set ROD unpacking error
-   void rodError(uint32_t robid, unsigned int err);
+   void rodError(uint32_t robid, unsigned int err) const;
    /// Fill vector with accumulated errors and reset
    StatusCode errors(std::vector<unsigned int>* errColl);
 
  private:
 
-   // Maps of accumulated errors
+   // FIXME: do this in a sane way...
    typedef std::map<uint32_t, unsigned int> ErrorMap;
-   ErrorMap m_robMap;
-   ErrorMap m_rodMap;
-
+   struct ErrorMaps {
+     // Maps of accumulated errors
+     ErrorMap m_robMap;
+     ErrorMap m_rodMap;
+     std::mutex m_mutex;
+   };
+   mutable SG::SlotSpecificObj<ErrorMaps> m_maps;
 };
 
 } // end namespace

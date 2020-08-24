@@ -39,10 +39,9 @@ Muon::MuonEventCnvTool::MuonEventCnvTool(
     const std::string& n,
     const IInterface*  p )
     :
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_muonMgr(nullptr)
 {
-    declareInterface<ITrkEventCnvTool>(this);   
 }
 
 StatusCode Muon::MuonEventCnvTool::initialize()
@@ -162,6 +161,44 @@ void Muon::MuonEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     return;
 }
 
+void
+Muon::MuonEventCnvTool::prepareRIO_OnTrackLink( const Trk::RIO_OnTrack *RoT,
+                                                ELKey_t& key,
+                                                ELIndex_t& index) const
+{
+    const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(RoT);
+    if (mdt){
+        prepareRIO_OnTrackElementLink<const Muon::MdtPrepDataContainer, Muon::MdtDriftCircleOnTrack>(mdt, key, index);
+        return;
+    }
+    const Muon::CscClusterOnTrack* csc = dynamic_cast<const Muon::CscClusterOnTrack*>(RoT);
+    if (csc){
+        prepareRIO_OnTrackElementLink<const Muon::CscPrepDataContainer, Muon::CscClusterOnTrack>(csc, key, index);
+        return;
+    }
+    const Muon::RpcClusterOnTrack* rpc = dynamic_cast<const Muon::RpcClusterOnTrack*>(RoT);
+    if (rpc){
+        prepareRIO_OnTrackElementLink<const Muon::RpcPrepDataContainer, Muon::RpcClusterOnTrack>(rpc, key, index);
+        return;
+    }
+    const Muon::TgcClusterOnTrack* tgc = dynamic_cast<const Muon::TgcClusterOnTrack*>(RoT);
+    if (tgc){
+        prepareRIO_OnTrackElementLink<const Muon::TgcPrepDataContainer, Muon::TgcClusterOnTrack>(tgc, key, index);
+        return;
+    }   
+    const Muon::sTgcClusterOnTrack* stgc = dynamic_cast<const Muon::sTgcClusterOnTrack*>(RoT);
+    if (stgc){
+        prepareRIO_OnTrackElementLink<const Muon::sTgcPrepDataContainer, Muon::sTgcClusterOnTrack>(stgc, key, index);
+        return;
+    }
+    const Muon::MMClusterOnTrack* mm = dynamic_cast<const Muon::MMClusterOnTrack*>(RoT);
+    if (mm){
+        prepareRIO_OnTrackElementLink<const Muon::MMPrepDataContainer, Muon::MMClusterOnTrack>(mm, key, index);
+        return;
+    }     
+    return;
+}
+
 void Muon::MuonEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     
     std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *> pair = getLinks( *RoT );
@@ -217,13 +254,13 @@ const Trk::PrepRawData*
       ATH_MSG_DEBUG("PRD Cluster container found at "<<prdKey);
   }
 
-  auto it = handle->indexFind(idHash);
+  auto ptr = handle->indexFindPtr(idHash);
   // if we find PRD, then recreate link
-  if (it!=handle->end()) 
+  if (ptr!=nullptr) 
   {
       //loop though collection to find matching PRD.
-      auto collIt = (*it)->begin();
-      auto collItEnd = (*it)->end();
+      auto collIt = ptr->begin();
+      auto collItEnd = ptr->end();
       // there MUST be a faster way to do this!!
       for ( ; collIt!=collItEnd; collIt++){
           if ( (*collIt)->identify()==id ) return *collIt;

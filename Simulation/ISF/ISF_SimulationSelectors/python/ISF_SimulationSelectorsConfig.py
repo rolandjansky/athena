@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 ISF_SimulationSelectors configurations for ISF
 Elmar Ritsch, 04/02/2013
@@ -6,8 +6,6 @@ Elmar Ritsch, 04/02/2013
 
 from AthenaCommon import CfgMgr
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
 from ISF_SimulationSelectors import SimulationFlavor
 ### DefaultSimSelector configurations
 
@@ -157,6 +155,36 @@ def getPionAFIIGeant4Selector(name="ISF_PionAFIIGeant4Selector", **kwargs):
     kwargs.setdefault('ParticlePDG'     , 211)
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getPionG4FastCaloGeant4Selector(name="ISF_PionG4FastCaloGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 200)
+    kwargs.setdefault('ParticlePDG'     , 211)
+    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getProtonG4FastCaloGeant4Selector(name="ISF_ProtonG4FastCaloGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 2212)
+    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getNeutronG4FastCaloGeant4Selector(name="ISF_NeutronG4FastCaloGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 2112)
+    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getChargedKaonG4FastCaloGeant4Selector(name="ISF_ChargedKaonG4FastCaloGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 321)
+    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getKLongG4FastCaloGeant4Selector(name="ISF_KLongG4FastCaloGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 130)
+    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
 def getPionAFII_QS_Geant4Selector(name="ISF_PionAFII_QS_Geant4Selector", **kwargs):
@@ -320,7 +348,7 @@ def getJPsiLeptonsConeGeant4Selector(name="ISF_JPsiLeptonsConeGeant4Selector", *
     kwargs.setdefault('ConeCreatorMinPt'            , 0.          )
     kwargs.setdefault('ConeSize'                    , 0.4         )
     kwargs.setdefault('CheckConeCreatorAncestors'   , True        )
-    kwargs.setdefault('ConeCreatorAncestor'         , [ 443 ]     ) # W
+    kwargs.setdefault('ConeCreatorAncestor'         , [ 443 ]     ) # J/Psi
     # see HepMC manual for HepMC::GenVertex::particle iterator
     # 0=parents, 1=family, 2=ancestors, 3=relatives
     kwargs.setdefault('ConeCreatorAncestorRelation' , 0           )

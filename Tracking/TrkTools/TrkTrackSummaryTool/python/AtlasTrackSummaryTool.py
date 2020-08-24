@@ -43,14 +43,24 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
         ToolSvc += AtlasPrdAssociationTool
         #print      AtlasPrdAssociationTool
     
+        # 
+        # Setup Boundary Check Tool
+        #
+        from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+        AtlasBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+            name="AtlasBoundaryCheckTool",
+            UsePixel      = DetFlags.haveRIO.pixel_on(),
+            UseSCT        = DetFlags.haveRIO.SCT_on()
+        )
+        ToolSvc += AtlasBoundaryCheckTool
+    
         #
         # Loading Configurable HoleSearchTool
         #
         from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
         AtlasHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "AtlasHoleSearchTool",
                                                               Extrapolator = AtlasExtrapolator,
-                                                              usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                              useSCT        = DetFlags.haveRIO.SCT_on()
+                                                              BoundaryCheckTool=AtlasBoundaryCheckTool
                                                               )
         ToolSvc += AtlasHoleSearchTool
         #print      AtlasHoleSearchTool

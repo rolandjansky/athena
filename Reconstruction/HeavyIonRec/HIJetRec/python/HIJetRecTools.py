@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from JetRec.JetRecFlags import jetFlags
@@ -8,22 +8,18 @@ import AthenaCommon.SystemOfUnits as Units
 #configuring getter tools
 #selection for track jets
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
+from JetRec.JetRecConf import PseudoJetAlgorithm
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
-from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool 
-from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool 
 
 #select the tracks
-if jetFlags.Enabled() : HIJetFlags.UseHITracks.set_Value_and_Lock(False)
+#if jetFlags.Enabled() : HIJetFlags.UseHITracks.set_Value_and_Lock(False)
 if HIJetFlags.UseHITracks() :
     jtm += InDet__InDetTrackSelectionTool("trk_tracksel_HI",
                                           minPt                = HIJetFlags.TrackInputPtMin(),
                                           maxAbsEta            = 2.5,
                                           minNSiHits           = 7,
-                                          maxNPixelSharedHits  = 1,
-                                          maxOneSharedModule   = True,
+                                         ## maxNSiSharedModules  = 100,
                                           maxNSiHoles          = 2,
                                           maxNPixelHoles       = 1)
 
@@ -42,20 +38,17 @@ if HIJetFlags.UseHITracks() :
                                   MaxLongitudinalDistance = 1.0e7,
                                   MaxZ0SinTheta = 1.5)
     #build PJ getter
-    jtm += TrackPseudoJetGetter("trackget_HI",
+    jtm += PseudoJetAlgorithm("trackget_HI",
                                 InputContainer = jtm.tracksel_HI.OutputContainer,
                                 Label = "Track",
                                 OutputContainer = "PseudoJetTracks_HI",
-                                TrackVertexAssociation = jtm.tvassoc_HI.TrackVertexAssociation,
-                                SkipNegativeEnergy = True,
-                                GhostScale = 0.0)
+                                SkipNegativeEnergy = True )
     #now for ghost tracks
     jtm += InDet__InDetTrackSelectionTool("trk_gtracksel_HI",
                                           minPt                = 400.*Units.MeV,
                                           maxAbsEta            = 2.5,
                                           minNSiHits           = 7,
-                                          maxNPixelSharedHits  = 1,
-                                          maxOneSharedModule   = True,
+                                          ###maxNSiSharedModules  = 100,
                                           maxNSiHoles          = 2,
                                           maxNPixelHoles       = 1)
     #select the tracks for jet finding
@@ -63,23 +56,17 @@ if HIJetFlags.UseHITracks() :
                                   InputContainer  = jtm.trackContainer,
                                   OutputContainer = "JetSelectedTracks_HI_ghost",
                                   Selector        = jtm.trk_gtracksel_HI)
-    
-    
-    jtm += TrackPseudoJetGetter("gtrackget_HI",
+
+
+    jtm += PseudoJetAlgorithm("gtrackget_HI",
                                 InputContainer = jtm.gtracksel_HI.OutputContainer,
                                 Label = "GhostTrack",
                                 OutputContainer = "PseudoJetGhostTracks_HI_ghost",
-                                TrackVertexAssociation = jtm.tvassoc_HI.TrackVertexAssociation,
-                                SkipNegativeEnergy = True,
-                                GhostScale = 1e-20)
+                                SkipNegativeEnergy = True )
 
     jtm.jvf.unlock()
     jtm.jvf.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
     jtm.jvf.lock()
-
-    jtm.jvt.unlock()
-    jtm.jvt.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
-    jtm.jvt.lock()
 
     jtm.trkmoms.unlock()
     jtm.trkmoms.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
@@ -87,35 +74,31 @@ if HIJetFlags.UseHITracks() :
     jtm.trkmoms.lock()
 
 
-from JetRec.JetRecConf import PseudoJetGetter
 ClusterKey=HIJetFlags.HIClusterKey()
 
-from HIJetRec.HIJetRecConf import HIClusterPseudoJetGetter
-jtm += HIClusterPseudoJetGetter("get_HI",
+jtm += PseudoJetAlgorithm("get_HI",
                                 InputContainer = ClusterKey,
                                 Label = "LCTopo", #Label = "Tower",
                                 OutputContainer = "PseudoJet" + ClusterKey,
                                 SkipNegativeEnergy = False,
-                                TreatNegativeEnergyAsGhost=True,
-                                GhostScale = 1.e-20
+                                TreatNegativeEnergyAsGhost=True
                                 )
 
-jtm += PseudoJetGetter("gakt4trackget_HI", 
+jtm += PseudoJetAlgorithm("gakt4trackget_HI",
                        InputContainer = HIJetFlags.TrackJetContainerName(),
-                       Label = "Ghost" + HIJetFlags.TrackJetContainerName(), 
+                       Label = "Ghost" + HIJetFlags.TrackJetContainerName(),
                        SkipNegativeEnergy = True,
-                       OutputContainer = "PseudoJetGhost" +  HIJetFlags.TrackJetContainerName(),
-                       GhostScale = 1.e-20)                       
+                       OutputContainer = "PseudoJetGhost" +  HIJetFlags.TrackJetContainerName() )
 
 HIgetters_ghost_track = []
 HIgetters_common=[]
 if jetFlags.useMuonSegments(): HIgetters_common += [jtm.gmusegget]
-if jetFlags.useTracks(): 
-    HIgetters_ghost_track += [jtm.gakt4trackget_HI]
+if jetFlags.useTracks():
+    #HIgetters_ghost_track += [jtm.gakt4trackget_HI]
     if HIJetFlags.UseHITracks() : HIgetters_ghost_track += [jtm.gtrackget_HI]
     else: HIgetters_ghost_track += [jtm.gtrackget]
 
-if jetFlags.useTruth(): 
+if jetFlags.useTruth():
     #HIgetters_common += [jtm.gtruthget]
     flavorgetters=[]
     for ptype in jetFlags.truthFlavorTags():
@@ -165,7 +148,7 @@ discrim.MaxOverMeanCut=HIJetFlags.DCutMaxOverMean()
 discrim.MinimumETMaxCut=HIJetFlags.DCutMax()
 jtm.add(discrim)
 
-jtm.modifiersMap['HI_Unsubtr']=[assoc,max_over_mean,jetfil5] 
+jtm.modifiersMap['HI_Unsubtr']=[assoc,max_over_mean,jetfil5]
 
 hi_trk_modifiers=[assoc,max_over_mean,jtm.width]
 hi_modifiers = []
@@ -176,23 +159,34 @@ jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
 
 from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
 cl_subtr_tool=HIJetClusterSubtractorTool("HIJetClusterSubtractor")
-cl_subtr_tool.ConfigDir='HIJetRec/'
+cl_subtr_tool.ConfigDir='HIEventUtils/'
 jtm.add(cl_subtr_tool)
 
-
-if HIJetFlags.ApplyOriginCorrection() : hi_modifiers +=  [jtm.jetorigincorr]
+hi_calib_map={}
 if HIJetFlags.ApplyEtaJESCalibration() :
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
-    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4EMTopo',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
-    jtm.add(calib_tool)
-    hi_modifiers += [jtm.HICalibTool]
+    for R in HIJetFlags.AntiKtRValues() :
+        #non existing calibration for R=1.0 jets, R=0.4 jet calibration to be used (GetHIModifierList)
+        if int(10*R) == 10 : continue
+        calib_seq='EtaJES'
+        JES_is_data=True
+        if jetFlags.useTruth(): JES_is_data=False
+        elif R == 0.4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
+        #elif R is 1.0 : R = 0.4
+        calib_tool=JetCalibrationTool('HICalibToolR%d' % int(10*R),JetCollection='AntiKt%dHI' % int(10*R),
+                                      ConfigFile='JES_MC15c_HI_Nov2016.config',CalibSequence=calib_seq,IsData=JES_is_data)
+
+        jtm.add(calib_tool)
+        hi_calib_map['AntiKt%dHIJets' % int(10*R)]=calib_tool
+jtm.HICalibMap=hi_calib_map
 hi_modifiers += [jtm.jetfilHI,jtm.jetsorter]
 hi_modifiers+=[jtm.width,jtm.jetens,jtm.larhvcorr]
 
 if jetFlags.useCaloQualityTool():
     hi_modifiers += [jtm.caloqual_cluster]
-if jetFlags.useTracks(): 
-    hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
+if jetFlags.useTracks():
+    hi_modifiers += [jtm.trkmoms, jtm.jvf, jtm.jvt]
+#    hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
 if jetFlags.useTruth():
     hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel,jtm.jetdrlabeler]
     hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel,jtm.jetdrlabeler]

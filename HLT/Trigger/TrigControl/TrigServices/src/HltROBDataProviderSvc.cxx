@@ -16,6 +16,9 @@
 
 // Athena
 
+// STL includes
+#include <algorithm>    // std::find
+
 HltROBDataProviderSvc::HltROBDataProviderSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   base_class(name, pSvcLocator)
 {
@@ -106,12 +109,12 @@ StatusCode HltROBDataProviderSvc::initialize()
     if ((p_jobOptionsSvc.retrieve()).isFailure()) {
       ATH_MSG_ERROR("Could not find JobOptionsSvc");
     } else {
-      const std::vector<const Property*>* dataFlowProps = p_jobOptionsSvc->getProperties("DataFlowConfig");
+      const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps = p_jobOptionsSvc->getProperties("DataFlowConfig");
       if(!dataFlowProps)
         ATH_MSG_ERROR("Could not find DataFlowConfig properties");
       else
       {
-        for ( const Property* cur : *dataFlowProps ) {
+        for ( const Gaudi::Details::PropertyBase* cur : *dataFlowProps ) {
           // the enabled ROB list is found
           if ( cur->name() == "DF_Enabled_ROB_IDs" ) {
             if (m_enabledROBs.assign(*cur)) {
@@ -141,6 +144,9 @@ StatusCode HltROBDataProviderSvc::initialize()
                    << ". It was read from job options." );
     }
   }
+
+  // prefetch all ROBs in a ROS on a first retrieval of ROBs from this ROS
+  ATH_MSG_INFO(" ---> Prefetch all ROBs in a ROS on first retrieval                = " << m_prefetchAllROBsfromROS);
 
   // Setup the slot specific cache
   m_eventsCache = SG::SlotSpecificObj<EventCache>( SG::getNSlots() );
@@ -307,6 +313,15 @@ void HltROBDataProviderSvc::setNextEvent(const EventContext& context, const RawE
   ATH_MSG_DEBUG("      current [global id, LVL1 id] = [" << cache->globalEventNumber << "," << cache->currentLvl1ID << "]" );
   ATH_MSG_DEBUG("      number of received ROBs      =  " << rob_fragments.size() );
   ATH_MSG_DEBUG("      size of ROB cache            =  " << cache->robmap.size() );
+
+  //------------------------------+
+  // Initiate whole ROS retrieval |
+  //------------------------------+
+  if ( m_prefetchAllROBsfromROS.value() && m_enabledROBs.value().size() != 0 ) {
+    addROBData( context, m_enabledROBs.value(), "prefetch_HLTROBDataProviderSvc" );
+    ATH_MSG_DEBUG("      ROS prefetch init. size      =  " << m_enabledROBs.value().size() );
+  }
+
   return;
 }
 
@@ -326,7 +341,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
   // check input ROB list against cache
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
 
-  //  missing ROB fragments from the DCM and add them to the cache
+  // no missing ROB fragments, return the found ROB fragments 
   if (robIds_missing.size() == 0) {
     ATH_MSG_DEBUG( __FUNCTION__ << ": All requested ROB Ids were found in the cache. "); 
     return;
@@ -372,6 +387,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
   // return all the requested ROB fragments from the cache
   robFragments.clear() ;
+  robIds_missing.clear() ;
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
 }
 
@@ -539,6 +555,13 @@ void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, co
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << " number of ROB Ids to check = " << robIds_toCheck.size());
 
   for (uint32_t id : robIds_toCheck) {
+
+    // check for duplicate IDs on the list of missing ROBs
+    std::vector<uint32_t>::iterator missing_it = std::find(robIds_missing.begin(), robIds_missing.end(), id);
+    if (missing_it != robIds_missing.end()) {
+      ATH_MSG_VERBOSE(__FUNCTION__ << " ROB Id : 0x" << MSG::hex << id << MSG::dec <<" is already on the list of missing IDs.");
+      continue;
+    }
 
     // check if ROB is already in cache
     ROBMAP::const_iterator map_it = cache->robmap.find(id);

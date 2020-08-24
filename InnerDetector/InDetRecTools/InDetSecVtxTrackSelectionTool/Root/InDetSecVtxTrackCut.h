@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 // -*- c++ -*-
@@ -64,7 +64,6 @@ class D0minCut : public virtual SecVtxTrackCut {
     std::function<bool(const std::array<uint8_t,N>&)> m_func;
     std::array< xAOD::SummaryType, N> m_summaryTypes;
     std::array< std::shared_ptr<SummaryAccessor>,N > m_summaryAccessors;
-    mutable std::array<uint8_t,N> m_results; // member variable to store the results
   }; // class FuncSummaryValueCut
 
 } // namespace InDet

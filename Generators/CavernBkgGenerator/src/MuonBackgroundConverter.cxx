@@ -195,16 +195,13 @@ StatusCode MuonBackgroundConverter::callGenerator()
          int id = abs (m_evt.at(i).getPdgID() );
          
          bool select = ( (!m_firstHitOnly) || 
-                         (m_firstHitOnly && fabs(p_curr-p_prev)>tolerance) ) && ( id != 13 ); 
+                         (m_firstHitOnly && std::abs(p_curr-p_prev)>tolerance) ) && ( id != 13 ); 
          if ( select )
          {
              //std::cout  <<  evt  <<  std::endl;
  
              // polarisation 
-             double polX, polY, polZ;
-             polX = polY = polZ = 0.0;
-             HepMC::Polarization pol;
-             pol.set_normal3d( HepGeom::Normal3D<double>( polX, polY, polZ ) );
+             HepMC::Polarization pol(0.0,0.0);
              m_polarization.push_back( pol );
           
              // PDG id, vertex, kinematic variables
@@ -309,11 +306,11 @@ StatusCode MuonBackgroundConverter::fillEvt( HepMC::GenEvent* event )
   int nPart = m_pdgCode.size();
   for ( int i = 0; i < nPart; i++ )
   {
-     HepMC::GenParticle* particle = new HepMC::GenParticle( m_fourMom[i], m_pdgCode[i], 1 );
-     particle->set_polarization( m_polarization[i] );
+     HepMC::GenParticlePtr particle = HepMC::newGenParticlePtr( HepMC::FourVector(m_fourMom[i].x(),m_fourMom[i].y(),m_fourMom[i].z(),m_fourMom[i].e()), m_pdgCode[i], 1 );
+     HepMC::set_polarization(particle, m_polarization[i] );
 
      // Create the vertex, and add the particle to the vertex
-     HepMC::GenVertex* vertex = new HepMC::GenVertex( m_fourPos[i] );
+     HepMC::GenVertexPtr vertex = HepMC::newGenVertexPtr( HepMC::FourVector(m_fourPos[i].x(),m_fourPos[i].y(),m_fourPos[i].z(),m_fourPos[i].t()) );
      vertex->add_particle_out( particle );
 
      // Add the vertex to the event

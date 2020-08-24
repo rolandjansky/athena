@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //For SCT Lorentz Angle
@@ -19,7 +19,7 @@ LA_func(Double_t* x, Double_t* par) {
   Double_t x_{xmin};
   Double_t LA_sum{0.};
   for (Int_t i{1}; i<n; i++) {
-    LA_sum = par[0]*std::fabs(std::tan(x_*piOver180)-std::tan(par[1]*piOver180))+par[2];
+    LA_sum = par[0]*std::abs(std::tan(x_*piOver180)-std::tan(par[1]*piOver180))+par[2];
     sum += LA_sum * 0.017455 * piNorm/(par[3]*piOver180)
       * std::exp(-(x[0]*piOver180 - x_*piOver180 )*(x[0]*piOver180 - x_*piOver180 )/(2*par[3]*piOver180*par[3]*piOver180)) * h;
     x_ += h;

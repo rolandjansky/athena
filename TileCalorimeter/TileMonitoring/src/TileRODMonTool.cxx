@@ -68,6 +68,7 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("FillDetailRODFragmentSize", m_fillDetailFragmentSize = true);
   declareProperty("NumberOfEventsToAverageFragmentSize", m_nEvents4FragmentSize = 50);
+  declareProperty("NumberOfROBFragments", m_nROBs = N_TILE_ROBS);
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/ROD"; //ROOT File directory
@@ -86,12 +87,18 @@ StatusCode TileRODMonTool:: initialize() {
 
   ATH_MSG_INFO( "in initialize()" );
 
-  m_tileRobIds.reserve(4 * 16); // partitions * fragments
-  
-  for (uint32_t robId = 0x510000; robId < 0x510010; ++robId) m_tileRobIds.push_back(robId); // LBA
-  for (uint32_t robId = 0x520000; robId < 0x520010; ++robId) m_tileRobIds.push_back(robId); // LBC
-  for (uint32_t robId = 0x530000; robId < 0x530010; ++robId) m_tileRobIds.push_back(robId); // EBA
-  for (uint32_t robId = 0x540000; robId < 0x540010; ++robId) m_tileRobIds.push_back(robId); // EBC
+  if (m_nROBs > N_TILE_ROBS) {
+    ATH_MSG_INFO( "Decreasing number of ROBs from "  << m_nROBs << " to " << N_TILE_ROBS );
+    m_nROBs = N_TILE_ROBS;
+  }
+
+  m_tileRobIds.reserve(4 * m_nROBs); // partitions * fragments
+  uint32_t robIds[4] = {0x510000,0x520000,0x530000,0x540000};
+  for (unsigned int p=0; p<4; ++p) {
+    for (unsigned int f=0; f<m_nROBs; ++f) {
+      m_tileRobIds.push_back(robIds[p]+f);
+    }
+  }
  
   CHECK( m_tileToolEmscale.retrieve() );
   CHECK( m_robSvc.retrieve() );
@@ -503,7 +510,7 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
                                                  , "tileRodFragmentSize_" + m_TrigNames[trig]
                                                  , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
                                                  ": Tile ROD fragment size (word) (entries = events)"
-                                                 , 16, -0.5, 15.5, 4, 1, 5, 0, 2.e6)) ;
+                                                 , m_nROBs, -0.5, m_nROBs-0.5, 4, 1, 5, 0, 2.e6)) ;
   
   m_tileRodFragmentSize[element]->GetXaxis()->SetTitle("Fragment Number");
   m_tileRodFragmentSize[element]->GetYaxis()->SetTitle("Partition Number");
@@ -534,7 +541,7 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
   if (m_fillDetailFragmentSize) {
     std::vector<std::string> partitions = {"AUX", "LBA", "LBC", "EBA", "EBC"};
     for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-      for (unsigned int fragment = 0; fragment < 16; ++fragment) {
+      for (unsigned int fragment = 0; fragment < m_nROBs; ++fragment) {
         m_tileRodFragmentSize1D[ros][fragment].push_back( book1F(m_TrigNames[trig]
                                                                  , "tileRodFragmentSize_" + partitions[ros] + 
                                                                  "_Fragment" + std::to_string(fragment) + "_" + m_TrigNames[trig]
@@ -604,7 +611,7 @@ void TileRODMonTool::cleanHistVec()
 
   if (m_fillDetailFragmentSize) {
     for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-      for (unsigned int fragment = 0; fragment < 16; ++fragment) {
+      for (unsigned int fragment = 0; fragment < m_nROBs; ++fragment) {
         m_tileRodFragmentSize1D[ros][fragment].clear();
       }
     }
@@ -853,24 +860,26 @@ StatusCode TileRODMonTool::fillHistograms()
   for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFragment : robFragments) {
     uint32_t rodSourceId = robFragment->rod_source_id();
     unsigned int ros = (rodSourceId & 0x0F0000) >> 16;
-    unsigned int fragment = rodSourceId & 0x00000F;
+    unsigned int fragment = rodSourceId & 0x0000FF;
     allTileRodSize += robFragment->rod_fragment_size_word();
-    
-    for (unsigned int element = 0; element < m_eventTrigs.size(); ++element) {
-      int trigger = m_eventTrigs[element];
 
-      m_tileRodFragmentSize[vecIndx(element)]->Fill(fragment, ros, robFragment->rod_fragment_size_word());
-      if (m_fillDetailFragmentSize) {
+    if (ros > 0 && ros < 5 && fragment < m_nROBs) {
+      for (unsigned int element = 0; element < m_eventTrigs.size(); ++element) {
+        int trigger = m_eventTrigs[element];
 
-        m_rodFragmentSizeSum[ros][fragment][m_eventTrigs[element]] += robFragment->rod_fragment_size_word();
-        if (m_nEventsProcessed[trigger] > m_nEvents4FragmentSize) {
+        m_tileRodFragmentSize[vecIndx(element)]->Fill(fragment, ros, robFragment->rod_fragment_size_word());
+        if (m_fillDetailFragmentSize) {
 
-          m_rodFragmentSizeSum[ros][fragment][trigger] -= m_lastRodFragmentSize[ros][fragment][trigger];
-          float averageRodFragmentSize = m_rodFragmentSizeSum[ros][fragment][trigger] / m_nEvents4FragmentSize;
-          m_tileRodFragmentSize1D[ros][fragment][vecIndx(element)]->Fill(averageRodFragmentSize);
+          m_rodFragmentSizeSum[ros][fragment][m_eventTrigs[element]] += robFragment->rod_fragment_size_word();
+          if (m_nEventsProcessed[trigger] > m_nEvents4FragmentSize) {
+
+            m_rodFragmentSizeSum[ros][fragment][trigger] -= m_lastRodFragmentSize[ros][fragment][trigger];
+            float averageRodFragmentSize = m_rodFragmentSizeSum[ros][fragment][trigger] / m_nEvents4FragmentSize;
+            m_tileRodFragmentSize1D[ros][fragment][vecIndx(element)]->Fill(averageRodFragmentSize);
+          }
+
+          m_lastRodFragmentSize[ros][fragment][trigger] = robFragment->rod_fragment_size_word();
         }
-
-        m_lastRodFragmentSize[ros][fragment][trigger] = robFragment->rod_fragment_size_word();
       }
     }
   }

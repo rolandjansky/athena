@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -166,7 +166,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	  m_map_THistSvc_streamnames[itr->substr(0,location)]=itr->substr(location);
 	}
       itr->erase(0,location);
-      itr++;
+      ++itr;
     }
   
   if(m_map_THistSvc_streamnames.size()>0)
@@ -175,7 +175,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	  << "Using following mapping of mnemonics to streams (in alphabetical order):"
 	  << endmsg;
       for( map_type::const_iterator iter = m_map_THistSvc_streamnames.begin();
-	   iter != m_map_THistSvc_streamnames.end(); iter++ )
+	   iter != m_map_THistSvc_streamnames.end(); ++iter )
 	log << MSG::INFO 
 	    << std::setw(20)
 	    << iter->first << " writes to "

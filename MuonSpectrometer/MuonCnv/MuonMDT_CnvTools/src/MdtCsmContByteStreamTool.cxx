@@ -1,20 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCsmContByteStreamTool.h"
-#include "MdtROD_Encoder.h"
 
+#include "MdtROD_Encoder.h"
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtCsmContainer.h"
-
-#include "GaudiKernel/MsgStream.h"
-
-//#include "StoreGate/tools/ClassID_traits.h"
-#include "AthenaKernel/CLASS_DEF.h"
 #include "ByteStreamData/RawEvent.h" 
-
-#include <map> 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // default constructor
 Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
@@ -26,22 +20,14 @@ Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
   declareInterface< Muon::IMDT_RDOtoByteStreamTool  >( this );
 }
 
-// destructor 
- 
-//Muon::MdtCsmContByteStreamTool::~MdtCsmContByteStreamTool() {
-//delete m_hid2re;
-//}
-  
 StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   m_hid2re = new MDT_Hid2RESrcID ();
-  StatusCode status = m_hid2re->set(m_muonIdHelperTool.get());
+  StatusCode status = m_hid2re->set(&m_idHelperSvc->mdtIdHelper());
   if ( status.isFailure() ){
     ATH_MSG_FATAL("Could not initialize MDT mapping !");
     return StatusCode::FAILURE;
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -56,7 +42,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
 						   MsgStream& log ) {
   
   m_fea.clear();
-  StatusCode status = m_fea.idMap().set(m_muonIdHelperTool.get());
+  StatusCode status = m_fea.idMap().set(&m_idHelperSvc->mdtIdHelper());
   if ( status.isFailure() ){
     ATH_MSG_FATAL("Could not initialize MDT mapping !");
     return StatusCode::FAILURE;
@@ -64,30 +50,27 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
   
   FullEventAssembler<MDT_Hid2RESrcID>::RODDATA*  theROD ;
   
-  MdtCsmContainer::const_iterator it_coll = cont->begin(); 
-  MdtCsmContainer::const_iterator it_coll_end = cont->end(); 
-  
   std::map<uint32_t, MdtROD_Encoder> mapEncoder; 
+
+  const MuonGM::MuonDetectorManager* mdm = nullptr;
+  ATH_CHECK( detStore()->retrieve (mdm,"Muon") );
+  const MdtIdHelper& mdtIdHelper = *mdm->mdtIdHelper();
   
   ATH_MSG_DEBUG(" number of collections "<< cont->size());
-  for( ; it_coll!=it_coll_end;++it_coll) {
-    Identifier coll_id = (*it_coll)->identify(); 
+  for (const MdtCsm* csm : *cont) {
+    Identifier coll_id = csm->identify(); 
     uint32_t rodId = m_hid2re->getRodID(coll_id); 
-    mapEncoder[rodId].add(*it_coll);
+    mapEncoder.try_emplace (rodId, mdtIdHelper).first->second.add(csm);
   } 
-  
-  std::map<uint32_t,MdtROD_Encoder>::iterator it     = mapEncoder.begin(); 
-  std::map<uint32_t,MdtROD_Encoder>::iterator it_end = mapEncoder.end();
   
   // MdtCsm_Encoder has collected all the csm, now can fill the
   // ROD block data. 
   
   ATH_MSG_DEBUG(" start to fill Rod ");
-  
-  for (; it!=it_end;++it) { 
-    theROD  = m_fea.getRodData( (*it).first ); 
-    //((*it).second).set( m_hid2re, m_muonIdHelperTool.get() ) ; 
-    ((*it).second).fillROD( *theROD ) ; 
+
+  for (auto& p : mapEncoder) {
+    theROD  = m_fea.getRodData( p.first ); 
+    p.second.fillROD( *theROD ) ; 
   } 
   
   ATH_MSG_DEBUG(" filling the Raw Event ... ");

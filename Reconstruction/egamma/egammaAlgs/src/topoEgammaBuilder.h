@@ -33,6 +33,7 @@
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IEMClusterTool.h" 
 #include "egammaInterfaces/IEMShowerBuilder.h" 
+#include "egammaInterfaces/IegammaOQFlagsBuilder.h" 
 #include "egammaInterfaces/IegammaBaseTool.h" 
 class egammaRec;
 
@@ -51,6 +52,30 @@ public:
     StatusCode execute(const EventContext& ctx) const override final;
 
 private:
+    /** Given an egammaRec object, a pointer to the electron container and the author, 
+     * create and dress an electron, pushing it back to the container and 
+     * calling the relevant tools **/
+
+    bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
+            const unsigned int author, const uint8_t type) const;
+
+    /** Given an egammaRec object, a pointer to the photon container and the author, 
+     * create and dress a photon, pushing it back to the container and 
+     * calling the relevant tools **/
+    bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
+            const unsigned int author, uint8_t type) const;
+
+
+    /** @brief Do the final ambiguity **/  
+    StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
+            xAOD::PhotonContainer *photonContainer) const ;
+
+    /** @brief Call a tool using contExecute and electrons, photon containers if given **/
+    StatusCode CallTool(const EventContext& ctx,
+            const ToolHandle<IegammaBaseTool>& tool, 
+            xAOD::ElectronContainer *electronContainer = nullptr, 
+            xAOD::PhotonContainer *photonContainer = nullptr) const;
+
 
     /** @brief Vector of tools for dressing electrons and photons **/
     ToolHandleArray<IegammaBaseTool> m_egammaTools {this,
@@ -76,33 +101,15 @@ private:
 
     /** @brief Tool to resolve electron/photon ambiguity */
     ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
-        "AmbiguityTool", "egammaTools/EGammaAmbiguityTool", 
+        "AmbiguityTool", "ElectronPhotonSelectorTools/EGammaAmbiguityTool", 
         "Tool that does electron/photon ambiguity resolution"};
 
-
-    /** Given an egammaRec object, a pointer to the electron container and the author, 
-     * create and dress an electron, pushing it back to the container and 
-     * calling the relevant tools **/
-
-    bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
-            const unsigned int author, const uint8_t type) const;
-
-    /** Given an egammaRec object, a pointer to the photon container and the author, 
-     * create and dress a photon, pushing it back to the container and 
-     * calling the relevant tools **/
-    bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
-            const unsigned int author, uint8_t type) const;
+    /** @brief Tool to resolve electron/photon ambiguity */
+    ToolHandle<IegammaOQFlagsBuilder> m_egammaOQTool {this, 
+      "ObjectQualityTool", {}, 
+      "Tool that adds electron/photon Object Quality info"};
 
 
-    /** @brief Do the final ambiguity **/  
-    StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
-            xAOD::PhotonContainer *photonContainer) const ;
-
-    /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-    StatusCode CallTool(const EventContext& ctx,
-            const ToolHandle<IegammaBaseTool>& tool, 
-            xAOD::ElectronContainer *electronContainer = nullptr, 
-            xAOD::PhotonContainer *photonContainer = nullptr) const;
 
     /** @brief Name of the electron output collection*/
     SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,
@@ -128,11 +135,10 @@ private:
     //
     // Other properties.
     //
-    // others:
-    ServiceHandle<IChronoStatSvc> m_timingProfile;
-    Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"};
     Gaudi::Property<bool> m_doPhotons {this, "doPhotons", true, "Run the Photon reconstruction"};
     Gaudi::Property<bool> m_doElectrons {this, "doElectrons", true, "Run the Electron reconstruction"};
+    bool m_doAmbiguity;
+    bool m_doOQ;
 };
 
 #endif

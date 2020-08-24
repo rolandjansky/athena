@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkParameters/NeutralParameters.h"
 
 namespace Trk {
 
+ //explicit instantiation
  template class ParametersBase<5,Neutral>;
 
  template class ParametersT<5,Neutral,PlaneSurface>;
@@ -14,7 +15,7 @@ namespace Trk {
  template class ParametersT<5,Neutral,ConeSurface>;
  template class ParametersT<5,Neutral,PerigeeSurface>;
  template class ParametersT<5,Neutral,StraightLineSurface>;
-  template class CurvilinearParametersT<5,Neutral,PlaneSurface>;
+ template class CurvilinearParametersT<5,Neutral,PlaneSurface>;
 
 }
 

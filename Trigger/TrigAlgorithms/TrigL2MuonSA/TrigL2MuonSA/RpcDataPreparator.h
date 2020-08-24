@@ -14,10 +14,10 @@
 #include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
 
-#include "TrigL2MuonSA/RpcData.h"
-#include "TrigL2MuonSA/RpcFitResult.h"
-#include "TrigL2MuonSA/RpcPatFinder.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
+#include "../src/RpcData.h"
+#include "../src/RpcFitResult.h"
+#include "../src/RpcPatFinder.h"
+#include "../src/RecMuonRoIUtils.h"
 #include "RegionSelector/IRegSelSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 

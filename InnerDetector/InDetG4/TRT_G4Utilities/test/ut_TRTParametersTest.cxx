@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define BOOST_TEST_DYN_LINK
@@ -8,6 +8,8 @@
 #include <boost/test/unit_test.hpp>
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4Utilities/TRTOutputFile.hh"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This unit test uses thread unsafe TRTParameters and TRTOutputFile classes.
 
 namespace utf = boost::unit_test;
 

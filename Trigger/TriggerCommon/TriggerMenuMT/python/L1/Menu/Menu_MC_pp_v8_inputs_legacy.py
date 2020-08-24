@@ -5,7 +5,6 @@ from collections import OrderedDict as odict
 from ..Base.L1MenuFlags import L1MenuFlags
 from ..Base.MenuConfObj import TopoMenuDef
 
-
 def defineLegacyInputsMenu():
 
     legacyBoards = odict()

@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigEgammaMuonCombHypo.TrigEgammaMuonCombHypoConf import TrigEFElectronMuonAngleFexAlgo, TrigEFElectronMuonAngleHypo
 from AthenaCommon.SystemOfUnits import GeV
-from TrigEgammaMuonCombHypo.TrigEFElectronMuonAngleHypoMonitoring import *
+import TrigEgammaMuonCombHypo.TrigEFElectronMuonAngleHypoMonitoring as mon
 
 class TrigEFElectronMuonAngleFex ( TrigEFElectronMuonAngleFexAlgo ):
     __slots__ = []
@@ -19,7 +19,7 @@ class TrigEFElectronMuonAngleFex ( TrigEFElectronMuonAngleFexAlgo ):
         self.MaxDRCut=99.0
         self.MaxDPhiCut=99.0
 
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineFexMonitoring(), TrigEFElectronMuonAngleValidationFexMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineFexMonitoring(), mon.TrigEFElectronMuonAngleValidationFexMonitoring_emutopo() ]
   
 # new cuts as presented at TGM on April 20
 class TrigEFElectronMuonAngleHypo_tight ( TrigEFElectronMuonAngleHypo ):
@@ -40,7 +40,7 @@ class TrigEFElectronMuonAngleHypo_tight ( TrigEFElectronMuonAngleHypo ):
         self.MaxDPhiCut=1.5
 
         
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineHypoMonitoring(), mon.TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ]
   
 class TrigEFElectronMuonAngleHypo_medium ( TrigEFElectronMuonAngleHypo ):
     __slots__ = []
@@ -60,7 +60,7 @@ class TrigEFElectronMuonAngleHypo_medium ( TrigEFElectronMuonAngleHypo ):
         self.MaxDPhiCut=1.5
 
         
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineHypoMonitoring(), mon.TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ]
 
 class TrigEFElectronMuonAngleHypo_loose ( TrigEFElectronMuonAngleHypo ):
     __slots__ = []
@@ -80,7 +80,7 @@ class TrigEFElectronMuonAngleHypo_loose ( TrigEFElectronMuonAngleHypo ):
         self.MaxDPhiCut=1.5
 
         
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineHypoMonitoring(), mon.TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ]
 
 #algorithms configured in TriggerMenuPython - to prevent athena crash in the transition period  
    
@@ -102,7 +102,7 @@ class TrigEFElectronMuonAngleHypo_e5mu4 ( TrigEFElectronMuonAngleHypo ):
         self.MaxDPhiCut=1.5
 
         
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineHypoMonitoring(), mon.TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ]
 
 class TrigEFElectronMuonAngleHypo_e5mu4_medium ( TrigEFElectronMuonAngleHypo ):
     __slots__ = []
@@ -122,7 +122,7 @@ class TrigEFElectronMuonAngleHypo_e5mu4_medium ( TrigEFElectronMuonAngleHypo ):
         self.MaxDPhiCut=1.5
 
         
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineHypoMonitoring(), mon.TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ]
 
 class TrigEFElectronMuonAngleHypo_bXemu ( TrigEFElectronMuonAngleHypo ):
     __slots__ = []
@@ -142,4 +142,4 @@ class TrigEFElectronMuonAngleHypo_bXemu ( TrigEFElectronMuonAngleHypo ):
         self.MinDRCut=0.
         self.MaxDPhiCut=1.5
 
-        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigEFElectronMuonAngleOnlineHypoMonitoring(), mon.TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ]

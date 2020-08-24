@@ -88,6 +88,15 @@ namespace InDet {
      */
     bool isInitialized() const;
 
+    //enum used in Track Maker tools for summary statistics table
+    typedef enum summaryStatArraySizes{       
+      kNStatAllTypes = 15,        
+      kNStatEtaTypes = 2,
+      kNSeedTypes = 4,
+      kNRapidityRanges = 8,
+      kNCombStats = 6 
+    } summaryStatArraySizes;     
+
     /**
      * @name Getter methods using references
      */
@@ -102,6 +111,7 @@ namespace InDet {
     int& findtracks();
     int& inittracks();
     int& roadbug();
+    std::array<bool,kNCombStats>& statistic();
     bool& heavyIon();
     int& cosmicTrack();
     int& nclusmin();
@@ -151,6 +161,8 @@ namespace InDet {
     int m_inittracks{0};
     /// Number wrong DE roads
     int m_roadbug{0};
+    /// Switch array
+    std::array<bool,kNCombStats> m_statistic{};
     // Heavy ion flag
     bool m_heavyIon{false};
     /// Is it cosmic track (0 or 1)

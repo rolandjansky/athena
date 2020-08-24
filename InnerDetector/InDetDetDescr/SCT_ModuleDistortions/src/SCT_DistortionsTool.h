@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DistortionsTool_H
@@ -62,17 +62,17 @@ class SCT_DistortionsTool : public AthAlgTool, virtual public ISCT_ModuleDistort
 
     std::map<int,int> m_moduleSites;
     
-    std::vector<float>* m_dataJap1_S0;
-    std::vector<float>* m_dataJap2_S0;
-    std::vector<float>* m_dataUK_S0;
-    std::vector<float>* m_dataUSA_S0;
-    std::vector<float>* m_dataScand_S0;
+    std::vector<float> m_dataJap1_S0;
+    std::vector<float> m_dataJap2_S0;
+    std::vector<float> m_dataUK_S0;
+    std::vector<float> m_dataUSA_S0;
+    std::vector<float> m_dataScand_S0;
 
-    std::vector<float>* m_dataJap1_S1;
-    std::vector<float>* m_dataJap2_S1;
-    std::vector<float>* m_dataUK_S1;
-    std::vector<float>* m_dataUSA_S1;
-    std::vector<float>* m_dataScand_S1;
+    std::vector<float> m_dataJap1_S1;
+    std::vector<float> m_dataJap2_S1;
+    std::vector<float> m_dataUK_S1;
+    std::vector<float> m_dataUSA_S1;
+    std::vector<float> m_dataScand_S1;
     
     bool loadData();
 

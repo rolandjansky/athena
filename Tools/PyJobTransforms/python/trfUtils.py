@@ -1,10 +1,7 @@
 from __future__ import print_function
 from future.utils import iteritems
 
-from past.builtins import basestring
 from builtins import object
-from future import standard_library
-standard_library.install_aliases()
 from builtins import map
 import six
 
@@ -30,7 +27,7 @@ import multiprocessing
 import base64
 
 from datetime import datetime
-from subprocess import Popen, STDOUT, PIPE, CalledProcessError
+from subprocess import Popen, STDOUT, PIPE
 from xml.dom import minidom
 from xml.parsers.expat import ExpatError
 from xml.etree import ElementTree
@@ -75,12 +72,12 @@ def getAncestry(listMyOrphans = False):
     psCmd = ['ps', 'ax', '-o', 'pid,ppid,pgid,args', '-m']
 
     try:
-        msg.debug('Executing %s' % psCmd)
+        msg.debug('Executing %s', psCmd)
         p = Popen(psCmd, stdout=PIPE, stderr=PIPE)
         stdout = p.communicate()[0]
         psPID = p.pid
     except OSError as e:
-        msg.error('Failed to execute "ps" to get process ancestry: %s' % repr(e))
+        msg.error('Failed to execute "ps" to get process ancestry: %s', repr(e))
         raise
 
     childDict = {}
@@ -123,7 +120,7 @@ def listChildren(psTree = None, parent = os.getpid(), listOrphans = False):
     if psTree is None:
         psTree = getAncestry(listMyOrphans = listOrphans)
 
-    msg.debug("List children of %d (%s)" % (parent, psTree.get(parent, [])))
+    msg.debug("List children of %d (%s)", parent, psTree.get(parent, []))
     children = []
     if parent in psTree:
         children.extend(psTree[parent])
@@ -189,27 +186,27 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
         loglevel=logging.DEBUG
 
     if timeout is None or timeout<=0: # no timeout set
-        msg.info('Executing %s...' % args)
+        msg.info('Executing %s...', args)
         starttime = time.time()
         p=Popen(args=args, bufsize=bufsize, executable=executable, stdin=stdin, stdout=PIPE, stderr=STDOUT, preexec_fn=preexec_fn, close_fds=close_fds, shell=shell, cwd=cwd, env=env, universal_newlines=universal_newlines, startupinfo=startupinfo, creationflags=creationflags)
         while p.poll() is None:
             logProc(p)
         flushProc(p)
         if timeout is not None:
-            msg.info('Executed call within %d s.' % (time.time()-starttime))
+            msg.info('Executed call within %d s.', time.time()-starttime)
         return p.returncode
 
     else: #timeout set
         n=0
         while n<=retry:
-            msg.info('Try %i out of %i (time limit %ss) to call %s.' % (n+1, retry+1, timeout, args))
+            msg.info('Try %i out of %i (time limit %ss) to call %s.', n+1, retry+1, timeout, args)
             starttime = time.time()
             endtime=starttime+timeout
             p=Popen(args=args, bufsize=bufsize, executable=executable, stdin=stdin, stdout=PIPE, stderr=STDOUT, preexec_fn=preexec_fn, close_fds=close_fds, shell=shell, cwd=cwd, env=env, universal_newlines=universal_newlines, startupinfo=startupinfo, creationflags=creationflags)
             while p.poll() is None and time.time()<endtime:
                 logProc(p)
             if p.poll() is None:
-                msg.warning('Timeout limit of %d s reached. Kill subprocess and its children.' % timeout)
+                msg.warning('Timeout limit of %d s reached. Kill subprocess and its children.', timeout)
                 parent=p.pid
                 pids=[parent]
                 pids.extend(listChildren(parent=parent))
@@ -217,17 +214,17 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
                 msg.info('Checking if something is left in buffer.')
                 flushProc(p)
                 if n!=retry:
-                    msg.info('Going to sleep for %d s.' % sleeptime)
+                    msg.info('Going to sleep for %d s.', sleeptime)
                     time.sleep(sleeptime)
                 n+=1
                 timeout*=timefactor
                 sleeptime*=timefactor
             else:
                 flushProc(p)
-                msg.info('Executed call within %d s.' % (time.time()-starttime))
+                msg.info('Executed call within %d s.', time.time()-starttime)
                 return p.returncode
 
-        msg.warning('All %i tries failed!' % n)
+        msg.warning('All %i tries failed!', n)
         raise Exception
 
 
@@ -326,7 +323,7 @@ def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
     f = open(filename, 'r', **encargs)
     for line in f:
         linecounter += 1
-        if substepName and isinstance(substepName, basestring):    # Remove substepName only if caller provides that string.
+        if substepName and isinstance(substepName, six.string_types):    # Remove substepName only if caller provides that string.
             line = line.lstrip(substepName)
         if removeTimestamp:
             line = line.lstrip('0123456789:-, ')            # Remove timestamps in both serial and MP mode.
@@ -500,7 +497,7 @@ def setupDBRelease(setup):
         sys.path.insert(0, dbdir)
         from setup import Setup
         # Instansiate the Setup module, which activates the customisation
-        setupObj = Setup(dbdir)
+        Setup(dbdir)
         sys.path = opath
         msg.debug('DBRelease setup module was initialised successfully')
     except ImportError as e:

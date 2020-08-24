@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 DEST='/queue/atlas.dqm.panic'
 
 def panic(msg):
     import stomp
     import json
-    import stompconfig
+    from . import stompconfig
     import sys, os
     import traceback
     import time

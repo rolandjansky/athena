@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawDataProvider.h"
@@ -8,6 +8,7 @@
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "EventContainers/IdentifiableContTemp.h"
+#include "EventContainers/IdentifiableContainerBase.h"
 
 #include <memory>
 
@@ -38,8 +39,9 @@ StatusCode SCTRawDataProvider::initialize()
     m_cabling.disable();
   }
   else {
-    // Retrieve Cabling service
+    // Retrieve Cabling tool
     ATH_CHECK(m_cabling.retrieve());
+    m_regionSelector.disable();
   }
 
   //Initialize
@@ -55,8 +57,6 @@ StatusCode SCTRawDataProvider::initialize()
   return StatusCode::SUCCESS;
 }
 
-typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> dummySCTRDO_t;
-
 // Execute
 
 StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
@@ -64,7 +64,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey, ctx);
   bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
   if (not externalCacheRDO) {
-    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max())));
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max(), EventContainers::Mode::OfflineFast)));
     ATH_MSG_DEBUG("Created container for " << m_sctID->wafer_hash_max());
   }
   else {
@@ -104,8 +104,8 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     for (const TrigRoiDescriptor* roi : *roiCollection) {
       superRoI.push_back(roi);
     }
-    m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
-    m_regionSelector->DetHashIDList(SCT, superRoI, hashIDs);
+    m_regionSelector->ROBIDList(superRoI, listOfROBs);
+    m_regionSelector->HashIDList(superRoI, hashIDs);
     m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
   }
 
@@ -137,19 +137,10 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1ID << " and BCID " << bcID << " in InDetTimeCollections");
   }
 
-  std::unique_ptr<dummySCTRDO_t> dummyRDO;
-  ISCT_RDO_Container *rdoInterface{nullptr};
-  if (externalCacheRDO) {
-    dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
-    rdoInterface = static_cast< ISCT_RDO_Container*> (dummyRDO.get());
-  }
-  else {
-    rdoInterface = static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
-  }
   if ( not hashIDs.empty() ) {
     int missingCount{};
     for ( IdentifierHash hash: hashIDs ) {
-      if ( not rdoInterface->tryAddFromCache( hash ) ) missingCount++;
+      if ( not rdoContainer->tryAddFromCache( hash ) ) missingCount++;
       bsIDCErrContainer->tryAddFromCache( hash );
     }
     ATH_MSG_DEBUG("Out of: " << hashIDs.size() << "Hash IDs missing: " << missingCount );
@@ -160,11 +151,10 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags,
-                             *rdoInterface,
+                             *(rdoContainer.ptr()),
 			     *bsIDCErrContainer).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 
-  if (dummyRDO) ATH_CHECK(dummyRDO->MergeToRealContainer(rdoContainer.ptr()));
   return StatusCode::SUCCESS;
 }

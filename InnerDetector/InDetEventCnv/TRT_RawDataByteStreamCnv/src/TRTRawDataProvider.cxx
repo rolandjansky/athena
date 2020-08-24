@@ -24,7 +24,8 @@ TRTRawDataProvider::TRTRawDataProvider(const std::string& name,
   declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
   declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
   declareProperty("RDOKey", m_rdoContainerKey = std::string("TRT_RDOs"));
-  declareProperty ( "ProviderTool", m_rawDataTool );
+  declareProperty("BSErrkey",m_bsErrContKey = "TRT_ByteStreamErrs");
+  declareProperty ("ProviderTool", m_rawDataTool );
 }
 
 // --------------------------------------------------------------------
@@ -84,7 +85,7 @@ StatusCode TRTRawDataProvider::initialize() {
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
 
-  ATH_CHECK( m_rdoContainerKey.initialize() );
+  ATH_CHECK( m_bsErrContKey.initialize(SG::AllowEmpty) );
 
   return StatusCode::SUCCESS;
 }
@@ -95,10 +96,11 @@ StatusCode TRTRawDataProvider::initialize() {
 StatusCode TRTRawDataProvider::execute() 
 {
   SG::WriteHandle<TRT_RDO_Container> rdoContainer(m_rdoContainerKey);
-  rdoContainer = std::make_unique<TRT_RDO_Container>(m_trt_id->straw_hash_max()); 
+  rdoContainer = std::make_unique<TRT_RDO_Container>(m_trt_id->straw_hash_max(), EventContainers::Mode::OfflineFast); 
   ATH_CHECK(rdoContainer.isValid());
 
-  
+  std::unique_ptr<TRT_BSErrContainer> bsErrCont=std::make_unique<TRT_BSErrContainer>();
+
   std::vector<uint32_t> listOfRobs; 
   if (!m_roiSeeded) {
     listOfRobs = m_CablingSvc->getAllRods();
@@ -125,10 +127,18 @@ StatusCode TRTRawDataProvider::execute()
   ATH_MSG_DEBUG( "Number of ROB fragments " << listOfRobf.size() );
 
   // ask TRTRawDataProviderTool to decode it and to fill the IDC
-  if (m_rawDataTool->convert(listOfRobf,&(*rdoContainer)).isFailure())
+  if (m_rawDataTool->convert(listOfRobf,&(*rdoContainer),bsErrCont.get()).isFailure())
     ATH_MSG_WARNING( "BS conversion into RDOs failed" );
 
   ATH_MSG_DEBUG( "Number of Collections in IDC " << rdoContainer->numberOfCollections() );
+
+
+  if (!m_bsErrContKey.empty()) {
+    ATH_MSG_DEBUG("Recording BS error container");
+    SG::WriteHandle<TRT_BSErrContainer> bsErrContHdl{m_bsErrContKey};
+    ATH_CHECK(bsErrContHdl.record(std::move(bsErrCont)));
+  }
+
 
   return StatusCode::SUCCESS;
 }

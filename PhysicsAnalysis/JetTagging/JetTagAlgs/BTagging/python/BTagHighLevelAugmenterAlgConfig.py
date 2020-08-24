@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 Analysis__BTagHighLevelAugmenterAlg=CompFactory.Analysis.BTagHighLevelAugmenterAlg
 
-def BTagHighLevelAugmenterAlgCfg(ConfigFlags, sequenceName, BTagCollection, Associator, doFlipTagger=False, **options):
+def BTagHighLevelAugmenterAlgCfg(ConfigFlags, sequenceName, JetCollection, BTagCollection, Associator, doFlipTagger=False, **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The algorithm's name.
@@ -16,6 +16,7 @@ def BTagHighLevelAugmenterAlgCfg(ConfigFlags, sequenceName, BTagCollection, Asso
     acc = ComponentAccumulator(sequenceName)
 
     options = {}
+    options['JetCollectionName'] = JetCollection.replace('Track', 'PV0Track') + 'Jets'
     options['BTaggingCollectionName'] = BTagCollection
     options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
     options['BTagTrackToJetAssociatorName'] = Associator

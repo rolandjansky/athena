@@ -1,27 +1,10 @@
-################################################################################
-# Package: LumiCalc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LumiCalc )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/CxxUtils
-                          Control/AthenaKernel
-                          DataQuality/GoodRunsLists
-                          Event/xAOD/xAODLuminosity
-                          LumiBlock/LumiBlockData
-                          PRIVATE
-                          Control/DataModelRoot
-                          Database/APR/CollectionBase
-                          Database/AthenaPOOL/DBDataModel
-                          Database/CoolConvUtilities
-                          Database/CoraCool )
-
 # External dependencies:
 find_package( COOL COMPONENTS CoolKernel )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
@@ -32,9 +15,8 @@ atlas_add_library( LumiBlockCoolQuery
                    src/ReplicaSorter.cxx
                    src/LumiBlockCollectionConverter.cxx
                    PUBLIC_HEADERS LumiCalc
-                   INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel xAODLuminosity LumiBlockData GoodRunsListsLib
-                   PRIVATE_LINK_LIBRARIES DataModelRoot CollectionBase DBDataModel )
+                   INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
+                   LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel GoodRunsListsLib LumiBlockData xAODLuminosity )
 
 atlas_add_executable( iLumiCalc
                       src/iLumiCalc.cxx
@@ -43,10 +25,9 @@ atlas_add_executable( iLumiCalc
                       src/LumiBlockRangeContainerConverter.cxx
                       src/LumiCalculator.cxx
                       src/ReplicaSorter.cxx
-                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GoodRunsListsLib xAODLuminosity LumiBlockData DataModelRoot CollectionBase DBDataModel LumiBlockCoolQuery )
+                      LINK_LIBRARIES LINK_LIBRARIES CollectionBase CxxUtils DBDataModel DataModelRoot LumiBlockCoolQuery )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/*.py )
 

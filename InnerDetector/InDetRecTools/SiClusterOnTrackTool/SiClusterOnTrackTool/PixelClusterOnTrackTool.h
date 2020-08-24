@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelClusterOnTrackTool_H
@@ -170,7 +170,7 @@ public:
   const PixelID*                     m_pixelid;
   
   /** Enable NN based calibration (do only if NN calibration is applied) **/
-  mutable std::atomic_bool          m_applyNNcorrection{false};
+  bool                              m_applyNNcorrection{false};
   BooleanProperty                   m_applyNNcorrectionProperty{this, "applyNNcorrection", false};
   bool                              m_applydRcorrection;
   bool                              m_NNIBLcorrection;

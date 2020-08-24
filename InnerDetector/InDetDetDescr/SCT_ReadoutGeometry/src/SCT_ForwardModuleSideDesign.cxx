@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "InDetReadoutGeometry/SiDiodesParameters.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
 
 namespace InDetDD {
 
@@ -48,13 +47,7 @@ SCT_ForwardModuleSideDesign::SCT_ForwardModuleSideDesign(const double thickness,
     double radius = 0.5 * (radius1 + radius2 + halfHeight2 - halfHeight1);
     m_frame=SCT_ForwardFrameTransformation(etaCenter,phiCenter,radius);
   }
-  m_bounds = new Trk::TrapezoidBounds(0.5*minWidth(), 0.5*maxWidth(), 0.5*length());
-}
-
-// Destructor:
-SCT_ForwardModuleSideDesign::~SCT_ForwardModuleSideDesign()
-{
-  delete m_bounds;
+  m_bounds = Trk::TrapezoidBounds(0.5*minWidth(), 0.5*maxWidth(), 0.5*length());
 }
 
 void
@@ -279,7 +272,7 @@ SCT_ForwardModuleSideDesign::shape() const
 const Trk::SurfaceBounds & 
 SCT_ForwardModuleSideDesign::bounds() const
 {
-  return *m_bounds;
+  return m_bounds;
 }
 
 } // namespace InDetDD

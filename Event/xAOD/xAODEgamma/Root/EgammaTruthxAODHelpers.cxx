@@ -15,12 +15,50 @@
 
 // ==================================================================
 
-const xAOD::Electron* xAOD::EgammaHelpers::getRecoElectron(const xAOD::TruthParticle* particle){
-  return getLink<xAOD::Electron>(particle, "recoElectronLink");
+/// Accessor for the "recoElectronLink" dynamic variable
+///
+/// It is declared outside of the @c xAOD::EgammaHelpers::getRecoElectron(...)
+/// call to make sure that the auxiliary ID registry would know about this type
+/// as soon as the library holding this code is loaded.
+///
+static const SG::AuxElement::Accessor< ElementLink< xAOD::ElectronContainer > >
+   recoElectronLinkAcc( "recoElectronLink" );
+
+const xAOD::Electron*
+xAOD::EgammaHelpers::getRecoElectron( const xAOD::TruthParticle* particle ) {
+
+   if( ! recoElectronLinkAcc.isAvailable( *particle ) ) {
+      return nullptr;
+   }
+   const ElementLink< xAOD::ElectronContainer >& link =
+      recoElectronLinkAcc( *particle );
+   if( ! link.isValid() ) {
+      return nullptr;
+   }
+   return *link;
 }
 
-const xAOD::Photon* xAOD::EgammaHelpers::getRecoPhoton(const xAOD::TruthParticle* particle){
-  return getLink<xAOD::Photon>(particle, "recoPhotonLink");
+/// Accessor for the "recoPhotonLink" dynamic variable
+///
+/// It is declared outside of the @c xAOD::EgammaHelpers::getRecoPhoton(...)
+/// call to make sure that the auxiliary ID registry would know about this type
+/// as soon as the library holding this code is loaded.
+///
+static const SG::AuxElement::Accessor< ElementLink< xAOD::PhotonContainer > >
+   recoPhotonLinkAcc( "recoPhotonLink" );
+
+const xAOD::Photon*
+xAOD::EgammaHelpers::getRecoPhoton( const xAOD::TruthParticle* particle ) {
+
+   if( ! recoPhotonLinkAcc.isAvailable( *particle ) ) {
+      return nullptr;
+   }
+   const ElementLink< xAOD::PhotonContainer >& link =
+      recoPhotonLinkAcc( *particle );
+   if( ! link.isValid() ) {
+      return nullptr;
+   }
+   return *link;
 }
 // ==================================================================
 

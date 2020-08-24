@@ -22,8 +22,9 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/Vertex.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
-#include "GaudiKernel/EventContext.h"
 #include "TEnv.h"
 #include <cstdint>
 //=============================================================================
@@ -32,8 +33,7 @@
 AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(const std::string& myname) :
   AsgTool(myname),
   m_configFile{""},
-  m_rootForwardTool{nullptr},
-  m_primVtxContKey{"PrimaryVertices"}
+  m_rootForwardTool{nullptr}
 {
   m_rootForwardTool = new Root::TForwardElectronIsEMSelector(myname.c_str());
 
@@ -41,7 +41,6 @@ AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(const std::string
   declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
-  declareProperty("primaryVertexContainer", m_primVtxContKey="PrimaryVertices", "The primary vertex container name" );
 
   // Name of the quality to use
   declareProperty("isEMMask",
@@ -179,10 +178,10 @@ AsgForwardElectronIsEMSelector::accept(const EventContext& ctx, const xAOD::IPar
   if(part->type()==xAOD::Type::Electron || part->type()==xAOD::Type::Photon){
     return accept(ctx, static_cast<const xAOD::Egamma*> (part));
   }
-  else{
+  
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::could not convert argument to Electron/Photon");
     return m_rootForwardTool->accept();
-  }
+  
 }
 
 asg::AcceptData
@@ -198,10 +197,10 @@ AsgForwardElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Ega
     }
     return m_rootForwardTool->fillAccept(isEM);
   }
-  else{
+  
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::accept was given a bad argument");
     return m_rootForwardTool->accept();
-  }
+  
 }
 
 asg::AcceptData
@@ -223,10 +222,10 @@ std::string AsgForwardElectronIsEMSelector::getOperatingPointName() const
 {
 
   if (m_rootForwardTool->m_isEMMask == egammaPID::ID_ForwardElectron){ return "Forw Id"; }
-  else{
+  
     ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootForwardTool->m_isEMMask );
     return "";
-  }
+  
 }
 
 ///==========================================================================================//

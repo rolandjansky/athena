@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ToolConstants.cxx,v 1.5 2009-04-09 14:41:17 ssnyder Exp $
@@ -80,6 +80,18 @@ void ToolConstants::setrep (const std::string& key,
 
 
 /**
+ * @brief Set an entry.
+ * @param key The key of the entry to set.
+ * @param rep The value of the new entry.
+ */
+void ToolConstants::setrep (const std::string& key,
+                            CxxUtils::Arrayrep&& rep)
+{
+  m_map[key] = std::move (rep);
+}
+
+
+/**
  * @brief Test to see if a given key is present.
  */
 bool ToolConstants::hasrep (const std::string& key) const
@@ -116,6 +128,18 @@ void ToolConstants::writeConstants(std::ostream& stream,
     it->second.write_array(stream);
   }
   stream << std::endl;
+}
+
+
+/**
+ * @brief Return the data as a formatted string.
+ * @param name Name of the Maker-Algorithm.
+ */
+std::string ToolConstants::toString (const std::string& name) const
+{
+  std::ostringstream ss;
+  writeConstants (ss, name);
+  return ss.str();
 }
 
 

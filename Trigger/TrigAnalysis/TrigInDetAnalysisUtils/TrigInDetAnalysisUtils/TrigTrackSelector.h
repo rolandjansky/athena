@@ -32,6 +32,7 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 
 ///// FrameWork includes
@@ -63,8 +64,10 @@ class TrigTrackSelector : public TrackSelector {
 
 public:
 
-  //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
-  TrigTrackSelector( TrackFilter* selector );
+  /// use a radius of 47 mm corresponding to the Run 1 pixel inner radius
+  /// For the IBL it should be 32 mm, but this was kept as 47 mm for consistency 
+  /// of the definition. this should be changed to 32 mm for Run 3
+  TrigTrackSelector( TrackFilter* selector, double radius=47 );
 
   ~TrigTrackSelector() { clear(); }
 
@@ -97,6 +100,9 @@ public:
   // extract all the tracks from a TrackParticle collection and add them
   void selectTracks( const TruthParticleContainer* truthtracks );
 
+  // extract all the tracks from a TrackParticle collection and add them
+  void selectTracks( const xAOD::TruthParticleContainer* truthtracks );
+
 
   bool selectTrack( const HepMC::GenParticle* track );
 
@@ -106,6 +112,8 @@ public:
 
   // add a TruthParticle 
   bool selectTrack( const TruthParticle* track );
+
+  bool selectTrack( const xAOD::TruthParticle* track );
 
 
   // make a TIDA::Track from a GenParticle 
@@ -123,8 +131,6 @@ public:
   void selectTracks( const TrackCollection* trigtracks );
 
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
-
   /// legacy run 2 selector access
 
   bool selectTrack( const xAOD::TrackParticle* track, void* =0);
@@ -135,8 +141,6 @@ public:
 
   void selectTracks( xAOD::TrackParticleContainer::const_iterator trackitr, 
 		     xAOD::TrackParticleContainer::const_iterator trackend, void* =0);
-
-#endif
 
 
 
@@ -154,7 +158,9 @@ private:
   double m_yBeam;
   double m_zBeam;
 
-  bool m_correctTrkTracks;
+  bool   m_correctTrkTracks;
+
+  double m_radius;
 
 };
 

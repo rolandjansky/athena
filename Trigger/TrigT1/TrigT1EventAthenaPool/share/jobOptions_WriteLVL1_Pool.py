@@ -17,10 +17,6 @@ theApp.EvtMax = 10
 #--------------------------------------------------------------
 include( "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py" )
 
-# check dictionary
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-#AthenaSealSvc.CheckDictionary = true;
 # Define the output Db parameters (the default value are shown)
 Stream1.OutputFile  = "LVL1Pool.root"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -18,10 +18,10 @@
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "stdio.h"
-#include "stdlib.h"
 #include "memory.h"
-#include "math.h"
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 namespace Trk
 {
@@ -29,8 +29,8 @@ namespace Trk
   {
     memset(m_Rk,0,sizeof(m_Rk));
     memset(m_Gk,0,sizeof(m_Gk));
-    m_pSurface=NULL;m_scattMode=0;
-    m_isScattered=false;m_pPrevState=NULL;
+    m_pSurface=nullptr;m_scattMode=0;
+    m_isScattered=false;m_pPrevState=nullptr;
   }
 
   TrkTrackState::TrkTrackState(double Rk[5])
@@ -41,8 +41,8 @@ namespace Trk
     if(m_Rk[2]<-M_PI) m_Rk[2]+=2*M_PI;
     if(m_Rk[3]<0.0) m_Rk[3]+=M_PI;
     if(m_Rk[3]>M_PI) m_Rk[3]-=M_PI;
-    m_pSurface=NULL;m_scattMode=0;
-    m_isScattered=false;m_pPrevState=NULL;
+    m_pSurface=nullptr;m_scattMode=0;
+    m_isScattered=false;m_pPrevState=nullptr;
     resetCovariance();
   }
 
@@ -61,8 +61,8 @@ namespace Trk
     for(int i=0;i<5;i++)
       for(int j=0;j<5;j++) m_Gk[i][j]=pTS->m_Gk[i][j];
     m_scattMode=pTS->m_scattMode;
-    m_pSurface=NULL;
-    m_isScattered=false;m_pPrevState=NULL;
+    m_pSurface=nullptr;
+    m_isScattered=false;m_pPrevState=nullptr;
   }
 
   void TrkTrackState::serialize(char fileName[])
@@ -167,7 +167,7 @@ namespace Trk
   {
     double lenCorr,sigmaMS,s2,a2,radLength,lV[3],gV[3],a;
     TrkPlanarSurface* pS=m_pSurface;
-    if(pS==NULL) return;
+    if(pS==nullptr) return;
     gV[0]=sin(m_Re[3])*cos(m_Re[2]);
     gV[1]=sin(m_Re[3])*sin(m_Re[2]);
     gV[2]=cos(m_Re[3]);
@@ -186,7 +186,7 @@ namespace Trk
   {
     double lenCorr,effLength,lV[3],gV[3];
     TrkPlanarSurface* pS=m_pSurface;
-    if(pS==NULL) return;
+    if(pS==nullptr) return;
     gV[0]=sin(m_Re[3])*cos(m_Re[2]);
     gV[1]=sin(m_Re[3])*sin(m_Re[2]);
     gV[2]=cos(m_Re[3]);
@@ -212,7 +212,7 @@ namespace Trk
     if(m_scattMode!=0) applyMultipleScattering();
     if(m_scattMode==-2) applyEnergyLoss(-1);
     else if(m_scattMode==2) applyEnergyLoss(1);
-    if(m_pSurface!=NULL)
+    if(m_pSurface!=nullptr)
       {
 	if(m_pSurface->isBreakPoint()) applyEnergyLoss(2);
       }
@@ -223,7 +223,7 @@ namespace Trk
     double dR[5],dG[5][5],B[5][5];
     int i,j,m;
 
-    if(m_pPrevState==NULL) return;
+    if(m_pPrevState==nullptr) return;
     
     for(i=0;i<5;i++) 
       {

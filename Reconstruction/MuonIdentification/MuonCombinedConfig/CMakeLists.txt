@@ -7,5 +7,8 @@ atlas_subdir( MuonCombinedConfig )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py  )
-# atlas_install_joboptions( share/*.py )
-# atlas_install_data( share/*.ref )
+
+atlas_add_test( MuonCombinedRecoConfigTest
+SCRIPT python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
+PROPERTIES TIMEOUT 300
+POST_EXEC_SCRIPT nopost.sh )

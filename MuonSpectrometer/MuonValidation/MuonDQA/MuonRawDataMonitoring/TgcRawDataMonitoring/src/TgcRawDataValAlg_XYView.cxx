@@ -106,7 +106,7 @@ TgcRawDataValAlg::fillXYView(){
         if(layer==1){// T1, no-strip layer
           Rhos[layer][stationEta][stationPhi].push_back(m_hitPosR[ac][ws].at(iHit));
           Phis[layer][stationEta][stationPhi].push_back(m_hitPosPhi[ac][ws].at(iHit));
-        }else if((layer>=0)||(layer<9)){// T1, T2, T3, T4 with strips
+        }else if((layer>=0)&&(layer<9)){// T1, T2, T3, T4 with strips
           if(ws==WIRE) Rhos[layer][stationEta][stationPhi].push_back(m_hitPosR[ac][ws].at(iHit));
           else         Phis[layer][stationEta][stationPhi].push_back(m_hitPosPhi[ac][ws].at(iHit));
         }

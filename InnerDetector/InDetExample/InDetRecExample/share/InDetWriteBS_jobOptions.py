@@ -32,7 +32,7 @@ if DetFlags.haveRIO.TRT_on():
   ByteStreamCnvSvc.InitCnvs += ["TRT_RDO_Container"]
 if DetFlags.haveRIO.BCM_on():
   ByteStreamCnvSvc.InitCnvs += ["BCM_RDO_Container"]
-print              ByteStreamCnvSvc
+print              (ByteStreamCnvSvc)
 
 # OutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
@@ -50,7 +50,7 @@ if DetFlags.haveRIO.TRT_on():
   oStream.ItemList += [ "TRT_RDO_Container#*" ]
 if DetFlags.haveRIO.BCM_on():
   oStream.ItemList += [ "BCM_RDO_Container#*" ]
-print oStream
+print (oStream)
 
 # add stream
 theApp.addOutputStream( oStream )

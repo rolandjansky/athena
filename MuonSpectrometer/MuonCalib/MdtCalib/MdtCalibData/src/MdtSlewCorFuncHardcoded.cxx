@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
@@ -22,9 +22,7 @@ double MdtSlewCorFuncHardcoded::correction(double /*t*/, double adc) const {
       }
       if (new_val<0.1) break;
     }
-//		std::cout<<"MdtSlewCorFuncHardcoded: Created LUT with "<<m_LUT.size()<<" entries"<<std::endl;
   }
-//	std::cout<<"XXxxXX"<<	 m_LUT.lower_bound(static_cast<short>(adc))->second - 109./calibrated_p(adc)<<std::endl;
   return m_LUT.lower_bound(static_cast<short>(adc))->second;
 }
 

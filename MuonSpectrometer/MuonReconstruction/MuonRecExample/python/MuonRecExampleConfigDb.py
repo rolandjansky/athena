@@ -63,7 +63,6 @@ addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraigh
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
 addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
-addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
 
@@ -232,7 +231,7 @@ addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBui
 addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.ProjectionMMClusterBuilderTool","ProjectionMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.ConstraintAngleMMClusterBuilderTool","ConstraintAngleMMClusterBuilderTool")
-
+addTool("MuonRecExample.NSWTools.ClusterTimeProjectionMMClusterBuilderTool","ClusterTimeProjectionMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
 
 addTool("NSWCalibTools.NSWCalibToolsConfig.MMCalibSmearingTool","MMCalibSmearingTool")

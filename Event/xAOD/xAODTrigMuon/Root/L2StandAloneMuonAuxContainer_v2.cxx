@@ -197,6 +197,31 @@ namespace xAOD {
       AUX_VARIABLE( cscHitTime );
       AUX_VARIABLE( cscHitResidual );
 
+      AUX_VARIABLE( stgcClusterLayer );
+      AUX_VARIABLE( stgcClusterIsOutlier );
+      AUX_VARIABLE( stgcClusterType );
+      AUX_VARIABLE( stgcClusterEta );
+      AUX_VARIABLE( stgcClusterPhi );
+      AUX_VARIABLE( stgcClusterR );
+      AUX_VARIABLE( stgcClusterZ );
+      AUX_VARIABLE( stgcClusterResidualR );
+      AUX_VARIABLE( stgcClusterResidualPhi );
+      AUX_VARIABLE( stgcClusterStationEta );
+      AUX_VARIABLE( stgcClusterStationPhi );
+      AUX_VARIABLE( stgcClusterStationName );
+
+      AUX_VARIABLE( mmClusterLayer );
+      AUX_VARIABLE( mmClusterIsOutlier );
+      AUX_VARIABLE( mmClusterEta );
+      AUX_VARIABLE( mmClusterPhi );
+      AUX_VARIABLE( mmClusterR );
+      AUX_VARIABLE( mmClusterZ );
+      AUX_VARIABLE( mmClusterResidualR );
+      AUX_VARIABLE( mmClusterResidualPhi );
+      AUX_VARIABLE( mmClusterStationEta );
+      AUX_VARIABLE( mmClusterStationPhi );
+      AUX_VARIABLE( mmClusterStationName );
+
    }
 
 } // namespace xAOD

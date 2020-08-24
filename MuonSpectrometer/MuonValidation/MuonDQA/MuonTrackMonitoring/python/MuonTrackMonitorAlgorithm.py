@@ -4,13 +4,19 @@
 """
 
 
-def MuonTrackConfig(inputFlags):
-    from AthenaMonitoring import AthMonitorCfgHelper
+def MuonTrackConfig(inputFlags, isOld=False):
+    if isOld:
+        # Run-2 style configuration
+        from AthenaMonitoring import AthMonitorCfgHelperOld as AthMonitorCfgHelper
+        from MuonTrackMonitoring.MuonTrackMonitoringConf import MuonTrackMonitorAlgorithm
+    else:
+        from AthenaMonitoring import AthMonitorCfgHelper
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        MuonTrackMonitorAlgorithm = CompFactory.MuonTrackMonitorAlgorithm
+
     helper = AthMonitorCfgHelper(inputFlags, "MuonTrackMonitoringConfig")
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    MuonTrackMonitorAlgorithm = CompFactory.MuonTrackMonitorAlgorithm
-    muonTrackAlg = helper.addAlgorithm(MuonTrackMonitorAlgorithm, "MuonTrackMonitorAlgorithmAlg")
+    muonTrackAlg = helper.addAlgorithm(MuonTrackMonitorAlgorithm, "MuonTrackMonitorAlgorithm")
 
     myGroup = helper.addGroup(muonTrackAlg, "MuonTrackMonitorAlgorithm", "MuonPhysics/")
 
@@ -100,9 +106,9 @@ if __name__=="__main__":
     ConfigFlags.Output.HISTFileName = 'TestOutput.root'
     ConfigFlags.lock()
     # Initialize configuration object, add accumulator, merge and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     acc = MuonTrackConfig(ConfigFlags)
     cfg.merge(acc)

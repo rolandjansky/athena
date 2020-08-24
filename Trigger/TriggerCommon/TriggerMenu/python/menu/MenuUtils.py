@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from collections import Counter
 from copy import deepcopy
@@ -402,7 +402,7 @@ def setupTopoStartFrom(topoThresholds, theChainDef):
     from TrigGenericAlgs.TrigGenericAlgsConf import MergeTopoStarts
 
     if len(topoThresholds) > 1:
-        from TrigGenericAlgs.TrigGenericAlgsConfig import MergeTopoStartsConfig
+        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import MergeTopoStartsConfig
         m = MergeTopoStartsConfig("testInstance")
         log.debug(m)
 

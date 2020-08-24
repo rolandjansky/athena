@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_TDSimHit_p1_h
@@ -15,6 +15,7 @@ class AFP_TDSimHit_p1
 	friend class AFP_TDSimHitCnv_p1;
 
 private:
+
 	int m_nHitID = 0;
 	int m_nTrackID = 0;
 	int m_nParticleEncoding = 0;
@@ -32,6 +33,8 @@ private:
 	int m_nStationID = 0;
 	int m_nDetectorID = 0;
 	int m_nSensitiveElementID = 0;
+
+
 };
 
 

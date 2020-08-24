@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CxxUtils/ones.h
  * @author scott snyder <snyder@bnl.gov>
@@ -29,6 +26,7 @@ T ones (unsigned int n)
 {
   if (n >= sizeof(T) * 8)
     return ~static_cast<T>(0);
+  // cppcheck-suppress shiftTooManyBits
   return (static_cast<T>(1) << n) - 1;
 }
 

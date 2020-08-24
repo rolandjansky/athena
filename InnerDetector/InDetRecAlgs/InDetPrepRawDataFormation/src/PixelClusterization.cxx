@@ -30,7 +30,7 @@ namespace InDet{
   using namespace InDet;
   // Constructor with parameters:
   PixelClusterization::PixelClusterization(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_clusteringTool("InDet::MergedPixelsTool", this), //made private
   m_gangedAmbiguitiesFinder("InDet::PixelGangedAmbiguitiesFinder", this), //made private
   m_rdoContainerKey(""),
@@ -103,14 +103,14 @@ namespace InDet{
   
   //----------------------------------------------------------------------------
   // Execute method:
-  StatusCode PixelClusterization::execute() {
+  StatusCode PixelClusterization::execute(const EventContext& ctx) const {
   
 
-    SG::WriteHandle<PixelClusterContainer> clusterContainer(m_clusterContainerKey);
+    SG::WriteHandle<PixelClusterContainer> clusterContainer(m_clusterContainerKey, ctx);
     if(m_clusterContainercacheKey.key().empty()){
       ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max())) );
     }else{
-      SG::UpdateHandle<PixelClusterContainerCache> clusterContainercache(m_clusterContainercacheKey);
+      SG::UpdateHandle<PixelClusterContainerCache> clusterContainercache(m_clusterContainercacheKey, ctx);
       ATH_CHECK(clusterContainercache.isValid());
       ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(clusterContainercache.ptr() )));
     }
@@ -122,10 +122,10 @@ namespace InDet{
     ATH_MSG_DEBUG( "Pixel clusters '" << clusterContainer.name() << "' symlinked in StoreGate");
 
     ATH_MSG_DEBUG( "Creating the ganged ambiguities map");
-    SG::WriteHandle<PixelGangedClusterAmbiguities> ambiguitiesMap(m_ambiguitiesMapKey);
+    SG::WriteHandle<PixelGangedClusterAmbiguities> ambiguitiesMap(m_ambiguitiesMapKey, ctx);
     ambiguitiesMap = std::make_unique<PixelGangedClusterAmbiguities>();
 
-    SG::ReadHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey);
+    SG::ReadHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey, ctx);
 
     ATH_CHECK(rdoContainer.isValid());
 
@@ -138,7 +138,7 @@ namespace InDet{
         const COLLECTION* RDO_Collection(*rdoCollections);
         if (!RDO_Collection || RDO_Collection->empty()) continue;
         PixelClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(rdoCollections.hashId());
-        if( lock.alreadyPresent() ) continue;
+        if( lock.OnlineAndPresentInAnotherView() ) continue;
 
         // Use one of the specific clustering AlgTools to make clusters
         std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));
@@ -153,7 +153,7 @@ namespace InDet{
       }
     }
     else {//enter RoI-seeded mode
-      SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+      SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
       ATH_CHECK(roiCollection.isValid());
 
       TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
@@ -172,7 +172,7 @@ namespace InDet{
 
           if (!RDO_Collection) continue;
           PixelClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(listOfPixIds[i]);
-          if( lock.alreadyPresent() ) continue;
+          if( lock.OnlineAndPresentInAnotherView() ) continue;
 
           // Use one of the specific clustering AlgTools to make clusters
           std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));

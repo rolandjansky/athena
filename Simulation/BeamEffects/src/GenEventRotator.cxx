@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -83,15 +83,13 @@ namespace Simulation
     CLHEP::HepLorentzRotation transform = CLHEP::HepLorentzRotation();
     ATH_CHECK( initializeGenEvent(transform) );
 
-    auto particleIter = ge.particles_begin();
-    auto particleIterEnd = ge.particles_end();
-    for( ; particleIter != particleIterEnd; ++particleIter) {
-      rotateParticle(*particleIter, transform);
+    for(auto particleIter:  ge) {
+      rotateParticle(particleIter, transform);
     }
     return StatusCode::SUCCESS;
   }
 
-  void GenEventRotator::rotateParticle(HepMC::GenParticle* p,
+  void GenEventRotator::rotateParticle(HepMC::GenParticlePtr p,
                                        const CLHEP::HepLorentzRotation& transform) const
   {
     // Apply the same transformation for EVERY HepMC::GenParticle
@@ -100,7 +98,7 @@ namespace Simulation
     ATH_MSG_VERBOSE("initial momentum " << hv );
     hv.transform(transform);
     ATH_MSG_VERBOSE("transformed momentum " << hv);
-    p->set_momentum(hv); //TODO check units
+    p->set_momentum(HepMC::FourVector(hv.px(),hv.py(),hv.pz(),hv.e())); //TODO check units
   }
 
 }

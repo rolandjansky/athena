@@ -71,12 +71,49 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
     // It is posisble that no muons are found, in this case we go to the next decision
     if(muonHandle->size()==0) continue;
 
+    //In cases where IM is using mergeByFeature, and since we can have multiple 
+    //muons per view, need to check that we are considering the corresponding muon 
+    //from the previous decision. Relevant for combined muons only.
+
+    const xAOD::Muon *muonPrev = nullptr;
+    if(m_mapToPrevDec){
+      auto prevMuInfo = TrigCompositeUtils::findLinks<xAOD::MuonContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
+      ATH_CHECK(prevMuInfo.size()==1);
+      auto prevMuLink = prevMuInfo.at(0).link;
+      ATH_CHECK(prevMuLink.isValid());
+      muonPrev = *prevMuLink;
+    }
+
     //loop over muons (more than one muon can be found by EF algos)
     for(uint i=0; i<muonHandle->size(); i++){
       auto muonEL = ViewHelper::makeLink( *viewEL, muonHandle, i );
       ATH_CHECK( muonEL.isValid() );
 
       const xAOD::Muon* muon = *muonEL;
+
+      //Map muons to the correct decisions from previous step
+      bool matchedToDec = false;
+      if(m_mapToPrevDec){
+	//First try to check if the combined muon has an extrapolated track particle
+	//and if so whether it matches the SA track from the previous decision's muon
+	auto trk1 = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+	auto trk2 = muonPrev->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+	if(trk1 && trk2){
+	  if(trk1->p4()==trk2->p4()){
+	    matchedToDec = true;
+	  }
+	}
+	else{
+	  //If no extrapolated track particle (combined muon reconstructed by InsdieOutAlg)
+	  //do dR matching. dR<0.05 should be sufficient to get correct matching
+	  double dr = muon->p4().DeltaR(muonPrev->p4());
+	  if(dr<0.05) matchedToDec = true;
+	}
+      }
+      else matchedToDec = true; 
+
+      //skip muons not corresponding to previous decisions
+      if(!matchedToDec) continue;
 
       // create new decisions
       auto newd = newDecisionIn( decisions );
@@ -85,13 +122,15 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       toolInput.emplace_back( newd, roi, muon, previousDecision );
 
       newd -> setObjectLink( featureString(), muonEL );
-      newd->setObjectLink( viewString(),    viewEL);
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
       ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
       ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+
+      //found muon partnered to previous decision, so don't need to consider the other muons
+      if(m_mapToPrevDec) break;
     }
     counter++;
   }

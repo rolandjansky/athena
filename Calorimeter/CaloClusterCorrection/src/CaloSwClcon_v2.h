@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwClcon_v2.h,v 1.4 2008-01-25 04:14:20 ssnyder Exp $
 /**
  * @file  CaloSwClcon_v2.h
  * @author scott snyder <snyder@bnl.gov>
@@ -72,14 +69,13 @@ class CaloSwClcon_v2 :
   public CaloClusterCorrectionCommon
 {
  public:
-  // constructor 
-  CaloSwClcon_v2 (const std::string& type,
-                  const std::string& name,
-                  const IInterface* parent);
+  // Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
+
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -97,7 +93,7 @@ class CaloSwClcon_v2 :
    *                @c CaloSampling::CaloSample; i.e., it has both
    *                the calorimeter region and sampling encoded.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -109,24 +105,30 @@ class CaloSwClcon_v2 :
   
 private:
   /// Calibration constant: maximum eta for which this correction is defined.
-  float             m_etamax;
+  Constant<float>             m_etamax
+  { this, "etamax", "Maximum eta for which this correction is defined." };
 
   /// Calibration constant: degree of the polynomial interpolation.
-  int               m_degree;
+  Constant<int>               m_degree
+  { this, "degree", "Degree of the polynomial interpolation." };
 
   /// Calibration constant: tabulated arrays of function parameters.
-  CaloRec::Array<2> m_correction;
+  Constant<CxxUtils::Array<2> > m_correction
+    { this, "correction", "Tabulated arrays of function parameters." };
 
   /// Calibration constant: table of energies at which the correction
   /// was tabulated.
-  CaloRec::Array<1> m_energies;
+  Constant<CxxUtils::Array<1> > m_energies
+  { this, "energies", "Table of energies at which the correctionwas tabulated." };
 
   /// Calibration constant: degree of the polynomial interpolation in energy.
-  int               m_energy_degree;
+  Constant<int> m_energy_degree
+  { this, "energy_degree", "Degree of the polynomial interpolation in energy." };
 
   /// Calibration constant: If true, tabulated values are in terms of
   /// raw (local) eta.
-  bool m_use_raw_eta;
+  Constant<bool> m_use_raw_eta
+  { this, "use_raw_eta", "If true, tabulated values are in terms of raw (local) eta." };
 };
 
 

@@ -13,7 +13,7 @@ Purpose : create a EventInfoTag - The Tag information associated to the event
 *****************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

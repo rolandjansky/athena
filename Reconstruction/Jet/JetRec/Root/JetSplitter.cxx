@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetSplitter.cxx
@@ -144,16 +144,16 @@ int JetSplitter::groom(const xAOD::Jet& jin,
   } else {
     ATH_MSG_DEBUG("Added jet to container.");
     pjet->setAttribute<int>("TransformType", xAOD::JetTransform::MassDrop);
-    pjet->setAttribute("MuMax", m_mumax);
-    pjet->setAttribute("YMin", m_ymin);
-    pjet->setAttribute("RClus", m_rclus);
+    pjet->setAttribute<float>("MuMax", m_mumax);
+    pjet->setAttribute<float>("YMin", m_ymin);
+    pjet->setAttribute<float>("RClus", m_rclus);
     //this has to be a char, because by default bools are converted to chars in perstification. Thus if we run this tool on an exiting collection in a POOL file the type is char.                                                                                               
     pjet->setAttribute<char>("BDRS", m_bdrs);
-    pjet->setAttribute("NSubjetMax", m_nsubjetmax); 
-    pjet->setAttribute("DRFilt", drfilt);
-    pjet->setAttribute("MuFilt", mufilt);
-    pjet->setAttribute("YFilt",  yfilt);
-    pjet->setAttribute("NSubjet", npclus);
+    pjet->setAttribute<int>("NSubjetMax", m_nsubjetmax); 
+    pjet->setAttribute<float>("DRFilt", drfilt);
+    pjet->setAttribute<float>("MuFilt", mufilt);
+    pjet->setAttribute<float>("YFilt",  yfilt);
+    pjet->setAttribute<int>("NSubjet", npclus);
   }
   return 0;
 }

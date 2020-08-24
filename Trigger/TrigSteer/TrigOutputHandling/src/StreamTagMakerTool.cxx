@@ -7,6 +7,7 @@
 #include "TrigConfData/HLTChain.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 #include "eformat/StreamTag.h"
+#include <sstream>
 
 using namespace TrigCompositeUtils;
 
@@ -36,32 +37,46 @@ StatusCode StreamTagMakerTool::initialize() {
   }
 
   ATH_MSG_INFO("Configuring from HLTMenu from DetStore with " << hltMenu->size() << " chains");
+
+  std::vector<TrigConf::DataStructure> allStreams = hltMenu->streams();
+  ATH_MSG_INFO("Menu has " << allStreams.size() << " streams defined");
+  std::map<std::string, StreamTagInfo> streamDictionary;
+  ATH_MSG_DEBUG("StreamTags [Name,type,obeyLB,forceFullEventBuilding]:");
+  for (const TrigConf::DataStructure& stream : allStreams) {
+    try {
+      std::string stream_name         = stream.getAttribute("name");
+      std::string stream_type         = stream.getAttribute("type");
+      std::string_view obeyLB         = stream.getAttribute("obeyLB");
+      std::string_view fullEventBuild = stream.getAttribute("forceFullEventBuilding");
+      StreamTagInfo streamTag = {
+        stream_name,
+        stream_type,
+        obeyLB == "true",
+        fullEventBuild == "true"
+      };
+      ATH_MSG_DEBUG("-- " << formatStreamTagInfo(streamTag));
+      streamDictionary.insert(std::pair<std::string, StreamTagInfo>(stream.getAttribute("name"),streamTag));
+    } catch (const std::exception& ex) {
+      ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
+      return StatusCode::FAILURE;
+    }
+  }
+
   for (const TrigConf::Chain & chain : *hltMenu) {
-    std::vector<TrigConf::DataStructure> streams = chain.streams();
+    std::vector<std::string> streams = chain.streams();
     if (streams.empty()) {
       ATH_MSG_ERROR("Chain " << chain.name() << " has no streams assigned");
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Chain " << chain.name() << " is assigned to " << streams.size() << " streams");
     m_mapping[ HLT::Identifier( chain.name() ) ] = {};
-    for (const TrigConf::DataStructure& stream : streams) {
-      try {
-        std::string stream_name         = stream.getAttribute("name");
-        std::string stream_type         = stream.getAttribute("type");
-        std::string_view obeyLB         = stream.getAttribute("obeyLB");
-        std::string_view fullEventBuild = stream.getAttribute("forceFullEventBuilding");
-        StreamTagInfo streamTag = {
-          stream_name,
-          stream_type,
-          obeyLB == "true",
-          fullEventBuild == "true"
-        };
-        m_mapping[ HLT::Identifier(chain.name()).numeric() ].push_back(streamTag);
-        ATH_MSG_DEBUG("-- " << stream_type << "_" << stream_name
-                      << " (obeyLB=" << obeyLB << ", forceFullEventBuilding=" << fullEventBuild << ")");
-      } catch (const std::exception& ex) {
-        ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
-        return StatusCode::FAILURE;
+    for (const std::string& stream : streams) {
+      ATH_MSG_DEBUG("-- " << stream);
+      if (const auto streamIt = streamDictionary.find(stream); streamIt != streamDictionary.end()) {
+         m_mapping[ HLT::Identifier(chain.name()).numeric() ].push_back(streamIt->second);
+      }else{
+         ATH_MSG_ERROR("Failure reading stream tag configuration for stream: " << stream);
+         return StatusCode::FAILURE;
       }
     }
   }
@@ -110,6 +125,11 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
   decisionIDs(passRawChains, passRawIDs);
   DecisionIDContainer rerunIDs;
   decisionIDs(rerunChains, rerunIDs);
+
+  if (passRawIDs.empty()) {
+    ATH_MSG_DEBUG("No chains passed, event rejected");
+    return StatusCode::SUCCESS;
+  }
 
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
   ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
@@ -204,3 +224,14 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
   } // Loop over decision containers
   return StatusCode::SUCCESS;
 }
+
+// =============================================================================
+
+std::string
+StreamTagMakerTool::formatStreamTagInfo (const StreamTagInfo& info) const
+{
+  std::ostringstream ss;
+  ss << "[" << std::get<0>(info) << ", " << std::get<1>(info) << ", " << std::get<2>(info) << ", " << std::get<3>(info) << "]";
+  return ss.str();
+}
+

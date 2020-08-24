@@ -16,29 +16,6 @@ def retrieveAODList():
     # jobs starts from empty files. See ATEAM-191.
     # We hard code the list here while waiting for a more robust solution
 
-    exclusionStr = ""
-    # Build a list of branches to be excluded from writing
-    if jetFlags.detailLevel()==JetContentDetail.Reduced:
-        excludedMoments = [
-            'GhostBHadronsFinalCount',    'GhostBHadronsFinalPt',
-            'GhostBHadronsInitialCount',  'GhostBHadronsInitialPt',
-            'GhostBQuarksFinalCount',     'GhostBQuarksFinalPt',
-            'GhostCHadronsFinalCount',    'GhostCHadronsFinalPt',
-            'GhostCHadronsInitialCount',  'GhostCHadronsInitialPt',
-            'GhostCQuarksFinalCount',     'GhostCQuarksFinalPt',
-            'GhostHBosonsCount',          'GhostHBosonsPt',
-            'GhostPartonsCount',          'GhostPartonsPt',
-            'GhostTQuarksFinalCount',     'GhostTQuarksFinalPt',
-            'GhostTausFinalCount',        'GhostTausFinalPt',
-            'GhostTruthCount',            'GhostTruthPt',
-            'GhostWBosonsCount',          'GhostWBosonsPt',
-            'GhostZBosonsCount',          'GhostZBosonsPt',
-            'GhostAntiKt4TrackJetCount',  'GhostAntiKt4TrackJetPt',
-            'GhostTrackCount',            'GhostTrackPt',
-            'GhostAntiKt2TrackJetCount',
-            ]
-        exclusionStr = ".".join(["-"+mom for mom in excludedMoments])
-
     l = [
         # event shape objects
         'xAOD::EventShape#Kt4EMPFlowEventShape',                    'xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.',
@@ -56,9 +33,9 @@ def retrieveAODList():
         'xAOD::PFOContainer#CHSChargedParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSChargedParticleFlowObjectsAux.',
         'xAOD::PFOContainer#CHSNeutralParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSNeutralParticleFlowObjectsAux.',
 
-        'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.'+exclusionStr,
-        'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.'+exclusionStr,
-        'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.'+exclusionStr,
+        'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
+        'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
+        'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         ]
 
     if jetFlags.detailLevel()>=JetContentDetail.Full:

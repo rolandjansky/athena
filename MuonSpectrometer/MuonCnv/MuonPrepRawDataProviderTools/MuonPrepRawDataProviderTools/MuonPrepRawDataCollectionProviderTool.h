@@ -69,12 +69,12 @@ namespace Muon {
       for( MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
         
         // skip if not found
-        typename ContainerType::const_iterator colIt = container->indexFind(*it);
-        if( colIt == container->end() ) {
+        auto col = container->indexFindPtr(*it);
+        if( col == nullptr ) {
           continue;
         }
-        ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
-        output.push_back(*colIt);
+        ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(col->identify()) << " size " << col->size());
+        output.push_back(col);
       }
       return true;
     }

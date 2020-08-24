@@ -5,7 +5,7 @@
 #ifndef TRIGMUONROITOOLS_TRIGMUONROITOOL_H
 #define TRIGMUONROITOOLS_TRIGMUONROITOOL_H
 
-#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
 #include "TrigT1Result/MuCTPIRoI.h"
 
 #include "GaudiKernel/ServiceHandle.h"

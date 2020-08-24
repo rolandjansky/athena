@@ -1,8 +1,8 @@
-<!-- $Id: selection.xml 615648 2014-09-08 16:35:14Z schaffer $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
   <!-- Enums -->
   <enum pattern="xAOD::Iso::*" />
-  <class name="xAOD::Iso::ROOT6_NamespaceAutoloadHook" />
+  <struct name="xAOD::Iso::ROOT6_NamespaceAutoloadHook" />
 
 </lcgdict>

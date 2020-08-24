@@ -45,6 +45,8 @@ class DumpLArRawChannels : public AthAlgorithm
   float m_e=0,m_t=0,m_Q=0;
   unsigned m_gain=0;
   unsigned m_id=0;
+  bool m_toLog;
+  bool m_toFile;
 
   ServiceHandle<ITHistSvc> m_thistSvc;
 

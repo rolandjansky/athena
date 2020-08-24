@@ -45,7 +45,7 @@ void Normalise(TH1* h) {
 
 
 
-BinConfig binConfig("standard");
+BinConfig g_binConfig("standard");
 
 BinConfig electronBinConfig("electron");
 BinConfig muonBinConfig("muon");
@@ -70,13 +70,13 @@ void ConfAnalysis::initialiseInternal() {
   //  std::cout << "ConfAnalysis::initialise() " << name() << std::endl;
 
 
-  BinConfig& _binConfig = binConfig;
+  BinConfig& binConfig = g_binConfig;
  
-  if       ( name().find("_e")!=std::string::npos   )   _binConfig = electronBinConfig;
-  else if  ( name().find("_mu")!=std::string::npos  )   _binConfig =     muonBinConfig;
-  else if  ( name().find("_tau")!=std::string::npos )   _binConfig =      tauBinConfig;
-  else if  ( name().find("_b")!=std::string::npos   )   _binConfig =     bjetBinConfig;
-  else if  ( name().find("cosmic")!=std::string::npos ) _binConfig =   cosmicBinConfig;
+  if       ( name().find("_e")!=std::string::npos   )   binConfig = electronBinConfig;
+  else if  ( name().find("_mu")!=std::string::npos  )   binConfig =     muonBinConfig;
+  else if  ( name().find("_tau")!=std::string::npos )   binConfig =      tauBinConfig;
+  else if  ( name().find("_b")!=std::string::npos   )   binConfig =     bjetBinConfig;
+  else if  ( name().find("cosmic")!=std::string::npos ) binConfig =   cosmicBinConfig;
 
   
   //+++ pT ranges
@@ -85,7 +85,7 @@ void ConfAnalysis::initialiseInternal() {
   //double tmp_maxPt    = 50.;
   double tmp_absResPt = 0.5;
 
-  const int pTResBins = int(100*_binConfig.ptres_NScale);
+  const int pTResBins = int(100*binConfig.ptres_NScale);
 
   //+++ Eta ranges
   double tmp_maxEta    = 3.;
@@ -96,32 +96,30 @@ void ConfAnalysis::initialiseInternal() {
   double tmp_absResPhi = 0.02; // 0.0001;
 
 
-  //  std::cout << "ConfAnalysis::initialise() " << name() << " config: " << _binConfig << std::endl;
+  //  std::cout << "ConfAnalysis::initialise() " << name() << " config: " << binConfig << std::endl;
 
 
-  int etaBins          = int(30*_binConfig.eta_NScale);
-  const int etaResBins = int(600*_binConfig.eta_NScale);
+  int etaBins          = int(30*binConfig.eta_NScale);
+  const int etaResBins = int(600*binConfig.eta_NScale);
 
-  const int phiBins    = int(30*_binConfig.phi_NScale);
-  const int phiResBins = int(100*_binConfig.phires_NScale);
+  const int phiBins    = int(30*binConfig.phi_NScale);
+  const int phiResBins = int(100*binConfig.phires_NScale);
 
-  const int    zBins = int(100*_binConfig.z0_NScale);
-  const double zMax  = 200;
-
-  
+  const int    zBins = int(150*binConfig.z0_NScale);
+  const double zMax  = binConfig.z0Max;
 
   const int    zresBins = 100;      
   const double zresMax  = 10;
 
-  const int    d0Bins = int(100*_binConfig.d0_NScale);
-  const double d0Max  = 30;
+  const int    d0Bins = int(100*binConfig.d0_NScale);
+  const double d0Max  = binConfig.d0Max;
 
   const int    d0resBins = 100;      
   const double d0resMax  = 5;
 
   // beamspot corrected position
-  const int    a0Bins = int(300*_binConfig.a0_NScale);
-  const double a0Max  = 15;
+  const int    a0Bins = int(300*binConfig.a0_NScale);
+  const double a0Max  = binConfig.a0Max;
 
   const int    a0resBins = 100;      
   const double a0resMax  = 5;
@@ -134,9 +132,9 @@ void ConfAnalysis::initialiseInternal() {
   double  pt_a = 1;
   double  pt_b = 1;
   
-  //  Npt = int(40*_binConfig.pt_NScale);
+  //  Npt = int(40*binConfig.pt_NScale);
   //  pt_a = 3.5;
-  Npt = int(45*_binConfig.pt_NScale);
+  Npt = int(45*binConfig.pt_NScale);
   pt_a = 4;
   pt_b = 2;
   // etaBins = 12;
@@ -651,7 +649,7 @@ void ConfAnalysis::initialiseInternal() {
   // hit occupancies
 
   int   NHits = 40;
-  int Ntracks = 1000;
+  int Ntracks = 10000;
 
   addHistogram( new TH1F( "nsct",     "nsct",     NHits, -0.5, float(NHits-0.5) ) );
   addHistogram( new TH1F( "nsct_rec", "nsct_rec", NHits, -0.5, float(NHits-0.5) ) );
@@ -837,7 +835,7 @@ TF1* FitFWGaussian(TH1D* s, double a, double b) {
 
 void fitSin( TH1D* h, const std::string& parent="" ) { 
 
-  static TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)" ); // , -M_PI, M_PI );
+  TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)" ); // , -M_PI, M_PI );
 
   fsin->SetParameter(0,1);
   fsin->SetParameter(1,0);
@@ -857,6 +855,7 @@ void fitSin( TH1D* h, const std::string& parent="" ) {
   
   std::cout << parent << "\t" << h->GetTitle() << "\tx = " << x << "\ty = " << y << std::endl;
 
+  delete fsin;
 }
 
 
@@ -1108,7 +1107,7 @@ void ConfAnalysis::finalise() {
 
   eff_vs_lb->finalise();
 
-  z_vs_lb->Finalise(); z_vs_lb->Write();
+  z_vs_lb->Finalise(Resplot::FitNull95); z_vs_lb->Write();
   delete z_vs_lb;
 
   //  TH1F* hefflb = eff_vs_lb->Hist();
@@ -1194,7 +1193,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
   for ( int i=reftracks.size() ; i-- ; ) { 
 
     /// fill roi residuals
-
+    
     if ( groi!=0 ) { 
       //  std::cout << "ConfAnalysis::Fill() groi " << *groi << std::endl;
 
@@ -1294,8 +1293,8 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     //    hchi2->Fill( chi2t );
 
     double nsctt = reftracks[i]->sctHits(); 
-    double npixt = reftracks[i]->pixelHits(); 
-    double nsit  = reftracks[i]->pixelHits() * 0.5 + reftracks[i]->sctHits(); 
+    double npixt = reftracks[i]->pixelHits()*0.5; 
+    double nsit  = reftracks[i]->pixelHits()*0.5 + reftracks[i]->sctHits(); 
 
     double nsctht = reftracks[i]->sctHoles(); 
     double npixht = reftracks[i]->pixelHoles(); 
@@ -1340,21 +1339,21 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     }  
 
 
-    rnpix_eta->Fill( etat, npixt*0.5 );
+    rnpix_eta->Fill( etat, npixt*1.0 );
     rnsct_eta->Fill( etat, nsctt*1.0 );
     rntrt_eta->Fill( etat, nstrawt*1.0 );
-    rnsihit_eta->Fill( etat, npixt*0.5 + nsctt*1.);
+    rnsihit_eta->Fill( etat, npixt + nsctt*1.);
     
-    rnpix_phi->Fill(  phit, npixt*0.5 );
+    rnpix_phi->Fill(  phit, npixt*1.0 );
     rnsct_phi->Fill(  phit, nsctt*1.0 );
     rntrt_phi->Fill(  phit, nstrawt*1.0 );
     
-    rnpix_pt->Fill( std::fabs(pTt), npixt*0.5 );
+    rnpix_pt->Fill( std::fabs(pTt), npixt*1.0 );
     rnsct_pt->Fill( std::fabs(pTt), nsctt*1.0 );
     rntrt_pt->Fill( std::fabs(pTt), nstrawt*1.0 );
 
 
-    rnpix_d0->Fill( a0t, npixt*0.5 );
+    rnpix_d0->Fill( a0t, npixt*1.0 );
     rnsct_d0->Fill( a0t, nsctt*1.0 );
     rntrt_d0->Fill( a0t, nstrawt*1.0 );
 
@@ -1377,7 +1376,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     rnpixh_pt->Fill( std::fabs(pTt), npixht );
     rnscth_pt->Fill( std::fabs(pTt), nsctht );
 
-    rnpix_lb->Fill( gevent->lumi_block(), npixt*0.5 );
+    rnpix_lb->Fill( gevent->lumi_block(), npixt*1.0 );
 
     double                 etovpt_val = 0;
     const TrackTrigObject* tobj       = 0;
@@ -1396,6 +1395,8 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
 
     if ( matchedreco )  {
+
+      Nmatched++;
 
       // efficiency histos
       eff_pt->Fill(std::fabs(pTt));
@@ -1424,8 +1425,6 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	m_eff_vs_etovpt->Fill(etovpt_val);    
 	m_eff_vs_et->Fill( std::fabs(tobj->pt()*0.001) );    
       }
-
-      Nmatched++;
 
       /// fill residual histos
 
@@ -1480,8 +1479,8 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       //      m_lfirst = false;
 
       double nsctr = matchedreco->sctHits(); 
-      double npixr = matchedreco->pixelHits(); 
-      double nsir  = matchedreco->pixelHits() * 0.5 + matchedreco->sctHits(); 
+      double npixr = matchedreco->pixelHits()*0.5; 
+      double nsir  = matchedreco->pixelHits()*0.5 + matchedreco->sctHits(); 
       
       double nscthr = matchedreco->sctHoles(); 
       double npixhr = matchedreco->pixelHoles(); 
@@ -1613,16 +1612,16 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       
       //-----
 	
-      rnpix_eta_rec->Fill(  etat, npixr*0.5 );
+      rnpix_eta_rec->Fill(  etat, npixr*1.0 );
       rnsct_eta_rec->Fill(  etat, nsctr*1.0 );
       rntrt_eta_rec->Fill(  etat, nstrawr*1.0 );
       rnsihit_eta_rec->Fill(  etat, npixr*0.5 + nsctr*1.0);
 
-      rnpix_phi_rec->Fill(  phit, npixr*0.5 );
+      rnpix_phi_rec->Fill(  phit, npixr*1.0 );
       rnsct_phi_rec->Fill(  phit, nsctr*1.0 );
       rntrt_phi_rec->Fill(  phit, nstrawr*1.0 );
 
-      rnpix_pt_rec->Fill( std::fabs(pTt), npixr*0.5 );
+      rnpix_pt_rec->Fill( std::fabs(pTt), npixr*1.0 );
       rnsct_pt_rec->Fill( std::fabs(pTt), nsctr*1.0 );
       rntrt_pt_rec->Fill( std::fabs(pTt), nstrawr*1.0 );
 
@@ -1872,6 +1871,8 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
   }
 
+  //  return;
+
 
   // for fake/purity histograms, loop over the test tracks
   // and get the corresponding matched reference tracks from the 
@@ -1910,8 +1911,8 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     //    std::cout << "d0 " << d0r << "\tphi " << phir << "\tx " << m_xBeamTest << "\ty " << m_yBeamTest << std::endl;
 
     double nsctr = testtracks[i]->sctHits(); 
-    double npixr = testtracks[i]->pixelHits(); 
-    double nsir = testtracks[i]->pixelHits() * 0.5 + testtracks[i]->sctHits(); 
+    double npixr = testtracks[i]->pixelHits()*0.5; 
+    double nsir = testtracks[i]->pixelHits()*0.5 + testtracks[i]->sctHits(); 
 
     double ntrtr   = testtracks[i]->trHits(); 
     double nstrawr = testtracks[i]->strawHits(); 
@@ -1938,7 +1939,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     //    z_vs_lb->Fill( rmap[r]+lb, z0r );
     z_vs_lb->Fill( ts, z0r );
 
-    //    hnpix_v_sct_rec->Fill( nsctr*0.5, npixr*0.5 );
+    //    hnpix_v_sct_rec->Fill( nsctr*0.5, npixr*1.0 );
 
     if ( h2r )   h2r->Fill( phir, d0r );
     if ( h2a0r ) h2a0r->Fill( phir, a0r );

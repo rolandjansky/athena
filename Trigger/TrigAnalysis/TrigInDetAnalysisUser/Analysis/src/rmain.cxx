@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:41:26 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -17,7 +17,11 @@
 #include <map>
 #include <set>
 
-//#include "Cintex/Cintex.h"
+/// stack trace headers
+#include <execinfo.h>
+#include <signal.h>
+#include <unistd.h>
+
 
 #include "TChain.h"
 #include "TFile.h"
@@ -75,7 +79,7 @@
 extern bool PRINT_BRESIDUALS;
 
 // in BinConfig.cxx
-extern BinConfig binConfig;
+extern BinConfig g_binConfig;
 
 extern BinConfig electronBinConfig;
 extern BinConfig muonBinConfig;
@@ -84,6 +88,21 @@ extern BinConfig bjetBinConfig;
 extern BinConfig cosmicBinConfig;
 
 void copyReleaseInfo( TTree* tree, TFile* foutdir );
+
+
+/// signal handler
+void handler(int sig) {
+  void *array[10];
+
+  // get void*'s for all entries on the stack
+  size_t size = backtrace(array, 10);
+
+  // print out all the frames to stderr
+  std::cout << "Error: signal %d:\n" <<  sig << std::endl;
+  backtrace_symbols_fd(array, size, STDERR_FILENO);
+  std::exit(1);
+}
+
 
 
 
@@ -323,7 +342,6 @@ int usage(const std::string& name, int status) {
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   s << "\nReport bugs to sutt@cern.ch";
   s << std::endl;
-
   
   return status;
 }
@@ -341,9 +359,9 @@ int usage(const std::string& name, int status) {
 template<typename T>
 std::vector<T*> pointers( std::vector<T>& v ) {
   /// this is slow - all this copying
-  std::vector<T*> _v(v.size());
-  for ( unsigned i=0 ; i<v.size() ; i++ ) _v.push_back( &v[i] );
-  return _v;
+  std::vector<T*> vp(v.size(),0);
+  for ( unsigned i=v.size() ; i-- ; ) vp[i] = &v[i];
+  return vp;
 }
 
 
@@ -365,6 +383,11 @@ bool SelectObjectETovPT(const TrackTrigObject& tobj, TIDA::Track* t=0) {
 
 int main(int argc, char** argv) 
 {
+  signal( SIGABRT, handler ); 
+  signal( SIGFPE,  handler ); 
+  signal( SIGILL,  handler ); 
+  signal( SIGSEGV, handler ); 
+  signal( SIGTERM, handler ); 
 
   //  ROOT::Cintex::Cintex::Enable();
 
@@ -511,6 +534,8 @@ int main(int argc, char** argv)
   int nbl = -1;
 
   int nsiholes = 2;
+  int npixholes = 20; /// essentially no limit
+  int nsctholes = 20; /// essentially no limit
 
   bool expectBL = false;
 
@@ -527,6 +552,11 @@ int main(int argc, char** argv)
   int ntracks = 0;
 
   //bool printflag = false;  // JK removed (unused)
+
+
+  bool rotate_testtracks = false;
+
+  if ( inputdata.isTagDefined("RotateTestTracks") ) rotate_testtracks = ( inputdata.GetValue("RotateTestTracks") ? true : false );
 
   bool truthMatch = false;
 
@@ -566,6 +596,8 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("zed") )      zed      = inputdata.GetValue("zed");
   if ( inputdata.isTagDefined("npix") )     npix     = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsiholes") ) nsiholes = inputdata.GetValue("nsiholes");
+  if ( inputdata.isTagDefined("npixholes") ) npixholes = inputdata.GetValue("npixholes");
+  if ( inputdata.isTagDefined("nsctholes") ) nsctholes = inputdata.GetValue("nsctholes");
   if ( inputdata.isTagDefined("expectBL") ) expectBL = ( inputdata.GetValue("expectBL") > 0.5 ? true : false );
   if ( inputdata.isTagDefined("nsct") )     nsct     = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )      nbl      = inputdata.GetValue("nbl");
@@ -748,7 +780,8 @@ int main(int argc, char** argv)
     else vtxind_rec = atoi_check( vertexSelection_rec ); 
   }
   
-  
+  std::cout << "vertexSelection:     " << vertexSelection << std::endl; 
+  std::cout << "vertexSelection_rec: " << vertexSelection_rec << std::endl; 
 
 
 #if 0
@@ -869,7 +902,7 @@ int main(int argc, char** argv)
   if ( binningConfigFile!="" ) binningConfig = new ReadCards( binningConfigFile );
     
   /// set the tags in front of the histogram stuff 
-  binConfig.set(         *binningConfig, "" );
+  g_binConfig.set(       *binningConfig, "" );
   electronBinConfig.set( *binningConfig, "e_" );
   muonBinConfig.set(     *binningConfig, "mu_" );
   tauBinConfig.set(      *binningConfig, "tau_" );
@@ -906,7 +939,7 @@ int main(int argc, char** argv)
   Filter_Track filter_offline( eta, 1000, zed, pT, 
                                npix, nsct, -1, nbl, 
                                -2, -2, chi2prob, 
-                               20, 20, nsiholes, expectBL ); /// include chi2 probability cut 
+                               npixholes, nsctholes, nsiholes, expectBL ); /// include chi2 probability cut 
 
   if ( selectcharge!=0 ) filter_offline.chargeSelection( selectcharge );
   if ( pTMax>pT )        filter_offline.maxpT( pTMax );
@@ -1357,7 +1390,10 @@ int main(int argc, char** argv)
   std::cout << "starting event loop " << time_str() << std::endl;
     
 
-  for ( unsigned ifile=0 ; run && ifile<filenames.size() && ( nfiles==0 || ifile<nfiles ) ; ifile++ ) { 
+  size_t max_files = filenames.size();
+  if ( nfiles!=0 && nfiles<max_files ) max_files = nfiles;
+
+  for ( size_t ifile=0 ; run && ifile<max_files; ifile++ ) { 
 
     bool newfile = true;
 
@@ -1420,6 +1456,8 @@ int main(int argc, char** argv)
       //    Nentries++;
 
      data->GetEntry(i);
+
+
      //    if (i==0) {
      //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
      //    }
@@ -1470,24 +1508,22 @@ int main(int argc, char** argv)
 
     hevent->Fill( event );
 
- 
-
     if ( filenames.size()<2 ) { 
-      if ( (Nentries<10) || i%(Nentries/10)==0 || i%1000==0 || debugPrintout )  { 
+      if ( (cNentries<10) || i%(cNentries/10)==0 || i%1000==0 || debugPrintout )  { 
         std::cout << "run "      << track_ev->run_number() 
                   << "\tevent "  << track_ev->event_number() 
                   << "\tlb "     << track_ev->lumi_block() 
                   << "\tchains " << track_ev->chains().size()
                   << "\ttime "   << track_ev->time_stamp();
-        std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
+        std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/cNentries)*0.1 << "%)\t" << time_str() << std::endl;
         //   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
       }
     }  
-
-    if ( newfile ) { 
+    else if ( newfile ) { 
 
       int pfiles = filenames.size();
       if ( nfiles>0 ) pfiles = nfiles; 
+
 
       std::cout << "file entries=" << data->GetEntries();
 
@@ -1533,7 +1569,7 @@ int main(int argc, char** argv)
     if ( truthMatch ) { 
       for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
         if ( chains[ic].name()=="Truth" ) {
-          truthTracks.selectTracks( chains[ic].rois()[0].tracks() );
+          truthTracks.selectTracks( chains[ic][0].tracks() );
           break;
         }
       }
@@ -1542,9 +1578,9 @@ int main(int argc, char** argv)
     //// get the reference tracks
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
       if ( chains[ic].name()==refChain ) {
-        offTracks.selectTracks( chains[ic].rois()[0].tracks() );
+        offTracks.selectTracks( chains[ic][0].tracks() );
         //extract beamline position values from rois
-        beamline_ref = chains[ic].rois()[0].user();
+        beamline_ref = chains[ic][0].user();
         // std::cout << "beamline: " << chains[ic].name() << "  " << beamline_ref << std::endl;
         break;
       }
@@ -1554,56 +1590,63 @@ int main(int argc, char** argv)
     /// select the reference offline vertices
     
     std::vector<TIDA::Vertex> vertices;
-    
-    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
 
-    int     selectvtx = -1;
-    double  selection = 0;
+    //    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
     
-    //    std::vector<TIDA::Vertex>& vertices = vertices;
-     
-    if ( bestPTVtx || bestPT2Vtx )  {  
-      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
-        if ( mv[iv].Ntracks()==0 ) continue;
-        double selection_ = 0.0;
-        for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
+    const TIDA::Chain* vtxchain = track_ev->chain("Vertex");
+
+    if ( vtxchain && vtxchain->size()>0 ) { 
+ 
+      const std::vector<TIDA::Vertex>& mv = vtxchain->at(0).vertices();
+
+      int     selectvtx = -1;
+      double  selection = 0;
+      
+      //  std::vector<TIDA::Vertex>& vertices = vertices;
+      if ( debugPrintout ) std::cout << "vertices:\n" << mv << std::endl;      
+      
+      if ( bestPTVtx || bestPT2Vtx )  {  
+	for ( size_t iv=0 ; iv<mv.size() ; iv++ ) {
+	  if ( mv[iv].Ntracks()==0 ) continue;
+	  double selection_ = 0.0;
+	  for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
           TIDA::Track* tr = offTracks.tracks().at(itr);
           if( std::fabs(mv[iv].z()-tr->z0()) < 1.5 ) { 
             if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
             else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
           }
         }
-        if( selection_>selection){
-          selection = selection_;
-          selectvtx = iv;
-        }
+	  if( selection_>selection){
+	    selection = selection_;
+	    selectvtx = iv;
+	  }
+	}
+	if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
       }
-      if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
-    }
-    else if ( vtxind>=0 ) {
-      if ( unsigned(vtxind)<mv.size() ) vertices.push_back( mv[vtxind] );
-    }
-    else { 
-      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
-    }
-    
-    
-    //    if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
-    //    else                     std::cout << "NO vertex !!!" << std::endl;
-
-    /// always push back the vector - if required there will be only one vertex on it
-    filter_vertex.setVertex( vertices );
-
-    /// calculate number of "vertex tracks"
-
-    NvtxCount = 0;
-
-    for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
-      int Ntracks = mv[iv].Ntracks();
-      if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
-        Nvtxtracks += Ntracks;
-        //      vertices.push_back( mv[iv] );
-        NvtxCount++;
+      else if ( vtxind>=0 ) {
+	if ( size_t(vtxind)<mv.size() ) vertices.push_back( mv[vtxind] );
+      }
+      else { 
+	for ( size_t iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
+      }
+      
+      //      if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
+      //      else                     std::cout << "NO vertex !!!" << std::endl;
+      
+      /// always push back the vector - if required there will be only one vertex on it
+      filter_vertex.setVertex( vertices );
+      
+      /// calculate number of "vertex tracks"
+      
+      NvtxCount = 0;
+      
+      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
+	int Ntracks = mv[iv].Ntracks();
+	if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
+	  Nvtxtracks += Ntracks;
+	  //      vertices.push_back( mv[iv] );
+	  NvtxCount++;
+	}
       }
     }
 
@@ -1649,7 +1692,6 @@ int main(int argc, char** argv)
     if ( !foundReference ) continue;
     
     if ( debugPrintout ) { 
-      std::cout << "vertices:\n" << mv << std::endl;
       std::cout << "reference chain:\n" << *refchain << std::endl;
     }
     
@@ -2068,8 +2110,9 @@ int main(int argc, char** argv)
           
         }
         else vertices_roi = vertices;
-
-
+	
+       	if ( rotate_testtracks ) for ( size_t i=testp.size() ; i-- ; ) testp[i]->rotate();
+	
         foutdir->cd();
 
         // do analysing
@@ -2100,22 +2143,10 @@ int main(int argc, char** argv)
           ///  and all our functions are using const vector<T>&, so we would need to duplicate
           ///  all the functions to allow over riding with vector<T*> *and* vector<const T*>
           ///  to get this nonsense to work
-          
-          std::vector<TIDA::Vertex> vtxcck = vertices_roi;           
-          std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
-          
-          vtxp.reserve( vtxcck.size() );
-          for ( unsigned iv=0 ; iv<vtxcck.size() ; iv++ ) vtxp.push_back( &vtxcck[iv] );
-          
-          std::vector<TIDA::Vertex> vtxcck_test = vertices_test;
-          std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcck_test );
-          
-          vtxp_test.reserve( vtxcck_test.size() );
-          for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
-          
-          //      std::cout << "vertex size :" << vtxp_test.size() << "\tvertex key " << vtxanal->name() << std::endl;
 
-          if ( vtxp.size()>0 ) vtxanal->execute( vtxp, vtxp_test, track_ev );
+	  ///  so we now use a handy wrapper function to do the conversion for us ...
+
+          if ( vertices_roi.size()>0 ) vtxanal->execute( pointers(vertices_roi), pointers(vertices_test), track_ev );
 
         }
 
@@ -2200,7 +2231,7 @@ int main(int argc, char** argv)
   
   //  hcorr->Finalise(Resplot::FitPoisson);
 
-  hcorr->Finalise(); 
+  hcorr->Finalise(Resplot::FitNull95); 
   hcorr->Write();
 
   for ( int i=analyses.size() ; i-- ; ) { 

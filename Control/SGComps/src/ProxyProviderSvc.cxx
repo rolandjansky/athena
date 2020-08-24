@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -261,7 +261,7 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
     const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress pTAd (id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
-    for (; iProvider != iEnd; iProvider++) {
+    for (; iProvider != iEnd; ++iProvider) {
       if ( ((*iProvider)->updateAddress(store.storeID(),&pTAd,ctx)).isSuccess() ) 
 	{
 	  pTAd.setProvider(*iProvider, store.storeID());
@@ -294,7 +294,7 @@ const EventContext& ProxyProviderSvc::contextFromStore (IProxyRegistry& ds) cons
 
 
 void 
-ProxyProviderSvc::providerNamesPropertyHandler( Property& /*theProp*/ ) {
+ProxyProviderSvc::providerNamesPropertyHandler( Gaudi::Details::PropertyBase& /*theProp*/ ) {
   //add declared providers to the list;
   std::vector<std::string>::const_iterator iN(m_providerNames.value().begin());
   std::vector<std::string>::const_iterator iEnd(m_providerNames.value().end());

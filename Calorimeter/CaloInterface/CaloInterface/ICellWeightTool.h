@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOINTERFACE_ICELLWEIGHTTOOL_H
@@ -44,17 +44,12 @@ JetRec::JetCellCalibratorTool.
 
 class CaloCell;
 
-static const InterfaceID IID_ICellWeightTool("ICellWeightTool", 1 , 0);
-
 class ICellWeightTool : virtual public IAlgTool
 {
  public:
-
-  static const InterfaceID& interfaceID() { return IID_ICellWeightTool; }
+  DeclareInterfaceID( ICellWeightTool, 1, 0 );
 
   virtual double wtCell(const CaloCell* thisCell) const = 0;
-
-
 };
 
 #endif

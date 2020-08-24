@@ -43,7 +43,7 @@ namespace MuonGM {
 
     m_hasALines = false;
     m_hasBLines = false;
-    m_delta = NULL;
+    m_delta = Amg::Transform3D::Identity();
     m_ml = mL;
     
     // get the setting of the caching flag from the manager
@@ -508,7 +508,8 @@ namespace MuonGM {
       log << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
     }
 #endif
-    return absTransform()*locP;
+    Amg::Vector3D gVec = absTransform()*locP;
+    return m_delta*gVec;
   }
 
   void sTgcReadoutElement::setDelta(double tras, double traz, double trat,
@@ -526,6 +527,30 @@ namespace MuonGM {
                      HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
                     HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
        m_hasALines = true;
+    }
+    Amg::Transform3D deltaToAmg = Amg::CLHEPTransformToEigen(delta);
+    m_delta = deltaToAmg;
+  }
+
+  void sTgcReadoutElement::setDelta(MuonDetectorManager* mgr)
+  {
+    const ALineMapContainer* alineMap = mgr->ALineContainer();
+    Identifier id = mgr->stgcIdHelper()->elementID(getStationName(), getStationEta(), getStationPhi());
+    Identifier idMult = mgr->stgcIdHelper()->multilayerID(id, m_ml);
+    if( alineMap->find(idMult) == alineMap->cend())
+    {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      if(log.level()<=MSG::DEBUG)
+      {
+        log << MSG::DEBUG << "m_aLineMapContainer does not contain any ALine for sTGC" << endmsg;
+      }
+    }
+    else
+    {
+      ALinePar aline = alineMap->find(idMult)->second;
+      float s, z, t, rots, rotz, rott;
+      aline.getParameters(s, z, t, rots, rotz, rott);
+      setDelta(s, z, t, rots, rotz, rott);
     }
   }
 

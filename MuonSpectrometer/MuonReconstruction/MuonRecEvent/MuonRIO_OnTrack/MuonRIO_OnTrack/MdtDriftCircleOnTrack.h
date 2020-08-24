@@ -162,32 +162,37 @@ public:
     Trk::DriftCircleStatus status() const;
 
     /** @copydoc Trk::RIO_OnTrack::clone()  */
-    virtual MdtDriftCircleOnTrack* clone() const ;
+    virtual MdtDriftCircleOnTrack* clone() const override;
 
     /** @brief Returns the PrepRawData used to create this corrected measurement */
-    virtual const MdtPrepData* prepRawData() const;
+    virtual const MdtPrepData* prepRawData() const override;
     const ElementLinkToIDC_MDT_Container& prepRawDataLink() const;
 
     /** @brief Returns the hashID of the PRD collection */
     virtual IdentifierHash collectionHash() const;
 
     /** @brief Returns an invalid hash @todo Remove*/
-    virtual IdentifierHash idDE() const { return IdentifierHash(); } 
+    virtual IdentifierHash idDE() const override { return IdentifierHash(); } 
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
-    virtual const MuonGM::MdtReadoutElement* detectorElement() const;
+    virtual const MuonGM::MdtReadoutElement* detectorElement() const override;
 
     /** @brief Returns the surface on which this measurement was taken. 
         - If hasSaggedSurface()==false, then the surface will be that of the matching Detector Element
         - If hasSaggedSurface()==true, then the surface will be a special surface, representing the sagged position 
         of the wire at the coords of this measurement.*/
-    virtual const Trk::Surface& associatedSurface() const;
+    virtual const Trk::Surface& associatedSurface() const override;
 
     /** @brief Returns the global Position. 
     Be aware that this is calculated from the predicted position along 
     the tube, and the drift radius. i.e. it is partly inferred from other data, 
     and so is not a 'true' measurement.*/
-    virtual const Amg::Vector3D& globalPosition() const;
+    virtual const Amg::Vector3D& globalPosition() const override;
+
+    virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
+    {
+      return (type == Trk::RIO_OnTrackType::MdtDriftCircle);
+    }
 
     /** @brief Returns a boolean indicating if this object was created with a sagged surface (i.e. if sagging corrections have been done.)
        - If true, it means that this surface was created with a sagged surface, i.e. it has been corrected for wire sag. 
@@ -218,10 +223,10 @@ public:
     const MuonDriftCircleErrorStrategy& errorStrategy() const;
     
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override;
     
     // /////////////////////////////////////////////////////////////////
     // Private data:
@@ -234,7 +239,7 @@ private:
     /**@brief Sets the DetElement and Trk::PrepRawData pointers after reading from disk.
     @warning Only intended for use by persistency convertors*/
     virtual void setValues(const Trk::TrkDetElementBase*,
-                           const Trk::PrepRawData*);
+                           const Trk::PrepRawData*) override;
                            
     /** @brief Uses the passed loc3Dframe to calculate and set the global coord of this hit. 
     If there is a sagged wire defined, this will be used for the transformation, otherwise the detector element surface is used*/

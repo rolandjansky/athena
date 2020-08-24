@@ -75,6 +75,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<std::string> m_singleTimeRangeName { this, "SingleTimeRangeName", "All",
       "Name for single time range" };
 
+    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_08072020.txt",
+      "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains. To be updated periodically." };
+
     Gaudi::Property<size_t> m_TimeRangeLengthLB { this, "TimeRangeLengthLB", 50,
       "Length of each variable length Time Range in LB" };
 
@@ -82,23 +85,25 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
       "Maximum number of allowed time ranges" };
 
     Gaudi::Property<bool> m_doMonitorAlgorithm { this, "DoMonitorAlgs", true,
-      "Monitor individual algorithms" };
+      "Monitor individual algorithms by instance name" };
+
+    Gaudi::Property<bool> m_doMonitorAlgorithmClass { this, "DoMonitorAlgClass", true,
+      "Monitor individual algorithms by instance class type name" };      
+
+    Gaudi::Property<bool> m_doMonitorGlobal { this, "DoMonitorGlobal", true,
+      "Monitor global event properties" };
+
+    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
+      "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };
 
-    Gaudi::Property<bool> m_hashDictionaryFromFile { this, "HashDictionaryFromFile", true,
-      "Obtain hash map from hashes2string.txt rather than TrigConfSvc" };
-
     Gaudi::Property<size_t> m_maxFullEventDumps { this, "MaxFullEventDumps", 10,
       "Maximum number of full event summaries which will be dumped" };
 
-    Gaudi::Property<size_t> m_fullEventDumpProbability { this, "FullEventDumpProbability", 10,
+    Gaudi::Property<uint64_t> m_fullEventDumpProbability { this, "FullEventDumpProbability", 10,
       "Save a full record of one in every N events, up to MaxFullEventDumps." }; 
-
-    // TODO - deprecate this now that we have the concept of the "master slot" for monitoring multi-slot processing statistics
-    Gaudi::Property<size_t> m_fullEventDumpExtraTimeSlices { this, "FullEventDumpExtraTimeSlices", 1,
-      "Save also the full event record for N events before and after the chosen one" };   
 
     Gaudi::Property<float> m_baseEventWeight { this, "BaseEventWeight", true,
       "Base events weight, other weights may be multiplied on top of this one." };
@@ -117,9 +122,10 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     /**
      * @brief Check if event dumping should be performed for the current event.
      * @param[in] context Event context.
+     * @param[in] costData We only dump the master-slot (slot:0) as these events cary payload data for all slots / all threads.
      * @return True, if the event should be dumped.
      */
-    bool checkDoFullEventDump(const EventContext& context);
+    bool checkDoFullEventDump(const EventContext& context, const CostData& costData);
 
     /**
      * @brief Return or construct and return a Range for the Context. Might return nullptr range.
@@ -148,6 +154,14 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      * @return Global event weight.
      */
     float getWeight(const EventContext& context);
+
+    /**
+     * @brief Return the slot used to process the event online
+     * @param[in] costCollection Cost data.
+     * @return Oneline slot number..
+     */
+    uint32_t getOnlineSlot(const xAOD::TrigCompositeContainer* costCollection) const;
+
 
     /**
      * @brief High watermark for pre-cached string hashes for the SLOT category. Corresponding to SG and View IProxyDict names.

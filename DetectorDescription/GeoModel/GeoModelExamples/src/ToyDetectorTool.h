@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELEXAMPLES_TOYDETECTORTOOL_H
@@ -10,7 +10,7 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
 
-class ToyDetectorTool : public GeoModelTool 
+class ToyDetectorTool final : public GeoModelTool 
 {
  public:
   ToyDetectorTool( const std::string& type, const std::string& name, const IInterface* parent );

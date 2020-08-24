@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.jira
 # @purpose Interface with CERN JIRA instance
@@ -7,7 +7,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 717788 $"
 __doc__ = "Interface with CERN JIRA instance."
 __author__ = "Edward Moyse"
 
@@ -15,7 +14,6 @@ __author__ = "Edward Moyse"
 
 # pip install --user requests
 import requests
-import os
 import PyUtils.acmdlib as acmdlib
 
 ### functions -----------------------------------------------------------------
@@ -60,11 +58,9 @@ def queryJira(querystring, cookies):
 def main(args):
     """Interface to the CERN JIRA instance"""
 
-    import requests
-    
     #authentication
     try: 
-        cookiesFile = file(args.cookies, 'r')
+        cookiesFile = open(args.cookies, 'r')
         cookies = {}
         for line in cookiesFile:
             text = line.split()
@@ -72,7 +68,7 @@ def main(args):
                 cookies['JSESSIONID'] = text[-1]
             if 'atlassian.xsrf.token' in line:
                 cookies['atlassian.xsrf.token'] = text[-1]   
-    except:
+    except Exception:
          print ("Problems opening cookie file at ", args.cookies)
          return 1
     

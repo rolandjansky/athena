@@ -1,42 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_PRDtoTrackMapTool.h"
-//#include "TrkDetElementBase/TrkDetElementBase.h"
+
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
-//#include "Identifier/Identifier.h"
-//#include "AtlasDetDescr/AtlasDetectorID.h"
-
-
 #include <cassert>
 #include <vector>
-//#include <functional>
 #include "ext/functional"
-//#include "boost/mpl/select1st.hpp"
 
 iFatras::ISF_PRDtoTrackMapTool::ISF_PRDtoTrackMapTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p)
   : base_class(t,n,p)
 {
-}
-
-iFatras::ISF_PRDtoTrackMapTool::~ISF_PRDtoTrackMapTool()
-{
-}
-
-StatusCode iFatras::ISF_PRDtoTrackMapTool::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode iFatras::ISF_PRDtoTrackMapTool::finalize()
-{
-  return StatusCode::SUCCESS;
 }
 
 std::unique_ptr<Trk::PRDtoTrackMap> iFatras::ISF_PRDtoTrackMapTool::createPRDtoTrackMap() const {

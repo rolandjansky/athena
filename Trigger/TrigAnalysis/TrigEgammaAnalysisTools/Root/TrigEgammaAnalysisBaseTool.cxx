@@ -95,7 +95,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_forceTrigEmulation=false;
 }
 
-void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateDetail(Gaudi::Details::PropertyBase& /*p*/){
     plot()->setDetail(m_detailedHists);
     // Detail for tools needs to be reset for every call in Analysis
     for( auto& tool : m_tools) {
@@ -103,18 +103,18 @@ void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
     }
 }
 
-void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateAltBinning(Gaudi::Details::PropertyBase& /*p*/){
     plot()->setAltBinning(m_doJpsiee);
 }
 
-void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateTP(Gaudi::Details::PropertyBase& /*p*/){
     plot()->setTP(m_tp);
     for( auto& tool : m_tools) {
         tool->setTP(m_tp);
     }
 }
 
-void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateEmulation(Gaudi::Details::PropertyBase& /*p*/){
     // This may not be set yet if we're in the middle of initialization.
     if (!m_plot.typeAndName().empty()) {
       plot()->setEmulation(m_doEmulation);
@@ -212,7 +212,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     
     }*/
 
-    for(const auto cut:m_trigLevel) m_accept.addCut(cut,cut);
+    for(const auto& cut:m_trigLevel) m_accept.addCut(cut,cut);
     return sc;
 }
 
@@ -1025,12 +1025,12 @@ bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron * el, std::v
   if(!el) return false;
   ringsE.clear();
 
-  auto ringsELReader = xAOD::getCaloRingsReader();
+  const auto& ringsELReader = xAOD::getCaloRingsReader();
   // First, check if we can retrieve decoration: 
   const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
   try { 
-    ATH_MSG_DEBUG("getCaloRingsReader->operator()(*el)");
-    caloRingsLinks = &(ringsELReader->operator()(*el)); 
+    ATH_MSG_DEBUG("getCaloRingsReader()(*el)");
+    caloRingsLinks = &(ringsELReader(*el));
   } catch ( const std::exception &e) { 
     ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
     return false;

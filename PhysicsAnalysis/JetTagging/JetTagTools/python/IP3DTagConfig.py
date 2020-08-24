@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
 from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFactoryCfg
@@ -14,13 +13,13 @@ from JetTagTools.SpecialTrackAssociatorConfig import SpecialTrackAssociatorCfg
 # import the IPTag configurable
 Analysis__IPTag=CompFactory.Analysis.IPTag
 
-def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
+def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP3DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
     Runmodus                            default: BTagging.RunModus
-    referenceType                       default: BTaggingFlags.ReferenceType
+    referenceType                       default: BTagging.ReferenceType
     impactParameterView                 default: "3D"
     trackGradePartitions                default: [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
     RejectBadTracks                     default: False
@@ -38,27 +37,20 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
     options['xAODBaseName'] = 'IP3D'
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
 
-    if (scheme == ""): 
-        if useBTagFlagsDefaults:
-            grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
-                  "0HitInExp", "0HitIn",
-                  "0HitNInExp", "0HitNIn",
-                  "InANDNInShared", "PixShared", "SctShared",
-                  "InANDNInSplit", "PixSplit",
-                  "Good"]
-            trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
-            svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
-            trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
-            trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
-            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D'))
-            inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
-            trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator'))
+    if useBTagFlagsDefaults:
+        trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
+        svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
+        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
+        trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D', scheme))
+        inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
+        trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator', PrimaryVertexCollectionName))
 
-            defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'referenceType'                    : BTaggingFlags.ReferenceType,
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
+                     'referenceType'                    : flags.BTagging.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'impactParameterView'              : '3D',
-                     'trackGradePartitions'             : grades,
+                     'trackGradePartitions'             : flags.BTagging.Grades,
                      'RejectBadTracks'                  : True,
                      'jetCollectionList'                : [], #used only in reference mode
                      'unbiasIPEstimation'               : False,
@@ -75,8 +67,8 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
                      'InDetTrackSelectionTool'          : inDetTrackSelectionTool,
                      'TrackVertexAssociationTool'       : trackVertexAssociationTool,
                      }
-            for option in defaults:
-                options.setdefault(option, defaults[option])
+        for option in defaults:
+            options.setdefault(option, defaults[option])
     acc.setPrivateTools(Analysis__IPTag( **options))
    
     return acc

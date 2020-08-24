@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( FastChainPileup )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          Generators/GeneratorModules
-                          Generators/Pythia8_i )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Lhapdf )
@@ -28,7 +22,6 @@ atlas_add_component( FastChainPileup
 # Install files from the package:
 atlas_install_headers( FastChainPileup )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( test/FastChainPileup_TestConfiguration.xml )
 atlas_install_scripts( scripts/sim_reg_test_fastchain.py )
 atlas_install_python_modules( python/*.py )
 

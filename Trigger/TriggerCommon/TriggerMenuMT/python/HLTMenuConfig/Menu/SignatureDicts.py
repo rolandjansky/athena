@@ -65,7 +65,8 @@ TestChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Test'],
     'chainPartName'  : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
+    'extra'          : ['muv1', 'muv1step', 'muv2', 'ev1', 'ev2', 'ev3', 'gv1', 'muEmpty1', 'muEmpty2', 'ev1dr', 'muv1dr'],
     'trigType'       : ['TestChain'],
     'threshold'      : '',
     'addInfo'        : [''],
@@ -122,7 +123,9 @@ JetChainParts = {
     'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
     'hypoScenario' : ['simple', 'vbenf',
                       'vbenfSEP30etSEP34mass35SEP50fbet',
-                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass'],
+                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+                      'HTSEP1000htSEP100etSEP0eta320',
+                      'HTSEP100htSEP10etSEP0eta320',],
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
 }
 
@@ -834,6 +837,7 @@ def getBasePattern():
     possibleTT = '|'.join(allTrigTypes)
     pattern = re.compile("(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT)) # noqa: W605
     return pattern
+
 
 
 

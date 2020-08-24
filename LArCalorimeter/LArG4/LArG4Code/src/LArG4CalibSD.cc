@@ -14,7 +14,7 @@
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 
 #include "G4RunManager.hh"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "G4Step.hh"
 
@@ -76,8 +76,8 @@ G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vect
   // retreive particle ID
   unsigned int particleID = 0;
   if( m_doPID ) {
-    EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-    if (event_info) particleID = event_info->GetCurrentPrimary()->barcode();
+    AtlasG4EventUserInfo * atlasG4EvtUserInfo = dynamic_cast<AtlasG4EventUserInfo*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+    if (atlasG4EvtUserInfo) particleID = HepMC::barcode(atlasG4EvtUserInfo->GetCurrentPrimary());
   }
 
   // Build the hit from the calculator results.

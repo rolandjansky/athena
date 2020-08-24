@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloNoiseTool.h"
@@ -1156,7 +1156,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
 
 StatusCode
 CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
-				 std::string function_name)
+				 const std::string& function_name)
 {
   StatusCode StatusDatabase=StatusCode::SUCCESS;
 
@@ -1421,7 +1421,7 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
 //////////////////////////////////////////////////
 
 void
-CaloNoiseTool::updateDiagnostic(int ireason,std::string nameReason,int igain)
+CaloNoiseTool::updateDiagnostic(int ireason,const std::string& nameReason,int igain)
 {
   int nTmp=m_nCellsWithProblem[igain];
   if (nTmp >= 5000) return;

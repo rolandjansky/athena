@@ -13,7 +13,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "xAODTracking/Vertex.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
@@ -43,7 +43,7 @@ GaussianDensityTestAlg::GaussianDensityTestAlg( const std::string& name,
 // Destructor
 ///////////////
 GaussianDensityTestAlg::~GaussianDensityTestAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////
@@ -162,7 +162,7 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
     if (selectionPassed)
     {
       ElementLink<xAOD::TrackParticleContainer> link;
-      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+      link.setElement(*itr);
       Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
       linkTT->setStorableObject(*trackParticles);
       trackVector.push_back(linkTT);
@@ -202,7 +202,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 	        {
 		    auto assocParticle = truthParticleAssoc(**(*lxtp));
 		    ATH_MSG_VERBOSE("Found associated truth particle");
-		    for (auto truthParticle : evt->truthParticleLinks())
+		    for (const auto& truthParticle : evt->truthParticleLinks())
 		    {
 		        if (!truthParticle.isValid()) continue;
 			if (assocParticle == truthParticle)
@@ -265,7 +265,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 	        {
 		    auto assocParticle = truthParticleAssoc(**(*lxtp));
 		    ATH_MSG_VERBOSE("Found associated truth particle");
-		    for (auto truthParticle : evt->truthParticleLinks())
+		    for (const auto& truthParticle : evt->truthParticleLinks())
 		    {
 		        if (!truthParticle.isValid()) continue;
 			if (assocParticle == truthParticle)

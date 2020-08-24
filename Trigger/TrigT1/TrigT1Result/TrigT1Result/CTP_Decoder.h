@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1_CTP_DECODER_H
@@ -9,8 +9,8 @@
 #include <bitset>
 #include <vector>
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "TrigT1Result/CTP_RDO.h"
-#include "TrigT1Result/CTP_Decoder.h"
 
 class MsgStream;
 
@@ -33,13 +33,6 @@ class CTP_BC {
    */
   
 public:
-  //! Default constructor
-  CTP_BC();
-  //! Destructor
-  ~CTP_BC();
-  
-  //! Helper to dump data for debugging
-  void dumpData() const;
   //! Helper to dump data for debugging
   void dumpData(MsgStream&) const;
   
@@ -81,33 +74,6 @@ public:
   }
   //! Get auxiliary PIT word as string in binary format
   std::string printPITWordAux() const;
-  
-	
-  //! Set PIT words
- // void setPIT(std::vector<uint32_t> words);
-  //! get bitset of PIT words
-  //const std::bitset<320> & getPIT() const {
-//    return m_pit;
-//  }
-  //! Set PIT word number 'pos'
-  //void setPITWord( uint32_t word, uint32_t pos = 0);
-  //! Obtain PIT bitpattern string (binary format)
-  //std::string printPIT() const;
-	
-	
-	
-  //! Set FPI words
-  //void setFPI(std::vector<uint32_t> words);
-  //! get bitset of FPI words
-  //const std::bitset<192> & getFPI() const {
-//    return m_fpi;
-//  }
-  //! Set FPI word number 'pos'
-  //void setFPIWord( uint32_t word, uint32_t pos = 0);
-  //! Obtain FPI bitpattern string (binary format)
-  //std::string printFPI() const;
-	
-	
 	
   //! Set TIP words
   void setTIP(std::vector<uint32_t> words);
@@ -166,14 +132,14 @@ private:
   //! Contains BCID, random trigger and prescaled clock
   std::bitset<32>  m_pitAux;
   
-  CTPdataformatVersion m_ctpVersion;
+  CTPdataformatVersion m_ctpVersion{0};
 };
 
 
 
 
 
-class CTP_Decoder {
+class CTP_Decoder : public AthMessaging {
   
   /**
    *   $Date: 2007-07-10 14:58:38 $
@@ -204,9 +170,7 @@ class CTP_Decoder {
 public:
   //! Default constructor
   CTP_Decoder();
-  //! Destructor
-  ~CTP_Decoder();
-  
+
   //! Set RDO and fill internal variables from the data object
   void setRDO(const CTP_RDO* rdo);
   //! Accessor function to retrieve pointer to RDO object
@@ -254,9 +218,7 @@ public:
   
   //! Helper to dump data for debugging
   void dumpData() const;
-  //! Helper to dump data for debugging
-  void dumpData(MsgStream&) const;
-  
+
 private:
   //! The RDO member
   const CTP_RDO* m_rdo;

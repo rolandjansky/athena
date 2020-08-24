@@ -13,11 +13,11 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/Relatives.h"
 #include<cmath>
 
 #include<fstream>
 
-using namespace std;
 
 /// Filtering algorithm to sanity check HepMC event features.
 ///
@@ -89,9 +89,9 @@ public:
   std::string m_paramFile;
   std::string m_unknownPDGIDFile;
 
-  vector<int> m_G4pdgID_tab;
-  vector<int> m_SusyPdgID_tab;
-  vector<int> m_uknownPDGID_tab;
+  std::vector<int> m_G4pdgID_tab;
+  std::vector<int> m_SusyPdgID_tab;
+  std::vector<int> m_uknownPDGID_tab;
   TruthHelper::IsGenNonInteracting m_nonint;
 
   /// @todo Can we use the GenAnalysis / AthHistoAlg methods for histo management?

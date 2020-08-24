@@ -1,33 +1,29 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_sTgcFASTDIGITIZER_H
 #define MUONDIGITIZATION_sTgcFASTDIGITIZER_H 
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandleKey.h"
-
-//Random
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandGauss.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 
 class TTree;
 class TFile;
 
-class sTgcIdHelper;
 namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class IAtRndmGenSvc;
-class ActiveStoreSvc;
 class MuonSimDataCollection;
 
 class sTgcFastDigitizer : public AthAlgorithm {
@@ -35,7 +31,7 @@ class sTgcFastDigitizer : public AthAlgorithm {
  public:
 
   sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcLocator);
-  ~sTgcFastDigitizer();
+  ~sTgcFastDigitizer()=default;
     
   StatusCode initialize();
   StatusCode execute();
@@ -46,12 +42,10 @@ class sTgcFastDigitizer : public AthAlgorithm {
 
  private:
   const MuonGM::MuonDetectorManager* m_detManager;
-  const sTgcIdHelper* m_idHelper;
 
   int m_channelTypes; // 1 -> strips, 2 -> strips+wires, 3 -> strips/wires/pads
 
   TFile* m_file;
-  //TTree* m_ntuple_SimHit;
   TTree* m_ntuple;
   float  m_dlx;  //  local position simhit in GeoModel frame
   float  m_dly;
@@ -116,12 +110,11 @@ class sTgcFastDigitizer : public AthAlgorithm {
   /**
      Reads parameters for intrinsic time response from timejitter.dat.
   */
-  bool  readFileOfTimeJitter();
-  bool  m_mergePrds;
-
+  bool readFileOfTimeJitter();
+  bool m_mergePrds;
 
  protected:
-  ToolHandle <Muon::MuonIdHelperTool> m_idHelperTool;      // IdHelperTool
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle <Muon::IMuonClusterOnTrackCreator> m_muonClusterCreator;
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
@@ -137,7 +130,6 @@ class sTgcFastDigitizer : public AthAlgorithm {
   double m_energyDepositThreshold;
   bool   m_checkIds;
   std::vector<std::vector<float> > m_vecAngle_Time;
-
 };
 
 #endif // MUONDIGITIZATION_sTgcDIGITIZER_H

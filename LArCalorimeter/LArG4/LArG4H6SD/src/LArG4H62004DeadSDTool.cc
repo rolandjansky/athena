@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H62004DeadSDTool.h"
@@ -35,7 +35,7 @@ StatusCode LArG4H62004DeadSDTool::initializeSD()
   if (m_do_eep) m_uninstSD    = new LArG4H62004CalibSD( "Default::Dead::Uninstrumented::Calibration::H6" , &*m_calculator, m_doPID );
 
   std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
-  configuration[m_deadSD]  = &m_volumeNames;
+  configuration[m_deadSD]  = &(m_volumeNames.value());
   if (m_do_eep) configuration[m_uninstSD]    = new std::vector<std::string>; // No volumes for this guy
   setupAllSDs(configuration);
 

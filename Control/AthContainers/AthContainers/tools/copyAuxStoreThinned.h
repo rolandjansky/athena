@@ -16,28 +16,42 @@
 #define ATHCONTAINERS_COPYAUXSTORETHINNED_H
 
 
+#include "AthenaKernel/ThinningCache.h"
+
+
 namespace SG {
 
 
 class IConstAuxStore;
 class IAuxStore;
-class ThinningDecisionBase;
 
 
 /**
  * @brief Helper to copy an aux store while applying thinning.
  * @param orig Source aux store from which to copy.
  * @param copy Destination aux store to which to copy.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * @c orig and @c copy are both auxiliary store objects.
  * The data from @c orig will be copied to @c copy, with individual
- * elements removed according to thinning recorded in @c dec.
+ * elements / variables removed according @c info.
  */
 void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
                           SG::IAuxStore& copy,
-                          const SG::ThinningDecisionBase* dec);
+                          const SG::ThinningInfo* info);
 
+/**
+ * @brief Helper method to apply lossy float compression
+ * @param dst Pointer to the start of the vector's data
+ * @param idst Index of element in vector
+ * @param eltSize Element size for the auxid
+ * @param typeName Type name for the auxid
+ * @param nmantissa Compression level to be used for the auxid
+ */
+void lossyFloatCompress (void* dst, std::size_t dst_index,
+                         const std::size_t& eltSize,
+                         const std::string& typeName,
+                         const unsigned int& nmantissa);
 
 } // namespace SG
 

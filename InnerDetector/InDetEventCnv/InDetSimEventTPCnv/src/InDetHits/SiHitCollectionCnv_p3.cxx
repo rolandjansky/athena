@@ -14,7 +14,10 @@
 #include "CLHEP/Geometry/Point3D.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 // Athena
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/StoreGateSvc.h"
 
 //  * * *  stolen from eflowRec  * * *  //
@@ -60,7 +63,7 @@ const double SiHitCollectionCnv_p3::m_2bHalfMaximum = pow(2.0, 15.0);
 const int SiHitCollectionCnv_p3::m_2bMaximum = (unsigned short)(-1);
 
 
-void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitCollection_p3* persCont, MsgStream &/*log*/)
+void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitCollection_p3* persCont, MsgStream &log)
 {
   // Finds hits belonging to a "string" (in which the end point of one hit is the same as the start point of the next) and
   // persistifies the end point of each hit plus the start point of the first hit in each string.
@@ -77,6 +80,8 @@ void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitC
   static const double dRcut = 1.0e-7;
   static const double dTcut = 1.0;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const IProxyDict* proxy = Atlas::getExtendedEventContext(ctx).proxy();
   const HepMcParticleLink * lastLink=nullptr;
   int lastId = -1;
   double stringFirstTheta = 0.0;
@@ -103,8 +108,15 @@ void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitC
       lastLink = &(siHit->particleLink());
       persCont->m_barcode.push_back(lastLink->barcode());
       unsigned short index{0};
-      if (lastLink->getEventPositionInCollection(SG::CurrentEventStore::store())!=0) {
+      const HepMcParticleLink::index_type position =
+        HepMcParticleLink::getEventPositionInCollection(lastLink->eventIndex(),
+                                                        lastLink->getEventCollection(),
+                                                        proxy).at(0);
+      if (position!=0) {
         index = lastLink->eventIndex();
+        if(lastLink->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
+          log << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
+        }
       }
       persCont->m_mcEvtIndex.push_back(index);
       persCont->m_evtColl.push_back(lastLink->getEventCollectionAsChar());

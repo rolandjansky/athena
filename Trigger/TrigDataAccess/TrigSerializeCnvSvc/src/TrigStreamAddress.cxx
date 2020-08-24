@@ -1,29 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
 //	TrigStreamAddress - based on ByteStreamAddress 
 //====================================================================
 
-//own 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
-
-// Framework include files
-
-long TrigStream_StorageType(0x51);
 
 
 /// Standard Constructor
 TrigStreamAddress::TrigStreamAddress(const CLID& clid, 
-const std::string& fname , const std::string& cname, int p1, int p2)
- : GenericAddress(TrigStream_StorageType, clid,fname,cname, p1, p2 ) 
+                                     const std::string& fname, const std::string& cname, int p1, int p2)
+  : GenericAddress(storageType(), clid, fname, cname, p1, p2 )
 {
   m_key = fname;
 }
 
 TrigStreamAddress::TrigStreamAddress(const CLID& clid) 
-  : GenericAddress(TrigStream_StorageType, clid,"","")
+  : GenericAddress(storageType(), clid, "", "")
 {
 
 }

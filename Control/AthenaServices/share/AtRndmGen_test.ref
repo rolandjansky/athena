@@ -4,7 +4,7 @@ Initializing Gaudi ApplicationMgr using job opts ../share/AtRndmGen_test.txt
 JobOptionsSvc        INFO 
 //GP:================================================================================
 //GP: include "../share/AtRndmGen_test.txt"                                   (0,0)
-ApplicationMgr.DLLs +=  [ "AthenaServices" ] ;                          //GP: (1,1)
+ApplicationMgr.Dlls +=  [ "AthenaServices" ] ;                          //GP: (1,1)
 ApplicationMgr.ExtSvc +=  [ "AtRndmGenSvc" , "AtRndmGenSvc/AtRndmGenSvc2" , "AtRndmGenSvc/AtRndmGenSvc3" ] ;//GP: (1,1)
 ApplicationMgr.ExtSvcCreates = 0;                                       //GP: (1,1)
 MessageSvc.OutputLevel = 2;                                             //GP: (1,1)

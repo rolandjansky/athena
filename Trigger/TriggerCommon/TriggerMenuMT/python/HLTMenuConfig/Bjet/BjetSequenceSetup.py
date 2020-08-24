@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 # menu components
@@ -12,110 +12,97 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 #    Get MenuSequences
 # ==================================================================================================== 
 
-def getBJetSequence( step ):
-    if step == "j":
-        return bJetStep1Sequence()
-    if step == "btag":
-        return bJetStep2Sequence()
-    return None
+
+def getBJetSequence():
+    return bJetStep2Sequence()
 
 # ==================================================================================================== 
 #    step 1: This is Jet code. Not here!
 # ==================================================================================================== 
 
 # ==================================================================================================== 
-#    step 2: retrieving jets from jet-trigger code and optional first stage of fast tracking with primary vertex
-# ==================================================================================================== 
-
-def bJetStep1Sequence():
-    jetsKey = "HLT_AntiKt4EMTopoJets_subjesgscIS_ftf"
-    prmVtxKey = "HLT_EFHistoPrmVtx"
-
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
-    InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2", RoIsLink="initialRoI" )
-    InputMakerAlg.RoITool = ViewCreatorInitialROITool()
-    InputMakerAlg.Views = "FullScanBjetView"
-    InputMakerAlg.InViewRoIs = "FullScanRoI"
-    InputMakerAlg.ViewFallThrough = True
-    InputMakerAlg.mergeUsingFeature = True
-
-    outputJetName = "HLT_GSCJet"
-    outputRoIName = "HLT_GSCJet_RoIs"
-
-    # Jet Selector
-    from TrigBjetHypo.TrigBjetHypoConf import TrigJetSelectorMT
-    jetSelector = TrigJetSelectorMT( "BJetSelector" )
-    jetSelector.JetMaxEta = 2.9
-    jetSelector.InputJets = jetsKey
-    jetSelector.InputVertex = prmVtxKey
-    jetSelector.OutputJets = recordable( outputJetName )
-    jetSelector.OutputRoi = outputRoIName
-
-    bJetEtSequence = seqAND( "bJetEtSequence",[jetSelector] )
-    InputMakerAlg.ViewNodeName = "bJetEtSequence"
-
-    # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence_step1",[InputMakerAlg,bJetEtSequence])
-
-    # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    hypo = TrigBjetEtHypoAlgMT( "TrigBjetEtHypoAlgMT" )
-    hypo.RoILink = "step1RoI"
-    hypo.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
-    hypo.Jets = outputJetName
-    hypo.RoIs = outputRoIName
-    hypo.PrmVtx = prmVtxKey
-    hypo.RetrieveVertexFromEventView = False
-
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
-    return MenuSequence( Sequence    = BjetAthSequence,
-                         Maker       = InputMakerAlg,
-                         Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict )
-
-# ==================================================================================================== 
-#    step 3: Second stage of fast tracking, Precision tracking, and flavour tagging
-# ==================================================================================================== 
+#    step 2: Second stage of fast tracking, Precision tracking, and flavour tagging
+# ====================================================================================================  
 
 def bJetStep2Sequence():
-    roisLink = "step1RoI"
-    prmVtxKey = "HLT_EFHistoPrmVtx"
+    prmVtxKey = "HLT_IDVertex_FS"
+    outputRoIName = "HLT_Roi_Bjet"
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets, ViewCreatorInitialROITool
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets( "IMBJet_step3",RoIsLink=roisLink )
-    InputMakerAlg.ViewFallThrough = True
-    InputMakerAlg.RequireParentView = True
-    InputMakerAlg.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithJets -> EventViewCreatorAlgorithm
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnJetWithPVConstraintROITool
+    InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
+    #
+    newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
+    newRoITool.RoisWriteHandleKey = recordable( outputRoIName )
+    newRoITool.VertexReadHandleKey = prmVtxKey
+    newRoITool.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
+    #
+    InputMakerAlg.mergeUsingFeature = True 
+    InputMakerAlg.RoITool = newRoITool
+    #
     InputMakerAlg.Views = "BTagViews"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
-    InputMakerAlg.InViewJets = "InViewJets"
-        
+    #
+    InputMakerAlg.RequireParentView = False
+    InputMakerAlg.ViewFallThrough = True
+    # BJet specific
+    InputMakerAlg.PlaceJetInView = True
+    InputMakerAlg.InViewJets = recordable( "HLT_bJets" )
+
+
+    # Prepare data objects for view verifier
+    viewDataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + InputMakerAlg.InViewRoIs ),
+                       ( 'xAOD::VertexContainer' , 'StoreGateSvc+' + prmVtxKey ),
+                       ( 'xAOD::JetContainer' , 'StoreGateSvc+' + InputMakerAlg.InViewJets )]
 
     # Second stage of Fast Tracking and Precision Tracking
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
-    secondStageAlgs, PTTracks, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs )
+    secondStageAlgs, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs, dataObjects=viewDataObjects )
+
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
 
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-    flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    
+    Configurable.configurableRun3Behavior=0
 
-    preAlgs = []
+    #Conversion of flavour-tagging algorithms from new to old-style
+    from AthenaCommon.CFElements import findAllAlgorithms
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+    AllFlavourTaggingAlgs = []
+    for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
+        AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
 
-    bJetBtagSequence = seqAND( "bJetBtagSequence", preAlgs + secondStageAlgs + flavourTaggingAlgs )
+    acc_flavourTaggingAlgs.wasMerged() #Needed to remove error message; Next we add all algorithms to sequence so this is kind of an old-style merge
+    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
-
+    
     # Sequence
     BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
-    hypo.Tracks = PTTrackParticles[0]
+    # keys
+    hypo.BTaggedJetKey = InputMakerAlg.InViewJets
+    hypo.BTaggingKey = bTaggingContainerName
+    hypo.TracksKey = PTTrackParticles[0]
+    hypo.PrmVtxKey = newRoITool.VertexReadHandleKey
+    # links for navigation
+    hypo.BTaggingLink = bTaggingContainerName.replace( "HLT_","" )
+    hypo.PrmVtxLink = newRoITool.PrmVtxLink
+
+    from TrigBjetHypo.TrigBjetOnlineMonitoringMTConfig import TrigBjetOnlineMonitoring
+    hypo.MonTool = TrigBjetOnlineMonitoring()
 
     from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetBtagHypoToolFromDict )
+                         HypoToolGen = TrigBjetBtagHypoToolFromDict)
 
 
 
+
+ 

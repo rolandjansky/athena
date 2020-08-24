@@ -3,14 +3,14 @@
 */
 
 #include "TrkJetVxFitter/KalmanVertexOnJetAxisSmoother.h"
+#include "TrkJetVxFitter/KalmanVertexOnJetAxisUpdator.h"
+#include "VxJetVertex/JetVtxParamDefs.h"
 #include "VxJetVertex/RecVertexPositions.h"
 #include "VxJetVertex/VxJetCandidate.h"
-#include "VxVertex/VxTrackAtVertex.h"
 #include "VxJetVertex/VxVertexOnJetAxis.h"
-#include "VxJetVertex/JetVtxParamDefs.h"
 #include "VxVertex/LinearizedTrack.h"
-#include "TrkJetVxFitter/KalmanVertexOnJetAxisUpdator.h"
-#include <math.h>
+#include "VxVertex/VxTrackAtVertex.h"
+#include <cmath>
 
 //#define KalmanVertexOnJetAxisSmoother_DEBUG
 
@@ -63,9 +63,7 @@ namespace Trk
  }
  
  KalmanVertexOnJetAxisSmoother::~KalmanVertexOnJetAxisSmoother()
- {
-  
- }
+ = default;
 
 
   void KalmanVertexOnJetAxisSmoother::update(VxVertexOnJetAxis* vertexToSmooth,
@@ -96,7 +94,7 @@ namespace Trk
  //  void KalmanVertexOnJetAxisSmoother::update(VxVertexOnJetAxis* vertexToSmooth,const VxJetCandidate* candidateToUpdate) const
    //  {
 
-    if (vertexToSmooth==0) {
+    if (vertexToSmooth==nullptr) {
       ATH_MSG_WARNING( " Empty pointers then calling fit method update. No fit will be done..." );
       return;
     }
@@ -110,7 +108,7 @@ namespace Trk
     //care first about the transformation matrix (which is the same for all tracks...)
     
     
-    if (allTracksToSmooth.size()==0) {
+    if (allTracksToSmooth.empty()) {
       ATH_MSG_DEBUG(" Nothing to smooth ");
       if (!isPrimary)
 	ATH_MSG_WARNING ("Nothing to smooth and it's not a primary vertex: BUG... ");
@@ -170,7 +168,7 @@ namespace Trk
       //get linearized track
       const LinearizedTrack * trk=(*TracksIter)->linState();
       
-      if (trk==0) {
+      if (trk==nullptr) {
         ATH_MSG_WARNING (" Empty pointers then calling smoothing method update. No smoothing will be performed...");
         return;
       }

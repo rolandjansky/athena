@@ -16,7 +16,7 @@
 #include <list>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -184,7 +184,7 @@ StatusCode CompactHardTruth::execute() {
 
   // Signal event is first (only?) event; front() is from DataVector
   const HepMC::GenEvent* mcEvt = mcEvts->front();
-  HepMC::WeightContainer wtCont = mcEvt->weights();
+  auto wtCont = mcEvt->weights();
   //double wt = 1;
   if( wtCont.size() != 0 ){
     //wt = wtCont[0];

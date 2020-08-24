@@ -15,12 +15,14 @@ myMonAlg.TriggerChain = ""
 
 # Use SCT conditions tools defined in InDetRecConditionsAccess.py
 # SCT_ByteStreamErrorsTool
-myMonAlg.SCT_ByteStreamErrorsTool = sct_ByteStreamErrorsToolSetup.getTool()
+myMonAlg.SCT_ByteStreamErrorsTool = SCT_ByteStreamErrorsTool
 # InDetSCT_ConfigurationConditionsTool
 myMonAlg.conditionsTool = InDetSCT_ConfigurationConditionsTool
 # SCT_DCSConditionsTool
 if InDetFlags.useDCS():
     myMonAlg.SCT_DCSConditionsTool = InDetSCT_DCSConditionsTool
+else:
+    myMonAlg.UseDCS = False
 # InDetSCT_ConditionsSummaryTool
 myMonAlg.SCT_ConditionsSummaryTool = InDetSCT_ConditionsSummaryTool
 
@@ -33,7 +35,7 @@ myMonGroup = helper.addGroup(myMonAlg, "SCTErrMonitor", "SCT/")
 
 # Configure histograms
 
-from ROOT import SCT_Monitoring as sctMon
+from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 
 # Filled in fillHistograms
 myMonGroup.defineHistogram(varname = "lumiBlock;NumberOfEventsVsLB",
@@ -126,6 +128,16 @@ myMonGroup.defineHistogram(varname = "maskedLinksBin;Masked Links",
                            weight = "maskedLinks",
                            type = "TH1I",
                            title = "Number of Masked Links for SCT,ECA,B,ECC",
+                           path = "GENERAL/errors",
+                           xbins = sctMon.N_REGIONS_INC_GENERAL,
+                           xmin = -0.5,
+                           xmax = sctMon.N_REGIONS_INC_GENERAL-0.5,
+                           xlabels = ["EndCapC", "Barrel", "EndCapA", "All"])
+
+# Filled in fillHistograms
+myMonGroup.defineHistogram(varname = "flaggedWafersIndices, nFlaggedWafers;FlaggedWafers",
+                           type = "TProfile",
+                           title = "Number of flagged wafers for SCT,ECA,B,ECC",
                            path = "GENERAL/errors",
                            xbins = sctMon.N_REGIONS_INC_GENERAL,
                            xmin = -0.5,

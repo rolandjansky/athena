@@ -1,18 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MuonCalibStandAloneBase/RegionLogicalOperation.h"
 
-
-//c- c++
 #include "iostream"
 #include <cstdlib>
 
 namespace MuonCalib {
 
-bool RegionLogicalOperation ::AddRegion(const RegionSelectorBase *region, bool invert)
+bool RegionLogicalOperation::AddRegion(const RegionSelectorBase *region, bool invert)
 	{
 	if(m_regions.size() > m_operator.size()) return false;
 	m_regions.push_back(region);
@@ -20,14 +17,14 @@ bool RegionLogicalOperation ::AddRegion(const RegionSelectorBase *region, bool i
 	return true;
 	}
 	
-bool RegionLogicalOperation ::  AddOperator(bool op)
+bool RegionLogicalOperation::AddOperator(bool op)
 	{
 	if((m_regions.size() <= m_operator.size())) return false;
 	m_operator.push_back(op);
 	return true;
 	}
 	
-bool RegionLogicalOperation :: Result(const MuonFixedId & id) const
+bool RegionLogicalOperation::Result(const MuonFixedId & id) const
 	{
 	if(m_regions.size()==0) return true;
 	bool ret(m_inverse[0] xor m_regions[0]->Result(id));
@@ -46,7 +43,7 @@ bool RegionLogicalOperation :: Result(const MuonFixedId & id) const
 	return ret;
 	}
 
-void RegionLogicalOperation :: Print(std::ostream & os) const
+void RegionLogicalOperation::Print(std::ostream & os) const
 	{
 	os<<"(";
 	for(unsigned int i=0; i<m_regions.size(); i++)
@@ -55,8 +52,8 @@ void RegionLogicalOperation :: Print(std::ostream & os) const
 		m_regions[i]->Print(os);
 		if(i<m_operator.size())
 			{
-			if(m_operator[i]) std::cout<<" | ";
-			else std::cout<<" & ";
+			if(m_operator[i]) os<<" | ";
+			else os<<" & ";
 			}
 		}
 	os<<")";

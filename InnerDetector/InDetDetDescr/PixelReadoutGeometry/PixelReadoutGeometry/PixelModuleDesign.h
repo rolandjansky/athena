@@ -22,11 +22,11 @@
 // Other includes
 #include "CxxUtils/CachedUniquePtr.h"
 #include "InDetIdentifier/PixelID.h"
+#include "TrkSurfaces/RectangleBounds.h"
 
 #include <memory>
 
 namespace Trk{
- class RectangleBounds;
  class SurfaceBounds;
 }
 

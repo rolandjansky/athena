@@ -1,29 +1,7 @@
-################################################################################
-# Package: GeoAdaptors
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GeoAdaptors )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloSimEvent
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-			  DetectorDescription/GeoPrimitives
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
-			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetSimEvent
-                          LArCalorimeter/LArSimEvent
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonSimEvent )
 
 # External dependencies:
 find_package( CLHEP )
@@ -34,5 +12,4 @@ atlas_add_library( GeoAdaptors
                    PUBLIC_HEADERS GeoAdaptors
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier CaloSimEvent Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetSimEvent LArSimEvent MuonReadoutGeometry MuonPrepRawData MuonSimEvent CaloDetDescrLib StoreGateLib SGtests MuonIdHelpersLib )
-
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier CaloSimEvent GeoPrimitives Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetSimEvent LArSimEvent MuonReadoutGeometry MuonPrepRawData MuonSimEvent CaloDetDescrLib StoreGateLib MuonIdHelpersLib )

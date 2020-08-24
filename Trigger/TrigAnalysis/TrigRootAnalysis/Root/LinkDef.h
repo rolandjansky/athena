@@ -43,11 +43,6 @@
 #pragma link C++ class map<string,string>+;
 #endif
 
-// MN: in ROOT6 this comes from RELAX so we don't need it
-#if ROOT_VERSION_CODE < 393216  // ROOT 6.0.0 version as int
-#  pragma link C++ class pair<string,string>+;
-#endif
-
 // [TrigMonConfig] addind some more dictionaries for additional structures used saving the full trig conf.
 // Will not run without these.
 #ifdef XAOD_STANDALONE

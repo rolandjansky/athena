@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,9 +11,9 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // STD
+#include <cmath>
 #include <iomanip>
 #include <iostream>
-#include <math.h>
 
 Trk::ConeBounds::ConeBounds()
   : m_boundValues(ConeBounds::bv_length, 0.)
@@ -48,27 +48,6 @@ Trk::ConeBounds::ConeBounds(double alpha, double zmin, double zmax, double halfp
   m_boundValues[ConeBounds::bv_averagePhi] = avphi;
   m_boundValues[ConeBounds::bv_halfPhiSector] = halfphi;
   initCache();
-}
-
-Trk::ConeBounds::ConeBounds(const Trk::ConeBounds& conebo)
-  : m_boundValues(conebo.m_boundValues)
-  , m_tanAlpha(conebo.m_tanAlpha)
-  , m_sinAlpha(conebo.m_sinAlpha)
-  , m_cosAlpha(conebo.m_cosAlpha)
-{}
-
-Trk::ConeBounds::~ConeBounds() = default;
-
-Trk::ConeBounds&
-Trk::ConeBounds::operator=(const Trk::ConeBounds& conebo)
-{
-  if (this != &conebo) {
-    m_tanAlpha = conebo.m_tanAlpha;
-    m_sinAlpha = conebo.m_sinAlpha;
-    m_cosAlpha = conebo.m_cosAlpha;
-    m_boundValues = conebo.m_boundValues;
-  }
-  return *this;
 }
 
 bool
@@ -131,17 +110,19 @@ Trk::ConeBounds::minDistance(const Amg::Vector2D& pos) const
   // if inside the cone, return the smaller length (since both are
   // negative, the *larger* of the 2 is the *smaller* distance)
   if (phiDist <= 0. && zDist <= 0) {
-    if (phiDist > zDist)
+    if (phiDist > zDist){
       return phiDist;
-    else
-      return zDist;
+    }
+    return zDist;
   }
 
   // if inside the phi or z boundary, return the other
-  if (phiDist <= 0.)
+  if (phiDist <= 0.){
     return zDist;
-  if (zDist <= 0.)
+  }
+  if (zDist <= 0.){
     return phiDist;
+  }
 
   // otherwise, return both (this should be the distance to the corner
   // closest to the cone

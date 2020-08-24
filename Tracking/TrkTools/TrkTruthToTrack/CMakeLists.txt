@@ -25,7 +25,7 @@ atlas_add_component( TrkTruthToTrack
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel TrkParameters TrkToolInterfaces xAODTruth TrkExInterfaces )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel TrackRecordLib TrkParameters TrkToolInterfaces xAODTruth TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkTruthToTrack )

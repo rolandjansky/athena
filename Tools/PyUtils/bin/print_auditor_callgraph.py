@@ -16,7 +16,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 1.1 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 import os
@@ -30,11 +29,11 @@ class Steps:
     ALLOWED = ('ini', 'exe', 'fin')
     
 def parse_log_file(fname, step=Steps.ini):
-    beg_pat = re.compile(r"NameAuditor.*?About to Enter "\
-                         r"(?P<CompName>.*?) "\
+    beg_pat = re.compile(r"NameAuditor.*?About to Enter "
+                         r"(?P<CompName>.*?) "
                          r"%s Method"%step)
-    end_pat = re.compile(r"NameAuditor.*?Just Exited "\
-                         r"(?P<CompName>.*?) "\
+    end_pat = re.compile(r"NameAuditor.*?Just Exited "
+                         r"(?P<CompName>.*?) "
                          r"%s Method"%step)
 
     stack = 0
@@ -73,7 +72,7 @@ if __name__ == '__main__':
     step = Steps.ini
     if len(sys.argv) > 2:
         step = sys.argv[2].lower()
-        if not step in Steps.ALLOWED:
+        if step not in Steps.ALLOWED:
             raise SystemExit(
                 2, "Invalid step name [%s] allowed=%r"%(step, Steps.ALLOWED))
 

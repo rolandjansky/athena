@@ -15,21 +15,13 @@
  **
  **************************************************************************/
 
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
-
 #include "TrigEFMultiMuHypo.h"
 
-#include <math.h>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-//#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
 
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODMuon/Muon.h"
-#include "xAODTracking/TrackParticle.h"
 
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
@@ -117,26 +109,16 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_mon_FitChi2 = -1;
   m_mon_MuMumass = -1;
     // Retrieve event info
-    int IdRun   = 0;
+//    int IdRun   = 0;
     int IdEvent = 0;
     
     // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
-        // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            ATH_MSG_DEBUG("Failed to get EventInfo " );
-            //m_mon_Errors.push_back( ERROR_No_EventInfo );
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent );
-        }// found old event info
+        ATH_MSG_WARNING("Failed to get xAOD::EventInfo " );
     }else { // found the xAOD event info
         ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() );
-        IdRun   = evtInfo->runNumber();
+//        IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event ifo
 
@@ -154,11 +136,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   ATH_MSG_DEBUG("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));
 
   //  create vector for TrigEFBphys particles
-    //const TrigEFBphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer* trigBphysColl = 0;
-
-//  const TrigEFBContainer* trigBphysColl = 0;
-//  const VxContainer* VertexColl;
 
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, m_bphysCollectionKey );
 
@@ -189,7 +167,6 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::TrigBphysContainer>(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
-    //    for (TrigEFBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
     for (xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
         
         if ((*bphysIter)->particleType() == xAOD::TrigBphys::MULTIMU ) {

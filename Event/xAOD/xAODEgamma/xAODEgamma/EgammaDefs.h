@@ -29,7 +29,7 @@ namespace xAOD {
     /** @brief Electron reconstructed by the Forward cluster-based algorithm */
     const uint16_t AuthorFwdElectron=0x8;
     /** @brief Object Reconstructed by standard cluster-based algorithm. Ambiguous ==> can be either Electron or Photon */
-    const uint16_t AuthorAmbiguous=0x10; 
+    const uint16_t AuthorAmbiguous=0x10;
     /** @brief trigger Electrons */
     const uint16_t AuthorTrigElectron=0x20;
     /** @brief trigger Photons */
@@ -112,24 +112,24 @@ namespace xAOD {
   };
 
   /** @brief */
-  
-    const uint32_t BADCLUSELECTRON = 
+
+    const uint32_t BADCLUSELECTRON =
     0x1 << MaskedCellCore |
     0x1 << MissingFEBCellCore |
     0x1 << MissingFEBCellEdgeS1 |
     0x1 << MissingFEBCellEdgeS2 |
-    0x1 << DeadHVS1S2S3Core | 
-    0x1 << DeadHVS1S2S3Edge ; 
-  
-    const uint32_t BADCLUSPHOTON = 
+    0x1 << DeadHVS1S2S3Core |
+    0x1 << DeadHVS1S2S3Edge ;
+
+    const uint32_t BADCLUSPHOTON =
     0x1 << MaskedCellCore |
     0x1 << MissingFEBCellCore |
     0x1 << MissingFEBCellEdgeS1 |
     0x1 << MissingFEBCellEdgeS2 |
-    0x1 << DeadHVS1S2S3Core | 
+    0x1 << DeadHVS1S2S3Core |
     0x1 << DeadHVS1S2S3Edge |
-    0x1 << BadS1Core; 
-  
+    0x1 << BadS1Core;
+
     const uint32_t ALLOQ= 0xFFFFFFFF;
 
 

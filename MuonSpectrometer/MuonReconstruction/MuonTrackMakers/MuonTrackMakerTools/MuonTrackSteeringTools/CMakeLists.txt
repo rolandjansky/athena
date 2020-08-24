@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PRIVATE
                           DetectorDescription/Identifier
                           Event/EventPrimitives
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonStationIndex
@@ -41,7 +40,10 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkExtrapolation/TrkExUtils
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkUtilityPackages/TrkDriftCircleMath )
+                          Tracking/TrkUtilityPackages/TrkDriftCircleMath
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( Eigen )
@@ -51,7 +53,7 @@ atlas_add_component( MuonTrackSteeringTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GeoPrimitives Identifier EventPrimitives GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonStationIndexLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils TrkDetDescrUtils TrkGeometry TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkToolInterfaces TrkDriftCircleMath )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GeoPrimitives Identifier EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonStationIndexLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils TrkDetDescrUtils TrkGeometry TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkToolInterfaces TrkDriftCircleMath MagFieldElements MagFieldConditions MuonSegmentMakerToolInterfaces MuonTrackMakerUtils )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

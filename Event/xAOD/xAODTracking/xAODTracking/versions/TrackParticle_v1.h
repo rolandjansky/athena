@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_VERSIONS_TRACKPARTICLE_V1_H
@@ -31,6 +31,8 @@ extern "C" {
 // ROOT include(s):
 #include "Math/Vector4D.h"
 
+//Already include the DataVector specialization for this type
+#include "xAODTracking/TrackParticleContainerFwd.h"
 namespace xAOD {
 
   /// Class describing a TrackParticle.
@@ -348,5 +350,7 @@ private:
 
   } // namespace xAOD
 
+// Finish declaration of IParticle as a base class of TrackParticle_v1
+DATAVECTOR_BASE_FIN( xAOD::TrackParticle_v1, xAOD::IParticle );
 
 #endif // XAODTRACKING_VERSIONS_TrackParticle_v1_H

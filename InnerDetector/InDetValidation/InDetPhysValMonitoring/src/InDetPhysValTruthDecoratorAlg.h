@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPHYSVALTRUTHDECORATORTOOL_H
@@ -23,6 +23,8 @@
 #include "GaudiKernel/EventContext.h"
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 #include "InDetPhysValMonitoring/CutFlow.h"
+#include "CxxUtils/checker_macros.h"
+#include <atomic>
 #include <utility>
 #include <vector>
 
@@ -51,7 +53,9 @@ private:
      {this,"TruthSelectionTool","",""};
 
   mutable std::mutex m_mutex;
-  mutable CutFlow m_cutFlow;
+  mutable CutFlow m_cutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
+
+  mutable std::atomic<bool> m_errorEmitted{false};
 
   ///TruthParticle container's name needed to create decorators
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleName

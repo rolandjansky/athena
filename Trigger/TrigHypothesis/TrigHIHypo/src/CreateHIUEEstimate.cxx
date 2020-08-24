@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODHIEvent/HIEventShapeAuxContainer.h"
@@ -7,13 +7,11 @@
 #include "CreateHIUEEstimate.h"
 
 
-CreateHIUEEstimate::CreateHIUEEstimate(const std::string& name, ISvcLocator* pSvcLocator) 
+CreateHIUEEstimate::CreateHIUEEstimate(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_fillerTool("HIEventShapeFillerTool"), 
+    m_fillerTool("HIEventShapeFillerTool"),
     m_hasRun(false)
 {
-  
-
   declareProperty("HIEventShapeContainerKey", m_HIEventShapeContainerKey ="HIUE", "Nmae of the output HIUE container");
   declareProperty("CaloCellContainerKey",     m_CaloCellContainerKey="HLT_CaloCellContainer_TrigCaloCellMaker", "CaloCellContainer to work on");
   declareProperty("FillerTool", m_fillerTool, "Filler tool to use");
@@ -36,7 +34,7 @@ HLT::ErrorCode CreateHIUEEstimate::hltExecute(std::vector<std::vector<HLT::Trigg
 					      unsigned int type_out) {
 
   HLT::TEVec empty;
-  HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(empty, type_out);  
+  HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(empty, type_out);
   if ( m_hasRun ) {
     return HLT::OK;
   }
@@ -48,36 +46,35 @@ HLT::ErrorCode CreateHIUEEstimate::hltExecute(std::vector<std::vector<HLT::Trigg
   //  xAOD::HIEventShapeAuxContainer* aux = new xAOD::HIEventShapeAuxContainer();
   //  theUEContainer->setStore(aux);
 
-  //  ATH_MSG_INFO( evtStore()->dump() );  
+  //  ATH_MSG_INFO( evtStore()->dump() );
   xAOD::HIEventShapeContainer* shape = new xAOD::HIEventShapeContainer();
   xAOD::HIEventShapeAuxContainer shapeAux = xAOD::HIEventShapeAuxContainer();
   shape->setStore(&shapeAux);
 
-  if( m_fillerTool->InitializeCollection(shape).isFailure() ) {
+  if( m_fillerTool->initializeCollection(shape).isFailure() ) {
     return HLT::ERROR;
   }
-  
-  if( m_fillerTool->FillCollectionFromCells(m_CaloCellContainerKey).isFailure() ) {
+
+  if( m_fillerTool->fillCollectionFromCells(m_CaloCellContainerKey).isFailure() ) {
     return HLT::ERROR;
     }
 
   {
-    
-    // ATH_MSG_DEBUG( "UE Container size" << theUEContainer->size() );  
+
+    // ATH_MSG_DEBUG( "UE Container size" << theUEContainer->size() );
     // for ( auto eshape: *theUEContainer ) {
     //   ATH_MSG_INFO("Eshape layer " << eshape->layer() << " etamin: " << eshape->etaMin() << " etamax: " << eshape->etaMax() << " energy " << eshape->Et() << " area " << eshape->area() );
     // }
 
 
-    
+
     auto status = attachFeature(outputTE, shape, m_HIEventShapeContainerKey);
     if ( status != HLT::OK ) {
-      return status;      
+      return status;
     }
 
   }
 
-  
+
 return HLT::OK;
 }
-

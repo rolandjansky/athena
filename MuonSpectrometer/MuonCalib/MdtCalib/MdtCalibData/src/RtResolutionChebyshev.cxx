@@ -44,16 +44,6 @@ std::string RtResolutionChebyshev::name(void) const {
 ///////////////////
 double RtResolutionChebyshev::resolution(double t, double /*bgRate*/) const {
 
-////////////////////////////
-// IGNORE BACKGROUND RATE //
-////////////////////////////
-/*	if (bgRate>0) {
-		cerr << "\n"
-			<< "Class RtResolutionChebyshev, method resolution: "
-			<< "WARNING!\n"
-			<< "Given background rate is ignored.\n";
-	}*/
-
 ////////////////////////
 // INITIAL TIME CHECK //
 ////////////////////////

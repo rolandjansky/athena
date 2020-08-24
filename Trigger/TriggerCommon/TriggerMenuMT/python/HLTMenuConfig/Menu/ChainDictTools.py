@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
 
@@ -70,7 +70,7 @@ def splitInterSignatureChainDict(chainDict):
     if "mergingOrder" not in chainDict:
         log.debug("No merging order given for chain %s.", chainDict['chainName'])
     elif chainDict["mergingOrder"] == []:
-        log.info("No merging order given for chain %s.", chainDict['chainName'])
+        log.debug("No merging order given for chain %s.", chainDict['chainName'])
     else:
         for chainPartName in chainDict["mergingOrder"]:
             for splitChainDict in listOfSplitChainDicts:                
@@ -118,7 +118,7 @@ def setupTopoStartFrom(topoThresholds, theChainDef):
     from TrigGenericAlgs.TrigGenericAlgsConf import MergeTopoStarts
 
     if len(topoThresholds) > 1:
-        from TrigGenericAlgs.TrigGenericAlgsConfig import MergeTopoStartsConfig
+        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import MergeTopoStartsConfig
         m = MergeTopoStartsConfig("testInstance")
         log.debug(m)
 

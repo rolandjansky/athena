@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -18,11 +18,12 @@
 #ifndef TRT_DIGITIZATION_TRTDIGSETTINGS_H
 #define TRT_DIGITIZATION_TRTDIGSETTINGS_H
 
-#include <vector>
+#include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
+
 #include <map>
 #include <string>
-
-#include "AthenaKernel/MsgStreamMember.h"
+#include <vector>
 
 class Algorithm;
 class AlgTool;
@@ -427,7 +428,7 @@ private:
   double m_propertyNotSetMagicNumber;
   int m_propertyNotSetMagicNumber_int;
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

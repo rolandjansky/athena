@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 782671 2016-11-07 09:27:00Z elmsheus $
 
 # The name of the package:
 atlas_subdir( JetJvtEfficiency )
@@ -13,6 +12,7 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PRIVATE
@@ -27,7 +27,7 @@ atlas_add_library( JetJvtEfficiencyLib
    JetJvtEfficiency/*.h Root/*.cxx
    PUBLIC_HEADERS JetJvtEfficiency
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet PATInterfaces
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet xAODEventInfo JetAnalysisInterfacesLib PATInterfaces
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -42,4 +42,4 @@ atlas_add_dictionary( JetJvtEfficiencyDict
    LINK_LIBRARIES JetJvtEfficiencyLib )
 
 # Install files from the package:
-atlas_install_data( share/*.root )
+atlas_install_python_modules( python/*.py )

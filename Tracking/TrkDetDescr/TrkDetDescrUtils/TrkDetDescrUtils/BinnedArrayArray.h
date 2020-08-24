@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ public:
   /**Default Constructor  */
   BinnedArrayArrayT(const std::vector<std::pair<BinnedArrayT<T>*, Amg::Vector3D>>& tbas, BinUtility* bUtility)
     : m_binUtility(bUtility)
-    , m_binnedArrays(bUtility->bins(0), NULL)
+    , m_binnedArrays(bUtility->bins(0), nullptr)
     , m_arrayObjects()
   {
     // the array objects
@@ -97,7 +97,7 @@ public:
       if (ba)
         return ba->object(lp);
     }
-    return 0;
+    return nullptr;
   }
 
   /** Returns the pointer to the templated class object from the BinnedArrayArrayT
@@ -109,7 +109,7 @@ public:
       if (ba)
         return ba->object(gp);
     }
-    return 0;
+    return nullptr;
   }
 
   /** Returns the pointer to the templated class object from the BinnedArrayArrayT - entry point*/

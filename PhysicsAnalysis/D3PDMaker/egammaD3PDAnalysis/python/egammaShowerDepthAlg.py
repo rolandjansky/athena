@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -24,8 +24,7 @@ def egammaShowerDepthAlg (name, **kwin):
         tag = '@GLOBAL'
 
     # Create the algorithm.
-    kw = {'prefix' : 'ele55.',
-          'COOLFolder' : '' }
+    kw = {'prefix' : 'ele55.'}
     kw.update (kwin)
     alg = egammaD3PDAnalysisConf.D3PD__egammaShowerDepthAlg (name, **kw)
 

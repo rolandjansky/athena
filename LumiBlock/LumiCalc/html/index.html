@@ -14,6 +14,7 @@
 </table>
 <div id="content">
 <p>This form provides a restricted interface to the luminosity calculator iLumiCalc.exe.  A Good Run List appropriate for your processed data sample is required as an input.</p>
+
 <h3>Useful Links</h3>
 <ul>
 <li><a href="https://twiki.cern.ch/twiki/bin/view/Atlas/LuminosityForPhysics">Luminosity Recommendations for Physics</a></li>
@@ -26,9 +27,16 @@
 <li><a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/LArEventVetoRel17">LAr Event Veto instructions</a></li>
 </ul>
 <h3>LumiCalc News</h3>
+<p>If your request seems to hang and you eventually see a <font color="red"><b>Proxy Error</b></font> after clicking <b>Calculate Luminosity</b>, this is annoying but not fatal.  Just reload the page and your job should be running fine.</p>
 <ul>
-<li><font color="red">6 Mar, 2019</font> - Preliminary 2018 PbPb luminosity available in tag OflLumi-HI-007</li>
-<li><font color="red">18 Feb, 2019</font> - Preliminary 2018 pp luminosity available in tag OflLumi-13TeV-010</li>
+<li><font color="red">30 Jul, 2020</font> - Migration to centos7 server complete</li>
+<li><font color="red">22 Jun, 2020</font> - Fix bug in handling SFO misconfiguration in run 281385</li>
+<li><font color="red">16 Apr, 2020</font> - Preliminary 13 TeV 2017/18 low-mu lumi available in tag OflLumi-13TeV-010-lowmu</li>
+<li><font color="red">6 Feb, 2020</font> - Final 2015 PbPb lumi available in tag OflLumi-HI-009</li>
+<li>17 Nov, 2019 - Updated 2015 PbPb lumi available in tag OflLumi-HI-008</li> 
+<li>19 Oct, 2019 - Tag OflLumi-5TeV-003 updated with prelim. 2017 5 TeV pp</li>
+<li>6 Mar, 2019 - Preliminary 2018 PbPb luminosity available in tag OflLumi-HI-007</li>
+<li>18 Feb, 2019 - Preliminary 2018 pp luminosity available in tag OflLumi-13TeV-010</li>
 <li>18 Dec, 2018 - Tag OflLumi-HI-006 available</li>
 <li>12 Nov, 2018 - Tag OflLumi-900GeV-002 available, prelim. 2018 900 MeV pp</li>
 <li>17 Sep, 2018 - Tag OflLumi-5TeV-003 available, final 2015 5 TeV pp</li>
@@ -85,16 +93,17 @@
 <h3>Recommendations</h3>
 <table class="lumitable">
 <tr><th width=200pt>Data Sample</th><th width=200pt>Recommended<br />Luminosity Tag</th><th width=200pt>Recommended<br />Livefraction Trigger</th><th width=200pt>Comments</th></tr>
-<tr><td>data18_hi</td><td>OflLumi-HI-007</td><td>L1_EM12</td><td>Preliminary 2018 calibration</td></tr>
+<tr><td>data18_hi</td><td>OflLumi-HI-009<br />(OflLumi-HI-007 or later)</td><td>L1_EM12</td><td>Preliminary 2018 calibration</td></tr>
 <tr><td>data18_900GeV</td><td>OflLumi-900GeV-002</td><td>L1_ALFA_ELAST15</td><td>Preliminary 2018 calibration</td></tr>
 <tr><td>data18_13TeV</td><td>OflLumi-13TeV-010</td><td>L1_EM24VHI</td><td>Preliminary 2018 calibration</td></tr>
-<tr><td>data17_5TeV</td><td>OflLumi-5TeV-001</td><td>L1_EM24VHI</td><td>Initial 2017 5 TeV calibration</td></tr>
+<tr><td>2017/18 13TeV low-mu</td><td>OflLumi-13TeV-010-lowmu</td><td>L1_EM24VHI</td><td>Preliminary 2017/18 low-mu data calibration</td></tr>
+<tr><td>data17_5TeV</td><td>OflLumi-5TeV-003</td><td>L1_EM24VHI</td><td>Preliminary 2017 5 TeV calibration</td></tr>
 <tr><td>data17_13TeV</td><td>OflLumi-13TeV-010</td><td>L1_EM24VHI</td><td>Preliminary 2017 calibration</td></tr>
 <tr><td>data16_13TeV</td><td>OflLumi-13TeV-010<br /> (OflLumi-13TeV-009 or later)</td><td>L1_EM12</td><td>Final 2016 calibration</td></tr>
-<tr><td>data16_hip8TeV</td><td>OflLumi-HI-007<br />(OflLumi-HI-006 or later)</td><td>L1_EM12</td><td>Updated calibrations (Winter 2019)</td></tr>
-<tr><td>data16_hip5TeV</td><td>OflLumi-HI-007<br />(OflLumi-HI-004 or later)</td><td>L1_EM12</td><td>Online calibration</td></tr>
+<tr><td>data16_hip8TeV</td><td>OflLumi-HI-009<br />(OflLumi-HI-006 or later)</td><td>L1_EM12</td><td>Updated calibrations (Winter 2019)</td></tr>
+<tr><td>data16_hip5TeV</td><td>OflLumi-HI-009<br />(OflLumi-HI-004 or later)</td><td>L1_EM12</td><td>Online calibration</td></tr>
 <tr><td>data15_13TeV</td><td>OflLumi-13TeV-010 <br />(OflLumi-13TeV-004 or later)</td><td>L1_EM12</td><td>Final 2015 vdM calibration</td></tr>
-<tr><td>data15_hi</td><td>OflLumi-HI-007<br />(OflLumi-HI-006 or later)</td><td>L1_EM12</td><td>Prelim. 2015 vdM estimate</td></tr>
+<tr><td>data15_hi</td><td>OflLumi-HI-009</td><td>L1_EM12</td><td>Final 2015 vdM estimate</td></tr>
 <tr><td>data15_5TeV</td><td>OflLumi-5TeV-003</td><td>L1_EM12</td><td>Final vdM calibration</td></tr>
 <tr><td>data13_hip</td><td>OflLumi-HI-003</td><td>L1_LUCID_A_C</td><td>Final vdM calibration</td></tr>
 <tr><td>data13_2p76TeV</td><td>OflLumi-2p76TeV-002</td><td>L1_LUCID_A_C</td><td>Final 2.76 lumi</td></tr>
@@ -118,6 +127,7 @@
 <td>Luminosity Tag:</td> 
 <td><select name="lumitag">
 <option value="OflLumi-13TeV-010" SELECTED>OflLumi-13TeV-010 (final 2015-16, prelim. 2017 and 2018 )</option>
+<option value="OflLumi-13TeV-010-lowmu">OflLumi-13TeV-010-lowmu (prelim. 2017 and 2018, low-mu only)</option>
 <option value="OflLumi-13TeV-009">OflLumi-13TeV-009 (final 2015-16)</option>
 <option value="OflLumi-13TeV-008">OflLumi-13TeV-008 (final 2015, prelim. 2016 for Moriond17)</option>
 <option value="OflLumi-13TeV-005">OflLumi-13TeV-005 (final 2015, ICHEP16)</option>
@@ -135,7 +145,7 @@
 <option value="OflLumi-7TeV-002">OflLumi-7TeV-002</option> 
 <option value="OflLumi-7TeV-001">OflLumi-7TeV-001</option> 
 <option value="OflLumi-7TeV-000">OflLumi-7TeV-000</option> 
-<option value="OflLumi-5TeV-003">OflLumi-5TeV-003 (final 2015 reference pp)</option>
+<option value="OflLumi-5TeV-003">OflLumi-5TeV-003 (final 2015, updated prelim 2017 reference pp)</option>
 <option value="OflLumi-5TeV-002">OflLumi-5TeV-002 (prelim 2015 reference pp)</option>
 <option value="OflLumi-5TeV-001">OflLumi-5TeV-001 (prelim 2017 reference pp)</option>
 <option value="OflLumi-2p76TeV-002">OflLumi-2p76TeV-002 (final 2011, 2013)</option>
@@ -143,6 +153,8 @@
 <option value="OflLumi-2p76TeV-000">OflLumi-2p76TeV-000 (initial offline estimate)</option>
 <option value="OflLumi-900GeV-002">OflLumi-900GeV-002 (prelim 2018 900 GeV pp)</option> 
 <option value="OflLumi-900GeV-001">OflLumi-900GeV-001 (prelim 2010 900 GeV pp)</option> 
+<option value="OflLumi-HI-009">OflLumi-HI-009 (final 2015 PbPb, prelim. 2016 pPb and 2018 PbPb)</option> 
+<option value="OflLumi-HI-008">OflLumi-HI-008 (updated 2015 PbPb, prelim. 2016 pPb and 2018 PbPb)</option> 
 <option value="OflLumi-HI-007">OflLumi-HI-007 (prelim. 2015 PbPb, 2016 pPb and 2018 PbPb)</option> 
 <option value="OflLumi-HI-006">OflLumi-HI-006 (prelim. 2015 PbPb, prelim. 2016 pPb and initial 2018 PbPb)</option> 
 <option value="OflLumi-HI-004">OflLumi-HI-004 (online 2016 reference pp)</option> 

@@ -13,6 +13,7 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAODTrigger/EnergySumRoI.h xAODTrigger/EnergySumRoIAuxInfo.h
    xAODTrigger/TrigCompositeContainer.h xAODTrigger/TrigCompositeAuxContainer.h
    xAODTrigger/TriggerMenuContainer.h xAODTrigger/TriggerMenuAuxContainer.h
+   xAODTrigger/TriggerMenuJsonContainer.h xAODTrigger/TriggerMenuJsonAuxContainer.h
    xAODTrigger/TrigConfKeys.h
    xAODTrigger/TrigDecision.h xAODTrigger/TrigDecisionAuxInfo.h
    xAODTrigger/TrigNavigation.h xAODTrigger/TrigNavigationAuxInfo.h
@@ -27,6 +28,7 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAOD::EnergySumRoI xAOD::EnergySumRoIAuxInfo
    xAOD::TrigCompositeContainer xAOD::TrigCompositeAuxContainer
    xAOD::TriggerMenuContainer xAOD::TriggerMenuAuxContainer
+   xAOD::TriggerMenuJsonContainer xAOD::TriggerMenuJsonAuxContainer
    xAOD::TrigConfKeys
    xAOD::TrigDecision xAOD::TrigDecisionAuxInfo
    xAOD::TrigNavigation xAOD::TrigNavigationAuxInfo

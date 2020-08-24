@@ -41,6 +41,10 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputRDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
         kwargs.setdefault("OutputSDOKey", flags.Overlay.BkgPrefix + "BCM_SDO_Map")
+    elif flags.Detector.OverlayBCM:
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputRDOKey", flags.Overlay.SigPrefix + "BCM_RDOs")
+        kwargs.setdefault("OutputSDOKey", flags.Overlay.SigPrefix + "BCM_SDO_Map")
     else:
         kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
         kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
@@ -88,15 +92,22 @@ def BCM_DigitizationBasicCfg(flags, **kwargs):
     return acc
 
 
-def BCM_OverlayDigitizationBasicCfg(flags, **kwargs):
+def BCM_OverlayDigitizationBasicCfg(flags, name="BCM_OverlayDigitization", **kwargs):
     """Return ComponentAccumulator with BCM Overlay digitization"""
     acc = PixelGeometryCfg(flags)
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
+
     if "DigitizationTool" not in kwargs:
-        tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags))
+        tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool"))
         kwargs["DigitizationTool"] = tool
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
+
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     BCM_Digitization = CompFactory.BCM_Digitization
-    acc.addEventAlgo(BCM_Digitization(**kwargs))
+    acc.addEventAlgo(BCM_Digitization(name, **kwargs))
     return acc
 
 

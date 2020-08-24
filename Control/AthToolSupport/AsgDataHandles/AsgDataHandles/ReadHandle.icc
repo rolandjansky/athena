@@ -1,0 +1,305 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file AsgDataHandles/ReadHandle.icc
+ * @author Nils Krumnack <Nils.Erik.Krumnack@cern.h>
+ * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov> (for original)
+ * @brief Handle class for reading from StoreGate.
+ */
+
+#ifndef ASG_DATA_HANDLES_READ_HANDLE_ICC
+#define ASG_DATA_HANDLES_READ_HANDLE_ICC
+
+
+#include "xAODRootAccessInterfaces/TActiveEvent.h"
+#include "xAODRootAccessInterfaces/TVirtualEvent.h"
+#include <stdexcept>
+
+
+namespace SG {
+
+
+//************************************************************************
+// Constructors, etc.
+//
+
+
+// /**
+//  * @brief Default constructor.
+//  *
+//  * The handle will not be usable until a non-blank key is assigned.
+//  */
+// template <class T>
+// inline
+// ReadHandle<T>::ReadHandle()
+//   : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Reader)
+// {
+// }
+
+
+/**
+ * @brief Constructor from a ReadHandleKey.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const ReadHandleKey<T>& key)
+  : VarHandleBase (key, nullptr)
+{
+}
+
+
+/**
+ * @brief Constructor from a ReadHandleKey and an explicit event context.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const ReadHandleKey<T>& key,
+                           const EventContext& ctx)
+  : VarHandleBase (key, &ctx)
+{
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::operator->()
+{
+  return checkedCPtr();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_reference_type
+ReadHandle<T>::operator*()
+{
+  return *checkedCPtr();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ * Returns nullptr on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::cptr()
+{
+  return getCPtr();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ * Returns nullptr on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::ptr() 
+{
+  return cptr();
+}
+
+
+// /**
+//  * @brief Return the cached pointer directly; no lookup.
+//  */
+// template <class T>
+// inline
+// typename ReadHandle<T>::const_pointer_type
+// ReadHandle<T>::cachedPtr() const
+// {
+//   return reinterpret_cast<const_pointer_type>(this->m_ptr);
+// }
+
+
+/**
+ * @brief Can the handle be successfully dereferenced?
+ */
+template <class T>
+inline
+bool ReadHandle<T>::isValid()
+{
+  return isPresent_impl(key());
+}
+
+
+/**
+ * @brief Dereference the pointer, but don't cache anything.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::get() const
+{
+  return getCPtr();
+}
+
+
+/**
+ * @brief Dereference the pointer, but don't cache anything.
+ * @param ctx The event context to use.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::get (const EventContext& /*ctx*/) const
+{
+  return cptr();
+}
+
+
+/**
+* @brief Is the referenced object present in SG?
+*
+* Const method; the handle does not change as a result of this.
+*/
+template <class T>
+bool ReadHandle<T>::isPresent() const
+{
+return isPresent_impl (key());
+}
+
+
+/**
+ * @brief Is the referenced object present in SG?
+ * @param key SG key to test.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T>
+bool ReadHandle<T>::isPresent_impl (const std::string& key) const
+{
+  const T *result = nullptr;
+  return xAOD::TActiveEvent::event()->retrieve (result, key, true);
+}
+
+
+/**
+ * @brief Helper: dereference the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::checkedCPtr()
+{
+  const_pointer_type p = this->cptr();
+  if (!p)
+    throw std::runtime_error ("failed to read object: " + key());
+    // throwExcNullReadHandle (clid(), key(), store());
+  return p;
+}
+
+
+/**
+ * @brief Helper: dereference the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::getCPtr() const
+{
+  const T *result = nullptr;
+  (void) xAOD::TActiveEvent::event()->retrieve (result, key(), true);
+  return result;
+}
+
+
+/**
+ * @brief Return a @c ReadHandle referencing @c key.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+ReadHandle<T> makeHandle (const ReadHandleKey<T>& key)
+{
+  return ReadHandle<T> (key);
+}
+
+
+/**
+ * @brief Return a @c ReadHandle referencing @c key for an explicit context.
+ * @param key The key object holding the clid/key/store.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+ReadHandle<T> makeHandle (const ReadHandleKey<T>& key,
+                          const EventContext& ctx)
+{
+  return ReadHandle<T> (key, ctx);
+}
+
+
+/**
+ * @brief Convenience function to retrieve an object given a @c ReadHandleKey.
+ * @param key The key to retrieve.
+ * @param ctx The event context.
+ *
+ * Returns the object.  Returns nullptr if the key is null or if there's an error.
+ */
+template <class T>
+inline
+const T* get (const ReadHandleKey<T>& key)
+{
+  if (key.key().empty()) return nullptr;
+  ReadHandle<T> h (key);
+  return h.get();
+}
+
+
+/**
+ * @brief Convenience function to retrieve an object given a @c ReadHandleKey.
+ * @param key The key to retrieve.
+ *
+ * Returns the object.  Returns nullptr if the key is null or if there's an error.
+ */
+template <class T>
+inline
+const T* get (const ReadHandleKey<T>& key,
+              const EventContext& ctx)
+{
+  if (key.key().empty()) return nullptr;
+  ReadHandle<T> h (key, ctx);
+  return h.get();
+}
+
+
+} /* namespace SG */
+
+
+#endif

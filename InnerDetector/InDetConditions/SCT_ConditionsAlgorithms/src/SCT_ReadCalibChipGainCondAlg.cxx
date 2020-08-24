@@ -4,15 +4,17 @@
 
 #include "SCT_ReadCalibChipGainCondAlg.h"
 
+#include "FillFromStringUtility.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipDefs.h"
 
 #include <memory>
 
 using namespace SCT_ConditionsData;
-using namespace SCT_ReadCalibChipUtilities;
+using namespace SCT_ReadCalibChipDefs;
 
 SCT_ReadCalibChipGainCondAlg::SCT_ReadCalibChipGainCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
@@ -116,6 +118,6 @@ SCT_ReadCalibChipGainCondAlg::insertNptGainFolderData(SCT_ModuleGainCalibData& t
   for (int i{0}; i!=N_NPTGAIN; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
     const std::string &dbData{((folderData)[nPtGainDbParameterNames[i]]).data<std::string>()};
-    fillFromString(dbData, datavec);
+    fillArrayFromString(dbData, datavec);
   }
 }

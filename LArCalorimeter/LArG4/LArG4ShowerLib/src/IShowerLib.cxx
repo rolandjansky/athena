@@ -7,7 +7,7 @@
 #include "LArG4ShowerLib/IShowerLib.h"
 #include "TTree.h"
 #include "G4Track.hh"
-#include <HepMC/GenParticle.h>
+#include "AtlasHepMC/GenParticle.h"
 
 #include <sstream>
 

@@ -11,10 +11,7 @@ def addWeights(seq, pdfMap = {'CT14nlo':20}, pref = ""):
   mcEventWeightNom = McEventWeight(name = pref+"mcWNom")
   ToolSvc += mcEventWeightNom
 
-  sumOfWeightsTool = SumOfWeightsTool(name = pref+"PDFSumWeightsTool")
-  sumOfWeightsTool.CutBookKeeperContainterName = "PDFSumOfWeights"
-  sumOfWeightsTool.CutBookKeeperNamePrefix = ""
-  sumOfWeightsTool.maxMuBins = 1
+  sumOfWeightsAlg = SumOfWeightsAlg(name = pref+"SumWeightsAlg")
 
   #Load a potential generator variation event weight
   listTools = [mcEventWeightNom]
@@ -40,12 +37,8 @@ def addWeights(seq, pdfMap = {'CT14nlo':20}, pref = ""):
 
       listTools.append(product[i])
 
-  sumOfWeightsTool.WeightTools = listTools
-  seq += sumOfWeightsTool
-
-  from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-  MSMgr.AddMetaDataItemToAllStreams("xAOD::CutBookkeeperContainer#*")
-  MSMgr.AddMetaDataItemToAllStreams("xAOD::CutBookkeeperAuxContainer#*")
+  sumOfWeightsAlg.WeightTools = listTools
+  seq += sumOfWeightsAlg
 
 def addWeightsHist(stream, seq, svcMgr, CfgMgr, ToolSvc, derivName, fileName, pdfMap = {}):
 

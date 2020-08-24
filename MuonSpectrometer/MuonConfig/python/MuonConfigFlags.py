@@ -58,7 +58,7 @@ def createMuonConfigFlags():
     # mcf.addFlag("Muon.doSegmentsOnly", False) # Stop reconstruction after segment making. Typically used when making Calibration Ntuple. TODO surely redundant?
     
     mcf.addFlag("Muon.doSegmentT0Fit",False) # Fit MDT segments using a variable t0. Used for cosmics and single beam to compensate for large errors on the trigger time.
-    mcf.addFlag("Muon.enableErrorTuning",False) # turn on error tuning to account for misalignments
+    mcf.addFlag("Muon.enableErrorTuning",True) # turn on error tuning to account for misalignments
     mcf.addFlag("Muon.useLooseErrorTuning",False) 
     mcf.addFlag("Muon.useTGCPriorNextBC",False) # Use TGC measurements from Prior and Next Bunch Crossings. These measurements are available in the real data since somewhere in 2008.
     mcf.addFlag("Muon.useAlignmentCorrections",True) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database

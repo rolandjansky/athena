@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,26 +51,12 @@ namespace InDet
        */
       //@{
       SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
-		     const Amg::Vector3D* position, 
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
-      
-      SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
-		     const Amg::Vector3D* position,
-		     const Amg::MatrixX* loccov,//assumes ownership of loccov
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
-      
-      SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
 		     const Amg::Vector3D& position, 
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
-      
-      SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
-		     const Amg::Vector3D& position,
-		     const Amg::MatrixX& loccov,//assumes ownership of loccov
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
+		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>& clusList) ;
       //@}
 
       /** Copy Constructor */
-      SCT_SpacePoint(const SCT_SpacePoint &) ;
+      SCT_SpacePoint(const SCT_SpacePoint &);
 
       /** Destructor */
       virtual ~SCT_SpacePoint() = default;
@@ -95,7 +81,7 @@ namespace InDet
       /** common method used in constructors. */
       void setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
 		 const Amg::Vector3D& position,
-		 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList);
+		 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>& clusList);
     };
   
   ///////////////////////////////////////////////////////////////////

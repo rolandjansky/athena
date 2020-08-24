@@ -11,7 +11,7 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 class MdtIdHelper;
@@ -51,7 +51,7 @@ class MdtRdoToMdtPrepData : public AthAlgorithm {
     bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
     bool m_seededDecoding;
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-    ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+    ToolHandle<IRegSelTool> m_regsel_mdt; //<! pointer to RegionSelectionTool
     SG::WriteHandleKey<Muon::MdtPrepDataContainer> m_mdtCollection;
 
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBADCRawContCnv_p1.h"
@@ -52,7 +52,7 @@ TBADCRawContCnv_p1::transToPers(const TBADCRawCont* trans,
   TBADCRawCont::const_iterator ADCRawIt_e = trans->end();
 
   // copy all the scints from the trans to the pers
-  for (; ADCRawIt!=ADCRawIt_e; ADCRawIt++) {
+  for (; ADCRawIt!=ADCRawIt_e; ++ADCRawIt) {
     const TBADCRaw * ADCRaw = * ADCRawIt;
 
 		pers -> m_adc.push_back(            ADCRaw->getADC() );

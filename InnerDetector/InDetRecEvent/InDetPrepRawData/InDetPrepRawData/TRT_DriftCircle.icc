@@ -1,0 +1,123 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace InDet {
+
+inline unsigned int
+TRT_DriftCircle::getWord() const
+{
+  return m_word;
+}
+
+inline int
+TRT_DriftCircle::driftTimeBin() const
+{
+  return TRT_LoLumRawData::driftTimeBin(m_word);
+}
+
+inline int
+TRT_DriftCircle::trailingEdge() const
+{
+  return TRT_LoLumRawData::trailingEdge(m_word);
+}
+
+inline bool
+TRT_DriftCircle::highLevel() const
+{
+  return TRT_LoLumRawData::highLevel(m_word);
+}
+
+inline bool
+TRT_DriftCircle::firstBinHigh() const
+{
+  return (m_word & 0x02000000);
+}
+
+inline bool
+TRT_DriftCircle::lastBinHigh() const
+{
+  return (m_word & 0x1);
+}
+
+inline double
+TRT_DriftCircle::timeOverThreshold() const
+{
+  return TRT_LoLumRawData::timeOverThreshold(m_word);
+}
+
+inline double
+TRT_DriftCircle::rawDriftTime() const
+{
+    return (TRT_LoLumRawData::driftTimeBin(m_word)+0.5) * TRT_LoLumRawData::getDriftTimeBinWidth();
+}
+
+inline bool
+TRT_DriftCircle::driftTimeValid() const
+{
+  return m_word & 0x08000000;
+}
+
+inline void
+TRT_DriftCircle::setDriftTimeValid(bool valid)
+{
+  unsigned maskfalse = 0xF7FFFFFF;
+  unsigned masktrue = 0x08000000;
+  if (valid) {
+    m_word |= masktrue;
+  } else {
+    m_word &= maskfalse;
+  }
+}
+
+inline int
+TRT_DriftCircle::numberOfHighsBetweenEdges() const
+{
+  // should return always 0 with the largest island algorithm
+  int LE = driftTimeBin();
+  int TE = trailingEdge();
+  unsigned mask = 0x02000000;
+  int nhigh = 0;
+  int i;
+  for (i = 0; i < 24; ++i) {
+    if ((m_word & mask) && i >= LE && i <= TE)
+      nhigh++;
+    mask >>= 1;
+    if (i == 7 || i == 15)
+      mask >>= 1;
+  }
+  return nhigh;
+}
+
+inline int
+TRT_DriftCircle::numberOfLowsBetweenEdges() const
+{
+  // should return always 0 with the largest island algorithm
+  int LE = driftTimeBin();
+  int TE = trailingEdge();
+  return (TE - LE + 1 - numberOfHighsBetweenEdges());
+}
+
+inline bool
+TRT_DriftCircle::isNoise() const
+{
+  if (numberOfHighsBetweenEdges() < 3)
+    return true;
+  if (timeOverThreshold() < 7.)
+    return true;
+  return false;
+}
+
+inline bool
+TRT_DriftCircle::type(Trk::PrepRawDataType::Type type) const
+{
+  return type == Trk::PrepRawDataType::TRT_DriftCircle;
+}
+
+inline const InDetDD::TRT_BaseElement*
+TRT_DriftCircle::detectorElement() const
+{
+  return m_detEl;
+}
+
+}

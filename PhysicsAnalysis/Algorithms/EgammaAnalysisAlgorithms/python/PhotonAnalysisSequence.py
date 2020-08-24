@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Framework import(s):
 import ROOT
@@ -6,6 +6,9 @@ import ROOT
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+
+# E/gamma import(s).
+from xAODEgamma.xAODEgammaParameters import xAOD
 
 def makePhotonAnalysisSequence( dataType, workingPoint,
                                 deepCopyOutput = False,
@@ -87,7 +90,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonObjectQualityAlg' + postfix )
     alg.selectionDecoration = 'goodOQ'
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
-    alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSPHOTON
+    alg.selectionTool.Mask = xAOD.EgammaParameters.BADCLUSPHOTON
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
                 stageName = 'calibration' )

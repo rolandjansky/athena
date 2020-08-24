@@ -26,7 +26,7 @@
 #include "TrigBjetHypo/TuningLikelihood.h"
 #include "TrigBjetHypo/TrigBjetDataHelper.h"
 
-#include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
+#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 
 #include "BTagging/IBTagTool.h"

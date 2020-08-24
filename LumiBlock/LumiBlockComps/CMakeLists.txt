@@ -1,44 +1,7 @@
-# $Id: CMakeLists.txt 789876 2016-12-15 13:57:55Z krasznaa $
-################################################################################
-# Package: LumiBlockComps
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LumiBlockComps )
-
-# Declare the package's dependencies:
-if( XAOD_ANALYSIS )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Control/StoreGate
-      Control/xAODRootAccess
-      Event/xAOD/xAODLuminosity
-      GaudiKernel
-      PRIVATE
-      DataQuality/GoodRunsLists
-      Database/AthenaPOOL/AthenaPoolUtilities
-      Database/AthenaPOOL/DBDataModel
-      Database/CoraCool )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Control/StoreGate
-      Control/xAODRootAccess
-      Database/CoolLumiUtilities
-      Event/xAOD/xAODLuminosity
-      GaudiKernel
-      LumiBlock/LumiCalc
-      PRIVATE
-      Control/CxxUtils
-      DataQuality/GoodRunsLists
-      Database/AthenaPOOL/AthenaPoolUtilities
-      Database/AthenaPOOL/DBDataModel
-      Database/CoraCool )
-endif()
 
 # External dependencies:
 find_package( COOL COMPONENTS CoolKernel )
@@ -54,19 +17,19 @@ if( NOT XAOD_ANALYSIS )
 endif()
 atlas_add_library( LumiBlockCompsLib
    LumiBlockComps/*.h src/*.h Root/*.cxx
-   src/CreateLumiBlockCollectionFromFile.cxx src/xAOD2NtupLumiSvc.cxx
+   src/CreateLumiBlockCollectionFromFile.cxx 
    ${extra_srcs}
    PUBLIC_HEADERS LumiBlockComps
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps
-   AthenaKernel xAODLuminosity GaudiKernel StoreGateLib ${extra_libs}
-   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} AthenaPoolUtilities DBDataModel
+   AthenaKernel xAODLuminosity GaudiKernel StoreGateLib AthenaPoolUtilities ${extra_libs}
+   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} DBDataModel
    GoodRunsListsLib xAODRootAccess )
 
 atlas_add_component( LumiBlockComps
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities )
 
 atlas_add_dictionary( LumiBlockCompsDict
    LumiBlockComps/LumiBlockCompsDict.h
@@ -91,7 +54,7 @@ atlas_add_test( LBDurationCondAlg_test
 
 atlas_add_test( LuminosityCondAlg_test
    SOURCES test/LuminosityCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities )
 
 atlas_add_test( TrigLiveFractionCondAlg_test
    SOURCES test/TrigLiveFractionCondAlg_test.cxx
@@ -109,6 +72,9 @@ atlas_add_test( TrigLiveFractionCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
+atlas_add_test( LumiBlockMuWriterConfig_test
+                SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 atlas_add_test( BunchCrossingCondAlg 
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py

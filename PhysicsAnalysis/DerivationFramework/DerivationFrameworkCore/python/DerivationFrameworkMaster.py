@@ -41,27 +41,30 @@ AuxStoreWrapperSequence = CfgMgr.AthSequencer("AuxStoreWrapperSequence")
 
 # DerivationJob is COMMON TO ALL DERIVATIONS
 DerivationFrameworkJob = AlgSequence()
+
+# Aux store wrapper for expansion-to-dynamic. This is only used now for
+# a handful of container types, defined in ContainersForExpansion.py 
 DerivationFrameworkJob += AuxStoreWrapperSequence
 
 # Special sequence run after the algsequence
 # Being used here to reset ElementLinks
-
-# Commenting out for branch at 00-03-56
-#if AODFix_willDoAODFix():
-#if True: # Temporary replacment for above line, while this function makes it into release 20.7
-#	athOutSeq = CfgMgr.AthSequencer("AthOutSeq")
-#	athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
+#if AODFix_willDoAODFix(): This flag doesn't work so commented for now
+athOutSeq = CfgMgr.AthSequencer("AthOutSeq")
+athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 from RecExConfig.InputFilePeeker import inputFileSummary
 if inputFileSummary is not None:
-	if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
-		svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
-	
+    if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
+        svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
+    
 # Set up the metadata tool:
 if not globalflags.InputFormat=="bytestream":
-	ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
-							      OutputLevel = 2 )
-	svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+    # Extra config: make sure if we are using EVNT that we don't try to check sim/digi/reco metadata 
+    from RecExConfig.ObjKeyStore import objKeyStore
+#    ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
+#                                  isEVNT = objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ),
+#                                  OutputLevel = 2 )
+#    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
 
 # Set up stream auditor
 if not hasattr(svcMgr, 'DecisionSvc'):
@@ -87,9 +90,13 @@ if globalflags.DataSource()=='geant4':
     jetFlags.useTruth = True
     DerivationFrameworkIsMonteCarlo = True
     try:
-        DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
+        # Extra config: make sure if we are using EVNT that we don't try to check sim metadata 
+        from RecExConfig.ObjKeyStore import objKeyStore
+        # Make sure input file is not EVNT
+        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
     except:
         print ('Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
 
 def buildFileName(derivationStream):
-    return derivationStream.FileName    
+    return derivationStream.FileName

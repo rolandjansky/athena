@@ -1,16 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonTGMeasAssocAlg.h, (c) ATLAS Detector Softwareop 
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONTGMEASASSOCALG_MUONTGMEASASSOCALG_H
 #define MUONTGMEASASSOCALG_MUONTGMEASASSOCALG_H
 
-// Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -18,9 +17,6 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSegment/SegmentCollection.h"
-#include <fstream>
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
@@ -29,9 +25,9 @@
 #include "MuonTGRecTools/IMuonTGMeasTool.h"
 #include "MuonTGRecTools/MuonTGHits.h"
 #include "MuonTGRecTools/MuonTGSegments.h"
-
-// Amg
 #include "GeoPrimitives/GeoPrimitives.h"
+
+#include <fstream>
 
 namespace Muon{
 
@@ -54,15 +50,12 @@ public:
   typedef std::pair<const Trk::Layer*,std::vector<const Muon::CscPrepData*>*> PairOfLayerCscPrd;
   typedef std::pair<const Trk::Layer*,std::vector<const Muon::TgcPrepData*>*> PairOfLayerTgcPrd;
 
-  /** Constructor with parameters */
   MuonTGMeasAssocAlg(const std::string &name,ISvcLocator *pSvcLocator);
 
-  /** Destructor */
-  ~MuonTGMeasAssocAlg();
+  ~MuonTGMeasAssocAlg()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
   StatusCode retrieveMeasurements(const MuonGM::MuonDetectorManager* MuonDetMgr);
   StatusCode storeMeasurements();
@@ -99,8 +92,7 @@ private:
   
   ToolHandle<Muon::IMuonTGMeasTool> m_muonTgTool;
   
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 

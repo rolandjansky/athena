@@ -2,7 +2,7 @@
 
 Initializing Gaudi ApplicationMgr using job opts ../share/AtRndmGen_test.txt
 JobOptionsSvc        INFO # =======> /home/leggett/work/v30r1.002/src/Control/RngComps/share/../share/AtRndmGen_test.txt
-JobOptionsSvc        INFO # (5,1): ApplicationMgr.DLLs += ["AthenaServices"]
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.Dlls += ["AthenaServices"]
 JobOptionsSvc        INFO # (7,1): ApplicationMgr.ExtSvc += ["AtRndmGenSvc", "AtRndmGenSvc/AtRndmGenSvc2", "AtRndmGenSvc/AtRndmGenSvc3"]
 JobOptionsSvc        INFO # (8,1): ApplicationMgr.ExtSvcCreates = 0
 JobOptionsSvc        INFO # (10,1): MessageSvc.OutputLevel = 2

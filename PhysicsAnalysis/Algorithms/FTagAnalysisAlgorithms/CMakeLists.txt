@@ -36,15 +36,16 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-   atlas_add_test( testJobData
-      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
-      PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFullSim
-      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
-      PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFastSim
-      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
-      PROPERTIES TIMEOUT 600 )
+   # AnalysisBase migration: disabled until JetAnalysisAlgorithms is added
+   #atlas_add_test( testJobData
+   #   SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+   #   PROPERTIES TIMEOUT 600 )
+   #atlas_add_test( testJobFullSim
+   #   SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+   #   PROPERTIES TIMEOUT 600 )
+   #atlas_add_test( testJobFastSim
+   #   SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+   #   PROPERTIES TIMEOUT 600 )
 elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
    atlas_add_test( testJobData
       SCRIPT athena.py

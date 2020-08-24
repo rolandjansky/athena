@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFLATCONDITIONSALG_H
@@ -17,17 +17,16 @@
 template<class T>
 class LArFlatConditionsAlg: public AthAlgorithm {
  public:
-
-  LArFlatConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArFlatConditionsAlg();
+  using AthAlgorithm::AthAlgorithm;
+  ~LArFlatConditionsAlg() = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<T>  m_writeKey;
-  ServiceHandle<ICondSvc> m_condSvc;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this,"ReadKey","","Key of the input CDO (AttrListCollection)"};
+  SG::WriteCondHandleKey<T>  m_writeKey{this,"WriteKey","","Key of the output LArXYZFlat CDO"};
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
 
 };
 

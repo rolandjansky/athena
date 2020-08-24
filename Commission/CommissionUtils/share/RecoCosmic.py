@@ -56,13 +56,13 @@ slimmer.ClusterContainerNames = ["EMTopoCluster","CaloTopoCluster"]
 slimmer.CellContainerName = "ClusterOnly" 
 
 
-theApp.DLLs +=["LArAthenaPoolPoolCnv"] 
-theApp.DLLs +=["TileEventAthenaPoolPoolCnv"] 
-theApp.DLLs +=["GeneratorObjectsAthenaPoolPoolCnv"] 
-theApp.DLLs +=["G4SimAthenaPOOLPoolCnv"] 
-theApp.DLLs +=["RecAthenaPoolPoolCnv"] 
-theApp.DLLs +=["TruthExamples"] 
-theApp.DLLs +=["LArRawUtils", "LArROD"] 
+theApp.Dlls +=["LArAthenaPoolPoolCnv"] 
+theApp.Dlls +=["TileEventAthenaPoolPoolCnv"] 
+theApp.Dlls +=["GeneratorObjectsAthenaPoolPoolCnv"] 
+theApp.Dlls +=["G4SimAthenaPOOLPoolCnv"] 
+theApp.Dlls +=["RecAthenaPoolPoolCnv"] 
+theApp.Dlls +=["TruthExamples"] 
+theApp.Dlls +=["LArRawUtils", "LArROD"] 
 
 #theApp.TopAlg += ["DumpMC"] 
 #DumpMC = Algorithm("DumpMC") 

@@ -25,7 +25,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "CommissionEvent/ComTime.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class IInDetConditionsSvc;
 class ITRT_DriftFunctionTool;
@@ -58,7 +58,7 @@ public:
   virtual StatusCode finalize  ();
   /** make the conversion from RDOs to DriftCircles */
   virtual InDet::TRT_DriftCircleCollection*  
-  convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const bool  m_CTBBadChannels ); 
+  convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const EventContext& ctx, const bool  CTBBadChannels) const;
   virtual bool passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const;
 
   ///////////////////////////////////////////////////////////////////
@@ -97,12 +97,6 @@ public:
   float                                m_low_gate_argon; //! Low value for gate 
   float                                m_high_gate; //! High value for gate
   float                                m_high_gate_argon; //! High value for gate
-  bool                                 m_mask_first_HT_bit; // mask off ht bit in first (earliest) 25ns time bin
-  bool                                 m_mask_first_HT_bit_argon; // mask off ht bit in first (earliest) 25ns time bin
-  bool                                 m_mask_middle_HT_bit; // mask off ht bit in middle 25 ns time bin
-  bool                                 m_mask_middle_HT_bit_argon; // mask off ht bit in middle 25 ns time bin
-  bool                                 m_mask_last_HT_bit; // mask off ht bit in last (latest) 25 ns time bin
-  bool                                 m_mask_last_HT_bit_argon; // mask off ht bit in last (latest) 25 ns time bin
 };
 
 } // end of namespace

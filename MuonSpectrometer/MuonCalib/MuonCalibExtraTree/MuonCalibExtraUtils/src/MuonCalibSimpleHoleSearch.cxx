@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraUtils/MuonCalibSimpleHoleSearch.h"
@@ -59,9 +59,6 @@ namespace MuonCalib {
     // propagate to layer
     Amg::Vector3D pos = m_propagator.propagate(parPos,parDir,surf);
 
-    //    MuonFixedIdPrinter printer;
-    //     std::cout << " intersecting surf " << printer.stationLayerIdentifier(stLayerId) << " pos " << pos << std::endl;
-    
     // check if position is within bounds, if so add intersect
     if( surf.inBounds(pos,tolerance) ) {
       

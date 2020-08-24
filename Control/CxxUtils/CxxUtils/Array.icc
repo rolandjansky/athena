@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Array.icc,v 1.1 2009-03-20 20:44:22 ssnyder Exp $
 /**
  * @file  Array.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +13,7 @@
 
 
 #include "CxxUtils/unused.h"
+#include <ostream>
 #include <cassert>
 
 
@@ -192,6 +192,26 @@ typename Array<N>::const_iterator Array<N>::end () const
 
 
 /**
+ * @brief Creates a text representation of the array content.
+ * @param std::ostream where the text should be written
+ *
+ * Writes the content of the array to a ostream. The sub-arrays are
+ * enclosed by square-brackets and separated by commas.
+ */
+template <unsigned int N>
+inline
+void Array<N>::write_array (std::ostream& stream) const
+{
+  if (!m_rep) {
+    stream << "\"\"";
+  }
+  else {
+    m_rep->write_array (stream);
+  }
+}
+
+
+/**
  * @brief Private constructor for array indexing.
  * @param rep @c Arrayrep from which to initialize the array.
  * @param offs Offset of the first element of the new array
@@ -308,6 +328,20 @@ int Array<0>::asint() const
 
 
 /**
+ * @brief Creates a text representation of the array content.
+ * @param std::ostream where the text should be written
+ *
+ * Writes the content of the array to a ostream. The sub-arrays are
+ * enclosed by square-brackets and separated by commas.
+ */
+inline
+void Array<0>::write_array (std::ostream& stream) const
+{
+  stream << *m_elt;
+}
+
+
+/**
  * @brief Private constructor for array indexing.
  * @param rep @c Arrayrep from which to initialize the array.
  * @param offs Offset of the first element of the new array
@@ -320,6 +354,14 @@ inline
 Array<0>::Array (const Arrayrep& rep, unsigned int offs)
   : m_elt (&rep.m_data[offs])
 {
+}
+
+
+template <unsigned int N>
+std::ostream& operator<< (std::ostream& s, const Array<N>& a)
+{
+  a.write_array (s);
+  return s;
 }
 
 
@@ -786,6 +828,31 @@ WritableArrayData<N>::WritableArrayData(const std::vector<unsigned int>& shape)
     WritableArray<N> (*static_cast<Arrayrep*>(this))
 {
   assert (shape.size() == N);
+}
+
+
+/**
+ * @brief Helper to convert from an @x Arrayrep to a scalar type.
+ * @param rep Representation object to convert.
+ * @param x[out] Result of the conversion.
+ */
+template <class T>
+  ATH_REQUIRES(std::assignable_from<T&, float>)
+void fromArrayrep (const CaloRec::Arrayrep& rep, T& x)
+{
+  x = rep.m_data[0];
+}
+
+
+/**
+ * @brief Helper to convert from an @x Arrayrep to an @c Array.
+ * @param rep Representation object to convert.
+ * @param x[out] Result of the conversion.
+ */
+template <unsigned int N>
+void fromArrayrep (const CaloRec::Arrayrep& rep, CxxUtils::Array<N>& x)
+{
+  x = CxxUtils::Array<N> (rep);
 }
 
 

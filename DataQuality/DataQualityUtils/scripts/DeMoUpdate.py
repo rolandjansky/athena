@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author : Benjamin Trocme (LPSC - Grenoble) - 2017
 # Udpates the year stats
 ##################################################################
@@ -10,15 +10,14 @@ from string import ljust
 import time
 
 from ROOT import TFile
-from ROOT import TH1F,TProfile
 from ROOT import TCanvas,TPaveText
 from ROOT import kBlack,kOrange,kGreen
 from ROOT import gStyle
 
-import xmlrpclib
+import six.moves.xmlrpc_client as xmlrpclib
 
 sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
-from LArMonCoolLib import GetLBTimeStamps,GetOnlineLumiFromCOOL,GetOfflineLumiFromCOOL,GetLBDuration,GetReadyFlag,GetNumberOfCollidingBunches
+from LArMonCoolLib import GetLBTimeStamps,GetOnlineLumiFromCOOL,GetOfflineLumiFromCOOL,GetReadyFlag,GetNumberOfCollidingBunches
 from gb import MakeTH1,SetXLabel,MakeTProfile
 
 from DeMoLib import strLumi,plotStack,initialize
@@ -57,7 +56,7 @@ def listify(l):
 
 ################################################################################################################################################
 def printBoth(string0,boolean,f):
-  print string0
+  print(string0)
   if boolean:# Also write on txt file
     f.write(string0+'\n')
   return
@@ -72,8 +71,6 @@ def findLB(lbts,startOfVetoPeriod): # Find the lumiblock where a veto period sta
 ################################################################################################################################################
 # print single run report. Only printing, no computation
 def singleRunReport(runNumber,dict1,dict2,directory,defects,veto,exactVetoComput): 
-  import string
-
   if dict1['signoff'] == "DONE" or dict1['signoff'] == "FINAL OK":
     repOnDisk = True
     f = open('%s/Run/%s.txt' % (directory,runNumber), 'w')
@@ -139,16 +136,16 @@ args = parser.parse_args()
 parser.print_help()
 
 # Token to avoid having multiple update in the same time
-print "Current time: %s"%(time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime()))
+print("Current time: %s"%(time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())))
 
 options = {}
 options['system'] = args.parser_system
 tokenName = "DeMo-%s-%s.token"%(options['system'],args.parser_tag)
 if os.path.exists(tokenName):
-  print "A different DeMoUpdate is apparently running (or it was not properly ended recently). This may cause trouble when updating yearStats"
+  print("A different DeMoUpdate is apparently running (or it was not properly ended recently). This may cause trouble when updating yearStats")
   os.system("ls -ltr %s"%tokenName)
-  print "If you are sure that it is not the case, you can remove the %s..."%tokenName
-  print "If you are not the owner, contact the DQ coordinator"
+  print("If you are sure that it is not the case, you can remove the %s..."%tokenName)
+  print("If you are not the owner, contact the DQ coordinator")
   sys.exit()
 else:
   os.system("touch %s"%tokenName)
@@ -203,14 +200,14 @@ if args.parser_runListUpdate:
 
     for iRecentRun in sorted(recentRuns.keys()):
       if (recentRuns[iRecentRun][2]): # ATLAS ready
-        print "I am adding the new run with ATLAS ready: %s"%iRecentRun
+        print("I am adding the new run with ATLAS ready: %s"%iRecentRun)
         fRunList.write("%s\n"%iRecentRun)
     fRunList.close()
   else:
-    print "No %s..."%allRunListDat
+    print("No %s..."%allRunListDat)
 
   os.system("rm -f %s"%tokenName)
-  print "I am exiting..."
+  print("I am exiting...")
   sys.exit()
 
 ############ Fill runlist variable and change some options if single run
@@ -226,37 +223,37 @@ for iRunList in runlist.keys():
 
 if len(veto["all"]) == 0:
   options['noVeto'] = True
-  print "No veto information provided in DeMoLib.py"
+  print("No veto information provided in DeMoLib.py")
 else:
   if options['noVeto']:
-    print "WARNING: I do not consider time veto information..."
+    print("WARNING: I do not consider time veto information...")
 
 if options['updateYearStats']:
   yearStatsArchiveFilename = '%s/TProfiles.root'%options['yearStatsDir']
   if not os.path.exists(yearStatsArchiveFilename):
-    print "No archive file found in %s"%options['yearStatsDir']
-    print "I am forcing the year stats reset..."
+    print("No archive file found in %s"%options['yearStatsDir'])
+    print("I am forcing the year stats reset...")
     options['resetYearStats'] = True
   elif os.path.getsize("%s/runs-ALL.dat"%options['yearStatsDir']) == 0.:
     # runs-ALL.data and runs-[period].dat updated only for runs in GRL
     # Test here relevant at the beginning of the year when some runs have been reviewed at EXPR/BULK level (but not FINAL hence no year stats)
     # In such a case a TProfiles.root file may exist even if no update was made
     # April 18: I am not sure that this situation is still relevant... 
-    print "No run found in %s"%options['yearStatsDir']
-    print "I am forcing the year stats reset..."
+    print("No run found in %s"%options['yearStatsDir'])
+    print("I am forcing the year stats reset...")
     options['resetYearStats'] = True
 
 errorLogFile = open("%s/errors.log"%options['yearStatsDir'],'a')
 
 if (options['updateYearStats'] and options['resetYearStats']):
-  print "WARNING: I am going to reset the %s stats..."%options['yearStatsDir']
+  print("WARNING: I am going to reset the %s stats..."%options['yearStatsDir'])
   if (options['batchMode']): # In batch mode, no confirmation requested
     confirm = "y"
   else:
-    confirm = raw_input("Please confirm by typing y: ")
+    confirm = input("Please confirm by typing y: ")
 
   if ("y" in confirm):
-    print "I reseted the %s stats"%options['yearStatsDir']
+    print("I reseted the %s stats"%options['yearStatsDir'])
     # Delete the dat files that contains the runs updated and the associated lumi
     os.system("rm -f %s/lumi*.dat"%options['yearStatsDir'])
     os.system("rm -f %s/runs*.dat"%options['yearStatsDir'])
@@ -265,12 +262,12 @@ if (options['updateYearStats'] and options['resetYearStats']):
       os.system("rm -f %s/loss*.dat"%options['yearStatsDir'])
       os.system("rm -f %s/Run/*.txt"%options['yearStatsDir'])
     else:
-      print "However, I did NOT delete the loss files to preserve defects set in non-GRL runs"
+      print("However, I did NOT delete the loss files to preserve defects set in non-GRL runs")
 
     # Delete the root file that contains the TProfiles
     os.system("rm -f %s"%(yearStatsArchiveFilename))
   else:
-    print "I did NOT reset the %s stats"%options['yearStatsDir']
+    print("I did NOT reset the %s stats"%options['yearStatsDir'])
     options['resetYearStats'] = False
 
 
@@ -280,7 +277,7 @@ runSpec = {} # Characteristics of each run: start, stop, data period, luminosity
 if args.parser_allRuns: # all year runs
   runlist['toprocess'] = runlist['all']
 elif args.parser_weekly: # Weekly report - Look for the last 7-days runs + unsigned off
-  print "I am looking for all runs signed off in the past week and the older ones not yet signed off..."
+  print("I am looking for all runs signed off in the past week and the older ones not yet signed off...")
   options['savePlots'] = True
   runlist['toprocess'] = []
   oneWeek = 7*24*3600 # Nb of seconds in one week
@@ -315,14 +312,14 @@ elif args.parser_weekly: # Weekly report - Look for the last 7-days runs + unsig
     runlist['toprocess'].remove(iRun)
 
   runlist['toprocess'].reverse()
-  print "I will process these runs :",runlist['toprocess']
+  print("I will process these runs :",runlist['toprocess'])
 elif args.parser_grlUpdate: # Reprocess all grl runs skipping the ones already updated
   runlist['toprocess'] = runlist['grl']
   options['skipAlreadyUpdated'] = True
 elif len(args.parser_run) == 1: # Single run 
   runNb = args.parser_run[0]
   if (runNb not in (runlist['all'])):
-    print "------------>Please first add the run in the run list"
+    print("------------>Please first add the run in the run list")
     os.system("rm -f %s"%tokenName)
     sys.exit()
   runlist['toprocess'] = [runNb]
@@ -337,14 +334,14 @@ elif len(args.parser_run) == 2: # Run range
     if (runNb>=startrun and runNb<=endrun):
       runlist['toprocess'].append(runNb)
 else:
-  print "Please specify run number or run range with -r option"
+  print("Please specify run number or run range with -r option")
   os.system("rm -f %s"%tokenName)
   sys.exit()
 
 
 if len(runlist['toprocess']) == 0 and len(args.parser_run)>0:
-  print "No run found in this run range..."
-  print "Please double check or update the runlist file..."
+  print("No run found in this run range...")
+  print("Please double check or update the runlist file...")
   os.system("rm -f %s"%tokenName)
   sys.exit()
 
@@ -365,7 +362,7 @@ for runNb in runlist['toprocess']:
   else: # Did not find the data period
     runSpec[runNb]['period'] = "???"
     runSpec[runNb]['newInYearStats'] = False
-    print "I did not find the data period for run %d"%(runNb)
+    print("I did not find the data period for run %d"%(runNb))
 
 for iper in periodListCurrent.keys(): # Loop on all periods found and look for new periods/runs
   periodFileName = "%s/runs-%s.dat"%(options['yearStatsDir'],iper)
@@ -378,7 +375,7 @@ for iper in periodListCurrent.keys(): # Loop on all periods found and look for n
           runSpec[irun]['newInYearStats'] = True
         else:
           runSpec[irun]['newInYearStats'] = False
-          print "Run %d not in GRL run list -> Ignored for YearStats"%irun
+          print("Run %d not in GRL run list -> Ignored for YearStats"%irun)
       else:
         runSpec[irun]['newInYearStats'] = False
       if "%d\n"%(irun) in existingRuns:
@@ -393,24 +390,24 @@ for iper in periodListCurrent.keys(): # Loop on all periods found and look for n
           periodToBeAdded = True
         else:
           runSpec[irun]['newInYearStats'] = False
-          print "Run %d not in GRL run list -> Ignored for YearStats"%irun
+          print("Run %d not in GRL run list -> Ignored for YearStats"%irun)
       else:
         runSpec[irun]['newInYearStats'] = False
     if options['updateYearStats'] and periodToBeAdded:
-      print "I am going to add period %s in year stats!"%(iper)
+      print("I am going to add period %s in year stats!"%(iper))
       newPeriodInYearStats.append(iper)
 
 
 for iper in periodListCurrent.keys(): # Loop on all periods founds and print the runs to be updated
   for irun in periodListCurrent[iper]:
     if runSpec[irun]['newInYearStats']:
-      print "I am going to add run %d (period %s) in %s stats (provided that it is fully signed off - Not yet known...)!"%(irun,runSpec[irun]['period'],options['year'])
+      print("I am going to add run %d (period %s) in %s stats (provided that it is fully signed off - Not yet known...)!"%(irun,runSpec[irun]['period'],options['year']))
       bool_newRunsInYearStats = True
     else:
       if (options['skipAlreadyUpdated']):
         runSpec.pop(irun)
         runlist['toprocess'].pop(runlist['toprocess'].index(irun))
-        print "%d was already processed in yearStats - I am complety ignoring it..."%(irun)
+        print("%d was already processed in yearStats - I am complety ignoring it..."%(irun))
 
 if (not bool_newRunsInYearStats):
   options['updateYearStats'] = False # No new run -> no update needed
@@ -424,7 +421,7 @@ runSpec['AllRuns']['period'] = "-"
 runSpec['AllRuns']['signoff'] = "-"
 
 if debug:
-  print grlDef
+  print(grlDef)
 
 ################################################################
 # Book Histograms for general plot with intolerable defects/veto
@@ -455,8 +452,7 @@ for idef in grlDef["intol"]+grlDef["intol_recov"]: #Intolerable defects only
       
     if len(periodListYear) != 0 or len(periodListCurrent) != 0: # At least one period found in current or past runs, otherwise no way to plot year stats
       # Collect all periods (archived ones + new ones)
-      periodListYear = periodListYear + newPeriodInYearStats 
-      periodListYear.sort() # The list of periods is now sorted
+      periodListYear = sorted(periodListYear + newPeriodInYearStats) 
       periodNbYear = len(periodListYear) # Number of periods      
       # Create the empty year stats TProfile histograms for the updated period list
       hProfPeriod_IntolDefect[idef] = MakeTProfile(profPeriodName,"%s"%(defectVeto["description"][idefName]),"Lost luminosity (%)", -0.5,+0.5+periodNbYear,periodNbYear+1,defectVeto["color"][idefName])
@@ -505,7 +501,7 @@ SetXLabel(h1Run_IntLuminosity,runlist['toprocess'])
 h1Run_IntLuminosity.GetXaxis().SetBinLabel(len(runlist['toprocess'])+1,"All")
 
 if debug:
-  print "1",grlDef
+  print("1",grlDef)
 
 ### TO BE MODIFIED WHEN TH1 IS SAVED IN TPROFILE.ROOT. Can be filled in a more logical way
 if (options['updateYearStats'] and periodNbYear>0): # If update is required, it is now sure that some periods exist. Create a TH1 to store the integrated luminosity
@@ -541,15 +537,15 @@ runSpec['AllRuns']['ineffVetos'] = 0.
 for iVeto in veto["all"]:
   runSpec['AllRuns']['lumiVeto_%s'%iVeto] = 0. # Total luminosity rejected by each time veto
 
-if (len(runSpec.keys()) == 1):
-  print "I did not find any run in runList."
-  print "Please check the run range/options"
+if (len(runSpec) == 1):
+  print("I did not find any run in runList.")
+  print("Please check the run range/options")
 
 #######################################################################################
 #### Main loop over selected runs
 for irun,runNb in enumerate(runlist['toprocess']):
-  print "=================================================================" 
-  print "=============================Run %d (%d/%d)======================"%(runNb,irun+1,len(runlist['toprocess'])) 
+  print("=================================================================") 
+  print("=============================Run %d (%d/%d)======================"%(runNb,irun+1,len(runlist['toprocess']))) 
   # Init variables - List (indexed by partition) of tables of lumi blocks affected by defects
   lbAffected = {}
   for idef in grlDef["part"]+grlDef["partIntol_recov"]: # All partition defects
@@ -599,7 +595,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
   lumiacct=fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', tag='OflLumiAcct-001', since=v_lbTimeSt[1][0]*1000000000, until=v_lbTimeSt[len(v_lbTimeSt)][1]*1000000000) 
   #thisRunPerLB['liveFraction'] = dict()
   thisRunPerLB['duration'] = dict()
-  for iLumiAcct in xrange(len(lumiacct)):
+  for iLumiAcct in range(len(lumiacct)):
     #thisRunPerLB['liveFraction'][lumiacct[iLumiAcct].LumiBlock] = lumiacct[iLumiAcct].LiveFraction
     if options['recordedLumiNorm']: # The LB duration is corrected by the live fraction 
       thisRunPerLB['duration'][lumiacct[iLumiAcct].LumiBlock] = lumiacct[iLumiAcct].LBTime*lumiacct[iLumiAcct].LiveFraction
@@ -611,12 +607,12 @@ for irun,runNb in enumerate(runlist['toprocess']):
       if lb not in thisRunPerLB["deliveredLumi"].keys():
         thisRunPerLB["deliveredLumi"][lb] = 0.
         errorMsg = "Missing lumi for Run %d - LB %d\n"%(runNb,lb)
-        print errorMsg
+        print(errorMsg)
         errorLogFile.write(errorMsg)
       if lb not in thisRunPerLB["duration"].keys():
         thisRunPerLB["duration"][lb] = 0.
         errorMsg = "Missing duration/LiveFraction for Run %d - LB %d\n"%(runNb,lb)
-        print errorMsg
+        print(errorMsg)
         errorLogFile.write(errorMsg)
     else:
       if lb not in thisRunPerLB["deliveredLumi"].keys():
@@ -644,7 +640,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
   # Consider only LB in runSpec[runNb]["readyLB"]
   for iRetrievedDefects in retrievedDefects:
     if debug:
-      print iRetrievedDefects
+      print(iRetrievedDefects)
     # keep track of runs with missing sign-off - Store the earliest stage of the sign off procedure
     for iSignOff in signOff["EXPR."]:
       if iRetrievedDefects.channel == iSignOff:
@@ -748,7 +744,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
       for lb in range(iRetrievedDefects.since.lumi,iRetrievedDefects.until.lumi):
         if((lb in runSpec[runNb]['readyLB']) or runSpec[runNb]['nLBready']==0):# The LB is with ATLAS ready
 
-          if not lbAffected[defectFound].has_key(partAffected): # Store the affected partitions
+          if partAffected not in lbAffected[defectFound]: # Store the affected partitions
             lbAffected[defectFound][partAffected]=[]
           lbAffected[defectFound][partAffected].append(lb)
 
@@ -778,7 +774,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
   # request, they can be also ignored.
   # NB: in any way, a non signed off run is never considered in year stats
   if options['skipUnsignedOff'] and runSpec[runNb]['signoff'] != 'FINAL OK':
-    print "Run %d is not yet signed off. Skipping it..."%runNb
+    print("Run %d is not yet signed off. Skipping it..."%runNb)
     runSpec.pop(runNb)
     continue
 
@@ -822,7 +818,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
   if runSpec[runNb]['nLBready']>0:
     lbsToConsider=runSpec[runNb]["readyLB"]
   else:
-    lbsToConsider=range(1,runSpec[runNb]['nLB'])
+    lbsToConsider=list(range(1,runSpec[runNb]['nLB']))
 
   for lb in lbsToConsider:
     runSpec[runNb]['Lumi'] = runSpec[runNb]['Lumi'] +thisRunPerLB["deliveredLumi"][lb]*thisRunPerLB['duration'][lb]
@@ -872,7 +868,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
     if (boolExactVetoComput_run):
       totalVeto = showEventVeto.showEventVetoFolder(db2,folderName,options['vetoTag'],runNb,runNb,0) 
     else:
-      print "WARNING: you use the rough event veto loss. To be used only if default is too slow..."
+      print("WARNING: you use the rough event veto loss. To be used only if default is too slow...")
       totalVeto = showEventVetoNoLumi.showEventVetoFolder(db2,folderName,options['vetoTag'],runNb,runNb,0) 
   else:
     totalVeto = None
@@ -889,7 +885,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
     if (boolExactVetoComput_run):# Computation of veto rejection weighting by inst. lumi and ignoring LB already in intolerable defect list
       for iVeto in veto["all"]:
         runSpec[runNb]["lumiVeto_%s"%iVeto] = 0.
-        for iVetoedLB in xrange(len(totalVeto[veto["COOL"][iVeto]])): # Loop on all veto periods
+        for iVetoedLB in range(len(totalVeto[veto["COOL"][iVeto]])): # Loop on all veto periods
           lb0 = findLB(v_lbTimeSt,totalVeto[veto["COOL"][iVeto]][iVetoedLB][0]/1e9) # Start of veto period
           lb1 = findLB(v_lbTimeSt,totalVeto[veto["COOL"][iVeto]][iVetoedLB][0]/1e9) # End of veto period
           if options['vetoLumiEvolution']:
@@ -927,7 +923,7 @@ if options['vetoLumiEvolution']:
     h1_vetoInstLumiEvol[iVeto].Divide(h1_vetoInstLumiEvol[iVeto],h1_vetoInstLumiEvol['NoVeto'],100.,1.)
     
 ######################### Treatment when a run range was considered (weekly report)
-if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
+if (len(runSpec)>2 and runSpec['AllRuns']['Lumi']!=0):
   # Compute inefficiencies for the whole period
   
   # Defect inefficencies first
@@ -966,7 +962,7 @@ if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
       labels_xlow = [0.01,0.13,0.44,0.51,0.59,0.65,0.72,0.855,0.925,0.99]
       labels_xlow = [0.01,0.08,0.41,0.49,0.575,0.655,0.74,0.835,0.9,0.99]
       
-      for i in xrange(len(labels_col)):
+      for i in range(len(labels_col)):
 #        column[canvasIndex].append(TPaveText(labels_xlow[i],max(.99-0.08*len(runlist['toprocess']),0.01),labels_xlow[i+1],0.99))
         column[canvasIndex].append(TPaveText(labels_xlow[i],0.01,labels_xlow[i+1],0.99))
         column[canvasIndex][i].AddText(labels_col[i])
@@ -989,7 +985,7 @@ if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
     column[canvasIndex][8].AddText("%10s"%(runSpec[runNb]["signoff"]))
     lineNb[canvasIndex] += 1
     if (lineNb[canvasIndex]==50 or runNb == "AllRuns"):
-      for i in xrange(len(column[canvasIndex])):
+      for i in range(len(column[canvasIndex])):
         if i == 1:
           column[canvasIndex][i].AddText("Completed at %s"%(time.strftime("%H:%M (%d %b)", time.localtime())))
         else:
@@ -1001,7 +997,7 @@ if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
       canvasIndex += 1
       
     if runSpec[runNb]["signoff"] != "FINAL OK" and runNb != "AllRuns":
-      print "Run %d not fully signed off -> no year stats update. Current status: %s"%(runNb,runSpec[runNb]["signoff"])
+      print("Run %d not fully signed off -> no year stats update. Current status: %s"%(runNb,runSpec[runNb]["signoff"]))
 
   if options['savePlots']:
     for iCanvas in range(len(c1)):
@@ -1046,22 +1042,22 @@ if (options['saveHistos']):
     if options['vetoLumiEvolution']:
       h1_vetoInstLumiEvol[iVeto].Write()
   f.Close()
-  print "Histos saved in %s"%(filename)
+  print("Histos saved in %s"%(filename))
 
 # yearStats update
 # If new runs were added to period plots, save them
 if (options['updateYearStats'] and bool_newRunsInYearStats):
-  print "WARNING: I am going to update the %s stats with the following runs:"%(options['year'])
-  print "NB: only runs fully signed off are considered"
+  print("WARNING: I am going to update the %s stats with the following runs:"%(options['year']))
+  print("NB: only runs fully signed off are considered")
   for irun in runSpec.keys():
     if (irun != "AllRuns"):
       if runSpec[irun]['newInYearStats']:
-        print irun
+        print(irun)
         
   if (options['batchMode']): # In batch mode, no confirmation requested
     confirm = "y"
   else:
-    confirm = raw_input("Are you sure ([y]/n)?: ")
+    confirm = input("Are you sure ([y]/n)?: ")
     
   if ("n" not in confirm):
     f = TFile(yearStatsArchiveFilename,"recreate")
@@ -1092,7 +1088,7 @@ if (options['updateYearStats'] and bool_newRunsInYearStats):
           fAll.write("%d\n"%(irun))
       f.close()
     fAll.close()
-    print "I have updated year stats"
+    print("I have updated year stats")
 
 # The update of the defect dat files is now decoupled from the yearStatsUpdate to allows to also monitor runs (special runs notably)
 # that are not in the GRL.  
@@ -1140,4 +1136,4 @@ errorLogFile.close()
 
 os.system("rm -f %s"%tokenName)
 if not options['batchMode']:
-  raw_input("I am done. Type <return> to exit...")
+  input("I am done. Type <return> to exit...")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -70,7 +70,7 @@ TRTSensitiveDetector::TRTSensitiveDetector(const std::string& name, const std::s
 // Called by TRTSensitiveDetector
 // Once per run
 
-void TRTSensitiveDetector::InitializeHitProcessing()
+void TRTSensitiveDetector::InitializeHitProcessing ATLAS_NOT_THREAD_SAFE () // Thread unsafe TRTParametersForBarrelHits, TRTParametersForEndCapHits  classes are used.
 {
   if(verboseLevel>4)
     {

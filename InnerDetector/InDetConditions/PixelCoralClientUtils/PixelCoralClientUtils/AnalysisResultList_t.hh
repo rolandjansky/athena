@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _CAN_AnalysisResultList_t_hh_
 #define _CAN_AnalysisResultList_t_hh_
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCoralClientUtils/PixResultsException.hh"
 #include <map>
 #include <vector>
@@ -81,7 +82,7 @@ namespace CAN {
     std::map<std::string, std::map<std::string, T> > &getMap();
 
     template <class T>
-    const std::map<std::string, std::map<std::string, T> > &getMap() const
+    const std::map<std::string, std::map<std::string, T> > &getMap ATLAS_NOT_THREAD_SAFE () const // const_cast is used.
       {return const_cast<AnalysisResultList_t*>(this)->getMap<T>();}
 
     void throwValueDoesNotExist(const std::string &var_name, const std::string conn_name) const {
@@ -133,11 +134,11 @@ namespace CAN {
       { return getMap<T>().begin(); }
 
     template <class T>
-    typename std::map< std::string, std::map<std::string, T> >::const_iterator begin() const
+    typename std::map< std::string, std::map<std::string, T> >::const_iterator begin ATLAS_NOT_THREAD_SAFE () const // Thread unsafe getMap method is used.
       { return getMap<T>().begin(); }
 
     template <class T>
-    typename std::map< std::string, std::map<std::string, T> >::const_iterator end() const
+    typename std::map< std::string, std::map<std::string, T> >::const_iterator end ATLAS_NOT_THREAD_SAFE () const // Thread unsafe getMap method is used.
       { return getMap<T>().end(); }
 
   protected:

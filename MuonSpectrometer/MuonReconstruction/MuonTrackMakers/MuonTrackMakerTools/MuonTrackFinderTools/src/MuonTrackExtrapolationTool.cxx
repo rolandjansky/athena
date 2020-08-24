@@ -28,23 +28,9 @@
 namespace Muon {
 
   MuonTrackExtrapolationTool::MuonTrackExtrapolationTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa), 
-      m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-      m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
-      m_muonExtrapolator2("Trk::Extrapolator/MuonExtrapolator"),
-      m_magFieldSvc("AtlasFieldSvc",na),
-      m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",na),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    : AthAlgTool(ty,na,pa)
   {
     declareInterface<IMuonTrackExtrapolationTool>(this);
-    declareProperty( "MagFieldSvc",         m_magFieldSvc );
-    declareProperty( "TrackingGeometrySvc", m_trackingGeometrySvc);
-    declareProperty( "MuonExtrapolator",    m_muonExtrapolator);
-    declareProperty( "MuonExtrapolator2",   m_muonExtrapolator2);
-    declareProperty( "AtlasExtrapolator",   m_atlasExtrapolator);
-    declareProperty( "Cosmics",             m_cosmics = false);
-    declareProperty( "KeepInitialPerigee",  m_keepOldPerigee = true);
-    declareProperty( "MuonSystemEntranceName", m_msEntranceName = "MuonSpectrometerEntrance" );
   }
 
   StatusCode MuonTrackExtrapolationTool::initialize()
@@ -57,7 +43,7 @@ namespace Muon {
     if( !m_muonExtrapolator.empty() ) ATH_CHECK( m_muonExtrapolator.retrieve() );
     if( !m_muonExtrapolator2.empty() ) ATH_CHECK( m_muonExtrapolator2.retrieve() );
     ATH_CHECK( m_trackingGeometrySvc.retrieve() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     if( m_cosmics ) ATH_MSG_DEBUG("Running in cosmics mode" );
     
@@ -67,15 +53,15 @@ namespace Muon {
   const Trk::TrackParameters* MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord( const Trk::TrackParameters& pars,
 											Trk::ParticleHypothesis particleHypo ) const {
 
-    if( m_muonExtrapolator.empty() ) return 0;
+    if( m_muonExtrapolator.empty() ) return nullptr;
     if( !m_trackingGeometrySvc->trackingGeometry() ){
       ATH_MSG_WARNING("  " << m_trackingGeometrySvc << " has no valid trackingGeometry pointer" );
-      return 0;
+      return nullptr;
     }
-    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName.c_str());
+    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
     if( !msEntrance ) {
       ATH_MSG_WARNING("  MS entrance not found" );
-      return 0;
+      return nullptr;
     }
 
     Trk::PropDirection dir = Trk::oppositeMomentum;
@@ -101,7 +87,7 @@ namespace Muon {
 
 
   const Trk::TrackParameters* MuonTrackExtrapolationTool::extrapolateToIP( const Trk::TrackParameters& pars, Trk::ParticleHypothesis particleHypo ) const {
-    if( m_atlasExtrapolator.empty() ) return 0;
+    if( m_atlasExtrapolator.empty() ) return nullptr;
 
     // temporary hack to avoid crashes in Muid.
     Amg::Vector3D refPos(0.1,0.1,0.1);
@@ -115,7 +101,6 @@ namespace Muon {
 	    << " pos " << pars.position() << " dir " << pars.momentum().unit();
       if( propDir == Trk::alongMomentum ) msg() << " going along momentum" << endmsg;
       else if( propDir == Trk::oppositeMomentum ) msg() << " going opposite momentum" << endmsg;
-//      else msg() << " unknown direction" << endmsg;
     }
 
     // for cosmics try both directions
@@ -136,13 +121,13 @@ namespace Muon {
 
   const Trk::TrackParameters* MuonTrackExtrapolationTool::findClosestParametersToMuonEntry( const Trk::Track& track ) const {
 
-    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName.c_str());
+    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
     if( !msEntrance ) {
       ATH_MSG_WARNING("Failed to obtain muon entry volume");
-      return 0;
+      return nullptr;
     }
     const Trk::Perigee* pp = track.perigeeParameters();
-    if( !pp ) return 0;
+    if( !pp ) return nullptr;
 
     const Trk::TrackParameters* closestPars = pp;
     const Trk::TrackParameters* closestMeasPars = pp->covariance() ? pp : 0;
@@ -319,20 +304,33 @@ namespace Muon {
 
   Trk::Track* MuonTrackExtrapolationTool::extrapolate( const Trk::Track& track ) const {
 
-    if( m_muonExtrapolator.empty() ) return 0;
-    // if straightline track and the field is on return 0
+    if( m_muonExtrapolator.empty() ) return nullptr;
+    // if straightline track and the field is on return nullptr
     bool isSL = m_edmHelperSvc->isSLTrack(track);
-    if( m_magFieldSvc->toroidOn() && isSL ) {
-      return 0;
+    if( isSL ) { // check isSL first to limit access overhead
+      MagField::AtlasFieldCache    fieldCache;
+      // Get field cache object
+      EventContext ctx = Gaudi::Hive::currentContext();
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    
+      if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+        return nullptr;
+      }
+      fieldCondObj->getInitializedCache (fieldCache);
+      if( fieldCache.toroidOn() ) {
+        return nullptr;
+      }
     }
 
     const Trk::Perigee* pp = track.perigeeParameters();
-    if( !pp ) return 0;
+    if( !pp ) return nullptr;
 
     const Trk::TrackParameters* firstPars = findClosestParametersToMuonEntry(track);
     if( !firstPars ){
       ATH_MSG_WARNING("failed to find closest parameters to muon entry ");
-      return 0;
+      return nullptr;
     }
     
     // extrapolate to muon entry record
@@ -354,7 +352,7 @@ namespace Muon {
       // check mometum, this should always work for high pt track but low momentum track could get stuck 
       if( firstPars->momentum().mag() < 7000. ) ATH_MSG_DEBUG("lower energy muon lost during extrapolation ");      
       else                                     ATH_MSG_WARNING("failed to extrapolate parameters to muon entry and perigee ");
-      return 0;
+      return nullptr;
     }
 
     // sanity check for cosmics, if we are at the IP we should not 
@@ -379,7 +377,7 @@ namespace Muon {
     // double check
     if( !perigee ){
       ATH_MSG_WARNING(" failed to create perigee ");
-      return 0;
+      return nullptr;
     }
     
     // direction of perigee

@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>
+#include "AsgDataHandles/ReadHandle.h"
 #include "IsolationTool/TrackIsolationTool.h"
 // #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "xAODTracking/VertexContainer.h"

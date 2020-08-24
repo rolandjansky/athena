@@ -1,61 +1,47 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDFITTAGTOOL_H
 #define MUONCOMBINEDBASETOOLS_MUONCOMBINEDFITTAGTOOL_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonCombinedToolInterfaces/IMuonTrackTagTool.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODTracking/VertexContainer.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
+#include "MuidInterfaces/IMuonTrackQuery.h"
+#include "MuidInterfaces/IMuidMuonRecovery.h"
+#include "MuidInterfaces/IMuonMatchQuality.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkToolInterfaces/ITrackScoringTool.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
+#include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <string>
 #include <vector>
-
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-namespace Rec
-{
-class ICombinedMuonTrackBuilder;
-class IMuonTrackQuery;
-class IMuonMomentumBalanceSignificance;
-class IMuidMuonRecovery;
-class IMuonMatchQuality;
-}
-namespace Trk {
-  class ITrackScoringTool;
-}
-
-namespace Muon
-{
-  class MuonEDMPrinterTool;
-}
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace MuonCombined {
   class InDetCandidate;
   class MuonCandidate;
-  class IMuonTrackTagTool;
   class CombinedFitTag;
   class InDetCandidateToTagMap;
 
-  class MuonCombinedFitTagTool: public AthAlgTool, virtual public IMuonCombinedTagTool
-  {
+  class MuonCombinedFitTagTool: public AthAlgTool, virtual public IMuonCombinedTagTool {
 
   public:
     MuonCombinedFitTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonCombinedFitTagTool(void); // destructor
+    virtual ~MuonCombinedFitTagTool()=default;
   
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
     /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */    
     virtual 
@@ -84,26 +70,27 @@ namespace MuonCombined {
 
     void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
 
-    // helpers, managers, tools
-    ToolHandle<Muon::MuonEDMPrinterTool>              m_printer;
-    ToolHandle<MuonCombined::IMuonTrackTagTool>       m_tagTool;
-    ToolHandle<Rec::ICombinedMuonTrackBuilder>	      m_trackBuilder;
-    ToolHandle<Rec::ICombinedMuonTrackBuilder>	      m_outwardsBuilder;
-    ToolHandle<Rec::IMuonTrackQuery>		      m_trackQuery;
-    ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool;
-    ToolHandle<Rec::IMuidMuonRecovery>		      m_muonRecovery; 
-    ToolHandle<Rec::IMuonMatchQuality>		      m_matchQuality;
-    ToolHandle<Trk::ITrackScoringTool>                m_trackScoringTool;
-    ServiceHandle<MagField::IMagFieldSvc>	      m_magFieldSvc;
-    const AtlasDetectorID *m_DetID;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<MuonCombined::IMuonTrackTagTool> m_tagTool {this, "MuonTrackTagTool", "MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool"};
+    ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder {this, "TrackBuilder", ""};
+    ToolHandle<Rec::ICombinedMuonTrackBuilder> m_outwardsBuilder {this, "OutwardsTrackBuilder", ""};
+    ToolHandle<Rec::IMuonTrackQuery> m_trackQuery {this, "TrackQuery", "Rec::MuonTrackQuery/MuonTrackQuery"};
+    ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool {this, "MomentumBalanceTool", "Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignifTool"};
+    ToolHandle<Rec::IMuidMuonRecovery> m_muonRecovery {this, "MuonRecovery", ""};
+    ToolHandle<Rec::IMuonMatchQuality> m_matchQuality {this, "MatchQuality", "Rec::MuonMatchQuality/MuonMatchQuality"};
+    ToolHandle<Trk::ITrackScoringTool> m_trackScoringTool {this, "TrackScoringTool", "Muon::MuonTrackScoringTool/MuonTrackScoringTool"};
+
+    Gaudi::Property<double> m_badFitChi2 {this, "BadFitChi2", 2.5};
+    Gaudi::Property<double> m_momentumBalanceCut {this, "MomentumBalanceCut", 6};
+    Gaudi::Property<double> m_indetPullCut {this, "IndetPullCut", 6};
+    Gaudi::Property<double> m_matchChiSquaredCut {this, "MatchChiSquaredCut", 30};
+
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
-    // configuration
-    double			m_badFitChi2;
-    double			m_momentumBalanceCut;	// Cut on momentum balance of combined track
-    double			m_indetPullCut;		// Cut on indet-combined momentum pull
-    double			m_matchChiSquaredCut;	// Chi2 cut for classification as good match 
-
   };
 
 }	// end of namespace

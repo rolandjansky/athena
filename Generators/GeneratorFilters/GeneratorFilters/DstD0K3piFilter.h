@@ -37,8 +37,8 @@ public:
 
 private:
 
-  bool CheckChildLundId(HepMC::GenParticle* mcpart, int nth, int chLundId); // Check lundId of Nth(0 or 1) children from mcpart...
-  bool IsCandidate(std::vector<float>& lundIds, std::vector<HepMC::GenParticle*>& genParticles); // Is Candidate among 6 intermediate state??
+  bool CheckChildLundId(HepMC::ConstGenParticlePtr mcpart, unsigned int nth, int chLundId); // Check lundId of Nth(0 or 1) children from mcpart...
+  bool IsCandidate(std::vector<float>& lundIds, std::vector<HepMC::ConstGenParticlePtr>& genParticles); // Is Candidate among 6 intermediate state??
 
   double m_Ptmin;
   double m_EtaRange;

@@ -1,48 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-#include <cmath>
 
 #include "MuTagMatchingTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
-
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/Surface.h"
-
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
-//#include "MuonSegmentMakerToolInterfaces/IMuTagMatchingTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
-
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-//#include "TrkParameters/Perigee.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
-
 #include "TrkExInterfaces/IExtrapolator.h"  
 #include "TrkExInterfaces/IPropagator.h"  
-
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/JacobianPhiThetaLocalAngles.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentQuality.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
+
+#include <cmath>
 
 namespace {
   // local helper functions
@@ -62,7 +43,6 @@ namespace {
   }
 #endif
 
-
 }
 
 
@@ -76,7 +56,6 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   , m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool")
   , m_selectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool")
   , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
-  , p_StoreGateSvc(0)
 {
   declareInterface<IMuTagMatchingTool>(this);
   declareProperty( "IExtrapolator" , p_IExtrapolator ) ;
@@ -112,17 +91,8 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   declareProperty( "MuonChamberT0s", m_t0Location = "MooreMuonChamberT0s" );
 }
 
-MuTagMatchingTool::~MuTagMatchingTool(){
-}
-
 StatusCode MuTagMatchingTool::initialize()
-{
-
-   ATH_CHECK( AthAlgTool::initialize() ); 
-
-//Set pointer on StoreGateSvc
-  ATH_CHECK( service("StoreGateSvc", p_StoreGateSvc) );
-  
+{  
   ATH_MSG_DEBUG( "================================" );
   ATH_MSG_DEBUG( "=Proprieties are " );
   ATH_MSG_DEBUG( "GlobalThetaCut"   << std::setw(10) << m_GLOBAL_THETA_CUT);   
@@ -149,22 +119,16 @@ StatusCode MuTagMatchingTool::initialize()
   ATH_MSG_DEBUG( "Retrieved tool " << p_IExtrapolator );
 
   ATH_CHECK( p_propagator.retrieve() );
-
-//Retrieve IdHelpers
   
 // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
   ATH_CHECK( m_pullCalculator.retrieve() );
   
   return StatusCode::SUCCESS;
-}
-
-StatusCode MuTagMatchingTool::finalize(){
-  return AthAlgTool::finalize();
 }
 
 bool MuTagMatchingTool::match( const Trk::TrackParameters*       atSurface, 
@@ -201,11 +165,11 @@ std::string MuTagMatchingTool::segmentStationString( const Muon::MuonSegment* se
       continue;
     }
     Identifier segID = segment->rioOnTrack(i)->identify();
-    if( m_muonIdHelperTool->mdtIdHelper().is_mdt(segID) ){
-      station = m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName( segID ) );
+    if( m_idHelperSvc->isMdt(segID) ){
+      station = m_idHelperSvc->mdtIdHelper().stationNameString( m_idHelperSvc->mdtIdHelper().stationName( segID ) );
       break;
-    } else if( m_muonIdHelperTool->isCsc(segID) ){
-      station = m_muonIdHelperTool->cscIdHelper().stationNameString( m_muonIdHelperTool->cscIdHelper().stationName( segID ) );
+    } else if( m_idHelperSvc->isCsc(segID) ){
+      station = m_idHelperSvc->cscIdHelper().stationNameString( m_idHelperSvc->cscIdHelper().stationName( segID ) );
       break ;
     }
   }
@@ -701,8 +665,8 @@ void MuTagMatchingTool::nrTriggerHits( const Muon::MuonSegment* seg, int& nRPC, 
     if( !rot ) {
       continue;
     }
-    if( m_muonIdHelperTool->rpcIdHelper().is_rpc( rot->identify() ) ) ++nRPC;
-    if( m_muonIdHelperTool->tgcIdHelper().is_tgc( rot->identify() ) ) ++nTGC;
+    if( m_idHelperSvc->isRpc( rot->identify() ) ) ++nRPC;
+    if( m_idHelperSvc->isTgc( rot->identify() ) ) ++nTGC;
   }
   
 }
@@ -785,10 +749,6 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 // Local angles
      
     Trk::LocalDirection segLocDir =  segment->localDirection() ;
-    // const Trk::PlaneSurface psf( exTrack->associatedSurface() );
-    //Amg::Vector3D<double> exGlobDir( exTrack->momentum() );
-    //Amg::Vector3D exGlobDir(exTrack->momentum() );
-    //const Trk::LocalDirection* exTrkLocDir = psf->(globalToLocalDirection( exGlobDir ) ;
     Trk::LocalDirection exTrkLocDir ;
     exTrack->associatedSurface().globalToLocalDirection(exTrack->momentum(),exTrkLocDir);
     info.dangleYZ = exTrkLocDir.angleYZ() - segLocDir.angleYZ(); //deltaYZ
@@ -802,7 +762,6 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     info.exErrorXZ = exTrkErrXZ;
     info.exErrorYZ = exTrkErrYZ;
     info.exCovYZY = covLocYYZ;
-//    if(exTrack) ATH_MSG_DEBUG( " covValue(Trk::theta,Trk::locY) " <<  measPars->localErrorMatrix().covValue(Trk::theta,Trk::locY) << "  covLocYYZ " <<  covLocYYZ );
     calculateLocalAngleErrors ( segment, segErrXZ, segErrYZ );
     info.segErrorXZ = segErrXZ;
     info.segErrorYZ = segErrYZ;
@@ -823,7 +782,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
  
 
      Identifier chId = m_edmHelperSvc->chamberId(*segment);
-     Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(chId);
+     Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
 //
 //  residuals and pulls in X coordinate (along tube)
 //
@@ -854,12 +813,12 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	 Identifier id = mdt->identify();
 	 
 	 // get layer index
-	 int lay = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
-	 int tube = m_muonIdHelperTool->mdtIdHelper().tube(id); 
+	 int lay = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+	 int tube = m_idHelperSvc->mdtIdHelper().tube(id); 
 	 
 	 const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : MuonDetMgr->getMdtReadoutElement(id);
 	 if( !detEl ){
-	   ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_muonIdHelperTool->toString(id));
+	   ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelperSvc->toString(id));
 	   continue;
 	 }
 	 double tubeLen = detEl->getActiveTubeLength(lay,tube);
@@ -867,10 +826,10 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	 // use SL within station to speed up extrapolation    
 	 const Trk::TrackParameters* exP = p_propagator->propagate(*exTrack, mdt->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
 	 if( !exP ){
-           ATH_MSG_WARNING("Failed to extrapolate to " << m_muonIdHelperTool->toString(id));
+           ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelperSvc->toString(id));
 	   continue;
 	 }
-	 ATH_MSG_DEBUG(m_muonIdHelperTool->toString(id) << " exPos " << exP->parameters()[Trk::locR] << " y " << exP->parameters()[Trk::locZ]
+	 ATH_MSG_DEBUG(m_idHelperSvc->toString(id) << " exPos " << exP->parameters()[Trk::locR] << " y " << exP->parameters()[Trk::locZ]
 		       << " tubeL " << tubeLen);
 	 double exResidual = fabs(exP->parameters()[Trk::locZ]) - 0.5*tubeLen;
 	 if( maxResXMdt < exResidual ) maxResXMdt = exResidual;
@@ -880,11 +839,11 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	 
 	 // get id and check that it is a muon hit id
 	 Identifier id = m_edmHelperSvc->getIdentifier(**mit);
-	 if( !id.is_valid() || !m_muonIdHelperTool->isMuon(id) ) continue;
-	 if( !m_muonIdHelperTool->measuresPhi(id) ) continue;
+	 if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
+	 if( !m_idHelperSvc->measuresPhi(id) ) continue;
 	 const Trk::TrackParameters* exP = p_propagator->propagate(*exTrack, (*mit)->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
 	 if( !exP ){
-	   ATH_MSG_WARNING("Failed to extrapolate to " << m_muonIdHelperTool->toString(id));
+	   ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelperSvc->toString(id));
 	   continue;
 	 }
 	 const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( *mit, exP, Trk::ResidualPull::Unbiased );
@@ -907,15 +866,13 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	   if( fabs(residual) < fabs(minResPhi) ) minResPhi  = residual;
 	   if( fabs(pull) > fabs(minPullPhi) )    minPullPhi = pull;
 	 }
-	 ATH_MSG_DEBUG(m_muonIdHelperTool->toString(id) << " residual " << residual << " pull " << pull);
+	 ATH_MSG_DEBUG(m_idHelperSvc->toString(id) << " residual " << residual << " pull " << pull);
 	 delete resPull;
 	 delete exP;
        }
      }
      ATH_MSG_DEBUG("Residual phi min " << minResPhi << " max " << maxResPhi << " pull min " << minPullPhi << " max " << maxPullPhi
 		   << " dist from tube end " << maxResXMdt );
-
-//     if( minResPhi < 1e8 ) delta_phi = minResPhi; // resX = minResPhi;
 
 //
 //   Store the local X variables
@@ -943,17 +900,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     }
     double dydyz = scale*info.exCovYZY;
     double correction = dydyz/(info.exErrorYZ*info.exErrorYZ);
-/*
-//
-// Flip sign in endcap for eta > 0 (not understood why)
-//
-    if(stIndex == Muon::MuonStationIndex::EI || stIndex == Muon::MuonStationIndex::EM || stIndex == Muon::MuonStationIndex::EO || stIndex == Muon::MuonStationIndex::EE) {
-      if(cos(segment->globalDirection().theta())>0) {
-        correction = -correction;
-        ATH_MSG_DEBUG(" Flip correlation term for segment direction theta " << segment->globalDirection().theta() << " position theta " <<  segment->globalPosition().theta()); 
-      } 
-    } 
-*/
+
 // 
 //  residual after taking into account the correlation with the angle YZ
 //
@@ -981,8 +928,6 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     if (info.chi2Y<0) ATH_MSG_DEBUG( " NEGATIVE chi2Y " << chi2Y << " dydyz " << dydyz << " determinant " << det );
 
      bool hasPhi = false;
-//     if( stIndex == Muon::MuonStationIndex::EI || stIndex == Muon::MuonStationIndex::EM || 
-//	 stIndex == Muon::MuonStationIndex::BM || stIndex == Muon::MuonStationIndex::BO ) hasPhi = true;
 
     if(hitCounts.nexpectedTrigHitLayers> 1) hasPhi = true; 
 
@@ -999,7 +944,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
      if( stIndex == Muon::MuonStationIndex::BM ) info.stationLayer = 2;
      if( stIndex == Muon::MuonStationIndex::BO ) info.stationLayer = 3;
      if( stIndex == Muon::MuonStationIndex::BE ) info.stationLayer = 4;
-     if( stIndex == Muon::MuonStationIndex::EI ) info.stationLayer = m_muonIdHelperTool->isMdt(chId) ? 11 : 21;
+     if( stIndex == Muon::MuonStationIndex::EI ) info.stationLayer = m_idHelperSvc->isMdt(chId) ? 11 : 21;
      if( stIndex == Muon::MuonStationIndex::EM ) info.stationLayer = 12;     
      if( stIndex == Muon::MuonStationIndex::EO ) info.stationLayer = 13;
      if( stIndex == Muon::MuonStationIndex::EE ) info.stationLayer = 14;
@@ -1038,11 +983,9 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 
    int selected = 0;
    scale = 1.;
-//   if(info.stationLayer==12) scale = 5./3.;
 
    if(fabs(info.pullY)<m_MATCH_THETA&&fabs(info.pullYZ)<m_MATCH_THETAANGLE&&fabs(info.pullCY)<scale*m_combinedPullCut&&info.pullChamber<m_chamberPullCut){
      bool pass = true;
-//     if(info.hasPhi && (fabs(info.minimumPullPhi) > m_combinedPullCut && fabs(info.minimumPullPhi) < 100000. ) ) pass = false;
      if(pass) selected = 1;
    } 
      
@@ -1054,7 +997,6 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
  }
  void MuTagMatchingTool::calculateLocalAngleErrors( const Muon::MuonSegment*   segment,  double& angleXZerror, double& angleYZerror ) const {
 
-   //const Trk::CovarianceMatrix& segGlobCov = segment->covariance();
    const Amg::MatrixX& segGlobCov = segment->localCovariance();
   angleXZerror = 999.;
   angleYZerror = 999.;
@@ -1074,38 +1016,24 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
   // Parameters are described as Trk::LocX, Trk::locY, Trk::phi, Trk::theta
   // So the errormatrix of the track 'localErrorMatrix' still holds global angle representation!!!!
   //retrieve Jabcobian to transform the global errors err_phi,err_theta to local errors err_alphaXZ, err_alphaYZ
-   // const CLHEP::HepRotation& glob2loc = exTrack->associatedSurface()->transform().getRotation().inverse();
    const Amg::RotationMatrix3D& glob2loc = exTrack->associatedSurface().transform().rotation().inverse();
-  //const CLHEP::HepVector& exTrkParms = exTrack->parameters();
    const AmgVector(5)& exTrkParms = exTrack->parameters();
   Trk::JacobianPhiThetaLocalAngles jacobianExTrk( exTrkParms[Trk::phi], exTrkParms[Trk::theta],  glob2loc );
 
   // start with global angles error matrix
-  //const Trk::CovarianceMatrix& exTrkGlobCov = exTrack->covariance();
-  //const AmgSymMatrix(5)* exTrkGlobCov = exTrack->covariance();
-
-  //CLHEP::HepSymMatrix anglesCovGlob(2,0);
   Amg::MatrixX anglesCovGlob(2,2);
-  //anglesCovGlob(0,0) = exTrkGlobCov(Trk::phi,Trk::phi) ;
   anglesCovGlob(0,0) = (*exTrack->covariance())(Trk::phi,Trk::phi);
-  // anglesCovGlob(1,0) = exTrkGlobCov(Trk::theta,Trk::phi) ;
   anglesCovGlob(1,0) = (*exTrack->covariance())(Trk::theta,Trk::phi);
-  //anglesCovGlob(0,1) = exTrkGlobCov(Trk::phi,Trk::theta) ;
   anglesCovGlob(0,1) = (*exTrack->covariance())(Trk::phi,Trk::theta);
-  //anglesCovGlob(1,1) = exTrkGlobCov(Trk::theta,Trk::theta) ;
   anglesCovGlob(1,1) = (*exTrack->covariance())(Trk::theta,Trk::theta);
 
   // NEW METHOD
-  //const CLHEP::HepSymMatrix& anglesCovLoc = anglesCovGlob.similarity(jacobianExTrk);
-  //const AmgSymMatrix(5)& anglesCovLoc = anglesCovGlob.similarity(jacobianExTrk);
   const AmgSymMatrix(2)& anglesCovLoc = anglesCovGlob.similarity(jacobianExTrk);
 
   if (anglesCovLoc(0,0) >= 0) angleXZerror = std::sqrt( anglesCovLoc(0,0) );
   if (anglesCovLoc(1,1) >= 0) angleYZerror = std::sqrt( anglesCovLoc(1,1) );
 
-  //covLocYYZ =  exTrkGlobCov[Trk::locY][Trk::phi]*jacobianExTrk[0][1] + exTrkGlobCov[Trk::locY][Trk::theta]*jacobianExTrk[1][1];
   covLocYYZ = (*exTrack->covariance())(Trk::locY,Trk::phi)*jacobianExTrk(0,1) + (*exTrack->covariance())(Trk::locY,Trk::theta)*jacobianExTrk(1,1);
-  //ATH_MSG_DEBUG(" covLocYYZ " << covLocYYZ << " covlocytheta " << exTrkGlobCov[Trk::locY][Trk::theta] << " J01 " << jacobianExTrk[0][1] << " J11 " << jacobianExTrk[0][1] );
   ATH_MSG_DEBUG(" covLocYYZ " << covLocYYZ << " covlocytheta " << (*exTrack->covariance())(Trk::locY,Trk::theta) << " J01 " << jacobianExTrk(0,1) << " J11 " << jacobianExTrk(0,1));
   // some printout
   ATH_MSG_DEBUG( std::setw(20) << "Angles Jacobian used for TRACK angle errors below: " << jacobianExTrk );
@@ -1154,7 +1082,7 @@ bool MuTagMatchingTool::isCscSegment( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_muonIdHelperTool->isCsc( rot->identify() ) ) isCsc=true;
+    if( m_idHelperSvc->isCsc( rot->identify() ) ) isCsc=true;
   }
 
   return isCsc;
@@ -1175,7 +1103,7 @@ unsigned int MuTagMatchingTool::cscHits( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_muonIdHelperTool->isCsc( rot->identify() ) ) ++nrHits;
+    if( m_idHelperSvc->isCsc( rot->identify() ) ) ++nrHits;
   }
   
   return nrHits ;

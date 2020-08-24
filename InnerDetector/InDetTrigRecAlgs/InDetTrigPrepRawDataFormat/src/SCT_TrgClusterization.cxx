@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -35,6 +35,8 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+#include <cmath>
 
 namespace InDet{
 
@@ -91,7 +93,7 @@ namespace InDet{
     declareMonitoredStdContainer("SctOccupancyHashId",  m_occupancyHashId);
     
 
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
 
     // error strategy
     //
@@ -231,7 +233,7 @@ namespace InDet{
     //initialisation of monitored quantities
     m_numSctIds = 0;
     m_numSctClusters = 0;
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
     m_listOfSctIds.clear();
     m_ClusHashId.clear();
     m_SctBSErr.clear();
@@ -307,7 +309,7 @@ namespace InDet{
     }
     
     if (!roi){
-      ATH_MSG_WARNING( "Received NULL RoI" );
+      ATH_MSG_WARNING( "Received nullptr RoI" );
       return HLT::NAV_ERROR;
     }
     
@@ -321,7 +323,7 @@ namespace InDet{
     if ( RoiPhiWidth<-M_PI ) RoiPhiWidth += 1e-7;
 
     if (!roi->isFullscan()){
-      if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
+      if( std::abs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
 	ATH_MSG_DEBUG( "ROI range is different from configuration: " );
 	ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
 	ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );
@@ -400,18 +402,13 @@ namespace InDet{
 
       for (unsigned int i=0; i<m_listOfSctIds.size(); i++) {
 
-	SCT_RDO_Container::const_iterator 
-	  RDO_collection_iter = p_sctRDOContainer->indexFind(m_listOfSctIds[i]); 
-	
-	if (RDO_collection_iter == p_sctRDOContainer->end()) continue;
-
 	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
 	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
     
-	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (*RDO_collection_iter);
+	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (p_sctRDOContainer->indexFindPtr(m_listOfSctIds[i]));
                
 	if (!RDO_Collection) continue;
 

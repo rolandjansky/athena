@@ -4,23 +4,12 @@
 
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
 
-
 #include "CxxUtils/sincos.h"
-
 #include "TrkSurfaces/Surface.h" // should not be included
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "MuonPattern/MuonPatternChamberIntersect.h"
-
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
-
 #include "TrkParameters/TrackParameters.h"
 
 #include <iterator>
@@ -31,18 +20,17 @@ double rotatePhi( double phi, double rotationFraction ) {
   return phi + rotationFraction*M_PI;
 }
 
-MuonCombinePatternTool::MuonCombinePatternTool(const std::string& type, const std::string& name, const IInterface* parent): 
-AthAlgTool(type,name,parent),
-m_maximum_xydistance(3500),
-m_maximum_rzdistance(1500),
-m_use_cosmics(false),
-m_splitpatterns(true),
-m_nodiscarding(true),
-m_bestphimatch(false),
-m_flipdirectionforcosmics(false)
+MuonCombinePatternTool::MuonCombinePatternTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type,name,parent),
+    m_maximum_xydistance(3500),
+    m_maximum_rzdistance(1500),
+    m_use_cosmics(false),
+    m_splitpatterns(true),
+    m_nodiscarding(true),
+    m_bestphimatch(false),
+    m_flipdirectionforcosmics(false)
 {
   declareInterface< IMuonCombinePatternTool >(this);
-  
   declareProperty("UseCosmics",m_use_cosmics);
   declareProperty("SplitPatterns",m_splitpatterns);
   declareProperty("NoDiscarding",m_nodiscarding);
@@ -55,28 +43,15 @@ m_flipdirectionforcosmics(false)
 
 StatusCode MuonCombinePatternTool::initialize()
 {
-
   ATH_MSG_DEBUG("MuonCombinePatternTool::initialize");
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_MSG_DEBUG(" Retrieved MuonIdHelperTool");
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
   if (m_use_cosmics == false) {
     m_splitpatterns = false;
   }
   if (m_use_cosmics == true) {
     m_bestphimatch = true;
   }
-
   ATH_MSG_DEBUG(" UseCosmics: " << m_use_cosmics << " Split Patterns: " << m_splitpatterns << " NoDiscarding: " << m_nodiscarding << " BestPhiMatch: " << m_bestphimatch );
-
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode MuonCombinePatternTool::finalize()
-{
-  ATH_MSG_DEBUG("MuonCombinePatternTool::finalize");
   return StatusCode::SUCCESS;
 }
 
@@ -225,7 +200,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  const double hitz=globalposhit.z();
 	  double radius_hit = std::sqrt(hitx*hitx+hity*hity);
 	  double dotprodradius = sctheta.apply(radius_hit,hitz); // (radius_hit) * sctheta.sn + hitz * sctheta.cs;
-	  ATH_MSG_VERBOSE("combine hit: " << m_muonIdHelperTool->toString(prd->identify()) << " dotprod: " << dotprodradius);
+	  ATH_MSG_VERBOSE("combine hit: " << m_idHelperSvc->toString(prd->identify()) << " dotprod: " << dotprodradius);
 	  if (dotprodradius >=0 || m_use_cosmics == true) // should be on
 	    {
 	      double residu_distance_mm = 1000000.;
@@ -250,7 +225,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		average_distance += distancetoline;
 
 		if( useTightAssociation ){
-		  Identifier chId = m_muonIdHelperTool->chamberId(prd->identify());
+		  Identifier chId = m_idHelperSvc->chamberId(prd->identify());
 		  std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 		  ChamberInfo* chInfo = 0;
 		  if( chPos != infoPerChamber.end() ){
@@ -263,7 +238,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		  if( hitphi < chInfo->phiMin ) chInfo->phiMin = hitphi;
 		  if( hitphi > chInfo->phiMax ) chInfo->phiMax = hitphi;
 		  
-		  Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(prd->identify());
+		  Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(prd->identify());
 		  std::map<Muon::MuonStationIndex::StIndex, ChamberInfo >::iterator stPos = infoPerStation.find(stIndex);
 		  if( stPos != infoPerStation.end() ){
 		    chInfo = &stPos->second;
@@ -278,7 +253,6 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		}
 	      }
 	    } // dotprodradius
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
 	} // size muonpattern
 
       if ( nhits_in_average > 0 ) average_distance /= nhits_in_average;
@@ -311,7 +285,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  bool hit_passed = false;
 	  double etadistancetoline = std::abs(m_muonHoughMathUtils.distanceToLine(etahitx,etahity,r0,phi));
 
-	  ATH_MSG_VERBOSE("combine: " << m_muonIdHelperTool->toString(prd->identify()) << " distance xy " << etadistancetoline);
+	  ATH_MSG_VERBOSE("combine: " << m_idHelperSvc->toString(prd->identify()) << " distance xy " << etadistancetoline);
 
 	  if (m_use_cosmics == true) { // phi cone does not work for cosmics since hits might be close to position of pattern
 		
@@ -333,7 +307,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	    ATH_MSG_VERBOSE(" accepted");
 
 	    if( useTightAssociation ){
-	      Identifier chId = m_muonIdHelperTool->chamberId(prd->identify());
+	      Identifier chId = m_idHelperSvc->chamberId(prd->identify());
 	      std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 	      ChamberInfo* chInfo = 0;
 	      if( chPos != infoPerChamber.end() ){
@@ -342,9 +316,9 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		chInfo = &infoPerChamber[chId];
 	      }
 	      ++chInfo->neta;
-	      if( m_muonIdHelperTool->isMdt(prd->identify()) ){
+	      if( m_idHelperSvc->isMdt(prd->identify()) ){
 		
-		Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(prd->identify());
+		Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(prd->identify());
 		ChamberInfo& stInfo = infoPerStation[stIndex];
 		
 		const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(prd->detectorElement());
@@ -352,13 +326,13 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		
 		const Identifier& id = prd->identify();
 		const Trk::Surface& surf = mdtDetEl->surface(id);
-		int layer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
-		int tube  = m_muonIdHelperTool->mdtIdHelper().tube(id);
+		int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+		int tube  = m_idHelperSvc->mdtIdHelper().tube(id);
 		double halfLength = 0.5*mdtDetEl->getWireLength(layer,tube);
 		Amg::Vector2D lpLeft(0,-halfLength);
 		const Amg::Vector3D* gposLeft = surf.localToGlobal(lpLeft);
 		if( !gposLeft ){
-		  ATH_MSG_WARNING(" Failed calculation left phi for "<< m_muonIdHelperTool->toString(id) );
+		  ATH_MSG_WARNING(" Failed calculation left phi for "<< m_idHelperSvc->toString(id) );
 		  continue;
 		}
 		double phiLeft = gposLeft->phi();
@@ -367,7 +341,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		Amg::Vector2D lpRight(0,halfLength);
 		const Amg::Vector3D* gposRight = surf.localToGlobal(lpRight);
 		if( !gposRight ){
-		  ATH_MSG_WARNING(" Failed calculation right phi for "<< m_muonIdHelperTool->toString(id) );
+		  ATH_MSG_WARNING(" Failed calculation right phi for "<< m_idHelperSvc->toString(id) );
 		  continue;
 		}
 		double phiRight = gposRight->phi();
@@ -477,7 +451,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		    ATH_MSG_DEBUG(" phi range ("  << std::setprecision(3) << std::setw(4) << stInfo.phiMin << "," << std::setw(4) << stInfo.phiMax << ")  ");
       }
 		  ATH_MSG_DEBUG(" pat range ("  << std::setprecision(3) << std::setw(4) << phiMinPat << "," << std::setw(4) << phiMaxPat << ")  " 
-			    << m_muonIdHelperTool->toString(prd->identify()));
+			    << m_idHelperSvc->toString(prd->identify()));
 		  if( mdtDetEl->hasCutouts() ) { ATH_MSG_DEBUG(" hasCutOuts "); }
 		  ATH_MSG_DEBUG(" ATL " << mdtDetEl->getActiveTubeLength(layer,tube)
 			    << " WL " << mdtDetEl->getWireLength(layer,tube) 
@@ -498,9 +472,8 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	std::map<Identifier, ChamberInfo>::iterator chit = infoPerChamber.begin();
 	std::map<Identifier, ChamberInfo>::iterator chit_end = infoPerChamber.end();
 	std::map<int,ChamberInfo> hitsPerSector;
-	//std::set<MuonStationIndex::PhiIndex> 
 	for( ;chit!=chit_end;++chit ){
-	  if( myDebug ) { ATH_MSG_DEBUG("  " <<  std::setw(32) << m_muonIdHelperTool->toStringChamber(chit->first)
+	  if( myDebug ) { ATH_MSG_DEBUG("  " <<  std::setw(32) << m_idHelperSvc->toStringChamber(chit->first)
 				  << "  eta hits " << chit->second.neta  
 				  << "  phi hits " << chit->second.nphi 
 				  << "  ninside  " << chit->second.ninside
@@ -509,16 +482,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 				  << "  noutside  " << chit->second.noutsidePat);
     }
 	  if( chit->second.neta > 0 && chit->second.nphi ) ++netaPhiPairs;
-// 	  if( (m_muonIdHelperTool->isMdt(chit->first) || m_muonIdHelperTool->isRpc(chit->first) || m_muonIdHelperTool->isCsc(chit->first)) ){
-// 	    int sector = m_muonIdHelperTool->sector(chit->first);
-// 	    ChamberInfo& info = hitsPerSector[sector];
-// 	    info.neta += chit->second.neta;
-// 	    info.nphi += chit->second.nphi;
-// 	    info.ninside += chit->second.ninside;
-// 	    info.noutside += chit->second.noutside;
-// 	    info.ninsidePat += chit->second.ninsidePat;
-// 	    info.noutsidePat += chit->second.noutsidePat;
-// 	  }
+
 	}
 	if( myDebug ) {
 	  ATH_MSG_DEBUG(" eta/phi pattern hit overlap " << netaPhiPairs);
@@ -572,12 +536,12 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  for (unsigned int etahitid=0; etahitid < etapattern->numberOfContainedPrds(); etahitid++) {
 	    const Trk::PrepRawData* prd = etapattern->prd(etahitid);
 	    const Identifier& id = prd->identify();
-	    Identifier chId = m_muonIdHelperTool->chamberId(id);
+	    Identifier chId = m_idHelperSvc->chamberId(id);
 	    std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 	    if( chPos == infoPerChamber.end() ) continue;
 	      
 	      
-	    if( m_muonIdHelperTool->isMdt(id) ) {
+	    if( m_idHelperSvc->isMdt(id) ) {
 	      if( chPos->second.ninside == 0 &&  chPos->second.noutside > 0 ) continue;
 	      if( chPos->second.ninsidePat == 0 &&  chPos->second.noutsidePat > 0 ) continue;
 	    }else{
@@ -588,7 +552,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  for (unsigned int phihitid=0; phihitid < phipattern->numberOfContainedPrds(); phihitid++) {
 	    const Trk::PrepRawData* prd = phipattern->prd(phihitid);
 	    const Identifier& id = prd->identify();
-	    Identifier chId = m_muonIdHelperTool->chamberId(id);
+	    Identifier chId = m_idHelperSvc->chamberId(id);
 	    std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 	    if( chPos == infoPerChamber.end() ) continue;
 	      
@@ -692,14 +656,14 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
     }
     if (ismatched == false ) {
       if (msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "NO COMBINED Candidate FOUND eta " << etalevel << " phi " << phibest;
-	if (m_use_cosmics==false) msg(MSG::DEBUG) << "dotprodbest: " << dotprodbest;
-	msg(MSG::DEBUG) << "writing out eta pattern (no cleanup)" << endmsg;
+	ATH_MSG_DEBUG("NO COMBINED Candidate FOUND eta " << etalevel << " phi " << phibest);
+	if (m_use_cosmics==false) ATH_MSG_DEBUG("dotprodbest: " << dotprodbest);
+	ATH_MSG_DEBUG("writing out eta pattern (no cleanup)");
       }
       Muon::MuonPrdPattern* phi_dummy = 0;
       candidates.push_back(std::make_pair(etapattern,phi_dummy));
     }else{
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Candidate was associated to a phi pattern " << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Candidate was associated to a phi pattern ");
 
     }
   } // size rtheta level
@@ -835,7 +799,7 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::makeCombinedPattern(const Muon::Mu
   ATH_MSG_DEBUG("Combined Track size: " << combinedpattern->numberOfContainedPrds() );
 
   if (m_use_cosmics == true) {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No Cleaning for Cosmics!" << endmsg;
+    if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE("No Cleaning for Cosmics!");
     
     if (msgLvl(MSG::VERBOSE)) {printPattern(combinedpattern);}
     return combinedpattern;
@@ -1004,11 +968,11 @@ std::vector <std::pair<Muon::MuonPrdPattern*, Muon::MuonPrdPattern*> > MuonCombi
   splitPatterns.push_back(std::make_pair(phipattern2,etapattern2));
 
   if ( msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << " split pattern theta: " << theta << " phi: " << phi << endmsg;
-    msg(MSG::VERBOSE) << " split pattern1 theta: " << etapattern1->globalDirection().theta() << " phi: " << etapattern1->globalDirection().phi() << endmsg;
-    msg(MSG::VERBOSE) << " split pattern2 theta: " << etapattern2->globalDirection().theta() << " phi: " << etapattern2->globalDirection().phi() << endmsg;
+    ATH_MSG_DEBUG(" split pattern theta: " << theta << " phi: " << phi);
+    ATH_MSG_DEBUG(" split pattern1 theta: " << etapattern1->globalDirection().theta() << " phi: " << etapattern1->globalDirection().phi());
+    ATH_MSG_DEBUG(" split pattern2 theta: " << etapattern2->globalDirection().theta() << " phi: " << etapattern2->globalDirection().phi());
     std::vector<double> splitpoint = m_muonHoughMathUtils.shortestPointOfLineToOrigin(globalpos.x(),globalpos.y(),globalpos.z(),phi,theta);
-    msg(MSG::DEBUG) << " splitpoint, x: " << splitpoint[0] << " y: " << splitpoint[1] << " z: " << splitpoint[2] << endmsg;
+    ATH_MSG_DEBUG(" splitpoint, x: " << splitpoint[0] << " y: " << splitpoint[1] << " z: " << splitpoint[2]);
   }
 
   double d_x = scphi.cs*sctheta.sn;
@@ -1050,9 +1014,9 @@ std::vector <std::pair<Muon::MuonPrdPattern*, Muon::MuonPrdPattern*> > MuonCombi
   
   if ( msgLvl(MSG::DEBUG) ) { 
     if (phipattern) {
-      msg(MSG::DEBUG) << "Final size, phi: " << phipattern1->numberOfContainedPrds() << " " << phipattern2->numberOfContainedPrds() << endmsg;
+      ATH_MSG_DEBUG("Final size, phi: " << phipattern1->numberOfContainedPrds() << " " << phipattern2->numberOfContainedPrds());
     }
-    msg(MSG::DEBUG) << "Final size, eta: " << etapattern1->numberOfContainedPrds() << " " << etapattern2->numberOfContainedPrds() << endmsg;
+    ATH_MSG_DEBUG("Final size, eta: " << etapattern1->numberOfContainedPrds() << " " << etapattern2->numberOfContainedPrds());
   }
   
   return splitPatterns;
@@ -1155,9 +1119,9 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::cleanupCombinedPattern(Muon::MuonP
       else 
 	{
 	  if (msgLvl(MSG::DEBUG)) {
-	    msg(MSG::DEBUG) <<  "Hit discarded: " << hitid << " dis xy " << distance_xy << " dis rz " << distance_rz << endmsg;
-	    msg(MSG::DEBUG) << "Hit info: " << endmsg;
-	    m_muonIdHelperTool->mdtIdHelper().print(prd->identify());
+	    ATH_MSG_DEBUG("Hit discarded: " << hitid << " dis xy " << distance_xy << " dis rz " << distance_rz);
+	    ATH_MSG_DEBUG("Hit info: ");
+	    m_idHelperSvc->mdtIdHelper().print(prd->identify());
 	  }
 	}
     }
@@ -1365,7 +1329,7 @@ double* MuonCombinePatternTool::updateParametersForCosmics(const Muon::MuonPrdPa
   ATH_MSG_DEBUG("old parameters: r0: " << old_pars[0] << " phi: " << old_pars[1] << " rz0: " << old_pars[2] << " theta: " << old_pars[3] );
 
   if ( msgLvl(MSG::VERBOSE) ) {
-    msg(MSG::VERBOSE) << "phisize: " << phisize << " etasize: " << etasize << endmsg;
+    ATH_MSG_VERBOSE("phisize: " << phisize << " etasize: " << etasize);
     for (unsigned int i=0; i<phisize; i++)
       {
 	const Trk::PrepRawData* prd = phipattern->prd(i);
@@ -1373,9 +1337,9 @@ double* MuonCombinePatternTool::updateParametersForCosmics(const Muon::MuonPrdPa
 	double hitx = globalposhit.x();
 	double hity = globalposhit.y();
 	double distance = m_muonHoughMathUtils.signedDistanceToLine(hitx,hity,r0,phi);
-	msg(MSG::VERBOSE) << "distance to updated parameters in xy: " << distance << endmsg;
+	ATH_MSG_VERBOSE("distance to updated parameters in xy: " << distance);
 	distance = m_muonHoughMathUtils.signedDistanceToLine(hitx,hity,old_pars[0],old_pars[1]);
-	msg(MSG::VERBOSE) << "old distance phi hit: " << distance << endmsg;
+	ATH_MSG_VERBOSE("old distance phi hit: " << distance);
       }
     for (unsigned int i=0; i<etasize; i++)
       {
@@ -1384,9 +1348,9 @@ double* MuonCombinePatternTool::updateParametersForCosmics(const Muon::MuonPrdPa
 	double hitx = globalposhit.x();
 	double hity = globalposhit.y();
 	double distance = m_muonHoughMathUtils.signedDistanceToLine(hitx,hity,r0,phi);
-	msg(MSG::VERBOSE) << "distance to updated parameters in xy: " << distance << endmsg;
+	ATH_MSG_VERBOSE("distance to updated parameters in xy: " << distance);
 	distance = m_muonHoughMathUtils.signedDistanceToLine(hitx,hity,old_pars[0],old_pars[1]);
-	msg(MSG::VERBOSE) << "old distance eta hit: " << distance << endmsg;
+	ATH_MSG_VERBOSE("old distance eta hit: " << distance);
       }
     for (unsigned int i=0; i<etasize; i++)
       {
@@ -1395,9 +1359,9 @@ double* MuonCombinePatternTool::updateParametersForCosmics(const Muon::MuonPrdPa
 	double hitz = globalposhit.z();
 	double perp = scphi.apply(globalposhit.y(),globalposhit.x()); //globalposhit.x()*scphi.cs + globalposhit.y()*scphi.sn;
 	double distance = m_muonHoughMathUtils.signedDistanceToLine(hitz,perp,rz0,theta);
-	msg(MSG::VERBOSE) << "distance to updated parameters in Rz: " << distance << endmsg;
+	ATH_MSG_VERBOSE("distance to updated parameters in Rz: " << distance);
 	distance = m_muonHoughMathUtils.signedDistanceToLine(hitz,perp,old_pars[2],old_pars[3]);
-	msg(MSG::VERBOSE) << "old distance: " << distance << endmsg;
+	ATH_MSG_VERBOSE("old distance: " << distance);
       }
   }
 
@@ -1446,9 +1410,6 @@ std::pair<double,double> MuonCombinePatternTool::calculateR0Phi(const Muon::Muon
       sum_etay += globalposhit.y();
     }
 
-//   const double av_etax = sum_etax / (etasize > 0 ? etasize : 1);
-//   const double av_etay = sum_etay / (etasize > 0 ? etasize : 1);
-
   for (unsigned int i=0; i<phisize; i++)
     {
       const Trk::PrepRawData* prd = phipattern->prd(i);
@@ -1457,16 +1418,11 @@ std::pair<double,double> MuonCombinePatternTool::calculateR0Phi(const Muon::Muon
       sum_phiy += globalposhit.y();
     }
 
-//   const double av_phix = sum_phix / (phisize > 0 ? phisize : 1);
-//   const double av_phiy = sum_phiy / (phisize > 0 ? phisize : 1);
-
   const double av_x = (eta_error_inv2*sum_etax + phi_error_inv2*sum_phix) / (eta_error_inv2*etasize + phi_error_inv2*phisize);
   const double av_y = (eta_error_inv2*sum_etay + phi_error_inv2*sum_phiy) / (eta_error_inv2*etasize + phi_error_inv2*phisize);
 
   if ( msgLvl(MSG::VERBOSE) ) {
-    msg(MSG::VERBOSE) << " av_x: " << av_x << " av_y: " << av_y  << endmsg;
-//     msg(MSG::VERBOSE) << " av_etax: " << av_etax << " av_etay: " << av_etay  << endmsg;
-//     msg(MSG::VERBOSE) << " av_phix: " << av_phix << " av_phiy: " << av_phiy  << endmsg;
+    ATH_MSG_VERBOSE(" av_x: " << av_x << " av_y: " << av_y);
   }
 
   // calculate weighted sum:
@@ -1674,14 +1630,14 @@ MuonPatternCombinationCollection* MuonCombinePatternTool::makePatternCombination
 	  const Trk::PrepRawData* prd = (*pit)->prd(i);
 	  Identifier channelId = prd->identify();
 	  Identifier moduleId;
-	  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(channelId))
-	    {moduleId = m_muonIdHelperTool->mdtIdHelper().elementID(channelId);}
-	  else if (m_muonIdHelperTool->cscIdHelper().is_csc(channelId))
-	    {moduleId = m_muonIdHelperTool->cscIdHelper().elementID(channelId);}
-	  else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(channelId))
-	    {moduleId = m_muonIdHelperTool->tgcIdHelper().elementID(channelId);}
-	  else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(channelId))
-	    {moduleId = m_muonIdHelperTool->rpcIdHelper().elementID(channelId);}
+	  if (m_idHelperSvc->isMdt(channelId))
+	    {moduleId = m_idHelperSvc->mdtIdHelper().elementID(channelId);}
+	  else if (m_idHelperSvc->isCsc(channelId))
+	    {moduleId = m_idHelperSvc->cscIdHelper().elementID(channelId);}
+	  else if (m_idHelperSvc->isTgc(channelId))
+	    {moduleId = m_idHelperSvc->tgcIdHelper().elementID(channelId);}
+	  else if (m_idHelperSvc->isRpc(channelId))
+	    {moduleId = m_idHelperSvc->rpcIdHelper().elementID(channelId);}
 	  else {ATH_MSG_ERROR("prd is not a muonhit?!");}
 
 	  chit = chamberMap.find(moduleId);
@@ -1820,14 +1776,14 @@ bool MuonCombinePatternTool::subset(std::pair<std::set<const Trk::PrepRawData*,M
 void MuonCombinePatternTool::printPattern(const Muon::MuonPrdPattern* muonpattern)const 	 
 { 	 
   if ( msgLvl(MSG::VERBOSE) ) {
-    msg(MSG::VERBOSE) << "Printout of Pattern: " << endmsg; 	 
+    ATH_MSG_VERBOSE("Printout of Pattern: "); 	 
   
     const Amg::Vector3D& pos = muonpattern->globalPosition(); 	 
     const Amg::Vector3D& dir = muonpattern->globalDirection(); 	 
     
-    msg(MSG::VERBOSE) << "pos: x: " << pos.x() << " y: " << pos.y() << " z: " << pos.z() << endmsg; 	 
-    msg(MSG::VERBOSE) << "dir: x: " << dir.x() << " y: " << dir.y() << " z: " << dir.z() << endmsg; 	 
-    msg(MSG::VERBOSE) << "phi: " << dir.phi() << " theta: " << dir.theta() << " rz0: " << pos.z()*std::sin(dir.theta()) << endmsg; 	 
+    ATH_MSG_VERBOSE("pos: x: " << pos.x() << " y: " << pos.y() << " z: " << pos.z()); 	 
+    ATH_MSG_VERBOSE("dir: x: " << dir.x() << " y: " << dir.y() << " z: " << dir.z()); 	 
+    ATH_MSG_VERBOSE("phi: " << dir.phi() << " theta: " << dir.theta() << " rz0: " << pos.z()*std::sin(dir.theta()));
     
     for (unsigned int k=0; k<muonpattern->numberOfContainedPrds(); k++) { 	 
       const Trk::PrepRawData* prd = muonpattern->prd(k); 	 
@@ -1835,16 +1791,16 @@ void MuonCombinePatternTool::printPattern(const Muon::MuonPrdPattern* muonpatter
       if (mdtprd) { 	 
 	const Trk::Surface& surface = mdtprd->detectorElement()->surface(mdtprd->identify()); 	 
 	const Amg::Vector3D& gpos = surface.center(); 	 
-	msg(MSG::VERBOSE) << "mdt " << k << " x: " << gpos.x() << " y: " << gpos.y() << " z: " << gpos.z() << endmsg; 	 
+	ATH_MSG_VERBOSE("mdt " << k << " x: " << gpos.x() << " y: " << gpos.y() << " z: " << gpos.z()); 	 
       } 	 
       else if (!mdtprd){ 	 
 	const Muon::MuonCluster* muoncluster = dynamic_cast <const Muon::MuonCluster*>(prd); 	 
 	if (muoncluster) { 	 
 	  const Amg::Vector3D& gpos = muoncluster->globalPosition(); 	 
-	  msg(MSG::VERBOSE) << "cluster " << k << " x: " << gpos.x() << " y: " << gpos.y() << " z: " << gpos.z() << endmsg; 	 
+	  ATH_MSG_VERBOSE("cluster " << k << " x: " << gpos.x() << " y: " << gpos.y() << " z: " << gpos.z()); 	 
 	} 	 
 	if(!muoncluster) { 	 
-	  msg(MSG::VERBOSE) << "no muon prd? " << endmsg; 	 
+	  ATH_MSG_VERBOSE("no muon prd? "); 	 
 	}
       }
     }
@@ -1881,10 +1837,10 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::cleanPhiPattern(const Muon::MuonPr
   const unsigned int size = phipattern->numberOfContainedPrds();
 
   if ( msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << "Start Phi hits cleaning with " << size << " hits " << " theta " << theta << endmsg;
+    ATH_MSG_DEBUG("Start Phi hits cleaning with " << size << " hits " << " theta " << theta);
     const Amg::Vector3D& oldpos = phipattern->globalPosition();
     double r0 = m_muonHoughMathUtils.signedDistanceOfLineToOrigin2D(oldpos.x(),oldpos.y(),olddir.phi());
-    msg(MSG::DEBUG) << "Start Phi: " << olddir.phi() << " r0: " << r0 << endmsg;
+    ATH_MSG_DEBUG("Start Phi: " << olddir.phi() << " r0: " << r0);
   }
 
   // need internal class to be able to remove hits fast
@@ -2012,7 +1968,7 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
 
       // print associated pattern:
       if ( msgLvl(MSG::VERBOSE) ) {
-	msg(MSG::VERBOSE) << "Associated Pattern: " << endmsg;
+	ATH_MSG_VERBOSE("Associated Pattern: ");
 	printPattern(assphipattern);
       }
 

@@ -144,7 +144,7 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "EM3"
             if "gsc" in jetRecoDict["jetCalib"]:
                 gscDepth = "trackWIDTH"
-                pvname = "HLT_EFHistoPrmVtx"
+                pvname = "HLT_IDVertex_FS"
 
         elif jetRecoDict["dataType"]=="pf":
             gscDepth = "auto"
@@ -152,7 +152,7 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
             calibSeq = "JetArea_Residual_EtaJES_GSC"
             if jetRecoDict["jetCalib"].endswith("IS"):
                 calibSeq += "_Insitu"
-            pvname = "HLT_EFHistoPrmVtx"
+            pvname = "HLT_IDVertex_FS"
 
         calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, pvname, gscDepth] )
         from .TriggerJetMods import ConstitFourMom_copy

@@ -140,7 +140,7 @@ void McEventCollectionCnv_p3::persToTrans( const McEventCollection_p3* persObj,
     // set the signal process vertex
     const int sigProcVtx = persEvt.m_signalProcessVtx;
     if ( sigProcVtx != 0 ) {
-      genEvt->set_signal_process_vertex( genEvt->barcode_to_vertex( sigProcVtx ) );
+      HepMC::set_signal_process_vertex(genEvt, HepMC::barcode_to_vertex(genEvt, sigProcVtx ) );
     }
 
     // connect particles to their end vertices
@@ -149,7 +149,7 @@ void McEventCollectionCnv_p3::persToTrans( const McEventCollection_p3* persObj,
             endItr = partToEndVtx.end();
           p != endItr;
           ++p ) {
-      auto decayVtx = genEvt->barcode_to_vertex( p->second );
+      auto decayVtx=HepMC::barcode_to_vertex(genEvt, p->second );
       if ( decayVtx ) {
         decayVtx->add_particle_in( p->first );
       } else {
@@ -188,14 +188,14 @@ void McEventCollectionCnv_p3::transToPers( const McEventCollection* /*transObj*/
 // Protected methods:
 ///////////////////////////////////////////////////////////////////
 
-HepMC::GenVertex*
+HepMC::GenVertexPtr
 McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
                                           const GenVertex_p3& persVtx,
                                           ParticlesMap_t& partToEndVtx,
                                           HepMC::DataPool* datapools ) const
 {
   DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
-  HepMC::GenVertex * vtx = poolOfVertices.nextElementPtr();
+  HepMC::GenVertexPtr vtx = poolOfVertices.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
   vtx->m_position.setZ( persVtx.m_z );
@@ -228,7 +228,7 @@ McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
   return vtx;
 }
 
-HepMC::GenParticle*
+HepMC::GenParticlePtr
 McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
                                             ParticlesMap_t& partToEndVtx,
                                             HepMC::DataPool* datapools ) const
@@ -238,7 +238,7 @@ McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
   using std::pow;
 
   DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
-  HepMC::GenParticle* p    = poolOfParticles.nextElementPtr();
+  HepMC::GenParticlePtr p    = poolOfParticles.nextElementPtr();
   p->m_pdg_id              = persPart.m_pdgId;
   p->m_status              = persPart.m_status;
   p->m_polarization.m_theta= static_cast<double>(persPart.m_thetaPolarization);

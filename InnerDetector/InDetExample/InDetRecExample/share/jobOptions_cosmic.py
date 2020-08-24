@@ -144,7 +144,7 @@ InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.I
 #InDetFlags.doPerfMon = True
 
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 
 # --- produce various ntuples (all in one root file)
 #InDetFlags.doTrkNtuple      = True

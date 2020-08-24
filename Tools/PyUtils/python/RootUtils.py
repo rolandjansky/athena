@@ -8,7 +8,6 @@
 from __future__ import with_statement, print_function
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 739816 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
@@ -18,22 +17,12 @@ __all__ = [
 
 ### imports -------------------------------------------------------------------
 import os
-import sys
 import re
 import six
-from pprint import pprint
-from array import array
 
 from .Decorators import memoize
 
 ### functions -----------------------------------------------------------------
-# Set buffer size, in bytes.
-# The argument to SetSize is in elements, not bytes.
-def _set_byte_size (buf, sz):
-    eltsz = array(buf.typecode).itemsize
-    buf.SetSize (sz // eltsz)
-    return
-
 def import_root(batch=True):
     """a helper method to wrap the 'import ROOT' statement to prevent ROOT
     from screwing up the display or loading graphics libraries when in batch
@@ -47,7 +36,7 @@ def import_root(batch=True):
     ROOT.gROOT.SetBatch(batch)
     if batch:
         ROOT.PyConfig.IgnoreCommandLineOptions = True
-    import cppyy
+    import cppyy  # noqa: F401
     if os.environ.get('GLIBCXX_USE_CXX11_ABI') == '0':
         cmd = ROOT.gSystem.GetMakeSharedLib()
         if cmd.find('GLIBCXX_USE_CXX11_ABI') < 0:
@@ -145,7 +134,7 @@ def _pythonize_tfile():
         ]):
         cppyy.loadDict("RootUtilsPyROOTDict")
         rootutils = getattr(root, "RootUtils")
-        pybytes        = getattr(rootutils, "PyBytes")
+        pybytes        = getattr(rootutils, "PyBytes")  # noqa: F841
         #MN: lines below fail in ROOT6 if PCM from RootUtils is not found
         read_root_file = getattr(rootutils, "_pythonize_read_root_file")
         tell_root_file = getattr(rootutils, "_pythonize_tell_root_file")
@@ -161,19 +150,17 @@ def _pythonize_tfile():
         """
         SZ = 4096
 
+        # FIXME: Once we drop py2, we can simplify this by using a bytes
+        # object directly instead of PyBytes.
         if size>=0:
             #size = _adjust_sz(size)
             #print ("-->0",self.tell(),size)
             c_buf = read_root_file(self, size)
             if c_buf and c_buf.sz:
-                #print ("-->1",self.tell(),c_buf.sz)
-                #self.seek(c_buf.sz+self.tell())
-                #print ("-->2",self.tell())
-                buf = c_buf.buffer()
-                _set_byte_size (buf, c_buf.sz)
+                v = c_buf.buf
                 if six.PY3:
-                    return buf.tobytes()
-                return str(buf[:])
+                    return bytes([ord(v[i]) for i in range(v.size())])
+                return ''.join([v[i] for i in range(v.size())])
             return ''
         else:
             size = SZ
@@ -182,12 +169,18 @@ def _pythonize_tfile():
                 #size = _adjust_sz(size)
                 c_buf = read_root_file(self, size)
                 if c_buf and c_buf.sz:
-                    buf = c_buf.buffer()
-                    _set_byte_size (buf, c_buf.sz)
-                    out.append(str(buf[:]))
+                    v = c_buf.buf
+                    if six.PY3:
+                        chunk = bytes([ord(v[i]) for i in range(v.size())])
+                    else:
+                        chunk = ''.join([v[i] for i in range(v.size())])
+                    out.append(chunk)
                 else:
                     break
+            if six.PY3:
+                return b''.join(out)
             return ''.join(out)
+            
     root.TFile.read = read
     del read
     
@@ -212,7 +205,7 @@ def _getLeaf (l):
     if tname in ['Char_t']:
         try:
             return l.GetValueString() # TLeafC for variable size string
-        except:
+        except Exception:
             return [l.GetValue(i) for i in range(ndat)] # TLeafB for 8-bit integers
     return None
 
@@ -259,7 +252,7 @@ class RootFileDumper(object):
 
         self.tree = self.root_file.Get(tree_name)
         if self.tree is None or not isinstance(self.tree, ROOT.TTree):
-            raise AttributeError('no tree [%s] in file [%s]', tree_name, fname)
+            raise AttributeError('no tree [%s] in file [%s]', tree_name, self.root_file.GetName())
 
         tree = self.tree
         nentries = tree.GetEntries()
@@ -351,7 +344,7 @@ class RootFileDumper(object):
 
 ### test support --------------------------------------------------------------
 def _test_main():
-    root = import_root()
+    root = import_root()  # noqa: F841
     def no_raise(msg, fct, *args, **kwds):
         caught = False
         err = None
@@ -369,7 +362,7 @@ def _test_main():
              fct=root_compile, src="void foo1a() { return ; }")
     import tempfile
     # PvG workaround for ROOT-7059
-    dummy = tempfile.NamedTemporaryFile(prefix="foo_",suffix=".cxx")
+    dummy = tempfile.NamedTemporaryFile(prefix="foo_",suffix=".cxx")  # noqa: F841
     with tempfile.NamedTemporaryFile(prefix="foo_",suffix=".cxx") as tmp:
         tmp.write (b"void foo2() { return ; }\n")
         tmp.flush()

@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Array.h,v 1.2 2009-04-07 04:26:22 ssnyder Exp $
 /**
  * @file  Array.h
  * @author scott snyder <snyder@bnl.gov>
@@ -40,6 +39,7 @@
 
 
 #include "CxxUtils/Arrayrep.h"
+#include "CxxUtils/concepts.h"
 #include <iterator>
 
 
@@ -220,6 +220,16 @@ public:
   const_iterator end   () const;
 
 
+  /**
+   * @brief Creates a text representation of the array content.
+   * @param std::ostream where the text should be written
+   *
+   * Writes the content of the array to a ostream. The sub-arrays are
+   * enclosed by square-brackets and separated by commas.
+   */
+  void write_array (std::ostream& stream) const;
+
+
   // Protected, not private, so that they can be accessed by @c WritableArray.
 protected:
   /**
@@ -323,6 +333,16 @@ public:
   int asint () const;
 
 
+  /**
+   * @brief Creates a text representation of the array content.
+   * @param std::ostream where the text should be written
+   *
+   * Writes the content of the array to a ostream. The sub-arrays are
+   * enclosed by square-brackets and separated by commas.
+   */
+  void write_array (std::ostream& stream) const;
+
+
   // Protected, not private, so that they can be accessed by @c WritableArray.
 protected:
   /**
@@ -343,6 +363,10 @@ protected:
   /// Null if this instance was created using the default constructor.
   const Arrayelt* m_elt;
 };
+
+
+template <unsigned int N>
+std::ostream& operator<< (std::ostream& s, const Array<N>& a);
 
 
 //**********************************************************************
@@ -740,7 +764,7 @@ private:
 
 
 /**
- * @class Array<N>
+ * @class WritableArrayData<N>
  * @brief A @c WriteableArray together with an @c Arrayrep.
  *
  * This is a convenient way of creating from scratch an array
@@ -770,6 +794,25 @@ public:
    */
   WritableArrayData (const std::vector<unsigned int>& shape);
 };
+
+
+/**
+ * @brief Helper to convert from an @x Arrayrep to a scalar type.
+ * @param rep Representation object to convert.
+ * @param x[out] Result of the conversion.
+ */
+template <class T>
+  ATH_REQUIRES(std::assignable_from<T&, float>)
+void fromArrayrep (const CaloRec::Arrayrep& rep, T& x);
+
+
+/**
+ * @brief Helper to convert from an @x Arrayrep to an @c Array.
+ * @param rep Representation object to convert.
+ * @param x[out] Result of the conversion.
+ */
+template <unsigned int N>
+void fromArrayrep (const CaloRec::Arrayrep& rep, CxxUtils::Array<N>& x);
 
 
 } // namespace CxxUtils

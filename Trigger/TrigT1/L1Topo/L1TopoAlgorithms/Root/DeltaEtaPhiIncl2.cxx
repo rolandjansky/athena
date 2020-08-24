@@ -11,6 +11,8 @@
 **********************************/
 
 #include <cmath>
+#include "TH1F.h"
+#include "TH2F.h"
 
 #include "L1TopoAlgorithms/DeltaEtaPhiIncl2.h"
 #include "L1TopoCommon/Exception.h"
@@ -82,7 +84,19 @@ TCS::DeltaEtaPhiIncl2::initialize() {
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
-   
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       const int buf_len = 512;
+       char hname_accept[buf_len], hname_reject[buf_len];
+       int EtaPhi_bin=100;
+       float EtaPhi_min=0;
+       float EtaPhi_max=70;
+       // eta2 vs. eta1
+       snprintf(hname_accept, buf_len, "Accept_DeltaEtaPhiIncl2_bit%d", i);
+       snprintf(hname_reject, buf_len, "Reject_DeltaEtaPhiIncl2_bit%d", i);
+       registerHist(m_histAccept[i] = new TH2F(hname_accept, hname_accept, EtaPhi_bin, EtaPhi_min, EtaPhi_max, EtaPhi_bin, EtaPhi_min, EtaPhi_max));
+       registerHist(m_histReject[i] = new TH2F(hname_reject, hname_reject, EtaPhi_bin, EtaPhi_min, EtaPhi_max, EtaPhi_bin, EtaPhi_min, EtaPhi_max));
+   }      
    return StatusCode::SUCCESS;
 }
 
@@ -91,7 +105,7 @@ TCS::DeltaEtaPhiIncl2::initialize() {
 TCS::StatusCode
 TCS::DeltaEtaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 2) {
         TRG_MSG_DEBUG("input size     : " << input[0]->size());
@@ -117,11 +131,19 @@ TCS::DeltaEtaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i] ) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = ( deltaEta >= p_DeltaEtaMin[i] ||  deltaPhi >= p_DeltaPhiMin[i] ) && deltaPhi <= p_DeltaPhiMax[i] && deltaEta <= p_DeltaEtaMax[i]; 
+			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
-                            decison.setBit(i, true);  
-                            output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+			  decision.setBit(i, true);  
+			  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
-                        msgss << (accept?"pass":"fail") << "|";
+			if(fillAccept and not alreadyFilled) {
+			  fillHist2D(m_histAccept[i]->GetName(),(float)deltaEta,(float)deltaPhi);
+			} else if(fillReject) {
+			  fillHist2D(m_histReject[i]->GetName(),(float)deltaEta,(float)deltaPhi);
+			}
+                        msgss << "DeltaRApproxBoxCutIncl2 alg bit" << i << (accept?" pass":" fail") << "|";
                     }
                     TRG_MSG_DEBUG(msgss.str());
                 }
@@ -136,7 +158,7 @@ TCS::DeltaEtaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
 TCS::StatusCode
 TCS::DeltaEtaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 2) {
         TRG_MSG_DEBUG("input size     : " << input[0]->size());
@@ -162,11 +184,19 @@ TCS::DeltaEtaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i] ) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = ( deltaEta >= p_DeltaEtaMin[i] ||  deltaPhi >= p_DeltaPhiMin[i] ) && deltaPhi <= p_DeltaPhiMax[i] && deltaEta <= p_DeltaEtaMax[i]; 
+			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
-                            decison.setBit(i, true);  
-                            output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+			  decision.setBit(i, true);  
+			  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
-                        msgss << (accept?"pass":"fail") << "|";
+			if(fillAccept and not alreadyFilled) {
+			  fillHist2D(m_histAccept[i]->GetName(),(float)deltaEta,(float)deltaPhi);
+			} else if(fillReject) {
+			  fillHist2D(m_histReject[i]->GetName(),(float)deltaEta,(float)deltaPhi);
+			}
+                        msgss << "DeltaRApproxBoxCutIncl2 alg bit" << i << (accept?" pass":" fail") << "|";
                     }
                     TRG_MSG_DEBUG(msgss.str());
                 }

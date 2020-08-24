@@ -87,14 +87,14 @@ namespace ISF {
     /** Record the given truth incident to the MC Truth */
     void recordIncidentToMCTruth( ITruthIncident& truthincident) const;
     /** Record and end vertex to the MC Truth for the parent particle */
-    HepMC::GenVertex *createGenVertexFromTruthIncident( ITruthIncident& truthincident,
+    HepMC::GenVertexPtr  createGenVertexFromTruthIncident( ITruthIncident& truthincident,
                                                         bool replaceExistingGenVertex=false) const;
 
     /** Set shared barcode for child particles */
     void setSharedChildParticleBarcode( ITruthIncident& truthincident) const;
 
     /** Delete child vertex */
-    void deleteChildVertex(HepMC::GenVertex* vertex) const;
+    void deleteChildVertex(HepMC::GenVertexPtr  vertex) const;
 
     /** Helper function to determine the largest particle barcode set by the generator */
     int maxGeneratedParticleBarcode(HepMC::GenEvent *genEvent) const;

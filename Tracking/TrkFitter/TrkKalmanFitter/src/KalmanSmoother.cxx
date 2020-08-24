@@ -25,10 +25,12 @@
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
 
 // common tracking tools
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkToolInterfaces/IUpdator.h"
-#include "TrkFitterInterfaces/IDynamicNoiseAdjustor.h"
 #include "TrkDetDescrInterfaces/IAlignableSurfaceProvider.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkFitterInterfaces/IDynamicNoiseAdjustor.h"
+#include "TrkToolInterfaces/IUpdator.h"
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -193,8 +195,8 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
   // take care of different fit Quality objects in place during smoothing:
   //
-  Trk::FitQualityOnSurface* fitQual = 0;               // FQ of a given smoothed state
-  Trk::FitQualityOnSurface* trackQualityIncrement = 0; // increment to build total fitQ
+  Trk::FitQualityOnSurface* fitQual = nullptr;               // FQ of a given smoothed state
+  Trk::FitQualityOnSurface* trackQualityIncrement = nullptr; // increment to build total fitQ
   if (trackFitQuality) {                               // object to hold total fit quality
     ATH_MSG_WARNING ("fitQuality pointer is not NULL, cancel Kalman fit to prevent mem leak!");
     if (msgLvl(MSG::INFO)) monitorTrackFits( Call, 1000. );
@@ -346,7 +348,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
       ////////////////////////////////////////////////////////////////////
       // adjust the momentum + error according to target measurement (brem fit)
-      const Trk::DNA_MaterialEffects* detectedMomentumNoise = 0;
+      const Trk::DNA_MaterialEffects* detectedMomentumNoise = nullptr;
       Trk::Trajectory::reverse_iterator stateWithNoise 
         = m_utility->previousFittableState(trajectory, rit);
       if (kalMec.doDNA() && stateWithNoise!=trajectory.rend()) {
@@ -457,8 +459,8 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
 
   // take care of different fit Quality objects in place during smoothing:
   //
-  Trk::FitQualityOnSurface* fitQual = 0;               // FQ of a given smoothed state
-  Trk::FitQualityOnSurface* trackQualityIncrement = 0; // increment to build total fitQ
+  Trk::FitQualityOnSurface* fitQual = nullptr;               // FQ of a given smoothed state
+  Trk::FitQualityOnSurface* trackQualityIncrement = nullptr; // increment to build total fitQ
   if (trackFitQuality) {                               // object to hold total fit quality
     ATH_MSG_WARNING ("fitQuality pointer is not NULL, cancel Kalman fit to prevent mem leak!");
     if (msgLvl(MSG::INFO)) monitorTrackFits( BadInput, 1000. );
@@ -498,7 +500,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
   const AmgVector(5) x = lastPredictedState->referenceParameters()->parameters()
                        + updatedDifference->first;
   smooPar.reset(  updatedDifference? CREATE_PARAMETERS(*lastPredictedState->referenceParameters(),
-                                                       x,new AmgSymMatrix(5)(updatedDifference->second)) : 0 );
+                                                       x,new AmgSymMatrix(5)(updatedDifference->second)) : nullptr );
   if (msgLvl(MSG::INFO)) monitorTrackFits( Call, ( smooPar ? smooPar->eta() : 1000. ) );
   if (!smooPar || !fitQual) {
     ATH_MSG_WARNING ("first smoother update failed, reject track");
@@ -575,15 +577,14 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
     updatedDifference.reset();
     if (msgLvl(MSG::DEBUG)) {
       const AmgVector(5) x = rit->referenceParameters()->parameters()+predDiffPar;
-      const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,0);
+      const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,nullptr);
       printGlobalParams( rit->positionOnTrajectory(), " extrp", param );
       delete param;
     }
 
     const MeasurementBase* fittableMeasurement = rit->measurement();
     if (!fittableMeasurement || rit->isOutlier() ) { // pure material state or outlier
-      updatedDifference.reset(  new std::pair<AmgVector(5),AmgSymMatrix(5)>
-                                (std::make_pair(predDiffPar,predCov)) );
+      updatedDifference = std::make_unique<std::pair<AmgVector(5),AmgSymMatrix(5)>>(  std::make_pair(predDiffPar,predCov) );
     } else {
       updatedDifference.reset( 
         m_updator->updateParameterDifference(predDiffPar, predCov,
@@ -591,7 +592,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
                                                fittableMeasurement->localCovariance(),
                                                fittableMeasurement->localParameters().parameterKey(),
                                              trackQualityIncrement, /*doFQ=*/true ) );
-      if (!updatedDifference || trackQualityIncrement == 0) {
+      if (!updatedDifference || trackQualityIncrement == nullptr) {
         if (msgLvl(MSG::INFO)) monitorTrackFits( UpdateFailure, rit->referenceParameters()->eta() );
         ATH_MSG_INFO ("could not update Track Parameters, reject track");
         delete trackQualityIncrement;
@@ -615,7 +616,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
       if (msgLvl(MSG::DEBUG)) {
         const AmgVector(5) x = rit->referenceParameters()->parameters()
                              + updatedDifference->first;
-        const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,0);
+        const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,nullptr);
         printGlobalParams (rit->positionOnTrajectory()," updat", param );
         delete param;
       }
@@ -666,7 +667,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
         if (msgLvl(MSG::INFO)) monitorTrackFits( FitQualityFailure, rit->smoothedTrackParameters()->eta());
         return FitterStatusCode::FitQualityFailure;
       }
-      rit->checkinFitQuality(fitQual);fitQual=0;
+      rit->checkinFitQuality(fitQual);fitQual=nullptr;
     }
     if (rit->smoothedTrackParameters()) {
       smooPar_eta_for_monitoring = rit->smoothedTrackParameters()->eta();
@@ -745,14 +746,14 @@ void Trk::KalmanSmoother::addChi2IncrementAndDelete(Trk::FitQualityOnSurface*& f
     totalChi2 += fitQualIncrement->chiSquared();
     totalNdof += fitQualIncrement->numberDoF();
     delete fitQualIncrement;
-    fitQualIncrement = 0;
+    fitQualIncrement = nullptr;
   } else if (msgLvl(MSG::INFO)) {
     ATH_MSG_DEBUG ("incremental fitQuality object does not exist, assuming zero increment.");
   }
 }
 
 // private -- helper to make pretty debug output
-void Trk::KalmanSmoother::printGlobalParams(int istate, std::string ptype,
+void Trk::KalmanSmoother::printGlobalParams(int istate, const std::string& ptype,
                                             const Trk::TrackParameters* param,
                                             const Trk::DNA_MaterialEffects* mefot) const
 {
@@ -779,5 +780,4 @@ void Trk::KalmanSmoother::monitorTrackFits(FitStatusCodes code, const double& et
     if (fabs(eta) < 0.80 ) ((m_fitStatistics[code])[iBarrel])++;
     else if (fabs(eta) < 1.60) ((m_fitStatistics[code])[iTransi])++;
     else if (fabs(eta) < 2.50) ((m_fitStatistics[code])[iEndcap])++;
-    return;
 }

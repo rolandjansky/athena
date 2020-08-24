@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,7 +7,6 @@
  * @brief  TRootCompare implementation
  * @author Frank Winklmeier
  *
- * $Id: TRootCompare.cxx,v 1.3 2008-11-06 12:05:07 fwinkl Exp $
  */
 
 #include "TrigValTools/TRootCompare.h"
@@ -15,6 +14,7 @@
 #include "TClass.h"
 #include "TKey.h"
 #include "TH1.h"
+#include "TEfficiency.h"
 #include "TCanvas.h"
 #include "TVirtualPad.h"
 #include "TPaveStats.h"
@@ -27,6 +27,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <memory>
 #include <math.h>
 
 using namespace std;
@@ -123,182 +124,198 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
     return;    
   }
 
-  TObject* obj = key.ReadObj();
+  std::unique_ptr<TObject> obj(key.ReadObj());
+
+  // Extract directory name
+  TString dirName(dir.GetPath());
+  dirName.Replace(0,dirName.First(":")+2,0);
+  if (rootDir()!="") dirName.ReplaceAll(rootDir(),m_refRootDir);
+  else dirName = m_refRootDir+"/"+dirName;
+  TString keyPath(dirName+"/"+key.GetName());
+
+  if (!m_refFile->cd(dirName)) {  // could not cd() into directory of histogram
+    m_histMissing++;
+    return;
+  }
+
+  TObject* refObj = m_refFile->Get(keyPath);
+  if (!refObj) { // histogram not found
+    cout << "Cannot find " << keyPath << " in reference file" << endl;
+    m_histMissing++;
+    return;
+  }
+
+  if (obj->Class()!=refObj->Class()) { // class types do not agree
+    cout << key.GetName() << " is of different type in file and reference file." << endl;
+    return;
+  }
+
   if (obj->IsA()->InheritsFrom("TH1")) {
-    
-    // Extract directory name
-    TString dirName(dir.GetPath());
-    dirName.Replace(0,dirName.First(":")+2,0);
-    if (rootDir()!="") dirName.ReplaceAll(rootDir(),m_refRootDir);
-    else dirName = m_refRootDir+"/"+dirName;
-    TString keyPath(dirName+"/"+key.GetName());
+    TH1& h = *((TH1*)obj.get());
+    TH1& href = *((TH1*)refObj);
 
-    if (m_refFile->cd(dirName)) {
+    // For alphanumeric axes, sort and deflate
+    if (m_sortLabels) {
+      sortAndDeflate(h);
+      sortAndDeflate(href);
+    }
 
-      if (TObject* refObj = m_refFile->Get(keyPath)) {
-        //  Check if class types agree
-        if (obj->Class()!=refObj->Class()) {
-          cout << key.GetName()
-               << " is of different type in file and reference file." << endl;
-          return;
-        }
+    Bool_t match = compareHist(h,href);
+    m_histTotal++;
+    if (match) {
+      m_histMatch++;
+    }
+    else { // histograms do not match
+      m_noMatch.push_back(keyPath.Data());
 
-        TH1& h = *((TH1*)obj);
-        TH1& href = *((TH1*)refObj);
-        Bool_t match = compareHist(h,href);
-        m_histTotal++;
-        if (match) {
-          m_histMatch++;
-        }
-        else { // histograms do not match
-          m_noMatch.push_back(keyPath.Data());
+      // Skip drawing if no output was requested
+      if (!m_outFile && m_psFile.Length()==0) return;
 
-          m_can->Clear();
-          m_can->Divide(2,1);
-          m_can->cd(1)->SetPad(0,1,1,0.90);
-          m_can->cd(2)->SetPad(0,0.90,1,0);
-          TVirtualPad* pad = m_can->cd(2);
+      m_can->Clear();
+      m_can->Divide(2,1);
+      m_can->cd(1)->SetPad(0,1,1,0.90);
+      m_can->cd(2)->SetPad(0,0.90,1,0);
+      TVirtualPad* pad = m_can->cd(2);
           
-          if (m_drawDiff) pad->Divide(2,1);
-          m_can->SetName(h.GetName());
-          m_can->SetTitle(h.GetTitle());
-          // Overlayed
-          pad->cd(1);
-          if (m_drawNormalized) {
-            if (href.Integral()) href.Scale(1/href.Integral());
-            if (h.Integral()) h.Scale(1/h.Integral());
-          }
+      if (m_drawDiff) pad->Divide(2,1);
+      m_can->SetName(h.GetName());
+      m_can->SetTitle(h.GetTitle());
+      // Overlayed
+      pad->cd(1);
+      if (m_drawNormalized) {
+        if (href.Integral()) href.Scale(1/href.Integral());
+        if (h.Integral()) h.Scale(1/h.Integral());
+      }
 
-          Double_t ymax = 1.05*max(h.GetMaximum(),href.GetMaximum());
-          h.SetMaximum(ymax);
-          h.SetLineColor(kBlue);
-          h.Draw();
-          m_can->Update();
-          TPaveStats* st1 = (TPaveStats*)gPad->GetPrimitive("stats");
-          if (st1) {
-            st1->SetName("stats1");
-            st1->SetLineColor(kBlue);
-          }
+      Double_t ymax = 1.05*max(h.GetMaximum(),href.GetMaximum());
+      h.SetMaximum(ymax);
+      h.SetLineColor(kBlue);
+      h.Draw();
+      m_can->Update();
+      TPaveStats* st1 = (TPaveStats*)gPad->GetPrimitive("stats");
+      if (st1) {
+        st1->SetName("stats1");
+        st1->SetLineColor(kBlue);
+      }
 
-          href.SetLineColor(kRed);
-          href.Draw("sames");
-          m_can->Update();
-          TPaveStats* st2 = (TPaveStats*)gPad->GetPrimitive("stats");
-          if (st1 && st2) {
-            // Move stat box
-            Double_t x1 = st1->GetX1NDC()-0.01;
-            st2->SetName("stats2");
-            Double_t w = st2->GetX2NDC()-st2->GetX1NDC();
-            st2->SetX1NDC(x1-w);
-            st2->SetX2NDC(x1);
-            st2->SetLineColor(kRed);
-            m_can->Modified();
-          }
+      href.SetLineColor(kRed);
+      href.Draw("sames");
+      m_can->Update();
+      TPaveStats* st2 = (TPaveStats*)gPad->GetPrimitive("stats");
+      if (st1 && st2) {
+        // Move stat box
+        Double_t x1 = st1->GetX1NDC()-0.01;
+        st2->SetName("stats2");
+        Double_t w = st2->GetX2NDC()-st2->GetX1NDC();
+        st2->SetX1NDC(x1-w);
+        st2->SetX2NDC(x1);
+        st2->SetLineColor(kRed);
+        m_can->Modified();
+      }
 
-          TH1* hdiff = 0;
-          if (m_drawDiff) {
-            hdiff = (TH1*)h.Clone();
-            // Too many problems with difference of 2D histograms
-            if (hdiff->GetDimension()==1 &&
-                hdiff->GetNbinsX()==href.GetNbinsX()) {
-              // Difference
-              pad->cd(2);
-              hdiff->SetName(TString(href.GetName())+" (diff)");
-              hdiff->SetTitle(TString(href.GetTitle())+" (diff)");
-              hdiff->SetLineColor(kBlack);
-              hdiff->Add(&href,-1);
-              hdiff->Draw();
-              TPaveStats* st = (TPaveStats*)gPad->GetPrimitive("stats1");
-              if (st) st->SetLineColor(kBlack);
-            }
-            if(hdiff->GetDimension()==2 && 
-               hdiff->GetNbinsX()==href.GetNbinsX() && 
-               hdiff->GetNbinsY()==href.GetNbinsY()) {
-              pad->cd(2);
-              hdiff->SetName(TString(href.GetName())+" (diff)");
-              hdiff->SetTitle(TString(href.GetTitle())+" (diff)");
-              hdiff->SetLineColor(kBlack);
-              hdiff->Add(&href,-1);
-              if(hdiff->GetXaxis()->GetLabels()!=0 && hdiff->GetNbinsX()>100) {
-                 TH1 * hdiffred = (TH1*)hdiff->Clone(); 
-                 hdiffred->GetXaxis()->GetLabels()->Delete();
-                 hdiffred->Reset();
-                 hdiffred->SetName(TString(href.GetName())+" (diff reduced)");
-                 hdiffred->SetTitle(TString(href.GetTitle())+" (diff reduced)");
-                 int targetbin=1;
-                 for(int x=1; x<=hdiff->GetNbinsX(); ++x) {
-                    bool isEmpty(true);
-                    for(int y=1;y<=hdiff->GetNbinsY();++y) {
-                       if(hdiff->GetBinContent(x,y)!=0) { isEmpty=false; break; }
-                    }
-                    if(!isEmpty) {
-                       for(int y=1;y<=hdiff->GetNbinsY();++y) {
-                          if(hdiff->GetBinContent(x,y)!=0)
-                             hdiffred->SetBinContent(targetbin,y,hdiff->GetBinContent(x,y));
-                       }
-                       hdiffred->GetXaxis()->SetBinLabel(targetbin,hdiff->GetXaxis()->GetBinLabel(x));
-                       targetbin++;
-                    }
-                 }
-                 hdiffred->LabelsDeflate();
-                 hdiffred->Draw("text");
-              } else {
-                 hdiff->Draw("text");
+      TH1* hdiff = 0;
+      if (m_drawDiff) {
+        hdiff = (TH1*)h.Clone();
+        // Too many problems with difference of 2D histograms
+        if (hdiff->GetDimension()==1 &&
+            hdiff->GetNbinsX()==href.GetNbinsX()) {
+          // Difference
+          pad->cd(2);
+          hdiff->SetName(TString(href.GetName())+" (diff)");
+          hdiff->SetTitle(TString(href.GetTitle())+" (diff)");
+          hdiff->SetLineColor(kBlack);
+          hdiff->Add(&href,-1);
+          hdiff->Draw();
+          TPaveStats* st = (TPaveStats*)gPad->GetPrimitive("stats1");
+          if (st) st->SetLineColor(kBlack);
+        }
+        if(hdiff->GetDimension()==2 &&
+           hdiff->GetNbinsX()==href.GetNbinsX() &&
+           hdiff->GetNbinsY()==href.GetNbinsY()) {
+          pad->cd(2);
+          hdiff->SetName(TString(href.GetName())+" (diff)");
+          hdiff->SetTitle(TString(href.GetTitle())+" (diff)");
+          hdiff->SetLineColor(kBlack);
+          hdiff->Add(&href,-1);
+          if(hdiff->GetXaxis()->GetLabels()!=0 && hdiff->GetNbinsX()>100) {
+            TH1 * hdiffred = (TH1*)hdiff->Clone();
+            hdiffred->GetXaxis()->GetLabels()->Delete();
+            hdiffred->Reset();
+            hdiffred->SetName(TString(href.GetName())+" (diff reduced)");
+            hdiffred->SetTitle(TString(href.GetTitle())+" (diff reduced)");
+            int targetbin=1;
+            for(int x=1; x<=hdiff->GetNbinsX(); ++x) {
+              bool isEmpty(true);
+              for(int y=1;y<=hdiff->GetNbinsY();++y) {
+                if(hdiff->GetBinContent(x,y)!=0) { isEmpty=false; break; }
               }
-              TPaveStats* st = (TPaveStats*)gPad->GetPrimitive("stats1");
-              if (st) st->SetLineColor(kBlack);
+              if(!isEmpty) {
+                for(int y=1;y<=hdiff->GetNbinsY();++y) {
+                  if(hdiff->GetBinContent(x,y)!=0)
+                    hdiffred->SetBinContent(targetbin,y,hdiff->GetBinContent(x,y));
+                }
+                hdiffred->GetXaxis()->SetBinLabel(targetbin,hdiff->GetXaxis()->GetBinLabel(x));
+                targetbin++;
+              }
             }
+            hdiffred->LabelsDeflate();
+            hdiffred->Draw("text");
+          } else {
+            hdiff->Draw("text");
           }
-          
-          // Some more cosmetics before saving to ps file
-          m_can->cd(0);
-          TText text;
-          text.SetTextSize(0.03);
-          text.SetTextAlign(22);
-          TString page("page ");
-          page += m_noMatch.size();          
-          text.DrawTextNDC(0.5,0.03,page);
-
-          TString title(dir.GetName());
-          title+="/";
-          title+=href.GetName();          
-          text.DrawTextNDC(0.5,0.99,title);
-
-          const int maxchars = 120; // max #chars for title
-          if (m_file) {
-            text.SetTextColor(kBlue);
-            string s(m_file->GetName());
-            text.DrawTextNDC(0.5,0.93,s.substr(max(0,int(s.size()-maxchars))).c_str());
-          }
-          if (m_refFile) {
-            text.SetTextColor(kRed);
-            string s(m_refFile->GetName());
-            text.DrawTextNDC(0.5,0.96,s.substr(max(0,int(s.size()-maxchars))).c_str());
-          }
-                                 
-          if (m_psFile!="") printCanvas(m_psFile);
-
-          // Save canvas to root file
-          if (m_outFile) {
-            createDirectory(m_outFile,dirName);  // now we are in dirName
-            m_can->Write();
-          }          
-          
-          if (hdiff) delete hdiff;
+          TPaveStats* st = (TPaveStats*)gPad->GetPrimitive("stats1");
+          if (st) st->SetLineColor(kBlack);
         }
       }
-      else {  // histogram not found
-        cout << "Cannot find " << keyPath << " in reference file" << endl;
-        m_histMissing++;
+          
+      // Some more cosmetics before saving to ps file
+      m_can->cd(0);
+      TText text;
+      text.SetTextSize(0.03);
+      text.SetTextAlign(22);
+      TString page("page ");
+      page += m_noMatch.size();
+      text.DrawTextNDC(0.5,0.03,page);
+
+      TString title(dir.GetName());
+      title+="/";
+      title+=href.GetName();
+      text.DrawTextNDC(0.5,0.99,title);
+
+      const int maxchars = 120; // max #chars for title
+      if (m_file) {
+        text.SetTextColor(kBlue);
+        string s(m_file->GetName());
+        text.DrawTextNDC(0.5,0.93,s.substr(max(0,int(s.size()-maxchars))).c_str());
       }
-    }    
-    else { // could not cd() into directory of histogram
-      m_histMissing++;
-      // TFile::cd() is already printing a similar message
-      //cout << "Cannot find directory " << dirName << " in reference file" << endl;
+      if (m_refFile) {
+        text.SetTextColor(kRed);
+        string s(m_refFile->GetName());
+        text.DrawTextNDC(0.5,0.96,s.substr(max(0,int(s.size()-maxchars))).c_str());
+      }
+                                 
+      if (m_psFile!="") printCanvas(m_psFile);
+
+      // Save canvas to root file
+      if (m_outFile) {
+        createDirectory(m_outFile,dirName);  // now we are in dirName
+        m_can->Write();
+      }
+
+      if (hdiff) delete hdiff;
     }
   }
-  delete obj;
+  else if (obj->IsA()->InheritsFrom("TEfficiency")) {
+    auto h = (TEfficiency*)obj.get();
+    auto href = (TEfficiency*)refObj;
+    Bool_t match = compareHist(*h->GetTotalHistogram(),*href->GetTotalHistogram()) &&
+      compareHist(*h->GetPassedHistogram(),*href->GetPassedHistogram());
+    m_histTotal++;
+
+    // We only count (mis)matches but do not draw the difference for TEfficiency (yet)
+    if (match) m_histMatch++;
+    else m_noMatch.push_back(keyPath.Data());
+  }
 }
 
 
@@ -366,7 +383,7 @@ void TRootCompare::printCanvas(const char* filename)
 }
 
 
-Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
+Bool_t TRootCompare::compareHist(const TH1& h, const TH1& href)
 {
   Bool_t result = kTRUE;
   
@@ -399,9 +416,9 @@ Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
   }
   else if (m_alg==TRootCompare::AXIS) {
     if (verbose()) cout << "AXIS: ";
-    TAxis *xa(h.GetXaxis()), *xaref(href.GetXaxis());
-    TAxis *ya(h.GetXaxis()), *yaref(href.GetXaxis());
-    TAxis *za(h.GetXaxis()), *zaref(href.GetXaxis());
+    const TAxis *xa(h.GetXaxis()), *xaref(href.GetXaxis());
+    const TAxis *ya(h.GetXaxis()), *yaref(href.GetXaxis());
+    const TAxis *za(h.GetXaxis()), *zaref(href.GetXaxis());
     if( xa->GetNbins() != xaref->GetNbins() ) result = kFALSE;
     if( result && (ya->GetNbins() != yaref->GetNbins()) ) result = kFALSE;
     if( result && (za->GetNbins() != zaref->GetNbins()) ) result = kFALSE;
@@ -441,6 +458,18 @@ Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
   return result;
 }
 
+// sort histogram axes and deflate
+void TRootCompare::sortAndDeflate(TH1& h)
+{
+  if (h.GetXaxis()->IsAlphanumeric()) {
+    h.GetXaxis()->LabelsOption("a");
+    h.LabelsDeflate("X");
+  }
+  if (h.GetYaxis()->IsAlphanumeric()) {
+    h.GetYaxis()->LabelsOption("a");
+    h.LabelsDeflate("Y");
+  }
+}
 
 // Create all directories in dirpath
 void TRootCompare::createDirectory(TFile* f, const char* dirpath)

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # ----------- Draft version of TRT Segment finding
 #
@@ -40,7 +40,7 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigPatternPropagator, InDetTrigPatternUpdator, InDetTrigTRTDriftCircleCut
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBack import InDetTrigTRTDetElementsRoadMaker
       from AthenaCommon.SystemOfUnits import GeV
-      if seqType is "TRTOnly":
+      if seqType == "TRTOnly":
          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsTRT
          InDetTrigCutValues = EFIDTrackingCutsTRT
          suffixTRT = "_TRTOnly"
@@ -72,7 +72,7 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
       if (InDetTrigFlags.doPrintConfigurables()):
         print (     InDetTrigTRTExtensionTool)
 
-      if seqType is "TRTOnly":
+      if seqType == "TRTOnly":
         # segment finding
         MinNumberDCs   = InDetTrigCutValues.minTRTonly()
       else:
@@ -94,9 +94,9 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
       
       InDetTrigTRT_TrackSegmentsMaker.pTmin = InDetTrigSliceSettings[('pTmin',type)]
 
-      if type is 'photon':
+      if type == 'photon':
          InDetTrigTRT_TrackSegmentsMaker.PRDtoTrackMap = 'InDetTrigPRDtoTrackMap_Photon_EF'
-      elif type is 'cosmicsN':
+      elif type == 'cosmicsN':
          from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMaker_BarrelCosmics
 
          #TODO COSMICS - replace old CTB TrackSegmentsMaker
@@ -170,7 +170,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
                                                                                       LoadFull               = False,
                                                                                       #DoCosmics
                                                                                       )
-         if type is 'photon':
+         if type == 'photon':
            InDetTrigTRT_SeededSpacePointFinder.PRDtoTrackMap = 'InDetTrigPRDtoTrackMap_Photon_EF'
 
       elif InDetTrigFlags.loadSimpleTRTSeededSPFinder():
@@ -193,7 +193,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
                                                                                             MaxHoles               = 2,
                                                                                             PRDtoTrackMap          = "",
                                                                                             RestrictROI            = True)
-         if type is 'photon':
+         if type == 'photon':
            InDetTrigTRT_SeededSpacePointFinder.PRDtoTrackMap        = 'InDetTrigPRDtoTrackMap_Photon_EF' # @TODO correct ?
 
       ToolSvc += InDetTrigTRT_SeededSpacePointFinder
@@ -387,7 +387,7 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
 
 
       from AthenaCommon.SystemOfUnits import GeV
-      if seqType is "TRTOnly":
+      if seqType == "TRTOnly":
          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsTRT
          InDetTrigCutValues = EFIDTrackingCutsTRT
          suffixTRT="_TRTOnly"
@@ -429,7 +429,7 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
                                                                       RefitterTool          = InDetTrigTrackFitterTRT,
                                                                       Extrapolator          = InDetTrigExtrapolator,
                                                                       PRDtoTrackMap         = prefix+'PRDtoTrackMap'+suffix \
-                                                                         if seqType is not "InsideOutAndTRTOnly" else "",
+                                                                         if seqType != "InsideOutAndTRTOnly" else "",
                                                                       TrackSummaryTool      = InDetTrigTrackSummaryTool,
                                                                       ScoringTool           = InDetTrigTRT_StandaloneScoringTool,
                                                                       FinalRefit            = True,

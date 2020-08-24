@@ -130,7 +130,7 @@ for offlineFilterName in offlineObjectFilterNames :
     cmdstring += offlineFilterName
     offlineFilterCounter += 1
     pass
-print "NICK cmdstring of OfflineObjectFilter is ",cmdstring
+print("NICK cmdstring of OfflineObjectFilter is ",cmdstring)
 topSequence.SmpCaloId_CombinedOfflineFilter.cmdstring=cmdstring
 filtersToBookkeep+=["SmpCaloId_CombinedOfflineFilter"]
 #=#=#=#=

@@ -8,7 +8,7 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   import os
 
   # Set up logging and config behaviour
@@ -30,7 +30,7 @@ if __name__ == '__main__':
   ConfigFlags.lock()
 
   ## Initialize a new component accumulator
-  cfg = MainServicesSerialCfg()
+  cfg = MainServicesCfg(ConfigFlags)
 
   #import the following tool configs
   from G4AtlasTools.G4PhysicsRegionConfigNew import *

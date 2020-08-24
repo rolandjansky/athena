@@ -3,7 +3,7 @@
 */
 
 //$Id: TGCSSCControllerOut.cxx,v 1.5 2005-11-29 08:12:40 nkanaya Exp $
-#include "TrigT1TGC/TGCSSCControllerOut.hh"
+#include "TrigT1TGC/TGCSSCControllerOut.h"
 #include <iostream>
 
 namespace LVL1TGCTrigger {

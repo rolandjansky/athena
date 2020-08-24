@@ -1,5 +1,4 @@
-#
-# $Id: coverage.py,v 1.1 2008-12-16 05:46:38 ssnyder Exp $
+# noqa: ATL902
 #
 # File: coverage.py
 # Purpose: A coverage utility for component tests.
@@ -40,7 +39,7 @@
 # adding '#pragma: NO COVER' to the end of the line.
 #
 # Original permission notice:
-# Copyright 1999, Bioreason, Inc., all rights reserved.
+# Copyright 1999, 2020, Bioreason, Inc., all rights reserved.
 # Author: Andrew Dalke
 #
 # Copyright 1995-1997, Automatrix, Inc., all rights reserved.
@@ -59,7 +58,6 @@
 #
 from __future__ import print_function
 import sys
-import string
 
 ## The completely brain-damaged fnorb setup overrides the builtin
 ## parser module, which we need!  Cudgel it out of the way.
@@ -68,7 +66,6 @@ import string
 import re
 import os
 import dis
-import sys
 
 running_coverage = 0
 
@@ -127,7 +124,7 @@ def _find_LINENO(code):
 
     # and check the constants for references to other code objects
     for c in code.co_consts:
-        if type(c) == types.CodeType:
+        if isinstance(c, types.CodeType):
             # find another code object, so recurse into it
             linenos.update(_find_LINENO(c))
     return linenos

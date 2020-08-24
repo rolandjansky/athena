@@ -227,10 +227,11 @@ int main( int argc, char* argv[] )
   // ===========================================================================
   // TauOverlappingElectronLLHDecorator
   // ===========================================================================
+#ifndef XAOD_STANDALONE
   TauAnalysisTools::TauOverlappingElectronLLHDecorator TOELLHDecorator( "TauOverlappingElectronLLHDecorator");
   TOELLHDecorator.msg().setLevel( MSG::INFO );
   CHECK(TOELLHDecorator.initialize());
-
+#endif
   // Loop over the events:
   for( Long64_t iEntry = 0; iEntry < iEntries; ++iEntry )
   {

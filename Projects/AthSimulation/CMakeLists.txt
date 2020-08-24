@@ -7,6 +7,14 @@ string( STRIP ${_version} _version )
 project( AthSimulation VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
+# Configure flake8:
+set( ATLAS_FLAKE8 flake8_atlas --select ATL,F,E101,E7,E9,W6
+                               --ignore ATL238,ATL9,E701,E702,E704,E741
+                               --enable-extensions ATL902
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8} --filterFiles AthenaConfiguration
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
@@ -31,6 +39,11 @@ endif()
 set( AthenaPoolUtilitiesTest_DIR
    "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
    CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
+
+# Set up where to find the xAODUtilities CMake code.
+set( xAODUtilities_DIR
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+   CACHE PATH "Directory holding the xAODUtilities module" )
 
 # Make the local CMake files visible to AtlasCMake.
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
@@ -68,6 +81,10 @@ install( FILES
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
+
+# Install graphviz output if available:
+install( FILES ${CMAKE_BINARY_DIR}/packages.dot
+   DESTINATION . OPTIONAL )
 
 # Package up the release using CPack:
 atlas_cpack_setup()

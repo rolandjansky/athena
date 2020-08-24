@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
   Diamond Beam Monitor detector builder
   */  
 
-class DBM_Det : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE DBM_Det : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
  public:
   DBM_Det();
   virtual  GeoVPhysVol* Build();

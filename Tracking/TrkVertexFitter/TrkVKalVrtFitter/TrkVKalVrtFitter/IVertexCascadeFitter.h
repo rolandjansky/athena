@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IVertexCascadeFitter.h  - 
@@ -11,6 +11,7 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/EventContext.h"
 //
 #include  "VxVertex/Vertex.h"
 #include  "TrkVKalVrtFitter/VxCascadeInfo.h"
@@ -31,8 +32,19 @@ namespace Trk{
 //---------------------------------------------------------------------------
 //Interface itself
 
-    virtual std::unique_ptr<IVKalState> makeState() const = 0;
-
+     /*
+      * Context aware method
+      */
+      virtual std::unique_ptr<IVKalState> makeState(const EventContext& ctx) const = 0;
+      
+     /*
+      * For non-migrated clients whcih should always use the context aware method
+      */
+      virtual std::unique_ptr<IVKalState> makeState() const 
+          {
+              return makeState(Gaudi::Hive::currentContext());
+          }
+      
     virtual VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                    const  std::vector<double>& particleMass,
                                    IVKalState& istate,

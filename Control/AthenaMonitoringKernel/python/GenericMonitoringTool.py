@@ -5,6 +5,7 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 import json
 import six
 
@@ -27,20 +28,21 @@ class GenericMonitoringTool(_GenericMonitoringTool):
         self._defaultDuration = kwargs.pop('defaultDuration', None)
         super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
 
-    def __new__( cls, name=None, *args, **kwargs ):
-        if not Configurable.configurableRun3Behavior:
-            if name is None: name = cls.__name__
+    if not isRun3Cfg():
+        def __new__( cls, name=None, *args, **kwargs ):
+            if not Configurable.configurableRun3Behavior:
+                if name is None: name = cls.__name__
 
-        # GenericMonitoringTool is always private. To avoid the user having
-        # to ensure a unique instance name, always create a new instance.
-        b = Configurable.configurableRun3Behavior
-        Configurable.configurableRun3Behavior = 1
-        try:
-            conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
-        finally:
-            Configurable.configurableRun3Behavior = b
+            # GenericMonitoringTool is always private. To avoid the user having
+            # to ensure a unique instance name, always create a new instance.
+            b = Configurable.configurableRun3Behavior
+            Configurable.configurableRun3Behavior = 1
+            try:
+                conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
+            finally:
+                Configurable.configurableRun3Behavior = b
 
-        return conf
+            return conf
 
     @property
     def convention(self):
@@ -154,8 +156,12 @@ class GenericMonitoringArray:
         import collections
         assert isinstance(dimensions,list) and len(dimensions)>0, \
             'GenericMonitoringArray must have list of dimensions.'
-        if dimensions==[1]:
-            return [''], {'': ['']}
+        try:
+            if dimensions==[1]:
+                return [''], {'': ['']}
+        except AttributeError: 
+            #Evidently not [1]
+            pass
         postList = []
         accessorDict = collections.OrderedDict()
         first = dimensions[0]
@@ -177,6 +183,21 @@ class GenericMonitoringArray:
                 for acckey, accval in accessors.items():
                     accessorDict[acckey] = [str(i)] + accval
         return postList, accessorDict
+
+
+## Check if name is an allowed histogram/branch name
+#
+#  Certain characers are best avoided in ROOT histogram names as it makes interactive
+#  use awkward. Also there are additional constraints from OH and MDA archiving for
+#  online running (ATR-15173).
+#
+#  @param name string to check
+#  @return set of forbidden characters found
+def _invalidName(name):
+    blacklist = '/\\'
+    if athenaCommonFlags.isOnline():
+        blacklist += '=,:.()'
+    return set(name).intersection(blacklist)
 
 ## Generate an alias for a set of variables
 #
@@ -203,14 +224,14 @@ def _alias(varname):
 def _options(opt):
     # Set the default dictionary of options
     settings = {
-        'Sumw2': False,
-        'kLBNHistoryDepth': 0,
-        'kAddBinsDynamically': False,
-        'kRebinAxes': False,
-        'kCanRebin': False,
-        'kVec': False,
-        'kVecUO': False,
-        'kCumulative': False,
+        'Sumw2': False,                 # store sum of squares of weights
+        'kLBNHistoryDepth': 0,          # length of lumiblock history
+        'kAddBinsDynamically': False,   # add new bins if fill is outside axis range
+        'kRebinAxes': False,            # increase axis range without adding new bins
+        'kCanRebin': False,             # allow all axes to be rebinned
+        'kVec': False,                  # add content to each bin from each element of a vector
+        'kVecUO': False,                # same as above, but use 0th(last) element for underflow(overflow)
+        'kCumulative': False,           # fill bin of monitored object's value, and every bin below it
     }
     if opt is None:
         # If no options are provided, skip any further checks.
@@ -243,12 +264,13 @@ def _options(opt):
 #
 #  For full details see the GenericMonitoringTool documentation.
 #  @param varname  one (1D) or two (2D) variable names separated by comma
+#                  optionally give histogram name by appending ";" plus the name
 #  @param type     histogram type
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
 #  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
-#  @param opt      String or dictionary of histogram options
+#  @param opt      String or dictionary of histogram options (see _options())
 #  @param treedef  Internal use only. Use defineTree() method.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
@@ -256,7 +278,7 @@ def _options(opt):
 #  @param merge    Merge method to use for object, if not default. Possible algorithms for offline DQM
 #                  are given in https://twiki.cern.ch/twiki/bin/view/Atlas/DQMergeAlgs
 def defineHistogram(varname, type='TH1F', path=None,
-                    title=None, weight=None, alias=None,
+                    title=None, weight=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None,
@@ -265,10 +287,10 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'cutMask', 'convention', 'alias', 'treeDef', 'merge']
+                          'cutMask', 'convention', 'alias', 'treeDef', 'merge']
     # All of these fileds default to 0
     numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
-    'zmin', 'zmax']
+                          'zmin', 'zmax']
     # All of these fields default to an empty array
     arraySettingsKeys = ['allvars', 'xlabels', 'xarray', 'ylabels', 'yarray', 'zlabels']
     # Initialize a dictionary with all possible fields
@@ -280,6 +302,13 @@ def defineHistogram(varname, type='TH1F', path=None,
     varList, alias = _alias(varname)
     if alias is None:
         return ''
+
+    invalid = _invalidName(alias)
+    if invalid:
+        log.warning('%s is not a valid histogram name. Illegal characters: %s',
+                    alias, ' '.join(invalid))
+        return ''
+
     settings['alias'] = alias
 
     # Variable names
@@ -294,18 +323,18 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Type
     if athenaCommonFlags.isOnline() and type in ['TEfficiency', 'TTree']:
-        log.warning('Object %s of type %s is not supported for online running and '+\
-        'will not be added.', varname, type)
+        log.warning('Object %s of type %s is not supported for online running and '
+                    'will not be added.', varname, type)
         return ''
     # Check that the histogram's dimension matches the number of monitored variables
     # Add TTree to the lists, it can have any number of vars
     hist2D = ['TH2','TProfile','TEfficiency', 'TTree']
     hist3D = ['TProfile2D','TEfficiency', 'TTree']
     if nVars==2:
-        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two ' \
+        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two '
         'monitored variables with a non-2D histogram.'
     elif nVars==3:
-        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three ' \
+        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three '
         'monitored variables with a non-3D histogram.'
     settings['type'] = type
 
@@ -407,10 +436,9 @@ def defineHistogram(varname, type='TH1F', path=None,
 #  @param opt      TTree options (none currently)
 #  @param convention Expert option for how the objects are placed in ROOT
 
-def defineTree(varname, treedef, path=None,
-                    title=None, alias=None,
-                    opt='', convention=None,
-                    cutmask=None):
-    return defineHistogram(varname, type='TTree', path=path, title=title, alias=alias,
-                            treedef=treedef, opt=opt, convention=convention,
-                            cutmask=cutmask)     
+def defineTree(varname, treedef, path=None, title=None,
+               opt='', convention=None,
+               cutmask=None):
+    return defineHistogram(varname, type='TTree', path=path, title=title,
+                           treedef=treedef, opt=opt, convention=convention,
+                           cutmask=cutmask)

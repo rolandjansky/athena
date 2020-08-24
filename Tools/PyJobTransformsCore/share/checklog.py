@@ -1,20 +1,23 @@
 #!/usr/bin/env python
-import os,sys,re
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+import os
+import sys
 from getopt import getopt
 from AthenaCommon.Logging import logging
 from AthenaCommon import ExitCodes
-from PyJobTransformsCore.trferr import *
-from PyJobTransformsCore.JobReport import *
-from PyJobTransformsCore.trfutil import *
+from PyJobTransformsCore.trferr import TransformErrorDiagnoser, AthenaLogChecker
+from PyJobTransformsCore.JobReport import JobReport, JobInfo
+from PyJobTransformsCore.trfutil import get_atlas_release
 
 def usage():
-    print "Parse an athena logfile for errors."
-    print "Usage: %s [options] <logfilename>" % os.path.basename(sys.argv[0])
-    print "Options:"
-    print "  -h : print short help"
-    print "  -d : print details on the error matching"
-    print "  -x : write jobInfo.xml file"
-    print "  -r <release> : assume atlas release <release>"
+    print("Parse an athena logfile for errors.")
+    print("Usage: %s [options] <logfilename>" % os.path.basename(sys.argv[0]))
+    print("Options:")
+    print("  -h : print short help")
+    print("  -d : print details on the error matching")
+    print("  -x : write jobInfo.xml file")
+    print("  -r <release> : assume atlas release <release>")
 
 if len(sys.argv) <= 1:
     usage()
@@ -75,7 +78,7 @@ errorDocter = TransformErrorDiagnoser()
 for error in report.errors():
     errorDocter.diagnoseError(error)
 
-print report
+print(report)
 if writeXML: report.writeJobInfoXML()
 
 # exit with appropriate code

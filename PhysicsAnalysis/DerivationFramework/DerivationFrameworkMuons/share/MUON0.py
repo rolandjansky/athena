@@ -30,7 +30,6 @@ MUON0ThinningHelper = ThinningHelper( "MUON0ThinningHelper" )
 MUON0ThinningHelper.TriggerChains = '|'.join(triggerList1)
 printfunc (MUON0ThinningHelper.TriggerChains)
 MUON0ThinningHelper.AppendToStream( MUON0Stream )
-thinningSvc = getattr( svcMgr, "MUON0ThinningSvc" )
 thinningHelperTool = getattr( ToolSvc, "MUON0ThinningHelperSlim" )
 thinningHelperTool.FeatureInclusionList += ['HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo','HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfoAux.','HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo','HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfoAux.','HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfo','HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfoAux.','HLT_TrigRoiDescriptorCollection_forMS','HLT_TrigRoiDescriptorCollection_forMSAux.','HLT_TrigRoiDescriptorCollection_forID','HLT_TrigRoiDescriptorCollection_forIDAux.']
 
@@ -78,11 +77,10 @@ MUON0_thinning_tools = []
 thinning_expression2 = "Muons.pt > 4*GeV"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON0ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON0ThinningTool2",
-                                                                    ThinningService         = MUON0ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.4,
-                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON0ThinningTool2
 MUON0_thinning_tools.append(MUON0ThinningTool2)
@@ -90,11 +88,10 @@ MUON0_thinning_tools.append(MUON0ThinningTool2)
 ### also for forward tracks
 thinning_expression3 = "Muons.muonType==4"
 MUON0ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON0ThinningTool2f",
-                                                                    ThinningService         = MUON0ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression3,
                                                                     ConeSize                = 0.5,
-                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetForwardTrackParticles")
 ToolSvc += MUON0ThinningTool2f
 MUON0_thinning_tools.append(MUON0ThinningTool2f)

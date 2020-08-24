@@ -76,32 +76,18 @@ def decodeThreshold( threshold_btag ):
 ####################################################################################################
 
 def getBjetBtagHypoConfiguration( name,conf_dict ):
-    # Common for both split and non-split configurations
+
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoTool
     tool = TrigBjetBtagHypoTool( name )
-#    tool.OutputLevel     = DEBUG
-    tool.AcceptAll       = True # TMP
 
     # b-tagging
     [tagger,tb] = decodeThreshold( conf_dict['bTag'] )
 
     if conf_dict['bTag'] == "offperf" :
-        tool.AcceptAll             = True
+        tool.AcceptAll = True
 
     tool.MethodTag = tagger
     tool.BTaggingCut = tb
-
-    # Monitoring
-#    tool.MonTool = ""
-#    from TriggerJobOpts.TriggerFlags import TriggerFlags
-#    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-#        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-#        monTool = GenericMonitoringTool("MonTool"+name)
-#        monTool.Histograms = []
-
-#        monTool.HistPath = 'BjetHypo/'+tool.name()
-#        tool.MonTool = monTool
-#        tool += monTool
 
     return tool
 
@@ -111,7 +97,17 @@ if __name__ == "__main__":
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigBjetBtagHypoToolFromName( "HLT_j35_ftf_subjesgscIS_boffperf_split_L1J15","HLT_j35_ftf_subjesgscIS_boffperf_split_L1J15" )
-    assert t, "can't configure boffperf split"
+    t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J15","HLT_j45_ftf_subjesgscIS_boffperf_split_L1J15" )
+    assert t, "can't configure boffperf chain"
+
+    t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_bmv2c2070_split_L1J15","HLT_j45_ftf_subjesgscIS_bmv2c2070_split_L1J15" )
+    assert t, "can't configure bmv2c20 chain"
+
+    t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J15","HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J15" )
+    assert t, "can't configure bmv2c10 chain"
+
+    t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_bhmv2c1070_split_L1J15","HLT_j45_ftf_subjesgscIS_bhmv2c1070_split_L1J15" )
+    assert t, "can't configure bhmv2c10 chain"
+
 
     log.info( "\n\n TrigBjetBtagHypoToolFromName ALL OK\n\n" )

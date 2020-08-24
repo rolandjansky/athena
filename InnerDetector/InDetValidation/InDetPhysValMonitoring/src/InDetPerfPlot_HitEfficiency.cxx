@@ -55,9 +55,8 @@ InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt) {
   }
 
   const bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
-  static int warnCount(0);
   if (!hitDetailsAvailable) {
-    if (warnCount++ < 10) {
+    if (m_warnCount++ < 10) {
       ATH_MSG_WARNING("The HitEff plots dont see any data (note: only 10 warnings issued)");
     }
   } else {

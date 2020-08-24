@@ -1,27 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "TrigT1NSWSimTools/StripTdsOfflineTool.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-
-#include "TrigT1NSWSimTools/StripTdsOfflineTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 #include "TrigT1NSWSimTools/PadOfflineData.h"
-
-
 #include "EventInfo/EventID.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
@@ -29,12 +24,10 @@
 #include "CLHEP/Random/RandGauss.h"
 
 #include "TTree.h"
-
 #include <functional>
 #include <algorithm>
 #include <map>
 #include <utility>
-
 
 namespace NSWL1 {
 
@@ -54,13 +47,12 @@ namespace NSWL1 {
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
       m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
-      m_detManager(0),
-      m_sTgcIdHelper(0),
+      m_rndmEngine(nullptr),
+      m_detManager(nullptr),
       m_strip_cache_runNumber(-1),
       m_strip_cache_eventNumber(-1),
       m_strip_cache_status(CLEARED),
-      m_tree(0)
+      m_tree(nullptr)
 
     {
       declareInterface<NSWL1::IStripTdsTool>(this);
@@ -75,8 +67,6 @@ namespace NSWL1 {
       if(m_stripCharge) delete m_stripCharge;
       if(m_stripCharge_6bit) delete m_stripCharge_6bit;
       if(m_stripCharge_10bit) delete m_stripCharge_10bit;
-
-
     }
 
     void StripTdsOfflineTool::clear_cache() {
@@ -97,7 +87,7 @@ namespace NSWL1 {
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-      std::string algo_name = pnamed->name();
+      const std::string& algo_name = pnamed->name();
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
         ATH_CHECK(service("THistSvc", tHistSvc));
@@ -115,8 +105,8 @@ namespace NSWL1 {
         ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
         return StatusCode::FAILURE;
       }
-      ATH_CHECK(detStore()->retrieve( m_detManager ));
-      ATH_CHECK(detStore()->retrieve( m_sTgcIdHelper )); 
+      ATH_CHECK(detStore()->retrieve(m_detManager));
+      ATH_CHECK(m_idHelperSvc.retrieve());
       return StatusCode::SUCCESS;
     }
 
@@ -294,27 +284,27 @@ namespace NSWL1 {
             const sTgcDigit* digit = coll->at(item);
             Identifier Id = digit->identify();
 	          const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
-            int channel_type   = m_sTgcIdHelper->channelType(Id);
+            int channel_type   = m_idHelperSvc->stgcIdHelper().channelType(Id);
  	          // process only Strip data
 	          if (channel_type!=1) continue;           
             
 	          Amg::Vector2D  strip_lpos;
 	          Amg::Vector3D strip_gpos;
 	          rdoEl->stripPosition(Id,strip_lpos);
-            auto stripSurface=rdoEl->surface(Id); 
+            const auto& stripSurface=rdoEl->surface(Id); 
 	          stripSurface.localToGlobal(strip_lpos, strip_gpos, strip_gpos);
 
-	          std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
-            int stationEta     = m_sTgcIdHelper->stationEta(Id);
-            int stationPhi     = m_sTgcIdHelper->stationPhi(Id);
-            int wedge          = m_sTgcIdHelper->multilayer(Id);
-            int layer          = m_sTgcIdHelper->gasGap(Id);
-            int channel        = m_sTgcIdHelper->channel(Id);
+	          std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));
+            int stationEta     = m_idHelperSvc->stgcIdHelper().stationEta(Id);
+            int stationPhi     = m_idHelperSvc->stgcIdHelper().stationPhi(Id);
+            int wedge          = m_idHelperSvc->stgcIdHelper().multilayer(Id);
+            int layer          = m_idHelperSvc->stgcIdHelper().gasGap(Id);
+            int channel        = m_idHelperSvc->stgcIdHelper().channel(Id);
 	          int bctag          = digit->bcTag();
 
 	          strip_hit_number++;
-            int strip_eta        = 0;// m_sTgcIdHelper->stripEta(Id);
-            int strip_phi        = 0;// m_sTgcIdHelper->stripPhi(Id);
+            int strip_eta        = 0;
+            int strip_phi        = 0;
 
             ATH_MSG_DEBUG(     "sTGC Strip hit " << strip_hit_number << ":  Station Name [" << stName << "]"
 			        << "  Station Eta ["  << stationEta             << "]"
@@ -345,7 +335,7 @@ namespace NSWL1 {
             m_strip_eta->push_back(stationEta);
             m_strip_phi->push_back(stationPhi);
             ATH_MSG_DEBUG( "Fill Stuff more" );
-            auto strip=std::make_unique<StripOfflineData>(Id,m_sTgcIdHelper,digit);
+            auto strip=std::make_unique<StripOfflineData>(Id,&m_idHelperSvc->stgcIdHelper(),digit);
             strip->set_locX(strip_lpos.x());
             strip->set_locY(strip_lpos.y());
             int sideid= (stationEta>0) ? 1 : 0;

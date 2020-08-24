@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_SimEv/AFP_SIDSimHit.h"
+
 #include "Identifier/Identifier.h"
 #include "AFP_EventTPCnv/AFP_SIDSimHitCnv_p1.h"
 
-void AFP_SIDSimHitCnv_p1::persToTrans(const AFP_SIDSimHit_p1* persObj, AFP_SIDSimHit* transObj, MsgStream &log) const
-{
+void AFP_SIDSimHitCnv_p1::persToTrans(const AFP_SIDSimHit_p1* persObj, AFP_SIDSimHit* transObj, MsgStream &log)
+const {
 	log << MSG::DEBUG << "AFP_SIDSimHitCnv_p1::persToTrans called " << endmsg;
 
 	transObj->m_nHitID=persObj->m_nHitID;
@@ -32,8 +33,8 @@ void AFP_SIDSimHitCnv_p1::persToTrans(const AFP_SIDSimHit_p1* persObj, AFP_SIDSi
 	transObj->m_bIsAuxVSID=persObj->m_bIsAuxVSID;
 }
 
-void AFP_SIDSimHitCnv_p1::transToPers(const AFP_SIDSimHit* transObj, AFP_SIDSimHit_p1* persObj, MsgStream &log) const
-{
+void AFP_SIDSimHitCnv_p1::transToPers(const AFP_SIDSimHit* transObj, AFP_SIDSimHit_p1* persObj, MsgStream &log)
+const {
 	log << MSG::DEBUG << "AFP_SIDSimHitCnv_p1::transToPers called " << endmsg;
 
 	persObj->m_nHitID=transObj->m_nHitID;

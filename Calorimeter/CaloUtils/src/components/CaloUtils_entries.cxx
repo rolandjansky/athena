@@ -9,6 +9,7 @@
 #include "CaloUtils/xAODClusterCompressor.h"
 #include "../CaloTowerStoreTestAlg.h"
 #include "../CaloTowerBuilderToolTestAlg.h"
+#include "CaloUtils/ToolWithConstantsTestTool.h"
 
 
 DECLARE_COMPONENT( CaloCellWeightCorrection )
@@ -23,4 +24,5 @@ DECLARE_COMPONENT( xAODClusterCompressor )
 
 DECLARE_COMPONENT( CaloTowerStoreTestAlg )
 DECLARE_COMPONENT( CaloTowerBuilderToolTestAlg )
+DECLARE_COMPONENT( CaloUtils::ToolWithConstantsTestTool )
 

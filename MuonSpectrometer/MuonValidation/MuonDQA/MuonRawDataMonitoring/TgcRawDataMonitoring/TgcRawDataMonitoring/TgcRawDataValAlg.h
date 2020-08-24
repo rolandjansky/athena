@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,41 +15,25 @@
 #ifndef TgcRawDataValAlg_H
 #define TgcRawDataValAlg_H
 
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
-
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-
 #include "xAODEventInfo/EventInfo.h"
-
 #include "StoreGate/ReadHandleKey.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
 #include "TAxis.h"
-
-#include <sstream>
-#include <string.h>
+#include <string>
 #include <vector>
 #include <map>
-
-
-class TFile;
-class Identifier;
 
 // Maximum Collection and Prd
 static const int maxColl =  1200;
@@ -63,20 +47,16 @@ class TgcRawDataValAlg: public ManagedMonitorToolBase {
 public:
 
   TgcRawDataValAlg ( const std::string & type, const std::string & name, const IInterface* parent );
-  virtual ~TgcRawDataValAlg();
+  virtual ~TgcRawDataValAlg()=default;
 
   StatusCode initialize(); 
-  //virtual StatusCode bookHistograms();
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
 
 private:
-  
-  // Tool for TGC Id Helper
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
   // event properties
   int m_event;
   int m_lumiblock;
@@ -86,9 +66,7 @@ private:
   std::string m_generic_path_tgcmonitoring;
   
   // Keys and Locations for retrieving collections
-  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataContainerName{this,"TgcPrepDataContainer","TGC_Measurements","current BC TGC PRD"};
-  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataPreviousContainerName{this,"TgcPrepDataPreviousContainer","TGC_MeasurementsPriorBC","previous BC TGC PRD"};
-  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataNextContainerName{this,"TgcPrepDataNextContainer","TGC_MeasurementsNextBC","next BC TGC PRD"};
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataContainerName{this,"TgcPrepDataContainerAllBCs","TGC_MeasurementsAllBCs","TGC PRD"};
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_outputCoinCollectionLocation{this,"OutputCoinCollection","TrigT1CoinDataCollection","TGC T1 coincidences"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"};
 
@@ -136,7 +114,7 @@ private:
   std::vector<double> m_hitPosPhi[2][2];    //[ac][ws]
   
   // read Tgc PRD Container
-  void readTgcPrepDataContainer(const Muon::TgcPrepDataContainer *tgc_prep_container, int pcn);
+  void readTgcPrepDataContainer(const Muon::TgcPrepDataContainer *tgc_prep_container, int pcn = -1);
   
   
   ///////////////////////////////////////////////////////////////////////////

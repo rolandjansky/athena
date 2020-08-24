@@ -17,9 +17,9 @@ std::string debugPrint(const IDC_Container *container,
   std::ostringstream os;
   if (container) {
     for (unsigned i = 0; i < maxprint; i++) {
-      typename IDC_Container::const_iterator p = container->indexFind(i);
-      if (p != container->end()) {
-        os << " " << (*p)->size();
+      auto p = container->indexFindPtr(i);
+      if (p != nullptr) {
+        os << " " << p->size();
       } else {
         os << " *";
       }

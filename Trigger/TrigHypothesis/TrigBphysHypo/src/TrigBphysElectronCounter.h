@@ -20,8 +20,6 @@
 
 // standard stuff
 #include <string>
-#include <map>
-#include <cmath> 
 #include <algorithm>
 
 #include "TrigInterfaces/AllTEAlgo.h"
@@ -101,17 +99,14 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
   ElementLinkVector<Tin> inVecColl;
   outVec.clear();
   std::vector<float> pts;
-  std::vector<unsigned int> isEMs;
-  std::vector<bool> isLHAcceptTrigs;
   
   float mindR2 = mindR*mindR;
 
   bool useLumiTool=false;
-  double mu = 0.;
   double avg_mu = 0.;
   if(m_useAthElectronLHIDSelector && m_lumiBlockMuTool){
       useLumiTool=true;
-      mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+      double mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
       avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
       ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu << ", Average Mu Value   : " << avg_mu);
   }
@@ -207,7 +202,6 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
   }
 
   // now check pts cuts  
-  //std::sort(isEMs.begin(), isEMs.end(), [&pts](size_t i, size_t j) {return pts[i] > pts[j];});
   std::sort(pts.begin(), pts.end(), std::greater<float>());
 
   //== check that electrons have correct pts and isEM

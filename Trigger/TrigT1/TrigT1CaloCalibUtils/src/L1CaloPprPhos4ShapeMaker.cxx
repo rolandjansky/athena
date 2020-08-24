@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPprPhos4ShapeMaker.h"
@@ -431,7 +431,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
    return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloPprPhos4ShapeMaker::finalize(){
+StatusCode L1CaloPprPhos4ShapeMaker::finalize ATLAS_NOT_THREAD_SAFE(){
    // Place your post-event-loop code here
    ATH_MSG_INFO("In finalize()");
    

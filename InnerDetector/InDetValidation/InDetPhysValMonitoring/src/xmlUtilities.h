@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 //  xmlUtilities.h
@@ -16,7 +16,18 @@
 #include <xercesc/util/XMLString.hpp>           // transcode
 #include <xercesc/dom/DOM.hpp>                  // DOMxxx
 
-
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Not sure if usage of Xerces-C++ here is thread safe.
+// The following warning message is given if checked:
+// warning: Use of static expression 'xercesc_3_1::XMLPlatformUtils::fgMemoryManager'
+// of type 'xercesc_3_1::MemoryManager*' within function
+// 'toNative(const XMLCh*)::<lambda(char*)>' may not be thread-safe.
+//
+// https://xerces.apache.org/xerces-c/faq-parse-3.html#faq-6
+// Is Xerces-C++ thread-safe?
+// The answer is yes if you observe the following rules for using Xerces-C++
+// in a multi-threaded environment:
+// ... ...
 
 typedef std::basic_string<XMLCh>XercesString;
 inline XercesString

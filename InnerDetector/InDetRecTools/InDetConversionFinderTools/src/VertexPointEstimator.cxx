@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -80,7 +80,7 @@ namespace InDet {
   }
 
   // ----------------------------------
-  VertexPointEstimator::~VertexPointEstimator() {}
+  VertexPointEstimator::~VertexPointEstimator() = default;
 
   // ----------------------------------
   const InterfaceID& VertexPointEstimator::interfaceID() {
@@ -475,9 +475,9 @@ namespace InDet {
         yi2 = A*xi2 + B;
         return true;
       }    
-      else return false;
+      return false;
     }
-    else if (xc1 != xc2){
+    if (xc1 != xc2){
       double A = (yc1 - yc2) / (xc2- xc1);
       double B = (r1*r1 - r2*r2 - xc1*xc1 + xc2*xc2 - yc1*yc1 + yc2*yc2) / 2. / ( xc2 -xc1);
       double a  = 1 + A*A;
@@ -488,12 +488,12 @@ namespace InDet {
         xi2 = A*yi2 + B;
         return true;
       }    
-      else return false;
-    }
-    else {
-      // circles are concentric and we don't care
       return false;
     }
+    
+      // circles are concentric and we don't care
+      return false;
+    
     return false;
   }
 

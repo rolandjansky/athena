@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 __doc__ = """A base class for pre-staging files from tape to disk. Specific tape staging
@@ -219,9 +219,9 @@ class FileStagerRobot(TransformLogger):
         name = stager.name()
         oldStager = self.getStager(name)
         if oldStager is not None:
-            self.logger().warning("File pre-stager %s already in %s. Keeping old one." % (name,self.__name) )
+            self.logger().warning("File pre-stager %s already in %s. Keeping old one.", name,self.__name)
         else:
-            self.logger().debug("Adding file pre-stager %s to %s" % (name,self.__name) )
+            self.logger().debug("Adding file pre-stager %s to %s", name, self.__name)
             stager.setLoggerParentName(self.name())
             self.__stagerList.append( stager )
         

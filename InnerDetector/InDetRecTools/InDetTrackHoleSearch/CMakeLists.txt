@@ -33,7 +33,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrackHoleSearch
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr Identifier InDetReadoutGeometry InDetRecToolInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes TrkEventUtils TrkMeasurementBase TrkTrack TrkTrackSummary TrkExInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr Identifier InDetReadoutGeometry InDetRecToolInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes TrkEventUtils TrkMeasurementBase TrkTrack TrkTrackSummary TrkExInterfaces InDetConditionsSummaryService )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackHoleSearch )

@@ -525,7 +525,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
 
     int fragId = rawChannelCollection->identify();
     IdentifierHash fragHash = (rawChannelContainerDSP->hashFunc())(fragId);
-    const TileRawChannelCollection* rawChannelCollectionDSP = *(rawChannelContainerDSP->indexFind(fragHash));
+    const TileRawChannelCollection* rawChannelCollectionDSP = rawChannelContainerDSP->indexFindPtr(fragHash);
 
     if (rawChannelCollectionDSP->getLvl1Type() != getL1info()) continue;
 

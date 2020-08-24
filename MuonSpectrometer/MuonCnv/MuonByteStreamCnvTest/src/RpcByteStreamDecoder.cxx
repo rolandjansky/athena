@@ -3,6 +3,7 @@
 */
 
 #include "MuonByteStreamCnvTest/RpcByteStreamDecoder.h"
+#include "RPCcablingInterface/CablingRPCBase.h"
 
 namespace {
   static constexpr unsigned int const& rpcRawHitWordLength = 7;

@@ -1,3 +1,7 @@
+2020-07-30 Eric Torrence <torrence@cern.ch>
+	* Many changes to deploy lumicalc on new centos7 servers
+	* Call this LumiCalc-00-06-03
+
 2019-10-20 Eric Torrence <torrence@cern.ch>
 	* Properly moved everything to git
 	* Made changes to bring code into ATLAS code guidelines

@@ -20,7 +20,7 @@
 // Utilities
 
 // This algorithm includes
-#include "TrigT1CaloSim/JetCMX.h"
+#include "JetCMX.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"

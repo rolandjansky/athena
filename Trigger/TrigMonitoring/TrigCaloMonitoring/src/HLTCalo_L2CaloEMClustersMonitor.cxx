@@ -14,7 +14,7 @@ template <typename T> struct clus_kin {
 HLTCalo_L2CaloEMClustersMonitor::HLTCalo_L2CaloEMClustersMonitor( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
 {
-  declareProperty("HLTContainer", m_HLT_cont_key = "HLT_L2CaloEMClusters");
+  declareProperty("HLTContainer", m_HLT_cont_key = "HLT_FastCaloEMClusters");
   declareProperty("OFFContainer", m_OFF_cont_key = "egammaClusters");
   declareProperty("MonGroupName", m_mongroup_name = "TrigCaloMonitor");
 

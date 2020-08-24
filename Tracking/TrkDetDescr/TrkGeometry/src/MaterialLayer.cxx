@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ Trk::MaterialLayer::MaterialLayer(const Trk::MaterialLayer& lay):
 
 // destructor 
 Trk::MaterialLayer::~MaterialLayer()
-{} 
+= default; 
 
 Trk::MaterialLayer& Trk::MaterialLayer::operator =(const Trk::MaterialLayer& lay)
 {

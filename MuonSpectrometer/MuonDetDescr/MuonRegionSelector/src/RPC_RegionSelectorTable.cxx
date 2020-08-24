@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    RPC_RegionSelectorTable.cxx         
@@ -81,7 +81,7 @@ StatusCode RPC_RegionSelectorTable::finalize() {
 }
 
 
-RegSelSiLUT* RPC_RegionSelectorTable::getLUT() const {
+RegSelSiLUT* RPC_RegionSelectorTable::getLUT() {
   return m_regionLUT;
 } 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibNtuple/CscTruthHitNtupleBranch.h"
@@ -20,15 +20,11 @@ namespace MuonCalib {
   bool CscTruthHitNtupleBranch::fillBranch(const MuonCalibCscTruthHit &hit) {
     // check if branches were initialized
     if( !m_branchesInit ){
-      //std::cout << "CscTruthHitNtupleBranch::fillBranch  ERROR <branches were not initialized>"
-      //	//<<  std::endl;
       return false;    
     }
 
     // check if index not out of range 
     if( m_index >= m_blockSize || m_index < 0 ){
-//       //std::cout << "CscTruthHitNtupleBranch::fillBranch  ERROR <index out of range; hit not added to ntuple> "
-// 		<<  m_index << std::endl;
       return false;
     }
 
@@ -46,8 +42,6 @@ namespace MuonCalib {
   bool CscTruthHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
-      //std::cout << "CscTruthHitNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
-      //<< std::endl;
       return false;
     }
 

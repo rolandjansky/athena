@@ -13,9 +13,17 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
+_trigNavThinningSvcs = {}
+def registerTrigNavThinningSvc (streamName, svc):
+   _trigNavThinningSvcs[streamName] = svc
+   return
+
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
                         eventInfoKey = "EventInfo", decisionFilter="",
                         trigNavThinningSvc = None ):
+   if trigNavThinningSvc is None:
+      trigNavThinningSvc = _trigNavThinningSvcs.get (streamName, None)
+
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
@@ -40,9 +48,12 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # Tell tool to pick it up
          outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
-         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
-         svcMgr.ToolSvc += EventInfoAttListTool()
+         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder         
          EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
+         from AthenaCommon.GlobalFlags  import globalflags
+         if globalflags.InputFormat() == 'bytestream':
+            #No event-tag input in bytestream
+            EventInfoTagBuilder.PropagateInput=False
          topSequence += EventInfoTagBuilder
 
    # decide where to put outputstream in sequencing

@@ -14,7 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace{
 // static particle masses

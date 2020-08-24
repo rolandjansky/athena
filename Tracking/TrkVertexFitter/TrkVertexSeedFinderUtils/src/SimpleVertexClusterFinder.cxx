@@ -44,10 +44,10 @@ namespace Trk
     }
 
     std::vector<std::unique_ptr<Cluster> > clusts;
-    while (binsRemaining.size() > 0) {
+    while (!binsRemaining.empty()) {
       //get a new cluster, but check that it is filled.  Break if not.  in this case not all the bins above threshold are used because of the seed quality cut
       std::unique_ptr<Cluster> tmpClust = highestCluster( image, binsRemaining );
-      if(tmpClust->size() > 0)
+      if(!tmpClust->empty())
 	clusts.push_back( std::move (tmpClust) );
       else {
 	break;
@@ -58,9 +58,9 @@ namespace Trk
     for (std::unique_ptr<Cluster>& cl : clusts) {
       float xbin,ybin,zbin;
       getCenter(image, *cl, xbin,ybin,zbin);
-      vertices.push_back( Amg::Vector3D( image.getRelPosX(xbin),
+      vertices.emplace_back( image.getRelPosX(xbin),
                                          image.getRelPosY(ybin),
-                                         image.getRelPosZ(zbin) ) );
+                                         image.getRelPosZ(zbin) );
     }
 
     ATH_MSG_DEBUG( "returning " << vertices.size() << " clusters"  );
@@ -92,10 +92,10 @@ namespace Trk
     
     if( maxIdx==binsRemaining.end() ) { //nothing above threshold
       return clust;
-    } else { //start the cluster with the highest bin, removing it from future consideration
+    } //start the cluster with the highest bin, removing it from future consideration
       clust->push_back(binContent( maxIdx->first, maxIdx->second ));
       binsRemaining.erase(maxIdx);
-    }
+    
     
     //find more bins to add
     addBinsToCluster( image, *clust, 0, binsRemaining );

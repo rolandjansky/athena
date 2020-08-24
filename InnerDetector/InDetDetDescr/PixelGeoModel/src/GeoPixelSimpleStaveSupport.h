@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSIMPLESTAVESUPPORT_H
@@ -15,7 +15,7 @@ public:
   GeoPixelSimpleStaveSupport();
   virtual ~GeoPixelSimpleStaveSupport();
   virtual GeoVPhysVol* Build();
-  virtual GeoVPhysVol* getPhysVol() const {return m_physVol;}
+  virtual GeoVPhysVol* getPhysVol ATLAS_NOT_THREAD_SAFE () const {return m_physVol;}
   virtual const GeoTrf::Transform3D & transform() const {return m_transform;}
   virtual double thicknessP() const {return m_thicknessP;}
   virtual double thicknessN() const {return m_thicknessN;}

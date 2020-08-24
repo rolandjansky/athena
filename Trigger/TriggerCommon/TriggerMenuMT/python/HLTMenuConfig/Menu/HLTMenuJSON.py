@@ -74,48 +74,61 @@ def __getSequencerAlgs(stepsData):
 def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     """ Generates JSON given the ChainProps and sequences
     """
-    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", odict()) ])
+    # Menu dictionary that is used to create the JSON content
+    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", odict()), ("streams", odict()), ("sequencers", odict()) ])
 
-    # List of steps data
+    # List of steps data for sequencers
     stepsData = __getStepsDataFromAlgSequence(HLTAllSteps)
 
     from TriggerMenuMT.HLTMenuConfig.Menu import StreamInfo
     for chain in chainDicts:
-        streamDicts = []
-        streamTags = StreamInfo.getStreamTags(chain["stream"])
-        for streamTag in streamTags:
-            streamDicts.append({"name": streamTag.name(),
-                                "type": streamTag.type(),
-                                "obeyLB": streamTag.obeysLumiBlock(),
-                                "forceFullEventBuilding": streamTag.forceFullEventBuilding()})
+        # Prepare information for stream list and fill separate dictionary
+        chainStreamTags = []
+        for streamName in chain["stream"]:
+            streamTag = StreamInfo.getStreamTag(streamName)
+            # Stream needs to have been defined in StreamInfo.py otherwise is not added to JSON
+            if streamTag is None:
+                __log.error('Stream %s does not have StreamTags defined excluding from JSON', streamName)
+                continue
+            # Add stream to the chain
+            chainStreamTags.append(streamName)
+            # If not already listed, add stream details to stream dictionary
+            if streamName not in menuDict["streams"]:
+                menuDict["streams"][streamName] = odict([
+                    ("name", streamName),
+                    ("type", streamTag.type()),
+                    ("obeyLB", streamTag.obeysLumiBlock()),
+                    ("forceFullEventBuilding", streamTag.forceFullEventBuilding())
+                ])
 
+        # Find L1 Threshold information for current chain
         l1Thresholds  = []
         [ l1Thresholds.append(p['L1threshold']) for p in chain['chainParts'] ]
 
-        chainDict = odict([ 
+        # Now have all information to write the chain to the menu dictionary
+        chainName = chain["chainName"]
+        menuDict["chains"][chainName] = odict([
             ("counter", chain["chainCounter"]),
-            ("name", chain["chainName"]),
             ("nameHash", chain["chainNameHash"]),
             ("l1item", chain["L1item"]),
             ("l1thresholds", l1Thresholds),
             ("groups", chain["groups"]),
-            ("streams", streamDicts),
-            ("sequencers", __getChainSequencers(stepsData, chain["chainName"]) )
+            ("streams", chainStreamTags),
+            ("sequencers", __getChainSequencers(stepsData, chainName) )
         ])
-
-        menuDict["chains"].append( chainDict )
 
     # All algorithms executed by a given Sequencer
     menuDict["sequencers"].update( __getSequencerAlgs(stepsData) )
 
-    __log.info( "Writing trigger menu to %s", fileName )
+    # Menu dictionary now completed, write to JSON
+    __log.info( "Writing HLT Menu JSON to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=False )
 
 
 def generateJSON():
-    __log.info("Generating HLT JSON config in the rec-ex-common job")
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    __log.info("Generating HLT Menu JSON in the rec-ex-common job")
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.CFElements import findSubSequence
@@ -123,11 +136,11 @@ def generateJSON():
     return __generateJSON( TriggerConfigHLT.dictsList(), 
                            TriggerConfigHLT.configsList(), 
                            findSubSequence(AlgSequence(), "HLTAllSteps"),
-                           TriggerFlags.triggerMenuSetup(),
-                           getHLTMenuFileName() )
+                           ConfigFlags.Trigger.triggerMenuSetup,
+                           getHLTMenuFileName(ConfigFlags) )
     
 def generateJSON_newJO( chainDicts, chainConfigs, HLTAllSteps ):
-    __log.info("Generating HLT JSON config in the new JO")
+    __log.info("Generating HLT Menu JSON in the new JO")
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     return __generateJSON( chainDicts, 

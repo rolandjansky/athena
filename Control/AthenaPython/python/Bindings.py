@@ -6,7 +6,6 @@
 from __future__ import print_function
 
 ### data
-__version__ = "$Revision: 1.30 $"
 __author__  = """
 Sebastien Binet (binet@cern.ch)
 """
@@ -277,14 +276,6 @@ def _py_init_StoreGateSvc():
     except Exception: pass # fwd compatibility
     from StoreGateBindings.Bindings import StoreGateSvc
 
-    ## merge aliases...
-    global _clid_typename_aliases
-    from AthenaServices.Dso import _load_typeregistry_dso
-    try:
-        _clid_typename_aliases.update(_load_typeregistry_dso())
-    except OSError:
-        # no typeregistry file...
-        pass
     return StoreGateSvc
 
 @memoize
@@ -619,13 +610,6 @@ del %s""" % (n,n,n,n,n)
     ITHistSvc.popitem = popitem
     del popitem
     ## ------------------------------
-
-    ## try to install ttree access enhancement
-    try:
-        from RootUtils.PyROOTFixes import enable_tree_speedups
-        enable_tree_speedups()
-    except ImportError:
-        pass
 
     ## FIXME: would be nice... but somehow interferes with _py_cache property
 ##     ## allow the use of the pythonized properties interface

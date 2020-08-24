@@ -258,7 +258,8 @@ void SiHitCollectionCnv_p2::persToTrans(const SiHitCollection_p2* persCont, SiHi
   unsigned int endHit = 0;
   unsigned int endBC = 0;
   unsigned int endId = 0;
-
+  // Assume that all Hits should be linked to the hard-scatter GenEvent
+  const int event_number = HepMcParticleLink::getEventNumberAtPosition (0, EBC_MAINEVCOLL, SG::CurrentEventStore::store());
   for (unsigned int i = 0; i < persCont->m_nHits.size(); i++) {
 
     if (persCont->m_nHits[i]) {
@@ -298,7 +299,7 @@ void SiHitCollectionCnv_p2::persToTrans(const SiHitCollection_p2* persCont, SiHi
 
         HepGeom::Point3D<double> endThis( endLast + r );
 
-        HepMcParticleLink partLink; partLink.setExtendedBarCode( HepMcParticleLink::ExtendedBarCode( persCont->m_barcode[idxBC], 0, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION) );
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], event_number);
         transCont->Emplace( endLast, endThis, eneLoss, meanTime, partLink, persCont->m_id[idxId]);
 
         endLast = endThis;

@@ -216,36 +216,18 @@ private:
  */
 ENTER_ROOT_SELECTION_NS
 template< typename STORABLE >
-class ElementLink
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 0, 2 )
-   : public SelectNoInstance
-#endif // ROOT_VERSION
+class ElementLink : public SelectNoInstance
 {
 
 public:
    /// Helper definition
    typedef ElementLink< STORABLE > self;
 
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-   /// Don't generate such dictionaries automatically
-   ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dummy;
-
-   /// Mark all transient members:
-   ROOT_SELECTION_NS::TRANSIENT m_container;
-   ROOT_SELECTION_NS::TRANSIENT m_element;
-   ROOT_SELECTION_NS::TRANSIENT m_elementCached;
-   ROOT_SELECTION_NS::TRANSIENT m_event;
-
-#else
-
    /// Mark all transient members:
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_container;
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_element;
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_elementCached;
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_event;
-
-#endif // ROOT_VERSION
 
 };
 EXIT_ROOT_SELECTION_NS

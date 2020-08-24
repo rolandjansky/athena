@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import sys, os
 from optparse import OptionParser, OptionGroup
@@ -78,7 +78,7 @@ def main():
         with Silence(options.verbose):
             from TrigConfigSvc.TrigConfigSvcUtils import getHLTPrescalesFromSMK
             hltpsk = getHLTPrescalesFromSMK(options.db,smk)
-        print "Trigger keys connected to SM %i are %r" % (smk, [int(k[0]) for k in hltpsk])
+        print("Trigger keys connected to SM %i are %r" % (smk, [int(k[0]) for k in hltpsk]))
 
 
     if options.hltpsk:
@@ -107,7 +107,7 @@ def main():
         FH = open(filename, "w")
         json.dump(prescaleSet, FH, indent=4, separators=(',', ': '))
         FH.close()
-        print "Wrote file %s" % filename
+        print("Wrote file %s" % filename)
 
     if options.l1psk:
         with Silence(options.verbose): # suppress all the output from loading the athena modules
@@ -135,7 +135,7 @@ def main():
         FH = open(filename, "w")
         json.dump(prescaleSet, FH, indent=4, separators=(',', ': '))
         FH.close()
-        print "Wrote file %s" % filename
+        print("Wrote file %s" % filename)
 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -107,22 +107,22 @@ const TruthParticle * TruthParticle::child(const std::size_t i) const
 }
 
 
-const HepMC::GenParticle * TruthParticle::genMother(const std::size_t i) const
+const HepMC::GenParticle* TruthParticle::genMother(const std::size_t i) const
 {
   if ( i < m_mothers.size() ) {
-    const TruthParticle* mother = this->mother(i);
-    return mother ? mother->genParticle() : 0;
+    auto mother = this->mother(i);
+    return mother ? mother->genParticle() : nullptr;
   } else {
     std::string error = "WRONG index for TruthParticle::genMother(index)";
     throw std::out_of_range(error);
   }
 }
 
-const HepMC::GenParticle * TruthParticle::genChild(const std::size_t i) const
+const HepMC::GenParticle* TruthParticle::genChild(const std::size_t i) const
 {
   if ( i < m_children.size() ) {
-    const TruthParticle* child = this->child(i);
-    return child ? child->genParticle() : 0;
+    auto child = this->child(i);
+    return child ? child->genParticle() : nullptr;
   } else {
     std::string error = "WRONG index for TruthParticle::genChild(index)";
     throw std::out_of_range(error);
@@ -133,7 +133,7 @@ bool TruthParticle::hasMother( const PDG::pidType pdgId ) const
 {
   const std::size_t nMothers = m_mothers.size();
   for ( std::size_t iMother = 0; iMother != nMothers; ++iMother ) {
-    const TruthParticle * mother = this->mother(iMother);
+    auto mother = this->mother(iMother);
     if ( mother && ( pdgId == mother->pdgId() ) ) {
       return true;
     }
@@ -145,7 +145,7 @@ bool TruthParticle::hasChild( const PDG::pidType pdgId ) const
 {
   const std::size_t nChildren = m_children.size();
   for ( std::size_t iChild = 0; iChild != nChildren; ++iChild ) {
-    const TruthParticle * child = this->child(iChild);
+    auto child = this->child(iChild);
     if ( child && ( pdgId == child->pdgId() ) ) {
       return true;
     }
@@ -159,7 +159,7 @@ bool TruthParticle::hasMother( const PDG::pidType pdgId,
   bool found = false;
   const std::size_t nMothers = m_mothers.size();
   for ( std::size_t iMother = 0; iMother != nMothers; ++iMother ) {
-    const TruthParticle* mother = this->mother(iMother);
+    auto mother = this->mother(iMother);
     if ( mother && ( pdgId == mother->pdgId() ) ) {
       found = true;
       indices.push_back(iMother);
@@ -174,7 +174,7 @@ bool TruthParticle::hasChild( const PDG::pidType pdgId,
   bool found = false;
   const std::size_t nChildren = m_children.size();
   for ( std::size_t iChild = 0; iChild != nChildren; ++iChild ) {
-    const TruthParticle * child = this->child(iChild);
+    auto child = this->child(iChild);
     if ( child && ( pdgId == child->pdgId() ) ) {
       found = true;
       indices.push_back(iChild);
@@ -208,7 +208,7 @@ TruthParticle::etIsol( const TruthParticleParameters::ConeSize coneIdx ) const
 CLHEP::HepLorentzVector TruthParticle::pDecay( const std::size_t i ) const 
 { 
   if ( i < m_children.size() ) {
-    const TruthParticle* child = this->child(i);
+    auto child = this->child(i);
     if ( child ) {
       return child->hlv(); 
     } else {
@@ -224,7 +224,7 @@ CLHEP::HepLorentzVector TruthParticle::pDecay( const std::size_t i ) const
 PDG::pidType TruthParticle::pdgDecay( const std::size_t i ) const 
 { 
   if ( i < m_children.size() ) {
-    const TruthParticle* child = this->child(i);
+    auto child = this->child(i);
     if ( child ) {
       return child->pdgId(); 
     } else {
@@ -256,7 +256,7 @@ void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
     this->set4Mom(particle->momentum());
 
     // children
-    const HepMC::GenVertex * dcyVtx = particle->end_vertex();
+    auto dcyVtx = particle->end_vertex();
     m_children.reserve( dcyVtx ? dcyVtx->particles_out_size() : 0 );
 
     if ( dcyVtx ) {
@@ -269,7 +269,7 @@ void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
     }//> decay vertex exists
 
     // parents
-    const HepMC::GenVertex * prodVtx = particle->production_vertex();
+    auto prodVtx = particle->production_vertex();
     m_mothers.reserve( prodVtx ? prodVtx->particles_in_size() : 0 );
     if ( prodVtx ) {
       for ( HepMC::GenVertex::particles_in_const_iterator itr = 

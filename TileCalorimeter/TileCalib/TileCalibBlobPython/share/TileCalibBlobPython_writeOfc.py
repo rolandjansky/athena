@@ -76,7 +76,7 @@ for fileName in [ofcFiles[0]]:
 
     #=== loop over all drawers (COOL channels)
     for chan in range(276):
-        
+
         data = cool.Record( spec )
         blob = data['TileCalibBlobOfc']
 
@@ -90,7 +90,7 @@ for fileName in [ofcFiles[0]]:
             for phase in range(-1000,1001):
                 phases.push_back(phase/10.)
             drawerOfc.setPhases(0,0,phases)
-    
+
             #=== read file and fill OFCs
             phase   = -1000
             channel = 0
@@ -130,7 +130,7 @@ for fileName in [ofcFiles[0]]:
                 if sample>6:
                     sample = 0
                     phase += 1
-                    
+
         #=== store blob in folder/channel
         channelId = cool.ChannelId(chan)
         folder.storeObject(iovSince, iovUntil, data, channelId)
@@ -145,4 +145,3 @@ for fileName in [ofcFiles[0]]:
     #<---end of file loop
 
 db.closeDatabase()
-

@@ -1,34 +1,7 @@
-################################################################################
-# Package: TrigMuonHypo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigMuonHypo )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODTrigMuon
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigMuonBackExtrapolator
-                          Trigger/TrigTools/TrigMuonRoITools
-			  Trigger/TrigSteer/DecisionHandling
-			  Control/AthViews
-                          LumiBlock/LumiBlockData
-                          PRIVATE
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTrigger
-                          GaudiKernel
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils
-                          Trigger/TrigConfiguration/TrigConfHLTData
-                          Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1Result )
 
 # External dependencies:
 find_package( CLHEP )
@@ -38,13 +11,12 @@ atlas_add_component( TrigMuonHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon MuonIdHelpersLib MuonRecHelperToolsLib TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib DecisionHandlingLib AthViews xAODMuon xAODTracking GaudiKernel MuonSegment MuonSegmentMakerUtils TrigConfHLTData TrigT1Interfaces TrigT1Result LumiBlockData )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel LumiBlockData MuonIdHelpersLib MuonRecHelperToolsLib MuonSegment StoreGateLib TrigConfHLTData TrigInDetEvent TrigInterfacesLib TrigMuonEvent TrigMuonToolInterfaces TrigSteeringEvent TrigT1Interfaces TrigT1Result TrkSegment xAODEventInfo xAODMuon xAODTracking xAODTrigMuon xAODTrigger )
 
-atlas_add_test( TrigMuonHypoConfig SCRIPT python -m  	TrigMuonHypo.TrigMuonHypoConfig
-		POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( TrigMuonHypoConfig
+                SCRIPT python -m TrigMuonHypo.TrigMuonHypoConfig
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
-atlas_install_headers( TrigMuonHypo )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
 

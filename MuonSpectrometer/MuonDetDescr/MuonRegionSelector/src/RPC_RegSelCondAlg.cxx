@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 /**
  **   @file   RPC_RegSelCondAlg.cxx         
  **            
@@ -8,23 +12,15 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
+#include "RPC_RegSelCondAlg.h"
 
 #include "GaudiKernel/EventIDRange.h"
 #include "StoreGate/WriteCondHandle.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "Identifier/IdentifierHash.h"
-
-#include <iostream>
-#include <fstream>
-#include <string>
-
-
 #include "MuonCablingData/MuonMDT_CablingMap.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h" 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -34,38 +30,22 @@
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 
-#include "RPC_RegSelCondAlg.h"
-
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
-
-
-
 RPC_RegSelCondAlg::RPC_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   MuonRegSelCondAlg( name, pSvcLocator )
 { 
   ATH_MSG_DEBUG( "RPC_RegSelCondAlg::RPC_RegSelCondAlg() " << name );
 }
 
-
+StatusCode RPC_RegSelCondAlg::initialize() {
+  ATH_CHECK(MuonRegSelCondAlg::initialize());
+  ATH_CHECK(m_rpcReadKey.initialize());
+  return StatusCode::SUCCESS;
+}
 
 std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_CablingMap* /* mdtCabling */ ) const { 
 
-  /// now get the RPC cabling service ...
-
-  const IRPCcablingServerSvc* cabling_server = nullptr;
-  
-  if ( service( "RPCcablingServerSvc", cabling_server ).isFailure() ) { 
-    ATH_MSG_ERROR( "Could not retieve RPC cabling server");
-    return std::unique_ptr<RegSelSiLUT>(nullptr);
-  }
-
-  const IRPCcablingSvc*  cabling = nullptr;
-  
-  if ( cabling_server->giveCabling( cabling ).isFailure() ) {
-    ATH_MSG_ERROR( "Could not retieve RPC cabling service");
-    return std::unique_ptr<RegSelSiLUT>(nullptr);
-  }
+  SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
+  const RpcCablingCondData* rpcCabling{*cablingCondData};
 
   const MuonGM::MuonDetectorManager* manager = nullptr;
 
@@ -98,8 +78,7 @@ std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_Cabli
     }
     
     std::vector<uint32_t> robIds;
-    StatusCode sc = cabling->giveROB_fromPRD(prdHashId, robIds);
-    if ( (cabling->giveROB_fromPRD(prdHashId, robIds)).isFailure() ) { 
+    if ( (rpcCabling->giveROB_fromPRD(prdHashId, robIds)).isFailure() ) { 
       ATH_MSG_ERROR( "RegSelCondAlg_RPC could not get ROBid" );
       return std::unique_ptr<RegSelSiLUT>(nullptr);
     }
@@ -125,13 +104,7 @@ std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_Cabli
     if ( layerid==0 ) layerid = 11;  // this line should never be executed 
     
     MuonGM::RpcReadoutSet Set( manager, prdId );
-    //int nmod = Set.NreadoutElements();
     int ndbz = Set.NdoubletZ();
-
-    //std::cout<<" Number of modules  in this RpcSet "<<nmod<<" Number of doubletZ in this RpcSet "<<Set.NdoubletZ()<<std::endl;
-    //std::cout<<" Number of modules in Phi/DoubletZ: ";
-    //for (int i=1; i<=ndbz; i++) std::cout<<Set.NPhimodules(i)<<" ";
-    //std::cout<<std::endl;
 
     double zmin =  99999999;
     double zmax = -99999999;
@@ -162,13 +135,11 @@ std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_Cabli
           double zminMod = rpcPos.z()-0.5*rpc->getZsize();
           double zmaxMod = rpcPos.z()+0.5*rpc->getZsize();
 
-          //double rcen = std::sqrt(rpcPos.r()*rpcPos.r()-rpcPos.z()*rpcPos.z());
           double rcen = std::sqrt(rpcPos.mag()*rpcPos.mag()-rpcPos.z()*rpcPos.z());
   
           double rminMod = rcen-0.5*rpc->getRsize();
           double rmaxMod = rcen+0.5*rpc->getRsize();
 
-	  //          double dphi = std::atan2(rpc->getSsize()/2.,rpcPos.perp());
           double dphi = std::atan2(rpc->getSsize()/2,rpcPos.perp());
           double pminMod = rpcPos.phi() - dphi;
           double pmaxMod = rpcPos.phi() + dphi;
@@ -176,13 +147,11 @@ std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_Cabli
           if (zminMod < zmin) {
             zmin = zminMod;
             Pzmin = rpcPos;
-            //Pzmin.setZ(zmin);
             Pzmin[2] = zmin;
           }
           if (zmaxMod > zmax) {
             zmax = zmaxMod;
             Pzmax = rpcPos;
-            //Pzmax.setZ(zmax);
             Pzmax[2] = zmax;
           }
           if (rminMod < rmin) {
@@ -262,10 +231,3 @@ std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_Cabli
   return lut;
 
 }
-
-
-
-
-
-
-

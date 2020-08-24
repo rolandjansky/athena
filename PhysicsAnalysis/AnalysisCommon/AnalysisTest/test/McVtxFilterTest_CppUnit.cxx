@@ -55,7 +55,7 @@ private:
   int               m_bcZee;
   int               m_bcZgee;
   int               m_bcTopWbgg;
-  typedef HepLorentzVector HLV_t;
+  typedef HepMC::FourVector HLV_t;
   
 public:
 

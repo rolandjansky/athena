@@ -1,19 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTELECTRONICSPROCESSING_H
 #define TRT_DIGITIZATION_TRTELECTRONICSPROCESSING_H
 
+#include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+
+#include <atomic>
 #include <vector>
 
+class TRTDigSettings;
 class TRTDigit;
 class TRTElectronicsNoise;
-#include "CLHEP/Random/RandomEngine.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/MsgStreamMember.h"
-
-class TRTDigSettings;
 
 /**
  * Electronics Processing
@@ -164,8 +168,9 @@ private:
   int* m_lowThresholdDiscriminator;  /**< Signal after discrimination */
   int* m_highThresholdDiscriminator; /**< Signal after discrimination */
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
+  mutable std::atomic<bool> m_first{true};
 };
 
 #endif

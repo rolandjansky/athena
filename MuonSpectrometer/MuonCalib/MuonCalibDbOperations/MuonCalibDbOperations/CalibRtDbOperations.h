@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CalibRtDbOperations_h
@@ -27,7 +27,7 @@ class CalibRtDbOperations {
  public:
 //=====================constructor - destructor=================================
   CalibRtDbOperations(CalibDbConnection & db_conn);
-  virtual ~CalibRtDbOperations();
+  virtual ~CalibRtDbOperations()=default;
 //=====================publlic member functions=================================
   //load rt do not read full info, if full_info=NULL
   bool LoadRt(const NtupleStationId & id, int head_id, bool validated, const std::string & /*site_name*/, std::vector<SamplePoint> & points, RtFullInfo * full_info);

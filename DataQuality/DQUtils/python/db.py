@@ -118,17 +118,6 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
     
     short_folder = folder.fullPath().split("/")[-1]
     
-    detstatus_names = "DQMFOFL", "DCSOFL", "DQMFONL", "SHIFTOFL", "SHIFTONL", "LBSUMM"
-    if any(short_folder.endswith(x) for x in detstatus_names):
-        channel_mapping = None # get channel mapping from channel_mapping.py
-    else:
-        _, _, channelmap = get_channel_ids_names(folder)
-        cm_reversed = dict((value, key) for key, value in six.iteritems(channelmap))
-        channelmap.update(cm_reversed)
-        channel_mapping = channelmap
-    
-    channels = make_channelselection(channels, channel_mapping)    
-        
     time_based_folder = "<timeStamp>time</timeStamp>" in folder.description()
     coracool_folder = "<coracool>" in folder.description()
     iov_key_type = TimestampType if time_based_folder else RunLumiType
@@ -153,6 +142,17 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
         else:
             return IOVSet()
     
+    detstatus_names = "DQMFOFL", "DCSOFL", "DQMFONL", "SHIFTOFL", "SHIFTONL", "LBSUMM"
+    if any(short_folder.endswith(x) for x in detstatus_names):
+        channel_mapping = None # get channel mapping from channel_mapping.py
+    else:
+        _, _, channelmap = get_channel_ids_names(folder)
+        cm_reversed = dict((value, key) for key, value in six.iteritems(channelmap))
+        channelmap.update(cm_reversed)
+        channel_mapping = channelmap
+    
+    channels = make_channelselection(channels, channel_mapping)    
+        
     field_name = "%s_VAL" % short_folder
     
     if not coracool_folder:

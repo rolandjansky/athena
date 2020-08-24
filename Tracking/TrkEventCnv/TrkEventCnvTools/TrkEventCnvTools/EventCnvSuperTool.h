@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTCNVTOOLS_EVENTCNVSUPERTOOL
@@ -23,7 +23,7 @@ namespace Trk
 
     /** Tool to handle TP conversions for Tracking EDM.
     This tool has sub tools that do the detector-specific conversions*/
-      class EventCnvSuperTool : virtual public IEventCnvSuperTool, public AthAlgTool
+class EventCnvSuperTool : public extends<AthAlgTool, IEventCnvSuperTool>
     {
     public:
 
@@ -33,26 +33,31 @@ namespace Trk
 
       virtual ~EventCnvSuperTool ();
 
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
 
-      const Trk::ITrkEventCnvTool* getCnvTool(const Identifier& id) const;
+      virtual const Trk::ITrkEventCnvTool* getCnvTool(const Identifier& id) const override;
 
         /** From passed Identifier*/
-      virtual const Trk::Surface* getSurface(const Identifier& id) const;
+      virtual const Trk::Surface* getSurface(const Identifier& id) const override;
 
         /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
-      virtual void recreateRIO_OnTrack( RIO_OnTrack *RoT ) const;
+      virtual void recreateRIO_OnTrack( RIO_OnTrack *RoT ) const override;
 
         /** Take the passed RoT and prepare the PRD ElementLink for writing to disc*/
-      virtual void prepareRIO_OnTrack( RIO_OnTrack* Rot) const;
+      virtual void prepareRIO_OnTrack( RIO_OnTrack* Rot) const override;
 
-      virtual bool canHandleInDet() const            { return m_haveIdCnvTool;}
-      virtual bool canHandleMuonSpectrometer() const { return m_haveMuonCnvTool;}
-      virtual int  maxNumberOfErrors() const         { return m_maxErrCount;}
+      /** Take the passed RoT and return the EL components to write to disc */
+      virtual void prepareRIO_OnTrackLink( const RIO_OnTrack* Rot,
+                                           ELKey_t& key,
+                                           ELIndex_t& index ) const override;
+
+      virtual bool canHandleInDet() const override   { return m_haveIdCnvTool;}
+      virtual bool canHandleMuonSpectrometer() const override { return m_haveMuonCnvTool;}
+      virtual int  maxNumberOfErrors() const override { return m_maxErrCount;}
       
-      virtual bool noGeometry() const {return !(m_haveIdCnvTool&&m_haveMuonCnvTool);}
+      virtual bool noGeometry() const override {return !(m_haveIdCnvTool&&m_haveMuonCnvTool);}
 
     private:
       ToolHandle<Trk::ITrkEventCnvTool>   m_idCnvTool {this, "IdCnvTool", "InDet::InDetEventCnvTool/InDetEventCnvTool", "Tool used to handle ID RoTs etc"}; //!< Tool used to handle ID RoTs etc

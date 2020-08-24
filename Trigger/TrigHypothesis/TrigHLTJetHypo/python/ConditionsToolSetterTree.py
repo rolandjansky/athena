@@ -4,31 +4,8 @@ from a hypo tree."""
 
 from __future__ import print_function
 
-from TrigHLTJetHypo.TrigHLTJetHypoConf import (
-    TrigJetConditionConfig_abs_eta,
-    TrigJetConditionConfig_signed_eta,
-    TrigJetConditionConfig_et,
-    TrigJetConditionConfig_dijet_mass,
-    TrigJetConditionConfig_dijet_deta,
-    TrigJetConditionConfig_dijet_dphi,
-    TrigJetConditionConfig_qjet_mass,
-    TrigJetConditionConfig_moment,
-    TrigJetConditionConfig_smc,
-    TrigJetConditionConfig_jvt,
-    TrigJetHypoToolHelperMT,
-    TrigJetConditionConfig_compound,
-    TrigJetHypoToolConfig_leaf,
-    NotHelperTool,
-    AndHelperTool,
-    OrHelperTool,
-    CombinationsHelperTool,
-    TrigJetHypoToolConfig_combgen,
-    TrigJetHypoToolConfig_partgen,
-    )
 
-from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
-    AgreeHelperTool,
-)
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from collections import defaultdict
 
@@ -37,31 +14,31 @@ class ConditionsToolSetterTree(object):
     
     def __init__(self, name):
 
-        self.name = name
+        self.name           = name
         # for simple, use TrigJetConditionConfig_etaet. Needs to be
         # completed because simple can conain any single jet condition
         self.tool_factories = {
-            'eta': [TrigJetConditionConfig_abs_eta, 0], 
-            'peta': [TrigJetConditionConfig_signed_eta, 0],
-            'neta': [TrigJetConditionConfig_signed_eta, 0],
-            'et': [TrigJetConditionConfig_et, 0],
-            'djmass': [TrigJetConditionConfig_dijet_mass, 0],
-            'djdphi': [TrigJetConditionConfig_dijet_dphi, 0],
-            'djdeta': [TrigJetConditionConfig_dijet_deta, 0],
-            'qjmass': [TrigJetConditionConfig_qjet_mass, 0],
-            'momwidth': [TrigJetConditionConfig_moment, 0],
-            'smc': [TrigJetConditionConfig_smc, 0],
-            'jvt': [TrigJetConditionConfig_jvt, 0],
-            'compound': [TrigJetConditionConfig_compound, 0],
-            'leaf': [TrigJetHypoToolConfig_leaf, 0],
-            'helper': [TrigJetHypoToolHelperMT, 0],
-            'combgen_helper': [CombinationsHelperTool, 0],
-            'not': [NotHelperTool, 0],
-            'and': [AndHelperTool, 0],
-            'agree': [AgreeHelperTool, 0],
-            'or': [OrHelperTool, 0],
-            'combgen': [TrigJetHypoToolConfig_combgen, 0],
-            'partgen': [TrigJetHypoToolConfig_partgen, 0],
+            'eta': [CompFactory.TrigJetConditionConfig_abs_eta, 0], 
+            'peta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
+            'neta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
+            'et': [CompFactory.TrigJetConditionConfig_et, 0],
+            'djmass': [CompFactory.TrigJetConditionConfig_dijet_mass, 0],
+            'djdphi': [CompFactory.TrigJetConditionConfig_dijet_dphi, 0],
+            'djdeta': [CompFactory.TrigJetConditionConfig_dijet_deta, 0],
+            'qjmass': [CompFactory.TrigJetConditionConfig_qjet_mass, 0],
+            'momwidth': [CompFactory.TrigJetConditionConfig_moment, 0],
+            'smc': [CompFactory.TrigJetConditionConfig_smc, 0],
+            'jvt': [CompFactory.TrigJetConditionConfig_jvt, 0],
+            'compound': [CompFactory.TrigJetConditionConfig_compound, 0],
+            'leaf': [CompFactory.TrigJetHypoToolConfig_leaf, 0],
+            'helper': [CompFactory.TrigJetHypoToolHelperMT, 0],
+            'combgen_helper': [CompFactory.CombinationsHelperTool, 0],
+            'not': [CompFactory.NotHelperTool, 0],
+            'and': [CompFactory.AndHelperTool, 0],
+            'agree': [CompFactory.AgreeHelperTool, 0],
+            'or': [CompFactory.OrHelperTool, 0],
+            'combgen': [CompFactory.TrigJetHypoToolConfig_combgen, 0],
+            'partgen': [CompFactory.TrigJetHypoToolConfig_partgen, 0],
             }
 
         self.mod_router = {

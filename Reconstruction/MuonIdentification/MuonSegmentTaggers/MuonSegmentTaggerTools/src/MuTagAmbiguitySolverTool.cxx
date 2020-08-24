@@ -4,32 +4,15 @@
 
 #include "MuTagAmbiguitySolverTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
-
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
- 
 #include "MuonSegment/MuonSegment.h"
-//#include "TrkParameters/MeasuredPerigee.h"
 #include "MuonSegment/MuonSegmentQuality.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
 #include "TrkTrack/Track.h"
-
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 
 MuTagAmbiguitySolverTool::MuTagAmbiguitySolverTool(const std::string& t, 
@@ -37,13 +20,7 @@ MuTagAmbiguitySolverTool::MuTagAmbiguitySolverTool(const std::string& t,
 				     const IInterface*  p ):
   AthAlgTool(t,n,p),
   p_muonPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  p_muonIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-  p_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
-  p_StoreGateSvc(0),
-  m_mdtIdHelper(0),
-  m_cscIdHelper(0),
-  m_rpcIdHelper(0),
-  m_tgcIdHelper(0)
+  p_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool")
 {
   declareInterface<IMuTagAmbiguitySolverTool>(this);
   declareProperty("MuonSegmentMatchingTool" , p_segmentMatchingTool ) ;
@@ -53,57 +30,26 @@ MuTagAmbiguitySolverTool::MuTagAmbiguitySolverTool(const std::string& t,
   declareProperty("RejectMatchPhi",   m_rejectMatchPhi = true );
 }
 
-MuTagAmbiguitySolverTool::~MuTagAmbiguitySolverTool(){
-}
-
 StatusCode MuTagAmbiguitySolverTool::initialize()
 {
-
   ATH_CHECK( AthAlgTool::initialize() ); 
-
-  //Set pointer on StoreGateSvc
-  ATH_CHECK( service("StoreGateSvc", p_StoreGateSvc) );
   
   ATH_MSG_INFO( "================================" );
   ATH_MSG_INFO( "=Proprieties are " );
   ATH_MSG_INFO( "================================" );
 
-  // retrieve MuonDetectorManager
-  const MuonGM::MuonDetectorManager* detMgr;
-  ATH_CHECK( detStore()->retrieve(detMgr) );
-
-  // initialize MuonIdHelpers
-  if (detMgr) {
-    m_mdtIdHelper = detMgr->mdtIdHelper();
-    m_cscIdHelper = detMgr->cscIdHelper();
-    m_rpcIdHelper = detMgr->rpcIdHelper();
-    m_tgcIdHelper = detMgr->tgcIdHelper();
-  } else {
-    m_mdtIdHelper = 0;
-    m_cscIdHelper = 0;
-    m_rpcIdHelper = 0;
-    m_tgcIdHelper = 0;
-  }
-
   ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( p_muonPrinter.retrieve() );
-  ATH_CHECK( p_muonIdHelper.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK( p_segmentMatchingTool.retrieve() );
   
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode MuTagAmbiguitySolverTool::finalize(){
-  return AthAlgTool::finalize();
-}
-
-
-  std::vector<  MuonCombined::MuonSegmentInfo >  MuTagAmbiguitySolverTool::solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) const {
-    //  std::vector<  MuonCombined::MuonSegmentInfo > outputMTOs;
+std::vector<  MuonCombined::MuonSegmentInfo >  MuTagAmbiguitySolverTool::solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) const {
 	ATH_MSG_DEBUG(  "mtos size before any cuts " << mtos.size() );
   // Store the number of segments associated to one track (pointer) 
-
     for( unsigned int ns1 = 0; ns1 < mtos.size(); ns1++){
       ATH_MSG_DEBUG(  " index " << ns1 << " nsegments " << mtos[ns1].nsegments << " track pointer " << mtos[ns1].track << " stationLayer " <<  mtos[ns1].stationLayer << " selected " << mtos[ns1].selected );
       int nsegments = 1;
@@ -294,21 +240,21 @@ int MuTagAmbiguitySolverTool::ambiguousSegment( const Muon::MuonSegment& seg1, c
   // check whether the segments are in the same station layer
   Identifier ch1 = m_edmHelperSvc->chamberId(seg1);
   Identifier ch2 = m_edmHelperSvc->chamberId(seg2);
-  Muon::MuonStationIndex::StIndex st1 = p_muonIdHelper->stationIndex(ch1);
-  Muon::MuonStationIndex::StIndex st2 = p_muonIdHelper->stationIndex(ch2);
+  Muon::MuonStationIndex::StIndex st1 = m_idHelperSvc->stationIndex(ch1);
+  Muon::MuonStationIndex::StIndex st2 = m_idHelperSvc->stationIndex(ch2);
   if( st1 != st2 ) return 0;
 
   // check whether the segments are in the same chamber layer (small/large)
-  Muon::MuonStationIndex::ChIndex chI1 = p_muonIdHelper->chamberIndex(ch1);
-  Muon::MuonStationIndex::ChIndex chI2 = p_muonIdHelper->chamberIndex(ch2);
+  Muon::MuonStationIndex::ChIndex chI1 = m_idHelperSvc->chamberIndex(ch1);
+  Muon::MuonStationIndex::ChIndex chI2 = m_idHelperSvc->chamberIndex(ch2);
   if( chI1 != chI2 ){
 
     // only match if segments both MDT or both CSC
-    if( p_muonIdHelper->isMdt(ch1) ==  p_muonIdHelper->isMdt(ch2) ) {
+    if( m_idHelperSvc->isMdt(ch1) ==  m_idHelperSvc->isMdt(ch2) ) {
       
       // make sure segments are in same sector or neighbouring one
-      int sector1 = p_muonIdHelper->sector(ch1);
-      int sector2 = p_muonIdHelper->sector(ch2);
+      int sector1 = m_idHelperSvc->sector(ch1);
+      int sector2 = m_idHelperSvc->sector(ch2);
       bool sectorOk = false;
       if( sector1 == sector2 ) sectorOk = true;
       if( abs(sector1-sector2) == 1 ) sectorOk = true;
@@ -368,8 +314,8 @@ std::vector<  MuonCombined::MuonSegmentInfo > MuTagAmbiguitySolverTool::selectBe
     } 
 
     Identifier ch1 = m_edmHelperSvc->chamberId(*museg1);
-    Muon::MuonStationIndex::StIndex st1 = p_muonIdHelper->stationIndex(ch1);
-    int eta1 = p_muonIdHelper->stationEta(ch1);
+    Muon::MuonStationIndex::StIndex st1 = m_idHelperSvc->stationIndex(ch1);
+    int eta1 = m_idHelperSvc->stationEta(ch1);
 
     
     for( unsigned int mts2=mts1+1; mts2 < mtss.size() ; ++mts2 ){
@@ -380,10 +326,10 @@ std::vector<  MuonCombined::MuonSegmentInfo > MuTagAmbiguitySolverTool::selectBe
       } 
 
       Identifier ch2 = m_edmHelperSvc->chamberId(*museg2);
-      Muon::MuonStationIndex::StIndex st2 = p_muonIdHelper->stationIndex(ch2);    
+      Muon::MuonStationIndex::StIndex st2 = m_idHelperSvc->stationIndex(ch2);    
       
       if( st1 != st2 ) continue;
-      int eta2 = p_muonIdHelper->stationEta(ch2);
+      int eta2 = m_idHelperSvc->stationEta(ch2);
       if( eta1 != eta2 ) continue;
 
       if(ambiguousSegment(*museg1,*museg2)) {

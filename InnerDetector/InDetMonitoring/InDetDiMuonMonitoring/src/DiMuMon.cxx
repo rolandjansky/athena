@@ -1,28 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-#include "InDetDiMuonMonitoring/DiMuMon.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/Muon.h"
+#include "DiMuMon.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include <math.h>
 
-#include "TProfile.h"
-#include "TMath.h"
 #include "TF1.h"
-#include "TH1.h"
-#include "TH2.h"
 #include "TCanvas.h"
-#include "TString.h"
-#include "TLorentzVector.h"
-#include "TPostScript.h"
 #include "TStyle.h"
 
 #include "RooRealVar.h"
@@ -41,11 +31,9 @@
 DiMuMon::DiMuMon( const std::string & type, const std::string & name, const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent )
   , m_triggerChainName("NoTrig")
-  , m_muonCollection("Muons")
 {
    declareProperty( "resonName", m_resonName = "Zmumu" );
    declareProperty( "triggerChainName", m_triggerChainName = "NoTrig" );
-   declareProperty( "muonCollection", m_muonCollection = "Muons" );
    declareProperty( "setDebug", m_setDebug = false );
    declareProperty( "minInvmass", m_minInvmass = 60.);
    declareProperty( "maxInvmass", m_maxInvmass = 120.);
@@ -72,6 +60,7 @@ DiMuMon::~DiMuMon()
 StatusCode DiMuMon::initialize(){
 
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
+  ATH_CHECK( m_muonCollection.initialize() );
 
   if (m_regions.empty()) {
     m_regions.push_back("All");
@@ -254,27 +243,19 @@ StatusCode DiMuMon::bookHistograms()
 }
 
 
-StatusCode DiMuMon::fillHistograms()
+StatusCode DiMuMon::fillHistograms ATLAS_NOT_THREAD_SAFE () // const_cast is used.
 {
 
-  //  if (m_lumiBlockNum<402 || m_lumiBlockNum>1330) return StatusCode::SUCCESS;
-
-  double muonMass = 105.66*Gaudi::Units::MeV;
+  const double muonMass = 105.66*Gaudi::Units::MeV;
   //retrieve all muons
-  const xAOD::MuonContainer* muons(0);
-  StatusCode sc = evtStore()->retrieve(muons, m_muonCollection);
-  if(sc.isFailure()){
+  SG::ReadHandle<xAOD::MuonContainer> muons{m_muonCollection};
+  if(!muons.isValid()){
     ATH_MSG_WARNING("Could not retrieve muon container");
-    return sc;
+    return StatusCode::FAILURE;
   } else ATH_MSG_DEBUG("Muon container successfully retrieved.");
 
   //make a new container
   xAOD::MuonContainer* goodMuons = new xAOD::MuonContainer( SG::VIEW_ELEMENTS );
-  sc = evtStore()->record ( goodMuons, "myGoodMuons" + m_triggerChainName + m_resonName);
-  if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Could not record good muon tracks container.");
-    return StatusCode::FAILURE;
-  }
 
   //pick out the good muon tracks and store in the new container
   for(const auto* muon : *muons ) {
@@ -307,11 +288,6 @@ StatusCode DiMuMon::fillHistograms()
     m_stat->Fill("eta<2.5",1);
 
     goodMuons->push_back(const_cast<xAOD::Muon*>(muon));
-  }
-  sc = evtStore()->setConst( goodMuons );
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not set good muon track collection to const");
-    return StatusCode::FAILURE;
   }
 
   //pair up the tracks of the good muons and fill histograms
@@ -475,7 +451,7 @@ StatusCode DiMuMon::fillHistograms()
 }
 
 
-StatusCode DiMuMon::procHistograms()
+StatusCode DiMuMon::procHistograms ATLAS_NOT_THREAD_SAFE () // Thread unsafe DiMuMon::iterativeGausFit is used.
 {
 
 
@@ -507,7 +483,7 @@ StatusCode DiMuMon::procHistograms()
 }
 
 
-void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
+void DiMuMon::iterativeGausFit ATLAS_NOT_THREAD_SAFE (TH2F* hin, std::vector<TH1F*> hout, int mode){ // Global gStyle is used.
   // a canvas may be needed when implmenting this into the post-processing file
   TString hname =  hin->GetName();
   TString psName = hname + m_triggerChainName + ".ps";
@@ -614,7 +590,7 @@ void DiMuMon::RegisterHisto(MonGroup& mon, T* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::WARNING) << "Cannot book histogram:" << endmsg;
+    ATH_MSG_WARNING( "Cannot book histogram:" );
   }
 }
 

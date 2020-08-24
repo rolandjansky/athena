@@ -35,19 +35,19 @@ StatusCode DiLeptonMassFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     // Loop over all particles in the event
-    for (HepMC::GenEvent::particle_const_iterator pitr1 = genEvt->particles_begin(); pitr1 != genEvt->particles_end(); ++pitr1 ){
+    for (auto pitr1 = HepMC::begin(*genEvt);  pitr1!=HepMC::end(*genEvt); ++pitr1 ){
       int pdgId1((*pitr1)->pdg_id());
       if((*pitr1)->status()!=1) continue;
 
       // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta
       if (abs(pdgId1) == 11 || abs(pdgId1) == 13) {
-        if ((*pitr1)->momentum().perp() >= m_minPt && fabs((*pitr1)->momentum().pseudoRapidity()) <= m_maxEta){
+        if ((*pitr1)->momentum().perp() >= m_minPt && std::abs((*pitr1)->momentum().pseudoRapidity()) <= m_maxEta){
 
           // Loop over all remaining particles in the event
-          HepMC::GenEvent::particle_const_iterator pitr2 = pitr1;
+          auto pitr2 = pitr1;
           pitr2++;
 
-          for(; pitr2 != genEvt->particles_end(); ++pitr2){
+          for(; pitr2 != HepMC::end(*genEvt); ++pitr2){
             int pdgId2((*pitr2)->pdg_id());
             //if((*pitr2)->status()!=1 && pitr1 != pitr2) continue;
             if((*pitr2)->status()!=1 || pitr1 == pitr2) continue;
@@ -57,7 +57,7 @@ StatusCode DiLeptonMassFilter::filterEvent() {
             // If m_allowElecMu is true allow also Z -> emu compinations (with charge requirements as above)
             if ((m_allowSameCharge  && (abs(pdgId2) == abs(pdgId1) || (m_allowElecMu && (abs(pdgId2) == 11 || abs(pdgId2) == 13) ) ) ) ||
                 (!m_allowSameCharge && (pdgId2 == -1*pdgId1 || (m_allowElecMu && (pdgId2 == (pdgId1 < 0 ? 1 : -1) * 11 || (pdgId1 < 0 ? 1 : -1) * pdgId2 == 13) ) ) ) ) {
-              if ((*pitr2)->momentum().perp() >= m_minPt && fabs((*pitr2)->momentum().pseudoRapidity()) <= m_maxEta){
+              if ((*pitr2)->momentum().perp() >= m_minPt && std::abs((*pitr2)->momentum().pseudoRapidity()) <= m_maxEta){
 
                 // Calculate invariant mass and apply cut
                 HepMC::FourVector vec((*pitr1)->momentum().px() + (*pitr2)->momentum().px(),
@@ -69,9 +69,9 @@ StatusCode DiLeptonMassFilter::filterEvent() {
                 double dilepPt = vec.perp();
 
                 ATH_MSG_DEBUG(" Lepton1 : Pt = " << (*pitr1)->momentum().perp() << ", Eta = " << (*pitr1)->momentum().pseudoRapidity() <<
-                              ", pdgid = " << pdgId1 << ", status = " << (*pitr1)->status() << ", barcode = " << (*pitr1)->barcode() <<
+                              ", pdgid = " << pdgId1 << ", status = " << (*pitr1)->status() << ", barcode = " << HepMC::barcode(*pitr1) <<
 							  " Lepton2 : Pt = " << (*pitr2)->momentum().perp() << ", Eta = " << (*pitr2)->momentum().pseudoRapidity() <<
-							  ", pdgid = " << pdgId2 << ", status = " << (*pitr2)->status() << ", barcode = " << (*pitr2)->barcode() <<
+							  ", pdgid = " << pdgId2 << ", status = " << (*pitr2)->status() << ", barcode = " << HepMC::barcode(*pitr2) <<
 							  " Mass = " << invMass <<
 							  " DilepPt = " << dilepPt);
 

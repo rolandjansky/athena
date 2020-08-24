@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibNtuple/RootFileManager.h"
@@ -24,7 +24,6 @@ namespace MuonCalib {
 
   TDirectory* RootFileManager::getDirectory( std::string dirname ) {
     if( !m_outFile ){
-      //std::cout << "  RootFileManager::getDirectory ERROR <open file first> " << std::endl;
       return 0;
     }
 
@@ -49,7 +48,6 @@ namespace MuonCalib {
   bool RootFileManager::openFile( std::string filename) {
 
     if (m_outfiles[filename]==NULL) {
-      //	std::cout<<"Creating new file: "<<filename<<std::endl;
       m_outfiles[filename] = new TFile( filename.c_str(), m_fileOption.c_str() );
     }
     // create new root file
@@ -63,7 +61,6 @@ namespace MuonCalib {
     for(std::map<std::string, TFile *> :: iterator it=m_outfiles.begin(); it!=m_outfiles.end(); it++) {
       it->second->Write();
       it->second->Close();
-      //	delete m_meta_data_tree[it->first]; m_meta_data_tree[it->first]=NULL;
     }
     // set pointer to zero
     delete m_key; m_key=NULL;
@@ -74,14 +71,11 @@ namespace MuonCalib {
   }  //end RootFileManager::closeFile
 
   void RootFileManager::WriteMetaData(const std::map<std::string, std::string> &metadata, const std::string &filename) {
-    //    std::cout<<"Writing Metadata to "<<filename<<std::endl;
     if(m_outfiles.find(filename)==m_outfiles.end()) {
-      //      std::cerr<<"RootFileManager::WriteMetaData: File " << filename <<" is not created!"<<std::endl;
       return;
     }
     TDirectory *current=gDirectory;
     m_outfiles[filename]->cd();
-    //    std::cout<<">>>>>>>>>>>>>"<<gDirectory->GetName()<<std::endl;
     if(!m_key) m_key = new std::string();
     if(!m_value) m_value = new std::string();
     TTree *meta_data_tree=new TTree("meta_data", "Meta Data");

@@ -10,35 +10,22 @@
 // DESCRIPTION:
 // Subject: correlation btw MDT hits vs TGC RoI -->Offline Muon Data Quality
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
- 
+
+#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdoIdHash.h"
-
-// MuonDetDesc
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
-#include "MuonDQAUtils/MuonDQAHistMap.h" 
-
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-
 #include "TrkSegment/SegmentCollection.h"
- 
-#include "Identifier/Identifier.h"
-
 #include "MuonCalibIdentifier/MuonFixedId.h"
- 
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include <inttypes.h> 
-
+#include <inttypes.h>
 #include <sstream>
 #include <algorithm>
 #include <fstream>
@@ -110,15 +97,11 @@ MdtVsTgcRawDataValAlg::~MdtVsTgcRawDataValAlg(){
 
 StatusCode 
 MdtVsTgcRawDataValAlg::initialize(){
-  // init message stream
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_MSG_INFO( "in initializing MdtVsTgcRawDataValAlg"  );
-
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-  ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+  ATH_CHECK(m_idHelperSvc.retrieve());
  
   //MDT z position
   //Name MultiLayer TubeLayer z
@@ -136,17 +119,14 @@ MdtVsTgcRawDataValAlg::initialize(){
   //18 2 3 14030.6
 
   // Retrieve the MuonDetectorManager
-  const MuonGM::MuonDetectorManager* MuonDetMgrDS;
+  const MuonGM::MuonDetectorManager* MuonDetMgrDS=nullptr;
   ATH_CHECK( detStore()->retrieve(MuonDetMgrDS) );
   ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
-
   prepareTREarray(MuonDetMgrDS);
-
   ATH_CHECK(m_tgc_PrepDataContainerName.initialize());
   ATH_CHECK(m_tgc_CoinContainerName.initialize());
   ATH_CHECK(m_mdt_PrepDataContainerName.initialize());
   ATH_CHECK(m_mdt_SegmentCollectionName.initialize());
-   
   return StatusCode::SUCCESS;
 }
 

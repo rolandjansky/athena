@@ -10,13 +10,18 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "ActsGeometry/ActsGeometryContext.h"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 
-namespace Acts {
-  class TrackingGeometry;
-}
+/// Using some short hands for Recorded Material
+using ActsRecordedMaterial = Acts::MaterialInteractor::result_type;
+/// Finally the output of the propagation test
+using ActsPropagationOutput =
+        std::pair<std::vector<Acts::detail::Step>, ActsRecordedMaterial>;
+
 
 class IActsTrackingGeometryTool;
 
@@ -27,14 +32,41 @@ class IActsExtrapolationTool : virtual public IAlgTool {
   DeclareInterfaceID(IActsExtrapolationTool, 1, 0);
 
   virtual
-  std::vector<Acts::detail::Step>
+  ActsPropagationOutput
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+
+  virtual
+  std::unique_ptr<const Acts::CurvilinearParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundParameters& startParameters,
+            Acts::NavigationDirection navDir = Acts::forward,
+            double pathLimit = std::numeric_limits<double>::max()) const = 0;
+
+  virtual
+  ActsPropagationOutput
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   const Acts::Surface& target,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+
+  virtual
+  std::unique_ptr<const Acts::BoundParameters>
+  propagate(const EventContext& ctx,
+            const Acts::BoundParameters& startParameters,
+            const Acts::Surface& target,
+            Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const = 0;
 
   virtual
   const IActsTrackingGeometryTool*
   trackingGeometryTool() const = 0;
+
+  virtual 
+  Acts::MagneticFieldContext getMagneticFieldContext(const EventContext& ctx) const = 0;
 };
 
 #endif

@@ -1,30 +1,30 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
 
 // ATHENA
-#include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "ActsGeometry/IActsPropStepRootWriterSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // ACTS
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ActsGeometryContext.h"
+#include "ActsGeometry/IActsPropStepRootWriterSvc.h"
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsInterop/Logger.h"
-//#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
 #include "CLHEP/Random/RandomEngine.h"
@@ -35,12 +35,20 @@
 
 using namespace Acts::UnitLiterals;
 
+namespace Acts{
+  /// Recorded material track
+  /// - this is start:  position, start momentum
+  ///   and the Recorded material
+  using RecordedMaterialTrack =
+      std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
+}
+
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string &name,
                                            ISvcLocator *pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
       m_propStepWriterSvc("ActsPropStepRootWriterSvc", name),
-      m_rndmGenSvc("AthRNGSvc", name) //,
-// m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
+      m_rndmGenSvc("AthRNGSvc", name) ,
+      m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
 {}
 
 StatusCode ActsExtrapolationAlg::initialize() {
@@ -51,9 +59,9 @@ StatusCode ActsExtrapolationAlg::initialize() {
   ATH_CHECK(m_extrapolationTool.retrieve());
   ATH_CHECK(m_propStepWriterSvc.retrieve());
 
-  // if (m_writeMaterialTracks) {
-  // ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
-  //}
+  if (m_writeMaterialTracks) {
+  ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
+  }
 
   m_objOut = std::make_unique<std::ofstream>("steps.obj");
 
@@ -105,7 +113,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
     pars << d0, z0, phi, theta, qop, t;
     std::optional<Acts::BoundSymMatrix> cov = std::nullopt;
 
-    std::vector<Acts::detail::Step> steps;
+    ActsPropagationOutput output;
 
     if (charge != 0.) {
       // Perigee, no alignment -> default geo context
@@ -114,8 +122,18 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       auto anygctx = gctx.any();
       Acts::BoundParameters startParameters(
           anygctx, std::move(cov), std::move(pars), std::move(surface));
-      steps = m_extrapolationTool->propagate(ctx, startParameters);
-      m_propStepWriterSvc->write(steps);
+      output = m_extrapolationTool->propagationSteps(ctx, startParameters);
+      if(output.first.size() == 0) {
+        ATH_MSG_WARNING("Got ZERO steps from the extrapolation tool");
+      }
+      m_propStepWriterSvc->write(output.first);
+      if(m_writeMaterialTracks){
+        Acts::RecordedMaterialTrack track;
+        track.first.first = Acts::Vector3D(0,0,0);
+        track.first.second = momentum;
+        track.second = std::move(output.second);
+        m_materialTrackWriterSvc->write(track);
+      }
     }
 
     ATH_MSG_VERBOSE(name() << " execute done");

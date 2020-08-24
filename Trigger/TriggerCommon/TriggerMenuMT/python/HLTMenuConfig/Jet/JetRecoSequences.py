@@ -34,7 +34,7 @@ def jetAthSequence(dummyFlags, **jetRecoDict):
 # Dummy flag arg needed so that each reco sequence is held separately
 # in the RecoFragmentsPool -- only the kwargs are used to distinguish
 # different sequences. New convention is just to pass "None" for flags
-def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
+def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDict):
 
     jetDefString = jetRecoDictToString(jetRecoDict)
     recoSeq = parOR( "JetRecSeq_"+jetDefString, [])
@@ -71,7 +71,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         rcJetDef.modifiers = rcModList
 
         rcConstitPJAlg = getConstitPJGAlg( rcJetDef.inputdef )
-        rcConstitPJKey = rcConstitPJAlg.PJGetter.OutputContainer
+        rcConstitPJKey = rcConstitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
         rcPJs = [rcConstitPJKey]
@@ -91,6 +91,8 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         (ungroomedJetRecoSequence,ungroomedJetsName) = RecoFragmentsPool.retrieve(jetRecoSequence,None,dataSource=dataSource, **ungroomedJetRecoDict)
         recoSeq += conf2toConfigurable( ungroomedJetRecoSequence )
+        # Need to forward the pseudojets of the parents to the groomer
+        parentpjs = getattr(ungroomedJetRecoSequence,"jetalg_{}".format(ungroomedJetsName)).Tools[0].InputPseudoJets
 
         groomDef = JetRecoConfiguration.defineGroomedJets(jetRecoDict,ungroomedDef,ungroomedJetsName)
         groomedJetsFullName = jetNamePrefix+groomDef.basename+"Jets_"+jetRecoDict["jetCalib"]
@@ -99,7 +101,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # Can add substructure mods here
 
         from JetRecConfig.JetGroomConfig import getJetGroomAlg
-        groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,groomedModList)
+        groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,parentpjs,groomedModList)
         recoSeq += conf2toConfigurable( groomalg )
 
         sequenceOut = recordable(groomedJetsFullName)
@@ -108,8 +110,16 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         # Start by adding the topocluster reco sequence
         # This makes EM clusters!
-        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-        (topoClusterSequence, clustersKey) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence,RoIs)
+        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+                caloClusterRecoSequence, LCCaloClusterRecoSequence)
+        if jetRecoDict["calib"] == "em":
+            topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
+                    caloClusterRecoSequence, flags=None, RoIs=RoIs)
+        elif jetRecoDict["calib"] == "lcw":
+            topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
+                    LCCaloClusterRecoSequence, flags=None, RoIs=RoIs)
+        else:
+            raise ValueError("Invalid value for calib: '{}'".format(jetRecoDict["calib"]))
         recoSeq += topoClusterSequence
 
         # Set up tracking sequence -- may need to reorganise or relocate
@@ -133,28 +143,33 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
             jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey)
         useConstitMods = ["sktc","cssktc", "pf", "csskpf"]
         doConstitMods = jetRecoDict["dataType"] in useConstitMods
+
+        # chosen jet collection
+        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
+        if jetRecoDict["trkopt"] != "notrk":
+            jetsFullName += "_{}".format(jetRecoDict["trkopt"])
+        sequenceOut = recordable(jetsFullName)
+
         if doConstitMods:
+            # Get online monitoring jet rec tool
+            from JetRecTools import OnlineMon                                                  
+            monJetRecTool = OnlineMon.getMonTool_Algorithm("HLTJets/"+jetsFullName+"/")
+
             from JetRecConfig.ConstModHelpers import getConstitModAlg
             if jetRecoDict["trkopt"] == "notrk":
-                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT")
+                recoSeq += getConstitModAlg(jetDef.inputdef,suffix="HLT",tvaKey="JetTrackVtxAssoc",vtxKey="PrimaryVertices",monTool=monJetRecTool)
             else:
-                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT",tvaKey=trkcolls["TVA"],vtxKey=trkcolls["Vertices"])
+                recoSeq += getConstitModAlg(jetDef.inputdef,suffix="HLT",tvaKey=trkcolls["TVA"],vtxKey=trkcolls["Vertices"],monTool=monJetRecTool)
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
-        constitPJKey = constitPJAlg.PJGetter.OutputContainer
+        constitPJKey = constitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( constitPJAlg )
         # Basic list of PseudoJets is just the constituents
         # Append ghosts (tracks) if desired
         pjs = [constitPJKey]
         if trkcolls:
             pjs.append(trkcolls["GhostTracks"])
-        
-        # chosen jet collection
-        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
-        if jetRecoDict["trkopt"] != "notrk":
-            jetsFullName += "_{}".format(jetRecoDict["trkopt"])
-        sequenceOut = recordable(jetsFullName)
 
         from JetRecConfig import JetRecConfig
         jetModList = []
@@ -179,9 +194,13 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
         jetModList += calibMods
 
+        # Get online monitoring tool
+        from JetRec import JetOnlineMon
+        monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+jetsFullName+"/")
+
         # Generate a JetAlgorithm to run the jet finding and modifiers
         # (via a JetRecTool instance).
-        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList)
+        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList, monTool)
         recoSeq += conf2toConfigurable( jetRecAlg )
         # End of basic jet reco
         pass

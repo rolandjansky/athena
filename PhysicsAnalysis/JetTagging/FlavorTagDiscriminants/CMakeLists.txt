@@ -14,6 +14,7 @@ atlas_subdir( FlavorTagDiscriminants )
 
 # we use lwtnn in here a bit
 find_package( lwtnn )
+find_package( ROOT )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -41,19 +42,22 @@ atlas_add_library( FlavorTagDiscriminants
   Root/DL2Tool.cxx
   Root/customGetter.cxx
   Root/FlipTagEnums.cxx
+  Root/VRJetOverlapDecorator.cxx
+  Root/VRJetOverlapDecoratorTool.cxx
   Root/HbbTag.cxx
+  Root/HbbTagTool.cxx
   Root/HbbTagConfig.cxx
   Root/HbbGraphConfig.cxx
   Root/VRJetOverlapDecorator.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES AsgTools xAODBase xAODJet xAODMuon xAODEventInfo PathResolver
+  JetInterface
   ${LWTNN_LIBRARIES})
 
 if (NOT XAOD_STANDALONE)
   atlas_add_component( FlavorTagDiscriminantsLib
     src/components/FlavorTagDiscriminants_entries.cxx
-    src/components/FlavorTagDiscriminants_load.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} FlavorTagDiscriminants
     )

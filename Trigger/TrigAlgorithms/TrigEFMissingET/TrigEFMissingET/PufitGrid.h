@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /******************************************************************************
@@ -47,6 +47,8 @@ namespace HLT { namespace MET {
            * @param index The index of this tower in its parent's grid
            */
           Tower(const PufitGrid* parent, std::size_t index);
+
+          Tower(const Tower&) = default;
 
           /**
            * @brief Copy assignment operator

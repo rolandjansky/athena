@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
-
-// EDM include(s):
-#include "TrigSteeringEvent/HLTResult.h"
-#include "xAODTrigger/TrigNavigation.h"
-#include "xAODTrigger/TrigNavigationAuxInfo.h"
 
 // Local include(s):
 #include "TrigNavigationCnvAlg.h"
@@ -21,40 +16,43 @@ using namespace xAODMaker;
 
 TrigNavigationCnvAlg::TrigNavigationCnvAlg( const std::string& name,
 					    ISvcLocator* svcLoc )
-  : AthAlgorithm( name, svcLoc ),
+  : AthReentrantAlgorithm( name, svcLoc ),
     m_cnvTool( "xAODMaker::TrigNavigationCnvTool/TrigNavigationCnvTool",
 	       this ) {
-  
-  declareProperty( "AODKeys", m_aodKeys = {"HLTResult_HLT", "HLTResult_EF", "HLTResult_L2"}, "Copy content from this HLT results in order, stop wiht the first present" );
-  declareProperty( "xAODKey", m_xaodKey = "TrigNavigation" );
-  declareProperty( "CnvTool", m_cnvTool );
 }
 
 StatusCode TrigNavigationCnvAlg::initialize() {
-  ATH_MSG_DEBUG( " AOD Key: " << m_aodKeys );
+  ATH_MSG_DEBUG( " AOD Key L2: " << m_aodKeyL2 << " doL2:" << m_doL2 );
+  ATH_MSG_DEBUG( " AOD Key EF: " << m_aodKeyEF << " doEF:" << m_doEF );
+  ATH_MSG_DEBUG( " AOD Key HLT: " << m_aodKeyHLT << " doHLT:" << m_doHLT );
   ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
   
   CHECK( m_cnvTool.retrieve() );
+
+  if ((size_t)m_doL2 + (size_t)m_doEF + (size_t)m_doHLT > 1) {
+    ATH_MSG_ERROR("Cannot convert more than one level. Asked for doL2:" << m_doL2 << " doEF:" << m_doEF << " doHLT:" << m_doHLT);
+    return StatusCode::FAILURE;
+  }
+
+  CHECK( m_aodKeyL2.initialize(m_doL2) );
+  CHECK( m_aodKeyEF.initialize(m_doEF) );
+  CHECK( m_aodKeyHLT.initialize(m_doHLT) );
+  CHECK( m_xaodKey.initialize() );
+  
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigNavigationCnvAlg::execute() {
-  
-  for ( auto key: m_aodKeys ) {
-    if ( evtStore()->contains(ClassID_traits<HLT::HLTResult>::ID(), key) ) {
-      ATH_MSG_DEBUG("Using the HLTResult#" << key << " other keys: " << m_aodKeys << " absent or skipped " );
-      const HLT::HLTResult* aod;
-      CHECK( evtStore()->retrieve( aod, key ) );
-      xAOD::TrigNavigationAuxInfo* aux = new xAOD::TrigNavigationAuxInfo();
-      xAOD::TrigNavigation* xaod = new xAOD::TrigNavigation();
-      xaod->setStore(aux);
-      CHECK( m_cnvTool->convert( aod, xaod ) );
-      CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );
-      CHECK( evtStore()->record( xaod, m_xaodKey ) );	 
-      break;
-    }
-  }
-  
+StatusCode TrigNavigationCnvAlg::execute(const EventContext& ctx) const {
+  const SG::ReadHandleKey<HLT::HLTResult>& key = (m_doL2 ? m_aodKeyL2 : (m_doEF ? m_aodKeyEF : m_aodKeyHLT));
+  SG::ReadHandle<HLT::HLTResult> hltRH{key, ctx};
+  CHECK( hltRH.isValid() );
+  const HLT::HLTResult* aod = hltRH.cptr();
+  std::unique_ptr<xAOD::TrigNavigationAuxInfo> aux = std::make_unique<xAOD::TrigNavigationAuxInfo>();
+  std::unique_ptr<xAOD::TrigNavigation> xaod = std::make_unique<xAOD::TrigNavigation>();
+  xaod->setStore(aux.get());
+  CHECK( m_cnvTool->convert( aod, xaod.get() ) );
+  SG::WriteHandle<xAOD::TrigNavigation> navWH{m_xaodKey, ctx};
+  CHECK( navWH.record( std::move(xaod), std::move(aux)) );  
   return StatusCode::SUCCESS;
 }
 

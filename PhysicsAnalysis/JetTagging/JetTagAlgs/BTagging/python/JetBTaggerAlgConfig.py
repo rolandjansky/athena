@@ -9,15 +9,17 @@ from BTagging.BTagToolConfig import BTagToolCfg
 
 JetBTaggerAlg=CompFactory.Analysis.JetBTaggerAlg
 
-def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", **options):
+def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName="", TaggerList=[], SetupScheme="", **options):
 
     acc=ComponentAccumulator()
     jetcol = JetCollection
 
+    del options['Release']
+
     # setup the Analysis__BTagTrackAssociation tool
     options.setdefault('BTagTrackAssocTool', acc.popToolsAndMerge(BTagTrackAssociationCfg(ConfigFlags, 'TrackAssociation'+ ConfigFlags.BTagging.GeneralToolSuffix, jetcol, TaggerList )))
     
-    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList)))
+    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName, SetupScheme)))
 
     timestamp = options.get('TimeStamp', None)
     if not timestamp:

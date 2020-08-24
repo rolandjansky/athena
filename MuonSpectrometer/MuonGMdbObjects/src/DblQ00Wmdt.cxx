@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,32 +7,20 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Wmdt.cxx,v 1.4 2007-02-12 17:33:50 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Wmdt.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
+
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
 namespace MuonGM
 {
 
-DblQ00Wmdt::DblQ00Wmdt(std::unique_ptr<IRDBQuery>&& wmdt)
- : m_nObj(0)
-{
+DblQ00Wmdt::DblQ00Wmdt(std::unique_ptr<IRDBQuery>&& wmdt) :
+    m_nObj(0) {
   if(wmdt) {
     wmdt->execute();
     m_nObj = wmdt->size();
@@ -60,10 +48,6 @@ DblQ00Wmdt::DblQ00Wmdt(std::unique_ptr<IRDBQuery>&& wmdt)
             m_d[i].tubxco[j]     = wmdt->data<float>(tagx);        
             m_d[i].tubyco[j]     = wmdt->data<float>(tagy);        
         }
-//         std::cerr<<i<<" WMDT"<<m_d[i].iw<<" nlay, ptch, wal "<<m_d[i].laymdt <<" "<<m_d[i].tubpit<<" "<<m_d[i].tubwal
-//                  <<"\n tubx "; for (int j=0; j<m_d[i].laymdt; j++) std::cerr<<m_d[i].tubxco[j]<<" ";
-//         std::cerr<<"\n tuby "; for (int j=0; j<m_d[i].laymdt; j++) std::cerr<<m_d[i].tubyco[j]<<" ";
-//         std::cerr<<std::endl;
         i++;
     }
     wmdt->finalize();
@@ -73,7 +57,61 @@ DblQ00Wmdt::DblQ00Wmdt(std::unique_ptr<IRDBQuery>&& wmdt)
     std::cerr<<"NO Wmdt banks in the MuonDD Database"<<std::endl;
   }
 }
-    
+
+DblQ00Wmdt::DblQ00Wmdt(AmdcDb* wmdt) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = wmdt->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new WMDT[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Wmdt banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
+  
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+
+     m_d[i].version = (*it)->getInt("VERS");    
+     m_d[i].iw = (*it)->getInt("IW");
+     m_d[i].laymdt = (*it)->getInt("LAYMDT");
+     sprintf(m_d[i].typ,"%s",(*it)->getString("TYP").c_str());
+     m_d[i].x0 = (*it)->getFloat("X0");
+     m_d[i].tubpit = (*it)->getFloat("TUBPIT");
+     m_d[i].tubrad = (*it)->getFloat("TUBRAD");
+     m_d[i].tubsta = (*it)->getFloat("TUBSTA");
+     m_d[i].tubdea = (*it)->getFloat("TUBDEA");
+     m_d[i].tubwal = (*it)->getFloat("TUBWAL");
+     for(unsigned int j=0; j<4; j++)
+     {
+       std::ostringstream tem;
+       tem << j;
+       std::string tagx = "TUBXCO_"+tem.str();
+       std::string tagy = "TUBYCO_"+tem.str();
+       m_d[i].tubxco[j] = (*it)->getFloat(tagx);        
+       m_d[i].tubyco[j] = (*it)->getFloat(tagy);        
+     }
+  }
+}
+
 DblQ00Wmdt::~DblQ00Wmdt()
 {
     delete [] m_d;

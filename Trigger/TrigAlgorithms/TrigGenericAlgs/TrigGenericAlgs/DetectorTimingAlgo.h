@@ -16,14 +16,14 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include <string>
 #include <vector>
 #include <map>
 #include <stdint.h>
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -54,7 +54,7 @@ public:
   /// Run once per event
   HLT::ErrorCode hltExecute(std::vector<HLT::TEVec>&, unsigned int output); 
 
-  void updateHandler(Property& p);
+  void updateHandler(Gaudi::Details::PropertyBase& p);
   // TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
   //  ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator;
   ToolHandle<TrigL2MuonSA::RpcDataPreparator>m_rpcDataPreparator;

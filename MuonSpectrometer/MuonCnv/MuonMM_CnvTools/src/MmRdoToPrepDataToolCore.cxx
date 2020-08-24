@@ -23,7 +23,6 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
 					       const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
   m_fullEventDone(false),
   m_mmPrepDataContainer(nullptr),
   m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this),
@@ -40,20 +39,17 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
   declareProperty("MergePrds", m_merge = true);
   declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
   declareProperty("NSWCalibTool", m_calibTool);
+  declareProperty("singleStripChargeCut", m_singleStripChargeCut = 6241 * 0.4);   // 0.4 fC from BB5 cosmics
 }
 
 StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
 {  
-  ATH_MSG_DEBUG(" in initialize()");
-  
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
-  
+  ATH_MSG_DEBUG(" in initialize()");  
   ATH_CHECK(m_idHelperSvc.retrieve());
-
   // check if the initialization of the data container is success
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
-
+  ATH_CHECK(m_muDetMgrKey.initialize());
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -72,7 +68,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
   MMPrepDataCollection* prdColl = nullptr;
   
   // check if the collection already exists, otherwise add it
-  if ( m_mmPrepDataContainer->indexFind(hash) != m_mmPrepDataContainer->end() ) {
+  if ( m_mmPrepDataContainer->indexFindPtr(hash) != nullptr) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
     return StatusCode::FAILURE;
@@ -101,6 +97,14 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
   }
 
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE;
+  }
+ 
   std::vector<MMPrepData> MMprds;
   // convert the RDO collection to a PRD collection
   MM_RawDataCollection::const_iterator it = rdoColl->begin();
@@ -110,6 +114,10 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
     const MM_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
+    if (!m_idHelperSvc->isMM(rdoId)) {
+      ATH_MSG_WARNING("given Identifier "<<rdoId.get_compact()<<" ("<<m_idHelperSvc->mmIdHelper().print_to_string(rdoId)<<") is no MicroMega Identifier, continuing");
+      continue;
+    }
     ATH_MSG_DEBUG(" dump rdo " << m_idHelperSvc->toString(rdoId ));
     
     int channel = rdo->channel();
@@ -119,9 +127,9 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     Identifier prdId = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(rdoId), m_idHelperSvc->mmIdHelper().gasGap(rdoId),channel);
     ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_idHelperSvc->mmIdHelper().channel(rdoId));
     rdoList.push_back(prdId);
-
+ 
     // get the local and global positions
-    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(layid);
+    const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(layid);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(prdId,localPos);
@@ -138,7 +146,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
       continue;
     }
     NSWCalib::CalibratedStrip calibStrip;
-    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
+    ATH_CHECK (m_calibTool->calibrateStrip(rdo, calibStrip));
 
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;
@@ -175,25 +183,31 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     localPos.x() += calibStrip.dx;
 
     if(!merge) {
-      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
+       	// storage will be handeled by Store Gate
+	      std::unique_ptr<MMPrepData> mpd = std::make_unique<MMPrepData>(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
+	      mpd->setAuthor(Muon::MMPrepData::Author::RDOTOPRDConverter);
+	      prdColl->push_back(std::move(mpd));
+
     } else {
        MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
+       if(mpd.charge() < m_singleStripChargeCut) continue;
        // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
        mpd.setHashAndIndex(hash,0);
+       mpd.setAuthor(Muon::MMPrepData::Author::RDOTOPRDConverter);
        MMprds.push_back(mpd);
     } 
   }
 
   if(merge) {
-    std::vector<MMPrepData*> clusters;
+    std::vector<std::unique_ptr<Muon::MMPrepData>>  clusters;
 
     /// reconstruct the clusters
     ATH_CHECK(m_clusterBuilderTool->getClusters(MMprds,clusters));
 
     for (unsigned int i = 0 ; i<clusters.size() ; ++i ) {
-      MMPrepData* prdN = clusters.at(i);
+      std::unique_ptr<Muon::MMPrepData> prdN = std::move(clusters.at(i));
       prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
-      prdColl->push_back(prdN);
+      prdColl->push_back(std::move(prdN));
     } 
 
   }

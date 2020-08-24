@@ -1,11 +1,20 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from past.builtins import basestring
 import GaudiConfig2.semantics
-from GaudiKernel.GaudiHandles import PrivateToolHandleArray
+from GaudiKernel.GaudiHandles import PrivateToolHandleArray, PublicToolHandle, ServiceHandle
 import re
 import collections
 import copy
+
+# collections.Sequence is deprecated as of python 3.3.
+# As of 3.9, need to get it from collections.abc.
+# But that doesn't exist in py2.
+try:
+    from collections import abc
+    Sequence = abc.Sequence
+except ImportError:
+    Sequence = collections.Sequence
 
 class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     '''
@@ -22,26 +31,22 @@ class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
         a.extend(b)
         return a
 
-class SetSemantics(GaudiConfig2.semantics.SequenceSemantics):
+class MapMergeNoReplaceSemantics(GaudiConfig2.semantics.MappingSemantics):
     '''
-    Extend the sequence-semantics with a merge-method that treats the like 
-    sets, eg creating a list with unique values. 
-    Use 'Set<T>' as fifth parameter of the Gaudi::Property<T> constructor 
-    to invoke this merging method. The template parameter is important, also
-    in the string that forms the fifth argument. 
+    Extend the mapping-semantics with a merge-method that merges two mappings as long as they do not have different values for the same key
+    Use 'mapMergeNoReplace<T>' as fifth parameter of the Gaudi::Property<T> constructor
+    to invoke this merging method.
     '''
-    __handled_types__ = (re.compile(r"^Set<.*>$"),)
+    __handled_types__ = (re.compile(r"^mapMergeNoReplace<.*>$"),)
     def __init__(self, cpp_type, name=None):
-        super(SetSemantics, self).__init__(cpp_type, name)
+        super(MapMergeNoReplaceSemantics, self).__init__(cpp_type, name)
 
-    def merge(self,bb,aa):
-        for b in bb:
-            if b not in aa:
-                aa.append(b) 
-        return aa
-        #union=set(a) | set(b)
-        #return union#GaudiConfig2.semantics._ListHelper(union)
-
+    def merge(self,a,b):
+        for k in b.keys():
+            if k in a and b[k] != a[k]:
+                raise ValueError('conflicting values in map under key %r and %r %r' % (k, b[k], a[k]))
+            a[k] = b[k]
+        return a
 
 class VarHandleSematics(GaudiConfig2.semantics.StringSemantics):
     '''
@@ -81,8 +86,8 @@ class ToolHandleSemantics(GaudiConfig2.semantics.PropertySemantics):
 
     def merge(self,a,b):
         #Deal with 'None'
-        if a is None: return b
-        if b is None: return a
+        if a is None or a=='': return b
+        if b is None or b=='': return a
         return a.merge(b)
 
 class PublicHandleSemantics(GaudiConfig2.semantics.PropertySemantics):
@@ -126,7 +131,7 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         super(PublicHandleArraySemantics, self).__init__(cpp_type,name)
         
     def store(self, value):
-        if not isinstance(value,collections.Sequence) and not isinstance(value,set):
+        if not isinstance(value,Sequence) and not isinstance(value,set):
             value=[value,]
 
         newValue=[]
@@ -137,13 +142,17 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
                                     format(value.__component_type__,v, self.name))
                 else:
                     newValue.append("{}/{}".format(v.__cpp_type__,v.name))
+
+            elif isinstance(v,(PublicToolHandle,ServiceHandle)):
+                newValue.append("{}/{}".format(v.getType(),v.getName()))
+
             elif isinstance(v,basestring):
                 #Check if componet is known ...
                 newValue.append(v)
                 pass
             else:
                 raise TypeError('Configurable expected, got {!r} in assignment to {}'.\
-                                format(value,self.name))
+                                format(v,self.name))
         return newValue
             
     def default(self, value):
@@ -180,7 +189,7 @@ class ToolHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         for bTool in b:
             try:
                 #If a tool with that name exists in a, we'll merge it
-                a.__getitem__(bTool.name).merge(bTool)
+                a.__getitem__(bTool.getName()).merge(bTool)
             except IndexError:
                 #Tool does not exists in a, append it
                 a.append(bTool)
@@ -192,7 +201,7 @@ class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
         super(SubAlgoSemantics, self).__init__(cpp_type,name)
         
     def store(self,value):
-        if not isinstance(value,collections.Sequence):
+        if not isinstance(value,Sequence):
             value=[value,]
         
         for v in value:
@@ -208,7 +217,6 @@ class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
         return []
 
 
-GaudiConfig2.semantics.SEMANTICS.append(SetSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(AppendListSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(VarHandleSematics)
 GaudiConfig2.semantics.SEMANTICS.append(VarHandleArraySematics)
@@ -217,40 +225,13 @@ GaudiConfig2.semantics.SEMANTICS.append(ToolHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(SubAlgoSemantics)
-
-
-#Hack until Gaudi::Property<std::set> arrives...
-
-from GaudiConfig2 import Configurables as _cfgs
-epsvc=_cfgs.EvtPersistencySvc
-epsvc._descriptors["CnvServices"].semantics=SetSemantics(cpp_type="Set<std::string>")
-epsvc._descriptors["CnvServices"].semantics.name="CnvServices"
-
-audSvc=_cfgs.AuditorSvc
-audSvc._descriptors["Auditors"].semantics=SetSemantics(cpp_type="Set<std::string>")
-audSvc._descriptors["Auditors"].semantics.name="Auditors"
-del _cfgs
-
-from GaudiConfig2._configurables import Configurable
-Configurable.getFullJobOptName= lambda self: "{}/{}".format(self.__cpp_type__,self.name)
-
-
-#GaudiConfig2._DictHelper misses the update method that sets is_dirty to true
-
-def _DictHelperUpdate(self,otherMap):
-    self.is_dirty=True
-    #Fixme: A proper implementation should invoke the value-semantics and key-semantics at this point
-    self.data.update(otherMap)
-    return
-
-GaudiConfig2.semantics._DictHelper.update=_DictHelperUpdate
-del _DictHelperUpdate
+GaudiConfig2.semantics.SEMANTICS.append(MapMergeNoReplaceSemantics)
 
 
 #For some obscure reason, _ListHelper object never compare equal. Therefore PropertySemantics merge() method fails
 def _sequencemerge(instance,a,b):
     if a.data != b.data:
-        raise ValueError('cannot merge values %r and %r' % (a, b))
+        raise ValueError('cannot merge sequence of values %r and %r' % (a, b))
     else:
         return a
     

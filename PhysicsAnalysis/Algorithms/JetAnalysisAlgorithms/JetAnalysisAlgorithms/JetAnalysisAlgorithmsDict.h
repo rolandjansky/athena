@@ -12,7 +12,6 @@
 #include <JetAnalysisAlgorithms/JetGhostMuonAssociationAlg.h>
 #include <JetAnalysisAlgorithms/JetModifierAlg.h>
 #include <JetAnalysisAlgorithms/JetSelectionAlg.h>
-#include <JetAnalysisAlgorithms/JetSmearingAlg.h>
 #include <JetAnalysisAlgorithms/JetUncertaintiesAlg.h>
 #include <JetAnalysisAlgorithms/JvtEfficiencyAlg.h>
 #include <JetAnalysisAlgorithms/JvtUpdateAlg.h>

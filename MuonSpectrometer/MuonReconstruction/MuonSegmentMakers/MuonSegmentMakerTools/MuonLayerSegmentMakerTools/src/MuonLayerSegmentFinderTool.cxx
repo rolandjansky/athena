@@ -1,18 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerSegmentFinderTool.h"
+
 #include "MuonPrepRawDataProviderTools/MuonPrepRawDataCollectionProviderTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
-#include "CscSegmentMakers/ICscSegmentFinder.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
-#include "MuonHoughPatternTools/MuonLayerHoughTool.h"
 #include "MuonLayerHough/MuonLayerHough.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -23,7 +16,6 @@ namespace Muon {
 
  MuonLayerSegmentFinderTool::MuonLayerSegmentFinderTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
@@ -36,7 +28,6 @@ namespace Muon {
  {
     declareInterface<IMuonLayerSegmentFinderTool>(this);
 
-    declareProperty("MuonIdHelperTool",m_idHelper );
     declareProperty("MuonEDMPrinterTool",m_printer );
     declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
     declareProperty("SegmentMaker",m_segmentMaker);
@@ -47,20 +38,13 @@ namespace Muon {
     declareProperty("MuonRecoValidationTool",m_recoValidationTool);
   }
 
- MuonLayerSegmentFinderTool::~MuonLayerSegmentFinderTool() { }
-
-  StatusCode MuonLayerSegmentFinderTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MuonLayerSegmentFinderTool::initialize() {
-
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
-    if (m_idHelper->hasCSC() && !m_csc2dSegmentFinder.empty()) ATH_CHECK(m_csc2dSegmentFinder.retrieve());
-    if (m_idHelper->hasCSC() && !m_csc4dSegmentFinder.empty()) ATH_CHECK(m_csc4dSegmentFinder.retrieve());
+    if (m_idHelperSvc->hasCSC() && !m_csc2dSegmentFinder.empty()) ATH_CHECK(m_csc2dSegmentFinder.retrieve());
+    if (m_idHelperSvc->hasCSC() && !m_csc4dSegmentFinder.empty()) ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
@@ -83,10 +67,7 @@ namespace Muon {
     ATH_MSG_VERBOSE(" findClusterSegments " << segments.size() );
 
     // run standard MDT/Trigger hit segment finding either from Hough or hits
-    // if( !m_layerHoughTool.empty() ) findMdtSegmentsFromHough(intersection,layerPrepRawData,segments);
-    // else                            findMdtSegments(intersection,layerPrepRawData,segments);
     findMdtSegments(intersection,layerPrepRawData,segments);
-
   }
 
   void MuonLayerSegmentFinderTool::findMdtSegmentsFromHough( const MuonSystemExtension::Intersection& intersection,
@@ -194,7 +175,7 @@ namespace Muon {
           for( const auto& prd : (*hit)->tgc->etaCluster.hitList ) handleCluster(*prd,clusters);
         }else if( (*hit)->prd ){
           Identifier id = (*hit)->prd->identify();
-          if( m_idHelper->isMdt(id) ) handleMdt( static_cast<const MdtPrepData&>(*(*hit)->prd),mdts);
+          if( m_idHelperSvc->isMdt(id) ) handleMdt( static_cast<const MdtPrepData&>(*(*hit)->prd),mdts);
           else                        handleCluster( static_cast<const MuonCluster&>(*(*hit)->prd),clusters);
         }
       }
@@ -221,11 +202,11 @@ namespace Muon {
           // treat the case that the hit is a composite TGC hit
           if( (*hit)->tgc && !(*hit)->tgc->phiCluster.hitList.empty() ){
             Identifier id = (*hit)->tgc->phiCluster.hitList.front()->identify();
-            if( m_idHelper->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
+            if( m_idHelperSvc->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
             for( const auto& prd : (*hit)->tgc->phiCluster.hitList ) handleCluster(*prd,clusters);
           }else if( (*hit)->prd ){
             Identifier id = (*hit)->prd->identify();
-            if( m_idHelper->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
+            if( m_idHelperSvc->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
             handleCluster( static_cast<const MuonCluster&>(*(*hit)->prd),clusters);
           }
         }

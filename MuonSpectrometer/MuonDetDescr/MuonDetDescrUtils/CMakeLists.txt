@@ -7,7 +7,10 @@ atlas_subdir( MuonDetDescrUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonStationIndex )
+                          MuonSpectrometer/MuonStationIndex
+			  PRIVATE
+			  DetectorDescription/AGDD/AGDDKernel
+			  MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry )
 
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Tree Core MathCore Hist pthread )
@@ -18,7 +21,7 @@ atlas_add_library( MuonDetDescrUtils
                    PUBLIC_HEADERS MuonDetDescrUtils
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES MuonStationIndexLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AGDDKernel MuonReadoutGeometry )
 
 atlas_add_executable( MuonSectorMappingTest
                       exe/MuonSectorMappingTest.cxx

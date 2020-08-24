@@ -5,7 +5,7 @@
 //  L1DynamicPedestalProviderRoot.cxx 
 ///////////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1DynamicPedestalProviderRoot.h"
+#include "L1DynamicPedestalProviderRoot.h"
 
 #include "PathResolver/PathResolver.h"
 

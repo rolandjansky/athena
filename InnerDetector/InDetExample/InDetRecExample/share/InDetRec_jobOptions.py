@@ -321,15 +321,13 @@ else:
           printfunc (InDetTRTonly_PRD_AssociationPhase)
 
         from AthenaCommon import CfgGetter
+        # @TODO create track summary for the following tracks .i.e. add "SummaryTool = TrackingCommon.getInDetTrackSummaryTool()", ?
         from TRT_SegmentsToTrack.TRT_SegmentsToTrackConf import InDet__TRT_SegmentsToTrack
         InDetTrkSegmenttoTrkPhase = InDet__TRT_SegmentsToTrack(name                      = "InDetTRT_SegmentsToTrack_BarrelPhase",
                                                         InputSegmentsCollection   = InDetKeys.TRT_Segments_Phase(),
                                                         OutputTrackCollection     = InDetKeys.TRT_Tracks_Phase(),
                                                         TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         MinNHit                   = InDetNewTrackingCuts.minTRTonly(),
-                                                        CombineTracks             = False,
-                                                        OutputCombiCollection     = "",
-                                                        InputSCTCollection        = "",
                                                         OutlierRemoval            = True,
                                                         MaterialEffects           = False)
         topSequence += InDetTrkSegmenttoTrkPhase
@@ -346,39 +344,6 @@ else:
         include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
         InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(True, True)
 
-    # ------------------------------------------------------------
-    #
-    # ----------- now we do legacy pattern if requested
-    #
-    # ------------------------------------------------------------
-    
-    
-    #
-    # --- TRT track segment finding
-    #
-    if InDetFlags.doTrackSegmentsTRT():
-      # --- load cuts for TRT segment finding
-      if ('InDetNewTrackingCutsTRT' not in dir()):
-        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now")
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsTRT = ConfiguredNewTrackingCuts("TRT")
-      InDetNewTrackingCutsTRT.printInfo()
-      # --- segment finingd
-      include ("InDetRecExample/ConfiguredTRTSegmentFinding.py")
-      InDetRecTRTSegementFinding = ConfiguredTRTSegmentFinding ("_TRT", [],
-                                                                InDetNewTrackingCutsTRT,
-                                                                InDetKeys.TRT_SegmentsTRT()
-                                                                )
-      # --- making tacks out of segments
-
-
-      include ("InDetRecExample/ConfiguredTRTStandalone.py")
-      InDetRecTRTStandalone = ConfiguredTRTStandalone ("_TRT", [],
-                                                       InDetNewTrackingCutsTRT,
-                                                       InDetKeys.TRT_SegmentsTRT(),
-                                #                       InDetKeys.TRT_SegmentsTRT_EC(),
-                                                       TrackCollectionKeys,
-                                                       TrackCollectionTruthKeys)
 
     # ------------------------------------------------------------
     #
@@ -442,6 +407,7 @@ else:
       # --- add into list for combination
       InputCombinedInDetTracks += [ InDetRecBackTracking.BackTrackingTracks() ]
 
+      
     # ------------------------------------------------------------
     #
     # --- Large-d0 option (FIXME: Here or should be placed 
@@ -491,8 +457,11 @@ else:
       #     processing case, those tracks are not part of the re-tracking procedure)
       if InDetFlags.useExistingTracksAsInput():
           _dummy = InputCombinedInDetTracks.pop()
+
       # --- add into list for combination
-      InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
+      # Add tracks to standard track collection or a separate container?
+      if not InDetFlags.storeSeparateLargeD0Container():
+        InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
     
 
@@ -584,9 +553,50 @@ else:
 
     # ------------------------------------------------------------
     #
+    # ----------- now we do legacy pattern if requested
+    #
+    # ------------------------------------------------------------
+
+    #
+    # --- TRT track segment finding
+    #
+    if InDetFlags.doTrackSegmentsTRT():
+      # --- load cuts for TRT segment finding
+      if ('InDetNewTrackingCutsTRT' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now")
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsTRT = ConfiguredNewTrackingCuts("TRT")
+      InDetNewTrackingCutsTRT.printInfo()
+      # --- segment finingd
+      include ("InDetRecExample/ConfiguredTRTSegmentFinding.py")
+      InDetRecTRTSegementFinding = ConfiguredTRTSegmentFinding ("_TRT", [],
+                                                                InDetNewTrackingCutsTRT,
+                                                                InDetKeys.TRT_SegmentsTRT()
+                                                                )
+      # --- making tracks out of segments
+
+
+      include ("InDetRecExample/ConfiguredTRTStandalone.py")
+      InDetRecTRTStandalone = ConfiguredTRTStandalone ("_TRT", [],
+                                                       InDetNewTrackingCutsTRT,
+                                                       InDetKeys.TRT_SegmentsTRT(),
+                                #                       InDetKeys.TRT_SegmentsTRT_EC(),
+                                                       TrackCollectionKeys,
+                                                       TrackCollectionTruthKeys,
+                                                       PRDtoTrackMap='InDetTRTonly_PRDtoTrackMap' if InDetFlags.doTRTStandalone() else '' )
+
+    # ------------------------------------------------------------
+    #
     # --- Forward Tracklets (after standard reconstruction)
     #
     # ------------------------------------------------------------         
+
+    if InDetFlags.doForwardTracks():
+      # Add tracks that are not saved to the InputCombinedInDetTracks
+      InputForwardInDetTracks = []
+      InputForwardInDetTracks += InputCombinedInDetTracks
+      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        InputForwardInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
     if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
       if InDetFlags.doSLHCVeryForward(): 
@@ -599,7 +609,7 @@ else:
          # --- now run Si pattern for Low Pt 
          # 
          include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py") 
-         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks, 
+         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks, 
  		                                                      InDetKeys.ResolvedForwardTracks(), 
  		                                                      InDetKeys.SiSpSeededForwardTracks(), 
  		                                                      InDetNewTrackingCutsForwardTracks, 
@@ -619,7 +629,7 @@ else:
         # --- now run Si pattern for Low Pt
         #
         include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
                                                                    InDetKeys.ResolvedForwardTracks(),
                                                                    InDetKeys.SiSpSeededForwardTracks(),
                                                                    InDetNewTrackingCutsForwardTracks,
@@ -644,14 +654,14 @@ else:
       # --- now run Si pattern for Low Pt
       #
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+      InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
                                                                    InDetKeys.ResolvedForwardTracks(),
                                                                    InDetKeys.SiSpSeededForwardTracks(),
                                                                    InDetNewTrackingCutsForwardTracks,
                                                                    TrackCollectionKeys,
                                                                    TrackCollectionTruthKeys)  
-      # --- do not add into list for combination YET
-      # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
+      # --- do not add into list for combination
+      # InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
     if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
       #
@@ -684,8 +694,11 @@ else:
     if InDetFlags.doTrackSegmentsDisappearing():
       InputPixelInDetTracks = []
       InputPixelInDetTracks += InputCombinedInDetTracks
+      # Add tracks that are not saved to the InputCombinedInDetTracks
       if InDetFlags.doForwardTracks(): 
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
+      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        InputPixelInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
       # --- load cuts for pixel segment finding
       if ('InDetNewTrackingCutsDisappearing' not in dir()):
         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now")
@@ -928,19 +941,20 @@ else:
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
-        # --- add the truth to the truth tracks ;-)
-        include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-        InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
+        if  InDetFlags.doSplitReco() or InDetFlags.doIdealPseudoTracking() :
+          # --- add the truth to the truth tracks ;-)
+          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+          InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
                                                      InDetKeys.PseudoDetailedTracksTruth(),
                                                      InDetKeys.PseudoTracksTruth(),
                                                      PixelClusterTruth,
                                                      SCT_ClusterTruth,
                                                      TRT_DriftCircleTruth)
 
-        from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
-        InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
+          from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
+          InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
                                                Extrapolator = TrackingCommon.getInDetExtrapolator())
-        ToolSvc += InDetTruthToTrack
+          ToolSvc += InDetTruthToTrack
     
         # Register the track collections for further processing - only if new tracking has not been running
         if not InDetFlags.doNewTracking():
@@ -1289,7 +1303,7 @@ else:
         InDetValidationPU = ConfiguredInDetValidation("PU",True,InDetFlags.doTruth(),cuts,[InDetKeys.PseudoTracks()],[InDetKeys.PseudoTracksTruth()],McEventCollectionKey="TruthEvent_PU")
 
     # ntuple creation for validation purposes    
-    if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()) or InDetFlags.doPhysValMon():
+    if (InDetFlags.doNtupleCreation() or InDetFlags.doPhysValMon()):
       include("InDetRecExample/InDetRecNtupleCreation.py")
 
     # D3PD Creation

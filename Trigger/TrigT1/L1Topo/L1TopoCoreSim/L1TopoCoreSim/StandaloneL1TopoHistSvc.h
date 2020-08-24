@@ -16,7 +16,13 @@ public:
 
    virtual void registerHist(TH1 * h) override;
 
+   virtual void registerHist(TH2 * h) override;
+
    virtual TH1 * findHist(const std::string & histName) override;
+
+   virtual void fillHist1D(const std::string & histName, double x) override;
+
+   virtual void fillHist2D(const std::string & histName, double x, double y) override;
 
    virtual void setBaseDir(const std::string & baseDir) override;
 

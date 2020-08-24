@@ -8,9 +8,7 @@ KG Tan, 17/06/2012
 """
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.SystemOfUnits import MeV
 
 def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
     from G4AtlasApps.SimFlags import simFlags

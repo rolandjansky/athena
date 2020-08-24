@@ -125,6 +125,22 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
 }
 
 
+
+bool
+TrigConf::JsonFileLoader::saveFile( const std::string & filename,
+                                    const DataStructure & data ) const
+{
+   if ( filename == "" ) {
+      TRG_MSG_ERROR("Could not save to file, as specified filename is empty");
+      return false;
+   }
+   boost::property_tree::write_json(filename, data.data());
+   TRG_MSG_INFO("Saved file " << filename);
+
+   return true;
+}
+
+
 std::string
 TrigConf::JsonFileLoader::getFileType( const std::string & filename ) const
 {

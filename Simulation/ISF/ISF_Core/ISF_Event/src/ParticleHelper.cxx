@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 
-HepMC::GenParticle* ISF::ParticleHelper::convert( const ISF::ISFParticle &particle) {
+HepMC::GenParticlePtr ISF::ParticleHelper::convert( const ISF::ISFParticle &particle) {
 
   const Amg::Vector3D &mom = particle.momentum();
   double mass = particle.mass();
@@ -25,8 +25,8 @@ HepMC::GenParticle* ISF::ParticleHelper::convert( const ISF::ISFParticle &partic
   HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
   int status = 1; // stable particle not decayed by EventGenerator
 
-  auto* hepParticle = new HepMC::GenParticle( fourMomentum, particle.pdgCode(), status );
-  hepParticle->suggest_barcode( particle.barcode() );
+  auto hepParticle = HepMC::newGenParticlePtr( fourMomentum, particle.pdgCode(), status );
+  HepMC::suggest_barcode(hepParticle, particle.barcode() );
 
   // return a newly created GenParticle
   return hepParticle;

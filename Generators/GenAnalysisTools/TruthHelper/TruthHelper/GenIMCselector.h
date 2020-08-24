@@ -23,12 +23,17 @@ namespace TruthHelper {
     virtual GenIMCselector* create() const = 0;
 
     // Selection function on GenParticle pointer (to be implemented).
-    virtual bool operator()(const HepMC::GenParticle* p) const = 0;
+    virtual bool operator()(HepMC::ConstGenParticlePtr p) const = 0;
 
+#ifdef HEPMC3
+    //So far this function is not needed for HepMC3.
+    //This form of ifdef is kept for convenience.
+#else
     // Selection function on GenParticle reference.
-    bool operator()(const HepMC::GenParticle& p) const {
+    bool operator()(HepMC::GenParticle& p) const {
       return this->operator()(&p);
     }
+#endif
 
   };
 

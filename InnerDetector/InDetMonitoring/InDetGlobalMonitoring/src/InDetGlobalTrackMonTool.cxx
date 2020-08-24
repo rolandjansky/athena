@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalTrackMonTool.cxx
@@ -655,7 +655,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	    continue;
 	
 	// Create a new summary or get copy of the cached one
-	std::unique_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary( * track ) );
+	std::unique_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->summary( * track ) );
 	
 	if ( !summary )
 	{
@@ -752,7 +752,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 		}
 		
 		// Create a new summary or get copy of the cached one
-		std::unique_ptr<const Trk::TrackSummary> summary( m_trkSummaryTool->createSummary( * track ) );
+		std::unique_ptr<const Trk::TrackSummary> summary( m_trkSummaryTool->summary( * track ) );
 		
 		if ( !summary )
 		{

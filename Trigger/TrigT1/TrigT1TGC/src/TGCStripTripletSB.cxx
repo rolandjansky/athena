@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCStripTripletSB.hh"
+#include "TrigT1TGC/TGCStripTripletSB.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -20,10 +20,6 @@ void TGCStripTripletSB::createSlaveBoardOut()
 
   if(m_coincidenceOut!=0){
     m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
-    if ( !m_slaveBoardOut ) {
-      std::cerr << "TGCStripTripletSB::createSlaveBoardOut: Memory allocation failure.";
-      exit(1);
-    }
     m_slaveBoardOut->clear();
     m_slaveBoardOut->setNumberOfData(NumberOfStripTripletSBData);
 

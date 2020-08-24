@@ -14,7 +14,7 @@
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 // Geant4 includes
 #include "G4Track.hh"
@@ -73,8 +73,8 @@ namespace G4UA
 
     // TODO: Why is this here? Can I remove it?
     G4Event* ev = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
-    EventInformation* eventInfo __attribute__ ((unused)) =
-      static_cast<EventInformation*> (ev->GetUserInformation());
+    AtlasG4EventUserInfo* atlasG4EvtUserInfo __attribute__ ((unused)) =
+      static_cast<AtlasG4EventUserInfo*> (ev->GetUserInformation());
 
     // Neutron Russian Roulette
     if (m_config.applyNRR && isNeutron(track) &&
@@ -111,7 +111,7 @@ namespace G4UA
       if(ppi) {
         if (!m_config.isISFJob) {
           // don't do anything
-          const HepMC::GenParticle* part = ppi->GetHepMCParticle();
+          auto  part = ppi->GetHepMCParticle();
           if(part) {
             // OK, we got back to HepMC
             std::unique_ptr<TrackInformation> ti = std::make_unique<TrackInformation>(part);

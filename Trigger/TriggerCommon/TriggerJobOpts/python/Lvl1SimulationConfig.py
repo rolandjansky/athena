@@ -27,60 +27,68 @@ def Lvl1SimulationSequence( flags = None ):
     TriggerFlags.outputLVL1configFile = None
     log.info("setting up LVL1ConfigSvc, including the menu generation")
     from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-    svcMgr += conf2toConfigurable(getL1ConfigSvc())
-    
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
-    caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
-    caloTowerMaker.ExtraInputs   = ["LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD", "TileTTL1Container#TileTTL1Cnt" ]
-    caloTowerMaker.ZeroSuppress = True
-    caloTowerMaker.CellType     = 3
+    svcMgr += conf2toConfigurable(getL1ConfigSvc(flags))
 
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2JetElementMaker
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPMSim
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMJetSim
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMEnergySim
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPCMX
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetCMX
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyCMX
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__RoIROD
+    ##################################################
+    # Calo
+    ##################################################
 
-    from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-    from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
+    if flags.Trigger.enableL1CaloLegacy:
 
-    l1CaloSim = seqAND('l1CaloSim',[
-        caloTowerMaker,
-        #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
-        LVL1__Run2CPMTowerMaker( 'CPMTowerMaker') ,
-        LVL1__Run2JetElementMaker( 'JetElementMaker'),
-        LVL1__CPMSim( 'CPMSim' ) ,
-        LVL1__JEMJetSim( 'JEMJetSim' ) ,
-        LVL1__JEMEnergySim( 'JEMEnergySim' ) ,
-        LVL1__CPCMX( 'CPCMX' ) ,
-        LVL1__JetCMX( 'JetCMX' ) ,
-        LVL1__EnergyCMX( 'EnergyCMX' ) ,
-        LVL1__RoIROD( 'RoIROD' ),
-        LVL1__TrigT1MBTS(),
-        LVL1__TrigT1ZDC()
-    ])
+        from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
+        caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
+        caloTowerMaker.ExtraInputs   = ["LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD", "TileTTL1Container#TileTTL1Cnt" ]
+        caloTowerMaker.ZeroSuppress = True
+        caloTowerMaker.CellType     = 3
 
-    from IOVDbSvc.CondDB import conddb
-    L1CaloFolderList = []
-    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib"]
-    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/RunParameters"]
-    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars"]
-    #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/VgaDac"]
-    #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/Strategy"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Conditions/DisabledTowers"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2JetElementMaker
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPMSim
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMJetSim
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMEnergySim
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPCMX
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetCMX
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyCMX
+        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__RoIROD
 
-    
-    for l1calofolder in L1CaloFolderList:
-        #conddb.addFolderWithTag("TRIGGER_OFL", l1calofolder, "HEAD")
-        conddb.addFolder( "TRIGGER_OFL", l1calofolder )
-    # muons
+        from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
+        from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
+
+        l1CaloSim = seqAND('l1CaloSim',[
+            caloTowerMaker,
+            #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
+            LVL1__Run2CPMTowerMaker( 'CPMTowerMaker') ,
+            LVL1__Run2JetElementMaker( 'JetElementMaker'),
+            LVL1__CPMSim( 'CPMSim' ) ,
+            LVL1__JEMJetSim( 'JEMJetSim' ) ,
+            LVL1__JEMEnergySim( 'JEMEnergySim' ) ,
+            LVL1__CPCMX( 'CPCMX' ) ,
+            LVL1__JetCMX( 'JetCMX' ) ,
+            LVL1__EnergyCMX( 'EnergyCMX' ) ,
+            LVL1__RoIROD( 'RoIROD' ),
+            LVL1__TrigT1MBTS(),
+            LVL1__TrigT1ZDC()
+        ])
+
+        from IOVDbSvc.CondDB import conddb
+        L1CaloFolderList = []
+        #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
+        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib"]
+        #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/RunParameters"]
+        #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars"]
+        #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/VgaDac"]
+        #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/Strategy"]
+        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Conditions/DisabledTowers"]
+        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels"]
+        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
+
+        for l1calofolder in L1CaloFolderList:
+            #conddb.addFolderWithTag("TRIGGER_OFL", l1calofolder, "HEAD")
+            conddb.addFolder( "TRIGGER_OFL", l1calofolder )
+
+    ##################################################
+    # Muons
+    ##################################################
     
     from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
     MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
@@ -104,18 +112,36 @@ def Lvl1SimulationSequence( flags = None ):
     from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit
     from TrigT1RPCsteering.TrigT1RPCsteeringConf import TrigT1RPC    
     from TrigT1TGC.TrigT1TGCConf import LVL1TGCTrigger__LVL1TGCTrigger
-    from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
 
-    ToolSvc += L1MuctpiTool("L1MuctpiTool")
-    ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-    
-    ToolSvc += L1MuctpiTool("LVL1MUCTPI__L1MuctpiTool") # one for topo, no idea why we need two
-    ToolSvc.LVL1MUCTPI__L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc        
+    TrigT1RPC.useRun3Config = flags.Trigger.enableL1Phase1
+    LVL1TGCTrigger__LVL1TGCTrigger.useRun3Config = flags.Trigger.enableL1Phase1
 
-    muctpi             = L1Muctpi()
-    muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-    
+    if flags.Trigger.enableL1Phase1:
+        # Placeholder for phase-I MUCTPI simulation
+        log.info("Configuring Phase-I MUCTPI simulation")
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
+
+        ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
+        ToolSvc.MUCTPI_AthTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+
+        muctpi = L1MuctpiPhase1()
+        muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+
+    else:
+        log.info("Configuring legacy (Run 2) MUCTPI simulation")
+        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
+        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+
+        ToolSvc += L1MuctpiTool("L1MuctpiTool")
+        ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+
+        muctpi = L1Muctpi()
+        muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+
+    # Sets up and configures the muon alignment and detector manager
+    from MuonRecExample import MuonAlignConfig # noqa: F401
+
     l1MuonSim = seqAND("l1MuonSim", [
         
         MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
@@ -141,21 +167,56 @@ def Lvl1SimulationSequence( flags = None ):
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
-    from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
-    from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
     condSeq = AthSequencer("AthCondSeq")
     from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
     condSeq += TGCTriggerDbAlg()
 
+    ##################################################
+    # Topo
+    ##################################################
+
+    l1TopoSim = None
+    if flags.Trigger.enableL1Phase1:
+        log.info("No phase1 configuration for L1Topo simulation is available")
+    else:
+        from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+        l1TopoSim = L1TopoSimulation()
+
+        l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+        l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
+
+        # enable the reduced (coarse) granularity topo simulation
+        # currently only for MC
+        from AthenaCommon.GlobalFlags  import globalflags
+        if globalflags.DataSource()!='data':
+            l1TopoSim.MuonInputProvider.MuonEncoding = 1
+        else:
+            l1TopoSim.MuonInputProvider.MuonEncoding = 0
+
+    ##################################################
+    # CTP
+    ##################################################
+
+    from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
     ctp             = CTPSimulationInReco("CTPSimulation")
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
-    ctp.DoL1Topo    = False
+    ctp.DoL1Topo    = not flags.Trigger.enableL1Phase1
     ctp.UseCondL1Menu = False
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
-    ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
+    ctpSim      = seqAND("ctpSim", [ctp])
+
+    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
+        from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
+        roib = RoIBuilder("RoIBuilder")
+        roib.DoCalo = flags.Trigger.enableL1CaloLegacy
+        roib.DoMuon = not flags.Trigger.enableL1Phase1
+        ctpSim += [roib]
 
     #l1Sim = seqAND("l1Sim", [caloTowerMaker] )
-    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
+    if l1TopoSim:
+      l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, l1TopoSim, ctpSim] )
+    else:
+      l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
+
     return l1Sim
-    

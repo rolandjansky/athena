@@ -260,6 +260,9 @@ PP="$PP"'|filling address for'
 # MetaInputLoader addresses and SIDs
 PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 
+# Message useless for judging test success
+PP="$PP"'|^FileMgr +DEBUG Successfully registered handler for tech'
+
 ########################################### END #####################################################
 
 # Always use default ignore list
@@ -313,10 +316,10 @@ else
            process $joblog $jobdiff
            process $reflog $refdiff
 
-           diff -a -b -E -B -u $jobdiff $refdiff
+           diff -a -b -E -B -u $refdiff $jobdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
-               echo "$RED post.sh> ERROR: $joblog and $reflog differ $RESET"
+               echo "$RED post.sh> ERROR: $reflog and $joblog differ $RESET"
                # Return with failure in this case:
                exit 1
            fi

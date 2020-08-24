@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 """
@@ -14,11 +14,11 @@ __author__ = "Ryan Mackenzie White"
 import logging
 from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.SystemOfUnits import GeV,MeV,deg
+from AthenaCommon.SystemOfUnits import GeV
 # New configuration for use in rel 19.X with xAOD
 # Adapted from egammaRec/egammaGetter.py
 # Factory tools, handles configuration of tools and dependencies
-from egammaRec.Factories import Factory, ToolFactory, PublicToolFactory, FcnWrapper, getPropertyValue 
+from egammaRec.Factories import Factory, ToolFactory, PublicToolFactory
 
 # Import tools required for trigger reconstruction
 # Following offline tools not used at HLT: 
@@ -35,8 +35,7 @@ ElectronPidTools()
 PhotonPidTools()
 
 # Following tools have TrigEgamma factories
-from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
-from egammaTools import egammaToolsConf
+from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMShowerBuilder
 
 from egammaTools.egammaToolsConf import EMPIDBuilder
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
@@ -129,7 +128,6 @@ TrigPhotonPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigPhotonPIDBui
     photonIsEMselectorResultNames = ["Loose","Medium","Tight"],
 )
 
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 TrigEMExtrapolationTools=EMExtrapolationTools.copyPublic(name="TrigEMExtrapolationTools",
                                                         useCaching=False)
 
@@ -156,10 +154,9 @@ TrigEMShowerBuilder = EMShowerBuilder.copyPublic(
 )
 
 from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-from egammaMVACalib.TrigEgammaMVACalibFactories import TrigElectronMVATool, TrigPhotonMVATool
 
-mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
-mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
+mlog.info("MVA version version %s", EgammaSliceFlags.calibMVAVersion() )
+mlog.info("Cluster Correction version %s", EgammaSliceFlags.clusterCorrectionVersion() )
 EgammaSliceFlags.calibMVAVersion.set_On()
 
 

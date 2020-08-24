@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMPRDVariables.h"
@@ -11,10 +11,10 @@
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 
-
 #include "MMRDOVariables.h"
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
+#include <TString.h> // for Form
 
 #include "TTree.h"
 
@@ -38,7 +38,7 @@ StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
 
   for(const Muon::MMPrepDataCollection* coll : *nsw_MMPrepDataContainer) {
 
-    const Muon::MM_RawDataCollection* rdo_coll = *rdo_container->indexFind(coll->identifyHash());
+    const Muon::MM_RawDataCollection* rdo_coll = rdo_container->indexFindPtr(coll->identifyHash());
     if(rdo_coll==0){
       ATH_MSG_ERROR("Did not find rdo collection " << coll->identifyHash());
       return StatusCode::FAILURE;
@@ -74,6 +74,7 @@ StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
       m_NSWMM_prd_time->push_back(prd->time());
 
       const MuonGM::MMReadoutElement* det = prd->detectorElement();
+      if (!det) throw std::runtime_error(Form("File: %s, Line: %d\nMMPRDVariables::fillVariables() - no associated detectorElement", __FILE__, __LINE__));
       Amg::Vector3D pos    = prd->globalPosition();
       const Amg::MatrixX & cov = prd->localCovariance();
       Amg::Vector2D loc_pos(0., 0.);

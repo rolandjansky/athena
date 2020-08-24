@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -17,7 +17,7 @@
 
 ########################################################################
 # Typical jet constituents
-from JetDefinition import xAODType, JetConstit
+from .JetDefinition import xAODType, JetConstit
 from copy import deepcopy
 
 # Topoclusters with origin correction.
@@ -53,7 +53,7 @@ TruthWZ = JetConstit(xAODType.TruthParticle,["NoWZ"])
 # Typical jet algorithm definitions
 # Filter pts, ghost lists and modifier lists can be updated by the user,
 # though there is some risk of overwriting...
-from JetDefinition import JetDefinition
+from .JetDefinition import JetDefinition
 
 # Standard small-radius (0.4) AntiKt jets
 AntiKt4LCTopo = JetDefinition("AntiKt",0.4,LCTopoOrigin)

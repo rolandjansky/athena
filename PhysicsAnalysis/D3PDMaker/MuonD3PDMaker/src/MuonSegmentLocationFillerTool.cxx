@@ -1,28 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////
-//
-// Author : Srivas Prasad (srivas.prasad@cern.ch)
-// Date   : February 2010
-//
-//////////////////////////////////////////////////////
 #include "MuonSegmentLocationFillerTool.h"
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 
-
 namespace D3PD {
-
 
 MuonSegmentLocationFillerTool::MuonSegmentLocationFillerTool (const std::string& type,
                                             const std::string& name,
                                             const IInterface* parent)
   : BlockFillerTool<Trk::Segment> (type, name, parent),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
     m_slPropagator("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
     m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
@@ -35,7 +26,7 @@ StatusCode MuonSegmentLocationFillerTool::initialize()
 {
   CHECK( BlockFillerTool<Trk::Segment>::initialize() );
   CHECK( m_edmHelperSvc.retrieve() );
-  CHECK( m_idHelperTool.retrieve() );
+  CHECK( m_idHelperSvc.retrieve() );
   CHECK( m_idToFixedIdTool.retrieve() );
   CHECK( m_slPropagator.retrieve() );
   CHECK( m_pullCalculator.retrieve() );
@@ -116,7 +107,7 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
   *m_thetaYZ_IP = (float) localIPDir.angleYZ();
 
   Identifier chid = m_edmHelperSvc->chamberId(mSeg);
-  if( !(m_idHelperTool->isMuon(chid)) ) { // bad chid
+  if( !(m_idHelperSvc->isMuon(chid)) ) { // bad chid
     *m_stationName = -1;
     *m_sector = -1;
     *m_stationEta = -1;
@@ -126,10 +117,10 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
     *m_stationName = fid.stationName();
     // chamber location information
     // should not happen...chamberId is supposed to return id only for MDT or CSC hits.
-    if(!fid.is_tgc() ) *m_sector = m_idHelperTool->sector(chid);
+    if(!fid.is_tgc() ) *m_sector = m_idHelperSvc->sector(chid);
     else *m_sector = 0;
-    *m_stationEta = m_idHelperTool->stationEta(chid);
-    *m_isEndcap = m_idHelperTool->isEndcap(chid);
+    *m_stationEta = m_idHelperSvc->stationEta(chid);
+    *m_isEndcap = m_idHelperSvc->isEndcap(chid);
   }
 
   const Trk::AtaPlane* pars = m_edmHelperSvc->createTrackParameters( mSeg );
@@ -148,20 +139,20 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
     m_id->push_back(m_idToFixedIdTool->idToFixedId(id).getIdInt());
     int type = 6;
     if( id.is_valid() ){
-      if( m_idHelperTool->isMdt(id) )       type = 0;
-      else if( m_idHelperTool->isRpc(id) )  type = 1;
-      else if( m_idHelperTool->isTgc(id) )  type = 2;
-      else if( m_idHelperTool->isCsc(id) )  type = 3;
-      else if( m_idHelperTool->isMM(id)   ) type = 4;
-      else if( m_idHelperTool->issTgc(id) ) type = 5;
+      if( m_idHelperSvc->isMdt(id) )       type = 0;
+      else if( m_idHelperSvc->isRpc(id) )  type = 1;
+      else if( m_idHelperSvc->isTgc(id) )  type = 2;
+      else if( m_idHelperSvc->isCsc(id) )  type = 3;
+      else if( m_idHelperSvc->isMM(id)   ) type = 4;
+      else if( m_idHelperSvc->issTgc(id) ) type = 5;
       
-      if( m_idHelperTool->issTgc(id) ){
-	int chtype = m_idHelperTool->stgcIdHelper().channelType(id);
+      if( m_idHelperSvc->issTgc(id) ){
+	int chtype = m_idHelperSvc->stgcIdHelper().channelType(id);
 	type += 1000*chtype;
 	if( chtype == 0 )      ++npadHits;
 	else if( chtype == 1 ) ++netaTrigHits;
 	else                   ++nphiHits;
-      }else if( !m_idHelperTool->measuresPhi(id) ) {
+      }else if( !m_idHelperSvc->measuresPhi(id) ) {
 	if( type == 1 || type ==3 ) ++netaTrigHits;
 	else                        ++netaHits;
 	type += 1000;
@@ -191,16 +182,16 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
 	res = resPull->residual().front();
 	pullub = resPull->pull().front();
 	delete resPull;
-      }else ATH_MSG_WARNING("Failed to calculate biased residual for " << m_idHelperTool->toString(id) );
+      }else ATH_MSG_WARNING("Failed to calculate biased residual for " << m_idHelperSvc->toString(id) );
 
       resPull = m_pullCalculator->residualPull( &meas, exPars, Trk::ResidualPull::Unbiased );
       if( resPull ) {
 	pullb = resPull->pull().front();
 	delete resPull;
-      }else ATH_MSG_WARNING("Failed to calculate biased residual for " << m_idHelperTool->toString(id) );
+      }else ATH_MSG_WARNING("Failed to calculate biased residual for " << m_idHelperSvc->toString(id) );
       delete exPars;
     }else{
-      ATH_MSG_WARNING("Failed to obtain track parameters for " << m_idHelperTool->toString(id) );
+      ATH_MSG_WARNING("Failed to obtain track parameters for " << m_idHelperSvc->toString(id) );
     }
     m_residual->push_back(res);
     m_biasedPull->push_back(pullb);

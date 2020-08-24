@@ -630,6 +630,10 @@
   <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
+<h id="efficiency_vs_pt_low" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="p_{T} [GeV]" n="52" lo="0.4" hi="3"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
 <h id="efficiency_vs_phi" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#phi [rads]" n="25" lo="-&PI;" hi="&PI;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
@@ -648,6 +652,14 @@
 </h>
 <h id="efficiency_vs_Z" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Z [mm]" n="100" lo="-350" hi="350"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="extended_efficiency_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="d_{0} [mm]" n="50" lo="-300" hi="300"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="extended_efficiency_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="z_{0} [mm]" n="50" lo="-750" hi="750"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_prodR" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
@@ -779,6 +791,38 @@
 <h id="vx_nReco_vs_nTruth_none" type="TProfile" title="Number of reco vertices (NONE) vs Number of interactions">
   <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
   <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_hs_reco_eff" type="TEfficiency" title="HS vertex reconstruction efficiency">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="HS vertex reconstruction efficiency" lo="0.8" hi="1.2"/>
+</h>
+<h id="vx_hs_sel_eff" type="TEfficiency" title="HS vertex selection efficiency (sum[pt,track^2])">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="HS vertex selection efficiency" lo="0.6" hi="1.2"/>
+</h>
+<h id="vx_hs_reco_long_reso" type="TProfile" title="Reco Longitudinal Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="Reco longitudinal resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_reco_trans_reso" type="TProfile" title="Reco Transverse Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="Reco transverse resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_truth_long_reso_vs_PU" type="TH2" title="Truth Longitudinal Resolution vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" n="20" lo="-0.08" hi="0.08"/>
+</h>
+<h id="vx_hs_truth_trans_reso_vs_PU" type="TH2" title="Truth Transverse Resolution vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| transverse resolution [mm]" n="20" lo="0.0" hi="0.02"/>
+</h>
+<h id="vx_hs_truth_long_reso" type="TH1" title="Truth Longitudinal Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_truth_trans_reso" type="TH1" title="Truth Transverse Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| transverse resolution [mm]" lo="0.0" hi="1.0"/>
 </h>
 <h id="vx_nTracks" type="TH1F" title="Number of tracks at vertex">
   <x title="Number of Tracks" n="150" lo="0" hi="150"/>
@@ -1034,7 +1078,7 @@
 
 <h id="pullHelper_eta_ptqopt" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
 <h id="pullHelper_eta_theta" type="TH2F" title="pull vs #eta for #theta">
@@ -1316,6 +1360,7 @@
   <y title="qoverp mean of pull"/>
 </h>
 
+
 <h id="pullmean_vs_eta_ptqopt" type="TH1F" title="mean of pull vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="means pull for p_{T} #times q/p_{T}"/>
@@ -1355,6 +1400,7 @@
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="qoverp pull"/>
 </h>
+
 
 <h id="pullwidth_vs_pt_ptqopt" type="TH1F" title="pull vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
@@ -1822,32 +1868,32 @@
 
 <!-- Efficiency -->
 <h id="efficiency_vs_dR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&DRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h> 
 
 <h id="efficiency_vs_smalldR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&SMALLDRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 
 <h id="efficiency_vs_jetpT" type="TEfficiency" title="Fraction of reco-matched truth track versus jet_{p_{T}}">
-  <x title="jet_{p_{T}} [GeV]" n="100" lo="10.0" hi="1000."/>
+  <x title="jet_{p_{T}} [GeV]" n="49" lo="100.0" hi="5000."/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 
 <!-- Fake Rate -->
 <h id="fakerate_vs_dR" type="TEfficiency" title="Fake rate versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&DRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h> 
 
 <h id="fakerate_vs_smalldR" type="TEfficiency" title="Fake rate versus #DeltaR">
-  <x title="#DeltaR" n="100" lo="0.0" hi="&SMALLDRMAX;"/>
+  <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>
 
 <h id="fakerate_vs_jetpT" type="TEfficiency" title="Fraction of reco-matched truth track versus jet_{p_{T}}">
-  <x title="jet_{p_{T}} [GeV]" n="100" lo="10.0" hi="1000."/>
+  <x title="jet_{p_{T}} [GeV]" n="20" lo="100.0" hi="5000."/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>

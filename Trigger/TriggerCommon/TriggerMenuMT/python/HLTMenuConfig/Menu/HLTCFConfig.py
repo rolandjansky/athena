@@ -31,7 +31,7 @@ from builtins import map
 from builtins import range
 from collections import OrderedDict
 # Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND, seqOR
+from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
@@ -125,26 +125,20 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
-    #add the L1Upcacking
-    #    TopHLTRootSeq += L1UnpackingSeq
 
-    # connect to L1Decoder
-    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
-    if len(l1decoder)  != 1 :
-        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
-
-    # take L1Decoder out of topSeq
-    topSequence.remove( l1decoder )
-
-    # main HLT top sequence
-    hltTop = seqOR("HLTTop")
-
-    # put L1Decoder here
-    hltTop += l1decoder
+    # find main HLT top sequence (already set up in runHLT_standalone)
+    from AthenaCommon.CFElements import findSubSequence,findAlgorithm
+    l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
+    hltTop = findSubSequence(topSequence, "HLTTop")
     hltTop +=  steps
+
+    hltEndSeq = parOR("HLTEndSeq")
+    hltTop += hltEndSeq
+
+    hltFinalizeSeq = seqAND("HLTFinalizeSeq")
 
     # make DF and CF tree from chains
     finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
@@ -153,8 +147,8 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     for step in finalDecisions:
         flatDecisions.extend (step)
 
-    summary= makeSummary("TriggerSummaryFinal", flatDecisions)
-    hltTop += summary
+    summary = makeSummary("Final", flatDecisions)
+    hltEndSeq += summary
 
     # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
@@ -164,31 +158,43 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
+    # Collections required to configure the algs below
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
+
     Configurable.configurableRun3Behavior=1
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     Configurable.configurableRun3Behavior=0
-    hltTop += conf2toConfigurable( summaryAlg )
+    # A) First we check if any chain accepted the event
+    hltFinalizeSeq += conf2toConfigurable( summaryAlg )
     appendCAtoAthena( summaryAcc )
-    decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
+
+    # B) Then (if true), we run the accepted event algorithms.
+    # Add any required algs to hltFinalizeSeq here
+
+    # More collections required to configure the algs below
+    decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
+
     Configurable.configurableRun3Behavior=1
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder )
     Configurable.configurableRun3Behavior=0
-    hltTop += conf2toConfigurable( monAlg )
+    hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
 
-    # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
+    Configurable.configurableRun3Behavior=1
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
+    Configurable.configurableRun3Behavior=0
+    # C) Finally, we create the EDM output
+    hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
-    hltTop += conf2toConfigurable(edmAlg)
-    topSequence += hltTop
+    hltEndSeq += hltFinalizeSeq
 
     # Test the configuration
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
-    testHLTTree( topSequence )
+    testHLTTree( hltTop )
+
 
 def matrixDisplayOld( allCFSeq ):
     from collections import defaultdict
@@ -210,7 +216,7 @@ def matrixDisplayOld( allCFSeq ):
                 else:
                     return s.step.sequences[0].hypo.tools
             else:
-                return list(s.step.combo.getChains().keys())
+                return list(s.step.combo.getChains())
         return []
    
 
@@ -241,10 +247,7 @@ def matrixDisplay( allCFSeq ):
 
     def __getHyposOfStep( step ):
         if len(step.sequences):
-            if len(step.sequences)==1:
-                return step.sequences[0].getTools()
-            else:
-                return list(step.combo.getChains().keys())
+            step.getChainNames()           
         return []
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
@@ -327,7 +330,7 @@ def createDataFlow(chains, allDicts):
 
     # loop over chains
     for chain in chains:
-        log.info("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
+        log.debug("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
 
         lastCFseq = None
         for nstep, chainStep in enumerate( chain.steps ):
@@ -345,6 +348,7 @@ def createDataFlow(chains, allDicts):
             sequenceFilter= None
             filterName = CFNaming.filterName(chainStep.name)
             filterOutput =[ CFNaming.filterOutName(filterName, inputName) for inputName in filterInput ]
+            log.debug("Filter outputps: %s", filterOutput)
 
             (foundFilter, foundCFSeq) = findCFSequences(filterName, CFseqList[nstep])
             log.debug("Found %d CF sequences with filter name %s", foundFilter, filterName)

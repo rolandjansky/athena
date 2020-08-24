@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HICALOHELPER_H__
-#define __HICALOHELPER_H__
+#ifndef HIJETREC_HICALOHELPER_H__
+#define HIJETREC_HICALOHELPER_H__
 
 #include <string>
 #include <vector>
@@ -16,17 +16,11 @@ class CaloCell;
 
 namespace HICaloCellHelper{
 
-  float GetEtDensity(const CaloCell* theCell, float geoWeight);
-  float GetAreaEtaPhi(const CaloCell* theCell);
-  void UpdateShape(xAOD::HIEventShapeContainer* shape, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg=false);  
+  float getEtDensity(const CaloCell* theCell, float geoWeight);
+  float getAreaEtaPhi(const CaloCell* theCell);
+  void updateShape(xAOD::HIEventShapeContainer* shape, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg=false);
 
-
-  std::string DumpCell(const CaloCell* theCell);
-
-
-  
+  std::string dumpCell(const CaloCell* theCell);
 }
 
-
 #endif
-

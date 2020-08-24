@@ -17,9 +17,12 @@ base_class(name, pSvcLocator), // base_class = AthService
 m_eventSlots(),
 m_eventMonitored(),
 m_slotMutex(),
+m_globalMutex(),
 m_algStartInfo(),
 m_algStopTime(),
-m_threadToAlgMap()
+m_threadToAlgMap(),
+m_threadToCounterMap(),
+m_threadCounter(0)
 {
   ATH_MSG_DEBUG("TrigCostMTSvc regular constructor");
 }
@@ -191,6 +194,32 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
   
   // we can now perform whole-map inspection of this event's TrigCostDataStores without the danger that it will be changed further
 
+  // Let's start by getting the global STOP time we just wrote
+  uint64_t eventStopTime = 0;
+  {
+    const AlgorithmIdentifier myAi = AlgorithmIdentifierMaker::make(context, m_decisionSummaryMakerAlgName, msg());
+    ATH_CHECK( myAi.isValid() );
+    tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
+    if (m_algStopTime.retrieve(myAi, stopTimeAcessor).isFailure()) {
+      ATH_MSG_ERROR("No end time for '" << myAi.m_caller << "', '" << myAi.m_store << "'"); // Error as we JUST entered this info!
+    } else { // retrieve was a success
+      eventStopTime = stopTimeAcessor->second.microsecondsSinceEpoch();
+    }
+  }
+
+  // And the global START time for the event
+  uint64_t eventStartTime = 0;
+  {
+    const AlgorithmIdentifier l1DecoderAi = AlgorithmIdentifierMaker::make(context, m_l1DecoderName, msg());
+    ATH_CHECK( l1DecoderAi.isValid() );
+    tbb::concurrent_hash_map<AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_accessor startAcessor;
+    if (m_algStartInfo.retrieve(l1DecoderAi, startAcessor).isFailure()) {
+      ATH_MSG_ERROR("No alg info for '" << l1DecoderAi.m_caller << "', '" << l1DecoderAi.m_store << "'"); // Error as we know this info must be present
+    } else { // retrieve was a success
+      eventStartTime = startAcessor->second.m_algStartTime.microsecondsSinceEpoch();
+    }
+  }
+
   // Read payloads. Write to persistent format
   tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator beginIt;
   tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator endIt;
@@ -202,9 +231,10 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
   for (it = beginIt; it != endIt; ++it) {
     const AlgorithmIdentifier& ai = it->first;
     const AlgorithmPayload& ap = it->second;
+    uint64_t startTime = ap.m_algStartTime.microsecondsSinceEpoch();
 
-    // Can we find the end time for this alg?
-    uint64_t stopTime = 0;
+    // Can we find the end time for this alg? If not, it is probably still running. Hence we use "now" as the default time.
+    uint64_t stopTime = eventStopTime;
     {
       tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
       if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
@@ -215,19 +245,70 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       // stopTimeAcessor goes out of scope - lock released
     }
 
+    // It is possible (when in the master-slot) to catch just the END of an Alg's exec from another slot, and then the START of the same
+    // alg executing in the next event in that same other-slot.
+    // This gives us an end time which is before the start time. Disregard these entries.
+    if (startTime > stopTime) {
+      ATH_MSG_VERBOSE("Disregard start-time:" << startTime << " > stop-time:" << stopTime 
+        << " for " << TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " in slot " << ap.m_slot << ", this is slot " << context.slot());
+      continue;
+    }
+
+    // Lock the start and stop times to be no later than eventStopTime.
+    // E.g. it's possible for an alg in another slot to start or stop running after 'processAlg(context, m_decisionSummaryMakerAlgName, AuditType::After))'
+    // but before 'lockUnique( m_slotMutex[ context.slot() ] )', creating a timestamp after the nominal end point for this event.
+    // If the alg starts afterwards, we disregard it in lieu of setting to have zero walltime.
+    // If the alg stops afterwards, we truncate its stop time to be no later than eventStopTime
+    if (startTime > eventStopTime) {
+      ATH_MSG_VERBOSE("Disregard " << TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " as it started after endEvent() was finished being called" );
+      continue;
+    }
+    if (stopTime > eventStopTime) {
+      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " stopped after endEvent() was called, but before the cost container was locked," 
+        << " truncating its ending time stamp from " << stopTime << " to " << eventStopTime);
+      stopTime = eventStopTime;
+    }
+
+    // Do the same, locking the start and stop times to be no earlier than eventStartTime
+    // If the alg stops before eventStartTime, we disregard it in lieu of setting it to have zero walltime
+    // If the alg starts before eventStartTime, we truncate its start time to be no later than eventStopTime
+    if (stopTime < eventStartTime) {
+      ATH_MSG_VERBOSE("Disregard " << TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " as it stopped before startEvent() was finished being called" );
+      continue;
+    }
+    if (startTime < eventStartTime) {
+      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " started just after the cost container was unlocked, but before the L1Decoder record was written." 
+        << " truncating its starting time stamp from " << startTime << " to " << eventStartTime);
+      startTime = eventStartTime;
+    }
+
     // Make a new TrigComposite to persist monitoring payload for this alg
     xAOD::TrigComposite* tc = new xAOD::TrigComposite();
     outputHandle->push_back( tc ); 
     // tc is now owned by storegate and, and has an aux store provided by the TrigCompositeCollection
 
+    const uint32_t threadID = static_cast<uint32_t>( std::hash< std::thread::id >()(ap.m_algThreadID) );
+    uint32_t threadEnumerator = 0; 
+    {
+      // We can have multiple slots get here at the same time
+      std::lock_guard<std::mutex> lock(m_globalMutex);
+      const std::unordered_map<uint32_t, uint32_t>::const_iterator mapIt = m_threadToCounterMap.find(threadID);
+      if (mapIt == m_threadToCounterMap.end()) {
+        threadEnumerator = m_threadCounter;
+        m_threadToCounterMap.insert( std::make_pair(threadID, m_threadCounter++) );
+      } else {
+        threadEnumerator = mapIt->second;
+      }
+    }
+
     bool result = true;
     result &= tc->setDetail("alg", ai.callerHash());
     result &= tc->setDetail("store", ai.storeHash());
     result &= tc->setDetail("view", ai.m_viewID);
-    result &= tc->setDetail("thread", static_cast<uint32_t>( std::hash< std::thread::id >()(ap.m_algThreadID) ));
+    result &= tc->setDetail("thread", threadEnumerator);
     result &= tc->setDetail("slot", ap.m_slot);
     result &= tc->setDetail("roi", ap.m_algROIID);
-    result &= tc->setDetail("start", ap.m_algStartTime.microsecondsSinceEpoch());
+    result &= tc->setDetail("start", startTime);
     result &= tc->setDetail("stop", stopTime);
     if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost TC");
   }

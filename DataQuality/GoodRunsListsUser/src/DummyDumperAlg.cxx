@@ -4,7 +4,6 @@
 
 
 #include "GoodRunsListsUser/DummyDumperAlg.h"
-#include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -16,7 +15,6 @@
 
 DummyDumperAlg::DummyDumperAlg(const std::string& name, ISvcLocator* pSvcLocator) 
  : AthAlgorithm(name, pSvcLocator)
- , m_LumiBlockMetaDataTool("LumiBlockMetaDataTool")
  , m_tree(0)
  , m_eventCounter(0)
  , m_dummyInt(0)
@@ -43,18 +41,6 @@ StatusCode DummyDumperAlg::initialize()
   {
     log << MSG::ERROR << "Couldn't get THistSvc" << endmsg;
     return StatusCode::FAILURE;
-  }
-
-  /// Retrieve the LBMD tool using the ToolHandles
-  if ( m_LumiBlockMetaDataTool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL 
-      (m_LumiBlockMetaDataTool.propertyName() << ": Failed to retrieve tool "
-       << m_LumiBlockMetaDataTool.type());
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG
-      (m_LumiBlockMetaDataTool.propertyName() << ": Retrieved tool " 
-       << m_LumiBlockMetaDataTool.type());
   }
 
   // make tree
@@ -121,18 +107,6 @@ DummyDumperAlg::execute()
 StatusCode DummyDumperAlg::finalize() 
 {
   ATH_MSG_DEBUG ("finalize()");
-
-  // add grl strings to tree
-  std::vector<std::string>::const_iterator itr=m_grlname.begin();
-  for (; itr!=m_grlname.end(); ++itr) {
-    const TString grlstring = m_LumiBlockMetaDataTool->getGRLString( *itr );
-    if (grlstring.IsNull()) continue;
-    m_grlobj.push_back( TObjString( grlstring ) );
-    m_tree->GetUserInfo()->Add( &(*m_grlobj.rbegin()) );  
-  }
-
-  ATH_MSG_DEBUG ("finalize() successful");
-
   return StatusCode::SUCCESS;
 }
 

@@ -1,29 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// -*-c++-*-
 
 /*
 This tool utilizes the same LUT as in the pad trigger hardware. Trigger band-id and phi-d are looked up where pad coincidence patterns are keys
 */
-
-
-
 #ifndef NSWL1_PadTriggerLookupTool_H
 #define NSWL1_PadTriggerLookupTool_H
 
-//basic includes
+#include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Property.h"
 
-//local includes
-#include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <unordered_map>
+#include <string>
 #include <vector>
 
 namespace MuonGM {
@@ -42,22 +36,21 @@ namespace NSWL1 {
         }
     };
     class PadTriggerLookupTool:
-            virtual public IPadTriggerLookupTool,
-            public AthAlgTool,
-            public IIncidentListener {
+            virtual public IPadTriggerLookupTool, public AthAlgTool, public IIncidentListener {
     public:
         PadTriggerLookupTool(const std::string& type,
                         const std::string& name,
                         const IInterface* parent);
-        virtual ~PadTriggerLookupTool();
+        virtual ~PadTriggerLookupTool()=default;
         virtual StatusCode initialize() override;
         virtual void handle (const Incident& inc) override;
         virtual
         StatusCode lookup_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads,
                                        std::vector<std::unique_ptr<PadTrigger>> &triggers) override;
     private:
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         /// load the 4o4 coincidence table
-         StatusCode loadCoincidenceTable(std::string);
+         StatusCode loadCoincidenceTable(const std::string&);
         // inflates the table by appending 3o4s //empty hits/missing layers are -9999 (const value of the 'nullPadNumber' variable. Never use any nonsense number for non existing values it will break some rules )
          StatusCode expandCoincidenceTable();
          const std::vector<float> m_etaBandsLargeSector;

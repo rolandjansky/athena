@@ -8,7 +8,7 @@
 namespace TruthHelper {
 
 
-  bool IsGenInteracting::operator()(const HepMC::GenParticle* const p ) const {
+  bool IsGenInteracting::operator()(HepMC::ConstGenParticlePtr p ) const {
     return MC::isSimInteracting(p);
   }
 

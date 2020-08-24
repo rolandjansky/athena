@@ -9,7 +9,7 @@
 // contains 2 hemisphere 4-vectors and is attatched to the outgoing trigger element.
 //
 
-#include "TrigHLTJetHemisphereRec/TrigHLTJetHemisphereRec.h"
+#include "TrigHLTJetHemisphereRec.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODJet/JetContainer.h"

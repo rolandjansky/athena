@@ -21,8 +21,12 @@ public:
   std::string m_outfile;
   int m_precision;
 
+#ifdef HEPMC3
+  std::unique_ptr<HepMC3::WriterAsciiHepMC2> m_hepmcio;
+#else
   std::unique_ptr<HepMC::IO_GenEvent> m_hepmcio;
 
+#endif
 };
 
 #endif

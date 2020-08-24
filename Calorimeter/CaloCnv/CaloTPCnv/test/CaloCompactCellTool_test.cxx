@@ -677,7 +677,7 @@ void dump_cells (const CaloCellContainer& cont)
 {
   for (size_t i = 0; i < cont.size(); i++) {
     const CaloCell* cell = cont[i];
-    printf ("%8d ", (unsigned int)cell->caloDDE()->calo_hash());
+    printf ("%8u ", (unsigned int)cell->caloDDE()->calo_hash());
     if (const TileCell* tcell = dynamic_cast<const TileCell*> (cell)) {
       dump_e (tcell->ene1());
       dump_e (tcell->ene2());

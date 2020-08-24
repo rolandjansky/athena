@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #********************************************************************
 # SUSY4.py 
 # reductionConf flag SUSY4 in Reco_tf.py   
@@ -199,10 +200,7 @@ TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += TrackIsoTool500
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
-import ROOT, cppyy
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
+from xAODPrimitives.xAODIso import xAODIso as isoPar
 Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
                                                                 TrackIsolationTool = TrackIsoTool,
                                                                 TargetContainer = "InDetTrackParticles",

@@ -1,31 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MdtCalibInputSvc_H
 #define MdtCalibInputSvc_H
 
-// c - c++
-#include "map"
-#include "string"
-
-//gaudi
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibStandAloneBase/NtupleStationId.h"
+#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
-//MuonCalib
+#include <string>
+#include <map>
+
 namespace MuonCalib {
   class MdtStationT0Container;
   class IRtRelation;
   class BFieldCorFunc;
   class IRtResolution;
 }
-#include "MuonCalibStandAloneBase/NtupleStationId.h"
-#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
 // interface to enable retrieving of a pointer to the singleton //
 const InterfaceID IID_IMdtCalibInputSvc("MdtCalibInputSvc", 1, 0);
@@ -46,9 +42,8 @@ class MdtCalibInputSvc: public AthService {
   /** just some crazy athena function */	
   virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvUnknown);
   /** service initalizer - reads files */
-  virtual StatusCode initialize(void);
-  /** service finalize function - does nothing */
-  virtual StatusCode finalize(void);
+  virtual StatusCode initialize();
+
   /** Get t0 container for Station */
   const MuonCalib::MdtStationT0Container* GetT0(const MuonCalib::NtupleStationId &id) const;
   /** Get rt relation container */
@@ -74,7 +69,7 @@ class MdtCalibInputSvc: public AthService {
 //==============================================================================
  private:
   //!calibration io tool to be used
-  ToolHandle<MuonCalib::CalibrationIOTool> m_calib_input_tool;
+  ToolHandle<MuonCalib::CalibrationIOTool> m_calib_input_tool{this,"CalibrationInputTool","MuonCalib::CalibrationDummyIOTool"};
   //! calibration data sorted by station id
   std::map<MuonCalib::NtupleStationId, MuonCalib::MdtStationT0Container *> m_t0;
   std::map<MuonCalib::NtupleStationId, MuonCalib::IRtRelation *> m_rt_relation;

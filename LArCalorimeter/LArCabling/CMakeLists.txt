@@ -43,18 +43,10 @@ atlas_add_dictionary( LArCablingDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier PathResolver LArCablingLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )
 atlas_install_runtime( share/FEBtoRODfred_v10.data )
 
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   atlas_add_test( LArCablingConfig    SCRIPT python -m LArCabling.LArCablingConfig POST_EXEC_SCRIPT nopost.sh )
 endif()
-
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
-                POST_EXEC_SCRIPT nopost.sh )
-
-atlas_add_test( flake8_share
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900 ${CMAKE_CURRENT_SOURCE_DIR}/share
-                POST_EXEC_SCRIPT nopost.sh )

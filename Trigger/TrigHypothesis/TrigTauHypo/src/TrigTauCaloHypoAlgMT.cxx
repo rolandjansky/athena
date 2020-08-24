@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigTauCaloHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -47,7 +47,7 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
     counter++;
 
     //get RoI
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 

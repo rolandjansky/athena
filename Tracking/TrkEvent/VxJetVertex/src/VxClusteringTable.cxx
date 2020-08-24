@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -41,7 +41,7 @@ namespace Trk {
   
   MsgStream& VxClusteringTable::dump(MsgStream& sl) const {
     sl << "Trk::VxClusteringTable:" << endmsg;
-    if (m_compatibilityPairOfVertices.size()==0) {
+    if (m_compatibilityPairOfVertices.empty()) {
       sl << "No couple of vertices contained in the table " << endmsg;
     } else {
       sl << "Numbers of compatibilities store: " << m_compatibilityPairOfVertices.size() << endmsg;
@@ -71,7 +71,7 @@ namespace Trk {
 
   std::ostream& VxClusteringTable::dump(std::ostream& sl) const {
     sl << "Trk::VxClusteringTable:" << std::endl;
-    if (m_compatibilityPairOfVertices.size()==0) {
+    if (m_compatibilityPairOfVertices.empty()) {
       sl << "No couple of vertices contained in the table " << std::endl;
     } else {
       sl << "Numbers of compatibilities store: " << m_compatibilityPairOfVertices.size() << std::endl;
@@ -99,7 +99,7 @@ namespace Trk {
   }
 
 
-  void VxClusteringTable::setCompatibilityOfTo(PairOfVxVertexOnJetAxis pairOfVertices,float compatibility) {
+  void VxClusteringTable::setCompatibilityOfTo(const PairOfVxVertexOnJetAxis& pairOfVertices,float compatibility) {
     if (compatibility!=0) {
       m_compatibilityPairOfVertices[compatibility]=pairOfVertices;
     }
@@ -112,7 +112,7 @@ namespace Trk {
 
   PairOfVxVertexOnJetAxis VxClusteringTable::getMostCompatibleVertices(float & probability) const {
     
-    if (m_compatibilityPairOfVertices.size()==0) {
+    if (m_compatibilityPairOfVertices.empty()) {
       //      std::cout << "Warning in VxClusteringTable: requested highest compatibility to an empty probability table" << std::endl;
       //GP 02-04-2007 Too verbose... happens too often...
       probability=0;

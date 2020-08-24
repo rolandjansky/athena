@@ -83,7 +83,7 @@ endmacro( _add_gtest )
 # Define the google unit tests.
 # Disabling some which don't work in Athena.
 foreach( test gt_AnaToolHandle_test ) # gt_OverlapRemovalInit_test gt_toolbox_test
-   _add_gtest( ${test} LINK_LIBRARIES AsgTestingLib )
+   _add_gtest( ${test} )
 endforeach()
 
 if( XAOD_STANDALONE )

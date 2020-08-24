@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Framework import(s):
 import ROOT
@@ -6,6 +6,9 @@ import ROOT
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+
+# E/gamma import(s).
+from xAODEgamma.xAODEgammaParameters import xAOD
 
 def makeElectronAnalysisSequence( dataType, workingPoint,
                                   deepCopyOutput = False,
@@ -124,7 +127,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.preselection = "&&".join (selectionDecorNames)
     alg.selectionDecoration = 'goodOQ' + postfix + ',as_bits'
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
-    alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSELECTRON
+    alg.selectionTool.Mask = xAOD.EgammaParameters.BADCLUSELECTRON
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'calibration' )
     selectionDecorNames.append( alg.selectionDecoration )

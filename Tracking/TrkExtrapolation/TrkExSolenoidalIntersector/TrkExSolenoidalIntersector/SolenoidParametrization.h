@@ -15,8 +15,7 @@
 #include <cassert>
 #include <cmath>
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 class MsgStream;
 
 //  class SolenoidParametrization
@@ -57,16 +56,19 @@ public:
       double m_cubicTerm;
     };
 
-    SolenoidParametrization		(MagField::IMagFieldSvc* magFieldSvc);	// configuration from Intersector
+    SolenoidParametrization		(const AtlasFieldCacheCondObj &field_cond_obj);	// configuration from Intersector
     ~SolenoidParametrization() = default;
     
     // forbidden copy constructor
     // forbidden assignment operator
 
     double			centralField() const;
-    double			fieldComponent (double z,
+    double		fieldComponent (double z,
                                                 const Parameters& parms) const;		// parametrized - perp to track in rz-plane
-    double			fieldComponent (double r, double z, double cotTheta) const; // from MagFieldSvc
+    double		fieldComponent (double r,
+                                                double z,
+                                                double cotTheta,
+                                                MagField::AtlasFieldCache &fieldCache) const; // from MagFieldSvc
     void			fieldIntegrals (double& firstIntegral,
                                                 double& secondIntegral,
                                                 double zBegin,
@@ -112,7 +114,7 @@ private:
     static const double		s_zInner;
     static const double		s_zOuter;
 
-    MagField::IMagFieldSvc*	m_magFieldSvc;
+    const AtlasFieldCacheCondObj *m_fieldCondObj;
     double                      m_currentMin;
     double                      m_currentMax;
     double		        m_centralField;
@@ -231,11 +233,11 @@ SolenoidParametrization::fieldComponent (double z, const Parameters& parms) cons
 }
 
 inline double
-SolenoidParametrization::fieldComponent (double r, double z, double cotTheta) const
+SolenoidParametrization::fieldComponent (double r, double z, double cotTheta, MagField::AtlasFieldCache &fieldCache) const
 {
     Amg::Vector3D field;
     Amg::Vector3D position(r, 0., z);
-    m_magFieldSvc->getField(&position,&field);
+    fieldCache.getField(position.data(),field.data());
     return	s_lightSpeed*(field.z() - field.perp()*cotTheta);
 }
 
@@ -275,5 +277,10 @@ SolenoidParametrization::validOrigin(const Amg::Vector3D& origin) const
 	  && std::abs(origin.z())	< s_maximumZatOrigin); }
 
 } // end of namespace
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( Trk::SolenoidParametrization, 49459850, 1)
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF (Trk::SolenoidParametrization, 19878742);
 
 #endif // TRKEXSOLENOIDALINTERSECTOR_SOLENOIDPARAMETRIZATION_H

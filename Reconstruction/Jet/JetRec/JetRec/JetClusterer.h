@@ -18,14 +18,16 @@
 
 
 #include "xAODEventInfo/EventInfo.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 #include "JetInterface/IJetProvider.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 
 #include "JetRec/PseudoJetContainer.h"
 #include "JetRec/JetFromPseudojet.h"
-
+#include "JetEDM/PseudoJetVector.h"
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/AreaDefinition.hh"
@@ -61,7 +63,7 @@ protected:
   SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets {this, "InputPseudoJets", "inputpseudojet", "input constituents"};
 
   /// used to build the key under which the final PJ will be stored in evtStore() 
-  std::string m_finalPseudoJets;
+  SG::WriteHandleKey<PseudoJetVector> m_finalPseudoJets {this, "FinalPseudoJets_DONOTSET", "", "output pseudojets -- autoconfigured name"};
   
   // Job options.
   Gaudi::Property<std::string>  m_jetalg {this, "JetAlgorithm", "AntiKt", "alg type : AntiKt, Kt, CA..."};

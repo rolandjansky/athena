@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTUtilities_hh
@@ -8,11 +8,12 @@
 #include "globals.hh"
 #include <fstream>
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class TRTOutputFile;
 
 
-class TRTUtilities
+class ATLAS_NOT_THREAD_SAFE TRTUtilities // This class uses thread unsafe TRTOutputFile. static TRTUtilities utilities cannot be static const for output streaming.
 {
 public:
     ~TRTUtilities();
@@ -42,7 +43,7 @@ private:
   
   static TRTUtilities* s_pUtilities;
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

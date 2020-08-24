@@ -27,11 +27,9 @@ const Amg::Vector3D Reco::TrackToVertex::s_origin(0.,0.,0.);
 // constructor
 Reco::TrackToVertex::TrackToVertex(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this)
+  m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"}
 {
    declareInterface<ITrackToVertex>(this);
-   // the extrapolatr and the BeamCondSvc 
-   declareProperty("Extrapolator", m_extrapolator);
    declareProperty("ForceBeamSpotZero", m_ForceBeamSpotZero);
 }
 
@@ -40,17 +38,13 @@ Reco::TrackToVertex::~TrackToVertex()
 {
 }
 
-
-
-// Athena standard methods
-
 // initialize
 StatusCode Reco::TrackToVertex::initialize()
 {
     // Get the GeometryBuilder AlgTool
     if ( m_extrapolator.retrieve().isFailure() ) {
       ATH_MSG_WARNING( "Failed to retrieve tool " << m_extrapolator << " - extrapolations will not be performed." );
-    } else 
+    } else
       ATH_MSG_INFO( "Retrieved tool " << m_extrapolator);
     if(!m_ForceBeamSpotZero){
       ATH_CHECK(m_beamSpotKey.initialize());
@@ -85,8 +79,8 @@ StatusCode Reco::TrackToVertex::finalize()
 
 
 const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Rec::TrackParticle& tp) const {
-  
-  // retrieve the reconstructed Vertex from the TrackParticle  
+
+  // retrieve the reconstructed Vertex from the TrackParticle
   const Trk::VxCandidate* vxCandidate = tp.reconstructedVertex();
   if (vxCandidate!=0) {
      // create a global position from this
@@ -107,25 +101,32 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const xAOD::TrackPartic
 const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const xAOD::TrackParticle& tp, const Amg::Vector3D& gp) const {
 
   // preparation
-  Trk::PerigeeSurface persf(gp); 
-  const Trk::Perigee* vertexPerigee = 0;
+  Trk::PerigeeSurface persf(gp);
+  const Trk::Perigee* vertexPerigee = nullptr;
   // retrieve the Perigee from the track particle
   const Trk::Perigee& trackparPerigee = tp.perigeeParameters();
-  if ( trackparPerigee.associatedSurface() == persf) {
-       ATH_MSG_DEBUG("Perigee of TrackParticle is already expressed to given vertex, a copy is returned.");
-       return(trackparPerigee.clone());
-  } else 
-      vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(trackparPerigee, persf));
+  if (trackparPerigee.associatedSurface() == persf) {
+    ATH_MSG_DEBUG("Perigee of TrackParticle is already expressed to given "
+                  "vertex, a copy is returned.");
+    return (trackparPerigee.clone());
+  } else {
+    const Trk::TrackParameters* extrapResult =
+      m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
+    if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+      vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
+    }
+  }
   if (!vertexPerigee)
-     ATH_MSG_DEBUG("Extrapolation to Perigee failed, a NULL pointer is returned.");
-  return vertexPerigee;    
+    ATH_MSG_DEBUG(
+      "Extrapolation to Perigee failed, a NULL pointer is returned.");
+  return vertexPerigee;
 }
 
 const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Rec::TrackParticle& tp, const Amg::Vector3D& gp) const {
 
   // preparation
-  Trk::PerigeeSurface persf(gp); 
-  const Trk::Perigee* vertexPerigee = 0;
+  Trk::PerigeeSurface persf(gp);
+  const Trk::Perigee* vertexPerigee = nullptr;
   // retrieve the Perigee from the track particle
   const Trk::Perigee* trackparPerigee = tp.measuredPerigee();
   if (trackparPerigee){
@@ -133,43 +134,59 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Rec::TrackParticl
      {
        ATH_MSG_DEBUG("Perigee of TrackParticle is already expressed to given vertex, a copy is returned.");
        return(trackparPerigee->clone());
-     } else 
-      vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*trackparPerigee, persf));
+     } else {
+       const Trk::TrackParameters* extrapResult =
+         m_extrapolator->extrapolateDirectly(*trackparPerigee, persf);
+       if (extrapResult &&
+           extrapResult->surfaceType() == Trk::Surface::Perigee) {
+         vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
+       }
+     }
   } else {
-      ATH_MSG_DEBUG("No Perigee found in  TrackParticle, a NULL pointer is returned.");
-      return 0;      
+    ATH_MSG_DEBUG(
+      "No Perigee found in  TrackParticle, a NULL pointer is returned.");
+    return nullptr;
   }
-  if (!vertexPerigee)
-     ATH_MSG_DEBUG("Extrapolation to Perigee failed, a NULL pointer is returned.");
-  return vertexPerigee;    
+  if (!vertexPerigee){
+    ATH_MSG_DEBUG(
+      "Extrapolation to Perigee failed, a NULL pointer is returned.");
+  }
+  return vertexPerigee;
 }
 
 
 const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Trk::Track& track, const Amg::Vector3D& gp) const {
 
-  Trk::PerigeeSurface persf(gp); 
-  const Trk::Perigee* vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(track, persf));
-    if (!vertexPerigee){
-        const Trk::Perigee* trackPerigee = track.perigeeParameters();
-        if ( trackPerigee && trackPerigee->associatedSurface() == persf )
-        {
-           ATH_MSG_DEBUG("Perigee of Track is already expressed to given vertex, a copy is returned.");
-           vertexPerigee = trackPerigee->clone();
-        } else
-           ATH_MSG_DEBUG("Extrapolation to Perigee failed, NULL pointer is returned.");
-     }
+  Trk::PerigeeSurface persf(gp);
+  const Trk::Perigee* vertexPerigee = nullptr;
+  const Trk::TrackParameters* extrapResult =
+    m_extrapolator->extrapolate(track, persf);
+  if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+    vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
+  }
+  if (!vertexPerigee) {
+    const Trk::Perigee* trackPerigee = track.perigeeParameters();
+    if (trackPerigee && trackPerigee->associatedSurface() == persf) {
+      ATH_MSG_DEBUG("Perigee of Track is already expressed to given vertex, a "
+                    "copy is returned.");
+      vertexPerigee = trackPerigee->clone();
+    } else{
+      ATH_MSG_DEBUG(
+        "Extrapolation to Perigee failed, NULL pointer is returned.");
+    }
+  }
   return (vertexPerigee);
 }
 
 
 const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamspot(const Rec::TrackParticle& tp, const InDet::BeamSpotData* beamspot) const
-{  
+{
   return perigeeAtVertex(tp, beamspot ? beamspot->beamVtx().position() : s_origin);
 }
 
 
 const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamspot(const xAOD::TrackParticle& tp, const InDet::BeamSpotData* beamspot) const
-{  
+{
   return perigeeAtVertex(tp, beamspot ? beamspot->beamVtx().position() : s_origin);
 }
 
@@ -182,8 +199,8 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamspot(const Trk::Track& tra
 
 const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& track, const InDet::BeamSpotData* beamspotptr) const
 {
-  
-  Amg::Vector3D beamspot(s_origin); 
+
+  Amg::Vector3D beamspot(s_origin);
   float tiltx = 0.0;
   float tilty = 0.0;
   if (beamspotptr) {
@@ -197,9 +214,14 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
   *amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
   *amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
   // preparation
-  Trk::PerigeeSurface persf(amgTransf); 
-  
-  const Trk::Perigee* vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(track, persf));
+  Trk::PerigeeSurface persf(amgTransf);
+
+  const Trk::Perigee* vertexPerigee = nullptr;
+  const Trk::TrackParameters* extrapResult =
+    m_extrapolator->extrapolate(track, persf);
+  if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+    vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
+  }
   if (!vertexPerigee) {
     // workaround.
     // try again using the first track parameter set, since the current extrapolator will
@@ -209,24 +231,30 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
     const DataVector<const Trk::TrackParameters> *track_parameter_list= track.trackParameters();
     if (track_parameter_list) {
       for(const Trk::TrackParameters *trk_params: *track_parameter_list) {
-        if (!trk_params) continue;
-        vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*trk_params, persf));
+        if (!trk_params) {
+          continue;
+        }
+        extrapResult = m_extrapolator->extrapolate(*trk_params, persf);
+        if (extrapResult &&
+            extrapResult->surfaceType() == Trk::Surface::Perigee) {
+          vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
+        }
         break;
       }
     }
   }
-  if (!vertexPerigee){
+  if (!vertexPerigee) {
     const Trk::Perigee* trackPerigee = track.perigeeParameters();
-    if ( trackPerigee && trackPerigee->associatedSurface() == persf )
-      {
-	ATH_MSG_DEBUG("Perigee of Track is already expressed to given vertex, a copy is returned.");
-	vertexPerigee = trackPerigee->clone();
-      } else{
-      ATH_MSG_DEBUG("Extrapolation to Beamline Perigee failed, NULL pointer is returned.");
+    if (trackPerigee && trackPerigee->associatedSurface() == persf) {
+      ATH_MSG_DEBUG("Perigee of Track is already expressed to given vertex, a "
+                    "copy is returned.");
+      vertexPerigee = trackPerigee->clone();
+    } else {
+      ATH_MSG_DEBUG(
+        "Extrapolation to Beamline Perigee failed, NULL pointer is returned.");
     }
-    }
-  return (vertexPerigee); 
-    
+  }
+  return (vertexPerigee);
 }
 
 const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const Rec::TrackParticle& /*tp*/) const
@@ -235,12 +263,12 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const Rec::Trac
   return 0;
   //return m_extrapolator->extrapolate(tp, *m_beamLine);
 }
- 
+
 const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::TrackParticle& tp,
                 const InDet::BeamSpotData* beamspotptr) const
 {
- 
-  Amg::Vector3D beamspot(s_origin); 
+
+  Amg::Vector3D beamspot(s_origin);
   float tiltx = 0.0;
   float tilty = 0.0;
   if (beamspotptr) {
@@ -254,7 +282,7 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
   *amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
   *amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
  // preparation
-  Trk::PerigeeSurface persf(amgTransf); 
+  Trk::PerigeeSurface persf(amgTransf);
   const Trk::TrackParameters* vertexPerigee = 0;
   // retrieve the Perigee from the track particle
   const Trk::Perigee& trackparPerigee = tp.perigeeParameters();
@@ -262,7 +290,7 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
        ATH_MSG_DEBUG("Perigee of TrackParticle is already expressed to given vertex, a copy is returned.");
        delete amgTransf;
        return(trackparPerigee.clone());
-  } else 
+  } else
       vertexPerigee = m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
   if (!vertexPerigee){
      ATH_MSG_DEBUG("Extrapolation to Beam Line failed, a NULL pointer is returned.");

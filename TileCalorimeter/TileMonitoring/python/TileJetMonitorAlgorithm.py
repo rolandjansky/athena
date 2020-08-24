@@ -50,7 +50,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
     DoEnergyDiffHistograms  = kwargs.get('DoEnergyDiffHistograms', tileJetMonAlg._descriptors['DoEnergyDiffHistograms'].default)
 
 
-    if not flags.DQ.DataType == 'heavyioncollision':
+    if flags.DQ.DataType not in ('heavyioncollisions', 'cosmics'):
 
         jvtTool = CompFactory.JetVertexTaggerTool()
         jetContainer = kwargs.get('JetContainer', tileJetMonAlg._descriptors['JetContainer'].default)
@@ -254,9 +254,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     tileJetMonitorAccumulator  = TileJetMonitoringConfig(ConfigFlags, 

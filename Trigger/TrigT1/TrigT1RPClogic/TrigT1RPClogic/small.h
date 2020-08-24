@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATRIG_SMALL_H
@@ -11,7 +11,7 @@
 #endif
 
 
-static float Small_win[THRES][NBINS][BOUND]={
+static const float Small_win[THRES][NBINS][BOUND]={
 
 {
 

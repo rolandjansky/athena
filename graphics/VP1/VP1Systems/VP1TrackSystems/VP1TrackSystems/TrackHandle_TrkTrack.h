@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,6 @@
 #define TRACKHANDLE_TRKTRACK_H
 
 #include "VP1TrackSystems/TrackHandleBase.h"
-#include "VP1TrackSystems/MeasurementToSoNode.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -78,7 +77,6 @@ private:
 
 protected:
   const Trk::Track* m_trk;
-  Trk::MeasurementToSoNode m_measToSoNode; //!< Just used to get types, so probably better to hive that functionality off. @FIXME
 };
 
 #endif

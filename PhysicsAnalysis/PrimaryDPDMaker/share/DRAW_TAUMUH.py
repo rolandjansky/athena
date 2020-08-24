@@ -41,14 +41,14 @@ TAUMUH_DeltaRTool = DerivationFramework__DeltaRTool(  name                    = 
                                                       StoreGateEntryName      = "TAUMUH_DeltaR"
                                                       )
 ToolSvc += TAUMUH_DeltaRTool
-print TAUMUH_DeltaRTool
+print(TAUMUH_DeltaRTool)
 # Event selection tool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 DRAW_TAUMUH_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_TAUMUH_SkimmingTool",
                                                                         expression = draw_taumuh)
 
 ToolSvc += DRAW_TAUMUH_SkimmingTool
-print DRAW_TAUMUH_SkimmingTool
+print(DRAW_TAUMUH_SkimmingTool)
 
 
 # Kernel algorithm

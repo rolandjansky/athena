@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_INDETSERVMATTOOL_H
@@ -22,7 +22,7 @@ namespace InDetDD {
   class InDetServMatManager;
 }
 
-class InDetServMatTool : public GeoModelTool {
+class InDetServMatTool final : public GeoModelTool {
 
  public: 
   // Standard Constructor

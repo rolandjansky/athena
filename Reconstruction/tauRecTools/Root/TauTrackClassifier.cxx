@@ -37,20 +37,10 @@ StatusCode TauTrackClassifier::initialize()
 {
   ATH_MSG_DEBUG("intialize classifiers");
 
-  #ifdef ROOTCORE
-  for (auto cClassifierName : m_vClassifierNames){
-    tauRecTools::TrackMVABDT* mva_tool = dynamic_cast<tauRecTools::TrackMVABDT*> (asg::ToolStore::get(cClassifierName));
-    ToolHandle< tauRecTools::TrackMVABDT > handle(mva_tool);    
-    m_vClassifier.push_back(handle);    
-    ATH_CHECK(m_vClassifier.back()->initialize());//retrieve() does not seem to work
-  }
-  #else
   for (auto cClassifier : m_vClassifier){
     ATH_MSG_INFO("TauTrackClassifier tool : " << cClassifier );
     ATH_CHECK(cClassifier.retrieve());
   }
-  #endif
-
  
   return StatusCode::SUCCESS;
 }
@@ -61,20 +51,11 @@ StatusCode TauTrackClassifier::finalize()
   return StatusCode::SUCCESS;
 }
 
-    
-//______________________________________________________________________________
-StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
-{
-  // Get track container via link from tau - instead of using read handle (not written to store yet) 
-  // Check that size > 0
-  ElementLink< xAOD::TauTrackContainer > link;
-  xAOD::TauTrackContainer* tauTrackCon = 0;
-  if (xTau.allTauTrackLinks().size() > 0) {
-    link = xTau.allTauTrackLinks().at(0);//we don't care about this specific link, just the container
-    tauTrackCon = link.getDataNonConstPtr();
-  }  
 
-  std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, tauTrackCon);
+//______________________________________________________________________________
+StatusCode TauTrackClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon) const
+{
+  std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
   for (xAOD::TauTrack* xTrack : vTracks)
   {
     // reset all track flags and set status to unclassified

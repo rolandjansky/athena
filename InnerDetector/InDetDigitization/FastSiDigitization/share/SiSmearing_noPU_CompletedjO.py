@@ -118,8 +118,6 @@ ToolSvc.PixelRecoDbTool.InputSource = 1
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.enableSuppression = False
 ServiceMgr.MessageSvc.Format       = "% F%50W%S%7W%R%T %0W%M"
-#ServiceMgr.AthenaSealSvc.OutputLevel = 1
-#ServiceMgr.AthenaSealSvc.CheckDictionary = True
 
 OutputNameString = 'CheckSmearing'
 
@@ -238,7 +236,8 @@ InDetRotCreator = Trk__RIO_OnTrackCreator(name                = 'InDetRotCreator
                                           ToolPixelCluster    = PixelPlanarClusterOnTrackTool,
                                           ToolSCT_Cluster     = SCT_PlanarClusterOnTrackTool,
                                           ToolMuonCluster     = None,
-                                          ToolMuonDriftCircle = None,       
+                                          ToolMuonDriftCircle = None,
+                                          ToolMuonMMCluster   = None,       
                                           ToolTRT_DriftCircle = None,    
                                           Mode                = 'indet')
 InDetRotCreator.OutputLevel = OutputLevel
@@ -249,7 +248,8 @@ BroadInDetRotCreator = Trk__RIO_OnTrackCreator(name                = 'BroadInDet
                                                ToolPixelCluster    = PixelPlanarClusterOnTrackTool,
                                                ToolSCT_Cluster     = SCT_PlanarClusterOnTrackTool,
                                                ToolMuonCluster     = None,
-                                               ToolMuonDriftCircle = None,       
+                                               ToolMuonDriftCircle = None,
+                                               ToolMuonMMCluster   = None,       
                                                ToolTRT_DriftCircle = None,    
                                                Mode                = 'indet')
 BroadInDetRotCreator.OutputLevel = OutputLevel
@@ -466,7 +466,7 @@ print InDetTruthTrackCreation
 if TrkDetFlags.ISF_FatrasCustomGeometry():
     InDetKeys.PixelClustersTruth = "PRD_MultiTruthPlanarPixel"
     InDetKeys.SCT_ClustersTruth = "PRD_MultiTruthPlanarSCT"
-InDetFlags.doStandardPlots = True
+InDetFlags.doPhysValMon = True
 InDetRecTestBLayerTool=None
 
 InDetTrackSummaryToolSharedHits=InDetTrackSummaryTool

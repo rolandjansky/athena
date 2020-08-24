@@ -168,11 +168,13 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 	  // register in the catalog 
 	  pool::DbType dbType( m_technology );
 	  pool::DbType dbTypeMajor( dbType.majorType() );
-	  m_catalog.registerPFN( m_the_pfn, dbTypeMajor.storageName(), m_the_fid );
+	  m_catalog.registerPFN( m_the_pfn.substr(0, m_the_pfn.find("?")), dbTypeMajor.storageName(), m_the_fid );
           DbPrint log("PersistencySvc::UserDB::connectForWrite()" );
           log << DbPrintLvl::Debug << "registered PFN: " << m_the_pfn << " with FID:" << m_the_fid << endmsg;
 	  dbRegistered = true;
-	  accessMode = pool::CREATE;
+	  if( policy.writeModeForExisting() == pool::DatabaseConnectionPolicy::OVERWRITE ) {
+	     accessMode = pool::CREATE;
+	  }
         }
         else {
 	   if( policy.writeModeForExisting() == pool::DatabaseConnectionPolicy::RAISE_ERROR ) {
@@ -264,7 +266,7 @@ pool::PersistencySvc::UserDatabase::fid() const
     else {
       if ( m_nameType == pool::DatabaseSpecification::PFN ) {
          std::string technology;
-         m_catalog.lookupFileByPFN( m_name, m_the_fid, technology );
+         m_catalog.lookupFileByPFN( m_name.substr(0, m_name.find("?")), m_the_fid, technology );
          DbPrint log("PersistencySvc::UserDB::fid()" );
          log << DbPrintLvl::Debug << "lookupPFN: " << m_name << " returned FID: '" << m_the_fid << "'"
              << " tech=" << technology << endmsg;

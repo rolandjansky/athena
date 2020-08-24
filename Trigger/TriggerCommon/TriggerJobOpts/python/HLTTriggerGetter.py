@@ -4,7 +4,6 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging  # loads logger
 from PerfMonComps.PerfMonFlags import jobproperties
 from AthenaCommon.Include import include
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 
 from RecExConfig.Configured import Configured
 
@@ -132,17 +131,20 @@ class HLTSimulationGetter(Configured):
             from RecExConfig.ObjKeyStore import objKeyStore
             from PyUtils.MetaReaderPeeker import convert_itemList
             objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-            if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSeq = AthSequencer("AthCondSeq")
+            if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg") ):
                 from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-                xAODEventInfoCnvAlgDefault(sequence=topSequence)
+                xAODEventInfoCnvAlgDefault(sequence=condSeq)
 
         if jobproperties.Global.InputFormat() == 'bytestream':
             # Decode ROIB::RoIBResult from ByteStream
             from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-            L1ByteStreamDecodersRecExSetup(enableRun2L1=True, enableRun3L1=False)
+            L1ByteStreamDecodersRecExSetup()
 
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr
+        from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
         ServiceMgr += RegSelSvcDefault()
 
         # Configure the Data Preparation for Calo

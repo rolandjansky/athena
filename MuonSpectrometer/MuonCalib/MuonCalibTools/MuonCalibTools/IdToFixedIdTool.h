@@ -41,10 +41,9 @@ class IdToFixedIdTool : public AthAlgTool, virtual public MuonCalib::IIdToFixedI
     IdToFixedIdTool(const std::string& type,
 		    const std::string& name,
 		    const IInterface* parent);  //!< AlgTool constructor 
-    virtual ~IdToFixedIdTool();                 //!< AlgTool destructor 
+    virtual ~IdToFixedIdTool()=default;
     
     StatusCode initialize(); //!< IdToFixedIdTool initialization: retrieve all the IdHelpers needed to do strap the ATHENA Identifier
-    StatusCode finalize();   //!< IdToFixedIdTool finalization: does not do anything special
 
     void print(const Identifier& id) const;               //!< print method to output an ATHENA Identifier, warning the user when the conversion and reconversion yields different results. 
     void print(const MuonFixedId& fid) const;             //!< dump MuonFixedId 

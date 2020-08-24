@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************************************
@@ -9,15 +9,15 @@ begin                : Monday 20th December 2004
 author               : atkinson, amorley,anastopoulos
 email                : Anthony.Morley@cern.ch (adapted from Edward Moyse)
 description          : This class is a multi component adaption of the class
-                      TrackStateOnSurface. 
+                      TrackStateOnSurface.
                       In that class the track state was
                       represented by a single 5 component track paramter
                       vector (a0, z0, phi0, theta0, q/p) and the associated
-                      covariance matrix. 
-                      In its multi-component form the track state on surface 
-                      is represented by many track parameters each with a covariance matrix 
-                      and additionally a weighting is attached to each component 
-                      which reflects the importance of that particular component 
+                      covariance matrix.
+                      In its multi-component form the track state on surface
+                      is represented by many track parameters each with a covariance matrix
+                      and additionally a weighting is attached to each component
+                      which reflects the importance of that particular component
                       in the overall mixture of components which is used to describe
                       the track state at that surface.
                       Instances  of this class are EDM objects. So objects passed
@@ -102,6 +102,9 @@ public:
   /** Clone method for deep copy of MultiComponentStateOnSurface - overidden from base class */
   virtual TrackStateOnSurface* clone() const override final;
 
+  /** This is Multi, since we MultiComponent */
+  virtual TrackStateOnSurface::Variety variety() const override final;
+
   /** Method to return a pointer to the multi-component state */
   const MultiComponentState* components() const;
 
@@ -123,16 +126,13 @@ operator<<(std::ostream&, const MultiComponentStateOnSurface&);
 
 } // end of Trk namespace
 
-inline const Trk::MultiComponentState*
-Trk::MultiComponentStateOnSurface::components() const
-{
-  return m_multiComponentState;
-}
+/// Trk::Track is constucted from  DataVector<const Trk::TrackStateOnSurface>.
+/// Let the type system know this class inherits so we can have
+/// DataVector<const Trk::MultiComponentStateOnSurface>
+#include "AthContainers/DataVector.h"
+DATAVECTOR_BASE(const Trk::MultiComponentStateOnSurface,const Trk::TrackStateOnSurface);
+typedef DataVector<const Trk::MultiComponentStateOnSurface> TrkMultiComponentStateOnSurfaceDV;
 
-inline double
-Trk::MultiComponentStateOnSurface::mixtureModeQoverP() const
-{
-  return m_mixtureModeQoverP;
-}
 
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.icc"
 #endif

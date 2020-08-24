@@ -5,27 +5,26 @@
 #ifndef TrigT1TGC_TGCEIFICoincidenceMap_hh
 #define TrigT1TGC_TGCEIFICoincidenceMap_hh
 
-#include "TrigT1TGC/TGCInnerTrackletSlot.hh"
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCInnerTrackletSlot.h"
+#include "TrigT1TGC/TGCArguments.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <string>
 #include <bitset>
 
 namespace LVL1TGCTrigger {
  
-class TGCEIFICoincidenceMap
+class TGCEIFICoincidenceMap : public AthMessaging
 {
  public:
 
   TGCEIFICoincidenceMap(TGCArguments*, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey);
   TGCEIFICoincidenceMap(TGCArguments*, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                          const std::string& version, int sideId=0);
-  virtual ~TGCEIFICoincidenceMap();
 
   TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right);
   TGCEIFICoincidenceMap& operator = (const TGCEIFICoincidenceMap& right);
@@ -49,24 +48,16 @@ class TGCEIFICoincidenceMap
                                             const int bit) const;
   
 
-  const std::string&          getVersion() const;
-  int                         getSideId() const;
-  bool                        isFullCW() const;
-  void                        setFullCW( bool val);
+  const std::string&          getVersion() const { return m_verName; }
+  int                         getSideId() const { return m_side; }
+  bool                        isFullCW() const { return m_fullCW; }
+  void                        setFullCW( bool val) { m_fullCW = val; }
 
   bool readMap();  
   void                        dumpMap() const;
 
-  TGCArguments* tgcArgs() const;
-
-  /** Declaring the standard message stream
-   *  Returns a reference to the default message stream
-   */
-  MsgStream& msg(const MSG::Level lvl) const;
-  /** Test method to evaluate the verbosity level */
-  bool msgLvl(const MSG::Level lvl) const;
-  /** set message level to propagate from the parent class */
-  void setMessageLevel(const MSG::Level lvl) const;
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
+  TGCArguments* tgcArgs() { return m_tgcArgs; }
 
  protected:
   enum {N_EndcapSector=48};
@@ -93,35 +84,8 @@ class TGCEIFICoincidenceMap
   TGCArguments* m_tgcArgs;
 
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
-
-  //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
 };
 
-inline TGCArguments* TGCEIFICoincidenceMap::tgcArgs() const
-{
-  return m_tgcArgs;
-}
-
-inline const std::string& TGCEIFICoincidenceMap::getVersion() const
-{
-  return m_verName;
-}
-
-inline int TGCEIFICoincidenceMap::getSideId() const
-{
-  return m_side;
-}
-
-inline bool TGCEIFICoincidenceMap::isFullCW() const
-{
-  return m_fullCW;
-}
-
-inline void TGCEIFICoincidenceMap::setFullCW(bool val)
-{
-  m_fullCW = val;
-}
 
 inline
  const TGCInnerTrackletSlot* TGCEIFICoincidenceMap::getInnerTrackletMask(const int input, 
@@ -134,15 +98,6 @@ inline
 
   return  &(m_map[input][ssc][sec]);    
 }
-
-inline MsgStream& TGCEIFICoincidenceMap::msg(const MSG::Level lvl) const { return m_msg << lvl; }
-
-inline bool TGCEIFICoincidenceMap::msgLvl(const MSG::Level lvl) const
-{
-  return (m_msg.get().level() <= lvl) ? true : false;
-}
-
-inline void TGCEIFICoincidenceMap::setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); }
 
 } //end of namespace bracket
 

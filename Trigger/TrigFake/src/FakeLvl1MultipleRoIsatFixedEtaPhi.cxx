@@ -24,16 +24,16 @@ Modified :
 #include <utility>
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 
 # include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigFake/FakeLvl1MultipleRoIsatFixedEtaPhi.h"
-#include "TrigFake/FakeRoI.h"
-#include "TrigFake/Trajectory.h"
+#include "FakeLvl1MultipleRoIsatFixedEtaPhi.h"
+#include "FakeRoI.h"
+#include "Trajectory.h"
 
 #include "TrigInterfaces/AlgoConfig.h"
 #include "TrigSteering/SteeringChain.h"

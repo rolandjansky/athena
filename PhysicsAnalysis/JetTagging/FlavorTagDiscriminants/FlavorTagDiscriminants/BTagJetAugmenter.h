@@ -6,6 +6,7 @@
 #define BTAG_JET_AUGMENTER_HH
 
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
+#include "FlavorTagDiscriminants/ftagfloat_t.h"
 
 // ATLAS things
 #include "xAODJet/Jet.h"
@@ -24,47 +25,13 @@ public:
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 
-  std::string get_pt_uncalib_key();
-  std::string get_eta_uncalib_key();
-  std::string get_abs_eta_uncalib_key();
-
-  std::string get_ip2d_nTrks_key();
-  std::string get_ip2d_isDefaults_key();
-  std::string get_ip2d_cu_key();
-  std::string get_ip2d_bu_key();
-  std::string get_ip2d_bc_key();
-
-  std::string get_ip3d_nTrks_key();
-  std::string get_ip3d_isDefaults_key();
-  std::string get_ip3d_cu_key();
-  std::string get_ip3d_bu_key();
-  std::string get_ip3d_bc_key();
-
-  std::string get_jf_isDefaults_key();
-  std::string get_jf_deltaR_key();
-
-  std::string get_sv1_isDefaults_key();
-
-  std::string get_secondaryVtx_isDefaults_key();
-  std::string get_secondaryVtx_nTrks_key();
-  std::string get_secondaryVtx_m_key();
-  std::string get_secondaryVtx_E_key();
-  std::string get_secondaryVtx_EFrac_key();
-  std::string get_secondaryVtx_L3d_key();
-  std::string get_secondaryVtx_Lxy_key();
-  std::string get_secondaryVtx_min_trk_flightDirRelEta_key();
-  std::string get_secondaryVtx_max_trk_flightDirRelEta_key();
-  std::string get_secondaryVtx_avg_trk_flightDirRelEta_key();
-  std::string get_min_trk_flightDirRelEta_key();
-  std::string get_max_trk_flightDirRelEta_key();
-  std::string get_avg_trk_flightDirRelEta_key();
-
-  std::string get_smt_isDefaults_key();
-
-  std::string get_rnnip_isDefaults_key();
+  std::vector<std::string> getDecoratorKeys() const;
 
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
+
+  float safelog_prob(float p_up, float p_down);
+  
   typedef SG::AuxElement AE;
 
   AE::Decorator<float> m_pt_uncalib;
@@ -73,23 +40,23 @@ private:
 
   AE::ConstAccessor<std::vector<float> > m_ip2d_weightBOfTracks;
   AE::Decorator<int> m_ip2d_nTrks;
-  AE::ConstAccessor<double> m_ip2d_pu;
-  AE::ConstAccessor<double> m_ip2d_pc;
-  AE::ConstAccessor<double> m_ip2d_pb;
+  AE::ConstAccessor<ftagfloat_t> m_ip2d_pu;
+  AE::ConstAccessor<ftagfloat_t> m_ip2d_pc;
+  AE::ConstAccessor<ftagfloat_t> m_ip2d_pb;
   AE::Decorator<char> m_ip2d_isDefaults;
-  AE::Decorator<double> m_ip2d_cu;
-  AE::Decorator<double> m_ip2d_bu;
-  AE::Decorator<double> m_ip2d_bc;
+  AE::Decorator<ftagfloat_t> m_ip2d_cu;
+  AE::Decorator<ftagfloat_t> m_ip2d_bu;
+  AE::Decorator<ftagfloat_t> m_ip2d_bc;
 
   AE::ConstAccessor<std::vector<float> > m_ip3d_weightBOfTracks;
   AE::Decorator<int> m_ip3d_nTrks;
-  AE::ConstAccessor<double> m_ip3d_pu;
-  AE::ConstAccessor<double> m_ip3d_pc;
-  AE::ConstAccessor<double> m_ip3d_pb;
+  AE::ConstAccessor<ftagfloat_t> m_ip3d_pu;
+  AE::ConstAccessor<ftagfloat_t> m_ip3d_pc;
+  AE::ConstAccessor<ftagfloat_t> m_ip3d_pb;
   AE::Decorator<char> m_ip3d_isDefaults;
-  AE::Decorator<double> m_ip3d_cu;
-  AE::Decorator<double> m_ip3d_bu;
-  AE::Decorator<double> m_ip3d_bc;
+  AE::Decorator<ftagfloat_t> m_ip3d_cu;
+  AE::Decorator<ftagfloat_t> m_ip3d_bu;
+  AE::Decorator<ftagfloat_t> m_ip3d_bc;
 
   AE::ConstAccessor<float> m_jf_deltaEta;
   AE::ConstAccessor<float> m_jf_deltaPhi;

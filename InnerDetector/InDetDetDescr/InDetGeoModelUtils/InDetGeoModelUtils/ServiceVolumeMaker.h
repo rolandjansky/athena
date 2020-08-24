@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 class IGeometryDBSvc;
 
@@ -137,7 +138,7 @@ namespace InDetDD {
     ServiceVolumeMaker(const std::string & label,
 		       IRDBRecordset_ptr table, 
 		       const ServiceVolumeSchema & schema,
-		       const InDetDD::AthenaComps *);
+		       const InDetDD::AthenaComps *) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe ServiceVolumeMakerMgr::readLayerShift method is used.
 		ServiceVolumeMaker(const ServiceVolumeMaker &) = delete;
 		ServiceVolumeMaker & operator =(const ServiceVolumeMaker &) = delete;
     ~ServiceVolumeMaker();

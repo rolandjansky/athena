@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack(const InDet:
         m_containedChildRots->push_back((*rotIter)->clone());
     }
     if (compROT.m_globalPosition) {
-        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+        m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     }
 }
 
@@ -57,7 +57,7 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
         delete m_containedChildRots;
         m_containedChildRots = new std::vector<const InDet::PixelClusterOnTrack*>;
         if (compROT.m_globalPosition) {
-            m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+            m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
         } else if (m_globalPosition) {
             m_globalPosition.release().reset();
         }

@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <iostream>
+#include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
-#include "TrkVKalVrtCore/Derivt.h"
+#include <cmath>
+#include <iostream>
 
 namespace Trk {
 
@@ -203,7 +203,7 @@ int initCascadeEngine(CascadeEvent & cascadeEvent_)
        VRT = cascadeEvent_.cascadeVertexList[iv].get();
        IERR = fitVertexCascade( VRT, 0);     if(IERR)return IERR;   //fit 
        IERR = setVTrackMass(VRT);            if(IERR)return IERR;   //mass of combined particle
-       if(VRT->includedVrt.size()){  // Save fitted vertex as target for "pass near" constraint in previous vertex
+       if(!VRT->includedVrt.empty()){  // Save fitted vertex as target for "pass near" constraint in previous vertex
          for(int pseu=0; pseu<(int)VRT->includedVrt.size(); pseu++){
 	    VRT->includedVrt[pseu]->FVC.vrt[0] = VRT->refIterV[0] + VRT->fitV[0];
 	    VRT->includedVrt[pseu]->FVC.vrt[1] = VRT->refIterV[1] + VRT->fitV[1];

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr, Logging
 from G4AtlasServices import G4AtlasServicesConfig
@@ -7,7 +7,7 @@ def getVerboseSelectorTool(name="G4UA::VerboseSelectorTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     # example custom configuration
     if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].items():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__VerboseSelectorTool(name, **kwargs)
 
@@ -21,7 +21,7 @@ def getHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     # example custom configuration
     if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].items():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__HyperspaceCatcherTool(name, **kwargs)
 
@@ -41,7 +41,7 @@ def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     # example custom configuration
     if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].items():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__VolumeDebuggerTool(name, **kwargs)
 
@@ -56,7 +56,7 @@ def getGeant4SetupCheckerTool(name="G4UA::Geant4SetupCheckerTool", **kwargs):
     kwargs.setdefault('ReferenceFile',default_file)
     # Grab the properties that were already set
     if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].items():
             kwargs.setdefault(prop,value)
     # Set up the user action
     return CfgMgr.G4UA__Geant4SetupCheckerTool(name, **kwargs)
@@ -69,7 +69,7 @@ def getStepHistogramTool(name="G4UA::StepHistogramTool", **kwargs):
         return False
     from G4AtlasApps.SimFlags import simFlags
     if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].items():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__StepHistogramTool(name, **kwargs)
 

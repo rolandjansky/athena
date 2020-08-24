@@ -74,7 +74,6 @@ topSequence += AthenaPoolTestAttrReader( "AthenaPoolTestAttrReader" )
 svcMgr.MessageSvc.OutputLevel = INFO
 svcMgr.MessageSvc.debugLimit  = 100000
 svcMgr.ClassIDSvc.OutputLevel = INFO
-svcMgr.AthenaSealSvc.OutputLevel = INFO
 svcMgr.MetaDataSvc.OutputLevel = DEBUG
 #AthenaPoolTestAttrReader.OutputLevel = DEBUG
 LArCellContFakeReader.OutputLevel = DEBUG

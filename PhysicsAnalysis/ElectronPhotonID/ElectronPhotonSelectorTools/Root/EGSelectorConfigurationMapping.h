@@ -31,9 +31,11 @@ namespace EgammaSelectors {
     {"TightLHElectron_Rel20p7","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"},
   };
   const std::map<std::string,std::string> PhotonCutPointToConfFile={
+    // These should be the current best-supported ID menus. Typically picked up by analyzers using the "WorkingPoint" option.
+    // Note: keep this conf file up to date with the PhotonIsEMTightSelectorConfig function in python/PhotonIsEMTightSelectorCutDefs.py
     {"LoosePhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"},
     {"MediumPhoton","ElectronPhotonSelectorTools/offline/mc15_20160512/PhotonIsEMMediumSelectorCutDefs.conf"},
-    {"TightPhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"},
+    {"TightPhoton","ElectronPhotonSelectorTools/offline/20180825/PhotonIsEMTightSelectorCutDefs.conf"},
   };
   const std::map<std::string,std::string> ForwardElectronCutPointToConfFile={
     {"LooseForwardElectron","ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMLooseSelectorCutDefs.conf"},

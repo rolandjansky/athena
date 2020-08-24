@@ -1,57 +1,63 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_TdaqEnabledCondData.h
- * header file for data object
- * @author Susumu Oda - 2017-05-15
+ * @brief header file for data object for SCT_TdaqEnabledCondAlg and SCT_TdaqEnabledTool.
+ * @author Susumu Oda
+ * @date 2017-05-15
  **/
 
 #ifndef SCT_TDAQENABLEDCONDDATA_H
 #define SCT_TDAQENABLEDCONDDATA_H
 
+// Include Athena stuff
+#include "Identifier/IdentifierHash.h"
+
 #include <set>
 #include <vector>
 
-// Include Athena stuff
-#include "AthenaKernel/CLASS_DEF.h"
-#include "Identifier/IdentifierHash.h"
-
+/**
+ * @class SCT_TdaqEnabledCondData
+ * @brief Class for data object used in SCT_TdaqEnabledCondAlg and SCT_TdaqEnabledTool.
+ **/
 class SCT_TdaqEnabledCondData {
 public:
 
-  // Constructor
+  /// Constructor
   SCT_TdaqEnabledCondData();
 
-  // Destructor
+  /// Destructor
   virtual ~SCT_TdaqEnabledCondData() = default;
 
-  // Set a good ROD
+  /// Set a good ROD
   bool setGoodRod(const unsigned int rodNumber);
 
-  // Get good RODs
+  /// Get good RODs
   const std::set<unsigned int>& getGoodRods() const;
 
-  // Set a list of good modules
+  /// Set a list of good modules
   void setGoodModules(const std::vector<IdentifierHash>& idVec);
 
-  // Set filled variable
+  /// Set filled variable
   void setFilled(const bool filled);
 
-  // Get filled variable
+  /// Get filled variable
   bool isFilled() const;
 
-  // Set noneBad value
+  /// Set noneBad value
   void setNoneBad(const bool noneBad);
 
-  // Get noneBad value
+  /// Get noneBad value
   bool isNoneBad() const;
 
-  // Check if a module is good
+  /// Check if a module is good
   bool isGood(const IdentifierHash& hashId) const;
 
-  // Clear m_goodRods, m_goodIds, m_noneBad, m_filled
+  /// Clear m_goodRods, m_goodIds, m_noneBad, m_filled
   void clear();
 
 private:
@@ -63,10 +69,12 @@ private:
 
 };
 
+// Class definition for StoreGate
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_TdaqEnabledCondData , 137549585 , 1 )
 
+// Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( SCT_TdaqEnabledCondData , 31730865 );
-
 
 #endif // SCT_TDAQENABLEDDATA_H

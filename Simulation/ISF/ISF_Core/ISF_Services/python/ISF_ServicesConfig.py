@@ -7,9 +7,6 @@ KG Tan, 17/06/2012
 
 from AthenaCommon import CfgMgr
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-
 
 def getParticleBrokerSvcNoOrdering(name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')

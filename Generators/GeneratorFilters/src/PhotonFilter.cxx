@@ -22,11 +22,11 @@ StatusCode PhotonFilter::filterEvent() {
   int NPhotons = 0;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
-      if ((*pitr)->pdg_id() == 22 && (*pitr)->status()==1 &&
-          (*pitr)->momentum().perp() >= m_Ptmin &&
-          (*pitr)->momentum().perp() <  m_Ptmax &&
-          fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange) NPhotons++;
+    for (auto pitr: *genEvt) {
+      if (pitr->pdg_id() == 22 && pitr->status()==1 &&
+          pitr->momentum().perp() >= m_Ptmin &&
+          pitr->momentum().perp() <  m_Ptmax &&
+          std::abs(pitr->momentum().pseudoRapidity()) <= m_EtaRange) NPhotons++;
     }
   }
   setFilterPassed(NPhotons >= m_NPhotons);

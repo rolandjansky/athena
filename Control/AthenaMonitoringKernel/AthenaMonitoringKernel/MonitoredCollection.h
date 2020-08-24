@@ -113,16 +113,24 @@ namespace Monitored {
 
     ValuesCollection(ValuesCollection&&) = default;
 
-    std::vector<double> getVectorRepresentation() const override {
-      return convertToDouble( m_collection );
+    virtual double get([[maybe_unused]] size_t i) const override {
+      if constexpr (std::is_convertible_v<value_type, double>)
+        return m_collection[i];
+      else
+        return -1;
     }
 
-    virtual std::vector<std::string> getStringVectorRepresentation() const override {
-      return convertToString( m_collection );
+    virtual std::string getString([[maybe_unused]] size_t i) const override {
+      if constexpr (std::is_constructible_v<std::string, value_type>)
+        return m_collection[i];
+      else
+        return {};
     }
+
     virtual bool hasStringRepresentation() const override {
       return std::is_constructible<std::string, value_type>::value;
     }
+
     virtual size_t size() const override {
       return std::size(m_collection);
     }
@@ -137,26 +145,6 @@ namespace Monitored {
 
     ValuesCollection(ValuesCollection const&) = delete;
     ValuesCollection& operator=(ValuesCollection const&) = delete;
-
-    template< typename U, typename = typename std::enable_if< std::is_constructible<std::string, typename detail::get_value_type<U>::value_type>::value >::type >
-    std::vector<std::string> convertToString( const U& collection ) const {
-      return std::vector<std::string>(std::begin(collection), std::end(collection));
-    }
-
-    template< typename U, typename = typename std::enable_if< ! std::is_constructible<std::string, typename detail::get_value_type<U>::value_type>::value >::type, typename = void >
-    std::vector<std::string> convertToString( const U& ) const {
-      return {};
-    }
-
-    template< typename U, std::enable_if_t< !std::is_convertible<typename detail::get_value_type<U>::value_type, double>::value, int> = 0>
-    std::vector<double> convertToDouble( const U&  ) const {
-      return {};
-    }
-
-    template< typename U, std::enable_if_t< std::is_convertible<typename detail::get_value_type<U>::value_type, double>::value, int> = 0>
-    std::vector<double> convertToDouble(const U& collection ) const {
-      return std::vector<double>(std::begin(collection), std::end(collection));
-    }
   };
 
   /**
@@ -186,13 +174,20 @@ namespace Monitored {
 
     ObjectsCollection(ObjectsCollection&&) = default;
 
-    std::vector<double> getVectorRepresentation() const override {
-      return convertToDouble<R>();
+    virtual double get([[maybe_unused]] size_t i) const override {
+      if constexpr (std::is_convertible_v<R, double>)
+        return m_converterToR(m_collection[i]);
+      else
+        return -1;
     }
 
-    virtual std::vector<std::string> getStringVectorRepresentation() const override {
-      return convertToString<R>();
-    };
+    virtual std::string getString([[maybe_unused]] size_t i) const override {
+      if constexpr (std::is_constructible_v<std::string, R>)
+        return m_converterToR(m_collection[i]);
+      else
+        return {};
+    }
+
     virtual bool hasStringRepresentation() const override {
       return std::is_constructible<std::string, R>::value;
     };
@@ -213,36 +208,6 @@ namespace Monitored {
     ObjectsCollection(ObjectsCollection const&) = delete;
 
     ObjectsCollection& operator=(ObjectsCollection const&) = delete;
-
-    template< typename U, std::enable_if_t< std::is_convertible<U, double>::value, int> = 0>
-    inline std::vector<double> convertToDouble() const {
-      // Reserve space and fill vector
-      std::vector<double> result;
-      result.reserve(std::size(m_collection));      
-      for (const auto& value : m_collection) result.push_back(m_converterToR(value));
-      return result;
-    }
-
-    template< typename U, std::enable_if_t< !std::is_convertible<U, double>::value, int> = 0>
-    inline std::vector<double> convertToDouble() const {
-      return {};
-    }
-
-    template< typename U, std::enable_if_t< std::is_constructible<U, std::string>::value, int> = 0>
-    inline std::vector<std::string> convertToString() const {
-      // Reserve space and fill vector
-      std::vector<std::string> result;
-      result.reserve(std::size(m_collection));
-      for (const auto& value : m_collection) result.push_back(m_converterToR(value));
-      return result;
-    }
-
-    template< typename U, std::enable_if_t< !std::is_constructible<U, std::string>::value, int> = 0>
-    inline std::vector<std::string> convertToString() const {
-      return {};
-    }
-
-
 
   };
 

@@ -50,7 +50,7 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 #include "MCTruth/VTrackInformation.h"
 
@@ -177,7 +177,7 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   m_addToCell = m_plateToCell;
   m_addToGirder = !m_plateToCell;
 
-  m_event_info = 0;
+  m_atlasG4EvtUserInfo = 0;
   m_aStep = 0;
 }
 
@@ -201,7 +201,7 @@ void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/) {
 
   //TILECAL IDENTIFIER NUMBER - ALWAYS FIXED
   m_subCalo = 3;
-  m_event_info = 0;
+  m_atlasG4EvtUserInfo = 0;
 
   m_E_em = 0.;
   m_E_nonem = 0.;
@@ -236,14 +236,14 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     m_tile_eep->SetEscapedFlag(false);
   }
 
-  if (!m_event_info)
-    m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+  if (!m_atlasG4EvtUserInfo)
+    m_atlasG4EvtUserInfo = dynamic_cast<AtlasG4EventUserInfo*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
 
   // Update the event information to note that this step has been dealt with
-  if ( m_event_info ) {
+  if ( m_atlasG4EvtUserInfo ) {
       // Update the step info
-      m_event_info->SetLastProcessedBarcode( step->GetTrack()->GetTrackID() );
-      m_event_info->SetLastProcessedStep( step->GetTrack()->GetCurrentStepNumber() );
+      m_atlasG4EvtUserInfo->SetLastProcessedBarcode( step->GetTrack()->GetTrackID() );
+      m_atlasG4EvtUserInfo->SetLastProcessedStep( step->GetTrack()->GetCurrentStepNumber() );
   }
 
   //THIS METHOD WILL CHECK WHETER ARE ALL CLASSIFIED ENERGIES
@@ -356,7 +356,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
 
   int primary_id = 0;
   if (m_doCalibHitParticleID) {
-    if (m_event_info && m_event_info->GetCurrentPrimary()) primary_id = m_event_info->GetCurrentPrimary()->barcode();
+    if (m_atlasG4EvtUserInfo && m_atlasG4EvtUserInfo->GetCurrentPrimary()) primary_id = HepMC::barcode(m_atlasG4EvtUserInfo->GetCurrentPrimary());
     else throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
   }
 

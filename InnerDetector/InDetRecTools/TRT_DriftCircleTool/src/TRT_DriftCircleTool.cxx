@@ -28,7 +28,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
 ///////////////////////////////////////////////////////////////////
@@ -57,13 +57,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_low_gate(18.0*CLHEP::ns),
   m_low_gate_argon(18.0*CLHEP::ns),
   m_high_gate(38.0*CLHEP::ns),
-  m_high_gate_argon(38.0*CLHEP::ns),
-  m_mask_first_HT_bit(false),
-  m_mask_first_HT_bit_argon(false),
-  m_mask_middle_HT_bit(false),
-  m_mask_middle_HT_bit_argon(false),
-  m_mask_last_HT_bit(false),
-  m_mask_last_HT_bit_argon(false)
+  m_high_gate_argon(38.0*CLHEP::ns)
 {
   declareInterface<ITRT_DriftCircleTool>(this);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
@@ -86,12 +80,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   declareProperty("LowGateArgon",m_low_gate_argon);
   declareProperty("HighGate",m_high_gate);
   declareProperty("HighGateArgon",m_high_gate_argon);
-  declareProperty("MaskFirstHTBit",m_mask_first_HT_bit);
-  declareProperty("MaskFirstHTBitArgon",m_mask_first_HT_bit_argon);
-  declareProperty("MaskMiddleHTBit",m_mask_middle_HT_bit);
-  declareProperty("MaskMiddleHTBitArgon",m_mask_middle_HT_bit_argon);
-  declareProperty("MaskLastHTBit",m_mask_last_HT_bit);
-  declareProperty("MaskLastHTBitArgon",m_mask_last_HT_bit_argon);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -183,7 +171,7 @@ bool InDet::TRT_DriftCircleTool::passValidityGate(unsigned int word, float lowGa
 // Trk::TRT_DriftCircles collection production
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const bool getTRTBadChannel)
+InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const EventContext& ctx, const bool getTRTBadChannel) const
 {
 
   //Initialise a new TRT_DriftCircleCollection
@@ -194,7 +182,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
     return rio;
   }
 
-  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey, ctx);
   const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
   if (not trtDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
@@ -203,7 +191,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 
   float mu = 0;
   if (!m_lumiDataKey.empty()) {
-     SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey);
+     SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey, ctx);
      mu = lumiData->lbAverageInteractionsPerCrossing();
   }
 
@@ -245,10 +233,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       if (m_useToTCorrection) {
         rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id, isArgonStraw);     
       }  
-      if (m_useHTCorrection &&
-          ((!m_mask_first_HT_bit &&  (word & 0x04000000)) ||
-           (!m_mask_middle_HT_bit && (word & 0x00020000)) ||
-           (!m_mask_last_HT_bit &&   (word & 0x00000100)))) {
+      if (m_useHTCorrection && (*r)->highLevel()) {
          rawTime += m_driftFunctionTool->driftTimeHTCorrection(id, isArgonStraw);           
       }
 

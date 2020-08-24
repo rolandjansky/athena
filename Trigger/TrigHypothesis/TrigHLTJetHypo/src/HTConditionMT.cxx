@@ -24,18 +24,27 @@ HTConditionMT::HTConditionMT(double ht_min,
 }
 
 
-bool HTConditionMT::isSatisfied(const HypoJetVector& ips,
-                                const std::unique_ptr<ITrigJetHypoInfoCollector>&) const {
+bool
+HTConditionMT::isSatisfied(const HypoJetVector& ips,
+			   const std::unique_ptr<ITrigJetHypoInfoCollector>& infoCollector) const {
 
   if (m_filter) {
     HypoJetVector ips_c(ips.begin(), ips.end());
     auto iter = std::partition(ips_c.begin(), ips_c.end(), *m_filter);
+    if (infoCollector) {
+      infoCollector -> collect("", "No of jets after filtering " +
+			       std::to_string(iter - ips_c.begin()));
+    } 
+
     return std::accumulate(ips_c.begin(),
 			   iter,
 			   0.0,
 			   [](double sum, const HypoJet::IJet* jp){
 			     return sum + jp->et();}) > m_htMin;
   } else {
+    if(infoCollector) {
+      infoCollector -> collect("", "Nofiltering");
+    }
 
     return std::accumulate(ips.begin(),
 			   ips.end(),

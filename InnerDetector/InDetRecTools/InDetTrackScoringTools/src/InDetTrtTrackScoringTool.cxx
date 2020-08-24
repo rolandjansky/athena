@@ -12,9 +12,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "InDetIdentifier/TRT_ID.h"
-#include "TMath.h"
-#include <vector>
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+
 
 //---------------------------------------------------------------------------------------------------------------------
 
@@ -26,13 +24,11 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   m_trtId(nullptr),
   // Initialization of ScoreModifiers variables
   m_maxSigmaChi2(-1), 
-  m_maxLogProb(-1),
   m_maxTrtRatio(-1),
   m_maxTrtFittedRatio(-1),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_trkSummaryTool("Trk::TrackSummaryTool"),
-  m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  m_selectortool("InDet::InDetTrtDriftCircleCutTool")
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
@@ -43,14 +39,12 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   declareProperty("DriftCircleCutTool",      m_selectortool   );
   declareProperty("useAmbigFcn",             m_useAmbigFcn    = true );
   declareProperty("useSigmaChi2",            m_useSigmaChi2   = false);
-  declareProperty("useLogProbBins",          m_useLogProbBins = false);
   declareProperty("minTRTonTrk",             m_minTRTonTrk    = 15 );
   declareProperty("maxEta",                  m_maxEta         = 2.1);
   declareProperty("PtMin",                   m_ptmin          = 1.0); //pt min cut
   declareProperty("UseParameterization",     m_parameterization = true);
   declareProperty("OldTransitionLogic" ,     m_oldLogic         = false);
   declareProperty("minTRTPrecisionFraction", m_minTRTprecision  = 0.5);
-  declareProperty("MagFieldSvc",             m_magFieldSvc);
   m_summaryTypeScore[Trk::numberOfTRTHits]	        =   1;  // 10 straws ~ 1 SCT
   m_summaryTypeScore[Trk::numberOfTRTHighThresholdHits] =   0;  // addition for being TR
     
@@ -87,15 +81,6 @@ StatusCode InDet::InDetTrtTrackScoringTool::initialize()
     msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endmsg;
   }
 
-  sc =  m_magFieldSvc.retrieve();
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endmsg;
-  }
-
   sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
@@ -103,6 +88,9 @@ StatusCode InDet::InDetTrtTrackScoringTool::initialize()
   }
 
   if(m_useAmbigFcn) setupTRT_ScoreModifiers();
+
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -119,20 +107,10 @@ StatusCode InDet::InDetTrtTrackScoringTool::finalize()
 
 Trk::TrackScore InDet::InDetTrtTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
 {
+  (void) suppressHoleSearch;
   if (!track.trackSummary()) {
-     // @TODO this is not thread safe. Should fail when being called in MT
-     ATH_MSG_DEBUG("Track without track summary. Compute summary to score track.");
-     std::unique_ptr<const Trk::TrackSummary> summary;
-     if ( suppressHoleSearch) {
-        ATH_MSG_DEBUG ("Get summary for new Track, suppress HoleSearch");
-        summary.reset( m_trkSummaryTool->createSummaryNoHoleSearch(track) );
-     } else {
-        ATH_MSG_DEBUG ("Get summary for new Track with HoleSearch");
-        summary.reset( m_trkSummaryTool->createSummary(track) );
-     }
+     ATH_MSG_FATAL("Track without a summary");
   }
-  assert( track.trackSummary() );
-
   ATH_MSG_VERBOSE("Track has TrackSummary "<<*track.trackSummary());
   Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *track.trackSummary()) );
   ATH_MSG_VERBOSE("Track has Score: "<<score);
@@ -163,7 +141,18 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
   const Trk::TrackParameters* input = track.trackParameters()->front();
 
   ///Reject track below the pT cut
-  if (m_magFieldSvc->solenoidOn()) {
+
+  EventContext ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("simpleScore: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return Trk::TrackScore(0);
+  }
+  MagField::AtlasFieldCache fieldCache;
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  if (fieldCache.solenoidOn()){//B field
     if(input->pT() < m_ptmin) {
       ATH_MSG_DEBUG( "Reject track below Pt cut !");
       return Trk::TrackScore(0);
@@ -267,52 +256,27 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
 
   // 
   // --- non binned Chi2
-  if (!m_useLogProbBins) {
-    if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
-      int    indf  = track.fitQuality()->numberDoF();
-      double chi2  = track.fitQuality()->chiSquared();
-      double fac   = 1. / log10 (10. + 10. * chi2 / indf); // very soft chi2 
-      prob        *= fac;
-      ATH_MSG_VERBOSE( "Modifier for chi2 = " << chi2 << " and NDF = " << indf
-						            << " is : "<< fac << "  New score now: " << prob );	    
+  
+  if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
+    int    indf  = track.fitQuality()->numberDoF();
+    double chi2  = track.fitQuality()->chiSquared();
+    double fac   = 1. / log10 (10. + 10. * chi2 / indf); // very soft chi2 
+    prob        *= fac;
+    ATH_MSG_VERBOSE( "Modifier for chi2 = " << chi2 << " and NDF = " << indf
+                      << " is : "<< fac << "  New score now: " << prob );	    
 
-    }
   }
+  
   //
   // --- do we use the binned prob for chi2/NDF or sigma chi2 ?
   //
-  if ( (m_useLogProbBins || m_useSigmaChi2) && track.fitQuality() ) {
+  if ( (m_useSigmaChi2) && track.fitQuality() ) {
 
     int    indf  = track.fitQuality()->numberDoF();
     double ichi2 = track.fitQuality()->chiSquared();
     if (indf>0) {
 
-      //
-      // --- binned chi2/NDF score
-      //
-      if (m_useLogProbBins) {
-        double p = TMath::Prob(ichi2,indf);
-        if (p>0.) {
-          p=log(p); 
-          if ( m_boundsLogProb[0]<p && p<=m_boundsLogProb[m_maxLogProb] ) {
-            for (int ii=0; ii<m_maxLogProb; ++ii) {
-              if ( m_boundsLogProb[ii]<p && p<=m_boundsLogProb[ii+1] ) {
-          prob *= m_factorLogProb[ii];
-          ATH_MSG_VERBOSE( "Modifier for WITHIN BOUNDS " << p << " prob.-log.: "<< m_factorLogProb[ii]
-                            << "  New score now: " << prob );	    
-              }
-            }
-          } else if ( p < m_boundsLogProb[0] ) {
-            prob *= m_factorLogProb[0];
-            ATH_MSG_VERBOSE( "Modifier for LOW BOUND " << p << " prob.-log.: "<< m_factorLogProb[0]
-                             << "  New score now: " << prob );	    
-          } else {
-            prob *= m_factorLogProb[m_maxLogProb-1];
-            ATH_MSG_VERBOSE( "Modifier for HIGH BOUND " << p << " prob.-log.: "<< m_factorLogProb[m_maxLogProb-1]
-                              << "  New score now: " << prob );	    
-          }
-        }
-      }
+      
       
       //
       // --- binned sigma chi2 score
@@ -351,21 +315,6 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
 //-----------------------------------------------------------------------------------------------------------
 void InDet::InDetTrtTrackScoringTool::setupTRT_ScoreModifiers()
 {
-  /*
-  //
-  // --- expected number of TRT hits vs eta (a function)
-  //
-  const int maxTrtEtaBins = 5;
-  // binning for expected number of TRT hits
-  const double TrtEtaBin[maxTrtEtaBins+1] = {0., 0.65,      0.85,     1.25,     1.80,     2.10};
-  // A and B factors for: Nexp(n,eta) = A + B*(eta- TrtEtaBin[n])
-  const double TrtA[maxTrtEtaBins]        = {     29.,       31.,      20.,      36.,     34.,};
-  const double TrtB[maxTrtEtaBins]        = { 2./0.65, -11./0.20, 16./0.40, -2./0.55, -24./0.3};
-  // put it into the private members
-  m_maxTrtEtaBins = maxTrtEtaBins;
-  for (int i=0; i<m_maxTrtEtaBins;  ++i) { m_TrtA.push_back(TrtA[i]); m_TrtB.push_back(TrtB[i]); }
-  for (int i=0; i<=m_maxTrtEtaBins; ++i) m_boundsTrtEtaBin.push_back(TrtEtaBin[i]);
-  */
 
   //
   // --- ratio of TRT hits over expected
@@ -393,22 +342,7 @@ void InDet::InDetTrtTrackScoringTool::setupTRT_ScoreModifiers()
   for (int i=0; i<m_maxTrtFittedRatio; ++i) m_factorTrtFittedRatio.push_back(goodTrtFittedRatio[i]/fakeTrtFittedRatio[i]);
   for (int i=0; i<=m_maxTrtFittedRatio; ++i) m_boundsTrtFittedRatio.push_back(TrtFittedRatioBounds[i]);
 
-  //
-  // --- chi2 prob
-  //
-  if (!m_useLogProbBins) {
-    // do not use it !
-    m_maxLogProb = -1 ;
-  } else {
-    const int maxLogProb = 12;
-    const double LogProbBounds[maxLogProb+1] = {-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0};
-    const double modiLogProb[maxLogProb] = {0.002, 0.002, 0.004, 0.007, 0.008, 0.012, 0.020, 0.033, 0.051, 0.104, 0.219, 0.531};
-    const double vetoLogProb[maxLogProb] = {0.020, 0.025, 0.032, 0.030, 0.042, 0.051, 0.063, 0.071, 0.080, 0.112, 0.156, 0.216};
-    // put it into the private members
-    m_maxLogProb = maxLogProb;
-    for (int i=0; i<m_maxLogProb; ++i) m_factorLogProb.push_back(modiLogProb[i]/vetoLogProb[i]);
-    for (int i=0; i<=m_maxLogProb; ++i) m_boundsLogProb.push_back(LogProbBounds[i]);
-  }
+  
   //
   // --- sigma chi2
   //
@@ -446,9 +380,6 @@ void InDet::InDetTrtTrackScoringTool::setupTRT_ScoreModifiers()
       ATH_MSG_VERBOSE( "Modifier for " << m_boundsTrtFittedRatio[i] << " < TRT fitted ratio  < " << m_boundsTrtFittedRatio[i+1]
                         << "  : " <<m_factorTrtFittedRatio[i] );
 
-    // only if used !
-    for (int i=0; i<m_maxLogProb; ++i)
-      ATH_MSG_VERBOSE( "Modifier for " << m_boundsLogProb[i] << " LogProb: " << m_factorLogProb[i] );
   
     // only if used !
     for (int i=0; i<m_maxSigmaChi2; ++i)

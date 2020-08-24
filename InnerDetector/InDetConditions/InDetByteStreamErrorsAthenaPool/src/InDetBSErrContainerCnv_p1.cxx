@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBSErrContainerCnv_p1.h"
 
-void InDetBSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream& /*log*/)
+void InDetBSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE // const_cast is used.
+(const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream& /*log*/)
 {
   InDetBSErrContainer::const_iterator it = transCont->begin();
   InDetBSErrContainer::const_iterator itEnd = transCont->end();

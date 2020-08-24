@@ -12,7 +12,7 @@
 #include "TrigGenericAlgs/DetectorTimingAlgo.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include <math.h>
 #include <sstream>
@@ -145,7 +145,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltInitialize()
 }
 
 
-void DetectorTimingAlgo::updateHandler(Property&)
+void DetectorTimingAlgo::updateHandler(Gaudi::Details::PropertyBase&)
 {
   //  parseROBRequest();
 }

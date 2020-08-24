@@ -172,7 +172,7 @@ InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool' and globalflags.
 #InDetFlags.doPerfMon = True
 
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 
 # --- produce various ntuples (all in one root file)
 #InDetFlags.doTrkNtuple      = False
@@ -271,7 +271,7 @@ theApp.EvtMax = %i""" % nevents
 #ServiceMgr.EventSelector.SkipEvents = 2
 #ServiceMgr.StoreGateSvc.Dump = True
 
-ServiceMgr.ByteStreamInputSvc.FullFileName = ["""
+ServiceMgr.EventSelector.Input = ["""
     for i in range(len(inputfiles)-1):
         ostring+='"%s", ' % inputfiles[i]
     ostring+='"%s"]' % inputfiles[len(inputfiles)-1]

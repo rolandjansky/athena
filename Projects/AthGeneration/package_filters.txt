@@ -19,6 +19,7 @@
 + Control/AthContainersInterfaces
 + Control/AthContainersRoot
 + Control/AthLinks
++ Control/AthToolSupport/AsgDataHandles
 + Control/AthToolSupport/AsgMessaging
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
@@ -182,8 +183,6 @@
 + Reconstruction/RecExample/RecExConfig
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Tools/ART
-+ Tools/JobTransforms
-+ Tools/KitValidation
 + Tools/PathResolver
 + Tools/PmbCxxUtils
 + Tools/PyJobTransforms

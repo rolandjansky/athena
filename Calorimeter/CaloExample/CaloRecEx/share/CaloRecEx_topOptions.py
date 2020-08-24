@@ -77,6 +77,3 @@ MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 print "RTTINFO = 1002_H_2e2mu_q02dig_1004"
 
 
-#from __main__ import AtlasTrackingGeometrySvc
-#AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False
-

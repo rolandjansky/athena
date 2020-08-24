@@ -202,7 +202,8 @@ StatusCode D2PDTruthParticleSelector::processObject( const TruthParticle* part,
       //             from the EVTruthParticleInserter.
 
       // Get the GenParticle from the TruthParticle
-      const HepMC::GenParticle* genPart = part->genParticle();
+      // This inelegant piece is needed to avoid const correctness problems
+      HepMC::ConstGenParticlePtr genPart = (HepMC::ConstGenParticlePtr)(part->genParticle());
       const int pdgID  = genPart->pdg_id();
       const int status = genPart->status();
 
@@ -295,14 +296,12 @@ StatusCode D2PDTruthParticleSelector::processObject( const TruthParticle* part,
           ATH_MSG_VERBOSE ( "Trying to select TruthParticle removing SelfDecay" );
           if( genPart->end_vertex() )
             {
-              int barcode = genPart->barcode();
-              HepMC::GenVertex::particle_iterator childItr =
-                genPart->end_vertex()->particles_begin(HepMC::children);
-              HepMC::GenVertex::particle_iterator childItrEnd =
-                genPart->end_vertex()->particles_end(HepMC::children);
-              for ( ; childItr != childItrEnd; ++childItr )
+              int barcode = HepMC::barcode(genPart);
+              auto childItrBegin =    genPart->end_vertex()->particles_begin(HepMC::children);
+              auto childItrEnd = genPart->end_vertex()->particles_end(HepMC::children);
+              for (auto childItr=childItrBegin; childItr!=childItrEnd; ++childItr )
                 {
-                  const HepMC::GenParticle* child = (*childItr);
+                  auto child = (*childItr);
                   if( child->pdg_id() == pdgID
                       && child->barcode() != barcode
                       && child->barcode() < 200000 )
@@ -372,15 +371,13 @@ StatusCode D2PDTruthParticleSelector::processObject( const TruthParticle* part,
         {
           ATH_MSG_VERBOSE ( "Trying to select TruthParticle daughter PDG_ID" );
           bool allDaughtersMatch = true;
-          std::vector<const HepMC::GenParticle* > daughters;
+          std::vector<HepMC::ConstGenParticlePtr > daughters;
           bool foundDaughters = getDaughters( genPart, daughters );
 
           if ( foundDaughters )
             {
               // Iterate over the list of found daughters
-              std::vector<const HepMC::GenParticle*>::const_iterator daughterItr    = daughters.begin();
-              std::vector<const HepMC::GenParticle*>::const_iterator daughterItrEnd = daughters.end();
-              for ( ; daughterItr != daughterItrEnd; ++daughterItr )
+              for (auto daughter: daughters)
                 {
                   bool foundThisID = false;
                   // Iterate over the list of allowed PDG_IDs
@@ -390,14 +387,14 @@ StatusCode D2PDTruthParticleSelector::processObject( const TruthParticle* part,
                     {
                       if ( m_allowDaughterAntiPart )
                         {
-                          if ( abs( (*daughterItr)->pdg_id() ) == abs(*daughterPDGItr) )
+                          if ( std::abs( daughter->pdg_id() ) == abs(*daughterPDGItr) )
                             {
                               foundThisID = true;
                             }
                         }
                       else
                         {
-                          if ( (*daughterItr)->pdg_id() == (*daughterPDGItr) )
+                          if ( daughter->pdg_id() == (*daughterPDGItr) )
                             {
                               foundThisID = true;
                             }
@@ -601,8 +598,8 @@ int D2PDTruthParticleSelector::getMotherPDGID( const TruthParticle* part,
 //=============================================================================
 // Search for the daughters with different PDG_IDs
 //=============================================================================
-bool D2PDTruthParticleSelector::getDaughters( const HepMC::GenParticle* genPart, 
-                                              std::vector<const HepMC::GenParticle* > &daughters )
+bool D2PDTruthParticleSelector::getDaughters( HepMC::ConstGenParticlePtr genPart, 
+                                              std::vector<HepMC::ConstGenParticlePtr > &daughters )
 {
   ATH_MSG_VERBOSE ( "In getDaughters" );
   if( genPart->end_vertex() )
@@ -611,13 +608,11 @@ bool D2PDTruthParticleSelector::getDaughters( const HepMC::GenParticle* genPart,
       int barcode = genPart->barcode();
 
       // Loop over all children
-      HepMC::GenVertex::particle_iterator childItr =
-        genPart->end_vertex()->particles_begin(HepMC::children);
-      HepMC::GenVertex::particle_iterator childItrEnd =
-        genPart->end_vertex()->particles_end(HepMC::children);
-      for ( ; childItr != childItrEnd; ++childItr )
+      auto childItrBegin = genPart->end_vertex()->particles_begin(HepMC::children);
+      auto  childItrEnd = genPart->end_vertex()->particles_end(HepMC::children);
+      for (auto childItr=childItrBegin; childItr != childItrEnd; ++childItr )
         {
-          const HepMC::GenParticle* child = (*childItr);
+          auto child = (*childItr);
           if( child->pdg_id() == pdgID
               && child->barcode() != barcode
               && child->barcode() < 200000 )

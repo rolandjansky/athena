@@ -604,8 +604,11 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
                                                        doubletZ, doubletPhi,gasGap, 1, pcsphi[1] );
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink particleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag);
 
-      if (DetectionEfficiency(ctx, &atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine, hit).isFailure()) return StatusCode::FAILURE ;
+      ATH_CHECK(DetectionEfficiency(ctx, &atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine, particleLink));
       ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
@@ -658,7 +661,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	// ME unused: const HepMcParticleLink & particleLink = hit.particleLink();
 	// MuonMCData first  word is the packing of    : proptime, bunchTime, posy, posz
 	// MuonMCData second word is the total hit time: bunchcTime+tof+proptime+correlatedJitter / ns
-	MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()),
+	MuonSimData::Deposit deposit(particleLink,
 				     MuonMCData((*b),time)); // store tof+strip_propagation+corr.jitter
 	//				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
 
@@ -870,8 +873,8 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	  //std::cout << "Digit Id = " << m_idHelper->show_to_string(theId)<<" digit time "<<newDigit_time << std::endl;
 
 	  // put new collection in storegate
-	  RpcDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
-	  if (digitContainer->end() ==  it_coll) {
+	  const RpcDigitCollection* coll = digitContainer->indexFindPtr(coll_hash);
+	  if (nullptr ==  coll) {
 	    digitCollection = new RpcDigitCollection(elemId,coll_hash);
 	    digitCollection->push_back(newDigit);
 	    StatusCode status = digitContainer->addCollection(digitCollection, coll_hash);
@@ -885,7 +888,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	      ATH_MSG_DEBUG ( "New RpcHitCollection with key=" << coll_hash << " recorded in StoreGate." );
 	    }
 	  } else {
-	    digitCollection = const_cast<RpcDigitCollection*>( *it_coll );
+	    digitCollection = const_cast<RpcDigitCollection*>( coll );
 	    digitCollection->push_back(newDigit);
 	  }
 
@@ -1686,7 +1689,7 @@ StatusCode RpcDigitizationTool::readParameters(){
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const RPCSimHit& thehit) {
+StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const HepMcParticleLink& trkParticle) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in DetectionEfficiency" );
 
@@ -2039,7 +2042,6 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
 
   //Efficiency correction factor for fractional-charged particles(added by Quanyin Li: quli@cern.ch)
   //link to truth particles and calculate the charge and betagamma
-  const HepMcParticleLink& trkParticle = thehit.particleLink();
   const HepMC::GenParticle* genparticle = trkParticle.cptr();
   if(genparticle){
     const int particlePdgId = genparticle->pdg_id();

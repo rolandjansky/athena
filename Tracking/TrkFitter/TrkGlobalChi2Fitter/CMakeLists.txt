@@ -18,7 +18,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/IdDictDetDescr
                           Event/EventPrimitives
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -32,7 +31,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkVertexOnTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkExtrapolation/TrkExUtils
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+)
 
 # External dependencies:
 find_package( CLHEP )
@@ -43,7 +45,7 @@ atlas_add_component( TrkGlobalChi2Fitter
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkFitterInterfaces TrkFitterUtils AtlasDetDescr IdDictDetDescr EventPrimitives MagFieldInterfaces TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkVertexOnTrack TrkExInterfaces TrkExUtils TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkFitterInterfaces TrkFitterUtils AtlasDetDescr IdDictDetDescr EventPrimitives TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkVertexOnTrack TrkExInterfaces TrkExUtils TrkToolInterfaces MagFieldElements MagFieldConditions)
 
 # Install files from the package:
 atlas_install_headers( TrkGlobalChi2Fitter )

@@ -130,20 +130,9 @@ ToolSvc += ElectronTrkExtrapolator
 #######                     GSF Realted Packaages                      ########
 ###############################################################################
 ###############################################################################
-#
-# component Reduction
-#
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
-GsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name = 'GsfComponentReduction',
-                                                              MaximumNumberOfComponents = 12)
-ToolSvc += GsfComponentReduction
-printfunc (GsfComponentReduction)
-
-
-
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
 GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator',
-                                                         MultiComponentStateMerger = GsfComponentReduction)
+                                                         MaximumNumberOfComponents = 12)
 
 ToolSvc += GsfMaterialUpdator
 printfunc (GsfMaterialUpdator)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## GetTfCommand.py - prints the job transform command accociated with an AMI tag.
 # $Id$
@@ -10,8 +10,8 @@ import sys
 import argparse
 
 from PyJobTransforms.trfLogger import msg, stdLogLevels
-if not '--printOnlyCmdLine' in sys.argv:
-    msg.info('logging set in %s' % sys.argv[0])
+if '--printOnlyCmdLine' not in sys.argv:
+    msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.trfAMI import TagInfo
 from PyJobTransforms.trfExceptions import TransformAMIException
@@ -40,7 +40,7 @@ def main():
         print('Note that you need both suitable credentials to access AMI and access to the panda database (only works from inside CERN) for GetTfCommand.py to work.')
         sys.exit(1)
 
-    if not 'printOnlyCmdLine' in args:
+    if 'printOnlyCmdLine' not in args:
         print(tag)
 
         if 'argdict' in args:

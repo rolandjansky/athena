@@ -86,7 +86,7 @@ class GenEventCnv_p1 : public T_AthenaPoolTPCnvBase<HepMC::GenEvent,
   /////////////////////////////////////////////////////////////////// 
  protected: 
 
-  typedef std::unordered_map<HepMC::GenParticle*,int> ParticlesMap_t;
+  typedef std::unordered_map<HepMC::GenParticlePtr,int> ParticlesMap_t;
 
   /** @brief Create a transient @c GenVertex from a persistent one (version 1)
    *  It returns the new @c GenVertex. 
@@ -97,7 +97,7 @@ class GenEventCnv_p1 : public T_AthenaPoolTPCnvBase<HepMC::GenEvent,
    *  of barcodes to particle so that we can reconnect all the (non-orphan)
    *  particles to their decay vertex (if any).
    */
-  HepMC::GenVertex* 
+  HepMC::GenVertexPtr 
   createGenVertex( const GenEvent_p1& persEvt,
 		   const GenVertex_p1& vtx,
   		   ParticlesMap_t& bcToPart ) const;
@@ -107,7 +107,7 @@ class GenEventCnv_p1 : public T_AthenaPoolTPCnvBase<HepMC::GenEvent,
    *  argument is to hold the association of barcodes to particle so that
    *  we can reconnect all the particles to their decay vertex (if any).
    */
-  HepMC::GenParticle* 
+  HepMC::GenParticlePtr 
   createGenParticle( const GenParticle_p1& p,
 		     ParticlesMap_t& partToEndVtx ) const;
 

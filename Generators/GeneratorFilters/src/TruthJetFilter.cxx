@@ -45,12 +45,12 @@ StatusCode TruthJetFilter::filterEvent() {
   std::vector<const xAOD::Jet*> listOfSelectedJets;
   const xAOD::Jet* leadingJet = 0;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
-    if ( (*it_truth)->pt() > m_NjetMinPt && fabs( (*it_truth)->eta() ) < m_NjetMaxEta ) {
+    if ( (*it_truth)->pt() > m_NjetMinPt && std::abs( (*it_truth)->eta() ) < m_NjetMaxEta ) {
       Njet++;
       ATH_MSG_INFO("Jet pt " << (*it_truth)->pt()/Gaudi::Units::GeV);
       if (m_applyDeltaPhiCut) listOfSelectedJets.push_back(*it_truth);
     }
-    if ( (*it_truth)->pt() > m_jet_pt1 && fabs( (*it_truth)->eta() ) < m_NjetMaxEta ) {
+    if ( (*it_truth)->pt() > m_jet_pt1 && std::abs( (*it_truth)->eta() ) < m_NjetMaxEta ) {
       Njet_pt1++;
       ATH_MSG_INFO("High jet pt " << (*it_truth)->pt()/Gaudi::Units::GeV);
       if (m_applyDeltaPhiCut && (!leadingJet || (*it_truth)->pt() > leadingJet->pt())) {
@@ -66,7 +66,7 @@ StatusCode TruthJetFilter::filterEvent() {
       for (unsigned int iJet = 0; iJet < m_Njet; iJet++) {
         if (listOfSelectedJets[iJet] == leadingJet) continue;
         double deltaPhi = leadingJet->p4().DeltaPhi((listOfSelectedJets[iJet])->p4());
-        double dPi = TMath::Pi() - fabs(deltaPhi);
+        double dPi = TMath::Pi() - std::abs(deltaPhi);
         ATH_MSG_DEBUG("deltaPhi = " << deltaPhi << ", dPi = " << dPi <<
                       " between leading jet(pt=" << leadingJet->pt() << ",eta=" << leadingJet->eta() <<
                       ") and jet(pt=" << (listOfSelectedJets[iJet])->pt() <<

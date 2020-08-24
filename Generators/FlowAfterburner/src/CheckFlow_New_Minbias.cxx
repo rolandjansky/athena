@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/CheckFlow_New_Minbias.h
@@ -39,7 +39,7 @@
 
 using namespace TruthHelper;
 
-typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+//typedef std::vector<const HepMC::GenParticlePtr>  MCParticleCollection ;
 
 CheckFlow_New_Minbias::CheckFlow_New_Minbias(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
@@ -259,7 +259,7 @@ StatusCode CheckFlow_New_Minbias::execute() {
 
   // Iterate over MC particles  We are using the IsGenStable predicate from IsGenStable ifs;
   GenAll ifs;
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   CHECK(m_tesIO->getMC(particles, &ifs, m_key));
 
   for (auto pitr: particles) {
@@ -271,15 +271,15 @@ StatusCode CheckFlow_New_Minbias::execute() {
     ATH_MSG_DEBUG(" PID = " << pid   << " Status = " << p_stat \
 	       << " Eta = " << rapid << " Phi = "    << phi);
     
-    if( (fabs(rapid) >= m_rapcut_min) && 
-        (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt)    >= m_ptcut_min ) &&
-        (fabs(pt)    <= m_ptcut_max)) {
+    if( (std::abs(rapid) >= m_rapcut_min) && 
+        (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt)    >= m_ptcut_min ) &&
+        (std::abs(pt)    <= m_ptcut_max)) {
       
       for(int ihar=0;ihar<6;ihar++){
         float temp=(ihar+1)*(phi-Psi_n[ihar]);
 
-        int ieta= (int)(fabs(rapid)*n_etabin/eta_bin_max);
+        int ieta= (int)(std::abs(rapid)*n_etabin/eta_bin_max);
         if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep [ihar][ib_imp][ieta]->Fill(pt/1000,cos(temp));
         
 
@@ -314,15 +314,14 @@ StatusCode CheckFlow_New_Minbias::execute() {
     }
 
     //EbE vn for ID acceptance end pt>0.5GeV
-    //if(fabs(rapid)<=2.5 &&fabs(pt)>=500){
-    if(fabs(pt)>=500){
+    if(std::abs(pt)>=500){
       tot_ID1++;
       for(int ihar=0;ihar<6;ihar++){
         cos_ID1[ihar]+=cos((ihar+1)*phi);
         sin_ID1[ihar]+=sin((ihar+1)*phi);
       } 
     }
-    if(fabs(pt)>=0){
+    if(std::abs(pt)>=0){
       tot_ID2++;
       for(int ihar=0;ihar<6;ihar++){
         cos_ID2[ihar]+=cos((ihar+1)*phi);
@@ -398,15 +397,15 @@ StatusCode CheckFlow_New_Minbias::execute() {
     double pt     = pitr->momentum().perp();
     double rapid  = pitr->momentum().pseudoRapidity();
     double phi    = pitr->momentum().phi();
-    if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
+    if( (std::abs(rapid) >= m_rapcut_min) && (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt) >= m_ptcut_min) && (std::abs(pt) <= m_ptcut_max) ) {
       
       for(int ihar=0;ihar<6;ihar++){
         float       temp=(ihar+1)*(phi-Psi_n_reco_pos[ihar]);
         if(rapid>0) temp=(ihar+1)*(phi-Psi_n_reco_neg[ihar]);
 
 
-        int ieta= (int)(fabs(rapid)*n_etabin/eta_bin_max);
+        int ieta= (int)(std::abs(rapid)*n_etabin/eta_bin_max);
         if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep_reco [ihar][ib_imp][ieta]->Fill(pt/1000,cos(temp));
 
         float temp_pt=pt/1000;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRY_H
@@ -57,6 +57,7 @@ class CaloGeometry : virtual public ICaloGeometry {
     double rpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
     double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
     double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
+    // cppcheck-suppress negativeContainerIndex; false positive
     bool   isCaloBarrel(int sample) const {return m_isCaloBarrel[sample];};
     static std::string SamplingName(int sample);
 

@@ -1,17 +1,7 @@
-################################################################################
-# Package: TrigRootAnalysis
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigRootAnalysis )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate )
 
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Cint Core Tree MathCore Hist pthread )
@@ -28,6 +18,5 @@ atlas_add_library( TrigRootAnalysis
                    ${TrigRootAnalysisDictSource}
                    PUBLIC_HEADERS TrigRootAnalysis
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel )
-
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib )

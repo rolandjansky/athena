@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( BCM_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/PileUpTools
-                          Event/xAOD/xAODEventInfo
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetRawEvent/InDetBCM_RawData
-                          InnerDetector/InDetRawEvent/InDetSimData
-                          InnerDetector/InDetSimEvent )
-
 # External dependencies:
 find_package( CLHEP )
 

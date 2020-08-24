@@ -43,4 +43,5 @@ atlas_add_component( CscRawDataMonitoring
 # Install files from the package:
 atlas_install_headers( CscRawDataMonitoring )
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 

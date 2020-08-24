@@ -1,58 +1,99 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcFastDigitizer.h"
+
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
-
 #include "MuonSimEvent/sTGCSimHitCollection.h"
-
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
-
-#include "Identifier/Identifier.h"
-#include "TH1.h"
-#include "TTree.h"
-#include "TFile.h"
-
-//Random Numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "PathResolver/PathResolver.h"
 
+#include "TTree.h"
+#include "TFile.h"
+
 using namespace Muon;
 
-sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator) , m_detManager(NULL) ,  m_idHelper(NULL) ,  m_channelTypes(0)
-  , m_file(NULL) , m_ntuple(NULL) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
-  , m_sulx(0.) , m_suly(0.) , m_tsulx(0.) , m_tsuly(0.) , m_tsulz(0.)
-  , m_suresx(0.) , m_suresy(0.) , m_errx(0.) , m_erry(0.) , m_res(0.) , m_pull(0.) , m_is(0) , m_seta(0) , m_sphi(0)
-  , m_sml(0) , m_sl(0) , m_ss(0) , m_stype(0) , m_ieta(0) , m_iphi(0) , m_iml(0) , m_il(0) , m_ich(0) , m_istr(0) , m_itype(0)
-  , m_ipadeta(0) , m_ipadphi(0) , m_exitcode(0) , m_mode(0) , m_pdg(0) , m_trkid(0) , m_bct(0) , m_tb(0.) , m_tj(0.)
-  , m_tg4(0.) , m_ttof(0.) , m_gpx(0.) , m_gpy(0.) , m_gpz(0.) , m_gpr(0.) , m_gpp(0.) , m_dgpx(0.) , m_dgpy(0.) , m_dgpz(0.)
-  , m_dgpr(0.) , m_dgpp(0.) , m_edep(0.) , m_as(0.) , m_at(0.) , m_surfcentx(0.) , m_surfcenty(0.) , m_surfcentz(0.)
-  , m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool" )
-  , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
-  , m_rndmSvc("AtRndmGenSvc", name )
-  , m_rndmEngine(0)
-  , m_sdoName("STGCfast_SDO")
-  , m_timeWindowOffsetWire(0.)
-  , m_timeWindowOffsetStrip(0.)
-  , m_timeWindowWire(24.95) // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
-  , m_timeWindowStrip(24.95) // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
-  , m_bunchCrossingTime(24.95) // 24.95 ns =(40.08 MHz)^(-1)
+sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcLocator) :
+    AthAlgorithm(name, pSvcLocator),
+    m_detManager(NULL),
+    m_channelTypes(0),
+    m_file(NULL),
+    m_ntuple(NULL),
+    m_dlx(0.),
+    m_dly(0.),
+    m_dlz(0.),
+    m_sulx(0.),
+    m_suly(0.),
+    m_tsulx(0.),
+    m_tsuly(0.),
+    m_tsulz(0.),
+    m_suresx(0.),
+    m_suresy(0.),
+    m_errx(0.),
+    m_erry(0.),
+    m_res(0.),
+    m_pull(0.),
+    m_is(0),
+    m_seta(0),
+    m_sphi(0),
+    m_sml(0),
+    m_sl(0),
+    m_ss(0),
+    m_stype(0),
+    m_ieta(0),
+    m_iphi(0),
+    m_iml(0),
+    m_il(0),
+    m_ich(0),
+    m_istr(0),
+    m_itype(0),
+    m_ipadeta(0),
+    m_ipadphi(0),
+    m_exitcode(0),
+    m_mode(0),
+    m_pdg(0),
+    m_trkid(0),
+    m_bct(0),
+    m_tb(0.),
+    m_tj(0.),
+    m_tg4(0.),
+    m_ttof(0.),
+    m_gpx(0.),
+    m_gpy(0.),
+    m_gpz(0.),
+    m_gpr(0.),
+    m_gpp(0.),
+    m_dgpx(0.),
+    m_dgpy(0.),
+    m_dgpz(0.),
+    m_dgpr(0.),
+    m_dgpp(0.),
+    m_edep(0.),
+    m_as(0.),
+    m_at(0.),
+    m_surfcentx(0.),
+    m_surfcenty(0.),
+    m_surfcentz(0.),
+    m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
+    m_rndmSvc("AtRndmGenSvc", name ),
+    m_rndmEngine(0),
+    m_sdoName("STGCfast_SDO"),
+    m_timeWindowOffsetWire(0.),
+    m_timeWindowOffsetStrip(0.),
+    m_timeWindowWire(24.95), // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
+    m_timeWindowStrip(24.95), // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
+    m_bunchCrossingTime(24.95) // 24.95 ns =(40.08 MHz)^(-1)
 {
-  declareProperty("IdHelperTool", m_idHelperTool);
   declareProperty("ClusterCreator", m_muonClusterCreator);
   declareProperty("ChannelTypes", m_channelTypes = 3);
   declareProperty("RndmEngine",  m_rndmEngineName, "Random engine name");
@@ -64,23 +105,16 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MergePrds", m_mergePrds = true );
 }
 
-sTgcFastDigitizer::~sTgcFastDigitizer()  {
-
-}
-
 StatusCode sTgcFastDigitizer::initialize() {
-
-  ATH_CHECK( detStore()->retrieve( m_detManager ) );
-  ATH_CHECK( detStore()->retrieve( m_idHelper ) );
-
+  ATH_CHECK(detStore()->retrieve(m_detManager));
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
   if (m_rndmEngine==0) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
+    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
     return StatusCode::FAILURE;
   }
-  ATH_CHECK( m_idHelperTool.retrieve() );
-  ATH_CHECK( m_muonClusterCreator.retrieve() );
-  ATH_CHECK( m_sdoName.initialize() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_muonClusterCreator.retrieve());
+  ATH_CHECK(m_sdoName.initialize());
 
   if( !readFileOfTimeJitter() ) return StatusCode::FAILURE; 
 
@@ -144,31 +178,26 @@ StatusCode sTgcFastDigitizer::initialize() {
   m_ntuple->Branch("surfcentz",&m_surfcentz);
 
   return StatusCode::SUCCESS;
-    
 }
 
 StatusCode sTgcFastDigitizer::execute() {
-
-// Create and record the SDO container in StoreGate
+  // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
   ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
-  sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->module_hash_max());
+  sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelperSvc->stgcIdHelper().module_hash_max());
   
   // as the sTgcPrepDataContainer only allows const accesss, need a local vector as well.
-  std::vector<sTgcPrepDataCollection*> localsTgcVec(m_idHelper->module_hash_max());
+  std::vector<sTgcPrepDataCollection*> localsTgcVec(m_idHelperSvc->stgcIdHelper().module_hash_max());
   std::vector<sTgcPrepData*> sTgcprds;
   std::vector<int> sTgcflag;
 
   const DataHandle< sTGCSimHitCollection > collGMSH;
-  if ( evtStore()->retrieve( collGMSH,"sTGCSensitiveDetector").isFailure()) {
-    ATH_MSG_WARNING("No sTgc hits found in SG");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->retrieve( collGMSH,"sTGCSensitiveDetector"));
 
   ATH_MSG_DEBUG( "Retrieved " <<  collGMSH->size() << " sTgc hits!");
   sTgcHitIdHelper* hitHelper=sTgcHitIdHelper::GetHelper();
-  sTgcSimIdToOfflineId simToOffline(*m_idHelper);
+  sTgcSimIdToOfflineId simToOffline(&m_idHelperSvc->stgcIdHelper());
 
 
   std::map<Identifier,int> hitsPerChannel;
@@ -189,18 +218,18 @@ StatusCode sTgcFastDigitizer::execute() {
     int simId = hit.sTGCId();
     Identifier layid = simToOffline.convert(simId);
     ATH_MSG_VERBOSE("sTgc hit: r " << hit.globalPosition().perp() << " z " << hit.globalPosition().z() << " mclink " << hit.particleLink() 
-		    << " -- " << m_idHelperTool->toString(layid));
+		    << " -- " << m_idHelperSvc->toString(layid));
  
-    std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
+    std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(layid));
     int isSmall = stName[2] == 'S';
     const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcReadoutElement(layid);
     if( !detEl ){
-      ATH_MSG_WARNING("Failed to retrieve detector element for: " << m_idHelperTool->toString(layid) );
+      ATH_MSG_WARNING("Failed to retrieve detector element for: " << m_idHelperSvc->toString(layid) );
       continue;
     }
     
     IdentifierHash hash;
-    m_idHelper->get_module_hash(layid, hash);
+    m_idHelperSvc->stgcIdHelper().get_module_hash(layid, hash);
 
     bool lastHit = false;
     if(itersTgc + 1 ==collGMSH->end()) lastHit = true;
@@ -219,15 +248,15 @@ StatusCode sTgcFastDigitizer::execute() {
         bool merge = false;
         unsigned int jmerge = -1;
         Identifier id_prd = sTgcprds[i]->identify();
-        int strip = m_idHelper->channel(id_prd);
-        int gasGap  = m_idHelper->gasGap(id_prd);
-        int layer   = m_idHelper->multilayer(id_prd);
+        int strip = m_idHelperSvc->stgcIdHelper().channel(id_prd);
+        int gasGap  = m_idHelperSvc->stgcIdHelper().gasGap(id_prd);
+        int layer   = m_idHelperSvc->stgcIdHelper().multilayer(id_prd);
         ATH_MSG_VERBOSE("  sTgcprds " <<  sTgcprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
         for (unsigned int j=i+1; j<sTgcprds.size(); ++j){
           Identifier id_prdN = sTgcprds[j]->identify();
-          int stripN = m_idHelper->channel(id_prdN);
-          int gasGapN  = m_idHelper->gasGap(id_prdN);
-          int layerN   = m_idHelper->multilayer(id_prdN);
+          int stripN = m_idHelperSvc->stgcIdHelper().channel(id_prdN);
+          int gasGapN  = m_idHelperSvc->stgcIdHelper().gasGap(id_prdN);
+          int layerN   = m_idHelperSvc->stgcIdHelper().multilayer(id_prdN);
           if( gasGapN==gasGap && layerN==layer ) {
             ATH_MSG_VERBOSE(" next sTgcprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
             if(abs(strip-stripN)<2) {
@@ -263,10 +292,10 @@ StatusCode sTgcFastDigitizer::execute() {
           for (unsigned int k=0; k < nmergeStripsMax; ++k) {
             for (unsigned int j=jmerge; j<sTgcprds.size(); ++j){
               Identifier id_prdN = sTgcprds[j]->identify();
-              int stripN = m_idHelper->channel(id_prdN);
+              int stripN = m_idHelperSvc->stgcIdHelper().channel(id_prdN);
               if( abs(mergeStrips[k]-stripN) == 1 ) {
-                int gasGapN  = m_idHelper->gasGap(id_prdN);
-                int layerN   = m_idHelper->multilayer(id_prdN);
+                int gasGapN  = m_idHelperSvc->stgcIdHelper().gasGap(id_prdN);
+                int layerN   = m_idHelperSvc->stgcIdHelper().multilayer(id_prdN);
                 if( gasGapN==gasGap && layerN==layer ) {
                   nmerge++;
                   rdoList.push_back(id_prdN);
@@ -299,7 +328,7 @@ StatusCode sTgcFastDigitizer::execute() {
           Amg::MatrixX* covN = new Amg::MatrixX(1,1);
           covN->setIdentity();
           (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-          ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelper->channel(sTgcprds[j]->identify()));
+          ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelperSvc->stgcIdHelper().channel(sTgcprds[j]->identify()));
 
           sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j]->identify(), hashLast, sTgcprds[j]->localPosition(), rdoList, covN, sTgcprds[j]->detectorElement(), sTgcprds[j]->getBcBitMap());
           prdN->setHashAndIndex(col->identifyHash(), col->size());
@@ -315,7 +344,7 @@ StatusCode sTgcFastDigitizer::execute() {
     MuonPrepDataCollection<Muon::sTgcPrepData>* col  = localsTgcVec[hash];
     if( !col ){
       col = new sTgcPrepDataCollection(hash);
-      col->setIdentifier(m_idHelper->channelID(m_idHelper->parentID(layid), m_idHelper->multilayer(layid),1,1,1) );
+      col->setIdentifier(m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().parentID(layid), m_idHelperSvc->stgcIdHelper().multilayer(layid),1,1,1) );
       if( prdContainer->addCollection(col,hash).isFailure() ){
 	ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
 	delete col;col=0;
@@ -326,7 +355,7 @@ StatusCode sTgcFastDigitizer::execute() {
       localsTgcVec[hash] = col;
     }
 
-    Identifier parentId = m_idHelper->parentID(layid);
+    Identifier parentId = m_idHelperSvc->stgcIdHelper().parentID(layid);
 
     // SimHits without energy loss are not recorded. 
     // not needed because of already done in sensitive detector
@@ -341,14 +370,11 @@ StatusCode sTgcFastDigitizer::execute() {
     for( int type=ftype;type<=ltype;++type ){
 
       // only produce wire hits for outer two stations
-      if( type == 2 && abs(m_idHelper->stationEta(layid)) < 3 ) continue;
-
-      // for debugging only treat pads 
-      //if( type != 0 ) continue;
+      if( type == 2 && abs(m_idHelperSvc->stgcIdHelper().stationEta(layid)) < 3 ) continue;
 
       // first create surface identifier
-      Identifier id = m_idHelper->channelID(parentId, m_idHelper->multilayer(layid), m_idHelper->gasGap(layid),type,1,m_checkIds);
-      ATH_MSG_VERBOSE("handling layer " << m_idHelperTool->toString(id) << "   type " << type );
+      Identifier id = m_idHelperSvc->stgcIdHelper().channelID(parentId, m_idHelperSvc->stgcIdHelper().multilayer(layid), m_idHelperSvc->stgcIdHelper().gasGap(layid),type,1,m_checkIds);
+      ATH_MSG_VERBOSE("handling layer " << m_idHelperSvc->toString(id) << "   type " << type );
       const Trk::PlaneSurface& surf = detEl->surface(id);
       Amg::Transform3D gToL = detEl->absTransform().inverse();
       Amg::Vector3D hpos(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
@@ -367,19 +393,15 @@ StatusCode sTgcFastDigitizer::execute() {
       Trk::LocalDirection LocDirection;
       surf.globalToLocalDirection(GloDire, LocDirection);
 
-      float inAngle_time = 90 - fabs( LocDirection.angleXZ() / CLHEP::degree);
-      float inAngle_space = 90 - fabs( LocDirection.angleYZ() / CLHEP::degree);
+      float inAngle_time = 90 - std::abs( LocDirection.angleXZ() / CLHEP::degree);
+      float inAngle_space = 90 - std::abs( LocDirection.angleYZ() / CLHEP::degree);
       if(inAngle_time > 90)  inAngle_time  = inAngle_time  -90.;
       if(inAngle_space > 90) inAngle_space = inAngle_space -90.;
 
 
 
       // bctagging
-//      static const float jitterInitial = 9999.;
       float jitter = 0;//jitterInitial; // calculated m_at central strip but also used in all the strips fired by the same hit 
-//       if(jitter > jitterInitial-0.1) {
-//         jitter = timeJitter(inAngle_time);
-//       }
 
       //const float stripPropagationTime = 3.3*CLHEP::ns/CLHEP::m * detEl->distanceToReadout(posOnSurf_strip, elemId); // 8.5*ns/m was used until MC10. 
       const float stripPropagationTime = 0.; // 8.5*ns/m was used until MC10. 
@@ -397,7 +419,6 @@ StatusCode sTgcFastDigitizer::execute() {
 	resolution = getResolution(inAngle_time);
 	sp = CLHEP::RandGauss::shoot(m_rndmEngine, hitOnSurface.x(), resolution);
       }
-      //ATH_MSG_DEBUG("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z());
 
       
       Amg::Vector2D  posOnSurf(sp,hitOnSurface.y());
@@ -428,10 +449,10 @@ StatusCode sTgcFastDigitizer::execute() {
       m_sl  = hitHelper->GetLayer(simId);
       m_ss  = hitHelper->GetSide(simId);
       m_stype = type;
-      m_ieta = m_idHelper->stationEta(id);
-      m_iphi = m_idHelper->stationPhi(id);
-      m_iml  = m_idHelper->multilayer(id);
-      m_il  = m_idHelper->gasGap(id);
+      m_ieta = m_idHelperSvc->stgcIdHelper().stationEta(id);
+      m_iphi = m_idHelperSvc->stgcIdHelper().stationPhi(id);
+      m_iml  = m_idHelperSvc->stgcIdHelper().multilayer(id);
+      m_il  = m_idHelperSvc->stgcIdHelper().gasGap(id);
       m_ich = -99999;
       m_istr  = -99999;
       m_itype = -99999;
@@ -492,7 +513,7 @@ StatusCode sTgcFastDigitizer::execute() {
 
       int stripNumber = detEl->stripNumber(locHitPosOnSurf,id);
       if( stripNumber == -1 ){
-	ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(id) 
+	ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperSvc->toString(id) 
 			<< " pos " << posOnSurf.x() << " - " << hitOnSurface.x() << " z " << slpos.z() << " type " << type  ); 
 	m_exitcode = 2;
 	m_ntuple->Fill();
@@ -500,8 +521,8 @@ StatusCode sTgcFastDigitizer::execute() {
       }
 
       // create channel identifier
-      id = m_idHelper->channelID(parentId, m_idHelper->multilayer(id), m_idHelper->gasGap(id),type,stripNumber,m_checkIds);
-      ATH_MSG_VERBOSE(" Unsmeared hit id " << m_idHelperTool->toString(id) );
+      id = m_idHelperSvc->stgcIdHelper().channelID(parentId, m_idHelperSvc->stgcIdHelper().multilayer(id), m_idHelperSvc->stgcIdHelper().gasGap(id),type,stripNumber,m_checkIds);
+      ATH_MSG_VERBOSE(" Unsmeared hit id " << m_idHelperSvc->toString(id) );
 
       int& counts = hitsPerChannel[id];
       ++counts;
@@ -512,7 +533,7 @@ StatusCode sTgcFastDigitizer::execute() {
       // recalculate using smeared position
       stripNumber = detEl->stripNumber(posOnSurf,id);
       if( stripNumber == -1 ){
-	ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(id) 
+	ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperSvc->toString(id) 
 			<< " pos " << posOnSurf.x() << " - " << hitOnSurface.x() << " z " << slpos.z() << " type " << type  ); 
 	m_exitcode = 2;
 	m_ntuple->Fill();
@@ -520,18 +541,18 @@ StatusCode sTgcFastDigitizer::execute() {
       }
 
       // create channel identifier
-      id = m_idHelper->channelID(parentId, m_idHelper->multilayer(id), m_idHelper->gasGap(id),type,stripNumber,m_checkIds);
+      id = m_idHelperSvc->stgcIdHelper().channelID(parentId, m_idHelperSvc->stgcIdHelper().multilayer(id), m_idHelperSvc->stgcIdHelper().gasGap(id),type,stripNumber,m_checkIds);
 
-      if( type != m_idHelper->channelType(id) ) ATH_MSG_WARNING(" bad type: in  "  << type << " from id " << m_idHelper->channelType(id)
-								<< " strip " << stripNumber << " from id " << m_idHelper->channel(id)
-								<< " eta " <<  m_idHelper->stationEta(id)
+      if( type != m_idHelperSvc->stgcIdHelper().channelType(id) ) ATH_MSG_WARNING(" bad type: in  "  << type << " from id " << m_idHelperSvc->stgcIdHelper().channelType(id)
+								<< " strip " << stripNumber << " from id " << m_idHelperSvc->stgcIdHelper().channel(id)
+								<< " eta " <<  m_idHelperSvc->stgcIdHelper().stationEta(id)
 								<< " local pos " << slpos );
 
       // assign strip position to PRD for wires and pads
       if( type != 1 ){
 	Amg::Vector2D locpos(0,0);
 	if( !detEl->stripPosition(id,locpos ) ){
-	  ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelperTool->toString(id) );
+	  ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelperSvc->toString(id) );
 	  m_exitcode = 3;
 	  m_ntuple->Fill();
 	  continue; 
@@ -547,9 +568,9 @@ StatusCode sTgcFastDigitizer::execute() {
       if( type == 2 ){
 	const MuonGM::MuonChannelDesign* design = detEl->getDesign(id);
 	if( !design ){
-	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(id) );
+	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperSvc->toString(id) );
 	}else{
-	  errX = fabs(design->inputPitch)/sqrt(12);
+	  errX = std::abs(design->inputPitch)/std::sqrt(12);
 	}
       }else if( type == 1 ){
         errX = resolution;
@@ -558,7 +579,7 @@ StatusCode sTgcFastDigitizer::execute() {
 
 	const MuonGM::MuonPadDesign* design = detEl->getPadDesign(id);
 	if( !design ){
-	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(id) );
+	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperSvc->toString(id) );
 	}else{
 	  errX = design->channelWidth(posOnSurf,true)/sqrt(12);
 
@@ -573,10 +594,6 @@ StatusCode sTgcFastDigitizer::execute() {
       cov->setIdentity();
       (*cov)(0,0) = errX*errX;      
 
-//      ATH_MSG_DEBUG(" New hit " << m_idHelperTool->toString(id) << " chtype " << type << " lpos " << posOnSurf << " from truth "
-//                    << hitOnSurface << " error " << locErrMat->error(Trk::locX) << " m_pull " << (posOnSurf.x()-hitOnSurface.x())/locErrMat->error(Trk::locX) );
-
-      //sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,locErrMat,detEl);
       sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,cov,detEl, bctag);
 
       if(type!=1 || lastHit || !m_mergePrds) {
@@ -596,12 +613,12 @@ StatusCode sTgcFastDigitizer::execute() {
       m_sulx = posOnSurf.x();
       m_suly = posOnSurf.y();
       m_errx = errX;
-      m_ich = m_idHelper->channel(id);
+      m_ich = m_idHelperSvc->stgcIdHelper().channel(id);
       m_istr  = stripNumber;
-      m_itype = m_idHelper->channelType(id);
+      m_itype = m_idHelperSvc->stgcIdHelper().channelType(id);
       if( type == 0 ){
-        m_ipadeta = m_idHelper->padEta(id);
-        m_ipadphi = m_idHelper->padPhi(id);
+        m_ipadeta = m_idHelperSvc->stgcIdHelper().padEta(id);
+        m_ipadphi = m_idHelperSvc->stgcIdHelper().padPhi(id);
       }
 
       ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
@@ -612,14 +629,7 @@ StatusCode sTgcFastDigitizer::execute() {
 
       ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
 
-      ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << m_errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/m_errx);
-
-//       const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack( *prd, hit.globalPosition() );
-//       if( rot ){
-// 	m_res  = rot->localParameters().get(Trk::locX)-hitOnSurface.x();
-// 	m_pull = m_res/rot->localErrorMatrix().error(Trk::locX);
-// 	delete rot;
-//       }
+      ATH_MSG_DEBUG(" hit:  " << m_idHelperSvc->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << m_errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/m_errx);
 
       m_ntuple->Fill();
       // create SDO 
@@ -638,11 +648,10 @@ StatusCode sTgcFastDigitizer::execute() {
   if( msgLvl(MSG::DEBUG) ){
     std::map<Identifier,int>::const_iterator hit = hitsPerChannel.begin();
     std::map<Identifier,int>::const_iterator hit_end = hitsPerChannel.end();
-    msg(MSG::DEBUG) << " number of channels with hit " << hitsPerChannel.size() << " nhits " << nhits << std::endl;
+    ATH_MSG_DEBUG(" number of channels with hit " << hitsPerChannel.size() << " nhits " << nhits);
     for( ;hit!=hit_end;++hit ){
-      msg(MSG::DEBUG) << " " << m_idHelperTool->toString(hit->first) << " ->  " << hit->second << std::endl;
+      ATH_MSG_DEBUG(" " << m_idHelperSvc->toString(hit->first) << " ->  " << hit->second);
     }
-    msg(MSG::DEBUG) << endmsg;
   }
   std::string key = "STGC_Measurements";
   ATH_MSG_DEBUG(" Done! Total number of sTgc chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
@@ -654,11 +663,9 @@ StatusCode sTgcFastDigitizer::execute() {
 }
 
 StatusCode sTgcFastDigitizer::finalize() {
-  //m_ntuple_SimHit->Write();
   m_ntuple->Write();
   m_file->Write();
   m_file->Close();
-
   return StatusCode::SUCCESS;
 }
 
@@ -668,12 +675,11 @@ double sTgcFastDigitizer::getResolution(float inAngle_space) const
 {
   // 0 degree --> 0.18mm; 10 degree --> 
   const int NIndex = 2; 
-  //double Reso[NIndex] = {0.18, 0.20, 0.24};
   double Reso[NIndex] = {0.06, 0.30};
   double Angle[NIndex] = {0., 60.};
  
   int index = 1;
-  inAngle_space = fabs(inAngle_space);
+  inAngle_space = std::abs(inAngle_space);
   while(index<NIndex && inAngle_space>Angle[index]){
     index++;
   }
@@ -776,17 +782,16 @@ bool sTgcFastDigitizer::readFileOfTimeJitter()
   while(ifs.good()){
     ifs >> angle >> bins;
     if (ifs.eof()) break;
-    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): Timejitter, angle, Number of bins, prob. dist.: " << angle << " " << bins << " ";
+    if( msgLvl(MSG::VERBOSE) ) ATH_MSG_VERBOSE("readFileOfTimeJitter(): Timejitter, angle, Number of bins, prob. dist.: " << angle << " " << bins << " ");
     m_vecAngle_Time.resize(i + 1);
     for (int j = 0; j < 41/*bins*/; j++) {
       ifs >> prob;
       m_vecAngle_Time[i].push_back(prob);
       if( msgLvl(MSG::VERBOSE) ){
-	if( j == 0) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
-	msg(MSG::VERBOSE) << prob << " ";
+	if( j == 0) ATH_MSG_VERBOSE("readFileOfTimeJitter(): ");
+	ATH_MSG_VERBOSE(prob << " ");
       }
     }
-    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
     i++;
   }
   ifs.close();

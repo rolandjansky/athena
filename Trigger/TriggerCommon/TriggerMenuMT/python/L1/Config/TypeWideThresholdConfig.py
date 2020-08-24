@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+import six
 from collections import OrderedDict as odict
 
 from AthenaCommon.Logging import logging
@@ -8,6 +9,9 @@ log = logging.getLogger('Menu.L1.Config.TypeWideThresholdConfig')
 from ..Base.ThresholdType import ThrType
 
 def getTypeWideThresholdConfig(ttype):
+    if isinstance(ttype,six.string_types):
+        ttype = ThrType[ttype]
+
     if ttype == ThrType.MU:
         return getConfig_MU()
     if ttype == ThrType.eEM:
@@ -22,6 +26,8 @@ def getTypeWideThresholdConfig(ttype):
         return getConfig_TAU()
     if ttype == ThrType.JET:
         return getConfig_JET()
+    if ttype == ThrType.XS:
+        return getConfig_XS()    
     return odict()
 
 
@@ -42,18 +48,19 @@ def getConfig_eEM():
     confObj = odict()
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
-        odict([("etamin",0),("etamax",20), ("reta", 16), ("wstot", 15), ("had", 30)]),
+        odict([("etamin",0),("etamax",21), ("reta", 16), ("wstot", 15), ("had", 30)]),
         odict([("etamin",21),("etamax",49), ("reta", 20), ("wstot", 25), ("had", 35)])
     ]
     confObj["workingPoints"]["Medium"] = [
-        odict([("etamin",0),("etamax",20), ("reta", 17), ("wstot", 20), ("had", 30)]),
+        odict([("etamin",0),("etamax",21), ("reta", 17), ("wstot", 20), ("had", 30)]),
         odict([("etamin",21),("etamax",49), ("reta", 21), ("wstot", 25), ("had", 35)])
     ]
     confObj["workingPoints"]["Tight"] = [
-        odict([("etamin",0),("etamax",20), ("reta", 18), ("wstot", 22), ("had", 30)]),
+        odict([("etamin",0),("etamax",21), ("reta", 18), ("wstot", 22), ("had", 30)]),
         odict([("etamin",21),("etamax",49), ("reta", 22), ("wstot", 25), ("had", 35)])
     ]
     confObj["ptMinToTopo"] = 3
+    confObj["resolutionMeV"] = 100
     return confObj
 
 
@@ -61,18 +68,19 @@ def getConfig_eTAU():
     confObj = odict()
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
-        odict([("etamin",0),("etamax",20), ("reta", 16), ("wstot", 15), ("had", 30)]),
+        odict([("etamin",0),("etamax",21), ("reta", 16), ("wstot", 15), ("had", 30)]),
         odict([("etamin",21),("etamax",49), ("reta", 20), ("wstot", 25), ("had", 35)])
     ]
     confObj["workingPoints"]["Medium"] = [
-        odict([("etamin",0),("etamax",20), ("reta", 17), ("wstot", 20), ("had", 30)]),
+        odict([("etamin",0),("etamax",21), ("reta", 17), ("wstot", 20), ("had", 30)]),
         odict([("etamin",21),("etamax",49), ("reta", 21), ("wstot", 25), ("had", 35)])
     ]
     confObj["workingPoints"]["Tight"] = [
-        odict([("etamin",0),("etamax",20), ("reta", 18), ("wstot", 22), ("had", 30)]),
+        odict([("etamin",0),("etamax",21), ("reta", 18), ("wstot", 22), ("had", 30)]),
         odict([("etamin",21),("etamax",49), ("reta", 22), ("wstot", 25), ("had", 35)])
     ]
     confObj["ptMinToTopo"] = 6
+    confObj["resolutionMeV"] = 100
     return confObj
 
 
@@ -104,7 +112,7 @@ def getConfig_EM():
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 5), ("mincut", 15), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
     ]
     confObj["ptMinToTopo"] = 3
-    confObj["emscale"] = 2
+    confObj["resolutionMeV"] = 500
     return confObj
 
 
@@ -119,7 +127,8 @@ def getConfig_TAU():
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 4), ("mincut", 0), ("offset", 40), ("priority", 0), ("slope",   0), ("upperlimit", 124)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 5), ("mincut", 0), ("offset", 30), ("priority", 0), ("slope", 100), ("upperlimit",  60)])
     ]
-    confObj["ptMinToTopo"] = 5
+    confObj["ptMinToTopo"] = 8
+    confObj["resolutionMeV"] = 500
     return confObj
 
 
@@ -127,7 +136,17 @@ def getConfig_JET():
     confObj = odict()
     confObj["ptMinToTopoLargeWindow"] = 12
     confObj["ptMinToTopoSmallWindow"] = 12
-    confObj["jetscale"] = 1
     return confObj
 
+
+def getConfig_XS():
+    confObj = odict()
+    confObj["significance"] = odict()
+    confObj["significance"]["xeMin"] = 11
+    confObj["significance"]["xeMax"] = 63
+    confObj["significance"]["teSqrtMin"] = 4
+    confObj["significance"]["teSqrtMax"] = 63
+    confObj["significance"]["xsSigmaScale"] = 1150
+    confObj["significance"]["xsSigmaOffset"] = 1640
+    return confObj
 

@@ -9,6 +9,7 @@
 #include "tauRecTools/TauRecToolBase.h"
 
 // xAOD include(s)
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 class MvaTESVariableDecorator
@@ -21,9 +22,9 @@ class MvaTESVariableDecorator
   MvaTESVariableDecorator(const std::string& name="MvaTESVariableDecorator");
   virtual ~MvaTESVariableDecorator();
     
-  StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau) override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(xAOD::TauJet& xTau) const override;
+  virtual StatusCode finalize() override;
 
  private:
 

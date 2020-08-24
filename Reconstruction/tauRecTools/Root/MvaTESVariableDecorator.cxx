@@ -6,6 +6,8 @@
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/HelperFunctions.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+
 #define GeV 1000
 
 //_____________________________________________________________________________
@@ -33,7 +35,7 @@ StatusCode MvaTESVariableDecorator::finalize() {
 }
 
 //_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
+StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   
   // Decorate event info
   // need to check mu can be retrieved via EventInfo for Run3 trigger
@@ -84,14 +86,15 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   TLorentzVector clusters_had_P4;
   clusters_had_P4.SetPtEtaPhiM(0,0,0,0);
 
+  TLorentzVector LC_P4;
+  LC_P4.SetPtEtaPhiM(xTau.ptDetectorAxis(), xTau.etaDetectorAxis(), xTau.phiDetectorAxis(), xTau.m());
+
   // Loop through jets, get links to clusters
   std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusterList, m_incShowerSubtr));
+  ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusterList, m_incShowerSubtr, LC_P4, 0.2));
 
   // Loop through clusters and jet constituents
   for (auto cl : clusterList){
-
-    if (xTau.p4(xAOD::TauJetParameters::DetectorAxis).DeltaR(cl->p4()) > 0.2) continue;
 
     clE = cl->calE();
     Etot += clE;

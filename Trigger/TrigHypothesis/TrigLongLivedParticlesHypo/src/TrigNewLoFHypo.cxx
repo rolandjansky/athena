@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -19,7 +19,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 
 class ISvcLocator;

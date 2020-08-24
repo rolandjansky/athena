@@ -15,8 +15,8 @@
 #define BFIELDCACHEZR_H
 
 #include "MagFieldElements/BFieldVectorZR.h"
+#include "CxxUtils/restrict.h"
 #include <cmath>
-#include <iostream>
 
 class BFieldCacheZR
 {
@@ -58,16 +58,16 @@ public:
   }
   // interpolate the field and return B[3].
   // also compute field derivatives if deriv[9] is given.
-  void getB(const double* xyz,
+  void getB(const double*  ATH_RESTRICT xyz,
             double r,
-            double* B,
-            double* deriv = nullptr) const;
+            double* ATH_RESTRICT B,
+            double* ATH_RESTRICT deriv = nullptr) const;
 
 private:
   double m_zmin, m_zmax; // bin range in z
   double m_rmin, m_rmax; // bin range in r
-  float m_invz, m_invr;  // 1/(bin size) in z, r
-  float m_field[2][4];   // (Bz,Br) at 4 corners of the bin
+  double m_invz, m_invr;  // 1/(bin size) in z, r
+  double m_field[2][4];   // (Bz,Br) at 4 corners of the bin
 };
-#include "BFieldCacheZR.icc"
+#include "MagFieldElements/BFieldCacheZR.icc"
 #endif

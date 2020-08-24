@@ -1,38 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRings_v1.cxx 767576 2016-08-11 13:53:42Z ssnyder $ 
-
 // standard library includes:
+#include <iostream>
 #include <stdexcept>
 #include <sstream>
-#include <memory>
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 // Local include(s):
 #include "xAODCaloRings/versions/CaloRings_v1.h"
-#include "xAODCaloRings/versions/RingSet_v1.h"
-
-// NOTE: This shall be removed after upgrade to v2 (and kept in the v2 file)
 #include "xAODCaloRings/RingSetContainer.h"
 
 namespace xAOD {
 
-namespace {
-  SG::AuxElement::Accessor< RingSetLinks_v1 >
-     accRingSetLinks( "ringSetLinks" );
-  SG::AuxElement::ConstAccessor< RingSetLinks_v1 >
-     constAccRingSetLinks( "ringSetLinks" );
-}
+static const SG::AuxElement::Accessor< RingSetLinks >
+  accRingSetLinks( "ringSetLinks" );
+static const SG::AuxElement::ConstAccessor< RingSetLinks >
+  constAccRingSetLinks( "ringSetLinks" );
 
 /// @name RingSet Collection direct interation methods:
 /// @{
 //==============================================================================
 AUXSTORE_OBJECT_SETTER_AND_GETTER(CaloRings_v1,
-    RingSetLinks_v1,
+    RingSetLinks,
     ringSetLinks,
     setRingSetLinks)
 
@@ -57,39 +50,39 @@ void CaloRings_v1::clear()
 }
 
 //==============================================================================
-RingSetLinks_v1::iterator CaloRings_v1::begin() 
+RingSetLinks::iterator CaloRings_v1::begin()
 {
   return (accRingSetLinks.isAvailable( *this ) )?
               (accRingSetLinks( *this ).begin()):
-              (RingSetLinks_v1::iterator());
+              (RingSetLinks::iterator());
 }
 
 //==============================================================================
-RingSetLinks_v1::iterator CaloRings_v1::end() 
+RingSetLinks::iterator CaloRings_v1::end()
 {
   return (accRingSetLinks.isAvailable( *this ) )?
               (accRingSetLinks( *this ).end()):
-              (RingSetLinks_v1::iterator());
+              (RingSetLinks::iterator());
 }
 
 //==============================================================================
-RingSetLinks_v1::const_iterator CaloRings_v1::begin() const 
+RingSetLinks::const_iterator CaloRings_v1::begin() const
 {
   return (constAccRingSetLinks.isAvailable( *this ) )?
               (constAccRingSetLinks( *this ).begin()):
-              (RingSetLinks_v1::const_iterator());
+              (RingSetLinks::const_iterator());
 }
 
 //==============================================================================
-RingSetLinks_v1::const_iterator CaloRings_v1::end() const 
+RingSetLinks::const_iterator CaloRings_v1::end() const
 {
   return (constAccRingSetLinks.isAvailable( *this ) )?
               (constAccRingSetLinks( *this ).end()):
-              (RingSetLinks_v1::const_iterator());
+              (RingSetLinks::const_iterator());
 }
 
 //==============================================================================
-RingSet_v1 *CaloRings_v1::at(const unsigned int i) 
+RingSet *CaloRings_v1::at(const unsigned int i)
 {
   if ( i > nRingSets() ) 
     return 0;
@@ -98,11 +91,11 @@ RingSet_v1 *CaloRings_v1::at(const unsigned int i)
     return 0;
   }
   // If we want to use it as an left operand, we must do this:
-  return const_cast<RingSet_v1*>(*rsEL);
+  return const_cast<RingSet*>(*rsEL);
 }
 
 //==============================================================================
-RingSet_v1 *CaloRings_v1::operator[](const unsigned int i) 
+RingSet *CaloRings_v1::operator[](const unsigned int i)
 {
   if ( i > nRingSets() ) 
     return 0;
@@ -111,11 +104,11 @@ RingSet_v1 *CaloRings_v1::operator[](const unsigned int i)
     return 0;
   }
   // If we want to use it as an left operand, we must do this:
-  return const_cast<RingSet_v1*>(*rsEL);
+  return const_cast<RingSet*>(*rsEL);
 }
 
 //==============================================================================
-const RingSet_v1 *CaloRings_v1::at(const unsigned int i) const 
+const RingSet *CaloRings_v1::at(const unsigned int i) const
 {
   if ( i > nRingSets() ) 
     return 0;
@@ -128,7 +121,7 @@ const RingSet_v1 *CaloRings_v1::at(const unsigned int i) const
 }
 
 //==============================================================================
-const RingSet_v1 *CaloRings_v1::operator[](const unsigned int i) const 
+const RingSet *CaloRings_v1::operator[](const unsigned int i) const
 {
   if ( i > nRingSets() ) 
     return 0;
@@ -146,7 +139,7 @@ const RingSet_v1 *CaloRings_v1::operator[](const unsigned int i) const
 //==============================================================================
 float CaloRings_v1::ringAt(const unsigned rsIdx, const unsigned ringIdx) const 
 {
-  const RingSet_v1 *rs = this->at(rsIdx);
+  const RingSet *rs = this->at(rsIdx);
   if (!rs) {
     throw std::runtime_error("The element link is invalid.");
   }
@@ -158,7 +151,7 @@ float CaloRings_v1::ringAt(const unsigned ringIdx) const
 {
   unsigned ringStripPartialSize = 0;
   for (unsigned rsELIdx = 0; rsELIdx < this->nRingSets(); ++rsELIdx){
-    const RingSet_v1 *rs = this->at(rsELIdx);
+    const RingSet *rs = this->at(rsELIdx);
     if ( !rs ) {
       throw std::runtime_error("There is an invalid element link.");
     }
@@ -197,7 +190,7 @@ void CaloRings_v1::exportRingsTo(
   ringStrip.clear();
 
   for ( unsigned idx = rsIdxStart; idx <= rsIdxEnd ; ++idx ) {
-    const RingSet_v1 *rs = this->at( idx );
+    const RingSet *rs = this->at( idx );
     if ( !rs ) {
       throw std::runtime_error("Found invalid ElementLink");
     }
@@ -231,7 +224,7 @@ void CaloRings_v1::exportRingsTo(
   bool foundStartLayer = false;
 
   for ( unsigned rsIdx = 0; rsIdx < nRingSets; ++rsIdx ) {
-    const RingSet_v1* rs = this->at(rsIdx);
+    const RingSet* rs = this->at(rsIdx);
     if ( !rs ) {
       throw std::runtime_error( std::string(
           "Found invalid ElementLink") );
@@ -275,7 +268,7 @@ void CaloRings_v1::exportRingsTo(
   for ( unsigned rsIdx = 0; rsIdx < nRingSets; ++rsIdx) {
     if ( clRingsRawConfCol[rsIdx].calJointSection == sectionType) {
       foundSection = true;
-      const RingSet_v1* rs = this->at(rsIdx);
+      const RingSet* rs = this->at(rsIdx);
       if ( !rs ) {
         throw std::runtime_error( std::string(
             "Found invalid ElementLink") );
@@ -308,22 +301,6 @@ CaloRings_v1& CaloRings_v1::operator=(const CaloRings_v1& cl_rings )
 
 /// Print-out methods:
 /// @{
-//==============================================================================
-void CaloRings_v1::print(MsgStream &stream, MSG::Level level ) const 
-{
-  if( stream.level() <= level ) {
-    stream << level << "CaloRings are : " << endmsg;
-    for (unsigned rsIdx = 0; rsIdx < this->nRingSets(); ++rsIdx) {
-      stream << level << "Ringset #" << rsIdx << " : ";
-      const RingSet_v1* rs = this->at(rsIdx);
-      if ( !rs ) {
-        throw std::runtime_error( std::string(
-            "Found invalid ElementLink") );
-      }
-      rs->print(stream,level);
-    }
-  }
-}
 
 //==============================================================================
 void CaloRings_v1::print( std::ostream &stream ) const 
@@ -331,7 +308,7 @@ void CaloRings_v1::print( std::ostream &stream ) const
   stream << "CaloRings are : " << std::endl;
   for (unsigned rsIdx = 0; rsIdx < this->nRingSets(); ++rsIdx) {
     stream << "Ringset #" << rsIdx << " : "; 
-    const RingSet_v1* rs = this->at(rsIdx);
+    const RingSet* rs = this->at(rsIdx);
     if ( !rs ) {
       throw std::runtime_error( std::string(
           "Found invalid ElementLink") );

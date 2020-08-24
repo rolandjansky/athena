@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSSurfaces.h"
 
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
-//#include "CLHEP/Geometry/Transform3D.h"
 
 MSSurfaces::MSSurfaces(){ 
   Trk::Surface* empty =0;
@@ -20,7 +19,6 @@ MSSurfaces::MSSurfaces(){
   double rBI = 5000., rBM = 7000., rBO = 9500., rBE = 5000. ;
   double lenBI = 12000., lenBM = 10000., lenBO = 13000., lenBE = 12000.;
   const Amg::Vector3D posEI(0.,0.,7500.), posEM(0.,0.,13500.), posEO(0.,0.,21000.), posEE(0.,0.,10000.), zero(0.,0.,0.);
-  //const CLHEP::HepRotation unity;
   Amg::Transform3D* transEIA = new Amg::Transform3D(Amg::Translation3D(posEI));
   Amg::Transform3D* transEMA = new Amg::Transform3D(Amg::Translation3D(posEM));
   Amg::Transform3D* transEOA = new Amg::Transform3D(Amg::Translation3D(posEO));
@@ -29,10 +27,6 @@ MSSurfaces::MSSurfaces(){
   Amg::Transform3D* transEMC = new Amg::Transform3D(Amg::Translation3D(-posEM));
   Amg::Transform3D* transEOC = new Amg::Transform3D(Amg::Translation3D(-posEO));
   Amg::Transform3D* transEEC = new Amg::Transform3D(Amg::Translation3D(-posEE)); 
-  //HepGeom::Transform3D* transBI = new HepGeom::Transform3D(unity, zero );
-  //HepGeom::Transform3D* transBM = new HepGeom::Transform3D(unity, zero );
-  //HepGeom::Transform3D* transBO = new HepGeom::Transform3D(unity, zero );
-  //HepGeom::Transform3D* transBE = new HepGeom::Transform3D(unity, zero );
 
   m_vec[BI] = new Trk::CylinderSurface(rBI, lenBI );
   m_station[BI] = "BI" ;

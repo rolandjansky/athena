@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -229,7 +229,7 @@ namespace TrigTauEmul {
       registry = new ToolsRegistry("ToolsRegistry");
     }
     
-    for (const auto hlt_tau : hlt_taus) {
+    for (const auto& hlt_tau : hlt_taus) {
       //for (auto it: m_hlt_tau_tools) {
       for (auto it: registry->selectTools<HltTauSelectionTool*>()){
         hlt_tau.getHltTau()->auxdecor<bool>(it->name()) = false;
@@ -268,7 +268,7 @@ namespace TrigTauEmul {
           }
 
           // 3 -- loop over the hlt taus
-          for (const auto decoratedTau : hlt_taus) {
+          for (const auto& decoratedTau : hlt_taus) {
             const auto hlt_tau = decoratedTau.getHltTau();
 
             MY_MSG_DEBUG("\t\t HLT TAU "<< hlt_tau->index() 
@@ -345,7 +345,7 @@ namespace TrigTauEmul {
         int n_item2_alone = 0;
         int n_doublets = 0;
 
-        for (const auto decoratedTau : hlt_taus) {
+        for (const auto& decoratedTau : hlt_taus) {
           const auto hlt_tau = decoratedTau.getHltTau();
           bool pass_item1 = false;
           bool pass_item2 = false;

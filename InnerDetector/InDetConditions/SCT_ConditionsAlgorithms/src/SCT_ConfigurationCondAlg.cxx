@@ -196,7 +196,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     bool link0ok{linkResults.first};
     bool link1ok{linkResults.second};
     // Loop over chips within module
-    std::vector<SCT_Chip*> chipsInMod;
+    std::vector<SCT_Chip> chipsInMod;
     chipsInMod.reserve(nChips);
     bool isBadSide0{true};
     bool isBadSide1{true};
@@ -211,7 +211,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
       const int mask1{   run1 ? (channelItr->second[mask1Index].data<int>())    : static_cast<int>(channelItr->second[mask1Index].data<unsigned int>())};
       const int mask2{   run1 ? (channelItr->second[mask2Index].data<int>())    : static_cast<int>(channelItr->second[mask2Index].data<unsigned int>())};
       const int mask3{   run1 ? (channelItr->second[mask3Index].data<int>())    : static_cast<int>(channelItr->second[mask3Index].data<unsigned int>())};
-      chipsInMod.push_back(new SCT_Chip(id, config, mask0, mask1, mask2, mask3));
+      chipsInMod.emplace_back(id, config, mask0, mask1, mask2, mask3);
       if (id>=0 and id< 6 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide0 = false;
       if (id>=6 and id<12 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide1 = false;
     }
@@ -226,37 +226,33 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     unsigned int chipStatusWord{0};
     for (const auto& thisChip:chipsInMod) {
       // Bad strips (only need to do this if at least one bad channel)
-      if (thisChip->numberOfMaskedChannels()!=0) {
+      if (thisChip.numberOfMaskedChannels()!=0) {
         // Add bad stips to vector
         badStripsVec.clear();
-        thisChip->appendBadStripsToVector(badStripsVec);
+        thisChip.appendBadStripsToVector(badStripsVec);
         // Loop over bad strips and insert strip ID into set
         for (const auto& thisBadStrip:badStripsVec) {
-          const Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip, elements, ctx)};
+          const Identifier stripId{getStripId(truncatedSerialNumber, thisChip.id(), thisBadStrip, elements, ctx)};
           // If in rough order, may be better to call with itr of previous insertion as a suggestion    
           if (stripId.is_valid()) writeCdo->setBadStripId(stripId, // strip Identifier
-                                                          thisChip->id()<6 ? hash : oppWaferHash, // wafer IdentifierHash
+                                                          thisChip.id()<6 ? hash : oppWaferHash, // wafer IdentifierHash
                                                           m_pHelper->strip(stripId)); // strip number from 0 to 768
         }
       }
       // Bad chips (= all strips bad) bitpacked
       // Should only do this for modules with at least one chip bad?
-      if (thisChip->numberOfMaskedChannels()==stripsPerChip) {
-        chipStatusWord |= (1<<thisChip->id());
+      if (thisChip.numberOfMaskedChannels()==stripsPerChip) {
+        chipStatusWord |= (1<<thisChip.id());
         nDisabledChips++; // A bad chip
         if (not isBadModule) nDisabledChipsExclusive++; // A bad chip in a good module
       } else { // Good chip
-        if (not isBadModule) nDisabledStripsExclusive += thisChip->numberOfMaskedChannels(); // Bad strips in a good chip of a good module
+        if (not isBadModule) nDisabledStripsExclusive += thisChip.numberOfMaskedChannels(); // Bad strips in a good chip of a good module
       }
     }
 
     // Store chip status if not all good (==0)
     if (chipStatusWord!=0) {
       writeCdo->setBadChips(moduleId, chipStatusWord);
-    }
-    // Clear up memory associated with chips    
-    for (const auto& thisChip: chipsInMod) {
-      delete thisChip;
     }
   }
 
@@ -426,8 +422,8 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   if (not waferId.is_valid()) return invalidIdentifier;
 
   const InDetDD::SiDetectorElement* pElement{elements->getDetectorElement(waferHash)};
-  if (!pElement) {
-    ATH_MSG_FATAL("Element pointer is NULL in 'getStripId' method");
+  if (pElement==nullptr) {
+    ATH_MSG_FATAL("Element pointer is nullptr in 'getStripId' method");
     return invalidIdentifier;
   }
   strip = (pElement->swapPhiReadoutDirection()) ? (lastStrip-strip) : strip;

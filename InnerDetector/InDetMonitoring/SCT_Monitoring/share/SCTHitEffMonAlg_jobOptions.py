@@ -31,7 +31,7 @@ BunchCrossingCondAlgDefault()
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.
 
-from ROOT import SCT_Monitoring as sctMon
+from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 
 myMonGroup = [
     helper.addGroup(
@@ -120,7 +120,7 @@ myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "LumiBlock, eff;" + "e
 
 # SCTEC, SCTB, SCTEA
 for isub in range(sctMon.N_REGIONS):
-    profileLabels = range(limit[isub])
+    profileLabels = list(range(limit[isub]))
     for k in range(limit[isub]):
         profileLabels[k] = dedicatedTitle(k, isub)
     # Efficiency

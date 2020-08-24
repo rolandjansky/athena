@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -64,6 +64,7 @@ private:
  * @param id CLID of the DataProxy.
  * @param tid Type to which we're trying to convert the object.
  */
+[[noreturn]]
 void throwExcBadDataProxyCast (CLID id, const std::type_info& tid);
 
 

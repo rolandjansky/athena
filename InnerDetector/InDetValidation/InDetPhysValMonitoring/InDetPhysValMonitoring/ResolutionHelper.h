@@ -16,6 +16,7 @@
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "CxxUtils/checker_macros.h"
 
 class TH1;
 class TH2;
@@ -157,7 +158,7 @@ namespace IDPVM {
     }
 
     /// Private message stream member
-    mutable Athena::MsgStreamMember m_msg;
+    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 
   };

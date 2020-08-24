@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_RT_RELATION_DB_DIGITOOL_H
@@ -14,21 +14,14 @@ Adopted from RT_Relation_DigiTool
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "Identifier/Identifier.h"
-
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
-
 #include "MdtCalibData/MdtRtRelation.h"
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibData/MdtFullCalibData.h"
-
 #include "CLHEP/Random/RandFlat.h"
-//#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
-
-//#include "MuonIdHelpers/MdtIdHelper.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 
 namespace MuonGM{

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCDIGITTORDO_H
@@ -11,8 +11,7 @@
 
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
-
-class sTgcIdHelper;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +26,7 @@ public:
   virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
-
-  const sTgcIdHelper*  m_idHelper{};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   SG::WriteHandleKey<Muon::STGC_RawDataContainer> m_rdoContainer{this, "OutputObjectName", "sTGCRDO", "WriteHandleKey for Output STGC_RawDataContainer"};
   SG::ReadHandleKey<sTgcDigitContainer> m_digitContainer{this, "InputObjectName", "sTGC_DIGITS", "ReadHandleKey for Input sTgcDigitContainer"};
 };

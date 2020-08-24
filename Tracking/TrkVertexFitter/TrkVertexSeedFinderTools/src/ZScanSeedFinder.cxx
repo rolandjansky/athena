@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -121,7 +121,7 @@ namespace Trk
       ZPositions = getPositionsUncached (perigeeList, constraint);
     }
 
-    if ( ZPositions.size()>0 ) 
+    if ( !ZPositions.empty() ) 
     {
 	ZResult=m_mode1dfinder->getMode(ZPositions);
         ATH_MSG_DEBUG("Resulting mean Z position found: " << ZResult);
@@ -149,7 +149,7 @@ namespace Trk
     for (const Trk::TrackParameters* i : perigeeList)
     {
       const Perigee* iTrk = dynamic_cast<const Trk::Perigee*>(i);
-      if (iTrk == 0)
+      if (iTrk == nullptr)
       {
 	  ATH_MSG_WARNING("Neutrals not supported for seeding. Rejecting track...");
 	  continue;
@@ -175,7 +175,7 @@ namespace Trk
                                        const xAOD::Vertex * constraint) const
   {
     const EventContext& ctx = Gaudi::Hive::currentContext();
-    Cache& cache = *m_cache.get (ctx);
+    Cache& cache = *m_cache;
 
     Amg::Vector2D constraintkey;
     if (constraint) {
@@ -197,7 +197,7 @@ namespace Trk
     for (const Trk::TrackParameters* i : perigeeList)
     {
       const Perigee* iTrk = dynamic_cast<const Trk::Perigee*>(i);
-      if (iTrk == 0)
+      if (iTrk == nullptr)
       {
 	  ATH_MSG_WARNING("Neutrals not supported for seeding. Rejecting track...");
 	  continue;
@@ -232,12 +232,12 @@ namespace Trk
     static const double maxExpArg = log(std::numeric_limits<double>::max()/1.1);
 
     std::unique_ptr<const Trk::ImpactParametersAndSigma> ipas;
-    if (constraint != 0 && constraint->covariancePosition()(0,0)!=0) {
+    if (constraint != nullptr && constraint->covariancePosition()(0,0)!=0) {
       ipas = std::unique_ptr<const Trk::ImpactParametersAndSigma> (m_IPEstimator->estimate (&iTrk, constraint));
     }
 
     std::pair<double, double> z0AndWeight;
-    if (ipas != 0 && ipas->sigmad0 > 0)
+    if (ipas != nullptr && ipas->sigmad0 > 0)
     {
       z0AndWeight.first = ipas->IPz0 + constraint->position().z();
       double chi2IP = std::pow(ipas->IPd0/ipas->sigmad0, 2);
@@ -253,7 +253,7 @@ namespace Trk
     }
     else
     {
-      if (constraint != 0) ATH_MSG_WARNING("Unable to compute impact parameter significance; setting IPWeight = 1");
+      if (constraint != nullptr) ATH_MSG_WARNING("Unable to compute impact parameter significance; setting IPWeight = 1");
       z0AndWeight.first = iTrk.position()[Trk::z];
       z0AndWeight.second = 1.;
     }

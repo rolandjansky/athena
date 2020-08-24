@@ -1,21 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 from AthenaCommon.SystemOfUnits import GeV
 
-# Import message level flags.
-from GaudiKernel.Constants import (VERBOSE,
-                                   DEBUG,
-                                   INFO,
-                                   WARNING,
-                                   ERROR,
-                                   FATAL,)
-
 from TrigHLTJetRec import TrigHLTJetRecConf
 from TrigHLTJetRec.TrigHLTJetRecConf import (IParticleNullRejectionTool,
                                              IParticlePtEtaRejectionTool,
                                              NonPositiveEnergyRejectionTool)
+
+from GaudiKernel.Constants import INFO
 
 # from JetRec.JetRecConf import JetRecTool
 # from JetRec.JetRecConf import (JetFromPseudojetMT,)
@@ -37,10 +31,6 @@ jetFlags.debug = 4
 
 
 from JetRec.JetRecStandard import jtm
-from JetRec.JetRecCalibrationFinder import jrcf
-# Calibration Configurarion file (now defined in offline code)
-#cfg_file = "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config"
-#jrcf.configDict["triggerNoPileup"] = cfg_file
 
 from EventShapeTools.EventShapeToolsConf import EventDensityTool
 
@@ -111,8 +101,8 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
     # Prepare an error message in case it is needed
     error = 'TrigHLTJetRecConfig._getTrimmedJetCalibrationModifier: '\
             'request calibration is not supported (%s), '
-    error += ('merge_param %s, cluster_calib %s, jet_calib %s'\
-            % (str(int_merge_param), str(cluster_calib), str(jet_calib)))
+    error += ('merge_param %s, cluster_calib %s, jet_calib %s'
+              % (str(int_merge_param), str(cluster_calib), str(jet_calib)))
 
 
     # Check the easy case of no calibration
@@ -188,8 +178,8 @@ def addTrkMomsTool(toolname,
                                           TrackSelector = jtm.trackselloose)
         
         jtm += trkmomsTool
-        print ('TrigHLTJetRecConfig.addTrkMomsTool '\
-            'Added trkmoms tools "%s" to jtm' % toolname)
+        print ('TrigHLTJetRecConfig.addTrkMomsTool '
+               'Added trkmoms tools "%s" to jtm' % toolname)
 
 
 def _getIsData():
@@ -220,8 +210,8 @@ def addJVFTool(toolname,
                                         IsTrigger=True,)
         
         jtm += jvfTool
-        print ('TrigHLTJetRecConfig.addJVFTool '\
-            'Added jvf tool "%s" to jtm' % toolname)
+        print ('TrigHLTJetRecConfig.addJVFTool '
+               'Added jvf tool "%s" to jtm' % toolname)
 
 
 def addJVTTool(toolname,
@@ -230,7 +220,7 @@ def addJVTTool(toolname,
     global jtm
 
     try:
-        jvfTool  = getattr(jtm, toolname)
+        getattr(jtm, toolname)
     except AttributeError:       
         from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
  
@@ -239,8 +229,8 @@ def addJVTTool(toolname,
                                       VertexContainer = vcSGkey)
         
         jtm += jvtTool
-        print ('TrigHLTJetRecConfig.addJVFTool '\
-            'Added jvt tool "%s" to jtm' % toolname)
+        print ('TrigHLTJetRecConfig.addJVFTool '
+               'Added jvt tool "%s" to jtm' % toolname)
 
 
 # *** FTK track moment tool helpers set up ***
@@ -275,25 +265,10 @@ def _getTVassocTool(toolname, **options):
         # Add the TVA tool to the JetTool Manager,
         tvassocTool = configTVassocTool(toolname, **options)
         jtm += tvassocTool
-        print ('TrigHLTJetRecConfig._getTVassocTool '\
-            'Added tvassoc tools "%s" to jtm' % toolname)
+        print ('TrigHLTJetRecConfig._getTVassocTool '
+               'Added tvassoc tools "%s" to jtm' % toolname)
         
     return tvassocTool
-
-def _getJetBuildToolDebug0():
-
-    getattr(ToolSvc,"jconretriever").unlock()
-    getattr(ToolSvc,"jconretriever").OutputLevel = 1
-    getattr(ToolSvc,"jconretriever").lock()
-    print ("FS scan Builder looks like..")
-    print (getattr(ToolSvc,name+"Finder").JetBuilder)
-    getattr(ToolSvc,name+"Finder").unlock()
-    getattr(ToolSvc,name+"Finder").OutputLevel = 1
-    getattr(ToolSvc,name+"Finder").JetBuilder.setOutputLevel = 1
-    getattr(ToolSvc,name+"Finder").lock()
-    getattr(ToolSvc,"jbldTrigger").unlock()
-    getattr(ToolSvc,"jbldTrigger").OutputLevel = 1
-    getattr(ToolSvc,"jbldTrigger").lock()
 
 
 # def _getJetBuildTool_delete_me(merge_param,
@@ -502,7 +477,7 @@ def _getJetBuildTool2(merge_param,
                       iParticleRejectionTool,
                       name='',
                       secondary_label='',
-		      trkopt = '',
+                      trkopt = '',
                       outputLabel='',
                       OutputLevel=INFO,
                       fromJet=False
@@ -669,8 +644,7 @@ def _getJetBuildTool2(merge_param,
     #        getattr(ToolSvc,name+"Finder").unlock()
     #        getattr(ToolSvc,name+"Finder").JetBuilder = jtm.jbldTrigger
     #        getattr(ToolSvc,name+"Finder").lock()
-    #        # _getJetBuildToolDebug0()
-    
+
     #except Exception, e:
     #    print 'error adding new JetFromPseudoJet %s' % name
     #    print 'exception', e
@@ -1014,33 +988,6 @@ def _getPseudoJetSelectorAll(toolname, **options):
     return selector
 
 
-def _getPseudoJetSelectorEtaPt(toolname, **kwds):
-
-    # set up a tool to select all pseudo jets
-    # declare jtm as global as this function body may modify it
-    # with the += operator
-    global jtm
-    
-    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
-    try:
-        selector = getattr(jtm, toolname)
-    except AttributeError:
-        # Add the PseudoJetSelectorEtaPt to the JetTool Manager,
-        # which pushes it to the ToolSvc in __iadd__
-        # This is done in the same as PseudoJetGetter is added in
-        # JetRecStandardTools.py.
-        # The 'Label' must be one of the values found in JetContainerInfo.h
-        selector = PseudoJetSelectorEtaPt(toolname, **kwds)
-
-        jtm += selector
-        selector = getattr(jtm, toolname)
-        print ('TrigHLTJetRecConfig._getPseudoJetSelectorEtaPt '\
-            'Added selector "%s" to jtm' % toolname)
-
-    return selector
-
-
-    
 def _getIParticleSelectorAll(toolname, **options):
 
     # set up a tool to select all pseudo jets
@@ -1483,7 +1430,7 @@ class TrigHLTJetDebug(TrigHLTJetRecConf.TrigHLTJetDebug):
 
         TrigHLTJetRecConf.TrigHLTJetDebug.__init__(self, name)
         self.chainName = chain_name
-        pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+        self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
         # allow the debug Alg to access the EventShape object
         # by a direct StoreGate retireve. TtigHLTEnergyDensity writes
@@ -1559,7 +1506,6 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
         toolname='%s_%s' % (toolname_stub, cluster_calib)
         options.update(toolname=toolname)
 
-        OutputContainer = None
         if eventShapeSGKey is None:
             # jets: eventShapeSGKey is calculated here
             self.eventShapeSGKey = _getEventShapeSGKey(
@@ -1691,15 +1637,3 @@ class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):
         self.jetCollectionName = jetCollectionName
         self.jetPtThreshold = jetPtThreshold
         self.maxNJets = maxNJets
-
-
-# class PseudoJetSelectorEtaPt(TrigHLTJetRecConf.PseudoJetSelectorEtaPt):
-#    def __init__(self, name, etaMax, ptMin):
-#        TrigHLTJetRecConf.PseudoJetSelectorEtaPt.__init__(self, name)        
-#        self.etaMax = etaMax
-#        self.ptMin = ptMin
-
-
-#class PseudoJetSelectorEtaPt(TrigHLTJetRecConf.PseudoJetSelectorEtaPt):
-#    def __init__(self, name, **kwds):
-#        TrigHLTJetRecConf.PseudoJetSelectorEtaPt.__init__(self, name, **kwds)

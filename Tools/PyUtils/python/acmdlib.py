@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.acmdlib
 # @purpose a library to ease the writing of sub-command scripts
@@ -7,7 +7,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 464077 $"
 __doc__ = "a library to ease the writing of sub-command scripts"
 __author__ = "Sebastien Binet"
 
@@ -32,11 +31,6 @@ ACMD_PARSER = argparse.ArgumentParser(
     prog="acmd",
     description="a general script interface with sub-commands",
     )
-ACMD_PARSER.add_argument(
-    '--version',
-    action='version',
-    version=__version__,
-    help="show program's version number and exit")
 
 ACMD_SUBPARSERS = ACMD_PARSER.add_subparsers(
     dest='command',
@@ -142,6 +136,12 @@ class Plugins(object):
         cls._plugins[name] = value
 
     @classmethod
+    def exists(cls, name):
+        """Check if plugin exists
+        """
+        return name in cls._plugins
+
+    @classmethod
     def load(cls, name):
         """Load given plugin and return it
         """
@@ -188,4 +188,5 @@ def register(name, value):
 
     ex: register('check-file', 'PyUtils.CheckFileLib:fct')
     """
+
     return Plugins.register(name, value)

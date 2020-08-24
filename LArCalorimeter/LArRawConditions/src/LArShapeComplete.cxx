@@ -8,7 +8,6 @@
 const std::vector<float> LArShapeComplete::m_empty;
 
 LArShapeComplete::LArShapeComplete(){ 
-  m_cache.gain=-1;
 }
 
 LArShapeComplete::~LArShapeComplete() {}

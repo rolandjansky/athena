@@ -25,8 +25,8 @@ if dumpPixInfo:
     PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
     topSequence += PixelChargeToTConversionSetter 
     if (printIdTrkDxAODConf):
-        print PixelChargeToTConversionSetter
-        print PixelChargeToTConversionSetter.properties()
+        print(PixelChargeToTConversionSetter)
+        print(PixelChargeToTConversionSetter.properties())
 
 
 #################
@@ -48,8 +48,8 @@ if dumpPixInfo:
 
     topSequence += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_PixelPrepDataToxAOD
-        print xAOD_PixelPrepDataToxAOD.properties()
+        print(xAOD_PixelPrepDataToxAOD)
+        print(xAOD_PixelPrepDataToxAOD.properties())
 
 
 #################
@@ -127,8 +127,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFTSOS_K
                                                                        OutputLevel =INFO)
 
 if (printIdTrkDxAODConf):
-    print DerivationFrameworkJob
-    print DerivationFrameworkJob.properties()
+    print(DerivationFrameworkJob)
+    print(DerivationFrameworkJob.properties())
 
  
 #====================================================================
@@ -147,4 +147,4 @@ IDPIXLUMISlimmingHelper.AppendContentToStream(IDPIXLUMIStream)
 # Add trigger information
 
 if (printIdTrkDxAODConf):
-    print IDPIXLUMIStream
+    print(IDPIXLUMIStream)

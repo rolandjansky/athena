@@ -38,28 +38,25 @@ StatusCode ParentChildFilter::filterInitialize() {
 StatusCode ParentChildFilter::filterEvent() {
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+    for (auto  pitr: *genEvt) {
       int okPDGParent = 0;
-      for (int i = 0; i < int(m_PDGParent.size()); i++) if (abs((*pitr)->pdg_id()) == m_PDGParent[i]) okPDGParent=1;
+      for (int i = 0; i < int(m_PDGParent.size()); i++) if (std::abs(pitr->pdg_id()) == m_PDGParent[i]) okPDGParent=1;
       if ( (m_PDGParent[0] == 0) || (okPDGParent
-           && (*pitr)->momentum().perp() >= m_PtMinParent
-           && ((*pitr)->momentum().perp() < m_PtMaxParent)
-           && ((*pitr)->momentum().m() >= m_MassMinParent)
-           && ((*pitr)->momentum().m() < m_MassMaxParent)
-           && fabs((*pitr)->momentum().eta()) < m_EtaRangeParent)) {
+           && pitr->momentum().perp() >= m_PtMinParent
+           && (pitr->momentum().perp() < m_PtMaxParent)
+           && (pitr->momentum().m() >= m_MassMinParent)
+           && (pitr->momentum().m() < m_MassMaxParent)
+           && std::abs(pitr->momentum().eta()) < m_EtaRangeParent)) {
         // Check if has end_vertex (skips initial protons)
-        if (!(*pitr)->end_vertex()) continue;
+        if (!pitr->end_vertex()) continue;
         // Child
-        HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-        HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-        HepMC::GenVertex::particle_iterator thisChild = firstChild;
-        for (; thisChild != endChild; ++thisChild) {
+        for (auto thisChild: *(pitr->end_vertex())) {
           int okPDGChild = 0;
-          for (int i=0; i < int(m_PDGChild.size()); i++) if (abs((*thisChild)->pdg_id()) == m_PDGChild[i]) okPDGChild=1;
-          if ( (*thisChild)->pdg_id() != (*pitr)->pdg_id()
+          for (int i=0; i < int(m_PDGChild.size()); i++) if (std::abs(thisChild->pdg_id()) == m_PDGChild[i]) okPDGChild=1;
+          if ( thisChild->pdg_id() != pitr->pdg_id()
                && (m_PDGChild[0] == 0 || okPDGChild)
-               && (*thisChild)->momentum().perp() > m_PtMinChild
-               && fabs((*thisChild)->momentum().eta()) < m_EtaRangeChild ) {
+               && thisChild->momentum().perp() > m_PtMinChild
+               && std::abs(thisChild->momentum().eta()) < m_EtaRangeChild ) {
             return StatusCode::SUCCESS;
           }
         }

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HI_HIEVENTDEFS_H
-#define HI_HIEVENTDEFS_H
+#ifndef HIEVENTUTILS_HIEVENTDEFS_H
+#define HIEVENTUTILS_HIEVENTDEFS_H
 
 #include <utility>
 #include <cmath>
@@ -13,6 +13,7 @@
 
 namespace HI{
 
+  enum BinningScheme{ TOWER = 100, COMPACT = 562 };
 
   namespace TowerBins{
     constexpr unsigned int numEtaBins() {return 100;}
@@ -43,7 +44,7 @@ namespace HI{
     inline float getBinCenterPhi(unsigned int pb) {return PhiMin()+(pb+0.5)*getBinSizePhi();}
 
     inline unsigned int findBinEta(float eta) {return std::floor((eta-etaMin())/getBinSizeEta());}
-    inline unsigned int findBinPhi(float phi) 
+    inline unsigned int findBinPhi(float phi)
     {
       int pb=std::floor((phi-PhiMin()) /getBinSizePhi());
       return pb % numPhiBins();
@@ -82,7 +83,7 @@ namespace HI{
 	  CaloSampling::TileGap1, CaloSampling::TileGap2, CaloSampling::TileGap3,
 	  CaloSampling::TileExt0, CaloSampling::TileExt1, CaloSampling::TileExt2,
 	  CaloSampling::FCAL0, CaloSampling::FCAL1, CaloSampling::FCAL2};
-    
+
   }
   }
   //selectors
@@ -126,10 +127,10 @@ namespace HI{
     constexpr ByLayersN HCal_N=SubCalo::Lists::HCal;
     constexpr ByLayersN PreSampler_N=SubCalo::Lists::PreSampler;
     constexpr ByLayersN ALL_N=SubCalo::Lists::ALL;
-    
+
   }
 
-  
+
 }
 
 #endif

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOnlineMonitor/TrigROBMonitor.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
@@ -20,12 +19,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile.h>
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -97,23 +90,8 @@ StatusCode TrigROBMonitor::initialize(){
   ATH_MSG_INFO( " Plot ROB data volumes                      = " << m_doROBDataVolume );
   ATH_MSG_INFO( "        Hist:TotalDataVolumeROB             = " << m_histProp_totalDataVolumeROB );
 
-
   // Locate the ROBDataProviderSvc
-  StatusCode sc = m_robDataProviderSvc.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR( "Could not find ROBDataProviderSvc" );
-    return sc;
-  } else {
-    // Setup the L2 ROB Data Provider Service when configured
-    m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-    if (m_trigROBDataProviderSvc.isValid()) {
-      ATH_MSG_DEBUG( "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
-          );
-    } else {
-      ATH_MSG_DEBUG( "No ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
-          );
-    }
-  }
+  ATH_CHECK( m_robDataProviderSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -139,30 +117,7 @@ StatusCode TrigROBMonitor::execute() {
   int  total_ROB_Data_Volume(0);
   std::map< eformat::SubDetector, uint32_t > rob_Data_Volume_SD; 
 
-  // In L2 access directly the cache
-  if (m_trigROBDataProviderSvc.isValid()) {
-    ATH_MSG_DEBUG( " ===> Lvl2ROBDataProviderSvc is used : # ROB fragments = " 
-						 << m_trigROBDataProviderSvc->sizeROBCache() 
-						 );
-    for (std::map<uint32_t, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>::iterator it = m_trigROBDataProviderSvc->beginROBCache();
-	 it != m_trigROBDataProviderSvc->endROBCache(); ++it) {
-      // check for time out
-      if (Athena::Timeout::instance().reached()) {
-        ATH_MSG_INFO( " Time out reached in loop over ROB fragments." );
-	return StatusCode::SUCCESS;
-      }
-      // verify checksum
-      if (verifyROBChecksum((*it).second )) event_with_checksum_failure=true ;
-
-      // verify status bits
-      verifyROBStatusBits((*it).second );
-
-      // get ROB fragment sizes
-      total_ROB_Data_Volume += (*it).second.fragment_size_word();
-      rob_Data_Volume_SD[ eformat::helper::SourceIdentifier( (*it).first ).subdetector_id() ] += (*it).second.fragment_size_word();
-    }
-  // In EF access the full event fragment and extract the ROBs
-  } else if (m_robDataProviderSvc->getEvent() != 0) {
+  if (m_robDataProviderSvc->getEvent() != 0) {
     // get total fragment size
     total_ROB_Data_Volume = (m_robDataProviderSvc->getEvent())->fragment_size_word();
     rob_Data_Volume_SD[ eformat::helper::SourceIdentifier((m_robDataProviderSvc->getEvent())->source_id()).subdetector_id() ] 
@@ -242,8 +197,6 @@ StatusCode TrigROBMonitor::finalize() {
   // Get the messaging service
   ATH_MSG_INFO( "finalize()" );
 
-  m_trigROBDataProviderSvc.reset();
-    
   return StatusCode::SUCCESS;
 }
 
@@ -277,7 +230,7 @@ StatusCode TrigROBMonitor::start() {
 					    m_histProp_failedChecksumForROB.value().lowEdge(),
 					    m_histProp_failedChecksumForROB.value().highEdge());
     if (m_hist_failedChecksumForROB) {
-      CAN_REBIN(m_hist_failedChecksumForROB);
+      m_hist_failedChecksumForROB->SetCanExtend(TH1::kAllAxes);
       if( rootHistSvc->regHist(path + m_hist_failedChecksumForROB->GetName(), m_hist_failedChecksumForROB).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_failedChecksumForROB->GetName() );
       }
@@ -367,7 +320,7 @@ StatusCode TrigROBMonitor::start() {
 					  m_histProp_totalDataVolumeROB.value().lowEdge(),
 					  m_histProp_totalDataVolumeROB.value().highEdge());
     if (m_hist_totalDataVolumeROB) {
-      CAN_REBIN(m_hist_totalDataVolumeROB);
+      m_hist_totalDataVolumeROB->SetCanExtend(TH1::kAllAxes);
       if( rootHistSvc->regHist(path + m_hist_totalDataVolumeROB->GetName(), m_hist_totalDataVolumeROB).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_totalDataVolumeROB->GetName() );
       }

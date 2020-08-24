@@ -5,34 +5,6 @@
 # Declare the package name:
 atlas_subdir( PixelConditionsAlgorithms )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Commission/CommissionEvent
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Database/AthenaPOOL/AthenaPoolUtilities
-   GaudiKernel
-   InnerDetector/InDetConditions/InDetByteStreamErrors
-   InnerDetector/InDetConditions/InDetConditionsSummaryService
-   InnerDetector/InDetConditions/PixelConditionsData
-   InnerDetector/InDetConditions/PixelConditionsTools
-   PRIVATE
-   Control/SGTools
-   Control/StoreGate
-   Database/RDBAccessSvc
-   Database/CoralDB
-   DetectorDescription/GeoModel/GeoModelInterfaces
-   DetectorDescription/GeoModel/GeoModelUtilities
-   DetectorDescription/Identifier
-   DetectorDescription/DetDescrCond/DetDescrConditions
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelCabling
-   Tools/PathResolver
-   Tracking/TrkDetDescr/TrkGeometry )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( COOL COMPONENTS CoolKernel )

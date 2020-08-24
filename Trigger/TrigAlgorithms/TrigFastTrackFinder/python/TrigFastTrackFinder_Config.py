@@ -19,16 +19,17 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.addResidualHistograms()
 
     def addSPHistograms(self, name):
-        if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':
-            self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 50, xmin=-0.5, xmax=4999.5)
-            self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 50, xmin=-0.5, xmax=4999.5)
-            self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=1.0)
-            self.defineHistogram('roi_etaWidth',path='EXPERT',type='TH1F',title="Eta width of the input RoI",xbins = 100, xmin=0, xmax=1.0)
-        else:
+        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
             self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 500, xmin=-0.5, xmax=49999.5)
             self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 500, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=6.4)
             self.defineHistogram('roi_etaWidth',path='EXPERT',type='TH1F',title="Eta width of the input RoI",xbins = 100, xmin=0, xmax=5)
+        else:
+            self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 50, xmin=-0.5, xmax=4999.5)
+            self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 50, xmin=-0.5, xmax=4999.5)
+            self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=1.0)
+            self.defineHistogram('roi_etaWidth',path='EXPERT',type='TH1F',title="Eta width of the input RoI",xbins = 100, xmin=0, xmax=1.0)
+
         self.defineHistogram('roi_eta',     path='EXPERT',type='TH1F',title='Eta of the input RoI;;Entries', xbins=100, xmin=-5, xmax=5)
         self.defineHistogram('roi_phi',     path='EXPERT',type='TH1F',title="Phi of the input RoI",xbins = 100, xmin=-3.2, xmax=3.2)
         self.defineHistogram('roi_z',       path='EXPERT',type='TH1F',title="z of the input RoI",xbins = 200, xmin=-400, xmax=400)
@@ -39,16 +40,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
                              xlabels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
    
     def addTimingHistograms(self, name):
-        if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':
-            self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=400.0)
-            self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=200.0,  ybins = 100, ymin=0.0, ymax=400.0)
-            self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=400.0)
-            self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time (ms)",     xbins = 200, xmin=0.0, xmax=20.0)
-            self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time (ms)",           xbins = 200, xmin=0.0, xmax=1000.0)
-            self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=400.0)
-            self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=400.0)
-            self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
-        else:
+        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=200000.0, ybins = 100, ymin=0.0, ymax=40000.0)
             self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=10000.0,  ybins = 100, ymin=0.0, ymax=40000.0)
             self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=40000.0)
@@ -57,14 +49,26 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=2000.0)
+        else:
+            self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=400.0)
+            self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=200.0,  ybins = 100, ymin=0.0, ymax=400.0)
+            self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=400.0)
+            self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time (ms)",     xbins = 200, xmin=0.0, xmax=20.0)
+            self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time (ms)",           xbins = 200, xmin=0.0, xmax=1000.0)
+            self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=400.0)
+            self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=400.0)
+            self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
+
+
 
     def addTrackHistograms(self, name):
-        if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':
-            self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins =  100, xmin=-0.5, xmax=4999.5)
-            self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins =  50, xmin=-0.5, xmax=199.5)
-        else:
+        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
             self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins = 1000, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins = 100, xmin=-0.5, xmax=9999.5)
+        else:
+            self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins =  100, xmin=-0.5, xmax=4999.5)
+            self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins =  50, xmin=-0.5, xmax=199.5)
+
         self.defineHistogram('roi_nZvertices', path='EXPERT',type='TH1F',title="Number of z vertices",xbins = 60 ,  xmin=-0.5, xmax=49.5)
         self.defineHistogram('roi_zVertices',  path='EXPERT',type='TH1F',title="ZFinder Vertices",xbins = 501, xmin=-250, xmax=250)
         self.defineHistogram('roi_nTrk_zVtx',  path='EXPERT',type='TH1F',title="Ntrk ZFinder Vertices",xbins = 100, xmin=-0.5, xmax=49.5)
@@ -152,8 +156,8 @@ remap  = {
     "TauCore"  : "tauCore",
     "TauIso"   : "tauIso",
     "Jet"      : "bjet",
-    "JetFS"    : "bjet",
-    "FS"       : "bjet",
+    "JetFS"    : "fullScan",
+    "FS"       : "fullScan",
     "bjetVtx"  : "bjetVtx",
     "FullScan" : "fullScan",
     "BeamSpot" : "beamSpot",
@@ -171,7 +175,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         assert(remapped_type is not None)
 
         #Global keys/names for collections 
-        from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys, TrigSCTKeys
+        from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
 
 
         self.useNewLayerNumberScheme = True
@@ -185,18 +189,27 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.LayerNumberTool = numberingTool
         
         from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+
+        # GPU offloading config begins 
+        
+        self.useGPU = False
+        
+        #if type == "FS" : self.useGPU = True
+        
+        if self.useGPU :
+            from TrigInDetAccelerationTool.TrigInDetAccelerationToolConf import TrigInDetAccelerationTool
+            accelTool = TrigInDetAccelerationTool(name = "TrigInDetAccelerationTool_FTF")
+            ToolSvc += accelTool
+            
+        
+        # GPU offloading config ends
+
         self.doResMon = InDetTrigSliceSettings[('doResMon',remapped_type)]
 
         # switch between Run-2/3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
-
-        if self.doResMon:
-            from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
-            resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
-            ToolSvc += resCalc
-            self.TrigL2ResidualCalculator = resCalc
 
         # Run3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
@@ -313,12 +326,19 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
         if (self.doZFinder):
           from IDScanZFinder.IDScanZFinderConf import TrigZFinder
-          theTrigZFinder = TrigZFinder()
+          theTrigZFinder = TrigZFinder( name="TrigZFinder_"+remapped_type )
           theTrigZFinder.NumberOfPeaks = 3
           theTrigZFinder.LayerNumberTool=numberingTool
           
+          if remapped_type == "beamSpot" : 
+            theTrigZFinder.TripletMode = 1
+            theTrigZFinder.TripletDZ   = 1
+            theTrigZFinder.PhiBinSize  = 0.1
+            theTrigZFinder.UseOnlyPixels = True
+            theTrigZFinder.MaxLayer      = 3
+
           theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
-          ToolSvc += theTrigZFinder
+
           self.trigZFinder = theTrigZFinder
           self.doFastZVertexSeeding = True
           self.zVertexResolution = 1

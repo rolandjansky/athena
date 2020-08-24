@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
@@ -80,7 +80,7 @@
 #include "xAODTau/TauJet.h"
 
 
-#include "TrigValAlgs/TrigEDMChecker.h"
+#include "TrigEDMChecker.h"
 
 #include "xAODTrigMinBias/TrigSpacePointCountsContainer.h"
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"
@@ -988,7 +988,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
   }
 
   for( ; trigMETfirst != trigMETlast ; ++trigMETfirst ){ // loop over TrigMissingET objects
-    std::string name(trigMETfirst.key());
+    const std::string& name(trigMETfirst.key());
     ATH_MSG_INFO("Got TrigMissingET object with key \"" << name << "\"");
 
     std::string s;
@@ -1121,8 +1121,8 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 			/// track vertex position
 			const Trk::VxCandidate * vertex = trackParticle->reconstructedVertex();
 			if ( vertex ) {
-				const Trk::RecVertex vtx = vertex->recVertex();
-				const Amg::Vector3D position = vtx.position();
+				const Trk::RecVertex& vtx = vertex->recVertex();
+				const Amg::Vector3D& position = vtx.position();
 				ATH_MSG_INFO(" vertex position (" << position[0] << ", " <<
                              position[1] << ", " << position[2] << ") ");
 			} else {
@@ -4198,9 +4198,11 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ATH_CHECK(m_clidSvc->getTypeNameOfID(TrigCompositeCLID, typeNameTC));
   ATH_MSG_DEBUG("Got " <<  keys.size() << " keys for " << typeNameTC);
 
+  HLT::Identifier chainID(m_dumpNavForChain);
+
   // First retrieve them all (this should not be needed in future)
   const DecisionContainer* container = nullptr;
-  for (const std::string key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
+  for (const std::string& key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
 
   std::stringstream ss;
   ss << "digraph {" << std::endl;
@@ -4223,32 +4225,58 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
     }
     if (veto) continue;
     ATH_CHECK( evtStore()->retrieve( container, key ) );
-    ss << "  subgraph " << key << " {" << std::endl;
-    ss << "    label=\"" << key << "\"" << std::endl;
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
+    bool writtenHeader = false;
     for (const Decision* tc : *container ) {
       // Output my ID in the graph. 
       const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( tc->container() );
       const ElementLink<DecisionContainer> selfEL = ElementLink<DecisionContainer>(*container, tc->index());
+      const std::vector<DecisionID>& decisions = tc->decisions();
       const uint32_t selfKey = selfEL.key();
       const uint32_t selfIndex = selfEL.index();
+      if (m_dumpNavForChain != "") {
+        const auto it = std::find(decisions.begin(), decisions.end(), chainID.numeric());
+        if (it == decisions.end()) {
+          continue;
+        }
+      }
+      if (!writtenHeader) {
+        writtenHeader = true;
+        ss << "  subgraph " << key << " {" << std::endl;
+        ss << "    label=\"" << key << "\"" << std::endl;
+      }
       ss << "    \"" << selfKey << "_" << selfIndex << "\" [label=\"Container=" << typeNameTC; 
       if (tc->name() != "") ss << "\\nName=" << tc->name();
       ss << "\\nKey=" << key << "\\nIndex=" << selfIndex << " linksRemapped=" << (tc->isRemapped() ? "Y" : "N");
-      const std::vector<DecisionID> decisions = tc->decisions();
       if (decisions.size() > 0) {
         ss << "\\nPass=";
+        size_t c = 0;
         for (unsigned decisionID : decisions) {
-          ss << std::hex << decisionID << std::dec << "," ;
+          ss << std::hex << decisionID << std::dec << ",";
+          if (c++ == 5) {
+            ss << std::endl;
+            c = 0;
+          }
         }
       }
       ss << "\"]" << std::endl;
       // Output all the things I link to
+      ElementLinkVector<DecisionContainer> seedELs = tc->objectCollectionLinks<DecisionContainer>("seed");
+      size_t seedCount = 0;
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
         const std::string link = tc->linkColNames().at(i);
         if (link == "seed" || link == "seed__COLL") {
+          ElementLink<DecisionContainer> seedEL = seedELs.at(seedCount++);
           const uint32_t seedKey = tc->linkColKeys().at(i);
           const uint32_t seedIndex = tc->linkColIndices().at(i);
+          ATH_CHECK( seedKey == seedEL.key() );
+          if (m_dumpNavForChain != "") { // Only print "seed" link to nodes we include in our search
+            const std::vector<DecisionID> seedDecisions = (*seedEL)->decisions();
+            const auto it = std::find(seedDecisions.begin(), seedDecisions.end(), chainID.numeric());
+            if (it == seedDecisions.end()) {
+              continue;
+            }
+          }
           ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << seedKey << "_" << seedIndex << "\" [label=\"seed\"]" << std::endl;
         } else {
           // Start with my class ID
@@ -4277,7 +4305,9 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
         }
       }
     }
-    ss << "  }" << std::endl;
+    if (writtenHeader) {
+      ss << "  }" << std::endl;
+    }
   }
 
   ss << "}" << std::endl;
@@ -4391,7 +4421,7 @@ StatusCode TrigEDMChecker::dumpNavigation()
 
   // Find unique chains associated with a feature
   std::map< HLT::TriggerElement const*, std::vector< int > > element2decisions;
-  for ( auto pair : feature2element ) {
+  for ( const auto& pair : feature2element ) {
 
     // Get the feature info
     std::string featureName = testNav->label( pair.first.getCLID(), pair.first.getIndex().subTypeIndex() );
@@ -4427,7 +4457,7 @@ StatusCode TrigEDMChecker::dumpNavigation()
 
   // Store decision ancestry (had to go through once before to ensure indices populated)
   unsigned int decisionCounter = 0;
-  for ( auto pair : feature2element ) {
+  for ( const auto& pair : feature2element ) {
 
     // Get current decision
     auto decision = decisionOutput->at( decisionCounter );

@@ -59,7 +59,7 @@ namespace Trk {
     return sl;
   }
 
-  RecVertex::~RecVertex() {}
+  RecVertex::~RecVertex() = default;
 
   const Trk::FitQuality& RecVertex::fitQuality() const
   {return m_fitQuality;}

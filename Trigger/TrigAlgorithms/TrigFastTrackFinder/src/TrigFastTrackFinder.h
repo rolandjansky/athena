@@ -34,18 +34,16 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 
 class ITrigL2LayerNumberTool;
-class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
-class ITrigL2ResidualCalculator;
 class ITrigInDetTrackFitter;
 class ITrigZFinder;
-class IRegSelSvc;
 class TrigRoiDescriptor;
 class TrigSiSpacePointBase;
+class TrigInDetTriplet;
 class Identifier;
+
 namespace InDet { 
-  class SiSpacePointsSeed;
-  class ISiTrackMaker; 
+  class ISiTrackMaker;
   class SiTrackMakerEventData_xk;
 }
 
@@ -54,12 +52,14 @@ namespace Trk {
   class SpacePoint;
 }
 
-class TrigL2LayerSetLUT;
-class TrigSpacePointStorage;
-class TrigInDetTriplet;
 class PixelID;
 class SCT_ID;
 class AtlasDetectorID;
+
+// for GPU acceleration
+
+class ITrigInDetAccelerationTool;
+class ITrigInDetAccelerationSvc;
 
 class TrigFastTrackFinder : public HLT::FexAlgo {
 
@@ -78,7 +78,8 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
-                        TrackCollection& outputTracks) const;
+                        TrackCollection& outputTracks,
+                        const EventContext& ctx) const;
 
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
@@ -98,12 +99,15 @@ protected:
 
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
   ToolHandle<ITrigSpacePointConversionTool> m_spacePointTool;
-  ToolHandle<ITrigL2ResidualCalculator> m_trigL2ResidualCalculator;
   ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker 
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
+  //for GPU acceleration
+  ToolHandle<ITrigInDetAccelerationTool> m_accelTool;
+  ServiceHandle<ITrigInDetAccelerationSvc>     m_accelSvc;
 
   //DataHandles
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
@@ -146,11 +150,11 @@ protected:
 
   // Monitoring member functions 
 
-  void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi) const;
-  void runResidualMonitoring(const Trk::Track& track) const;
+  void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi, const EventContext& ctx) const;
+  void runResidualMonitoring(const Trk::Track& track, const EventContext&) const;
 
   //Setup functions
-  void getBeamSpot(float&, float&) const;
+  void getBeamSpot(float&, float&, const EventContext&) const;
   HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
 
   // Internal bookkeeping
@@ -169,6 +173,12 @@ protected:
   Trk::ParticleHypothesis m_particleHypothesis;//particle hypothesis to attach to each track - usually pion, can be set to other values
 
   bool m_useNewLayerNumberScheme;
+
+  // GPU acceleration
+
+  bool m_useGPU;
+  
+  void makeSeedsOnGPU(const TrigCombinatorialSettings&, const IRoiDescriptor*, const std::vector<TrigSiSpacePointBase>&, std::vector<TrigInDetTriplet>&) const;
 
 };
 

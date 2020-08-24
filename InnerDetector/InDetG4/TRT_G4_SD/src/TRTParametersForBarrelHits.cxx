@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -154,7 +154,7 @@ void TRTParametersForBarrelHits::DefineParameters() const
 
 // Called by TRTParametersForBarrelHits
 
-void TRTParametersForBarrelHits::PrintParameters() const
+void TRTParametersForBarrelHits::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTOutputFile is used.
 {
 
   if (m_verboseLevel>5) { G4cout << "######### Method TRTParametersForBarrelHits::PrintParameters" << G4endl; }

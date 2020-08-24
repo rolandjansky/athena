@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,8 +19,8 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include <cassert>
 #include <iostream>
-#include <assert.h>
 
 class MsgStream;
 
@@ -38,10 +38,10 @@ namespace Trk{
   public:
     // public because of DataPool
     SpacePoint();
-    SpacePoint(const SpacePoint &);
-    SpacePoint &operator=(const SpacePoint &);
+    SpacePoint(const SpacePoint &) = default;
+    SpacePoint &operator=(const SpacePoint &) = default;
     // Destructor:
-    virtual ~SpacePoint();
+    virtual ~SpacePoint() = default;
 	
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -69,16 +69,17 @@ namespace Trk{
     double phi() const ;
 	
     /**Interface method to get the associated Surface*/
-    virtual const Surface& associatedSurface() const override;
+    virtual const Surface& associatedSurface() const override final;
        
     /**Interface method to get the global Position*/
-    virtual const Amg::Vector3D& globalPosition() const override;
+    virtual const Amg::Vector3D& globalPosition() const override final; 
        
     /** Clone */
     virtual SpacePoint* clone() const override = 0;       
 
     /** Extended method checking the type*/
-    virtual bool type(MeasurementBaseType::Type type) const override {
+    virtual bool type(MeasurementBaseType::Type type) const override final
+    {
       return (type==MeasurementBaseType::SpacePoint);
     }
 
@@ -88,7 +89,7 @@ namespace Trk{
     virtual std::ostream& dump( std::ostream& out ) const override=0 ;
 
   protected:
-    const std::pair<const PrepRawData*, const PrepRawData*> *m_clusList;
+    std::pair<const PrepRawData*, const PrepRawData*> m_clusList;
     std::pair<IdentifierHash, IdentifierHash> m_elemIdList;
     Amg::Vector3D m_position; 
     Amg::MatrixX  m_globalCovariance;
@@ -116,8 +117,7 @@ namespace Trk{
 
   inline const std::pair<const PrepRawData*, const PrepRawData*>& SpacePoint::clusterList() const
     {
-      assert(m_clusList!=0);
-      return *m_clusList;
+      return m_clusList;
     }
 
   inline double SpacePoint::eta(double z0) const

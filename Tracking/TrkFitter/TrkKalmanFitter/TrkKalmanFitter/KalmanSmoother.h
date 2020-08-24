@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -89,9 +89,9 @@ private:
     bool straightTrackModel(const Trk::TrackParameters& ) const;
 
     //! internal method printing the current state (debugging)
-    void printGlobalParams(int istate, std::string ptype,
+    void printGlobalParams(int istate, const std::string& ptype,
                            const TrackParameters*,
-                           const DNA_MaterialEffects* = 0) const;
+                           const DNA_MaterialEffects* = nullptr) const;
 
     /** @brief method trying to define inital error for bw smoother in a smart way.
 

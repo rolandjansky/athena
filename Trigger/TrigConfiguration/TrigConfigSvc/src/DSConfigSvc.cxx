@@ -109,7 +109,7 @@ TrigConf::DSConfigSvc::initialize() {
    if( jobOptionsSvc.retrieve().isFailure() ) {
       ATH_MSG_WARNING( "Cannot retrieve JobOptionsSvc" );
    } else {
-      const Property* p =
+      const Gaudi::Details::PropertyBase* p =
          Gaudi::Utils::getProperty( jobOptionsSvc->getProperties( "IOVDbSvc" ), "Folders" );   
       if( p ) m_folders = p->toString();
       ATH_MSG_DEBUG( "The string 'folders' is: " << m_folders );

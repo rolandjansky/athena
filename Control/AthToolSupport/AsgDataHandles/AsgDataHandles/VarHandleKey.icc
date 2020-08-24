@@ -1,0 +1,27 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file AsgDataHandles/VarHandleKey.icc
+ * @author Nils Krumnack <Nils.Erik.Krumnack@cern.h>
+ * @author scott snyder <snyder@bnl.gov> (for original)
+ * @date Nov, 2017
+ * @brief A property holding a SG store/key/clid from which a VarHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Does this key reference the primary event store?
+ */
+inline
+bool VarHandleKey::isEventStore() const
+{
+  return m_isEventStore;
+}
+
+
+} // namespace SG

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_DETECTORGEOMETRYSVC_H
@@ -26,7 +26,7 @@ class DetectorGeometrySvc : public extends<AthService, IDetectorGeometrySvc> {
 public:
   // Standard constructor and destructor
   DetectorGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~DetectorGeometrySvc();
+  virtual ~DetectorGeometrySvc() = default;
 
   // Gaudi methods
   StatusCode initialize() override final;
@@ -46,17 +46,14 @@ public:
 protected:
 
 private:
-  ToolHandle<IDetectorGeometryTool> m_detTool;
-  ToolHandle<IDetectorConstructionTool> m_detConstruction;
+  ToolHandle<IDetectorGeometryTool> m_detTool{this, "World", "", "Tool handle of the top-of-the-tree detector geometry tool"};
+  ToolHandle<IDetectorConstructionTool> m_detConstruction{this, "DetectorConstruction", "", "Tool handle of the DetectorConstruction"};
   ToolHandleArray<IRegionCreator> m_regionCreators;
   ToolHandleArray<IParallelWorldTool> m_parallelWorlds;
   ToolHandleArray<IG4GeometryConfigurationTool> m_configurationTools;
-  
   ToolHandleArray<IFieldManagerTool> m_fieldManagers;
-   
-
-  bool m_activateParallelWorlds;
-  std::vector<std::string> m_parallelWorldNames;
+  Gaudi::Property<bool> m_activateParallelWorlds{this, "ActivateParallelWorlds", false, "Toggle on/off the G4 parallel geometry system"};
+  std::vector<std::string> m_parallelWorldNames{};
 };
 
 #endif

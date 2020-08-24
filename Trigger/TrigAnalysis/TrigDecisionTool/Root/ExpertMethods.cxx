@@ -109,7 +109,7 @@ bool Trig::ExpertMethods::isHLTTruncated() const {
   if (trigDecRH && !trigDecRH->empty()) {
     SG::ReadHandle<xAOD::TrigDecision> trigDec = SG::makeHandle(*trigDecRH);
     if(!trigDec.isValid()) {
-      ATH_MSG_WARNING("TDT has not been able to retrieve xTrigDecision");
+      ATH_MSG_DEBUG("TDT has not been able to retrieve xTrigDecision");
     } else {
       return trigDec->efTruncated();
     }

@@ -14,7 +14,7 @@ class SCTLorentzAngleToolSetup:
             from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
             sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
 
-            # For HLT
+            # For HLT and online monitoring
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             if athenaCommonFlags.isOnline():
                 sct_DCSConditionsToolSetup.setReadAllDBFolders(False)

@@ -10,77 +10,28 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
+#include "MuonCombinedFitTagTool.h"
+
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
-#include "MuidInterfaces/IMuonTrackQuery.h"
-#include "MuidInterfaces/IMuidMuonRecovery.h"
-#include "MuidInterfaces/IMuonMatchQuality.h"
-
-#include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
-#include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
-
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/CombinedFitTag.h"
-#include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
-
 #include "muonEvent/CaloEnergy.h"
-
-#include "MuonCombinedFitTagTool.h"
-
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
-#include "Identifier/Identifier.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "xAODTracking/Vertex.h"
 
 namespace MuonCombined {
- 
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCombinedFitTagTool::MuonCombinedFitTagTool(const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-  m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_tagTool("MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool"),
-  m_trackBuilder(""),
-  m_outwardsBuilder(""),
-  m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery"),
-  m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignifTool"),
-  m_muonRecovery(""),
-  m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality", this),
-  m_trackScoringTool("Muon::MuonTrackScoringTool/MuonTrackScoringTool"),
-  m_magFieldSvc("AtlasFieldSvc",name),
-  m_DetID(0)
+    :	AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCombinedTagTool>(this);
-    declareProperty("Printer",                  m_printer);
-
-    declareProperty("TrackBuilder",		m_trackBuilder);
-    declareProperty("OutwardsTrackBuilder",	m_outwardsBuilder);
-    declareProperty("TrackQuery",		m_trackQuery);
-    declareProperty("MomentumBalanceTool",	m_momentumBalanceTool);
-    declareProperty("MuonRecovery",		m_muonRecovery);
-    declareProperty("MatchQuality",		m_matchQuality);
-    declareProperty("TrackScoringTool",         m_trackScoringTool);
-    declareProperty("BadFitChi2",		m_badFitChi2 = 2.5);
-    declareProperty("MomentumBalanceCut",	m_momentumBalanceCut = 6.0);
-    declareProperty("IndetPullCut", 		m_indetPullCut = 6.0);
-    declareProperty("MatchChiSquaredCut",	m_matchChiSquaredCut = 30.0);
-    declareProperty("MagFieldSvc",		m_magFieldSvc);
   }
-
-  MuonCombinedFitTagTool::~MuonCombinedFitTagTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
   
   StatusCode MuonCombinedFitTagTool::initialize() {
     ATH_MSG_INFO( "Initializing MuonCombinedFitTagTool - package version " << PACKAGE_VERSION );
@@ -94,20 +45,12 @@ namespace MuonCombined {
     if(! m_muonRecovery.empty() ) ATH_CHECK(m_muonRecovery.retrieve());
     ATH_CHECK(m_matchQuality.retrieve());
     ATH_CHECK(m_trackScoringTool.retrieve());
-    ATH_CHECK(m_magFieldSvc.retrieve());
+    /// handle to the magnetic field cache
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
-    if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
-      ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
-      return StatusCode::FAILURE;
-    }
-    
     //The trigger doesn't use the vertex information
     if(!m_vertexKey.empty()) ATH_CHECK( m_vertexKey.initialize() );
     
-    return StatusCode::SUCCESS;
-  }
-  
-  StatusCode MuonCombinedFitTagTool::finalize() {
     return StatusCode::SUCCESS;
   }
 
@@ -314,7 +257,7 @@ namespace MuonCombined {
     }
     
     delete combinedTrack;
-    return 0;
+    return nullptr;
   }
 
 
@@ -385,7 +328,18 @@ namespace MuonCombined {
     bool dorefit = true;
     
     // no SA refit for Toroid off 
-    if (!m_magFieldSvc->toroidOn()) dorefit = false;
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return nullptr;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    if (!fieldCache.toroidOn()) dorefit = false;
 
     float bs_x = 0.;
     float bs_y = 0.;
@@ -393,7 +347,7 @@ namespace MuonCombined {
 
     const xAOD::Vertex* matchedVertex { nullptr };
     if(!m_vertexKey.empty()){
-      SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+      SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey, ctx };
       if ( vertices.isValid() )
 	{
 	  for (const auto& vx : *vertices)
@@ -506,7 +460,7 @@ namespace MuonCombined {
         Identifier id = Trk::IdentifierExtractor::extract(mot);
         if(id.is_valid()) {
           // skip after first Muon hit
-          if(m_DetID->is_muon(id)) break;
+          if(m_idHelperSvc->isMuon(id)) break;
         } 
       }
       if(pstart==0&&m->trackParameters()) {

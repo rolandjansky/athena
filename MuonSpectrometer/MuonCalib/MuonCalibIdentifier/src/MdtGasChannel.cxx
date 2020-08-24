@@ -6,6 +6,9 @@
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibIdentifier/OfflineOnlineIdConversion.h"
 #include "PathResolver/PathResolver.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -81,16 +84,14 @@ const  MdtGasChannel::GasChannel & MdtGasChannel::GetGasChannel(const MuonFixedI
 	std::map<MuonFixedId, GasChannel>::const_iterator it=m_channel_map.find(id);
 	if(it==m_channel_map.end())
 		{
-		if(m_warning_printed.find(id)==m_warning_printed.end())
-			{
-			std::cerr<<"WARNING: Invalid Gas channel for "<<id.stationNameString()<<" "<<id.phi()<<" "<<id.eta()<<" "<<id.mdtMultilayer()<<std::endl;
+		if(m_warning_printed.find(id)==m_warning_printed.end()) {
+			MsgStream log(Athena::getMessageSvc(),"MdtGasChannel");
+			log<<MSG::WARNING<<"Invalid Gas channel for "<<id.stationNameString()<<" "<<id.phi()<<" "<<id.eta()<<" "<<id.mdtMultilayer()<<endmsg;
 			m_warning_printed.insert(id);
-			}
+		}
 		return INVALID_CHANNEL;
 		}
 	return it->second;
 	}
-
-
 
 }

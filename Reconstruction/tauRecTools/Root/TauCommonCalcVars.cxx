@@ -56,7 +56,7 @@ StatusCode TauCommonCalcVars::finalize() {
 //-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
-StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
+StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) const {
 
     /////////////////////////////////////////////////
     // Calculate variables that are always valid   

@@ -1,13 +1,12 @@
 from future.utils import iteritems
-from future.utils import listitems
 
-from past.builtins import basestring
 from builtins import zip
 from builtins import object
 from builtins import range
 from builtins import int
+import six
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfValidation
 #
@@ -43,17 +42,15 @@ import PyJobTransforms.trfUtils as trfUtils
 # @brief Check a Pool file for corruption, return N events or -1 if access problem, -2 if corruption
 def corruptionTestPool(filename, verbose=False):
     if not os.access(filename, os.R_OK):
-        msg.info("ERROR can't access file %s" % filename)
+        msg.info("ERROR can't access file %s", filename)
         return -1
 
     ROOT = RootUtils.import_root()
-    from ROOT import TFile, TTree
-    import cppyy
 
     try:
-        f = TFile.Open(filename)
-    except:
-        msg.info("Can't open file %s" % filename)
+        f = ROOT.TFile.Open(filename)
+    except Exception:
+        msg.info("Can't open file %s", filename)
         return -1
 
     nEvents = None
@@ -63,24 +60,24 @@ def corruptionTestPool(filename, verbose=False):
         try:
             tn = k.GetName()
             t = f.Get(tn)
-            if not isinstance(t, TTree): return
-        except:
-            msg.info("Can't get tree %s from file %s" % (tn, filename))
+            if not isinstance(t, ROOT.TTree): return
+        except Exception:
+            msg.info("Can't get tree %s from file %s", tn, filename)
             f.Close()
             return -1
 
-        if (verbose): msg.info("Working on tree %s" % tn)
+        if (verbose): msg.info("Working on tree %s", tn)
         n = t.GetEntriesFast()
         for i in range(n):
             s = t.GetEntry(i)
             if s <= 0:
-                msg.info("Tree %s: Found corruption in event %i" % (i, n))
+                msg.info("Tree %s: Found corruption in event %i", i, n)
                 f.Close()
                 return -2
             else:
                 if verbose and i > 0 and i % 100 == 0:
-                    msg.info("Checking event %s" % i)
-        msg.info("Tree %s: %i event(s) ok" % (tn, n))
+                    msg.info("Checking event %s", i)
+        msg.info("Tree %s: %i event(s) ok", tn, n)
 
         # Use CollectionTree determine the number of events
         if tn == 'CollectionTree':
@@ -88,9 +85,9 @@ def corruptionTestPool(filename, verbose=False):
         pass  # end of loop over trees
 
     f.Close()
-    msg.info("ROOT file %s looks ok" % filename)
+    msg.info("ROOT file %s looks ok", filename)
     if n is None:
-        msg.info("Failed to determine number of events in file %s. No tree named 'CollectionTree'" % filename)
+        msg.info("Failed to determine number of events in file %s. No tree named 'CollectionTree'", filename)
         return 0
     return nEvents
 
@@ -102,7 +99,7 @@ def corruptionTestBS(filename):
     while p.poll() is None:
         line = p.stdout.readline()
         if line:
-            msg.info("AtlListBSEvents Report: %s" % line.strip())
+            msg.info("AtlListBSEvents Report: %s", line.strip())
     rc = p.returncode
     return rc
 
@@ -154,7 +151,6 @@ class ignorePatterns(object):
                                 # Blank means match anything, so make it so...
                                 who = "."
                             reWho = re.compile(who)
-                            reLevel = level # level is not a regexp (for now)
                             reMessage = re.compile(message)
                         except ValueError:
                             msg.warning('Could not parse this line as a valid error pattern: {0}'.format(line))
@@ -189,7 +185,7 @@ class logFileReport(object):
     def __init__(self, logfile=None, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR']):
 
         # We can have one logfile or a set
-        if isinstance(logfile, basestring):
+        if isinstance(logfile, six.string_types):
             self._logfile = [logfile, ]
         else:
             self._logfile = logfile
@@ -273,12 +269,36 @@ class athenaLogFileReport(logFileReport):
         self._dbbytes = 0
         self._dbtime  = 0.0
 
+    ## Generally, a knowledge file consists of non-standard logging error/abnormal lines
+    #  which are left out during log scan and could help diagnose job failures.
+    def knowledgeFileHandler(self, knowledgefile):
+        # load abnormal/error line(s) from the knowledge file(s)
+        linesList = []
+        fullName = trfUtils.findFile(os.environ['DATAPATH'], knowledgefile)
+        if not fullName:
+            msg.warning('Knowledge file {0} could not be found in DATAPATH'.format(knowledgefile))
+        try:
+            with open(fullName) as knowledgeFileHandle:
+                msg.debug('Opened knowledge file {0} from here: {1}'.format(knowledgefile, fullName))
+
+                for line in knowledgeFileHandle:
+                    if line.startswith('#') or line == '' or line =='\n':
+                        continue
+                    line = line.rstrip('\n')
+                    linesList.append(line)
+        except OSError as e:
+            msg.warning('Failed to open knowledge file {0}: {1}'.format(fullName, e))
+        return linesList
+
     def scanLogFile(self, resetReport=False):
+        nonStandardErrorsList = self.knowledgeFileHandler('nonStandardErrors.db')
+
         if resetReport:
             self.resetReport()
 
         for log in self._logfile:
             msg.debug('Now scanning logfile {0}'.format(log))
+            seenNonStandardError = ''
             # N.B. Use the generator so that lines can be grabbed by subroutines, e.g., core dump svc reporter
             try:
                 myGen = trfUtils.lineByLine(log, substepName=self._substepName)
@@ -300,7 +320,7 @@ class athenaLogFileReport(logFileReport):
                     # But we can check for certain other interesting things, like core dumps
                     if 'Core dump from CoreDumpSvc' in line:
                         msg.warning('Detected CoreDumpSvc report - activating core dump svc grabber')
-                        self.coreDumpSvcParser(myGen, line, lineCounter)
+                        self.coreDumpSvcParser(log, myGen, line, lineCounter)
                         continue
                     # Add the G4 exceptipon parsers
                     if 'G4Exception-START' in line:
@@ -329,8 +349,12 @@ class athenaLogFileReport(logFileReport):
                     if 'SysError in <TFile::WriteBuffer>' in line:
                         self.rootSysErrorParser(myGen, line, lineCounter)
                         continue
+                    # Check if the line is among the non-standard logging errors from the knowledge file
+                    if any(line in l for l in nonStandardErrorsList):
+                        seenNonStandardError = line
+                        continue
 
-                    msg.debug('Non-standard line in %s: %s' % (log, line))
+                    msg.debug('Non-standard line in %s: %s', log, line)
                     self._levelCounter['UNKNOWN'] += 1
                     continue
 
@@ -366,6 +390,11 @@ class athenaLogFileReport(logFileReport):
                     # jobs that run out of memory
                     if 'std::bad_alloc' in fields['message']:
                         fields['level'] = 'CATASTROPHE'
+
+                # concatenate the seen non-standard logging error to the FATAL
+                if fields['level'] == 'FATAL':
+                    if seenNonStandardError:
+                        line += '; ' + seenNonStandardError
 
                 # Count this error
                 self._levelCounter[fields['level']] += 1
@@ -430,12 +459,21 @@ class athenaLogFileReport(logFileReport):
         return {'level': firstName, 'nLevel': firstLevel, 'firstError': firstError}
 
     ## @brief Attempt to suck a core dump report from the current logfile
-    # @note: Current implementation just eats lines until a 'normal' line is seen.
+    # This function scans logs in two different directions:
+    # 1) downwards, to exctract information after CoreDrmpSvc; and 2) upwards, to find abnormal lines
+    # @note: Current downwards scan just eats lines until a 'normal' line is seen.
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
-    def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
+    def coreDumpSvcParser(self, log, lineGenerator, firstline, firstLineCount):
+        abnormalLinesList = self.knowledgeFileHandler('coreDumpKnowledgeFile.db')
         _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
         coreDumpReport = 'Core dump from CoreDumpSvc'
+        linesToBeScaned = 50
+        seenAbnormalLines = []
+        abnormalLinesReport = {}
+        lastNormalLineReport = {}
+        coreDumpDetailsReport = {}
+
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
             if m is None:
@@ -446,7 +484,7 @@ class athenaLogFileReport(logFileReport):
 
                 #Lookup: 'EventID: [Run,Evt,Lumi,Time,BunchCross,DetMask] = [267599,7146597,1,1434123751:0,0,0x0,0x0,0x0]'
                 if 'EventID' in line:
-                    match = re.findall('\[.*?\]', line)
+                    match = re.findall(r'\[.*?\]', line)
                     if match and match.__len__() >= 2:      # Assuming the line contains at-least one key-value pair.
                         brackets = "[]"
                         commaDelimer = ','
@@ -464,7 +502,10 @@ class athenaLogFileReport(logFileReport):
                 if '<signal handler called>' in line:
                     _functionLine = linecounter+1
                 if _functionLine and linecounter is _functionLine:
-                    _currentFunction = line
+                    if ' in ' in line:
+                        _currentFunction = 'Current Function: ' + line.split(' in ')[1].split()[0]
+                    else:
+                        _currentFunction = 'Current Function: ' + line.split()[1]
             else:
                 # Can this be done - we want to push the line back into the generator to be
                 # reparsed in the normal way (might need to make the generator a class with the
@@ -476,18 +517,59 @@ class athenaLogFileReport(logFileReport):
         _run = 'Run: unknown' if not _run else _run
         _event = 'Evt: unknown' if not _event else _event
         _currentAlgorithm = 'Current algorithm: unknown' if not _currentAlgorithm else _currentAlgorithm
-        _currentFunction = 'Current Function: unknown' if not _currentFunction else 'Current Function: '+_currentFunction.split(' in ')[1].split()[0]
+        _currentFunction = 'Current Function: unknown' if not _currentFunction else _currentFunction
         coreDumpReport = '{0}: {1}; {2}; {3}; {4}; {5}'.format(coreDumpReport, _eventCounter, _run, _event, _currentAlgorithm, _currentFunction)
+
+        ## look up for lines before core dump for "abnormal" and "last normal" line(s)
+
+        #  make a list of last e.g. 50 lines before core dump
+        #  A new "line generator" is required to give access to the upper lines
+        linesList = []
+        lineGen = trfUtils.lineByLine(log)
+        for line, linecounter in lineGen:
+            if linecounter in range(firstLineCount - linesToBeScaned, firstLineCount-1):
+                linesList.append([linecounter, line])
+            elif linecounter == firstLineCount:
+                break
+
+        for linecounter, line in reversed(linesList):
+            if re.findall(r'|'.join(abnormalLinesList), line):
+                seenLine = False
+                for dic in seenAbnormalLines:
+                    # count repetitions or similar (e.g. first 15 char) abnormal lines
+                    if dic['message'] == line or dic['message'][0:15] == line[0:15]:
+                        dic['count'] += 1
+                        seenLine = True
+                        break
+                if seenLine is False:
+                    seenAbnormalLines.append({'message': line, 'firstLine': linecounter, 'count': 1})
+            else:
+                if line != '':
+                    lastNormalLineReport = {'message': line, 'firstLine': linecounter, 'count': 1}
+                    break
+                else:
+                    continue
+
+        # write the list of abnormal lines into a dictionary to report
+        # The keys of each abnormal line are labeled by a number starting with 0
+        # e.g. first abnormal line's keys are :{'meesage0', 'firstLine0', 'count0'}
+        for a in range(len(seenAbnormalLines)):
+            abnormalLinesReport.update({'message{0}'.format(a): seenAbnormalLines[a]['message'], 'firstLine{0}'.format(a): seenAbnormalLines[a]['firstLine'], 'count{0}'.format(a): seenAbnormalLines[a]['count']})
+        coreDumpDetailsReport = {'abnormalLine(s) before CoreDump': abnormalLinesReport, 'lastNormalLine before CoreDump': lastNormalLineReport}
+
+        # concatenate an extract of first seen abnormal line to the core dump message
+        if len(seenAbnormalLines) > 0:
+            coreDumpReport += '; Abnormal line(s) seen just before core dump: ' + seenAbnormalLines[0]['message'][0:30] + '...[truncated] ' + '(see the jobReport)'
 
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')
         self._levelCounter['FATAL'] += 1
-        self._errorDetails['FATAL'].append({'message': coreDumpReport, 'firstLine': firstLineCount, 'count': 1})
+        self._errorDetails['FATAL'].append({'moreDetails': coreDumpDetailsReport, 'message': coreDumpReport, 'firstLine': firstLineCount, 'count': 1})
 
     def g494ExceptionParser(self, lineGenerator, firstline, firstLineCount):
         g4Report = firstline
         g4lines = 1
-        if not 'Aborting execution' in g4Report:
+        if 'Aborting execution' not in g4Report:
             for line, linecounter in lineGenerator:
                 g4Report += os.linesep + line
                 g4lines += 1
@@ -669,10 +751,10 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
             if arg.auxiliaryFile:
                 continue
             
-            msg.info('Validating data type %s...' % key)
+            msg.info('Validating data type %s...', key)
     
             for fname in arg.value:
-                msg.info('Validating file %s...' % fname)
+                msg.info('Validating file %s...', fname)
     
                 if io == "output":
                     msg.info('{0}: Testing corruption...'.format(fname))
@@ -706,7 +788,7 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
                 elif arg.getSingleMetadata(fname, 'file_guid') == 'UNDEFINED':
                     msg.info('Guid not defined.')
                 else:
-                    msg.info('Guid is %s' % arg.getSingleMetadata(fname, 'file_guid'))
+                    msg.info('Guid is %s', arg.getSingleMetadata(fname, 'file_guid'))
         msg.info('Stopping legacy (serial) file validation')
     if parallelMode is True:
         msg.info('Starting parallel file validation')

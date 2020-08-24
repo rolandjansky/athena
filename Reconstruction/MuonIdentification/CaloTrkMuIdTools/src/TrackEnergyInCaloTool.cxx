@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/TrackEnergyInCaloTool.h"
@@ -16,19 +16,9 @@
 // TrackEnergyInCaloTool constructor
 ///////////////////////////////////////////////////////////////////////////////
 TrackEnergyInCaloTool::TrackEnergyInCaloTool(const std::string& type, const std::string& name, const IInterface* pInterface) :
-  AthAlgTool(type, name, pInterface),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_calosurf("CaloSurfaceBuilder")
-{
+  AthAlgTool(type, name, pInterface) {
   declareInterface<ITrackEnergyInCaloTool>(this);
-  declareProperty("ExtrapolatorHandle", m_extrapolator);
-  declareProperty("CaloSurfaceBuilder", m_calosurf);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// TrackEnergyInCaloTool destructor
-///////////////////////////////////////////////////////////////////////////////
-TrackEnergyInCaloTool::~TrackEnergyInCaloTool(){}
 
 ///////////////////////////////////////////////////////////////////////////////
 // TrackEnergyInCaloTool::initialize()
@@ -37,11 +27,6 @@ StatusCode TrackEnergyInCaloTool::initialize() {
     
   ATH_MSG_INFO("initialize() " << name());
 
-  if ( AlgTool::initialize().isFailure() ) {
-    ATH_MSG_ERROR("AlgTool couldn't be initialized!");
-    return StatusCode::FAILURE;
-  } 
-  
   if ( detStore()->retrieve(m_calo_dd).isFailure() ) {
     ATH_MSG_WARNING(" Unable to retrieve CaloDetDescrManager from DetectorStore calling the CaloDetDescrManager::instance() method");
     m_calo_dd = CaloDetDescrManager::instance();
@@ -50,41 +35,15 @@ StatusCode TrackEnergyInCaloTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if ( m_extrapolator.retrieve().isFailure() )  {
-    ATH_MSG_FATAL("Could not find Tool " << m_extrapolator.typeAndName() <<". Exiting.");
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG("Successfully created tool  " << m_extrapolator.typeAndName());
-  }
+  ATH_CHECK(m_extrapolator.retrieve());
+  ATH_MSG_DEBUG("Successfully created tool  " << m_extrapolator.typeAndName());
   
-  if( m_calosurf.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not find Tool " << m_calosurf);
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_INFO("Successfully created tool  "<< m_calosurf);
-  }
+  ATH_CHECK(m_calosurf.retrieve());
+  ATH_MSG_INFO("Successfully created tool  "<< m_calosurf);
   
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-// TrackEnergyInCaloTool::finalize()
-///////////////////////////////////////////////////////////////////////////////
-StatusCode  TrackEnergyInCaloTool::finalize() {
-
-  if (AlgTool::finalize().isFailure()) {
-    ATH_MSG_ERROR("AlgTool couldn't be finalized()!");
-    return StatusCode::FAILURE;
-  } 
-  
-  ATH_MSG_INFO("finalize() successful in " << name());
-  return StatusCode::SUCCESS;
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // TrackEnergyInCaloTool::paramInSample

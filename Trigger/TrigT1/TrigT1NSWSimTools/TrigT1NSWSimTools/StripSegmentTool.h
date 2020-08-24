@@ -1,29 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPSEGMENTTOOL_H
 #define STRIPSEGMENTTOOL_H
 
-//basic includes
+#include "TrigT1NSWSimTools/IStripSegmentTool.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "GaudiKernel/Property.h"
-
-//Muon RDOs for trigger EDM
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRDO/NSW_TrigRawDataContainer.h"
-
-
-//To access detector envelope
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
-
-//local includes
-#include "TrigT1NSWSimTools/IStripSegmentTool.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-//forward declarations
+
 class IIncidentSvc;
 class TTree;
 
@@ -52,7 +45,7 @@ namespace NSWL1 {
     StripSegmentTool(const std::string& type, 
                       const std::string& name,
                       const IInterface* parent);
-    virtual ~StripSegmentTool();
+    virtual ~StripSegmentTool()=default;
     virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc) override;
     virtual
@@ -60,6 +53,7 @@ namespace NSWL1 {
 
     
   private:
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         // methods implementing the internal data processing
 
         StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior                                                                                           

@@ -253,6 +253,14 @@ if hasattr(runArgs,'TruthReductionScheme'):
             McEventCollectionFilter.UseTRTHits = False
         except:
             filterHitLog.error('Trying to run on upgrade samples (no TRT) with an old tag of McEventCollectionFilter - job will fail.')
+    
+    ## For upgrade geometries the BCM has been removed, so should be switched off
+    if not DetFlags.detdescr.BCM_on():
+        try:
+            McEventCollectionFilter.UseBCMHits = False
+        except:
+            filterHitLog.error('Trying to run on upgrade samples (no BCM) with an old version of McEventCollectionFilter - job will fail.')
+
     if not DetFlags.detdescr.CSC_on():
         try:
             McEventCollectionFilter.UseCSCHits = False

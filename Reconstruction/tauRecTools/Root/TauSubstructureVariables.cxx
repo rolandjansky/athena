@@ -20,6 +20,7 @@
 #include "tauRecTools/TauSubstructureVariables.h"
 
 #include "tauRecTools/KineUtils.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #define GeV 1000
 const double TauSubstructureVariables::DEFAULT = -1111.;
@@ -33,6 +34,7 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name )
 	declareProperty("maxPileUpCorrection", m_maxPileUpCorrection = 4 * GeV);
 	declareProperty("pileUpAlpha", m_pileUpAlpha = 1.0);
 	declareProperty("VertexCorrection", m_doVertexCorrection = false);
+	declareProperty("IncShowerSubtr", m_incShowerSubtr = true);
 }
 
 
@@ -65,7 +67,7 @@ StatusCode TauSubstructureVariables::finalize() {
 // Execute method
 //************************************
 
-StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
+StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
 
 	const xAOD::Jet* taujetseed = (*pTau.jetLink());
     if (!taujetseed) {
@@ -79,6 +81,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 
 	CaloClusterVariables CaloClusterVariablesTool;
 	CaloClusterVariablesTool.setVertexCorrection(m_doVertexCorrection);
+	CaloClusterVariablesTool.setIncSub(m_incShowerSubtr);
 
 	bool isFilled = CaloClusterVariablesTool.update(pTau);
 
@@ -132,8 +135,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	float dr(0.);
 
 	unsigned int num_clusters(0);
-	const xAOD::CaloCluster* incluster;
-	std::vector<const xAOD::CaloCluster*> vClusters;
 
 	TLorentzVector leadClusVec;
 	TLorentzVector subLeadClusVec;
@@ -141,18 +142,12 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	double clusELead = -1111.0;
 	double clusESubLead = -1111.0;
 
-	// loop over all clusters of the jet seed
-	xAOD::JetConstituentVector jcv = taujetseed->getConstituents();
-	xAOD::JetConstituentVector::const_iterator nav_it   = jcv.begin();
-	xAOD::JetConstituentVector::const_iterator nav_itE  = jcv.end();
-	for (; nav_it != nav_itE; ++nav_it) {
-		++num_clusters;
+	// Loop through jets, get links to clusters
+	std::vector<const xAOD::CaloCluster*> vClusters;
+	ATH_CHECK(tauRecTools::GetJetClusterList(taujetseed, vClusters, m_incShowerSubtr));
 
-		incluster = dynamic_cast<const xAOD::CaloCluster*>( (*nav_it)->rawConstituent() );
-		if (!incluster) continue;
-
-		// save all clusters of jet seed
-		vClusters.push_back(incluster);
+	for (auto incluster : vClusters){
+	        ++num_clusters;
 
 		// calc total energy
 		totalEnergy += incluster->e();
@@ -200,10 +195,10 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	if (clusESubLead > 0.) {
 	  approxSubstructure4Vec += subLeadClusVec;
 	  }
-	
+
 	// now sort cluster by energy
 	std::sort(vClusters.begin(), vClusters.end(), DefCaloClusterCompare());
-	
+
 	// determine energy sum of leading 2 and leading 3 clusters
 	float sum2LeadClusterE(0.);
 	float sum3LeadClusterE(0.);
@@ -275,7 +270,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	pTau.setDetail(xAOD::TauJetParameters::PSSFraction,		static_cast<float>(fPSSFraction));
 	pTau.setDetail(xAOD::TauJetParameters::ChPiEMEOverCaloEME,	static_cast<float>(fChPIEMEOverCaloEME));
 	pTau.setDetail(xAOD::TauJetParameters::EMPOverTrkSysP,		static_cast<float>(fEMPOverTrkSysP));
-
 
 	// jvf and sumPtTrk are now a vector and the old run1-type jvf value is stored in the 0-th element
 	// sumPtTrk is calculated wrt Vertices

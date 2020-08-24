@@ -39,10 +39,10 @@ if not ('BSRDOInput' in dir()) or len(BSRDOInput) < 1:
     BSRDOInput = readInputFiles('input_files.txt', 'RAW')
     
 if ('BSRDOInput' in dir()):
-    svcMgr.ByteStreamInputSvc.FullFileName = BSRDOInput
+    svcMgr.EventSelector.Input = BSRDOInput
 
-if len(svcMgr.ByteStreamInputSvc.FullFileName) == 0:
-    print 'ERROR! svcMgr.ByteStreamInputSvc.FullFileName is empty'
+if len(svcMgr.EventSelector.Input) == 0:
+    print 'ERROR! svcMgr.EventSelector.Input is empty'
     sys.exit(1)
     
 #----------------------------------------------------------------------

@@ -6,7 +6,7 @@ from __future__ import print_function
 """
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
 
   ## Initialize a new component accumulator
-  cfg = MainServicesSerialCfg() 
+  cfg = MainServicesCfg(ConfigFlags) 
 
 
   from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg

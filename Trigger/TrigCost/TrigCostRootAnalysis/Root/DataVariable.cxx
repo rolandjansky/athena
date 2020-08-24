@@ -122,11 +122,7 @@ namespace TrigCostRootAnalysis {
       return;
     }
     TH1F* h = getHist(vo);
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 0, 0)
     h->SetCanExtend(TH1::kNoAxis);
-#else
-    h->SetBit(TH1::kCanRebin, kFALSE);
-#endif
     h->SetBins((Int_t) titles.size(), 0., (Float_t) titles.size());
     for (UInt_t i = 0; i < titles.size(); ++i) {
       h->GetXaxis()->SetBinLabel((Int_t) i + 1, titles.at(i).c_str());
@@ -473,11 +469,7 @@ namespace TrigCostRootAnalysis {
     } else {
       // Standard mode - automatic bin widths
       data->m_hist = new TH1F(name.c_str(), data->m_histoTitle->c_str(), Config::config().getInt(kHistBins), 0, 0);
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 0, 0)
       data->m_hist->SetCanExtend(TH1::kAllAxes);
-#else
-      data->m_hist->SetBit(TH1::kCanRebin, kTRUE);
-#endif
     }
     MUTEX_OFF
     delete data->m_histoTitle; //No longer need to keep this title floating about, it's stored in this histogram

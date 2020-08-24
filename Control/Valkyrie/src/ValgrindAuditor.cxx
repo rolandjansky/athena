@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ValgrindAuditor.cxx,v 1.4 2008-10-14 12:31:40 fwinkl Exp $
@@ -87,7 +87,7 @@ StatusCode ValgrindAuditor::initialize()
   m_eventCounter = 0;
 
   // Create regular expressions from algorithm names
-  for( const std::string re : m_algs ) {
+  for( const std::string& re : m_algs ) {
     try {
       m_algsRegEx.push_back( boost::regex(re) );
     }

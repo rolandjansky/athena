@@ -33,20 +33,7 @@ BphysTrigDiMuDecoratorTool::BphysTrigDiMuDecoratorTool( const std::string& type,
 		      const std::string& name, 
 		      const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   )
-,m_V0Tools("Trk::V0Tools")
-,m_trackMass(105.6583715)
 {
-    //declareInterface< BphysTrigDiMuDecoratorTool >(this);
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-    declareProperty("V0Tools",m_V0Tools);
-
-    declareProperty( "TrackMass", m_trackMass );
-    declareProperty( "PVContainerName",   m_pvCandidatesKey   = "PrimaryVertices" );
-
-    
     declareInterface<IBphysTrigDiMuDecoratorTool>(this);
 }
 
@@ -59,21 +46,24 @@ BphysTrigDiMuDecoratorTool::~BphysTrigDiMuDecoratorTool()
 ////////////////////////////
 StatusCode BphysTrigDiMuDecoratorTool::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
     if ( m_V0Tools.retrieve().isFailure() ) {
         ATH_MSG_FATAL("Failed to retrieve tool " << m_V0Tools);
         return StatusCode::FAILURE;
     } else {
-        ATH_MSG_INFO("Retrieved tool " << m_V0Tools);
+        ATH_MSG_DEBUG("Retrieved tool " << m_V0Tools);
     }
+
+  ATH_CHECK( m_pvCandidatesKey.initialize() );
+  ATH_CHECK( m_beamSpotKey.initialize() );
     
   return StatusCode::SUCCESS;
 }
 
 StatusCode BphysTrigDiMuDecoratorTool::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
@@ -96,41 +86,44 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
     //ATH_CHECK( evtStore()->retrieve(jpsiContainer ,m_JpsiCandidatesKey));
 
 
-    const xAOD::VertexContainer* pvContainer(0);
+    SG::ReadHandle<xAOD::VertexContainer> pvContainer{m_pvCandidatesKey};
     // check if PV container - ie. if cosmics // https://its.cern.ch/jira/browse/ATR-10633
-    if (evtStore()->retrieve(pvContainer   ,m_pvCandidatesKey  ).isFailure() || !pvContainer) {
+    if (!pvContainer.isValid()) {
         ATH_MSG_DEBUG("No PrimaryVertex container of name: " << m_pvCandidatesKey);
     } // no PV
-    
-    //vtx->auxdecor<unsigned int>("TestVar") = 10;
-    
+       
     const xAOD::Vertex * vtxbs(nullptr), *vtxpv(nullptr);
-    if (pvContainer) {
-        for (auto primvtx: *pvContainer) {
-            if ( primvtx->vertexType() == xAOD::VxType::PriVtx)
+    if (pvContainer.isValid()) {
+        for (const auto& primvtx: *pvContainer) {
+            if ( primvtx->vertexType() == xAOD::VxType::PriVtx) {
                 vtxpv = primvtx;
+                break;
+            }
         } // vtx
     } // if pv container is found
     
-    const xAOD::EventInfo *evtInfo(nullptr);
-    if ( evtStore()->retrieve(evtInfo).isFailure() || !evtInfo) {
+    SG::ReadCondHandle<InDet::BeamSpotData> beamspot{m_beamSpotKey};
+    if ( ! beamspot.isValid() ) {
         ATH_MSG_DEBUG("No EventInfo found; dummy BS position used");
     } else {
-        ATH_MSG_VERBOSE("Beamspot: " << evtInfo->beamPosX() << " "
-                      << evtInfo->beamPosY() << " " << evtInfo->beamPosZ() << " / "
-                      << evtInfo->beamPosSigmaX() << " " << evtInfo->beamPosSigmaY() << " "
-                      << evtInfo->beamPosSigmaZ() );
+        ATH_MSG_VERBOSE("Beamspot: " 
+                      << beamspot->beamPos()[0] << " "
+                      << beamspot->beamPos()[1] << " "
+                      << beamspot->beamPos()[2] << " / "
+                      << beamspot->beamSigma(0) << " "
+                      << beamspot->beamSigma(1) << " " 
+                      << beamspot->beamSigma(2) << " " );
     }
     std::unique_ptr<xAOD::Vertex> bsVertex = std::make_unique<xAOD::Vertex>();
     bsVertex->makePrivateStore();
     AmgSymMatrix(3) cov;
-    if (evtInfo) {
-        bsVertex->setX(evtInfo->beamPosX());
-        bsVertex->setY(evtInfo->beamPosY());
-        bsVertex->setZ(evtInfo->beamPosZ());
-        cov(0,0) = evtInfo->beamPosSigmaX() * evtInfo->beamPosSigmaX();
-        cov(1,1) = evtInfo->beamPosSigmaY() * evtInfo->beamPosSigmaY();
-        cov(2,2) = evtInfo->beamPosSigmaZ() * evtInfo->beamPosSigmaZ();
+    if (beamspot.isValid()) {
+        bsVertex->setX(beamspot->beamPos()[0]);
+        bsVertex->setY(beamspot->beamPos()[1]);
+        bsVertex->setZ(beamspot->beamPos()[2]);
+        for (short axis = 0; axis < 3; ++axis ) {
+            cov(axis,axis) = beamspot->beamSigma( axis ) * beamspot->beamSigma( axis );
+        }
     } else {
         bsVertex->setX(0.);
         bsVertex->setY(0.);

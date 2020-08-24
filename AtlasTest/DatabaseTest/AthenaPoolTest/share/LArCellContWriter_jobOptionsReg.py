@@ -102,7 +102,6 @@ topSequence += RegStream1
 svcMgr.MessageSvc.OutputLevel = INFO
 svcMgr.MessageSvc.debugLimit  = 100000
 svcMgr.ClassIDSvc.OutputLevel = INFO
-svcMgr.AthenaSealSvc.OutputLevel = INFO
 #AthenaPoolTestAttrWriter.OutputLevel = 2
 LArCellContFakeWriter.OutputLevel = DEBUG
 #StoreGateSvc = Service( "StoreGateSvc" )

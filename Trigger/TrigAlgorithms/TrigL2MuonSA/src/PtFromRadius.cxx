@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/PtFromRadius.h"
+#include "PtFromRadius.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TMath.h"
@@ -12,46 +12,11 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_PtFromRadius("IID_PtFromRadius", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::PtFromRadius::interfaceID() { return IID_PtFromRadius; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::PtFromRadius::PtFromRadius(const std::string& type,
 					 const std::string& name,
 					 const IInterface*  parent):
-  AthAlgTool(type, name, parent), 
-  m_use_mcLUT(0),
-  m_ptBarrelLUT(0)
+  AthAlgTool(type, name, parent) 
 {
-  declareInterface<TrigL2MuonSA::PtFromRadius>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::PtFromRadius::~PtFromRadius() 
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::PtFromRadius::initialize()
-{
-  ATH_MSG_DEBUG("Initializing PtFromRadius - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -69,6 +34,8 @@ void TrigL2MuonSA::PtFromRadius::setMCFlag(BooleanProperty use_mcLUT,
 
 StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPattern)
 {
+  const double ZERO_LIMIT = 1e-5;
+
   const PtBarrelLUT::LUT&   lut   = (*m_ptBarrelLUT)->lut();
   const PtBarrelLUT::LUTsp& lutSP = (*m_ptBarrelLUT)->lutSP();
 
@@ -81,94 +48,91 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
   float phistep,etastep,pstep,dist,distp,disteta,distphi;
   float A0[6]={0.,0.,0.,0.,0.,0.},A1[6]={0.,0.,0.,0.,0.,0.};
 
-  float scale = 0.1;
-  
-  if(trackPattern.barrelRadius > 0.) {
+  const float scale = 0.1;
+
+  if(trackPattern.barrelRadius > ZERO_LIMIT) {
     add = trackPattern.s_address;
     etabin = (int)((trackPattern.etaMap - lut.EtaMin[add])/lut.EtaStep[add]);
     phibin = (int)((trackPattern.phiMap - lut.PhiMin[add])/lut.PhiStep[add]);
-    
+
     if(etabin<=-1) etabin = 0;
     if(etabin>=lut.NbinEta[add]) etabin = lut.NbinEta[add]-1;
     if(phibin<=-1) phibin = 0;
     if(phibin>=lut.NbinPhi[add]) phibin = lut.NbinPhi[add]-1;
-        
+
     disteta = trackPattern.etaMap - (etabin*lut.EtaStep[add] +
-				  lut.EtaStep[add]/2. + lut.EtaMin[add]);
+        lut.EtaStep[add]/2. + lut.EtaMin[add]);
     distphi = trackPattern.phiMap - (phibin*lut.PhiStep[add] + 
-				  lut.PhiStep[add]/2. + lut.PhiMin[add]);
+        lut.PhiStep[add]/2. + lut.PhiMin[add]);
     neweta  = (disteta >= 0.) ? etabin+1 : etabin-1;
     newphi  = (distphi >= 0.) ? phibin+1 : phibin-1;
     etastep = (disteta >= 0.) ? lut.EtaStep[add] : -lut.EtaStep[add];
     phistep = (distphi >= 0.) ? lut.PhiStep[add] : -lut.PhiStep[add];
 
-    if(trackPattern.barrelRadius!=0.) {
+    ch = (trackPattern.charge>=0.)? 1 : 0;
 
-      ch = (trackPattern.charge>=0.)? 1 : 0;
+    if( add==1 ) {
+      // Use special table for Large-SP data
 
-      if( add==1 ) {
-	// Use special table for Large-SP data
+      int iR = ( superPoints[0]->R > 6000 )? 1: 0;
+      int qeta = ( trackPattern.charge*trackPattern.etaMap >= 0.)? 1 : 0;
 
-	int iR = ( superPoints[0]->R > 6000 )? 1: 0;
-        int qeta = ( trackPattern.charge*trackPattern.etaMap >= 0.)? 1 : 0;
+      A0[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][0];
+      A1[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][1];
 
-	A0[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][0];
-	A1[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][1];
+      trackPattern.pt = trackPattern.barrelRadius*A0[0] + A1[0];
 
-	trackPattern.pt = trackPattern.barrelRadius*A0[0] + A1[0];
+    } else {
 
+      A0[0] = lut.table[add][ch][etabin][phibin][0];
+      A1[0] = lut.table[add][ch][etabin][phibin][1];
+      if((neweta<0||neweta>=lut.NbinEta[add])&&
+          (newphi<0||newphi>=lut.NbinPhi[add])) {
+        trackPattern.pt = trackPattern.barrelRadius*scale*A0[0] + A1[0];
+      } else if (neweta<0||neweta>=lut.NbinEta[add]) {
+        A0[1] = lut.table[add][ch][etabin][newphi][0];
+        A1[1] = lut.table[add][ch][etabin][newphi][1];
+        A0[2] = A0[0] + ((A0[1] - A0[0])/phistep)*distphi;
+        A1[2] = A1[0] + ((A1[1] - A1[0])/phistep)*distphi;
+        trackPattern.pt = trackPattern.barrelRadius*scale*A0[2] + A1[2];
+      } else if (newphi<0||newphi>=lut.NbinPhi[add]) {
+        A0[1] = lut.table[add][ch][neweta][phibin][0];
+        A1[1] = lut.table[add][ch][neweta][phibin][1];
+        A0[2] = A0[0] + ((A0[1] - A0[0])/etastep)*disteta;
+        A1[2] = A1[0] + ((A1[1] - A1[0])/etastep)*disteta;
+        trackPattern.pt = trackPattern.barrelRadius*scale*A0[2] + A1[2];
       } else {
-
-	A0[0] = lut.table[add][ch][etabin][phibin][0];
-	A1[0] = lut.table[add][ch][etabin][phibin][1];
-	if((neweta<0||neweta>=lut.NbinEta[add])&&
-	   (newphi<0||newphi>=lut.NbinPhi[add])) {
-	  trackPattern.pt = trackPattern.barrelRadius*scale*A0[0] + A1[0];
-	} else if (neweta<0||neweta>=lut.NbinEta[add]) {
-	  A0[1] = lut.table[add][ch][etabin][newphi][0];
-	  A1[1] = lut.table[add][ch][etabin][newphi][1];
-	  A0[2] = A0[0] + ((A0[1] - A0[0])/phistep)*distphi;
-	  A1[2] = A1[0] + ((A1[1] - A1[0])/phistep)*distphi;
-	  trackPattern.pt = trackPattern.barrelRadius*scale*A0[2] + A1[2];
-	} else if (newphi<0||newphi>=lut.NbinPhi[add]) {
-	  A0[1] = lut.table[add][ch][neweta][phibin][0];
-	  A1[1] = lut.table[add][ch][neweta][phibin][1];
-	  A0[2] = A0[0] + ((A0[1] - A0[0])/etastep)*disteta;
-	  A1[2] = A1[0] + ((A1[1] - A1[0])/etastep)*disteta;
-	  trackPattern.pt = trackPattern.barrelRadius*scale*A0[2] + A1[2];
-	} else {
-	  if(disteta >= distphi*lut.EtaStep[add]/lut.PhiStep[add]) {
-	    A0[1] = lut.table[add][ch][neweta][phibin][0];
-	    A1[1] = lut.table[add][ch][neweta][phibin][1];
-	    A0[2] = lut.table[add][ch][neweta][newphi][0];
-	    A1[2] = lut.table[add][ch][neweta][newphi][1];
-	    A0[3] = A0[0] + ((A0[1] - A0[0])/etastep)*disteta;
-	    A1[3] = A1[0] + ((A1[1] - A1[0])/etastep)*disteta;
-	    dist  = sqrt(phistep*phistep + etastep*etastep);
-	    distp = sqrt(disteta*disteta + distphi*distphi);
-	    A0[4] = A0[0] + ((A0[2] - A0[0])/dist)*distp;
-	    A1[4] = A1[0] + ((A1[2] - A1[0])/dist)*distp;
-	    pstep = (phistep/dist)*distp;
-	    A0[5] = A0[3] + ((A0[4] - A0[3])/pstep)*distphi;
-	    A1[5] = A1[3] + ((A1[4] - A1[3])/pstep)*distphi;
-	    trackPattern.pt = trackPattern.barrelRadius*scale*A0[5] + A1[5];
-	  } else {
-	    A0[1] = lut.table[add][ch][etabin][newphi][0];
-	    A1[1] = lut.table[add][ch][etabin][newphi][1];
-	    A0[2] = lut.table[add][ch][neweta][newphi][0];
-	    A1[2] = lut.table[add][ch][neweta][newphi][1];
-	    A0[3] = A0[0] + ((A0[1] - A0[0])/phistep)*distphi;
-	    A1[3] = A1[0] + ((A1[1] - A1[0])/phistep)*distphi;
-	    dist  = sqrt(phistep*phistep + etastep*etastep);
-	    distp = sqrt(disteta*disteta + distphi*distphi);
-	    A0[4] = A0[0] + ((A0[2] - A0[0])/dist)*distp;
-	    A1[4] = A1[0] + ((A1[2] - A1[0])/dist)*distp;
-	    pstep = (etastep/dist)*distp;
-	    A0[5] = A0[3] + ((A0[4] - A0[3])/pstep)*disteta;
-	    A1[5] = A1[3] + ((A1[4] - A1[3])/pstep)*disteta;
-	    trackPattern.pt = trackPattern.barrelRadius*scale*A0[5] + A1[5];
-	  }
-	}
+        if(disteta >= distphi*lut.EtaStep[add]/lut.PhiStep[add]) {
+          A0[1] = lut.table[add][ch][neweta][phibin][0];
+          A1[1] = lut.table[add][ch][neweta][phibin][1];
+          A0[2] = lut.table[add][ch][neweta][newphi][0];
+          A1[2] = lut.table[add][ch][neweta][newphi][1];
+          A0[3] = A0[0] + ((A0[1] - A0[0])/etastep)*disteta;
+          A1[3] = A1[0] + ((A1[1] - A1[0])/etastep)*disteta;
+          dist  = sqrt(phistep*phistep + etastep*etastep);
+          distp = sqrt(disteta*disteta + distphi*distphi);
+          A0[4] = A0[0] + ((A0[2] - A0[0])/dist)*distp;
+          A1[4] = A1[0] + ((A1[2] - A1[0])/dist)*distp;
+          pstep = (phistep/dist)*distp;
+          A0[5] = A0[3] + ((A0[4] - A0[3])/pstep)*distphi;
+          A1[5] = A1[3] + ((A1[4] - A1[3])/pstep)*distphi;
+          trackPattern.pt = trackPattern.barrelRadius*scale*A0[5] + A1[5];
+        } else {
+          A0[1] = lut.table[add][ch][etabin][newphi][0];
+          A1[1] = lut.table[add][ch][etabin][newphi][1];
+          A0[2] = lut.table[add][ch][neweta][newphi][0];
+          A1[2] = lut.table[add][ch][neweta][newphi][1];
+          A0[3] = A0[0] + ((A0[1] - A0[0])/phistep)*distphi;
+          A1[3] = A1[0] + ((A1[1] - A1[0])/phistep)*distphi;
+          dist  = sqrt(phistep*phistep + etastep*etastep);
+          distp = sqrt(disteta*disteta + distphi*distphi);
+          A0[4] = A0[0] + ((A0[2] - A0[0])/dist)*distp;
+          A1[4] = A1[0] + ((A1[2] - A1[0])/dist)*distp;
+          pstep = (etastep/dist)*distp;
+          A0[5] = A0[3] + ((A0[4] - A0[3])/pstep)*disteta;
+          A1[5] = A1[3] + ((A1[4] - A1[3])/pstep)*disteta;
+          trackPattern.pt = trackPattern.barrelRadius*scale*A0[5] + A1[5];
+        }
       }
     }
   }
@@ -184,13 +148,3 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtFromRadius::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing PtFromRadius - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

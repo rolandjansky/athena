@@ -78,5 +78,3 @@ print 'BEGIN_RTTINFO = Photons_calib0_csc11_007062_singlepart_gamma_E50'
 import os
 com="echo \"BEGIN_RTTINFO = Photons_calib0_csc11_007062_singlepart_gamma_E50\">&MYRTTINFOS.txt"
 os.system(com)
-#from __main__ import AtlasTrackingGeometrySvc
-#AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False

@@ -1,4 +1,0 @@
-<exclusion>
-  <class name="std::set<uint32_t>" />
-  <class name="std::vector<std::pair<std::string,std::string> >" />
-</exclusion>

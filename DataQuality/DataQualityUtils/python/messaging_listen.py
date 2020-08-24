@@ -28,7 +28,7 @@ class ATLASDQMListener(object):
                                                      socket.AF_INET, 
                                                      socket.SOCK_STREAM)]
         
-        import stompconfig
+        from . import stompconfig
         self.conns = []
         if hasattr(self.listener, 'conn'):
             self.listener.conn=[]
@@ -66,7 +66,7 @@ class ATLASDQMListener(object):
                                                      socket.AF_INET, 
                                                      socket.SOCK_STREAM)]
         
-        import stompconfig
+        from . import stompconfig
         self.conns = []
         if hasattr(self.listener, 'conn'):
             self.listener.conn=[]

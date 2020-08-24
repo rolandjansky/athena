@@ -32,4 +32,4 @@ def makeCavernBkgInputCol(nEvts, initialList):
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from Digitization.DigitizationFlags import digitizationFlags
 digitizationFlags.cavernInputCols=makeCavernBkgInputCol(25*len(athenaCommonFlags.PoolHitsInput.get_Value()), cavernlist)
-print "digitizationFlags.cavernInputCols size = ", len(digitizationFlags.cavernInputCols.get_Value())
+printfunc ("digitizationFlags.cavernInputCols size = ", len(digitizationFlags.cavernInputCols.get_Value()))

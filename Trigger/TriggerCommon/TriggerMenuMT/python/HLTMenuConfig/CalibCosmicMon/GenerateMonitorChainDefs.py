@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.MonitorChainConfiguration import MonitorChainConfiguration as MonitorChainConfiguration
@@ -14,7 +14,7 @@ log.info("Importing %s",__name__)
 def generateChainConfigs( chainDict ):
 
     listOfChainDicts = splitChainDict(chainDict)
-    log.debug("Will generate Config for streamer: %s", chainDict['chainName'])
+    log.debug("Will generate Config for monitor chain: %s", chainDict['chainName'])
 
     listOfChainDefs = []
         

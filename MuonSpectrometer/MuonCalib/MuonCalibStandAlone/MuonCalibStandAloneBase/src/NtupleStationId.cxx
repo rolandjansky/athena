@@ -1,22 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibIdentifier/MdtRegion.h"
 #include "Identifier/IdContext.h"
-
-//geo model
 #include "MuonIdHelpers/MdtIdHelper.h"
-
-// MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace MuonCalib {
 
-bool NtupleStationId :: Initialize(const std::string & station, const int & eta, const int & phi, const int & ml, const int & author)
+bool NtupleStationId::Initialize(const std::string & station, const int & eta, const int & phi, const int & ml, const int & author)
 	{
 	MuonFixedId id;
 	if(station=="ANY")
@@ -37,7 +34,7 @@ bool NtupleStationId :: Initialize(const std::string & station, const int & eta,
 	return true;
 	}
 
-void NtupleStationId :: SetStation(const std::string & station)
+void NtupleStationId::SetStation(const std::string & station)
 	{
 	MuonFixedId id;
 	m_station=id.stationStringToFixedStationNumber(station);
@@ -45,29 +42,25 @@ void NtupleStationId :: SetStation(const std::string & station)
 	}
 
 
-bool NtupleStationId :: InitializeGeometry(const MdtIdHelper& mdtIdHelper, const MuonGM::MuonDetectorManager* detMgr)
+bool NtupleStationId::InitializeGeometry(const MdtIdHelper& mdtIdHelper, const MuonGM::MuonDetectorManager* detMgr)
 	{
 	MuonFixedId fid;
-	if(m_station == -1 || m_phi < 0 || m_eta == -99)
-		{
-		std::cerr<<" NtupleStationId :: InitializeGeometry: Cannot initialize geometry for multi station id"<<std::endl;
+	MsgStream log(Athena::getMessageSvc(),"NtupleStationId");
+	if(m_station == -1 || m_phi < 0 || m_eta == -99) {
+		log<<MSG::WARNING<<"NtupleStationId::InitializeGeometry: Cannot initialize geometry for multi station id"<<endmsg;
 		m_geom_ok=false;
 		return false;
 		}
-//	std::cout<<m_phi<<" "<<m_eta<<std::endl;
 	Identifier id(mdtIdHelper.elementID(fid.stationNumberToFixedStationString(m_station), m_eta, m_phi));
-//	std::cout<<"Station id is: "<<mdtIdHelper.print_to_string(id)<<std::endl;
 	m_n_ml = mdtIdHelper.numberOfMultilayers(id);
-//	const MuonGM::MdtReadoutElement* detEl = detMgr->getMdtReadoutElement(mdtIdHelper.channelID(id,1,1,1));
-//	m_n_ml=detEl->getMultilayer();
 //loop on multilayers
 	for(int i=0; i<m_n_ml; i++)
 		{
 		const MuonGM::MdtReadoutElement* detEl_ml = detMgr->getMdtReadoutElement(mdtIdHelper.channelID(id,1+i ,1,1));
 		m_layer_min[i]=1;
-		if (detEl_ml==NULL)
+		if (!detEl_ml)
 			{
-			std::cout<<regionId()<<" ml "<<i<< "does not exist in current geometry"<<std::endl;
+			log<<MSG::WARNING<<regionId()<<" ml "<<i<< "does not exist in current geometry"<<endmsg;
 			return false;
 			}
 		m_layer_max[i]=detEl_ml->getNLayers();
@@ -85,7 +78,7 @@ bool NtupleStationId :: InitializeGeometry(const MdtIdHelper& mdtIdHelper, const
 	}
 
 
-void NtupleStationId :: createRegionId() const
+void NtupleStationId::createRegionId() const
 	{
 	MuonFixedId id;
 	std::ostringstream id_stream;
@@ -124,7 +117,7 @@ void NtupleStationId :: createRegionId() const
 	}
 
 
-int NtupleStationId ::  FixedId() const
+int NtupleStationId::FixedId() const
 	{
 	if(m_station<0 || m_eta==-99 || m_phi<0) return -1;
 	MuonFixedId id;
@@ -132,9 +125,6 @@ int NtupleStationId ::  FixedId() const
 	if(!id.setStationName(m_station)) return -1;
 	if(!id.setStationEta(m_eta)) return -1;
 	if(!id.setStationPhi(m_phi)) return -1;
-/*	id.setMdtTubeIndex(0);
-	id.setMdtTubeLayerIndex(0);
-	id.setMdtMultilayerIndex(0);*/
 	return id.mdtChamberId().getIdInt();
 	}
 

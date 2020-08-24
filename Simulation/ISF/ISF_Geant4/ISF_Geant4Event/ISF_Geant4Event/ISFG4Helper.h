@@ -21,7 +21,7 @@ namespace ISF {
 }
 class VTrackInformation;
 class TrackInformation;
-class EventInformation;
+class AtlasG4EventUserInfo;
 class G4Track;
 
 namespace iGeant4 {
@@ -49,10 +49,10 @@ class ISFG4Helper {
   static TrackInformation* attachTrackInfoToNewG4Track( G4Track& aTrack,
                                    const ISF::ISFParticle& baseIsp,
                                    TrackClassification classification,
-                                   HepMC::GenParticle *nonRegeneratedTruthParticle = nullptr);
+                                   HepMC::GenParticlePtr nonRegeneratedTruthParticle = nullptr);
   
-  /** return pointer to current EventInformation */
-  static EventInformation* getEventInformation();
+  /** return pointer to current AtlasG4EventUserInfo */
+  static AtlasG4EventUserInfo* getAtlasG4EventUserInfo();
  
  private:
  

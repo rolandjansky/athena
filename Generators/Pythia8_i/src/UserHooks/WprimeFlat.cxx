@@ -47,7 +47,7 @@ namespace Pythia8 {
       double GamMRat = wRes/mRes;
       double sHat = phaseSpacePtr->sHat();
       double weightBW = pow2(sHat - m2Res) + pow2(sHat * GamMRat);      
-      double m = sqrt(sHat)/((double)m_energyMode(settingsPtr)*1000.0);
+      double m = std::sqrt(sHat)/((double)m_energyMode(settingsPtr)*1000.0);
 
       switch(m_energyMode(settingsPtr)){
       case 8:
