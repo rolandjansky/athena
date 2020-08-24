@@ -195,7 +195,7 @@ class TrigEgammaMonAlgBuilder:
     EgammaMatchTool = CompFactory.TrigEgammaMatchingToolMT()
     EgammaMatchTool.DeltaR=0.4
     acc.addPublicTool(EgammaMatchTool)
-    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.load_library('libElectronPhotonSelectorToolsDict')
     # Following loads the online selectors
   
     # setup all pid tools
