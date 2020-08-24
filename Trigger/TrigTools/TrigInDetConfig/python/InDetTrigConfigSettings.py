@@ -65,6 +65,7 @@ class _Settings :
         self._monPtMin            = 1*GeV
         self._roiName             = ""
         self._trackCollection     = ""
+        self._tracks              = "TrigFastTrackFinder_Tracks" # Base Name of the track collection being produced by FTF, full name is appended by signature suffix
 
         self._doTRT               = False
 
@@ -122,6 +123,16 @@ class _Settings :
   def trackCollection(self) :
    return self._trackCollection
 
+  #Have separate collections for each?
+  def FTFtrackCollection(self) :
+   return self._trackCollection + '_FTF'
+
+  def PTtrackCollection(self) :
+   return self._trackCollection + '_IDTrig'
+
+  def FTFtracks(self) :
+   return '{}{}'.format( self._tracks, '' if not self._name else '_' + self._name )
+
   def doTRT(self) :
    return self._doTRT
 
@@ -144,7 +155,7 @@ class _Settings :
        print( "   monPS                : ", self._monPS )
        print( "   monPtMin             : ", self._monPtMin )
        print( "   roiName              : ", self._roiName ) 
-       print( "   trackCollectiom      : ", self._trackCollection ) 
+       print( "   trackCollection      : ", self._trackCollection ) 
 
 
 #Note:

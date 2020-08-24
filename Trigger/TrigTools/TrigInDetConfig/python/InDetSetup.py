@@ -303,10 +303,22 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
   if doFTF: 
+      #Load signature configuration (containing cut values, names of collections, etc)
+      from .InDetTrigConfigSettings import getInDetTrigConfig
+      #from .InDetPT import remapSuffix #This is just temporary
+      #TODO: we should fix signature names without need to remap!
+      #sign = remapSuffix( separateTrackParticleCreator) 
+      sign = separateTrackParticleCreator 
+      #Remove: Hot fix!
+      #if sign == 'Electron':
+      #   sign = 'electron'
+      #print('MAT:',sign)
+      configSetting = getInDetTrigConfig( sign )
+
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
       theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
       theFTF.RoIs = rois
-      theFTF.TracksName = "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator
+      theFTF.TracksName = configSetting.FTFtracks() #"TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator
       
       #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
       if whichSignature=="Electron":
@@ -319,11 +331,13 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
       from TrigEDMConfig.TriggerEDMRun3 import recordable
       from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
-      trackCollection = "HLT_IDTrack_" + separateTrackParticleCreator + "_FTF"
+
+
+      trackCollection = configSetting.FTFtrackCollection() # "HLT_IDTrack_" + separateTrackParticleCreator + "_FTF"
 
 
       theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                                TrackName = "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
+                                                                TrackName = configSetting.FTFtracks(),#"TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     
       if separateTrackParticleCreator == "BeamSpot" : 

@@ -57,6 +57,7 @@ def makeInDetPrecisionTracking( whichSignature,
 
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
+  print('MAT FTF col: {}'.format(inputFTFtracks) )
 
   #-----------------------------------------------------------------------------
   #                        Naming conventions
@@ -128,17 +129,21 @@ def makeInDetPrecisionTracking( whichSignature,
 
   #-----------------------------------------------------------------------------
   #                        Ambiguity solving stage
-
   from .InDetTrigCommon import TrkAmbiguityScore_builder, TrkAmbiguitySolver_builder, get_full_name
   ambSolvingStageAlgs = [
-                           TrkAmbiguityScore_builder( name   = get_full_name(  'TrackAmbiguityScore', configSetting.name() ),
-                                                      config =  configSetting ),
+                           TrkAmbiguityScore_builder( name   = get_full_name(  'TrkAmbiguityScore', configSetting.name() ),
+                                                      config = configSetting ),
 
-                           TrkAmbiguitySolver_builder( name = get_full_name( 'TrackAmbiguitySolver', configSetting.name() ),
-                                                      config =  configSetting ),
+                           TrkAmbiguitySolver_builder( name   = get_full_name( 'TrkAmbiguitySolver', configSetting.name() ),
+                                                       config = configSetting )
                         ]
 
+  #Loading the alg to the sequence
   ptAlgs.extend( ambSolvingStageAlgs )
+
+  print('MAT ALGS')
+  for alg in ptAlgs:
+      print(alg)
 
   if configSetting.doTRT:
 
@@ -267,6 +272,7 @@ def makeInDetPrecisionTracking( whichSignature,
             #TODO In Run2 option for cosmic
             #InDetTrigExtensionFitter = InDetTrigTrackFitter
             from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
             InDetTrigExtScoringTool = InDet__InDetAmbiScoringTool(name               = '%sExtScoringTool%s'%(algNamePrefix, signature),
                                                                   Extrapolator       = InDetTrigExtrapolator,
                                                                   SummaryTool        = SummaryTool_config,
@@ -290,6 +296,7 @@ def makeInDetPrecisionTracking( whichSignature,
             ToolSvc += InDetTrigExtScoringTool
 
 
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
             from InDetExtensionProcessor.InDetExtensionProcessorConf import InDet__InDetExtensionProcessor   
             InDetTrigExtensionProcessor = InDet__InDetExtensionProcessor (name               = "%sExtensionProcessor%s"%(algNamePrefix, signature),
                                                                           TrackName          = nameAmbiTrackCollection,
