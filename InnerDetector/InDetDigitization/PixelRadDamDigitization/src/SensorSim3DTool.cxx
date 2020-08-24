@@ -446,7 +446,10 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
                                 double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - module_size_y_half;
                                 SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-                                SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(phit), SiCharge::track, HepMcParticleLink(phit->trackNumber(), phit.eventId())));
+                                const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+                                const bool isEventIndexIsPosition = (phit.eventId()==0);
+                                HepMcParticleLink McLink(phit->trackNumber(), phit.eventId(), evColl, isEventIndexIsPosition);
+                                SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(phit), SiCharge::track, McLink));
                                 SiCellId diode = Module.cellIdOfPosition(scharge.position());
                                 SiCharge charge = scharge.charge();
                                 if (diode.isValid()) {
@@ -543,7 +546,10 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
                         double y_mod = y_neighbor + pixel_size_y_half + pixel_size_y*nPixY -module_size_y_half;
                         SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
 
-                        SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+                        const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+                        const bool isEventIndexIsPosition = (phit.eventId()==0);
+                        HepMcParticleLink McLink(phit->trackNumber(), phit.eventId(), evColl, isEventIndexIsPosition);
+                        SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track, McLink));
                         SiCellId diode = Module.cellIdOfPosition(scharge.position());
                         SiCharge charge = scharge.charge();
 
