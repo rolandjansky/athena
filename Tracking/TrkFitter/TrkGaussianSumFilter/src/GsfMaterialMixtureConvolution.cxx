@@ -371,10 +371,11 @@ Trk::GsfMaterialMixtureConvolution::update(
     // Get the first TP
     size_t stateIndex = indices[mini].first;
     size_t materialIndex = indices[mini].second;
-    AmgVector(5)& stateVector =
-      caches[stateIndex].deltaParameters[materialIndex];
-    AmgSymMatrix(5)& measuredCov =
-      caches[stateIndex].deltaCovariances[materialIndex];
+
+    // Copy weight and first parameters as they are needed later on
+    // for updating the covariance
+    AmgVector(5) firstParameters = caches[stateIndex].deltaParameters[materialIndex];
+    double firstWeight = caches[stateIndex].weights[materialIndex];
 
     // Get the second TP
     size_t stateIndex2 = indices[minj].first;
@@ -384,20 +385,17 @@ Trk::GsfMaterialMixtureConvolution::update(
     ++nMerges;
     isMerged[minj] = true;
 
-    // Copy weight and first parameters as they are needed later on
-    const AmgVector(5) firstParameters = stateVector;
-    const double firstWeight = caches[stateIndex].weights[materialIndex];
-
     // Update first parameters and weight
     Trk::MultiComponentStateCombiner::combineParametersWithWeight(
       caches[stateIndex].deltaParameters[materialIndex],
       caches[stateIndex].weights[materialIndex],
       caches[stateIndex2].deltaParameters[materialIndex2],
       caches[stateIndex2].weights[materialIndex2]);
-    // Update first cov
+
+    // Update covariance
     Trk::MultiComponentStateCombiner::combineCovWithWeight(
       firstParameters,
-      measuredCov,
+      caches[stateIndex].deltaCovariances[materialIndex],
       firstWeight,
       caches[stateIndex2].deltaParameters[materialIndex2],
       caches[stateIndex2].deltaCovariances[materialIndex2],
@@ -409,8 +407,9 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   for (size_t i(0); i < n; ++i) {
-    if (isMerged[i])
+    if (isMerged[i]){
       continue;
+    }
 
     // Build the TP
     size_t stateIndex = indices[i].first;
