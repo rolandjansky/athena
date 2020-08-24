@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 from ISF_Tools.ISF_ToolsConfigNew import ParticleHelperCfg
-from ISF_Services.ISF_ServicesCoreConfigNew import (
+from ISF_Services.ISF_ServicesConfigNew import (
     ParticleBrokerSvcCfg, TruthServiceCfg,
 )
 from RngComps.RandomServices import RNG
