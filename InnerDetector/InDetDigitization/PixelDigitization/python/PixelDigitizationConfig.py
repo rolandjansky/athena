@@ -99,8 +99,9 @@ def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
     kwargs.setdefault("doDeltaRay", False)            # needs validation
     kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    if InDetGeometryFlags.isSLHC():
-       kwargs.setdefault("doSlimEdges", False) 
+    #This should become default for ITk once fully tested
+    #if InDetGeometryFlags.isSLHC():
+    #   kwargs.setdefault("doSlimEdges", False) 
     if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
@@ -146,8 +147,9 @@ def PixelECChargeTool(name="PixelECChargeTool", **kwargs):
 def IblPlanarChargeTool(name="IblPlanarChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    if InDetGeometryFlags.isSLHC():
-       kwargs.setdefault("doSlimEdges", False)
+    #This should become default for ITk once fully tested
+    #if InDetGeometryFlags.isSLHC():
+    #   kwargs.setdefault("doSlimEdges", False)
     if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
