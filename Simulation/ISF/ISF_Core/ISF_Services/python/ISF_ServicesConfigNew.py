@@ -210,7 +210,7 @@ def MC12LLPTruthServiceCfg(ConfigFlags, name="ISF_MC12TruthLLPService", **kwargs
 def MC12PlusTruthServiceCfg(ConfigFlags, name="ISF_MC12PlusTruthService", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary("AtlasDetDescrDict")
+    cppyy.load_library("libAtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID] )
     return MC12TruthServiceCfg(name, **kwargs)
@@ -236,7 +236,7 @@ def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
     result = ComponentAccumulator()
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary("AtlasDetDescrDict")
+    cppyy.load_library("libAtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
 
     if "TruthStrategies" not in kwargs:
@@ -265,7 +265,7 @@ def MC15aTruthServiceCfg(ConfigFlags, name="ISF_MC15aTruthService", **kwargs):
 def MC15aPlusTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusTruthService", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary("AtlasDetDescrDict")
+    cppyy.load_library("libAtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID])
     result = MC15TruthServiceCfg(ConfigFlags, name, **kwargs)
