@@ -305,45 +305,30 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   if doFTF: 
       #Load signature configuration (containing cut values, names of collections, etc)
       from .InDetTrigConfigSettings import getInDetTrigConfig
-      #from .InDetPT import remapSuffix #This is just temporary
-      #TODO: we should fix signature names without need to remap!
-      #sign = remapSuffix( separateTrackParticleCreator) 
-      sign = separateTrackParticleCreator 
-      #Remove: Hot fix!
-      #if sign == 'Electron':
-      #   sign = 'electron'
-      #print('MAT:',sign)
-      configSetting = getInDetTrigConfig( sign )
+      configSetting = getInDetTrigConfig( whichSignature )
 
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
-      theFTF.RoIs = rois
-      theFTF.TracksName = configSetting.FTFtracks() #"TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator
-      
-      #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
-      if whichSignature=="Electron":
-         theFTF.doCloneRemoval = True
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, configSetting.name() )
+      theFTF.RoIs           = rois
+      theFTF.TracksName     = configSetting.trkTracksFTF() #Original: "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator, will be removed eventually
+      theFTF.doCloneRemoval = configSetting.doCloneRemoval()
 
       viewAlgs.append(theFTF)
 
 
       from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-      from TrigEDMConfig.TriggerEDMRun3 import recordable
       from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
 
 
-      trackCollection = configSetting.FTFtrackCollection() # "HLT_IDTrack_" + separateTrackParticleCreator + "_FTF"
-
-
       theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                                TrackName = configSetting.FTFtracks(),#"TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
+                                                                TrackName = configSetting.trkTracksFTF(),#"TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     
-      if separateTrackParticleCreator == "BeamSpot" : 
-         theTrackParticleCreatorAlg.TrackParticlesName = trackCollection
-      else:
-         theTrackParticleCreatorAlg.TrackParticlesName = recordable( trackCollection )
+      
+      #In general all FTF trackParticle collections are recordable except beamspot to save space
+      theTrackParticleCreatorAlg.TrackParticlesName = configSetting.tracksFTF( doRecord = configSetting.isRecordable() )
+
       viewAlgs.append(theTrackParticleCreatorAlg)
 
 

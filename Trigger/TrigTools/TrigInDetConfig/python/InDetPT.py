@@ -57,8 +57,6 @@ def makeInDetPrecisionTracking( whichSignature,
 
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
-  print('MAT FTF col: {}'.format(inputFTFtracks) )
-
   #-----------------------------------------------------------------------------
   #                        Naming conventions
 
@@ -79,7 +77,9 @@ def makeInDetPrecisionTracking( whichSignature,
 
   #Load signature configuration (containing cut values, names of collections, etc)
   from .InDetTrigConfigSettings import getInDetTrigConfig     
-  configSetting = getInDetTrigConfig( whichSignature )
+
+  #Remap only temporary until signatures fix their naming
+  configSetting = getInDetTrigConfig( whichSignature, doRemap = False )
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
@@ -101,6 +101,8 @@ def makeInDetPrecisionTracking( whichSignature,
                              ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks )]
   
   from AthenaCommon.AppMgr import ToolSvc
+
+  #TODO: this part will not be needed once builders and getters are implemented also for TRT
   #-----------------------------------------------------------------------------
   #                        Choose track summary tool
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
@@ -129,13 +131,13 @@ def makeInDetPrecisionTracking( whichSignature,
 
   #-----------------------------------------------------------------------------
   #                        Ambiguity solving stage
-  from .InDetTrigCommon import TrkAmbiguityScore_builder, TrkAmbiguitySolver_builder, get_full_name
+  from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name
   ambSolvingStageAlgs = [
-                           TrkAmbiguityScore_builder( name   = get_full_name(  'TrkAmbiguityScore', configSetting.name() ),
-                                                      config = configSetting ),
+                           ambiguityScoreAlg_builder( name   = get_full_name(  core = 'TrkAmbiguityScore', suffix  = configSetting.name() ),
+                                                   config = configSetting ),
 
-                           TrkAmbiguitySolver_builder( name   = get_full_name( 'TrkAmbiguitySolver', configSetting.name() ),
-                                                       config = configSetting )
+                           ambiguitySolverAlg_builder( name   = get_full_name( core = 'TrkAmbiguitySolver', suffix = configSetting.name() ),
+                                                    config = configSetting )
                         ]
 
   #Loading the alg to the sequence
@@ -145,6 +147,7 @@ def makeInDetPrecisionTracking( whichSignature,
   for alg in ptAlgs:
       print(alg)
 
+  #TODO:implement builders and getters for TRT
   if configSetting.doTRT:
 
             proxySignature = whichSignature

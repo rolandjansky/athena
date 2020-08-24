@@ -17,11 +17,21 @@ def get_name_prefix():
 def get_name_suffix(signature):
    return '_%s'%signature
 
+#Retrieve full name of the algorithm/tool which consist of
+#1] Predefined PREFIX describing the scope where this tool is being used (Inner Detector Trigger) 
+#2] CORE name containing the actual name of the tool 
+#3] SUFFIX which is derived from signature name: _electron, _muonLate, _FS etc
 def get_full_name( core, suffix ):
-   return  '{}{}{}'.format(  get_name_prefix(), core, get_name_suffix(suffix) ),
+   return  '{}{}{}'.format(  get_name_prefix(), core, get_name_suffix(suffix) )
 
-#Temporary function before trk sum tool builder is ready
-def get_track_summary_tool( doTRT ):
+
+#Retrieve name of the score map
+#Map of Tracks and floats (representing score of a given track)
+def get_scoredmap( suffix ):
+   return "ScoredMap{}".format(suffix) 
+
+
+def trackSummaryTool_getter( doTRT ):
    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool  
    from TrigInDetConf.TrigInDetRecCommonTools           import InDetTrigTrackSummaryToolSharedHitsWithTRTPid  
 
@@ -31,9 +41,10 @@ def get_track_summary_tool( doTRT ):
    else:
       return InDetTrigTrackSummaryTool
 
-#TODO 
-#need to implement this in both FTF and PT
-#Better retrieval of summary tool (rather than through a parameter?)? Use the correct one!
+#--------------------------------------------------------------------------------------
+#TODO:
+#1] need to implement this in both FTF and PT
+#2] Convert this tool into builders and getters
 def getTrackParticleCnv( prefix, suffix, outPTTracks, outPTTrackParticles ):
   """ Use the  track collection and convert it to container of xAOD Track Particles  """
   #suffix = '_%s'suff if suff else '' #Suffix should be based on the signature and type of tracking, e.g for cosmics and PT  -> Cosmics_PT ( for FTF or EFID, Cosmics_FTF, Cosmics_EFID )
@@ -114,7 +125,7 @@ def getTrackParticleCnv( prefix, suffix, outPTTracks, outPTTrackParticles ):
 #--------------------------------------------------------------------------------------
 ## Scoring tools
 @makePublicTool
-def get_ambiguity_scoring_tool(name, config):
+def ambiguityScoringTool_builder(name, config):
 
     #NOTE extra scaling for MB on top of standard cuts (taken from Run2) -> Can we not just put it in the setting with 0.95 factor?
     #from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
@@ -129,41 +140,60 @@ def get_ambiguity_scoring_tool(name, config):
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
 
     #NOTE: Run2 config seems to be using offline version of 
-    from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
-    InDetTrigCutValues = EFIDTrackingCuts
     #https://gitlab.cern.ch/atlas/athena/-/blob/master/InnerDetector/InDetExample/InDetRecExample/python/ConfiguredNewTrackingCuts.py
     #1] Is this really what we want here? 
-    #2] Somehow merge/adapt the settings in InDetTrigConfigSettings.py?
+    #2] TODO: Somehow merge/adapt the settings in InDetTrigConfigSettings.py?
 
-    doTRT = config.doTRT()
-    
-    if config.name() == 'cosmicsN':
+    if config.isSignature('cosmicsN'):
         #Can potentially recreate the isntance of the tool here and in the if config just have a list of parameters needed to be changed for the tool
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigScoringToolCosmics_SiPattern 
         return InDetTrigScoringToolCosmics_SiPattern
     else:
-        from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-        return InDet__InDetAmbiScoringTool(name                = name,
-                                       Extrapolator        = InDetTrigExtrapolator, 
-                                       DriftCircleCutTool  = InDetTrigTRTDriftCircleCut,
-                                       #to have a steeper turn-n curve
-                                       minPt               = InDetTrigCutValues.minPT(), #config.pTmin(),
-                                       maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
-                                       maxZImp             = InDetTrigCutValues.maxZImpact(),
-                                       maxEta              = InDetTrigCutValues.maxEta(),
-                                       minSiClusters       = InDetTrigCutValues.minClusters(),
-                                       maxSiHoles          = InDetTrigCutValues.maxHoles(),
-                                       maxPixelHoles       = InDetTrigCutValues.maxPixelHoles(),
-                                       maxSCTHoles         = InDetTrigCutValues.maxSCTHoles(),
-                                       maxDoubleHoles      = InDetTrigCutValues.maxDoubleHoles(),
-                                       usePixel            = InDetTrigCutValues.usePixel(),
-                                       useSCT              = InDetTrigCutValues.useSCT(),
-                                       doEmCaloSeed        = False,
-                                       useTRT_AmbigFcn     = True,
-                                       minTRTonTrk         = 0,
-                                       SummaryTool         = get_track_summary_tool( doTRT ),
-                                      )
 
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
+        InDetTrigCutValues = EFIDTrackingCuts
+        #Configuration of parameters based on the signature and Flags (following Run2 settings)
+        kwargs = {}
+        #Prepare default parameter settings for the tool
+        kwargs = setDefaults( kwargs,
+                              Extrapolator        = InDetTrigExtrapolator, 
+                              DriftCircleCutTool  = InDetTrigTRTDriftCircleCut,
+                              SummaryTool         = trackSummaryTool_getter( config.doTRT() ),
+                              #to have a steeper turn-n curve
+                              minPt               = config.pTmin(), #TODO: double check values, implement 0.95 for MinBias?  #InDetTrigCutValues.minPT(), #config.pTmin(),
+                              maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
+                              maxZImp             = InDetTrigCutValues.maxZImpact(),
+                              maxEta              = InDetTrigCutValues.maxEta(),
+                              minSiClusters       = InDetTrigCutValues.minClusters(),
+                              maxSiHoles          = InDetTrigCutValues.maxHoles(),
+                              maxPixelHoles       = InDetTrigCutValues.maxPixelHoles(),
+                              maxSCTHoles         = InDetTrigCutValues.maxSCTHoles(),
+                              maxDoubleHoles      = InDetTrigCutValues.maxDoubleHoles(),
+                              usePixel            = InDetTrigCutValues.usePixel(),
+                              useSCT              = InDetTrigCutValues.useSCT(),
+                              doEmCaloSeed        = False,
+                              useAmbigFcn         = True, 
+                              useTRT_AmbigFcn     = False,
+                              minTRTonTrk         = 0,
+                             )
+
+        #Change some of the parameters in case of beamgas signature
+        if config.isSignature('beamgas'):
+            from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
+            kwargs = setDefaults( kwargs,
+                                  minPt          = EFIDTrackingCutsBeamGas.minPT(),
+                                  maxRPhiImp     = EFIDTrackingCutsBeamGas.maxPrimaryImpact(),
+                                  maxZImp        = EFIDTrackingCutsBeamGas.maxZImpact(),
+                                  minSiClusters  = EFIDTrackingCutsBeamGas.minClusters(),
+                                  maxSiHoles     = EFIDTrackingCutsBeamGas.maxHoles(),
+                                  useSigmaChi2   = True
+                                )
+
+
+        from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+        return InDet__InDetAmbiScoringTool(name             = name,
+                                           **kwargs
+                                           )
 
 
 
@@ -171,32 +201,29 @@ def get_ambiguity_scoring_tool(name, config):
 
 #--------------------------------------------------------------------------
 #                    Track Ambiguity algs/tools
+def associationTool_getter():
+      #TODO double check this!
+      from InDetRecExample.TrackingCommon import getInDetTrigPRDtoTrackMapToolGangedPixels
+      return getInDetTrigPRDtoTrackMapToolGangedPixels()  
 
-def get_association_tool():
-      return TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),  
-      #Which one to use?
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigPrdAssociationTool
-      return  InDetTrigPrdAssociationTool
-
-def get_track_fitter(config):
+def trackFitterTool_getter(config):
       #For now load from RecLoadTools where the config is based on: InDetTrigFlags.trackFitterType()  (gaussian, kalman, globalChi2, ...)
       #There are also variations of cosmic/TRT fitters -> Decision which fitter to return  has to be adapted based on the signature as well
-
-      if config.name() == 'cosmicsN':
+      if config.isSignature('cosmicsN'):
          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitterCosmics
          return InDetTrigTrackFitterCosmics
       else:
          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter 
          return  InDetTrigTrackFitter
 
-def get_track_selection_tool(config):
+def trackSelectionTool_getter(config):
       #TODO this might need to be revisited!
 
-      if config.name() == 'beamgas':
+      if config.isSignature('beamgas'):
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBeamGas import InDetTrigAmbiTrackSelectionToolBeamGas
         return InDetTrigAmbiTrackSelectionToolBeamGas
 
-      elif config.name() == 'cosmicsN':
+      elif config.isSignature('cosmicsN'):
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import  InDetTrigAmbiTrackSelectionToolCosmicsN
         return InDetTrigAmbiTrackSelectionToolCosmicsN
 
@@ -207,19 +234,21 @@ def get_track_selection_tool(config):
 
 
 
+#--------------------------------------------------------------------------
+#                    Track Ambiguity Solver algs/tools
 
 @makePublicTool
-def get_TrkAmbiguityProcessorTool( name, config):
+def ambiguityProcessorTool_builder( name, config):
 
    #Configuration of parameters based on the signature and Flags (following Run2 settings)
    kwargs = {}
 
    #Add parameters to empty kwargs
-   if config.name() == 'cosmicsN':
+   if config.isSignature('cosmicsN'):
      kwargs = setDefaults( kwargs,
                            SuppressHoleSearch = False,
                            RefitPrds =  False)
-   elif config.name() =='electron' and InDetTrigFlags.doBremRecovery():
+   elif config.isSignature('electron') and InDetTrigFlags.doBremRecovery():
      import AthenaCommon.SystemOfUnits as Units
      kwargs = setDefaults( kwargs,
                            tryBremFit  = True,
@@ -233,123 +262,103 @@ def get_TrkAmbiguityProcessorTool( name, config):
                            MatEffects = 0  )
 
 
+   #-----------------------
+   #Set/Get subtools
+
+   trackFitterTool    = trackFitterTool_getter(config),
+
+   scoringTool        = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name()),
+                                                      config = config)
+
+   associationTool    = associationTool_getter()
+
+   trackSummaryTool   = trackSummaryTool_getter( config.doTRT() )
+
+   trackSelectionTool = trackSelectionTool_getter(config)
+
+
    #Return configured tool
    from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
    return  Trk__SimpleAmbiguityProcessorTool(    name             = name , 
-                                                 Fitter           = get_track_fitter(config),
-                                                 ScoringTool      = get_ambiguity_scoring_tool( get_full_name( 'AmbiguityScoringTool',config.name()), config),
-                                                 AssociationTool  = get_association_tool(),
-                                                 TrackSummaryTool = get_track_summary_tool( config.doTRT() ),
-                                                 SelectionTool    = get_track_selection_tool(config),
-                                                 **kwargs
+                                   **setDefaults(kwargs,
+                                                 Fitter           = trackFitterTool,
+                                                 ScoringTool      = scoringTool,
+                                                 AssociationTool  = associationTool,
+                                                 TrackSummaryTool = trackSummaryTool,
+                                                 SelectionTool    = trackSelectionTool,
+                                                 )
                                              )
 
    
 
 
-
-
 #Need to differentiate between "standard" precision tracking code seeded by FTF and EFID-like/offline pattern recognition seeding configured here:
 #https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetExample/InDetRecExample/share/ConfiguredNewTrackingSiPattern.py#L499
-
+      
 
 from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
-class TrkAmbiguitySolver_builder(Trk__TrkAmbiguitySolver):
-   """ 
-      This algorithm resolves any ambiguities between tracks
-      Requires ambiguity processor tool
-   """
-   def __init__(self, name, config):
+def ambiguitySolverAlg_builder(name, config):
 
-      name = '%s%s%s' %( get_name_prefix(), 'TrkAmbiguitySolver', get_name_suffix( config.name ) )
-      super(Trk__TrkAmbiguitySolver, self ).__init__( name ) 
+      #Get correct name for the ouput TrkTrack collection
+      def getTrackOutput():
+         #If we are also applying TRT then this collection is just intermediate
+         if config.doTRT():
+            return  "%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', get_name_suffix( config.name() ))
+         #Otherwise use final collection name
+         else:
+            return  config.tracksPT()
 
-      #-----------------------
-      #Set alg/tool parameters
-
-      #Set input/output names
-      self.set_track_collections( config.name )
 
       #-----------------------
-      #Set subtools
+      #Set/Get subtools
+      ambiguityProcessor = ambiguityProcessorTool_builder( name   = get_full_name( 'AmbiguityProcessor', config.name()),
+                                                           config = config ) 
 
-      self.load_ambi_processor(config.name)
+      return Trk__TrkAmbiguitySolver( name               = name,
+                                      TrackInput         = get_scoredmap( get_name_suffix(config.name() )),
+                                      TrackOutput        = getTrackOutput(),
+                                      AmbiguityProcessor = ambiguityProcessor
+                                    )
       
-
-   #------------------------------------------------------------------
-   # Track collection naming convention 
-   def set_track_collections( self, signature ):
-         self.TrackInput   = self.get_track_input_name(signature)
-         self.TrackOutput  = self.get_track_output_name(signature)
-
-   def get_track_output_name(self,signature):
-      return  "%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', signature)
-
-   def get_track_input_name(self,signature):
-      return  "ScoredMap%s" %(signature)
-
-   #------------------------------------------------------------------
-   # Loading subtools
-   def load_ambi_processor(self, config):
-      self.AmbiguityProcessor = get_TrkAmbiguityProcessorTool( get_full_name( 'AmbiguityProcessor', config.name()), config = config ) 
-      
-
 
 #--------------------------------------------------------------------------
 #                    Track Ambiguity Score algs/tools
 @makePublicTool
-def get_TrkAmbiguityScoreProcessorTool( name, config):
+def ambiguityScoreProcessorTool_builder( name, config):
    #   Tool contains backend functions for calculating score of a provided track 
    #   Score of each track is based on track parameters such as hits in the ID, higher score -> more likely to survive ambiguity resolving between tracks
-      
-      from AthenaCommon.AppMgr import ToolSvc
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigPrdAssociationTool, InDetTrigAmbiTrackSelectionTool
+
+      #-----------------------
+      #Set/Get subtools
+      scoringTool = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name() ),
+                                                  config = config)
+
+      associationTool    = associationTool_getter()
+
+      trackSelectionTool = trackSelectionTool_getter(config)
 
       from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool
-      return  Trk__DenseEnvironmentsAmbiguityScoreProcessorTool(     name               = name,
-                                                                     ScoringTool        = get_ambiguity_scoring_tool( get_full_name( 'AmbiguityScoringTool',config.name() ), config = config),
-                                                                     AssociationTool    = InDetTrigPrdAssociationTool,#TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
-                                                                     SelectionTool      = InDetTrigAmbiTrackSelectionTool ) # #TODO this might need to be revisited!
-
+      return  Trk__DenseEnvironmentsAmbiguityScoreProcessorTool( name               = name,
+                                                                 ScoringTool        = scoringTool,
+                                                                 AssociationTool    = associationTool,
+                                                                 SelectionTool      = trackSelectionTool
+                                                                )  
 
 
 
 from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
-class TrkAmbiguityScore_builder(Trk__TrkAmbiguityScore):
-   def __init__(self, name, config):
-      """ 
-         Alg loops over provided tracks and calls subtool(TrkAmbigutyScoreProcessor) to assign scores for each one of them
-      """
-      super().__init__( name  )
-
-      self.signatureSuffix = get_name_suffix(config.name() )
-
+def ambiguityScoreAlg_builder(name, config):
+      #Alg loops over provided tracks and calls subtool(TrkAmbigutyScoreProcessor) to assign scores for each one of them
 
       #-----------------------
-      #Set alg/tool parameters
+      #Set/Get subtools
+      ambiguityScoreProcessor = ambiguityScoreProcessorTool_builder( name   = get_full_name( 'AmbiguityScoreProcessorTool', config.name()),
+                                                                     config = config )
 
-      #Set input/output names
-      self.set_track_collections( )
-
-      #-----------------------
-      #Set subtools
-      self.load_ambi_score_processor( config )
+      return Trk__TrkAmbiguityScore(   name                    = name,
+                                       TrackInput              = [ config.trkTracksFTF()  ],
+                                       TrackOutput             = get_scoredmap( get_name_suffix( config.name() ) ),
+                                       AmbiguityScoreProcessor = ambiguityScoreProcessor,
+                                    )
       
 
-   #------------------------------------------------------------------
-   # Track collection naming convention 
-   def set_track_collections( self ):
-         self.TrackInput   = [ self.get_track_input_name()  ]
-         self.TrackOutput  =   self.get_track_output_name()
-
-   def get_track_output_name(self):
-      return  "%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', self.signatureSuffix)
-
-   def get_track_input_name(self):
-      return  "ScoredMap%s" %(self.signatureSuffix)
-
-   #------------------------------------------------------------------
-   # Loading subtools
-   def load_ambi_score_processor(self, signatureConfig):
-      from AthenaCommon.AppMgr import ToolSvc
-      self.AmbiguityScoreProcessor = get_TrkAmbiguityScoreProcessorTool( name = get_full_name( 'AmbiguityScoreProcessorTool', signatureConfig.name()), config = signatureConfig )

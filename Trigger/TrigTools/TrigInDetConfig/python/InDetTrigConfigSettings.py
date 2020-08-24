@@ -20,16 +20,49 @@ __all__    = [ "getInDetTrigConfig", "printDefinedSlices" ]
 
 # this dictionary will get filled after all the classes 
 # are definied 
-_ConfigSettings = {} 
+#_ConfigSettings = {} 
 
-def getInDetTrigConfig( name ) :
-    if name in _ConfigSettings :
-        return _ConfigSettings[name]
+
+#This function is a wrapper around functions that return name of collections
+#It checks whether the collection is specified to be recorded into EDM and if so it marks it to be recordable
+def makeRecordable(getName):
+      def recordCollection(*args, **kwargs):
+
+         #Retrieve record decision
+         record=kwargs.pop("doRecord",False) 
+
+         #Get the name of the collection
+         collectionName = getName(*args, **kwargs)
+
+         from TrigEDMConfig.TriggerEDMRun3 import recordable
+         if record:
+              return recordable( collectionName )
+         else:
+             return collectionName
+
+      return recordCollection
+            
+
+
+def getInDetTrigConfig( name, doRemap = True ) :
+   
+    #Use remapping if needed, eventually we should get rid of this by aligning nomenclature between signatures and ID
+    from TrigFastTrackFinder.TrigFastTrackFinder_Config import remap
+    signature = name
+
+    #doRemap is only temporary parameter as FTF and PT gets different signature naming ...
+    if doRemap: 
+      signature = remap[name]
+    #Crash if signature is not amongst one of the selected ones
+    assert(signature is not None), 'Signature name: {} is not amongst commonly used ones, please contact IDTrig group (hn-atlas-inner-detector-trigger@cern.ch) if you would like to add new one'.format(signature)
+
+    if signature in _ConfigSettings :
+        return _ConfigSettings[signature]
     else : 
         #       don't just return None, and do nothing as this 
         #       will just hide the error until people try to use 
         #       the bad slice configuration
-        raise Exception( "getInDetTrigConfig() called with incorrectnon existent slice: "+name )
+        raise Exception( "getInDetTrigConfig() called with incorrect non existent slice: "+signature )
         return None         
 
 
@@ -65,12 +98,20 @@ class _Settings :
         self._monPtMin            = 1*GeV
         self._roiName             = ""
         self._trackCollection     = ""
-        self._tracks              = "TrigFastTrackFinder_Tracks" # Base Name of the track collection being produced by FTF, full name is appended by signature suffix
+        self._trkTracks           = "TrigFastTrackFinder_Tracks" # Base Name of the track collection being produced by FTF, full name is appended by signature suffix, this is just temporary name and will be replaced by HLT_IDTrkTrack_Signature
 
         self._doTRT               = False
+        self._isRecordable        = True
 
   def name(self) :
    return self._name
+
+  #If signature name provided separate by underscore to be used for nomenclature
+  def suffix(self):
+      return '' if not self._name else '_' + self._name 
+
+  def isSignature(self, signature):
+      return (self._name == signature)
 
   def pTmin(self) :
    return self._pTmin 
@@ -123,18 +164,28 @@ class _Settings :
   def trackCollection(self) :
    return self._trackCollection
 
-  #Have separate collections for each?
-  def FTFtrackCollection(self) :
-   return self._trackCollection + '_FTF'
+  #Name of tracks from ambiguity solving stage  
+  @makeRecordable
+  def trkTracksAmbiSol(self, doRecord = False):
+   return '{}{}'.format( self._trkTracks, self.suffix() )
 
-  def PTtrackCollection(self) :
+  @makeRecordable
+  def tracksPT(self, doRecord = True ) :
    return self._trackCollection + '_IDTrig'
 
-  def FTFtracks(self) :
-   return '{}{}'.format( self._tracks, '' if not self._name else '_' + self._name )
+  @makeRecordable
+  def trkTracksFTF(self, doRecord = False):
+   return '{}{}'.format( self._trkTracks, self.suffix() )
+
+  @makeRecordable
+  def tracksFTF(self, doRecord = True) :
+   return self._trackCollection + '_FTF'
 
   def doTRT(self) :
    return self._doTRT
+
+  def isRecordable(self) :
+   return self._isRecordable
 
 
   def printout(self): 
@@ -300,7 +351,8 @@ class _Settings_beamSpot( _Settings ) :
         self._roiName         = "HLT_Roi_Beamspot"
         self._trackCollection = "HLT_IDTrack_Beamspot"
 
-        self._doTRT               = False
+        self._doTRT           = False
+        self._isRecordable    = False
 
 
 # minBias

@@ -167,8 +167,10 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
     __slots__ = []
     def __init__(self, name, type):
         TrigFastTrackFinder.__init__(self,name)
-        remapped_type = remap[type]
-        assert(remapped_type is not None)
+        #Remapping should be now covered by SliceConfigurationSetting
+        #remapped_type = remap[type]
+        #assert(remapped_type is not None)
+        remapped_type = type
 
         #Global keys/names for collections 
         from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
