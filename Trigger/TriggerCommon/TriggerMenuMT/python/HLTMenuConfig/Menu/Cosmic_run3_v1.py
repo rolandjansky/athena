@@ -40,9 +40,8 @@ def setupMenu():
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
 
-        # Commented out due to ATR-21884
-        # ChainProp(name='HLT_noalg_idcosmic_L1TRT_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic','express'],groups=['RATE:SeededStreamers','BW:Other']),
-        # ChainProp(name='HLT_noalg_idcosmic_L1TRT_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'],groups=['RATE:SeededStreamers','BW:Other']),
+        ChainProp(name='HLT_noalg_idcosmic_L1TRT_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic','express'],groups=['RATE:SeededStreamers','BW:Other']),
+        ChainProp(name='HLT_noalg_idcosmic_L1TRT_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'],groups=['RATE:SeededStreamers','BW:Other']),
 
         ChainProp(name='HLT_noalg_cosmicmuons_L1MU4_EMPTY', stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1MU11_EMPTY', stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
