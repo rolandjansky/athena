@@ -14,8 +14,8 @@
 # For use for trigger studies for AOD
 ####################################################################
 
-# Needed import(s):
-import AthenaCommon.CfgMgr as CfgMgr
+from AthenaCommon.Logging import logging
+log = logging.getLogger(__name__)
 
 ## Class helping to set up (navigation) thinning in derivation jobs
 #
@@ -36,7 +36,6 @@ class ThinningHelper:
     # @param helperName The instance name of this helper object
     #
     def __init__( self, helperName, edmList, mode ):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         self.helperName = helperName
         self.TriggerChains = ""
         self.edmList = edmList
@@ -58,10 +57,6 @@ class ThinningHelper:
     def AppendToStream( self, augmentedStream ):
         # Access the stream object:
         stream = augmentedStream.GetEventStream()
-        # Get the name of the "format":
-        formatName = stream.name().strip( "StreamDAOD_" )
-        # The necessary import(s):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         
         from TrigNavTools.TrigNavToolsConfig import navigationThinningSvc
         tSvc = navigationThinningSvc( { 'name' : self.helperName,

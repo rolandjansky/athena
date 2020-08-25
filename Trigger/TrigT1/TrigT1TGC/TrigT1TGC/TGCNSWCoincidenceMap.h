@@ -6,7 +6,7 @@
 #include <string>
 
 #include "GaudiKernel/ToolHandle.h"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCNumbering.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/MsgStream.h"
@@ -47,7 +47,8 @@ public:
   TGCNSWCoincidenceMap(const TGCNSWCoincidenceMap& right);
   bool readMap(std::string moduleName, ReadCW_Type cw_type);
   bool readShift();
-  TGCArguments* tgcArgs() const { return m_tgcArgs;}
+  TGCArguments* tgcArgs() { return m_tgcArgs;}
+  const TGCArguments* tgcArgs() const { return m_tgcArgs;}
 
 private:
   std::vector<short int> m_EtaPhi_CW[N_dEta][N_dPhi];

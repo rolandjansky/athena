@@ -27,6 +27,7 @@
 #include <memory>
 // Local tools
 #include "../src/T2TrackManager.h"
+#include "../src/T2Track.h"
 #include "../src/T2BeamSpot.h"
 #include "../src/T2SplitVertex.h"
 //Athena tools
@@ -37,8 +38,6 @@
 //Tracking
 #include "TrkTrack/TrackCollection.h"
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
-//BeamSpotTool interface
-#include "IT2VertexBeamSpotTool.h"
 //Data handles
 #include "StoreGate/ReadCondHandleKey.h"
 //Beam data
@@ -68,7 +67,7 @@ namespace PESA {
     *   @author David W. Miller     <David.W.Miller@cern.ch>
     *   
     */
-   class T2VertexBeamSpotTool :  public AthAlgTool, virtual public IT2VertexBeamSpotTool{
+   class T2VertexBeamSpotTool :  public AthAlgTool {
       public:
 
          T2VertexBeamSpotTool( const std::string& type, const std::string& name, const IInterface* parent );
@@ -100,20 +99,14 @@ namespace PESA {
 
 
          void selectTracks( const TrackCollection* trackCollection,
-               ConstDataVector<TrackCollection>& mySelectedTrackCollection, std::vector<unsigned> &trackCounter   );
+               ConstDataVector<TrackCollection>& mySelectedTrackCollection, std::vector<unsigned> &trackCounter ) const;
 
-         void reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
-               TrigVertexCollection& myVertexCollection,
-               DataVector< TrigVertexCollection >& mySplitVertexCollections );
-
+         unsigned int reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
+                      TrigVertexCollection& myVertexCollection,
+                      DataVector< TrigVertexCollection >& mySplitVertexCollections, const EventContext& ) const;
 
          void reconstructSplitVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
-               DataVector< TrigVertexCollection >& mySplitVertexCollections, T2TrackClusterer& trackClusterer );
-
-
-         bool eventStage( Statistics stage );
-
-         void resetMonitoredVariables();
+               DataVector< TrigVertexCollection >& mySplitVertexCollections, T2TrackClusterer& trackClusterer, const EventContext& ) const;
 
          bool m_passNpvTrigCuts;
 
@@ -170,19 +163,23 @@ namespace PESA {
          unsigned int m_maxNpvTrigger;
 
          /* Monitor track parameters */
-         void monitor_tracks(std::string prefix, std::string suffix, std::vector<const T2Track*> tracks );
+         void monitor_tracks(const std::string& prefix, const std::string& suffix, const std::vector<T2Track>& tracks ) const;
 
          /* Monitor cluster parameters */
-         void monitor_cluster( const T2TrackClusterer& clusterer  );
+         void monitor_cluster( const T2TrackClusterer& clusterer  ) const;
 
          /* Monitor  parameters of tracks inside the cluster */
-         void monitor_cluster_tracks(T2TrackClusterer& clusterer, const Trk::Track & track  );
+         void monitor_cluster_tracks(T2TrackClusterer& clusterer, const Trk::Track & track  ) const;
 
          /* Monitor  vertex parameters  */
-         void monitor_vertex(std::string prefix, std::string suffix, const T2Vertex &vertex );
+         void monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex ) const;
+
+         std::string m_vertexCollName;
 
       private:
          ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+
+         
 
 
    };

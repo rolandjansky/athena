@@ -12,6 +12,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -85,7 +86,8 @@ int HIClusterSubtraction::execute() const
 	const xAOD::HIEventShapeContainer* shape = 0;
 	SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey );
   shape = readHandleEvtShape.cptr();
-  const HIEventShapeIndex* es_index = HIEventShapeMap::getIndex( m_eventShapeKey.key() );
+  const HIEventShapeIndex* es_index = m_eventShapeMapTool->getIndexFromShape( shape );
+	if(es_index == nullptr) ATH_MSG_FATAL("The HIEventShapeMapTool returned a null pointer. Binning scheme not coherent");
   const xAOD::HIEventShape* eshape = nullptr;
   CHECK(m_modulatorTool->getShape(eshape), 1);
 

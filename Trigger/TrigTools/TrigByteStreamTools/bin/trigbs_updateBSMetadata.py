@@ -12,6 +12,7 @@ import argparse
 import logging
 import eformat
 import libpyevent_storage as EventStorage
+import six
 
 
 # This mapping was found in a comment in PyUtils.MetaReader
@@ -35,6 +36,9 @@ def get_parser():
     parser.add_argument('--copyFrom', '-c',
                         metavar='FILE', action='store',
                         help='Copy metadata from other ByteStream file')
+    parser.add_argument('--numEvents', '-n',
+                        metavar='NUM', action='store', type=int,
+                        help='Copy only first NUM events from input to output')
     parser.add_argument('--runNumber', '-r',
                         metavar='NUM', action='store', type=int,
                         help='Change run number')
@@ -133,7 +137,7 @@ def main():
         file_name_base = '.'.join(file_name_list)
 
     # Write the new file
-    metadata_extra_strings = ['{:s}={:s}'.format(k, str(v)) for k, v in metadata_extra.iteritems()]
+    metadata_extra_strings = ['{:s}={:s}'.format(k, str(v)) for k, v in six.iteritems(metadata_extra)]
     output_stream = eformat.ostream(
         core_name         = file_name_base,
         run_number        = metadata_basic['runNumber'],
@@ -144,7 +148,14 @@ def main():
         meta_data_strings = metadata_extra_strings)
 
     logging.info('Writing file %s', output_stream.current_filename().replace('.writing', '.data'))
+
+    ievt = 0
+    nmax = args.numEvents or -1
     for event in input_stream:
+        ievt+=1
+        if ievt > nmax:
+            break
+        logging.debug('Writing event %d', ievt)
         output_stream.write(event)
 
 

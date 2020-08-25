@@ -109,12 +109,12 @@ StatusCode HltROBDataProviderSvc::initialize()
     if ((p_jobOptionsSvc.retrieve()).isFailure()) {
       ATH_MSG_ERROR("Could not find JobOptionsSvc");
     } else {
-      const std::vector<const Property*>* dataFlowProps = p_jobOptionsSvc->getProperties("DataFlowConfig");
+      const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps = p_jobOptionsSvc->getProperties("DataFlowConfig");
       if(!dataFlowProps)
         ATH_MSG_ERROR("Could not find DataFlowConfig properties");
       else
       {
-        for ( const Property* cur : *dataFlowProps ) {
+        for ( const Gaudi::Details::PropertyBase* cur : *dataFlowProps ) {
           // the enabled ROB list is found
           if ( cur->name() == "DF_Enabled_ROB_IDs" ) {
             if (m_enabledROBs.assign(*cur)) {
@@ -387,6 +387,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
   // return all the requested ROB fragments from the cache
   robFragments.clear() ;
+  robIds_missing.clear() ;
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
 }
 

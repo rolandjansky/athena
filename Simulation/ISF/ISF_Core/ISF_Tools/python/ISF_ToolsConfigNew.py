@@ -11,7 +11,7 @@ from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
 def ParticleHelperCfg(flags, name="ISF_ParticleHelper", **kwargs):
     acc = BarcodeSvcCfg(flags)
     kwargs.setdefault("BarcodeSvc", acc.getPrimary())
-    acc.setPrivateTools(CompFactory.ISF.ParticleHelper(name, **kwargs))
+    acc.addPublicTool(CompFactory.ISF.ParticleHelper(name, **kwargs))
     return acc
 
 

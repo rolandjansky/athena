@@ -12,15 +12,15 @@
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCSLSelectorOut.hh"// for Run2
-#include "TrigT1TGC/TGCTrackSelectorOut.h"// for Run3
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
-#include "TrigT1TGC/TGCTimingManager.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
-#include "TrigT1TGC/TGCSector.hh"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCSLSelectorOut.h" // for Run2
+#include "TrigT1TGC/TGCTrackSelectorOut.h" // for Run3
+#include "TrigT1TGC/TGCElectronicsSystem.h"
+#include "TrigT1TGC/TGCTimingManager.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
 #include "TrigT1TGC/TGCNSW.h"
 
@@ -154,11 +154,10 @@ namespace LVL1TGCTrigger {
     // doMaskOperation is performed at the first event
     // It is better to implement callback against
     // MuonTGC_CablingSvc::updateCableASDToPP (Susumu Oda, 2010/10/27)
-    static bool firstTime = true;
-    if(firstTime) {
+    if(m_firstTime) {
       // do mask operation
       if(getMaskedChannel().isFailure()) return StatusCode::FAILURE;
-      firstTime = false;
+      m_firstTime = false;
     }
     
     StatusCode sc = StatusCode::SUCCESS;
@@ -323,7 +322,7 @@ namespace LVL1TGCTrigger {
           if(i==1) subsystem = LVL1MUONIF::Lvl1MuCTPIInput::idSideC();
           if (m_OutputTgcRDO.value()) recordRdoSL(sector, subsystem);
 
-          TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
+          const TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
 	  std::shared_ptr<TGCTrackSelectorOut>  trackSelectorOut;
 	  sector->getSL()->getTrackSelectorOutput(trackSelectorOut); 
 
@@ -620,7 +619,7 @@ namespace LVL1TGCTrigger {
         TGCSlaveBoard * slb = sector->getSB(itype, index);
         if (0==slb) continue;
         id = slb->getId();
-        TGCSlaveBoardOut * out = slb->getOutput();
+        const TGCSlaveBoardOut * out = slb->getOutput();
         if (0==out) continue;
 
         bool isEIFI = (moduleType==TgcRawData::SLB_TYPE_INNER_WIRE ||
@@ -898,7 +897,7 @@ namespace LVL1TGCTrigger {
     
     
     // Tile
-    TGCTMDB* tmdb = m_system->getTMDB();
+    const TGCTMDB* tmdb = m_system->getTMDB();
     int inner_tile = tmdb->getInnerTileBits(sector->getSideId(), sectorId);
     
     if (inner_tile > 0) {
@@ -927,7 +926,7 @@ namespace LVL1TGCTrigger {
   void LVL1TGCTrigger::recordRdoSL(TGCSector * sector, unsigned int subsystem)
   {
     // check if whether trigger exists or not
-    TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
+    const TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
     if (selectorOut ==0) return;
     if (selectorOut->getNCandidate()==0) return;
     
@@ -1151,7 +1150,7 @@ namespace LVL1TGCTrigger {
   }
   
   ////////////////////////////////////////////////
-  // see TGCNumbering.hh 
+  // see TGCNumbering.h 
   int LVL1TGCTrigger::getLPTTypeInRawData(int type)
   {
     switch(type) {

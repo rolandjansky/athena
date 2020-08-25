@@ -13,7 +13,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // CLHEP includes
 #include "AthenaKernel/Units.h"
@@ -259,19 +259,19 @@ StatusCode AssocBuilder::execute()
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void AssocBuilder::setupInputContainers( Property& /*inputName*/ )
+void AssocBuilder::setupInputContainers( Gaudi::Details::PropertyBase& /*inputName*/ )
 {
   // nothing to do (yet ?)
   return;
 }
 
-void AssocBuilder::setupInputAssocContainers( Property& /*inputAssocName*/ )
+void AssocBuilder::setupInputAssocContainers( Gaudi::Details::PropertyBase& /*inputAssocName*/ )
 {
   // nothing to do (yet ?)
   return;
 }
 
-void AssocBuilder::setupAssocsOutput( Property& /*assocsOutputName*/ )
+void AssocBuilder::setupAssocsOutput( Gaudi::Details::PropertyBase& /*assocsOutputName*/ )
 {
   // nothing to do (yet ?)
   return;

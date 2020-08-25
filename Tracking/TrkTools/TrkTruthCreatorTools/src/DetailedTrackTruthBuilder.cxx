@@ -274,7 +274,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 
 	    ++trackStat[subdet];
 	    
-	    typedef PRD_MultiTruthCollection::const_iterator iprdt;
+	    using iprdt = PRD_MultiTruthCollection::const_iterator;
 	    std::pair<iprdt, iprdt> range = orderedPRD_Truth[subdet]->equal_range(id);
 	    
 	    int n=0;
@@ -475,7 +475,7 @@ SubDetHitStatistics DetailedTrackTruthBuilder::countPRDsOnTruth(const TruthTraje
        continue;
     }
     if( (*p)->pdg_id()==999 ) { continue; } 
-    typedef PRD_InverseTruth::const_iterator iter;
+    using iter = PRD_InverseTruth::const_iterator;
     std::pair<iter,iter> range = inverseTruth.equal_range(*p);
     for(iter i = range.first; i != range.second; ++i) {
       SubDetHitStatistics::SubDetType subdet = findSubDetType(i->second);

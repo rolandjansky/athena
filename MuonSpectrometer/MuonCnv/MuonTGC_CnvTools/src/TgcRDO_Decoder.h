@@ -9,6 +9,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class TgcDigit;
 class TgcRawData;
 class Identifier;
@@ -51,9 +53,9 @@ namespace Muon
       Identifier getOfflineData(const TgcRawData * rawData, bool orFlag, uint16_t& bctag) const;
 
     private:
-      StatusCode getCabling() const;
+      StatusCode getCabling();
 
-      mutable const ITGCcablingSvc *m_cabling;
+      const ITGCcablingSvc *m_cabling;
       bool m_applyPatch;
 
     };

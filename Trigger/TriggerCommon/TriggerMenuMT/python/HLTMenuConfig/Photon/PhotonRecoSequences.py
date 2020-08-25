@@ -28,13 +28,7 @@ def precisionPhotonRecoSequence(RoIs):
     import AthenaCommon.CfgMgr as CfgMgr
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier")
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
-                              ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                              ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
-
-    # Make sure the required objects are still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
+                              ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' )]
 
 
     # Retrieve the factories now
@@ -84,8 +78,8 @@ def l2PhotonAlgCfg( flags ):
 
     photonFex= CompFactory.TrigEgammaFastPhotonFexMT("EgammaFastPhotonFex_1")
     #photonFex= L2PhotonFex_1()
-    photonFex.TrigEMClusterName = recordable("HLT_L2CaloEMClusters")
-    photonFex.PhotonsName = recordable("HLT_L2Photons")
+    photonFex.TrigEMClusterName = recordable("HLT_FastCaloEMClusters")
+    photonFex.PhotonsName = recordable("HLT_FastPhotons")
     photonFex.RoIs = "L2PhotonRecoRoIs"
 
     return acc, photonFex
@@ -94,7 +88,7 @@ def l2PhotonAlgCfg( flags ):
 def photonViewDataVerifierCfg():
     from AthenaConfiguration.ComponentFactory import CompFactory
     moveClusters = CompFactory.AthViews.ViewDataVerifier("VDVFastPhoton")
-    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_L2CaloEMClusters'),
+    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_FastCaloEMClusters'),
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2PhotonRecoRoIs' )]
 
     result = ComponentAccumulator()

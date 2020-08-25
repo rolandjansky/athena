@@ -32,10 +32,7 @@ def generateChains( flags,  chainDict ):
     accCalo.merge( LumiBlockMuWriterCfg(flags) )
 
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
-                                 CaloClusters = recordable('HLT_L2CaloEMClusters'),
-                               )
-    l2CaloHypo.RingerKey = '' # TODO restore to default or EDM setting once Ringer New JO config is available
-
+                                 CaloClusters = recordable('HLT_FastCaloEMClusters'))
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 

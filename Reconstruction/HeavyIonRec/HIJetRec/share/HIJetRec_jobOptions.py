@@ -58,12 +58,17 @@ if is_mc_or_overlay :
         theCalibTool.CalibSequence='EtaJES'
         theCalibTool.lock()
 
+#Import the map tool - it will have to harvest configuration along the path
+from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+theMapTool=HIEventShapeMapTool()
+
 if not HIJetFlags.DoCellBasedSubtraction():
     #Make new event shape at tower level
     from HIGlobal.HIGlobalConf import HIEventShapeMaker
     from HIGlobal.HIGlobalConf import HIEventShapeFillerTool
     #EventShapeKey set to point to weighted container, can remove code on L16
     EventShapeKey=jobproperties.HIGlobalFlags.EventShapeKey()+'Weighted'
+
     ESAlg_W=HIEventShapeMaker("ESAlg_W")
     ESAlg_W.OutputContainerKey=EventShapeKey
     ESAlg_W.UseCaloCell=False
@@ -90,6 +95,7 @@ if not HIJetFlags.DoCellBasedSubtraction():
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += HITowerWeightTool()
     ESFiller.TowerWeightTool=TWTool
+    ESFiller.EventShapeMapTool=theMapTool
 
     #Add to top sequence
     ESAlg_W.HIEventShapeFillerTool=ESFiller
@@ -138,9 +144,9 @@ seeds0=jtm.addJetCopier("%s_%s0" % (seed_prefix, HIJetFlags.SeedSuffix()),"%s_Un
 jtm.HIJetRecs+=[seeds0]
 
 #code nearly identical, but new behavior since upstream ES container and package flags are different
-iter0=AddIteration(seed_container=seeds0.OutputContainer,shape_name=EventShapeKey,suffix="iter0")
+iter0=AddIteration(seed_container=seeds0.OutputContainer,shape_name=EventShapeKey,map_tool=theMapTool, suffix="iter0")
 modulator0=iter0.Modulator
-subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0,map_tool=theMapTool)
 
 #now iterate
 print("Now moving to iteration 1")
@@ -150,16 +156,16 @@ jtm.HIJetRecs+=[seeds1]
 iteration_dict=dict(suffix="iter1")
 if jetFlags.useTracks() and HIJetFlags.TrackJetSeeds() : iteration_dict['track_jet_seeds']=HIJetFlags.TrackJetContainerName()
 print("Adding iteration 1")
-iter1=AddIteration(seed_container=seeds1.OutputContainer,shape_name=EventShapeKey,**iteration_dict)
+iter1=AddIteration(seed_container=seeds1.OutputContainer,shape_name=EventShapeKey,map_tool=theMapTool, **iteration_dict)
 
 HIJetFlags.IteratedEventShapeKey=iter1.OutputEventShapeKey
 modulator1=iter1.Modulator
 jtm.modulator=modulator1
 
 #subtraction BEFORE iteration for moment
-subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0,map_tool=theMapTool)
 #main subtractor
-subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
+subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1,map_tool=theMapTool)
 
 #==========#==========#==========#==========#==========#==========
 #special addition for egamma
@@ -168,16 +174,16 @@ subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulato
 #The fix is to define one more container from the seeds above just as in original reconstruction
 if not HIJetFlags.DoCellBasedSubtraction():
     iteration_dict=dict(suffix="iter_egamma")
-    iter_egamma=AddIteration(seed_container=seeds1.OutputContainer,shape_name=jobproperties.HIGlobalFlags.EventShapeKey(),useClusters=False,**iteration_dict)
+    iter_egamma=AddIteration(seed_container=seeds1.OutputContainer,shape_name=jobproperties.HIGlobalFlags.EventShapeKey(), map_tool=theMapTool, useClusters=False,**iteration_dict)
     cell_level_shape_key=iter_egamma.OutputEventShapeKey
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 
 cluster_key_eGamma_deep=ClusterKey+"_eGamma_deep"
 cluster_key_final_deep=cluster_key_eGamma_deep+"_Cluster_deep"
 #Subtraction for egamma and to get layers - here no origin correction yet (done in the next stage)
-ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, output_cluster_key=cluster_key_eGamma_deep, modulator=modulator1, CalculateMoments=True, useClusters=False, apply_origin_correction=False)
+ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, output_cluster_key=cluster_key_eGamma_deep, modulator=modulator1, map_tool=theMapTool, CalculateMoments=True, useClusters=False, apply_origin_correction=False)
 #Cluster subtraction for jets
-ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=cluster_key_eGamma_deep, output_cluster_key=cluster_key_final_deep, modulator=modulator1, CalculateMoments=False, useClusters=True, apply_origin_correction=HIJetFlags.ApplyOriginCorrection())
+ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=cluster_key_eGamma_deep, output_cluster_key=cluster_key_final_deep, modulator=modulator1, map_tool=theMapTool, CalculateMoments=False, useClusters=True, apply_origin_correction=HIJetFlags.ApplyOriginCorrection())
 
 #put subtraction tool at the FRONT of the jet modifiers list
 hi_tools=[subtr1,subtr2]

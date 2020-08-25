@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IAuxStoreIO.h 584348 2014-02-20 09:21:15Z krasznaa $
@@ -81,20 +81,7 @@ public:
 
 
    /**
-    * @brief Set up the object to only expose selected data items to the IO
-    * @param attr The attributes for selecting the variables to be written.
-    *
-    * The convention for the formatting of the attributes expected by this
-    * function is still a bit in flux, documentation will be provided later.
-    */
-  virtual void selectAux (const std::set<std::string>& /*attr*/) {}
-  
-
-   /**
-    * @brief Get a list of all the variables that need to be written out.
-    *
-    * The return value of this function depends on the parameters passed to
-    * selectAux previously.
+    * @brief Get a list of dynamic variables that need to be written out.
     */
   virtual SG::auxid_set_t getSelectedAuxIDs() const {
      // default all are selected

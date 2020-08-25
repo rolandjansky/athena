@@ -2,7 +2,9 @@
 
 from AthenaCommon import CfgMgr
 def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
+    from AthenaCommon.SystemOfUnits import GeV,ns # noqa: F401
     from G4AtlasApps.SimFlags import simFlags
+    # Example specialConfiguration {'GMSBSlepton': '100.0*GeV', 'GMSBGravitino': '1e-07*GeV', 'GMSBSleptonTime': '0.01*ns'}
     GMSBNeutralino = eval(simFlags.specialConfiguration.get_Value().get("GMSBNeutralino", "0*GeV"))
     GMSBTime = eval(simFlags.specialConfiguration.get_Value().get("GMSBLifeTime", "0*GeV"))
     kwargs.setdefault("NeutralinoMass",        GMSBNeutralino)

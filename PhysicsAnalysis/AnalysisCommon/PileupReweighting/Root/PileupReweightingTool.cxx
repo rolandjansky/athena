@@ -73,7 +73,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
 #ifndef XAOD_STANDALONE
    //attached update handler to the outputlevel property, so we can pass changes on to the underlying tool
    auto props = getProperties();
- 	for( Property* prop : props ) {
+ 	for( Gaudi::Details::PropertyBase* prop : props ) {
       if( prop->name() != "OutputLevel" ) {
          continue;
       }
@@ -86,7 +86,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
 
 #ifndef XAOD_STANDALONE
 //rootcore can't do this yet!
-void PileupReweightingTool::updateHandler(Property& /*p*/) {
+void PileupReweightingTool::updateHandler(Gaudi::Details::PropertyBase& /*p*/) {
    // commenting this out as it doesn't compile anymore
    // leaving it to domain expert to decide whether to keep or remove it
    // //call the original update handler 

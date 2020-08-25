@@ -42,6 +42,7 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
 
   # setup dependencies which are not yet in C++
   import MuonCnvExample.MuonCablingConfig
+  from MuonRecExample import MuonAlignConfig
   from MuonCnvExample import MuonCalibConfig
   MuonCalibConfig.setupMdtCondDB()
   include("AmdcAth/AmdcAth_jobOptions.py")

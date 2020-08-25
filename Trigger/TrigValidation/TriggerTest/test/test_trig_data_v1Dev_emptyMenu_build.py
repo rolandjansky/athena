@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger BS->RDO_TRIG athena test without any HLT chains
 # art-type: build

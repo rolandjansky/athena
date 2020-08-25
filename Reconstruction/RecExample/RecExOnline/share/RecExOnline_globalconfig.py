@@ -311,6 +311,17 @@ from AthenaCommon.GlobalFlags import globalflags
 #globalflags.DatabaseInstance = "CONDBR2"
 globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
 
+from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+LuminosityCondAlgOnlineDefault()
+
+from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+LumiBlockMuWriterDefault()
+
+from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon import CfgMgr
+if not hasattr(ToolSvc, "LumiBlockMuTool"):
+    ToolSvc += CfgMgr.LumiBlockMuTool("LumiBlockMuTool")
+
 ## Another Problem with LAR offline databases
 from LArConditionsCommon.LArCondFlags import larCondFlags
 #larCondFlags.SingleVersion.set_Value_and_Lock(True)

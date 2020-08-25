@@ -10,6 +10,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "ActsGeometry/ActsGeometryContext.h"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 
 #include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
@@ -63,6 +64,9 @@ class IActsExtrapolationTool : virtual public IAlgTool {
   virtual
   const IActsTrackingGeometryTool*
   trackingGeometryTool() const = 0;
+
+  virtual 
+  Acts::MagneticFieldContext getMagneticFieldContext(const EventContext& ctx) const = 0;
 };
 
 #endif

@@ -74,7 +74,7 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["HLT::HLTResult/HLTResult_EF",
                                                   "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
 
 # main alg
-from OverlayByteStreamAlgs.OverlayByteStreamAlgsConf import BSFilter
+from OverlayByteStreamUtils.OverlayByteStreamUtilsConf import BSFilter
 filAlg = BSFilter("BSFilter")
 topSequence += filAlg
 if hasattr( runArgs, "triggerBit"):
@@ -101,7 +101,7 @@ else:
 BSFilterLog.info( '**** ByteStreamCopyTool configuration' )
 
 if hasattr( runArgs, 'InputLbnMapFile'):
-    from OverlayByteStreamAlgs.OverlayByteStreamAlgsConf import ByteStreamMultipleOutputStreamCopyTool
+    from OverlayByteStreamUtils.OverlayByteStreamUtilsConf import ByteStreamMultipleOutputStreamCopyTool
     bsCopyTool = ByteStreamMultipleOutputStreamCopyTool("MultipleOutputStreamBSCopyTool")
     bsCopyTool.lbn_map_file = runArgs.InputLbnMapFile
     if hasattr( runArgs, "inputFilterFile"): bsCopyTool.trigfile = runArgs.inputFilterFile

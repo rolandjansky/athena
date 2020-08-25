@@ -97,12 +97,6 @@ public:
   float                                m_low_gate_argon; //! Low value for gate 
   float                                m_high_gate; //! High value for gate
   float                                m_high_gate_argon; //! High value for gate
-  bool                                 m_mask_first_HT_bit; // mask off ht bit in first (earliest) 25ns time bin
-  bool                                 m_mask_first_HT_bit_argon; // mask off ht bit in first (earliest) 25ns time bin
-  bool                                 m_mask_middle_HT_bit; // mask off ht bit in middle 25 ns time bin
-  bool                                 m_mask_middle_HT_bit_argon; // mask off ht bit in middle 25 ns time bin
-  bool                                 m_mask_last_HT_bit; // mask off ht bit in last (latest) 25 ns time bin
-  bool                                 m_mask_last_HT_bit_argon; // mask off ht bit in last (latest) 25 ns time bin
 };
 
 } // end of namespace

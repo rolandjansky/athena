@@ -12,7 +12,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
+#include "Gaudi/Property.h"  // no forward decl: typedef
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS

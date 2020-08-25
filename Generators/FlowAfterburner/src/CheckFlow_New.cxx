@@ -279,7 +279,7 @@ StatusCode CheckFlow_New::execute() {
 
   // Iterate over all MC particles
   GenAll ifs;
-  MCParticleCollection particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;

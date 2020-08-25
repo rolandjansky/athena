@@ -3,8 +3,8 @@
 */
 
 //$Id: TGCConnectionPPToSB.cxx,v 1.2 2006-06-22 00:26:35 nkanaya Exp $
-#include "TrigT1TGC/TGCConnectionPPToSB.hh"
-#include "TrigT1TGC/TGCBoardConnection.hh"
+#include "TrigT1TGC/TGCConnectionPPToSB.h"
+#include "TrigT1TGC/TGCBoardConnection.h"
 
 namespace LVL1TGCTrigger {
 

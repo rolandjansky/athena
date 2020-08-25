@@ -28,9 +28,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 ## get a handle on the ToolSvc
 from AthenaCommon.AppMgr import ToolSvc
 
-# Set handler for traceback
-svcMgr.CoreDumpSvc.FatalHandler = 438
-
 #svcMgr.EventSelector.InputCollections = [ "SimplePoolFile1.root" ]
 svcMgr.EventSelector.InputCollections = [ "SimpleEventPoolFile.root" ]
 

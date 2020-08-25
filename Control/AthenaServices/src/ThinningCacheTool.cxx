@@ -15,7 +15,8 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-
+#include "SelectionVetoes.h"
+#include "CompressionInfo.h"
 
 namespace Athena {
 
@@ -59,6 +60,12 @@ StatusCode ThinningCacheTool::preStream()
 {
   m_cache.clear();
 
+  // Nothing to do if we don't have an extended event context.
+  EventContext ctx = Gaudi::Hive::currentContext();
+  if (!Atlas::hasExtendedEventContext (ctx)) {
+    return StatusCode::SUCCESS;
+  }
+
   // Examine all ThinningDecision objects in the store.
   SG::ConstIterator<SG::ThinningDecision> beg;
   SG::ConstIterator<SG::ThinningDecision> end;
@@ -89,6 +96,26 @@ StatusCode ThinningCacheTool::preStream()
     }
   }
 
+  // Look for any selection vetoes.
+  const std::string selVetoesKey = "SelectionVetoes_" + m_streamName;
+  const SG::SelectionVetoes* vetoes = nullptr;
+  if (evtStore()->contains<SG::SelectionVetoes> (selVetoesKey)) {
+    ATH_CHECK( evtStore()->retrieve (vetoes, selVetoesKey) );
+    for (const auto& p : *vetoes) {
+      m_cache.setVetoed (p.first, p.second);
+    }
+  }
+
+  // Look for any compression info
+  const std::string compInfoKey = "CompressionInfo_" + m_streamName;
+  const SG::CompressionInfo* compInfo = nullptr;
+  if (evtStore()->contains<SG::CompressionInfo> (compInfoKey)) {
+    ATH_CHECK( evtStore()->retrieve (compInfo, compInfoKey) );
+    for (const auto& p : *compInfo) {
+      m_cache.setCompression (p.first, p.second);
+    }
+  }
+
   // Set the TrigNavigation thinning tool if needed.
   if (!m_trigNavigationThinningSvc.empty()) {
     m_cache.setTrigNavigationThinningSvc (m_trigNavigationThinningSvc.get());
@@ -98,7 +125,6 @@ StatusCode ThinningCacheTool::preStream()
   // in the EventContext.
   if (!m_cache.empty() || m_cache.trigNavigationThinningSvc()) {
     m_cache.lockOwned();
-    EventContext ctx = Gaudi::Hive::currentContext();
     Atlas::getExtendedEventContext (ctx).setThinningCache (&m_cache);
     Gaudi::Hive::setCurrentContext (ctx);
   }

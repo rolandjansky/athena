@@ -31,4 +31,3 @@ DECLARE_COMPONENT( HIJetMaxOverMeanTool )
 DECLARE_COMPONENT( HIJetDiscriminatorTool )
 DECLARE_COMPONENT( HIJetSignificanceTool )
 DECLARE_COMPONENT( HIUEModulatorTool )
-

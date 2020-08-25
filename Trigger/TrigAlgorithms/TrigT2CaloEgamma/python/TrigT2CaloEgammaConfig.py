@@ -404,7 +404,7 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
 
 class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
     __slots__ = []
-    def __init__ (self, name="T2CaloEgamma_ReFastAlgo", ClustersName="HLT_L2CaloEMClusters", doRinger=False, RingerKey="HLT_FastCaloRinger"):
+    def __init__ (self, name="T2CaloEgamma_ReFastAlgo", ClustersName="HLT_FastCaloEMClusters", doRinger=False, RingerKey="HLT_FastCaloRinger"):
         super(T2CaloEgamma_ReFastAlgo, self).__init__(name)
         # here put your customizations
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr

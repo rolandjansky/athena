@@ -6,7 +6,6 @@
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsGeometryContext.h"

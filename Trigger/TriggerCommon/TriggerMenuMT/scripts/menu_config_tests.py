@@ -34,7 +34,7 @@ class UniqueChainNames(MenuVerification):
             description="Chain names are unique")
 
     def run(self, config):
-        names = [chain["name"] for chain in config["chains"].values()]
+        names = config["chains"].keys()
         counts = Counter(names)
         self.failures = [chain for chain, count
                          in counts.items() if count > 1]
@@ -80,7 +80,7 @@ class StructuredChainNames(MenuVerification):
 
     def run(self, config):
         if self._trigger_level == TriggerLevel.HLT:
-            names = [chain["name"] for chain in config["chains"].values()]
+            names = config["chains"].keys()
             self.failures = [n for n in names
                              if not self._name_matches_hlt_convention(n)]
         elif self._trigger_level == TriggerLevel.L1:

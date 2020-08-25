@@ -210,7 +210,7 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster,
     ATH_MSG_DEBUG("Processing for electron");
     return getEnergy(cluster, static_cast<const xAOD::Electron*>(eg));
   }
-  else if (eg->type() == xAOD::Type::Photon ){
+  if (eg->type() == xAOD::Type::Photon ){
     ATH_MSG_DEBUG("Processing for photon");
     // this is because topo seeded electron (author == 128) have cluster in
     // another collection, which is not decorated with etaCalo, m_cl_phiCalo
@@ -220,9 +220,9 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster,
 
     return getEnergy(cluster, static_cast<const xAOD::Photon*>(eg));
   }
-  else{
+  
     ATH_MSG_INFO("Unknown Type");
-  }
+  
   return 0;
 }
 
@@ -239,14 +239,14 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster,
     m_MVATreeElectron->update(nullptr, cluster);
     return m_mvaElectron->getMVAEnergy();
   }
-  else if(egType == "Photon"){
+  if(egType == "Photon"){
     ATH_MSG_DEBUG("Processing for type photon");
     m_MVATreePhoton->update(nullptr, cluster);
     return m_mvaPhoton->getMVAEnergy();
   }
-  else {
+  
     ATH_MSG_WARNING("Unknown particle type");
-  }
+  
   return 0;
 }
 

@@ -21,7 +21,7 @@
 
 //Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/VTrackInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 
@@ -318,10 +318,10 @@ namespace G4UA{
 	if (process->GetProcessSubType()==2 ) m_ionloss+=eloss;
 	if (process->GetProcessSubType()==3 ) m_radloss+=eloss;
 	
-	EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+	AtlasG4EventUserInfo* atlasG4EvtUserInfo = static_cast<AtlasG4EventUserInfo*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 	VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
 	const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
-	::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, eventInfo);
+	::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, atlasG4EvtUserInfo);
 	unsigned int nSec = truth.numberOfChildren();
 	if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
 	  //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;

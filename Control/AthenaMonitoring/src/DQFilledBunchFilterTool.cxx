@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/DQFilledBunchFilterTool.h"
+#include "DQFilledBunchFilterTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

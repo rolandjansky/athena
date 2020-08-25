@@ -11,7 +11,7 @@
 #include "EventStorage/DataReader.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModel/Token.h"

@@ -104,11 +104,11 @@ def _compareCollection(ref_collection, chk_collection, args):
             chk = _findByName(name, chk_collection)
             if not ref:
                 print(
-                    f"\n\033[91m Component {name} \033[94m exists only in Chk \033[0m \033[0m \n"
+                    "\n\033[91m Component %s \033[94m exists only in Chk \033[0m \033[0m \n" % name
                 )
             elif not chk:
                 print(
-                    f"\n\033[91m Component {name} \033[92m exists only in Ref \033[0m \033[0m \n"
+                    "\n\033[91m Component %s \033[92m exists only in Ref \033[0m \033[0m \n" % name
                 )
             elif not _equalComponent(ref, chk):
                 _compareComponent(ref, chk, args)
@@ -118,15 +118,15 @@ def _compareCollection(ref_collection, chk_collection, args):
         for key in all_keys:
             if key not in ref_collection:
                 print(
-                    f"{key} = {chk_collection[key]}: \033[94m exists only in Chk \033[0m \033[91m<< !!!\033[0m"
+                    "%s= %s: \033[94m exists only in Chk \033[0m \033[91m<< !!!\033[0m" % (key, chk_collection[key])
                 )
             elif key not in chk_collection:
                 print(
-                    f"{key} = {ref_collection[key]}: \033[92m exists only in Ref \033[0m \033[91m<< !!!\033[0m"
+                    "%s= %s: \033[92m exists only in Ref \033[0m \033[91m<< !!!\033[0m" % (key, ref_collection[key])
                 )
             elif ref_collection[key] != chk_collection[key]:
                 print(
-                    f"{key} : \033[92m {str(ref_collection[key])} \033[0m vs \033[94m {str(chk_collection[key])} \033[0m \033[91m<< !!!\033[0m"
+                    "%s : \033[92m %s \033[0m vs \033[94m %s \033[0m \033[91m<< !!!\033[0m" % (key, str(ref_collection[key]), str(chk_collection[key]))
                 )
 
 
@@ -140,13 +140,13 @@ def _compareComponent(compRef, compChk, args, level=0):
     for prop in all_descriptors:
         if prop not in ref_keys:
             print(
-                f"{prop} = {compChk[prop]}: \033[94m exists only in Chk \033[0m \033[91m<< !!!\033[0m"
+                "%s = %s: \033[94m exists only in Chk \033[0m \033[91m<< !!!\033[0m" % (prop, compChk[prop])
             )
             continue
 
         if prop not in chk_keys:
             print(
-                f"{prop} = {compRef[prop]}: \033[92m exists only in Ref \033[0m \033[91m<< !!!\033[0m"
+                "%s = %s: \033[92m exists only in Ref \033[0m \033[91m<< !!!\033[0m" % (prop, compRef[prop])
             )
             continue
 
@@ -161,11 +161,11 @@ def _compareComponent(compRef, compChk, args, level=0):
             diffmarker = " \033[91m<< !!!\033[0m"
 
         print(
-            f"{'>> '*level}{prop} : \033[92m {str(ref_val)} \033[0m vs \033[94m {str(chk_val)} \033[0m {diffmarker}"
+            "%s%s : \033[92m %s \033[0m vs \033[94m %s \033[0m %s" % ('>> '*level, prop, str(ref_val), str(chk_val), diffmarker)
         )
 
         if isinstance(ref_val, Configurable):
-            print(f"vvv")
+            print("vvv")
             _compareComponent(ref_val, chk_val, args, level + 1)
 
 
@@ -210,15 +210,15 @@ def _getFlattenedProperties(obj):
         if isinstance(val, Configurable):
             propstr += "({0}:{1})".format(key, _getFlattenedProperties(val))
         elif isinstance(val, str):
-            propstr += f"({val})"
+            propstr += "(%s)" % val
         elif hasattr(val, "__iter__"):
             for th in val:
                 if isinstance(th, Configurable):
                     propstr += "({0}:{1})".format(th.name, _getFlattenedProperties(th))
                 elif isinstance(th, str) and "{" in th:  # parse dict saved as a string
-                    propstr += f"({str(sorted(json.loads(th).items()))})"
+                    propstr += "(%s)" % str(sorted(json.loads(th).items()))
                 else:
-                    propstr += f"({th})"
+                    propstr += "(%s)" % th
         else:
             propstr += "({0}:{1})".format(key, str(val))
     return propstr

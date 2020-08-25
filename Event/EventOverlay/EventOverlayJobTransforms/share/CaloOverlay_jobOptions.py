@@ -34,11 +34,18 @@ if DetFlags.overlay.LAr_on():
           #inhibit the reading of LArawChanels, they are created offline from the overlaid LArDigits:
           job.LArRawDataReadingAlg.LArRawChannelKey="" 
           #Configure the reading of the background digits from ByteStream
-          job.LArRawDataReadingAlg.LArDigitKey=overlayFlags.dataStore()+"+FREE"
+          if overlayFlags.isOverlayMT():
+             job.LArRawDataReadingAlg.LArDigitKey="FREE"
+          else:
+             job.LArRawDataReadingAlg.LArDigitKey=overlayFlags.dataStore()+"+FREE"
        except AttributeError:
           #in case the LArRawDataReadingAlg was not set up by someone:
-          job+=LArRawDataReadingAlg(LArRawChannelKey="",
-                                    LArDigitKey=overlayFlags.dataStore()+"+FREE")
+          if overlayFlags.isOverlayMT():
+             job+=LArRawDataReadingAlg(LArRawChannelKey="",
+                                       LArDigitKey="FREE")
+          else:   
+             job+=LArRawDataReadingAlg(LArRawChannelKey="",
+                                       LArDigitKey=overlayFlags.dataStore()+"+FREE")
           pass
 
     from LArDigitization.LArDigitGetter import LArDigitGetter
@@ -84,10 +91,18 @@ if DetFlags.overlay.Tile_on():
        theTileDigitsMaker.OnlyUseContainerName = False
     if overlayFlags.isDataOverlay():
        theApp.Dlls += [ "TileByteStream"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/TileRawChannelCnt"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/TileDigitsCnt"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileL2Container/TileL2Cnt"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/MuRcvRawChCnt"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/MuRcvDigitsCnt"]
+
+       if overlayFlags.isOverlayMT():
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/" + overlayFlags.bkgPrefix() + "TileRawChannelCnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/" + overlayFlags.bkgPrefix() + "TileDigitsCnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileL2Container/" + overlayFlags.bkgPrefix() + "TileL2Cnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/" + overlayFlags.bkgPrefix() + "MuRcvRawChCnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/" + overlayFlags.bkgPrefix() + "MuRcvDigitsCnt"]
+       else:
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/TileRawChannelCnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/TileDigitsCnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileL2Container/TileL2Cnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/MuRcvRawChCnt"]
+          ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/MuRcvDigitsCnt"]
 
 #--------------------

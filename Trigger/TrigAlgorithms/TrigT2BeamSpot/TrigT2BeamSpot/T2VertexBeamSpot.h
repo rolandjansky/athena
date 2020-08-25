@@ -29,7 +29,7 @@
 /// trigger EDM
 #include "TrigInterfaces/AllTEAlgo.h"
 //Interface for the beam spot tool
-#include "IT2VertexBeamSpotTool.h"
+#include "T2VertexBeamSpotTool.h"
 
 namespace HLT {
   class TriggerElement;
@@ -65,10 +65,10 @@ namespace PESA {
       //=================================
       //       Old Run2 setup
       /** Initialize the beamspot algorithm for Run2 configuration within the HLT, initialize all the handles and retrieve the tools associated with the algorithm */
-      HLT::ErrorCode hltInitialize();
+      virtual HLT::ErrorCode hltInitialize() override;
 
       /** Finalize the beamspot algorithm for Run2 configuration within the HLT (nothing really happens here atm) */
-      HLT::ErrorCode hltFinalize();
+      virtual HLT::ErrorCode hltFinalize() override;
 
       /**
        * @brief implementation of the abstract hltExecute method in HLT::AllTEAlgo.
@@ -77,14 +77,19 @@ namespace PESA {
        *              inner vector provides all TE instances of the given type
        * @param output the output TE type
        */
-      HLT::ErrorCode hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& input,
-                                 unsigned int output );
+      virtual HLT::ErrorCode hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& input,
+                                         unsigned int output ) override;
 
       /** Function which attaches vertex collections to the trigger element output */
       HLT::ErrorCode attachFeatureVertex( TrigVertexCollection &myVertexCollection,  HLT::TEVec &allTEs, unsigned int type_out );
 
       /** Function which attaches splitted vertex collections to the trigger element output */
       HLT::ErrorCode attachFeatureSplitVertex(DataVector< TrigVertexCollection > &mySplitVertexCollections,  HLT::TEVec &allTEs, unsigned int type_out );
+
+      //Until HLT::Algo inherits from AthReentrantAlgorithm or we can drop Run-2 setup
+      virtual bool isClonable() const override { return true; }
+      virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
+
 
       //Only for Run2 settings
       bool m_activateTE; /*If true to be added */
@@ -104,7 +109,7 @@ namespace PESA {
       virtual StatusCode initialize() final;
 
       
-      SG::ReadHandleKeyArray<TrackCollection> m_trackCollections;   /*Input list of track collection names which should be used for the algorithms*/
+      SG::ReadHandleKey<TrackCollection> m_trackCollectionKey;   /*track collection name which should be used for the algorithms*/
 
       //The same as in Run2 (m_vertexCollName)
       SG::WriteHandleKey<TrigVertexCollection> m_outputVertexCollectionKey;
@@ -116,7 +121,7 @@ namespace PESA {
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey  { this, "EventInfo", "EventInfo", "" };
 
       //Tools
-      ToolHandle<IT2VertexBeamSpotTool> m_beamSpotTool {this, "BeamSpotTool", "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
+      ToolHandle<T2VertexBeamSpotTool> m_beamSpotTool {this, "BeamSpotTool", "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
       ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
 

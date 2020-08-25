@@ -8,8 +8,6 @@
 #include "TrigMuonMonitorAlgorithm.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 
-class MuonMatchingTool;
-
 /*
 This is a class for monitoring L2MuonSA.
  */

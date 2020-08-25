@@ -28,7 +28,7 @@
 #include "ISF_Event/ParticleUserInformation.h"
 // MCTruth includes
 #include "MCTruth/PrimaryParticleInformation.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
 // Geant4 includes
@@ -233,7 +233,7 @@ ISF::InputConverter::convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOL
   // rather than a constant '1' (e.g. could use GenEvent index for that?)
   const int bcid = (kindOfCollection==EBC_MAINEVCOLL) ? 0 : 1;
 
-  HepMC::GenVertex* pVertex = genPart.production_vertex();
+  HepMC::GenVertexPtr  pVertex = genPart.production_vertex();
   if (!pVertex) {
     ATH_MSG_ERROR("Unable to convert following generator particle due to missing "
                   << "production vertex: " << genPart);
@@ -368,11 +368,11 @@ G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& 
     n_pp++;
   }
 
-  EventInformation *eventInfo=new EventInformation();
-  eventInfo->SetNrOfPrimaryParticles(n_pp);
-  eventInfo->SetNrOfPrimaryVertices(n_pp); // special case for ISF batches of particles
-  eventInfo->SetHepMCEvent(genEvent);
-  g4evt->SetUserInformation(eventInfo);
+  AtlasG4EventUserInfo *atlasG4EvtUserInfo=new AtlasG4EventUserInfo();
+  atlasG4EvtUserInfo->SetNrOfPrimaryParticles(n_pp);
+  atlasG4EvtUserInfo->SetNrOfPrimaryVertices(n_pp); // special case for ISF batches of particles
+  atlasG4EvtUserInfo->SetHepMCEvent(genEvent);
+  g4evt->SetUserInformation(atlasG4EvtUserInfo);
 
   return g4evt;
 }

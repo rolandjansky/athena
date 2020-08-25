@@ -3,6 +3,7 @@
 */
 
 #include "MuonLayerHough/LayerAnalysis.h"
+
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonLayerHough/MuonRegionHough.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -22,7 +23,6 @@
 #include "TVector3.h"
 #include <set>
 #include <cmath>
-
 
 #include <iostream>
 #include <cstdlib>
@@ -45,7 +45,6 @@ namespace MuonHough {
     TH1::AddDirectory(false);
     initialize();//initialize all the plots
     Long64_t nentries = m_tree->GetEntries();
-//    nentries = 10;
     m_ncalls = 0;
     std::cout << " analysing events " << nentries << std::endl;
     m_ntuple.initForRead(*m_tree);
@@ -71,7 +70,6 @@ namespace MuonHough {
 
     if (m_DEBUG) nentries = 200;//for debugging purpose
     for( Long64_t evt=0; evt<nentries; ++evt ){
-    //std::cout << "event: " << evt << std::endl;
       if (evt % 1000 == 0) std::cout << "event: " << evt << std::endl;
       m_tree->LoadTree(evt);
       m_tree->GetEntry(evt);
@@ -100,7 +98,7 @@ namespace MuonHough {
     finalize();
   }
 
-  void LayerAnalysis::initialize(){
+  void LayerAnalysis::initialize() {
     SetStyle();
     m_h_dtheta = new TH1F("dtheta", "RMS of the #Delta #theta for each clutser; #theta RMS", 315, -0.01, M_PI);
     m_h_dtheta_truth = new TH1F("dtheta_truth", "RMS of the #Delta #theta for each truth clutser; #theta RMS", 315, -M_PI, M_PI);
@@ -178,10 +176,6 @@ namespace MuonHough {
       	MuonLayerHough& houghTruth = detectorHoughTruth.hough(sit->first.sector(), region, layer);
 
         int chIndex = hough.m_descriptor.chIndex;//BIS, BIL, BMS, BML, BOS, BOL, BEE(6), EIS, EIL, EMS, EML, EOS, EOL, EES, EEL, CSS, CSL,
-        // int LayerIndexMax_temp = 0;
-        // if (region == 1){ LayerIndexMax_temp = 3;}
-        // else if (sit->first.sector()%2 == 0){ LayerIndexMax_temp = 5;}//small sectors
-        // else if (sit->first.sector()%2 != 0){ LayerIndexMax_temp = 4;}//large sectors
 
         if (m_DEBUG) std::cout << "DEBUG: start new cluster; position: sector " << sit->first.sector() << " region(A/B/C) " 
         << region << " layer: " << layer  << " chindex: " << chIndex << 
@@ -197,7 +191,6 @@ namespace MuonHough {
               hitsTruth.push_back(*hit);
             }
           }//end of lopoing all the hits
-          //if (hits.size() == 0){continue;}//only interested if there are hits to find maximum!
           hough.setDebug(false);//to supress output level
           hough.fillLayer2(hits);//fill all the layers with the weight
           houghTruth.fillLayer2(hitsTruth);//fill all the layers with the weight
@@ -322,7 +315,6 @@ namespace MuonHough {
             << std::endl;
         h_dtheta_temp->Fill(plotMaximum_truth[i][j].theta);
       }
-      //h_dtheta_truth->Fill(h_dtheta_temp->GetRMS());
       delete h_dtheta_temp;//remove the pinter
 
       if (int(plotMaximum_truth[i].size()) < 3){continue;}//just add protection
@@ -446,62 +438,10 @@ namespace MuonHough {
     canvas0.Update();
     canvas0.Write();
 
-////-----------------------------------This part is still disabled----------------------------
-//
-//
-//    canvasName += "_zoom";
-//    canvas = new TCanvas(canvasName,canvasName,1500,1100);
-//    canvas->Divide(1,3);
-//    for( int i=0;i<3;++i){
-//      if( min[i] < 1e9 ){
-//	double scale = ((rmax[i]-rmin[i])/12)  / ((max[i]-min[i])/3.);
-//	if( scale < 1 ) {
-//	  max[i] += 0.5*(max[i]-min[i])*scale;
-//	  min[i] -= 0.5*(max[i]-min[i])*scale;
-//	}else{
-//	  rmax[i] += 0.5*(rmax[i]-rmin[i])/scale;
-//	  rmin[i] -= 0.5*(rmax[i]-rmin[i])/scale;
-//	}
-//	//std::cout << " drawing " << i << " scale " << scale 
-//  // << " range z " << min[i] << " " << max[i] << "  r  " << rmin[i] << " " << rmax[i] << std::endl;
-//	histName = "hist_";
-//	histName += canvasName;
-//	histName += i;
-//	canvas->cd(3-i);
-//	double rangez = 120;
-//	double ranger = 30;
-//	if( region != 1 && i == 1 ){
-//	  rangez = 100;
-//	  ranger = 10;
-//	}
-//
-//	hist = new TH1F(histName,histName,100,rmin[i]-ranger,rmax[i]+ranger);
-//	hist->SetMinimum(min[i]-rangez);
-//	hist->SetMaximum(max[i]+rangez);
-//	hist->Draw();
-//	for( unsigned int s=0;s<shapes[i].size();++s){
-//	  shapes[i][s]->Draw("SAME");
-//	}
-//      }
-//    }
-//    canvas->Draw();
-//    canvas->Update();
-//    canvas->Draw();
-//    canvas->Update();
-////    canvas->SaveAs(canvasName + ".pdf");
-//    canvas->Write();
-//
-
-
-//--------------------------------------------------------------------------------------------------------------
-
-
-
     canvasName += "_hough";
     TCanvas canvas(canvasName,canvasName,1000,1000);
     Muon::MuonStationIndex::DetectorRegionIndex region_index = static_cast<Muon::MuonStationIndex::DetectorRegionIndex>(region);//have to convert type...
     const int iLayers = getMaxLayers(region_index, sector);//be careful here, only loop through the correct layers
-    //const int iLayers = region != 1 ? Muon::MuonStationIndex::LayerIndexMax : 3; // barrel only has three layers
 
     canvas.Divide(1,iLayers);
     for( int i=0;i < iLayers;++i){
@@ -517,21 +457,11 @@ namespace MuonHough {
       hists[pos]->SetFillStyle(3244);
       hists[pos]->SetFillColor(1);
       hists[pos]->Draw();
-      // int chIndex = hough.m_descriptor.chIndex;
       histsTruth[pos]->SetLineColor(2);
       histsTruth[pos]->Draw("SAME");
-      // float maxPos = fabs(hists[pos]->GetXaxis()->GetBinCenter(hists[pos]->GetMaximumBin()));
-      // float max  = hists[pos]->GetBinContent(hists[pos]->GetMaximumBin());
-      //
-      // if (max > 1) m_hMaximaHeightPerChIndex[chIndex]->Fill( maxPos, max);
-      // float truthMaxPos = fabs(histsTruth[pos]->GetXaxis()->GetBinCenter(histsTruth[pos]->GetMaximumBin()));
-      // float truthMax  = histsTruth[pos]->GetBinContent(histsTruth[pos]->GetMaximumBin());
-      //
-      // if (truthMax > 1) m_hMaximaHeightPerChIndexTruth[chIndex]->Fill( truthMaxPos, truthMax);
     }
     canvas.Draw();
     canvas.Update();
-    //canvas.SaveAs(canvasName + ".pdf");
     canvas.Write();
   }
 
@@ -539,25 +469,6 @@ namespace MuonHough {
     for (auto Plot : m_hMaximaHeightPerChIndex){
       if (Plot == 0) continue;
         calculateVariables(Plot);//for calculation efficiencies
-        // Plot->Reco->Write();
-        // Plot->Truth->Write();
-        // Plot->Matched->Write();
-        // Plot->Efficiency->Write();
-        // Plot->FakeEfficiency->Write();
-        // Plot->Diff->Write();
-
-        // Plot->Reco->Draw("COLZTEXT");
-        // gPad->SaveAs("../Output/"+ TString(Plot->Reco->GetName()) + ".pdf");
-        // Plot->Truth->Draw("COLZTEXT");
-        // gPad->SaveAs("../Output/"+ TString(Plot->Truth->GetName()) + ".pdf");
-        // Plot->Matched->Draw("COLZ");
-        // gPad->SaveAs("../Output/"+ TString(Plot->Matched->GetName()) + ".pdf");
-        // Plot->Efficiency->Draw();
-        // gPad->SaveAs("../Output/"+ TString(Plot->Efficiency->GetName()) + ".pdf");
-        // Plot->FakeEfficiency->Draw();
-        // gPad->SaveAs("../Output/"+ TString(Plot->FakeEfficiency->GetName()) + ".pdf");
-        // Plot->Diff->Draw("COLZTEXT");
-        // gPad->SaveAs("../Output/"+ TString(Plot->Diff->GetName()) + ".pdf");
         delete Plot->Reco; delete Plot->Truth; delete Plot->Matched;
         delete Plot->Efficiency; delete Plot->FakeEfficiency; delete Plot->Diff;
     }
@@ -570,7 +481,6 @@ namespace MuonHough {
     m_h_dtheta_truth->SetLineColor(2);
     m_h_dtheta_truth->Draw("SAME");
     m_h_dtheta_truth->Write();
-    //gPad->SaveAs("../Output/"+ TString(h_dtheta->GetName()) + ".pdf");
 
     finishplot(m_h_diff_MI_e);
     finishplot(m_h_diff_MO_e);
@@ -624,7 +534,6 @@ namespace MuonHough {
     gStyle->SetPadBorderMode(icol);
     gStyle->SetPadColor(icol);
     gStyle->SetStatColor(icol);
-    //gStyle->SetFillColor(icol); // don't use: white fill color for *all* objects
     // set the paper & margin sizes
     gStyle->SetPaperSize(20,26);
     // set margin sizes
@@ -648,11 +557,8 @@ namespace MuonHough {
     gStyle->SetLabelFont(font,"z");
     gStyle->SetTitleFont(fontT,"z");
     gStyle->SetLabelSize(tsize,"x");
-    //gStyle->SetTitleSize(tsize,"x");
     gStyle->SetLabelSize(tsize,"y");
-    //gStyle->SetTitleSize(tsize,"y");
     gStyle->SetLabelSize(tsize,"z");
-    //gStyle->SetTitleSize(tsize,"z");
     // use bold lines and markers
     gStyle->SetMarkerStyle(20);
     gStyle->SetMarkerSize(1.5);
@@ -660,16 +566,12 @@ namespace MuonHough {
     gStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
     gStyle->SetPalette(1);//colz color
     // get rid of X error bars 
-    //gStyle->SetErrorX(0.001);
     // get rid of error bar caps
     gStyle->SetEndErrorSize(0.);
     // do not display any of the standard histogram decorations
     gStyle->SetOptTitle(1);
-    //gStyle->SetOptTitle(0);
     gStyle->SetOptStat(1111);
-    //gStyle->SetOptStat(0);
     gStyle->SetOptFit(1111);
-    //gStyle->SetOptFit(0);
     // put tick marks on top and RHS of plots
     gStyle->SetPadTickX(1);
     gStyle->SetPadTickY(1);
@@ -677,7 +579,6 @@ namespace MuonHough {
 
   void LayerAnalysis::finishplot(TH1F* h){
     TCanvas c1("c1","c1",700,600);
-    //c1.SetLogy();
     c1.cd();
 
     h->SetBinContent(h->GetNbinsX(), h->GetBinContent(h->GetNbinsX() + 1) + h->GetBinContent(h->GetNbinsX()));
@@ -811,5 +712,3 @@ namespace MuonHough {
   }
 
 }
-
-

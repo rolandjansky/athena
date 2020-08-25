@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 /*********************************************************************
@@ -19,9 +19,9 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-#include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include <math.h>
+#include "TrkParameters/TrackParameters.h"
+#include <cmath>
 
 
 namespace Trk
@@ -120,7 +120,7 @@ namespace Trk
     //Calculate and cache the covariance matrix for the constraint
     AmgSymMatrix(3) weightMatrixPositionConstraint;
     weightMatrixPositionConstraint.setIdentity(); //very arbitrary
-    if (constraint != 0) {
+    if (constraint != nullptr) {
       weightMatrixPositionConstraint = constraint->covariancePosition().inverse();
     }
     
@@ -140,7 +140,7 @@ namespace Trk
     {
       idx_i ++ ;
       const Trk::Perigee* MyI=dynamic_cast<const Trk::Perigee*>(*i);
-      if (MyI==0) {
+      if (MyI==nullptr) {
 	ATH_MSG_WARNING( "Neutrals not supported for seeding. Rejecting this track..." );
 	continue;
       }	
@@ -151,7 +151,7 @@ namespace Trk
         idx_j ++ ;
         const Trk::Perigee* MyJ=dynamic_cast<const Trk::Perigee*>(*j);
 
-        if (MyJ==0) {
+        if (MyJ==nullptr) {
 	  ATH_MSG_WARNING( "Neutrals not supported for seeding. Rejecting this track..." );
 	  continue;
         }		
@@ -186,7 +186,7 @@ namespace Trk
               
               ATH_MSG_VERBOSE("distance weight: " << 1./pow(m_trackdistcutoff+distance,m_trackdistexppower) );
               
-              if (constraint!=0) {
+              if (constraint!=nullptr) {
                 
 		Amg::Vector3D DeltaP(thepoint-constraint->position());
 		Amg::Vector3D DeltaPConv;
@@ -205,7 +205,7 @@ namespace Trk
                 
               }
 
-              if ((useCutOnDistance==false || distance<m_maximumDistanceCut) && thispoint.second > 1e-10)
+              if ((!useCutOnDistance || distance<m_maximumDistanceCut) && thispoint.second > 1e-10)
               {
                 CrossingPointsAndWeights.push_back( thispoint );
 
@@ -219,8 +219,8 @@ namespace Trk
             }
             else
             {
-	      Amg::Vector3D thispoint(thepoint);
-              if ( useCutOnDistance==false || distance<m_maximumDistanceCut )
+	      const Amg::Vector3D& thispoint(thepoint);
+              if ( !useCutOnDistance || distance<m_maximumDistanceCut )
               {
                 CrossingPoints.push_back( thispoint );
               }
@@ -236,8 +236,8 @@ namespace Trk
     //Now all points have been collected (N*(N-1)/2) and 
     //the mode has to be calculated
 
-    if (    ( CrossingPoints.size() < 1 && ! m_useweights  ) 
-         || ( m_useweights && CrossingPointsAndWeights.size() < 1 ) )
+    if (    ( CrossingPoints.empty() && ! m_useweights  ) 
+         || ( m_useweights && CrossingPointsAndWeights.empty() ) )
     {
       return Amg::Vector3D(0,0,0);
     }

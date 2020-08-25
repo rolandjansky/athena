@@ -109,15 +109,15 @@ TriggerHLTListRun3 = [
 
 
     # Egamma
-    ('xAOD::TrigEMClusterContainer#HLT_L2CaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
-    ('xAOD::TrigEMClusterAuxContainer#HLT_L2CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrigEMClusterContainer#HLT_FastCaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
+    ('xAOD::TrigEMClusterAuxContainer#HLT_FastCaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
     ('xAOD::TrigRingerRingsContainer#HLT_FastCaloRinger',             'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), #Ringer
     ('xAOD::TrigRingerRingsAuxContainer#HLT_FastCaloRingerAux.',      'BS ESD AODFULL', 'Egamma'), #Ringer
 
-    ('xAOD::TrigPhotonContainer#HLT_L2Photons',                     'BS ESD AODFULL', 'Egamma', 'inViews:EMPhotonViews'),
-    ('xAOD::TrigPhotonAuxContainer#HLT_L2PhotonsAux.',              'BS ESD AODFULL', 'Egamma'),
-    ('xAOD::TrigElectronContainer#HLT_L2Electrons',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
-    ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronsAux.',          'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrigPhotonContainer#HLT_FastPhotons',                     'BS ESD AODFULL', 'Egamma', 'inViews:EMPhotonViews'),
+    ('xAOD::TrigPhotonAuxContainer#HLT_FastPhotonsAux.',              'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrigElectronContainer#HLT_FastElectrons',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
+    ('xAOD::TrigElectronAuxContainer#HLT_FastElectronsAux.',          'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_FTF',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_FTFAux.', 'BS ESD AODFULL', 'Egamma'),
@@ -130,9 +130,15 @@ TriggerHLTListRun3 = [
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
 
-    # This varient needed by TrigUpgradeTest/egammaRinger.py
+    # This variant needed by TrigUpgradeTest/egammaRinger.py
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClusters',             'BS ESD AODFULL', 'Egamma'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersAux.',  'BS ESD AODFULL', 'Egamma'),
+    #
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLCFS',                               'BS ESD AODFULL', 'Jet', 'alias:CaloClusterContainerShallowCopy'), # special argument indicating that this collection has a different Aux
+    ('xAOD::ShallowAuxContainer#HLT_TopoCaloClustersLCFSAux.calE.calEta.calPhi',         'BS ESD AODFULL', 'Jet'),
+
+    # fullscan Jet Roi
+    ('TrigRoiDescriptorCollection#HLT_FSJETRoI',                   'BS ESD AODFULL', 'Jet'),
 
     # Not sure we need these two...
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersRoI',          'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
@@ -232,7 +238,8 @@ TriggerHLTListRun3 = [
     ('xAOD::L2IsoMuonAuxContainer#HLT_MuonL2ISInfoAux.',        'BS ESD AODFULL', 'Muon'),
 
     ('TrigRoiDescriptorCollection#HLT_Roi_L2SAMuon',                   'BS ESD AODFULL', 'Muon'),
-    ('TrigRoiDescriptorCollection#HLT_Roi_L2SAMuonForEF',                   'BS ESD AODFULL', 'Muon'),
+    ('TrigRoiDescriptorCollection#HLT_Roi_L2SAMuonForEF',              'BS ESD AODFULL', 'Muon'),
+    ('TrigRoiDescriptorCollection#HLT_Roi_MuonIso',                    'BS ESD AODFULL', 'Muon'),
 
     # Tau
 

@@ -288,7 +288,7 @@ def applyJetCalibration(jetalg,algname,sequence,largeRjetconfig = 'comb', suffix
 
         if (not isMC) and jetalg_basename in ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']:
             isdata=True
-            if not jetalg_basename=='AntiKt4LCTopo': calibseq = calibseq[:-6]+'_Insitu'
+            if not jetalg_basename=='AntiKt4LCTopo': calibseq = calibseq+'_Insitu'
 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,

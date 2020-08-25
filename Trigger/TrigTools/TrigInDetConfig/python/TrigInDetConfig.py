@@ -22,8 +22,8 @@ def SiDetElementsRoadMaker_xkCfg( flags, **kwargs ):
   acc.addCondAlgo( CompFactory.InDet.SiDetElementsRoadCondAlg_xk() )
   tool = CompFactory.InDet.SiDetElementsRoadMaker_xk( name,
                                                       PropagatorTool = acc.getPublicTool( "InDetTrigPatternPropagator" ),
-                                                      usePixel     = flags.Detector.PixelOn, # DetFlags.haveRIO.pixel_on(),
-                                                      useSCT       = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
+                                                      usePixel     = flags.Detector.RecoPixel, # DetFlags.haveRIO.pixel_on(),
+                                                      useSCT       = flags.Detector.RecoSCT, #DetFlags.haveRIO.SCT_on(),
                                                       RoadWidth    = 10, #InDetTrigCutValues.RoadWidth()
                                                         )
   acc.addPublicTool( tool )
@@ -100,8 +100,8 @@ def SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ):
                                                          PropagatorTool        = acc.getPublicTool( "InDetTrigPatternPropagator" ),
                                                          UpdatorTool           = acc.getPublicTool( "InDetTrigPatternUpdator" ),
                                                          RIOonTrackTool        = acc.getPublicTool( "InDetTrigRotCreator" ),
-                                                         usePixel              = flags.Detector.PixelOn, #DetFlags.haveRIO.pixel_on(),
-                                                         useSCT                = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
+                                                         usePixel              = flags.Detector.RecoPixel, #DetFlags.haveRIO.pixel_on(),
+                                                         useSCT                = flags.Detector.RecoSCT, #DetFlags.haveRIO.SCT_on(),
                                                          PixelClusterContainer = 'PixelTrigClusters',
                                                          SCT_ClusterContainer  = 'SCT_TrigClusters',
                                                          PixelSummaryTool      = pixelCondSummaryTool,
@@ -116,15 +116,18 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
   """
   import AthenaCommon.SystemOfUnits as Unit
   name = kwargs.pop("name", "SiTrackMaker_xk")
-  acc = ComponentAccumulator()  
+  acc = ComponentAccumulator()
   acc.merge( SiDetElementsRoadMaker_xkCfg( flags, **kwargs ) )
   combTrackFinderTool = acc.popToolsAndMerge( SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ) )
+
+  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+  acc.merge(addFoldersSplitOnline( flags, "INDET", '/Indet/Onl/TrkErrorScaling', '/Indet/TrkErrorScaling', className="CondAttrListCollection") )
 
   acc.addCondAlgo( CompFactory.RIO_OnTrackErrorScalingCondAlg(ErrorScalingType = ["PixelRIO_OnTrackErrorScaling", "SCTRIO_OnTrackErrorScaling", "TRTRIO_OnTrackErrorScaling"],
                                                               OutKeys        = ["ConditionStore+/Indet/TrkErrorScalingPixel", "ConditionStore+/Indet/TrkErrorScalingSCT", "ConditionStore+/Indet/TrkErrorScalingTRT"],
                                                               ReadKey        = "ConditionStore+/Indet/TrkErrorScaling") )
-  
-  
+
+
   tool = CompFactory.InDet.SiTrackMaker_xk( name,
                                             RoadTool                 = acc.getPublicTool( "InDetTrigSiDetElementsRoadMaker" ),
                                             CombinatorialTrackFinder = combTrackFinderTool,
@@ -190,10 +193,10 @@ def InDetHoleSearchToolCfg(flags, **kwargs):
   name = kwargs.pop("name", "InDetTrigHoleSearchTool")
   tool = CompFactory.InDet.InDetTrackHoleSearchTool(name,
                                                     Extrapolator =  acc.getPublicTool( "TrigInDetExtrapolator" ),
-                                                    usePixel      = flags.Detector.PixelOn, #DetFlags.haveRIO.pixel_on(),
-                                                    useSCT        = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
-                                                    SctSummaryTool = sctCondSummaryTool,
-                                                    PixelLayerTool = acc.getPublicTool( "InDetTrigTestPixelLayerTool" ),
+                                                      #usePixel      = flags.Detector.RecoPixel, #DetFlags.haveRIO.pixel_on(),
+                                                      #useSCT        = flags.Detector.RecoSCT, #DetFlags.haveRIO.SCT_on(),
+                                                    #SctSummaryTool = sctCondSummaryTool,
+                                                    #PixelLayerTool = acc.getPublicTool( "InDetTrigTestPixelLayerTool" ),
                                                     )
   acc.addPublicTool( tool )
   return acc
@@ -220,8 +223,8 @@ def InDetTrackSummaryHelperToolCfg(flags, **kwargs):
                                                        PixelToTPIDTool= None, #InDetTrigPixelToTPIDTool,
                                                        DoSharedHits  = False,
                                                        TRTStrawSummarySvc = trtStrawSummaryTool,
-                                                       usePixel      = flags.Detector.PixelOn,  #DetFlags.haveRIO.pixel_on(),
-                                                       useSCT        = flags.Detector.SCTOn,  #DetFlags.haveRIO.SCT_on(),
+                                                       usePixel      = flags.Detector.RecoPixel,  #DetFlags.haveRIO.pixel_on(),
+                                                       useSCT        = flags.Detector.RecoSCT,  #DetFlags.haveRIO.SCT_on(),
                                                        useTRT        = True, # flags.Detector.TRTOn,  #DetFlags.haveRIO.TRT_on()
                                                          )
 
@@ -291,8 +294,8 @@ def TrigInDetCondCfg( flags ):
   acc.merge( InDetGeometryCfg( flags ) )
   #acc.merge(InDetGMConfig(flags))
 
-  
-  
+
+
   from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
@@ -339,7 +342,7 @@ def TrigInDetCondCfg( flags ):
 
   # from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
   # sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags, withFlaggedCondTool=False, withTdaqTool=False ) )
-  
+
   # SCT_DCSConditionsTempCondAlg=CompFactory.SCT_DCSConditionsTempCondAlg
   # acc.addCondAlgo(SCT_DCSConditionsTempCondAlg( ReadKey = tempFolder ))
 
@@ -358,7 +361,7 @@ def TrigInDetCondCfg( flags ):
 
 
 
-  
+
   # SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
   # acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
   #                                          SiConditionsTool = sctSiliconConditionsTool,
@@ -373,7 +376,7 @@ def TrigInDetCondCfg( flags ):
   from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
   SCTLorentzAngleTool =  acc.popToolsAndMerge( SCT_LorentzAngleCfg( flags ) )
   acc.addPublicTool(SCTLorentzAngleTool)
-  
+
   acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
   acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
@@ -407,7 +410,7 @@ def TrigInDetCondCfg( flags ):
                                   UseDCSHVConditions=True,
                                   UseDCSTemperatureConditions=True,
                                   UseTDAQConditions=False))
-  
+
   # charge calibration
   acc.merge(PixelChargeCalibCondAlgCfg(flags))
 # NEW FOR RUN3  acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
@@ -465,7 +468,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('SCT_RDO_Cache', 'SctRDOCache'),
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
-                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),                                                                  
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
                                                                   ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
                                                                   ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
 
@@ -523,7 +526,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
     InDetSCTRawDataProvider.RoIs = roisKey
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
 
-    InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT    
+    InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT
     InDetSCTRawDataProvider.OutputLevel=DEBUG
     acc.addEventAlgo(InDetSCTRawDataProvider)
 
@@ -633,19 +636,19 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
   acc.addPublicTool(InDetSiSpacePointMakerTool)
 
-  acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") ) 
-  
+  acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") )
+
   InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
-  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder"+ signature,
+  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "TrigSPFinder"+ signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = "PixelTrigClusters",
                                                                     SCT_ClustersName       = "SCT_TrigClusters",
                                                                     SpacePointsPixelName   = "PixelTrigSpacePoints",
                                                                     SpacePointsSCTName     = "SCT_TrigSpacePoints",
                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                    ProcessPixels          = flags.Detector.PixelOn,
-                                                                    ProcessSCTs            = flags.Detector.SCTOn,
-                                                                    ProcessOverlaps        = flags.Detector.SCTOn,
+                                                                    ProcessPixels          = flags.Detector.RecoPixel,
+                                                                    ProcessSCTs            = flags.Detector.RecoSCT,
+                                                                    ProcessOverlaps        = flags.Detector.RecoSCT,
                                                                     SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                                                     SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
   InDetSiTrackerSpacePointFinder.OutputLevel=DEBUG
@@ -653,12 +656,12 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   acc.addPublicTool( CompFactory.TrigL2LayerNumberTool( "TrigL2LayerNumberTool_FTF" ) )
 
-  acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  acc.merge( TrackSummaryToolCfg(flags, name="TrigSummaryTool_FTF") )
 
 #  acc.addPublicTool( CompFactory.TrigL2ResidualCalculator( "TrigL2ResidualCalculator" ) )
-  acc.merge( SiTrackMaker_xkCfg( flags, name = "InDetTrigSiTrackMaker_FTF"+signature ) )
+  acc.merge( SiTrackMaker_xkCfg( flags, name = "TrigTrackMaker_FTF"+signature ) )
 
-  acc.addPublicTool( CompFactory.TrigInDetTrackFitter( "TrigInDetTrackFitter" ) )
+  acc.addPublicTool( CompFactory.TrigInDetTrackFitter( "TrigTrackFitter_FTF" ) )
   from RegionSelector.RegSelToolConfig import (regSelTool_SCT_Cfg, regSelTool_Pixel_Cfg)
 
   pixRegSelTool = acc.popToolsAndMerge( regSelTool_Pixel_Cfg( flags) )
@@ -668,8 +671,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   acc.merge( TrackingGeometrySvcCfg( flags ) )
   acc.addPublicTool( CompFactory.TrigL2LayerNumberTool( name = "TrigL2LayerNumberTool_FTF",
                                                         UseNewLayerScheme = True) )
-  
-  acc.addPublicTool( CompFactory.TrigSpacePointConversionTool( "TrigSpacePointConversionTool" + signature.lower(), # lowercased to ease comparison to old style conf. TODO, remove
+
+  acc.addPublicTool( CompFactory.TrigSpacePointConversionTool( "TrigSPConversionTool" + signature.lower(), # lowercased to ease comparison to old style conf. TODO, remove
                                                                  DoPhiFiltering = True,
                                                                  UseBeamTilt = False,
                                                                  UseNewLayerScheme = True,
@@ -681,18 +684,18 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   # TODO remove once offline configured counterparts are available?
   acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name= "InDetSiDetElementBoundaryLinksSCTCondAlg",
                                                                          WriteKey = "SCT_DetElementBoundaryLinks_xk") )
-  
+
   acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
                                                                          ReadKey  = "PixelDetectorElementCollection",
                                                                          WriteKey = "PixelDetElementBoundaryLinks_xk") )
-  
-  ftf = CompFactory.TrigFastTrackFinder( name = "TrigFastTrackFinder" + signature,
+
+  ftf = CompFactory.TrigFastTrackFinder( name = "FTF" + signature,
                                          LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
-                                         SpacePointProviderTool   = acc.getPublicTool( "TrigSpacePointConversionTool" + signature.lower() ),
-                                         TrackSummaryTool         = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
+                                         SpacePointProviderTool   = acc.getPublicTool( "TrigSPConversionTool" + signature.lower() ),
+                                         TrackSummaryTool         = acc.getPublicTool( "TrigSummaryTool_FTF" ),
 #                                         TrigL2ResidualCalculator = acc.getPublicTool( "TrigL2ResidualCalculator" ),
-                                         initialTrackMaker        = acc.getPublicTool( "InDetTrigSiTrackMaker_FTF" + signature ),
-                                         trigInDetTrackFitter     = acc.getPublicTool( "TrigInDetTrackFitter" ),
+                                         initialTrackMaker        = acc.getPublicTool( "TrigTrackMaker_FTF" + signature ),
+                                         trigInDetTrackFitter     = acc.getPublicTool( "TrigTrackFitter_FTF" ),
                                          RoIs = roisKey,
                                          trigZFinder = CompFactory.TrigZFinder(),
                                          doZFinder = False, # this and all below, copied over from comparison with running JOs, TODO find a proper surce of this settings
@@ -712,11 +715,11 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                          pTmin = 1000.0,
                                          useNewLayerNumberScheme = True,
                                          MinHits = 5
-                                           ) 
+                                           )
   #ftf.RoIs = roisKey
   ftf.OutputLevel=DEBUG
   acc.addEventAlgo( ftf )
-  
+
   #CondSvc=CompFactory.CondSvc
   #acc.addService(CondSvc())
 
@@ -770,8 +773,7 @@ if __name__ == "__main__":
     #from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     #acc.merge( MainServicesCfg( ConfigFlags ) )
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
-    acc.addEventAlgo(l1DecoderAlg)
+    l1DecoderAcc = L1DecoderCfg( ConfigFlags )
     acc.merge(l1DecoderAcc)
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))

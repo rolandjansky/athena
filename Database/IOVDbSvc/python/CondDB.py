@@ -32,11 +32,15 @@ from AthenaServices.AthenaServicesConf import Athena__ConditionsCleanerSvc
 from AthenaServices.AthenaServicesConf import Athena__DelayedConditionsCleanerSvc
 from AthenaCommon.AlgSequence import AthSequencer
 
-condInputLoader = CondInputLoader( "CondInputLoader")
-condSeq = AthSequencer("AthCondSeq")
 
 svcMgr += CondSvc()
-condSeq += condInputLoader
+
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "CondInputLoader"):
+    condInputLoader = CondInputLoader( "CondInputLoader")
+    condSeq += condInputLoader
+else:
+    condInputLoader = condSeq.CondInputLoader
 
 # Enable conditions garbage collection.
 cleaner = Athena__DelayedConditionsCleanerSvc()

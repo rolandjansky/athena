@@ -2,5 +2,5 @@
 
 AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent = [
 "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag",
-"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagAux.pt.eta.phi.m.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.",
+"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagAux.pt.eta.phi.m.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.has_ATLASRECTS_5027_bug.relativeDeltaRToVRJet.HadronGhostTruthLabelID.HadronGhostExtendedTruthLabelID.",
 ]

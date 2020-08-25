@@ -222,13 +222,20 @@ InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name      
                                                                       PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap())
 ToolSvc += InDetPrdAssociationTool
 if InDetFlags.doPrintConfigurables: print      InDetPrdAssociationTool
-  
+
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+InDetBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on(),
+    SctSummaryTool=None
+)
+ToolSvc += InDetBoundaryCheckTool
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                       Extrapolator = InDetExtrapolator,
-                                                      usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                      useSCT        = DetFlags.haveRIO.SCT_on())
-InDetHoleSearchTool.SctSummaryTool = None
+                                                      BoundaryCheckTool=InDetBoundaryCheckTool)
   
 ToolSvc += InDetHoleSearchTool
 if InDetFlags.doPrintConfigurables: print      InDetHoleSearchTool

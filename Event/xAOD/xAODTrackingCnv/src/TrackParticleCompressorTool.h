@@ -14,8 +14,8 @@
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgTool.h"
 
-// xAOD include(s):
-#include "xAODCore/tools/FloatCompressor.h"
+// CxxUtils include(s):
+#include "CxxUtils/FloatCompressor.h"
 
 // Local include(s):
 #include "xAODTrackingCnv/ITrackParticleCompressorTool.h"
@@ -60,7 +60,7 @@ namespace xAODMaker {
 
       /// Helper object for compressing the on-diagonal covariance matrix
       /// elements
-      std::unique_ptr< xAOD::FloatCompressor > m_diagCovMatrixCompressor;
+      std::unique_ptr< CxxUtils::FloatCompressor > m_diagCovMatrixCompressor;
 
    }; // class TrackParticleCompressorTool
 

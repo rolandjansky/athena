@@ -13,7 +13,7 @@
  */
 #include "PileUpTools/IBeamLuminosity.h"
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class LumiProfileSvc : public extends<AthService, IBeamLuminosity>
 {

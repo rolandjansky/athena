@@ -151,7 +151,7 @@ if not simFlags.ISFRun:
         else:
             as_alg = False
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
-        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg)
+        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg, noTag=True)
 
         ## Write geometry tag info - move to main method
         #import EventInfoMgt.EventInfoMgtInit

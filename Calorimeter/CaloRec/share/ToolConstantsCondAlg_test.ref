@@ -8,7 +8,6 @@ ApplicationMgr    SUCCESS
                                           running on 1fe14f8366e2 on Tue Jul 21 15:04:16 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = 438)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 23453 CLIDRegistry entries for module ALL
@@ -92,7 +91,6 @@ ApplicationMgr    SUCCESS           AthSequencer/AthEndSeq
 ApplicationMgr    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
 ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg2
 ApplicationMgr    SUCCESS      AthSequencer/AthOutSeq
-ApplicationMgr    SUCCESS      AthSequencer/AthRegSeq
 ApplicationMgr    SUCCESS ******************************************************************************
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/LAR/CellCorrOfl/deadOTX'
 ApplicationMgr       INFO Application Manager Started successfully

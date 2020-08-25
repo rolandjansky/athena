@@ -796,6 +796,7 @@ namespace SG {
 template <typename T>
 struct Bases<CondCont<T> >
 {
+  using bases = BaseList<CondContBase>;
   typedef CondContBase Base1;               
   typedef NoBase Base2;          
   typedef NoBase Base3;      

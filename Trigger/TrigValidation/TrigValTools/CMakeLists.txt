@@ -32,5 +32,9 @@ atlas_add_test( TrigValSteering_unit_test
 
 atlas_add_test( rootcomp
                 SCRIPT test/test_rootcomp.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/test_rootcomp.C
-                PROPERTIES TIMEOUT 120
+                PROPERTIES TIMEOUT 450
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( chainDump
+                SCRIPT test/test_chainDump.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/test_chainDump.C
+                LOG_IGNORE_PATTERN "Processing.*test_chainDump" )

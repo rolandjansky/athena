@@ -3,13 +3,13 @@
 */
 
 // ********************************************************************
-// 
+//
 // NAME:     muComb.h
 // PACKAGE:  Trigger/TrigAlgorithms/TrigmuComb
-// 
+//
 // AUTHORS:   S. Giagu <stefano.giagu@cern.ch>
 //            A, Di Mattia <dimattia@mail.cern.ch>
-// 
+//
 // PURPOSE:  LVL2 Combined Muon FEX Algorithm
 // ********************************************************************
 
@@ -23,7 +23,6 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 //#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-//#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
@@ -42,47 +41,45 @@ class muComb : public HLT::FexAlgo
   muComb(const std::string&, ISvcLocator*);
   /** Destructor */
   ~muComb(){};
-   
-  /** hltExecute execute the combined muon FEX. */ 
+
+  /** hltExecute execute the combined muon FEX. */
   HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
   /** hltInitialize. Called by the Steering. */
   HLT::ErrorCode hltInitialize();
   /** hltFinalize. Called by the Steering. */
   HLT::ErrorCode hltFinalize();
-   
-  /** recordFeature. Record on the event record the output xAOD::L2CombinedMuonCOntainer. */ 
+
+  /** recordFeature. Record on the event record the output xAOD::L2CombinedMuonCOntainer. */
   HLT::ErrorCode muCombSeed(HLT::TriggerElement*,xAOD::L2CombinedMuonContainer*);
 
  private:
 
   /** Pointer to Storegate. */
   StoreGateSvc*        m_pStoreGate;
-    
+
   /** Pointer to the ROB data provider */
   //ROBDataProviderSvc*  m_pROBDataProvider;
-      
-  /** Handle to the G4 backExtrapolator tool */
-  ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;  
 
-  /** Handle to the Magnetic field service */
-  //MagField::IMagFieldSvc* m_MagFieldSvc; 
+  /** Handle to the G4 backExtrapolator tool */
+  ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;
+
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
 
-  /** Pointer to Timer Service */ 
+  /** Pointer to Timer Service */
   ITrigTimerSvc*  m_pTimerService;
 
   std::string m_paramSet;
-    
+
   int    drptMatch(double, double, double,
-                   double, double, double, int, 
+                   double, double, double, int,
 		   double&, double&, double&, double&, double&);
 
-  int    drptMatch(const xAOD::L2StandAloneMuon* feature, 
-                   double, double, double, int, 
+  int    drptMatch(const xAOD::L2StandAloneMuon* feature,
+                   double, double, double, int,
 		   double&, double&, double&, double&, double&);
 
-  int    mfMatch(const xAOD::L2StandAloneMuon* feature, 
+  int    mfMatch(const xAOD::L2StandAloneMuon* feature,
                  double, double, double, double,
 		 double&, double&, double&, double&, double&, int&);
 

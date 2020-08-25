@@ -39,7 +39,6 @@ def MainServicesCfg(cfgFlags):
     #Build standard sequences:
     cfg.addSequence(AthSequencer('AthAlgEvtSeq',Sequential=True, StopOverride=True),parentName="AthMasterSeq") 
     cfg.addSequence(AthSequencer('AthOutSeq',StopOverride=True),parentName="AthMasterSeq")
-    cfg.addSequence(AthSequencer('AthRegSeq',StopOverride=True),parentName="AthMasterSeq")
 
     cfg.addSequence(AthSequencer('AthBeginSeq',Sequential=True),parentName='AthAlgEvtSeq')
     cfg.addSequence(AthSequencer('AthAllAlgSeq',StopOverride=True),parentName='AthAlgEvtSeq') 
@@ -79,10 +78,7 @@ def MainServicesCfg(cfgFlags):
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService(StoreGateSvc("ConditionStore"))
     
-    CoreDumpSvc=CompFactory.CoreDumpSvc
-    #438 is the logical or of  FATAL_ON_QUIT, FATAL_ON_INT, FATAL_DUMP_SIG, FATAL_DUMP_STACK, FATAL_DUMP_CONTEXT, FATAL_AUTO_EXIT
-    #as defiend in Control/AthenaServices/src/SetFatalHandler.h 
-    cfg.addService(CoreDumpSvc(FatalHandler = 438))
+    cfg.addService(CompFactory.CoreDumpSvc())
 
     cfg.setAppProperty('InitializationLoopCheck',False)
 

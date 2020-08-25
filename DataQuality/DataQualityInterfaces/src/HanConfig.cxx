@@ -42,6 +42,7 @@
 #include "DataQualityInterfaces/HanOutput.h"
 #include "DataQualityInterfaces/MiniConfig.h"
 #include "DataQualityInterfaces/HanUtils.h"
+#include "DataQualityInterfaces/DatabaseConfig.h"
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -81,12 +82,12 @@ HanConfig::
 
 void
 HanConfig::
-AssembleAndSave( std::string infileName, std::string outfileName )
+AssembleAndSave( std::string infileName, std::string outfileName, std::string connectionString, long runNumber, bool bulk)
 {
   std::unique_ptr< TFile > outfile( TFile::Open( outfileName.c_str(),
                                                  "RECREATE" ) );
   DirMap_t directories;
-  
+
   // Collect reference histograms and copy to config file
   MiniConfig refconfig;
   refconfig.AddKeyword("reference");
@@ -94,13 +95,18 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   TMap refsourcedata;
   RefVisitor refvisitor( outfile.get(), directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
-  
+
+  DatabaseConfig databaseConfig(connectionString, runNumber);
+  RefWriter refwriter(databaseConfig, bulk);
+  refconfig.SendWriter( refwriter );
+  databaseConfig.Disconnect();
+
   // Collect threshold definitions
   MiniConfig thrconfig;
   thrconfig.AddKeyword("thresholds");
   thrconfig.AddAttributeKeyword("limits");
   thrconfig.ReadFile(infileName);
-  
+
   // Collect algorithm definitions
   MiniConfig algconfig;
   algconfig.AddKeyword("algorithm");
@@ -110,21 +116,21 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   MiniConfig regconfig;
   regconfig.AddKeyword("output");
   regconfig.ReadFile(infileName);
-  
+
   // Collect histogram definitions
   MiniConfig histconfig;
   histconfig.AddKeyword("dir");
   histconfig.AddAttributeKeyword("hist");
   histconfig.SetAttribKeywordPropagateDown(false);
   histconfig.ReadFile(infileName);
-  
+
   // Collect and write composite-algorithm definitions
   MiniConfig compalgconfig;
   compalgconfig.AddKeyword("compositealgorithm");
   compalgconfig.ReadFile(infileName);
   CompAlgVisitor compalgvisitor(outfile.get(), compalgconfig);
   compalgconfig.SendVisitor(compalgvisitor);
-  
+
   MiniConfig metadataconfig;
   metadataconfig.AddKeyword("metadata");
   metadataconfig.ReadFile(infileName);
@@ -137,11 +143,11 @@ AssembleAndSave( std::string infileName, std::string outfileName )
 
   RegionVisitor regvisitor( root.get(), algconfig, thrconfig, refconfig, directories );
   regconfig.SendVisitor( regvisitor );
-  
-  AssessmentVisitor histvisitor( root.get(), algconfig, thrconfig, refconfig, outfile.get(), 
-				 directories, &refsourcedata );  
+
+  AssessmentVisitor histvisitor( root.get(), algconfig, thrconfig, refconfig, outfile.get(),
+				 directories, &refsourcedata );
   histconfig.SendVisitor( histvisitor );
-  
+
   outfile->WriteTObject(&refsourcedata, "refsourcedata");
   outfile->cd();
   root->Write();
@@ -157,9 +163,9 @@ BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output
   if( !isInitialized ) {
     return;
   }
-  
+
   m_dqRoot = BuildMonitorsNewRoot( configName, input, output );
-  
+
   output.setConfig( this );
 }
 
@@ -171,7 +177,7 @@ BuildMonitorsNewRoot( std::string configName, dqm_core::Input& input, dqm_core::
   if( !isInitialized ) {
     return boost::shared_ptr<dqm_core::Region>();
   }
-  
+
   std::string algName( m_top_level->GetAlgName() );
   std::string algLibName( m_top_level->GetAlgLibName() );
   if( algLibName != "" ) {
@@ -184,7 +190,7 @@ BuildMonitorsNewRoot( std::string configName, dqm_core::Input& input, dqm_core::
   }
   dqm_core::RegionConfig regc( algName, 1.0 );
   boost::shared_ptr<dqm_core::Region> retval(dqm_core::Region::createRootRegion( "top_level", input, output, regc ));
-  
+
   ConfigVisitor confvisitor( m_config, &output );
   m_top_level->Accept( confvisitor, retval );
   return retval;
@@ -199,21 +205,21 @@ BuildConfigOutput( std::string configName, TFile* inputFile, std::string path,
   if( !isInitialized ) {
     return;
   }
-  
+
   if( inputFile == 0 ) {
     return;
   }
-  
+
   TDirectory* basedir(0);
   if( path != "" ) {
     std::string pathForSearch = path;
     pathForSearch += "/dummyName";
     basedir = ChangeInputDir( inputFile, pathForSearch );
   }
-  
+
   if( basedir == 0 )
     basedir = inputFile;
-  
+
   TIter mdIter(m_metadata);
   TSeqCollection* mdList = newTList("HanMetadata_");
   HanConfigMetadata* md(0);
@@ -222,7 +228,7 @@ BuildConfigOutput( std::string configName, TFile* inputFile, std::string path,
   }
   TSeqCollection* top_level_list = m_top_level->GetList(basedir,*outputMap);
   top_level_list->Add( mdList );
-  outputList->Add( top_level_list );  
+  outputList->Add( top_level_list );
 }
 
 
@@ -233,7 +239,7 @@ GetReference( std::string& groupName, std::string& name )
   /*  if( m_top_level == 0 ) {
     return 0;
   }
-  
+
   HanConfigGroup* parent = m_top_level->GetNode(groupName);
   if( parent == 0 ) {
     parent = m_top_level;
@@ -251,13 +257,15 @@ GetReference( std::string& groupName, std::string& name )
 	return ref;
     }
   }
-  
+
   return 0;
 }
 
-std::string 
+std::string
 SplitReference(std::string refPath, std::string refName )
 {
+  // this will never be run in a multithread environment
+  static std::unordered_set<std::string> badPaths;
   //Split comma sepated inputs into individual file names
   std::string delimiter = ",";
   std::vector<std::string> refFileList;
@@ -275,15 +283,17 @@ SplitReference(std::string refPath, std::string refName )
     std::string fileName=refFileList.at(i)+refName;
     size_t first = fileName.find_first_not_of(" ");
     fileName.erase(0, first);
+    if (badPaths.find(fileName) != badPaths.end()) continue;
     if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
       return fileName;
-    } 
+    }
     else {
       if(TFile::Open(fileName.c_str())){
 	return fileName;
       }
       else{
-	std::cerr << "Unable to open " << fileName << ", trying next reference file" << std::endl;
+        badPaths.insert(fileName);
+	std::cerr << "Unable to open " << fileName << ", trying next reference file option" << std::endl;
       }
     }
   }
@@ -298,20 +308,20 @@ GetAssessor( std::string& groupName, std::string& name ) const
   if( m_top_level == 0 ) {
     return 0;
   }
-  
+
   HanConfigGroup* parent = m_top_level->GetNode(groupName);
   if( parent == 0 ) {
     parent = m_top_level;
   }
-  
+
   const HanConfigAssessor& a = parent->GetAssessor(name);
 
   return new HanConfigAssessor(a);
-} 
+}
 
 void
 HanConfig::
-GetRegexList(std::set<std::string>& regexlist) 
+GetRegexList(std::set<std::string>& regexlist)
 {
   RegexVisitor rv(regexlist);
   m_top_level->Accept(rv, boost::shared_ptr<dqm_core::Region>());
@@ -368,10 +378,39 @@ Visit( const MiniConfigTreeNode* node ) const
     if (! m_refsourcedata->FindObject(fileName.c_str())) {
       m_refsourcedata->Add(fnameostr, refInfo != "" ? new TObjString(refInfo.c_str())
 			   : new TObjString("Reference"));
-    }  
+    }
   }
 }
 
+HanConfig::RefWriter::
+RefWriter( DatabaseConfig& databaseConfig_, const bool bulk)
+  : m_databaseConfig(databaseConfig_),
+    m_bulk(bulk)
+{
+}
+
+
+void
+HanConfig::RefWriter::
+Write( MiniConfigTreeNode* node )
+{
+  std::string database = node->GetAttribute("database");
+
+  if(database != "") {
+    database += (m_bulk ? "-physics-UPD4" : "-express-UPD1");
+    nlohmann::json jsonPayload = m_databaseConfig.GetPayload(database);
+    std::string reference = node->GetName();
+
+    if(jsonPayload.find(reference) != jsonPayload.end()) {
+      nlohmann::json referenceJson = jsonPayload[reference];
+      for (nlohmann::json::iterator it = referenceJson.begin(); it != referenceJson.end(); ++it) {
+        node->SetAttribute(it.key(), it.value(), false);
+      }
+    } else {
+      std::cerr << "Unable to find reference definition in database: " << reference << '\n';
+    }
+   }
+}
 
 HanConfig::AssessmentVisitorBase::
 AssessmentVisitorBase( HanConfigGroup* root_, const MiniConfig& algConfig_,
@@ -396,12 +435,16 @@ GetROOTFile( std::string& fname ) const
   if (it != end(m_filecache)) {
     return it->second;
   } else {
+    if (m_badPaths.find(fname) != m_badPaths.end()) {
+      return std::shared_ptr<TFile>(nullptr);
+    }
     std::shared_ptr<TFile> thisptr(TFile::Open(fname.c_str()));
     if (thisptr.get()) {
       return ( m_filecache[fname] = thisptr );
      } else {
+       m_badPaths.insert(fname);
       return thisptr;
-    }	  
+    }
   }
 }
 
@@ -426,7 +469,7 @@ float AttribToFloat(const MiniConfigTreeNode* node, const std::string attrib,
 
 void
 HanConfig::AssessmentVisitorBase::
-GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID, 
+GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
                            std::string assessorName ) const
 {
   // bool hasName(false);
@@ -479,7 +522,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
       // for each condition ...
       for(size_t t=0;t<condPairs.size();t++){
 	std::string refID=condPairs.at(t).second;
-	std::string cond=condPairs.at(t).first;	
+	std::string cond=condPairs.at(t).first;
 	std::vector<std::string> refIDVec;
 	TObjArray *toarray(0);
 	bool isMultiRef(false);
@@ -532,13 +575,13 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	      m_outfile->cd(); //we are writing to the / folder of file
 	      TObject* obj;
 	      obj = key->ReadObj();
-	      if (isMultiRef) { 
+	      if (isMultiRef) {
 		TObject* cobj = obj->Clone();
 		TH1* hobj = dynamic_cast<TH1*>(cobj);
 		if (hobj) {
 		  hobj->SetName(thisRefID.c_str());
 		}
-		toarray->Add(cobj); 
+		toarray->Add(cobj);
 		delete obj;
 	      } else {
 		std::string algRefUniqueName=algRefFile+":/"+absAlgRefName;
@@ -586,8 +629,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	      }
 	    }
 	  }
-	} 
-	    
+	}
+
 	if (isMultiRef) {
 	  std::string algRefUniqueName=cond+"_multiple:/"+absAlgRefName;
 	  newRefId=CS.getNewReferenceName(algRefUniqueName,true);
@@ -608,9 +651,9 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    std::cerr<<"Warning New reference id is empty for refId=\""
 		     <<refID<<"\", cond=\""<<cond<<"\", assessorName= \""
 		     <<assessorName<<"\""<<std::endl;
-		     } 
+		     }
 	} */
-	
+
 	if(!cond.empty()){
 	  newRefString<<cond<<":"<<newRefId<<";";
 	}else{
@@ -618,7 +661,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	}
       }
       dqpar->SetAlgRefName((newRefString.str()));
-			       
+
 //       std::string algRefName( m_refConfig.GetStringAttribute(refID,"name") );
 //       std::string algRefPath( m_refConfig.GetStringAttribute(refID,"path") );
 //       std::string absAlgRefName("");
@@ -676,15 +719,15 @@ Visit( const MiniConfigTreeNode* node ) const
   const MiniConfigTreeNode* parent = node->GetParent();
   if( parent == 0 )
     return;
-  
+
   const MiniConfigTreeNode* grandparent = parent->GetParent();
   auto alloc = std::make_unique<HanConfigGroup>();
   HanConfigGroup* reg = (grandparent==0) ? m_root : alloc.get();
-  
+
   std::string regName( node->GetName() );
   reg->SetName( regName );
   reg->SetPathName( node->GetPathName() );
-  
+
   std::string algID( node->GetAttribute("algorithm") );
   if( algID != "" ) {
     GetAlgorithmConfiguration( reg, algID );
@@ -715,7 +758,7 @@ RegexVisitor( std::set<std::string>& regexes_ )
 {
 }
 
-boost::shared_ptr<dqm_core::Node> 
+boost::shared_ptr<dqm_core::Node>
 HanConfig::RegexVisitor::
 Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> ) const
 {
@@ -752,18 +795,18 @@ Visit( const MiniConfigTreeNode* node ) const
     const MiniConfigTreeNode* histNode = node->GetDaughter( *h );
     if( histNode == 0 )
       continue;
-    
+
     algID = histNode->GetAttribute("algorithm");
     regID = histNode->GetAttribute("output");
-    
+
     if( algID == "" ) {
       std::cerr << "No \"algorithm\" defined for " << histNode->GetPathName() << "\n";
       continue;
     }
-    
+
     if( regID == "" )
       regID = "top_level";
-    
+
     std::string strNodeName(histNode->GetName());
     std::string strHistName, strFullHistName;
     std::string::size_type atsign = strNodeName.find("@");
@@ -778,10 +821,10 @@ Visit( const MiniConfigTreeNode* node ) const
 
     if( strHistName == "all_in_dir" )
       continue;
-    
+
     if( defined.find(histNode->GetPathName()) != defined.end() )
       continue;
-    
+
     HanConfigAssessor dqpar;
     dqpar.SetName( histNode->GetPathName() );
 
@@ -790,16 +833,16 @@ Visit( const MiniConfigTreeNode* node ) const
     if (regexflag == "1" || regexflag == "true" || regexflag == "yes") {
     	dqpar.SetIsRegex(true);
     }
-    
+
     if (histNode->GetAttribute("weight") != "") {
       std::ostringstream err;
       err << "Weight attribute not a floating point type for " << histNode->GetPathName() << "; setting to zero";
       dqpar.SetWeight(AttribToFloat(histNode, "weight",
 				    err.str()));
     }
-        
+
     GetAlgorithmConfiguration( &dqpar, algID, strFullHistName );
-   
+
     std::set<std::string> histAtt2;
     histNode->GetAttributeNames( histAtt2 );
     std::set<std::string>::const_iterator histAttEnd2 = histAtt2.end();
@@ -818,7 +861,7 @@ Visit( const MiniConfigTreeNode* node ) const
     HanConfigParMap parMap;
     parMap.SetName("inputname"); parMap.SetValue( strFullHistName );
     dqpar.AddAnnotation(parMap);
-       
+
     HanConfigGroup* dqreg = m_root->GetNode( regID );
     dqreg = (dqreg==0) ? m_root : dqreg;
     if( dqreg != 0 ) {
@@ -826,12 +869,12 @@ Visit( const MiniConfigTreeNode* node ) const
     }
     defined.insert( strFullHistName );
   }
-  
+
   for( std::set<std::string>::const_iterator h = histAtt.begin(); h != histAttEnd; ++h ) {
     const MiniConfigTreeNode* histNode = node->GetDaughter( *h );
     if( histNode == 0 )
       continue;
-    
+
     algID = histNode->GetAttribute("algorithm");
     regID = histNode->GetAttribute("output");
 
@@ -839,7 +882,7 @@ Visit( const MiniConfigTreeNode* node ) const
       std::cerr << "No \"algorithm\" defined for " << histNode->GetPathName() << "\n";
       continue;
     }
-    
+
     if( regID == "" )
       regID = "top_level";
 
@@ -858,7 +901,7 @@ Visit( const MiniConfigTreeNode* node ) const
     }
 
     if( strHistName == "all_in_dir" ) {
-	
+
       std::string regexflag(histNode->GetAttribute("regex"));
       if (histNode->GetAttribute("regex") != "") {
       	std::cerr << "WARNING: all_in_dir and regex are incompatible; ignoring regex flag for " << histNode->GetPathName()
@@ -875,18 +918,18 @@ Visit( const MiniConfigTreeNode* node ) const
         std::cerr << "WARNING: No \"file\" defined for " << histNode->GetPathName() << "\n";
         continue;
       }
-      
+
       std::string refPath( m_refConfig.GetStringAttribute(refID,"path") );
-      
+
       std::string objPath("");
       std::string absObjPath("");
-      
+
       refFile = SplitReference( m_refConfig.GetStringAttribute(refID,"location"), refFile);
       std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);
       TDirectory* dir(0);
       TKey* key;
-      
+
       if( refPath != "" ) {
         //std::cout << "Searching under path \"" << refPath << "\" for " << "\"" << histNode->GetPathName() << "\"\n";
         absObjPath += refPath;
@@ -899,10 +942,10 @@ Visit( const MiniConfigTreeNode* node ) const
           continue;
         }
       }
-      
+
       if( basedir == 0 )
         basedir = infile.get();
-      
+
       std::string allPathName( histNode->GetPathName() );
       std::string::size_type i = allPathName.find_last_of('/');
       if( i != std::string::npos ) {
@@ -911,13 +954,13 @@ Visit( const MiniConfigTreeNode* node ) const
         absObjPath += std::string( allPathName, 0, i );
         absObjPath += "/";
       }
-      
+
       dir = ChangeInputDir( basedir, histNode->GetPathName() );
       if( dir == 0 ) {
         std::cerr << "INFO: Cannot find path \"" << absObjPath << "\" in reference file\n";
         continue;
       }
-      
+
       TIter next( dir->GetListOfKeys() );
       std::string objName;
       std::string absObjName;
@@ -931,21 +974,21 @@ Visit( const MiniConfigTreeNode* node ) const
         TEfficiency* tmpe = dynamic_cast<TEfficiency*>(tmpobj);
         if( tmph == 0 && tmpg == 0 && tmpe == 0 )
           continue;
-        
+
         objName = objPath;
         objName += std::string( tmpobj->GetName() );
         absObjName = absObjPath;
         absObjName += std::string( tmpobj->GetName() );
         delete tmpobj;
-        
+
         if( defined.find(objName) != defined.end() ||
 	    localdefined.find(objName) != localdefined.end() )
           continue;
-        
+
         TKey* test = getObjKey( infile.get(), absObjName );
         if( test == 0 )
           continue;
-        
+
         HanConfigAssessor dqpar;
         dqpar.SetName( objName + extension );
         GetAlgorithmConfiguration( &dqpar, algID, objName );
@@ -983,7 +1026,7 @@ Visit( const MiniConfigTreeNode* node ) const
         }
         localdefined.insert( objName );
       }
-      
+
       continue;
     }
   }
@@ -1013,7 +1056,7 @@ Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> dqPare
       //std::cout << "Can't load library " << algLibName << ". Continuing regardless ..." << std::endl;
     }
   }
-  
+
   if( gnode != 0 ) {
     dqm_core::RegionConfig regc( algName, node->GetWeight() );
     std::string regName( gnode->GetPathName() );
@@ -1021,10 +1064,10 @@ Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> dqPare
     m_output->addListener(regName, dqParent.get());
     return reg;
   }
-  
+
   std::string inputData( node->GetHistPath() );
   HanAlgorithmConfig* algConfig = new HanAlgorithmConfig( *node, m_file );
-  dqm_core::ParameterConfig parc( inputData, algName, node->GetWeight(), 
+  dqm_core::ParameterConfig parc( inputData, algName, node->GetWeight(),
 				  std::shared_ptr<HanAlgorithmConfig>(algConfig), node->GetIsRegex() );
   boost::shared_ptr<dqm_core::Node> par(dqParent->addParameter( node->GetName(), parc ));
   m_output->addListener(node->GetName(), dqParent.get());
@@ -1046,11 +1089,11 @@ Visit( const MiniConfigTreeNode* node ) const
 {
   m_outfile->cd();
   std::map<std::string,MiniConfigTreeNode*> daughters = node->GetDaughters();
-  std::map<std::string,MiniConfigTreeNode*>::const_iterator nodeiterEnd = daughters.end();  
+  std::map<std::string,MiniConfigTreeNode*>::const_iterator nodeiterEnd = daughters.end();
   for( std::map<std::string,MiniConfigTreeNode*>::const_iterator iter = daughters.begin(); iter != nodeiterEnd; ++iter ) {
     std::string compAlgID = iter->second->GetName();
     std::string compAlgKey = iter->first;
-    
+
     HanConfigCompAlg* compAlg = new HanConfigCompAlg();
     std::set<std::string> compAlgAtt;
     m_compAlgConfig.GetAttributeNames(compAlgID, compAlgAtt);
@@ -1062,7 +1105,7 @@ Visit( const MiniConfigTreeNode* node ) const
         std::string subAlgs( m_compAlgConfig.GetStringAttribute(compAlgID,"subalgs") );
         std::string::size_type pos = subAlgs.find(',');
         for(int size=subAlgs.size(), sizeOld=-8;
-    	    size != sizeOld; 
+    	    size != sizeOld;
     	    subAlgs.erase(0, pos+1), pos = subAlgs.find(","),sizeOld=size, size=subAlgs.size()) {
             //std::cout << "  --> adding component algorithm: " <<  subAlgs.substr(0,pos) << std::endl;
             compAlg->AddAlg( subAlgs.substr(0,pos));
@@ -1072,7 +1115,7 @@ Visit( const MiniConfigTreeNode* node ) const
         std::string libs( m_compAlgConfig.GetStringAttribute(compAlgID,"libnames") );
         std::string::size_type pos = libs.find(',');
         for(int size=libs.size(), sizeOld=-8;
-    	    size != sizeOld; 
+    	    size != sizeOld;
     	    libs.erase(0, pos+1), pos = libs.find(","),sizeOld=size, size=libs.size()) {
             //std::cout << "  --> using library: " <<  libs.substr(0,pos) << std::endl;
             compAlg->AddLib( libs.substr(0,pos));
@@ -1082,7 +1125,7 @@ Visit( const MiniConfigTreeNode* node ) const
     compAlg->Write();
   }
 }
-  
+
 HanConfig::MetadataVisitor::
 MetadataVisitor(TFile* outfile_, const MiniConfig& metadataConfig_)
   : m_outfile(outfile_)
@@ -1108,9 +1151,9 @@ Visit( const MiniConfigTreeNode* node ) const
       m_outfile->cd();
     }
   }
-    
+
   std::map<std::string,MiniConfigTreeNode*> daughters = node->GetDaughters();
-  std::map<std::string,MiniConfigTreeNode*>::const_iterator nodeiterEnd = daughters.end();  
+  std::map<std::string,MiniConfigTreeNode*>::const_iterator nodeiterEnd = daughters.end();
   for( std::map<std::string,MiniConfigTreeNode*>::const_iterator iter = daughters.begin(); iter != nodeiterEnd; ++iter ) {
     std::string metadataID = iter->second->GetName();
 
@@ -1127,14 +1170,14 @@ Visit( const MiniConfigTreeNode* node ) const
     delete metadata;
   }
 }
-   
+
 
 bool
 HanConfig::
 Initialize( std::string configName )
 {
   if( m_config == 0 || m_top_level == 0 ) {
-    
+
     delete m_config;
     delete m_top_level;
     if (m_metadata) {
@@ -1154,7 +1197,7 @@ Initialize( std::string configName )
     } else {
       std::cerr << "Can't retrieve reference source info" << std::endl;
     }
-    
+
     TIter nextKey( m_config->GetListOfKeys() );
     TKey* compAlgKey(0);
     while( (compAlgKey = dynamic_cast<TKey*>( nextKey() )) != 0 ) {
@@ -1166,7 +1209,7 @@ Initialize( std::string configName )
       }
       delete obj;
     }
-    
+
     TKey* key(0);
 
     m_metadata = newTList("HanMetadata");
@@ -1198,7 +1241,7 @@ Initialize( std::string configName )
       return false;
     }
   }
-  
+
   return true;
 }
 
@@ -1235,7 +1278,7 @@ ChangeInputDir( TDirectory* dir, std::string path )
     }
     return ChangeInputDir( dir, pName );
   }
-  
+
   return dir;
 }
 
@@ -1246,7 +1289,7 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
 {
 	if( file == 0 )
 		return 0;
-	
+
   std::string::size_type i = path.find_last_of('/');
   if( i != std::string::npos ) {
     std::string subPath( path, 0, i );
@@ -1272,9 +1315,8 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       return dir;
     }
   }
-	
+
   return file;
 }
 
 } // namespace dqi
-

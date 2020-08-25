@@ -15,7 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 

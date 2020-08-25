@@ -38,7 +38,10 @@ public:
   /** constructor with ElementLink */
   LinkToXAODNeutralParticle(ElementLink<xAOD::NeutralParticleContainer>& link);
 
-  /** default destructor */
+  LinkToXAODNeutralParticle(const LinkToXAODNeutralParticle&) = default;
+  LinkToXAODNeutralParticle(LinkToXAODNeutralParticle&&) = default;
+  LinkToXAODNeutralParticle& operator=(const LinkToXAODNeutralParticle&) = default;
+  LinkToXAODNeutralParticle& operator=(LinkToXAODNeutralParticle&&) = default;
   virtual ~LinkToXAODNeutralParticle() = default;
 
   /** dummy function to return 0 if TrackParameters are asked for */
@@ -51,7 +54,8 @@ public:
   /** method to clone the LinkToXAODNeutralParticle object */
   LinkToXAODNeutralParticle* clone() const override final;
 
-  virtual ITrackLinkType type() const override final {
+  virtual ITrackLinkType type() const override final
+  {
     return ToxAODNeutralParticle;
   }
 }; // end of class definitions

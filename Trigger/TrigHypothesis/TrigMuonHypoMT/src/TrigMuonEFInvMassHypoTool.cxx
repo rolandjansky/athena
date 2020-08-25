@@ -34,12 +34,15 @@ if(m_acceptAll) {
 bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination) const{
 
   //Monitored Variables
-  std::vector<float> fexInvMass;
-  auto muonMassMon = Monitored::Collection("Pt", fexInvMass);
-  auto monitorIt	= Monitored::Group(m_monTool, muonMassMon); 
+  std::vector<float> fexInvMass, fexInvMassSel;
+  auto muonMassMon = Monitored::Collection("Mass", fexInvMass);
+  auto muonMassSelMon = Monitored::Collection("Mass_sel", fexInvMassSel);
+  auto monitorIt	= Monitored::Group(m_monTool, muonMassMon, muonMassSelMon); 
+
   bool result = false;
   bool passLow = false;
   bool passHigh = false;
+
   //for pass through mode
   if(m_acceptAll) {
     result = true;
@@ -81,7 +84,7 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
 
 	//fill monitored variables
 	fexInvMass.push_back(diMuMass);
-	
+
 	ATH_MSG_DEBUG(" REGTEST diMuon mass is " << diMuMass << " GeV "
 		      << " and lowMassCut cut is " << m_invMassLow << " GeV"
 		      << " and highMassCut cut is " << m_invMassHigh << " GeV");
@@ -89,7 +92,11 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
 	//Apply hypo cuts. If any mass combination is true, then the overall result should be true.
 	if(m_invMassLow>0 && diMuMass>m_invMassLow) passLow=true;
 	if(m_invMassHigh>0 && diMuMass<m_invMassHigh) passHigh = true;
-	if(passLow && passHigh) result=true;
+	if(passLow && passHigh){
+	  result=true;
+	  //fill monitored variables
+	  fexInvMassSel.push_back(diMuMass);
+	}
       }
     }
   }

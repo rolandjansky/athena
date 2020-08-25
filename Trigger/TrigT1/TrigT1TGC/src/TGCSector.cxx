@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCSector.hh"
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
+#include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCElectronicsSystem.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
 #include <iostream>
 
@@ -52,7 +52,7 @@ int TGCSector::distributeSignal(const TGCASDOut* ASDOut)
   } 
 
   if(!notFound){
-    m_PP[PPType][idPP]->setASDOut(chPP,conPP,(TGCASDOut*)ASDOut);
+    m_PP[PPType][idPP]->setASDOut(chPP,conPP,ASDOut);
     m_numberOfHit+=1;
     return 0;
   }
@@ -75,7 +75,7 @@ int TGCSector::getPatchPanelType(TGCSignalType signal, int layer) const
   }
 }
 
-TGCSector::TGCSector( TGCArguments* tgcargs) 
+TGCSector::TGCSector(TGCArguments* tgcargs)
     : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
       m_sideId(0), m_octantId(0), m_moduleId(0), 
       m_forwardBackward(ForwardSector), 
@@ -127,7 +127,7 @@ TGCSector::TGCSector( TGCArguments* tgcargs)
     }
   }
   
-  TGCConnectionPPToSL* PPToSL = db->getConnectionPPToSL(m_regionType);
+  const TGCConnectionPPToSL* PPToSL = db->getConnectionPPToSL(m_regionType);
   // make PatchPanel Boards, Slave Boards, HighPt Boards, SectorLogic.
   setModule(PPToSL);
   // dumpModule();

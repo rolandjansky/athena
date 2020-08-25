@@ -4,7 +4,7 @@
 #ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTELECTRONHYPOTOOL_H
 #define TRIGEGAMMAHYPO_TRIGEGAMMAFASTELECTRONHYPOTOOL_H 1
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"

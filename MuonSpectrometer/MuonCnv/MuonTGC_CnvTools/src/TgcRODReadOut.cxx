@@ -71,7 +71,7 @@ Muon::TgcRODReadOut::~TgcRODReadOut()
   delete m_tgcSlbDataHelper; m_tgcSlbDataHelper=0;
 }
 
-TgcRdo* Muon::TgcRODReadOut::getRdo(void) const 
+const TgcRdo* Muon::TgcRODReadOut::getRdo(void) const 
 {
   return m_tgcRdo;
 }

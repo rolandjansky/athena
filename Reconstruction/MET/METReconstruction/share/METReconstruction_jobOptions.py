@@ -36,8 +36,11 @@ topSequence += assocAlg
 from METUtilities.METMakerConfig import getMETMakerAlg
 metConfigs = list(metFlags.METAssocConfigs().keys())
 metConfigs.sort()
+
 for key in metConfigs:
     conf = metFlags.METAssocConfigs()[key]
     if not conf.doTruth:
         makerAlg = getMETMakerAlg(conf.suffix)
         topSequence += makerAlg
+
+svcMgr.StoreGateSvc.Dump=True

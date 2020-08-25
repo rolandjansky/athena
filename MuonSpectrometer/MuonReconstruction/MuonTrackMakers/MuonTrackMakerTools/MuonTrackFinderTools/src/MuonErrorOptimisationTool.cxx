@@ -15,15 +15,8 @@
 namespace Muon {
 
   MuonErrorOptimisationTool::MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
-    AthAlgTool(ty,na,pa),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
-    m_refitTool("Muon::MuonRefitTool/MuonRefitTool")
+    AthAlgTool(ty,na,pa)
   {
-    declareProperty("Printer", m_printer );
-    declareProperty("TrackSummaryTool", m_trackSummaryTool );
-    declareProperty("RefitTool",m_refitTool ); 
-
     declareProperty("PrepareForFit",		         m_refitSettings.prepareForFit = true );
     declareProperty("RecreateStartingParameters",m_refitSettings.recreateStartingParameters = true );
     declareProperty("UpdateErrors",		           m_refitSettings.updateErrors = true );
@@ -70,24 +63,22 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  Trk::Track* MuonErrorOptimisationTool::optimiseErrors( Trk::Track& track ) const {
+  std::unique_ptr<Trk::Track> MuonErrorOptimisationTool::optimiseErrors( Trk::Track* track ) const {
 
-    if( m_refitTool.empty() ) return 0;
-    const Trk::Perigee* pp = track.perigeeParameters();
+    if( m_refitTool.empty() ) return std::unique_ptr<Trk::Track>();
+    const Trk::Perigee* pp = track->perigeeParameters();
     bool isLowPt = false;
     if( pp && pp->momentum().mag() < m_lowPtThreshold ) isLowPt = true;
     if( isLowPt ) ++m_nrefitAllLowPt;
     else          ++m_nrefitAll;
 
- 
-    const Trk::Track* refittedTrack = 0;
-    const Trk::Track* result1 = 0;
-    const Trk::Track* result2 = 0;
+    std::unique_ptr<Trk::Track> result1;
+    std::unique_ptr<Trk::Track> result2;
     
     // first refit with precise errors
     IMuonRefitTool::Settings settings = m_refitSettings;
     settings.broad = false;
-    refittedTrack = m_refitTool->refit(track,&settings);    
+    std::unique_ptr<Trk::Track> refittedTrack = m_refitTool->refit(track,&settings);    
     if( refittedTrack ){
     
       // check whether it is ok
@@ -95,8 +86,7 @@ namespace Muon {
         ATH_MSG_VERBOSE("Precise fit bad " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
 	
         // if not delete track
-        result1 = refittedTrack != &track ? refittedTrack : 0;
-        refittedTrack = 0;
+	result1.swap(refittedTrack);
       }else{
         ATH_MSG_VERBOSE("Precise fit ok " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
         if( isLowPt ) ++m_nrefitPreciseLowPt;
@@ -117,8 +107,7 @@ namespace Muon {
         if( !m_edmHelperSvc->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
           ATH_MSG_VERBOSE("Loose fit bad " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
           // if not delete track
-          result2 = refittedTrack != &track ? refittedTrack : 0;
-          refittedTrack = 0;
+	  result2.swap(refittedTrack);
         }else{
           ATH_MSG_VERBOSE("Loose fit ok " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
           if( isLowPt ) ++m_nrefitLowPt;
@@ -131,13 +120,13 @@ namespace Muon {
     }
 
     // if failed to refit or refit returned original track, return 0
-    if( !refittedTrack || refittedTrack == &track ){
+    if( !refittedTrack || *refittedTrack->perigeeParameters() == *track->perigeeParameters() ){
       
       // check if any refit succeeded
-      if( !result1 && !result2 ) return 0;
+      if( !result1 && !result2 ) return std::unique_ptr<Trk::Track>();
 
       // now compare chi2
-      const Trk::FitQuality* fq0 = track.fitQuality();
+      const Trk::FitQuality* fq0 = track->fitQuality();
       const Trk::FitQuality* fq1 = result1 ? result1->fitQuality() : 0;
       const Trk::FitQuality* fq2 = result2 ? result2->fitQuality() : 0;
       
@@ -154,56 +143,56 @@ namespace Muon {
         doSelection = false;
         // ugly bit of code to get the hit counts for the three tracks 
         int nhits0 = -1;
-        Trk::TrackSummary* summary0 = track.trackSummary();
+        Trk::TrackSummary* summary0 = track->trackSummary();
         Trk::MuonTrackSummary* muonSummary0 = 0;
         if( summary0 ){
           if( summary0->muonTrackSummary() ) {
             muonSummary0 = summary0->muonTrackSummary();
             if( muonSummary0 ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
-          }else{            
+          }else{
             Trk::TrackSummary tmpSum(*summary0);
-            m_trackSummaryTool->addDetailedTrackSummary(track,tmpSum);
+            m_trackSummaryTool->addDetailedTrackSummary(*track,tmpSum);
             if( tmpSum.muonTrackSummary() ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
           }
         }else{
           Trk::TrackSummary tmpSummary;
-          m_trackSummaryTool->addDetailedTrackSummary(track,tmpSummary);
+          m_trackSummaryTool->addDetailedTrackSummary(*track,tmpSummary);
           if( tmpSummary.muonTrackSummary() ) muonSummary0 = tmpSummary.muonTrackSummary();
           if( muonSummary0 ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
         }
 
         int nhits1 = -1;
-        Trk::TrackSummary* summary1 = track.trackSummary();
+        Trk::TrackSummary* summary1 = track->trackSummary();
         Trk::MuonTrackSummary* muonSummary1 = 0;
         if( summary1 ){
           if( summary1->muonTrackSummary() ) muonSummary1 = summary1->muonTrackSummary();
           else{
             Trk::TrackSummary* tmpSum = summary1;
-            if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(track,*tmpSum);
+            if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(*track,*tmpSum);
             if( tmpSum->muonTrackSummary() ) muonSummary1 = tmpSum->muonTrackSummary();
           }
           if( muonSummary1 ) nhits1 = muonSummary1->netaHits()+ muonSummary1->nphiHits();
         }else{
           Trk::TrackSummary tmpSummary;
-          m_trackSummaryTool->addDetailedTrackSummary(track,tmpSummary);
+          m_trackSummaryTool->addDetailedTrackSummary(*track,tmpSummary);
           if( tmpSummary.muonTrackSummary() ) muonSummary1 = tmpSummary.muonTrackSummary();
           if( muonSummary1 ) nhits1 = muonSummary1->netaHits()+ muonSummary1->nphiHits();
         }
 
         int nhits2 = -1;
-        Trk::TrackSummary* summary2 = track.trackSummary();
+        Trk::TrackSummary* summary2 = track->trackSummary();
         Trk::MuonTrackSummary* muonSummary2 = 0;
         if( summary2 ){
           if( summary2->muonTrackSummary() ) muonSummary2 = summary2->muonTrackSummary();
           else{
             Trk::TrackSummary* tmpSum = summary2;
-            if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(track,*tmpSum);
+            if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(*track,*tmpSum);
             if( tmpSum->muonTrackSummary() ) muonSummary2 = tmpSum->muonTrackSummary();
           }
           if( muonSummary2 ) nhits2 = muonSummary2->netaHits()+ muonSummary2->nphiHits();
         }else{
           Trk::TrackSummary tmpSummary;
-          m_trackSummaryTool->addDetailedTrackSummary(track,tmpSummary);
+          m_trackSummaryTool->addDetailedTrackSummary(*track,tmpSummary);
           if( tmpSummary.muonTrackSummary() ) muonSummary2 = tmpSummary.muonTrackSummary();
           if( muonSummary2 ) nhits2 = muonSummary2->netaHits()+ muonSummary2->nphiHits();
         }
@@ -227,27 +216,19 @@ namespace Muon {
         if( chi2Refit < fq0->chiSquared() ){
           if( firstIsBest ) {
             ATH_MSG_DEBUG("Keeping precise refit");
-            delete result2;
             ++m_nbetterPreciseFit;
-            return const_cast<Trk::Track*>(result1);    
+            return result1;    
           }else{
             ATH_MSG_DEBUG("Keeping loose refit");
-            delete result1;
             ++m_nbetterFit;
-            return const_cast<Trk::Track*>(result2);    
+            return result2;
           }
         }
       }
-      // clean up 
-      delete result1;
-      delete result2;
 
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
-    // clean up
-    if( result1 && result1 != refittedTrack ) delete result1;
-//    if( result2 && result2 != refittedTrack ) delete result2;
-    return const_cast<Trk::Track*>(refittedTrack);    
+    return refittedTrack;
   }
 
 }

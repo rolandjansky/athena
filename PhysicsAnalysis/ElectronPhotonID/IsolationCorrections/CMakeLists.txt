@@ -6,29 +6,10 @@
 atlas_subdir( IsolationCorrections )
 
 # Extra dependencies, based on the environment:
-set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_deps GaudiKernel 
-   Control/AthenaBaseComps	       
-   Control/AthAnalysisBaseComps)
    set( extra_libs AthAnalysisBaseCompsLib )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODPrimitives
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODMetaData
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/PATCore	
-   PRIVATE
-   Tools/PathResolver
-   ${extra_deps} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )

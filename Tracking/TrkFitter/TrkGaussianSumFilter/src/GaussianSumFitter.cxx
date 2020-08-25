@@ -3,17 +3,16 @@
 */
 
 /**
- * @file GaussianSumFitter.cxx 
+ * @file GaussianSumFitter.cxx
  * @begin         Monday 7th March 2005
  * @author        Anthony Morley, Tom  Atkinson, Christos Anastopoulos
  * @brief         Implementation code for Gaussian Sum Fitter class
-*/
+ */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
@@ -41,14 +40,9 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_reintegrateOutliers(false)
-  , m_makePerigee(true)
-  , m_refitOnMeasurementBase(true)
-  , m_doHitSorting(true)
   , m_directionToPerigee(Trk::oppositeMomentum)
   , m_trkParametersComparisonFunction(nullptr)
   , m_inputPreparator(nullptr)
-  , m_chronoSvc("ChronoStatSvc", name)
   , m_FitPRD{ 0 }
   , m_FitMeasurementBase{ 0 }
   , m_ForwardFailure{ 0 }
@@ -57,13 +51,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   , m_fitQualityFailure{ 0 }
   , m_fitSuccess{ 0 }
 {
-
   declareInterface<ITrackFitter>(this);
-
-  declareProperty("ReintegrateOutliers", m_reintegrateOutliers);
-  declareProperty("MakePerigee", m_makePerigee);
-  declareProperty("RefitOnMeasurementBase", m_refitOnMeasurementBase);
-  declareProperty("DoHitSorting", m_doHitSorting);
   declareProperty("SortingReferencePoint", m_sortingReferencePoint);
   // Estrablish reference point as origin
   m_sortingReferencePoint.push_back(0.);
@@ -77,19 +65,12 @@ Trk::GaussianSumFitter::initialize()
 
   StatusCode sc;
 
-  // Request the Chrono Service
-  ATH_CHECK(m_chronoSvc.retrieve());
-
   // Request the GSF forward fitter - hardwired type and instanace name for the
   // GSF
   ATH_CHECK(m_forwardGsfFitter.retrieve());
 
   // Request the GSF smoother - hardwired type and instance name for the GSF
   ATH_CHECK(m_gsfSmoother.retrieve());
-
-  // Request the GSF measurement updator - hardwired type and instance name for
-  // the GSF
-  ATH_CHECK(m_updator.retrieve());
 
   // Request the GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
@@ -118,15 +99,14 @@ Trk::GaussianSumFitter::initialize()
     std::make_unique<Trk::TrkParametersComparisonFunction>(referencePosition);
 
   // Configure forward fitter
-  sc = m_forwardGsfFitter->configureTools(
-    m_extrapolator, m_updator, m_rioOnTrackCreator);
+  sc = m_forwardGsfFitter->configureTools(m_extrapolator, m_rioOnTrackCreator);
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not configure the forwards GSF fitter... Exiting!");
     return StatusCode::FAILURE;
   }
 
   // Configure smoother
-  sc = m_gsfSmoother->configureTools(m_extrapolator, m_updator);
+  sc = m_gsfSmoother->configureTools(m_extrapolator);
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not configure the GSF smoother... Exiting!");
     return StatusCode::FAILURE;
@@ -170,9 +150,9 @@ Trk::GaussianSumFitter::finalize()
   return StatusCode::SUCCESS;
 }
 
-/* 
+/*
  * Refitting of a track
-*/
+ */
 std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
   const EventContext& ctx,
@@ -180,8 +160,6 @@ Trk::GaussianSumFitter::fit(
   const Trk::RunOutlierRemoval outlierRemoval,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-  // Start the timer
-  Chrono chrono(&(*m_chronoSvc), name());
 
   // Check that the input track has well defined parameters
   if (inputTrack.trackParameters()->empty()) {
@@ -306,8 +284,6 @@ Trk::GaussianSumFitter::fit(
       "Outlier removal not yet implemented for the Gaussian Sum Filter");
   }
 
-  // Start the timer
-  Chrono chrono(&(*m_chronoSvc), name());
   // Protect against empty PrepRawDataSet object
   if (prepRawDataSet.empty()) {
     ATH_MSG_FATAL("PrepRawData set for fit is empty... Exiting!");
@@ -328,7 +304,6 @@ Trk::GaussianSumFitter::fit(
   }
   // Create Extrapolator cache that holds material effects cache;
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
-
 
   // Perform GSF forwards fit
   ForwardTrajectory* forwardTrajectory =
@@ -354,8 +329,8 @@ Trk::GaussianSumFitter::fit(
   }
 
   // Perform GSF smoother operation
-  SmoothedTrajectory* smoothedTrajectory =
-    m_gsfSmoother->fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis);
+  SmoothedTrajectory* smoothedTrajectory = m_gsfSmoother->fit(
+    ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -377,7 +352,8 @@ Trk::GaussianSumFitter::fit(
 
   if (m_makePerigee) {
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      makePerigee(ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
+      makePerigee(
+        ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
     ATH_MSG_DEBUG(
       "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface);
     if (perigeeMultiStateOnSurface) {
@@ -396,12 +372,13 @@ Trk::GaussianSumFitter::fit(
   delete forwardTrajectory;
   // Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
-  
+
   // Store only TSOS in tracks instead of MCSOS
-  if( !m_StoreMCSOS ){
-    auto slimmedSmoothedTrajectory = std::make_unique<Trk::SmoothedTrajectory>();
-    for( const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory ){
-      slimmedSmoothedTrajectory->push_back( new Trk::TrackStateOnSurface( *tsos ) );
+  if (!m_StoreMCSOS) {
+    auto slimmedSmoothedTrajectory =
+      std::make_unique<Trk::SmoothedTrajectory>();
+    for (const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory) {
+      slimmedSmoothedTrajectory->push_back(new Trk::TrackStateOnSurface(*tsos));
     }
     delete smoothedTrajectory;
     // Create new track
@@ -409,9 +386,9 @@ Trk::GaussianSumFitter::fit(
     info.setTrackProperties(TrackInfo::BremFit);
     info.setTrackProperties(TrackInfo::BremFitSuccessful);
     ++m_fitSuccess;
-    return std::make_unique<Track>(info, slimmedSmoothedTrajectory.release(), fitQuality);
+    return std::make_unique<Track>(
+      info, slimmedSmoothedTrajectory.release(), fitQuality);
   }
-
 
   // Create new track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
@@ -438,10 +415,6 @@ Trk::GaussianSumFitter::fit(
     ATH_MSG_DEBUG(
       "Outlier removal not yet implemented for the Gaussian Sum Filter");
   }
-
-
-  // Start the timer
-  Chrono chrono(&(*m_chronoSvc), name());
 
   ++m_FitMeasurementBase;
   // Protect against empty PrepRawDataSet object
@@ -489,11 +462,8 @@ Trk::GaussianSumFitter::fit(
          measurementBaseComparisonFunction);
   }
 
-   
   // Create Extrapolator cache that holds material effects cache;
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
-
-
 
   // Perform GSF forwards fit - new memory allocated in forwards fitter
   ForwardTrajectory* forwardTrajectory =
@@ -520,8 +490,8 @@ Trk::GaussianSumFitter::fit(
 
   // Perform GSF smoother operation
 
-  SmoothedTrajectory* smoothedTrajectory =
-    m_gsfSmoother->fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis, ccot);
+  SmoothedTrajectory* smoothedTrajectory = m_gsfSmoother->fit(
+    ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis, ccot);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -544,7 +514,8 @@ Trk::GaussianSumFitter::fit(
 
   if (m_makePerigee) {
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      makePerigee(ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
+      makePerigee(
+        ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
     ATH_MSG_DEBUG(
       "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface);
 
@@ -566,12 +537,12 @@ Trk::GaussianSumFitter::fit(
   // Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
 
-
   // Store only TSOS in tracks instead of MCSOS
-  if( !m_StoreMCSOS ){
-    auto slimmedSmoothedTrajectory = std::make_unique<Trk::SmoothedTrajectory>();
-    for( const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory ){
-      slimmedSmoothedTrajectory->push_back( new Trk::TrackStateOnSurface(*tsos) );
+  if (!m_StoreMCSOS) {
+    auto slimmedSmoothedTrajectory =
+      std::make_unique<Trk::SmoothedTrajectory>();
+    for (const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory) {
+      slimmedSmoothedTrajectory->push_back(new Trk::TrackStateOnSurface(*tsos));
     }
     delete smoothedTrajectory;
     // Create new track
@@ -579,7 +550,8 @@ Trk::GaussianSumFitter::fit(
     info.setTrackProperties(TrackInfo::BremFit);
     info.setTrackProperties(TrackInfo::BremFitSuccessful);
     ++m_fitSuccess;
-    return std::make_unique<Track>(info, slimmedSmoothedTrajectory.release(), fitQuality);
+    return std::make_unique<Track>(
+      info, slimmedSmoothedTrajectory.release(), fitQuality);
   }
 
   // Create new track
@@ -759,22 +731,21 @@ Trk::GaussianSumFitter::makePerigee(
     multiComponentStateOnSurfaceNearestOrigin = nullptr;
 
   if (stateOnSurfaceNearestOrigin->variety() ==
-        Trk::TrackStateOnSurface::MultiComponent) {
+      Trk::TrackStateOnSurface::MultiComponent) {
 
     multiComponentStateOnSurfaceNearestOrigin =
       static_cast<const Trk::MultiComponentStateOnSurface*>(
         stateOnSurfaceNearestOrigin);
   }
 
-    const Trk::MultiComponentState* multiComponentState = nullptr;
-    if (!multiComponentStateOnSurfaceNearestOrigin) {
-      // we need to make a dummy multicomponent surface
-      Trk::ComponentParameters dummyComponent(
-        stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
-      auto tmp_multiComponentState =
-        std::make_unique<Trk::MultiComponentState>();
-      tmp_multiComponentState->push_back(std::move(dummyComponent));
-      multiComponentState = tmp_multiComponentState.release();
+  const Trk::MultiComponentState* multiComponentState = nullptr;
+  if (!multiComponentStateOnSurfaceNearestOrigin) {
+    // we need to make a dummy multicomponent surface
+    Trk::ComponentParameters dummyComponent(
+      stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
+    auto tmp_multiComponentState = std::make_unique<Trk::MultiComponentState>();
+    tmp_multiComponentState->push_back(std::move(dummyComponent));
+    multiComponentState = tmp_multiComponentState.release();
   } else {
     multiComponentState =
       multiComponentStateOnSurfaceNearestOrigin->components();
@@ -815,7 +786,7 @@ Trk::GaussianSumFitter::makePerigee(
 
   if (std::abs(combinedPerigee->parameters()[Trk::qOverP]) > 1e8) {
     // Protection against 0-momentum track .. this check should NEVER be needed.
-    //actual cutoff is 0.01eV track
+    // actual cutoff is 0.01eV track
     ATH_MSG_ERROR(
       "makePerigee() about to return with 0 momentum!! Returning null instead");
     return nullptr;

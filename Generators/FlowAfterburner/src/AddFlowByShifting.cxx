@@ -245,11 +245,13 @@ StatusCode AddFlowByShifting::execute() {
 
 #ifdef HEPMC3
     int particles_in_event = (*itr)->particles().size();
+    m_particles_processed = 0;
+    for ( auto parent: mainvtx->particles_out()) {
 #else
     int particles_in_event = (*itr)->particles_size();
-#endif
     m_particles_processed = 0;
     for ( auto parent: *mainvtx) {
+#endif
 
       // Process particles from main vertex
       CLHEP::HepLorentzVector momentum(parent->momentum().px(),
@@ -350,11 +352,15 @@ void AddFlowByShifting::MoveDescendantsToParent
     ATH_MSG_DEBUG("Processing branch of parent particle "<< HepMC::barcode(parent));
 
     // now rotate descendant vertices
+#ifdef HEPMC3
+    for (HepMC::GenVertexPtr descvtx:  HepMC::descendant_vertices(endvtx)) {
+#else
     for ( HepMC::GenVertex::vertex_iterator
 	    descvtxit = endvtx->vertices_begin(HepMC::descendants);
 	  descvtxit != endvtx->vertices_end(HepMC::descendants);
 	  ++descvtxit) {
       auto descvtx = (*descvtxit);
+#endif
       ATH_MSG_DEBUG("Processing vertex " << HepMC::barcode(descvtx));
 
       // rotate vertex
@@ -368,7 +374,11 @@ void AddFlowByShifting::MoveDescendantsToParent
       }
 
       // now rotate their associated particles
+#ifdef HEPMC3
+      for (auto descpart: descvtx->particles_out()){
+#else
       for (auto descpart: *descvtx){
+#endif
         CLHEP::HepLorentzVector momentum(descpart->momentum().px(),
 				  descpart->momentum().py(),
 				  descpart->momentum().pz(),

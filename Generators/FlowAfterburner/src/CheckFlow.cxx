@@ -203,7 +203,7 @@ StatusCode CheckFlow::execute() {
   // Iterate over MC particles  We are using the IsGenStable predicate from
   // IsGenStable ifs;
   GenAll ifs;
-  MCParticleCollection particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;

@@ -43,7 +43,7 @@ def fastElectronSequence(ConfigFlags):
     theElectronFex= EgammaFastElectronFex_1()
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
-    theElectronFex.ElectronsName=recordable("HLT_L2Electrons")
+    theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")

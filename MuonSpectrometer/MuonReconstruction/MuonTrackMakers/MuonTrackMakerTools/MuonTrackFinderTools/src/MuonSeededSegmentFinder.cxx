@@ -29,9 +29,6 @@ namespace Muon {
       m_magFieldProperties(Trk::NoField)
   {
     declareInterface<IMuonSeededSegmentFinder>(this);
-
-    declareProperty("AdcCut", m_adcCut = 50 );
-    declareProperty("MdtSigmaFromTrack",m_maxSigma = 3);
   }
 
   StatusCode MuonSeededSegmentFinder::initialize()

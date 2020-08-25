@@ -20,7 +20,7 @@ class HLTMenuAccess(TriggerConfigAccess):
         self.load()
 
     def chainNames(self):
-        return (x["name"] for x in self)
+        return self["chains"].keys()
 
     def chains(self):
         return iter(self)
@@ -33,11 +33,18 @@ class HLTMenuAccess(TriggerConfigAccess):
 
     def printSummary(self):
         print("HLT menu %s" % self.name())
-        print("Number of chains: %i" % len(self) )
+        print("Number of chains: %i" % len(self.chains()) )
         print("Number of streams: %i" % len(self.streams()) )
         print("Number of sequencers: %i" % len(self.sequencers()) )
 
-
+    def printDetails(self):
+        import pprint
+        print("Chains:")
+        pprint.pprint(list(self.chains()))
+        print("Streams:")
+        pprint.pprint(list(self.streams()))
+        print("Sequencers:")
+        pprint.pprint(list(self.sequencers()))
 
 class HLTPrescalesSetAccess(TriggerConfigAccess):
     """

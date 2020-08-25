@@ -1,47 +1,14 @@
-################################################################################
-# Package: DerivationFrameworkTrigger
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DerivationFrameworkTrigger )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
-                          Trigger/TrigCost/EnhancedBiasWeighter
-                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
-                          Trigger/TrigAnalysis/TriggerMatchingTool
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigEvent/TrigNavStructure
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODTrigger
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODCaloEvent
-                          Event/FourMomUtils
-                          PRIVATE
-                          Event/xAOD/xAODEventInfo
-                          Tools/PathResolver )
-
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-atlas_add_library( 
-    DerivationFrameworkTriggerLib
-    src/*.cxx
-    NO_PUBLIC_HEADERS
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODBase TrigDecisionToolLib TrigNavStructure xAODCore xAODTrigger xAODCaloEvent FourMomUtils xAODEgamma
-)
-
-atlas_add_component(
-    DerivationFrameworkTrigger
-    src/components/*.cxx
-    LINK_LIBRARIES DerivationFrameworkTriggerLib
-)
+# Component(s) in the package:
+atlas_add_component( DerivationFrameworkTrigger
+                     src/*.cxx src/components/*.cxx
+                     LINK_LIBRARIES AthenaBaseComps DerivationFrameworkInterfaces FourMomUtils GaudiKernel TrigDecisionToolLib TriggerMatchingToolLib xAODBase xAODCaloEvent xAODCore xAODTrigger )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

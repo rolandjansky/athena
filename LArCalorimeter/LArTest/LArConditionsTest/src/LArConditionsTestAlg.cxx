@@ -25,7 +25,7 @@
 //#include "AthenaKernel/IIOVSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ListItem.h"
 
 #include "LArRawConditions/LArRampMC.h" 

@@ -39,7 +39,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
     alg = CompFactory.T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    alg.ClustersName   = recordable('HLT_L2CaloEMClusters')
+    alg.ClustersName   = recordable('HLT_FastCaloEMClusters')
     alg.RoIs           = roisKey
     alg.EtaWidth       = 0.2
     alg.PhiWidth       = 0.2

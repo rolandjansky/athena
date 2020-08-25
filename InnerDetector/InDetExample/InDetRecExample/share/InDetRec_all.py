@@ -129,12 +129,6 @@ if InDetFlags.doMonitoring():
 ServiceMgr.StoreGateSvc.ActivateHistory = False
 ServiceMgr.StoreGateSvc.Dump            = False
 
-# ------------------------------------------------------------
-# get stack dump
-# ------------------------------------------------------------
-
-ServiceMgr.CoreDumpSvc.FatalHandler = 438
-
 #--------------------------------------------------------------
 # run JiveXML for Atlantis event display
 #--------------------------------------------------------------

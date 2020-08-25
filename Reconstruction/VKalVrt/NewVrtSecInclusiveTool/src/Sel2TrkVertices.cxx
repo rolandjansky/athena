@@ -17,7 +17,6 @@
 #include "TH1.h"
 #include "TH2D.h"
 //
-//#include<iostream>
 
 
 namespace Rec{
@@ -73,7 +72,7 @@ namespace Rec{
       }
 
       if( m_fillHist && m_curTup ){
-          m_curTup->nTrk=std::min(NTracks,DevTuple::maxNTrk);
+          m_curTup->nTrk=NTracks < DevTuple::maxNTrk ? NTracks : DevTuple::maxNTrk ;
           m_curTup->n2Vrt=0;
       }
 
@@ -192,9 +191,6 @@ namespace Rec{
 	     VARS[7]=sqrt(fabs(1.-cosSVPV*cosSVPV));
 	     VARS[8]=SVPV.Eta();
 	     VARS[9]=std::max(ihitR,jhitR);
-	     //VARS[9]=sumIBLHits;
-	     //VARS[10]=sumBLHits;
-	     //VARS[11]=std::max(Sig3D,m_selVrtSigCut);
              float wgtSelect=m_SV2T_BDT->GetGradBoostMVA(VARS);
              //std::vector<float> weights=m_SV2T_BDT->GetMultiResponse(VARS,3);
 	     //float wgtSelect=weights[0];

@@ -16,8 +16,8 @@ theApp.EvtMax = 3
 # define two instances of the ReadWriteCoolStrFile algorithm to manipulate
 # the data files
 #
-theApp.DLLs+=["MuonCondCool"]
-#theApp.DLLs+=["DetDescrCondTools","DetDescrCondExample"]
+theApp.Dlls+=["MuonCondCool"]
+#theApp.Dlls+=["DetDescrCondTools","DetDescrCondExample"]
 theApp.TopAlg+=["MuonCalib::MdtReadWriteCoolStr/RWInstA"]
 #"MuonCalib::MdtReadWriteCoolStr/RWInstA2","MuonCalib::MdtReadWriteCoolStr/RWInstA3","MuonCalib::MdtReadWriteCoolStr/RWInstA4","MuonCalib::MdtReadWriteCoolStr/RWInstA5","MuonCalib::MdtReadWriteCoolStr/RWInstA6"]
 

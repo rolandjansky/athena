@@ -1,18 +1,10 @@
-################################################################################
-# Package: IOVDbTestConditions
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IOVDbTestConditions )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolUtilities )
-
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( IOVDbTestConditions
@@ -20,14 +12,10 @@ atlas_add_library( IOVDbTestConditions
                    src/IOVDbTestMDTEleMap.cxx
                    PUBLIC_HEADERS IOVDbTestConditions
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities )
 
 atlas_add_dictionary( IOVDbTestConditionsDict
                       IOVDbTestConditions/IOVDbTestConditionsDict.h
                       IOVDbTestConditions/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities IOVDbTestConditions )
-
+                      LINK_LIBRARIES IOVDbTestConditions )

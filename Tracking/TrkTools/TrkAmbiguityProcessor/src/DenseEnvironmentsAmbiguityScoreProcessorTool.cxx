@@ -46,13 +46,12 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::DenseEnvironmentsAmbiguitySco
 }
 //==================================================================================================
 
-Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::~DenseEnvironmentsAmbiguityScoreProcessorTool()
-{
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::~DenseEnvironmentsAmbiguityScoreProcessorTool(){
 }
 //==================================================================================================
 
-StatusCode Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize()
-{
+StatusCode 
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize(){
   StatusCode sc = StatusCode::SUCCESS;
   ATH_CHECK( m_scoringTool.retrieve());
   ATH_CHECK( m_assoTool.retrieve()) ;
@@ -76,12 +75,13 @@ StatusCode Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize()
 }
 //==================================================================================================
 
-StatusCode Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::finalize()
-{
+StatusCode 
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
+void 
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
    if (msgLvl(MSG::INFO)) {
       MsgStream &out=msg(MSG::INFO);
       out << " -- statistics " << "\n";
@@ -97,9 +97,9 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
 /** Do actual processing of event. Takes a track container, 
     and then returns the tracks which have been selected*/
 
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<const Track*>* tracks,
-                                                                Trk::TracksScores* trackScoreTrackMap) const
-{
+void 
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<const Track*>* tracks,
+                                                    Trk::TracksScores* trackScoreTrackMap) const{
   InDet::PixelGangedClusterAmbiguities *splitClusterMap = nullptr;
   if(!m_splitClusterMapKey.key().empty()){
     if(!m_splitClusterMapKey_last.key().empty()){
@@ -113,22 +113,19 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<cons
       splitClusterMap =  new InDet::PixelGangedClusterAmbiguities();
     }
   }
-
   addNewTracks(tracks, trackScoreTrackMap);
-  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map( m_assoToolNotGanged.isEnabled()
+  std::unique_ptr<Trk::PRDtoTrackMap> prdToTrackMap( m_assoToolNotGanged.isEnabled()
                                                         ? m_assoToolNotGanged->createPRDtoTrackMap()
                                                         : m_assoTool->createPRDtoTrackMap() );
-  overlappingTracks(trackScoreTrackMap, splitClusterMap, *prd_to_track_map);
+  overlappingTracks(trackScoreTrackMap, splitClusterMap, *prdToTrackMap);
   if (!m_assoMapName.key().empty()) {
      if (SG::WriteHandle<Trk::PRDtoTrackMap>(m_assoMapName).record(
                 (m_assoToolNotGanged.isEnabled()
-                 ? m_assoToolNotGanged->reduceToStorableMap(std::move(prd_to_track_map))
-                 : m_assoTool->reduceToStorableMap(std::move(prd_to_track_map)) )).isFailure()) {
+                 ? m_assoToolNotGanged->reduceToStorableMap(std::move(prdToTrackMap))
+                 : m_assoTool->reduceToStorableMap(std::move(prdToTrackMap)) )).isFailure()) {
         ATH_MSG_FATAL("Failed to add PRD to track association map " << m_assoMapName.key() << ".");
      }
   }
-
-
   if(!m_splitClusterMapKey.key().empty()){
     SG::WriteHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMapHandle(m_splitClusterMapKey);
     splitClusterMapHandle = std::unique_ptr<InDet::PixelGangedClusterAmbiguities>(splitClusterMap);
@@ -136,33 +133,30 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<cons
       ATH_MSG_ERROR("Could not record splitClusterMap.");
     }
   }
-
-  }
+}
 
 
 //==================================================================================================
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector<const Track*>* tracks,
-                                                                     Trk::TracksScores* trackScoreTrackMap) const
-{
+void 
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector<const Track*>* tracks,
+                                                          Trk::TracksScores* trackScoreTrackMap) const{
   TrackStat3 stat(m_etaBounds);
   stat.newEvent();
-  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map( m_assoTool->createPRDtoTrackMap() );
+  std::unique_ptr<Trk::PRDtoTrackMap> prdToTrackMap( m_assoTool->createPRDtoTrackMap() );
   PrdSignatureSet prdSigSet;  
   ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks->size());
- 
   for(const Track* a_track : *tracks) {
     ATH_MSG_DEBUG ("Processing track candidate "<<a_track);
     stat.incrementCounterByRegion(EStatType::kNcandidates,a_track); // @TODO should go to the score processor
-    
     // only fitted tracks get hole search, input is not fitted
     float score = m_scoringTool->score( *a_track, true);
     ATH_MSG_DEBUG ("Track Score is "<< score);
     // veto tracks with score 0
-    bool reject = score==0;      
+    bool reject = (score==0);      
     if (reject){
       stat.incrementCounterByRegion(EStatType::kNcandScoreZero,a_track);
     } else {// double track rejection
-      const std::vector<const Trk::PrepRawData*> & prds = m_assoTool->getPrdsOnTrack(*prd_to_track_map, *a_track);
+      const std::vector<const Trk::PrepRawData*> & prds = m_assoTool->getPrdsOnTrack(*prdToTrackMap, *a_track);
       // convert to set
       //PrdSignature prdSig( prds.begin(),prds.end() );
       // we try to insert it into the set, if we fail (pair.second), it then exits already
@@ -174,27 +168,24 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
         ATH_MSG_DEBUG ("Insert new track in PrdSignatureSet");
       }
     }
-
     if (!reject) {
       // add track to map, map is sorted small to big ! set if fitted
       ATH_MSG_VERBOSE ("Track ("<< a_track <<" --> "<< *a_track << ") has score "<<score);
       trackScoreTrackMap->push_back( std::make_pair(a_track, -score));
     }
   }
-
   ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap->size());
   {
      std::lock_guard<std::mutex> lock(m_statMutex);
      m_stat += stat;
   }
-
-  }
+}
 
 //==================================================================================================
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
-                                                                                                              const Trk::TrackParameters*> & clusterTrkPara,
-                                                                                              InDet::PixelGangedClusterAmbiguities *splitClusterMap) const
-{
+void 
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
+                                                                                             const Trk::TrackParameters*> & clusterTrkPara,
+                                                                                              InDet::PixelGangedClusterAmbiguities *splitClusterMap) const{
 
   // Recalculate the split prob with the use of the track parameters
   InDet::PixelClusterSplitProb splitProb = m_splitProbTool->splitProbability( *clusterTrkPara.first, *clusterTrkPara.second );
@@ -213,7 +204,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformat
   if ( splitProb.splitProbability(2)  < 0 ){
     pixelCluster->packSplitInformation( false, 0.0, 0.0 );    
     pixelCluster->setTooBigToBeSplit( true );    
-  }else{  
+  } else {  
     pixelCluster->packSplitInformation( false, splitProb.splitProbability(2), splitProb.splitProbability(3) ) ;
     pixelCluster->setTooBigToBeSplit( false );    
   }
@@ -233,20 +224,16 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformat
 void 
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const TracksScores* scoredTracks,
                                                                           InDet::PixelGangedClusterAmbiguities *splitClusterMap,
-                                                                          Trk::PRDtoTrackMap &prd_to_track_map) const
-{
+                                                                          Trk::PRDtoTrackMap &prdToTrackMap) const{
   const Trk::IPRDtoTrackMapTool *the_asso_tool = (m_assoToolNotGanged.isEnabled() ? &(*m_assoToolNotGanged) : &(*m_assoTool));
   // Function currnetly does nothing useful expect for printout debug information
   ATH_MSG_DEBUG ("Starting to resolve overlapping tracks");
-
   // Map to add all pixel clusters on track to
   std::map< const InDet::PixelCluster*, const Trk::TrackParameters* > setOfPixelClustersOnTrack;
   std::map< const InDet::PixelCluster*, const Trk::Track* > setOfPixelClustersToTrackAssoc;
-
   // Fill pixel cluster into the above map
   // Fill all PRD infromation into the association tool
-  for( const std::pair<const Track*, float>& scoredTracksItem : *scoredTracks )
-  {
+  for( const std::pair<const Track*, float>& scoredTracksItem : *scoredTracks ){
     // clean it out to make sure not to many shared hits
     ATH_MSG_VERBOSE ("--- Adding next track "<<scoredTracksItem.first
                      << ":" << (scoredTracksItem.first->trackParameters() ? scoredTracksItem.first->trackParameters()->front()->pT() : -1.)
@@ -255,38 +242,31 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
     
     //  This should only be done in region defined by Jets 
     //  ..... for now let do the whole detector coudl be slow
-    if(the_asso_tool->addPRDs( prd_to_track_map, *scoredTracksItem.first ).isSuccess()){
+    if(the_asso_tool->addPRDs( prdToTrackMap, *scoredTracksItem.first ).isSuccess()){
       ATH_MSG_VERBOSE("--- Added hits to the association tool");
     } else {
       ATH_MSG_VERBOSE("--- Failed to add hits to the association tool");
       continue;    
     }  
-  
     // get all prds on 'track'
     const DataVector<const TrackStateOnSurface>* tsosVec = scoredTracksItem.first->trackStateOnSurfaces();  
     if(!tsosVec){
       ATH_MSG_WARNING("TSOS vector does not exist");
       continue;   
     }
-
     ATH_MSG_VERBOSE("---> Looping over TSOS's to allow  for cluster updates: "<< tsosVec->size() );
-
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos = tsosVec->begin();
     for (; tsos != tsosVec->end(); ++tsos) {
       const MeasurementBase* measurement = (*tsos)->measurementOnTrack();
-
       if(!measurement || ! (*tsos)->trackParameters()){
         ATH_MSG_VERBOSE("---- TSOS has either no measurement or parameters: "<< measurement << "  " << (*tsos)->trackParameters() );
         continue;
       }
-
       if (!measurement->type(Trk::MeasurementBaseType::RIO_OnTrack)) continue;
-
       const Trk::RIO_OnTrack* rio = static_cast<const Trk::RIO_OnTrack*>(measurement);
       if (rio->rioType(Trk::RIO_OnTrackType::PixelCluster)) {
          const InDet::PixelCluster* pixel = static_cast<const InDet::PixelCluster*> ( rio->prepRawData() );
          assert( pixel);
-
          //Update the pixel split information if the element is unique (The second element of the pair indiciates if the element was inserted into the map)
          auto ret =  setOfPixelClustersOnTrack.insert(std::make_pair( pixel, (*tsos)->trackParameters() ));
          if (ret.second && m_splitProbTool.isEnabled()) {
@@ -294,51 +274,46 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
          }
          setOfPixelClustersToTrackAssoc.insert( std::make_pair( pixel, scoredTracksItem.first ) );
       }
-
     }
   }
-
   // now loop as long as map is not empty
-    std::vector< std::pair< const InDet::PixelCluster*, const Trk::Track* > > sorted;
-    sorted.reserve( setOfPixelClustersToTrackAssoc.size() );
-    for( const std::pair< const InDet::PixelCluster* const, const Trk::Track* > &pixelTrackItem : setOfPixelClustersToTrackAssoc ) {
-      sorted.push_back( pixelTrackItem );
-    }
-    std::sort( sorted.begin(), sorted.end(), [](const std::pair< const InDet::PixelCluster*, const Trk::Track* > &a,
-                                                const std::pair< const InDet::PixelCluster*, const Trk::Track* > &b) {
-                 return a.first->getHashAndIndex().collHash() < b.first->getHashAndIndex().collHash()
-                   || ( a.first->getHashAndIndex().collHash() == b.first->getHashAndIndex().collHash()
-                        &&  a.first->getHashAndIndex().objIndex() < b.first->getHashAndIndex().objIndex() );
-      });
-    //  for( auto pixelTrackItem : setOfPixelClustersToTrackAssoc )
-    for (const std::pair< const InDet::PixelCluster*, const Trk::Track* >  &pixelTrackItem :  sorted) {
+  std::vector< std::pair< const InDet::PixelCluster*, const Trk::Track* > > sorted;
+  sorted.reserve( setOfPixelClustersToTrackAssoc.size() );
+  for( const std::pair< const InDet::PixelCluster* const, const Trk::Track* > &pixelTrackItem : setOfPixelClustersToTrackAssoc ) {
+    sorted.emplace_back(pixelTrackItem );
+  }
+  std::sort( sorted.begin(), sorted.end(), [](const std::pair< const InDet::PixelCluster*, const Trk::Track* > &a,
+                                              const std::pair< const InDet::PixelCluster*, const Trk::Track* > &b) {
+               return a.first->getHashAndIndex().collHash() < b.first->getHashAndIndex().collHash()
+                 || ( a.first->getHashAndIndex().collHash() == b.first->getHashAndIndex().collHash()
+                      &&  a.first->getHashAndIndex().objIndex() < b.first->getHashAndIndex().objIndex() );
+  });
+  for (const std::pair< const InDet::PixelCluster*, const Trk::Track* >  &pixelTrackItem :  sorted) {
     ATH_MSG_VERBOSE ("---- Checking if track shares pixel hits if other tracks: " << pixelTrackItem.first << " with R " << pixelTrackItem.first->globalPosition().perp() );
-
     // find out how many tracks use this hit already
-    Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange range = prd_to_track_map.onTracks( *pixelTrackItem.first );
+    Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange range = prdToTrackMap.onTracks( *pixelTrackItem.first );
     int numberOfTracksWithThisPrd = std::distance(range.first,range.second);
     if (msgLvl(MSG::VERBOSE)) {
       TString tracks("---- number of tracks with this shared Prd: ");
       tracks += numberOfTracksWithThisPrd;
       for (Trk::IPRD_AssociationTool::ConstPRD_MapIt it =range.first; it != range.second;++it ){
-       tracks += "    ";
-       tracks += Form( " %p",(void*)(it->second));
-       double pt = (it->second->trackParameters() ? it->second->trackParameters()->front()->pT() : -1);
-       tracks += Form(":%.3f", pt);
-       tracks += Form(",%i",static_cast<int>(it->second->measurementsOnTrack()->size()));
+        tracks += "    ";
+        tracks += Form( " %p",(void*)(it->second));
+        double pt = (it->second->trackParameters() ? it->second->trackParameters()->front()->pT() : -1);
+        tracks += Form(":%.3f", pt);
+        tracks += Form(",%i",static_cast<int>(it->second->measurementsOnTrack()->size()));
       }
       ATH_MSG_VERBOSE (tracks);
     }
-    
-  }  
+  }
 }
 
 void
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::dumpStat(MsgStream &out) const
 {
    auto parseFileName=[](const std::string & fullname){
-     auto dotPosition = fullname.rfind(".");
-     auto slashPosition = fullname.rfind("/");
+     auto dotPosition = fullname.rfind('.');
+     auto slashPosition = fullname.rfind('/');
      auto stringLength = dotPosition - slashPosition;
      return fullname.substr(slashPosition, stringLength);
    };

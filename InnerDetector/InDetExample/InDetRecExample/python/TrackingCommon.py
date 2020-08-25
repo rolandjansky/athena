@@ -654,8 +654,8 @@ def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
     if 'MaximumNumberOfComponents' not in kwargs :
         kwargs=setDefaults(kwargs, MaximumNumberOfComponents = 12)
 
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolutionLM
-    return Trk__GsfMaterialMixtureConvolutionLM (name = the_name, **kwargs)
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+    return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
 
 
 @makePublicTool
@@ -840,6 +840,27 @@ def getInDetSCT_ConditionsSummaryTool() :
     return def_InDetSCT_ConditionsSummaryTool
 
 @makePublicTool
+def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
+    the_name = makeName(name, kwargs)
+    from AthenaCommon.DetFlags import DetFlags
+    from InDetRecExample.InDetJobProperties import InDetFlags
+
+    if 'SctSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
+
+    if 'PixelLayerTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelLayerTool   = getInDetTestPixelLayerTool())
+
+    kwargs = setDefaults(
+        kwargs,
+        UsePixel=DetFlags.haveRIO.pixel_on(),
+        UseSCT=DetFlags.haveRIO.SCT_on(),
+    )
+
+    from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+    return InDet__InDetBoundaryCheckTool(name=the_name, **kwargs)
+
+@makePublicTool
 def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     the_name = makeName( name, kwargs)
     from AthenaCommon.DetFlags    import DetFlags
@@ -848,18 +869,13 @@ def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     if 'Extrapolator' not in kwargs :
         kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
 
-    if 'SctSummaryTool' not in kwargs :
-        kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
-
-    if 'PixelLayerTool' not in kwargs :
-        kwargs = setDefaults( kwargs, PixelLayerTool   = getInDetTestPixelLayerTool())
+    if 'BoundaryCheckTool' not in kwargs :
+        kwargs = setDefaults( kwargs, BoundaryCheckTool= getInDetBoundaryCheckTool())
 
     if InDetFlags.doCosmics :
         kwargs = setDefaults( kwargs, Cosmics = True)
 
     kwargs = setDefaults( kwargs,
-                          usePixel                     = DetFlags.haveRIO.pixel_on(),
-                          useSCT                       = DetFlags.haveRIO.SCT_on(),
                           CountDeadModulesAfterLastHit = True)
 
     from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
@@ -1055,9 +1071,6 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults(kwargs,
                          doSharedHits           = InDetFlags.doSharedHits(),
-                         TRTdEdx_DivideByL      = True, # default is True
-                         TRTdEdx_useHThits      = True, # default is True
-                         TRTdEdx_corrected      = True, # default is True
                          minTRThitsForTRTdEdx   = 1)    # default is 1
 
     return getInDetTrackSummaryTool( name, **kwargs)
@@ -1093,7 +1106,7 @@ def getInDetTRT_ExtensionToolCosmics(name='InDetTRT_ExtensionToolCosmics',**kwar
                          TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
                          SearchNeighbour       = False,  # needs debugging!!!
                          RoadWidth             = 10.)
-                            
+
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
     return InDet__TRT_TrackExtensionToolCosmics(name                  = the_name, **kwargs)
 
@@ -1268,6 +1281,50 @@ def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
 
 def getInDetAmbiScoringTool(NewTrackingCuts, name='InDetAmbiScoringTool', **kwargs) :
     return getInDetAmbiScoringToolBase(name+NewTrackingCuts.extension(),
+                                       **setDefaults( kwargs,
+                                                      NewTrackingCuts         = NewTrackingCuts,
+                                                      useAmbigFcn             = True,  # this is NewTracking
+                                                      useTRT_AmbigFcn         = False,
+                                                      minTRTonTrk             = 0,
+                                                      minTRTPrecisionFraction = 0,
+                                                      minPt                   = NewTrackingCuts.minPT(),
+                                                      maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
+                                                      minSiClusters           = NewTrackingCuts.minClusters(),
+                                                      minPixel                = NewTrackingCuts.minPixel(),
+                                                      maxSiHoles              = NewTrackingCuts.maxHoles(),
+                                                      maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
+                                                      maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
+                                                      maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
+
+@makePublicTool
+def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
+    NewTrackingCuts = kwargs.pop("NewTrackingCuts")
+    the_name=makeName(name,kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    from AthenaCommon.DetFlags              import DetFlags
+    have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
+    if have_calo_rois :
+        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
+        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetNNScoringTool
+    return InDet__InDetNNScoringTool(the_name,
+                                       **setDefaults(kwargs,
+                                                     nnCutConfig             = "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json",
+                                                     nnCutThreshold          = InDetFlags.nnCutLargeD0Threshold(),
+                                                     Extrapolator            = getInDetExtrapolator(),
+                                                     SummaryTool             = getInDetTrackSummaryTool(),
+                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
+                                                     useAmbigFcn             = True,  # this is NewTracking
+                                                     useTRT_AmbigFcn         = False,
+                                                     maxZImp                 = NewTrackingCuts.maxZImpact(),
+                                                     maxEta                  = NewTrackingCuts.maxEta(),
+                                                     usePixel                = NewTrackingCuts.usePixel(),
+                                                     useSCT                  = NewTrackingCuts.useSCT(),
+                                                     doEmCaloSeed            = have_calo_rois)
+                                       )
+
+def getInDetNNScoringTool(NewTrackingCuts, name='InDetNNScoringTool', **kwargs) :
+    return getInDetNNScoringToolBase(name+NewTrackingCuts.extension(),
                                        **setDefaults( kwargs,
                                                       NewTrackingCuts         = NewTrackingCuts,
                                                       useAmbigFcn             = True,  # this is NewTracking

@@ -38,6 +38,9 @@
 // Track errors
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
+
 #ifndef ROOTCORE
 #include "GaudiKernel/IJobOptionsSvc.h"
 #endif

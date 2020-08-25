@@ -12,8 +12,7 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-TrigHIEventShapeJetIteration::TrigHIEventShapeJetIteration(std::string name) : AsgTool(name),
-								       m_isInit(false)
+TrigHIEventShapeJetIteration::TrigHIEventShapeJetIteration(std::string name) : AsgTool(name)
 {
 
   declareProperty("InputClustersKey",m_input_clusters_key="HIClusters");
@@ -56,16 +55,12 @@ int TrigHIEventShapeJetIteration::execute() const
 
   std::string unaltered_input_event_shape_key = "TrigHIEventShape";
 
-  const HIEventShapeIndex* es_index=HIEventShapeMap::getIndex(unaltered_input_event_shape_key); //m_input_event_shape_key);
+	//Map fully initialized in the beginning
+  const HIEventShapeIndex* es_index=m_eventShapeMapTool->getIndexFromShape( output_shape ); //m_input_event_shape_key);
   if(es_index==nullptr)
   {
-    ATH_MSG(ERROR) << "No HIEventShapeIndex w/ name " << m_input_event_shape_key << endmsg;
+    ATH_MSG_FATAL("TrigHIEventShapeJetIteration:  shape not COMPACT nor TOWER. Corresponding key: " << m_input_event_shape_key );
     return 1;
-  }
-  if(!m_isInit)
-  {
-    HIEventShapeMap::getMap()->insert(m_output_event_shape_key,*es_index);
-    m_isInit=true;
   }
 
   std::set<unsigned int> used_indices;

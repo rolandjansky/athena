@@ -15,14 +15,14 @@
 // MagField includes
 #include "CxxUtils/restrict.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "MagFieldElements/AtlasFieldMap.h"
 #include "MagFieldElements/BFieldCache.h"
 #include "MagFieldElements/BFieldCacheZR.h"
 #include "MagFieldElements/BFieldCond.h"
 #include "MagFieldElements/BFieldMeshZR.h"
 #include "MagFieldElements/BFieldZone.h"
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <iostream>
 #include <memory>
 namespace MagField {

@@ -53,38 +53,77 @@ BFieldMesh<T>::getCache(double z,
   int iz = int((z - zmin()) * m_invUnit[0]); // index to LUT
   iz = m_LUT[0][iz];                         // tentative mesh index from LUT
   if (z > mz[iz + 1]) {
-    iz++;
+    ++iz;
   }
   // r
   const std::vector<double>& mr(m_mesh[1]);
   int ir = int((r - rmin()) * m_invUnit[1]); // index to LUT
   ir = m_LUT[1][ir];                         // tentative mesh index from LUT
   if (r > mr[ir + 1]) {
-    ir++;
+    ++ir;
   }
   // phi
   const std::vector<double>& mphi(m_mesh[2]);
   int iphi = int((phi - phimin()) * m_invUnit[2]); // index to LUT
   iphi = m_LUT[2][iphi]; // tentative mesh index from LUT
   if (phi > mphi[iphi + 1]) {
-    iphi++;
+    ++iphi;
   }
   // store the bin edges
-  cache.setRange(
-    mz[iz], mz[iz + 1], mr[ir], mr[ir + 1], mphi[iphi], mphi[iphi + 1]);
+  cache.setRange(mz[iz], mz[iz + 1], mr[ir], mr[ir + 1], mphi[iphi], mphi[iphi + 1]);
+
+  
   // store the B field at the 8 corners
   const int im0 = iz * m_zoff + ir * m_roff + iphi; // index of the first corner
-  std::array<BFieldVector<T>, 8> field = {
-    m_field[im0],
-    m_field[im0 + 1],
-    m_field[im0 + m_roff],
-    m_field[im0 + m_roff + 1],
-    m_field[im0 + m_zoff],
-    m_field[im0 + m_zoff + 1],
-    m_field[im0 + m_zoff + m_roff],
-    m_field[im0 + m_zoff + m_roff + 1]
+
+  
+  // ** The following field initialization is commented out, and replaced by subsequent matrix
+  // ** initialization as optimization test
+  
+
+  // std::array<BFieldVector<T>, 8> field = {
+  //   m_field[im0],
+  //   m_field[im0 + 1],
+  //   m_field[im0 + m_roff],
+  //   m_field[im0 + m_roff + 1],
+  //   m_field[im0 + m_zoff],
+  //   m_field[im0 + m_zoff + 1],
+  //   m_field[im0 + m_zoff + m_roff],
+  //   m_field[im0 + m_zoff + m_roff + 1]
+  // };
+
+  // cache.setField(field, scaleFactor);
+
+  const double sf = scaleFactor;
+
+  double field1[3][8] = {
+      { sf * m_field[im0][0],                        
+        sf * m_field[im0 + 1][0],                    
+        sf * m_field[im0 + m_roff][0],               
+        sf * m_field[im0 + m_roff + 1][0],           
+        sf * m_field[im0 + m_zoff][0],               
+        sf * m_field[im0 + m_zoff + 1][0],           
+        sf * m_field[im0 + m_zoff + m_roff][0],      
+        sf * m_field[im0 + m_zoff + m_roff + 1][0] },
+      { sf * m_field[im0][1],                      
+        sf * m_field[im0 + 1][1],                  
+        sf * m_field[im0 + m_roff][1],             
+        sf * m_field[im0 + m_roff + 1][1],         
+        sf * m_field[im0 + m_zoff][1],             
+        sf * m_field[im0 + m_zoff + 1][1],         
+        sf * m_field[im0 + m_zoff + m_roff][1],    
+        sf * m_field[im0 + m_zoff + m_roff + 1][1] },
+      { sf * m_field[im0][2],                     
+        sf * m_field[im0 + 1][2],                 
+        sf * m_field[im0 + m_roff][2],            
+        sf * m_field[im0 + m_roff + 1][2],        
+        sf * m_field[im0 + m_zoff][2],            
+        sf * m_field[im0 + m_zoff + 1][2],        
+        sf * m_field[im0 + m_zoff + m_roff][2],   
+        sf * m_field[im0 + m_zoff + m_roff + 1][2] }
   };
-  cache.setField(field, scaleFactor);
+  cache.setField(field1);
+  
   // store the B scale
   cache.setBscale(m_scale);
 }
@@ -111,7 +150,7 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
   if (!inside(z, r, phi)) { // no
     B[0] = B[1] = B[2] = 0.0;
     if (deriv) {
-      for (int i = 0; i < 9; i++) {
+      for (int i = 0; i < 9; ++i) {
         deriv[i] = 0.0;
       }
     }
@@ -123,21 +162,21 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
   int iz = int((z - zmin()) * m_invUnit[0]); // index to LUT
   iz = m_LUT[0][iz];                         // tentative mesh index from LUT
   if (z > mz[iz + 1]) {
-    iz++;
+    ++iz;
   }
   // r
   const std::vector<double>& mr(m_mesh[1]);
   int ir = int((r - rmin()) * m_invUnit[1]); // index to LUT
   ir = m_LUT[1][ir];                         // tentative mesh index from LUT
   if (r > mr[ir + 1]) {
-    ir++;
+    ++ir;
   }
   // phi
   const std::vector<double>& mphi(m_mesh[2]);
   int iphi = int((phi - phimin()) * m_invUnit[2]); // index to LUT
   iphi = m_LUT[2][iphi]; // tentative mesh index from LUT
   if (phi > mphi[iphi + 1]) {
-    iphi++;
+    ++iphi;
   }
   // get the B field at the 8 corners
   int im0 = iz * m_zoff + ir * m_roff + iphi; // index of the first corner
@@ -159,7 +198,7 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
   const double scale = m_scale;
   // interpolate field values in z, r, phi
   double Bzrphi[3];
-  for (int i = 0; i < 3; i++) { // z, r, phi
+  for (int i = 0; i < 3; ++i) { // z, r, phi
     Bzrphi[i] = scale * (gz * (gr * (gphi * field[0][i] + fphi * field[1][i]) +
                                fr * (gphi * field[2][i] + fphi * field[3][i])) +
                          fz * (gr * (gphi * field[4][i] + fphi * field[5][i]) +
@@ -177,7 +216,7 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
     const double sz = m_scale / (mz[iz + 1] - mz[iz]);
     const double sr = m_scale / (mr[ir + 1] - mr[ir]);
     const double sphi = m_scale / (mphi[iphi + 1] - mphi[iphi]);
-    
+
     std::array<double,3> dBdz;
     std::array<double,3> dBdr;
     std::array<double,3> dBdphi;
@@ -236,7 +275,7 @@ BFieldMesh<T>::buildLUT()
     int n = int(width / q) + 1;
     q = width / (n + 0.5);
     m_invUnit[j] = 1.0 / q; // new unit size
-    n++;
+    ++n;
     int m = 0;                    // mesh number
     for (int i = 0; i < n; ++i) { // LUT index
       if (i * q + m_mesh[j].front() > m_mesh[j][m + 1]) {

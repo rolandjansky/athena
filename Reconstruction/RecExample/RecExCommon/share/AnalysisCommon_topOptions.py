@@ -4,7 +4,6 @@ include.block ("RecExCommon/AnalysisCommon_topOptions.py")
 ## Common job preparation ##
 ############################
 
-svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 
 from AthenaCommon.Logging import logging
@@ -322,8 +321,6 @@ if rec.doFileMetaData():
     if not hasattr(svcMgr,"CutFlowSvc"):
         from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
         CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=False )
-        #from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
-        #svcMgr+=CutFlowSvc()
         pass
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
@@ -426,12 +423,8 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
     #    MSMgr.WriteSkimDecisionsOfAllStreams()
     #    pass
 
-    #Configure CutFlowSv and common metadata
+    #Configure CutFlowSvc and common metadata
     if rec.doFileMetaData():
-
-        # # Determine current skimming cycle and input stream name
-        # svcMgr.CutFlowSvc.InputStream=rec.mergingStreamName()
-        # #svcMgr.CutFlowSvc.OutputLevel=DEBUG
 
         #Exception for DPD pass-through mode
         if rec.doDPD.passThroughMode:
@@ -444,7 +437,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )
             MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#*" )
             MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#*" )
-            #MSMgr.AddMetaDataItemToAllStreams( "EventBookkeeperCollection#*" )
             MSMgr.AddMetaDataItemToAllStreams( "IOVMetaDataContainer#*" )
             pass
         pass

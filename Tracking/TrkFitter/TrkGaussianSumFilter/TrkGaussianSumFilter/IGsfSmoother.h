@@ -3,7 +3,7 @@
 */
 
 /**
- * @file   IGsfSmoother.h 
+ * @file   IGsfSmoother.h
  * @date   Thursday 8th January 2009
  * @author Anthony Morley, Christos Anastopoulos
  * @brief  Abstract interface for the GSF smoother
@@ -14,8 +14,8 @@
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h" 
 
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -42,8 +42,7 @@ public:
       - Configure the extrapolator
       - Configure the measurement updator */
   virtual StatusCode configureTools(
-    const ToolHandle<IMultiStateExtrapolator>&,
-    const ToolHandle<IMultiStateMeasurementUpdator>&) = 0;
+    const ToolHandle<IMultiStateExtrapolator>& extrapolator) = 0;
 
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(

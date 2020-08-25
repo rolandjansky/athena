@@ -12,21 +12,23 @@
 namespace GSFUtils {
 
 template<typename T, size_t ALIGNMENT>
-inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(size_type n)
+inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(const size_type n)
   : m_buffer(nullptr)
   , m_size(n)
 {
-  const size_t bufferSize = n * sizeof(T);
+
+  const  size_t bufferSize = n * sizeof(T);
   m_buffer = static_cast<T*>(std::aligned_alloc(ALIGNMENT, bufferSize));
   std::uninitialized_default_construct(m_buffer, m_buffer + m_size);
 }
 
 template<typename T, size_t ALIGNMENT>
-inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(size_type n, const T& value)
+inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(const size_type n,
+                                                      const T& value)
   : m_buffer(nullptr)
   , m_size(n)
 {
-  const size_t bufferSize = n * sizeof(T);
+  const  size_t bufferSize = n * sizeof(T);
   m_buffer = static_cast<T*>(std::aligned_alloc(ALIGNMENT, bufferSize));
   std::uninitialized_fill(m_buffer, m_buffer + m_size, value);
 }
@@ -83,15 +85,15 @@ AlignedDynArray<T, ALIGNMENT>::buffer() const noexcept
 
 template<typename T, size_t ALIGNMENT>
 inline typename AlignedDynArray<T, ALIGNMENT>::reference
-  AlignedDynArray<T, ALIGNMENT>::operator[](const std::size_t pos) noexcept
+AlignedDynArray<T, ALIGNMENT>::operator[](const std::size_t pos) noexcept
 {
   return m_buffer[pos];
 }
 
 template<typename T, size_t ALIGNMENT>
 inline typename AlignedDynArray<T, ALIGNMENT>::const_reference
-  AlignedDynArray<T, ALIGNMENT>::operator[](
-    const AlignedDynArray<T, ALIGNMENT>::size_type pos) const noexcept
+AlignedDynArray<T, ALIGNMENT>::operator[](
+  const AlignedDynArray<T, ALIGNMENT>::size_type pos) const noexcept
 {
   return m_buffer[pos];
 }
@@ -133,7 +135,8 @@ AlignedDynArray<T, ALIGNMENT>::size() const noexcept
 }
 
 template<typename T, size_t ALIGNMENT>
-bool AlignedDynArray<T, ALIGNMENT>::empty() const noexcept
+bool
+AlignedDynArray<T, ALIGNMENT>::empty() const noexcept
 {
   return (size() == 0);
 }

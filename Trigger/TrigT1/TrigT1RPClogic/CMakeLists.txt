@@ -7,4 +7,4 @@ atlas_subdir( TrigT1RPClogic )
 atlas_add_library( TrigT1RPClogicLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1RPClogic
-                   LINK_LIBRARIES CablingTools GaudiKernel RPC_CondCablingLib RPCcablingInterfaceLib TrigT1RPChardwareLib )
+                   LINK_LIBRARIES MuonCablingTools GaudiKernel RPC_CondCablingLib RPCcablingInterfaceLib TrigT1RPChardwareLib )

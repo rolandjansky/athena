@@ -319,7 +319,7 @@ void TRT_FEbeta_fcn ATLAS_NOT_THREAD_SAFE // Global variables are used without p
      //std::cout << "FEbeta_fcn 2" << std::endl;
      
      // beta so small we've shifted off the map
-     if (bit-binShift-1 < 0) {
+     if (bit-binShift-1 < 0 || bit-binShift >= 24) {
        prob = 1.E-15; // give some very low prob to get away from here
        //std::cout << prob << std::endl;
      } else {

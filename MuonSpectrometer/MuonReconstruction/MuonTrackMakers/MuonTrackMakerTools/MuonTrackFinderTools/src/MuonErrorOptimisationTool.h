@@ -5,10 +5,11 @@
 #ifndef MUONERROROPTIMISATIONTOOL_H
 #define MUONERROROPTIMISATIONTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
@@ -29,17 +30,14 @@ namespace Muon {
     virtual StatusCode  finalize() override;
 
     /** optimise the error strategy used for the track */
-    virtual Trk::Track* optimiseErrors( Trk::Track& track ) const override;
+    virtual std::unique_ptr<Trk::Track> optimiseErrors( Trk::Track* track ) const override;
 
-  protected:
+  private:
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface" };
 
-
-    ToolHandle<MuonEDMPrinterTool>  m_printer; //<! helper to nicely print out tracks
-    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" }; //<! muon EDM helper
-    ToolHandle<Trk::ITrackSummaryHelperTool>    m_trackSummaryTool; //<! muon id helper
-    ToolHandle<IMuonRefitTool>      m_refitTool;
+    ToolHandle<MuonEDMPrinterTool> m_printer {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "helper to nicely print out tracks"};
+    ToolHandle<Trk::ITrackSummaryHelperTool> m_trackSummaryTool {this, "TrackSummaryTool", "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"};
+    ToolHandle<IMuonRefitTool> m_refitTool {this, "RefitTool", "Muon::MuonRefitTool/MuonRefitTool"};
 
     Gaudi::Property<double>                      m_chi2NdofCutRefit {this, "Chi2NDofCutRefit", 5.};
     Gaudi::Property<double>                      m_lowPtThreshold   {this, "LowPtThreshold", 5000.};

@@ -46,8 +46,8 @@ namespace CloneTool {
     }
 	
     //now copy cloned's properties into result
-    std::vector<Property*>::const_iterator iProp(pCloned->getProperties().begin());
-    std::vector<Property*>::const_iterator eProp(pCloned->getProperties().end());
+    std::vector<Gaudi::Details::PropertyBase*>::const_iterator iProp(pCloned->getProperties().begin());
+    std::vector<Gaudi::Details::PropertyBase*>::const_iterator eProp(pCloned->getProperties().end());
 
     AlgTool* aResult=dynamic_cast<AlgTool*>(result);
     if (0 == aResult) {

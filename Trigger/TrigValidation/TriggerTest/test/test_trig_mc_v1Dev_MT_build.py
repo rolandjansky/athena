@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger RDO->RDO_TRIG athena test of the Dev_pp_run3_v1 menu with 2 slots and 2 threads
 # art-type: build
@@ -26,6 +27,9 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+
+# Use RootComp reference from test_trig_mc_v1Dev_build
+test.get_step('RootComp').ref_test_name = 'trig_mc_v1Dev_build'
 
 import sys
 sys.exit(test.run())

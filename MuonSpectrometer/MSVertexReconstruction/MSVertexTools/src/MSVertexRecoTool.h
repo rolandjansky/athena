@@ -5,15 +5,18 @@
 #ifndef MSVVERTEXRECOTOOL_H
 #define MSVVERTEXRECOTOOL_H
 
+#include "MSVertexToolInterfaces/IMSVertexRecoTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
-#include "MSVertexToolInterfaces/IMSVertexRecoTool.h"
 #include "MSVertexUtils/Tracklet.h"
 #include "MSVertexUtils/MSVertex.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -22,22 +25,22 @@
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
+#include "xAODTracking/VertexContainer.h"
+
 #include <utility>
+#include <string>
 #include <vector>
 
 namespace Muon {
 
-  class MSVertexRecoTool : virtual public IMSVertexRecoTool, public AthAlgTool
-  {
-  typedef  xAOD::VertexContainer decortype;
+  class MSVertexRecoTool : virtual public IMSVertexRecoTool, public AthAlgTool {
+  typedef xAOD::VertexContainer decortype;
   public :
-    /** default constructor */
     MSVertexRecoTool (const std::string& type, const std::string& name, const IInterface* parent);
-    /** destructor */
-    virtual ~MSVertexRecoTool();
+    virtual ~MSVertexRecoTool()=default;
 
     virtual StatusCode initialize(void) override;  
-    virtual StatusCode finalize(void) override;  
+    StatusCode findMSvertices(std::vector<Tracklet>& traklets, std::vector<MSVertex*>& vertices, const EventContext &ctx) const override;
 
     struct TrkCluster {
       float eta;
@@ -57,8 +60,7 @@ namespace Muon {
     
 
   private:
-    //add tool handles, private variables, etc here
-    ToolHandle <Trk::IExtrapolator> m_extrapolator;
+    ToolHandle<Trk::IExtrapolator> m_extrapolator {this, "MyExtrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
     float m_BarrelTrackletUncert;
     float m_EndcapTrackletUncert;
     float m_TrackPhiAngle;
@@ -78,19 +80,13 @@ namespace Muon {
     std::string             m_rndmEngineName;
     IAtRndmGenSvc*          m_rndmSvc;
 
-
-  public:
-
-    StatusCode findMSvertices(std::vector<Tracklet>& traklets, std::vector<MSVertex*>& vertices, const EventContext &ctx) const override;
-    
-  private:
     //barrel vertex reco algorithm
     void MSVxFinder(const std::vector<Tracklet>& tracklets, std::unique_ptr<MSVertex>& vtx, const EventContext &ctx) const;
     //endcap vertex reco algorithm
     void MSStraightLineVx(const std::vector<Tracklet> &trks, std::unique_ptr<MSVertex>& vtx, const EventContext &ctx) const;
     void MSStraightLineVx_oldMethod(const std::vector<Tracklet> &trks, std::unique_ptr<MSVertex>& vtx, const EventContext &ctx )const;
     void MakeDummyVertex(MSVertex*&) const;
-    float vxPhiFinder(float theta,float phi, const EventContext &ctx) const;//vertex phi location reco algorithm
+    float vxPhiFinder(const float theta, const float phi, const EventContext &ctx) const;//vertex phi location reco algorithm
     void HitCounter(MSVertex* MSRecoVx, const EventContext &ctx) const;//counts MDT, RPC & TGC around a reco'd vertex
     std::vector<TrkCluster> findTrackClusters(const std::vector<Tracklet>& tracklets) const;//group tracklets into clusters -- vertex reco runs on each cluster of tracklets
     TrkCluster ClusterizeTracks(std::vector<Tracklet>& tracks) const;//core algorithm for creating the clusters
@@ -100,14 +96,15 @@ namespace Muon {
     bool EndcapHasBadTrack(const std::vector<Tracklet> &tracklets, const Amg::Vector3D &Vx) const;
     std::vector<Tracklet> getTracklets(const std::vector<Tracklet> &trks, const std::set<int> &tracklet_subset) const;
 
-    SG::WriteHandleKey<xAOD::VertexContainer> m_xAODContainerKey;
-    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcTESKey;//"RPC_Measurements"
-    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcTESKey;//"TGC_Measurements"
-    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtTESKey; //"MDT_DriftCircles" 
+    SG::WriteHandleKey<xAOD::VertexContainer> m_xAODContainerKey{ this, "xAODVertexContainer", "MSDisplacedVertex"};
 
-    SG::WriteDecorHandleKey<decortype> m_decor_nMDT;
-    SG::WriteDecorHandleKey<decortype> m_decor_nRPC;
-    SG::WriteDecorHandleKey<decortype> m_decor_nTGC;
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcTESKey{ this, "TESKey", "RPC_Measurements"};
+    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcTESKey{ this, "TGCKey", "TGC_Measurements"};
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtTESKey{ this, "MDTKey", "MDT_DriftCircles"};
+
+    SG::WriteDecorHandleKey<decortype> m_decor_nMDT{ this, "Decor_MDTK", "nMDT"};
+    SG::WriteDecorHandleKey<decortype> m_decor_nRPC{ this, "Decor_nRPC", "nRPC"};
+    SG::WriteDecorHandleKey<decortype> m_decor_nTGC{ this, "Decor_nTGC", "nTGC"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   };

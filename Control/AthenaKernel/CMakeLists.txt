@@ -1,26 +1,12 @@
-################################################################################
-# Package: AthenaKernel
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaKernel )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/CxxUtils
-   Control/DataModelRoot
-   Control/RootUtils
-   GaudiKernel
-   PRIVATE
-   AtlasTest/TestTools
-   )
-
 # External dependencies:
 find_package( Boost COMPONENTS program_options regex filesystem thread )
-find_package( ROOT COMPONENTS Core )
 find_package( UUID )
-find_package(CLHEP)
+find_package( CLHEP )
 find_package( TBB )
 # Only link agains the RT library if it's available.
 find_library( RT_LIBRARY rt )
@@ -33,12 +19,9 @@ atlas_add_library( AthenaKernel
    AthenaKernel/*.h AthenaKernel/*.icc src/*.cxx
    PUBLIC_HEADERS AthenaKernel
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS} 
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} CxxUtils DataModelRoot
-   RootUtils
-   GaudiKernel ${RT_LIBRARY}
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}
-   ${CMAKE_DL_LIBS} )
+   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} ${RT_LIBRARY} CxxUtils DataModelRoot GaudiKernel
+   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${CMAKE_DL_LIBS} RootUtils )
 
 atlas_add_dictionary( AthenaKernelDict
    AthenaKernel/AthenaKernelDict.h
@@ -110,6 +93,14 @@ atlas_add_test( ClassName_test
    SOURCES test/ClassName_test.cxx
    LINK_LIBRARIES AthenaKernel )
 
+atlas_add_test( safe_clid_test
+   SOURCES test/safe_clid_test.cxx
+   LINK_LIBRARIES AthenaKernel )
+
+atlas_add_test( Bases_test
+   SOURCES test/Bases_test.cxx
+   LINK_LIBRARIES AthenaKernel )
+
 atlas_add_test( BaseInfo_test
    SOURCES test/BaseInfo_test.cxx
    LINK_LIBRARIES AthenaKernel )
@@ -120,10 +111,9 @@ atlas_add_test( SlotSpecificObj_test
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( DataBucket_test
-               SOURCES
-               test/DataBucket_test.cxx
-               INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-               LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools )
+   SOURCES
+   test/DataBucket_test.cxx
+   LINK_LIBRARIES AthenaKernel TestTools )
 
 atlas_add_test( RCUUpdater_test
    SOURCES test/RCUUpdater_test.cxx

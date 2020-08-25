@@ -67,6 +67,8 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 
@@ -951,7 +953,7 @@ bool TrigSteer::resetChainsROBRequestPreparation(std::vector<HLT::SteeringChain*
 void findAlgTypeName(const std::string& property, std::string& type_name,
 		     std::string& instance_name)
 {
-  int slash_pos = property.find_first_of("/");
+  int slash_pos = property.find_first_of('/');
   type_name = property.substr( 0, slash_pos );
   instance_name = (slash_pos > 0) ? property.substr( slash_pos + 1) : type_name;
   replace(instance_name.begin(), instance_name.end(), '/', '_');
@@ -960,7 +962,7 @@ void findAlgTypeName(const std::string& property, std::string& type_name,
 
 
 
-HLT::Algo* TrigSteer::getAlgo(std::string name)
+HLT::Algo* TrigSteer::getAlgo(const std::string& name)
 {
   HLT::Algo* algo = 0;
 
@@ -1290,21 +1292,22 @@ bool TrigSteer::canContinueJob() {
 
 HLT::ErrorCode TrigSteer::setEvent() {
 
-  const EventInfo* einfo(0);
-  StatusCode sc =  m_config->getStoreGate()->retrieve(einfo);
-  if(sc.isFailure()){
-    ATH_MSG_FATAL("Can't get EventInfo object for update event information" );
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  if (!ctx.valid()) {
+    ATH_MSG_FATAL("No valid EventContext to update event information" );
     return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_1, SteeringInternalReason::UNKNOWN);
   } else {
-    if ( einfo->event_ID() ) {
-      m_config->setLumiBlockNumber( einfo->event_ID()->lumi_block() );
+    if ( ctx.eventID().isValid() ) {
+      ATH_MSG_DEBUG("Setting event information from eventID " << ctx.eventID());
+
+      m_config->setLumiBlockNumber( ctx.eventID().lumi_block() );
       
       ITrigLBNHist::set_lbn( m_config->getLumiBlockNumber() ); // this is setting LBN for all trigger monitoring tools
 
-      m_config->setLvl1Id( einfo->event_ID()->event_number() );
+      m_config->setLvl1Id(ctx.eventID().event_number() );
 
       // request the config service to set the correct prescales for the lumiblock
-      StatusCode sc = m_configSvc->assignPrescalesToChains( einfo->event_ID()->lumi_block() );
+      StatusCode sc = m_configSvc->assignPrescalesToChains( ctx.eventID().lumi_block() );
       if (sc.isFailure()) {
         ATH_MSG_FATAL("ConfigSvc failed to assign HLT prescales to chains.");
         return HLT::ErrorCode(Action::ABORT_JOB, Reason::USERDEF_1, SteeringInternalReason::BAD_JOB_SETUP);        
@@ -1318,7 +1321,7 @@ HLT::ErrorCode TrigSteer::setEvent() {
       m_lvlCnvTool->setConfigurationKeys(m_configSvc->masterKey(), m_configSvc->hltPrescaleKey());
       
     } else {
-      ATH_MSG_ERROR("EventNumber&LBN not possible because missing event_ID");
+      ATH_MSG_ERROR("EventNumber&LBN not possible because missing eventID");
       return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_2, SteeringInternalReason::UNKNOWN);
     }
   }
@@ -1384,7 +1387,7 @@ TrigSteer::configureCoherentPrescaling() {
   
 
    // now order chains in each prescaling group by value of prescale
-   for( PrescalingGroup::value_type g : prescaling_group) {
+   for( const PrescalingGroup::value_type& g : prescaling_group) {
       HLT::SteeringChain* previous = 0;
       for(HLT::SteeringChain* ch : g.second ) {
          ATH_MSG_DEBUG("Prescaling group: " << ch->prescaleGroup()

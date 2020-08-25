@@ -6,7 +6,6 @@
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -42,8 +41,7 @@ namespace
 
   ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : base_class(type, name, parent),
-  m_fieldServiceHandle("AtlasFieldSvc", name)
+  : base_class(type, name, parent)
   {}
 
 StatusCode
@@ -59,13 +57,12 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
     = m_trackingGeometryTool->trackingGeometry();
 
+    ATH_CHECK( m_extrapolationTool.retrieve() );
+
     Acts::Navigator navigator(trackingGeometry);
 
-  	// We need the field service
-    ATH_CHECK( m_fieldServiceHandle.retrieve() );
-    ATH_MSG_INFO("Using ATLAS magnetic field service");
     using BField_t = ATLASMagneticFieldWrapper;
-    BField_t bField(m_fieldServiceHandle.get());
+    BField_t bField;
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = std::make_shared<Propagator>(std::move(stepper), 
       std::move(navigator));
@@ -107,7 +104,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     // Vertex seed finder
     VertexSeedFinder::Config seedFinderConfig;
-    //seedFinderConfig.trackDensityEstimator = trackDensity;
+    seedFinderConfig.trackDensityEstimator = trackDensity;
     VertexSeedFinder seedFinder(seedFinderConfig, extractParameters);
     VertexFinder::Config finderConfig(std::move(fitter), seedFinder,
       ipEst, linearizer);
@@ -220,8 +217,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
     Acts::Surface::makeShared<Acts::PerigeeSurface>(beamSpotPos);
 
-    // TODO: Get the correct magnetic field context
-    Acts::MagneticFieldContext magFieldContext;
+    // Get the magnetic field context
+    Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
     const auto& geoContext
     = m_trackingGeometryTool->getGeometryContext(ctx).any();

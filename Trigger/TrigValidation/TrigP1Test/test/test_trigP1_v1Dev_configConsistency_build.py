@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Compare athenaHLT configuration with Dev_pp_run3_v1 menu and different threads/slots/forks settings
 # art-type: build

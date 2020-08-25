@@ -116,6 +116,27 @@ void test1()
   assert (cache.thinningInfo ("foo")->vetoed(13));
   assert (!cache.thinningInfo ("foo")->vetoed(14));
 
+  assert (cache.thinningInfo ("foo")->m_compression.empty());
+  SG::ThinningInfo::compression_map_t compression1;
+  CxxUtils::ConcurrentBitset cbs1 (64);
+  cbs1.set (13);
+  compression1[7] = cbs1;
+  cache.setCompression("foo", compression1);
+  assert (cache.thinningInfo ("foo")->m_compression == compression1);
+  assert (cache.thinningInfo ("foo")->compression(13) == 7);
+  assert (cache.thinningInfo ("foo")->compression(14) == 0);
+
+  assert (cache.thinningInfo ("bar")->m_compression.empty());
+  SG::ThinningInfo::compression_map_t compression2;
+  CxxUtils::ConcurrentBitset cbs2 (42);
+  cbs2.set (8);
+  compression2[7] = cbs2;
+  compression2[15] = cbs2;
+  cache.setCompression("bar", compression2);
+  assert (cache.thinningInfo ("bar")->m_compression == compression2);
+  assert (cache.thinningInfo ("bar")->compression(8) == 7);
+  assert (cache.thinningInfo ("bar")->compression(8) != 15);
+
   cache.clear();
   assert (cache.empty());
   assert (cache.trigNavigationThinningSvc() == nullptr);

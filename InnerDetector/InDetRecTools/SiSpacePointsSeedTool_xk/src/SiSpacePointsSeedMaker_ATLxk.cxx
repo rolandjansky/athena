@@ -2140,6 +2140,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
 
   /// sort common SP by curvature 
   if(data.CmSp.size() > 2) std::sort(data.CmSp.begin(), data.CmSp.end(), comCurvature());
+      
+  float bottomR=SPb->radius();
+  float bottomZ=SPb->z();
 
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_otherSP;
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_commonTopSP = data.CmSp.begin(), ie = data.CmSp.end();
@@ -2151,6 +2154,25 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
     /// the seed quality is set to d0 initially 
     float seedQuality    = (*it_commonTopSP).second->param();
     float originalSeedQuality   = (*it_commonTopSP).second->param();
+
+    if(m_maxdImpact > 50){      //This only applies to LRT
+
+      float topR=(*it_commonTopSP).second->radius();
+      float topZ=(*it_commonTopSP).second->z();
+
+      float theta1=std::atan2(topR-bottomR,topZ-bottomZ);
+      float eta1=-std::log(std::tan(.5*theta1));
+
+      float Zot=bottomZ - (bottomR-originalSeedQuality) * ((topZ-bottomZ)/(topR-bottomR));
+      float theta0=std::atan2((*it_commonTopSP).second->param(),Zot);
+      float eta0=-std::log(std::tan(.5*theta0));
+
+      float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
+      //calculate weighted average of d0 and deltaEta, normalized by their maximum values
+      float f=std::min(0.5,originalSeedQuality/200.);  //0.5 and 200 are parameters chosen from a grid scan to optimize efficiency
+      seedQuality*=(1-f)/300.;
+      seedQuality+=f*deltaEta/2.5;
+    }
 
     bool                topSPisPixel = !(*it_commonTopSP).second->spacepoint->clusterList().second;
     

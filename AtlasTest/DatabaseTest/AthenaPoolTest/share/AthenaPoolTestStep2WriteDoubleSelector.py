@@ -24,6 +24,11 @@ from AthenaCommon.AppMgr import theApp
 ## get a handle to the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
+# Set that we are running MC+MC overlay in MT mode
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+overlayFlags.isDataOverlay.set_Value_and_Lock(False)
+overlayFlags.isOverlayMT.set_Value_and_Lock(True)
+
 #--------------------------------------------------------------
 # Load POOL support for DoubleEventSelector
 #--------------------------------------------------------------

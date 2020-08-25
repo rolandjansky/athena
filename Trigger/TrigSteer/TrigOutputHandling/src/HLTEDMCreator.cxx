@@ -16,20 +16,20 @@ HLTEDMCreator::HLTEDMCreator( const std::string& type,
 
 template<typename T>
 StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
-  CHECK( handles.out.initialize() );
+  ATH_CHECK( handles.out.initialize() );
   renounceArray( handles.out );
-  CHECK( handles.in.initialize() );
+  ATH_CHECK( handles.in.initialize() );
   renounceArray( handles.in );
-  CHECK( handles.views.initialize() );  
+  ATH_CHECK( handles.views.initialize() );
   renounceArray( handles.views );
 
   // the case w/o reading from views, both views handles and collection in views should be empty
   if ( handles.views.size() == 0 ) {
-    CHECK( handles.in.size() == 0 );
+    ATH_CHECK( handles.in.size() == 0 );
   } else {
     // the case with views, for every output we expect an input View and an input collection inside that View
-    CHECK( handles.out.size() == handles.in.size() );
-    CHECK( handles.in.size()  == handles.views.size() );
+    ATH_CHECK( handles.out.size() == handles.in.size() );
+    ATH_CHECK( handles.in.size()  == handles.views.size() );
   }
   return StatusCode::SUCCESS;
 }
@@ -66,10 +66,10 @@ StatusCode HLTEDMCreator::initialize()
   // this section has to appear after the above initialisation of DecorHandles, else the renounce of TrigComposite does not work as expected
 
 #define INIT(__TYPE) \
-  CHECK( initHandles( HandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
+  ATH_CHECK( initHandles( HandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
 
 #define INIT_XAOD(__TYPE) \
-  CHECK( initHandles( HandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
+  ATH_CHECK( initHandles( HandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
 
   INIT( TrigRoiDescriptorCollection );
   INIT_XAOD( TrigCompositeContainer );
@@ -95,14 +95,17 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( TrigBphysContainer );  
   INIT_XAOD( BTaggingContainer );
   INIT_XAOD( BTagVertexContainer );
-
   INIT_XAOD( CaloClusterContainer );
 
 #undef INIT
 #undef INIT_XAOD
 
-
-
+  ATH_CHECK( m_CaloClusterContainerShallowCopy.initialize() );
+  renounceArray( m_CaloClusterContainerShallowCopy );
+  for ( auto k: m_CaloClusterContainerShallowCopy )
+    m_CaloClusterContainerShallowCopyOut.push_back(k.key());
+  ATH_CHECK( m_CaloClusterContainerShallowCopyOut.initialize() );
+  renounceArray( m_CaloClusterContainerShallowCopyOut );
   
   return StatusCode::SUCCESS;
 }
@@ -160,9 +163,9 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
   
   typedef typename T::base_value_type type_in_container;
   StoreGateSvc* sg = evtStore().operator->(); // why the get() method is returing a null ptr is a puzzle, we have to use this ugly call to operator instead of it
-  CHECK( sg != nullptr );
+  ATH_CHECK( sg != nullptr );
   ViewHelper::ViewMerger merger( sg, msg() );
-  CHECK( merger.mergeViewCollection<type_in_container>( views, inViewKey, context, output ) );
+  ATH_CHECK( merger.mergeViewCollection<type_in_container>( views, inViewKey, context, output ) );
 
   return StatusCode::SUCCESS;
 }
@@ -296,14 +299,14 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
       if ( viewsHandle.isValid() ) {
 	SG::ReadHandleKey<T> inViewReadHandleKey = handles.in.at(i);
 	ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views using in-view key " << inViewReadHandleKey.key() );
-	CHECK( (this->*merger)( *viewsHandle, inViewReadHandleKey , context, *generator.data.get() ) );
+	ATH_CHECK( (this->*merger)( *viewsHandle, inViewReadHandleKey , context, *generator.data.get() ) );
       } else {
 	ATH_MSG_DEBUG("Views " << viewsReadHandleKey.key() << " are missing. Will leave " << writeHandleKey.key() << " output collection empty.");
       }
     }
 
     auto writeHandle = SG::makeHandle( writeHandleKey, context );
-    CHECK( generator.record( writeHandle ) );
+    ATH_CHECK( generator.record( writeHandle ) );
   }
 
   return StatusCode::SUCCESS;
@@ -319,7 +322,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
 #define CREATE(__TYPE) \
     {                 \
       plainGenerator<__TYPE> generator;         \
-      CHECK( createIfMissing<__TYPE>( context, ConstHandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<__TYPE> ) ); \
+      ATH_CHECK( createIfMissing<__TYPE>( context, ConstHandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<__TYPE> ) ); \
     }
 
   CREATE( TrigRoiDescriptorCollection )
@@ -329,14 +332,14 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
 #define CREATE_XAOD(__TYPE, __STORE_TYPE) \
   { \
     xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE> generator; \
-    CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::viewsMerge<xAOD::__TYPE> )  ); \
+    ATH_CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::viewsMerge<xAOD::__TYPE> )  ); \
   }
 
 
 #define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE)      \
   { \
     xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE> generator; \
-    CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
+    ATH_CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
   }
   
   CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
@@ -369,6 +372,20 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE
+
+  // special cases
+  {
+    for ( size_t index = 0; index < m_CaloClusterContainerShallowCopy.size(); ++index ){
+      auto readHandle = SG::makeHandle<xAOD::CaloClusterContainer> (  m_CaloClusterContainerShallowCopy[index], context );
+      if ( not readHandle.isValid() ) { // collection is missing
+	ATH_MSG_DEBUG( "Creating missing CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopy[index].key() );
+	auto writeHandle = SG::makeHandle( m_CaloClusterContainerShallowCopyOut[index], context );
+	ATH_CHECK( writeHandle.record( std::make_unique<xAOD::CaloClusterContainer>(), std::make_unique<xAOD::ShallowAuxContainer>() ));
+      } else {
+	ATH_MSG_DEBUG( "CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopyOut[index].key() << " present in the event, done nothing");
+      }
+    }
+  }
 
   if ( m_dumpSGAfter )  
     ATH_MSG_DEBUG( evtStore()->dump() );

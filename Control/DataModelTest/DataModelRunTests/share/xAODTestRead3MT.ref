@@ -28,7 +28,6 @@ ApplicationMgr                                      INFO Updating Gaudi::PluginS
 AthDictLoaderSvc                                    INFO in initialize...
 AthDictLoaderSvc                                    INFO acquired Dso-registry
 ClassIDSvc                                          INFO  getRegistryEntries: read 3835 CLIDRegistry entries for module ALL
-CoreDumpSvc                                         INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                              INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
 MetaDataSvc                                         INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
@@ -196,7 +195,6 @@ PrecedenceSvc                                  0    INFO
         EndIncFiringAlg [Alg]  [n= 0]
         IncidentProcAlg2 [Alg]  [n= 1] [unclonable] 
     AthOutSeq [Seq]  [Concurrent] 
-    AthRegSeq [Seq]  [Concurrent] 
 
 AthenaHiveEventLoopMgr                         0    INFO Setup EventSelector service EventSelector
 ApplicationMgr                                 0    INFO Application Manager Initialized successfully

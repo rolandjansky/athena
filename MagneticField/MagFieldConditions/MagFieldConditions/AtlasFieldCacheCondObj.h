@@ -28,13 +28,16 @@ public:
     inline void getInitializedCache (MagField::AtlasFieldCache& cache) const;
 
     /** access to solenoid field scale factor */
-    double solenoidFieldScaleFactor() const { return m_solFieldScale; } ;
+    double solenoidFieldScaleFactor() const { return m_solFieldScale; } 
 
     /** access to toroid field scale factor */
-    double toriodFieldScaleFactor() const { return m_torFieldScale; } ;
+    double toriodFieldScaleFactor() const { return m_torFieldScale; } 
 
+    /** access to non-owning AtlasFieldMap*/
+    const MagField::AtlasFieldMap* fieldMap() const { return m_fieldMap; }
+    
     /** set values for field scale and service to be able to build the cache **/
-    bool initialize(double solFieldScale, double torFieldScale, 
+    void initialize(double solFieldScale, double torFieldScale, 
                     const MagField::AtlasFieldMap* fieldMap);
 
 private:

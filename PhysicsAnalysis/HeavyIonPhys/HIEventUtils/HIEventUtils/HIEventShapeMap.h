@@ -9,8 +9,7 @@
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include <string>
 
-//Migration check: in this class keys are only used as strings to access the map.
-//For the moment we leave it untouched and we pass the only string to the methods
+//This class is currently supersed by HIEventShapeMapTool - fully MT safe
 
 class HIEventShapeMap
 {
@@ -24,7 +23,7 @@ class HIEventShapeMap
   private:
     HIEventShapeMap(){};
     std::map<std::string,HIEventShapeIndex> m_map;
-    static HIEventShapeMap s_obj; //TODO move to const implementation
+    static HIEventShapeMap s_obj;
 };
 
 

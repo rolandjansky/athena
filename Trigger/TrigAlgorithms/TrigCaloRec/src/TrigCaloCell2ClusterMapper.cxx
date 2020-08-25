@@ -42,7 +42,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 //###############################################################################
 // CONSTRUCTOR:

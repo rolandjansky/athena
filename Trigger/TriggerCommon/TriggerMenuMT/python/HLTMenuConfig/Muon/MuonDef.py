@@ -135,12 +135,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
-
-
-        # tmp comment out OverlapRm /FP:
-        doOvlpRm= False
-           
-
         if doOvlpRm:
            return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg] )
         else:
@@ -157,11 +151,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
            doOvlpRm = True
         else:
            doOvlpRm = False
-
-
-         # tmp comment out OverlapRm /FP:
-        doOvlpRm= False
-
 
         if doOvlpRm:
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )

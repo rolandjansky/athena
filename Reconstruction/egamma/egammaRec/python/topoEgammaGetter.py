@@ -42,28 +42,17 @@ class topoEgammaGetter (Configured):
         mlog = logging.getLogger('topoEgammaGetter.py::configure:')
         mlog.info('entering')
 
-        # # the egammaTopoClusterCopier
-        # from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
-        # try:
-        #     self._egammaTopoClusterCopierHandle = egammaTopoClusterCopier()
-        # except Exception:
-        #     mlog.error("could not get handle to egammaTopoClusterCopier")
-        #     import traceback
-        #     print traceback.format_exc()
-        #     return False
-        # print self._egammaTopoClusterCopierHandle
-
         # the egammaRecBuilder
         from egammaAlgs.egammaRecBuilder import egammaRecBuilder
         try:
-            self._egammaRecBuilder = egammaRecBuilder(doTrackMatching=DetFlags.detdescr.ID_on(),
-                                                      doConversions=doConversions())
+            self._egammaRecBuilder = egammaRecBuilder(
+                doTrackMatching=DetFlags.detdescr.ID_on(),
+                doConversions=doConversions())
         except Exception:
             mlog.error("could not get handle to egammaRecBuilder")
             import traceback
             traceback.print_exc()
             return False
-        print(self._egammaRecBuilder)
 
         # the supercluster builders
         from egammaAlgs.egammaSuperClusterBuilder import \
@@ -78,8 +67,7 @@ class topoEgammaGetter (Configured):
             import traceback
             traceback.print_exc()
             return False
-        print(self._electronSuperClusterBuilder)
-        print(self._photonSuperClusterBuilder)
+
         # the topoEgammaBuilder (the part that puts everything together
         from egammaAlgs.topoEgammaBuilder import topoEgammaBuilder
         try:
@@ -97,10 +85,11 @@ class topoEgammaGetter (Configured):
             import traceback
             traceback.print_exc()
             return False
-        print(self._topoEgammaBuilder)
 
-        # the egammaLargeClusterMaker (Which chooses the cells to store in the AOD)
-        from egammaAlgs.egammaLargeClusterMakerAlg import egammaLargeClusterMakerAlg
+        # the egammaLargeClusterMaker
+        # (Which chooses the cells to store in the AOD)
+        from egammaAlgs.egammaLargeClusterMakerAlg import (
+            egammaLargeClusterMakerAlg)
         try:
             self._egammaLargeClusterMaker = egammaLargeClusterMakerAlg()
         except Exception:
@@ -108,6 +97,5 @@ class topoEgammaGetter (Configured):
             import traceback
             traceback.print_exc()
             return False
-        print(self._egammaLargeClusterMaker)
 
         return True

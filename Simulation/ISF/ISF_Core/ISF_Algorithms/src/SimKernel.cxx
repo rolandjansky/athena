@@ -13,7 +13,7 @@
 #include "ISF_Interfaces/IMonitoringTool.h"
 #include "ISF_Interfaces/IEventFilterTool.h"
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 // Boost
 #include <boost/lexical_cast.hpp>
 // ATLAS cxx utils

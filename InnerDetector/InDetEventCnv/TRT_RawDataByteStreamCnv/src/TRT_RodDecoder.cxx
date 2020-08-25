@@ -54,7 +54,6 @@ TRT_RodDecoder::TRT_RodDecoder
      m_lookAtMissingErrors   ( true ),
      m_loadCompressTableFile ( false ),
      m_loadCompressTableDB   ( true ),
-     m_compressTableFolder   ( "/TRT/Onl/ROD/Compress" ),
      m_maxCompressionVersion ( 255 ),
      m_forceRodVersion       ( -1 ),
      m_trt_id                ( nullptr ),
@@ -248,8 +247,7 @@ StatusCode TRT_RodDecoder::finalize() {
  * ----------------------------------------------------------
  */
 StatusCode
-TRT_RodDecoder::fillCollection ATLAS_NOT_THREAD_SAFE // Non-thread-safe function 'StatusCode TRT_RodDecoder::update()' called
-                               ( const ROBFragment* robFrag,
+TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
 				 TRT_BSErrContainer* bsErr,
 				 const std::vector<IdentifierHash>* vecHash )
@@ -1700,8 +1698,7 @@ TableFilename
  * Read Compression Table from DB on IOV change
  */
 StatusCode
-TRT_RodDecoder::update ATLAS_NOT_THREAD_SAFE () // Non-thread-safe function 'AthenaAttributeList::AthenaAttributeList(const coral::AttributeList&)' called
-{  
+TRT_RodDecoder::update() {  
 
   /*
    * function to update compression table when condDB data changes:
@@ -1723,7 +1720,7 @@ TRT_RodDecoder::update ATLAS_NOT_THREAD_SAFE () // Non-thread-safe function 'Ath
     {
        t_CompressTable *Ctable = new t_CompressTable;
 
-       const AthenaAttributeList atrlist(catrIt->second);
+       const coral::AttributeList& atrlist = catrIt->second;
      
 
        Ctable->m_TableVersion = (atrlist)["Version"].data<cool::Int32>();

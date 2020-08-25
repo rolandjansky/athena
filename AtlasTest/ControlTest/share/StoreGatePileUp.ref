@@ -36,7 +36,7 @@ ApplicationMgr.ExtSvc += { "IncidentSvc/IncidentSvc",
 			   "ChronoStatSvc/ChronoStatSvc"
 			 };	
 
-ApplicationMgr.DLLs   += { "AthenaServices" };
+ApplicationMgr.Dlls   += { "AthenaServices" };
 ApplicationMgr.EventLoop = "AthenaEventLoopMgr";
 ApplicationMgr.OutStreamType = "AthenaOutputStream";
 AthenaEventLoopMgr.OutStreamType = "AthenaOutputStream";
@@ -47,7 +47,7 @@ AthenaEventLoopMgr.OutStreamType = "AthenaOutputStream";
 // --> Including file $STOREGATEROOT/share/StoreGate_jobOptions.txt
 
 
-ApplicationMgr.DLLs   += { "StoreGate", "CLIDSvc" };
+ApplicationMgr.Dlls   += { "StoreGate", "CLIDSvc" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
 ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore" };
 ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
@@ -70,7 +70,7 @@ ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
 //
 
 // DLLs 
-ApplicationMgr.DLLs += { "DetDescrCnvSvc" };
+ApplicationMgr.Dlls += { "DetDescrCnvSvc" };
 
 // Add in services
 //  (NOTE: the following does not yet work for the detector store)
@@ -97,7 +97,7 @@ DetDescrCnvSvc.IdDictName = "ATLAS_IDS.xml";
 //
 
 // DLLs 
-ApplicationMgr.DLLs += { "IdDictDetDescrCnv" };
+ApplicationMgr.Dlls += { "IdDictDetDescrCnv" };
 
 
 // <-- End of including file $IDDICTDETDESCRCNVROOT/share/IdDictDetDescrCnv_joboptions.txt
@@ -124,7 +124,7 @@ DetDescrCnvSvc.CompactIDsOnly = true;
 // General Application Configuration options
 //--------------------------------------------------------------
 
-ApplicationMgr.DLLs   += { "ZebraTDRCnv" , "HbookCnv"};
+ApplicationMgr.Dlls   += { "ZebraTDRCnv" , "HbookCnv"};
 ApplicationMgr.ExtSvc += { "ZebraTDRCnvSvc", 
                           "ZebraTDREventSelector/EventSelector" };
 //--------------------------------------------------------------
@@ -154,7 +154,7 @@ JobOptionsSvc        INFO
 //
 
 // DLLs 
-ApplicationMgr.DLLs += { "IdDictDetDescrCnv" };
+ApplicationMgr.Dlls += { "IdDictDetDescrCnv" };
 
 
 // <-- End of including file $IDDICTDETDESCRCNVROOT/share/IdDictDetDescrCnv_joboptions.txt
@@ -167,7 +167,7 @@ ApplicationMgr.DLLs += { "IdDictDetDescrCnv" };
 //
 
 // DLLs 
-ApplicationMgr.DLLs += { "InDetMgrDetDescrCnv" };
+ApplicationMgr.Dlls += { "InDetMgrDetDescrCnv" };
 
 // Add InDet to list of DetectorManagers to be loaded at startup
 DetDescrCnvSvc.DetectorManagers += { "InDetMgr" };
@@ -182,7 +182,7 @@ DetDescrCnvSvc.DetectorManagers += { "InDetMgr" };
 //
 
 // DLLs 
-ApplicationMgr.DLLs += { "LArDetMgrDetDescrCnv" };
+ApplicationMgr.Dlls += { "LArDetMgrDetDescrCnv" };
 
 // Add InDet to list of DetectorManagers to be loaded at startup
 DetDescrCnvSvc.DetectorManagers += { "LArMgr" };
@@ -198,7 +198,7 @@ DetDescrCnvSvc.DetectorManagers += { "LArMgr" };
 //
 
 // DLLs 
-ApplicationMgr.DLLs += { "TileDetMgrDetDescrCnv" };
+ApplicationMgr.Dlls += { "TileDetMgrDetDescrCnv" };
 
 // Add Tile to list of DetectorManagers to be loaded at startup
 DetDescrCnvSvc.DetectorManagers += { "TileMgr" };
@@ -213,7 +213,7 @@ DetDescrCnvSvc.DetectorManagers += { "TileMgr" };
 //
 
 // DLLs 
-ApplicationMgr.DLLs += { "MuonDetMgrDetDescrCnv" };
+ApplicationMgr.Dlls += { "MuonDetMgrDetDescrCnv" };
 
 // Add InDet to list of DetectorManagers to be loaded at startup
 DetDescrCnvSvc.DetectorManagers += { "MuonMgr" };
@@ -228,7 +228,7 @@ DetDescrCnvSvc.DecodeIdDict = true;
 //--------------------------------------------------------------
 
 //load relevant libraries
-ApplicationMgr.DLLs += { "AthenaServices", "AthExStoreGateExample", "PileUpTools"};
+ApplicationMgr.Dlls += { "AthenaServices", "AthExStoreGateExample", "PileUpTools"};
 
 //load pileup merge svc
 ApplicationMgr.ExtSvc += { "PileUpMergeSvc" };

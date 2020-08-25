@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ Trk::DNA_MaterialEffects::DNA_MaterialEffects() :
   m_foundByForwardFilter(false),
   m_deltaP(0.),
   m_sigmaDeltaP(0.),
-  m_associatedSurface(0)
+  m_associatedSurface(nullptr)
 {
 }
 
@@ -43,7 +43,7 @@ Trk::DNA_MaterialEffects::DNA_MaterialEffects(double dna_x,
   m_foundByForwardFilter(foundByForwardFilter),
   m_deltaP(0.),
   m_sigmaDeltaP(0.),
-  m_associatedSurface((assocSurf.associatedDetectorElement()!=0?
+  m_associatedSurface((assocSurf.associatedDetectorElement()!=nullptr?
                         &assocSurf :
                         assocSurf.clone()) )
 {}
@@ -62,7 +62,7 @@ Trk::DNA_MaterialEffects::DNA_MaterialEffects(const DNA_MaterialEffects& dme) :
                       ( dme.m_associatedSurface->associatedDetectorElement()?
                         dme.m_associatedSurface :
                         dme.m_associatedSurface->clone() ) :
-                      0 )
+                      nullptr )
 {}
 
 Trk::DNA_MaterialEffects::~DNA_MaterialEffects()
@@ -92,7 +92,7 @@ Trk::DNA_MaterialEffects &Trk::DNA_MaterialEffects::operator=(const Trk::DNA_Mat
                            ( dme.m_associatedSurface->associatedDetectorElement()?
                              dme.m_associatedSurface :
                              dme.m_associatedSurface->clone() ) :
-                           0 );
+                           nullptr );
   }
   return *this;
 }

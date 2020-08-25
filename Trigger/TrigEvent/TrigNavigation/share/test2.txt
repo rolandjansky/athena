@@ -1,4 +1,4 @@
-ApplicationMgr.DLLs += { "StoreGate", "TrigNavigation", "TrigSerializeCnvSvc" };
+ApplicationMgr.Dlls += { "StoreGate", "TrigNavigation", "TrigSerializeCnvSvc" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
 ApplicationMgr.ExtSvc += { "TrigSerializeCnvSvc" };
 ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" };
@@ -14,7 +14,7 @@ MessageSvc.useColors        = false;
 //YourFolder.ItemList = {"8101", "8107#", "Baricco#*"};
 
 //#include "IOVSvc/IOVSvc.txt"
-//ApplicationMgr.DLLs += { "IOVSvc" };
+//ApplicationMgr.Dlls += { "IOVSvc" };
 
 //ApplicationMgr.ExtSvc += { "IOVSvc" };
 
@@ -22,7 +22,7 @@ MessageSvc.useColors        = false;
 
 // 
 //Navigation.ReferenceAllClasses = 1
-//ApplicationMgr.DLLs += { "TrigCaloEvent" };
+//ApplicationMgr.Dlls += { "TrigCaloEvent" };
 ToolSvc.Navigation.ReferenceAllClasses = 1;
 //ToolSvc.Navigation.ClassesToPreregister =
 //{"TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty",

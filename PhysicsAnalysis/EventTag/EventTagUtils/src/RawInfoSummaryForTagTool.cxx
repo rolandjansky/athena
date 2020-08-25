@@ -13,7 +13,7 @@ Purpose : create a DataQualityTag - The Detector Status Words and the Good
 *****************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "StoreGate/StoreGateSvc.h"

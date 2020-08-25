@@ -6,13 +6,13 @@
 
 #include "AthenaCommon/Atlas.UnixStandardJob.txt"
 
-ApplicationMgr.DLLs   += {  "PoolSvc", 
+ApplicationMgr.Dlls   += {  "PoolSvc", 
                             "AthenaPoolCnvSvc", "EventSelectorAthenaPool"
                          };
 
 EventPersistencySvc.CnvServices     += { "AthenaPoolCnvSvc" };
 
-ApplicationMgr.DLLs += { "McEventSelector" };
+ApplicationMgr.Dlls += { "McEventSelector" };
 
 
 #include "AthenaSealSvc/AthenaSealSvc_joboptions.txt"
@@ -21,7 +21,7 @@ ApplicationMgr.DLLs += { "McEventSelector" };
 #include "EventAthenaPool/EventAthenaPool_joboptions.txt"
 #include "GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.txt"
 #include "InDetEventAthenaPool/InDetEventAthenaPool_joboptions.txt"
-ApplicationMgr.DLLs += { "AthenaPoolCnvSvcPoolCnv" };
+ApplicationMgr.Dlls += { "AthenaPoolCnvSvcPoolCnv" };
 //--------------------------------------------------------------
 // Event related parameters
 //--------------------------------------------------------------
@@ -95,8 +95,8 @@ Stream1.OutputLevel = 2;
 //
 // write out a summary of the time spent
 //
-ApplicationMgr.DLLs += { "GaudiAud" };
+ApplicationMgr.Dlls += { "GaudiAud" };
 AuditorSvc.Auditors  += { "ChronoAuditor"};
 
-ApplicationMgr.DLLs   += { "TruthExamples" };
+ApplicationMgr.Dlls   += { "TruthExamples" };
 //ApplicationMgr.TopAlg += { "DumpMC" };

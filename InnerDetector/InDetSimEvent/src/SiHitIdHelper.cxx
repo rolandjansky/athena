@@ -6,15 +6,13 @@
 
 #include "InDetSimEvent/SiHitIdHelper.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "G4Types.hh"
 #ifdef G4MULTITHREADED
 #  include "GaudiKernel/ContextSpecificPtr.h"
 #endif
-
-static std::mutex sgMutex;
 
 //
 // private constructor
@@ -38,12 +36,9 @@ void SiHitIdHelper::Initialize() {
 
   // determine whether hits were created with an SLHC dictionary
   // in which case eta module field is expanded.
-  // Need to lock this thread-unsafe retrieval
-  const PixelID* pix;
-  StoreGateSvc* detStore(nullptr);
-  {
-    std::lock_guard<std::mutex> lock(sgMutex);
-    detStore = StoreGate::pointer("DetectorStore");
+  const PixelID* pix = nullptr;
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "SiHitIdHelper");
+  if (detStore.retrieve().isSuccess()) {
     if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = 0; }
   }
   bool isSLHC = (pix != 0 && pix->dictionaryVersion() == "SLHC");

@@ -31,8 +31,8 @@ def generateChains(flags, chainDict):
 
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
-                                CaloClusters = recordable('HLT_L2CaloEMClusters') )
-    l2CaloHypo.RingerKey = '' # TODO restore to default (or setup properly) once New JO Ringer config is available
+                                CaloClusters = 'HLT_FastCaloEMClusters' )
+
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
     fastCaloSequence = CAMenuSequence( Sequence = l2CaloReco.sequence(),
@@ -54,7 +54,7 @@ def generateChains(flags, chainDict):
     accPhoton.merge(l2PhotonReco, sequenceName=stepReco.getName())
 
     l2PhotonHypo = l2PhotonHypoCfg( flags,
-                                    Photons = 'HLT_L2Photons',
+                                    Photons = 'HLT_FastPhotons',
                                     RunInView = True )
 
     accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())

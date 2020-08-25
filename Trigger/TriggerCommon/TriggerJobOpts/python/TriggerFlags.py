@@ -45,6 +45,7 @@ default_true_flags = [
 ]
 
 default_false_flags = [
+    "readLVL1FromJSON", # the authoritative L1 menu (xml or json) - this flag will be removed after the transition to json has been completed
     "readLVL1Calo", # read LVL1 Calo info from pool or BS """
     "readLVL1Muon", # read LVL1 Muon in from Pool or BS """
     "fakeLVL1", # create fake RoI from KINE info  """

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,6 +21,7 @@ AUTHOR:  martin.spousta@cern.ch
 #include <set>
 #include "JetInterface/IJetExecuteTool.h"
 #include "HIJetRec/IHISubtractorTool.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
 
@@ -41,6 +42,7 @@ public:
 private:
   ToolHandle<IHISubtractorTool> m_subtractor_tool;
   ToolHandle<IHIUEModulatorTool> m_modulator_tool;
+  ToolHandle<IHIEventShapeMapTool> m_eventShapeMapTool { this, "EventShapeMapTool", "HIEventShapeMapTool", "Handle to Event Shape Map Tool"};
 
   /// \brief Name of input cluster container
   std::string m_input_clusters_key;
@@ -63,10 +65,7 @@ private:
   /// \brief If selected, the jet constituents define the associated clusters
   bool m_exclude_constituents;
 
-  mutable bool m_isInit;
-
   std::string m_modulation_key;
 };
 
 #endif
-  

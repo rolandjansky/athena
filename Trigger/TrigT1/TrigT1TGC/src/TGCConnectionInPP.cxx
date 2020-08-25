@@ -3,9 +3,9 @@
 */
 
 //$Id: TGCConnectionInPP.cxx,v 1.4 2009-03-20 17:48:53 isaya Exp $
-#include "TrigT1TGC/TGCConnectionInPP.hh"
-#include "TrigT1TGC/TGCPatchPanel.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCConnectionInPP.h"
+#include "TrigT1TGC/TGCPatchPanel.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

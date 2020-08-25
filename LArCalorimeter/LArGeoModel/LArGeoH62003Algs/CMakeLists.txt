@@ -1,32 +1,14 @@
-################################################################################
-# Package: LArGeoH62003Algs
-################################################################################
+#Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArGeoH62003Algs )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
-                          PRIVATE
-                          Control/StoreGate
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          GaudiKernel
-                          LArCalorimeter/LArG4/LArG4RunControl
-                          LArCalorimeter/LArGeoModel/LArGeoFcal
-                          LArCalorimeter/LArGeoModel/LArGeoH6Cryostats )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( Eigen )
 find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_component( LArGeoH62003Algs
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelUtilities LArReadoutGeometry StoreGateLib SGtests GaudiKernel LArG4RunControl LArGeoFcal LArGeoH6Cryostats RDBAccessSvcLib )
+                     PRIVATE_INCLUDE_DIRS ${GEOMODELCORE_INCLUDE_DIRS}
+                     PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoModelUtilities LArReadoutGeometry StoreGateLib SGtests GaudiKernel LArG4RunControl LArGeoFcal LArGeoH6Cryostats RDBAccessSvcLib )

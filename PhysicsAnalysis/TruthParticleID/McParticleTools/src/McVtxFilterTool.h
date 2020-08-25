@@ -51,7 +51,7 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -163,7 +163,7 @@ class McVtxFilterTool : virtual public IMcVtxFilterTool,
    *  We ensure the consistency between those 2 entities by defining a callback
    *  function (@setupFilters) to perform the job.
    */
-  void setupFilters( Property& decayPatterns );
+  void setupFilters( Gaudi::Details::PropertyBase& decayPatterns );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

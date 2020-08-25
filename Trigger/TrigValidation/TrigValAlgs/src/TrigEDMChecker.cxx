@@ -988,7 +988,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
   }
 
   for( ; trigMETfirst != trigMETlast ; ++trigMETfirst ){ // loop over TrigMissingET objects
-    std::string name(trigMETfirst.key());
+    const std::string& name(trigMETfirst.key());
     ATH_MSG_INFO("Got TrigMissingET object with key \"" << name << "\"");
 
     std::string s;
@@ -1121,8 +1121,8 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 			/// track vertex position
 			const Trk::VxCandidate * vertex = trackParticle->reconstructedVertex();
 			if ( vertex ) {
-				const Trk::RecVertex vtx = vertex->recVertex();
-				const Amg::Vector3D position = vtx.position();
+				const Trk::RecVertex& vtx = vertex->recVertex();
+				const Amg::Vector3D& position = vtx.position();
 				ATH_MSG_INFO(" vertex position (" << position[0] << ", " <<
                              position[1] << ", " << position[2] << ") ");
 			} else {
@@ -4231,7 +4231,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       // Output my ID in the graph. 
       const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( tc->container() );
       const ElementLink<DecisionContainer> selfEL = ElementLink<DecisionContainer>(*container, tc->index());
-      const std::vector<DecisionID> decisions = tc->decisions();
+      const std::vector<DecisionID>& decisions = tc->decisions();
       const uint32_t selfKey = selfEL.key();
       const uint32_t selfIndex = selfEL.index();
       if (m_dumpNavForChain != "") {
@@ -4421,7 +4421,7 @@ StatusCode TrigEDMChecker::dumpNavigation()
 
   // Find unique chains associated with a feature
   std::map< HLT::TriggerElement const*, std::vector< int > > element2decisions;
-  for ( auto pair : feature2element ) {
+  for ( const auto& pair : feature2element ) {
 
     // Get the feature info
     std::string featureName = testNav->label( pair.first.getCLID(), pair.first.getIndex().subTypeIndex() );
@@ -4457,7 +4457,7 @@ StatusCode TrigEDMChecker::dumpNavigation()
 
   // Store decision ancestry (had to go through once before to ensure indices populated)
   unsigned int decisionCounter = 0;
-  for ( auto pair : feature2element ) {
+  for ( const auto& pair : feature2element ) {
 
     // Get current decision
     auto decision = decisionOutput->at( decisionCounter );

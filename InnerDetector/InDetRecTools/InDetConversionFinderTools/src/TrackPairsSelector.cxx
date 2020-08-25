@@ -11,8 +11,6 @@
 		changes : M.Elsing
 ***************************************************************************/
 #include "InDetConversionFinderTools/TrackPairsSelector.h"
-#include "InDetConversionFinderTools/ConversionFinderUtils.h"
-#include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
@@ -43,27 +41,22 @@ namespace InDet {
                                          const std::string& name,
                                          const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_helpertool("InDet::ConversionFinderUtils")
-    , m_distanceTool(
-        "Trk::SeedNewtonDistanceFinder/InDetConversionTrkDistanceFinder")
     , m_maxR(500.)
     , m_MinTrkAngle(0.)
   {
     m_etaCut.push_back(0.8);
     m_etaCut.push_back(1.2);
     m_etaCut.push_back(1.2);
-    
+
     m_initCut.push_back(10000.);
     m_initCut.push_back(10000.);
     m_initCut.push_back(10000.);
-    
+
     m_maxDist.push_back(8.);
     m_maxDist.push_back(80.);
     m_maxDist.push_back(45.);
 
     declareInterface<TrackPairsSelector>(this);
-    declareProperty("ConversionFinderHelperTool", m_helpertool);
-    declareProperty("DistanceTool"              , m_distanceTool);
     declareProperty("MaxFirstHitRadius"         , m_maxR);
     declareProperty("MaxDistBetweenTracks"      , m_maxDist);
     declareProperty("MaxEta"                    , m_etaCut   );
@@ -86,20 +79,20 @@ namespace InDet {
     if ( m_helpertool.retrieve().isFailure() ) {
       msg(MSG::ERROR) << "Failed to retrieve tool " << m_helpertool << endmsg;
       return StatusCode::FAILURE;
-    } 
+    }
       msg(MSG::INFO) << "Retrieved tool " << m_helpertool << endmsg;
-    
+
 
     /* Get the distance tool from ToolsSvc */
     if(m_distanceTool.retrieve().isFailure()) {
       msg(MSG::ERROR) << "Could not get " << m_distanceTool << endmsg; return StatusCode::FAILURE;
     }
       msg(MSG::INFO) << "Got the distance tool " << m_distanceTool << endmsg;
-    
+
     msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
-  
+
   // -------------------------------------------------------------
   StatusCode TrackPairsSelector::finalize() {
     return StatusCode::SUCCESS;
@@ -118,36 +111,36 @@ namespace InDet {
     const Trk::TrackParameters* perPos = &(trkPpos->perigeeParameters());
     const Trk::TrackParameters* perNeg = &(trkPneg->perigeeParameters());
     if (!(m_helpertool->momFraction(perPos, perNeg))) pass = false;
-    
+
     //Track summary information
-    
-    
+
+
     uint8_t nclusPos(0);
     uint8_t dummy(0);
     if(trkPpos->summaryValue(dummy,xAOD::numberOfSCTHits)){
       nclusPos += dummy;
-    } 
+    }
     if(trkPpos->summaryValue(dummy,xAOD::numberOfPixelHits)){
       nclusPos += dummy;
-    } 
-  
+    }
+
     uint8_t nclusNeg(0);
     if(trkPneg->summaryValue(dummy,xAOD::numberOfSCTHits)){
       nclusNeg += dummy;
-    } 
+    }
     if(trkPneg->summaryValue(dummy,xAOD::numberOfPixelHits)){
       nclusNeg += dummy;
-    } 
-  
-    
+    }
+
+
     int sCase = 100;
     if(nclusNeg>0 && nclusPos>0)                                   sCase = 0;
     if((nclusNeg>0 && nclusPos==0) || (nclusNeg==0 && nclusPos>0)) sCase = 1;
     if(nclusNeg==0 && nclusPos==0)                                 sCase = 2;
-    
+
     //Position of first hit in track particle
-    Trk::CurvilinearParameters parPos; 
-    Trk::CurvilinearParameters parNeg; 
+    Trk::CurvilinearParameters parPos;
+    Trk::CurvilinearParameters parNeg;
 
     int index(-1);
     for(unsigned int i(0); i< trkPpos->numberOfParameters() ; ++i ){
@@ -162,7 +155,7 @@ namespace InDet {
       ATH_MSG_WARNING("Track Particle does not contain first Measurement track parameters");
       return false;
     }
-    
+
     index = -1;
     for(unsigned int i(0); i< trkPneg->numberOfParameters() ; ++i ){
       if( xAOD::FirstMeasurement == trkPneg->parameterPosition(i) ){
@@ -205,10 +198,10 @@ namespace InDet {
     } else if(sCase == 2) {
       dinit = m_initCut[2];
     }
-    
+
     cache.m_deltaInit = fabs(firstRpos - firstRneg);
     if (cache.m_deltaInit > dinit) return false;
-    
+
     //Cut on distance of minimum approach between the two tracks.
     double maxDist = 1000.;
     if(sCase == 0) {
@@ -226,12 +219,12 @@ namespace InDet {
     if (!result) return false;
     cache.m_distance = dist (result.value());
     if (cache.m_distance>maxDist) return false;
-    
+
     //3D angle cut in the case of V0s, not used in the case of conversions
     double d_beta = (perPos->momentum().dot(perNeg->momentum())) /
                     (perPos->momentum().mag() * perNeg->momentum().mag());
     if(d_beta <m_MinTrkAngle) pass = false;
-    
+
     return pass;
   }
 
@@ -246,7 +239,7 @@ namespace InDet {
     const Trk::Perigee* perPos = trkpos->perigeeParameters();
     const Trk::Perigee* perNeg = trkneg->perigeeParameters();
     if (!(m_helpertool->momFraction(perPos, perNeg))) pass = false;
-    
+
     ///Position of initial hit of the two tracks
     double init_pos = 0.; double init_neg = 0.;
     const DataVector<const Trk::MeasurementBase>* mb_pos = trkpos->measurementsOnTrack();
@@ -260,7 +253,7 @@ namespace InDet {
     if (init_neg<=m_maxR && init_pos<=m_maxR)  sCase = 0;
     if ((init_neg<=m_maxR && init_pos>m_maxR) || (init_neg>m_maxR && init_pos<=m_maxR))	sCase = 1;
     if (init_neg>m_maxR && init_pos>m_maxR)	sCase = 2;
-    
+
     //Cut on Deta
     double detaCut = 0.0;
     if(sCase == 0) {
@@ -306,12 +299,12 @@ namespace InDet {
       newDistance = dist (result.value());
       if (newDistance>maxDist) pass = false;
     }
-    
+
     //3D angle cut in the case of V0s, not used in the case of conversions
     double d_beta = (perPos->momentum().dot(perNeg->momentum())) /
                     (perPos->momentum().mag() * perNeg->momentum().mag());
     if(d_beta <m_MinTrkAngle) pass = false;
-    
+
     return pass;
   }
 

@@ -60,8 +60,8 @@ class ITauToolBase : virtual public asg::IAsgTool
 					      xAOD::CaloClusterContainer& caloClusterContainer, 
 					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) const = 0;
   virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) const = 0;  
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) = 0;  
-  virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) = 0;
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) const = 0;  
+  virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const = 0;
   virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& particleContainer) =0;
 
 #ifdef XAOD_ANALYSIS

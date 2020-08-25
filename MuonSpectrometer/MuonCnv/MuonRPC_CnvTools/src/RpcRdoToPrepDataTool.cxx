@@ -2,6 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+/// This code is used in both MT and single-thread
+/// However the MT code uses the const cast in a single-thread
+/// mode by transfering the contents to a thread-safe container
+/// in order to prevent complex adjustments in the core decode functions
 
 #include "RpcRdoToPrepDataTool.h"
 

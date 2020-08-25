@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVERTEXFITTER_TRIGPRIMARYVERTEXFITTER_H
@@ -18,22 +18,13 @@ class TrigPrimaryVertexFitter: public AthAlgTool, virtual public ITrigPrimaryVer
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  virtual TrigVertex* fit(const TrigInDetTrackCollection*, double z=0.0);
-  virtual TrigVertex* fit(const TrigInDetTrackCollection*, std::vector<double>&, double z=0.0);
-
-  virtual TrigVertex* fit(const TrackCollection*, TrackCollection&, double z=0.0);
-  virtual TrigVertex* fit(const TrackCollection*, std::vector<double>&, double z=0.0);
+  virtual TrigVertex* fit(const TrackCollection*, TrackCollection&, double z=0.0) const;
+  virtual TrigVertex* fit(const TrackCollection*, std::vector<double>&, double z=0.0) const;
 private:
-  bool checkTracks(const TrigInDetTrackCollection*);
   int m_numIter;
   double m_zVariance,m_maxChi2Increase, m_chi2cut, m_chi2cut_loose;
   bool m_createTrackLists;
   double m_xyVariance;
-
-#define TRIGVERTEXFIT_NTIMERS 5
-  TrigTimer* m_timer[TRIGVERTEXFIT_NTIMERS];
-  bool m_timers;
-
 };
 
 #endif

@@ -15,6 +15,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequenceSet
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from libpyeformat_helper import SubDetector
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.AlgSequence import dumpSequence
 from AthenaCommon.Logging import logging
 log = logging.getLogger('dataScoutingTest')
@@ -142,7 +143,7 @@ myAllStreams = [
 StreamInfo._all_streams = myAllStreams
 
 # Set trigger flags
-TriggerFlags.triggerMenuSetup = 'LS2_v1'
+ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = 'LS2_v1'
 TriggerFlags.Slices_all_setOff()
 TriggerFlags.EgammaSlice.setAll()
 TriggerFlags.MuonSlice.setAll()

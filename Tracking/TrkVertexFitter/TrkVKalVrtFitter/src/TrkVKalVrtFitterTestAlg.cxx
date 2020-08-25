@@ -62,9 +62,9 @@ std::unique_ptr<AmgSymMatrix(5)> cov5()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Perigee> > PerigeeUVec_t;
+using PerigeeUVec_t = std::vector<std::unique_ptr<Trk::Perigee> >;
 
-typedef std::vector<std::unique_ptr<Trk::NeutralPerigee> > NeutralUVec_t;
+using NeutralUVec_t = std::vector<std::unique_ptr<Trk::NeutralPerigee> >;
 NeutralUVec_t makeNeutrals1()
 {
   Amg::Vector3D pos0 { 0, 0, 0 };
@@ -127,7 +127,7 @@ void setDefiningParameters( xAOD::NeutralParticle& tp,
 }
 
 
-typedef std::vector<std::unique_ptr<xAOD::TrackParticle> > xAODTPUVec_t;
+using xAODTPUVec_t = std::vector<std::unique_ptr<xAOD::TrackParticle> >;
 xAODTPUVec_t makexAODTP (PerigeeUVec_t&& perigees)
 {
   xAODTPUVec_t tracks;
@@ -143,7 +143,7 @@ xAODTPUVec_t makexAODTP (PerigeeUVec_t&& perigees)
 }
 
 
-typedef std::vector<std::unique_ptr<xAOD::NeutralParticle> > xAODNPUVec_t;
+using xAODNPUVec_t = std::vector<std::unique_ptr<xAOD::NeutralParticle> >;
 xAODNPUVec_t makexAODNP (NeutralUVec_t&& perigees)
 {
   xAODNPUVec_t tracks;
@@ -525,7 +525,7 @@ std::unique_ptr<AmgSymMatrix(5)> cov5a()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Perigee> > PerigeeUVec_t;
+using PerigeeUVec_t = std::vector<std::unique_ptr<Trk::Perigee> >;
 PerigeeUVec_t makePerigees2()
 {
   Amg::Vector3D pos1a { 10*mm,   0*mm, -5*mm };

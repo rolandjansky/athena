@@ -55,7 +55,7 @@ StatusCode TauPi0ScoreCalculator::finalize()
 }
 
 
-StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) 
+StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -80,7 +80,7 @@ StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOCo
 }
 
 
-float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
+float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO) const
 {
     std::map<TString, float> availableVariables; // map of the variable name to its value
     

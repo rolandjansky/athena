@@ -17,9 +17,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetConversionFinderTools/InDetConversionFinderTools.h" //why needed?
 #include "AthContainers/DataVector.h"
-#include "xAODTracking/VertexContainerFwd.h"
+#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/WriteDecorHandleKey.h"
@@ -45,17 +44,17 @@
    uksmin < m(pipi) < uksmax or ulamin < m(ppi) < ulamax or ulamin < m(pip) < ulamax
 
    V0s are kept if the cumulative chi2 probability of the unconstrained fit is > minVertProb (= 0.0001)
-  
+
    If doSimpleV0 = True all vertices that pass these cuts are stored in V0UnconstrVertices.
 
    If doSimpleV0 = False (default) mass constrained fits are attempted if
      - the invariant mass of the unconstrained V0 is in the allowed range:
        ksmin < m(pipi) < ksmax, lamin < m(ppi), m(pip) < lamax
        and the error on the invariant mass is < errmass (= 100 MeV)
-     - if an input vertex (collection) is provided the unconstrained V0 is required to 
+     - if an input vertex (collection) is provided the unconstrained V0 is required to
        have an impact parameter w.r.t the vertex < vert_a0xy_cut (= 3 mm) in xy and
        < vert_a0z_cut (= 15 mm) in z, the cosine of the angle between the V0 momentum and
-       the direction from the input vertex to the V0 vertex is > 0, 
+       the direction from the input vertex to the V0 vertex is > 0,
        Lxy w.r.t the vertex is < vert_lxy_cut (= 500 mm) and Lxy/sigma(Lxy) > vert_lxy_sig (= 2)
 
    Mass constrainedV0s are kept if the cumulative chi2 probability of the fit is > minVertProb (= 0.0001)
@@ -108,14 +107,14 @@ namespace InDet
                              xAOD::VertexContainer*& ksContainer, xAOD::VertexAuxContainer*& ksAuxContainer,
                              xAOD::VertexContainer*& laContainer, xAOD::VertexAuxContainer*& laAuxContainer,
                              xAOD::VertexContainer*& lbContainer, xAOD::VertexAuxContainer*& lbAuxContainer,
-                             const xAOD::Vertex* vertex, 
+                             const xAOD::Vertex* vertex,
 			     // AthenaMT migration: passing the vertex collection name at run-time is not supported
 			     SG::ReadHandle<xAOD::VertexContainer> vertColl
 			     );
 
   //protected:
   private:
-    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey { this, "TrackParticleCollection", "InDetTrackParticles", 
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey { this, "TrackParticleCollection", "InDetTrackParticles",
                                                                          "key for retrieval of TrackParticles" };
 
     ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
@@ -165,7 +164,7 @@ namespace InDet
     double        m_vert_lxy_cut;             //!< V0 lxy V0 lxy  (<500.)
     double        m_vert_a0xy_cut;            //!< V0 |a0xy| wrt a vertex (<3.)
     double        m_vert_a0z_cut;             //!< V0 |a0z| wrt a vertex (<15.)
-    
+
     unsigned int  m_events_processed;
     unsigned int  m_V0s_stored;
     unsigned int  m_Kshort_stored;
@@ -191,7 +190,7 @@ namespace InDet
 
     xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
 
-    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices",
 	                                                   "primary vertex container" };
     SG::WriteDecorHandleKey<xAOD::VertexContainer> m_v0LinksDecorkey;
     SG::WriteDecorHandleKey<xAOD::VertexContainer> m_v0_ksLinksDecorkey;
@@ -202,7 +201,7 @@ namespace InDet
     SG::WriteDecorHandleKey<xAOD::VertexContainer> m_mDecor_gmass;
     SG::WriteDecorHandleKey<xAOD::VertexContainer> m_mDecor_gmasserr;
     SG::WriteDecorHandleKey<xAOD::VertexContainer> m_mDecor_gprob;
-    
+
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
 

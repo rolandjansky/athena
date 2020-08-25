@@ -15,6 +15,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "HIJetRec/IHISubtractorTool.h"
 #include "HIJetRec/IHIUEModulatorTool.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -46,9 +47,9 @@ public:
 
 private:
 
-
   ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetClusterSubtractorTool", "Handle to HIJetClusterSubtractorTool" };
   ToolHandle<IHIUEModulatorTool> m_modulatorTool { this, "Modulator" , "HIUEModulatorTool", "Handle to HIUEModulatorTool" };
+  ToolHandle<IHIEventShapeMapTool> m_eventShapeMapTool { this, "EventShapeMapTool", "HIEventShapeMapTool", "Handle to Event Shape Map Tool"};
 
   /// \brief Name of input HIEventShapeContainer
   SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_inputEventShapeKey { this, "InputEventShapeKey", "HIEventShape", "HIEventShape"};

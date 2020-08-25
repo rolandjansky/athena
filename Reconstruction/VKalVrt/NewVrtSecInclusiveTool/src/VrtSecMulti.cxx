@@ -107,14 +107,14 @@ namespace Rec{
                   m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z(),*state); 
               }
           }
-//  std::cout<<"FoundAppVrt="<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<", "<<newvrt.vertex[2]<<'\n';
 	  sc = StatusCode::FAILURE;
           sc=m_fitSvc->VKalVrtFit(xAODwrk->tmpListTracks, neutralPartDummy,
 	                                     newvrt.vertex,     newvrt.vertexMom, newvrt.vertexCharge, newvrt.vertexCov,
                                              newvrt.chi2PerTrk, newvrt.trkAtVrt,  newvrt.chi2,
                                              *state, false);
 
-//  std::cout << "Res="<<newvrt.chi2<<", "<<NPTR<<", "<<newvrt.selTrk[0]<<", "<<newvrt.selTrk[1]<<'\n'; 
+          ATH_MSG_VERBOSE("Found IniVertex="<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<", "<<newvrt.vertex[2]);
+          ATH_MSG_VERBOSE("with Chi2="<<newvrt.chi2<<" Ntrk="<<NPTR<<" trk1,2="<<newvrt.selTrk[0]<<", "<<newvrt.selTrk[1]); 
           if( sc.isFailure() )           continue;   /* Bad fit - goto next solution */
           if(NPTR==2 && newvrt.chi2>10.) continue;   /* Bad 2track vertex */
           if(newvrt.chi2PerTrk.size()==2) newvrt.chi2PerTrk[0]=newvrt.chi2PerTrk[1]=newvrt.chi2/2.;
@@ -181,8 +181,8 @@ namespace Rec{
           vrtWithCommonTrk.emplace(nTCom,std::make_pair(iv,jv));
       } }
       //============================== DEBUG output
-      //printWrkSet(WrkVrtSet,"InitialVrts");
       //for(auto ku : vrtWithCommonTrk)std::cout<<" nCom="<<ku.first<<" v1="<<ku.second.first<<" v2="<<ku.second.second<<'\n';
+      if(msgLvl(MSG::DEBUG))printWrkSet(WrkVrtSet,"Initial Vertices");
       //===========================================
       for(icvrt=vrtWithCommonTrk.rbegin(); icvrt!=vrtWithCommonTrk.rend(); icvrt++){ 
           int nTCom=(*icvrt).first;
@@ -219,8 +219,8 @@ namespace Rec{
       return finalVertices;
     }
     //------
-    //printWrkSet(WrkVrtSet,"Interm");
-    //------
+    if(msgLvl(MSG::DEBUG))printWrkSet(WrkVrtSet,"Intermediate Vertices");
+     //------
     for( auto &tmpV : (*WrkVrtSet) ) tmpV.projectedVrt=MomProjDist(tmpV.vertex, PrimVrt, tmpV.vertexMom );  //Setup ProjectedVrt
 //----------------------------------------------------------------------------
 //             Here we have the overlapping solutions.
@@ -238,9 +238,11 @@ namespace Rec{
 
     state = m_fitSvc->makeState();
     while((foundMaxT=maxOfShared( WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex))>0) {
- //std::cout << "MAX="<<foundMaxT<<", "<<SelectedTrack<<", "<<SelectedVertex<<'\n';
- //std::cout << "VRT="<<minVrtVrtDist( WrkVrtSet, foundV1, foundV2)<<", "<<foundV1<<", "<<foundV2<<'\n';
- //printWrkSet(WrkVrtSet,"Iterat");
+         if(msgLvl(MSG::VERBOSE)) { 
+           printWrkSet(WrkVrtSet,"Iteration");
+           ATH_MSG_VERBOSE("MAX="<<foundMaxT<<", "<<SelectedTrack<<", "<<SelectedVertex<<
+                           "VRT="<<minVrtVrtDist( WrkVrtSet, foundV1, foundV2)<<", "<<foundV1<<", "<<foundV2);
+         }
 
          double foundMinVrtDst = 1000000.;
          if(foundMaxT<m_trackDetachCut) foundMinVrtDst = minVrtVrtDist( WrkVrtSet, foundV1, foundV2);
@@ -391,8 +393,9 @@ namespace Rec{
              if(nth >2)m_hb_sig3DNtr->Fill( signif3D, m_w_1);
           }
 //
-//---  Check V0s and conversions ???
-/*          if(nth==2 && curVrt.vertexCharge==0 && curVrt.detachedTrack<0){
+//---  Check V0s and conversions. Necessity must be checked in physics applications
+#if 0
+          if(nth==2 && curVrt.vertexCharge==0 && curVrt.detachedTrack<0){
              double mass_PiPi =  curVrt.vertexMom.M();  
              double mass_PPi  =  massV0(curVrt.trkAtVrt,m_massP,m_massPi);
              double mass_EE   =  massV0(curVrt.trkAtVrt,m_massE,m_massE);
@@ -403,7 +406,7 @@ namespace Rec{
  	     if( fabs(mass_PPi-m_massLam) <  8.)     continue;
              if( mass_EE < 60. && curVrt.vertex.perp() > 20.) continue;
           }          
-*/
+#endif
 //---
           if(signif3D<m_selVrtSigCut+1.)              continue;      //Main PV-SV distance quality cut 
           if(curVrt.vertex.perp() > m_maxSVRadiusCut) continue;      // Too far from interaction point

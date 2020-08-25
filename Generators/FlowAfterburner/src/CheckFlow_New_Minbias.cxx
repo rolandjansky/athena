@@ -259,7 +259,7 @@ StatusCode CheckFlow_New_Minbias::execute() {
 
   // Iterate over MC particles  We are using the IsGenStable predicate from IsGenStable ifs;
   GenAll ifs;
-  MCParticleCollection particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   CHECK(m_tesIO->getMC(particles, &ifs, m_key));
 
   for (auto pitr: particles) {

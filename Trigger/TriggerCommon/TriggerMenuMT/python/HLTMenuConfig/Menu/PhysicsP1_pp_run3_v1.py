@@ -64,9 +64,9 @@ def addP1Signatures():
         ChainProp(name='HLT_tilecalib_laser_TilePEB_L1CALREQ2', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['RATE:TileCalibration','BW:Detector'])
     ]
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
-          ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
-          ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
-       ChainProp(name='HLT_noalg_idmon_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDMonitoring','express'],groups=['RATE:Monitoring','BW:Detector']),
+        ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup), 
+        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),  
+        ChainProp(name='HLT_noalg_idmon_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDMonitoring','express'],groups=['RATE:Monitoring','BW:Detector']),
         ChainProp(name='HLT_noalg_idmon_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDMonitoring'],groups=['RATE:Monitoring','BW:Detector']),
         ChainProp(name='HLT_noalg_idmon_L1RD0_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['IDMonitoring'],groups=['RATE:Monitoring','BW:Detector']),
 
@@ -81,16 +81,16 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_L1EM20VH',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
         ChainProp(name='HLT_noalg_L1EM22VHI',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
 
-        ChainProp(name='HLT_noalg_L1TAU8',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
+#        ChainProp(name='HLT_noalg_L1TAU8',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
         ChainProp(name='HLT_noalg_L1TAU12',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
-        ChainProp(name='HLT_noalg_L1TAU20',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
+#        ChainProp(name='HLT_noalg_L1TAU20',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
         ChainProp(name='HLT_noalg_L1TAU30',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
         ChainProp(name='HLT_noalg_L1TAU40',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
         ChainProp(name='HLT_noalg_L1TAU60',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),
         ChainProp(name='HLT_noalg_L1TAU12IM',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),        
         ChainProp(name='HLT_noalg_L1TAU20IM',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauStreamersGroup),        
 
-        ChainProp(name='HLT_noalg_L1J12',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
+#        ChainProp(name='HLT_noalg_L1J12',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J15',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J20',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J25',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
@@ -100,7 +100,7 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_L1J75',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J85',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J100',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
-        ChainProp(name='HLT_noalg_L1J120',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
+#        ChainProp(name='HLT_noalg_L1J120',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J400',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         
         ChainProp(name='HLT_noalg_L1XE10',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=METStreamersGroup),
@@ -124,7 +124,7 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_cosmiccalo_L1J30_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_BGRP10', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
+#        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_BGRP10', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
     ]
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
           ChainProp(name='HLT_costmonitor_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),

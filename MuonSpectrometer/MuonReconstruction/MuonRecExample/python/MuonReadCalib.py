@@ -14,5 +14,6 @@ if muonRecFlags.doCSCs():
     CscCalibTool = getPublicTool("CscCalibTool")
 
 if muonRecFlags.doMDTs():
+    from MuonRecExample import MuonAlignConfig
     from MuonCnvExample import MuonCalibConfig
     MuonCalibConfig.setupMdtCondDB()

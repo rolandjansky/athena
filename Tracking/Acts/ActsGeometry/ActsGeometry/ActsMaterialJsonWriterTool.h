@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsMaterialJsonWriterTool.h"

@@ -20,9 +20,20 @@ class LumiCalc:
         # Python file to make updates in working directory
         self.updateScript = 'LumiCalcWorking.py'
         self.recoverScript = 'LumiCalcRecover.py'
+
+        # Prod area
         self.homeDir = '/var/www/lumicalc/'
-        self.htmlDir = self.homeDir + 'LumiBlock/LumiCalc/html/'
-        self.scriptDir = self.homeDir + 'LumiBlock/LumiCalc/share/'
+        self.dev = False
+
+        # Check if we are running as dev
+        if os.environ.get('SERVER_NAME', '') == 'atlas-lumicalc-dev.cern.ch':
+            self.homeDir = '/var/www/lumicalc_dev/'
+            self.dev = True
+
+        self.resultsDir = '/var/www/lumifiles/'
+
+        self.htmlDir = self.homeDir + 'athena/LumiBlock/LumiCalc/html/'
+        self.scriptDir = self.homeDir + 'athena/LumiBlock/LumiCalc/share/'
         self.workdir = os.getcwd()
 
         self.uselar = True
@@ -32,8 +43,7 @@ class LumiCalc:
         
         # Create a new subdirectory for this
         self.subdir = hex(random.randint(0,0xFFFFFF))[2:]
-        #self.workdir = self.homeDir + 'results/' + self.subdir
-        self.workdir = '/tmp/lumifiles/' + self.subdir
+        self.workdir = self.resultsDir + self.subdir
         os.mkdir(self.workdir)
 
         # Open the output file
@@ -215,7 +225,10 @@ class LumiCalc:
         self.f.write( '<p>iLumiCalc '+self.command+'</p>\n' )
 
         #self.cmdstr = os.getcwd()+'/runLumiCalc.sh '+self.command
-        self.cmdstr = self.scriptDir+'runLumiCalc.sh '+self.command
+        if self.dev:
+            self.cmdstr = self.scriptDir+'runLumiCalcDev.sh '+self.command
+        else:
+            self.cmdstr = self.scriptDir+'runLumiCalc.sh '+self.command
 
     def runCommand(self):
         p = subprocess.Popen(self.cmdstr+' > output.txt 2>&1', executable='/bin/bash', cwd=self.workdir, shell=True) 
@@ -545,7 +558,17 @@ class LumiCalc:
         print ('<html><head>')
         print ('<meta http-equiv="Refresh" content="0; url=/results/'+self.subdir+'/'+outfile+'">')
         print ('</head></html>')
-        
+
+    # For debugging, dump all os.environ variables
+    def dumpEnviron(self):
+
+        print ('Content-Type: text/html')
+        print () # Blank line, end of headers
+        print ('<html>')
+        for key in os.environ:
+            print('<p><b>',key,':</b>',os.environ[key],'<p>')
+        print ('</html>')
+
 # Run from command line    
 if __name__ == "__main__":
 

@@ -264,7 +264,9 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
 
     # 2nd step run the trimming alg. We can re-use the original largeR jet since we reassociated the PseudoJet already.
     fatjet_groom = jetToolBuilder(groomedName, ungroomedName)
-    fatjet_rectool = [t for t in finderalg.Tools if t.name() == ungroomedName][0]
+    print (finderalg.Tools)
+    print (ungroomedName)
+    fatjet_rectool = [t for t in finderalg.Tools if t.name().endswith(ungroomedName)][0]
     fatjet_groom.InputPseudoJets = fatjet_rectool.InputPseudoJets # recopy the InputPseudoJets so tools know how to map fastjet constituents with xAOD constituents
     
     

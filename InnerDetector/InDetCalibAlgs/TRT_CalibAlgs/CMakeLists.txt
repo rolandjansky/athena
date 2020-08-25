@@ -41,7 +41,7 @@ atlas_add_component( TRT_CalibAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODEventInfo GaudiKernel TrkToolInterfaces CommissionEvent AthContainers Identifier xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetRawData InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkTrack VxVertex TrkFitterInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODEventInfo GaudiKernel TrkToolInterfaces CommissionEvent AthContainers Identifier xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetRawData InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkTrack VxVertex TrkFitterInterfaces TRT_TrackHoleSearchLib TRT_ElectronPidToolsLib TRT_CalibToolsLib )
 
 # Install files from the package:
 atlas_install_headers( TRT_CalibAlgs )

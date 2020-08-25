@@ -18,23 +18,17 @@
  **
  **************************************************************************/
 
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
-
 #include "TrigEFBMuMuHypo.h"
 
 #include <math.h>
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
 
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
-//#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 class ISvcLocator;
 
@@ -149,12 +143,8 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   ATH_MSG_DEBUG("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));
 
   //  create vector for TrigEFBphys particles
-    // const TrigEFBphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer* trigBphysColl(0);
     
-//  const TrigEFBContainer* trigBphysColl = 0;
-//  const VxContainer* VertexColl;
-
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "EFBMuMuFex");
 
   if ( status != HLT::OK ) {

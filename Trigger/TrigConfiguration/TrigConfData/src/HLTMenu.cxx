@@ -49,7 +49,7 @@ TrigConf::HLTMenu::setSMK(unsigned int smk) {
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::begin() const
 {
-   return {data().get_child("chains"), 0,  [](auto & x){return Chain(x.second);}};
+    return {data().get_child("chains"), 0,  [](auto & x){auto chain = Chain(x.second); chain.setName(x.first); return chain; }};
 }
 
 TrigConf::HLTMenu::const_iterator

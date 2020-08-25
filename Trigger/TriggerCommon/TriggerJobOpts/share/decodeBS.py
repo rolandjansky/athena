@@ -76,15 +76,3 @@ if len(ItemList) == 0:
     ItemList += [ 'xAOD::TrigCompositeAuxContainer#*' ]
 StreamESD.ItemList = list(set(ItemList))
 outSequence += StreamESD
-
-# Set up a temporary workaround for ROOT-10940 / ATR-21753.
-from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
-from xAODCoreCnv.xAODCoreCnvConf import xAODMaker__ROOTHeaderLoaderSvc
-svcMgr += xAODMaker__ROOTHeaderLoaderSvc( 'ROOTHeaderLoaderSvc',
-            HeaderNames = [ 'xAODEgamma/PhotonContainer.h',
-                            'xAODTrigEgamma/TrigPhotonContainer.h',
-                            'xAODMuon/MuonContainer.h',
-                            'xAODTrigMuon/L2StandAloneMuonContainer.h',
-                            'xAODJet/JetContainer.h',
-                            'xAODTau/TauJetContainer.h' ] )
-theApp.CreateSvc += [ 'xAODMaker::ROOTHeaderLoaderSvc/ROOTHeaderLoaderSvc' ]

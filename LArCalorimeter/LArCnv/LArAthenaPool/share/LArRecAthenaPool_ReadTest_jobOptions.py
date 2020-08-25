@@ -52,11 +52,11 @@ theApp.EvtMax = 200
 #--------------------------------------------------------------
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = 2
-#ApplicationMgr.DLLs   += { "LArClusterRec" };
-#ApplicationMgr.DLLs   += { "LArCellRec" };
+#ApplicationMgr.Dlls   += { "LArClusterRec" };
+#ApplicationMgr.Dlls   += { "LArCellRec" };
 
-theApp.DLLs += [ "CaloTools" ]
-theApp.DLLs += [ "CaloRec" ]
+theApp.Dlls += [ "CaloTools" ]
+theApp.Dlls += [ "CaloRec" ]
 
 from CaloIdentifier import SUBCALO
 

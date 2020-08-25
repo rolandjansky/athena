@@ -5,26 +5,25 @@
 #ifndef MUON_MUONCHAMBERHOLERECOVERYTOOL_H
 #define MUON_MUONCHAMBERHOLERECOVERYTOOL_H
 
+#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
 #include "MuonCondData/MdtCondDbData.h"
 #include "TrkTrack/Track.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 
 #include <string>
 #include <set>
@@ -32,15 +31,8 @@
 
 static const InterfaceID IID_MuonChamberHoleRecoveryTool("Muon::MuonChamberHoleRecoveryTool",1,0);
 
-class MsgStream;
-class StoreGateSvc;
-
-class MdtCondDbData;
-class MuonStationIntersectSvc;
-
 namespace Trk {
   class Track;
-  class MagneticFieldProperties;
 }
 
 namespace Muon {
@@ -56,17 +48,10 @@ namespace Muon {
    typedef std::vector< std::pair<int,int> > LayerHoleVec;
 
   public:
-    /** @brief constructor */
     MuonChamberHoleRecoveryTool(const std::string&,const std::string&,const IInterface*);
-
-    /** @brief destructor */
-    virtual ~MuonChamberHoleRecoveryTool ();
+    virtual ~MuonChamberHoleRecoveryTool()=default;
     
-    /** @brief AlgTool initialize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonChamberHoleRecoveryTool; }
@@ -161,23 +146,20 @@ namespace Muon {
     const CscPrepDataCollection* findCscPrdCollection( const Identifier& detElId ) const;
     const TgcPrepDataCollection* findTgcPrdCollection( const Identifier& detElId ) const;
     const RpcPrepDataCollection* findRpcPrdCollection( const Identifier& detElId ) const;
-    // New Small Wheel
     const sTgcPrepDataCollection* findStgcPrdCollection( const Identifier& detElId ) const;
     const MMPrepDataCollection* findMmPrdCollection( const Identifier& detElId ) const;
 
 
-    ServiceHandle<MuonStationIntersectSvc>           m_intersectSvc;      //<! pointer to hole search service
-    ToolHandle<Trk::IExtrapolator>                   m_extrapolator;      //!< extrapolator
-    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator;     //!< IMdtDriftCircleOnTrackCreator full calibration
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_cscRotCreator;     //!< IMuonClusterOnTrackCreator for cscs 
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_clusRotCreator;    //!< IMuonClusterOnTrackCreator for trigger hits
-
-    ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator;     //!< residual pull calculator
+    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc {this, "MuonStationIntersectSvc", "MuonStationIntersectSvc", "pointer to hole search service"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< EDM Helper tool
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;            //!< EDM printer tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface" };
+    
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};
+    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", "IMdtDriftCircleOnTrackCreator full calibration"};
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscRotCreator {this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", "IMuonClusterOnTrackCreator for cscs"};
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusRotCreator {this, "ClusterRotCreator", "Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", "IMuonClusterOnTrackCreator for trigger hits"};
+    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator {this, "PullCalculator", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
 
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
 	"MuonDetectorManager", 
@@ -191,12 +173,12 @@ namespace Muon {
     SG::ReadHandleKey<Muon::MMPrepDataContainer> m_key_mm{this,"MMPrepDataContainer","MM_Measurements","MM PRDs"};
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 
-    bool m_addMeasurements;
-    double m_associationPullCutEta;
-    double m_associationPullCutPhi;
-    bool m_detectBadSort;
+    Gaudi::Property<bool> m_addMeasurements {this, "AddMeasurements", true};
+    Gaudi::Property<bool> m_detectBadSort {this, "DetectBadSorting", false};
 
-    double m_adcCut;
+    Gaudi::Property<double> m_associationPullCutEta {this, "AssociationPullCutEta", 3};
+    Gaudi::Property<double> m_associationPullCutPhi {this, "AssociationPullCutPhi", 10};
+    Gaudi::Property<double> m_adcCut {this, "AdcCut", 50};
   };
 
 }

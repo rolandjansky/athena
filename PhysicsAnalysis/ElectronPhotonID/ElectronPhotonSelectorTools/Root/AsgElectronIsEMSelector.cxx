@@ -24,6 +24,7 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 #include <cstdint>
@@ -172,9 +173,6 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(const std::string& myname) :
 //=============================================================================
 AsgElectronIsEMSelector::~AsgElectronIsEMSelector()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgElectronIsEMSelector finalize()");
-  }
   delete m_rootTool;
 }
 

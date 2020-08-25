@@ -4,10 +4,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import findViewAlgs, checkVDV
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.CFElements import seqOR
 import AthenaCommon.CfgMgr as CfgMgr
+import six
 
 import unittest
 
 class ViewCFTest( unittest.TestCase ):
+    if six.PY2:
+        assertRaisesRegex = unittest.TestCase.assertRaisesRegexp        
+
     def runTest( self ):
 
         topSequence = AlgSequence()
@@ -16,8 +20,12 @@ class ViewCFTest( unittest.TestCase ):
         vdv1 = CfgMgr.AthViews__ViewDataVerifier("vdv1")
         vdv2 = CfgMgr.AthViews__ViewDataVerifier("vdv2")
 
-        # Add an algorithm to a sequence
+        # Test error for empty sequence
         topSequence += seqOR( "makeViewSequence" )
+        with self.assertRaisesRegex( RuntimeError, "Please remove makeViewSequence" ):
+            findViewAlgs( topSequence.getChildren(), {} )
+
+        # Add an algorithm to the sequence
         topSequence.makeViewSequence += evca1
         #topSequence.makeViewSequence += evca2
 
