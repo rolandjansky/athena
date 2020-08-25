@@ -145,14 +145,31 @@ private:
   Gaudi::Property<bool> m_StoreMCSOS{
     this,
     "StoreMCSOS",
-    false,
-    "Store multicomponent state or single state in final trajectory"
+    true,
+    "Store Multicomponent State (preferred if we slim later on) or Single "
+    "state in final trajectory"
   };
 
-  bool m_reintegrateOutliers;
-  bool m_makePerigee;
-  bool m_refitOnMeasurementBase;
-  bool m_doHitSorting;
+  Gaudi::Property<bool> m_reintegrateOutliers{ this,
+                                               "ReintegrateOutliers",
+                                               true,
+                                               "Reintegrate Outliers" };
+
+  Gaudi::Property<bool> m_makePerigee{ this,
+                                       "MakePerigee",
+                                       true,
+                                       "Make Perigee" };
+
+  Gaudi::Property<bool> m_refitOnMeasurementBase{ this,
+                                                  "RefitOnMeasurementBase",
+                                                  true,
+                                                  "Refit On Measurement Base" };
+
+  Gaudi::Property<bool> m_doHitSorting{ this,
+                                        "DoHitSorting",
+                                        true,
+                                        "Do Hit Sorting" };
+
   PropDirection m_directionToPerigee;
   std::unique_ptr<TrkParametersComparisonFunction>
     m_trkParametersComparisonFunction;

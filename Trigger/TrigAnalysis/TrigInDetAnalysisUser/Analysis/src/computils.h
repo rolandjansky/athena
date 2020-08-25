@@ -65,6 +65,9 @@ bool exists( const std::string& filename );
 /// tail of a string 
 std::string tail( std::string s, const std::string& pattern );
 
+/// head of a string 
+std::string head( std::string s, const std::string& pattern );
+
 /// match a file name
 std::string globbed( const std::string& s );
 
@@ -246,17 +249,17 @@ public:
 
   static std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
     
-    std::string _s = s;
-    size_t pos = _s.find(t);
+    std::string sc = s;
+    size_t pos = sc.find(t);
     
     std::vector<std::string> tags;
     
     while ( pos!=std::string::npos ) { 
-      tags.push_back( chop(_s,t) );
-      pos = _s.find(t);
+      tags.push_back( chop(sc,t) );
+      pos = sc.find(t);
     }
     
-    tags.push_back(_s);
+    tags.push_back(sc);
     
     return tags;
   } 
@@ -307,37 +310,49 @@ class Legend {
 
 public:
 
-  Legend() : mleg(0) { }  
+  Legend() : m_leg(0) { } 
 
   Legend(double x1, double x2, double y1, double y2) { 
-    mleg = new TLegend(x1, y1, x2, y2);
-    mleg->SetBorderSize(0);
-    mleg->SetTextFont(42);
-    mleg->SetTextSize(0.04);
-    mleg->SetFillStyle(3000);
-    mleg->SetFillColor(0);
-    mleg->SetLineColor(0);
-  } 
+    m_leg = new TLegend( m_x[0]=x1, m_y[0]=y1, m_x[1]=x2, m_y[1]=y2);
+    m_leg->SetBorderSize(0);
+    m_leg->SetTextFont(42);
+    m_leg->SetTextSize(0.04);
+    m_leg->SetFillStyle(3000);
+    m_leg->SetFillColor(0);
+    m_leg->SetLineColor(0);
+  }
 
 
   // Legend( const Legend& leg ) : mleg((TLegend*)leg.mleg->Clone()) { } 
 
- Legend(const Legend& legend) : mleg(legend.mleg) { } 
+ Legend(const Legend& legend) : m_leg(legend.m_leg) { } 
 
   ~Legend() { } 
 
-  TLegend* legend() { return mleg; } 
+  TLegend* legend() { return m_leg; } 
 
-  TLegend* operator->() { return mleg; }
+  TLegend* operator->() { return m_leg; }
 
   size_t size() const { 
-    if ( mleg ) return mleg->GetNRows();
+    if ( m_leg ) return m_leg->GetNRows();
     else        return 0;
   }  
 
+  double TextSize() const { return m_leg->GetTextSize(); }
+
+  int TextFont() const { return m_leg->GetTextFont(); }
+
+  double height() const { return m_y[1]-m_y[0]; }
+
+  double width() const { return m_x[1]-m_x[0]; }
+
+
 private:
 
-  TLegend* mleg;
+  TLegend* m_leg;
+
+  double m_x[2];
+  double m_y[2];
 
 }; 
 
@@ -510,33 +525,37 @@ public:
       
       if ( mean ) { 
 
-	char _meanref[64];
+	char meanrefc[64];
 	bool displayref = false;
 	if ( meanplotref && href() ) { 
 	  displayref = true;
-	  std::sprintf( _meanref, " <t> = %3.2f #pm %3.2f ms (ref)", href()->GetMean(), href()->GetMeanError() );
+	  std::sprintf( meanrefc, " <t> = %3.2f #pm %3.2f ms (ref)", href()->GetMean(), href()->GetMeanError() );
 	}
 	else { 
-	  std::sprintf( _meanref, "%s", "" );
+	  std::sprintf( meanrefc, "%s", "" );
 	}
 
-	char _mean[64];
-	std::sprintf( _mean, " <t> = %3.2f #pm %3.2f ms", htest()->GetMean(), htest()->GetMeanError() );
+	char meanc[64];
+	std::sprintf( meanc, " <t> = %3.2f #pm %3.2f ms", htest()->GetMean(), htest()->GetMeanError() );
 	
-	std::cout << "alg: " << m_plotfilename << " " << _mean << "\tref: " << _meanref << std::endl;
+	std::cout << "alg: " << m_plotfilename << " " << meanc << "\tref: " << meanrefc << std::endl;
 
-	std::string rkey = key;
 	
+	std::string dkey = key;
+	if ( dkey.find( "TIME_" )!=std::string::npos ) dkey.erase( dkey.find( "TIME_" ), 5 );
+	
+	std::string rkey = dkey;
+
 	if ( LINEF || leg.size() < m_max_entries ) { 
-	  key += std::string(" : ");
-	  leg->AddEntry( htest(), key.c_str(), "p" );
-	  leg->AddEntry( hnull, _mean, "p" );
+	  dkey += std::string(" : ");
+	  leg->AddEntry( htest(), (dkey+meanc).c_str(), "p" );
+	  //  leg->AddEntry( hnull, meanc, "p" ); // leave this commented until we decide we really want to go with one line 
 	  
 	  if ( displayref ) { 
 	    rkey += std::string(" : ");
 	    leg->AddEntry( hnull, "", "l" );
-	    leg->AddEntry( href(), rkey.c_str(), "l" );
-	    leg->AddEntry( hnull, _meanref, "l" );
+	    leg->AddEntry( href(), (rkey+meanrefc).c_str(), "l" );
+	    //  leg->AddEntry( hnull, meanrefc, "l" );  // leave this commented until we decide we really want to go with one line 
 	  }
 	}
 

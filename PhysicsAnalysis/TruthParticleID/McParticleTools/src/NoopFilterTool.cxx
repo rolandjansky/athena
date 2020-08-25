@@ -12,7 +12,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenInteracting.h"

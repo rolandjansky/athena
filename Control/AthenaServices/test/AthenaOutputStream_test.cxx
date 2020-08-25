@@ -29,6 +29,7 @@
 
 #include "../src/AthenaOutputStream.h"
 #include "../src/SelectionVetoes.h"
+#include "../src/CompressionInfo.h"
 #include "TInterpreter.h"
 
 using std::cerr;
@@ -87,6 +88,18 @@ int main() {
   assert( (pStore->record(std::move(baz), "sei")).isSuccess() );
   assert( (pStore->record(std::move(bazaux), "seiAux.")).isSuccess() );
   
+  auto baz4lfc = std::make_unique<Baz>();
+  auto bazaux4lfc = std::make_unique<BazAuxContainer>();
+  baz4lfc->setStore (bazaux4lfc.get());
+  SG::AuxElement::Accessor<float> foo ("foo");
+  SG::AuxElement::Accessor<double> bar ("bar");
+  SG::AuxElement::Accessor<std::vector<float>> zzz ("zzz");
+  foo (*baz4lfc);
+  bar (*baz4lfc);
+  zzz (*baz4lfc);
+  assert( (pStore->record(std::move(baz4lfc), "comp")).isSuccess() );
+  assert( (pStore->record(std::move(bazaux4lfc), "compAux.")).isSuccess() );
+
   AthenaOutputStream* pStream(dynamic_cast<AthenaOutputStream*>(pAlg));
   assert( pStream );
 
@@ -97,7 +110,7 @@ int main() {
   //    pStream->selectedObjects()->begin() <<endl;
   // verify that we got the right objects in the list
   //  this of course depends on AthenaOutputStream_test.txt
-  assert( 8 == (pStream->selectedObjects()->end() - 
+  assert( 10 == (pStream->selectedObjects()->end() -
   		pStream->selectedObjects()->begin()) );
 
   for (DataObject* obj : *pStream->selectedObjects()) {
@@ -109,13 +122,22 @@ int main() {
 
   const SG::SelectionVetoes* selvetoes = nullptr;
   assert (pStore->retrieve (selvetoes, "SelectionVetoes_AthenaOutputStream").isSuccess());
-  assert (selvetoes->size() == 1);
+  assert (selvetoes->size() == 2);
   auto it = selvetoes->find("sei");
   assert (it != selvetoes->end());
   assert (!it->second.test (aaa.auxid()));
   assert ( it->second.test (bbb.auxid()));
   assert (!it->second.test (ccc.auxid()));
-  
+
+  const SG::CompressionInfo* compInfo = nullptr;
+  assert (pStore->retrieve (compInfo, "CompressionInfo_AthenaOutputStream").isSuccess());
+  assert (compInfo->size() == 2); // 2 levels of compression as high/low
+  auto val = compInfo->find("comp");
+  assert (val != compInfo->end());
+  assert (val->second.at(10).test(foo.auxid()));  // compress foo high
+  assert (!val->second.at(10).test(bar.auxid())); // don't compress bar since it's double
+  assert (val->second.at(16).test(zzz.auxid()));  // compress zzz low
+
   pStream->clearSelection();
   assert( 0 == (pStream->selectedObjects()->end() - 
 		pStream->selectedObjects()->begin()) );

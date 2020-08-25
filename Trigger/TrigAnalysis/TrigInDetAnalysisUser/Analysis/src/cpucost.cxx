@@ -42,13 +42,15 @@ int usage(const std::string& name, int status) {
   s << "Usage: " << name << " [OPTIONS] expert-monitoring.root reference.root algorithm1 algorithm2 algorithm3 ...\n\n";
   s << "  TIDA \'" << name << "\' extracts timing histograms\n\n";
   s << "Options: \n";
-  s << "    -o,  --outputfolder value\t puts output in folder 'value' making it if it doesn't exist, \n";
-  s << "    -t,  --tag value         \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value         \t prepends key 'value' to the front of output plot names, \n";
+  s << "    -o,  --outputfolder value\t puts output in folder 'value' making it if it doesn't exist, \n\n";
+  s << "    -t,  --tag       value   \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key       value   \t prepends key 'value' to the front of output plot names, \n\n";
   s << "    -a,  --auto              \t process all histograms that are in the file, \n";
   s << "    -d,  --directory value   \t if auto is set, search only in specifed directory, \n";
-  s << "    -p,  --pattern value     \t if auto is set, search for histograms containing this string, \n";
-  s << "    -nr, --noref             \t do not use a reference file, \n";
+  s << "      ,  --nodir             \t do not print the directory name on the plot,\n";
+  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
+  s << "    -nr, --noref             \t do not use a reference file, \n\n";
+  s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
   s << "    -v,  --verbose           \t verbose output\n";
   s << "    -h,  --help              \t this help\n";
   s << std::endl;
@@ -74,7 +76,7 @@ int main(int argc, char** argv) {
 
   if (argc < 4) { return usage(argv[0], -1); }
 
-  std::string dir = "";
+  std::string output_dir = "";
   std::string tag = "";
   std::string key = "";
 
@@ -111,6 +113,10 @@ int main(int argc, char** argv) {
 
   std::string frefname = "";
 
+  double xoffset = 0.17;
+
+  bool show_directory = true;
+
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -120,7 +126,11 @@ int main(int argc, char** argv) {
       return usage(argv[0], 0);
     }
     else if (arg == "-o" || arg == "--outputfolder") {
-      if (++argnum < argc) { dir = argv[argnum]; } 
+      if (++argnum < argc) { output_dir = argv[argnum]; } 
+      else { return usage(argv[0], -1); }
+    }
+    else if (arg == "-x" || arg == "--xoffset") {
+      if (++argnum < argc) { xoffset = std::atof(argv[argnum]); } 
       else { return usage(argv[0], -1); }
     }
     else if (arg == "-t" || arg == "--tag") {
@@ -136,6 +146,9 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-a" || arg == "--auto") {
       autochains = true;
+    }
+    else if (arg == "--nodir") {
+      show_directory = false;
     }
     else if (arg == "-v" || arg == "--verbose") {
       verbose = true;
@@ -221,12 +234,12 @@ int main(int argc, char** argv) {
 
 
   // Make output directory
-  if ( dir != "" ) {
-    if ( mkdir( dir.c_str(), 0777 ) ) { 
-      if ( exists(dir) ) std::cerr << "main() directory " << dir << " aleady exists" << std::endl; 
-      else               std::cerr << "main() could not create directory " << dir << std::endl; 
+  if ( output_dir != "" ) {
+    if ( mkdir( output_dir.c_str(), 0777 ) ) { 
+      if ( exists(output_dir) ) std::cerr << "main() directory " << output_dir << " aleady exists" << std::endl; 
+      else               std::cerr << "main() could not create directory " << output_dir << std::endl; 
     }
-    dir += "/";
+    output_dir += "/";
   }
 
 #if 0
@@ -285,10 +298,10 @@ int main(int argc, char** argv) {
       TCanvas* c1 = new TCanvas( label("canvas-%d",int(histogram)).c_str(), "histogram", 800, 600 );
       c1->cd();
             
-      double x1 = 0.17;
-      double x2 = 0.25;
-      double y1 = 0.69;
-      double y2 = 0.90;
+      double x1 = xoffset;
+      double x2 = xoffset+0.25;
+      double y1 = 0.80;
+      double y2 = 0.87;
 
       /// adjust the legend if no reference times are to be plotted
       if ( noref ) y1 = y2-0.5*(y2-y1);
@@ -314,6 +327,8 @@ int main(int argc, char** argv) {
         continue;
       }
       
+      /// skip TH2 and TProfiles for the moment ... 
+      if ( std::string(testhist->ClassName()).find("TH1")==std::string::npos ) continue; 
       
       testhist->SetName( tail(algorithms[algorithm],"/").c_str() );
       testhist->Write(); 
@@ -338,6 +353,10 @@ int main(int argc, char** argv) {
       Plots plots;
 
       std::string algname = tail(algorithms[algorithm], "/" );
+      std::string dirname = tail( head(algorithms[algorithm], "/" ), "/" );
+      std::string algpname = algorithms[algorithm];
+      replace( algpname, "/", "_" );
+
       if ( algname.find("h_")==0 ) algname.erase(0, 2);
     
       //      size_t indetpos = algname.find("InDet");
@@ -345,11 +364,11 @@ int main(int argc, char** argv) {
 
       plots.push_back( Plotter( testhist, refhist, " "+algname ) );
 
-      std::string plotname = dir + key + algname + tag;
+      std::string plotname = output_dir + key + algpname + tag;
       //                              histograms.at(histogram).fname + tag;
 
 
-      std::cout << "dir " << dir << "\tkey " << key << "\talgname " << algname << "\ttag " << tag << std::endl;  
+      std::cout << "output dir " << output_dir << "\tkey " << key << "\talgname " << algname << "\ttag " << tag << std::endl;  
 
       //      std::cout << "testhist " << testhist << " " << refhist << std::endl;
 
@@ -357,40 +376,39 @@ int main(int argc, char** argv) {
       std::vector<std::string> chains;
       chains.push_back( algname + tag );
 
-      bool _ylog = ylog;
+      bool ylogt = ylog;
       
       double Nent     = plotable( testhist );
       double Nent_ref = plotable( refhist ); 
      
-      if ( fractional ) _ylog = false;
+      if ( fractional ) ylogt = false;
 
       if ( Nent==0 || Nent_ref==0 ) { 
-	_ylog = false;
+	ylogt = false;
 	std::cerr << "histograms empty: " << testhist->GetName() << std::endl;
 	continue;
       }
 
 
-      //      if ( ylog || histograms.at(histogram).fname == "_TotalTime") {
-        testhist->SetTitle("");
-        refhist->SetTitle("");
-	//    c1->SetLogy(true);
-	// plots.xrange();
-	//        plots.Max(5);
-
-        plots.SetLogy(_ylog);
+      testhist->SetTitle("");
+      refhist->SetTitle("");
 
 
-	double rmin = plots.realmin();
-	double rmax = plots.realmax();
+      plots.SetLogy(ylogt);
+
+      double rmin = plots.realmin();
+      double rmax = plots.realmax();
+      
+      if ( rmin == rmax ) rmin = 0;
 	
-	if ( _ylog ) { 
+      if ( ylogt ) { 
+	  if ( rmin == 0 ) rmin = rmax*0.0001; 
 	  double delta = std::log10(rmax)-std::log10(rmin);
-	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1)) );
-	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size())) );
+	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1.5)) );
+	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+0.5)) );
 	  plots.Min( rmin*std::pow(10,-delta*0.1) );
-	}
-	else { 
+      }
+      else { 
 	  double delta = rmax-rmin;
 	  plots.Max( rmax+delta*0.1*2*chains.size() );
 
@@ -398,15 +416,20 @@ int main(int argc, char** argv) {
 	  if ( pmin>0 ) plots.Min( pmin );
 	  else          plots.Min( 0 );
 	  
-	}
+      }
 	
-	//      }
-	//      else {
-	//	plots.SetLogy(false);
-	//        c1->SetLogy(false);
-	//   }
+      std::vector<double> range = plots.findxrange();
+
+      double upper = ( range[1]-range[0] )*1.1 + range[0];
+      double lower = range[0] - ( range[1]-range[0] )*0.1; 
+      
+      if ( lower<0 ) lower = 0;
+      
+      plots.SetRangeUser( lower, upper );
 
       plots.Draw( legend, true );
+
+      if ( show_directory ) DrawLabel( x1+0.01, y2+0.03, dirname, kBlack, legend.TextSize(), legend.TextFont() );
 
       plots.back().Print( (plotname+".pdf").c_str() );
       if ( !nopng ) plots.back().Print( (plotname+".png").c_str() );

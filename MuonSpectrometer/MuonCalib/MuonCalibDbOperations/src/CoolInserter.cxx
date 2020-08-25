@@ -46,7 +46,6 @@ CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : 
   declareProperty("RtFolder", m_rt_folder);
   declareProperty("T0FolderCompress", m_compressed_t0);
   declareProperty("RtFolderCompress", m_compressed_rt);
-  declareProperty("CalibrationSources", m_calibration_sources);
   m_n_tubes_chamber=0;
   m_n_tubes_added=0;
   m_iovt_start=0;

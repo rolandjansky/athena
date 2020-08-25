@@ -165,17 +165,17 @@ def EFMuonMonConfig(helper):
 
 
         # EFCB vs. OfflineCB muons
-        histGroup.defineHistogram(GroupName+'_EFCB_Pt,'+GroupName+'_OfflineCB_Pt;EFCB_OfflineCB_PtCor',
+        histGroup.defineHistogram(GroupName+'_OfflineCB_Pt,'+GroupName+'_MatchedEFCB_Pt;EFCB_OfflineCB_PtCor',
                                   title='PtCor EFCB OfflineCB '+chain+';OfflineCB p_{T} [GeV];EFCB p_{T} [GeV];',
                                   cutmask=GroupName+'_matchedEFCB',
                                   type='TH2F', path='',xbins=210,xmin=-105.,xmax=105., ybins=210,ymin=-105.,ymax=105.)
 
-        histGroup.defineHistogram(GroupName+'_EFCB_Phi,'+GroupName+'_OfflineCB_Phi;EFCB_OfflineCB_PhiCor',
+        histGroup.defineHistogram(GroupName+'_OfflineCB_Phi,'+GroupName+'_MatchedEFCB_Phi;EFCB_OfflineCB_PhiCor',
                                   title='PhiCor EFCB OfflineCB '+chain+';OfflineCB #phi;EFCB #phi;',
                                   cutmask=GroupName+'_matchedEFCB',
                                   type='TH2F', path='',xbins=96,xmin=-ROOT.TMath.Pi(),xmax=ROOT.TMath.Pi(), ybins=96,ymin=-ROOT.TMath.Pi(),ymax=ROOT.TMath.Pi())
 
-        histGroup.defineHistogram(GroupName+'_EFCB_Eta,'+GroupName+'_OfflineCB_Eta;EFCB_OfflineCB_EtaCor',
+        histGroup.defineHistogram(GroupName+'_OfflineCB_Eta,'+GroupName+'_MatchedEFCB_Eta;EFCB_OfflineCB_EtaCor',
                                   title='EtaCor EFCB OfflineCB '+chain+';OfflineCB #eta;EFCB #eta;',
                                   cutmask=GroupName+'_matchedEFCB',
                                   type='TH2F', path='',xbins=108,xmin=-2.7,xmax=2.7, ybins=108,ymin=-2.7,ymax=2.7)

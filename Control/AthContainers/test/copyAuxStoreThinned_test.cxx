@@ -17,6 +17,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/PackedContainer.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
+#include "CxxUtils/FloatCompressor.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -58,7 +59,7 @@ void compare (const SG::PackedParameters& a,
   assert (a.scale() == b.scale());
 }
 
-              
+
 void compare (const SG::AuxStoreInternal& a,
               const SG::AuxStoreInternal& b,
               bool thinned = false,
@@ -173,10 +174,112 @@ void test1()
   src.suppress (ftyp);
   copyAuxStoreThinned (src, dst2, &info);
   compare (src, dst2, true, ftyp);
+
+}
+
+void test2()
+{
+  std::cout << std::endl;
+  std::cout << "Testing lossy float compression..." << std::endl;
+  std::cout << std::endl;
+
+  // Prepare the necessary bits and pieces
+  SG::ThinningDecisionBase dec;
+  SG::ThinningInfo info;
+  info.m_decision = &dec;
+  dec.resize (5);
+  dec.buildIndexMap();
+  AuxStoreTest src;
+
+  // We want two types: float and std::vector<float>
+  SG::auxid_t ftyp = SG::AuxTypeRegistry::instance().getAuxID<float> ("aFloat");
+  SG::auxid_t fvtyp = SG::AuxTypeRegistry::instance().getAuxID<std::vector<float>> ("aVecFloat");
+
+  // Get a handle on the underlying data
+  float* fptr = reinterpret_cast<float*> (src.getData (ftyp, 5, 5));
+  std::vector<float>* fvptr = reinterpret_cast<std::vector<float>*> (src.getData (fvtyp, 5, 5));
+
+  // Fill some random valus
+  for (int i=0; i < 5; i++) {
+    fptr[i] = i + 0.512345;
+    fvptr[i].push_back(i + 0.512345);
+    fvptr[i].push_back(i*2 + 0.123456);
+  }
+
+
+  // Compress the values w/ nmantissa bits
+  const unsigned int nmantissa = 7;
+  info.m_compression[nmantissa].insert(ftyp);
+  info.m_compression[nmantissa].insert(fvtyp);
+  SG::AuxStoreInternal dst1;
+  copyAuxStoreThinned (src, dst1, &info);
+
+  // Retrieve the compressed values
+  float* rfptr = reinterpret_cast<float*> (dst1.getData (ftyp, 5, 5));
+  std::vector<float>* rfvptr = reinterpret_cast<std::vector<float>*> (dst1.getData (fvtyp, 5, 5));
+
+  // Instentiate a new compressor and check against the result
+  const CxxUtils::FloatCompressor fc( nmantissa );
+  CxxUtils::FloatCompressor::floatint_t uni;
+  uint32_t result{0};
+
+  // Helper to print int in binary w/ a nicer format
+  auto intToBinStr = [] (uint32_t val)
+  {
+    std::string s = std::bitset<32>(val).to_string();
+    return (s.substr(0,1) + " " + s.substr(1,8) + " " + s.substr(9,32));
+  };
+
+  // Check the compresion results
+  for (int i = 0; i < 5; i++) {
+    std::cout << "Iteration [" << i << "]" << std::endl;
+    std::cout << std::endl;
+
+    // Testing float
+
+    // Print the original value
+    uni.fvalue = fptr[i];
+    std::cout << "Original value    " << std::dec << std::setw( 15 ) << uni.fvalue
+              << " (binary : " << intToBinStr(uni.ivalue) << ")" << std::endl;
+    // Print the compressed value
+    uni.fvalue = rfptr[i];
+    std::cout << "Compressed value  " << std::dec << std::setw( 15 ) << uni.fvalue
+              << " (binary : " << intToBinStr(uni.ivalue) << ")" << std::endl;
+    result = uni.ivalue;
+    // Check against by-hand compression
+    uni.fvalue = fc.reduceFloatPrecision( fptr[i] );
+    assert( result == uni.ivalue );
+
+    // Testing std::vector<float>
+
+    std::vector<float>* invec = fvptr + i;
+    std::vector<float>* outvec = rfvptr + i;
+    assert(invec != nullptr && outvec != nullptr);
+    assert(invec->size() == 2 && outvec->size() == 2);
+
+    for(int j = 0; j < 2; j++) {
+      // Print the original value
+      uni.fvalue = invec->at(j);
+      std::cout << "Original value at [" << j << "]    " << std::dec << std::setw( 8 ) << uni.fvalue
+                << " (binary : " << intToBinStr(uni.ivalue) << ")" << std::endl;
+      // Print the compressed value
+      uni.fvalue = outvec->at(j);
+      std::cout << "Compressed value at [" << j << "]  " << std::dec << std::setw( 8 ) << uni.fvalue
+                << " (binary : " << intToBinStr(uni.ivalue) << ")" << std::endl;
+      result = uni.ivalue;
+      // Check against by-hand compression
+      uni.fvalue = fc.reduceFloatPrecision( invec->at(j) );
+      assert( result == uni.ivalue );
+    }
+
+    std::cout << std::endl;
+  }
+
 }
 
 int main()
 {
   test1();
+  test2();
   return 0;
 }

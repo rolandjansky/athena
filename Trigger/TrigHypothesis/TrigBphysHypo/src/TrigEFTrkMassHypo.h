@@ -7,7 +7,6 @@
 #define TRIGEFTRKMASSHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "Constants.h"
 
 class TriggerElement;
 

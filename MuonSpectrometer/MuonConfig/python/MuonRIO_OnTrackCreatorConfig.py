@@ -104,6 +104,9 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
             kwargs.setdefault("UseLooseErrors", flags.Muon.useLooseErrorTuning)  # LooseErrors on data                          
     
     kwargs.setdefault("IsMC", flags.Input.isMC)
+
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("doMDT", False)
                  
     result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, **kwargs),primary=True)
     return result

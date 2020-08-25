@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ namespace Trk {
 
     /** @brief make a screen output of the trajectory contents. Uses the
         AtlasIdHelper to print the hit type in readable form. */
-    void                 dumpTrajectory             (const Trajectory&, const std::string) const;
+    void                 dumpTrajectory             (const Trajectory&, const std::string&) const;
 
     /** @brief set the detector/measurement types of each state.
         Needs an AtlasIdHelper */

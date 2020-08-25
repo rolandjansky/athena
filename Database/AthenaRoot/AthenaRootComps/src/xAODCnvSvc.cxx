@@ -19,7 +19,7 @@
 // FrameWork includes
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/IRegistry.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // ROOT includes
 #include "TFile.h"

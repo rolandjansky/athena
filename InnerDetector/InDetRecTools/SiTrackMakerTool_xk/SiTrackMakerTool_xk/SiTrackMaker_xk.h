@@ -22,6 +22,7 @@
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -35,6 +36,7 @@
 #include <iosfwd>
 #include <list>
 #include <vector>
+#include <mutex>
 
 class MsgStream;
 
@@ -169,6 +171,57 @@ namespace InDet{
       Trk::MagneticFieldMode m_fieldModeEnum{Trk::FullField};
       //@}
 
+      ///////////////////////////////////////////////////////////////////             
+      // Counters                                                                     
+      /////////////////////////////////////////////////////////////////////       
+
+      mutable std::mutex            m_counterMutex;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalInputSeeds        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalUsedSeeds        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalNoTrackPar        ATLAS_THREAD_SAFE; 
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalBremSeeds        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_twoClusters           ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongRoad        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongInit        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_noTrack        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_notNewTrack        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_bremAttempt        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_outputTracks        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_extraTracks        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_bremTracks        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_seedsWithTrack        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_deSize        ATLAS_THREAD_SAFE;
+
+      mutable std::vector<std::vector<double>>     m_usedSeedsEta          ATLAS_THREAD_SAFE;
+      mutable std::vector<std::vector<double>>     m_seedsWithTracksEta    ATLAS_THREAD_SAFE;
+
+      enum statAllTypes  {
+        kTotalInputSeeds,
+        kTotalUsedSeeds,
+        kTotalNoTrackPar,
+        kTotalBremSeeds,
+        kTwoClusters,
+        kWrongInit,
+        kWrongRoad,
+        kNoTrack,
+        kNotNewTrack,
+        kBremAttempt,
+        kOutputTracks,
+        kExtraTracks,
+        kBremTracks,
+        kDESize,
+        kSeedsWithTracks
+      }; 
+
+      enum kNStatEtaTypes  {
+        kUsedSeedsEta,
+        kSeedsWithTracksEta
+      };
+ 
+      std::vector<statAllTypes> m_indexToEnum {kTwoClusters,kWrongInit,kWrongRoad,kNoTrack,kNotNewTrack,kBremAttempt};
+ 
+      //mutable std::vector<
+ 
       ///////////////////////////////////////////////////////////////////
       // Methods 
       ///////////////////////////////////////////////////////////////////
@@ -191,12 +244,15 @@ namespace InDet{
       void detectorElementsSelection(SiTrackMakerEventData_xk& data,
                                      std::list<const InDetDD::SiDetectorElement*>& DE) const;
       bool newSeed(SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const;
+      int  kindSeed(const std::vector<const Trk::SpacePoint*>& Sp)  const;
+      int  rapidity(const std::vector<const Trk::SpacePoint*>& Sp) const;
       bool isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
       bool isCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isHadCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isDBMSeeds(const Trk::SpacePoint* s) const;
       void clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
 
+      MsgStream& dumpStatistics(MsgStream &out) const; 
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) const;
     };

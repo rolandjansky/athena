@@ -62,6 +62,19 @@ find_package( AtlasCMake QUIET )
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
+# Turn on HIP as a compiler, if it's available.
+find_package( AtlasHIP )
+if( AtlasHIP_FOUND )
+   # It's pretty bad if we don't find the code even, but let's be ready for
+   # it... And now let's check whether HIP can be used as a compiler.
+   include( AtlasCheckLanguage )
+   atlas_check_language( HIP )
+   if( CMAKE_HIP_COMPILER )
+      # If so, let's enable it.
+      enable_language( HIP )
+   endif()
+endif()
+
 # Find some auxiliary packages:
 find_package( Doxygen )
 find_package( PNG )

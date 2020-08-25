@@ -525,9 +525,9 @@ StatusCode CosmicGenerator::callGenerator() {
       // m_pdgCode.push_back(charge*13);
       m_pdgCode.push_back(charge*-13);
 
-      const HepPDT::ParticleData* particle = particleData(abs(m_pdgCode.back()));
+      const HepPDT::ParticleData* particle = particleData(std::abs(m_pdgCode.back()));
       if (particle==nullptr){
-        ATH_MSG_FATAL( "Particle with PDG ID=" << abs(m_pdgCode.back()) << " returned a nullptr" );
+        ATH_MSG_FATAL( "Particle with PDG ID=" << std::abs(m_pdgCode.back()) << " returned a nullptr" );
         return StatusCode::FAILURE;
       }
 

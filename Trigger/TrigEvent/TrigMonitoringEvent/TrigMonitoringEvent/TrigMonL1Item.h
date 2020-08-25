@@ -36,7 +36,7 @@ class TrigMonL1Item
   
   TrigMonL1Item();
   explicit TrigMonL1Item(uint16_t encoded);
-  ~TrigMonL1Item() {}
+  ~TrigMonL1Item() = default;
   
   void setCtpId(unsigned int ctpid);
   void addDecision(Decision value);

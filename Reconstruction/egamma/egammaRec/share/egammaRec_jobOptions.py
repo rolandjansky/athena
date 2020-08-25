@@ -10,6 +10,7 @@ topSequence = AlgSequence()
 jobproperties.egammaRecFlags.print_JobProperties("full")
 
 # The simple cases where we can disable a flag
+
 # Truth
 if not rec.doTruth():
     jobproperties.egammaRecFlags.doEgammaTruthAssociation = False
@@ -19,11 +20,11 @@ if not DetFlags.detdescr.ID_on():
     jobproperties.egammaRecFlags.doBremFinding = False
     jobproperties.egammaRecFlags.doVertexBuilding = False
 
-# We can not run Forward without having the TopoClusters
+# We can not run without having the Calo
 if not (rec.readESD() or jobproperties.CaloRecFlags.doCaloTopoCluster()):
+    jobproperties.egammaRecFlags.doEgammaCaloSeeded = False
     jobproperties.egammaRecFlags.doEgammaForwardSeeded = False
 
-# Helper Functions
 
 # Function to schedule the GSF
 
@@ -32,7 +33,7 @@ def setupGSF():
     try:
         from egammaAlgs.egammaSelectedTrackCopy import (
             egammaSelectedTrackCopy)
-        egammaSelectedTrackCopy(doPrint=True)
+        egammaSelectedTrackCopy(doPrint=False)
     except Exception:
         treatException(
             "Could not set up the egamma track Selection for GSF."
@@ -41,7 +42,7 @@ def setupGSF():
     try:
         from egammaAlgs.EMBremCollectionBuilder import (
             EMBremCollectionBuilder)
-        EMBremCollectionBuilder(doPrint=True)
+        EMBremCollectionBuilder(doPrint=False)
     except Exception:
         treatException(
             "Could not set up EMBremCollectionBuilder."
@@ -50,7 +51,7 @@ def setupGSF():
     try:
         from egammaAlgs.EMGSFCaloExtensionBuilder import (
             EMGSFCaloExtensionBuilder)
-        EMGSFCaloExtensionBuilder(doPrint=True)
+        EMGSFCaloExtensionBuilder(doPrint=False)
     except Exception:
         treatException("Could not set up EMGSFCaloExtensionBuilder.")
 
@@ -61,7 +62,7 @@ def setupVertices():
     # Conversion vertex builder can not run in the default mode without GSF
     try:
         from egammaAlgs.EMVertexBuilder import EMVertexBuilder
-        EMVertexBuilder(doPrint=True)
+        EMVertexBuilder(doPrint=False)
     except Exception:
         treatException(
             "Could not set up the conversion vertex building."
@@ -80,19 +81,6 @@ def setupTopoSeededEgamma():
         # If we wanted Topo based cluster seeded egamma it just failed
         jobproperties.egammaRecFlags.doEgammaCaloSeeded = False
         topoEgammaGetter(disable=True)
-
-
-# Function to schedule the SW seeded egamma
-# Only if we do not do topo seeded
-def setupSWSeededEgamma():
-    try:
-        from egammaRec.egammaGetter import egammaGetter
-        egammaGetter(ignoreExistingDataObject=True)
-    except Exception:
-        treatException("Could not set up egammaGetter. Switch it off !")
-        # If we wanted SW based cluster seeded egamma it just failed
-        jobproperties.egammaRecFlags.doEgammaCaloSeeded = False
-        egammaGetter(disable=True)
 
 # Function to schedule the  Fwd egamma
 
@@ -122,25 +110,15 @@ def setupTruthAssociation():
 
 
 # Do the actual scheduling
+
 if jobproperties.egammaRecFlags.doBremFinding():
     setupGSF()
+
 if jobproperties.egammaRecFlags.doVertexBuilding():
     setupVertices()
-# Calo seeded egamma
-# Either we can do TopoSeeded superClusters
-# Or we can do SW seeded
-# Or we can do nothing (i.e no ESD nor CaloTopo nor LarEM clusters)
+
 if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
-    if (jobproperties.egammaRecFlags.doSuperclusters()
-            and (jobproperties.CaloRecFlags.doCaloTopoCluster()
-                 or rec.readESD())):
-        setupTopoSeededEgamma()
-    elif (not jobproperties.egammaRecFlags.doSuperclusters()
-          and (jobproperties.CaloRecFlags.doEmCluster()
-               or rec.readESD())):
-        setupSWSeededEgamma()
-    else:
-        jobproperties.egammaRecFlags.doEgammaCaloSeeded = False
+    setupTopoSeededEgamma()
 
 if jobproperties.egammaRecFlags.doEgammaForwardSeeded():
     setupFwdSeededEgamma()

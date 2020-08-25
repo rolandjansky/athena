@@ -71,7 +71,7 @@ public:
                      "retrieve data during the course of the job" );
 
     auto props = this->getProperties();
-    for( Property* prop : props ) {
+    for( Gaudi::Details::PropertyBase* prop : props ) {
       if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
         prop->declareUpdateHandler
           (&AthCommonDataStore<PBASE>::extraDeps_update_handler, this);
@@ -150,7 +150,7 @@ public:
   //
 
   template <class T>
-  Property& declareProperty(Gaudi::Property<T> &t) {
+  Gaudi::Details::PropertyBase& declareProperty(Gaudi::Property<T> &t) {
     typedef typename SG::HandleClassifier<T>::type htype;
     return AthCommonDataStore<PBASE>::declareGaudiProperty(t, htype());
   }
@@ -161,7 +161,7 @@ public:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &hndl,
+  Gaudi::Details::PropertyBase& declareGaudiProperty(Gaudi::Property<T> &hndl,
                                  const SG::VarHandleKeyType&)
   {
     return *AthCommonDataStore<PBASE>::declareProperty(hndl.name(),
@@ -175,7 +175,7 @@ public:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+  Gaudi::Details::PropertyBase& declareGaudiProperty(Gaudi::Property<T> &hndl, 
                                  const SG::VarHandleKeyArrayType&)
   {
     return *AthCommonDataStore<PBASE>::declareProperty(hndl.name(),
@@ -189,7 +189,7 @@ public:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+  Gaudi::Details::PropertyBase& declareGaudiProperty(Gaudi::Property<T> &hndl, 
                                  const SG::VarHandleType&)
   {
     return *AthCommonDataStore<PBASE>::declareProperty(hndl.name(),
@@ -204,7 +204,7 @@ public:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &t, const SG::NotHandleType&)
+  Gaudi::Details::PropertyBase& declareGaudiProperty(Gaudi::Property<T> &t, const SG::NotHandleType&)
   {
     return PBASE::declareProperty(t);
   }
@@ -226,7 +226,7 @@ public:
    * The property value object is put on the input and output lists as
    * appropriate; then we forward to the base class.
    */
-  Property* declareProperty(const std::string& name,
+  Gaudi::Details::PropertyBase* declareProperty(const std::string& name,
                             SG::VarHandleKey& hndl,
                             const std::string& doc,
                             const SG::VarHandleKeyType&)
@@ -250,7 +250,7 @@ public:
    * The property value object is put on the input and output lists as
    * appropriate; then we forward to the base class.
    */
-  Property* declareProperty(const std::string& name,
+  Gaudi::Details::PropertyBase* declareProperty(const std::string& name,
                             SG::VarHandleBase& hndl,
                             const std::string& doc,
                             const SG::VarHandleType&)
@@ -264,7 +264,7 @@ public:
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-  Property* declareProperty(const std::string& name,
+  Gaudi::Details::PropertyBase* declareProperty(const std::string& name,
                             SG::VarHandleKeyArray& hndArr,
                             const std::string& doc,
                             const SG::VarHandleKeyArrayType&)
@@ -281,7 +281,7 @@ public:
     hndArr.setOwner(this);
     m_vhka.push_back(&hndArr);
 
-    Property* p =  PBASE::declareProperty(name, hndArr, doc);
+    Gaudi::Details::PropertyBase* p =  PBASE::declareProperty(name, hndArr, doc);
     if (p != 0) {
       p->declareUpdateHandler(&AthCommonDataStore<PBASE>::updateVHKA, this);
     } else {
@@ -313,7 +313,7 @@ public:
   // to work by overriding those methods and adding in the current contents
   // of the arrays.
 
-  void updateVHKA(Property& /*p*/) {
+  void updateVHKA(Gaudi::Details::PropertyBase& /*p*/) {
     // debug() << "updateVHKA for property " << p.name() << " " << p.toString() 
     //         << "  size: " << m_vhka.size() << endmsg;
     for (auto &a : m_vhka) {
@@ -338,7 +338,7 @@ public:
    * of @c declareProperty.
    */
   template <class T>
-  Property* declareProperty(const std::string& name,
+  Gaudi::Details::PropertyBase* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc,
                             const SG::NotHandleType&)
@@ -357,7 +357,7 @@ public:
    * for VarHandle/Key/KeyArray.
    */
   template <class T>
-  Property* declareProperty(const std::string& name,
+  Gaudi::Details::PropertyBase* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc="none") 
   {
@@ -396,7 +396,7 @@ protected:
  * supplied via the ExtraInputs and ExtraOuputs Properties to add
  * the StoreName if it's not explicitly given
  */
-  void extraDeps_update_handler( Property& ExtraDeps ); 
+  void extraDeps_update_handler( Gaudi::Details::PropertyBase& ExtraDeps ); 
 
 
 };

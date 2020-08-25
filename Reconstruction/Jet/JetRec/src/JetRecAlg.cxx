@@ -54,6 +54,7 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
 
   // Calculate moments, calibrate, sort, filter...  -----------
   for(const ToolHandle<IJetModifier>& t : m_modifiers){
+    ATH_MSG_DEBUG("Running " << t.name());
     ATH_CHECK(t->modify(*jetContHandle));
   }
 

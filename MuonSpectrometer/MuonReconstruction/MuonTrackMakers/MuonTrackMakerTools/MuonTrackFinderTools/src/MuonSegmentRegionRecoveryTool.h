@@ -137,12 +137,12 @@ namespace Muon {
     //Fill already on track chamber std::set
     void fillOnTrackChambers ( const Trk::Track& theTrack, MuonData& data ) const; 
     //Select hashes of chambers not yet on track
-    const Trk::Track* addMissingChambers( const Trk::Track& track, MuonData& data, bool addMdt ) const;
+    std::unique_ptr<Trk::Track> addMissingChambers( const Trk::Track* track, MuonData& data, bool addMdt ) const;
 
     void addHashes( DETID type, const IRoiDescriptor& roi,
 		    std::set<IdentifierHash>& hashes, const std::set<IdentifierHash>& exclusion ) const;
 
-    const Trk::Track* findHoles( const Trk::Track& track, MuonData& data ) const;
+    std::unique_ptr<Trk::Track> findHoles( const Trk::Track* track, MuonData& data ) const;
     
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
 	"MuonDetectorManager", 

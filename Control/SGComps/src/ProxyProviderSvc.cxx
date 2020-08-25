@@ -294,7 +294,7 @@ const EventContext& ProxyProviderSvc::contextFromStore (IProxyRegistry& ds) cons
 
 
 void 
-ProxyProviderSvc::providerNamesPropertyHandler( Property& /*theProp*/ ) {
+ProxyProviderSvc::providerNamesPropertyHandler( Gaudi::Details::PropertyBase& /*theProp*/ ) {
   //add declared providers to the list;
   std::vector<std::string>::const_iterator iN(m_providerNames.value().begin());
   std::vector<std::string>::const_iterator iEnd(m_providerNames.value().end());

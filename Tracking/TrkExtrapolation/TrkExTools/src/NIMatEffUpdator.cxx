@@ -61,7 +61,7 @@ Trk::NIMatEffUpdator::update(const Trk::TrackParameters *parm,
                              Trk::GeometrySignature /*geoID*/,
                              Trk::PropDirection dir,
                              Trk::ParticleHypothesis particle) const {
-  return m_matUpdator->update(parm, lay, dir, particle);
+  return m_matUpdator->update(parm, lay, dir, particle).release();
 }
 
 // update method
@@ -73,7 +73,7 @@ Trk::NIMatEffUpdator::update(double /*time*/,
                              Trk::PropDirection dir,
                              Trk::ParticleHypothesis particle,
                              Trk::MaterialUpdateMode) const {
-  return m_matUpdator->update(parm, matprop, pathCorrection, dir, particle);
+  return m_matUpdator->update(parm, matprop, pathCorrection, dir, particle).release();
 }
 
 const Trk::TrackParameters *
@@ -82,5 +82,5 @@ Trk::NIMatEffUpdator::update(double /*time*/,
                              const Trk::MaterialEffectsOnTrack &meff,
                              Trk::ParticleHypothesis particle,
                              Trk::MaterialUpdateMode) const {
-  return m_matUpdator->update(parm, meff, particle);
+  return m_matUpdator->update(parm, meff, particle).release();
 }

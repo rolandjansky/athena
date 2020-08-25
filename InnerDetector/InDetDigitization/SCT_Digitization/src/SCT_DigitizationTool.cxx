@@ -490,7 +490,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
 // =========================================================================
 // property handlers
 // =========================================================================
-void SCT_DigitizationTool::SetupRdoOutputType(Property &) {
+void SCT_DigitizationTool::SetupRdoOutputType(Gaudi::Details::PropertyBase &) {
 }
 
 // Does nothing, but required by Gaudi

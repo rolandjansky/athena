@@ -11,7 +11,7 @@ Purpose : User Analysis Preparation - see UserAnalysisPreparationTool.h for deta
 *****************************************************************************/
 
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Accessing data:
 #include "CLHEP/Units/PhysicalConstants.h"

@@ -726,10 +726,10 @@ namespace xAOD {
       static const ConstAccessor< ElementLink< TrackCollection > > acc( "trackLink" );
 
       if( ! acc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
       if( ! acc( *this ).isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       return *( acc( *this ) );

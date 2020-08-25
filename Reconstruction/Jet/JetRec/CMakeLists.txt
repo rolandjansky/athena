@@ -14,7 +14,7 @@ endif()
 
 set( mon_deps )
 set( mon_lib )
-if( NOT GENERATIONBASE )
+if( NOT GENERATIONBASE AND NOT XAOD_STANDALONE )
    set( mon_deps Control/AthenaMonitoringKernel )
    set( mon_lib AthenaMonitoringKernelLib )
 endif()
@@ -54,7 +54,7 @@ atlas_add_library( JetRecLib
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AthContainers AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
-  JetInterface  ${mon_lib}
+  JetInterface  ${mon_lib} AsgDataHandlesLib
   PRIVATE_LINK_LIBRARIES CxxUtils xAODBase xAODCore
   xAODEventInfo xAODTracking )
 
@@ -77,19 +77,23 @@ atlas_add_test( TestTests
  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
  LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
+if ( NOT XAOD_STANDALONE )
 atlas_add_test(JetTests
   SOURCES
   test/JetTest.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+endif()
 
+if ( NOT XAOD_STANDALONE )
 atlas_add_test(PseudoJetContainerOffline
   SOURCES
   test/PseudoJetContainerOfflineTest.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+endif()
 
-if ( NOT GENERATIONBASE )
+if ( NOT GENERATIONBASE AND NOT XAOD_STANDALONE )
 atlas_add_test(PseudoJetContainerTrigger
   SOURCES
   test/PseudoJetContainerTriggerTest.cxx
@@ -97,11 +101,13 @@ atlas_add_test(PseudoJetContainerTrigger
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 endif()
 
+if ( NOT XAOD_STANDALONE )
 atlas_add_test(ExtractorUnitTests
   SOURCES
     test/ExtractorTest.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+endif()
 
 atlas_add_test(JetClustererTest
   SOURCES
@@ -109,7 +115,7 @@ atlas_add_test(JetClustererTest
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
-if ( NOT GENERATIONBASE )
+if ( NOT GENERATIONBASE AND NOT XAOD_STANDALONE )
    atlas_add_test(JetRecAlg_Test SCRIPT share/JetRecAlgTestCfg.py )
 endif()
 

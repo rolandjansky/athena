@@ -12,7 +12,7 @@ Purpose : create a SUSYPhysTag - a word to encode SUSYPhys specific information 
 
 *****************************************************************************/
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 

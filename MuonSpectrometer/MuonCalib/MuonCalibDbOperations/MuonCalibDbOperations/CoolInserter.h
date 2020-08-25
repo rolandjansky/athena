@@ -5,19 +5,12 @@
 #ifndef MuonCalib_CoolInserter_h
 #define MuonCalib_CoolInserter_h
 
-//this
-#include "MuonCalibDbOperations/IConditionsStorage.h"
-#include "MuonCalibDbOperations/IMuonCalibConditionsSource.h"
-
-//athena
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-// COOL API: database service bootstrap
 #include "CoolApplication/Application.h"
 #include "CoolApplication/DatabaseSvcFactory.h"
-
-// COOL API include files (CoolKernel)
 #include "CoolKernel/Exception.h"
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoolKernel/IDatabase.h"
@@ -27,25 +20,21 @@
 #include "CoolKernel/StorageType.h"
 #include "CoolKernel/types.h"
 #include "CoolKernel/Record.h"
-
-//MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonCalibDbOperations/IConditionsStorage.h"
+#include "MuonCalibDbOperations/IMuonCalibConditionsSource.h"
 
 class RegionSelectionSvc;
 
 namespace MuonCalib {
 
-class CalibDbConnection;
-class CalibHeadOperations;
-
 class CoolInserter : public AthAlgorithm {
  public:
 //====================destructor - constructor=================================
   CoolInserter(const std::string& name, ISvcLocator* pSvcLocator);
-  inline ~CoolInserter() {}
+  inline ~CoolInserter()=default;
   /** Is called at the beginning of the analysis */
   StatusCode initialize();
   /** execute function NOTE: This will read all events at once*/
@@ -78,7 +67,7 @@ class CoolInserter : public AthAlgorithm {
   std::vector<bool> m_compressed_t0;
   std::vector<bool> m_compressed_rt;
   //calibration source tools - jo
-  ToolHandleArray<IMuonCalibConditionsSource> m_calibration_sources;
+  ToolHandleArray<IMuonCalibConditionsSource> m_calibration_sources{this,"CalibrationSources",{}};
   //region selection service - copy part of the calibration
   const RegionSelectionSvc *p_reg_sel_svc;
   //cool

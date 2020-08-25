@@ -52,8 +52,8 @@ from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion
 PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
 IDDerivationSequence += PixelChargeToTConversionSetter 
 if (printIdTrkDxAODConf):
-    print PixelChargeToTConversionSetter
-    print PixelChargeToTConversionSetter.properties()
+    print(PixelChargeToTConversionSetter)
+    print(PixelChargeToTConversionSetter.properties())
 
 
 DRAW_ZMUMU_SkimmingTool=None
@@ -74,7 +74,7 @@ if DRAWZSel:
     DRAW_ZMUMU_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_SkimmingTool",
                                                                         expression = draw_zmumu)
     ToolSvc += DRAW_ZMUMU_SkimmingTool
-    print DRAW_ZMUMU_SkimmingTool
+    print(DRAW_ZMUMU_SkimmingTool)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__PixelNtupleMaker
@@ -99,8 +99,8 @@ if InDetFlags.doSLHC():
 
 IDDerivationSequence += xAOD_PixelPrepDataToxAOD
 if (printIdTrkDxAODConf):
-    print xAOD_PixelPrepDataToxAOD
-    print xAOD_PixelPrepDataToxAOD.properties()
+    print(xAOD_PixelPrepDataToxAOD)
+    print(xAOD_PixelPrepDataToxAOD.properties())
 
 
 #################
@@ -136,8 +136,8 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
 ToolSvc += DFTSOS
 augmentationTools+=[DFTSOS]
 if (printIdTrkDxAODConf):
-    print DFTSOS
-    print DFTSOS.properties()
+    print(DFTSOS)
+    print(DFTSOS.properties())
 
 # Add BS error augmentation tool
 if dumpBytestreamErrors:
@@ -149,8 +149,8 @@ if dumpBytestreamErrors:
     ToolSvc += DFEI
     augmentationTools+=[DFEI]
     if (printIdTrkDxAODConf):
-        print DFEI
-        print DFEI.properties()
+        print(DFEI)
+        print(DFEI.properties())
 
 # Add decoration with truth parameters if running on simulation
 #if isIdTrkDxAODSimulation:
@@ -160,7 +160,7 @@ if dumpBytestreamErrors:
 #                                                                        DecorationPrefix = "")
 #    ToolSvc += TruthDecor
 #    augmentationTools.append(TruthDecor)
-#    print TruthDecor
+#    print(TruthDecor)
 
 #====================================================================
 # Skimming Tools
@@ -190,8 +190,8 @@ IDDerivationSequence += CfgMgr.DerivationFramework__DerivationKernel("PixelxAOD_
 
 topSequence += IDDerivationSequence 
 if (printIdTrkDxAODConf):
-    print IDDerivationSequence 
-    print IDDerivationSequence.properties()
+    print(IDDerivationSequence)
+    print(IDDerivationSequence.properties())
 
 #################
 ### Steer output file content
@@ -279,4 +279,4 @@ if dumpTriggerInfo:
     PIXELVALIDStream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
 
 if (printIdTrkDxAODConf):
-    print PIXELVALIDStream
+    print(PIXELVALIDStream)

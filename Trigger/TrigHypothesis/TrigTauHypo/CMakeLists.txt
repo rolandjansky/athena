@@ -4,7 +4,7 @@
 atlas_subdir( TrigTauHypo )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core TMathCore Hist )
+find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( TrigTauHypo

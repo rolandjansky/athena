@@ -19,7 +19,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 
 // lang include

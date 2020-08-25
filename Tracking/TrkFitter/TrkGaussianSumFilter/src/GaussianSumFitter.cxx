@@ -40,10 +40,6 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_reintegrateOutliers(false)
-  , m_makePerigee(true)
-  , m_refitOnMeasurementBase(true)
-  , m_doHitSorting(true)
   , m_directionToPerigee(Trk::oppositeMomentum)
   , m_trkParametersComparisonFunction(nullptr)
   , m_inputPreparator(nullptr)
@@ -55,13 +51,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   , m_fitQualityFailure{ 0 }
   , m_fitSuccess{ 0 }
 {
-
   declareInterface<ITrackFitter>(this);
-
-  declareProperty("ReintegrateOutliers", m_reintegrateOutliers);
-  declareProperty("MakePerigee", m_makePerigee);
-  declareProperty("RefitOnMeasurementBase", m_refitOnMeasurementBase);
-  declareProperty("DoHitSorting", m_doHitSorting);
   declareProperty("SortingReferencePoint", m_sortingReferencePoint);
   // Estrablish reference point as origin
   m_sortingReferencePoint.push_back(0.);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMATERIAL2G4_Geo2G4MaterialFactory_h
@@ -22,8 +22,8 @@ public:
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 private:
-  matList m_definedMaterials;
-  matNames m_definedMatNames;
+  matList m_geoMaterialToG4Material;
+  matNames m_geoMaterialNameToObject;
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 };

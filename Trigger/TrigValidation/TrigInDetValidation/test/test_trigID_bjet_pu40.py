@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu80_grid
+# art-description: art job for bjet_pu40
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
 # art-athena-mt: 4
+# art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -59,7 +61,7 @@ rdo2aod.threads = 1
 rdo2aod.concurrent_events = 1 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar'   
+rdo2aod.input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -77,21 +79,21 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp1=TrigInDetCompStep('CompareStep1')
-comp1.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
-comp1.output_dir = 'HLTEF-plots-bjet'
+comp1=TrigInDetCompStep('Comp_L2bjet')
+comp1.flag = 'L2bjet'
 test.check_steps.append(comp1)
 
+comp2=TrigInDetCompStep('Comp_EFbjet')
+comp2.flag = 'EFbjet'
+test.check_steps.append(comp2)
 
 
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+# CPU cost steps
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
-
 
 import sys
 sys.exit(test.run())

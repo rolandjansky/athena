@@ -61,7 +61,7 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
    m_inputCollectionsProp.declareUpdateHandler(&EventSelectorAthenaPool::inputCollectionsHandler, this);
 }
 //________________________________________________________________________________
-void EventSelectorAthenaPool::inputCollectionsHandler(Property&) {
+void EventSelectorAthenaPool::inputCollectionsHandler(Gaudi::Details::PropertyBase&) {
    if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
       this->reinit().ignore();
    }

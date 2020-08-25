@@ -48,7 +48,7 @@ const std::vector<std::unique_ptr<Muon::MdtIntersectGeometry> > MuonStationInter
 	continue;
       }
     }
-    stations.push_back(std::unique_ptr<Muon::MdtIntersectGeometry>(new Muon::MdtIntersectGeometry( chId, detMgr,dbData,&this->msgStream())));
+    stations.push_back(std::unique_ptr<Muon::MdtIntersectGeometry>(new Muon::MdtIntersectGeometry( chId, detMgr,dbData,&this->msgStream(),m_idHelperSvc.get())));
   }
   return stations;
 }

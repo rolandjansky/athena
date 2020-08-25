@@ -33,7 +33,7 @@
 #include "TSystem.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IAlgContextSvc.h"
@@ -186,7 +186,7 @@ CoreDumpSvc::~CoreDumpSvc()
   CoreDumpSvcHandler::coreDumpSvc = nullptr;
 }
 
-void CoreDumpSvc::propertyHandler(Property& p)
+void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 {
   CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
   CoreDumpSvcHandler::stackTrace = m_stackTrace;

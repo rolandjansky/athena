@@ -15,6 +15,7 @@
 #include "ParticleJetTools/JetQuarkLabel.h"
 #include "ParticleJetTools/HadronUtils.h"
 
+#include "AsgDataHandles/ReadHandle.h"
 #include <algorithm>
 
 

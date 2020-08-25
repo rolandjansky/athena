@@ -54,7 +54,7 @@ private:
    void check_publish();
    void get_runparams();
 
-   void updateHandler(Property& p);
+   void updateHandler(Gaudi::Details::PropertyBase& p);
 
    int                m_totalEventCounter{0}; //!< event Counter
 

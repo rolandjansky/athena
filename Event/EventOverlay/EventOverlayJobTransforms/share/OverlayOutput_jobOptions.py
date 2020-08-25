@@ -37,12 +37,16 @@ if DetFlags.overlay.Truth_on():
 
     if DetFlags.overlay.pixel_on():
         outStream.ItemList += [ 'InDetSimDataCollection#PixelSDO_Map' ]
+        if overlayFlags.isDataOverlay():
+            outStream.ItemList += [ 'InDetBSErrContainer#PixelByteStreamErrs' ]
 
     if DetFlags.overlay.SCT_on():
         outStream.ItemList += ['InDetSimDataCollection#SCT_SDO_Map']
 
     if DetFlags.overlay.TRT_on():
         outStream.ItemList += [ 'InDetSimDataCollection#TRT_SDO_Map' ]
+        if overlayFlags.isDataOverlay():
+            outStream.ItemList += [ 'TRT_BSErrContainer#TRT_ByteStreamErrs' ]
 
     if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
         if 'CaloCalibrationHitContainer' in overlayFlags.optionalContainerMap():
@@ -90,7 +94,7 @@ if DetFlags.overlay.LAr_on():
 if DetFlags.overlay.Tile_on():
     outStream.ItemList += [ 'TileRawChannelContainer#TileRawChannelCnt' ]
     if overlayFlags.isDataOverlay() or 'AddCaloDigi' in digitizationFlags.experimentalDigi():
-        outStream.ItemList += [ 'TileDigitsContainer#TileDigitsCnt' ]
+        outStream.ItemList += [ 'TileDigitsContainer#TileDigitsCnt', 'TileDigitsContainer#TileDigitsFlt' ]
     else:
         outStream.ItemList += [ 'TileDigitsContainer#TileDigitsFlt' ]
     outStream.ItemList += [ 'TileL2Container#TileL2Cnt' ]

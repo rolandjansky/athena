@@ -256,7 +256,7 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void HepMcFloatWriterTool::setupBackend( Property& /*prop*/ )
+void HepMcFloatWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   // defaults
   std::string protocol = "ascii";

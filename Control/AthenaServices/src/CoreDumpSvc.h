@@ -122,7 +122,7 @@ private:
   ///@}
 
   /// Property handler
-  void propertyHandler(Property& p);
+  void propertyHandler(Gaudi::Details::PropertyBase& p);
 
   /// Print core dump records to configured stream
   void print();

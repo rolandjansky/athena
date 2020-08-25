@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "muonEvent/MuonContainer.h"
 #include "MissingETGoodness/MuonGoodiesFiller.h"
 #include "MissingETGoodness/MuonSpShowerHelper.h"

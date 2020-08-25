@@ -16,6 +16,7 @@
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "JetMomentTools/JetConstitFourMomTool.h"
 #include "JetMomentTools/JetQGTaggerVariableTool.h"
+#include "JetMomentTools/JetEMScaleMomTool.h"
 
 #ifndef XAOD_ANALYSIS
 #include "JetMomentTools/JetBadChanCorrTool.h"
@@ -39,6 +40,7 @@ DECLARE_COMPONENT( JetOriginCorrectionTool )
 DECLARE_COMPONENT( JetECPSFractionTool )
 DECLARE_COMPONENT( JetConstitFourMomTool )
 DECLARE_COMPONENT( JetQGTaggerVariableTool )
+DECLARE_COMPONENT( JetEMScaleMomTool )
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( JetBadChanCorrTool )

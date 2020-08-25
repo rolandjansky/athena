@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,7 +33,6 @@ namespace MagField {
         StatusCode start() override final;
         StatusCode initialize() override final;
         StatusCode execute(const EventContext& ctx) const override final;
-        StatusCode finalize() override final;  
 
     private:
 
@@ -57,8 +56,15 @@ namespace MagField {
             EventIDRange m_mapCondObjOutputRange {EventIDRange()}; // default range covers everything (run/event and timestamp)
         }; 
 
+        // get the field map
         StatusCode updateFieldMap(const EventContext& ctx, Cache& cache) const;
 
+        // get DCS currents to decide which field map file to read
+        StatusCode checkCurrentFromConditions(const EventContext& ctx,
+                                              double& soleCurrent,
+                                              double& toroCurrent,
+                                              EventIDRange& rangeDCS) const;
+        
         /// map file names - if not read from cool
         Gaudi::Property<std::string> m_fullMapFilename {this,
                                                         "FullMapFile", "MagneticFieldMaps/bfieldmap_7730_20400_14m.root",
@@ -74,6 +80,12 @@ namespace MagField {
                                                         "MapSoleCurrent", 7730., "Nominal solenoid current (A)"};
         Gaudi::Property<double>      m_mapToroCurrent  {this,
                                                         "MapToroCurrent", 20400., "Nominal toroid current (A)"};
+
+        // threshold below which currents are considered zero
+        Gaudi::Property<double> m_soleMinCurrent {this, 
+                                                  "SoleMinCurrent", 1.0, "Minimum solenoid current (A) for which solenoid is considered ON"};
+        Gaudi::Property<double> m_toroMinCurrent {this, 
+                                                  "ToroMinCurrent", 1.0, "Minimum toroid current (A) for which toroid is considered ON"};
 
 
         // flag to load map on start
@@ -94,6 +106,12 @@ namespace MagField {
         SG::WriteCondHandleKey<AtlasFieldMapCondObj> m_mapCondObjOutputKey
         {this, 
          "AtlasFieldMapCondObj", "fieldMapCondObj", "Name of key for the Magnetic Field conditions object with the map file names"};
+
+        // COOL folder name containing current information
+        // current input key
+        SG::ReadCondHandleKey<CondAttrListCollection> m_currInputKey
+        {this, 
+         "COOLCurrentsFolderName", "/EXT/DCS/MAGNETS/SENSORDATA", "Name of the COOL folder containing magnet currents"};
 
         ServiceHandle<ICondSvc> m_condSvc { this, 
                                             "CondSvc", "CondSvc", "conditions service" };

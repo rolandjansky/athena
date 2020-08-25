@@ -99,7 +99,7 @@ namespace Trk {
   }
 
 
-  void VxClusteringTable::setCompatibilityOfTo(PairOfVxVertexOnJetAxis pairOfVertices,float compatibility) {
+  void VxClusteringTable::setCompatibilityOfTo(const PairOfVxVertexOnJetAxis& pairOfVertices,float compatibility) {
     if (compatibility!=0) {
       m_compatibilityPairOfVertices[compatibility]=pairOfVertices;
     }

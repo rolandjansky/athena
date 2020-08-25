@@ -34,11 +34,10 @@ namespace Trk {
     m_prevchi2 = 0;
     m_converged = false;
     m_prefit = 0;
-    m_refpar = nullptr;
+    m_refpar.reset(nullptr);
     m_totx0 = 0;
     m_toteloss = 0;
     m_mass = 0;
-    m_ownrefpar = false;
     m_caloelossstate = nullptr;
   } 
   
@@ -64,7 +63,7 @@ namespace Trk {
     m_prevchi2 = rhs.m_prevchi2;
     m_converged = rhs.m_converged;
     m_prefit = rhs.m_prefit;
-    m_refpar = rhs.m_ownrefpar ? rhs.m_refpar->clone() : rhs.m_refpar;
+    m_refpar.reset(rhs.m_refpar != nullptr ? rhs.m_refpar->clone() : nullptr);
     m_states = rhs.m_states;
     
     for (int i = 0; i < (int) m_states.size(); i++) {
@@ -80,7 +79,6 @@ namespace Trk {
     m_totx0 = rhs.m_totx0;
     m_toteloss = rhs.m_toteloss;
     m_mass = rhs.m_mass;
-    m_ownrefpar = rhs.m_ownrefpar;
     m_caloelossstate = nullptr;
     
     if (rhs.m_caloelossstate != nullptr) {
@@ -102,10 +100,6 @@ namespace Trk {
   }
 
   GXFTrajectory::~GXFTrajectory() {
-    if (m_ownrefpar) {
-      delete m_refpar;
-    }
-    
     for (auto & state : m_states) {
       delete state;
     }
@@ -134,8 +128,7 @@ namespace Trk {
       m_prevchi2 = rhs.m_prevchi2;
       m_converged = rhs.m_converged;
       m_prefit = rhs.m_prefit;
-      delete m_refpar;
-      m_refpar = rhs.m_ownrefpar ? rhs.m_refpar->clone() : rhs.m_refpar;
+      m_refpar.reset(rhs.m_refpar != nullptr ? rhs.m_refpar->clone() : nullptr);
       
       for (auto & state : m_states) {
         delete state;
@@ -156,7 +149,6 @@ namespace Trk {
       m_totx0 = rhs.m_totx0;
       m_toteloss = rhs.m_toteloss;
       m_mass = rhs.m_mass;
-      m_ownrefpar = rhs.m_ownrefpar;
       m_caloelossstate = nullptr;
       
       if (rhs.m_caloelossstate != nullptr) {
@@ -287,16 +279,11 @@ namespace Trk {
     m_totx0 += meff->x0();
   }
 
-  void
-    GXFTrajectory::setReferenceParameters(const TrackParameters * per) {
+  void GXFTrajectory::setReferenceParameters(std::unique_ptr<const TrackParameters> per) {
     if (m_refpar != nullptr) {
-      if (m_ownrefpar) {
-        delete m_refpar;
-      }
-      
-      m_refpar = per;
+      m_refpar = std::move(per);
     } else {
-      m_refpar = per;
+      m_refpar = std::move(per);
       m_nupstreamstates = m_nupstreamscatterers = m_nupstreamcaloscatterers = m_nupstreambrems = 0;
 
       std::vector < GXFTrackState * >::iterator it = m_states.begin();
@@ -307,14 +294,14 @@ namespace Trk {
         bool isdownstream = false;
         
         if ((**it2).trackParameters() != nullptr) {
-          distance = ((**it2).position() - per->position()).mag();
-          double inprod = per->momentum().dot((**it2).position() - per->position());
+          distance = ((**it2).position() - m_refpar->position()).mag();
+          double inprod = m_refpar->momentum().dot((**it2).position() - m_refpar->position());
           
           if (inprod > 0) {
             isdownstream = true;
           }
         } else {
-          DistanceSolution distsol = (**it2).surface()->straightLineDistanceEstimate(per->position(),per->momentum().unit());
+          DistanceSolution distsol = (**it2).surface()->straightLineDistanceEstimate(m_refpar->position(),m_refpar->momentum().unit());
           
           if (distsol.numberOfSolutions() == 1) {
             distance = distsol.first();
@@ -359,25 +346,14 @@ namespace Trk {
         it2++;
       }
     }
-
-    m_ownrefpar = true;
   }
 
-  const TrackParameters *GXFTrajectory::referenceParameters(bool takeownership) {
-    const TrackParameters *returnpar = m_refpar;
-
-    if (takeownership) {
-      if (!m_ownrefpar) {
-        returnpar = returnpar->clone();
-      }
-      
-      m_ownrefpar = false;
-    }
-    return returnpar;
+  const TrackParameters *GXFTrajectory::referenceParameters() {
+    return m_refpar.get();
   }
 
   void GXFTrajectory::resetReferenceParameters() {
-    m_refpar = nullptr;
+    m_refpar.reset(nullptr);
   }
 
   void GXFTrajectory::setNumberOfPerigeeParameters(int nperpar) {
@@ -432,10 +408,7 @@ namespace Trk {
     m_scatteringangles.clear();
     m_scatteringsigmas.clear();
     m_converged = false;
-    if (m_ownrefpar) {
-      delete m_refpar;
-    }
-    m_refpar = nullptr;
+    m_refpar.reset(nullptr);
   }
 
   bool GXFTrajectory::converged() {

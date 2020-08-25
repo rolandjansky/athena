@@ -35,7 +35,7 @@ class ISCT_RodDecoder : virtual public IAlgTool
 
   /** Fill Collection method */
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&,
-                                    ISCT_RDO_Container&,
+                                    SCT_RDO_Container&,
                                     IDCInDetBSErrContainer& errs,
                                     const std::vector<IdentifierHash>* vecHash = nullptr) const = 0;
 };

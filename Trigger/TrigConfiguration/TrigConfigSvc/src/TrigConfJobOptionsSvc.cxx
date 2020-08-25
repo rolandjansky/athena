@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
 #include "TrigConfData/DataStructure.h"
@@ -31,7 +31,8 @@ StatusCode TrigConf::JobOptionsSvc::initialize()
 
   //  m_optsvc = serviceLocator()->getOptsSvc();
   ATH_CHECK(m_optsvc.retrieve());
-  m_optsvc->set( this->name() + ".TYPE" , "NONE" );
+  SmartIF<IService> josvc = &*m_josvc;
+  m_optsvc->set( josvc->name() + ".TYPE" , "NONE" );
 
   
   if (m_sourceType == "FILE") {

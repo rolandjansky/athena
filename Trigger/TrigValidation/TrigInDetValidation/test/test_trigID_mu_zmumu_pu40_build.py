@@ -28,11 +28,11 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, T
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon']
-rdo2aod.max_events = 2000 # TODO: 2000 events
+rdo2aod.max_events = 100 # TODO: 2000 events
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
-rdo2aod.input = 'Zmumu_pu40'   
+rdo2aod.input = 'Zmumu_pu40'   # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -51,25 +51,20 @@ if ((not exclude) or postproc ):
  
 
 # Now the comparitor steps
-comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf:HLT_IDTrack_Muon_FTF'
-comp.output_dir = 'HLTL2-plots-muon'
+comp=TrigInDetCompStep('Comp_L2muon')
+comp.flag = 'L2muon'
 test.check_steps.append(comp)
- 
- 
-comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf:HLT_IDTrack_Muon_FTF HLT_mu24_idperf:HLT_IDTrack_Muon_IDTrig'
-comp2.output_dir = 'HLTEF-plots-muon'
+  
+comp2=TrigInDetCompStep('Comp_EFmuon')
+comp2.flag = 'EFmuon'
 test.check_steps.append(comp2)
 
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+# CPU cost steps
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
-
 
 import sys
 sys.exit(test.run())

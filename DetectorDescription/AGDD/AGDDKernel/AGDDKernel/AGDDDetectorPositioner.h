@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDDetectorPositioner_H
@@ -7,9 +7,6 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
 
 #include "AGDDKernel/AGDDPositioner.h"
 
@@ -41,7 +38,8 @@ struct DetectorPositionParameters {
 
 class AGDDDetectorPositioner:public AGDDPositioner {
 public:
-	AGDDDetectorPositioner(std::string n,HepGeom::Transform3D t);
+	AGDDDetectorPositioner(const std::string& n, GeoTrf::Transform3D t);
+    virtual ~AGDDDetectorPositioner()=default;
 
 	Identifiers ID;
 

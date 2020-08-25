@@ -167,9 +167,7 @@ namespace InDet {
     if (ok) {
       ATH_MSG_VERBOSE( "SpacePoint generated at: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );       
       const std::pair<IdentifierHash,IdentifierHash> elementIdList( element1->identifyHash() , element2->identifyHash() ); 
-      const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>*
-        clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(&cluster1, &cluster2);
-      return new InDet::SCT_SpacePoint(elementIdList, point, clusList);
+      return new InDet::SCT_SpacePoint(elementIdList, point, {&cluster1, &cluster2});
     }
 
     return nullptr;
@@ -286,7 +284,6 @@ namespace InDet {
       }
     }
   }
-
 
   //--------------------------------------------------------------------------
   void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
@@ -732,9 +729,7 @@ namespace InDet {
     Amg::Vector3D point(In0.position(m));
     
     const std::pair<IdentifierHash,IdentifierHash> elementIdList(ID0,ID1); 
-    const std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>* 
-      clusList = new std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>(In0.cluster(),In1.cluster());
-    return new InDet::SCT_SpacePoint(elementIdList, point, clusList);
+    return new InDet::SCT_SpacePoint(elementIdList, point, {In0.cluster(),In1.cluster()});
   }
  
 }

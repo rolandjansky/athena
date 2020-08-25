@@ -590,20 +590,20 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticlePtr p, bool doCros
     for (HepMC::GenVertex::particle_iterator itd = v->particles_begin(HepMC::children);
 	                                     itd != v->particles_end(HepMC::children);
                                              ++itd) {
-      if (abs((*itd)->pdg_id()) == abs(id)) return false;
+      if (std::abs((*itd)->pdg_id()) == std::abs(id)) return false;
     }
 #endif
   }
 
   // Check blackList
-  if (m_blackListSet.count(abs(id))>0) return false;
+  if (m_blackListSet.count(std::abs(id))>0) return false;
 
   // Check allow* settings
   if (m_allowAllKnownDecays && nModes>0) return true;
   if (m_allowDefaultBDecays && isDefaultB(id)) return true;
 
   // Check whiteList
-  if (m_whiteListSet.count(abs(id))>0) return true;
+  if (m_whiteListSet.count(std::abs(id))>0) return true;
 
   return false;   // Default is NOT to decay through EvtGen
 }
@@ -614,7 +614,7 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticlePtr p, bool doCros
 // The following mimicks the particle selection implemented in EvtDecay.
 //
 bool EvtInclusiveDecay::isDefaultB(const int pId) const {
-  int id = abs(pId);
+  int id = std::abs(pId);
   if ( id == 511   || 
        id == 521   ||
        id == 531   ||

@@ -123,10 +123,10 @@ StatusCode TagInfoMgr::initialize()
     ATH_MSG_DEBUG( "TagInfoKey              " << m_tagInfoKey);
     
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) <<  "ExtraTagValuePairs " << endmsg;
-      for (auto& tv : m_extraTagValuePairs) {
-	msg(MSG::DEBUG) << " Value/tag pair: " << tv.first << " " << tv.second << endmsg;
-      }
+        ATH_MSG_DEBUG( "ExtraTagValuePairs " );
+        for (auto& tv : m_extraTagValuePairs) {
+            ATH_MSG_DEBUG( " Value/tag pair: " << tv.first << " " << tv.second );
+        }
     }
 
     // To copy TagInfo to EventInfo, we set listener to the
@@ -138,10 +138,9 @@ StatusCode TagInfoMgr::initialize()
     // file meta data
     incSvc->addListener( this, "BeginRun", pri);
 
-    // Add BeginInputFile to trigger refilling meta data store after a new input
-    // file - priority has to be < 50 to be run after IOVDbMetaDataTool, which
-    // has mergeing into the output file medat data the input meta data of the
-    // new file.
+    // Add BeginInputFile to trigger refilling meta data store after a new input file - priority has
+    // to be < 50 to be run after IOVDbMetaDataTool (triggered by MetaDataSvc), which has mergeing
+    // into the output file medat data the input meta data of the new file.
     incSvc->addListener(this, "BeginInputFile", 50); // 
 
     return StatusCode::SUCCESS;
@@ -288,13 +287,11 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
             EventType::NameTagPairVec pairs1;
             evtH->event_type()->get_detdescr_tags(pairs1);
 
-            if (msgLvl(MSG::DEBUG)) {
-                if(pairs1.size()) {
-                    ATH_MSG_DEBUG( "fillTagInfo: Pairs from EventType:");
-                }
-                else {
-                    ATH_MSG_DEBUG( "fillTagInfo: EventInfo/EventType has no tags");
-                }
+            if(pairs1.size()) {
+                ATH_MSG_DEBUG( "fillTagInfo: Pairs from EventType:");
+            }
+            else {
+                ATH_MSG_DEBUG( "fillTagInfo: EventInfo/EventType has no tags");
             }
             for (unsigned int i = 0; i < pairs1.size(); ++i) {
                 ATH_MSG_DEBUG( "fillTagInfo: " << pairs1[i].first << " : "
@@ -342,10 +339,8 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
     }
     
     // Dump out contents of TagInfo
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG( "fillTagInfo: print out tags before adding extra tags");
-        ATH_MSG_DEBUG(tagInfo->str());
-    }
+    ATH_MSG_DEBUG( "fillTagInfo: print out tags before adding extra tags");
+    ATH_MSG_DEBUG(tagInfo->str());
 
 
     // Add in any extra tag value pairs if specified
@@ -364,14 +359,13 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
     }
 
     // Dump out contents of TagInfo
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG( "fillTagInfo: print out tags");
-        ATH_MSG_DEBUG(tagInfo->str());
-    }
+    ATH_MSG_DEBUG( "fillTagInfo: print out tags");
+    ATH_MSG_DEBUG(tagInfo->str());
     
     return StatusCode::SUCCESS;
 
 }
+
 
 StatusCode
 TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection* tagInfoCond) 
@@ -394,23 +388,25 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     ATH_MSG_DEBUG( "entering fillMetaData");
 
     // Get run number for IOV
-    EventIDBase::number_type runNumber = 0;
-    const EventIDBase* evid = EventIDFromStore( m_storeGate );
-    if( evid ) {
-       runNumber = evid->run_number();
+    EventIDBase::number_type runNumber = EventIDBase::UNDEFNUM;
+
+    if( m_currentRun != EventIDBase::UNDEFNUM ) {
+        runNumber = m_currentRun;
+    }
+    else if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+        // Not completely sure of the use-case for the setting of the conditions run number, but
+        // this will be used if the current run number has not been set. RDS 2020/08
+        runNumber = m_conditionsRun;
+        ATH_MSG_INFO( "fillMetaData: Using conditions run number: " << m_conditionsRun << " rather then current run number: " << m_currentRun);
     } else {
        // For simulation, we may be in the initialization phase and
        // must get the run number from the event selector
        if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
-          // For HLT use the conditionsRun retrieved from the first BeginRun incident
-          if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
-             runNumber = m_conditionsRun;
-          } else {
-             ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror");      
-             return (StatusCode::FAILURE);
-          }
+           ATH_MSG_ERROR( "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror");      
+           return (StatusCode::FAILURE);
        }
     }
+    
     // Copy tags to AttributeList
     coral::AttributeList attrList;
     EventType::NameTagPairVec pairs;
@@ -480,6 +476,7 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
 
 }
 
+
 StatusCode          
 TagInfoMgr::getRunNumber (unsigned int& runNumber)
 {
@@ -541,6 +538,7 @@ TagInfoMgr::getRunNumber (unsigned int& runNumber)
 }
 
 
+
 void 
 TagInfoMgr::handle(const Incident& inc) {
 
@@ -549,7 +547,10 @@ TagInfoMgr::handle(const Incident& inc) {
     **
     **   1) For the first begin run, we retrieve the TagInfo and set
     **      up IOVDbSvc so that is can use TagInfo to define its
-    **      hierarchical tags.
+    **      hierarchical tags. 
+    **      The member m_currentRun is saved to be used for the IOV 
+    **      in fillMetaData.
+    **
     **      Note: the detector store 'retrieve' of the TagInfo will call 
     **      TagInfoMgr::createObj to do the first creation and filling it 
     **      accordingly. And this also fills the output file metadata with 
@@ -557,11 +558,15 @@ TagInfoMgr::handle(const Incident& inc) {
     **                
     **   2) Then whenever a new file is opened (BeginInputFile), we
     **      use the TagInfo object from the detector store to "re-fill"
-    **      and override the newly merged TagInfo meta data in the output
+    **      and overwrite the newly merged TagInfo meta data in the output
     **      meta data store. We receive BeginInputFile AFTER the 
     **      IOVDbMetaDataTool has done this automatic merging, so that we 
     **      can safely overwrite with the desired TagInfo information for
     **      this job/run.
+    **      As well, if there is a second BeginRun during the processing, 
+    **      here we update m_currentRun and overwrite again the TagInfo in the  
+    **      meta store with the new run which will just extend the IOV of the
+    **      TagInfo meta data.
     **
     **/
 
@@ -587,15 +592,18 @@ TagInfoMgr::handle(const Incident& inc) {
         // can't use a ref here!
         const EventIDBase eventID =  inc.context().eventID();
 
-        if (msgLvl(MSG::DEBUG)) {
-            msg() << MSG::DEBUG << "handle: First BeginRun incident - Event ID: ["
-                  << eventID.run_number()   << ","
-                  << eventID.event_number() << ":"
-                  << eventID.time_stamp() << "] ";
-            if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
-               msg() << MSG::DEBUG <<"conditionsRun = " << m_conditionsRun;
-            }
-            msg() << MSG::DEBUG << endmsg;
+        // Set current run number to be used for fillMetaData
+        m_currentRun = eventID.run_number();
+        
+        ATH_MSG_DEBUG( "handle: First BeginRun incident - Event ID: ["
+                       << eventID.run_number()   << ","
+                       << eventID.lumi_block() << ":"
+                       << eventID.time_stamp() << "] ");
+        if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+            ATH_MSG_DEBUG( "handle: conditionsRun = " << m_conditionsRun);
+        }
+        if( m_currentRun != EventIDBase::UNDEFNUM ) {
+            ATH_MSG_DEBUG( "handle: currentRun = " << m_currentRun);
         }
 
         // For the moment, we must set IOVDbSvc into the BeginRun
@@ -646,40 +654,70 @@ TagInfoMgr::handle(const Incident& inc) {
             ATH_MSG_DEBUG( "handle: TagInfo successfully processed by IOVDbSvc to register callback");
         }
     }
-    else if (inc.type() == "BeginInputFile"  && !m_isFirstBeginRun) {
-        // For a new file incident, we must "refill" the
-        // meta data store with the current value of the TagInfo
-        // folder in the detector store.
+    else if ((inc.type() == IncidentType::BeginInputFile || inc.type() == IncidentType::BeginRun)
+             && !m_isFirstBeginRun) {
 
+        // For a new file incident or a subsequent begin run incident, we must "refill" the meta
+        // data store with the current value of the TagInfo folder in the detector store.
+
+        if (inc.type() == IncidentType::BeginRun) {
+            
+            // For begin run, reset the current run number
+        
+            // get conditionsRun from the Context - can be used if no EventID in the SG (for HLT) 
+            m_conditionsRun = Atlas::getExtendedEventContext(inc.context()).conditionsRun();
+
+            // Get current run number
+            const EventIDBase eventID =  inc.context().eventID();
+
+            // Set current run number to be used for fillMetaData
+            m_currentRun = eventID.run_number();
+        
+            ATH_MSG_DEBUG( "handle: secondary BeginRun incident - Event ID: ["
+                           << eventID.run_number()   << ","
+                           << eventID.lumi_block() << ":"
+                           << eventID.time_stamp() << "] ");
+            if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+                ATH_MSG_DEBUG( "handle: conditionsRun = " << m_conditionsRun);
+            }
+            if( m_currentRun != EventIDBase::UNDEFNUM ) {
+                ATH_MSG_DEBUG( "handle: currentRun = " << m_currentRun);
+            }
+        }
+        
+        
         // Return if /TagInfo does NOT exists
         const CondAttrListCollection* attrListColl = 0;
         if (m_detStore->contains<CondAttrListCollection>("/TagInfo")) { 
             if (m_detStore->retrieve( attrListColl, "/TagInfo" ).isFailure() ) {
-                ATH_MSG_ERROR( "handle - BeginInputFile: No TagInfo meta data in DetectorStore");
-                throw GaudiException( "BeginInputFile - No TagInfo meta data in DetectorStore", "TagInfoMgr::handle", StatusCode::FAILURE );
+                ATH_MSG_ERROR( "handle - " << inc.type() << ": No TagInfo meta data in DetectorStore");
+                std::string excStr { inc.type() + " - No TagInfo meta data in DetectorStore" };
+                throw GaudiException( excStr , "TagInfoMgr::handle", StatusCode::FAILURE );
             }
             else {
-                ATH_MSG_DEBUG( "handle - BeginInputFile: Retrieved TagInfo meta data from detStore");
+                ATH_MSG_DEBUG( "handle - " << inc.type() << ": Retrieved TagInfo meta data from detStore");
             } 
         }
         else {
-            ATH_MSG_DEBUG( "handle - BeginInputFile: det store does NOT contain AttrListColl for TagInfo"); 
+            ATH_MSG_DEBUG( "handle - " << inc.type() << ": det store does NOT contain AttrListColl for TagInfo"); 
             return;
         }
 
         const TagInfo* tagInfo = 0;
         if (m_detStore->retrieve( tagInfo, m_tagInfoKeyValue ).isFailure() ) {
-            ATH_MSG_ERROR( "handle - BeginInputFile: Could not retrieve TagInfo object from the detector store");      
-            throw GaudiException( "BeginInputFile - Could not retrieve TagInfo object from the detector store", "TagInfoMgr::handle", StatusCode::FAILURE );
+            ATH_MSG_ERROR( "handle - " << inc.type() << ": Could not retrieve TagInfo object from the detector store");
+            std::string excStr { inc.type() + " - Could not retrieve TagInfo object from the detector store" };
+            throw GaudiException( excStr, "TagInfoMgr::handle", StatusCode::FAILURE );
         }
 
         // Copy TagInfo to meta data store for writing to file meta data
         if (StatusCode::SUCCESS != fillMetaData(tagInfo, attrListColl)) {
-            ATH_MSG_ERROR( "handle - BeginInputFile: Unable to write TagInfo to MetaDataStore !");
-            throw GaudiException( "BeginInputFile - Unable to write TagInfo to MetaDataStore !", "TagInfoMgr::handle", StatusCode::FAILURE );
+            ATH_MSG_ERROR( "handle - " << inc.type() << ": Unable to write TagInfo to MetaDataStore !");
+            std::string excStr { inc.type() + " - Unable to write TagInfo to MetaDataStore !" };
+            throw GaudiException( excStr, "TagInfoMgr::handle", StatusCode::FAILURE );
         } 
         else {
-            ATH_MSG_DEBUG( "handle - BeginInputFile: Wrote TagInfo to MetaDataStore ");
+            ATH_MSG_DEBUG( "handle - " << inc.type() << ": Wrote TagInfo to MetaDataStore ");
         }
     }
 }
@@ -845,13 +883,8 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // most likely not used anymore. RDS 08/2012).
     if (attrListColl && attrListColl->size() == 0) {
         tagInfo = std::make_unique<TagInfo>(m_lastTagInfo);
-        if (msgLvl(MSG::DEBUG)) {
-            ATH_MSG_DEBUG( "createObj: recreate tagInfo from saved info"); 
-            if (msgLevel()>=MSG::DEBUG) {
-              MsgStream log1(Athena::getMessageSvc(), "TagInfo");
-              tagInfo->printTags(log1);
-            }
-        }
+        ATH_MSG_DEBUG( "createObj: recreate tagInfo from saved info"); 
+        ATH_MSG_DEBUG(tagInfo->str());
     }
     else {
         tagInfo = std::make_unique<TagInfo>();
@@ -859,10 +892,8 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
             ATH_MSG_DEBUG( "createObj: Unable to fill TagInfo !");
             return StatusCode::FAILURE;
         } 
-        if (msgLvl(MSG::DEBUG)) {
-            if (attrListColl) ATH_MSG_DEBUG( "createObj: Filled TagInfo from file meta data ");
-            else ATH_MSG_DEBUG( "createObj: Filled TagInfo from input event ");
-        }
+        if (attrListColl) ATH_MSG_DEBUG( "createObj: Filled TagInfo from file meta data ");
+        else ATH_MSG_DEBUG( "createObj: Filled TagInfo from input event ");
     }
     
     // Copy TagInfo to meta data store for writing to file meta data
@@ -877,9 +908,8 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // Do standard conversion to data object
     dataObj = SG::asStorable(std::move(tagInfo));
 
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG( "createObj:  created new TagInfo object ");
-    }
+    ATH_MSG_DEBUG( "createObj:  created new TagInfo object ");
+
     return StatusCode::SUCCESS;
 
 }

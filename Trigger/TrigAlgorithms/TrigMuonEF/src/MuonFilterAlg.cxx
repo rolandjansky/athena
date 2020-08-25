@@ -45,7 +45,7 @@ StatusCode MuonFilterAlg::execute(const EventContext& ctx) const
   }
   if(nCBmuons==0) pass = true;
 
-  ATH_MSG_DEBUG("Found: "<<muons->size()<<" muons; pass="<<pass);
+  ATH_MSG_DEBUG("Found: "<<nCBmuons<<" muons; pass="<<pass);
   setFilterPassed(pass, ctx);
 
   return StatusCode::SUCCESS;

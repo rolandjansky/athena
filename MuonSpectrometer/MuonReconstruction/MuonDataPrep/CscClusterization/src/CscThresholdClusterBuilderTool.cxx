@@ -6,7 +6,7 @@
 // CscThresholdClusterBuilderTool.cxx
 #include "CscThresholdClusterBuilderTool.h"
 #include <sstream>
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepData.h"

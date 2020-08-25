@@ -24,7 +24,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class PixelDistortionAlg : public AthAlgorithm {  
   public:

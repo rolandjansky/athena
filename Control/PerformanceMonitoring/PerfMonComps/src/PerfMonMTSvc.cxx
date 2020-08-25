@@ -165,7 +165,7 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
  */
 void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::string& compName) {
   // Last thing to be called before the event loop begins
-  if (compName == "AthRegSeq" && stepName == "Start") {
+  if (compName == "AthOutSeq" && stepName == "Start") {
     m_measurement_snapshots.capture_snapshot();
     m_snapshotData[EXECUTE].addPointStart_snapshot(m_measurement_snapshots);
   }

@@ -11,7 +11,7 @@
 #include "CondInputLoader.h"
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IClassIDSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/errorcheck.h"
@@ -66,7 +66,7 @@ CondInputLoader::CondInputLoader( const std::string& name,
   // Property declaration
   // 
   auto props = getProperties();
-  for( Property* prop : props ) {
+  for( Gaudi::Details::PropertyBase* prop : props ) {
     if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
       prop->declareUpdateHandler
         (&CondInputLoader::extraDeps_update_handler, this);
@@ -165,7 +165,7 @@ CondInputLoader::initialize()
 
 
   // Update the properties, set the ExtraOutputs for Alg deps
-  const Property &p = getProperty("Load");
+  const Gaudi::Details::PropertyBase &p = getProperty("Load");
 
   ATH_MSG_DEBUG("setting prop ExtraOutputs to " <<  p.toString());
   if (!setProperty("ExtraOutputs", p).isSuccess()) {
@@ -357,7 +357,7 @@ CondInputLoader::execute()
 // need to override the handling of the DataObjIDs that's done by
 // AthAlgorithm, so we don't inject the name of the Default Store
 void 
-CondInputLoader::extraDeps_update_handler( Property& /*ExtraDeps*/ ) 
+CondInputLoader::extraDeps_update_handler( Gaudi::Details::PropertyBase& /*ExtraDeps*/ ) 
 {  
   // do nothing
 }

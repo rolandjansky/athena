@@ -8,7 +8,7 @@
 #include <tbb/concurrent_hash_map.h>
 #include <tbb/concurrent_vector.h>
 
-#include "AlgorithmIdentifier.h"
+#include "TrigCostMonitorMT/AlgorithmIdentifier.h"
 
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 

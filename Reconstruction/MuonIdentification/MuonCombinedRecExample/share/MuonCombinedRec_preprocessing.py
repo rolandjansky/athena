@@ -45,8 +45,7 @@ if rec.doMuonCombined() and jobproperties.Beam.beamType()=='cosmics' and DetFlag
                                                              TrackContainerName = InDetKeys.Tracks()+"_split",
                                                              xAODContainerName = output_track_particle_name,
                                                              xAODTrackParticlesFromTracksContainerName = output_track_particle_name,
-                                                             TrackParticleCreator = InDetParticleCreatorTool_split,
-                                                             PrintIDSummaryInfo = True)
+                                                             TrackParticleCreator = InDetParticleCreatorTool_split)
 
     if (InDetFlags.doTruth() and not InputTrackTruthCollection == ''):
         xAODTrackParticleCnvAlg.AddTruthLink = True

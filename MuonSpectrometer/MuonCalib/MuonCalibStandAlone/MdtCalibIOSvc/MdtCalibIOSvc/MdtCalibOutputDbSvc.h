@@ -2,15 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 07.10.2006, AUTHOR: OLIVER KORTNER
-// Modifications: 13.01.2007 by O. Kortner, singleton-like construction added
-//                                          to simplify use in standalone mode.
-//                11.04.2007 by O. Kortner, new method which allows the user
-//                                          store a resolution function
-//                                          associated with an r-t function.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #ifndef MdtCalibOutputDbScvH
 #define MdtCalibOutputDbScvH
 
@@ -31,17 +22,7 @@
 ///
 /// \date 07.10.2006
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// STL //
-#include <vector>
-#include <string>
-
-// Gaudi //
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h" 
 
@@ -49,13 +30,13 @@
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MdtCalibUtils/RtDataFromFile.h"
+#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
+#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 
-class RegionSelectionSvc;
-class MdtCalibInputSvc;
+#include <vector>
+#include <string>
 
-// MuonCalib //
-//#include "MuonCalibIdentifier/MdtRegion.h"
-//#include "MuonCalibIdentifier/MdtHashTable.h"
 namespace MuonCalib {
   class IMdtCalibrationOutput;
   class IRtRelation;
@@ -129,7 +110,7 @@ private:
 //use default resolution even if a resolution was loaded by the input service
   bool m_force_default_resolution;
 //calibration io tool to be used
-  ToolHandle<MuonCalib::CalibrationIOTool> m_calib_output_tool;
+  ToolHandle<MuonCalib::CalibrationIOTool> m_calib_output_tool{this,"OutputTool","MuonCalib::CalibrationFileIOTool"};
 // iov range in run numbers//
   int m_iov_start, m_iov_end;
   

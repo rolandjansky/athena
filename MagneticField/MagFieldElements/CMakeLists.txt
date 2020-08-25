@@ -13,3 +13,9 @@ atlas_add_library( MagFieldElements
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES CxxUtils EventPrimitives GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
+
+		 
+atlas_add_test( BFieldExample_test
+                SOURCES  test/BFieldExample_test.cxx
+                INCLUDE_DIRS 
+                LINK_LIBRARIES MagFieldElements)		

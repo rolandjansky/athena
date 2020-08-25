@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "DerivationFrameworkMuons/MuonTPJpsiVertexFittingAlg.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 
