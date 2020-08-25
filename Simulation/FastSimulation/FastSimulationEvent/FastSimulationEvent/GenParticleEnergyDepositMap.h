@@ -61,7 +61,7 @@ namespace FSim {
 
 }
  
-typedef std::multimap<const HepMC::GenParticlePtr , FSim::EnergyDeposit> GenParticleEnergyDepositMap;
+typedef std::multimap<HepMC::ConstGenParticlePtr , FSim::EnergyDeposit> GenParticleEnergyDepositMap;
 typedef std::multimap<int, FSim::EnergyDeposit>                       BarcodeEnergyDepositMap;
 
 CLASS_DEF( GenParticleEnergyDepositMap, 97004131, 1)

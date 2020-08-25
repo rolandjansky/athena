@@ -231,7 +231,7 @@ StatusCode Rivet_i::finalize() {
 
 /// Helper function to sort GenParticles by descending energy
 /// @todo Move into GeneratorUtils (with many friends)
-bool cmpGenParticleByEDesc(const HepMC::GenParticlePtr a, const HepMC::GenParticlePtr b) {
+bool cmpGenParticleByEDesc(HepMC::ConstGenParticlePtr a, HepMC::ConstGenParticlePtr b) {
   return a->momentum().e() > b->momentum().e();
 }
 

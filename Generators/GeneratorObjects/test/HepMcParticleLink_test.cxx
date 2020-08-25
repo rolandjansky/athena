@@ -141,7 +141,7 @@ namespace MCTesting {
 
   class is_photon {
   public:
-    bool operator() ( const HepMC::GenParticlePtr p ) {
+    bool operator() ( HepMC::ConstGenParticlePtr p ) {
       return ( p && p->pdg_id() == 22 );
     }
   };
@@ -263,7 +263,7 @@ namespace MCTesting {
                     back_inserter(theGammas), is_photon() );
 #endif
     ASSERT_EQ(1u, theGammas.size());
-    const HepMC::GenParticlePtr pGamma(theGammas.front());
+    HepMC::ConstGenParticlePtr pGamma(theGammas.front());
 #ifdef GENP_DEBUG
     pGamma->print();
     std::cout << "gamma barcode " << hex << HepMC::barcode(pGamma) << std::endl;
@@ -310,7 +310,7 @@ namespace MCTesting {
     // Fill it with a dummy GenEvent
     inputTestDataHandle->push_back(HepMC::newGenEvent(20,1));
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // A HepMcParticleLink built using a GenParticle pointer should
     // still work.
     HepMcParticleLink testLink1a(particle1,0);
@@ -334,7 +334,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex1(0);
     const HepMcParticleLink::index_type refEvtNum1 = static_cast<HepMcParticleLink::index_type>(event_number1);
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // Add a second dummy GenEvent
     const int process_id2(20);
     const int event_number2(25);
@@ -415,7 +415,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex2(1);
     const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
     HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
-    const HepMC::GenParticlePtr particle2 = populateGenEvent2(ge2);
+    HepMC::ConstGenParticlePtr particle2 = populateGenEvent2(ge2);
     // Add a third dummy GenEvent (identical to the first)
     const int process_id3(20);
     const int event_number3(17);
@@ -482,7 +482,7 @@ namespace MCTesting {
     const int event_number1(17);
     inputTestDataHandle->push_back(HepMC::newGenEvent(process_id1, event_number1));
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // Add a second dummy GenEvent
     const int process_id2(20);
     const int event_number2(25);
@@ -496,7 +496,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex3(2);
     const HepMcParticleLink::index_type refEvtNum3 = static_cast<HepMcParticleLink::index_type>(event_number3);
     HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
-    const HepMC::GenParticlePtr particle3 = populateGenEvent(ge3);
+    HepMC::ConstGenParticlePtr particle3 = populateGenEvent(ge3);
 
     const int event_number4(89);
     inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
@@ -573,7 +573,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type refEvtNum4 = static_cast<HepMcParticleLink::index_type>(event_number4);
     HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
     ge4.set_event_number(event_number4);
-    const HepMC::GenParticlePtr particle4 = populateFilteredGenEvent(ge4);
+    HepMC::ConstGenParticlePtr particle4 = populateFilteredGenEvent(ge4);
 
     const IProxyDict* sg = SG::CurrentEventStore::store();
 
@@ -742,7 +742,7 @@ namespace MCTesting {
     const int event_number5(460);
     const HepMcParticleLink::index_type refEvtNum5 = static_cast<HepMcParticleLink::index_type>(event_number5);
     const int cutBarcode(210001);
-    const HepMC::GenParticlePtr cutParticlePtr{};
+    HepMC::ConstGenParticlePtr cutParticlePtr{};
 
     // Link to a GenParticle which was not recorded to the
     // McEventCollection, even though other parts of the same GenEvent
@@ -781,7 +781,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex1(0);
     const HepMcParticleLink::index_type refEvtNum1 = static_cast<HepMcParticleLink::index_type>(event_number1);
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // Add a second dummy GenEvent
     const int process_id2(20);
     const int event_number2(25);
@@ -789,7 +789,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex2(1);
     const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
     HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
-    const HepMC::GenParticlePtr particle2 = populateGenEvent2(ge2);
+    HepMC::ConstGenParticlePtr particle2 = populateGenEvent2(ge2);
     // Add a third dummy GenEvent
     const int process_id3(20);
     const int event_number3(17);
