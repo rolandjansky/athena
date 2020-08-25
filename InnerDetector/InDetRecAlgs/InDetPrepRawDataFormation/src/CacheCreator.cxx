@@ -30,6 +30,7 @@ namespace InDet{
         ATH_CHECK( m_SCTSpacePointCacheKey.initialize(SG::AllowEmpty) );
         ATH_CHECK( m_SCTRDOCacheKey.initialize(SG::AllowEmpty) );
         ATH_CHECK( m_SCTBSErrCacheKey.initialize(SG::AllowEmpty) );
+        ATH_CHECK( m_SCTFlaggedCondCacheKey.initialize(SG::AllowEmpty) );
         ATH_CHECK( m_PixRDOCacheKey.initialize(SG::AllowEmpty) );
         ATH_CHECK( m_PixBSErrCacheKey.initialize(SG::AllowEmpty) );
         if (!m_disableTRT.value()) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
@@ -61,6 +62,8 @@ namespace InDet{
         ATH_CHECK(createContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
 
         ATH_CHECK(createValueContainer(m_SCTBSErrCacheKey, m_sct_idHelper->wafer_hash_max(), ctx, std::numeric_limits<uint64_t>::min()));
+
+        ATH_CHECK(createValueContainer(m_SCTFlaggedCondCacheKey, m_sct_idHelper->wafer_hash_max(), ctx, std::numeric_limits<uint64_t>::min()));
 
         ATH_CHECK(createContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 

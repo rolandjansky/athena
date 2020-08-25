@@ -76,7 +76,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   SG::WriteHandle<IDCInDetBSErrContainer> bsIDCErrContainer(m_bsIDCErrContainerKey, ctx);
   if ( m_bsErrContainerCacheKey.key().empty() ) {
-    ATH_CHECK(bsIDCErrContainer.record( std::make_unique<IDCInDetBSErrContainer>(m_sctID->wafer_hash_max(), std::numeric_limits<int>::min() )));
+    ATH_CHECK(bsIDCErrContainer.record( std::make_unique<IDCInDetBSErrContainer>(m_sctID->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min() )));
     ATH_MSG_DEBUG("Created IDCInDetBSErrContainer w/o using external cache");
   } else { // use cache
     SG::UpdateHandle<IDCInDetBSErrContainer_Cache> cacheHandle( m_bsErrContainerCacheKey, ctx );

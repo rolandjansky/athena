@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for el_singlee_7-80_long
+# art-description: art job for minbias
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728
-# art-input-nfiles: 10
 # art-athena-mt: 4
 # art-memory: 4096
-# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -54,18 +51,13 @@ for opt,arg in opts:
 
 
 rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['electron']
-rdo2aod.max_events = 20000 
+rdo2aod.slices = ['minbias']
+rdo2aod.max_events = 8000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
-rdo2aod.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-if local:
-    rdo2aod.input = 'Single_el'     # defined in TrigValTools/share/TrigValInputs.json  
-else:
-    rdo2aod.input = ''
-    rdo2aod.args += '--inputRDOFile=$ArtInFile '
+rdo2aod.input = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -79,17 +71,17 @@ if (not exclude):
 # Run Tidardict
 if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
-    rdict.args='TIDAdata-run3.dat -f data-hists.root -p 11 -b Test_bin.dat '
+    rdict.args='TIDAdata-run3.dat -f data-hists.root -b Test_bin.dat '
     test.check_steps.append(rdict)
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2ele')
-comp.flag = 'L2ele'
+comp=TrigInDetCompStep('Comp_L2mb')
+comp.flag = 'L2mb'
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFele')
-comp2.flag = 'EFele'
+comp2=TrigInDetCompStep('Comp_EFmb')
+comp2.flag = 'EFmb'
 test.check_steps.append(comp2)
 
 # CPU cost steps

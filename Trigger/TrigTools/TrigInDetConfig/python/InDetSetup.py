@@ -57,6 +57,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixelBSErrCacheKey ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
+                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
     
@@ -264,6 +265,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = rois
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+  InDetSCT_Clusterization.FlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey
 
   from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
   InDetSCT_Clusterization.RegSelTool = makeRegSelTool_SCT()

@@ -121,7 +121,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
         # prepare algorithms to run in views, first, inform scheduler that input data is available in parent view (has to be done by hand)
         idAlgs, verifier = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=TrkInputMakerAlg.InViewRoIs, viewVerifier='TrkrecoSeqDataVerifier')
         verifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+InputRoI' ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'InDet::SCT_ClusterContainer' , 'StoreGateSvc+SCT_TrigClusters' ),
                                  ( 'SpacePointContainer' , 'StoreGateSvc+SCT_TrigSpacePoints' ),
                                  ( 'InDet::PixelClusterContainer' , 'StoreGateSvc+PixelTrigClusters' ),

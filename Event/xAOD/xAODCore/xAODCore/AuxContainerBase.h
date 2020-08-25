@@ -13,7 +13,6 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
-#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/tools/threading.h"
 #include "AthContainers/PackedContainer.h"
@@ -48,8 +47,7 @@ namespace xAOD {
    ///
    class AuxContainerBase : public SG::IAuxStore,
                             public SG::IAuxStoreIO,
-                            public SG::IAuxStoreHolder,
-                            public SG::IAuxStoreCompression
+                            public SG::IAuxStoreHolder
 #ifndef XAOD_STANDALONE
                           , public ILockable
 #endif // not XAOD_STANDALONE
@@ -158,20 +156,6 @@ namespace xAOD {
 
       /// @}
 
-      /// @name Functions implementing the SG::IAuxStoreCompression interface
-      /// @{
-
-      virtual void setCompressedAuxIDs ( const std::vector< std::set< std::string > >& attributes ) override;
-
-      virtual SG::auxid_set_t getCompressedAuxIDs( const bool& highComp = true ) const override;
-
-      virtual float getCompressedValue ( const float& value, const bool& highComp = true ) const override;
-
-      virtual void setCompressionBits ( const std::vector< unsigned int >& nbits ) override;
-
-      virtual unsigned int getCompressionBits ( const bool& highComp = true ) const override;
-      /// @}
-
       /// @name Functions managing the instance name of the container
       /// @{
 
@@ -243,12 +227,12 @@ namespace xAOD {
 
 // Declare a class ID for the class:
 #include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::AuxContainerBase, 1225080690, 2 )
+CLASS_DEF( xAOD::AuxContainerBase, 1225080690, 3 )
 
 // Describe the inheritance of the class:
 #include "xAODCore/BaseInfo.h"
-SG_BASES4( xAOD::AuxContainerBase, SG::IAuxStore, SG::IAuxStoreIO,
-           SG::IAuxStoreHolder, SG::IAuxStoreCompression );
+SG_BASES3( xAOD::AuxContainerBase, SG::IAuxStore, SG::IAuxStoreIO,
+           SG::IAuxStoreHolder );
 
 // Include the template implementation:
 #include "AuxContainerBase.icc"

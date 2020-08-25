@@ -14,14 +14,14 @@ from ISF_Geant4Services.ISF_Geant4ServicesConfigNew import (
 )
 from ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfigNew import (
     FastCaloSimSvcCfg, LegacyAFIIFastCaloSimSvcCfg,
-    FastCaloSimSvcV2Cfg, DNNCaloSimSvcCfg,
+    FastCaloSimV2SvcCfg, DNNCaloSimSvcCfg,
     FastHitConvAlgFastCaloSimSvcCfg,
     FastHitConvAlgLegacyAFIIFastCaloSimSvcCfg,
     FastCaloSimPileupSvcCfg, FastCaloSimPileupOTSvcCfg,
 )
-from ISF_FatrasServices.ISF_FatrasServicesConfigNew import (
-    FatrasSimServiceIDCfg, FatrasNewExtrapolationSimServiceIDCfg,
-    FatrasPileupSimServiceIDCfg, 
+from ISF_FatrasServices.ISF_FatrasConfig import (
+    fatrasSimServiceIDCfg, fatrasNewExtrapolationSimServiceIDCfg,
+    fatrasPileupSimServiceIDCfg, 
 )
 
 
@@ -129,7 +129,7 @@ def DefaultLegacyAFIIFastCaloSimSelectorCfg(flags, name="ISF_DefaultLegacyAFIIFa
 
 
 def DefaultFastCaloSimV2SelectorCfg(flags, name="ISF_DefaultFastCaloSimV2Selector", **kwargs):
-    acc = FastCaloSimSvcV2Cfg(flags)
+    acc = FastCaloSimV2SvcCfg(flags)
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FastCaloSimSvcV2"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.FastCaloSimV2)
@@ -170,7 +170,7 @@ def FastHitConvAlgLegacyAFIIFastCaloSimSelectorCfg(flags, name="ISF_FastHitConvA
 
 
 def DefaultFatrasSelectorCfg(flags, name="ISF_DefaultFatrasSelector", **kwargs):
-    acc = FatrasSimServiceIDCfg(flags)
+    acc = fatrasSimServiceIDCfg(flags)
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
@@ -181,7 +181,7 @@ def DefaultFatrasSelectorCfg(flags, name="ISF_DefaultFatrasSelector", **kwargs):
 
 def DefaultFatrasNewExtrapolationSelectorCfg(flags, name="ISF_DefaultFatrasNewExtrapolationSelector", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(FatrasNewExtrapolationSimServiceIDCfg(flags))
+    acc.merge(fatrasNewExtrapolationSimServiceIDCfg(flags))
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasNewExtrapolationSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
@@ -209,7 +209,7 @@ def PileupSimSelectorCfg(flags, name="ISF_PileupSimSelector", **kwargs):
 
 def FatrasPileupSelectorCfg(flags, name="ISF_FatrasPileupSelector", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(FatrasPileupSimServiceIDCfg(flags))
+    acc.merge(fatrasPileupSimServiceIDCfg(flags))
     kwargs.setdefault("PileupBCID", [1])
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasPileupSimSvc"))
@@ -430,7 +430,7 @@ def MuonAFII_QS_Geant4SelectorCfg(flags, name="ISF_MuonAFII_QS_Geant4Selector", 
 
 
 def MuonFatrasSelectorCfg(flags, name="ISF_MuonFatrasSelector", **kwargs):
-    acc = FatrasSimServiceIDCfg(flags)
+    acc = fatrasSimServiceIDCfg(flags)
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
@@ -441,7 +441,7 @@ def MuonFatrasSelectorCfg(flags, name="ISF_MuonFatrasSelector", **kwargs):
 
 def MuonFatrasPileupSelectorCfg(flags, name="ISF_MuonFatrasPileupSelector", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(FatrasPileupSimServiceIDCfg(flags))
+    acc.merge(fatrasPileupSimServiceIDCfg(flags))
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasPileupSimSvc"))
     kwargs.setdefault("PileupBCID", [1])
@@ -499,7 +499,7 @@ def PhotonConeSelectorCfg(flags, name="ISF_PhotonConeSelector", **kwargs):
 
 
 def PhotonConeFatrasSelectorCfg(flags, name="ISF_PhotonConeFatrasSelector", **kwargs):
-    acc = FatrasSimServiceIDCfg(flags)
+    acc = fatrasSimServiceIDCfg(flags)
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
@@ -637,7 +637,7 @@ def BHadronProductsGeant4SelectorCfg(flags, name="ISF_BHadronProductsGeant4Selec
 
 
 def BHadronProductsFatrasSelectorCfg(flags, name="ISF_BHadronProductsFatrasSelector", **kwargs):
-    acc = FatrasSimServiceIDCfg(flags)
+    acc = fatrasSimServiceIDCfg(flags)
     if flags.Concurrency.NumThreads == 0:
         kwargs.setdefault("Simulator", acc.getService("ISF_FatrasSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)

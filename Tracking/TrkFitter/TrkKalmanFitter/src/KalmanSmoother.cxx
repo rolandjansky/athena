@@ -753,7 +753,7 @@ void Trk::KalmanSmoother::addChi2IncrementAndDelete(Trk::FitQualityOnSurface*& f
 }
 
 // private -- helper to make pretty debug output
-void Trk::KalmanSmoother::printGlobalParams(int istate, std::string ptype,
+void Trk::KalmanSmoother::printGlobalParams(int istate, const std::string& ptype,
                                             const Trk::TrackParameters* param,
                                             const Trk::DNA_MaterialEffects* mefot) const
 {
@@ -780,5 +780,4 @@ void Trk::KalmanSmoother::monitorTrackFits(FitStatusCodes code, const double& et
     if (fabs(eta) < 0.80 ) ((m_fitStatistics[code])[iBarrel])++;
     else if (fabs(eta) < 1.60) ((m_fitStatistics[code])[iTransi])++;
     else if (fabs(eta) < 2.50) ((m_fitStatistics[code])[iEndcap])++;
-    return;
 }

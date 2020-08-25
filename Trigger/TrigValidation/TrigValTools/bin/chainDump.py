@@ -199,7 +199,7 @@ def compare_ref(json_dict, thr_frac, thr_num):
     results = []
     in_total = json_dict[total_events_key]['count']
     ref_total = json_dict[total_events_key]['ref_count']
-    for text_name in json_dict.keys():
+    for text_name in sorted(json_dict.keys()):
         if text_name == total_events_key:
             continue
         diff_val = []  # different counts in input and reference
@@ -283,7 +283,7 @@ def format_txt_count(count):
 
 
 def write_txt_output(json_dict, diff_only=False):
-    for text_name in json_dict.keys():
+    for text_name in sorted(json_dict.keys()):
         if text_name == total_events_key:
             logging.info('Writing total event count to file %s.txt', text_name)
             with open('{:s}.txt'.format(text_name), 'w') as outfile:
@@ -346,7 +346,7 @@ def main():
     if len(in_hists) == 0:
         logging.error('No count histograms could be loaded.')
         return 1
-    logging.info('Loaded count histograms: %s', list(in_hists.keys()))
+    logging.info('Loaded count histograms: %s', sorted(in_hists.keys()))
 
     in_total_hists = load_histograms(in_file, args.totalHists)
     if len(in_total_hists) == 0:
@@ -362,7 +362,7 @@ def main():
     ref_total = None
     if args.referenceFile:
         ref_hists = load_histograms(ref_file, args.countHists)
-        logging.info('Loaded reference count histograms: %s', list(ref_hists.keys()))
+        logging.info('Loaded reference count histograms: %s', sorted(ref_hists.keys()))
         missing_refs = [k for k in in_hists.keys() if k not in ref_hists.keys()]
         if len(missing_refs) > 0:
             logging.error('Count histogram(s) %s missing in the reference', missing_refs)
@@ -423,7 +423,7 @@ def main():
     if args.json:
         logging.info('Writing results to %s', args.json)
         with open(args.json, 'w') as outfile:
-            json.dump(json_dict, outfile)
+            json.dump(json_dict, outfile, sort_keys=True)
 
     return retcode
 

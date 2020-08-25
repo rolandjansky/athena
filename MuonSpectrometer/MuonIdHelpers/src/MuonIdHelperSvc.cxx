@@ -208,7 +208,7 @@ namespace Muon {
     bool sMdt = false;
     // now, let's check if we are in the inner barrel layer, and if there are RPCs installed
     // if yes, the MDT chambers must be sMDTs
-    if (m_mdtIdHelper->stationNameString(stationName(id)).find("BI")!=0) {
+    if (m_mdtIdHelper->stationNameString(stationName(id)).find("BI")!=std::string::npos) {
       // now try to retrieve RPC identifier with the same station name/eta/phi and check if it is valid
       bool isValid = false;
       m_rpcIdHelper->elementID(stationName(id), stationEta(id), stationPhi(id), 1, true, &isValid, true); // last 4 arguments are: doubletR, check, isValid, noPrint

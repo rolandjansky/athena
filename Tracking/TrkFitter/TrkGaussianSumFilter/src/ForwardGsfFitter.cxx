@@ -81,9 +81,9 @@ Trk::ForwardGsfFitter::configureTools(
   return StatusCode::SUCCESS;
 }
 
-/*==============================================================================================================
-   Forwards fit on a set of PrepRawData
-   =============================================================================================================*/
+/*
+ * Forwards fit on a set of PrepRawData
+ */
 
 std::unique_ptr<Trk::ForwardTrajectory>
 Trk::ForwardGsfFitter::fitPRD(
@@ -163,11 +163,9 @@ Trk::ForwardGsfFitter::fitPRD(
   return forwardTrajectory;
 }
 
-/* ================================================================================================
-   Forwards fit on a set of Measurements
-   ================================================================================================
+/*
+ * Forwards fit on a set of Measurements
  */
-
 std::unique_ptr<Trk::ForwardTrajectory>
 Trk::ForwardGsfFitter::fitMeasurements(
   const EventContext& ctx,
@@ -240,11 +238,9 @@ Trk::ForwardGsfFitter::fitMeasurements(
   return forwardTrajectory;
 }
 
-/* =====================================================================================
-   StepForwardFit() private method
-   =====================================================================================
+/*
+ *   StepForwardFit() private method
  */
-
 bool
 Trk::ForwardGsfFitter::stepForwardFit(
   const EventContext& ctx,
@@ -268,9 +264,8 @@ Trk::ForwardGsfFitter::stepForwardFit(
     ATH_MSG_WARNING("ForwardTrajectory object is not defined... Exiting!");
     return false;
   }
-  // =================================================================
+
   // Extrapolate multi-component state to the next measurement surface
-  // =================================================================
   Trk::MultiComponentState extrapolatedState =
     m_extrapolator->extrapolate(ctx,
                                 extrapolatorCache,
@@ -306,32 +301,24 @@ Trk::ForwardGsfFitter::stepForwardFit(
       m_rioOnTrackCreator->correct(*originalPrepRawData, *combinedState));
     combinedState.reset();
   }
-  // ==========================
+
   // Perform measurement update
-  // ==========================
   if (!measurement) {
     ATH_MSG_WARNING("Cannot use MeasurementBase for measurement update, it is "
                     "not defined... Exiting!");
     return false;
   }
-  std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
+
+  auto fitQuality = std::make_unique<Trk::FitQualityOnSurface>();
   updatedState = m_updator.update(
     std::move(*(MultiComponentStateHelpers::clone(extrapolatedState))),
     *measurement,
-    fitQuality);
+    *fitQuality);
   if (updatedState.empty()) {
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
-  } else {
-    ATH_MSG_DEBUG(
-      "Measurement update of the state worked : " << updatedState.size());
   }
-  // Bail if the fit quality is not defined:
-  if (!fitQuality) {
-    ATH_MSG_DEBUG(
-      "Failed to make fit quality... rejecting forwards trajectory");
-    return false;
-  }
+
   // Reject hits with excessive Chi2
   if (fitQuality->chiSquared() >
       m_cutChiSquaredPerNumberDOF * fitQuality->numberDoF()) {

@@ -108,7 +108,7 @@ namespace HLT {
     StatusCode getSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>*& data) const;
 
     /// Replaces serialised data with a copy of the given data
-    void setSerialisedData(const std::unordered_map<uint16_t, std::vector<uint32_t> >& data);
+    void setSerialisedData(std::unordered_map<uint16_t, std::vector<uint32_t> > data);
 
     /// Append serialised data (copy of input) for a given moduleId, doesn't remove existing data
     void addSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>& data);
@@ -116,7 +116,7 @@ namespace HLT {
     /** @brief Add serialised data for a given moduleId. Fails if any data for the given module already exist
      *  @return FAILURE if moduleId is already present in the stored map
      **/
-    StatusCode addSerialisedDataWithCheck(const uint16_t moduleId, const std::vector<uint32_t>& data);
+    StatusCode addSerialisedDataWithCheck(const uint16_t moduleId, std::vector<uint32_t> data);
 
 
     // ------------------------- Error codes getters/setters -------------------
@@ -133,7 +133,7 @@ namespace HLT {
     const std::vector<HLT::OnlineErrorCode> getErrorCodes() const;
 
     /// Replace the full status words with the given data
-    void setStatus(const std::vector<uint32_t>& status);
+    void setStatus(std::vector<uint32_t> status);
 
     /// Replace error codes with the given codes
     void setErrorCodes(const std::vector<HLT::OnlineErrorCode>& errorCodes,

@@ -174,7 +174,7 @@ EMClusterTool::setNewCluster(const EventContext& ctx,
     ATH_MSG_DEBUG("egamma object does not have a cluster associated");
     return;
   }
-  typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;
+  using ClusterLink_t = ElementLink<xAOD::CaloClusterContainer>;
   xAOD::CaloCluster* cluster = nullptr;
 
   // Special Case for topo seeded photons.

@@ -24,7 +24,6 @@ typedef HepMC3::Pythia8ToHepMC3	Pythia8ToHepMC;
 
 #include <stdexcept>
 
-using std::string;
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration

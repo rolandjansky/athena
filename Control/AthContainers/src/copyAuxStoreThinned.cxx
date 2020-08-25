@@ -15,7 +15,6 @@
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
-#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 #include "CxxUtils/FloatCompressor.h"
