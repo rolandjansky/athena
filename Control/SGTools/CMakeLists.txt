@@ -59,3 +59,8 @@ atlas_add_test( SGFolderItem_test
                 SOURCES
                 test/SGFolderItem_test.cxx
                 LINK_LIBRARIES SGTools )
+
+atlas_add_test( transientKey_test
+                SOURCES
+                test/transientKey_test.cxx
+                LINK_LIBRARIES SGTools )
