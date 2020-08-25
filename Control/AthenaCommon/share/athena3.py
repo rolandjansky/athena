@@ -156,6 +156,7 @@ else:
    # Otherwise, ROOT can get shut down before Gaudi, leading to crashes
    # when Athena components dereference ROOT objects that have been deleted.
    import ROOT
+   ROOT.gROOT.SetBatch(True)
 
  # readline support
    import rlcompleter, readline

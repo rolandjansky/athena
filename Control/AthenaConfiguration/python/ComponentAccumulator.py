@@ -608,6 +608,7 @@ class ComponentAccumulator(object):
         # Without this here, pyroot can sometimes get confused
         # and report spurious type mismatch errors about this object.
         import ROOT
+        ROOT.gROOT.SetBatch(True)
         ROOT.Gaudi
 
         appPropsToSet, mspPropsToSet, bshPropsToSet = self.gatherProps(OutputLevel)

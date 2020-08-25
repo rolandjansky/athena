@@ -20,10 +20,8 @@ import six
 
 ### helper functions ----------------------------------------------------------
 def _import_ROOT():
-    import sys
-    sys.argv.insert(1, '-b')
     import ROOT
-    del sys.argv[1]
+    ROOT.gROOT.SetBatch(True)
     return ROOT
 
 ### ---

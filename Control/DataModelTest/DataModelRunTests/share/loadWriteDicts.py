@@ -18,6 +18,7 @@ from AthenaPython.PyAthenaComps import Alg, StatusCode
 class LoadWriteDicts (Alg):
     def initialize (self):
         import ROOT
+        ROOT.gROOT.SetBatch(True)
         import cppyy
         cppyy.load_library("libDataModelTestDataCommonDict")
         cppyy.load_library("libDataModelTestDataWriteDict")

@@ -25,15 +25,8 @@ def _load_dict(lib):
 
 @memoize
 def _import_ROOT():
-    # FIXME: work-around ROOT's silly behaviour wrt graphics libraries
-    # see: https://savannah.cern.ch/bugs/?35461
-    import os
-    orig_display=os.environ.get('DISPLAY',None)
     import ROOT
-    if orig_display:
-        os.environ['DISPLAY'] = orig_display
-    del orig_display
-
+    ROOT.gROOT.SetBatch(True)
     return ROOT
     
 ### data ----------------------------------------------------------------------
