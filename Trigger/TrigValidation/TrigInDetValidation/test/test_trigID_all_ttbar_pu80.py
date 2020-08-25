@@ -78,50 +78,41 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon')
-comp.flag='L2muon'
+comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
 comp.test='ttbar'
 test.check_steps.append(comp)
  
  
-comp2=TrigInDetCompStep('Comp_EFmuon')
-comp2.flag='EFmuon'
+comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
 comp2.test='ttbar'
 test.check_steps.append(comp2)
 
 
-comp3=TrigInDetCompStep('Comp_L2bjet')
-comp3.flag='L2bjet'
+comp3=TrigInDetCompStep('Comp_L2bjet','L2','bjet')
 comp3.test='ttbar'
 test.check_steps.append(comp3)
 
-comp4=TrigInDetCompStep('Comp_EFbjet')
-comp4.flag='EFbjet'
+comp4=TrigInDetCompStep('Comp_EFbjet','EF','bjet')
 comp4.test='ttbar'
 test.check_steps.append(comp4)
 
-comp5=TrigInDetCompStep('Comp_L2tau')
-comp5.flag='L2tau'
+comp5=TrigInDetCompStep('Comp_L2tau','L2','tau')
 comp5.test='ttbar'
 test.check_steps.append(comp5)
 
-comp6=TrigInDetCompStep('Comp_EFtau')
-comp6.flag='EFtau'
+comp6=TrigInDetCompStep('Comp_EFtau','EF','tau')
 comp6.test='ttbar'
 test.check_steps.append(comp6)
 
-comp7=TrigInDetCompStep('Comp_L2ele')
-comp7.flag='L2ele'
+comp7=TrigInDetCompStep('Comp_L2ele','L2','ele')
 comp7.test='ttbar'
 test.check_steps.append(comp7)
 
-comp8=TrigInDetCompStep('Comp_EFele')
-comp8.flag='EFele'
+comp8=TrigInDetCompStep('Comp_EFele','EF','ele')
 comp8.test='ttbar'
 test.check_steps.append(comp8)
 
-comp9=TrigInDetCompStep('Comp_L2FS')
-comp9.flag='L2FS'
+comp9=TrigInDetCompStep('Comp_L2FS','L2','FS')
 comp9.test='ttbar'
 test.check_steps.append(comp9)
 

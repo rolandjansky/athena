@@ -79,12 +79,10 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp1=TrigInDetCompStep('Comp_L2bjet')
-comp1.flag = 'L2bjet'
+comp1=TrigInDetCompStep('Comp_L2bjet','L2','bjet')
 test.check_steps.append(comp1)
 
-comp2=TrigInDetCompStep('Comp_EFbjet')
-comp2.flag = 'EFbjet'
+comp2=TrigInDetCompStep('Comp_EFbjet','EF','bjet')
 test.check_steps.append(comp2)
 
 
