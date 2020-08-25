@@ -650,6 +650,7 @@ if globalflags.DataSource()=="geant4":
       "TruthNeutrinos",
       "TruthBottom",
       "TruthBSM",
+      "HardScatterParticles",
       ]:
       EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
       EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
