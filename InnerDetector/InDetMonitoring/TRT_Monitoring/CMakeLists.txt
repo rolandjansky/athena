@@ -6,35 +6,6 @@
 # Declare the package name:
 atlas_subdir( TRT_Monitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaMonitoring
-                          GaudiKernel
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          LumiBlock/LumiBlockComps
-                          PRIVATE
-                          Control/StoreGate
-                          Commission/CommissionEvent
-                          Control/AthContainers
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTrigger
-                          InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetConditions/TRT_ConditionsServices
-			  InnerDetector/InDetConditions/InDetByteStreamErrors
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          InnerDetector/InDetRecTools/TRT_DriftFunctionTool
-                          InnerDetector/InDetRecTools/TRT_TrackHoleSearch
-                          Tools/LWHists
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkTools/TrkToolInterfaces )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -44,7 +15,7 @@ atlas_add_component( TRT_Monitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetRawData LumiBlockCompsLib CommissionEvent AthContainers AtlasDetDescr Identifier xAODEventInfo xAODTrigger EventPrimitives TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack LWHists TrkTrack TrkTrackSummary TrkToolInterfaces TRT_DriftFunctionToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetRawData LumiBlockCompsLib CommissionEvent AthContainers AtlasDetDescr Identifier xAODEventInfo xAODTrigger EventPrimitives TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack LWHists TrkTrack TrkTrackSummary TrkToolInterfaces TRT_DriftFunctionToolLib InDetByteStreamErrors )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
