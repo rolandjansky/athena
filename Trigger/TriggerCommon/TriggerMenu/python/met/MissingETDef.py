@@ -152,6 +152,8 @@ class METChainBuilder(object):
         """
         # Work out what we want to call the output
         te_name = self._te_name_from_fex(fex)
+        if "LRT" in self.chainPart["addInfo"]:
+            te_name = te_name+"_lrt"
         # Add the fex to our sequences
         self.chain_def.addSequence(
                 [fex],
@@ -260,16 +262,31 @@ class METChainBuilder(object):
                     "FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
             algorithms += trk_algs[0] + trk_algs[1]
             te_out = "EF_xe_FTKTrk"
+        elif "LRT" in self.chainPart["addInfo"]:
+            trk_algs = TrigInDetSequence(
+                    "FullScan", "fullScan", 
+                    "IDTrig" , sequenceFlavour=["2step"]).getSequence()
+            algorithms += trk_algs[0]
+            lrt_algorithms = trk_algs[1]
+            te_out = "EF_xe_FSTrk"
         else:
             trk_algs = TrigInDetSequence(
                     "FullScan", "fullScan", 
                     "IDTrig", sequenceFlavour=["FTF"]).getSequence()
             algorithms += trk_algs[0]
             te_out = "EF_xe_FSTrk"
+
         if "fs_tracks" not in self._added_inputs:
             self.chain_def.addSequence(
                     algorithms,
                     te_in=[''],
+                    te_out=te_out)
+            if "LRT" in self.chainPart["addInfo"]:
+                te_in=te_out
+                te_out="EF_xe_FSlrtTrk"
+                self.chain_def.addSequence(
+                    lrt_algorithms,
+                    te_in=te_in,
                     te_out=te_out)
             self._added_inputs.append("fs_tracks")
         return [te_out]

@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <array>
+#include "TrkPrepRawData/PrepRawData.h"
 
 namespace Trk {
   class SpacePoint;
@@ -122,22 +123,44 @@ namespace FTF {//FastTrackFinder
       double m_dr, m_dz;
   };
 
+
   class RoI_Filter : public BaseSpacePointFilter {
     public:
-  RoI_Filter(std::vector<TrigSiSpacePointBase>& vec, LayerCalculator& lc, const IRoiDescriptor* roi, bool filter_phi=true) : BaseSpacePointFilter(vec,lc), 
-      m_roi(roi), m_filter_phi(filter_phi) { }
-      virtual void operator()(const Trk::SpacePoint* p) {
-        if(m_filter_phi) {
-	  if( RoiUtil::contains( *m_roi, p->globalPosition().z(), p->globalPosition().perp(), p->globalPosition().phi() ) ) createSpacePoint(p);
+  RoI_Filter(std::vector<TrigSiSpacePointBase>& vec, LayerCalculator& lc, const IRoiDescriptor* roi, 
+	     bool filter_phi=true, 
+	     std::map<Identifier, std::vector<long int> >* clusterMap=nullptr) : BaseSpacePointFilter(vec,lc), 
+      m_roi(roi), m_filter_phi(filter_phi), m_clusterMap(clusterMap){ }
+    virtual void operator()(const Trk::SpacePoint* p) {
+
+      bool unused=true;
+      // if a cluster map is specified, use it to reject spacepoints where one or more clusters has already be used on a track
+      if (m_clusterMap) {
+	const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*> clusterList =  p->clusterList();
+	if (clusterList.first) {
+	  Identifier id1=(clusterList.first)->identify();
+	  unused = m_clusterMap->find(id1)==m_clusterMap->end();
 	}
-	else {
-	  if( RoiUtil::containsZed(*m_roi, p->globalPosition().z(), p->globalPosition().perp() )) createSpacePoint(p);
+	if (clusterList.second) {
+	  Identifier id2=(clusterList.second)->identify();
+	  unused = unused && (m_clusterMap->find(id2)==m_clusterMap->end());
 	}
+
       }
-    private:
-      const IRoiDescriptor* m_roi;
-      bool m_filter_phi;
+      if(m_filter_phi) {
+	if( unused && RoiUtil::contains( *m_roi, p->globalPosition().z(), p->globalPosition().perp(), p->globalPosition().phi() ) ) createSpacePoint(p);
+      }
+      else {
+	if( unused && RoiUtil::containsZed(*m_roi, p->globalPosition().z(), p->globalPosition().perp() )) createSpacePoint(p);
+      }
+
+    }
+  private:
+    const IRoiDescriptor* m_roi;
+    bool m_filter_phi;
+    std::map<Identifier, std::vector<long int> >* m_clusterMap;
   };
+  
+
 
   template < typename T> class SpacePointSelector {
   public:
