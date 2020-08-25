@@ -7,9 +7,14 @@
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
-#include "lwtnn/LightweightGraph.hh"
 #include <string>
 #include "TH2D.h"
+
+// forward declare lwtnn dependencies
+namespace lwt
+{
+  class LightweightGraph;
+}
 
 class TFCSEnergyAndHitGAN:public TFCSParametrizationBinnedChain {
 public:
@@ -29,6 +34,15 @@ public:
   bool GANfreemem() const {return TestBit(kGANfreemem);};
   void set_GANfreemem() {SetBit(kGANfreemem);};
   void reset_GANfreemem() {ResetBit(kGANfreemem);};
+
+  ///Status bit for energy initialization
+  enum FCSEnergyInitializationStatusBits {
+     kOnlyScaleEnergy = BIT(18) ///< Set this bit in the TObject bit field the simulated energy should only be scaled by the GAN
+  };
+
+  bool OnlyScaleEnergy() const {return TestBit(kOnlyScaleEnergy);};
+  void set_OnlyScaleEnergy() {SetBit(kOnlyScaleEnergy);};
+  void reset_OnlyScaleEnergy() {ResetBit(kOnlyScaleEnergy);};
 
   /// use the layer to be done as binning of the GAN chain
   virtual int get_bin(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const override {return simulstate.getAuxInfo<int>("GANlayer"_FCShash);};
