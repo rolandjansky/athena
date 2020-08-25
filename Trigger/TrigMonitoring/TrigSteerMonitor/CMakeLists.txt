@@ -1,55 +1,18 @@
-# $Id: CMakeLists.txt 780092 2016-10-24 15:34:49Z krasznaa $
-################################################################################
-# Package: TrigSteerMonitor
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigSteerMonitor )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   GaudiKernel
-   Control/AthenaInterprocess
-   Control/AthenaKernel
-   Control/AthenaMonitoring
-   Event/EventInfo
-   Trigger/TrigConfiguration/TrigConfInterfaces
-   Trigger/TrigDataAccess/TrigDataAccessMonitoring
-   Trigger/TrigMonitoring/TrigMonitorBase
-   Trigger/TrigSteer/TrigSteering
-   Trigger/TrigSteer/DecisionHandling
-   Trigger/TrigSteer/TrigCompositeUtils
-   Control/StoreGate
-   Event/xAOD/xAODEventInfo
-   MagneticField/MagFieldInterfaces
-   LumiBlock/LumiBlockData
-   Trigger/TrigConfiguration/TrigConfHLTData
-   Trigger/TrigConfiguration/TrigConfData
-   Trigger/TrigConfiguration/TrigConfL1Data
-   Trigger/TrigEvent/TrigNavigation
-   Trigger/TrigEvent/TrigSteeringEvent
-   Trigger/TrigSteer/TrigInterfaces
-   Trigger/TrigT1/TrigT1Interfaces
-   Trigger/TrigT1/TrigT1Result )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist )
 find_package( tdaq-common )
 
 # Component(s) in the package:
 atlas_add_component( TrigSteerMonitor
    src/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   ${TDAQ-COMMON_INCLUDE_DIRS}
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
-   ${TDAQ-COMMON_LIBRARIES} AthenaInterprocess AthenaKernel AthenaMonitoringLib EventInfo
-   GaudiKernel TrigDataAccessMonitoringLib TrigMonitorBaseLib TrigSteeringLib
-   StoreGateLib MagFieldInterfaces LumiBlockData TrigConfHLTData TrigConfData
-   TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigInterfacesLib
-   TrigT1Interfaces TrigT1Result DecisionHandlingLib TrigCompositeUtilsLib )
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaMonitoringLib EventInfo GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigConfData TrigConfHLTData TrigConfInterfaces TrigConfL1Data TrigDataAccessMonitoringLib TrigInterfacesLib TrigMonitorBaseLib TrigNavigationLib TrigSteeringEvent TrigSteeringLib TrigT1Interfaces TrigT1Result xAODEventInfo xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )

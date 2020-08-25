@@ -189,10 +189,10 @@ public:
   size_t layerBin(const Amg::Vector3D& pos) const { return (layerBinUtility(pos)->bin(pos)); }
 
 private:
-  const std::vector<std::vector<size_t>> m_array; //!< vector of indices to objects
+  std::vector<std::vector<size_t>> m_array; //!< vector of indices to objects
   const std::vector<T*> m_arrayObjects;     //!< objects
   const BinUtility* m_binUtility;                 //!< binUtility
-  const std::vector<BinUtility*> m_buVec;         //!< vector of bin utilities for 2nd dim
+  std::vector<BinUtility*> m_buVec;         //!< vector of bin utilities for 2nd dim
 };
 
 template<class T>

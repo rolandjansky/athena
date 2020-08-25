@@ -38,27 +38,6 @@ Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds(double halex, double minhale
   initCache();
 }
 
-// copy constructor
-Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds(const RotatedTrapezoidBounds& trabo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(trabo.m_boundValues)
-  , m_kappa(trabo.m_kappa)
-  , m_delta(trabo.m_delta)
-{}
-
-// destructor
-Trk::RotatedTrapezoidBounds::~RotatedTrapezoidBounds() = default;
-
-Trk::RotatedTrapezoidBounds&
-Trk::RotatedTrapezoidBounds::operator=(const RotatedTrapezoidBounds& trabo)
-{
-  if (this != &trabo) {
-    m_boundValues = trabo.m_boundValues;
-    m_kappa = trabo.m_kappa;
-    m_delta = trabo.m_delta;
-  }
-  return *this;
-}
 
 bool
 Trk::RotatedTrapezoidBounds::operator==(const Trk::SurfaceBounds& sbo) const

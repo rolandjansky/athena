@@ -6,15 +6,16 @@
  * @file   ForwardGsfFitter.h
  * @date   Wednesday 9th March 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * @brief   Class definition for the forward GSF fitter 
+ * @brief   Class definition for the forward GSF fitter
  */
 
 #ifndef TrkForwardGsfFitter_H
 #define TrkForwardGsfFitter_H
-
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
+#include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -24,7 +25,6 @@
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;
 
@@ -51,13 +51,14 @@ public:
       - Configure the measurement updator
       - Configure the RIO_OnTrack creator */
   virtual StatusCode configureTools(
-    const ToolHandle<Trk::IMultiStateExtrapolator>&,
-    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
-    const ToolHandle<Trk::IRIO_OnTrackCreator>&) override final;
+    const ToolHandle<Trk::IMultiStateExtrapolator>& extrapolator,
+    const ToolHandle<Trk::IRIO_OnTrackCreator>& rioOnTrackCreator)
+    override final;
 
   /** Forward GSF fit using PrepRawData */
   virtual std::unique_ptr<ForwardTrajectory> fitPRD(
     const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
     const PrepRawDataSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis =
@@ -66,6 +67,7 @@ public:
   /** Forward GSF fit using MeasurementSet */
   virtual std::unique_ptr<ForwardTrajectory> fitMeasurements(
     const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
     const MeasurementSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis =
@@ -78,6 +80,7 @@ private:
   /** Progress one step along the fit */
   bool stepForwardFit(
     const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
     ForwardTrajectory*,
     const PrepRawData*,
     const MeasurementBase*,
@@ -88,8 +91,8 @@ private:
 private:
   /**These are passed via the configure tools so not retrieved from this tool*/
   ToolHandle<IMultiStateExtrapolator> m_extrapolator;
-  ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator;
+  GsfMeasurementUpdator m_updator;
   double m_cutChiSquaredPerNumberDOF;
   int m_overideMaterialEffects;
   ParticleHypothesis m_overideParticleHypothesis;

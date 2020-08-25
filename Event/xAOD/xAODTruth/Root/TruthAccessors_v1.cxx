@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthAccessors_v1.cxx 623284 2014-10-22 14:07:48Z krasznaa $
@@ -32,10 +32,10 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::polarizationAccessorV1 ERROR Unknown PolParam ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
 
-      return 0;
+      return nullptr;
    }
 
    const SG::AuxElement::Accessor< int >*
@@ -51,10 +51,10 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::pdfInfoAccessorV1Int ERROR Unknown PdfParam ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
 
-      return 0;
+      return nullptr;
    }
 
    const SG::AuxElement::Accessor< float >*
@@ -71,10 +71,10 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::pdfInfoAccessorV1Float ERROR Unknown ParamDef ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
 
-      return 0;
+      return nullptr;
    }
 
    const SG::AuxElement::Accessor< int >*
@@ -95,10 +95,10 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::heavyIonAccessorV1Int ERROR Unknown HIParam ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
 
-      return 0;
+      return nullptr;
    }
 
    const SG::AuxElement::Accessor< float >*
@@ -115,10 +115,10 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::heavyIonAccessorV1Float ERROR Unknown HIParam ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
 
-      return 0;
+      return nullptr;
    }
 
 } // namespace xAOD

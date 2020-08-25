@@ -422,7 +422,7 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   if (not waferId.is_valid()) return invalidIdentifier;
 
   const InDetDD::SiDetectorElement* pElement{elements->getDetectorElement(waferHash)};
-  if (!pElement) {
+  if (pElement==nullptr) {
     ATH_MSG_FATAL("Element pointer is nullptr in 'getStripId' method");
     return invalidIdentifier;
   }

@@ -38,5 +38,5 @@ atlas_add_test( GenParticleLifetimeFilter_test
                 LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AtlasHepMCLib AthenaBaseComps TruthUtils ISF_HepMC_Interfaces )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

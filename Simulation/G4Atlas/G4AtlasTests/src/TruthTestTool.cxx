@@ -158,17 +158,13 @@ StatusCode TruthTestTool::processEvent()
 
     if (currentGenEventIter!=mcCollection->end() ) {
       {
-        if ((*currentGenEventIter)->signal_process_vertex()) {
-          HepMC::GenVertex *vtx = (*currentGenEventIter)->signal_process_vertex();
+        auto  vtx = HepMC::signal_process_vertex(*currentGenEventIter);
+        if (!vtx && (*currentGenEventIter)->vertices_size()>0) vtx=*((*currentGenEventIter)->vertices_begin());
+        if ( vtx )
+        {  
           m_x_vert->Fill( vtx->position().x() );
           m_y_vert->Fill( vtx->position().y() );
           m_z_vert->Fill( vtx->position().z() );
-        }
-        else if ((*currentGenEventIter)->vertices_size()>0) {
-          HepMC::GenEvent::vertex_const_iterator vtx=(*currentGenEventIter)->vertices_begin();
-          m_x_vert->Fill( (*vtx)->position().x() );
-          m_y_vert->Fill( (*vtx)->position().y() );
-          m_z_vert->Fill( (*vtx)->position().z() );
         }
       }
 
@@ -186,7 +182,7 @@ StatusCode TruthTestTool::processEvent()
         m_vtx_z->Fill(z);
         m_vtx_zr_indet->Fill(z, r);
         m_vtx_xy_indet->Fill(x, y);
-        if ( (*vtx)->barcode()>-20000 ) {
+        if ( HepMC::barcode(*vtx)>-20000 ) {
           mx+=x;
           my+=y;
           mz+=z;
@@ -237,9 +233,9 @@ StatusCode TruthTestTool::processEvent()
         if(std::abs((*currentGenParticleIter)->pdg_id())==211) {
           m_pion_mass->Fill(mom.m());
         }
-        m_barcode_small->Fill((*currentGenParticleIter)->barcode());
-        m_barcode_large->Fill((*currentGenParticleIter)->barcode());
-        int barcode = (*currentGenParticleIter)->barcode();
+        m_barcode_small->Fill(HepMC::barcode(*currentGenParticleIter));
+        m_barcode_large->Fill(HepMC::barcode(*currentGenParticleIter));
+        int barcode = HepMC::barcode(*currentGenParticleIter);
         m_log_barcode_large->Fill( barcode > 0 ? log(barcode) : -1);
         m_particle_status->Fill((*currentGenParticleIter)->status());
 
@@ -279,13 +275,13 @@ StatusCode TruthTestTool::processEvent()
         particleType = (pdg<0) ? -particleType : particleType;
         m_particle_type->Fill( particleType );
 
-        if ( (*currentGenParticleIter)->barcode()<200000 ) {
+        if ( HepMC::barcode(*currentGenParticleIter)<200000 ) {
           m_p_gen->Fill( mom.rho() );
           m_log_p_gen->Fill( log(mom.rho()) );
           m_eta_gen->Fill( mom.eta() );
           m_phi_gen->Fill( mom.phi() );
           ++npart_prim;
-          if ( (*currentGenParticleIter)->barcode()<10000 ) {
+          if ( HepMC::barcode(*currentGenParticleIter)<10000 ) {
             m_n_generations ->Fill(0);
           }
           else {
@@ -294,7 +290,7 @@ StatusCode TruthTestTool::processEvent()
         }
         else {
           ++npart_sec;
-          const int gen = (*currentGenParticleIter)->barcode() / 1000000 +2;
+          const int gen = HepMC::barcode(*currentGenParticleIter)/ 1000000 +2;
           m_n_generations ->Fill(gen);
         }
       }

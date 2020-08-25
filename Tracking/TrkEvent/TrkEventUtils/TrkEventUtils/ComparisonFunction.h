@@ -47,7 +47,9 @@ public:
     , m_line{}
     , m_radius{ 0 }
     , m_hasPointAndLine{ 1 }
-  {}
+  {
+    m_line.setZero();
+  }
 
   /** Constructor with point and line, search with direction */
   ComparisonFunction(const Amg::Vector3D& sp, const Amg::Vector3D& dir)
@@ -63,7 +65,10 @@ public:
     , m_line{}
     , m_radius{ std::abs(cradius) }
     , m_hasPointAndLine{ 0 }
-  {}
+  {
+    m_point.setZero();
+    m_line.setZero();
+  }
 
   bool operator()(const T* one, const T* two) const
   {

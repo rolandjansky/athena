@@ -2,11 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCSectorLogic.hh"
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
-#include "TrigT1TGC/TGCHighPtBoard.hh"
-#include "TrigT1TGC/TGCHighPtBoardOut.hh"
-#include "TrigT1TGC/TGCHighPtChipOut.hh"
+#include "TrigT1TGC/TGCSectorLogic.h"
+#include "TrigT1TGC/TGCElectronicsSystem.h"
+#include "TrigT1TGC/TGCHighPtBoard.h"
+#include "TrigT1TGC/TGCHighPtBoardOut.h"
+#include "TrigT1TGC/TGCHighPtChipOut.h"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
 
@@ -123,12 +123,7 @@ void TGCSectorLogic::setStripHighPtBoard(TGCHighPtBoard* highPtBoard)
   m_stripHighPtBoard = highPtBoard;	 
 }
 
-TGCSLSelectorOut* TGCSectorLogic::getSelectorOutput() const
-{
-  return m_selectorOut;
-}
-
-  void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
+void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
 {
   trackSelectorOut=m_trackSelectorOut;
 }

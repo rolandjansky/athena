@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -61,7 +61,7 @@ namespace Trk {
    * Set compatibility of a new pair of tracks
    */
 
-    void setCompatibilityOfTo(PairOfVxVertexOnJetAxis,float);
+    void setCompatibilityOfTo(const PairOfVxVertexOnJetAxis&,float);
 
   /**
    * Get pair of tracks with highest compatibility

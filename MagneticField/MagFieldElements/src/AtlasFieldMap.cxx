@@ -12,9 +12,6 @@
 // PathResolver
 #include "PathResolver/PathResolver.h"
 
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
-
 // ROOT
 #include "TFile.h"
 #include "TTree.h"

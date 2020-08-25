@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
-    acc.merge( ByteStreamReadCfg(ConfigFlags, typeNames = tileTypeNames) )
+    acc.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
 
     acc.merge( TileDigitsFilterOutputCfg(ConfigFlags) )
 

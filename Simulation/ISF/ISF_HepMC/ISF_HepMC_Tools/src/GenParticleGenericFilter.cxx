@@ -85,7 +85,7 @@ bool ISF::GenParticleGenericFilter::pass(const HepMC::GenParticle& particle) con
 {
   bool pass = true;
 
-  const auto* productionVertex = particle.production_vertex();
+  HepMC::ConstGenVertexPtr productionVertex = particle.production_vertex();
   const auto* position = productionVertex ? &productionVertex->position() : nullptr;
   if (!position || position->perp()<=m_maxApplicableRadius) {
     pass = check_cuts_passed(particle);

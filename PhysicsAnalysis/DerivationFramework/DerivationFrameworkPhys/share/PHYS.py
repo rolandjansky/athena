@@ -13,6 +13,8 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
@@ -75,33 +77,34 @@ if (DerivationFrameworkIsMonteCarlo):
 #====================================================================
 # TRIGGER CONTENT   
 #====================================================================
-# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
-# Get single and multi mu, e, photon triggers
-# Jet, tau, multi-object triggers not available in the matching code
-allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
-trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
-trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
-trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
-# Add cross-triggers for some sets
-trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
-trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
-trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
-
-# Merge and remove duplicates
-trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
-trigger_names_full_tau = list(set(trig_tau+trig_txe))
-
-# Now reduce the list...
-from RecExConfig.InputFilePeeker import inputFileSummary
-trigger_names_notau = []
-trigger_names_tau = []
-for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
-    if not 'ChainName' in trig_item: continue
-    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
-    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
+## Lines commented out temporarily 29th July 2020 to allow validation to proceed. Will need a new MR to fix.
+## See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
+## Get single and multi mu, e, photon triggers
+## Jet, tau, multi-object triggers not available in the matching code
+#allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+#trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
+#trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
+#trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
+#trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
+## Add cross-triggers for some sets
+#trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
+#trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+#trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+## Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
+#trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
+#
+## Merge and remove duplicates
+#trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
+#trigger_names_full_tau = list(set(trig_tau+trig_txe))
+#
+## Now reduce the list...
+#from RecExConfig.InputFilePeeker import inputFileSummary
+#trigger_names_notau = []
+#trigger_names_tau = []
+#for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
+#    if not 'ChainName' in trig_item: continue
+#    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
+#    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
 
 
 #====================================================================
@@ -187,6 +190,18 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPF
 # getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
 
 #====================================================================
+# EGAMMA
+#====================================================================
+
+if DerivationFrameworkIsMonteCarlo:
+   # Schedule the two energy density tools for running after the pseudojets are created.
+   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+      if hasattr(topSequence, alg):
+         edtalg = getattr(topSequence, alg)
+         delattr(topSequence, alg)
+         SeqPHYS += edtalg
+
+#====================================================================
 # Add our sequence to the top sequence
 #====================================================================
 # Ideally, this should come at the end of the job
@@ -198,7 +213,7 @@ DerivationFrameworkJob += SeqPHYS
 # Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
 addDiTauLowPt(Seq=SeqPHYS)
-'''
+
 # Low-pt di-tau thinning
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
@@ -216,7 +231,7 @@ PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(n
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtTPThinningTool
 thinningTools.append(PHYSDiTauLowPtTPThinningTool)
-'''
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
@@ -229,18 +244,11 @@ SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-# addVRJets(SeqPHYS)
-# addVRJets(SeqPHYS, training='201903')
-#addVRJetsTCC(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-#             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-#             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
-#             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
-# add xbb taggers
-# from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
-# addRecommendedXbbTaggers(SeqPHYS, ToolSvc)
 
-# FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = SeqPHYS)
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+
+FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYS)
+
 
 #====================================================================
 # TC-LVT Vertices 
@@ -264,9 +272,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
-                                       #"BTagging_AntiKt4EMTopo_201810",
-                                       #"BTagging_AntiKt4EMPFlow_201810",
-                                       #"BTagging_AntiKt4EMPFlow_201903",
+                                       "BTagging_AntiKt4EMPFlow",
                                        #"MET_Baseline_AntiKt4EMTopo",
                                        #"MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",

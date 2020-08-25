@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoTestAlg.h"
@@ -98,7 +98,7 @@ StatusCode L1TopoTestAlg::execute()
   }
   const std::vector<TXC::TriggerLine> & topoTriggers = topoMenu->getL1TopoConfigOutputList().getTriggerLines();
   ATH_MSG_DEBUG( "Number of trigger lines configured " << topoTriggers.size() );
-  for(const TXC::TriggerLine tl : topoTriggers) {
+  for(const TXC::TriggerLine& tl : topoTriggers) {
     ATH_MSG_VERBOSE( tl.name() << " " << tl.counter() );
   }
 

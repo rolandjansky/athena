@@ -19,19 +19,19 @@ namespace CLHEP{
 }
 
 namespace InDet {
-  
+
   /**
      @class ConversionPostSelector
      This class selects tracks for conversion finder
      @author Tatjana Lenz , Thomas Koffas
   */
-  
+
   class ConversionPostSelector : public AthAlgTool {
-    
+
   public:
     ConversionPostSelector (const std::string& type,const std::string& name, const IInterface* parent);
     virtual ~ConversionPostSelector();
-    
+
     static const InterfaceID& interfaceID();
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
@@ -55,7 +55,7 @@ namespace InDet {
                         float deltaPhiVtxTrk) const;
 
   private:
-    /** Properties for track selection: 
+    /** Properties for track selection:
 	all cuts are ANDed */
     std::vector<double> m_maxChi2;     /** Chi2 cut.  */
     std::vector<double> m_invMassCut;  /** Invariant mass cut.  */
@@ -66,21 +66,21 @@ namespace InDet {
     double              m_maxPhiVtxTrk;/** Maximum difference in phi between reconstructed vertex and track at vertex. */
     bool                m_decorateVertices;/** Decorate vertices with values used for vertex selection */
 
-    
+
     /** Masses and mass ranges for different V0 hypotheses */
     double m_massK0      ;
     double m_sigmaK0     ;
     double m_massLambda  ;
     double m_sigmaLambda ;
     int    m_nsig        ;
-    
+
     /** struct of Particle Masses */
     static const Trk::ParticleMasses s_particleMasses;
-    
+
     /** Compute the four-momentum of a particle according to a mass hypothesis.  */
     CLHEP::HepLorentzVector fourP(const Trk::TrackParameters&, const Trk::TrackParameters&, double, bool) const;
   };
-  
+
 }
-#endif // INDETCONVERSIONFINDERTOOLS_CONVERSIONPOSTSELECTOR_H 
- 
+#endif // INDETCONVERSIONFINDERTOOLS_CONVERSIONPOSTSELECTOR_H
+

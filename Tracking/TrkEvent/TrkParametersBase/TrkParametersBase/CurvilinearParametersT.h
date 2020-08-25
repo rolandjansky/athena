@@ -9,17 +9,14 @@
 #ifndef TRKPARAMETERSBASE_CURVILINEARPARAMETERS_T_H
 #define TRKPARAMETERSBASE_CURVILINEARPARAMETERS_T_H
 
-// STL
-#include <memory>
+#include "TrkParametersBase/ParametersBase.h"
 
-// Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-// Tracking includes
 #include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkParametersBase/ParametersBase.h"
-#include "TrkParametersBase/SurfaceUniquePtrT.h"
+#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 
+#include <memory>
 class MsgStream;
 
 namespace Trk {
@@ -114,6 +111,9 @@ public:
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
+
+  /** Return the Surface Type enum*/
+  virtual int surfaceType() const override final;
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;

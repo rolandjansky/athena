@@ -40,12 +40,6 @@ namespace InDet {
       void getValue(const InDet::CutName cutName, std::vector < double >& cut) override final;
       void getValue(const InDet::CutName cutName,    std::vector < int >& cut) override final;
       
-      template <class T>
-      T getValueAtEta(const std::vector< T > cuts, const double eta) const;
-    
-      template <class T>    
-      void getValue(const InDet::CutName cutName, T& cut, const double eta);
-      
       double  getMaxEta() const override final;
       double  getMinPtAtEta           (const double eta) const override final;
       double  getMaxZImpactAtEta      (const double eta) const override final;
@@ -64,10 +58,14 @@ namespace InDet {
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
     private: 
+      template <class T>
+      T getValueAtEta(const std::vector< T > cuts, const double eta) const{
+        return cuts.at(getIndexByEta(eta)); //will throw a range error if eta > maxEta
+      }
       
       int getIndexByEta(const double eta) const;
       
-      DoubleArrayProperty   m_etaBins              {this, "etaBins"             , {0.0, 4.0}, "eta bins (highest eta is maxEta)"         };
+      DoubleArrayProperty   m_etaBins              {this, "etaBins"             , {4.0}     , "eta bins (highest eta is maxEta)"         };
       DoubleArrayProperty   m_minPT                {this, "minPT"               , {900.0}   , "min pT [MeV]"                             };
       DoubleArrayProperty   m_maxPrimaryImpact     {this, "maxPrimaryImpact"    , {2.0}     , "max Rphi IP (primaries) [mm]"             };
       DoubleArrayProperty   m_maxZImpact           {this, "maxZImpact"          , {200.0}   , "max Z IP [mm]"                            };

@@ -63,7 +63,7 @@ public:
   PlaneSurface();
 
   /** Copy Constructor*/
-  PlaneSurface(const PlaneSurface& psf);
+  PlaneSurface(const PlaneSurface& psf) = default;
 
   /** Copy Constructor with shift*/
   PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D& transf);
@@ -129,10 +129,10 @@ public:
                Trk::SharedObject<const Trk::SurfaceBounds>& sbounds);
 
   /**Destructor*/
-  virtual ~PlaneSurface();
+  virtual ~PlaneSurface() = default;
 
   /**Assignment operator*/
-  PlaneSurface& operator=(const PlaneSurface& psf);
+  PlaneSurface& operator=(const PlaneSurface& psf) = default;
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -142,6 +142,9 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
+
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */

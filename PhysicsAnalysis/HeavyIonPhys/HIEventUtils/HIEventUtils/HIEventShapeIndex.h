@@ -16,7 +16,6 @@ class HIEventShapeIndex
 {
 
 public:
-  enum BinningScheme{ TOWER, COMPACT};
   HIEventShapeIndex();
   ~HIEventShapeIndex();
 
@@ -25,7 +24,7 @@ public:
 
   unsigned int setBinning(const TH2* h2, bool asMask);
   unsigned int setBinning(const xAOD::HIEventShapeContainer* shape);
-  unsigned int setBinning(BinningScheme scheme);
+  unsigned int setBinning(HI::BinningScheme scheme);
 
   void initializeEventShapeContainer(xAOD::HIEventShapeContainer* shape_container, unsigned int num_harmonics) const;
   //can associate ptr to shape container w/ binning

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _PCDio_h_
 #define _PCDio_h_
 
+#include "CxxUtils/checker_macros.h"
 #include "RelationalAccess/AccessMode.h"
 
 #include <string>
@@ -13,7 +14,7 @@ namespace coral {
   class ISessionProxy;
 }
 
-class PCDio
+class ATLAS_NOT_THREAD_SAFE PCDio // global static variable is used.
 {
  public:
   PCDio(std::string connString, std::string tableName, int verbose);

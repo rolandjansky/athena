@@ -18,10 +18,20 @@
 
 // Local implementation-specific helper methods
 namespace {
+  using rng_t = std::mt19937_64;
+  using seed_t = rng_t::result_type;
+  /// Calculate seed from EventID and tool name
+  seed_t eventSeed(const EventIDBase& eventID, const std::string& name) {
+    uint64_t evtNum = eventID.event_number();
+    uint64_t runNum = eventID.run_number();
+    uint64_t nameHash = std::hash<std::string>{}(name);
+    uint64_t seed = evtNum ^ (runNum << 10) ^ nameHash;
+    return static_cast<seed_t>(seed);
+  }
   /// Returns a reference to static thread-local random number generator
-  std::mt19937& threadLocalGenerator() {
+  rng_t& threadLocalGenerator() {
     static thread_local std::random_device rd; // used only to ensure different seeds for mt19937
-    static thread_local std::mt19937 generator(rd());
+    static thread_local rng_t generator(rd());
     return generator;
   }
   /// Basic random real number generation
@@ -161,6 +171,12 @@ StatusCode MTCalibPebHypoTool::finalize() {
 
 // =============================================================================
 StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) const {
+  // Re-seed the static thread-local RNG
+  if (not m_useRandomSeed.value()) {
+    const seed_t seed = eventSeed(input.eventContext.eventID(), name());
+    ATH_MSG_DEBUG("Using seed " << seed << " for event " << input.eventContext.eventID());
+    threadLocalGenerator().seed(seed);
+  }
 
   // ---------------------------------------------------------------------------
   // Burn CPU time

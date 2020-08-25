@@ -7,8 +7,8 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Test.TestDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TrigUpgradeTest.HLTSignatureConfig import  muMenuSequence, elMenuSequence, gamMenuSequence
-from TrigUpgradeTest.HLTSignatureHypoTools import dimuDrComboHypoTool
+from DecisionHandling.HLTSignatureConfig import  muMenuSequence, elMenuSequence, gamMenuSequence
+from DecisionHandling.HLTSignatureHypoTools import dimuDrComboHypoTool
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -78,28 +78,7 @@ class TestChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-
-        stepDictionary = {
-            #muons
-            'muv1step': ['Step_mu11'],
-            'muv1':     ['Step_mu11', 'Step_mu21', 'Step_mu31', 'Step_mu41'], 
-            'muv2':     ['Step_mu11', 'Step_mu22', 'Step_mu31'],
-            'muEmpty1': ['Step_empty1', 'Step_mu21'],
-            'muEmpty2': ['Step_mu11'  ,'Step_empty2' ,'Step_mu32', 'Step_mu41'],
-            'muv1dr' :  ['Step_mu11Dr', 'Step_mu21'],
-            #egamma
-            'ev1':     ['Step_em11', 'Step_em21', 'Step_em31'],
-            'ev2':     ['Step_em11', 'Step_em22'], 
-            'ev3':     ['Step_em11', 'Step_em23'],
-            'gv1':     ['Step_gam11'],
-            'ev1dr' :  ['Step_em11Dr', 'Step_em21Dr']
-        }
-
-        log.debug('test chain part = ' + str(self.chainPart))
+        stepDictionary = self.getStepDictionary()
         key = self.chainPart['extra']
 
         log.debug('testChain key = ' + key)
@@ -109,15 +88,37 @@ class TestChainConfiguration(ChainConfigurationBase):
             raise RuntimeError("Chain configuration unknown for electron chain with key: " + key )
         
         for step in steps:
-            log.debug('Adding TestSlice trigger step ' + str(step))
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
 
             
         myChain = self.buildChain(chainSteps)
         return myChain
-        
-            
+
+
+    
+    def getStepDictionary(self):
+          # --------------------
+        # define names of the steps and obtain the chainStep configuration 
+        # --------------------
+
+        stepDictionary = {
+            #muons
+            'muv1step': ['Step_mu11'],
+            'muv1':     ['Step_mu11', 'Step_mu21', 'Step_mu31', 'Step_mu41'], 
+            'muv2':     ['Step_mu11', 'Step_mu22', 'Step_mu31'],
+            'muEmpty1': ['Step_empty1', 'Step_mu21'],
+            #'muEmpty1': ['Step_empty1', 'Step_mu11'], # try to break 'Step_mu21'],
+            'muEmpty2': ['Step_mu11'  ,'Step_empty2' ,'Step_mu32', 'Step_mu41'],
+            'muv1dr' :  ['Step_mu11Dr', 'Step_mu21', 'Step_mu31', 'Step_mu41'],
+            #egamma
+            'ev1':     ['Step_em11', 'Step_em21', 'Step_em31'],
+            'ev2':     ['Step_em11', 'Step_em22'], 
+            'ev3':     ['Step_em11', 'Step_em23'],
+            'gv1':     ['Step_gam11'],
+            'ev1dr' :  ['Step_em11Dr', 'Step_em21Dr', 'Step_em31']
+        }
+        return stepDictionary
 
     ## Muons    
     

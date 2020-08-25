@@ -164,8 +164,7 @@ bool TrackSelectionAlg::makeTrackCuts(const Trk::Track* track, float zVtx)
   if(z0zVtx > m_trackMaxVtxZ0) trackPassed = false;
   if(fabs(d0) > m_trackMaxD0) trackPassed = false;
 
-  const Trk::TrackSummary* summary = NULL;       
-  summary = m_trackSumTool->createSummary(*track);
+  std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(*track);
   
   int nhtrt = 0;
   int nhtrtHT = 0;
@@ -173,7 +172,7 @@ bool TrackSelectionAlg::makeTrackCuts(const Trk::Track* track, float zVtx)
   int nhsct = 0;
   int nhblay = 0;
 
-  if(summary==0){
+  if(!summary){
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not create TrackSummary  - Track will likely fail hits requirements" << endmsg;}  
   else{
 
@@ -191,8 +190,5 @@ bool TrackSelectionAlg::makeTrackCuts(const Trk::Track* track, float zVtx)
   if(nhtrt < m_minTRTHits) trackPassed = false;
   if(nhtrtHT < m_minTRTHitsHT) trackPassed = false;
 
-    
-  delete summary;
-  
   return trackPassed;
 }

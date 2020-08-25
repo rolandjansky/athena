@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATRIG_LARGE_H
@@ -9,7 +9,7 @@
 #include "windows.h"
 #endif
 
-static float Large_win[THRES][NBINS][BOUND]={
+static const float Large_win[THRES][NBINS][BOUND]={
 {
     {    0.00 ,   0.00  },  // Large ,  thres =  6.0 GeV,  eta = -1.078
     {  -19.22 ,  26.52  },  // Large ,  thres =  6.0 GeV,  eta = -1.034

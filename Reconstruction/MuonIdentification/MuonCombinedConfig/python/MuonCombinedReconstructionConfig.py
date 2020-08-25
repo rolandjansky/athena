@@ -232,9 +232,13 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     # but don't set this default in case the StauCreatorAlg is created (see below)
     if not flags.MuonCombined.doMuGirl and not name=="StauCreatorAlg":
         kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("MakeClusters", False)
-    #     kwargs.setdefault("ClusterContainerName", "")
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("MakeClusters", False)
+        kwargs.setdefault("ClusterContainerName", "")
+        if flags.Muon.SAMuonTrigger:
+            kwargs.setdefault("CreateSAmuons", True)
+            kwargs.setdefault("TagMaps", [])
+
     alg = CompFactory.MuonCreatorAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
@@ -398,5 +402,8 @@ if __name__=="__main__":
     # f.close()
     
     if args.run:
-        cfg.run(20)
+        sc = cfg.run(20)
+        if not sc.isSuccess():
+            import sys
+            sys.exit("Execution failed")
         

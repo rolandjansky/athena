@@ -17,7 +17,7 @@ def generateChainConfigs( chainDict ):
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
     listOfChainDicts = splitChainDict(chainDict)
-    log.debug("Will generate Config for streamer: ",chainDict['chainName'])
+    log.debug("Will generate Config for streamer: %s", chainDict['chainName'])
 
     listOfChainDefs = []
         

@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 789876 2016-12-15 13:57:55Z krasznaa $
-################################################################################
-# Package: LumiBlockComps
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LumiBlockComps )
@@ -78,7 +75,6 @@ atlas_add_test( TrigLiveFractionCondAlgConfig_test
 atlas_add_test( LumiBlockMuWriterConfig_test
                 SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
-
 
 atlas_add_test( BunchCrossingCondAlg 
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py

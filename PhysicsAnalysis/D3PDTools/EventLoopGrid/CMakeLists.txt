@@ -29,8 +29,6 @@ atlas_add_library( EventLoopGrid
 target_compile_definitions (EventLoopGrid PUBLIC USE_CMAKE)
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_scripts( scripts/* )
 atlas_install_data( data/* )
 
 

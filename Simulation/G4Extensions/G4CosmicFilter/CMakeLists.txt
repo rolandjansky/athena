@@ -18,7 +18,4 @@ atlas_add_component( G4CosmicFilter
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel G4AtlasInterfaces G4AtlasToolsLib MCTruth TrackRecordLib )
 
 # Install files from the package:
-atlas_install_headers( G4CosmicFilter )
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -14,6 +14,7 @@ def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
 ## -----------------------------------------------------------------------------
 ### Base Version
 def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionTool", **kwargs):
+    from AthenaCommon import CfgMgr
     return CfgMgr.G4UA__iGeant4__PhysicsValidationUserActionTool(name, **kwargs)
 
 ## -----------------------------------------------------------------------------
@@ -35,7 +36,6 @@ def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTo
         kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerToolMT')
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
-    from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.SimulateCavern.get_Value():
         kwargs.setdefault('TruthVolumeLevel',  2)
@@ -104,6 +104,6 @@ def getLongLivedGeant4Tool(name="ISF_LongLivedGeant4Tool", **kwargs):
 
 def getAFII_QS_Geant4Tool(name='AFII_QS_Geant4Tool', **kwargs):
     kwargs.setdefault('InputConverter', 'ISF_LongLivedInputConverter')
-    return getAFII_Geant4Tool(name, **kwargs)
+    return getAFIIGeant4Tool(name, **kwargs)
 
 ## -----------------------------------------------------------------------------

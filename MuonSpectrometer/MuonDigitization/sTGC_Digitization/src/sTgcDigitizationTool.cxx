@@ -988,6 +988,13 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   if ( acceptDigit ) { 
 
+	  if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
+	    //Only strips since strips are readout in PDO counts and not charge
+      chargeAfterSmearing = 1000*chargeAfterSmearing; // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
+	    chargeAfterSmearing = chargeAfterSmearing*1.0304 + 59.997; // conversion from potential to PDO for VMM1 configuration, mV*1.0304 + 59.997; from Shandong cosmics tests
+      // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
+	  }
+
 	  std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
 									      it_digit->bcTag(), 
 									      it_digit->time(), 

@@ -10,9 +10,13 @@
     0 -  Heavy Flavour         (Signal)
     1 -  Fragmentation tracks  (Fragment)
     2 -  Garbage    (Interactions+V0s+Pileup)
+   The corresponding weights are returned as vector<float> with track type ordering.
+   Multiclass TMVA is used for classification, then wgt[0]+wgt[1]+wgt[2]=1 always.
     
-   The tool works for JetPt<2.5TeV.
-   Tool is trained using ttbar+Z'(1.5,3,5TeV)+JZ4,5,6 samples
+   The tool works (calibrated) for 35GeV<JetPt<3.5TeV.
+   Jets above 3.5TeV and below 35GeV are considered as having 3.5TeV and 35GeV correspondingly.
+   The tool is trained using ttbar+Z'(2.5,5TeV)+JZ4,6,8 + Gbb7000 samples
+   The tool uses trkPt vs JetAxis (no any dR cone cut!) therefore the tool can be used for any jet with "reasonable" dR size.
 
     Author: Vadim Kostyukhin
     e-mail: vadim.kostyukhin@cern.ch
@@ -32,7 +36,6 @@ class IChronoStatSvc;
 namespace Rec{ class TrackParticle; }
 namespace MVAUtils { class BDT; }
 namespace Trk {  class TrkVKalVrtFitter; }
-namespace TMVA { class Reader; }
 
 namespace InDet {
 
@@ -73,9 +76,8 @@ namespace InDet {
 
    private:
 
-    TMVA::Reader* m_tmvaReader{};
-    MVAUtils::BDT* m_localBDT{};
-    IChronoStatSvc * m_timingProfile{}; 
+    std::unique_ptr<MVAUtils::BDT> m_trkClassBDT;
+    IChronoStatSvc* m_timingProfile{}; 
    
     int m_trkSctHitsCut{};
     int m_trkPixelHitsCut{};
@@ -93,17 +95,6 @@ namespace InDet {
     Trk::TrkVKalVrtFitter*   m_fitSvc{};
 
     int m_initialised{};
-
-    float m_Sig3D{};
-    float m_prbP{};
-    float m_d0{};
-    float m_pTvsJet{};
-    float m_SigZ{};
-    float m_SigR{};
-    float m_ptjet{};
-    float m_etatrk{};
-    float m_ibl{};
-    float m_bl{};
  };
 
 

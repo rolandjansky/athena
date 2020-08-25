@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -9,49 +9,30 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-#include "MuidInterfaces/IMuonMatchQuality.h"
-#include "MuonCombinedEvent/InDetCandidate.h"
-#include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedDebuggerTool.h"
 
-#include "GaudiKernel/ITHistSvc.h"
-#include <TH1D.h>
-#include <TTree.h>
-
+#include "MuonCombinedEvent/InDetCandidate.h"
+#include "MuonCombinedEvent/MuonCandidate.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "AthLinks/ElementLink.h"
 
-#include "TrkToolInterfaces/ITruthToTrack.h"
-
+#include <TTree.h>
 
 namespace MuonCombined {
  
-  MuonCombinedDebuggerTool::MuonCombinedDebuggerTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-	m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality", this), 
-	m_truthToTrack("Trk::TruthToTrack/TruthToTrack"),
-	m_histSvc("THistSvc", name),
-	m_recoTree(0)
+  MuonCombinedDebuggerTool::MuonCombinedDebuggerTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent),
+    m_histSvc("THistSvc", name),
+    m_recoTree(nullptr)
   {  
     declareInterface<MuonCombinedDebuggerTool>(this);
   }
-  
-  MuonCombinedDebuggerTool::~MuonCombinedDebuggerTool()
-  {}
 
   StatusCode MuonCombinedDebuggerTool::initialize() {
-
     ATH_CHECK(m_matchQuality.retrieve());
     ATH_CHECK(m_truthToTrack.retrieve());
     ATH_CHECK(m_histSvc.retrieve());
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCombinedDebuggerTool::finalize() {
     return StatusCode::SUCCESS;
   }
 

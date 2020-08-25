@@ -86,19 +86,12 @@ def muFastOvlpRmSequence():
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolwORFromDict
 
-    ### set up MuSAOverlapRemoval ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMufastAlg
-    trigL2MuonOverlapRemover = TrigL2MuonOverlapRemoverMufastAlg("TrigL2MuonOverlapRemoverMufastAlg")
-    trigL2MuonOverlapRemover.L2MuonOverlapInfoFromMuFastAlg = sequenceOut
-
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMufastToolFromDict
-  
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
-                         Hypo        = [trigMufastHypo, trigL2MuonOverlapRemover],
-                         HypoToolGen = [TrigMufastHypoToolFromDict, TrigL2MuonOverlapRemoverMufastToolFromDict] )
+                         Hypo        = trigMufastHypo,
+                         HypoToolGen = TrigMufastHypoToolwORFromDict )
 
 
 #-----------------------------------------------------#
@@ -126,7 +119,7 @@ def muCombAlgSequence(ConfigFlags):
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
-    from TrigMuonEF.TrigMuonEFConfig import MuonChainFilterAlg
+    from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
     muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
     bphysChains =getBphysChainNames()
@@ -142,11 +135,6 @@ def muCombAlgSequence(ConfigFlags):
       extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
     if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
       extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
-
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer( "AthCondSeq" )
-    if not hasattr( condSeq, 'SCT_DCSConditionsStatCondAlg' ):
-      extraLoads += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
 
     for decision in muonChainFilter.InputDecisions:
       extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+'+decision )]
@@ -190,20 +178,13 @@ def muCombOvlpRmSequence():
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
-    
-    ### set up MuSAOverlapRemoval ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombAlg
-    trigL2MuonOverlapRemover = TrigL2MuonOverlapRemoverMucombAlg("TrigL2MuonOverlapRemoverMucombAlg")
-    trigL2MuonOverlapRemover.L2MuonOverlapInfoFromMuCombAlg = sequenceOut
-
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
-                         Hypo        = [trigmuCombHypo, trigL2MuonOverlapRemover],
-                         HypoToolGen = [TrigmuCombHypoToolFromDict, TrigL2MuonOverlapRemoverMucombToolFromDict] )
- 
+                         Hypo        = trigmuCombHypo,
+                         HypoToolGen = TrigmuCombHypoToolwORFromDict )
+
 
 
 ######################
@@ -279,7 +260,7 @@ def muEFCBAlgSequence(ConfigFlags):
 
     #By default the EFCB sequence will run both outside-in and 
     #(if zero muons are found) inside-out reconstruction
-    from TrigMuonEF.TrigMuonEFConfig import MuonFilterAlg, MergeEFMuonsAlg
+    from TrigMuonEF.TrigMuonEFConf import MuonFilterAlg, MergeEFMuonsAlg
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence, muEFInsideOutRecoSequence
     
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")
@@ -332,6 +313,7 @@ def muEFCBSequence():
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
     trigMuonEFCBHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlg" )
     trigMuonEFCBHypo.MuonDecisions = sequenceOut
+    trigMuonEFCBHypo.MapToPreviousDecisions=True
     
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
 
@@ -573,7 +555,7 @@ def muEFIsoAlgSequence(ConfigFlags):
     newRoITool = ViewCreatorCentredOnIParticleROITool()
     newRoITool.RoIEtaWidth=0.15
     newRoITool.RoIPhiWidth=0.15
-    newRoITool.RoisWriteHandleKey = "IsoMuRoIs"
+    newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_MuonIso")
     #
     efmuIsoViewsMaker.mergeUsingFeature = True
     efmuIsoViewsMaker.RoITool = newRoITool

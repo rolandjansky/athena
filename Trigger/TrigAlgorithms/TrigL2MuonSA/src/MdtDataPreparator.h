@@ -18,6 +18,10 @@
 #include "MuonRDO/MdtCsmContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TgcData.h"
 #include "MdtData.h"
@@ -27,13 +31,7 @@
 #include "RpcFitResult.h"
 #include "TgcFitResult.h"
 
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-#include "StoreGate/ReadCondHandleKey.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-
 namespace MuonGM{
-     class MuonDetectorManager;
      class MdtReadoutElement;
      class MuonStation;
 }
@@ -104,13 +102,14 @@ namespace TrigL2MuonSA {
 			 const std::vector<IdentifierHash>& v_idHash,
 			 std::vector<const MdtCsm*>& v_mdtCsms);
 
-    bool decodeMdtCsm(const MdtCsm* csm, TrigL2MuonSA::MdtHits& mdtHits, const TrigL2MuonSA::MuonRoad& muonRoad);
+    bool decodeMdtCsm(const MdtCsm* csm, TrigL2MuonSA::MdtHits& mdtHits, const TrigL2MuonSA::MuonRoad& muonRoad, const MuonGM::MuonDetectorManager* muDetMgr);
     uint32_t get_system_id (unsigned short int SubsystemId) const;
 
     StatusCode collectMdtHitsFromPrepData(const std::vector<IdentifierHash>& v_idHash,
 					  std::vector<uint32_t>& v_robIds,
 					  TrigL2MuonSA::MdtHits& mdtHits,
-					  const TrigL2MuonSA::MuonRoad& muonRoad);
+					  const TrigL2MuonSA::MuonRoad& muonRoad,
+            const MuonGM::MuonDetectorManager* muDetMgr);
 
     void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
 
@@ -122,7 +121,6 @@ namespace TrigL2MuonSA {
 
 
     // Geometry Services
-    const MuonGM::MuonDetectorManager* m_muonMgr {nullptr};
     const MuonGM::MdtReadoutElement* m_mdtReadout {nullptr};
     const MuonGM::MuonStation* m_muonStation {nullptr};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -149,6 +147,7 @@ namespace TrigL2MuonSA {
 	this, "MDTCSMContainer", "MDTCSM", "Name of the MDTRDO to read in"};
     SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepContainerKey{
 	this, "MDTPrepDataContainer","MDT_DriftCircles", "Name of the MDTContainer to read in"};
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
     // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
     Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };

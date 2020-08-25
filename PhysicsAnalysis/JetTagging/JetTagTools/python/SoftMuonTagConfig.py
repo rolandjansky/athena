@@ -9,7 +9,7 @@ from JetTagTools.MuonSelectorToolConfig import MuonSelectorToolCfg
 # import the SoftMuonTag configurable
 Analysis__SoftMuonTag=CompFactory.Analysis.SoftMuonTag
 
-def SoftMuonTagCfg( flags, name = 'SoftMu', useBTagFlagsDefaults = True, **options ):
+def SoftMuonTagCfg( flags, name = 'SoftMu', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a SoftMuonTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -29,7 +29,7 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', useBTagFlagsDefaults = True, **optio
     if useBTagFlagsDefaults:
         trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
         muonSelectorTool = acc.popToolsAndMerge(MuonSelectorToolCfg('MuonSelectorTool'))
-        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SoftMuonTagNewLikelihoodTool', 'SMT'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SoftMuonTagNewLikelihoodTool', 'SMT', scheme))
         defaults = {
                      'Runmodus'                         : flags.BTagging.RunModus,
                      'jetCollectionList'                : [], #used only in reference mode
@@ -43,6 +43,9 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', useBTagFlagsDefaults = True, **optio
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
     acc.setPrivateTools(Analysis__SoftMuonTag( **options))
 
     return acc
+

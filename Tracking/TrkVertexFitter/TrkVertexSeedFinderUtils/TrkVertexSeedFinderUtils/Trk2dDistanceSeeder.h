@@ -52,7 +52,7 @@ namespace Trk
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     
-    const TwoPointOnTrack GetSeed (const TwoTracks& mytracks,
+    TwoPointOnTrack GetSeed (const TwoTracks& mytracks,
                                    TwoPoints* twopoints = nullptr) const;
 
 

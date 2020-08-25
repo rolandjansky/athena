@@ -32,7 +32,7 @@
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/AppReturnCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
@@ -117,6 +117,9 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
                   "without an EventSelector");
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
+
+  declareProperty("FirstEventAlone", m_firstEventAlone = true,
+                  "process all of first event before scheduling any more");
 
   m_scheduledStop = false;
 
@@ -246,7 +249,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 	error() << "Could not dcast HistPersSvc to a Service"
 		<< endmsg;
       } else {
-	const Property &prop = s->getProperty("OutputFile");
+	const Gaudi::Details::PropertyBase &prop = s->getProperty("OutputFile");
 	std::string val;
 	try {
 	  const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
@@ -355,7 +358,7 @@ AthenaHiveEventLoopMgr::eventStore() const {
 // property handlers
 //=========================================================================
 void 
-AthenaHiveEventLoopMgr::setupTimeKeeper(Property&) {
+AthenaHiveEventLoopMgr::setupTimeKeeper(Gaudi::Details::PropertyBase&) {
   const std::string& tkName(m_timeKeeperName.value());
   // We do not expect a TimeKeeper necessarily being declared  
   if( tkName != "NONE" && tkName.length() != 0) {
@@ -368,7 +371,7 @@ AthenaHiveEventLoopMgr::setupTimeKeeper(Property&) {
 }
 
 void 
-AthenaHiveEventLoopMgr::setClearStorePolicy(Property&) {
+AthenaHiveEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
   const std::string& policyName = m_clearStorePolicy.value();
 
   if ( policyName != "BeginEvent" &&
@@ -387,7 +390,7 @@ AthenaHiveEventLoopMgr::setClearStorePolicy(Property&) {
 }
 
 void
-AthenaHiveEventLoopMgr::setupPreSelectTools(Property&) {
+AthenaHiveEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
 
   m_toolInvoke.clear();
   m_toolReject.clear();
@@ -673,9 +676,11 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent( EventContext &&ctx )
     m_lastEventContext = ctx;
     
     // Now add event to the scheduler 
-    debug() << "Adding event " << ctx.evt() 
-            << ", slot " << ctx.slot()
-            << " to the scheduler" << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "Adding event " << ctx.evt() 
+              << ", slot " << ctx.slot()
+              << " to the scheduler" << endmsg;
+    }
     
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginProcessing, 
 					 ctx));
@@ -783,6 +788,8 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
   bool loop_ended=false;
   StatusCode sc(StatusCode::SUCCESS,true);
 
+  bool newEvtAllowed = ! m_firstEventAlone;
+  
   // Calculate runtime
   auto start_time = tbb::tick_count::now();
   auto secsFromStart = [&start_time]()->double{
@@ -790,13 +797,19 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
   };
 
   while ( !loop_ended and ( (maxevt < 0) or (finishedEvts < maxevt) ) ){
-    debug() << " -> createdEvts: " << createdEvts << endmsg;
+
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << " -> createdEvts: " << createdEvts << endmsg;
+    }
     
     if ( ( !m_terminateLoop ) && // The events are not finished with an unlimited number of events
+         (newEvtAllowed || createdEvts == 0) &&       // Launch first event alone
 	 ( (createdEvts < maxevt) or (maxevt<0) ) &&  // The events are not finished with a limited number of events
 	 (m_schedulerSvc->freeSlots()>0) ){ // There are still free slots in the scheduler
       
-      debug() << "createdEvts: " << createdEvts << ", freeslots: " << m_schedulerSvc->freeSlots() << endmsg;
+      if (msgLevel(MSG::DEBUG)) {
+        debug() << "createdEvts: " << createdEvts << ", freeslots: " << m_schedulerSvc->freeSlots() << endmsg;
+      }
       
       auto ctx = createEventContext();
       
@@ -819,7 +832,9 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
       // all the events were created but not all finished or the slots were 
       // all busy: the scheduler should finish its job
 
-      debug() << "Draining the scheduler" << endmsg;
+      if (msgLevel(MSG::DEBUG)) {
+        debug() << "Draining the scheduler" << endmsg;
+      }
 
       // Pull out of the scheduler the finished events
       int ir = drainScheduler(finishedEvts);
@@ -834,6 +849,7 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
       } else {
 	// keep going!
       }
+      newEvtAllowed = true;
       
     }
   } // end main loop on finished events  
@@ -1172,12 +1188,16 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
 
     ctx.setEventID( *((EventIDBase*) pEvent->event_ID()) );
 
-    debug() << "selecting store: " << ctx.slot() << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "selecting store: " << ctx.slot() << endmsg;
+    }
 
     m_whiteboard->selectStore( ctx.slot() ).ignore();
 
-    debug() << "recording EventInfo " << *pEvent->event_ID() << " in "
-            << eventStore()->name() << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "recording EventInfo " << *pEvent->event_ID() << " in "
+             << eventStore()->name() << endmsg;
+    }
     sc = eventStore()->record(pEvent,"McEventInfo");
     if( !sc.isSuccess() )  {
       error() << "Error declaring event data object" << endmsg;
@@ -1202,8 +1222,10 @@ EventContext AthenaHiveEventLoopMgr::createEventContext() {
     Atlas::setExtendedEventContext(ctx,
                                    Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
 
-    debug() << "created EventContext, num: " << ctx.evt()  << "  in slot: " 
-	    << ctx.slot() << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "created EventContext, num: " << ctx.evt()  << "  in slot: " 
+	      << ctx.slot() << endmsg;
+    }
   }
 
   return ctx;
@@ -1222,17 +1244,23 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
   EventContext* finishedEvtContext(nullptr);
 
   // Here we wait not to loose cpu resources
-  debug() << "drainScheduler: [" << finishedEvts << "] Waiting for a context" << endmsg;
+  if (msgLevel(MSG::DEBUG)) {
+    debug() << "drainScheduler: [" << finishedEvts << "] Waiting for a context" << endmsg;
+  }
   sc = m_schedulerSvc->popFinishedEvent(finishedEvtContext);
 
   // We got past it: cache the pointer
   if (sc.isSuccess()){
-    debug() << "drainScheduler: scheduler not empty: Context " 
-	    << finishedEvtContext << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "drainScheduler: scheduler not empty: Context " 
+	      << finishedEvtContext << endmsg;
+    }
     finishedEvtContexts.push_back(finishedEvtContext);
   } else{
     // no more events left in scheduler to be drained
-    debug() << "drainScheduler: scheduler empty" << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "drainScheduler: scheduler empty" << endmsg;
+    }
     return 0;
   }
 
@@ -1280,9 +1308,11 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     Gaudi::Hive::setCurrentContext( *thisFinishedEvtContext );
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, *thisFinishedEvtContext ));
 
-    debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
-            << " (event " << thisFinishedEvtContext->evt()
-            << ") of the whiteboard" << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
+              << " (event " << thisFinishedEvtContext->evt()
+              << ") of the whiteboard" << endmsg;
+    }
     
     StatusCode sc = clearWBSlot(thisFinishedEvtContext->slot());
     if (!sc.isSuccess()) {
@@ -1321,8 +1351,10 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       }  
     }
 
-    debug() << "drainScheduler thisFinishedEvtContext: " << thisFinishedEvtContext
-	    << endmsg;
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "drainScheduler thisFinishedEvtContext: " << thisFinishedEvtContext
+	      << endmsg;
+    }
 
     delete thisFinishedEvtContext;
   }

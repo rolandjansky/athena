@@ -42,6 +42,4 @@ atlas_add_test( TestSCT_CablingCfg
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.dat )
-atlas_install_scripts( share/*.sh )
 atlas_install_python_modules( python/*.py )

@@ -26,5 +26,5 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( MuonSegmentOverlapRemovalTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonIdHelpersLib MuonClusterizationLib MuonCompetingRIOsOnTrack MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils TrkEventPrimitives )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonIdHelpersLib MuonClusterizationLib MuonCompetingRIOsOnTrack MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils TrkEventPrimitives MuonSegmentCombinerToolInterfaces MuonSegmentMakerToolInterfaces )
 

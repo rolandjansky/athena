@@ -17,7 +17,7 @@
 #include "TrackData.h"
 #include "MuonRoad.h"
 #include "PtEndcapLUT.h"
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
+#include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 #include "AlphaBetaEstimate.h"
 #include "PtFromAlphaBeta.h"
 

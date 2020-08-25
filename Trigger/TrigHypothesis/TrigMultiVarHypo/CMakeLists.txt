@@ -1,32 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-################################################################################
-# Package: TrigMultiVarHypo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigMultiVarHypo )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          Event/xAOD/xAODTrigCalo
-                          Event/xAOD/xAODTrigRinger
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs
-                          PRIVATE
-                          Trigger/TrigSteer/DecisionHandling
-                          Trigger/TrigSteer/TrigCompositeUtils
-                          LumiBlock/LumiBlockComps
-                          Tools/PathResolver
-                          PRIVATE
-                          GaudiKernel 
-                          Control/AthViews
-                          Control/AthContainers
-                          Control/AthenaMonitoringKernel
-                          )
+# External dependencies:
+find_package( ROOT COMPONENTS Core Tree )
 
 # Component(s) in the package:
 atlas_add_library( TrigMultiVarHypoLib
@@ -35,20 +13,12 @@ atlas_add_library( TrigMultiVarHypoLib
                    src/tools/procedures/*.cxx
                    src/tools/common/*.cxx
                    PUBLIC_HEADERS TrigMultiVarHypo
-                   LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
-                   TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib 
-                   DecisionHandlingLib LumiBlockCompsLib PathResolver 
-                   AthenaMonitoringKernelLib TrigCompositeUtilsLib
-                   PRIVATE_LINK_LIBRARIES GaudiKernel AthViews )
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaMonitoringKernelLib GaudiKernel LumiBlockCompsLib PathResolver TrigCaloEvent TrigInterfacesLib TrigTimeAlgsLib xAODTrigCalo xAODTrigRinger )
 
-
-atlas_add_component(  TrigMultiVarHypo
-                      src/components/*.cxx
-                      LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
-                      TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib GaudiKernel 
-                      TrigMultiVarHypoLib DecisionHandlingLib LumiBlockCompsLib TrigCompositeUtilsLib
-                      PathResolver AthenaMonitoringKernelLib) 
+atlas_add_component( TrigMultiVarHypo
+                     src/components/*.cxx
+                     LINK_LIBRARIES TrigMultiVarHypoLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

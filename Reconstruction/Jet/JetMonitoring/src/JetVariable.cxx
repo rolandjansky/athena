@@ -17,7 +17,7 @@ namespace JetVar {
     if(name=="abseta") return std::make_unique<AbsEtaVar>(name);
     if(name=="|eta|") return std::make_unique<AbsEtaVar>(name);
     if(name=="rapidity") return std::make_unique<Rapidity>(name);
-    if(name=="fCharge") return std::make_unique<FChargeVar>(name);
+    if(name=="fCharged") return std::make_unique<FChargedVar>(name);
     if(name=="EM3Frac") return std::make_unique<EM3FracVar>(name);
     if(name=="Tile0Frac") return std::make_unique<Tile0FracVar>(name);
 

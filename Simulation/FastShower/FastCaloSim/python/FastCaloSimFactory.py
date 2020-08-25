@@ -53,12 +53,7 @@ def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
         ParticleParametrizationFileName=""
     
     if ParticleParametrizationFileName=="" and len(theFastShowerCellBuilderTool.AdditionalParticleParametrizationFileNames)==0:
-        try:
-            ATLASCALDATA=os.environ["ATLASCALDATA"]
-            ParticleParametrizationFileName=ATLASCALDATA+"/FastCaloSim/v1/ParticleEnergyParametrization.root"
-        except:
-            ATLASCALDATA=""
-            ParticleParametrizationFileName="ParticleEnergyParametrization.root"
+        ParticleParametrizationFileName="FastCaloSim/v1/ParticleEnergyParametrization.root"
 
     theFastShowerCellBuilderTool.ParticleParametrizationFileName=ParticleParametrizationFileName     
     mlog.info("ParticleParametrizationFile=%s",ParticleParametrizationFileName)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetIsolationTool.cxx 
@@ -60,18 +60,27 @@ namespace jet {
       virtual IsolationResult jetIsolation(const xAOD::Jet*, std::vector<jet::ParticlePosition> & ) const {
         return IsolationResult();
       }
-      virtual void
-      setIsolationAttributes(xAOD::Jet* jet, std::vector<jet::ParticlePosition>& nearbyConstit) const {
+      virtual std::map<std::string, float>
+      calcIsolationAttributes(const xAOD::Jet* jet, std::vector<jet::ParticlePosition>& nearbyConstit) const {
         IsolationResult result = jetIsolation(jet, nearbyConstit);
+        std::map<std::string, float> result_map;
         for ( size_t i=0; i<m_kinematics.size(); ++i ) {
           switch( m_kinematics[i] ) {
-          case Perp  : jet->setAttribute<float>( m_attNames[i], result.isoPerp(jet->p4().Vect()) ); break;
-          case SumPt : jet->setAttribute<float>( m_attNames[i], result.isoSumPt() ); break;
-          case Par   : jet->setAttribute<float>( m_attNames[i], result.isoPar(jet->p4().Vect()) ); break;
-          case P     : jet->setAttribute<float>( m_attNames[i], result.isoP().Vect().Mag() ); break;
+          case Perp:
+            result_map.insert(std::pair<std::string, float>(s_kname[i], result.isoPerp(jet->p4().Vect()) ));
+            break;
+          case SumPt:
+            result_map.insert(std::pair<std::string, float>(s_kname[i], result.isoSumPt() ));
+            break;
+          case Par:
+            result_map.insert(std::pair<std::string, float>(s_kname[i], result.isoPar(jet->p4().Vect()) ));
+            break;
+          case P:
+            result_map.insert(std::pair<std::string, float>(s_kname[i], result.isoP().Vect().Mag() ));
+            break;
           }
         }
-
+        return result_map;
       }
       
       bool scheduleKinematicCalculation(string kname){
@@ -235,8 +244,8 @@ using namespace jet::JetIsolation;
 //**********************************************************************
 
 JetIsolationTool::JetIsolationTool(const string& name) 
-: JetModifierBase(name) {
-  declareProperty( "IsolationCalculations", m_isolationCodes);
+  : asg::AsgTool(name) {
+  declareInterface<IJetDecorator>(this);
 }
 
 //**********************************************************************
@@ -272,11 +281,22 @@ StatusCode JetIsolationTool::initialize() {
     }
   }
 
+  if(m_jetContainerName.empty()) {
+    ATH_MSG_ERROR("JetIsolationTool needs to have its input jet container configured!");
+    return StatusCode::FAILURE;
+  }
+  
   // Fill the iso calculator vector from the map
+  // Also fill DecorHandleKeyArrays at the same time
   for ( auto& pair : calcMap ){ 
     m_isoCalculators.push_back(pair.second); 
     ATH_MSG_DEBUG("Will use iso calculation : "<< pair.second->baseName() );
     pair.second->dump();
+
+    m_perpKeys.emplace_back(m_jetContainerName + "." + pair.second->baseName() + "Perp");
+    m_sumPtKeys.emplace_back(m_jetContainerName + "." + pair.second->baseName() + "SumPt");
+    m_parKeys.emplace_back(m_jetContainerName + "." + pair.second->baseName() + "Par");
+    m_pKeys.emplace_back(m_jetContainerName + "." + pair.second->baseName() + "P");
   }
 
   ATH_MSG_INFO("Initialized JetIsolationTool " << name());
@@ -289,13 +309,24 @@ StatusCode JetIsolationTool::initialize() {
   }
   ATH_MSG_INFO("  Isolation calculations: " << m_isolationCodes);
 
+  m_inputTypeKey = m_jetContainerName + "." + m_inputTypeKey.key();
+  ATH_CHECK(m_inputTypeKey.initialize());
+
+  ATH_CHECK(m_perpKeys.initialize());
+  ATH_CHECK(m_sumPtKeys.initialize());
+  ATH_CHECK(m_parKeys.initialize());
+  ATH_CHECK(m_pKeys.initialize());
+
+  
   return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
-StatusCode JetIsolationTool::modify(xAOD::JetContainer& jets) const {
+StatusCode JetIsolationTool::decorate(const xAOD::JetContainer& jets) const {
 
+  SG::ReadDecorHandle<xAOD::JetContainer, int> inputTypeHandle(m_inputTypeKey);
+  
   ATH_MSG_DEBUG("Modifying jets in container with size " << jets.size());
   if ( jets.empty() ) return StatusCode::SUCCESS;
 
@@ -314,10 +345,10 @@ StatusCode JetIsolationTool::modify(xAOD::JetContainer& jets) const {
   }
 
   // Loop over jets in this collection.
-  for ( xAOD::Jet* pjet : jets ) {
+  for (const xAOD::Jet* pjet : jets ) {
 
     // Check this jet has the same inputs.
-    // int jinp = pjet->getAttribute<int>("InputType");
+    // int jinp = inputTypeHandle(*pjet);
     // This needs to be reimplemented when we decide how to better
     // encode this information -- right now this can't be matched
     // to the input PseudoJetContainer
@@ -370,9 +401,19 @@ StatusCode JetIsolationTool::modify(xAOD::JetContainer& jets) const {
                    << nearbyC.size() << ", in jet: "<< pjet->numConstituents()
                    << ", total: "<< inputConstits->size() );
 
+    std::map<std::string, const SG::WriteDecorHandleKeyArray<xAOD::JetContainer>* > decorKeyMap;
+    decorKeyMap.emplace(jet::JetIsolation::IsolationCalculator::s_kname[0], &m_sumPtKeys);
+    decorKeyMap.emplace(jet::JetIsolation::IsolationCalculator::s_kname[1], &m_parKeys);
+    decorKeyMap.emplace(jet::JetIsolation::IsolationCalculator::s_kname[2], &m_perpKeys);
+    decorKeyMap.emplace(jet::JetIsolation::IsolationCalculator::s_kname[3], &m_pKeys);
+    
     // loop over calculators, calculate isolation given the close-by particles not part of the jet.
-    for ( IsolationCalculator* calc : calculators ){
-      calc->setIsolationAttributes(pjet, nearbyC);
+    for ( size_t iCalc = 0; iCalc < calculators.size(); iCalc++ ) {
+      std::map<std::string, float> results = calculators.at(iCalc)->calcIsolationAttributes(pjet, nearbyC);
+      for( const auto& [var_name, value]: results ) {
+        SG::WriteDecorHandle<xAOD::JetContainer, float> decorHandle(decorKeyMap.at(var_name)->at(iCalc));
+        decorHandle(*pjet) = value;
+      }
     }
     
   }

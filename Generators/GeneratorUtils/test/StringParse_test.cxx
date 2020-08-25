@@ -34,12 +34,12 @@ int main() {
   assert(s.piece<string>(2) == "foo");
 
   assert(s.piece(3) == "5.678");
-  assert(fabs(s.piece<double>(3) - 5.678) < 1e-6);
-  assert(fabs(s.numpiece(3) - 5.678) < 1e-6);
+  assert(std::abs(s.piece<double>(3) - 5.678) < 1e-6);
+  assert(std::abs(s.numpiece(3) - 5.678) < 1e-6);
 
   assert(s.piece<int>(4) != 1234);
   assert(s.intpiece(4) == -1);
 
-  assert(fabs(s.piece<double>(5) + 1) < 1e-6);
-  assert(fabs(s.numpiece(5) + 1) < 1e-6);
+  assert(std::abs(s.piece<double>(5) + 1) < 1e-6);
+  assert(std::abs(s.numpiece(5) + 1) < 1e-6);
 }

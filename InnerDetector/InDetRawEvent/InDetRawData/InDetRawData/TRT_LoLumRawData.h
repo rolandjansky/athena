@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,17 +36,23 @@ public:
   // Destructor:
   virtual ~TRT_LoLumRawData();
 
-    // High level threshold:
+  // High level threshold:
   virtual bool highLevel() const;
   virtual bool highLevel(int /* BX */) const;
 
-    // Time over threshold in ns for valid digits; zero otherwise:
-  virtual double timeOverThreshold() const;
+  // Time over threshold in ns for valid digits; zero otherwise:
+  virtual double timeOverThreshold() const {
+    return timeOverThreshold(m_word);
+  };
 
-    // drift time in bin
-  virtual int driftTimeBin() const;   // Position of first leading edge
+  // drift time in bin
+  virtual int driftTimeBin() const {
+    return driftTimeBin(m_word);
+  };
 
-  virtual int trailingEdge() const;   // Position of last trailing edge
+  virtual int trailingEdge() const {
+    return trailingEdge(m_word);
+  };
 
   virtual bool firstBinHigh() const;  // True if first time bin is high
   virtual bool lastBinHigh() const;   // True if last time bin is high
@@ -61,8 +67,38 @@ public:
   // Static methods:
   ///////////////////////////////////////////////////////////////////
 
-  // Create a new TRT_LoLumRawData and return a pointer to it:
-  //  static TRT_LoLumRawData *newObject(const Identifier rdoId, const unsigned int word);
+protected:
+  // width of the drift time bins
+  static const double m_driftTimeBinWidth;
+
+  // bit masks used in interpretation of bit pattern
+  static const unsigned int m_maskFourLastBits;
+  static const unsigned int m_maskThreeLastBits;
+
+public:
+  // width of the drift time bins
+  static double getDriftTimeBinWidth() {
+    return m_driftTimeBinWidth;
+  };
+
+  // Find the relevant island of bits from the bit pattern, defined as the largest island with the latest leading edge
+  static bool findLargestIsland(unsigned int word, unsigned int& leadingEdge, unsigned int& trailingEdge);
+
+  // Determine the drift time bin, i.e. the leading edge of the relevant island, from the bit pattern
+  static unsigned int driftTimeBin(unsigned int word);
+
+  // Determine the trailing edge of the relevant island from the bit pattern
+  static unsigned int trailingEdge(unsigned int word);
+
+  // Determine the time over threshold, i.e. width of the relevant island, in ns from the bit pattern
+  static double timeOverThreshold(unsigned int word);
+
+  // Check if the middle HT bit is set
+  inline
+  static bool highLevel(unsigned int word) {
+    // return (m_word & 0x04020100); // check any of the three HT bits
+    return (word & 0x00020000); // check only middle HT bit
+  }
 
 public:
   // public default constructor needed for I/O, but should not be
@@ -80,17 +116,15 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-
-
 /*
  * highLevel() -
- * Returns true if there is a high threshold hit in any bunch crossing, false
+ * Returns true if there is a high threshold hit in the middle bunch crossing, false
  * otherwise
  */
 inline 
 bool TRT_LoLumRawData::highLevel() const
 {
-  return (m_word & 0x04020100);
+  return highLevel(m_word);
 }
 
 /*

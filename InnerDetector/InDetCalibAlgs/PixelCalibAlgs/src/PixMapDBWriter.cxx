@@ -15,6 +15,8 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h" // kazuki
 #include "PixelReadoutGeometry/PixelModuleDesign.h" // kazuki
 
+#include "CxxUtils/checker_macros.h"
+
 // ROOT
 #include "TFile.h"
 #include "TKey.h"
@@ -88,7 +90,7 @@ StatusCode PixMapDBWriter::execute(){
 }
 
 
-StatusCode PixMapDBWriter::finalize(){
+StatusCode PixMapDBWriter::finalize ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe DetectorSpecialPixelMap and ModuleSpecialPixelMap classes are used.
   ATH_MSG_INFO( "Finalizing PixMapDBWriter" );
 
   ATH_MSG_DEBUG( "Reading map of special pixels from file" );

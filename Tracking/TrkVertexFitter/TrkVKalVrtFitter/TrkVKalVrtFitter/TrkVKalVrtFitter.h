@@ -23,9 +23,6 @@
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 //
-#include <thread>
-#include <mutex>
-//
 class IChronoStatSvc;
 
 namespace Trk{
@@ -53,13 +50,13 @@ namespace Trk{
     std::vector<int> trkInVrt;            //  list of tracks attached to vertex directly
     VertexID outPointingV;                //  to which vertex  it points
     std::vector<VertexID> inPointingV;    //  which vertices points to it
-    VertexID mergedTO;                    //  merged to another vertex (not separate anymore) 
+    VertexID mergedTO;                    //  merged to another vertex (not separate anymore)
     std::vector<VertexID> mergedIN;       //  vertices attached to current
     int indexInSimpleCascade;
     cascadeV(){ vID=-999; outPointingV=0; mergedTO=0; indexInSimpleCascade=0;};
    ~cascadeV() = default;
   };
-  
+
 
 //------------------------------------------------------------------------
   //Tool should not be used reentrantly or used publically
@@ -73,9 +70,9 @@ namespace Trk{
       // The following 'using' can be removed when IVertexFitter::fit has been fully migrated to the one with the EventContext
       using Trk::IVertexFitter::fit;
       using Trk::ITrkVKalVrtFitter::makeState;
-      
-        virtual StatusCode initialize() override;
-        virtual StatusCode finalize() override;
+
+        virtual StatusCode initialize() override final;
+        virtual StatusCode finalize() override final;
 
         TrkVKalVrtFitter(const std::string& t, const std::string& name, const IInterface*  parent);
         virtual ~TrkVKalVrtFitter();
@@ -86,243 +83,284 @@ namespace Trk{
 
         virtual xAOD::Vertex* fit(
           const std::vector<const TrackParameters*>& perigeeList,
-          const Amg::Vector3D& startingPoint) const override;
+          const Amg::Vector3D& startingPoint) const override final;
 
         virtual xAOD::Vertex* fit(
           const std::vector<const TrackParameters*>& perigeeList,
           const std::vector<const NeutralParameters*>& /*neutralPerigeeList*/,
-          const Amg::Vector3D& startingPoint) const override;
+          const Amg::Vector3D& startingPoint) const override final;
 
         virtual xAOD::Vertex* fit(
           const std::vector<const TrackParameters*>& perigeeList,
-          const xAOD::Vertex& constraint) const override;
+          const xAOD::Vertex& constraint) const override final;
 
         virtual xAOD::Vertex* fit(
           const std::vector<const TrackParameters*>& perigeeList,
           const std::vector<const NeutralParameters*>& /*neutralPerigeeList*/,
-          const xAOD::Vertex& constraint) const override;
+          const xAOD::Vertex& constraint) const override final;
 
-        virtual xAOD::Vertex* fit(
+        virtual std::unique_ptr<xAOD::Vertex> fit(
           const EventContext& ctx,
           const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-          const Amg::Vector3D& startingPoint) const override;
+          const Amg::Vector3D& startingPoint) const override final;
 
         virtual xAOD::Vertex* fit(
           const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-          const xAOD::Vertex& constraint) const override;
-
-        virtual xAOD::Vertex* fit(
-          const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-          const std::vector<const xAOD::NeutralParticle*>& vectorNeu,
-          const Amg::Vector3D& startingPoint) const override;
+          const xAOD::Vertex& constraint) const override final;
 
         virtual xAOD::Vertex* fit(
           const std::vector<const xAOD::TrackParticle*>& vectorTrk,
           const std::vector<const xAOD::NeutralParticle*>& vectorNeu,
-          const xAOD::Vertex& constraint) const override;
+          const Amg::Vector3D& startingPoint) const override final;
 
         virtual xAOD::Vertex* fit(
-          const std::vector<const TrackParameters*>&) const override;
-       
+          const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+          const std::vector<const xAOD::NeutralParticle*>& vectorNeu,
+          const xAOD::Vertex& constraint) const override final;
+
+        virtual xAOD::Vertex* fit(
+          const std::vector<const TrackParameters*>&) const override final;
+
         virtual xAOD::Vertex* fit(
           const std::vector<const TrackParameters*>&,
-          const std::vector<const Trk::NeutralParameters*>&) const override;
+          const std::vector<const Trk::NeutralParameters*>&) const override final;
 
 
         /*--------------  Additional  xAOD  interfaces -------------*/
-        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
+        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
                            const Amg::Vector3D& constraint,
                            IVKalState& istate) const;
-        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
+        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
                            const xAOD::Vertex& constraint,
                            IVKalState& istate) const;
 //
 //  Cascade fitter interface
 //
-        VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
-                             const  std::vector<double>& particleMass,
-                                    IVKalState& istate,
-				    double massConstraint = 0.) const override;
- 
-        VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
-                             const  std::vector<double>& particleMass,
-                                   IVKalState& istate,
-				   double massConstraint = 0.) const override;
- 
-        VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
-                             const  std::vector<double>& particleMass,
-		             const  std::vector<VertexID> &precedingVertices,
-                                   IVKalState& istate,
-				   double massConstraint = 0.) const override;
-        VxCascadeInfo * fitCascade(IVKalState& istate,
-                                   const Vertex * primVertex = 0, bool FirstDecayAtPV = false ) const override;
+        VertexID startVertex(
+          const std::vector<const xAOD::TrackParticle*>& list,
+          const std::vector<double>& particleMass,
+          IVKalState& istate,
+          double massConstraint = 0.) const override final;
 
-        StatusCode  addMassConstraint(VertexID Vertex,
-                                      const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
-                                      const std::vector<VertexID> &verticesInConstraint, 
-                                      IVKalState& istate,
-				      double massConstraint ) const override;
+        VertexID nextVertex(const std::vector<const xAOD::TrackParticle*>& list,
+                            const std::vector<double>& particleMass,
+                            IVKalState& istate,
+                            double massConstraint = 0.) const override final;
 
-//------ Personal VKalVrt staff
+        VertexID nextVertex(const std::vector<const xAOD::TrackParticle*>& list,
+                            const std::vector<double>& particleMass,
+                            const std::vector<VertexID>& precedingVertices,
+                            IVKalState& istate,
+                            double massConstraint = 0.) const override final;
 
-        virtual std::unique_ptr<IVKalState> makeState(const EventContext& ctx) const override;
+        VxCascadeInfo* fitCascade(IVKalState& istate,
+                                  const Vertex* primVertex = 0,
+                                  bool FirstDecayAtPV = false) const override final;
 
-        virtual
-        StatusCode VKalVrtFit(const std::vector<const xAOD::TrackParticle*>&,
-                              const std::vector<const xAOD::NeutralParticle*>&,
-                              Amg::Vector3D&         Vertex,
-                              TLorentzVector&     Momentum,
-	                      long int&           Charge,
-		              dvect&              ErrorMatrix,
-	                      dvect&              Chi2PerTrk,
-		              std::vector< std::vector<double> >& TrkAtVrt,
-		              double& Chi2,
-                              IVKalState& istate,
-                              bool ifCovV0 = false) const override;
-        virtual
-        StatusCode VKalVrtFit(const std::vector<const Track*>&,
-                              Amg::Vector3D&         Vertex,
-                              TLorentzVector&     Momentum,
-	                      long int&           Charge,
-		              dvect&              ErrorMatrix,
-	                      dvect&              Chi2PerTrk,
-		              std::vector< std::vector<double> >& TrkAtVrt,
-		              double& Chi2,
-                              IVKalState& istate,
-                              bool ifCovV0 = false) const override;
-        virtual
-        StatusCode VKalVrtFit(const std::vector<const TrackParticleBase*>&,
-                              Amg::Vector3D&         Vertex,
-                              TLorentzVector&     Momentum,
-	                      long int&           Charge,
-		              dvect&              ErrorMatrix,
-	                      dvect&              Chi2PerTrk,
-		              std::vector< std::vector<double> >& TrkAtVrt,
-		              double& Chi2,
-                              IVKalState& istate,
-                              bool ifCovV0 = false) const override;
-        virtual
-        StatusCode VKalVrtFit(const std::vector<const TrackParameters*>&,
-                              const std::vector<const NeutralParameters*>&,
-                              Amg::Vector3D&         Vertex,
-                              TLorentzVector&     Momentum,
-	                      long int&           Charge,
-		              dvect&              ErrorMatrix,
-	                      dvect&              Chi2PerTrk,
-		              std::vector< std::vector<double> >& TrkAtVrt,
-		              double& Chi2,
-                              IVKalState& istate,
-                              bool ifCovV0 = false) const override;
-//------
-        virtual
-        StatusCode VKalVrtCvtTool(const Amg::Vector3D& Vertex,
-	                          const TLorentzVector& Momentum,
-	                          const dvect& CovVrtMom,
-				  const long int& Charge,
-				  dvect& Perigee,
-				  dvect& CovPerigee,
-                                  IVKalState& istate) const override;
-//-----
-        virtual StatusCode VKalVrtFitFast(const std::vector<const Trk::Track*>&, Amg::Vector3D& Vertex, IVKalState& istate) const override;
-        virtual StatusCode VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>&, Amg::Vector3D& Vertex, IVKalState& istate) const override;
-        virtual StatusCode VKalVrtFitFast(const std::vector<const TrackParticleBase*>&, Amg::Vector3D& Vertex, IVKalState& istate) const override;
-        virtual StatusCode VKalVrtFitFast(const std::vector<const TrackParameters*>&, Amg::Vector3D& Vertex, IVKalState& istate) const override;
-//-----
+        StatusCode addMassConstraint(
+          VertexID Vertex,
+          const std::vector<const xAOD::TrackParticle*>& tracksInConstraint,
+          const std::vector<VertexID>& verticesInConstraint,
+          IVKalState& istate,
+          double massConstraint) const override final;
+
+        //------ specific VKalVrt staff
+
+        virtual std::unique_ptr<IVKalState> makeState(
+          const EventContext& ctx) const override final;
+
+        virtual StatusCode VKalVrtFit(
+          const std::vector<const xAOD::TrackParticle*>&,
+          const std::vector<const xAOD::NeutralParticle*>&,
+          Amg::Vector3D& Vertex,
+          TLorentzVector& Momentum,
+          long int& Charge,
+          dvect& ErrorMatrix,
+          dvect& Chi2PerTrk,
+          std::vector<std::vector<double>>& TrkAtVrt,
+          double& Chi2,
+          IVKalState& istate,
+          bool ifCovV0 = false) const override final;
+
+        virtual StatusCode VKalVrtFit(
+          const std::vector<const Track*>&,
+          Amg::Vector3D& Vertex,
+          TLorentzVector& Momentum,
+          long int& Charge,
+          dvect& ErrorMatrix,
+          dvect& Chi2PerTrk,
+          std::vector<std::vector<double>>& TrkAtVrt,
+          double& Chi2,
+          IVKalState& istate,
+          bool ifCovV0 = false) const override final;
+
+        virtual StatusCode VKalVrtFit(
+          const std::vector<const TrackParameters*>&,
+          const std::vector<const NeutralParameters*>&,
+          Amg::Vector3D& Vertex,
+          TLorentzVector& Momentum,
+          long int& Charge,
+          dvect& ErrorMatrix,
+          dvect& Chi2PerTrk,
+          std::vector<std::vector<double>>& TrkAtVrt,
+          double& Chi2,
+          IVKalState& istate,
+          bool ifCovV0 = false) const override final;
+        //------
+        virtual StatusCode VKalVrtCvtTool(const Amg::Vector3D& Vertex,
+                                          const TLorentzVector& Momentum,
+                                          const dvect& CovVrtMom,
+                                          const long int& Charge,
+                                          dvect& Perigee,
+                                          dvect& CovPerigee,
+                                          IVKalState& istate) const override final;
+        //-----
+        virtual StatusCode VKalVrtFitFast(const std::vector<const Trk::Track*>&,
+                                          Amg::Vector3D& Vertex,
+                                          IVKalState& istate) const override final;
+        virtual StatusCode VKalVrtFitFast(
+          const std::vector<const xAOD::TrackParticle*>&,
+          Amg::Vector3D& Vertex,
+          IVKalState& istate) const override final;
+
+        virtual StatusCode VKalVrtFitFast(
+          const std::vector<const TrackParameters*>&,
+          Amg::Vector3D& Vertex,
+          IVKalState& istate) const override final;
+        //-----
         virtual
         Trk::Track* CreateTrkTrack(const std::vector<double>& VKPerigee,
                                    const std::vector<double>& VKCov,
-                                   const IVKalState& istate) const override;
-        virtual StatusCode VKalGetTrkWeights(dvect& Weights,
-                                             const IVKalState& istate) const override;
-        virtual StatusCode VKalGetFullCov(long int, dvect& CovMtx,
+                                   const IVKalState& istate) const override final;
+
+        virtual StatusCode VKalGetTrkWeights(
+          dvect& Weights,
+          const IVKalState& istate) const override final;
+
+        virtual StatusCode VKalGetFullCov(long int,
+                                          dvect& CovMtx,
                                           const IVKalState& istate,
-                                          bool = false) const override;
+                                          bool = false) const override final;
 
-        virtual StatusCode VKalGetMassError(double& Mass, double& MassError,
-                                            const IVKalState& istate) const override;
+        virtual StatusCode VKalGetMassError(
+          double& Mass,
+          double& MassError,
+          const IVKalState& istate) const override final;
 
-//        VxCandidate * makeVxCandidate( int ,
-//                const Amg::Vector3D& , const std::vector<double> & , 
-//	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double, const State& state ); 
-//-----
+        virtual void setApproximateVertex(double X,
+                                          double Y,
+                                          double Z,
+                                          IVKalState& istate) const override final;
 
-        virtual void setApproximateVertex(double,double,double,
-                                          IVKalState& istate) const override;
-        virtual void setMassForConstraint(double,
-                                          IVKalState& istate) const override;
-        virtual void setMassForConstraint(double, const std::vector<int>&,
-                                          IVKalState& istate) const override;
-        virtual void setRobustness(int, IVKalState& istate) const override;
-        virtual void setRobustScale(double, IVKalState& istate) const override;
-        virtual void setCnstType(int, IVKalState& istate) const override;
-        virtual void setVertexForConstraint(const xAOD::Vertex &, IVKalState& istate ) const override;
-        virtual void setVertexForConstraint(double,double,double, IVKalState& istate) const override;
-        virtual void setCovVrtForConstraint(double,double,double,double,double,double, IVKalState& istate) const override;
-				  
-        virtual void setMassInputParticles( const std::vector<double>&,
-                                            IVKalState& istate) const override;
-        virtual double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,
-                                     dvect& Impact, dvect& ImpactError, IVKalState& istate) const override;
-        virtual double VKalGetImpact(const TrackParticleBase*,const Amg::Vector3D& Vertex, const long int Charge,
-                                     dvect& Impact, dvect& ImpactError, IVKalState& istate) const override;
-        virtual double VKalGetImpact(const Track*,const Amg::Vector3D& Vertex, const long int Charge,
-                                     dvect& Impact, dvect& ImpactError, IVKalState& istate) const override;
-        virtual double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,
-                                     dvect& Impact, dvect& ImpactError) const override;
-        virtual double VKalGetImpact(const TrackParticleBase*,const Amg::Vector3D& Vertex, const long int Charge,
-                                     dvect& Impact, dvect& ImpactError) const override;
-        virtual double VKalGetImpact(const Track*,const Amg::Vector3D& Vertex, const long int Charge,
-                                     dvect& Impact, dvect& ImpactError) const override;
+        virtual void setMassForConstraint(double Mass,
+                                          IVKalState& istate) const override final;
 
+        virtual void setMassForConstraint(double Mass,
+                                          const std::vector<int>&,
+                                          IVKalState& istate) const override final;
 
-//
-// ATLAS related code
-//
-    private:
+        virtual void setRobustness(int, IVKalState& istate) const override final;
 
-      SimpleProperty<int>    m_Robustness;
-      SimpleProperty<double> m_RobustScale;
-      SimpleProperty<double> m_cascadeCnstPrecision;
-      SimpleProperty<double> m_massForConstraint;
-      SimpleProperty<int>    m_IterationNumber;
-      SimpleProperty<double> m_IterationPrecision;
-      SimpleProperty<double> m_IDsizeR;
-      SimpleProperty<double> m_IDsizeZ;
-      std::vector<double>    m_c_VertexForConstraint;
-      std::vector<double>    m_c_CovVrtForConstraint;
-      std::vector<double>    m_c_MassInputParticles;
+        virtual void setRobustScale(double, IVKalState& istate) const override final;
 
-      ToolHandle < IExtrapolator >          m_extPropagator;   //External propagator
-      ////ServiceHandle<MagField::IMagFieldSvc> m_magFieldAthenaSvc;                //Athena magnetic field
-      //Read handle for conditions object to get the field cache
-      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field key"};
-      SimpleProperty<bool>   m_firstMeasuredPoint;
-      SimpleProperty<bool>   m_firstMeasuredPointLimit;
-      SimpleProperty<bool>   m_makeExtendedVertex;
-      SimpleProperty<bool>   m_useFixedField;
+        virtual void setCnstType(int, IVKalState& istate) const override final;
 
-      bool m_isAtlasField;
+        virtual void setVertexForConstraint(const xAOD::Vertex&,
+                                            IVKalState& istate) const override final;
 
-      bool m_useAprioriVertex ;
-      bool m_useThetaCnst;
-      bool m_usePhiCnst;
-      bool m_usePointingCnst;
-      bool m_useZPointingCnst;
-      bool m_usePassNear;
-      bool m_usePassWithTrkErr;
-      void initCnstList();
+        virtual void setVertexForConstraint(double X,
+                                            double Y,
+                                            double Z,
+                                            IVKalState& istate) const override final;
 
-//  Track material effects control
-// 
-       struct TrkMatControl{
-          Amg::Vector3D trkRefGlobPos;                // Track reference point(hit) in global ATLAS frame
-	  int extrapolationType;
-	  int TrkID;
+        virtual void setCovVrtForConstraint(double XX,
+                                            double XY,
+                                            double YY,
+                                            double XZ,
+                                            double YZ,
+                                            double ZZ,
+                                            IVKalState& istate) const override final;
+
+        virtual void setMassInputParticles(const std::vector<double>&,
+                                           IVKalState& istate) const override final;
+
+        virtual double VKalGetImpact(const xAOD::TrackParticle*,
+                                     const Amg::Vector3D& Vertex,
+                                     const long int Charge,
+                                     dvect& Impact,
+                                     dvect& ImpactError,
+                                     IVKalState& istate) const override final;
+
+        virtual double VKalGetImpact(const Track*,
+                                     const Amg::Vector3D& Vertex,
+                                     const long int Charge,
+                                     dvect& Impact,
+                                     dvect& ImpactError,
+                                     IVKalState& istate) const override final;
+
+        virtual double VKalGetImpact(const xAOD::TrackParticle*,
+                                     const Amg::Vector3D& Vertex,
+                                     const long int Charge,
+                                     dvect& Impact,
+                                     dvect& ImpactError) const override final;
+
+        virtual double VKalGetImpact(const Track*,
+                                     const Amg::Vector3D& Vertex,
+                                     const long int Charge,
+                                     dvect& Impact,
+                                     dvect& ImpactError) const override final;
+
+        //
+        // ATLAS related code
+        //
+      private:
+        SimpleProperty<int> m_Robustness;
+        SimpleProperty<double> m_RobustScale;
+        SimpleProperty<double> m_cascadeCnstPrecision;
+        SimpleProperty<double> m_massForConstraint;
+        SimpleProperty<int> m_IterationNumber;
+        SimpleProperty<double> m_IterationPrecision;
+        SimpleProperty<double> m_IDsizeR;
+        SimpleProperty<double> m_IDsizeZ;
+        std::vector<double> m_c_VertexForConstraint;
+        std::vector<double> m_c_CovVrtForConstraint;
+        std::vector<double> m_c_MassInputParticles;
+
+        ToolHandle<IExtrapolator> m_extPropagator; // External propagator
+        // Read handle for conditions object to get the field cache
+        SG::ReadCondHandleKey<AtlasFieldCacheCondObj>
+          m_fieldCacheCondObjInputKey{ this,
+                                       "AtlasFieldCacheCondObj",
+                                       "fieldCondObj",
+                                       "Name of the Magnetic Field key" };
+        SimpleProperty<bool> m_firstMeasuredPoint;
+        SimpleProperty<bool> m_firstMeasuredPointLimit;
+        SimpleProperty<bool> m_makeExtendedVertex;
+        SimpleProperty<bool> m_useFixedField;
+
+        bool m_isAtlasField;
+
+        bool m_useAprioriVertex;
+        bool m_useThetaCnst;
+        bool m_usePhiCnst;
+        bool m_usePointingCnst;
+        bool m_useZPointingCnst;
+        bool m_usePassNear;
+        bool m_usePassWithTrkErr;
+        void initCnstList();
+
+        //  Track material effects control
+        //
+        struct TrkMatControl
+        {
+          // Track reference point(hit) in global ATLAS frame
+          Amg::Vector3D trkRefGlobPos;
+          int extrapolationType;
+          int TrkID;
           const TrackParameters* TrkPnt;
-	  double prtMass;
-          Amg::Vector3D         trkSavedLocalVertex;         // Local VKalVrtCore vertex
-       };
-
+          double prtMass;
+          Amg::Vector3D trkSavedLocalVertex; // Local VKalVrtCore vertex
+        };
 
       class CascadeState
       {
@@ -336,16 +374,14 @@ namespace Trk{
         std::vector<cascadeV>    m_cascadeVList;               // list of cascade vertex objects
       };
 
-
-      class State
-        : public IVKalState
+      class State : public IVKalState
       {
       public:
         //
         //  Origin of global reference frame.
-        //  (0,0,0) by default but can be changed by input tracks 
+        //  (0,0,0) by default but can be changed by input tracks
         //
-        double m_refFrameX = 0, m_refFrameY = 0, m_refFrameZ = 0 ;
+        double m_refFrameX = 0, m_refFrameY = 0, m_refFrameZ = 0;
         std::vector < TrkMatControl > m_trkControl;
 
         //
@@ -401,8 +437,6 @@ namespace Trk{
         }
       };
 
-
-
 //-----------------------------------------------------------------
 //  Cascade related stuff
 //
@@ -416,7 +450,7 @@ namespace Trk{
       int getCascadeNDoF (const CascadeState& cstate) const;
 //----------------------
 //  Control variables
-//    
+//
 
       double m_BMAG;       /* const magnetic field  if needed */
       double m_CNVMAG;     /* Conversion constant */
@@ -428,7 +462,7 @@ namespace Trk{
 //
 //
 
-    
+
 
 //
 //  Private technical functions
@@ -439,7 +473,7 @@ namespace Trk{
         // init of state for backwards compartibility - calls context-aware version. Can be removed
         // when fully migrated to EventContext
         void initState (State& state) const;
-      
+
 //
 //
         void FillMatrixP(AmgSymMatrix(5)& , std::vector<double>& ) const;
@@ -447,45 +481,82 @@ namespace Trk{
         Amg::MatrixX * GiveFullMatrix(int NTrk, std::vector<double>&) const;
         bool convertAmg5SymMtx(const AmgSymMatrix(5)*, double[] ) const;
 
-        void  VKalTransform( double MAG,double A0V,double ZV,double PhiV,double ThetaV,double  PInv, double[],
-                                    long int & Charge, double[], double[]) const;
+        void VKalTransform(double MAG,
+                           double A0V,
+                           double ZV,
+                           double PhiV,
+                           double ThetaV,
+                           double PInv,
+                           double[],
+                           long int& Charge,
+                           double[],
+                           double[]) const;
 
-  
-        xAOD::Vertex * makeXAODVertex( int,  const Amg::Vector3D&,
-                                       const dvect&, const dvect&, const std::vector< dvect >&, double,
-                                       const State& state) const;
+        xAOD::Vertex* makeXAODVertex(int,
+                                     const Amg::Vector3D&,
+                                     const dvect&,
+                                     const dvect&,
+                                     const std::vector<dvect>&,
+                                     double,
+                                     const State& state) const;
 
-        StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,                int& ntrk, State& state) const;
-        StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,    int& ntrk, State& state) const;
-        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,  int& ntrk, State& state) const;
-        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list,int& ntrk, State& state) const;
-        StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,    int& ntrk, State& state) const;
-        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,  int& ntrk, State& state) const;
+        StatusCode CvtTrkTrack(const std::vector<const Track*>& list,
+                               int& ntrk,
+                               State& state) const;
+
+        StatusCode CvtTrackParticle(
+          const std::vector<const xAOD::TrackParticle*>& list,
+          int& ntrk,
+          State& state) const;
+
+        StatusCode CvtNeutralParticle(
+          const std::vector<const xAOD::NeutralParticle*>& list,
+          int& ntrk,
+          State& state) const;
+
+        StatusCode CvtTrackParameters(
+          const std::vector<const TrackParameters*>& InpTrk,
+          int& ntrk,
+          State& state) const;
+
+        StatusCode CvtNeutralParameters(
+          const std::vector<const NeutralParameters*>& InpTrk,
+          int& ntrk,
+          State& state) const;
 
         void VKalVrtConfigureFitterCore(int NTRK, State& state) const;
-        void VKalToTrkTrack( double, double  , double  , double , double& , double& , double& ) const;
 
-        //This is safe as long as the tool is not called from multiple threads or reentrantly
-        int VKalVrtFit3 (  int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
-	                   long int& Charge, dvect& ErrorMatrix, dvect& Chi2PerTrk, 
-                           std::vector< std::vector<double> >& TrkAtVrt, double& Chi2,
-                           State& state,
-                           bool ifCovV0) const;
+        void VKalToTrkTrack(double curBMAG,
+                            double vp1,
+                            double vp2,
+                            double vp3,
+                            double& tp1,
+                            double& tp2,
+                            double& tp3) const;
 
-        Perigee * CreatePerigee(double , double , double ,
-     			           const std::vector<double>& VKPerigee,
-                                   const std::vector<double>& VKCov,
-                                   const State& state) const;
+        int VKalVrtFit3(int ntrk,
+                        Amg::Vector3D& Vertex,
+                        TLorentzVector& Momentum,
+                        long int& Charge,
+                        dvect& ErrorMatrix,
+                        dvect& Chi2PerTrk,
+                        std::vector<std::vector<double>>& TrkAtVrt,
+                        double& Chi2,
+                        State& state,
+                        bool ifCovV0) const;
 
-//
-//
-        const Perigee* GetPerigee( const TrackParticleBase* i_ntrk) const; 
-        const Perigee* GetPerigee( const TrackParameters*   i_ntrk) const; 
-        const TrackParameters*  GetFirstPoint(const Trk::TrackParticleBase* i_ntrk) const;
-      /*const TrackParameters*  GetFirstPoint(const xAOD::TrackParticle* i_ntrk);  //VK Cannot be implemented. xAOD::TrackParticle
-                                                                                   //returns local copy(!!!) of first point  */
+        Perigee* CreatePerigee(double Vx,
+                               double Vy,
+                               double Vz,
+                               const std::vector<double>& VKPerigee,
+                               const std::vector<double>& VKCov,
+                               const State& state) const;
 
-      int VKalGetNDOF(const State& state) const;
+        //
+        //
+        const Perigee* GetPerigee(const TrackParameters* i_ntrk) const;
+
+        int VKalGetNDOF(const State& state) const;
    };
 
 } //end of namespace

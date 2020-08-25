@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: CaloRec/python/CaloThinCellsByClusterAlg_test.py
 # Author: scott snyder
@@ -132,6 +132,11 @@ def testCfg (configFlags):
 
     result.addEventAlgo (CheckThinningAlg ('CheckThinningAlg'))
     return result
+
+
+# Work around issue with cling in root 6.20.06 getting confused
+# by forward declarations.
+ROOT.xAOD.CaloClusterContainer_v1
 
 
 from AthenaCommon.Configurable import Configurable

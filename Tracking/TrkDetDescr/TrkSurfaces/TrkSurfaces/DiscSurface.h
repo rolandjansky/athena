@@ -94,7 +94,7 @@ public:
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
 
   /**Destructor*/
-  virtual ~DiscSurface();
+  virtual ~DiscSurface() = default;
 
   /**Assignement operator*/
   DiscSurface& operator=(const DiscSurface& dsf);
@@ -161,6 +161,9 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
+
+  /** Return the surface type */
+  static constexpr SurfaceType staticType();
 
   /** Returns a global reference point:
      For the Disc this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$

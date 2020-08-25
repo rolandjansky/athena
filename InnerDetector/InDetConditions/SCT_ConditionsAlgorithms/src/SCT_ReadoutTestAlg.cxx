@@ -51,7 +51,7 @@ StatusCode SCT_ReadoutTestAlg::execute() {
   for (const SCT_Chip& chip: m_chips) ATH_MSG_INFO(chip);
 
   // Determin readout for this module
-  ATH_CHECK(m_readout->determineReadout(Identifier{m_moduleId.value()}, m_chips, m_link0ok.value(), m_link1ok.value()));
+  ATH_CHECK(m_readout->determineReadout(Identifier{m_moduleId}, m_chips, m_link0ok, m_link1ok));
   
   ATH_MSG_INFO("Chips after readout ...");
   for (const SCT_Chip& chip: m_chips) ATH_MSG_INFO(chip);

@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
+#include <time.h>
 #include <sys/types.h>
 #ifndef __APPLE__
 #include <sys/sysinfo.h>
@@ -32,7 +33,7 @@
 #include "TSystem.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IAlgContextSvc.h"
@@ -72,15 +73,37 @@ namespace CoreDumpSvcHandler
    */
   void action( int sig, siginfo_t *info, void* extra )
   {
-    // Protect against additional signals while we are handling this one
-    static std::atomic<int> inHandler {0};
+    // Protect against additional signals while we are handling this one.
+    // Note: thread-local.
+    static thread_local int inHandler = 0;
     if (inHandler++ > 0) {
       if (inHandler > 100) _exit (98);
       return;
     }
-    
-    // setup timeout
+
+    // Count the number of threads trying to dump.
+    static std::atomic<int> inThreads = 0;
+    ++inThreads;
+
     unsigned int timeoutSeconds = static_cast<unsigned int>(round(coreDumpSvc->m_timeout * 1e-9));
+
+    // Only allow one thread past at a time.
+    // Try to assume as little as possible about the state of the library.
+    // We don't want to hang forever here, but we also don't want
+    // to call any library functions that might use signals under the hood.
+    // So use nanosleep() to do the delay --- that's defined to be
+    // independent of signals.
+    static std::mutex threadMutex;
+    const timespec one_second { 1, 0 };
+    {
+      unsigned int waits = 0;
+      while (!threadMutex.try_lock()) {
+        nanosleep (&one_second, nullptr);
+        if (++waits > timeoutSeconds) _exit (97);
+      }
+    }
+
+    // setup timeout
     if ( timeoutSeconds > 0 && (sig == SIGSEGV || sig == SIGBUS || sig == SIGABRT) ) {
       struct sigaction sa;
       memset(&sa, 0, sizeof(sa));
@@ -121,7 +144,17 @@ namespace CoreDumpSvcHandler
       }
     }
 
+    // This thread is done dumping.
+    threadMutex.unlock();
+    --inThreads;
+
     if (coreDumpSvc && (sig == SIGSEGV || sig == SIGBUS || sig == SIGABRT) ) {
+      // Don't terminate the program while there are other threads
+      // trying to dump (but don't wait forever either).
+      unsigned int waits = 0;
+      while (inThreads > 0 && waits < timeoutSeconds) {
+        nanosleep (&one_second, nullptr);
+      }
       // Exit now on a fatal signal; otherwise, we can hang.
       _exit (99);
     }
@@ -153,7 +186,7 @@ CoreDumpSvc::~CoreDumpSvc()
   CoreDumpSvcHandler::coreDumpSvc = nullptr;
 }
 
-void CoreDumpSvc::propertyHandler(Property& p)
+void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 {
   CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
   CoreDumpSvcHandler::stackTrace = m_stackTrace;

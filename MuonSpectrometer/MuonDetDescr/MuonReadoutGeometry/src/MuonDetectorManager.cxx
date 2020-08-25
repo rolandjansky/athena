@@ -369,11 +369,11 @@ MuonDetectorManager::muonStationKey(std::string stName, int statEtaIndex, int st
     std::string key;
     if (statEtaIndex<0)
         key = stName.substr(0,3)
-              +"_C_zi"+MuonGM::buildString(abs(statEtaIndex),2)
+              +"_C_zi"+MuonGM::buildString(std::abs(statEtaIndex),2)
               +"fi"+MuonGM::buildString(statPhiIndex,2);
     else
         key = stName.substr(0,3)
-              +"_A_zi"+MuonGM::buildString(abs(statEtaIndex),2)
+              +"_A_zi"+MuonGM::buildString(std::abs(statEtaIndex),2)
               +"fi"+MuonGM::buildString(statPhiIndex,2);
     return key;
 }
@@ -443,18 +443,18 @@ void MuonDetectorManager::addRpcReadoutElement (RpcReadoutElement* x, Identifier
   // to be addressed with a dbz_index=dbZ+1
   if (m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id)) == "BMS")
   {
-      if (abs(m_rpcIdHelper->stationEta(id)) == 2 &&
+      if (std::abs(m_rpcIdHelper->stationEta(id)) == 2 &&
           m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 2 &&
                m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 1 &&
                m_rpcIdHelper->doubletZ(id) == 2)
       {
@@ -526,18 +526,18 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement (const Identi
   // to be addressed with a dbz_index=dbZ+1
   if (m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id)) == "BMS")
   {
-      if (abs(m_rpcIdHelper->stationEta(id)) == 2 &&
+      if (std::abs(m_rpcIdHelper->stationEta(id)) == 2 &&
           m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 2 &&
                m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 1 &&
                m_rpcIdHelper->doubletZ(id) == 2)
       {
@@ -1026,7 +1026,7 @@ const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1
 
       int dbr = i4;
       int dbz = i5;
-      int absEta = abs(i2);
+      int absEta = std::abs(i2);
 
 
       // BMS 5/ |stEta|= 2 / dbR = 1 and 2 / dbZ = 3
@@ -1184,7 +1184,7 @@ MuonDetectorManager::initABlineContainers()
             id = m_cscIdHelper->elementID(stType, jzz, jff);
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Filling A-line container with entry for key = "<<m_cscIdHelper->show_to_string(id)<<endmsg;
         }
-        else if (m_rpcIdHelper && stType.substr(0,3)=="BML" && abs(jzz)==7) 
+        else if (m_rpcIdHelper && stType.substr(0,3)=="BML" && std::abs(jzz)==7) 
         {
             // RPC case
             id = m_rpcIdHelper->elementID(stType, jzz, jff, 1);
@@ -1464,7 +1464,7 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer& blineData)
 					    <<BLine.en()<<")"<<endmsg;
 	  }
         BLine.getAmdbId(stType, jff, jzz, job);
-	if (stType.substr(0,1)=="T" || stType.substr(0,1)=="C" || (stType.substr(0,3)=="BML" && abs(jzz)==7) ) {
+	if (stType.substr(0,1)=="T" || stType.substr(0,1)=="C" || (stType.substr(0,3)=="BML" && std::abs(jzz)==7) ) {
 	  if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
                <<"BLinePar with AmdbId "
                <<stType<<" "<<jzz<<" "<<jff<<" "<<job

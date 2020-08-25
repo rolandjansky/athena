@@ -36,11 +36,11 @@ EventBoost::EventBoost( const std::string& name,
   :  AthAlgorithm(name, pSvcLocator), m_nModifiedEvent(0), m_nFailedEvent(0), m_nModifiedTotal(0), m_nFailedTotal(0),
      m_flat_rand_x(0.), m_flat_rand_y(0.), m_flat_rand_z(0.), m_gauss_rand_x(0.), m_gauss_rand_y(0.), m_gauss_rand_z(0.), m_pxsum(0.)
 {
-  declareProperty("BeamInclination", m_beam_inclination );
+  declareProperty("BeamInclination", m_beam_inclination = 0);
   declareProperty("GenEvtInputKey", m_genEvtInKey );
   declareProperty("GenEvtOutputKey", m_genEvtOutKey );
-  declareProperty("DoGaussianVertexSmearing", m_gaussian_vertex_smearing );
-  declareProperty("DoFlatVertexSmearing", m_flat_vertex_smearing );
+  declareProperty("DoGaussianVertexSmearing", m_gaussian_vertex_smearing = false );
+  declareProperty("DoFlatVertexSmearing", m_flat_vertex_smearing = false );
   declareProperty("GaussianMean", m_gaussian_mean );
   declareProperty("GaussianWidth", m_gaussian_width );
   declareProperty("FlatSmearingBoundaryMin", m_flat_smearing_boundary_min );
@@ -174,7 +174,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 
   std::vector<HepMC::GenParticlePtr> particles_needing_modification;
 
-  for(auto p: *genEvt)  particles_needing_modification.push_back(p);
+  for(auto p: *((HepMC::GenEvent*)genEvt))  particles_needing_modification.push_back(p);
 
   m_pxsum=0.;
   for (auto it: particles_needing_modification) {
@@ -191,11 +191,15 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 
     std::vector<HepMC::GenVertexPtr> vertices_needing_modification;
 
+#ifdef HEPMC3
+  for(auto v: ((HepMC::GenEvent*)genEvt)->vertices())  vertices_needing_modification.push_back(v);
+#else      
     HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();    
     for(; v != vEnd; ++v ) {
       vertices_needing_modification.push_back(*v);
     }
+#endif
 
 
     Rndm::Numbers GaussVertexModifier_x(randSvc(), Rndm::Gauss(m_gaussian_mean[0],m_gaussian_width[0]));

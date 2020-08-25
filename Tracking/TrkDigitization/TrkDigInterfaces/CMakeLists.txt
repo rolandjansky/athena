@@ -13,6 +13,4 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrkDigInterfaces
                      PUBLIC_HEADERS TrkDigInterfaces
                      LINK_LIBRARIES GaudiKernel TrkDigEvent )
-# Install files from the package:
-atlas_install_headers( TrkDigInterfaces )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
  
 //////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ namespace ISF {
     @author Aishik.Ghosh -at- cern.ch, David Rousseau -at- cern.ch,
     */
   
-  class DNNCaloSimSvc : public BaseSimulationSvc
+  class DNNCaloSimSvc final : public BaseSimulationSvc
   {
     public:
       /** Constructor with parameters */

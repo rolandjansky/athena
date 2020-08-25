@@ -150,7 +150,7 @@ for lb1 in first_line.split("._"):
     if "lb" in lb1: first_lb = int(lb1[2:])
 current_lb = first_lb
 last_lb = 2500 # will change based on data in file
-print "FIRST LB:", first_lb, current_lb
+print("FIRST LB:", first_lb, current_lb)
 
 # initialize list to hold total number of processed events per lumiblock
 procEvents = []
@@ -192,10 +192,10 @@ procEvents.append(lbEventList[0])
 ## RATE / EFFICIENCY CALCULATIONS ##
 totalEvents = eventList[0]
 totalRPVLLpass = eventList[nft-1]
-print 'Events passing RPVLL filters:', totalRPVLLpass, 'out of', totalEvents
-print 'RPVLL filter efficiency:', float(totalRPVLLpass)/float(totalEvents) * 100., '%'
-print 'RPVLL normalized average rate: ', float(totalRPVLLpass)/float(totalEvents) * 1000., 'Hz'
-print ''
+print('Events passing RPVLL filters:', totalRPVLLpass, 'out of', totalEvents)
+print('RPVLL filter efficiency:', float(totalRPVLLpass)/float(totalEvents) * 100., '%')
+print('RPVLL normalized average rate: ', float(totalRPVLLpass)/float(totalEvents) * 1000., 'Hz')
+print('')
 
 # calculate fraction of events passing each indidivual filter
 fracList_total = [0] * nf # fraction of ALL events passing filter
@@ -203,36 +203,36 @@ fracList_RPVLL = [0] * nf # fraction of RPVLL events passing filter
 filterEvents = [0] * nf
 closureTest = 0
 
-print 'FRACTION OF (RPVLL | TOTAL) EVENTS PASSING EACH FILTER:'
+print('FRACTION OF (RPVLL | TOTAL) EVENTS PASSING EACH FILTER:')
 for filterNo in range(0,nf):
     closureTest += eventList[filterNo*2+1]
     fracList_total[filterNo] = float(eventList[filterNo*2+1])/float(totalEvents)
     fracList_RPVLL[filterNo] = float(eventList[filterNo*2+1])/float(totalRPVLLpass)
     filterEvents[filterNo] = eventList[filterNo*2+1]
     if filterNo != n_aug:
-        print filterNames[filterNo], ' -- ', '%.2E' % Decimal(fracList_RPVLL[filterNo]), ' | ', '%.2E' % Decimal(fracList_total[filterNo])
-print ''
+        print(filterNames[filterNo], ' -- ', '%.2E' % Decimal(fracList_RPVLL[filterNo]), ' | ', '%.2E' % Decimal(fracList_total[filterNo]))
+print('')
 
-print 'NORMALIZED (to 1 kHz) AVERAGE FILTER RATE:'
+print('NORMALIZED (to 1 kHz) AVERAGE FILTER RATE:')
 for filterNo in range(0,nf):
     if filterNo != n_aug:
-        print filterNames[filterNo], ' -- ', '%.2f' % (fracList_total[filterNo]*1000), 'Hz'
-print ''
+        print(filterNames[filterNo], ' -- ', '%.2f' % (fracList_total[filterNo]*1000), 'Hz')
+print('')
 
 # subtract away events corresponding to DVAugmentationKernel -- NOT A FILTER
 # closureTest_mAug will always be larger than totalRPVLLpass because of overlap
 # --> some RPVLL events will pass multiple filters and thus be added multiple times
 closureTest_mAug = closureTest - filterEvents[n_aug]
-print 'Total number of events passing filters / total number of events passing RPVLL: ', closureTest_mAug, '/', totalRPVLLpass, '=', float(closureTest_mAug)/float(totalRPVLLpass) * 100., '%'
-print ''
+print('Total number of events passing filters / total number of events passing RPVLL: ', closureTest_mAug, '/', totalRPVLLpass, '=', float(closureTest_mAug)/float(totalRPVLLpass) * 100., '%')
+print('')
                 
 # printout for easy copy-paste into google spreadsheet
 for n in filterNames_mAug:
-    print n,
-print ''
+    print(n,)
+print('')
 for n in range(0,nf):
-    if n != n_aug: print filterEvents[n],
-print ''
+    if n != n_aug: print(filterEvents[n],)
+print('')
 
 
 
@@ -258,7 +258,7 @@ for lineNo,line in enumerate(lbList):
         lbScaleHist.SetBinError(lbScaleHist.FindBin(float(line.split()[0])), 0)
         #print "TEST: ", line.split()[0], procEvents[l], scale[l], l, lineNo, len(procEvents)
         l += 1
-print ''
+print('')
 
 
 ## DRAW + PRINT PLOTS ##

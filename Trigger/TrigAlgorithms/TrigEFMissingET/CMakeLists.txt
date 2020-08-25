@@ -1,46 +1,7 @@
-################################################################################
-# Package: TrigEFMissingET
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigEFMissingET )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloEvent
-   Calorimeter/CaloGeoHelpers
-   Calorimeter/CaloIdentifier
-   Calorimeter/CaloInterface
-   Control/AthenaBaseComps
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODTrigMissingET
-   Event/xAOD/xAODPFlow
-   Event/FourMomUtils
-   GaudiKernel
-   LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArRecConditions
-   LArCalorimeter/LArCabling
-   Trigger/TrigAlgorithms/TrigT2CaloCommon
-   Trigger/TrigEvent/TrigCaloEvent
-   Trigger/TrigEvent/TrigMissingEtEvent
-   Trigger/TrigEvent/TrigParticle
-   Trigger/TrigSteer/TrigInterfaces
-   Trigger/TrigTools/TrigTimeAlgs
-   PRIVATE
-   Tools/PathResolver
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
-   Control/CxxUtils
-   DetectorDescription/Identifier
-   Event/EventKernel
-   Event/xAOD/xAODEventInfo
-   Reconstruction/Jet/JetEvent
-   Reconstruction/Jet/JetEDM
-   Trigger/TrigEvent/TrigMuonEvent
-   Trigger/TrigEvent/TrigSteeringEvent
-   Trigger/TrigT1/TrigT1Interfaces )
 
 # External dependencies:
 find_package( FastJet )
@@ -49,55 +10,11 @@ find_package( ROOT COMPONENTS Core Hist Matrix )
 find_package( tdaq-common COMPONENTS eformat )
 find_package( Eigen )
 
-atlas_add_library( TrigEFMissingETLib
-  src/METComponent.cxx
-  src/StatusFlags.cxx
-  src/SignedKinematics.cxx
-  src/PufitGrid.cxx
-  src/PufitUtils.cxx
-  PUBLIC_HEADERS TrigEFMissingET
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-  LINK_LIBRARIES xAODTrigMissingET xAODBase
-)
-
 # Component(s) in the package:
 atlas_add_component( TrigEFMissingET
-  src/EFMissingET.cxx
-  src/EFMissingETHelper.cxx
-  src/EFMissingETBaseTool.cxx
-  src/EFMissingETComponentCopier.cxx
-  src/EFMissingETFromCells.cxx
-  src/EFMissingETFromClusters.cxx
-  src/EFMissingETFromClustersPS.cxx
-  src/EFMissingETFromClustersPUC.cxx
-  src/EFMissingETFromFEBHeader.cxx
-  src/EFMissingETFromJets.cxx
-  src/EFMissingETFromTrackAndJets.cxx
-  src/EFMissingETFromClustersTracksPUC.cxx
-  src/EFMissingETFromTrackAndClusters.cxx
-  src/EFMissingETFlags.cxx
-  src/EFMissingETFromHelper.cxx
-  src/FexBase.cxx
-  src/MonGroupBuilder.cxx
-  src/TrkMHTFex.cxx
-  src/CellFex.cxx
-  src/MHTFex.cxx
-  src/TCFex.cxx
-  src/PFSumFex.cxx
-  src/TCPufitFex.cxx
-  src/components/TrigEFMissingET_entries.cxx
-  src/components/TrigEFMissingET_load.cxx
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES}
-  TrigEFMissingETLib
-  AthenaBaseComps CaloDetDescrLib CaloEvent CaloGeoHelpers
-  CaloIdentifier CxxUtils EventKernel GaudiKernel Identifier
-  JetEvent LArIdentifier PathResolver JetEDM xAODPFlow
-  TrigCaloEvent TrigInterfacesLib TrigMissingEtEvent TrigMuonEvent
-  TrigParticle TrigSteeringEvent TrigT1Interfaces TrigT2CaloCommonLib
-  TrigTimeAlgsLib xAODCaloEvent xAODEventInfo xAODJet xAODTrigMissingET
-  LArCablingLib LArRecConditions )
+   src/*.cxx src/components/*.cxx
+   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaMonitoringKernelLib CaloConditions CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloInterfaceLib CxxUtils FourMomUtils GaudiKernel IRegionSelector Identifier InDetTrackSelectionToolLib JetEDM JetEvent LArCablingLib LArIdentifier LArRecConditions LArRecEvent PathResolver StoreGateLib TrigInterfacesLib TrigMissingEtEvent TrigParticle TrigSteeringEvent TrigT1Interfaces TrigT2CaloCommonLib TrigTimeAlgsLib xAODCaloEvent xAODCore xAODEventInfo xAODJet xAODMuon xAODPFlow xAODTracking )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

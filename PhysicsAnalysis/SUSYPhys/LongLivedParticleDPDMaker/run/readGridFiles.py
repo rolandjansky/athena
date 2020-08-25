@@ -20,7 +20,7 @@ tgzs = [t for t in listdir(mypath) if isfile(join(mypath, t))]
 os.chdir(mypath)
 
 # loop through tarballs and untar
-print 'About to loop through tarballs!'
+print('About to loop through tarballs!')
 for t in tgzs:
     tar = tarfile.open(t, "r:gz")
     tar.extractall()

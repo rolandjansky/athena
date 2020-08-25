@@ -6,12 +6,11 @@
 // CscThresholdClusterBuilderTool.cxx
 #include "CscThresholdClusterBuilderTool.h"
 #include <sstream>
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkSurfaces/Surface.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
 
@@ -72,7 +71,7 @@ CscThresholdClusterBuilderTool(const std::string &type, const std::string &aname
     m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
     m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter"),
     m_pfitter_split("CscSplitClusterFitter/CscSplitClusterFitter"),
-    m_pmuon_detmgr(0), m_phelper(0), m_fullEventDone(false){
+    m_fullEventDone(false){
 
   declareInterface<ICscClusterBuilder>(this);
   
@@ -160,15 +159,10 @@ StatusCode CscThresholdClusterBuilderTool::initialize(){
     return StatusCode::RECOVERABLE;
   } 
   ATH_MSG_DEBUG ( "Retrieved CSC split cluster fitting tool" );
-                 
-  if ( detStore()->retrieve(m_pmuon_detmgr).isFailure() ) {
-    ATH_MSG_ERROR ( " Cannot retrieve MuonGeoModel " );
-    return StatusCode::RECOVERABLE;
-  }
-  ATH_MSG_DEBUG ( "Retrieved geometry." );
 
-  m_phelper = m_pmuon_detmgr->cscIdHelper();
-
+  // retrieve MuonDetectorManager from the conditions store     
+  ATH_CHECK(m_DetectorManagerKey.initialize()); 
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -180,7 +174,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
   // clear output vector of selected data collections containing data
   decodedIds.clear();
   SG::WriteHandle<Muon::CscPrepDataContainer> wh_pclusters(m_pclusters);
-  CscPrepDataContainer *object  = new CscPrepDataContainer(m_phelper->module_hash_max());  
+  CscPrepDataContainer *object  = new CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());  
 
    if (!wh_pclusters.isPresent()) {
      /// record the container in storeGate
@@ -258,9 +252,9 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
   ATH_MSG_DEBUG ( "Retrieved " << col->size() << " CSC Strip PrepDatas." );
   
   Identifier colid = col->identify();
-  int istation = m_phelper->stationName(colid) - 49;
-  int zsec = m_phelper->stationEta(colid);
-  int phisec = m_phelper->stationPhi(colid);
+  int istation = m_idHelperSvc->cscIdHelper().stationName(colid) - 49;
+  int zsec = m_idHelperSvc->cscIdHelper().stationEta(colid);
+  int phisec = m_idHelperSvc->cscIdHelper().stationPhi(colid);
 
   ATH_MSG_DEBUG ( "  Strip collection " << chamber(istation, zsec, phisec)
                   << " has " << col->size() << " strips" );
@@ -269,6 +263,14 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
   vector<const CscStripPrepData*> strips[8];
   int maxstrip[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   
+  // retrieve MuonDetectorManager from the conditions store  
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+  if(MuonDetMgr==nullptr){       
+    ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+    return StatusCode::FAILURE;     
+  }
+
   IdentifierHash hash;
   // Loop over digits and fill these arrays.
   for ( CscStripPrepDataCollection::const_iterator idig=col->begin();
@@ -276,9 +278,9 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
     const CscStripPrepData& dig = **idig;
     Identifier did = dig.identify();
     hash=dig.collectionHash();
-    const CscReadoutElement* pro = m_pmuon_detmgr->getCscReadoutElement(did);
-    int wlay = m_phelper->wireLayer(did);
-    int measphi = m_phelper->measuresPhi(did);
+    const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(did);
+    int wlay = m_idHelperSvc->cscIdHelper().wireLayer(did);
+    int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(did);
     int idx = 2*(wlay-1) + measphi;
     // First entry for a cathode plane, initialize.
     if ( maxstrip[idx] == 0 ) {
@@ -286,7 +288,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
       for ( int istrip=0; istrip<maxstrip[idx]; ++istrip ) 
         strips[idx].push_back(0);
     }
-    int istrip = m_phelper->strip(did) - 1;
+    int istrip = m_idHelperSvc->cscIdHelper().strip(did) - 1;
     if ( istrip<0 || istrip>=maxstrip[idx] ) {
       ATH_MSG_WARNING ( "Invalid strip number" );
       continue;
@@ -344,16 +346,24 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
       continue;      
     }
     Identifier colid = col.identify();
-    int istation = m_phelper->stationName(colid) - 49;
-    int zsec = m_phelper->stationEta(colid);
-    int phisec = m_phelper->stationPhi(colid);
-    ATH_MSG_DEBUG ( "**Strip collection " << chamber(istation, zsec, phisec) << " sector " << m_phelper->sector(colid) 
+    int istation = m_idHelperSvc->cscIdHelper().stationName(colid) - 49;
+    int zsec = m_idHelperSvc->cscIdHelper().stationEta(colid);
+    int phisec = m_idHelperSvc->cscIdHelper().stationPhi(colid);
+    ATH_MSG_DEBUG ( "**Strip collection " << chamber(istation, zsec, phisec) << " sector " << m_idHelperSvc->cscIdHelper().sector(colid) 
                     << " has " << col.size() << " strips" );
     
     // Create arrays to hold digits and cathode plane parameters.
     vector<const CscStripPrepData*> strips[8];
     int maxstrip[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     
+    // retrieve MuonDetectorManager from the conditions store  
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+    if(MuonDetMgr==nullptr){       
+      ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+      return StatusCode::FAILURE;     
+    }
+
     IdentifierHash hash;
     // Loop over digits and fill these arrays.
     for ( CscStripPrepDataCollection::const_iterator idig=col.begin();
@@ -361,9 +371,9 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
       const CscStripPrepData& dig = **idig;
       Identifier did = dig.identify();
       hash=dig.collectionHash();
-      const CscReadoutElement* pro = m_pmuon_detmgr->getCscReadoutElement(did);
-      int wlay = m_phelper->wireLayer(did);
-      int measphi = m_phelper->measuresPhi(did);
+      const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(did);
+      int wlay = m_idHelperSvc->cscIdHelper().wireLayer(did);
+      int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(did);
       int idx = 2*(wlay-1) + measphi;
       // First entry for a cathode plane, initialize.
       if ( maxstrip[idx] == 0 ) {
@@ -371,7 +381,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
         for ( int istrip=0; istrip<maxstrip[idx]; ++istrip ) 
           strips[idx].push_back(0);
       }
-      int istrip = m_phelper->strip(did) - 1;
+      int istrip = m_idHelperSvc->cscIdHelper().strip(did) - 1;
       if ( istrip<0 || istrip>=maxstrip[idx] ) {
         ATH_MSG_WARNING ( "Invalid strip number" );
         continue;
@@ -386,7 +396,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
         int idx = 2*(wlay-1) + measphi;
         if ( maxstrip[idx] ) {
           ATH_MSG_DEBUG ("*** " <<  chamber(istation, zsec, phisec) << " sector "
-                         << m_phelper->sector(colid) << "  " << wlay << "th layer ");
+                         << m_idHelperSvc->cscIdHelper().sector(colid) << "  " << wlay << "th layer ");
           make_clusters(measphi, strips[idx], newCollection);
         }
       }
@@ -449,7 +459,7 @@ make_clusters(bool measphi, const vector<const CscStripPrepData*>& strips,
     bool isBadChannel = false;
     if ( pstrip ) {
       if (!newCollection) {
-        Identifier elementId = m_phelper->elementID(pstrip->identify());
+        Identifier elementId = m_idHelperSvc->cscIdHelper().elementID(pstrip->identify());
         cscHashId=pstrip->collectionHash(); 
         newCollection = new CscPrepDataCollection(cscHashId);
         newCollection->setIdentifier(elementId);
@@ -459,7 +469,7 @@ make_clusters(bool measphi, const vector<const CscStripPrepData*>& strips,
   
       IdentifierHash stripHash;
       Identifier stripId = pstrip->identify();
-      if (m_phelper->get_channel_hash(stripId, stripHash)){ 
+      if (m_idHelperSvc->cscIdHelper().get_channel_hash(stripId, stripHash)){ 
         ATH_MSG_WARNING ( "Unable to get CSC striphash id " << " the identifier is " );
         stripId.show();
       }
@@ -935,10 +945,17 @@ make_clusters(bool measphi, const vector<const CscStripPrepData*>& strips,
       // Create ATLAS CSC cluster.
       Identifier cluster_id = pstrip_id->identify();
       IdentifierHash cluster_hash = pstrip_id->collectionHash();
-      int zsec = m_phelper->stationEta(cluster_id);
-      int wlay = m_phelper->wireLayer(cluster_id);
+      int zsec = m_idHelperSvc->cscIdHelper().stationEta(cluster_id);
+      int wlay = m_idHelperSvc->cscIdHelper().wireLayer(cluster_id);
       // This local position is in the muon (not tracking) coordinate system.
-      const CscReadoutElement* pro = m_pmuon_detmgr->getCscReadoutElement(cluster_id);
+      // retrieve MuonDetectorManager from the conditions store  
+      SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+      const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+      if(MuonDetMgr==nullptr){       
+	ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+	return 0;     
+      }
+      const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(cluster_id);
       //Amg::Vector3D local_pos = pro->localClusterPos(zsec, wlay, measphi, pos);
       Amg::Vector3D localTrk_pos = pro->nominalLocalClusterPos(zsec, wlay, measphi, pos);
 

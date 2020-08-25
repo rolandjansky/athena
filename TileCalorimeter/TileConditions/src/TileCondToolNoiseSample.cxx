@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -21,7 +21,6 @@ const InterfaceID& TileCondToolNoiseSample::interfaceID() {
 //____________________________________________________________________
 TileCondToolNoiseSample::TileCondToolNoiseSample(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_useOnlineNoise(false)
 {
   declareInterface<ITileCondToolNoise>(this);
   declareInterface<TileCondToolNoiseSample>(this);
@@ -41,11 +40,7 @@ StatusCode TileCondToolNoiseSample::initialize() {
   //=== retrieve proxy
   ATH_CHECK( m_calibSampleNoiseKey.initialize() );
 
-  m_useOnlineNoise = !(m_calibOnlineSampleNoiseKey.key().empty());
-
-  if (m_useOnlineNoise) {
-    ATH_CHECK( m_calibOnlineSampleNoiseKey.initialize());
-  }
+  ATH_CHECK( m_calibOnlineSampleNoiseKey.initialize (SG::AllowEmpty));
 
   ATH_CHECK( m_emScaleKey.initialize() );
 
@@ -167,7 +162,7 @@ float TileCondToolNoiseSample::getOnlinePedestalDifference(unsigned int drawerId
 
   float pedestalDifference(0.0);
 
-  if (m_useOnlineNoise) {
+  if (!m_calibOnlineSampleNoiseKey.empty()) {
     SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
     SG::ReadCondHandle<TileCalibDataFlt> calibOnlineSampleNoise(m_calibOnlineSampleNoiseKey);
 

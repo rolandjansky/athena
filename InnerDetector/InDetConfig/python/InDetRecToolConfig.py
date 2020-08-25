@@ -23,15 +23,11 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **
   result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
   return result
 
-def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
   result = ComponentAccumulator()
-  if 'Extrapolator' not in kwargs:
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
-    result.merge(tmpAcc)
 
-  if ('SctSummaryTool' not in kwargs):
-    if flags.Detector.SCTOn:
+  if 'SctSummaryTool' not in kwargs:
+    if flags.Detector.RecoSCT:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)
       kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
       result.merge(tmpAcc)
@@ -43,11 +39,29 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
     kwargs.setdefault("PixelLayerTool", tmpAcc.getPrimary())
     result.merge(tmpAcc)
 
+  kwargs.setdefault("UsePixel", flags.Detector.RecoPixel)
+  kwargs.setdefault("UseSCT", flags.Detector.RecoSCT)
+
+  indet_boundary_check_tool = CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs)
+  result.setPrivateTools(indet_boundary_check_tool)
+  return result
+
+
+def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+  result = ComponentAccumulator()
+  if 'Extrapolator' not in kwargs:
+    tmpAcc =  InDetExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
+
+  if 'BoundaryCheckTool' not in kwargs:
+    tmpAcc = InDetBoundaryCheckToolCfg(flags)
+    kwargs.setdefault('BoundaryCheckTool', tmpAcc.popPrivateTools())
+    result.merge(tmpAcc)
+
   if flags.Beam.Type == "cosmics" :
     kwargs.setdefault("Cosmics", True)
 
-  kwargs.setdefault( "usePixel"                     , flags.Detector.PixelOn)
-  kwargs.setdefault( "useSCT"                       , flags.Detector.SCTOn)
   kwargs.setdefault( "CountDeadModulesAfterLastHit" , True)
 
   indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
@@ -102,7 +116,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
 
 def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
     #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg
 
     kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
 
@@ -114,7 +128,6 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
     result.merge(PixelConfigCondAlgCfg(flags))
     result.merge(PixelDCSCondStateAlgCfg(flags))
     result.merge(PixelDCSCondStatusAlgCfg(flags))
-    result.merge(PixelTDAQCondAlgCfg(flags))
 
     result.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name, **kwargs))
     return result
@@ -354,15 +367,6 @@ def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs
   result.setPrivateTools(tool)
   return result
 
-#<<<<<<< HEAD
-#def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", **kwargs):
-#  acc = ComponentAccumulator()
-#  folder="/SCT/Derived/Monitoring"
-
-#  acc.merge(addFolders(flags,folder, "SCT_OFL", className="CondAttrListCollection"))
-
-#  acc.addCondAlgo(CompFactory.SCT_MonitorCondAlg( "SCT_MonitorCondAlg",ReadKey = folder))
-#=======
 
 def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", cond_kwargs={}, **kwargs):
   cond_kwargs.setdefault("Folder", "/SCT/Derived/Monitoring")
@@ -377,7 +381,6 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", c
 
   result.addCondAlgo( CompFactory.SCT_MonitorCondAlg(name    = cond_kwargs["MonitorCondAlgName"],
                                                      ReadKey = cond_kwargs["Folder"] ))
-#>>>>>>> robert/inDetRecToolsConfig
 
   tool = CompFactory.SCT_MonitorConditionsTool(name, **kwargs)
   result.setPrivateTools(tool)
@@ -419,7 +422,7 @@ def SCT_TdaqEnabledCondAlgCfg(flags, name="SCT_TdaqEnabledCondAlg", **kwargs):
   result.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
   
   acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTool() )
+  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTools() )
   result.merge(acc)
 
   result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg(name=name, **kwargs) )

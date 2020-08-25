@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H62004HECSDTool.h"
@@ -25,7 +25,7 @@ StatusCode LArG4H62004HECSDTool::initializeSD()
   m_wheelSD = new LArG4H62004SD( "LAr::HEC::Module::Depth::Slice::Local::H6" , &*m_calculator , m_timeBinType , m_timeBinWidth );
 
   std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
-  configuration[m_wheelSD] = &m_volumeNames;
+  configuration[m_wheelSD] = &(m_volumeNames.value());
   setupAllSDs(configuration);
 
   // Make sure the ID helpers are all set up

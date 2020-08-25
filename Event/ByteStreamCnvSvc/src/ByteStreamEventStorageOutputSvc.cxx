@@ -134,10 +134,10 @@ ByteStreamEventStorageOutputSvc::stop()
     const ByteStreamMetadataContainer* metaDataCont = 0;
     const ByteStreamMetadata* metaData = 0;
     ServiceHandle<StoreGateSvc> mds("StoreGateSvc/MetaDataStore", name());
-    StatusCode status = mds.retrieve();
-    if (!status.isFailure()) {
-      StatusCode stat = mds->retrieve(metaDataCont, "ByteStreamMetadata");
-      if (stat.isSuccess()) metaData = *(metaDataCont->begin());
+    if (mds.retrieve().isFailure()) {
+      ATH_MSG_WARNING("Cannot get MetaDataStore");
+    } else {
+      if (mds->retrieve(metaDataCont, "ByteStreamMetadata").isSuccess()) metaData = *(metaDataCont->begin());
     }
     // Try to write metadata to file
     dWok = initDataWriterContents(0, metaData);
@@ -175,8 +175,16 @@ ByteStreamEventStorageOutputSvc::initDataWriter()
     ATH_MSG_ERROR("Cannot retrieve EventInfo");
     return(false);
   }
+  const ByteStreamMetadataContainer* metaDataCont = 0;
+  const ByteStreamMetadata* metaData = 0;
+  ServiceHandle<StoreGateSvc> mds("InputMetaDataStore", name());
+  if (mds.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Cannot get InputMetaDataStore");
+  } else {
+    if (mds->retrieve(metaDataCont, "ByteStreamMetadata").isSuccess()) metaData = *(metaDataCont->begin());
+  }
   // Now try to write metadata to file
-  return initDataWriterContents(evtInfo, 0);
+  return initDataWriterContents(evtInfo, metaData);
 }
 
 
@@ -258,10 +266,13 @@ ByteStreamEventStorageOutputSvc::initDataWriterContents(
       ATH_MSG_DEBUG("Cannot retrieve TagInfo");
     } else {
       std::string tagName, tagValue;
-      if (metaData == 0) { // FIXME: Set TriggerType, BeamType?
-        tagName = "beam_energy";
+      if (metaData == 0) {
+        tagName = "beam_type";
         tagInfo->findTag(tagName, tagValue);
         runPara.beam_type = atof(tagValue.c_str());
+        tagName = "beam_energy";
+        tagInfo->findTag(tagName, tagValue);
+        runPara.beam_energy = atof(tagValue.c_str());
       }
       tagName = "GeoAtlas";
       tagInfo->findTag(tagName, tagValue);

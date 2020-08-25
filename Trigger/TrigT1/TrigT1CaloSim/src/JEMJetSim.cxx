@@ -20,7 +20,7 @@
 // Utilities
 
 // This algorithm includes
-#include "TrigT1CaloSim/JEMJetSim.h"
+#include "JEMJetSim.h"
 #include "TrigT1CaloUtils/JetEnergyModuleKey.h"
 
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"

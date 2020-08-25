@@ -82,22 +82,50 @@ namespace Simulation
   StatusCode BeamEffectsAlg::patchSignalProcessVertex(HepMC::GenEvent& ge) const
   {
     //Ensure that we have a valid signal_process_vertex
+#ifdef HEPMC3
+    if( !HepMC::signal_process_vertex(ge) ) {
+      if(m_ISFRun) {
+        ATH_MSG_DEBUG("No signal_process_vertex found - creating a dummy GenVertex.");
+        HepMC::FourVector signalPos( 0.0, 0.0, 0.0, 0.0);
+        HepMC::GenVertexPtr signalVertex = HepMC::newGenVertexPtr( signalPos );
+        // ge will now take ownership of the signal process vertex
+        HepMC::set_signal_process_vertex(ge, signalVertex );
+      }
+      else {
+        if (!ge.vertices_empty()) {
+          ATH_MSG_DEBUG("No signal_process_vertex found - using the first GenVertex in the event.");
+          HepMC::GenVertexPtr signalVertex = ge.vertices().front();
+          HepMC::set_signal_process_vertex(ge,signalVertex );
+        }
+      }
+      if( !HepMC::signal_process_vertex(&ge) ) { // Insanity check
+        if (!ge.vertices().empty()) {
+          ATH_MSG_ERROR("Failed to set signal_process_vertex for GenEvent!!");
+          return StatusCode::FAILURE;
+        }
+        ATH_MSG_WARNING("No signal_process_vertex found. Empty GenEvent!");
+      }
+    }
+    else {
+      ATH_MSG_DEBUG("signal_process_vertex set by Generator.");
+    }
+#else    
     if( !ge.signal_process_vertex() ) {
       if(m_ISFRun) {
         ATH_MSG_DEBUG("No signal_process_vertex found - creating a dummy GenVertex.");
         HepMC::FourVector signalPos( 0.0, 0.0, 0.0, 0.0);
-        HepMC::GenVertex *signalVertex = new HepMC::GenVertex( signalPos );
+        HepMC::GenVertexPtr signalVertex = HepMC::newGenVertexPtr( signalPos );
         // ge will now take ownership of the signal process vertex
         ge.set_signal_process_vertex( signalVertex );
       }
       else {
         if (!ge.vertices_empty()) {
           ATH_MSG_DEBUG("No signal_process_vertex found - using the first GenVertex in the event.");
-          HepMC::GenVertex *signalVertex = *(ge.vertices_begin());
+          HepMC::GenVertexPtr signalVertex = *(ge.vertices_begin());
           ge.set_signal_process_vertex( signalVertex );
         }
       }
-      if( !ge.signal_process_vertex() ) { // Insanity check
+      if( !HepMC::signal_process_vertex(&ge) ) { // Insanity check
         if (!ge.vertices_empty()) {
           ATH_MSG_ERROR("Failed to set signal_process_vertex for GenEvent!!");
           return StatusCode::FAILURE;
@@ -108,6 +136,7 @@ namespace Simulation
     else {
       ATH_MSG_DEBUG("signal_process_vertex set by Generator.");
     }
+#endif
     return StatusCode::SUCCESS;
   }
 

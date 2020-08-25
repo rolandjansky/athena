@@ -18,7 +18,7 @@
 #include <utility>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IAlgContextSvc.h"
@@ -28,7 +28,7 @@
 #include "StoreGate/DataHandle.h"
 
 // SGAudSvc includes
-#include "SGAudSvc/SGAudSvc.h"
+#include "SGAudSvc.h"
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 

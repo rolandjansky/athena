@@ -1,41 +1,13 @@
-################################################################################
-# Package: TrigHIRec
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigHIRec )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          Trigger/TrigEvent/TrigCaloEvent
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloUtils
-                          Control/AthToolSupport/AsgTools
-                          Control/Navigation
-                          Control/StoreGate
-                          Event/NavFourMom
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODHIEvent
-                          Event/xAOD/xAODJet
-                          PhysicsAnalysis/HeavyIonPhys/HIEventUtils
-                          Reconstruction/HeavyIonRec/HIGlobal
-                          Reconstruction/HeavyIonRec/HIJetRec
-                          Reconstruction/Jet/JetInterface
-                          Trigger/TrigSteer/TrigInterfaces )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( TrigHIRec
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel TrigCaloEvent CaloEvent CaloUtilsLib AsgTools Navigation StoreGateLib SGtests NavFourMom xAODCaloEvent xAODCore xAODHIEvent xAODJet HIEventUtilsLib JetInterface TrigInterfacesLib )
+                     LINK_LIBRARIES AsgTools CaloEvent CaloUtilsLib GaudiKernel HIEventUtilsLib HIGlobalLib HIJetRecLib JetInterface NavFourMom Navigation TrigInterfacesLib TrigParticle xAODCaloEvent xAODCore xAODHIEvent xAODJet )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

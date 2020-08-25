@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingET
 
@@ -20,7 +20,6 @@ theCaloNoiseTool=CaloNoiseToolDefault()
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc+=theCaloNoiseTool
 
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.SystemOfUnits import nanosecond
 
@@ -1204,7 +1203,6 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         helperTool.ParentFexName = name
 
         #clusterTool.SubtractPileup = True
-        is2016 = (TriggerFlags.run2Config() == '2016')
         clusterTool.SaveUncalibrated = True if "_em" in extraCalib else False
 
         '''

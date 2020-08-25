@@ -18,6 +18,7 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -25,7 +26,6 @@
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;
 
@@ -50,12 +50,12 @@ public:
       - Configure the RIO_OnTrack creator */
   virtual StatusCode configureTools(
     const ToolHandle<Trk::IMultiStateExtrapolator>&,
-    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
     const ToolHandle<Trk::IRIO_OnTrackCreator>&) = 0;
 
   /** Forward GSF fit using PrepRawData */
   virtual std::unique_ptr<ForwardTrajectory> fitPRD(
     const EventContext& ctx,
+    Trk::IMultiStateExtrapolator::Cache&,
     const PrepRawDataSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
@@ -63,6 +63,7 @@ public:
   /** Forward GSF fit using MeasurementSet */
   virtual std::unique_ptr<ForwardTrajectory> fitMeasurements(
     const EventContext& ctx,
+    Trk::IMultiStateExtrapolator::Cache&,
     const MeasurementSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;

@@ -1,18 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from .TrigMuSuperEFMonitoring import TrigMuSuperEFMonitoring,TrigMuSuperEFValidationMonitoring
 from TrigMuonEF.TrigMuonEFMonitoring import TrigMuonEFStandaloneToolMonitoring,TrigMuonEFCombinerToolMonitoring,TrigMuonEFStandaloneToolValidationMonitoring,TrigMuonEFCombinerToolValidationMonitoring
-from TrigMuonEF.TrigMuonEFConf import TrigMuonEFTrackIsolationTool
 
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
 from .TrigMuSuperEFConf import TrigMuSuperEF
-from AthenaCommon.BeamFlags import jobproperties
 
 from AthenaCommon.CfgGetter import getPublicTool
 from AthenaCommon import CfgMgr
-from AthenaCommon.SystemOfUnits import mm
 
 #
 # Default config: RoI based, Combined, TrigMuonEF only
@@ -51,10 +48,7 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         doTrigMuonEF     = kwargs["doOutsideIn"]
         doTrigMuGirl     = kwargs["doInsideOut"]
         doStandaloneOnly = kwargs["StandaloneOnly"]
-        doFullScan       = kwargs["fullScan"]
-        doCaloTagOnly    = kwargs["CaloTagOnly"]
         combinerOnly     = kwargs["CombinerOnly"]
-        doCosmics        = jobproperties.Beam.beamType == 'cosmics'
 
         # turn on seeded data decoding by default
         TriggerFlags.MuonSlice.doEFRoIDrivenAccess = True
@@ -235,6 +229,10 @@ def TrigMuSuperEF_FSSA(name="TrigMuSuperEF_FSSA",**kwargs):
     kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
     kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
     kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    #Turn off seeded decoding for full scan reconstruction
+    from AthenaCommon.CfgGetter import getPublicToolClone
+    kwargs.setdefault("TMEF_standaloneTrackTool", getPublicToolClone("TrigMuonEFStandaloneTrackToolFullScan", "TrigMuonEFStandaloneTrackTool", 
+                                                                     useMdtSeededDecoding=False, useRpcSeededDecoding=False, useTgcSeededDecoding=False, useCscSeededDecoding=False))
     return TrigMuSuperEF_FSCB(name,**kwargs)
 
 def TrigMuSuperEF_CTonly(name="TrigMuSuperEF_CTonly", **kwargs):
@@ -284,7 +282,6 @@ def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCal
     return CfgMgr.TrackDepositInCaloTool(name, **kwargs)
 
 def TrigMuSuperEF_CaloTrkSelectorTool( name = 'TrigMuSuperEF_CaloTrkSelectorTool', **kwargs):
-    from AthenaCommon.AppMgr import ToolSvc
 
     kwargs.setdefault("pTMin", 5000.)
     kwargs.setdefault("IPd0Max", 7)

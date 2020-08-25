@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetConstituentModifierTool.h"
+#include "HIJetConstituentModifierTool.h"
 #include "HIJetRec/HIJetRecDefs.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

@@ -15,8 +15,8 @@
 //
 // ********************************************************************
 
-#include "TrigT2CaloCalibration/EgammaTransitionRegions.h"
-#include "TrigT2CaloCalibration/EgammaHitsShowerDepth.h"
+#include "EgammaTransitionRegions.h"
+#include "EgammaHitsShowerDepth.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "GaudiKernel/MsgStream.h"
 // Need Cosh

@@ -16,28 +16,24 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
 StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  m_doState = ((m_readAllDBFolders.value() and m_returnHVTemp.value()) or (not m_readAllDBFolders.value() and not m_returnHVTemp.value()));
+  m_doState = ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp));
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
-  if (m_returnHVTemp.value()) {
-    // Read Cond Handle (HV)
-    ATH_CHECK(m_readKeyHV.initialize());
+  // Read Cond Handle (HV)
+  ATH_CHECK(m_readKeyHV.initialize(m_returnHVTemp));
+
+  // Read Cond Handle (state)
+  ATH_CHECK(m_readKeyState.initialize(m_doState));
+  // Write Cond Handle
+  ATH_CHECK(m_writeKeyState.initialize(m_doState));
+  if (m_doState and m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
+    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
+    return StatusCode::FAILURE;
   }
 
-  if (m_doState) {
-    // Read Cond Handle (state)
-    ATH_CHECK(m_readKeyState.initialize());
-    // Write Cond Handle
-    ATH_CHECK(m_writeKeyState.initialize());
-    if (m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  if (m_useDefaultHV.value()) {
+  if (m_useDefaultHV) {
     m_hvLowLimit = m_useHVLowLimit;
     m_hvUpLimit = m_useHVUpLimit;
     m_chanstatCut = m_useHVChanCut;
@@ -114,7 +110,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
     }
   }
 
-  if (m_returnHVTemp.value()) {
+  if (m_returnHVTemp) {
     // Read Cond Handle 
     SG::ReadCondHandle<CondAttrListCollection> readHandleHV{m_readKeyHV, ctx};
     const CondAttrListCollection* readCdoHV{*readHandleHV};

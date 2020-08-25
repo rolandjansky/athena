@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -10,8 +10,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-CMApatterns::TRIGdistance CMApatterns::no_distance = 
-                                                   TRIGdistance(99999.,99999.);
+const CMApatterns::TRIGdistance CMApatterns::no_distance =
+  TRIGdistance(99999.,99999.);
 
 ///////////////////////////////////////////////////////////////////////////////
 

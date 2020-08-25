@@ -1,6 +1,8 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-   Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/* Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de */
+
 #ifndef ATLASHEPMC_GENPARTICLE_H
 #define ATLASHEPMC_GENPARTICLE_H
 #ifdef HEPMC3
@@ -14,22 +16,27 @@ typedef HepMC3::ConstGenParticlePtr ConstGenParticlePtr;
 inline GenParticlePtr newGenParticlePtr(const HepMC3::FourVector &mom = HepMC3::FourVector::ZERO_VECTOR(), int pid = 0, int status = 0) {
   return std::make_shared<HepMC3::GenParticle>(mom,pid,status);
 }
-inline GenParticlePtr newGenParticlePtr(const HepMC3::FourVector &mom, int pid , int status , HepMC::Flow fl, HepMC::Polarization pol) {
-  return std::make_shared<HepMC3::GenParticle>(mom,pid,status);
-}
 inline int barcode(GenParticlePtr p){ 
+	if (!p) return 0;
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p->id();
 }
 inline int barcode(ConstGenParticlePtr p){ 
+	if (!p) return 0;
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p->id();
 }
 inline int barcode(const HepMC3::GenParticle p){ 
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p.attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p.id();
+}
+inline int barcode(const HepMC3::GenParticle* p){ 
+	if (!p) return 0;
+	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
+		 return barcode?(barcode->value()):p->id();
 }
 template <class T> void suggest_barcode(T p, int i){p->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(i));}
+using HepMC3::GenParticle;
 }
 #else
 #include "HepMC/GenParticle.h"

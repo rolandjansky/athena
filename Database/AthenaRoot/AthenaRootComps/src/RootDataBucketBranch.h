@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootDataBucketBranch.h 
@@ -51,6 +51,8 @@ public:
 
   virtual
   void* object() override;
+
+  using DataBucketBase::cast;
 
   virtual
   void* cast(CLID clid, SG::IRegisterTransient* itr,

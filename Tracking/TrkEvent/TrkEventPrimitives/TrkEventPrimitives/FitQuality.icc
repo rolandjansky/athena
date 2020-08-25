@@ -1,0 +1,54 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline FitQuality::FitQuality(double chiSquared, double numberDoF)
+  : m_chiSquared(chiSquared)
+  , m_numberDoF(numberDoF)
+{}
+
+inline FitQuality::FitQuality(double chiSquared, int numberDoF)
+  : m_chiSquared(double(chiSquared))
+  , m_numberDoF(numberDoF)
+{}
+
+inline FitQuality*
+FitQuality::clone() const
+{
+  return new FitQuality(*this);
+}
+
+inline double
+FitQuality::chiSquared() const
+{
+  return m_chiSquared;
+}
+
+inline int
+FitQuality::numberDoF() const
+{
+  return static_cast<int>(floor(m_numberDoF + 0.5));
+}
+
+inline double
+FitQuality::doubleNumberDoF() const
+{
+  return m_numberDoF;
+}
+/** set the @f$ \chi^2 @f$*/
+inline void
+FitQuality::setChiSquared(double chiSquared)
+{
+  m_chiSquared = chiSquared;
+}
+
+/** set the number of degrees of freedom*/
+inline void
+FitQuality::setNumberDoF(double numberDoF)
+{
+  m_numberDoF = numberDoF;
+}
+
+}

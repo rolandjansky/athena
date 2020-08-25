@@ -1,13 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
-from AthenaCommon.SystemOfUnits import GeV,MeV,deg
-from AthenaCommon.Logging import logging
+from AthenaCommon.SystemOfUnits import MeV
+from AthenaCommon.Constants import ERROR
 
 from TrigHIRec.TrigHIRecConf import TrigHIClusterMaker
 from TrigHIRec.TrigHIRecConf import TrigHIEventShapeMaker
 
-from TrigCaloRec.TrigCaloRecConf import TrigCaloTowerMaker
 from TrigCaloRec.TrigCaloRecConfig  import TrigCaloTowerMakerBase
 
 class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
@@ -18,7 +16,7 @@ class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
         #input to  TileTowerBuilder:  cells in TILE
         try:
             from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
-        except:
+        except Exception:
             #mlog.error("could not get handle to TileTowerBuilderTool Quit")
             #print traceback.format_exc()
             return False
@@ -26,13 +24,13 @@ class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
         # input to LArTowerBuilder:  cells in LArEM and LARHEC 
         try:
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
-        except:
+        except Exception:
             #mlog.error("TrigCaloTowerMaker: could not get handle to LArTowerBuilderTool or/and LArFCalTowerBuilderTool. Quit")
             #print traceback.format_exc()
             return False
 
 
-        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr",
+        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr",   # noqa: ATL900  (assigning OutputLevel)
                                             CellContainerName = "AllCalo",
                                             IncludedCalos     = [ "LAREM", "LARHEC" ],
                                             OutputLevel=ERROR
@@ -42,7 +40,7 @@ class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
         #larcmbtwrbldr.IncludedCalos     = [ "LAREM", "LARHEC" ]
         #larcmbtwrbldr.OutputLevel=ERROR
 
-        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",
+        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",   # noqa: ATL900  (assigning OutputLevel)
                                                  CellContainerName = "AllCalo",
                                                  MinimumEt         = 0.*MeV,
                                                  OutputLevel=ERROR

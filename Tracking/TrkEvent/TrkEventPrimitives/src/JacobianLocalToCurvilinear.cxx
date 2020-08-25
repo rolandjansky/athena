@@ -77,8 +77,6 @@ Trk::JacobianLocalToCurvilinear::JacobianLocalToCurvilinear( const Amg::Vector3D
 
 }
 
-Trk::JacobianLocalToCurvilinear::~JacobianLocalToCurvilinear()
-{}
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::JacobianLocalToCurvilinear& jac)

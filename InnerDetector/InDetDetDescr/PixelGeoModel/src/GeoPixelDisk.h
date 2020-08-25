@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELDISK_H
@@ -8,7 +8,7 @@
 #include "GeoVPixelFactory.h"
 class GeoLogVol;
 
-class GeoPixelDisk : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelDisk : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
  public:
   GeoPixelDisk();
   virtual GeoVPhysVol* Build();

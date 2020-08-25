@@ -218,18 +218,7 @@ namespace Trk
                        bool IsConstraint=false,
                        bool IsStartingPoint=false) const;
  
-    /**
-     * Internal method for fitting a list of Tracks, with or without constraint and 
-     * starting point
-     */
-    
-    xAOD::Vertex * _fit(const std::vector<const Trk::TrackParticleBase*> & VectorTrk,
-                       const xAOD::Vertex& constraint=xAOD::Vertex(),
-                       const Amg::Vector3D & startingPoint=Amg::Vector3D(),
-                       bool IsConstraint=false,
-                       bool IsStartingPoint=false) const;
-
-    /**
+   /**
      * Internal method, called by the two _fit internal functions, in order to perform the fit, 
      * after having initialized the input (constraint + seed). The real fit happens here.
      */

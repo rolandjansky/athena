@@ -8,6 +8,7 @@
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <memory>
 
@@ -24,7 +25,7 @@ class SCT_DetectorFactory : public InDetDD::DetectorFactoryBase
  public: 
   // Constructor
   SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaComps, 
-		      const SCT_Options & options); 
+		      const SCT_Options & options) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::DetectorFactoryBase::rdbAccessSvc() method is used.
 
   // Destructor
   virtual ~SCT_DetectorFactory(); 

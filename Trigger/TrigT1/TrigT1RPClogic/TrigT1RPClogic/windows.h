@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef WINDOWS_H
@@ -10,7 +10,7 @@
 #define BOUND 2    // boundaries of the Z-Trigger windows
 
 
-int give_nearest_bin(float(*)[NBINS][BOUND],int,int,int,int);
+int give_nearest_bin(const float(*)[NBINS][BOUND],int,int,int,int);
 
 int windows(float,float,int,int);
 

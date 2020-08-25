@@ -22,7 +22,7 @@ class JetEventSelector : public asg::AsgTool , virtual public IJetEventSelector
 
    virtual StatusCode initialize() ;
      
-   int keep(const xAOD::EventInfo& e) const;
+   int keep(const xAOD::EventInfo& e, const xAOD::JetContainer & jets) const;
 
  protected:
    

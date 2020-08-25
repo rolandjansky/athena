@@ -2,6 +2,8 @@
 
 def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
 
+#        from AthenaCommon.Constants import VERBOSE,DEBUG,INFO,WARNING,ERROR
+
         # do we want the lagacy monitoring ?
  
         from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
@@ -162,6 +164,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
 
 
 
+
                 ##############################################################
                 # Muon instances
                 ##############################################################
@@ -172,16 +175,15 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 tidamuon.AnalysisConfig = "Tier0"
                 tidamuon.SliceTag = "HLT/TRIDT/Muon/Expert"
                 tidamuon.UseHighestPT = True
-                # tidabase.OutputLevel = DEBUG
+                # tidamuon.OutputLevel = VERBOSE
 
                 if mt_chains:
                         tidamuon.ntupleChainNames += [
                                 "Offline",
                                 "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
-                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
-                                "HLT_mu.*idperf.*:key=HLT_IDTrack_MuonIso_FTF",
-                                "HLT_mu.*idperf.*:key=HLT_IDTrack_MuonIso_IDTrig",
-                                "HLT_mu.*idperf.*:key=HLT_IDTrack_MuonLate_IDTrig"
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuonForEF",
+                                "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
+                                "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso"
                         ]
                 else:
                         tidamuon.ntupleChainNames += [
@@ -256,11 +258,10 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidatau.ntupleChainNames += [
                                 "Offline",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI"
-                        ]
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso_TauID",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_TauIso_TauID"
+                         ]
                 else:
                         tidatau.ntupleChainNames += [
                                 "Offline",
@@ -333,7 +334,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidabjet.ntupleChainNames += [
                                 "Offline",
-                                ":key=HLT_IDTrack_FS_FTF",
+                                ":HLT_IDTrack_FS_FTF:vtx=HLT_IDVertex_FS",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig"
                         ]

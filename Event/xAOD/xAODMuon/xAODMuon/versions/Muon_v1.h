@@ -106,6 +106,7 @@ namespace xAOD {
       MuGirlLowBeta,
       CaloTag,
       CaloLikelihood,
+      CaloScore,
       ExtrapolateMuonToIP,
       NumberOfMuonAuthors // increase this guy when adding
     };
@@ -118,7 +119,7 @@ namespace xAOD {
     /// Get all the authors of this Muon.
     /// For example during overlap checking, the same Muon may have been reconstructed by many different algorithms. This method returns a 16bit
     /// number, where each bit represents a muon algorithm, defined as follows (the lowest bit is indicates that something has gone wrong):
-    /// unknown | MuidCo | STACO | MuTag | MuTagIMO | MuidSA | MuGirl | MuGirlLowBeta | CaloTag | CaloLikelihood | ExtrapolateMuonToIP | MuonCombinedRefit | ExtrapolateMuonToIP        
+    /// unknown | MuidCo | STACO | MuTag | MuTagIMO | MuidSA | MuGirl | MuGirlLowBeta | CaloTag | CaloLikelihood | CaloScore | ExtrapolateMuonToIP | MuonCombinedRefit | ExtrapolateMuonToIP        
     /// @returns  16-bit word, 1-bit reserved for each muon Algorithm: 
     uint16_t allAuthors() const;
     void setAllAuthors(uint16_t authors);
@@ -213,6 +214,7 @@ namespace xAOD {
       ParamEnergyLossSigmaPlus=25, //!< Sigma plus of Parametrised energy loss [Mev]
       ParamEnergyLossSigmaMinus=26, //!< Sigma minus of Parametrised energy loss [Mev]
       MeasEnergyLossSigma=27, //!< Sigma of Measured energy loss [Mev]
+      CaloMuonScore=28, //!< Calo Muon convolutional neural network ID score
     };
         
     /// Get a parameter for this Muon - momentumBalanceSignificance for example 

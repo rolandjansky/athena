@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: CalibPeb test where chains are executed in parallel doing concurrent ROB requests
 # art-type: grid
@@ -33,6 +34,11 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+
+# Make RootComp step required
+rc = test.get_step('RootComp')
+rc.required = True
+rc.args += ' --sortLabels'
 
 import sys
 sys.exit(test.run())

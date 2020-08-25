@@ -20,7 +20,10 @@ CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
 
 StatusCode CTPUnpackingTool::initialize()
 {
-  ATH_CHECK( m_lvl1ConfigSvc.retrieve() );
+  ATH_CHECK( m_L1MenuKey.initialize( m_useNewConfig ) );
+  if( !m_useNewConfig ) {
+    ATH_CHECK( m_lvl1ConfigSvc.retrieve() );
+  }
   ATH_CHECK( m_hltConfigSvc.retrieve() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
 
@@ -37,16 +40,35 @@ StatusCode CTPUnpackingTool::start() {
   ATH_MSG_INFO( "Updating CTP bits decoding configuration");
   // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
   std::map<std::string, size_t> toCTPID;
-  for ( const TrigConf::TriggerItem* item:   m_lvl1ConfigSvc->ctpConfig()->menu().itemVector() ) {
-    toCTPID[item->name()] = item->ctpId();
+  if( m_useNewConfig ) {
+    ATH_MSG_INFO( "start(): use new L1 trigger menu" );
+    auto l1menu = SG::makeHandle( m_L1MenuKey );
+    if( l1menu.isValid() ) {
+      for ( const TrigConf::L1Item & item:   *l1menu ) {
+        toCTPID[item.name()] = item.ctpId();
+      }
+    } else {
+      ATH_MSG_ERROR( "TrigConf::L1Menu does not exist" );
+    }
+  } else {
+    ATH_MSG_INFO( "start(): use old L1 trigger menu from L1ConfigSvc" );
+    for ( const TrigConf::TriggerItem* item:   m_lvl1ConfigSvc->ctpConfig()->menu().itemVector() ) {
+      toCTPID[item->name()] = item->ctpId();
+    }
   }
   m_ctpToChain.clear();
-  auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id ) -> StatusCode {
+  auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id, bool warningOnly = false ) -> StatusCode {
     if ( toCTPID.find( itemName ) != toCTPID.end() ) {
       m_ctpToChain[ toCTPID[itemName] ].push_back( id );
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
+    if( warningOnly ) {
+       // this code should be removed after the L1 menu is migrated to the new json version
+       ATH_MSG_WARNING(itemName << " used to seed the chain " << id <<" not in the configuration ");
+       return StatusCode::SUCCESS;
+    } else {
+       ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
+    }
     return StatusCode::FAILURE;
   };
 
@@ -61,7 +83,7 @@ StatusCode CTPUnpackingTool::start() {
       std::vector<std::string> items;
       boost::split(items, chain.l1item(), [](char c){return c == ',';});
       for ( const std::string& i: items ) {
-	ATH_CHECK( addIfItemExists( i, chainID ) );
+         ATH_CHECK( addIfItemExists( i, chainID, true ) );
       }
     } else { // regular chain
       ATH_CHECK( addIfItemExists( chain.l1item(), chainID ) );

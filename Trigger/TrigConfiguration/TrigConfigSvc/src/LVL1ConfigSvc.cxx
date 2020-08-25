@@ -7,8 +7,6 @@
 
 
 // Athena/Gaudi includes:
-#include "PathResolver/PathResolver.h"
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -145,11 +143,7 @@ TrigConf::LVL1ConfigSvc::initializeRun2StyleMenu() {
    if ( m_configSourceString == "none" ) {
       ATH_MSG_INFO("Run 2 style menu has been disabled");
       m_xmlFile = "";
-   } else if( m_configSourceString == "xml") {
-      if( boost::algorithm::ends_with(m_xmlFile, ".xml") && ! boost::algorithm::starts_with(m_xmlFile, "./")  ) {
-         m_xmlFile = PathResolver::find_file( m_xmlFile, "XMLPATH" );
-      }
-   } else {
+   } else if( m_configSourceString != "xml") {
       TrigDBConnectionConfig::DBType dbtype(TrigDBConnectionConfig::DBLookup);
       if (m_configSourceString == "oracle") { dbtype = TrigDBConnectionConfig::Oracle; }
       else if (m_configSourceString == "mysql")  { dbtype = TrigDBConnectionConfig::MySQL; }

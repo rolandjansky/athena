@@ -22,15 +22,9 @@
 // standard stuff
 #include <string>
 // general athena stuff
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/HypoAlgo.h"
 
-#include "TrigParticle/TrigEFBphys.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "Constants.h"
 
 class TrigEFBMuMuHypo: public HLT::HypoAlgo  {
   

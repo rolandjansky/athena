@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCoralClientUtils/CoralClient.hh"
 #include "PixelCoralClientUtils/PixelCalibData.hh"
 
@@ -12,7 +13,7 @@
 #include<fstream>
 using namespace std;
 
-int main(int argc, char **argv){
+int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv){ // Thread unsafe const_iterator end is used.
 
   int iarg = 1;
   bool verbose = false;

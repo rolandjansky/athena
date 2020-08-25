@@ -17,7 +17,6 @@
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonPrepRawData/CscPrepDataCollection.h"
-// New Small Wheel
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 
@@ -25,7 +24,6 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-// New Small Wheel
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 
@@ -108,7 +106,7 @@ StatusCode MuonSegmentRegionRecoveryTool::finalize()
 
 Trk::Track* MuonSegmentRegionRecoveryTool::recover( const Trk::Track& track ) const {
 
-  Trk::Track* result = recoverImp(track);;
+  Trk::Track* result = recoverImp(track);
   if ( result ) ATH_MSG_DEBUG("Final track " << m_printer->print(*result) << std::endl << m_printer->printStations(*result) );
   else         ATH_MSG_DEBUG("Track lost during recovery");
   return result;
@@ -127,7 +125,7 @@ Trk::Track* MuonSegmentRegionRecoveryTool::recoverImp( const Trk::Track& track )
   ATH_MSG_VERBOSE(" Entering segment recovery method " << m_printer->print(track) << std::endl << m_printer->printStations(track) );
 
   //First run the MuonChamberHoleRecoveryTool on the input track
-  const Trk::Track* chRecTrack = m_chamberHoleRecoveryTool->recover(track);
+  std::unique_ptr<Trk::Track> chRecTrack(m_chamberHoleRecoveryTool->recover(track));
   if (!chRecTrack) {
     ATH_MSG_DEBUG(" MuonChamberHoleRecoveryTool failed to create a new track "
                   << " Returning input (unrecovered) track " );
@@ -138,13 +136,15 @@ Trk::Track* MuonSegmentRegionRecoveryTool::recoverImp( const Trk::Track& track )
   // only run this on single station EM tracks
   if ( m_onlyEO ) {
     // should be a sl track
-    if ( !m_edmHelperSvc->isSLTrack(*chRecTrack) ) return const_cast<Trk::Track*>(chRecTrack);
+    //using release until parent tools use unique_ptr
+    if ( !m_edmHelperSvc->isSLTrack(*chRecTrack) ) return chRecTrack.release();
 
     // get hit summary
     IMuonHitSummaryTool::CompactSummary hitSummary = m_hitSummaryTool->summary(*chRecTrack);
     // should be single station
+    //using release until parent tools use unique_ptr
     if ( hitSummary.stationLayers.size() != 1 ||
-         !hitSummary.stationLayers.count(MuonStationIndex::EM) ) return const_cast<Trk::Track*>(chRecTrack);
+         !hitSummary.stationLayers.count(MuonStationIndex::EM) ) return chRecTrack.release();
     ATH_MSG_DEBUG("Single station track, checking for EO hits");
   }
 
@@ -169,27 +169,18 @@ Trk::Track* MuonSegmentRegionRecoveryTool::recoverImp( const Trk::Track& track )
   collectCrossedChambers( *chRecTrack, muonData );
 
   //3b) compare the two std::sets and make a final std::set of not-yet-on-track Hashes
-  const Trk::Track* triggerRecTrack = addMissingChambers( *chRecTrack, muonData, false );
-  if ( triggerRecTrack ) {
-    if ( chRecTrack != &track ) delete chRecTrack;
-    chRecTrack = triggerRecTrack;
-  }
+  std::unique_ptr<Trk::Track> triggerRecTrack = addMissingChambers( chRecTrack.get(), muonData, false );
+  if ( triggerRecTrack ) chRecTrack.swap(triggerRecTrack);
 
-  const Trk::Track* mdtRecTrack = addMissingChambers( *chRecTrack, muonData, true );
-  if ( mdtRecTrack ) {
-    if ( chRecTrack != &track ) delete chRecTrack;
-    chRecTrack = mdtRecTrack;
-  }
+  std::unique_ptr<Trk::Track> mdtRecTrack = addMissingChambers( chRecTrack.get(), muonData, true );
+  if ( mdtRecTrack ) chRecTrack.swap(mdtRecTrack);
 
-
-  const Trk::Track* mdtRecTrackWithHoles = findHoles( *chRecTrack, muonData );
-  if ( mdtRecTrackWithHoles ) {
-    if ( chRecTrack != &track ) delete chRecTrack;
-    chRecTrack = mdtRecTrackWithHoles;
-  }
+  std::unique_ptr<Trk::Track> mdtRecTrackWithHoles = findHoles( chRecTrack.get(), muonData );
+  if ( mdtRecTrackWithHoles ) chRecTrack.swap(mdtRecTrackWithHoles);
 
   //recovered track, success!
-  return const_cast<Trk::Track*>(chRecTrack);
+  //use release until calling tools also use unique_ptr
+  return chRecTrack.release();
 }
 
 
@@ -430,19 +421,19 @@ void MuonSegmentRegionRecoveryTool::fillOnTrackChambers ( const Trk::Track& trac
 }
 
 
-const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& track, MuonData& data ) const {
+std::unique_ptr<Trk::Track> MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track* track, MuonData& data ) const {
 
-  const DataVector<const Trk::TrackStateOnSurface>* oldStates = track.trackStateOnSurfaces();
+  const DataVector<const Trk::TrackStateOnSurface>* oldStates = track->trackStateOnSurfaces();
   if ( !oldStates ) {
     ATH_MSG_WARNING(" track without states, cannot perform mdt hole search ");
-    return 0;
+    return std::unique_ptr<Trk::Track>();
   }
 
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
   const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
   if(MuonDetMgr==nullptr){
     ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-    return 0; 
+    return std::unique_ptr<Trk::Track>();
   } 
 
   std::vector<const Trk::TrackStateOnSurface*> states;
@@ -471,7 +462,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       ATH_MSG_WARNING("Found no detector element for " << *ith );
       continue;
     }
-    const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
+    const Trk::TrackParameters* exPars = reachableDetEl(*track, *detEl, true );
     if ( !exPars ) {
       ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
@@ -557,7 +548,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
 
-    const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
+    const Trk::TrackParameters* exPars = reachableDetEl(*track, *detEl, true );
     if ( !exPars ) {
       ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
@@ -598,7 +589,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
 
-    const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
+    const Trk::TrackParameters* exPars = reachableDetEl(*track, *detEl, true );
     if ( !exPars ) {
       ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
@@ -640,7 +631,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
 
-    const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
+    const Trk::TrackParameters* exPars = reachableDetEl(*track, *detEl, true );
     if ( !exPars ) {
       ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
@@ -691,7 +682,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
 
-    const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
+    const Trk::TrackParameters* exPars = reachableDetEl(*track, *detEl, true );
     if ( !exPars ) {
       ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
@@ -740,7 +731,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
 
-    const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
+    const Trk::TrackParameters* exPars = reachableDetEl(*track, *detEl, true );
     if ( !exPars ) {
       ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
@@ -784,7 +775,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     std::stable_sort(toBeSorted.begin(), toBeSorted.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
 
     trackStateOnSurfaces->insert(trackStateOnSurfaces->begin(), toBeSorted.begin(), toBeSorted.end());
-    Trk::Track* trackWithHoles = new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0 );
+    std::unique_ptr<Trk::Track> trackWithHoles = std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : 0 );
     // generate a track summary for this track
     if (m_trackSummaryTool.isEnabled()) {
       m_trackSummaryTool->computeAndReplaceTrackSummary(*trackWithHoles, nullptr, false);
@@ -792,10 +783,10 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     ATH_MSG_DEBUG("Track with holes " << m_printer->print(*trackWithHoles) << std::endl << m_printer->printStations(*trackWithHoles) );
     return trackWithHoles;
   }
-  return 0;
+  return std::unique_ptr<Trk::Track>();
 }
 
-const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::Track& track, MuonData& data, bool addMdt ) const {
+std::unique_ptr<Trk::Track> MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::Track* track, MuonData& data, bool addMdt ) const {
 
   // states were added, create a new track
   std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > > states;
@@ -820,7 +811,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       std::map<int, std::vector<const MdtPrepData*> > mdtPrds;
       const Trk::TrackParameters* exParsFirst = 0;
       for ( ; mit != mit_end; ++mit ) {
-        const Trk::TrackParameters* exPars = reachableDetEl( track, *(*mit)->front()->detectorElement() );
+        const Trk::TrackParameters* exPars = reachableDetEl( *track, *(*mit)->front()->detectorElement() );
         if ( exPars ) {
           int sector = m_idHelperSvc->sector((*mit)->identify());
           ATH_MSG_DEBUG("New chamber " << m_idHelperSvc->toStringChamber((*mit)->identify()) << " hash " << (*mit)->identifyHash() << " sector " << sector );
@@ -840,7 +831,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       } else if ( mdtPrds.size() == 1 ) {
         prds = &sectorIt->second;
       } else {
-        IMuonHitSummaryTool::CompactSummary hitSummary = m_hitSummaryTool->summary(track);
+        IMuonHitSummaryTool::CompactSummary hitSummary = m_hitSummaryTool->summary(*track);
         ATH_MSG_VERBOSE("Multiple sectors selected, using main sector: " << hitSummary.mainSector);
         std::map<int, std::vector<const MdtPrepData*> >::iterator pos = mdtPrds.find(hitSummary.mainSector);
         if ( pos != mdtPrds.end() ) prds = &pos->second;
@@ -863,7 +854,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
 	    MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
 
             if ( m_trackSegmentMatchingTool.empty() ) ATH_MSG_VERBOSE("No track/segment matching");
-            else if ( !m_trackSegmentMatchingTool->match(track, *mseg, true) ) {
+            else if ( !m_trackSegmentMatchingTool->match(*track, *mseg, true) ) {
               ATH_MSG_DEBUG(" Segment does not match with track ");
               continue;
             } else {
@@ -918,7 +909,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     std::vector<const RpcPrepDataCollection*>::iterator rit_end = data.rpcCols.end();
     std::vector<const RpcPrepDataCollection*> newrcols;
     for ( ; rit != rit_end; ++rit ) {
-      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*rit)->front()->detectorElement() );
+      const Trk::TrackParameters* exPars = reachableDetEl( *track, *(*rit)->front()->detectorElement() );
       if ( exPars ) {
         Identifier detElId = m_idHelperSvc->detElId( (*rit)->identify() );
         std::set<Identifier> layIds;
@@ -937,7 +928,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     std::vector<const TgcPrepDataCollection*>::const_iterator tgcit_end = data.tgcCols.end();
     std::vector<const TgcPrepDataCollection*> newtcols;
     for ( ; tgcit != tgcit_end; ++tgcit ) {
-      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*tgcit)->front()->detectorElement() );
+      const Trk::TrackParameters* exPars = reachableDetEl( *track, *(*tgcit)->front()->detectorElement() );
       if ( exPars ) {
         newtcols.push_back(*tgcit);
         Identifier detElId = m_idHelperSvc->detElId( (*tgcit)->identify() );
@@ -959,7 +950,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       std::vector<const CscPrepDataCollection*>::const_iterator cit_end = data.cscCols.end();
       std::vector<const CscPrepDataCollection*> newccols;
       for ( ; cit != cit_end; ++cit ) {
-        const Trk::TrackParameters* exPars = reachableDetEl( track, *(*cit)->front()->detectorElement() );
+        const Trk::TrackParameters* exPars = reachableDetEl( *track, *(*cit)->front()->detectorElement() );
         if ( exPars ) {
           newccols.push_back(*cit);
           Identifier detElId = m_idHelperSvc->detElId( (*cit)->identify() );
@@ -985,7 +976,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     std::vector<const sTgcPrepDataCollection*> newstcols;
     ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
     for ( ; stgcit != stgcit_end; ++stgcit ) {
-      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*stgcit)->front()->detectorElement() );
+      const Trk::TrackParameters* exPars = reachableDetEl( *track, *(*stgcit)->front()->detectorElement() );
       if ( exPars ) {
         newstcols.push_back(*stgcit);
         Identifier detElId = m_idHelperSvc->detElId( (*stgcit)->identify() );
@@ -1010,7 +1001,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     std::vector<const MMPrepDataCollection*>::const_iterator mit_end = data.mmCols.end();
     std::vector<const MMPrepDataCollection*> newmcols;
     for ( ; mit != mit_end; ++mit ) {
-      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*mit)->front()->detectorElement() );
+      const Trk::TrackParameters* exPars = reachableDetEl( *track, *(*mit)->front()->detectorElement() );
       if ( exPars ) {
         newmcols.push_back(*mit);
         Identifier detElId = m_idHelperSvc->detElId( (*mit)->identify() );
@@ -1031,7 +1022,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
   if ( !states.empty() ) {
     ATH_MSG_DEBUG("Collected new states: " << states.size());
 
-    const DataVector<const Trk::TrackStateOnSurface>* oldStates = track.trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* oldStates = track->trackStateOnSurfaces();
     if ( !oldStates ) {
       ATH_MSG_WARNING(" track without states, cannot perform cleaning ");
       std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator nit = states.begin();
@@ -1039,7 +1030,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       for ( ; nit != nit_end; ++nit ) {
         if ( nit->first ) delete nit->second;
       }
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
 
 
@@ -1068,11 +1059,10 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     trackStateOnSurfaces->insert( trackStateOnSurfaces->begin(), newStates.begin(), newStates.end() );
 
     ATH_MSG_DEBUG("Creating new Track " << newStates.size());
-    Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0 );
-    const Trk::Track* refittedTrack;
-    if(m_onlyEO) refittedTrack=m_fitter->fit(*newTrack, m_useFitterOutlierLogic, Trk::muon);
-    else refittedTrack=m_builder->fit(*newTrack, m_useFitterOutlierLogic, Trk::muon);
-    delete newTrack;
+    std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : 0 );
+    std::unique_ptr<Trk::Track> refittedTrack;
+    if(m_onlyEO) refittedTrack=std::unique_ptr<Trk::Track>(m_fitter->fit(*newTrack, m_useFitterOutlierLogic, Trk::muon));
+    else refittedTrack=std::unique_ptr<Trk::Track>(m_builder->fit(*newTrack, m_useFitterOutlierLogic, Trk::muon));
     if ( refittedTrack ) {
       ATH_MSG_DEBUG("New Track " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack) );
 
@@ -1087,7 +1077,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     }
     return refittedTrack;
   }
-  return 0;
+  return std::unique_ptr<Trk::Track>();
   //delete newStates;
 }
 

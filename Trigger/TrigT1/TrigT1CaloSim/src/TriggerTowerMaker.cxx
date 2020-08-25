@@ -11,7 +11,7 @@
 
 // This algorithm includes
 #include "GaudiKernel/IIncidentSvc.h"
-#include "TrigT1CaloSim/TriggerTowerMaker.h"
+#include "TriggerTowerMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include <fstream>
 #include <cmath>

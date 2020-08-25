@@ -22,7 +22,7 @@
 #include "CaloG4Sim/SimulationEnergies.h"
 
 // For the event-level flag
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 #include "G4VSensitiveDetector.hh"
 #include "G4SDManager.hh"
@@ -66,12 +66,12 @@ namespace G4UA
       if ( m_defaultSD != 0 ) {
         // We only want to perform the default processing if no other
         // calibration processing has occurred for this step.
-        EventInformation* evtInfo = dynamic_cast<EventInformation*>(
+        AtlasG4EventUserInfo* atlasG4EvtUserInfo = dynamic_cast<AtlasG4EventUserInfo*>(
             G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
         auto* track = a_step->GetTrack();
-        if ( evtInfo &&
-             ( evtInfo->GetLastProcessedBarcode() != track->GetTrackID() ||
-               evtInfo->GetLastProcessedStep() != track->GetCurrentStepNumber() ) )
+        if ( atlasG4EvtUserInfo &&
+             ( atlasG4EvtUserInfo->GetLastProcessedBarcode() != track->GetTrackID() ||
+               atlasG4EvtUserInfo->GetLastProcessedStep() != track->GetCurrentStepNumber() ) )
         {
           // We haven't performed any calibration processing for this
           // step (probably there is no sensitive detector for the
@@ -82,8 +82,8 @@ namespace G4UA
           m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
 
           // Update the step info
-          evtInfo->SetLastProcessedBarcode( track->GetTrackID() );
-          evtInfo->SetLastProcessedStep( track->GetCurrentStepNumber() );
+          atlasG4EvtUserInfo->SetLastProcessedBarcode( track->GetTrackID() );
+          atlasG4EvtUserInfo->SetLastProcessedStep( track->GetCurrentStepNumber() );
         }
       }
 

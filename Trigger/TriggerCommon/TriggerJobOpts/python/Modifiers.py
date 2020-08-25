@@ -767,7 +767,7 @@ class rerunDMLVL1(_modifier):
 
 class rewriteLVL1(_modifier):
     """
-    Rewrite LVL1 (use together with rerunLVL1)
+    Write LVL1 results to ByteStream output, usually used together with rerunLVL1
     """
     # Example:
     # athenaHLT -c "setMenu='PhysicsP1_pp_run3_v1';rerunLVL1=True;rewriteLVL1=True;" --filesInput=input.data TriggerJobOpts/runHLT_standalone.py
@@ -777,11 +777,33 @@ class rewriteLVL1(_modifier):
         L1ByteStreamEncodersRecExSetup()
 
     def postSetup(self):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from TriggerJobOpts.TriggerFlags import TriggerFlags
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if not TriggerFlags.writeBS:
+            log.warning('rewriteLVL1 is True but TriggerFlags.writeBS is False')
+        if not ConfigFlags.Output.doWriteBS:
+            log.warning('rewriteLVL1 is True but ConfigFlags.Output.doWriteBS is False')
+        if not ConfigFlags.Trigger.writeBS:
+            log.warning('rewriteLVL1 is True but ConfigFlags.Trigger.writeBS is False')
 
-        TriggerFlags.writeBS = True
-        svcMgr.HltEventLoopMgr.RewriteLVL1 = True
+        if ConfigFlags.Trigger.Online.isPartition:
+            # online
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr.HltEventLoopMgr.RewriteLVL1 = True
+        else:
+            # offline
+            from AthenaCommon.AlgSequence import AthSequencer
+            from AthenaCommon.CFElements import findAlgorithm
+            seq = AthSequencer('AthOutSeq')
+            streamBS = findAlgorithm(seq, 'BSOutputStreamAlg')
+            if ConfigFlags.Trigger.enableL1Phase1:
+                out_type = 'xAOD::TrigCompositeContainer'
+                out_name = 'L1TriggerResult'
+            else:
+                out_type = 'ROIB::RoIBResult'
+                out_name = 'RoIBResult'
+            streamBS.ExtraInputs += [ (out_type, 'StoreGateSvc+'+out_name) ]
+            streamBS.ItemList += [ out_type+'#'+out_name ]
 
 
 class writeBS(_modifier):

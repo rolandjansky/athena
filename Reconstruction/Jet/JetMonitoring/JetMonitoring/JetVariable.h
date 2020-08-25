@@ -8,7 +8,6 @@
 #define JETMONITORING_JETVARIABLE_H
 #include <vector>
 
-
 #include "xAODJet/Jet.h"
 
 ///////////////////////////////////////////////////////////
@@ -90,7 +89,10 @@ namespace JetVar {
   template<typename T>
   struct VariableAtt : public Variable {
     VariableAtt(const std::string & name) : Variable(name), m_acc(name) {}
-    virtual float value(const xAOD::Jet & j) const { return m_acc(j)*m_scale;}
+    virtual float value(const xAOD::Jet & j) const { 
+      if ( m_acc.isAvailable( j ) ) return m_acc(j)*m_scale;
+      else return -999.;
+    }
     Accessor<T> m_acc;    
   };
 
@@ -120,11 +122,21 @@ namespace JetVar {
     virtual bool isVector() const {return m_index==-1;}
 
     // use only if the index is valid
-    virtual float value(const xAOD::Jet & j) const { return m_acc(j)[m_index]*m_scale;}
+    virtual float value(const xAOD::Jet & j) const {
+      if ( m_acc.isAvailable( j ) ) return m_acc(j)[m_index]*m_scale;
+      else return -999.;
+    }
 
     virtual VectorValue vector(const xAOD::Jet &j) const {
-      VectorValue v( new VectorWrapperT(&m_acc(j)) , m_scale ) ;
-      return v;
+      if ( m_acc.isAvailable( j ) ) {
+        VectorValue v( new VectorWrapperT(&m_acc(j)) , m_scale ) ;
+        return v;
+      }
+      else {
+        vect_t dummy(1,-999.);
+        VectorValue junk( new VectorWrapperT(&dummy), m_scale );
+        return junk;
+      }
     }
 
 
@@ -168,7 +180,7 @@ namespace JetVar {
     virtual float value(const xAOD::Jet & j) const { return j.p4().Et()*m_scale;}
   };
 
-  struct FChargeVar : public Variable {
+  struct FChargedVar : public Variable {
     using Variable::Variable;
     virtual float value(const xAOD::Jet & j) const { 
       bool status = false;

@@ -19,6 +19,4 @@ atlas_add_component( DigitizationTests
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( test/DigitizationTests_TestConfiguration.xml )
 atlas_install_scripts( scripts/*.sh test/*.sh )
-

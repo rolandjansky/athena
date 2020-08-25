@@ -89,8 +89,8 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     #-- badChannels groups --
 
-    badChannelToolArrayBarrel = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName+"Barrel",'/LAr/','lb')
-    badChannelToolArrayEndcap = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName+"EndCap",'/LAr/','lb')
+    badChannelToolArrayBarrel = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName+"Barrel",'/LAr/','run')
+    badChannelToolArrayEndcap = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName+"EndCap",'/LAr/','run')
 
     #-- CoverageHW groups --
     availErrCode = larCoverageAlg.AvailableErrorCodes

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingTool.h"
@@ -126,7 +126,7 @@ namespace Trig {
             const auto vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons");
 #endif // XAOD_ANALYSIS
             ATH_MSG_DEBUG("Container Feature");
-            for(const auto feat : vec){
+            for(const auto& feat : vec){
                 const xAOD::ElectronContainer *cont = feat.cptr();
                 if(cont == nullptr) {
                     ATH_MSG_DEBUG("Electron container from TE nullptr");
@@ -155,7 +155,7 @@ namespace Trig {
 #else
             const auto vec = fc.get<xAOD::PhotonContainer>(key);
 #endif // XAOD_ANALYSIS
-            for(const auto feat : vec){
+            for(const auto& feat : vec){
                 const xAOD::PhotonContainer *cont = feat.cptr();
                 if(cont == nullptr) {
                     ATH_MSG_DEBUG("Photon Container from TE nullptr");

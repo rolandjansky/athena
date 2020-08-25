@@ -50,7 +50,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
     DoEnergyDiffHistograms  = kwargs.get('DoEnergyDiffHistograms', tileJetMonAlg._descriptors['DoEnergyDiffHistograms'].default)
 
 
-    if not flags.DQ.DataType == 'heavyioncollision':
+    if flags.DQ.DataType not in ('heavyioncollisions', 'cosmics'):
 
         jvtTool = CompFactory.JetVertexTaggerTool()
         jetContainer = kwargs.get('JetContainer', tileJetMonAlg._descriptors['JetContainer'].default)

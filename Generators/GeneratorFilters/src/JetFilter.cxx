@@ -86,7 +86,7 @@ StatusCode JetFilter::filterEvent() {
            (part->pdg_id() != 12 ) && (part->pdg_id() != -12 ) &&
            (part->pdg_id() != 14 ) && (part->pdg_id() != -14 ) &&
            (part->pdg_id() != 16 ) && (part->pdg_id() != -16 ) &&
-           (fabs(part->momentum().pseudoRapidity()) <= m_emaxeta) ) { // no neutrinos or muons and particles must be in active range
+           (std::abs(part->momentum().pseudoRapidity()) <= m_emaxeta) ) { // no neutrinos or muons and particles must be in active range
         int ip, ie;
         ip = (int) ((m_twopi/2.+ part->momentum().phi())/m_edphi); //phi is in range -CLHEP::pi to CLHEP::pi
         ie = (int) ((part->momentum().pseudoRapidity()+m_emaxeta)/m_edeta);
@@ -201,7 +201,7 @@ StatusCode JetFilter::filterEvent() {
       FoundJet.setPy(jetpy);
       FoundJet.setPz(jetpz);
       FoundJet.setE(jete);
-      if (fabs(FoundJet.pseudoRapidity()) < m_UserEta) {
+      if (std::abs(FoundJet.pseudoRapidity()) < m_UserEta) {
         m_Jets.push_back(FoundJet);   //OK we found one. add it to the list  if its inside the eta region
       }
     }

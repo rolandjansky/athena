@@ -5,11 +5,13 @@
 #ifndef PARTICLEJETDELTARLABELTOOL_H
 #define PARTICLEJETDELTARLABELTOOL_H
 
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetModifier.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
+#include "ParticleJetTools/ParticleJetLabelCommon.h"
 
 class ParticleJetDeltaRLabelTool : public asg::AsgTool, public IJetModifier {
 ASG_TOOL_CLASS(ParticleJetDeltaRLabelTool, IJetModifier)
@@ -30,8 +32,7 @@ public:
 protected:
 
   /// Name of jet label attributes
-  std::string m_labelname;
-  std::string m_doublelabelname;
+  ParticleJetTools::LabelNames m_labelnames;
   std::string m_taulabelname;
   std::string m_bottomlabelname;
   std::string m_charmlabelname;

@@ -43,7 +43,6 @@ atlas_add_component( RegistrationServices
                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests CollectionBase FileCatalog AthenaPoolUtilities DBDataModel PersistentDataModel PoolSvcLib IOVDbSvcLib )
 
 # Install files from the package:
-atlas_install_headers( RegistrationServices )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

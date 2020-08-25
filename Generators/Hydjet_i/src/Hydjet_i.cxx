@@ -286,7 +286,7 @@ Hydjet::set_user_params	(void)
 
     // copy of HYDJET calculations
     m_hyipar.AW() = m_a;
-    m_hyipar.RA() = 1.15 * pow(m_a,0.333333);
+    m_hyipar.RA() = 1.15 * std::pow(m_a,0.333333);
 
     m_ifb      	= 1;
     m_bmin     	= 0;

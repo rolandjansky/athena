@@ -236,7 +236,8 @@ InDetRotCreator = Trk__RIO_OnTrackCreator(name                = 'InDetRotCreator
                                           ToolPixelCluster    = PixelPlanarClusterOnTrackTool,
                                           ToolSCT_Cluster     = SCT_PlanarClusterOnTrackTool,
                                           ToolMuonCluster     = None,
-                                          ToolMuonDriftCircle = None,       
+                                          ToolMuonDriftCircle = None,
+                                          ToolMuonMMCluster   = None,       
                                           ToolTRT_DriftCircle = None,    
                                           Mode                = 'indet')
 InDetRotCreator.OutputLevel = OutputLevel
@@ -247,7 +248,8 @@ BroadInDetRotCreator = Trk__RIO_OnTrackCreator(name                = 'BroadInDet
                                                ToolPixelCluster    = PixelPlanarClusterOnTrackTool,
                                                ToolSCT_Cluster     = SCT_PlanarClusterOnTrackTool,
                                                ToolMuonCluster     = None,
-                                               ToolMuonDriftCircle = None,       
+                                               ToolMuonDriftCircle = None,
+                                               ToolMuonMMCluster   = None,       
                                                ToolTRT_DriftCircle = None,    
                                                Mode                = 'indet')
 BroadInDetRotCreator.OutputLevel = OutputLevel

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/TauFilter.h"
@@ -40,9 +40,9 @@ StatusCode TauFilter::filterFinalize() {
 }
 
 
-CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr part ) {
+CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
-  if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
+  if ( ( std::abs( part->pdg_id() ) == 12 ) || ( std::abs( part->pdg_id() ) == 14 ) || ( std::abs( part->pdg_id() ) == 16 ) ) {
     nu.setPx(part->momentum().px());
     nu.setPy(part->momentum().py());
     nu.setPz(part->momentum().pz());
@@ -51,44 +51,37 @@ CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr p
 
   if (part->end_vertex() == 0) return nu;
 
-  HepMC::GenVertex::particles_out_const_iterator begin = part->end_vertex()->particles_out_const_begin();
-  HepMC::GenVertex::particles_out_const_iterator end = part->end_vertex()->particles_out_const_end();
-  for ( ; begin != end; begin++ ) nu += sumDaughterNeutrinos( *begin );
+ for ( auto beg: *(part->end_vertex())) nu += sumDaughterNeutrinos( beg );
 
   return nu;
 }
 
 
 StatusCode TauFilter::filterEvent() {
-  HepMC::GenParticlePtr tau;
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector tauvis;
   CLHEP::HepLorentzVector nutau;
-  tau = 0;
   int ntau = 0;
 
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+    for ( auto  tau: *genEvt) {
       // Look for the first tau with genstat != 3
-      if (abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3) {
-        tau = (*pitr);
-        ATH_MSG_DEBUG("found tau with barcode " << tau->barcode() << " status " << (*pitr)->status());
+      if (std::abs(tau->pdg_id()) != 15 || tau->status() == 3)  continue;
+        ATH_MSG_DEBUG("found tau with barcode " << HepMC::barcode(tau) << " status " << tau->status());
         ATH_MSG_DEBUG("pT\t\teta\tphi\tid");
         ATH_MSG_DEBUG(tau->momentum().perp() << "\t" <<
                       tau->momentum().eta() << "\t" <<
                       tau->momentum().phi() << "\t" <<
                       tau->pdg_id() << "\t");
-
-        HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
-        HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
         int leptonic = 0;
-        for ( ; begin != end; begin++ ) {
-          if ( (*begin)->production_vertex() != tau->end_vertex() ) continue;
-          if ( abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
-          if ( abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
-          if ( abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
+        if ( tau->production_vertex()) continue;
+        for (auto beg: *(tau->end_vertex())) {
+          if ( beg->production_vertex() != tau->end_vertex() ) continue;
+          if ( std::abs( beg->pdg_id() ) == 12 ) leptonic = 1;
+          if ( std::abs( beg->pdg_id() ) == 14 ) leptonic = 2;
+          if ( std::abs( beg->pdg_id() ) == 15 ) leptonic = 11;
         }
 
         if (leptonic == 11) {
@@ -110,23 +103,22 @@ StatusCode TauFilter::filterEvent() {
         if ( leptonic == 1 ) {
           m_eventse++;
           if ( tauvis.perp() < m_pTmine ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxe ) continue;
+          if ( std::abs( tauvis.eta() ) > m_etaMaxe ) continue;
           ntau++;
           m_eventseacc++;
         } else if ( leptonic == 2 ) {
           m_eventsmu++;
           if ( tauvis.perp() < m_pTminmu ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxmu ) continue;
+          if ( std::abs( tauvis.eta() ) > m_etaMaxmu ) continue;
           ntau++;
           m_eventsmuacc++;
         } else if ( leptonic == 0 ) {
           m_eventshad++;
           if ( tauvis.perp() < m_pTminhad ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxhad ) continue;
+          if ( std::abs( tauvis.eta() ) > m_etaMaxhad ) continue;
           ntau++;
           m_eventshadacc++;
         }
-      }
     }
   }
 

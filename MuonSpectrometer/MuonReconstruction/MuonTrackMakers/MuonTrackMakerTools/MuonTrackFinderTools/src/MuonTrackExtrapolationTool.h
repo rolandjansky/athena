@@ -75,25 +75,22 @@ namespace Muon {
 
     const Trk::Perigee* createPerigee( const Trk::TrackParameters& pars ) const;
     
-    ToolHandle<Trk::IExtrapolator>      m_atlasExtrapolator;
-    ToolHandle<Trk::IExtrapolator>      m_muonExtrapolator;
-    ToolHandle<Trk::IExtrapolator>      m_muonExtrapolator2; // Moved from MuonEDMHelperSvc, not sure if it should be private/separate from m_muonExtrapolator
-
     // Read handle for conditions object to get the field cache
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
                                                                                "Name of the Magnetic Field conditions object key"};
-    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;
 
-    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;
+    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "TrackingGeometrySvc/AtlasTrackingGeometrySvc"};
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    bool m_cosmics;
-    bool m_keepOldPerigee;
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "helper to nicely print out tracks"};
+    ToolHandle<Trk::IExtrapolator> m_atlasExtrapolator {this, "AtlasExtrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
+    ToolHandle<Trk::IExtrapolator> m_muonExtrapolator {this, "MuonExtrapolator", "Trk::Extrapolator/MuonExtrapolator"};
+    ToolHandle<Trk::IExtrapolator> m_muonExtrapolator2 {this, "MuonExtrapolator2", "Trk::Extrapolator/MuonExtrapolator"};
 
-    std::string m_msEntranceName;
+    Gaudi::Property<bool> m_cosmics {this, "Cosmics", false};
+    Gaudi::Property<bool> m_keepOldPerigee {this, "KeepInitialPerigee", true};
+    Gaudi::Property<std::string> m_msEntranceName {this, "MuonSystemEntranceName", "MuonSpectrometerEntrance"};
   };
 
 }

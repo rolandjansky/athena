@@ -85,6 +85,10 @@ void TableConstructorBase::getHistograms(const std::string& name) {
       }
       if (!found) {
         msg() << MSG::ERROR << "Was not expecting histogram " << obj->GetName() << endmsg;
+        for (const TString exp : m_expectedHistograms) {
+          const TString expName = TString(name) + "_" + exp;
+          msg() << MSG::ERROR << "  -- Expected " << expName << endmsg;
+        }
       }
     } else {
       msg() << MSG::ERROR << "Expecting only Histograms, found " << obj->GetName() << endmsg;

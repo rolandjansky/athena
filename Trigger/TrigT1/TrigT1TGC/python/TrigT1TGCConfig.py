@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigT1TGC.TrigT1TGCConf import *
+from TrigT1TGC.TrigT1TGCConf import LVL1TGCTrigger__LVL1TGCTrigger
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.GlobalFlags import globalflags
 from IOVDbSvc.CondDB import conddb

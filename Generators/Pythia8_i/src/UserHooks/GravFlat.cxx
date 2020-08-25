@@ -50,7 +50,7 @@ namespace Pythia8 {
       double weightBW = pow2(sHat - m2Res) + pow2(sHat * GamMRat);
       
       double weightPL = 1;
-      double rH = sqrt(sHat);
+      double rH = std::sqrt(sHat);
       
       double weight=1;
       switch(m_energyMode(settingsPtr)){

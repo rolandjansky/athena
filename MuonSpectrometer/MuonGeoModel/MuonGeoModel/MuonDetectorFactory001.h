@@ -34,7 +34,10 @@ public:
   // Creates the raw geometry tree: required,
   virtual void create (GeoPhysVol* world);
 
-  // Get the manager.
+  // this function is inherited from GeoVDetectorFactory where it is declared const.
+  // However, the MuonDetectorManager cannot be const since it holds the pointers to the readout elements,
+  // and those can change with alignment. Thus, this const method will create a thread-safety warning since 
+  // the returned object is *not* const
   virtual MuonDetectorManager* getDetectorManager() const;
 
   inline void setDBAtlasVersion(std::string v);

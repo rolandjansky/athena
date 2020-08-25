@@ -9,6 +9,14 @@ PlaneSurface::type() const
 {
   return Surface::Plane;
 }
+
+/** Return the surface type static constexpr */
+inline constexpr Surface::SurfaceType
+PlaneSurface::staticType()
+{
+  return Surface::Plane;
+}
+
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
 inline ParametersT<5, Charged, PlaneSurface>*

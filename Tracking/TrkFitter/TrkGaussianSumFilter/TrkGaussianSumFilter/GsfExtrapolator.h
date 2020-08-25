@@ -6,7 +6,7 @@
  * @file   GsfExtrapolator.h
  * @date   Tuesday 25th January 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * Extrapolation of MultiComponentState class. It is an                                                                    
+ * Extrapolation of MultiComponentState class. It is an
  * AlgTool inheriting from the IMultiStateExtrapolator class
  */
 
@@ -19,6 +19,7 @@
 #include "TrkExInterfaces/INavigator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -45,40 +46,9 @@ class MaterialProperties;
 class IMultiComponentStateMerger;
 class IMaterialMixtureConvolution;
 class IMultipleScatteringUpdator;
-/** @struct StateAtBoundarySurface
-  - Structure to contain information about a state at the interface between
-  tracking volumes
-  */
-
-struct StateAtBoundarySurface
-{
-
-  /** Data members */
-  const MultiComponentState* stateAtBoundary;
-  const TrackParameters* navigationParameters;
-  const TrackingVolume* trackingVolume;
-
-  /** Default constructor  */
-  StateAtBoundarySurface()
-    : stateAtBoundary(nullptr)
-    , navigationParameters(nullptr)
-    , trackingVolume(nullptr)
-  {}
-
-  /** Update State at Boundary Surface Information */
-  void updateBoundaryInformation(const MultiComponentState* boundaryState,
-                                 const TrackParameters* navParameters,
-                                 const TrackingVolume* nextVolume)
-  {
-    stateAtBoundary = boundaryState;
-    navigationParameters = navParameters;
-    trackingVolume = nextVolume;
-  }
-};
-
 /** @class GsfExtrapolator */
 
-class GsfExtrapolator
+class GsfExtrapolator final
   : public AthAlgTool
   , virtual public IMultiStateExtrapolator
 {
@@ -99,6 +69,7 @@ public:
   /** Configured AlgTool extrapolation method (1) */
   virtual MultiComponentState extrapolate(
     const EventContext& ctx,
+    Cache&,
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -125,33 +96,6 @@ public:
                ParticleHypothesis particle) const override final;
 
 private:
-  struct Cache
-  {
-    bool m_recall;                  //!< Flag the recall solution
-    const Surface* m_recallSurface; //!< Surface for recall
-    const Layer* m_recallLayer;     //!< Layer for recall
-    const TrackingVolume*
-      m_recallTrackingVolume; //!< Tracking volume for recall
-    StateAtBoundarySurface
-      m_stateAtBoundarySurface; //!< Instance of structure describing the state
-                                //!< at a boundary of tracking volumes
-    std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> m_matstates;
-    std::vector<std::unique_ptr<const MultiComponentState>>
-      m_mcsGarbageBin; //!< Garbage bin for MultiComponentState objects
-    std::vector<std::unique_ptr<const TrackParameters>>
-      m_tpGarbageBin; //!< Garbage bin for TrackParameter objects
-
-    Cache()
-      : m_recall(false)
-      , m_recallSurface(nullptr)
-      , m_recallLayer(nullptr)
-      , m_recallTrackingVolume(nullptr)
-      , m_stateAtBoundarySurface()
-      , m_matstates(nullptr)
-      , m_mcsGarbageBin()
-      , m_tpGarbageBin()
-    {}
-  };
 
   /** These are the methods that do the actual heavy lifting when extrapolating
    * with a cache */

@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso, tauIdTrackSeq, tauTrackSeq, tauTrackTwoSeq, tauTrackTwoEFSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso, tauIdTrackSeq, tauTrackSeq, tauTrackTwoSeq, tauTrackTwoEFSeq, tauTwoStepTrackSeqCoreMVA
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -30,6 +30,9 @@ def getTauTrackTwoCfg(flags):
 
 def getTauIdTrackCfg(flags):
     return tauIdTrackSeq()
+
+def getTauFastTrackMVACfg(flags):
+    return tauTwoStepTrackSeqCoreMVA()
 
 def getTauFastTrackCfg(flags):
     return tauTwoStepTrackSeqCore()
@@ -64,7 +67,7 @@ class TauChainConfiguration(ChainConfigurationBase):
             "track":['getCaloSeq', 'getTrack'], #This should use calo only sequence
             "tracktwo":['getCaloSeq', 'getFastTrack', 'getTrackTwo'], #This should use calo only sequence
             "tracktwoEF":['getCaloSeq','getFastTrack','getTrack2EF'], #This should use calo only sequence
-            "tracktwoMVA":['getCaloMVASeq','getFastTrack', 'getTrackIso'], #This should use calo mva sequence
+            "tracktwoMVA":['getCaloMVASeq','getFastTrackMVA', 'getTrackIso'], #This should use calo mva sequence
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -107,6 +110,11 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getFastTrack(self):
         stepName = 'FT_tau'
         return self.getStep(2,stepName, [getTauFastTrackCfg])
+
+    # --------------------                                                                                                                                                       
+    def getFastTrackMVA(self):
+        stepName = 'FT_tauMVA'
+        return self.getStep(2,stepName, [getTauFastTrackMVACfg])
 
     # --------------------                                                                                                       
     def getTrackIso(self):

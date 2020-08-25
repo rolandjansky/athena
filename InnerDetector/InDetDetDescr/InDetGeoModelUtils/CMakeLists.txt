@@ -8,6 +8,7 @@ atlas_subdir( InDetGeoModelUtils )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Database/RDBAccessSvc
                           GaudiKernel
                           PRIVATE
@@ -28,6 +29,6 @@ atlas_add_library( InDetGeoModelUtils
                    PUBLIC_HEADERS InDetGeoModelUtils
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel GaudiKernel StoreGateLib SGtests RDBAccessSvcLib GeoPrimitives
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel CxxUtils GaudiKernel StoreGateLib SGtests RDBAccessSvcLib GeoPrimitives
                    PRIVATE_LINK_LIBRARIES GeoModelUtilities GeometryDBSvcLib )
 

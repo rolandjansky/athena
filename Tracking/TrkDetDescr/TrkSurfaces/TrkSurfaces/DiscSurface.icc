@@ -10,7 +10,14 @@ DiscSurface::type() const
   return Surface::Disc;
 }
 
-/** Use the Surface as a ParametersBase constructor, from local parameters -
+/** Return the surface type static constexpr */
+inline constexpr Surface::SurfaceType
+DiscSurface::staticType()
+{
+  return Surface::Disc;
+}
+
+/* Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
 inline ParametersT<5, Charged, DiscSurface>*
 DiscSurface::createTrackParameters(double l1,

@@ -1,17 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigValAlgs.TrigValAlgsConf import TrigCountDumper
 from TrigValAlgs.TrigValAlgsConf import TrigDecisionChecker
 from TrigValAlgs.TrigValAlgsConf import TrigEDMChecker
-from TrigValAlgs.TrigValAlgsConf import TrigSlimValAlg
 from TrigValAlgs.TrigValAlgsConf import TrigEDMAuxChecker
 import six
-# TrigCountDumper configurable
-# Run with TrigCountDumper configured from AOD header
-class TrigCountDumper ( TrigCountDumper ):
-  __slots__ = []
-  def __init__(self, name="TrigCountDumper"):
-    super( TrigCountDumper, self ).__init__( name )
 
 # TrigDecisionChecker configurable
 # Run with TrigDecisionTool configured from AOD header
@@ -69,19 +61,6 @@ class TrigEDMChecker ( TrigEDMChecker ):
     __slots__ = []
     def __init__(self, name="TrigEDMChecker"):
         super( TrigEDMChecker, self ).__init__( name )
-
-
-# TrigSlimValAlg configurable
-class TrigSlimValAlg ( TrigSlimValAlg ):
-  __slots__ = []
-  def __init__(self, name="TrigSlimValAlg"):
-    super( TrigSlimValAlg, self ).__init__( name )
-
-  def setDefaults(self, handle):
-
-    self.TrigDecisionTool = "Trig::TrigDecisionTool/TrigDecisionTool"
-    self.Navigation = "HLT::Navigation/Navigation"
-    self.SlimmingTool = "HLT::TrigNavigationSlimmingTool/TrigNavigationSlimmingTool"
 
 
 def getEDMAuxList():

@@ -23,8 +23,6 @@ public:
     virtual InternalConstItr cend() const override;
     virtual InternalConstItr indexFind( IdentifierHash hashId ) const override;
     virtual const std::vector < hashPair >& getAllHashPtrPair() const override;
-    std::vector<std::pair<IdentifierHash::value_type, const void*>> m_map;
-    size_t m_maximumSize;
     virtual bool tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock) override;
     virtual bool tryAddFromCache(IdentifierHash hashId) override;
     virtual void wait() const override;
@@ -39,7 +37,9 @@ public:
     virtual StatusCode addLock(IdentifierHash hashId, const void* ptr) override;
     virtual void* removeCollection( IdentifierHash hashId ) override;
     virtual void destructor(deleter_f*) noexcept override;
-
+private:
+    std::vector<I_InternalIDC::hashPair> m_map;
+    size_t m_maximumSize;
 };
 
 }

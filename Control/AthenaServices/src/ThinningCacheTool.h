@@ -52,11 +52,17 @@ public:
 
 
   /**
-   * @brief Called at the beginning of execute.
+   * @brief Called at the beginning of execute.  A no-op for now.
+   */
+  virtual StatusCode preExecute() override;
+
+
+  /**
+   * @brief Called before actually streaming objects.
    *        Find all thinning requests for this stream, build the @c ThinningCache,
    *        and install it in the current @c EventContext.
    */
-  virtual StatusCode preExecute() override;
+  virtual StatusCode preStream() override;
 
 
   /**

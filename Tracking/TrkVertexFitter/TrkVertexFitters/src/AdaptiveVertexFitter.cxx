@@ -327,7 +327,7 @@ namespace Trk
         {
 
           ElementLink<TrackCollection> link;
-          link.setElement(const_cast<Trk::Track*>(*trkiter));
+          link.setElement(*trkiter);
           LinkToTrack * linkTT = new LinkToTrack(link);
           (*vtxiter).setOrigTrack(linkTT);
         }
@@ -344,65 +344,6 @@ namespace Trk
     return FittedVertex;
   }
 
-  xAOD::Vertex * AdaptiveVertexFitter::_fit(const std::vector<const Trk::TrackParticleBase*> & VectorTrk,
-                                            const xAOD::Vertex& constraint,//initialized to xAOD::Vertex()
-                                            const Amg::Vector3D & startingPoint,//initialized to Amg::Vector3D()
-                                            bool IsConstraint,//initialized to false
-                                            bool IsStartingPoint) const {//initialized to false
-
-    std::vector<const Trk::TrackParameters*> perigeeList;
-    for (std::vector<const Trk::TrackParticleBase*>::const_iterator iter=VectorTrk.begin();
-         iter!=VectorTrk.end();++iter) {
-      if (std::isnan((*iter)->perigee()->parameters()[Trk::d0])) {
-        continue;
-      }
-      perigeeList.push_back((*iter)->perigee());
-    }
-
-    xAOD::Vertex * FittedVertex = _fit(perigeeList,constraint,startingPoint,IsConstraint,IsStartingPoint);
-
-    if (FittedVertex==nullptr) {
-      return FittedVertex;
-    }
-
-    //these following lines are really absurd... Why has this to be the case... <19-06-2006>
-    //We need a link which can be dynamically to a Track or a TrackParticle....... )-:
-
-    const std::vector<const Trk::TrackParticleBase*>::const_iterator trkbegin=VectorTrk.begin();
-    const std::vector<const Trk::TrackParticleBase*>::const_iterator trkend=VectorTrk.end();
-
-    const std::vector<VxTrackAtVertex>::iterator vtxbegin=FittedVertex->vxTrackAtVertex().begin();
-    const std::vector<VxTrackAtVertex>::iterator vtxend=FittedVertex->vxTrackAtVertex().end();
-
-
-    for (std::vector<const Trk::TrackParticleBase*>::const_iterator trkiter=trkbegin;trkiter!=trkend;++trkiter)
-    {
-      for (std::vector<Trk::VxTrackAtVertex>::iterator vtxiter=vtxbegin;vtxiter!=vtxend;++vtxiter)
-      {
-        if(((*trkiter)->perigee()->momentum() -
-            (*vtxiter).initialPerigee()->momentum()).mag()< 1e-8  &&
-            ((*trkiter)->perigee()->position() -
-            (*vtxiter).initialPerigee()->position()).mag()< 1e-8)
-        {
-
-          ElementLink<TrackParticleBaseCollection> link;
-          link.setElement(const_cast<Trk::TrackParticleBase*>(*trkiter));
-          LinkToTrackParticleBase * linkTT = new LinkToTrackParticleBase(link);
-          (*vtxiter).setOrigTrack(linkTT);
-        }
-      }
-    }
-
-    //******************************************************************************
-    // TODO: Starting from a vector of Trk::TrackParticleBase, can't currently store
-    // separately from the vxTrackAtVertex vector the links to the
-    // original tracks in xAOD::Vertex (only links to xAOD::TrackParticles and
-    // xAOD::NeutralParticles can be stored)
-    //******************************************************************************
-
-    return FittedVertex;
-
-  }
   xAOD::Vertex*
   AdaptiveVertexFitter::dothefit(
     const xAOD::Vertex& ConstraintVertex,

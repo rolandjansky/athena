@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MultiHisto_cxx
 #define MultiHisto_cxx
 
 #include "PixelCalibAlgs/MultiHisto.h"
+#include "CxxUtils/checker_macros.h"
 #include "sstream"
 #include <vector>
 #include <string>
@@ -140,7 +141,7 @@ int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize) const {
 }
 
 template <class ht>
-int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize) {
+int MultiHisto<ht>::Write (const char* name, Int_t option, Int_t bufsize) {
   return const_cast<const MultiHisto<ht>*>(this)->Write(name,option,bufsize);
 }
 

@@ -11,26 +11,50 @@ def findFile(pattern):
     '''Bash inline file name finder'''
     return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
 
+menu_name = 'LS2_v1'
+
 # Run athena BS->BS job
 BStoBS = ExecStep.ExecStep("BStoBS")
 BStoBS.type = 'athena'
 BStoBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 BStoBS.input = 'data'
 BStoBS.threads = 1
-BStoBS.args += ' -c "setMenu=\'LS2_v1\';doWriteBS=True;doWriteRDOTrigger=False;forceEnableAllChains=True;"'
+BStoBSPreExec = ''.join([
+  'setMenu=\'{:s}\';'.format(menu_name),
+  'rewriteLVL1=True;',  # Write L1 result to BS
+  'doWriteBS=True;',    # Write HLT result to BS
+  'forceEnableAllChains=True;',  # Ignore L1 decisions in seeding chains
+])
+BStoBS.args = ' -c "{:s}"'.format(BStoBSPreExec)
 
 # Extract the Main stream data
 filterBS = ExecStep.ExecStep('FilterBS')
 filterBS.type = 'other'
-filterBS.executable = 'athenaHLT-select-PEB-stream.py'
+filterBS.executable = 'trigbs_extractStream.py'
 filterBS.input = ''
 filterBS.args = '-s Main ' + findFile('data_test.*.Single_Stream.daq.RAW.*.data')
 
 # Reconstruction step, BS->ESD->AOD
 recoPreExec = ' '.join([
+  # Reco flags to disable things missing inputs from previous step
+  "from RecExConfig.RecFlags import rec;",
+  "rec.doInDet=False;",
+  "rec.doAFP=False;",
+  "rec.doEgamma=False;",
+  "rec.doForwardDet=False;",
+  "rec.doMuon=False;",
+  "rec.doMuonCombined=False;",
+  "rec.doJetMissingETTag=False;",
+  "rec.doTau=False;",
+  "rec.doLucid=False;",
+  "from ParticleBuilderOptions.AODFlags import AODFlags;",
+  "AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);",
+  "AODFlags.AddEgammaMuonTracksInAOD.set_Value_and_Lock(False);",
+  # Trigger flags
+  "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
+  "ConfigFlags.Trigger.triggerMenuSetup=\'{:s}\';".format(menu_name),
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
   "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"])
 reco = ExecStep.ExecStep('Tier0Reco')

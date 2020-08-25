@@ -1,21 +1,25 @@
 #! /bin/bash
 #
-# Copyright (C) 2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
+REPOURL="https://:@gitlab.cern.ch:8443/atlas/athena.git"
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: tag_build.sh [-d date_stamp] [-u repository_url]" \
-		" Tag a 'nightly' build based on the current branch and timestamp."\
-		" This script should really only be used by NICOS to tag nightly builds."\
-		" Private builds should not do this."\
-        " 'date_stamp' defaults to $datestamp, repository_url to the ATLAS athena"\
-        " repository in CERN GitLab (krb5 authenticated)"
+    cat <<EOF
+Usage: tag_build.sh [-d date_stamp] [-u repository_url]
+       Tag a 'nightly' build based on the current branch and timestamp. If the tag
+       already exists it will be checked out instead. This script should only be used
+       by NICOS to tag nightly builds, not for private builds.
+
+       date_stamp        Format YYYY-MM-DDTHHMM (default: \$datestamp)
+       repository_url    git repository URL (default: $REPOURL)
+EOF
 }
 
 # Parse the command line arguments:
 DATESTAMP="$datestamp"
-REPOURL="https://:@gitlab.cern.ch:8443/atlas/athena.git"
 while getopts ":d:u:h" opt; do
     case $opt in
         d)
@@ -60,9 +64,14 @@ set -e
 ScriptSrcDir=$(dirname ${BASH_SOURCE[0]})
 cd $ScriptSrcDir/../..
 
-# Get branch name, then tag and push
+# Get branch name, then tag/push or checkout if it already exists
 BRANCH=$(git symbolic-ref --short HEAD)
 TAG="nightly/$BRANCH/$DATESTAMP"
-echo "Creating tag $TAG"
-git tag $TAG
-git push $REPOURL $TAG
+if git rev-parse $TAG > /dev/null 2>&1; then
+    echo "Tag $TAG already exists. Doing checkout..."
+    git checkout $TAG
+else
+    echo "Creating tag $TAG"
+    git tag $TAG
+    git push $REPOURL $TAG
+fi

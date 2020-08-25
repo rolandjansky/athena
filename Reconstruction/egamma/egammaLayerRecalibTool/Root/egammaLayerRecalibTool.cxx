@@ -805,7 +805,7 @@ void egammaLayerRecalibTool::add_scale(InputModifier* modifier, GetAmountBase* a
 CP::CorrectionCode egammaLayerRecalibTool::scale_inputs(StdCalibrationInputs & inputs) const
 {
   CP::CorrectionCode status = CP::CorrectionCode::Ok;
-  for (const auto modifier : m_modifiers)  {
+  for (const auto& modifier : m_modifiers)  {
     const float amount = (*modifier.second)(inputs);
     const auto s = (*modifier.first)(inputs, amount);
     if (s != CP::CorrectionCode::Ok) {

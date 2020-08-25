@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelRIOs_h
 #define PixelRIOs_h
+
+#include "CxxUtils/checker_macros.h"
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -18,7 +20,7 @@ class PixelChargeInterpolationCalibration;
 class PixelChargeInterpolationValidation;
 
 
-class PixelRIOs {
+class ATLAS_NOT_THREAD_SAFE PixelRIOs { // Thread unsafe PixelChargeInterpolationCalibration class is used.
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain

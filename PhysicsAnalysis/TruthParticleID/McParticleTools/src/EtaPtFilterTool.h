@@ -137,11 +137,11 @@ class EtaPtFilterTool : public TruthParticleFilterBaseTool
 
   /** Callback function to setup the "InnerEtaRegionCuts" property
    */
-  void setupInnerEtaRegionCuts( Property& innerEtaRegionCuts );
+  void setupInnerEtaRegionCuts( Gaudi::Details::PropertyBase& innerEtaRegionCuts );
 
   /** Callback function to setup the "OuterEtaRegionCuts" property
    */
-  void setupOuterEtaRegionCuts( Property& outerEtaRegionCuts );
+  void setupOuterEtaRegionCuts( Gaudi::Details::PropertyBase& outerEtaRegionCuts );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

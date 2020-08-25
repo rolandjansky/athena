@@ -3,6 +3,60 @@
 */
 
 inline void
+BFieldCache::invalidate()
+{
+  m_phimin = 0.0;
+  m_phimax = -1.0;
+}
+inline void
+BFieldCache::setRange(double zmin,
+                      double zmax,
+                      double rmin,
+                      double rmax,
+                      double phimin,
+                      double phimax)
+{
+  m_zmin = zmin;
+  m_zmax = zmax;
+  m_rmin = rmin;
+  m_rmax = rmax;
+  m_phimin = phimin;
+  m_phimax = phimax;
+  m_invz = 1.0 / (zmax - zmin);
+  m_invr = 1.0 / (rmax - rmin);
+  m_invphi = 1.0 / (phimax - phimin);
+}
+
+// set field array, filled externally
+inline void
+BFieldCache::setField(double field[][8])
+{
+  std::copy(&field[0][0], &field[0][0] + 3 * 8, &m_field[0][0]);
+}
+
+inline void
+BFieldCache::setBscale(double bscale)
+{
+  m_scale = bscale;
+}
+
+inline float
+BFieldCache::bscale() const
+{
+  return m_scale;
+}
+
+inline bool
+BFieldCache::inside(double z, double r, double phi) const
+{
+  if (phi < m_phimin) {
+    phi += 2.0 * M_PI;
+  }
+  return (phi >= m_phimin && phi <= m_phimax && z >= m_zmin && z <= m_zmax &&
+          r >= m_rmin && r <= m_rmax);
+}
+
+inline void
 BFieldCache::getB(const double* ATH_RESTRICT xyz,
                   double r,
                   double phi,
@@ -54,8 +108,8 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
 
   // compute field derivatives if requested
   if (deriv) {
-    const double sz   = m_scale * m_invz;
-    const double sr   = m_scale * m_invr;
+    const double sz = m_scale * m_invz;
+    const double sr = m_scale * m_invr;
     const double sphi = m_scale * m_invphi;
 
     std::array<double, 3> dBdz;
@@ -66,21 +120,15 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
       const double* field = m_field[j];
       dBdz[j] =
         sz *
-        (gr * (gphi * (field[4] - field[0]) +
-               fphi * (field[5] - field[1])) +
-         fr * (gphi * (field[6] - field[2]) +
-               fphi * (field[7] - field[3])));
+        (gr * (gphi * (field[4] - field[0]) + fphi * (field[5] - field[1])) +
+         fr * (gphi * (field[6] - field[2]) + fphi * (field[7] - field[3])));
       dBdr[j] =
         sr *
-        (gz * (gphi * (field[2] - field[0]) +
-               fphi * (field[3] - field[1])) +
-         fz * (gphi * (field[6] - field[4]) +
-               fphi * (field[7] - field[5])));
+        (gz * (gphi * (field[2] - field[0]) + fphi * (field[3] - field[1])) +
+         fz * (gphi * (field[6] - field[4]) + fphi * (field[7] - field[5])));
       dBdphi[j] =
-        sphi * (gz * (gr * (field[1] - field[0]) +
-                      fr * (field[3] - field[2])) +
-                fz * (gr * (field[5] - field[4]) +
-                      fr * (field[7] - field[6])));
+        sphi * (gz * (gr * (field[1] - field[0]) + fr * (field[3] - field[2])) +
+                fz * (gr * (field[5] - field[4]) + fr * (field[7] - field[6])));
     }
     // convert to cartesian coordinates
     const double cc = c * c;
@@ -106,5 +154,4 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
     deriv[8] = dBdz[0];
   }
 }
-
 

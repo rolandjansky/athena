@@ -10,7 +10,7 @@
 
 
 namespace EventContainers{ class IdentifiableCacheBase; 
-enum class Mode { OfflineLowMemory, OfflineFast };
+enum class Mode { OfflineLowMemory, OfflineFast, OfflineMap };
 class IdentifiableContainerBase{
 public:
 #include "EventContainers/deleter.h"

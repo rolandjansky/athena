@@ -37,20 +37,10 @@ StatusCode TauTrackClassifier::initialize()
 {
   ATH_MSG_DEBUG("intialize classifiers");
 
-  #ifdef ROOTCORE
-  for (auto cClassifierName : m_vClassifierNames){
-    tauRecTools::TrackMVABDT* mva_tool = dynamic_cast<tauRecTools::TrackMVABDT*> (asg::ToolStore::get(cClassifierName));
-    ToolHandle< tauRecTools::TrackMVABDT > handle(mva_tool);    
-    m_vClassifier.push_back(handle);    
-    ATH_CHECK(m_vClassifier.back()->initialize());//retrieve() does not seem to work
-  }
-  #else
   for (auto cClassifier : m_vClassifier){
     ATH_MSG_INFO("TauTrackClassifier tool : " << cClassifier );
     ATH_CHECK(cClassifier.retrieve());
   }
-  #endif
-
  
   return StatusCode::SUCCESS;
 }

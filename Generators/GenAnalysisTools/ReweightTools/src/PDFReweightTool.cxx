@@ -14,7 +14,7 @@
 //      
 /////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthContainers/DataVector.h"
@@ -436,8 +436,8 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			//which is equal to
 			//	 (cvPDF_new(p1) * cvPDF_new(p2)) / (cvPDF_original(p1) * cvPDF_original(p2))  
 			else {
-				if (fabs(m_used_pdf1)>0.) m_weightFactor *= f1[fl1+6]/m_used_pdf1;
-				if (fabs(m_used_pdf2)>0.) m_weightFactor *= f2[fl2+6]/m_used_pdf2;
+				if (std::abs(m_used_pdf1)>0.) m_weightFactor *= f1[fl1+6]/m_used_pdf1;
+				if (std::abs(m_used_pdf2)>0.) m_weightFactor *= f2[fl2+6]/m_used_pdf2;
 
 				//and replace original PDF values
 				this->SetEventPDF1( f1[fl1+6] );
@@ -448,8 +448,8 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 		
 		//calculate event weight at 'this' error PDF
 		double weight = m_weightFactor;
-		if (fabs(m_used_pdf1)>0.) weight *= f1[fl1+6]/m_used_pdf1;
-		if (fabs(m_used_pdf2)>0.) weight *= f2[fl2+6]/m_used_pdf2;
+		if (std::abs(m_used_pdf1)>0.) weight *= f1[fl1+6]/m_used_pdf1;
+		if (std::abs(m_used_pdf2)>0.) weight *= f2[fl2+6]/m_used_pdf2;
 
 		msg(MSG::DEBUG)  <<" weight = "
 				<< weight

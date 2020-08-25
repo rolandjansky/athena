@@ -199,8 +199,8 @@ void DRM::Merge(){
 	}
 	
 	double mass1, mass2;
-	P4_Z[4][0] = sqrt(P4_Z[3][0] * P4_Z[3][0] - P4_Z[0][0] * P4_Z[0][0] - P4_Z[1][0] * P4_Z[1][0] - P4_Z[2][0] * P4_Z[2][0]);
-	P4_Z[4][1] = sqrt(P4_Z[3][1] * P4_Z[3][1] - P4_Z[0][1] * P4_Z[0][1] - P4_Z[1][1] * P4_Z[1][1] - P4_Z[2][1] * P4_Z[2][1]);
+	P4_Z[4][0] = std::sqrt(P4_Z[3][0] * P4_Z[3][0] - P4_Z[0][0] * P4_Z[0][0] - P4_Z[1][0] * P4_Z[1][0] - P4_Z[2][0] * P4_Z[2][0]);
+	P4_Z[4][1] = std::sqrt(P4_Z[3][1] * P4_Z[3][1] - P4_Z[0][1] * P4_Z[0][1] - P4_Z[1][1] * P4_Z[1][1] - P4_Z[2][1] * P4_Z[2][1]);
 	mass1=SetParticleMass(ID_l).first;
 	mass2=SetParticleMass(ID_l).second;
 	

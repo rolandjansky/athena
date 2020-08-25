@@ -24,7 +24,7 @@ DRAW_EMU_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW
                                                                         expression = draw_emu)
 
 ToolSvc += DRAW_EMU_SkimmingTool
-print DRAW_EMU_SkimmingTool
+print(DRAW_EMU_SkimmingTool)
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

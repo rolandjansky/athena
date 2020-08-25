@@ -23,6 +23,7 @@
 # art-html: PHYSVAL_WEB
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigAnalysisTest.TrigAnalysisSteps import add_physvalweb_steps
 import os
 
 # To run single-process transform on MCORE sites
@@ -50,37 +51,13 @@ test.art_type = 'grid'
 test.exec_steps = [rdo2aod,physval]
 test.check_steps = CheckSteps.default_check_steps(test)
 
+# Add web display steps
+slice_names = [
+    'JetMon', 'TauMon', 'MuonMon', 'IDMon',
+    'BphysMon', 'HLTCaloESD', 'ResultMon', 'BjetMon',
+    'METMon', 'MinBiasMon', 'Egamma']
+download = CheckSteps.DownloadRefStep()
+add_physvalweb_steps(test, slice_names, download)
 
-download=CheckSteps.DownloadRefStep()
-download.artpackage = 'TrigAnalysisTest'
-download.artjobname = 'test_trigAna_PhysValWeb_grid.py'
-download.required=True
-test.check_steps.append(download)
-
-
-if not os.path.exists('PHYSVAL_WEB'):
-    os.mkdir('PHYSVAL_WEB')
-
-
-pv=[]
-pv.append(['Tau','TauMon'])
-pv.append(['Muon','MuonMon'])
-pv.append(['ID','IDMon'])
-pv.append(['Bphys','BphysMon'])
-pv.append(['HLTCalo','HLTCaloESD'])
-pv.append(['Result','ResultMon'])
-pv.append(['Bjet','BjetMon'])
-pv.append(['MET','METMon'])
-pv.append(['MinBias','MinBiasMon'])
-pv.append(['Egamma','Egamma'])
-
-for slice in pv:
-    name='PhysValWeb'+slice[0]
-    sliceweb=CheckSteps.PhysValWebStep(name)
-    sliceweb.sig=slice[1]
-    sliceweb.required=True
-    test.check_steps.append(sliceweb)
-    
 import sys
 sys.exit(test.run())
-

@@ -35,7 +35,7 @@ atlas_add_component( TrkExRungeKuttaIntersector
                      src/RungeKuttaIntersector.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel MagFieldConditions MagFieldElements TrkExInterfaces TrkExUtils TrkDetDescrUtils TrkGeometry TrkSurfaces TrkParameters )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel MagFieldConditions MagFieldElements TrkExInterfaces TrkExUtils TrkDetDescrUtils TrkGeometry TrkSurfaces TrkParameters TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkExRungeKuttaIntersector )
@@ -44,7 +44,7 @@ atlas_install_headers( TrkExRungeKuttaIntersector )
 atlas_add_test( RungeKuttaIntersector_test
                 SOURCES test/RungeKuttaIntersector_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools PathResolver CxxUtils ${ROOT_LIBRARIES} MagFieldElements MagFieldConditions
+                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools PathResolver CxxUtils ${ROOT_LIBRARIES} MagFieldElements MagFieldConditions TrkExInterfaces 
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

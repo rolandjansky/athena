@@ -76,6 +76,10 @@ namespace TCS {
        */
       void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc>);
 
+      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax);
+      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax, const int biny, const float ymin, const float ymax);
+
+
    protected:
 
       // define parameters by developer

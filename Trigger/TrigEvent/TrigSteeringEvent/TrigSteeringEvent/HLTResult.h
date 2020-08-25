@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -20,8 +20,8 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteeringEvent/GenericResult.h"
 #include "AthenaKernel/IClassIDSvc.h"
-
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 
 /****************************************************************************************
  * (June 2006; comments on documentation to: Andreas.Hoecker@cern.ch)
@@ -304,7 +304,7 @@ namespace HLT {
      * @brief Return object representing the extra payload
      */
     HLTExtraData& getExtraData();
-    inline const HLTExtraData& getExtraData() const {
+    inline const HLTExtraData& getExtraData ATLAS_NOT_THREAD_SAFE () const {
       return const_cast<HLTResult*>(this)->getExtraData();
     }
 
@@ -483,11 +483,11 @@ namespace HLT {
     
     std::map<unsigned int, std::set<std::pair<CLID, std::string> > > m_modID_id_name; // map from rob module ID to class ID and collection name
 
-    mutable std::vector<unsigned int> m_navigationResultCuts;
+    std::vector<unsigned int> m_navigationResultCuts;
 
-    mutable std::vector<unsigned int> m_navigationResultCuts_DSonly;
+    std::vector<unsigned int> m_navigationResultCuts_DSonly;
 
-    mutable HLTExtraData* m_extraData;     //!< object for m_extras deserialization (on demand)
+    HLTExtraData* m_extraData;     //!< object for m_extras deserialization (on demand)
 
   };
   

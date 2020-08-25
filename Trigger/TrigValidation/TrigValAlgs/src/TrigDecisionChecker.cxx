@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** R.Goncalo - 21/10/2007 - add tests for TrigDecisionTool:
@@ -353,7 +353,7 @@ StatusCode TrigDecisionChecker::execute()
     }
     
     
-    for(auto tauItem : m_TauItems) {
+    for(const auto& tauItem : m_TauItems) {
         ATH_MSG_INFO("Check tau items " << tauItem);
         sc = checkTauEDM(tauItem);
         if ( sc.isFailure() ) {
@@ -366,7 +366,7 @@ StatusCode TrigDecisionChecker::execute()
         }
     }
     
-    for(auto muonItem : m_muonItems) {
+    for(const auto& muonItem : m_muonItems) {
         sc = checkMuonEDM(muonItem);
         if ( sc.isFailure() ) {
             msg(MSG::ERROR) << "Could not finish checkMuonEDM test for chain " << muonItem << endmsg;
@@ -382,7 +382,7 @@ StatusCode TrigDecisionChecker::execute()
         }
     }
     
-    for(auto bjetItem : m_bjetItems) {
+    for(const auto& bjetItem : m_bjetItems) {
         sc = checkBjetEDM(bjetItem);
         if ( sc.isFailure() ) {
             msg(MSG::ERROR) << "Could not finish checkBjetEDM test for chain " << bjetItem << endmsg;
@@ -394,7 +394,7 @@ StatusCode TrigDecisionChecker::execute()
         }
     }
     
-    for(auto bphysItem : m_bphysItems) {
+    for(const auto& bphysItem : m_bphysItems) {
         sc = checkBphysEDM(bphysItem);
         if ( sc.isFailure() ) {
             msg(MSG::ERROR) << "Could not finish checkBphysEDM test for chain " << bphysItem << endmsg;
@@ -406,7 +406,7 @@ StatusCode TrigDecisionChecker::execute()
         }
     }
     
-    for(auto electronItem : m_electronItems) {
+    for(const auto& electronItem : m_electronItems) {
         ATH_MSG_INFO("Check Electron items " << electronItem);
         sc = checkElectronEDM(electronItem);
         if ( sc.isFailure() ) {
@@ -422,7 +422,7 @@ StatusCode TrigDecisionChecker::execute()
         }
     }
     
-    for(auto photonItem : m_photonItems) {
+    for(const auto& photonItem : m_photonItems) {
         sc = checkPhotonEDM(photonItem);
         if ( sc.isFailure() ) {
           ATH_MSG_ERROR("Could not finish checkPhotonEDM test for chain " << photonItem);
@@ -435,7 +435,7 @@ StatusCode TrigDecisionChecker::execute()
         }
     }
     
-    for(auto minBiasItem : m_minBiasItems) {
+    for(const auto& minBiasItem : m_minBiasItems) {
         sc = checkMinBiasEDM(minBiasItem);
         if ( sc.isFailure() ) {
             msg(MSG::ERROR) << "Could not finish checkMinBiasEDM test for chain " << minBiasItem << endmsg;
@@ -444,7 +444,7 @@ StatusCode TrigDecisionChecker::execute()
     }
     
     ATH_MSG_INFO("REGTEST ==========START of Jet EDM/Navigation check===========");
-    for(auto jetItem : m_jetItems) {
+    for(const auto& jetItem : m_jetItems) {
         sc = checkJetEDM(jetItem);
         if ( sc.isFailure() ) {
             ATH_MSG_INFO("REGTEST Could not finish checkJetEDM test for chain " << jetItem);
@@ -458,7 +458,7 @@ StatusCode TrigDecisionChecker::execute()
     ATH_MSG_INFO("REGTEST ==========END of Jet EDM/Navigation check===========");
     
     ATH_MSG_INFO("REGTEST ==========START of Met EDM/Navigation check===========");
-    for(auto metItem : m_metItems) {
+    for(const auto& metItem : m_metItems) {
         sc = checkMetEDM(metItem);
         if ( sc.isFailure() ) {
             ATH_MSG_INFO("REGTEST Could not finish checkMetEDM test for chain " << metItem);
@@ -653,14 +653,14 @@ StatusCode TrigDecisionChecker::execute()
 }
 
 template <class T>
-StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkEDM(const std::string& trigItem){
     ATH_MSG_INFO("REGTEST Check TrigPassBits for " << trigItem << " and type " << ClassID_traits< T >::typeName() );
     m_trigDec->isPassed(trigItem) ? ATH_MSG_INFO("REGTEST " << trigItem << " Passes ") : ATH_MSG_INFO("REGTEST " << trigItem << " Fails");
     const auto fc = m_trigDec->features(trigItem,TrigDefs::alsoDeactivateTEs);
     const auto vec = fc.get<T>();
     const auto vecbits = fc.get<xAOD::TrigPassBits>();
     std::string label="";
-    for(const auto feat:vecbits){
+    for(const auto& feat:vecbits){
         const auto *xbits=feat.cptr();
         TrigConf::HLTTriggerElement::getLabel(feat.te()->getId(), label );
         const auto *cont=(m_trigDec->ancestor<T>(feat.te())).cptr();
@@ -684,7 +684,7 @@ StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
 
 
 
-    for(const auto feat:vec){
+    for(const auto& feat:vec){
         const auto *cont=feat.cptr();
         const TrigPassBits *bits=(m_trigDec->ancestor<TrigPassBits>(feat.te())).cptr();
         const xAOD::TrigPassBits *xbits=(m_trigDec->ancestor<xAOD::TrigPassBits>(feat.te())).cptr();
@@ -719,7 +719,7 @@ StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }
 
-StatusCode TrigDecisionChecker::checkBjetEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkBjetEDM(const std::string& trigItem){
     
     ATH_MSG_INFO("REGTEST ==========START of bjet EDM/Navigation check for chain " << trigItem << " ===========");
     
@@ -873,7 +873,7 @@ StatusCode TrigDecisionChecker::checkBjetEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }//checkBjetEDM
 
-StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkMuonEDM(const std::string& trigItem){
     
     msg(MSG::INFO) << "REGTEST ==========START of muon EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
@@ -884,7 +884,7 @@ StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
     const std::vector< Trig::Feature<xAOD::MuonContainer> > vec_muons = fc.get<xAOD::MuonContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::MuonContainer> > = " << vec_muons.size());
     
-    for( auto mufeat : vec_muons ) {
+    for( const auto& mufeat : vec_muons ) {
         ATH_MSG_INFO("REGTEST Got muon container, size = " << mufeat.cptr()->size());
         for(auto muItr : *(mufeat.cptr())) {      
             ATH_MSG_INFO("REGTEST MuonFeature with pt, eta, phi = " << muItr->pt() << ", " << muItr->eta() << ", " << muItr->phi());
@@ -894,7 +894,7 @@ StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
     const std::vector< Trig::Feature<xAOD::L2CombinedMuonContainer> > vec_L2CBmuons = fc.get<xAOD::L2CombinedMuonContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::L2CombinedMuonContainer> > = " << vec_L2CBmuons.size());
     
-    for( auto l2cbmufeat : vec_L2CBmuons) {
+    for( const auto& l2cbmufeat : vec_L2CBmuons) {
         ATH_MSG_INFO("REGTEST Got muon container, size = " << l2cbmufeat.cptr()->size());
         for(auto l2cbmuItr : *(l2cbmufeat.cptr())) {      
             ATH_MSG_INFO("REGTEST MuonFeature with pt, eta, phi = " << l2cbmuItr->pt() << ", " << l2cbmuItr->eta() << ", " << l2cbmuItr->phi());
@@ -904,7 +904,7 @@ StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
     const std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > vec_L2SAmuons = fc.get<xAOD::L2StandAloneMuonContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > = " << vec_L2SAmuons.size());
     
-    for( auto l2samufeat : vec_L2SAmuons) {
+    for( const auto& l2samufeat : vec_L2SAmuons) {
         ATH_MSG_INFO("REGTEST Got muon container, size = " << l2samufeat.cptr()->size());
         for(auto l2samuItr : *(l2samufeat.cptr())) {      
             ATH_MSG_INFO("REGTEST MuonFeature with pt, eta, phi = " << l2samuItr->pt() << ", " << l2samuItr->eta() << ", " << l2samuItr->phi());
@@ -916,12 +916,12 @@ StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }//checkMuonEDM
 
-StatusCode TrigDecisionChecker::checkTauEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkTauEDM(const std::string& trigItem){
     msg(MSG::INFO)<< "REGTEST ==========START of tau EDM/Navigation check for chain " << trigItem<< "===========" << endmsg;
     Trig::FeatureContainer fc = m_trigDec->features(trigItem);
     const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_tauHLTClust = fc.get<xAOD::TauJetContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::TauJetContainer> > = " << vec_tauHLTClust.size());
-    for(auto cont_tau : vec_tauHLTClust) {
+    for(const auto& cont_tau : vec_tauHLTClust) {
         ATH_MSG_INFO("REGTEST Got Tau container, size = " << cont_tau.cptr()->size());
         
         for(auto tauItr : *(cont_tau.cptr())) {
@@ -962,7 +962,7 @@ StatusCode TrigDecisionChecker::checkTauEDM(std::string trigItem){
 
 
 
-StatusCode TrigDecisionChecker::checkBphysEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkBphysEDM(const std::string& trigItem){
     
     msg(MSG::INFO) << "REGTEST ==========START of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
@@ -973,7 +973,7 @@ StatusCode TrigDecisionChecker::checkBphysEDM(std::string trigItem){
     const std::vector< Trig::Feature<xAOD::TrigBphysContainer> > fc_bphys = fc.get<xAOD::TrigBphysContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
     
-    for( auto cont_bphys : fc_bphys ) {
+    for( const auto& cont_bphys : fc_bphys ) {
         ATH_MSG_INFO("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
         for ( auto bphys:  *(cont_bphys.cptr()) )  {
             ATH_MSG_INFO("REGTEST  Bphysics Item mass, fitmass, secVx, nTP: "
@@ -1001,7 +1001,7 @@ StatusCode TrigDecisionChecker::checkBphysEDM(std::string trigItem){
 
 
 
-StatusCode TrigDecisionChecker::checkElectronEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkElectronEDM(const std::string& trigItem){
     msg(MSG::INFO) << "REGTEST ==========START of Electron EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
@@ -1010,7 +1010,7 @@ StatusCode TrigDecisionChecker::checkElectronEDM(std::string trigItem){
     const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec_el = fc.get<xAOD::ElectronContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::ElectronContainer> > = " << vec_el.size());
     float val_float=-99.;
-    for(auto elfeat : vec_el){
+    for(const auto& elfeat : vec_el){
         ATH_MSG_INFO("REGTEST: Got electron container, size = " << elfeat.cptr()->size());
         const xAOD::ElectronContainer *elCont = elfeat.cptr();
         
@@ -1056,7 +1056,7 @@ StatusCode TrigDecisionChecker::checkElectronEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }
 
-StatusCode TrigDecisionChecker::checkPhotonEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkPhotonEDM(const std::string& trigItem){
     msg(MSG::INFO) << "REGTEST ==========START of Photon EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
@@ -1065,7 +1065,7 @@ StatusCode TrigDecisionChecker::checkPhotonEDM(std::string trigItem){
     const std::vector< Trig::Feature<xAOD::PhotonContainer> > vec_ph = fc.get<xAOD::PhotonContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::PhotonContainer> > = " << vec_ph.size());
     //float val_float=-99.;
-    for(auto phfeat : vec_ph){
+    for(const auto& phfeat : vec_ph){
         ATH_MSG_INFO("REGTEST: Got photon container, size = " << phfeat.cptr()->size());
         const xAOD::PhotonContainer *phCont = phfeat.cptr();
         
@@ -1099,7 +1099,7 @@ StatusCode TrigDecisionChecker::checkPhotonEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }
 
-StatusCode TrigDecisionChecker::checkMinBiasEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkMinBiasEDM(const std::string& trigItem){
     msg(MSG::INFO) << "REGTEST ==========START of MinBias EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
@@ -1216,7 +1216,7 @@ void TrigDecisionChecker::checkTrigTrackCounts(const Trig::FeatureContainer& fc)
     }
 }
 
-StatusCode TrigDecisionChecker::checkJetEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkJetEDM(const std::string& trigItem){
     ATH_MSG_DEBUG("in checkJetEDM()");
     
     ATH_MSG_INFO("REGTEST =====For chain " << trigItem << "=====");
@@ -1226,7 +1226,7 @@ StatusCode TrigDecisionChecker::checkJetEDM(std::string trigItem){
     Trig::FeatureContainer fc = m_trigDec->features(trigItem);
     const std::vector< Trig::Feature<xAOD::JetContainer> > vec_jet = fc.get<xAOD::JetContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::JetContainer> > = " << vec_jet.size());
-    for(auto jetfeat : vec_jet){
+    for(const auto& jetfeat : vec_jet){
         const xAOD::JetContainer * jetCont = jetfeat.cptr();
         
         int jetContsize = jetCont->size();
@@ -1268,7 +1268,7 @@ StatusCode TrigDecisionChecker::checkJetEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }
 
-StatusCode TrigDecisionChecker::checkMetEDM(std::string trigItem){
+StatusCode TrigDecisionChecker::checkMetEDM(const std::string& trigItem){
     ATH_MSG_DEBUG("in checkMetEDM()");
 
     ATH_MSG_INFO("REGTEST =====For chain " << trigItem << "=====");
@@ -1278,7 +1278,7 @@ StatusCode TrigDecisionChecker::checkMetEDM(std::string trigItem){
     Trig::FeatureContainer fc = m_trigDec->features(trigItem);
     const std::vector< Trig::Feature<xAOD::TrigMissingETContainer> > vec_met = fc.get<xAOD::TrigMissingETContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::TrigMissingETContainer> > = " << vec_met.size());
-    for(auto metfeat : vec_met){
+    for(const auto& metfeat : vec_met){
         const xAOD::TrigMissingETContainer * metCont = metfeat.cptr();
 
         ATH_MSG_INFO("REGTEST Fot trigMet container, size: " << metCont->size());

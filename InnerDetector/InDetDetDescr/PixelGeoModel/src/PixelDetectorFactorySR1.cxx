@@ -104,7 +104,7 @@ PixelDetectorFactorySR1::~PixelDetectorFactorySR1()
 
 
 //## Other Operations (implementation)
-void PixelDetectorFactorySR1::create(GeoPhysVol *world)
+void PixelDetectorFactorySR1::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) // Thread unsafe GeoPixelServices, GeoPixelBarrel, GeoPixelEndCap classes are used.
 {
   m_geometryManager->SetCurrentLD(0);
   m_geometryManager->SetBarrel();

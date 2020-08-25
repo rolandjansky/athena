@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetRecFlags.py
 #
@@ -167,6 +167,14 @@ class defaultCalibOpt(JobProperty):
   allowedTypes = ['str']    # type
   StoredValue  = ""   # default value
 
+class useCalibJetThreshold(JobProperty):
+  """ If true, jets are filtered based on their calibrated jet pT (15 GeV for cluster-based jets, 10 GeV for PFlow)
+      If false, only pT threshold at constituent-scale is applied (5 GeV for cluster-based and PFlow jets)
+  """
+  statusOn     = True
+  allowedTypes = ['bool']  # type
+  StoredValue  = True      # default value
+
 class containerNamePrefix(JobProperty):
   """ Prefix for jet collection names
   """
@@ -251,6 +259,7 @@ jobproperties.JetRecFlags.add_JobProperty(useBTagging)
 jobproperties.JetRecFlags.add_JobProperty(skipTools)
 jobproperties.JetRecFlags.add_JobProperty(additionalTopoGetters)
 jobproperties.JetRecFlags.add_JobProperty(defaultCalibOpt)
+jobproperties.JetRecFlags.add_JobProperty(useCalibJetThreshold)
 jobproperties.JetRecFlags.add_JobProperty(containerNamePrefix)
 jobproperties.JetRecFlags.add_JobProperty(separateJetAlgs)
 jobproperties.JetRecFlags.add_JobProperty(timeJetToolRunner)

@@ -62,7 +62,7 @@ atlas_add_library( InDetPhysValMonitoringLib
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives 
                    xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack
                    AthContainers StoreGateLib
-                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib )
+                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib BeamSpotConditionsData )
 
 atlas_add_component( InDetPhysValMonitoring
                      src/components/*.cxx
@@ -71,14 +71,13 @@ atlas_add_component( InDetPhysValMonitoring
                      AthenaBaseComps AthenaMonitoringLib CxxUtils xAODTracking xAODTruth GaudiKernel PATCoreLib 
                      TrkValHistUtils AsgTools AthenaKernel AtlasDetDescr GeoPrimitives EventPrimitives 
                      xAODBase xAODEventInfo xAODJet InDetIdentifier InDetPrepRawData InDetRIO_OnTrack 
-                     MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetPhysValMonitoringLib)
+                     MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetPhysValMonitoringLib InDetTruthVertexValidationLib BeamSpotConditionsData )
 
 
 
 
 
 # Install files from the package:
-atlas_install_headers( InDetPhysValMonitoring )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py share/*.txt )
 atlas_install_runtime( share/*.xml )

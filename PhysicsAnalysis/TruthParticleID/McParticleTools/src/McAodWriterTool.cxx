@@ -172,7 +172,7 @@ StatusCode McAodWriterTool::write( const TruthParticleContainer* mcParts )
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void McAodWriterTool::setupBackend( Property& /*prop*/ )
+void McAodWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   // defaults
   std::string protocol = "ascii";

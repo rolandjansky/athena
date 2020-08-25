@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELDISKSLHC_H
@@ -7,7 +7,7 @@
 
 #include "GeoVPixelFactory.h"
 
-class GeoPixelDiskSLHC : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelDiskSLHC : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
  public:
   GeoPixelDiskSLHC();
   virtual GeoVPhysVol* Build();

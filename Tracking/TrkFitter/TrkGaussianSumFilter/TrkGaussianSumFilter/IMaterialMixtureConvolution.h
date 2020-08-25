@@ -16,6 +16,7 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
 namespace Trk {
 class Layer;
@@ -37,6 +38,7 @@ public:
 
   //!< Convolution with full material properties
   virtual MultiComponentState update(
+    std::vector<Trk::IMultiStateMaterialEffects::Cache>&, 
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
@@ -44,6 +46,7 @@ public:
 
   //!< Convolution with pre-measurement-update material properties
   virtual MultiComponentState preUpdate(
+    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
@@ -51,6 +54,7 @@ public:
 
   //!< Convolution with post-measurement-update material properties
   virtual MultiComponentState postUpdate(
+    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,

@@ -35,10 +35,6 @@ Trk::PlaneSurface::PlaneSurface()
   , m_bounds()
 {}
 
-// copy constructor
-Trk::PlaneSurface::PlaneSurface(const PlaneSurface& psf)
-   
-= default;
 
 // copy constructor with shift
 Trk::PlaneSurface::PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D& transf)
@@ -153,20 +149,6 @@ Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::SharedObject<cons
   , m_bounds(tbounds)
 {}
 
-// destructor (will call destructor from base class which deletes objects)
-Trk::PlaneSurface::~PlaneSurface() = default;
-
-Trk::PlaneSurface&
-Trk::PlaneSurface::operator=(const Trk::PlaneSurface& psf)
-{
-
-  if (this != &psf) {
-    Trk::Surface::operator=(psf);
-    m_bounds = psf.m_bounds;
-  }
-  return *this;
-}
-
 bool
 Trk::PlaneSurface::operator==(const Trk::Surface& sf) const
 {
@@ -246,9 +228,9 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
   if (A == 0.) {               // direction parallel to surface
     if (fabs(d) < tol) {
       return Trk::DistanceSolution(1, 0., true, 0.);
-    } 
+    }
       return Trk::DistanceSolution(0, d, true, 0.);
-    
+
   }
 
   return Trk::DistanceSolution(1, d, true, -d / A);

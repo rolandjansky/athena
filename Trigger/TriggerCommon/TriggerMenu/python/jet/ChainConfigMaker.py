@@ -18,30 +18,78 @@ from .hypo_factory import hypo_factory
 from .ChainConfig import ChainConfig
 from .MenuData import MenuData
 
+
+def _check_smc(smc_min, smc_max):
+    if smc_min == 'INF' and smc_max != 'INF':
+        return 'min smc > max smc'
+    try:
+        float(smc_min)  # float('INF'), float('-INF') work...
+    except:
+        return 'min smc does not convert to float'
+    try:
+        float(smc_max)  # float('INF'), float('-INF') work...
+    except:
+        return 'max smc does not convert to float'
+    if not float(smc_min) <= float(smc_max):
+        return 'min smc > max smc'
+    return ''
+
+
+smc_range_re = re.compile(r'^(?P<smc_min>((-)?\d+|-?INF))smc(?P<smc_max>((-)?\d+|-?INF))$')
+def _extract(smc_range):
+    if smc_range == 'nosmc':
+        return '-INF', 'INF'
+    match = smc_range_re.search(smc_range)
+    if not match:
+        msg = '%s.process_part() unknown smc range: %s does not match %s'
+        msg = msg % ('smc_string_conversions._extract()',
+                     str(smc_range),
+                     smc_range_re.pattern)
+        raise RuntimeError(msg)
+    return (match.group('smc_min'), match.group('smc_max'))
+def smc_string_to_strings(smc_range):
+    return  _extract(smc_range)
+
+
 class JetAttributes(object):
     """Per jet attributes. Used by  hypo algorithms."""
 
-    def __init__(self, threshold, eta_range):
+    def __init__(self, threshold, eta_range, smc_range):
         self.threshold = threshold
         self.eta_range = eta_range  # string like '0eta320'
+        self.smc_range = smc_range  # single jet mass
         # eta_min, eta_max are floats
         self.eta_min, self.eta_max = eta_string_to_floats(eta_range)
 
         self.asymmetricEta = 1 if (eta_range.startswith('n') or
                                    eta_range.startswith('p')) else 0
 
+        # smc (SingleJetMass) values are strings to allow 'INF'
+        # to be passed to the C++ Algorithm
+        self.smc_min, self.smc_max = smc_string_to_strings(smc_range)
+
+        errstr = _check_smc(self.smc_min, self.smc_max)
+        if errstr:
+            msg = '%s: illegal jet mass %s' % (err_hdr, errstr)
+            raise RuntimeError(msg)
+
+
     def __str__(self):
-        return 'thresh: %s eta_min: %s eta_max: %s' % (str(self.threshold),
-                                                       str(self.eta_min),
-                                                       str(self.eta_max))
+        return 'thresh: %s eta_min: %s eta_max: %s smc_min: %s smc_max: %s' % (
+            str(self.threshold),
+            str(self.eta_min),
+            str(self.eta_max),
+            self.smc_min,
+            self.smc_max
+        )
 
 err_hdr = 'ChainConfigXML error: '
 
-hypo_type_dict = {('j', '', False, False): 'HLThypo2_etaet',
-                  ('j', 'test1', False, False): 'HLThypo2_singlemass',
-                  ('j', '', False, True): 'HLThypo2_dimass_deta',
-                  ('ht', '', False, False):'HLThypo2_ht',
-                  ('j', '', True, False): 'HLThypo2_tla',}
+hypo_type_dict = {('j',  '', False, False, False): 'HLThypo2_etaet',
+                  ('j',  '', True,  False, False): 'HLThypo2_singlemass',
+                  ('j',  '', False, False, True ): 'HLThypo2_dimass_deta',
+                  ('ht', '', False, False, False): 'HLThypo2_ht',
+                  ('j',  '', False, True,  False): 'HLThypo2_tla',}
 
     
 cleaner_names = {
@@ -111,6 +159,22 @@ def _get_tla_string(parts):
     msg = '%s: multiple TLA string set' % err_hdr
     raise RuntimeError(msg)
 
+def _get_smc_string(parts):
+
+    x = cache.get('jetmass')
+    if x: return x
+
+    result = False
+    vals   = set([part['smc'] for part in parts])
+    if len(vals) == 1:
+        s = vals.pop()
+        if s != 'nosmc':
+            result = True
+            _update_cache('jetmass', s)
+        return result
+
+    msg = '%s: multiple smc string set' % err_hdr
+    raise RuntimeError(msg)
 
 def _get_cluster_calib(parts):
 
@@ -190,6 +254,7 @@ def _get_hypo_type(parts):
 
     test_flag = _get_test_flag(parts)
     tla_flag = bool(_get_tla_string(parts))
+    smc_flag = _get_smc_string(parts)
 
     invm_string = _get_invm_string(parts)
     deta_string = _get_deta_string(parts)
@@ -197,9 +262,10 @@ def _get_hypo_type(parts):
 
     htypes =  [hypo_type_dict.get((part['trigType'],
                                    test_flag,
+                                   smc_flag,
                                    tla_flag,
                                    dimass_deta_flag), None) for part in parts]
-    
+
     if not htypes or None in htypes:
         part = parts[htypes.index(None)]
         msg = '%s: cannot determine hypo type '\
@@ -487,7 +553,8 @@ def _setup_jet_vars(parts):
         mult = int(part['multiplicity'])
         for i in range(mult):
             j_attrs.append(JetAttributes(int(part['threshold']),
-                                         part['etaRange']))
+                                         part['etaRange'],
+                                         part['smc']))
 
     return j_attrs
 

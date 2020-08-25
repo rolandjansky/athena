@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # -*- coding: utf-8 -*-
 from TrigT2MinBias.TrigT2MinBiasConf import T2ZdcFex, T2ZdcHypo
 from TrigT2MinBias.TrigT2MinBiasConf import T2MbtsFex, T2MbtsHypo
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePoints, TrigCountSpacePointsHypo
-from TrigT2MinBias.TrigT2MinBiasConf import TrigCountTrtHits, TrigCountTrtHitsHypo
 
 # Monitoring
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
@@ -12,10 +11,6 @@ from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
 # Properties for histogram dimensions
 from TrigT2MinBias.TrigT2MinBiasProperties import trigT2MinBiasProperties
-
-from AthenaCommon.AppMgr import ToolSvc
-
-#ToolSvc += ospTool
 
 
 fexes = {}
@@ -1318,82 +1313,82 @@ fexes["L2MbZdcFex_LG"] = L2MbZdcFex_LG
 
 
 class ZdcHypoMonitoring(TrigGenericMonitoringToolConfig):
-	def __init__ (self, name="ZdcHypoMonitoring"):
-		super(ZdcHypoMonitoring, self).__init__(name)
-		self.defineTarget( ["Online", "Validation", "Cosmic"])
+        def __init__ (self, name="ZdcHypoMonitoring"):
+                super(ZdcHypoMonitoring, self).__init__(name)
+                self.defineTarget( ["Online", "Validation", "Cosmic"])
 
 
-		self.Histograms += [ defineHistogram('MultiplicityZDC_A',
-					type  = 'TH1I',
-					title = "Num ZDC Modules Side A",
-					xbins = 5, xmin=-0.5, xmax=5.5)]
+                self.Histograms += [ defineHistogram('MultiplicityZDC_A',
+                                                     type  = 'TH1I',
+                                                     title = "Num ZDC Modules Side A",
+                                                     xbins = 5, xmin=-0.5, xmax=5.5)]
 
-		self.Histograms += [ defineHistogram('MultiplicityZDC_C',
-					type  = 'TH1I',
-					title = "Num ZDC Modules Side C",
-					xbins = 5, xmin=-0.5, xmax=5.5)]
+                self.Histograms += [ defineHistogram('MultiplicityZDC_C',
+                                                     type  = 'TH1I',
+                                                     title = "Num ZDC Modules Side C",
+                                                     xbins = 5, xmin=-0.5, xmax=5.5)]
 
-		self.Histograms += [ defineHistogram('TimeZDC_A',
-					type  = 'TH1F',
-					title = "ZDC Mean Time Side A",
-					xbins = 100, xmin=-10, xmax=10)]
+                self.Histograms += [ defineHistogram('TimeZDC_A',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Mean Time Side A",
+                                                     xbins = 100, xmin=-10, xmax=10)]
 
-		self.Histograms += [ defineHistogram('TimeZDC_C',
-					type  = 'TH1F',
-					title = "ZDC Mean Time Side C",
-					xbins = 100, xmin=-10, xmax=10)]
+                self.Histograms += [ defineHistogram('TimeZDC_C',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Mean Time Side C",
+                                                     xbins = 100, xmin=-10, xmax=10)]
 
-		self.Histograms += [ defineHistogram('SumEnergyZDC_A',
-					type  = 'TH1F',
-                                        title = "ZDC Sum Energy Side A",
-					xbins = 500, xmin=0, xmax=5000)]
+                self.Histograms += [ defineHistogram('SumEnergyZDC_A',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Sum Energy Side A",
+                                                     xbins = 500, xmin=0, xmax=5000)]
 
-		self.Histograms += [ defineHistogram('SumEnergyZDC_C',
-                                             	type  = 'TH1F',
-                                             	title = "ZDC Sum Energy Side C",
-                                             	xbins = 500, xmin=0, xmax=5000)]
+                self.Histograms += [ defineHistogram('SumEnergyZDC_C',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Sum Energy Side C",
+                                                     xbins = 500, xmin=0, xmax=5000)]
 
-		self.Histograms += [ defineHistogram('TimeDiff_A_C',
-                                             	type  = 'TH1F',
-                                             	title = "ZDC Time Diff (A-C)",
-                                             	xbins = 100, xmin=-10, xmax=10)]
+                self.Histograms += [ defineHistogram('TimeDiff_A_C',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Time Diff (A-C)",
+                                                     xbins = 100, xmin=-10, xmax=10)]
 
 # after selection
 
-		self.Histograms += [ defineHistogram('SelMultiplicityZDC_A',
-                                             	type  = 'TH1I',
-                                             	title = "Num ZDC Modules Side A (After)",
-                                             	xbins = 5, xmin=-0.5, xmax=5.5)]
+                self.Histograms += [ defineHistogram('SelMultiplicityZDC_A',
+                                                     type  = 'TH1I',
+                                                     title = "Num ZDC Modules Side A (After)",
+                                                     xbins = 5, xmin=-0.5, xmax=5.5)]
 
-		self.Histograms += [ defineHistogram('SelMultiplicityZDC_C',
-                                             	type  = 'TH1I',
-                                             	title = "Num ZDC Modules Side C (After)",
-                                             	xbins = 5, xmin=-0.5, xmax=5.5)]
+                self.Histograms += [ defineHistogram('SelMultiplicityZDC_C',
+                                                     type  = 'TH1I',
+                                                     title = "Num ZDC Modules Side C (After)",
+                                                     xbins = 5, xmin=-0.5, xmax=5.5)]
 
-		self.Histograms += [ defineHistogram('SelTimeZDC_A',
-                                             	type  = 'TH1F',
-                                             	title = "ZDC Mean Time Side A (After)",
-                                             	xbins = 100, xmin=-10, xmax=10)]
+                self.Histograms += [ defineHistogram('SelTimeZDC_A',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Mean Time Side A (After)",
+                                                     xbins = 100, xmin=-10, xmax=10)]
 
-		self.Histograms += [ defineHistogram('SelTimeZDC_C',
-                                             	type  = 'TH1F',
-                                             	title = "ZDC Mean Time Side C (After)",
-                                             	xbins = 100, xmin=-10, xmax=10)]
+                self.Histograms += [ defineHistogram('SelTimeZDC_C',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Mean Time Side C (After)",
+                                                     xbins = 100, xmin=-10, xmax=10)]
 
-		self.Histograms += [ defineHistogram('SelSumEnergyZDC_A',
-                                             	type  = 'TH1F',
-                                             	title = "ZDC Sum Energy Side A (After)",
-                                             	xbins = 500, xmin=0, xmax=5000)]
+                self.Histograms += [ defineHistogram('SelSumEnergyZDC_A',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Sum Energy Side A (After)",
+                                                     xbins = 500, xmin=0, xmax=5000)]
 
-		self.Histograms += [ defineHistogram('SelSumEnergyZDC_C',
-                                             	type  = 'TH1F',
-                                             	title = "ZDC Sum Energy Side C (After)",
-                                             	xbins = 500, xmin=0, xmax=5000)]
+                self.Histograms += [ defineHistogram('SelSumEnergyZDC_C',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Sum Energy Side C (After)",
+                                                     xbins = 500, xmin=0, xmax=5000)]
 
-		self.Histograms += [ defineHistogram('SelTimeDiff_A_C',
-                                             	type  = 'TH1F',
-                                             	title = "ZDC Time Diff (A-C) (After)",
-                                             	xbins = 100, xmin=-10, xmax=10)]
+                self.Histograms += [ defineHistogram('SelTimeDiff_A_C',
+                                                     type  = 'TH1F',
+                                                     title = "ZDC Time Diff (A-C) (After)",
+                                                     xbins = 100, xmin=-10, xmax=10)]
 
 
 
@@ -1413,11 +1408,11 @@ L2MbZdcHypo_PT.TimeLogic = 0
 L2MbZdcHypo_PT.EnergyLogic = 1
 L2MbZdcHypo_PT.MultiplicityLogic = 0
 L2MbZdcHypo_PT.TimeOffset = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                             0., 0., 0., 0.]
 L2MbZdcHypo_PT.Pedestal = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                           0., 0., 0., 0.]
 L2MbZdcHypo_PT.EnergyCalibration = [1., 1., 1., 1.,
-	1., 1., 1., 1.]
+                                    1., 1., 1., 1.]
 L2MbZdcHypo_PT.TimeModuleCut = 99999.
 L2MbZdcHypo_PT.SumEnergyCut = [-1., 99999., -1., 99999.]
 L2MbZdcHypo_PT.MultCut = [ -1 , -1 ]
@@ -1431,11 +1426,11 @@ L2MbZdcHypo_hip_low_sideA.TimeLogic = 0
 L2MbZdcHypo_hip_low_sideA.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_low_sideA.MultiplicityLogic = 0
 L2MbZdcHypo_hip_low_sideA.TimeOffset = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                        0., 0., 0., 0.]
 L2MbZdcHypo_hip_low_sideA.Pedestal = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                      0., 0., 0., 0.]
 L2MbZdcHypo_hip_low_sideA.EnergyCalibration = [1., 1., 1., 1.,
-	1., 1., 1., 1.]
+                                               1., 1., 1., 1.]
 L2MbZdcHypo_hip_low_sideA.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_low_sideA.SumEnergyCut = [180., 99999., 99999., -1] # 1<A<2 || 3<C<4
 L2MbZdcHypo_hip_low_sideA.MultCut = [ -1 , -1 ]
@@ -1450,11 +1445,11 @@ L2MbZdcHypo_hip_low_sideC.TimeLogic = 0
 L2MbZdcHypo_hip_low_sideC.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_low_sideC.MultiplicityLogic = 0
 L2MbZdcHypo_hip_low_sideC.TimeOffset = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                        0., 0., 0., 0.]
 L2MbZdcHypo_hip_low_sideC.Pedestal = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                      0., 0., 0., 0.]
 L2MbZdcHypo_hip_low_sideC.EnergyCalibration = [1., 1., 1., 1.,
-	1., 1., 1., 1.]
+                                               1., 1., 1., 1.]
 L2MbZdcHypo_hip_low_sideC.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_low_sideC.SumEnergyCut = [99999.,-1., 180., 99999.] # 1<A<2 || 3<C<4
 L2MbZdcHypo_hip_low_sideC.MultCut = [ -1 , -1 ]
@@ -1469,11 +1464,11 @@ L2MbZdcHypo_hip_hi_sideA.TimeLogic = 0
 L2MbZdcHypo_hip_hi_sideA.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_hi_sideA.MultiplicityLogic = 0
 L2MbZdcHypo_hip_hi_sideA.TimeOffset = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                       0., 0., 0., 0.]
 L2MbZdcHypo_hip_hi_sideA.Pedestal = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                     0., 0., 0., 0.]
 L2MbZdcHypo_hip_hi_sideA.EnergyCalibration = [1., 1., 1., 1.,
-	1., 1., 1., 1.]
+                                              1., 1., 1., 1.]
 L2MbZdcHypo_hip_hi_sideA.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_hi_sideA.SumEnergyCut = [300., 99999., 99999., -1.] # 1<A<2 || 3<C<4
 L2MbZdcHypo_hip_hi_sideA.MultCut = [ -1 , -1 ]
@@ -1488,11 +1483,11 @@ L2MbZdcHypo_hip_hi_sideC.TimeLogic = 0
 L2MbZdcHypo_hip_hi_sideC.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_hi_sideC.MultiplicityLogic = 0
 L2MbZdcHypo_hip_hi_sideC.TimeOffset = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                       0., 0., 0., 0.]
 L2MbZdcHypo_hip_hi_sideC.Pedestal = [0., 0., 0., 0.,
-	0., 0., 0., 0.]
+                                     0., 0., 0., 0.]
 L2MbZdcHypo_hip_hi_sideC.EnergyCalibration = [1., 1., 1., 1.,
-	1., 1., 1., 1.]
+                                              1., 1., 1., 1.]
 L2MbZdcHypo_hip_hi_sideC.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_hi_sideC.SumEnergyCut = [99999.,-1., 300., 99999.] # 1<A<2 || 3<C<4
 L2MbZdcHypo_hip_hi_sideC.MultCut = [ -1 , -1 ]

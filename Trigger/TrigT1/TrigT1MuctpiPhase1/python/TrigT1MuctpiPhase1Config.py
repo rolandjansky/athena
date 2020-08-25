@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigT1MuctpiPhase1Config.py 794528 2017-01-30 12:36:33Z fwinkl $
 
 # Local (generated) configurable(s):
 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Conf import LVL1MUCTPIPHASE1__MUCTPI_AthAlg
@@ -16,9 +15,6 @@ class DefaultL1MuctpiPhase1( LVL1MUCTPIPHASE1__MUCTPI_AthAlg ):
 
     LVL1MUCTPIPHASE1__MUCTPI_AthAlg.__init__( self, name )
 
-    # Create a logger:
-    from AthenaCommon.Logging import logging
-    logger = logging.getLogger( "MUCTPI_AthAlg" )
 
 class L1MuctpiPhase1( DefaultL1MuctpiPhase1 ):
 
@@ -31,10 +27,6 @@ class L1MuctpiPhase1( DefaultL1MuctpiPhase1 ):
 
     DefaultL1MuctpiPhase1.__init__( self, name )
 
-
-    from AthenaCommon.GlobalFlags import globalflags
-    from RecExConfig.RecFlags import rec
-    pass
 
 class L1MuctpiPhase1_on_RDO( DefaultL1MuctpiPhase1 ):
 
@@ -124,14 +116,14 @@ class DefaultL1MuctpiPhase1Tool( LVL1MUCTPIPHASE1__MUCTPI_AthTool ):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     if ( commonGeoFlags.Run() == "RUN1" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                               ( geoFlags.isIBL() == False ) ):
+                                               ( geoFlags.isIBL() is False ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
       self.RunPeriod = "RUN1"
       logger.info( "Configuring MuCTPI simulation with Run 1 configuration file:" )
       logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml" )
       logger.info( "  with a RunPeriod=RUN1" )
     elif ( commonGeoFlags.Run() == "RUN2" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                                 ( geoFlags.isIBL() == True ) ):
+                                                 ( geoFlags.isIBL() is True ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
       self.RunPeriod = "RUN2"
       logger.info( "Configuring MuCTPI simulation with Run 2 configuration file:" )
@@ -167,10 +159,6 @@ class L1MuctpiPhase1Tool( DefaultL1MuctpiPhase1Tool ):
     DefaultL1MuctpiPhase1Tool.__init__( self, name )
 
     self.InputSource = "DIGITIZATION"
-
-    from AthenaCommon.GlobalFlags import globalflags
-    from RecExConfig.RecFlags import rec
-    pass
 
 class L1MuctpiPhase1Tool_on_RDO( DefaultL1MuctpiPhase1Tool ):
 

@@ -36,7 +36,7 @@ public:
 
 private:
   
-  StatusCode createTable();
+  StatusCode createTable (const EventContext& ctx);
   
   RegSelSiLUT*   m_regionLUT;
 

@@ -6,7 +6,7 @@
 // Run2TriggerTowerMaker class Implementation
 // ================================================
 
-#include "TrigT1CaloSim/Run2TriggerTowerMaker.h"
+#include "Run2TriggerTowerMaker.h"
 
 // trigger include(s)
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"

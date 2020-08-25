@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGEOMODEL_LARDETECTORTOOLH62003_H
@@ -7,7 +7,7 @@
 
 #include "GeoModelUtilities/GeoModelTool.h"
 
-class LArDetectorToolH62003 : public GeoModelTool {
+class LArDetectorToolH62003 final : public GeoModelTool {
 
 public:
 

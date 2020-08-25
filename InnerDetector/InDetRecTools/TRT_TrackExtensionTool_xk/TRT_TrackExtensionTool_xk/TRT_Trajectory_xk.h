@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,8 @@ namespace InDet{
 	       double,
 	       double,
 	       double,
-               double);
+         double,
+         double);
 
       void set(Trk::MagneticFieldProperties&, const AtlasFieldCacheCondObj*);
 
@@ -171,6 +172,12 @@ namespace InDet{
       samiStruct m_SS[5000];
       double m_A;
       double m_B;
+
+      ///////////////////////////////////////////////////////////////////
+      // min pT cut for TRT Segment trajectory
+      ///////////////////////////////////////////////////////////////////
+     
+      double                           m_minTRTSegmentpT; //min pT check for initial segment
 
       ///////////////////////////////////////////////////////////////////
       // Methods

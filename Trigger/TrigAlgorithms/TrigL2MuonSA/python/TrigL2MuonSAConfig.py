@@ -120,7 +120,7 @@ class TrigL2MuonSAMTConfig(MuonSA.MuFastSteering):
 
         self.RpcErrToDebugStream = True
 
-        MuonSA.MuFastSteering.topoRoad = False
+        MuonSA.MuFastSteering.topoRoad = True
         MuonSA.MuFastSteering.dEtasurrRoI = 0.14 # wide enough comparing to L1 RoI in barrel
         MuonSA.MuFastSteering.dPhisurrRoI = 0.14 # wide enough comparing to L1 RoI in barrel
 
@@ -202,7 +202,7 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
 
         self.RpcErrToDebugStream = True
 
-        MuonSA.MuFastSteering.topoRoad = False
+        MuonSA.MuFastSteering.topoRoad = True
         MuonSA.MuFastSteering.dEtasurrRoI = 0.14
         MuonSA.MuFastSteering.dPhisurrRoI = 0.14
 

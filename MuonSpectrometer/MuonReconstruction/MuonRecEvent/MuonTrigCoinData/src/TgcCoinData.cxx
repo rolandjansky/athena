@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -230,8 +230,8 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
   m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : 0 );
   m_posOut = ((RIO.m_posOut) ? new Amg::Vector2D(*RIO.m_posOut) : 0 );
   m_errMat = ((RIO.m_errMat) ? new Amg::MatrixX(*RIO.m_errMat) : 0 );
-  if (RIO.m_globalposIn) m_globalposIn.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
-  if (RIO.m_globalposOut) m_globalposOut.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
+  if (RIO.m_globalposIn) m_globalposIn.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
+  if (RIO.m_globalposOut) m_globalposOut.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
 }
 
 //assignment operator
@@ -270,9 +270,9 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_inner = RIO.m_inner;
       m_sub = RIO.m_sub;
       m_isPositiveDeltaR = RIO.m_isPositiveDeltaR;
-      if (RIO.m_globalposIn) m_globalposIn.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
+      if (RIO.m_globalposIn) m_globalposIn.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
       else if (m_globalposIn) m_globalposIn.release().reset();
-      if (RIO.m_globalposOut) m_globalposOut.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
+      if (RIO.m_globalposOut) m_globalposOut.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
       else if (m_globalposOut) m_globalposOut.release().reset();
     }
   return *this;

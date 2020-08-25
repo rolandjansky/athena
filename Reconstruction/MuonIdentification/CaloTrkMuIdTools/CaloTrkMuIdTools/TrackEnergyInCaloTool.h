@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKENERGYINCALOTOOL_H
@@ -29,10 +29,9 @@ class TrackEnergyInCaloTool: public AthAlgTool,  virtual public ITrackEnergyInCa
  public:
   TrackEnergyInCaloTool(const std::string& type, const std::string& name, const IInterface* pInterface);
   /** default destructor */
-  virtual ~ TrackEnergyInCaloTool();
+  virtual ~TrackEnergyInCaloTool()=default;
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
    /** 
        Extrapolate to a given sample using track as input
    */
@@ -133,18 +132,11 @@ class TrackEnergyInCaloTool: public AthAlgTool,  virtual public ITrackEnergyInCa
 
  private:
   CaloCell_ID::CaloSample getSample( double eta, const int layer) const;
-  
-  
-  
-  /** Class member version of retrieving MsgStream */
-  //int                                m_outputlevel;
-   
+
   const CaloDetDescrManager*         m_calo_dd{};       
 
-  // Pre-configured extrapolator : will be choosen via jobOpt
-  ToolHandle<Trk::IExtrapolator>                    m_extrapolator;
-  // Defines the surfaces for extrapolation : 
-  ToolHandle<ICaloSurfaceBuilder>                   m_calosurf;
+  ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "ExtrapolatorHandle", "Trk::Extrapolator/AtlasExtrapolator", "Pre-configured extrapolator: will be choosen via jobOpt"};
+  ToolHandle<ICaloSurfaceBuilder> m_calosurf{this, "CaloSurfaceBuilder", "CaloSurfaceBuilder", "Defines the surfaces for extrapolation"};
 
   const Trk::ParticleMasses m_particlemasses;
 };

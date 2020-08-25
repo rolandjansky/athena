@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetRecAlg.cxx 
@@ -53,7 +53,8 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("Applying jet modifiers to " << m_output.key());
 
   // Calculate moments, calibrate, sort, filter...  -----------
-  for(const ToolHandle<IJetModifier> t : m_modifiers){
+  for(const ToolHandle<IJetModifier>& t : m_modifiers){
+    ATH_MSG_DEBUG("Running " << t.name());
     ATH_CHECK(t->modify(*jetContHandle));
   }
 

@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MET/METRecoInterface
                           PRIVATE
                           Calorimeter/CaloInterface
+                          Calorimeter/CaloConditions
                           Event/FourMomUtils
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
@@ -53,5 +54,5 @@ atlas_add_dictionary( METReconstructionDict
 	              LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py  python/LegacyRunII/*.py)
 atlas_install_joboptions( share/*.py )

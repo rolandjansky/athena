@@ -70,7 +70,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     {this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
 
     SG::ReadCondHandleKey<PixelTDAQData> m_condTDAQKey
-    {this, "PixelTDAQCondData", "PixelTDAQCondData", "Pixel TDAQ conditions key"};
+    {this, "PixelTDAQCondData", "", "Pixel TDAQ conditions key"}; //Default empty - legacy option
 
     SG::ReadCondHandleKey<PixelModuleData> m_condDeadMapKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel deadmap conditions key"};

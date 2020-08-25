@@ -80,7 +80,7 @@ BkgStreamsCache::~BkgStreamsCache()
 }
 
 void
-BkgStreamsCache::PileUpEventTypeHandler(Property&)
+BkgStreamsCache::PileUpEventTypeHandler(Gaudi::Details::PropertyBase&)
 {
    m_pileUpEventType = xAOD::EventInfo::PileUpInt2Type( m_pileUpEventTypeProp.value() );
 }

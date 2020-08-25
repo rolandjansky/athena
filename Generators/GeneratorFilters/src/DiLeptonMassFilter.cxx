@@ -41,7 +41,7 @@ StatusCode DiLeptonMassFilter::filterEvent() {
 
       // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta
       if (abs(pdgId1) == 11 || abs(pdgId1) == 13) {
-        if ((*pitr1)->momentum().perp() >= m_minPt && fabs((*pitr1)->momentum().pseudoRapidity()) <= m_maxEta){
+        if ((*pitr1)->momentum().perp() >= m_minPt && std::abs((*pitr1)->momentum().pseudoRapidity()) <= m_maxEta){
 
           // Loop over all remaining particles in the event
           auto pitr2 = pitr1;
@@ -57,7 +57,7 @@ StatusCode DiLeptonMassFilter::filterEvent() {
             // If m_allowElecMu is true allow also Z -> emu compinations (with charge requirements as above)
             if ((m_allowSameCharge  && (abs(pdgId2) == abs(pdgId1) || (m_allowElecMu && (abs(pdgId2) == 11 || abs(pdgId2) == 13) ) ) ) ||
                 (!m_allowSameCharge && (pdgId2 == -1*pdgId1 || (m_allowElecMu && (pdgId2 == (pdgId1 < 0 ? 1 : -1) * 11 || (pdgId1 < 0 ? 1 : -1) * pdgId2 == 13) ) ) ) ) {
-              if ((*pitr2)->momentum().perp() >= m_minPt && fabs((*pitr2)->momentum().pseudoRapidity()) <= m_maxEta){
+              if ((*pitr2)->momentum().perp() >= m_minPt && std::abs((*pitr2)->momentum().pseudoRapidity()) <= m_maxEta){
 
                 // Calculate invariant mass and apply cut
                 HepMC::FourVector vec((*pitr1)->momentum().px() + (*pitr2)->momentum().px(),

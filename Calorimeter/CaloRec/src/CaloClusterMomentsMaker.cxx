@@ -590,7 +590,9 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	    const Eigen::Vector3d& S=eigensolver.eigenvalues(); 
 	    const Eigen::Matrix3d& U=eigensolver.eigenvectors();
 
-	    if ( !( S[0] == 0.0 || S[1] == 0.0 || S[2] == 0.0 ) ) { 
+            const double epsilon = 1.E-6;
+
+	    if ( !( std::abs(S[0]) < epsilon || std::abs(S[1]) < epsilon || std::abs(S[2]) < epsilon ) ) { 
 	    
 	      Vector3D<double> prAxis(showerAxis);
 	      int iEigen = -1;

@@ -44,7 +44,7 @@ namespace Muon
       virtual ~TgcRODReadOut();
 
       /** Get TgcRdo member */ 
-      TgcRdo * getRdo(void) const;
+      const TgcRdo * getRdo(void) const;
       /** Set TgcRdo member */ 
       StatusCode setRdo(TgcRdo * v_tgcRdo);
 

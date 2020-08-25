@@ -10,15 +10,15 @@
 
 
 #include "TrkVertexSeedFinderUtils/Trk2DDistanceFinder.h"
-#include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "TrkTrack/Track.h"
-#include <math.h>
+#include "TrkParameters/TrackParameters.h"
 #include "TrkParticleBase/TrackParticleBase.h"
+#include "TrkTrack/Track.h"
+#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
+#include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
+#include <cmath>
 
 
 namespace Trk
@@ -33,7 +33,7 @@ namespace Trk
     declareProperty("Trk2dDistanceSeeder",     m_2ddistanceseeder);
   }
 
-  Trk2DDistanceFinder::~Trk2DDistanceFinder() {}
+  Trk2DDistanceFinder::~Trk2DDistanceFinder() = default;
 
   StatusCode Trk2DDistanceFinder::initialize() 
   { 
@@ -106,7 +106,7 @@ namespace Trk
     const Trk::Perigee* parpera=dynamic_cast<const Trk::Perigee*>(&para);
     const Trk::Perigee* parperb=dynamic_cast<const Trk::Perigee*>(&parb);
 
-    if (parpera==0||parperb==0) {
+    if (parpera==nullptr||parperb==nullptr) {
       ATH_MSG_WARNING("Cannot cast to perigee. Neutral will be supported soon" );
       return std::nullopt;
     }

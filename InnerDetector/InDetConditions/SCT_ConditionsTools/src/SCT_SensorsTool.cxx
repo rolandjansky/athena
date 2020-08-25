@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -72,7 +72,7 @@ void SCT_SensorsTool::printManufacturers(const EventContext& ctx) const {
   const SCT_SensorsCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return;
 
-  for (const std::pair<CondAttrListCollection::ChanNum, SCT_SensorCondData>& it: *condData) {
+  for (const std::pair<const CondAttrListCollection::ChanNum, SCT_SensorCondData>& it: *condData) {
     ATH_MSG_ALWAYS("channel " << it.first << " manufacturer " << (it.second).getManufacturer());
   }
 }

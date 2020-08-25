@@ -25,7 +25,7 @@
 // MCTruth includes
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/VTrackInformation.h"
 
@@ -175,7 +175,7 @@ namespace G4UA {
         //               " and is returned to ISF.");
 
         const ISF::ISFParticle*    parent = curISP;
-        HepMC::GenParticle* truthParticle = m_eventInfo->GetCurrentlyTraced();
+        HepMC::GenParticlePtr truthParticle = m_atlasG4EvtUserInfo->GetCurrentlyTraced();
         this->returnParticleToISF(aTrack, parent, truthParticle, nextGeoID);
       }
 
@@ -214,13 +214,13 @@ namespace G4UA {
 
             // attach TrackInformation instance to the new secondary G4Track
             const ISF::ISFParticle *parent                  = curISP;
-            HepMC::GenParticle* generationZeroTruthParticle = nullptr;
+            HepMC::GenParticlePtr generationZeroTruthParticle = nullptr;
             ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( *aTrack_2nd,
                                                        *parent,
                                                        Secondary,
                                                        generationZeroTruthParticle );
 
-            HepMC::GenParticle* truthParticle = nullptr;
+            HepMC::GenParticlePtr truthParticle{};
             returnParticleToISF(aTrack_2nd, parent, truthParticle, nextGeoID_2nd);
           }
         }
@@ -230,7 +230,7 @@ namespace G4UA {
       return;
     }
 
-    ISF::TruthBinding* TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack, HepMC::GenParticle* truthParticle) const
+    ISF::TruthBinding* TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack, HepMC::GenParticlePtr truthParticle) const
     {
       auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
       if (!trackInfo) {
@@ -242,8 +242,8 @@ namespace G4UA {
         return nullptr; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
       }
 
-      HepMC::GenParticle*         primaryHepParticle = const_cast<HepMC::GenParticle*>(trackInfo->GetPrimaryHepMCParticle());
-      HepMC::GenParticle*  generationZeroHepParticle = const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
+      HepMC::GenParticlePtr         primaryHepParticle = const_cast<HepMC::GenParticlePtr>(trackInfo->GetPrimaryHepMCParticle());
+      HepMC::GenParticlePtr  generationZeroHepParticle = const_cast<HepMC::GenParticlePtr>(trackInfo->GetHepMCParticle());
 
       ISF::TruthBinding* tBinding = new ISF::TruthBinding(truthParticle, primaryHepParticle, generationZeroHepParticle);
 
@@ -252,7 +252,7 @@ namespace G4UA {
 
     ISF::ISFParticle* TrackProcessorUserActionPassBack::newISFParticle(G4Track* aTrack,
                                                                        const ISF::ISFParticle* parentISP,
-                                                                       HepMC::GenParticle* truthParticle,
+                                                                       HepMC::GenParticlePtr truthParticle,
                                                                        AtlasDetDescr::AtlasRegion  nextGeoID)
     {
       ISF::TruthBinding* tBinding = newTruthBinding(aTrack, truthParticle);
@@ -271,7 +271,7 @@ namespace G4UA {
 
     void TrackProcessorUserActionPassBack::returnParticleToISF( G4Track *aTrack,
                                                                 const ISF::ISFParticle* parentISP,
-                                                                HepMC::GenParticle* truthParticle,
+                                                                HepMC::GenParticlePtr truthParticle,
                                                                 AtlasDetDescr::AtlasRegion nextGeoID )
     {
       // kill track inside G4

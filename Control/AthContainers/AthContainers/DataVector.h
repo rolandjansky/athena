@@ -1,11 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataVector.h 794113 2017-01-26 22:01:47Z ssnyder $
-
 /**
  * @file  AthContainers/DataVector.h
  * @author scott snyder, Paolo Calafiura, etc
@@ -900,7 +897,7 @@ public:
    *
    * Any auxiliary data will be moved along with the container contents.
    */
-  DataVector (DataVector&& rhs);
+  DataVector (DataVector&& rhs) noexcept;
 
 
   /**
@@ -1016,7 +1013,7 @@ public:
    * Could in principle be inherited from the base class,
    * but redeclared in the derived class to avoid root6 bugs.
    */
-  size_type size() const;
+  size_type size() const noexcept;
 
 
   /**
@@ -1191,7 +1188,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator begin() const;
+  const_iterator begin() const noexcept;
 
 
   /**
@@ -1202,7 +1199,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator end() const;
+  const_iterator end() const noexcept;
 
 
   /**
@@ -1214,7 +1211,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  iterator begin();
+  iterator begin() noexcept;
 
 
   /**
@@ -1226,7 +1223,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  iterator end();
+  iterator end() noexcept;
 
 
   /**
@@ -1237,7 +1234,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator rbegin() const;
+  const_reverse_iterator rbegin() const noexcept;
 
 
   /**
@@ -1248,7 +1245,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator rend() const;
+  const_reverse_iterator rend() const noexcept;
 
 
   /**
@@ -1260,7 +1257,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  reverse_iterator rbegin();
+  reverse_iterator rbegin() noexcept;
 
 
   /**
@@ -1272,7 +1269,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  reverse_iterator rend();
+  reverse_iterator rend() noexcept;
 
 
   /**
@@ -1283,7 +1280,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator cbegin() const;
+  const_iterator cbegin() const noexcept;
 
 
   /**
@@ -1294,7 +1291,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator cend() const;
+  const_iterator cend() const noexcept;
 
 
   /**
@@ -1305,7 +1302,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator crbegin() const;
+  const_reverse_iterator crbegin() const noexcept;
 
 
   /**
@@ -1316,7 +1313,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator crend() const;
+  const_reverse_iterator crend() const noexcept;
 
 
   //@}
@@ -1334,8 +1331,10 @@ public:
    *
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
+   *
+   * Returns the pushed pointer.
    */
-  void push_back(value_type pElem);
+  value_type push_back(value_type pElem);
 
 
   /**
@@ -1346,8 +1345,10 @@ public:
    *
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
+   *
+   * Returns the pushed pointer.
    */
-  void push_back(std::unique_ptr<base_value_type> pElem);
+  value_type push_back(std::unique_ptr<base_value_type> pElem);
 
 
   /**
@@ -1360,10 +1361,11 @@ public:
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
    *
-   * For @c DataVector, this is just the same as @c push_back.
+   * For @c DataVector, this is like the same as @c push_back, and
+   * it returns the pushed element.
    * It's included just for interface compatibility with `std::vector`.
    */
-  void emplace_back(value_type pElem);
+  value_type emplace_back(value_type pElem);
 
 
   /**
@@ -1545,7 +1547,7 @@ public:
   /**
    * @brief Swap the referents of two @c DataVector iterators.
    * @param a The first iterator for the swap.
-   * @param b The second iterator for the swap/
+   * @param b The second iterator for the swap.
    */
   static void iter_swap (iterator a, iterator b);
 
@@ -1764,10 +1766,10 @@ public:
   // So here are declarations which should be visible to doxygen
   // but not to C++.
 #ifndef __cplusplus
-  size_type max_size() const;
+  size_type max_size() const noexcept;
   void resize(size_type sz);
-  size_type capacity() const;
-  bool empty() const;
+  size_type capacity() const noexcept;
+  [[nodiscard]] bool empty() const noexcept;
   void shrink_to_fit();
   void pop_back();
   void clear();
@@ -1962,10 +1964,6 @@ private:
   SG::IsMostDerivedFlag m_isMostDerived;
 
 
-  /// The DV/DL info struct for this class.
-  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
-
-
   typedef typename
     ROOT_SELECTION_NS::DataVector<T, DataVector_BASE>::self self;
 };
@@ -2099,7 +2097,7 @@ public:
    *
    * Any auxiliary data will be moved along with the container contents.
    */
-  DataVector(DataVector&& rhs);
+  DataVector (DataVector&& rhs) noexcept;
 
 
   /**
@@ -2219,7 +2217,7 @@ public:
   /**
    * @brief Returns the number of elements in the collection.
    */
-  size_type size() const;
+  size_type size() const noexcept;
 
 
   /**
@@ -2234,7 +2232,7 @@ public:
   /**
    * @brief Returns the @c size() of the largest possible collection.
    */
-  size_type max_size() const;
+  size_type max_size() const noexcept;
 
 
   /**
@@ -2254,7 +2252,7 @@ public:
    * @brief Returns the total number of elements that the collection can hold
    *        before needing to allocate more memory.
    */
-  size_type capacity() const;
+  size_type capacity() const noexcept;
 
 
   /**
@@ -2270,7 +2268,7 @@ public:
   /**
    * @brief Returns @c true if the collection is empty.
    */
-  bool empty() const;
+  [[nodiscard]] bool empty() const noexcept;
 
 
   /**
@@ -2408,7 +2406,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator begin() const;
+  const_iterator begin() const noexcept;
 
 
   /**
@@ -2419,7 +2417,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator end() const;
+  const_iterator end() const noexcept;
 
 
   /**
@@ -2431,7 +2429,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  iterator begin();
+  iterator begin() noexcept;
 
 
   /**
@@ -2443,7 +2441,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  iterator end();
+  iterator end() noexcept;
 
 
   /**
@@ -2454,7 +2452,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator rbegin() const;
+  const_reverse_iterator rbegin() const noexcept;
 
 
   /**
@@ -2465,7 +2463,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator rend() const;
+  const_reverse_iterator rend() const noexcept;
 
 
   /**
@@ -2477,7 +2475,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  reverse_iterator rbegin();
+  reverse_iterator rbegin() noexcept;
 
 
   /**
@@ -2489,7 +2487,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  reverse_iterator rend();
+  reverse_iterator rend() noexcept;
 
   /**
    * @brief Return a @c const_iterator pointing at the beginning
@@ -2499,7 +2497,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator cbegin() const;
+  const_iterator cbegin() const noexcept;
 
 
   /**
@@ -2510,7 +2508,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_iterator cend() const;
+  const_iterator cend() const noexcept;
 
 
   /**
@@ -2521,7 +2519,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator crbegin() const;
+  const_reverse_iterator crbegin() const noexcept;
 
 
   /**
@@ -2532,7 +2530,7 @@ public:
    * Note that dereferencing the iterator will yield a @c const @c T* rather
    * than a reference.
    */
-  const_reverse_iterator crend() const;
+  const_reverse_iterator crend() const noexcept;
 
 
   //@}
@@ -2550,8 +2548,10 @@ public:
    *
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
+   *
+   * Returns the pushed pointer.
    */
-  void push_back(value_type pElem);
+  value_type push_back(value_type pElem);
 
 
   /**
@@ -2562,8 +2562,10 @@ public:
    *
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
+   *
+   * Returns the pushed pointer.
    */
-  void push_back(std::unique_ptr<base_value_type> pElem);
+  value_type push_back(std::unique_ptr<base_value_type> pElem);
 
 
   /**
@@ -2576,10 +2578,11 @@ public:
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
    *
-   * For @c DataVector, this is just the same as @c push_back.
+   * For @c DataVector, this is like the same as @c push_back, and
+   * it returns the pushed element.
    * It's included just for interface compatibility with `std::vector`.
    */
-  void emplace_back(value_type pElem);
+  value_type emplace_back(value_type pElem);
 
 
   /**
@@ -2759,7 +2762,7 @@ public:
   /**
    * @brief Swap the referents of two @c DataVector iterators.
    * @param a The first iterator for the swap.
-   * @param b The second iterator for the swap/
+   * @param b The second iterator for the swap.
    */
   static void iter_swap (iterator a, iterator b);
 
@@ -3178,10 +3181,6 @@ private:
   /// We set this to true in the top-level constructor; the constructor
   /// then calls clearMostDerived on the base classes.
   SG::IsMostDerivedFlag m_isMostDerived;
-
-
-  /// The DV/DL info struct for this class.
-  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
 
 
   typedef typename

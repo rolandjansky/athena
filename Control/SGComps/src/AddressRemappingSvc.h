@@ -15,7 +15,7 @@
 
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
+#include "Gaudi/Property.h"  // no forward decl: typedef
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/RCUObject.h"

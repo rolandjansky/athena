@@ -89,8 +89,8 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = (*itr);
     for (auto part: *genEvt){
       if (part->status() != 1) continue;
-      const int abspid = abs(part->pdg_id());
-      const double abseta = fabs(part->momentum().pseudoRapidity());
+      const int abspid = std::abs(part->pdg_id());
+      const double abseta = std::abs(part->momentum().pseudoRapidity());
       if (abspid == 11 && part->momentum().perp() > m_PtminElectron && abseta <= m_MaxEtaElectron) nelec++;
       if (abspid == 13 && part->momentum().perp() > m_PtminMuon     && abseta <= m_MaxEtaMuon) nmuon++;
 

@@ -4,7 +4,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Test.TestDef import TestChainConfiguration as TestChainConfiguration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
-import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Test.generateChainConfigs' )
 log.info("Importing %s",__name__)
@@ -12,8 +11,6 @@ log.info("Importing %s",__name__)
 
 
 def generateChainConfigs( chainDict ):
-    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
-
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []

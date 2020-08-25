@@ -12,7 +12,7 @@ atlas_add_library( TrigSerializeResultLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigSerializeResult
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils DataModelRoot PathResolver )
 
 atlas_add_component( TrigSerializeResult

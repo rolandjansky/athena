@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  
@@ -42,12 +42,11 @@ public:
   /// This objects holds a list of cell-based calculators
   jet::JetCaloCellCalculations m_cellCalculators; 
 
-  /// Suffix added to the name of the jet attribute
-  std::string m_attSuffix;
+  Gaudi::Property<std::string> m_attSuffix{this, "CellSuffix", "FromCells", "Suffix added to the name of the jet attribute"};
 
   // parameters for Quality cuts
-  int m_LArQualityCut;
-  int m_TileQualityCut;
+  Gaudi::Property<int> m_LArQualityCut{this, "LArQualityCut", 4000, "LAr quality cut parameter"};
+  Gaudi::Property<int> m_TileQualityCut{this, "TileQualityCut", 254, "Tile quality cut parameter"};
 
 };
 #endif

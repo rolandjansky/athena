@@ -135,6 +135,16 @@ namespace Trig {
 	m_feature(m_owning_feature.get()),
 	m_te(feat.te()), m_label(feat.label()), m_owned(true) { }
 
+    ///Add move operator
+    Feature(Feature&&) noexcept = default;
+
+    ///Add copy operator
+    Feature(const Feature&) = default;
+
+    Feature& operator=(const Feature&) = default;
+
+    Feature& operator=(Feature&&) = default;
+
     /**
      * @brief constructor of valid Feature object 
      **/    

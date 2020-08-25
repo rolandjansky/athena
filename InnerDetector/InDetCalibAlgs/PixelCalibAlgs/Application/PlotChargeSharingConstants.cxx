@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -8,12 +8,13 @@
 
 #include <TApplication.h>
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCalibAlgs/PixelChargeInterpolationPlot.h"
 #include "PixelConditionsData/PixelChargeInterpolationParameters.h"
 
 using namespace PixelCalib;
 
-int main(int argc, char *argv[]){
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread unsafe PixelChargeInterpolationPlot class is used.
 
 	TApplication myapp("application", 0 , 0);
 

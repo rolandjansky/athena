@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger athenaHLT test of the Cosmic_run3_v1 menu on physics_CosmicMuons stream from a cosmic run
 # art-type: build

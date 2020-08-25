@@ -17,7 +17,7 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     if trkopt=="ftf":
         from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
         # Guess FS rather than making it jet-specific?
-        viewAlgs = makeInDetAlgsNoView( "JetFS", "FS", rois=RoIs )
+        viewAlgs = makeInDetAlgsNoView( "JetFS", "FS", rois=recordable(RoIs) )
         jetTrkSeq += viewAlgs
         tracksname = recordable("HLT_IDTrack_FS_FTF")
         verticesname = recordable("HLT_IDVertex_FS")

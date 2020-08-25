@@ -49,7 +49,8 @@ namespace Trk
     static const InterfaceID& interfaceID() { return IID_IVertexMergingTool; };
 
     /** Interface for xAOD vertices **/
-    virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) = 0;
+    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+    mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) const = 0;
   };
 }
 

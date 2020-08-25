@@ -45,7 +45,7 @@ namespace InDet {
     StatusCode 
     InDetEtaDependentCutsSvc::initialize() {
       ATH_MSG_DEBUG ("Initializing " << name() << "...");
-      if ((m_etaBins.size()-1) <= 0) {
+      if (m_etaBins.empty()) {
         ATH_MSG_ERROR( "Wrong initialisation of eta bins. Check the eta bin values in " << name() );
         return StatusCode::FAILURE;
       }
@@ -58,7 +58,7 @@ namespace InDet {
       
       using setOfCuts = std::variant< std::reference_wrapper<std::vector <double>>, std::reference_wrapper<std::vector <int>> >;
       
-      std::vector < setOfCuts > allCuts = { m_etaWidthBrem.value()        , 
+      std::vector < setOfCuts> allCuts    { m_etaWidthBrem.value()        , 
                                             m_maxdImpactSSSSeeds.value()  ,
                                             m_maxPrimaryImpact.value()    ,
                                             m_maxZImpact.value()          ,
@@ -80,7 +80,7 @@ namespace InDet {
                                             m_nWeightedClustersMin.value()};
       
       // checking if the set of cuts makes sense
-      size_t noOfEtaBins = m_etaBins.size()-1;
+      size_t noOfEtaBins = m_etaBins.size();
                                             
       for (setOfCuts& cuts : allCuts) {
         auto sCode = std::visit([noOfEtaBins] (auto & testingCuts) -> StatusCode { 
@@ -105,7 +105,7 @@ namespace InDet {
       
       // printing all the cuts
       ATH_MSG_DEBUG ("--- Dynamic cuts ---");
-      ATH_MSG_DEBUG ("Eta bins (size=" << (m_etaBins.size()-1) << "): " << m_etaBins);
+      ATH_MSG_DEBUG ("Eta bins (size=" << (m_etaBins.size()) << "): " << m_etaBins);
       ATH_MSG_DEBUG ("etaWidthBrem: " << m_etaWidthBrem);
       ATH_MSG_DEBUG ("maxdImpactSSSSeeds: " << m_maxdImpactSSSSeeds);
       ATH_MSG_DEBUG ("maxDoubleHoles: " << m_maxDoubleHoles);
@@ -138,15 +138,15 @@ namespace InDet {
       return StatusCode::SUCCESS;
     }
 
-    int InDetEtaDependentCutsSvc::getIndexByEta(const double eta) const {
+    int 
+    InDetEtaDependentCutsSvc::getIndexByEta(const double eta) const {
       const double absEta = std::abs(eta);
       if (absEta > m_etaBins.value().back()) {
         ATH_MSG_ERROR("Requesting cut value for eta outside expected range!! ");
         return -1;
       }
-      
       const auto pVal =  std::lower_bound(m_etaBins.value().begin(), m_etaBins.value().end(), absEta);
-      const int bin = std::distance(m_etaBins.value().begin(), pVal) - 1;
+      const int bin = std::distance(m_etaBins.value().begin(), pVal);
       ATH_MSG_DEBUG("Checking (abs(eta)/bin) = (" << absEta << "," << bin << ")");
       return bin;
     }
@@ -154,7 +154,7 @@ namespace InDet {
 
     void InDetEtaDependentCutsSvc::getValue(const InDet::CutName cutName, std::vector < double >& cuts) {
       // getting the number of eta bins
-      size_t noOfEtaBins = m_etaBins.size()-1;
+      size_t noOfEtaBins = m_etaBins.size();
       
       // resize the cuts vector before setting it
       cuts.resize(noOfEtaBins);
@@ -209,7 +209,7 @@ namespace InDet {
     void InDetEtaDependentCutsSvc::getValue(const InDet::CutName cutName,    std::vector < int >& cuts) {
 
       // getting the number of eta bins
-      size_t noOfEtaBins = m_etaBins.size()-1;
+      size_t noOfEtaBins = m_etaBins.size();
       
       // resize the cuts vector before setting it
       cuts.resize(noOfEtaBins);
@@ -265,17 +265,6 @@ namespace InDet {
       }
     }
   
-    template <class T>
-    T InDetEtaDependentCutsSvc::getValueAtEta(const std::vector< T > cuts, const double eta) const {
-     return cuts.at(getIndexByEta(eta));
-    }
-    
-    template <class T>
-    void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName, T& cut, double eta) {
-      std::vector < T > cuts; 
-      getValue(cutName, cuts);
-      cut = getValueAtEta< T >(cuts, eta);
-    }
     
     double  InDetEtaDependentCutsSvc::getMaxEta() const {
       return m_etaBins.value().back();

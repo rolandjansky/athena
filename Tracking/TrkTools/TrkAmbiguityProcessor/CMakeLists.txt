@@ -46,6 +46,3 @@ atlas_add_component( TrkAmbiguityProcessor
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} TrkAmbiguityProcessorLib )
 
-# Install files from the package:
-atlas_install_headers( TrkAmbiguityProcessor )
-

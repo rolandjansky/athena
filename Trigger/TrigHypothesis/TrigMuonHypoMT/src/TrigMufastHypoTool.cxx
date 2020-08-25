@@ -1,12 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "TrigMufastHypoTool.h"
+#include "CxxUtils/phihelper.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
+
+#include <cmath>
 
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
@@ -53,12 +57,12 @@ StatusCode TrigMufastHypoTool::initialize()
    	sprintf(buf1,"%f5.2",m_ptBins[j][i]);
    	sprintf(buf2,"%f5.2",m_ptBins[j][i+1]);
    	ATH_MSG_DEBUG("EtaBin[" << j << "] " << buf1 << " - " <<  buf2
-   	             << ": with Pt Threshold of " << (m_ptThresholds[j][i])/CLHEP::GeV 
+   	             << ": with Pt Threshold of " << (m_ptThresholds[j][i])/Gaudi::Units::GeV
    	             << " GeV");
         }
         
-        ATH_MSG_DEBUG("Endcap WeakBField A[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionA[j] / CLHEP::GeV << " GeV");
-        ATH_MSG_DEBUG("Endcap WeakBField B[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionB[j] / CLHEP::GeV << " GeV");
+        ATH_MSG_DEBUG("Endcap WeakBField A[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionA[j] / Gaudi::Units::GeV << " GeV");
+        ATH_MSG_DEBUG("Endcap WeakBField B[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionB[j] / Gaudi::Units::GeV << " GeV");
      }
   }
 
@@ -68,6 +72,42 @@ StatusCode TrigMufastHypoTool::initialize()
      ATH_CHECK( m_monTool.retrieve() );
      ATH_MSG_DEBUG("MonTool name: " << m_monTool);
   }
+
+
+  // Overlap Removal
+  if( m_applyOR ) {
+    ATH_MSG_DEBUG( "--- overlap removal as: ---"     );
+    if( m_requireDR ) {
+      ATH_MSG_DEBUG( "+ dR cut:" );
+      if( (m_etaBinsEC.size()-1) != m_dRThresEC.size() ) {
+	ATH_MSG_ERROR( "bad thresholds setup .... exiting!" );
+	return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG( "     B-B : dR < " << m_dRThresBB );
+      ATH_MSG_DEBUG( "     B-E : dR < " << m_dRThresBE );
+      ATH_MSG_DEBUG( "     E-E : " );
+      for(unsigned int i=0; i<m_dRThresEC.size(); i++) {
+	ATH_MSG_DEBUG( "        EtaBin " << m_etaBinsEC[i] << " - " << m_etaBinsEC[i+1]
+		       << " : dR < " << m_dRThresEC[i] );
+      }
+    }
+    if( m_requireMass ) {
+      ATH_MSG_DEBUG( "+ Mass cut:" );
+      if( (m_etaBinsEC.size()-1) != m_massThresEC.size() ) {
+	ATH_MSG_ERROR( "bad thresholds setup .... exiting!" );
+	return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG( "     B-B : Mass < " << m_massThresBB );
+      ATH_MSG_DEBUG( "     B-E : Mass < " << m_massThresBE );
+      ATH_MSG_DEBUG( "     E-E : " );
+      for(unsigned int i=0; i<m_massThresEC.size(); i++) {
+	ATH_MSG_DEBUG( "        EtaBin " << m_etaBinsEC[i] << " - " << m_etaBinsEC[i+1]
+		       << " : Mass < " << m_massThresEC[i] );
+      }
+    }
+    if( m_requireSameSign ) ATH_MSG_DEBUG( "+ Same charge sign" );
+  }
+
 
   ATH_MSG_DEBUG("Initialization completed successfully");
 
@@ -173,11 +213,11 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
       threshold = m_ptThresholdForECWeakBRegionB[cutIndex];
    }
 
-   ATH_MSG_DEBUG("threshold value is set as: " << threshold/CLHEP::GeV << " GeV");
+   ATH_MSG_DEBUG("threshold value is set as: " << threshold/Gaudi::Units::GeV << " GeV");
 
    // Check pt threshold for hypothesis, 
    // convert units since Muonfeature is in GeV
-   if ( std::abs(pMuon->pt()) > (threshold/CLHEP::GeV)){
+   if ( std::abs(pMuon->pt()) > (threshold/Gaudi::Units::GeV)){
       // selects only tracks coming from a region around PV
       if( m_selectPV ){
 	 if((fabs(xatBeam)<m_RPV) && (fabs(zatBeam)<m_ZPV))
@@ -190,39 +230,12 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
    if ( result ) fexPtFL = -9999.;
 
    ATH_MSG_DEBUG("REGTEST: Muon pt is " << pMuon->pt() << " GeV" 
-                 << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
+                 << " and threshold cut is " << threshold/Gaudi::Units::GeV << " GeV"
                  << " so hypothesis is " << (result?"true":"false"));
   
    return result;
 }
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-/*
-TrigMufastHypoToolConsts::ECRegions TrigMufastHypoTool::whichECRegion( const float eta, const float phi ) const
-{
-   float absEta = fabs(eta);
-
-   if(      ( 1.3 <= absEta && absEta < 1.45) &&
-            ( (0                 <= fabs(phi) && fabs(phi) < CLHEP::pi/48. )     ||
-	      (CLHEP::pi*11./48. <= fabs(phi) && fabs(phi) < CLHEP::pi*13./48. ) ||
-	      (CLHEP::pi*23./48. <= fabs(phi) && fabs(phi) < CLHEP::pi*25./48. ) ||
-	      (CLHEP::pi*35./48. <= fabs(phi) && fabs(phi) < CLHEP::pi*37./48. ) ||
-	      (CLHEP::pi*47./48. <= fabs(phi) && fabs(phi) < CLHEP::pi )
-	  )
-      ) return TrigMufastHypoToolConsts::WeakBFieldA;
-   
-   else if( ( 1.5 <= absEta && absEta < 1.65 ) &&
-	    ( (CLHEP::pi*3./32.  <= fabs(phi) && fabs(phi) < CLHEP::pi*5./32. ) ||
-	      (CLHEP::pi*11./32. <= fabs(phi) && fabs(phi) < CLHEP::pi*13./32.) ||
-	      (CLHEP::pi*19./32. <= fabs(phi) && fabs(phi) < CLHEP::pi*21./32.) ||
-	      (CLHEP::pi*27./32. <= fabs(phi) && fabs(phi) < CLHEP::pi*29./32.)
-	       )
-      ) return TrigMufastHypoToolConsts::WeakBFieldB;
-   
-   else return TrigMufastHypoToolConsts::Bulk;
-}
-*/
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -275,7 +288,11 @@ StatusCode TrigMufastHypoTool::decide(std::vector<MuonClusterInfo>& toolInput) c
    } else {			// in case of HLT_2mu6 and so on.
          ATH_MSG_DEBUG("Number of muon event = " << numMuon );
          ATH_MSG_DEBUG("Applying selection of multiplicity << " << m_decisionId );
-         return multiplicitySelection(toolInput); 
+
+	 if(m_applyOR)
+	   ATH_CHECK(applyOverlapRemoval(toolInput));
+
+         return multiplicitySelection(toolInput);
    }
 
    return StatusCode::SUCCESS;
@@ -285,7 +302,7 @@ StatusCode TrigMufastHypoTool::decide(std::vector<MuonClusterInfo>& toolInput) c
 StatusCode TrigMufastHypoTool::inclusiveSelection(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const{
 
    for ( auto& i: toolInput ) {
-     // If muon event has defference DecisionID, it shouldn't apply.   
+     // If muon event has difference DecisionID, it shouldn't apply.
      if ( TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
          if ( decideOnSingleObject( i, 0 )==true ) {
             ATH_MSG_DEBUG("Pass through selection " << m_decisionId );
@@ -309,7 +326,13 @@ StatusCode TrigMufastHypoTool::multiplicitySelection(std::vector<TrigMufastHypoT
    for ( size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex ) {
       size_t elementIndex{ 0 };      
       for ( auto& i: toolInput ) {
-         // If muon event has defference DecisionID, it shouldn't apply.   
+
+	if(!m_acceptAll && m_applyOR && !i.passOR) {
+	  ATH_MSG_DEBUG("skip due to overap, DecisionID " << m_decisionId );
+	  continue;
+	}
+
+         // If muon event has difference DecisionID, it shouldn't apply.
          if ( TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
             if ( decideOnSingleObject( i, cutIndex ) == true ) {
                ATH_MSG_DEBUG("Pass through selection " << m_decisionId << " : Event[" << elementIndex << "]" );
@@ -358,4 +381,387 @@ StatusCode TrigMufastHypoTool::multiplicitySelection(std::vector<TrigMufastHypoT
    }
 
    return StatusCode::SUCCESS;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigMufastHypoTool::applyOverlapRemoval(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const{
+
+   ATH_MSG_DEBUG("Running Overlap Removal for muFast");
+
+  std::vector<TrigMufastHypoTool::MuonClusterInfo*> input;
+
+  for ( auto& i: toolInput ) {
+    // If muon event has difference DecisionID, it shouldn't apply.
+    if ( TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
+      input.emplace_back(&i);
+    }
+  }
+
+  size_t numMuon = input.size();
+
+  auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
+  auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+  auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
+  if ( numMuon == 0) {
+    ATH_MSG_DEBUG( "No positive previous hypo decision. Not need overlap removal." );
+    mufastNrActiveEVs = numMuon;
+    mufastNrAllEVs = numMuon;
+    return StatusCode::SUCCESS;
+  }
+  else if ( numMuon == 1 ) {
+    ATH_MSG_DEBUG("Number of muon event = " << numMuon );
+    ATH_MSG_DEBUG("no overlap Removal necessary. exitting with all EventViews active." );
+    mufastNrActiveEVs = numMuon;
+    mufastNrAllEVs = numMuon;
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("Number of muon event = " << numMuon );
+    mufastNrAllEVs = numMuon;
+    ATH_CHECK(checkOverlap(input));
+    return StatusCode::SUCCESS;
+  }
+
+
+  return StatusCode::SUCCESS;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::MuonClusterInfo*>& input) const {
+
+  size_t numMuon = input.size();
+  unsigned int i,j;
+  std::vector<unsigned int> mufastResult;
+
+  bool errorWhenIdentifyingOverlap = false;
+
+  for(i=0; i<numMuon; i++) {mufastResult.emplace_back(i); }
+  for(i=0; i<numMuon-1; i++){
+    for(j=i+1; j<numMuon; j++){
+      ATH_MSG_DEBUG("++ i=" << i << " vs j=" << j);
+      bool overlapped = isOverlap((*input[i]).muFast, (*input[j]).muFast);
+      if( ! overlapped ){ // judged as different
+	ATH_MSG_DEBUG("   judged as: different objects");
+	if( mufastResult[i] == mufastResult[j] ) { // but marked as same by someone
+	  ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
+	  ATH_MSG_DEBUG( "two objects are judged as different but both were already marked as identical by someone else as: " );
+	  ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mufastResult[i] << " / "  << mufastResult[j] );
+	  auto mufastError  = Monitored::Scalar("MufastError", -9999.);
+	  auto monitorIt    = Monitored::Group(m_monTool, mufastError);
+	  mufastError = TrigMufastHypoToolConsts::errorCode_inconsistent_overlap1;
+	  errorWhenIdentifyingOverlap = true;
+	}
+      }
+      else{ // judged as overlap
+	if( (mufastResult[j] != j && mufastResult[i] != mufastResult[j]) || (mufastResult[j] == j && mufastResult[i] != i) ){
+	  ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
+	  ATH_MSG_DEBUG( "two objects are judged as overlap but only either was already marked as overlap to someone else: " );
+	  ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mufastResult[i] << " / "  << mufastResult[j] );
+	  auto mufastError  = Monitored::Scalar("MufastError", -9999.);
+	  auto monitorIt    = Monitored::Group(m_monTool, mufastError);
+	  mufastError = TrigMufastHypoToolConsts::errorCode_inconsistent_overlap2;
+	  errorWhenIdentifyingOverlap = true;
+	}
+	ATH_MSG_DEBUG("   judged as: overlapped objects");
+	if( mufastResult[i] == i ) {
+	  ATH_MSG_DEBUG( "   i is not yet marked as overlap. so, it is a newly found overlap" );
+	  ATH_MSG_DEBUG( "   -> marking mufastResult[j] as i..." );
+	  mufastResult[j] = i;
+	} else {
+	  ATH_MSG_DEBUG( "   both i/j already marked as overlap by: mufastResult[i]=" << mufastResult[i] );
+	  ATH_MSG_DEBUG( "   -> do nothing..." );
+	}
+      }
+    }
+  }
+
+  if( errorWhenIdentifyingOverlap ) {
+      ATH_MSG_WARNING( "error when resolving overlap. exitting with all EVs active..." );
+      auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+      auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
+      mufastNrActiveEVs = numMuon;
+      // for(i=0; i<numMuon; i++) TrigCompositeUtils::addDecisionID( m_decisionId, toolInput[i].decision );
+      return StatusCode::SUCCESS;
+   }
+
+  unsigned int n_uniqueMuon = 0;
+  for(i=0; i<numMuon; i++) {
+    ATH_MSG_DEBUG( "muFast results: i=" << i << ": ");
+    if( mufastResult[i] != i ) { ATH_MSG_DEBUG( "      overlap to j=" << mufastResult[i] ); }
+    else {
+      n_uniqueMuon++;
+      ATH_MSG_DEBUG( "      unique" );
+    }
+  }
+
+  ATH_MSG_DEBUG( "nr of unique Muons after muFast overlap removal=" << n_uniqueMuon );
+
+  if( numMuon != n_uniqueMuon ){
+    ATH_CHECK(chooseBestMuon(input, mufastResult));
+  } else {
+    ATH_MSG_DEBUG( "no overlap identified. exitting with all EventViews active" );
+    auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
+    mufastNrActiveEVs = n_uniqueMuon;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+bool TrigMufastHypoTool::isOverlap(const xAOD::L2StandAloneMuon *mf1,
+				   const xAOD::L2StandAloneMuon *mf2) const
+{
+
+  auto mufastDR             = Monitored::Scalar("DR", -9999.);
+  auto mufastMass           = Monitored::Scalar("Mass", -9999.);
+  auto mufastDRLog10        = Monitored::Scalar("DRLog10", -9999.);
+  auto mufastMassLog10      = Monitored::Scalar("MassLog10", -9999.);
+
+  auto monitorIt       = Monitored::Group(m_monTool, mufastDR, mufastMass, mufastDRLog10, mufastMassLog10);
+
+  ATH_MSG_DEBUG( "   ...mF1: pt/eta/phi=" << mf1->pt() << " / " << mf1->etaMS() << " / " << mf1->phiMS() );
+  ATH_MSG_DEBUG( "   ...mF2: pt/eta/phi=" << mf2->pt() << " / " << mf2->etaMS() << " / " << mf2->phiMS() );
+
+  // if dR or invMass is necessary but (eta,phi) info is not avaiable
+  // (i.e. eta,phi=0,0; rec failed)
+  const double ZERO_LIMIT_FOR_ETAPHI = 1e-4;
+  if( (fabs(mf1->etaMS()) <ZERO_LIMIT_FOR_ETAPHI && fabs(mf1->phiMS()) < ZERO_LIMIT_FOR_ETAPHI) ||
+      (fabs(mf2->etaMS()) <ZERO_LIMIT_FOR_ETAPHI && fabs(mf2->phiMS()) < ZERO_LIMIT_FOR_ETAPHI) ) {
+    ATH_MSG_DEBUG( "   ...-> (eta,phi) info not available (rec at (eta,phi)=(0,0))" );
+    ATH_MSG_DEBUG( "   ...-> but dR of invMass check is required. cannot judge overlap -> return with false" );
+    return false;
+  }
+
+  // if charge or invMass is necessary but charge(=pT) info is not avaiable
+  const double ZERO_LIMIT_FOR_PT = 1e-4;
+  if( (fabs(mf1->pt()) <ZERO_LIMIT_FOR_PT) || (fabs(mf2->pt()) < ZERO_LIMIT_FOR_PT) ) {
+    ATH_MSG_DEBUG( "   ...-> pT info not available (rec at pT=0)" );
+    ATH_MSG_DEBUG( "   ...-> but same sign or invMass check is required. cannot judge overlap -> return with false" );
+    return false;
+  }
+
+
+  // determine dR, mass threshold separately for: BB, BE, EE
+  double dRThres   = 9999;
+  double massThres = 9999;
+
+  const int SADDRESS_EC = -1;
+  bool isBarrel1 = (mf1->sAddress() != SADDRESS_EC ) ? true : false;
+  bool isBarrel2 = (mf2->sAddress() != SADDRESS_EC ) ? true : false;
+
+  if(  isBarrel1 && isBarrel2 ) { // BB
+    ATH_MSG_DEBUG( "   ...B-B" );
+    dRThres  =m_dRThresBB;
+    massThres=m_massThresBB;
+  }
+  else if( (isBarrel1 && ! isBarrel2) || (!isBarrel1 && isBarrel2) ) { // BE
+    ATH_MSG_DEBUG( "   ...B-E" );
+    dRThres  =m_dRThresBE;
+    massThres=m_massThresBE;
+  }
+  else { // EE
+    ATH_MSG_DEBUG( "   ...E-E" );
+    double absEta = (fabs(mf1->pt()) > fabs(mf2->pt())) ? fabs(mf1->etaMS()) : fabs(mf2->etaMS());
+    unsigned int iThres=0;
+    for(unsigned int i=0; i<(m_etaBinsEC.size()-1); i++) {
+      if ( m_etaBinsEC[i] <= absEta && absEta < m_etaBinsEC[i+1] ) iThres = i;
+    }
+    ATH_MSG_DEBUG( "   ...iThres=" << iThres );
+    dRThres   = m_dRThresEC[iThres];
+    massThres = m_massThresEC[iThres];
+  }
+  ATH_MSG_DEBUG( "   ...dR   threshold=" << dRThres );
+  ATH_MSG_DEBUG( "   ...mass threshold=" << massThres );
+
+
+  // same sign cut
+  bool sameSign = false;
+  if( m_requireSameSign ) {
+    sameSign = ((mf1->pt()*mf2->pt()) > 0) ? true : false;
+    ATH_MSG_DEBUG( "   ...-> sameSign=" << sameSign );
+  }
+
+  // dR cut
+  bool dRisClose = false;
+  double dr = dR(mf1->etaMS(),mf1->phiMS(),mf2->etaMS(),mf2->phiMS());
+
+  // for monitoring
+  mufastDR = dr;
+  const double monitor_limit = 1e-4;
+  double dr_mon = (dr>=monitor_limit) ? dr : monitor_limit;
+  mufastDRLog10 = log10(dr_mon);
+
+  if( m_requireDR ) {
+    if( dr < dRThres ) dRisClose = true;
+    ATH_MSG_DEBUG( "   ...-> dR=" << dr << " : dRisClose=" << dRisClose );
+  }
+
+  // mass cut
+  const double TRACK_MASS = 0;  // just assume zero mass
+  bool massIsClose = false;
+  double mass = invMass(TRACK_MASS,mf1->pt(),mf1->etaMS(),mf1->phiMS(),TRACK_MASS,mf2->pt(),mf2->etaMS(),mf2->phiMS());
+
+  // for monitoring
+  mufastMass = mass;
+  double mass_mon = (mass>=monitor_limit) ? mass : monitor_limit;
+  mufastMassLog10 = log10(mass_mon);
+
+  if( m_requireMass ) {
+    if( mass < massThres ) massIsClose = true;
+    ATH_MSG_DEBUG( "   ...-> mass=" << mass << " : massIsClose=" << massIsClose );
+  }
+
+  // total judge
+  bool overlap = false;
+  if( ((m_requireSameSign &&   sameSign)   || (! m_requireSameSign)) &&
+      ((m_requireDR       &&  dRisClose)   || (! m_requireDR))       &&
+      ((m_requireMass     &&  massIsClose) || (! m_requireMass)) ) {
+    overlap = true;
+  }
+
+  ATH_MSG_DEBUG( "   ...=> isOverlap=" << overlap );
+
+  return overlap;
+
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+double TrigMufastHypoTool::dR(double eta1, double phi1, double eta2, double phi2) const
+{
+  const double deta = eta1 - eta2;
+  const double dphi = CxxUtils::deltaPhi(phi1, phi2);
+  return std::sqrt(deta*deta + dphi*dphi);
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+double TrigMufastHypoTool::invMass(double m1, double pt1, double eta1, double phi1,
+				   double m2, double pt2, double eta2, double phi2) const
+{
+  const double ZERO_LIMIT = 1e-12;
+
+  double theta1 = 2*atan2((double)exp(-eta1),1.);
+  double theta2 = 2*atan2((double)exp(-eta2),1.);
+
+  double fpt1   = fabs(pt1);
+  double fpt2   = fabs(pt2);
+
+  double px1    = fpt1*cos(phi1);
+  double py1    = fpt1*sin(phi1);
+  double pz1    = fpt1/tan(theta1);
+  double  e1    = sqrt(px1*px1+py1*py1+pz1*pz1+m1*m1);
+
+  double px2    = fpt2*cos(phi2);
+  double py2    = fpt2*sin(phi2);
+  double pz2    = fpt2/tan(theta2);
+  double  e2    = sqrt(px2*px2+py2*py2+pz2*pz2+m2*m2);
+
+  double pxsum  = px1 + px2;
+  double pysum  = py1 + py2;
+  double pzsum  = pz1 + pz2;
+  double esum   =  e1 +  e2;
+
+  double mass  = 0;
+  double mass2 = esum*esum - pxsum*pxsum - pysum*pysum - pzsum*pzsum;
+  if( mass2 > ZERO_LIMIT ) mass = sqrt(mass2);
+
+  return mass;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo*>& input, std::vector<unsigned int> mufastResult) const
+{
+  size_t numMuon = input.size();
+  unsigned int i,j,k;
+
+  auto mufastNrActiveEVs    = Monitored::Scalar("NrActiveEVs", -9999.);
+  auto mufastNrOverlapped   = Monitored::Scalar("NrOverlapped", 0);
+  auto mufastOverlappedEta  = Monitored::Scalar("OverlappedEta", -9999.);
+  auto mufastOverlappedPhi  = Monitored::Scalar("OverlappedPhi", -9999.);
+  auto mufastOverlappedPt   = Monitored::Scalar("OverlappedPt", -9999.);
+
+  auto monitorIt       = Monitored::Group(m_monTool, mufastNrActiveEVs, mufastNrOverlapped,
+   					  mufastOverlappedPt, mufastOverlappedEta, mufastOverlappedPhi);
+
+  ATH_MSG_DEBUG( "--- choose best among overlaps & disable EVs (muFast based) ---" );
+  for(i=0; i<numMuon; i++) {
+    ATH_MSG_DEBUG( "++ i=" << i << ": result=" << mufastResult[i] );
+    if( mufastResult[i] != i ) {
+      ATH_MSG_DEBUG( "   overlap to some one. skip." );
+
+      (*input[i]).passOR = false;
+
+      continue;
+    }
+    std::vector<unsigned int> others;
+    for(j=0; j<numMuon; j++) {
+      if( mufastResult[j] == mufastResult[i] ) others.emplace_back(j);
+    }
+    if( others.size() == 1 ) {
+      ATH_MSG_DEBUG( "   unique object. keep it active." );
+      continue;
+    }
+    else {
+      // must choose one best
+      ATH_MSG_DEBUG( "   overlapped objects among: " << others );
+      unsigned int best_ev = 0;
+      float maxPtMf  = 0;
+      float maxPtRoI = 0;
+      for(k=0; k<others.size(); k++) {
+	j=others[k];
+	// const LVL1::RecMuonRoI* muonRoI = input[j].RecRoI;
+	// float ptRoI = muonRoI->getThresholdValue();
+	const xAOD::L2StandAloneMuon* mf = (*input[j]).muFast;
+	float ptMf  = fabs(mf->pt());
+	float ptRoI = mf->roiThreshold();
+	ATH_MSG_DEBUG("     ev/PtRoI/ptMf="<< j << "/" << ptRoI << "/" << ptMf);
+	if( (ptRoI-maxPtRoI) > 0.1 ) {
+	  maxPtRoI = ptRoI;
+	  maxPtMf  = ptMf;
+	  best_ev  = j;
+	}
+	else if( fabs(ptRoI-maxPtRoI) < 0.1 ) {
+	  if( ptMf > maxPtMf ) {
+	    maxPtRoI = ptRoI;
+	    maxPtMf  = ptMf;
+	    best_ev  = j;
+	  }
+	}
+      }
+      ATH_MSG_DEBUG( "     best is: best_ev/maxPtRoI/maxPtMf=" << best_ev << " / " << maxPtRoI << " / " << maxPtMf );
+
+      for(k=0; k<others.size(); k++) {
+	j=others[k];
+	if( j != best_ev ) {
+	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is not active" );
+
+	  (*input[j]).passOR = false;
+
+	  // monitoring
+	  const xAOD::L2StandAloneMuon* mf = (*input[j]).muFast;
+	  mufastNrOverlapped++;
+	  mufastOverlappedPt = mf->pt();
+	  mufastOverlappedEta = mf->etaMS();
+	  mufastOverlappedPhi = mf->phiMS();
+	}
+	if( j == best_ev ){
+	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is best one" );
+	}
+      }
+    }
+  }
+   mufastNrActiveEVs = numMuon - mufastNrOverlapped;
+
+  return StatusCode::SUCCESS;
 }

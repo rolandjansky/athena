@@ -895,10 +895,14 @@ void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
 	            m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> >
 				      (new Trk::BoundarySubtractedPlaneSurface<Trk::TrackingVolume>(in, out, *spsf)));    
 	    delete spsf; continue;
-      } else if (psf){ m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> >
-                                      (new Trk::BoundaryPlaneSurface<Trk::TrackingVolume>(in, out, *psf)));    
-                     delete psf; continue;
-      }        
+      }
+      if (psf) {
+        m_boundarySurfaces->push_back(
+          Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume>>(
+            new Trk::BoundaryPlaneSurface<Trk::TrackingVolume>(in, out, *psf)));
+        delete psf;
+        continue;
+      }
 
       const Trk::DiscSurface*       dsf = dynamic_cast<const Trk::DiscSurface*>(*surfIter);
       if (dsf) {
@@ -915,13 +919,18 @@ void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
           m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
             (new Trk::BoundarySubtractedCylinderSurface<Trk::TrackingVolume>(inner, outer, *scsf)));
           delete scsf; continue;
-      } else if (csf) {
-          Trk::TrackingVolume* inner = (sfCounter == 4 && sfNumber > 3) ? nullptr : this;
-          Trk::TrackingVolume* outer = (inner) ? nullptr : this;
-          m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
-            (new Trk::BoundaryCylinderSurface<Trk::TrackingVolume>(inner, outer, *csf)));
-          delete csf; continue;
-      } 
+      }
+      if (csf) {
+        Trk::TrackingVolume* inner =
+          (sfCounter == 4 && sfNumber > 3) ? nullptr : this;
+        Trk::TrackingVolume* outer = (inner) ? nullptr : this;
+        m_boundarySurfaces->push_back(
+          Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume>>(
+            new Trk::BoundaryCylinderSurface<Trk::TrackingVolume>(
+              inner, outer, *csf)));
+        delete csf;
+        continue;
+      }
     }
 
   } else {

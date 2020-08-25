@@ -183,7 +183,7 @@ StatusCode EvtDecay::callEvtGen( HepMC::GenEvent* hepMCevt ) {
 
 			EvtParticle* part=EvtParticleFactory::particleFactory(eid,p_init);
 
-			if(fabs(id)==5122 && m_PolarizedLambdab) setLambdabSpinDensityMatrix(part,m_LambdabPol);
+			if(std::abs(id)==5122 && m_PolarizedLambdab) setLambdabSpinDensityMatrix(part,m_LambdabPol);
 
 			m_myGen->generateDecay(part);
 			if ( log.level() <= MSG::DEBUG ) part->printTree();

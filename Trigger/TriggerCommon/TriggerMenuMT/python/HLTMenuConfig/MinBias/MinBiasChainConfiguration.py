@@ -59,26 +59,19 @@ class MinBiasChainConfig(ChainConfigurationBase):
                                  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
         # Make sure required objects are still available at whole-event level
-        from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+        from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence.SGInputLoader.Load += [( 'SCT_ID' , 'DetectorStore+SCT_ID' ),
                                            ( 'PixelID' , 'DetectorStore+PixelID' ),
                                            ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
         from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
-          verifier.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
-          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
           topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
           topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-        condSeq = AthSequencer( "AthCondSeq" )
-        if not hasattr( condSeq, 'SCT_DCSConditionsStatCondAlg' ):
-          verifier.DataObjects += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
-          topSequence.SGInputLoader.Load += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
 
         SpList = idAlgs[:-2]
 
@@ -128,7 +121,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
         # prepare algorithms to run in views, first, inform scheduler that input data is available in parent view (has to be done by hand)
         idAlgs, verifier = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=TrkInputMakerAlg.InViewRoIs, viewVerifier='TrkrecoSeqDataVerifier')
         verifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+InputRoI' ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'InDet::SCT_ClusterContainer' , 'StoreGateSvc+SCT_TrigClusters' ),
                                  ( 'SpacePointContainer' , 'StoreGateSvc+SCT_TrigSpacePoints' ),
                                  ( 'InDet::PixelClusterContainer' , 'StoreGateSvc+PixelTrigClusters' ),

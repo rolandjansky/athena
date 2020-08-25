@@ -681,8 +681,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     }else
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Got the "<< nTracksUpper << " Upper Track" << endmsg;
 
-    const Trk::TrackSummary* summary = NULL;       
-    summary = m_trackSumTool->createSummary(*trackUpper);
+    std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(*trackUpper);
     unsigned int nHitsPixUp = 0;
     unsigned int nHitsSCTUp=0;
     unsigned int nHitsTRTUp=0;
@@ -690,7 +689,6 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     nHitsSCTUp = summary->get(Trk::numberOfSCTHits);
     nHitsTRTUp = summary->get(Trk::numberOfTRTHits);
     unsigned int nHitsUp = nHitsPixUp + nHitsSCTUp + nHitsTRTUp;
-    delete summary;
 
     
     const Trk::Perigee* measUpperPer = trackUpper->perigeeParameters();
@@ -797,8 +795,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 	continue;
       }
 
-      const Trk::TrackSummary* summary = NULL;       
-      summary = m_trackSumTool->createSummary(*trackLower);
+      std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(*trackLower);
       unsigned int nHitsPixLow = 0;
       unsigned int nHitsSCTLow = 0;
       unsigned int nHitsTRTLow = 0;
@@ -806,7 +803,6 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
       nHitsSCTLow = summary->get(Trk::numberOfSCTHits);
       nHitsTRTLow = summary->get(Trk::numberOfTRTHits);
       nHitsLow = nHitsPixLow + nHitsSCTLow + nHitsTRTLow;
-      delete summary;
 
       
       const Trk::Perigee* measLowerPer = trackLower->perigeeParameters();

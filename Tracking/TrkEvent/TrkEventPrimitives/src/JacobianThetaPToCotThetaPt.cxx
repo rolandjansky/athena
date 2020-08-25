@@ -20,8 +20,3 @@ Trk::JacobianThetaPToCotThetaPt::JacobianThetaPToCotThetaPt(const double theta, 
    (*this)(4,3) = - qp * std::cos(theta)/(sintheta*sintheta);
    (*this)(4,4) = 1.0 / sintheta;
 }
-
-
-Trk::JacobianThetaPToCotThetaPt::~JacobianThetaPToCotThetaPt()
-{}
-

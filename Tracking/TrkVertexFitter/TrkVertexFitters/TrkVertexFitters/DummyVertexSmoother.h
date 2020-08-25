@@ -8,7 +8,7 @@
 #include "TrkVertexFitterInterfaces/IVertexSmoother.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkParametersBase/ParametersBase.h"
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk
 {
   class IExtrapolator;
@@ -39,7 +39,8 @@ namespace Trk
    *
    */ 
 
-  class DummyVertexSmoother : public AthAlgTool, virtual public IVertexSmoother
+  //Not THREAD_SAFE due to const_cast 
+  class ATLAS_NOT_THREAD_SAFE DummyVertexSmoother : public AthAlgTool, virtual public IVertexSmoother
   {
   public:
   

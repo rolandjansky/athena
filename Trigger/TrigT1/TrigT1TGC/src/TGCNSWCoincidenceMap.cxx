@@ -11,7 +11,7 @@
 
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
 #include "TrigT1TGC/NSWTrigOut.h"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 #include "PathResolver/PathResolver.h"
 
 #include "MuonCondInterface/ITGCTriggerDbTool.h"
@@ -21,7 +21,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCArguments.h"
 
 namespace LVL1TGCTrigger {
 

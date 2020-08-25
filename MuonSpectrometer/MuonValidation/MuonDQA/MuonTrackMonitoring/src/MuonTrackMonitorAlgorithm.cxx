@@ -413,8 +413,10 @@ StatusCode MuonTrackMonitorAlgorithm::fillHistograms(const EventContext& ctx) co
 
 	ATH_CHECK( analyseLowLevelMuonFeatures(*Muons, lumiBlockID) );
 	ATH_CHECK( analyseCombinedTracks(*Muons, lumiBlockID) );
-	ATH_CHECK( analyseZBosonCandidates(*Muons, lumiBlockID) );
-	ATH_CHECK( analyseJPsiCandidates(*Muons, lumiBlockID) );
+	if (dataType() != DataType_t::cosmics) {
+		ATH_CHECK( analyseZBosonCandidates(*Muons, lumiBlockID) );
+		ATH_CHECK( analyseJPsiCandidates(*Muons, lumiBlockID) );
+	}
 
 	return StatusCode::SUCCESS;
 }

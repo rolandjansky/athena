@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISOLATIONCORRECTION_ISOLATIONCORRECTIONTOOL_H
@@ -29,10 +29,6 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
           override
 #endif
           ;
-
-        virtual StatusCode beginInputFile() override;
-	virtual StatusCode beginEvent() override;
-	virtual StatusCode endInputFile() override;
 
         // Apply correction to a modifyable Egamma object
         virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&) override;
@@ -67,7 +63,6 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         std::string m_corr_ddsmearing_file;
         IsolationCorrection* m_isol_corr;
         std::string m_tool_ver_str;
-        bool m_usemetadata;
 	bool m_is_mc;
         bool m_AFII_corr;
 	std::string m_ddVersion;
@@ -75,7 +70,6 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         bool m_apply_ddDefault;
         bool m_correct_etcone;
         bool m_trouble_categories;
-        bool m_metadata_retrieved;
 
 	// For systematcis
 	CP::SystematicVariation m_systDDonoff;

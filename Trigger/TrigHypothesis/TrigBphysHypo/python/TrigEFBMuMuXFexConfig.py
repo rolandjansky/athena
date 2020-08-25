@@ -204,16 +204,6 @@ class EFBMuMuXFex_allModes (EFBMuMuXFex_1):
         self.AthenaMonTools = [ validation, online, time ]
 
 
-class EFBMuMuXFex_FTK (EFBMuMuXFex_1):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuXFex_FTK"):
-        EFBMuMuXFex_1.__init__(self, name )
-        
-        # FTK
-        self.DoFTK = True
-        self.TrackCollection = "InDetTrigTrackingxAODCnv_BeamSpot_FTK"
-        
-
 
 class EFBMuMuXFex_allModes_tightBc (EFBMuMuXFex_allModes):
     __slots__ = []

@@ -35,8 +35,7 @@ namespace Trk
     declareProperty("Precision",m_precision);
   }
   
-  ImpactPoint3dEstimator::~ImpactPoint3dEstimator() {
-  }
+  ImpactPoint3dEstimator::~ImpactPoint3dEstimator() = default;
   
   StatusCode ImpactPoint3dEstimator::initialize() 
   { 
@@ -129,7 +128,7 @@ namespace Trk
 
 
     const Trk::Perigee* thePerigee=dynamic_cast<const Trk::Perigee*>(trackPerigee);
-    if (thePerigee==0)
+    if (thePerigee==nullptr)
     {
       ATH_MSG_DEBUG( " ImpactPoint3dEstimator didn't get a Perigee* as ParametersBase*: cast not possible. Need to EXTRAPOLATE...");
       
@@ -143,7 +142,7 @@ namespace Trk
       Trk::PerigeeSurface perigeeSurface(*theVertex);
       thePerigee=dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*trackPerigee,
                                                                                        perigeeSurface));
-      if (thePerigee == NULL) return 0;
+      if (thePerigee == nullptr) return nullptr;
     }
 
     ATH_MSG_VERBOSE( " Now running ImpactPoint3dEstimator::Estimate3dIP" );
@@ -164,7 +163,7 @@ namespace Trk
 
     if (thePerigee!=trackPerigee) {
       delete thePerigee;
-      thePerigee=0;
+      thePerigee=nullptr;
     }
 
     double xc=theVertex->x();
@@ -236,7 +235,7 @@ namespace Trk
         isok=true;
       }
 
-    } while (isok==false);
+    } while (!isok);
 
     //now you have to construct the plane with PlaneSurface
     //first vector at 3d impact point
@@ -321,11 +320,11 @@ namespace Trk
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
       ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p  );
-      return 0;
+      return nullptr;
     }
     if(!theSurfaceAtIP){ 
       ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
-      return 0;
+      return nullptr;
     }
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
     ATH_MSG_VERBOSE( "Original perigee was: " << *(vtxTrack.initialPerigee())  );
@@ -350,7 +349,7 @@ namespace Trk
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
       ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p  );
-      return 0;
+      return nullptr;
     }
     if(!theSurfaceAtIP) ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
 

@@ -39,7 +39,7 @@ ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(std::string n, Geo2
 {
 }
 
-G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhysVolume, OpticalVolumesMap* optical_volumes)
+G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhysVolume, OpticalVolumesMap* optical_volumes) const
 {
   PVConstLink theGeoPhysChild;
   const GeoSerialTransformer* serialTransformerChild=0;
@@ -183,7 +183,7 @@ G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPh
   return theG4LogVolume;
 }
 
-Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink pv)
+Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink pv) const
 {
   PVConstLink theGeoPhysChild;
   G4LogicalVolume* theG4LogChild = 0;

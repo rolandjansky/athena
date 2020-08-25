@@ -92,7 +92,13 @@ namespace InDet{
                           const IdentifierHash& idDE,
                           const Amg::Vector3D& globalPosition,
                           bool isbroad=false); 
-      
+
+      /*
+       * Constuctor used by P->T converter.
+       * The P->T converter calls the
+       * setValues method to complete the object
+       * e.g set/reset the DetectorElement 
+       */
       SCT_ClusterOnTrack( const ElementLinkToIDCSCT_ClusterContainer& RIO,
                           const Trk::LocalParameters& locpars, 
                           const Amg::MatrixX& locerr, 
@@ -109,17 +115,12 @@ namespace InDet{
       /** Destructor */
       virtual ~SCT_ClusterOnTrack() = default;
      
-      /** returns global position (gathered through Surface constraint)
-      - fullfills Trk::MeasurementBase interface
-        Overload of the method in parent class */
-      virtual const Amg::Vector3D& globalPosition() const override final;
-     
       /** Pseudo-constructor */
       virtual SCT_ClusterOnTrack* clone() const override;
 
-    /** returns the surface for the local to global transformation
-      - fullfills the Trk::MeasurementBase interface
-     */
+      /** returns the surface for the local to global transformation
+          - fullfills the Trk::MeasurementBase interface
+      */
       virtual const Trk::Surface& associatedSurface() const override;
 
       virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final

@@ -98,7 +98,7 @@ Trk::GsfMaterialEffectsUpdator::updateState(
       // Determine the pathCorrection if the material properties exist
       pathCorrection =
         materialProperties
-          ? 1. / fabs(surface->normal().dot(trackParameters->momentum().unit()))
+          ? 1. / std::abs(surface->normal().dot(trackParameters->momentum().unit()))
           : 0.;
     }
   }
@@ -216,7 +216,7 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
       // Determine the pathCorrection if the material properties exist
       pathCorrection =
         materialProperties
-          ? 1. / fabs(surface->normal().dot(trackParameters->momentum().unit()))
+          ? 1. / std::abs(surface->normal().dot(trackParameters->momentum().unit()))
           : 0.;
     }
   }
@@ -316,7 +316,7 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
       // Determine the pathCorrection if the material properties exist
       pathCorrection =
         materialProperties
-          ? 1. / fabs(surface->normal().dot(trackParameters->momentum().unit()))
+          ? 1. / std::abs(surface->normal().dot(trackParameters->momentum().unit()))
           : 0.;
     }
   }
@@ -446,7 +446,7 @@ bool
 Trk::GsfMaterialEffectsUpdator::updateP(AmgVector(5) & stateVector,
                                         double deltaP) const
 {
-  double p = 1. / fabs(stateVector[Trk::qOverP]);
+  double p = 1. / std::abs(stateVector[Trk::qOverP]);
   p += deltaP;
   if (p <= 0.) {
     return false;

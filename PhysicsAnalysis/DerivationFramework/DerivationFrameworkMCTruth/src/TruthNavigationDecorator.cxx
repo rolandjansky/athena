@@ -44,7 +44,7 @@ StatusCode DerivationFramework::TruthNavigationDecorator::addBranches() const
 
   // Build a dictionary of barcodes and element links
   std::map<int,ElementLink<xAOD::TruthParticleContainer> > linkMap;
-  for (auto coll : inputParticles){
+  for (const auto& coll : inputParticles){
     for (size_t p=0;p<coll->size();++p){
       if (!coll->at(p)) continue; // Protection against null ptrs
       if (linkMap.find(coll->at(p)->barcode())!=linkMap.end()) continue; // Particle in multiple collections
@@ -87,7 +87,7 @@ StatusCode DerivationFramework::TruthNavigationDecorator::addBranches() const
   } // Loop over truth particles in the big truth collection
 
   // Now final loop over the collections and setting all the decorators
-  for (auto coll : inputParticles){
+  for (const auto& coll : inputParticles){
     for (size_t p=0;p<coll->size();++p){
       if (!coll->at(p)) continue; // Protection against null ptrs
       parent_decorator(*coll->at(p)) = parentMap[ coll->at(p)->barcode() ];

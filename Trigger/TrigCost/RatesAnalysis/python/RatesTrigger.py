@@ -7,8 +7,7 @@
 @brief Accumulator class to buffer data for a single trigger and export this to JSON or CSV
 '''
 
-import ROOT
-import math 
+import math
 from enum import Enum
 
 class RatesBins(Enum):

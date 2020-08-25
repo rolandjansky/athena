@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DBMModule_H
@@ -24,7 +24,7 @@ namespace InDetDD {
   class PixelDiodeMatrix;
 }
 
-class DBM_Module : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE DBM_Module : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
   public:
 
   DBM_Module();

@@ -11,7 +11,7 @@
 
 #include "TrackData.h"
 
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
+#include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 
 namespace TrigL2MuonSA {
   

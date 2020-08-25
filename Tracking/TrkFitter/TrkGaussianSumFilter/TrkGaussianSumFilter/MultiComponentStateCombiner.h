@@ -31,6 +31,26 @@ void
 combineWithWeight(Trk::ComponentParameters& mergeTo,
                   const Trk::ComponentParameters& addThis);
 
+/** @brief Combined/merge a component to the parts of another */  
+void 
+combineWithWeight( Trk::ComponentParameters& mergeTo,
+                   const AmgVector(5)& secondParameters, 
+                   const AmgSymMatrix(5)* secondMeasuredCov,
+                   const double secondWeight );
+
+
+/** @brief Update first parameters */
+void combineParametersWithWeight(
+  AmgVector(5)& firstParameters, double& firstWeight,
+  const AmgVector(5)& secondParameters, const double secondWeight );
+
+/** @brief Update cov matrix */
+void combineCovWithWeight(
+  const AmgVector(5)& firstParameters, AmgSymMatrix(5)& firstMeasuredCov, const double firstWeight,
+  const AmgVector(5)& secondParameters, const AmgSymMatrix(5)& secondMeasuredCov, const double secondWeight );
+
+
+
 /** @brief Calculate combined state and weight of many components */
 std::unique_ptr<Trk::ComponentParameters>
 combineWithWeight(const MultiComponentState&,

@@ -6,6 +6,7 @@
 #define TRKVERTEXFITTERBILLOIR_FASTVERTEXFITTER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
@@ -32,7 +33,8 @@ EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex,
                         from Trk::Vertex      to Amg::Vector3D
 */
 
-class FastVertexFitter : public extends<AthAlgTool, IVertexFitter>
+class ATLAS_NOT_THREAD_SAFE FastVertexFitter //const_cast the extrapolator result
+  : public extends<AthAlgTool, IVertexFitter>
 {
 public:
   // The following 'using' can be removed when IVertexFitter::fit has been fully

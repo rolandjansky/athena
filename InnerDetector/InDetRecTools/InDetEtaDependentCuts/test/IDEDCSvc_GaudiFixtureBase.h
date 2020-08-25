@@ -16,11 +16,9 @@
 
 #include "TestTools/initGaudi.h"
 #include "TInterpreter.h"
-#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/ubsan_suppress.h"
 #include <string>
 
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This is for unit tests and a static variable IDEDC_GaudiFixtureBase::gaudiIsInitialised is used.
 
 struct IDEDC_GaudiFixtureBase{
   ISvcLocator* svcLoc{};

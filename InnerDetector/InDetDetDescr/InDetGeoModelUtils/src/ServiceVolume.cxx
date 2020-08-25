@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 //
@@ -119,9 +119,43 @@ namespace InDetDD {
     m_splittableZ(true),
     m_envNum(0),
     m_envParentNum(0),
-    m_zShift(0.)
+    m_zShift(0.),
+    m_mutex()
   {}
 
+  ServiceVolume::ServiceVolume(const ServiceVolume& rhs)
+    : m_rmin(rhs.m_rmin),
+      m_rmax(rhs.m_rmax),
+      m_rmin2(rhs.m_rmin2),
+      m_rmax2(rhs.m_rmax2),
+      m_zmin(rhs.m_zmin),
+      m_zmax(rhs.m_zmax),
+      //m_volId(rhs.m_volId),
+      m_zsymm(rhs.m_zsymm),
+      m_geoShape(rhs.m_geoShape),
+      m_material(rhs.m_material),
+      m_materialName(rhs.m_materialName),
+      m_volName(rhs.m_volName),
+      m_shapeType(rhs.m_shapeType),
+      m_phiLoc(rhs.m_phiLoc),
+      m_phiWidth(rhs.m_phiWidth),
+      m_needsRotation(rhs.m_needsRotation),
+      m_sides(rhs.m_sides),
+      m_nCopies(rhs.m_nCopies),
+      //m_origLength(rhs.m_origLength),
+      m_origVolume(rhs.m_origVolume),
+      m_volume(rhs.m_volume),
+      m_safety(rhs.m_safety),
+      m_region(rhs.m_region),
+      m_label(rhs.m_label),
+      m_lockGeoShape(rhs.m_lockGeoShape),
+      m_splittableR(rhs.m_splittableR),
+      m_splittableZ(rhs.m_splittableZ),
+      m_envNum(rhs.m_envNum),
+      m_envParentNum(rhs.m_envParentNum),
+      m_zShift(rhs.m_zShift),
+      m_mutex()
+  {}
 
   void
   ServiceVolume::reduceSize(double safety) {
@@ -130,6 +164,7 @@ namespace InDetDD {
       if (m_zmax < m_zmin) std::swap(m_zmin, m_zmax);
       m_safety = safety;
     }
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_geoShape = 0;
   }
 
@@ -161,6 +196,8 @@ namespace InDetDD {
 
   const GeoShape*
   ServiceVolume::getShape() const {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
     // If prebuilt then return
     if (m_geoShape.get()) return m_geoShape.get();
 
@@ -291,6 +328,7 @@ namespace InDetDD {
   ServiceVolume::volume() const {
     // Make sure shape is already built.
     getShape();
+    std::lock_guard<std::mutex> lock(m_mutex);
     return m_volume;
   }
 

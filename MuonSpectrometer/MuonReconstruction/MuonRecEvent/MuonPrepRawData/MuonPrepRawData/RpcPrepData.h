@@ -23,19 +23,19 @@
 
 class RpcPrepDataContainerCnv;
 
-namespace Muon 
+namespace Muon
 {
 
     class RpcRdoToPrepDataToolCore;
     class RpcPrepDataContainerCnv_p1;
     class RpcPrepDataContainerCnv_p2;
-    
+
 /** @brief Class to represent RPC measurements. */
 class RpcPrepData :   public MuonCluster
 {
 
     friend class Muon::RpcRdoToPrepDataToolCore;
-    
+
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
@@ -47,9 +47,9 @@ public:
 
     RpcPrepData();
     RpcPrepData(const RpcPrepData &);
-    RpcPrepData(RpcPrepData &&);
+    RpcPrepData(RpcPrepData &&) noexcept = default;
     RpcPrepData &operator=(const RpcPrepData &);
-    RpcPrepData &operator=(RpcPrepData &&);
+    RpcPrepData &operator=(RpcPrepData &&) noexcept = default;
 
 
     /** @brief Constructor.
@@ -58,7 +58,7 @@ public:
     @param locpos The local coords of the measurement (this object will now own the LocalPostion)
     @param rdoList Vector of all the Identifiers of the strips used in this cluster
     @param locErrMat The error of the measurement (this object will now own the ErrorMatrix)
-    @param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken 
+    @param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken
                 (the pointer is assumed to belong to GeoModel and will not be deleted)
     @param time   The time measured by the RPC
     @param triggerInfo The trigger info flag - see m_triggerInfo for more definition.
@@ -91,15 +91,21 @@ public:
     float time() const;
 
     /** @brief Returns the global position*/
-    const Amg::Vector3D& globalPosition() const;
+    virtual const Amg::Vector3D& globalPosition() const override;
 
     /** @brief Returns the detector element corresponding to this PRD.
     The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
-    virtual const MuonGM::RpcReadoutElement* detectorElement() const;
+    virtual const MuonGM::RpcReadoutElement* detectorElement() const override final;
+
+    /** Interface method checking the type*/
+    virtual bool type(Trk::PrepRawDataType::Type type) const override final
+    {
+      return type == Trk::PrepRawDataType::RpcPrepData;
+    }
 
     /** @brief Returns the trigger coincidence - usually false, unless ijk>5 or highpt&&ijk==0*/
     int triggerInfo() const;
-    
+
     /** @brief Returns the number of ambiguities associated with this RpcPrepData.
         - 0 if the ambiguites have not been removed by choice;
         - 1 if the ambiguities are fully solved
@@ -107,20 +113,20 @@ public:
     int ambiguityFlag() const;
 
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override;
 
 private:
 
     /** Cached pointer to the detector element - should never be zero.*/
     const MuonGM::RpcReadoutElement* m_detEl;
 
-    /** Float since PRD produced from RDO, and RDO should contain the time calculated from the bcid and the RPC clock 
+    /** Float since PRD produced from RDO, and RDO should contain the time calculated from the bcid and the RPC clock
     ticks. (as bcid*25+ticks*3.125).*/
     float m_time;
-    
+
     /** usually false, unless ijk>5 or highpt&&ijk==0 */
 
     int m_triggerInfo;

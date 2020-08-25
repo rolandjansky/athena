@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/AddFlowByShifting.cxx
@@ -46,7 +46,6 @@ double AddFlowByShifting::vn_func(double x, void *params)
 double AddFlowByShifting::vn_func_derivative(double x, void *params)
 {
    float *par_float = (float*) params;
-   //float phi_0  = par_float[0];
    float *vn    = par_float+1;
    float *psi_n = vn+6;
    double val=1   +2*(   vn[0]*cos(1*(x-psi_n[0]))/1.0 + vn[1]*cos(2*(x-psi_n[1]))/2.0 +
@@ -239,22 +238,22 @@ StatusCode AddFlowByShifting::execute() {
   for (itr = mcFlowCollptr->begin(); itr!=mcFlowCollptr->end(); ++itr) {
     ATH_MSG_DEBUG("Next event in the bag ...");
 
-    //int g_id = (*itr)->signal_process_id();
-    //GeneratorName_print(g_id);
-    //std::cout << std::endl;
 
 
     auto mainvtx=HepMC::barcode_to_vertex(*itr,-1);
     if(m_flow_fluctuations) Set_EbE_Fluctuation_Multipliers(mainvtx,hijing_pars->get_b());
 
+#ifdef HEPMC3
+    int particles_in_event = (*itr)->particles().size();
+    m_particles_processed = 0;
+    for ( auto parent: mainvtx->particles_out()) {
+#else
     int particles_in_event = (*itr)->particles_size();
     m_particles_processed = 0;
-    for ( HepMC::GenVertex::particle_iterator partit =
-	    (*mainvtx).particles_begin(HepMC::children);
-	  partit != (*mainvtx).particles_end(HepMC::children); partit++ ) {
+    for ( auto parent: *mainvtx) {
+#endif
 
       // Process particles from main vertex
-      auto parent = (*partit);
       CLHEP::HepLorentzVector momentum(parent->momentum().px(),
 				parent->momentum().py(),
 				parent->momentum().pz(),
@@ -267,7 +266,7 @@ StatusCode AddFlowByShifting::execute() {
 
       //skip particle if eta is outside implementation range
       if(m_floweta_sw){
-        float eta=fabs(momentum.pseudoRapidity());
+        float eta=std::abs(momentum.pseudoRapidity());
         if (eta<m_flow_mineta || eta> m_flow_maxeta) continue;
       }
 
@@ -353,15 +352,19 @@ void AddFlowByShifting::MoveDescendantsToParent
     ATH_MSG_DEBUG("Processing branch of parent particle "<< HepMC::barcode(parent));
 
     // now rotate descendant vertices
+#ifdef HEPMC3
+    for (HepMC::GenVertexPtr descvtx:  HepMC::descendant_vertices(endvtx)) {
+#else
     for ( HepMC::GenVertex::vertex_iterator
 	    descvtxit = endvtx->vertices_begin(HepMC::descendants);
 	  descvtxit != endvtx->vertices_end(HepMC::descendants);
 	  ++descvtxit) {
       auto descvtx = (*descvtxit);
+#endif
       ATH_MSG_DEBUG("Processing vertex " << HepMC::barcode(descvtx));
 
       // rotate vertex
-      if(fabs(phishift) > 1e-7) {
+      if(std::abs(phishift) > 1e-7) {
 	CLHEP::HepLorentzVector position(descvtx->position().x(),
 				  descvtx->position().y(),
 				  descvtx->position().z(),
@@ -371,11 +374,11 @@ void AddFlowByShifting::MoveDescendantsToParent
       }
 
       // now rotate their associated particles
-      for ( HepMC::GenVertex::particle_iterator descpartit
-	    = descvtx->particles_begin(HepMC::children);
-	  descpartit != descvtx->particles_end(HepMC::children);
-	  ++descpartit ) {
-	auto descpart = (*descpartit);
+#ifdef HEPMC3
+      for (auto descpart: descvtx->particles_out()){
+#else
+      for (auto descpart: *descvtx){
+#endif
         CLHEP::HepLorentzVector momentum(descpart->momentum().px(),
 				  descpart->momentum().py(),
 				  descpart->momentum().pz(),
@@ -388,7 +391,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 
 	m_particles_processed++;
 	// rotate particle
-	if(fabs(phishift) > 1e-7) {
+	if(std::abs(phishift) > 1e-7) {
 	  momentum.rotateZ(phishift*Gaudi::Units::rad);
 	  descpart->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
    	  ATH_MSG_DEBUG(" Phi shift =   " << phishift<<
@@ -492,15 +495,10 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticlePtr parent, const H
 
     if (iter>=1000) return 0;
 
- /*
-    float val=phi   +2*( v1*sin(1*(phi-m_psi_n[0]))/1.0 + v2*sin(2*(phi-m_psi_n[1]))/2.0 +
-                         v3*sin(3*(phi-m_psi_n[2]))/3.0 + v4*sin(4*(phi-m_psi_n[3]))/4.0 +
-                         v5*sin(5*(phi-m_psi_n[4]))/5.0 + v6*sin(6*(phi-m_psi_n  [5]))/6.0 );
-    std::cout<<phi_0<<"  "<<val<<"  "<<phi_0-val<<std::endl;  // */
     phishift = phi-phi_0;
   }
 
-  if(fabs(phishift) > 1e-7) {
+  if(std::abs(phishift) > 1e-7) {
     momentum.rotateZ(phishift*Gaudi::Units::rad);
     parent->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
   }
@@ -658,10 +656,7 @@ void AddFlowByShifting::Set_EbE_Fluctuation_Multipliers(HepMC::GenVertexPtr main
     double EbE_Vn[6];
     for(int ihar=0;ihar<6;ihar++){m_EbE_Multiplier_vn[ihar]=1.0;EbE_Vn[ihar]=0.0;}
   
-    for(auto  partit  =(*mainvtx).particles_begin(HepMC::children);
-	      partit !=(*mainvtx).particles_end  (HepMC::children); 
-              partit++ ) {
-       auto parent = (*partit);
+    for(auto  parent: *mainvtx) {
        float eta= parent->momentum().pseudoRapidity();
        float pT = parent->momentum().perp();
 

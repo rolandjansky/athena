@@ -11,6 +11,7 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTBSErrCacheKey   = "SctBSErrCache"
+  SCTFlaggedCondCacheKey = "SctFlaggedCondCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
   PixBSErrCacheKey   = "PixBSErrCache"
@@ -26,6 +27,7 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
                                               SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
+                                              SCTFlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey,
                                               PixBSErrCacheKey   = InDetCacheNames.PixBSErrCacheKey)
 
@@ -122,7 +124,7 @@ def TrigInDetCondConfig( flags ):
       PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelDCSCondHVAlgCfg,
       PixelDCSCondTempAlgCfg, PixelAlignCondAlgCfg, PixelDetectorElementCondAlgCfg,
       PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
-      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg,
+      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg,
       PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
 # NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
   )
@@ -158,7 +160,6 @@ def TrigInDetCondConfig( flags ):
   acc.merge(PixelDCSCondStateAlgCfg(flags))
   acc.merge(PixelDCSCondStatusAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
-  acc.merge(PixelTDAQCondAlgCfg(flags))
   # offline calibration
   acc.merge(PixelDistortionAlgCfg(flags))
   acc.merge(PixelOfflineCalibCondAlgCfg(flags))
@@ -191,6 +192,21 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
   RegSelTool_SCT = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
 
+  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
+                                                    DataObjects= [('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
+                                                                  ('PixelRDO_Cache', 'PixRDOCache'),
+                                                                  ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
+                                                                  ('SCT_RDO_Cache', 'SctRDOCache'),
+                                                                  ('SpacePointCache', 'PixelSpacePointCache'),
+                                                                  ('SpacePointCache', 'SctSpacePointCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
+                                                                  ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
+                                                                      # ('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_L2CaloEMClusters'),
+                                                                  ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
+                                                                  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
+
+  acc.addEventAlgo(verifier)
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
   if not isMC:
@@ -340,6 +356,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = roisKey
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+  InDetSCT_Clusterization.FlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey
 
   InDetSCT_Clusterization.RegSelTool = RegSelTool_SCT
 
@@ -351,6 +368,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDet__SiSpacePointMakerTool=CompFactory.InDet.SiSpacePointMakerTool
   InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
   acc.addPublicTool(InDetSiSpacePointMakerTool)
+
+  acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") )
 
   from AthenaCommon.DetFlags import DetFlags
   InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
@@ -423,8 +442,7 @@ if __name__ == "__main__":
     #from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     #acc.merge( MainServicesCfg( ConfigFlags ) )
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
-    acc.addEventAlgo(l1DecoderAlg)
+    l1DecoderAcc = L1DecoderCfg( ConfigFlags )
     acc.merge(l1DecoderAcc)
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))

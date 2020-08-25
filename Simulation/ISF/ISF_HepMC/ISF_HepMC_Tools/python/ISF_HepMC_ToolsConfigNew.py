@@ -1,24 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+"""ComponentAccumulator HepMC tools configurations for ISF
 
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
-Tools configurations for ISF
-KG Tan, 17/06/2012
-"""
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-ISF__GenericTruthStrategy, ISF__GenParticleFinalStateFilter, ISF__GenParticlePositionFilter, ISF__GenParticleGenericFilter, ISF__GenParticleInteractingFilter=CompFactory.getComps("ISF::GenericTruthStrategy","ISF::GenParticleFinalStateFilter","ISF::GenParticlePositionFilter","ISF::GenParticleGenericFilter","ISF::GenParticleInteractingFilter",)
-
 from AthenaCommon.SystemOfUnits import MeV, mm
+from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 
-#Functions yet to be migrated:
-#getParticleSimWhiteList, getParticlePositionFilterMS
-#getTruthStrategyGroupID, getTruthStrategyGroupIDHadInt, getTruthStrategyGroupCaloMuBrem_MC15, getTruthStrategyGroupCaloDecay, getValidationTruthStrategy, getLLPTruthStrategy
 
-#--------------------------------------------------------------------------------------------------
-## GenParticleFilters
-
+# GenParticleFilters
 def ParticleFinalStateFilterCfg(ConfigFlags, name="ISF_ParticleFinalStateFilter", **kwargs):
     result = ComponentAccumulator()
     G4NotInUse = not ConfigFlags.Sim.UsingGeant4
@@ -26,34 +16,43 @@ def ParticleFinalStateFilterCfg(ConfigFlags, name="ISF_ParticleFinalStateFilter"
     # use CheckGenInteracting==False to allow GenEvent neutrinos to propagate into the simulation
     kwargs.setdefault("CheckGenSimStable", G4NotInUse)
     kwargs.setdefault("CheckGenInteracting", G4NotInUse)
+    result.setPrivateTools(CompFactory.ISF.GenParticleFinalStateFilter(name, **kwargs))
+    return result
 
-    result.setPrivateTools(ISF__GenParticleFinalStateFilter(name, **kwargs))
+def ParticleSimWhiteListCfg(ConfigFlags, name="ISF_ParticleSimWhiteList", **kwargs):
+    result = ComponentAccumulator()
+    result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))
+    return result
+
+def ParticleSimWhiteList_ExtraParticles(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("WhiteLists" , ["G4particle_whitelist.txt", "G4particle_whitelist_ExtraParticles.txt"] )
+    result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))
     return result
 
 def ParticlePositionFilterCfg(ConfigFlags, name="ISF_ParticlePositionFilter", **kwargs):
-    result = ComponentAccumulator()
+    result = GeoIDSvcCfg(ConfigFlags)
     # ParticlePositionFilter
-    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc'    ) #this svc updated - add once Merge request gone in
-
-    result.setPrivateTools(ISF__GenParticlePositionFilter(name, **kwargs))
+    kwargs.setdefault("GeoIDService", result.getService("ISF_GeoIDSvc"))
+    result.setPrivateTools(CompFactory.ISF.GenParticlePositionFilter(name, **kwargs))
     return result
 
 def ParticlePositionFilterIDCfg(ConfigFlags, name="ISF_ParticlePositionFilterID", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
+    cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
 
-    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID ] )
+    kwargs.setdefault("CheckRegion"  , [ AtlasRegion.fAtlasID ] )
     return ParticlePositionFilterCfg(ConfigFlags, name, **kwargs)
 
 def ParticlePositionFilterCaloCfg(ConfigFlags, name="ISF_ParticlePositionFilterCalo", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
+    cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
 
-    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
+    kwargs.setdefault("CheckRegion"  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
                                             AtlasRegion.fAtlasCalo ] )
     return ParticlePositionFilterCfg(ConfigFlags, name, **kwargs)
@@ -61,10 +60,10 @@ def ParticlePositionFilterCaloCfg(ConfigFlags, name="ISF_ParticlePositionFilterC
 def ParticlePositionFilterMSCfg(name="ISF_ParticlePositionFilterMS", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
+    cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
 
-    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
+    kwargs.setdefault("CheckRegion"  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
                                             AtlasRegion.fAtlasCalo,
                                             AtlasRegion.fAtlasMS ] )
@@ -73,9 +72,9 @@ def ParticlePositionFilterMSCfg(name="ISF_ParticlePositionFilterMS", **kwargs):
 def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilterWorld", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
+    cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
-    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
+    kwargs.setdefault("CheckRegion"  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
                                             AtlasRegion.fAtlasCalo,
                                             AtlasRegion.fAtlasMS,
@@ -84,7 +83,7 @@ def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilter
 
 def ParticlePositionFilterDynamicCfg(ConfigFlags, name="ISF_ParticlePositionFilterDynamic", **kwargs):
     # automatically choose the best fitting filter region
-    
+
     #if ConfigFlags.Detector.SimulateMuon:
     if True:
       return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
@@ -102,22 +101,22 @@ def GenParticleInteractingFilterCfg(ConfigFlags, name="ISF_GenParticleInteractin
     #from G4AtlasApps.SimFlags import simFlags
     #simdict = simFlags.specialConfiguration.get_Value()
     #if simdict is not None and "InteractingPDGCodes" in simdict:
-    #    kwargs.setdefault('AdditionalInteractingParticleTypes', eval(simdict["InteractingPDGCodes"]))
+    #    kwargs.setdefault("AdditionalInteractingParticleTypes", eval(simdict["InteractingPDGCodes"]))
     #if simdict is not None and "NonInteractingPDGCodes" in simdict:
-    #    kwargs.setdefault('AdditionalNonInteractingParticleTypes', eval(simdict["InteractingNonPDGCodes"]))
+    #    kwargs.setdefault("AdditionalNonInteractingParticleTypes", eval(simdict["InteractingNonPDGCodes"]))
 
-    result.setPrivateTools(ISF__GenParticleInteractingFilter(name, **kwargs))
+    result.setPrivateTools(CompFactory.ISF.GenParticleInteractingFilter(name, **kwargs))
     return result
 
 def EtaPhiFilterCfg(ConfigFlags, name="ISF_EtaPhiFilter", **kwargs):
     result = ComponentAccumulator()
     # EtaPhiFilter
     EtaRange = 7.0 if ConfigFlags.Detector.SimulateLucid else 6.0
-    kwargs.setdefault('MinEta' , -EtaRange)
-    kwargs.setdefault('MaxEta' , EtaRange)
-    kwargs.setdefault('MaxApplicableRadius', 30*mm)
+    kwargs.setdefault("MinEta" , -EtaRange)
+    kwargs.setdefault("MaxEta" , EtaRange)
+    kwargs.setdefault("MaxApplicableRadius", 30*mm)
 
-    result.setPrivateTools(ISF__GenParticleGenericFilter(name, **kwargs))
+    result.setPrivateTools(CompFactory.ISF.GenParticleGenericFilter(name, **kwargs))
     return result
 
 #--------------------------------------------------------------------------------------------------
@@ -137,42 +136,148 @@ def EtaPhiFilterCfg(ConfigFlags, name="ISF_EtaPhiFilter", **kwargs):
 #  http://www-geant4.kek.jp/lxr/source//processes/hadronic/management/include/G4HadronicProcessType.hh#L46
 def TruthStrategyGroupID_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupID_MC15", **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault('ParentMinPt'         , 100.*MeV)
-    kwargs.setdefault('ChildMinPt'          , 300.*MeV)
-    kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
-    kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
-    kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
-    kwargs.setdefault('Regions', [1,2]) # Could import AtlasDetDescr::AtlasRegion enum as in TruthService CfgGetter methods here
-    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
+    kwargs.setdefault("ParentMinPt", 100.*MeV)
+    kwargs.setdefault("ChildMinPt" , 300.*MeV)
+    kwargs.setdefault("VertexTypes", [3, 14, 15, 4, 5, 6, 7, 2, 12, 13])
+    kwargs.setdefault("VertexTypeRangeLow", 201)  # All kinds of decay processes
+    kwargs.setdefault("VertexTypeRangeHigh", 298)  # ...
+    kwargs.setdefault("Regions", [1,2]) # Could import AtlasDetDescr::AtlasRegion enum as in TruthService CfgGetter methods here
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
     return result
+
 
 def TruthStrategyGroupIDHadInt_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupIDHadInt_MC15", **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault('ParentMinPt'                       , 100.*MeV)
-    kwargs.setdefault('ChildMinPt'                        , 300.*MeV)
-    kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
-    kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
-    kwargs.setdefault('Regions', [1])
-    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
+    kwargs.setdefault("ParentMinPt", 100.*MeV)
+    kwargs.setdefault("ChildMinPt" , 300.*MeV)
+    kwargs.setdefault("VertexTypes", [111, 121, 131, 141, 151, 161, 210])
+    kwargs.setdefault("AllowChildrenOrParentPassKineticCuts", True)
+    kwargs.setdefault("Regions", [1])
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
     return result
+
 
 def TruthStrategyGroupCaloMuBremCfg(ConfigFlags, name="ISF_MCTruthStrategyGroupCaloMuBrem", **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault('ParentMinEkin'       , 500.*MeV)
-    kwargs.setdefault('ChildMinEkin'        , 100.*MeV)
-    kwargs.setdefault('VertexTypes'         , [ 3 ])
-    kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
-    kwargs.setdefault('Regions', [3])
-    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
+    kwargs.setdefault("ParentMinEkin", 500.*MeV)
+    kwargs.setdefault("ChildMinEkin" , 100.*MeV)
+    kwargs.setdefault("VertexTypes"  , [3])
+    kwargs.setdefault("ParentPDGCodes", [13, -13])
+    kwargs.setdefault("Regions", [3])
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
     return result
+
 
 def TruthStrategyGroupCaloDecay_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupCaloDecay_MC15", **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault('ParentMinEkin'       , 1000.*MeV)
-    kwargs.setdefault('ChildMinEkin'        , 500.*MeV)
-    kwargs.setdefault('VertexTypes'         , [ 5, 6, 7 ])
-    kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
-    kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
-    kwargs.setdefault('Regions', [3])
-    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
+    kwargs.setdefault("ParentMinEkin", 1000.*MeV)
+    kwargs.setdefault("ChildMinEkin" , 500.*MeV)
+    kwargs.setdefault("VertexTypes"  , [5, 6, 7])
+    kwargs.setdefault("VertexTypeRangeLow" , 201)  # All kinds of decay processes
+    kwargs.setdefault("VertexTypeRangeHigh", 298)  # ...
+    kwargs.setdefault("Regions", [3])
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
+    return result
+
+
+def TruthStrategyGroupIDCfg(ConfigFlags, name="ISF_MCTruthStrategyGroupID", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("ParentMinPt", 100.*MeV)
+    kwargs.setdefault("ChildMinPt" , 100.*MeV)
+    kwargs.setdefault("VertexTypes", [3, 14, 15, 4, 5, 6, 7, 2, 12, 13])
+    kwargs.setdefault("VertexTypeRangeLow"  , 201)  # All kinds of decay processes
+    kwargs.setdefault("VertexTypeRangeHigh" , 298)  # ...
+    kwargs.setdefault("Regions", [1,2])
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
+    return result
+
+
+def TruthStrategyGroupIDHadIntCfg(ConfigFlags, name="ISF_MCTruthStrategyGroupIDHadInt", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("ParentMinPt", 100.*MeV)
+    kwargs.setdefault("ChildMinPt" , 100.*MeV)
+    kwargs.setdefault("VertexTypes", [111, 121, 131, 141, 151, 161, 210])
+    kwargs.setdefault("AllowChildrenOrParentPassKineticCuts", True)
+    kwargs.setdefault("Regions", [1])
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
+    return result
+
+
+def TruthStrategyGroupCaloMuBrem_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupCaloMuBrem_MC15", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("ParentMinEkin", 500.*MeV)
+    kwargs.setdefault("ChildMinEkin" , 300.*MeV)
+    kwargs.setdefault("VertexTypes"  , [3])
+    kwargs.setdefault("ParentPDGCodes", [13, -13])
+    kwargs.setdefault("Regions", [3])
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
+    return result
+
+
+def TruthStrategyGroupCaloDecayCfg(ConfigFlags, name="ISF_MCTruthStrategyGroupCaloDecay", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("ParentMinPt", 1000.*MeV)
+    kwargs.setdefault("ChildMinPt" , 500.*MeV)
+    kwargs.setdefault("VertexTypes", [5, 6, 7])
+    kwargs.setdefault("VertexTypeRangeLow" , 201)  # All kinds of decay processes
+    kwargs.setdefault("VertexTypeRangeHigh", 298)  # ...
+    kwargs.setdefault("Regions", [3])
+    result.setPrivateTools(CompFactory.ISF.GenericTruthStrategy(name, **kwargs))
+    return result
+
+def ValidationTruthStrategyCfg(ConfigFlags, name="ISF_ValidationTruthStrategy", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("ParentMinP", 50.*MeV)
+    kwargs.setdefault("Regions", [1,3])
+    result.setPrivateTools(CompFactory.ISF.ValidationTruthStrategy(name, **kwargs))
+    return result
+
+
+def LLPTruthStrategyCfg(ConfigFlags, name="ISF_LLPTruthStrategy", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("PassProcessCodeRangeLow",  200)
+    kwargs.setdefault("PassProcessCodeRangeHigh", 299)
+    # ProcessCategory==9 corresponds to the "fUserDefined" G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault("PassProcessCategory", 9) # ==
+    kwargs.setdefault("Regions", [1,2,3,4])
+    result.setPrivateTools(CompFactory.ISF.LLPTruthStrategy(name, **kwargs))
+    return result
+
+
+def KeepLLPDecayChildrenStrategyCfg(ConfigFlags, name="ISF_KeepLLPDecayChildrenStrategy", **kwargs):
+    result = ComponentAccumulator()
+    # ProcessCategory==9 corresponds to the "fUserDefined" G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault("PassProcessCategory", 9) # ==
+    kwargs.setdefault("VertexTypeRangeLow" , 200) # All kinds of decay processes
+    kwargs.setdefault("VertexTypeRangeHigh", 299) # ...
+    kwargs.setdefault("BSMParent"          , True)
+    result.setPrivateTools(CompFactory.ISF.KeepChildrenTruthStrategy(name, **kwargs))
+    return result
+
+
+def KeepLLPHadronicInteractionChildrenStrategyCfg(ConfigFlags, name="ISF_KeepLLPHadronicInteractionChildrenStrategy", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("VertexTypes", [111, 121, 131, 141, 151, 161, 210])
+    kwargs.setdefault("BSMParent"  , True)
+    result.setPrivateTools(CompFactory.ISF.KeepChildrenTruthStrategy(name, **kwargs))
+    return result
+
+
+def KeepAllDecayChildrenStrategyCfg(ConfigFlags, name="ISF_KeepAllDecayChildrenStrategy", **kwargs):
+    result = ComponentAccumulator()
+    # ProcessCategory==9 corresponds to the "fUserDefined" G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault("PassProcessCategory", 9) # ==
+    kwargs.setdefault("VertexTypeRangeLow" , 200) # All kinds of decay processes
+    kwargs.setdefault("VertexTypeRangeHigh", 299) # ...
+    result.setPrivateTools(CompFactory.ISF.KeepChildrenTruthStrategy(name, **kwargs))
+    return result
+
+
+def KeepHadronicInteractionChildrenStrategyCfg(ConfigFlags, name="ISF_KeepHadronicInteractionChildrenStrategy", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("VertexTypes", [111, 121, 131, 141, 151, 161, 210])
+    result.setPrivateTools(CompFactory.ISF.KeepChildrenTruthStrategy(name, **kwargs))
     return result

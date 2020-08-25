@@ -84,129 +84,129 @@ public:
   virtual std::unique_ptr<ICache> getCache() const = 0;
 
   /** Updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
+    The parameters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller.
     */
-  virtual const TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     ICache& icache,
-    const TrackParameters* parm,
+    const TrackParameters* param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** User updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are deleted inside the update
-    method. Update occurs on the place where the parameters parm are according
-    to the specified MaterialEffectsOnTrack
+    The parameters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
     */
-  virtual const TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     ICache& icache,
-    const TrackParameters* parm,
+    const TrackParameters* param,
     const MaterialEffectsOnTrack& meff,
     Trk::ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
+    The parameters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
     */
-  virtual const TrackParameters* preUpdate(
+  virtual std::unique_ptr<TrackParameters> preUpdate(
     ICache& icache,
-    const TrackParameters* parm,
+    const TrackParameters* param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update if the postUpdate fails, it returns 0
+    The parameters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
+    Layer-based material update if the postUpdate fails, it returns 0
     */
-  virtual const TrackParameters* postUpdate(
+  virtual std::unique_ptr<TrackParameters> postUpdate(
     ICache& icache,
-    const TrackParameters& parm,
+    const TrackParameters& param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface:
-    The parmeters are given as a pointer, they are delete inside the update
-    method. MaterialProperties based material update
+    The parameters are given as a pointer owned by the caller.
+    The returned ptr is owned by the caller
     - used by all Layer-based methods
     */
-  virtual const TrackParameters* update(
+  virtual std::unique_ptr<TrackParameters> update(
     ICache& icache,
-    const TrackParameters& parm,
+    const TrackParameters& param,
     const MaterialProperties& mprop,
     double pathcorrection,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Validation Action: */
   virtual void validationAction(ICache& icache) const = 0;
 
   /** Model Action:*/
   virtual void modelAction(ICache& icache,
-                           const TrackParameters* parm = nullptr) const = 0;
+                           const TrackParameters* param = nullptr) const = 0;
 
   /** Updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
     */
-  virtual const TrackParameters* update(
-    const TrackParameters* parm,
+  virtual std::unique_ptr<TrackParameters> update(
+    const TrackParameters* param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** User updator interface (full update for a layer):
-    The parmeters are given as a pointer, they are deleted inside the update
-    method. Update occurs on the place where the parameters parm are according
-    to the specified MaterialEffectsOnTrack
     */
-  virtual const TrackParameters* update(
-    const TrackParameters* parm,
+  virtual std::unique_ptr<TrackParameters> update(
+    const TrackParameters* param,
     const MaterialEffectsOnTrack& meff,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
   /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update
     */
-  virtual const TrackParameters* preUpdate(
-    const TrackParameters* parm,
+  virtual std::unique_ptr<TrackParameters> preUpdate(
+    const TrackParameters* param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface (pre-update for a layer):
-    The parmeters are given as a pointer, they are delete inside the update
-    method. Layer-based material update if the postUpdate fails, it returns 0
     */
-  virtual const TrackParameters* postUpdate(
-    const TrackParameters& parm,
+  virtual std::unique_ptr<TrackParameters> postUpdate(
+    const TrackParameters& param,
     const Layer& sf,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
 
   /** Updator interface:
-    The parmeters are given as a pointer, they are delete inside the update
-    method. MaterialProperties based material update
+    MaterialProperties based material update
     - used by all Layer-based methods
     */
-  virtual const TrackParameters* update(
-    const TrackParameters& parm,
+  virtual std::unique_ptr<TrackParameters> update(
+    const TrackParameters& param,
     const MaterialProperties& mprop,
     double pathcorrection,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
+    MaterialUpdateMode matupmode = addNoise
+  ) const = 0;
   /** Validation Action:
     outside access to internal validation steps
     Optional */
@@ -216,7 +216,7 @@ public:
    * doing non-local MaterialEffectsUpdates for different models
    * Optional
    */
-  virtual void modelAction(const TrackParameters* parm = nullptr) const = 0;
+  virtual void modelAction(const TrackParameters* param = nullptr) const = 0;
 };
 
 } // end of namespace

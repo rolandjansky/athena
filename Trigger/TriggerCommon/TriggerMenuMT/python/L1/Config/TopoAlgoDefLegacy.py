@@ -23,7 +23,7 @@ class TopoAlgoDefLegacy:
         log.debug("usev7 %r", usev7)
         log.debug("usev8 %r", usev8)
 
-        _emscale_for_decision = getTypeWideThresholdConfig("EM")["emscale"]
+        _emscale_for_decision = 1000 / getTypeWideThresholdConfig("EM")["resolutionMeV"]
 
         alg = AlgConf.ClusterNoSort( name = 'EMall', inputs = 'ClusterTobArray', outputs = 'EMall', algoId = currentAlgoId) 
         currentAlgoId += 1

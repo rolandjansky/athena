@@ -42,6 +42,7 @@
 #include <memory>
 #include <vector>
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Legacy code
 
 using namespace PixelGeoDC2;
 

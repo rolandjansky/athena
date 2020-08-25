@@ -1,5 +1,4 @@
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: PhysVal_jobOptions.py 795792 2017-02-06 14:45:08Z sroe $
 
@@ -99,15 +98,20 @@ tool1 = InDetPhysValMonitoringTool()
 tool1.TruthSelectionTool = AthTruthSelectionTool
 tool1.useTrackSelection = usingTrackSelection
 tool1.TrackSelectionTool=InDetTrackSelectorTool
-tool1.useTrkSelectPV= False
 tool1.FillTrackInJetPlots = True
 print tool1
 #ToolSvc += tool1
 
 monMan.AthenaMonTools += [tool1]
 
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+InDetBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetBoundaryCheckTool"
+)
+ToolSvc += InDetBoundaryCheckTool
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, usePixel = True, useSCT= True, CountDeadModulesAfterLastHit = True)
+InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, BoundaryCheckTool=InDetBoundaryCheckTool, CountDeadModulesAfterLastHit = True)
 ToolSvc += InDetHoleSearchTool
 print InDetHoleSearchTool
 

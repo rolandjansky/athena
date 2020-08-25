@@ -10,6 +10,10 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MuonSpectrometer/MSVertexReconstruction/MSVertexUtils )
 
-# Install files from the package:
-atlas_install_headers( MSVertexToolInterfaces )
+atlas_add_library( MSVertexToolInterfaces
+                   MSVertexToolInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MSVertexToolInterfaces
+                   LINK_LIBRARIES GaudiKernel MSVertexUtils )
+
 

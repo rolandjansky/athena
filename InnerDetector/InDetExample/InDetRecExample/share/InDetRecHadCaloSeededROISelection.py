@@ -25,7 +25,7 @@ from InDetCaloClusterROIBuilder.InDetCaloClusterROIBuilderConf import InDet__Cal
 InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder")
 
 if (InDetFlags.doPrintConfigurables()):
-    print InDetCaloClusterROIBuilder
+    print (InDetCaloClusterROIBuilder)
 
 
 #
@@ -40,5 +40,5 @@ InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector ( name          
                                                                 )
 topSequence += InDetHadCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
-    print InDetHadCaloClusterROISelector
+    print (InDetHadCaloClusterROISelector)
 

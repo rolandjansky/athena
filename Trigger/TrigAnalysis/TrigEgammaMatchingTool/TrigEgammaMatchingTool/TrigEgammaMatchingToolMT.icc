@@ -60,6 +60,8 @@ inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, con
 {
   double deltaR=0.;        
   auto vec =  tdt()->features<T>(trigger,TrigDefs::includeFailedDecisions ,key);      
+  
+  
   for( auto &featLinkInfo : vec ){                                             
     if(! featLinkInfo.isValid() ) continue;
     const auto *feat = *(featLinkInfo.link);                   

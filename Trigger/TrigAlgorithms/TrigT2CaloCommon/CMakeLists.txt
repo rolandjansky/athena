@@ -5,6 +5,7 @@ atlas_subdir( TrigT2CaloCommon )
 
 # External dependencies:
 find_package( tdaq-common )
+find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( TrigT2CaloCommonLib
@@ -37,3 +38,5 @@ endfunction( _add_test )
 
 _add_test( TestService test/test_dataaccess.sh )
 _add_test( TestServiceNewJO test/test_dataaccessNewJO.sh )
+_add_test( caloOnly  test/test_t2calo_only_build.sh )
+_add_test( caloRinger test/test_t2calo_ringer_only_build.sh )

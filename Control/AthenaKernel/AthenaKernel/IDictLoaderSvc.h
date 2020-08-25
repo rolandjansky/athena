@@ -73,7 +73,7 @@ class IDictLoaderSvc
    *         by any necessary means.
    */
   virtual
-  const RootType load_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name) = 0;
+  const RootType load_type (const std::string& type_name) = 0;
 
   /** @brief retrieve a @c RootType by @c std::type_info (auto)loading the
    *         dictionary by any necessary means.
@@ -81,13 +81,13 @@ class IDictLoaderSvc
    *         succeed *IF* the dictionary for that type has been generated.
    */
   virtual
-  const RootType load_type ATLAS_NOT_THREAD_SAFE (const std::type_info& typeinfo) = 0;
+  const RootType load_type (const std::type_info& typeinfo) = 0;
 
   /** @brief retrieve a @c RootType by name (auto)loading the dictionary
    *         by any necessary means.
    */
   virtual
-  const RootType load_type ATLAS_NOT_THREAD_SAFE (CLID clid) = 0;
+  const RootType load_type (CLID clid) = 0;
 
 }; 
 

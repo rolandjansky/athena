@@ -33,7 +33,6 @@ atlas_add_component( EventInfoMgt
                      AthenaPoolUtilities EventInfo EventInfoUtils IOVDbMetaDataToolsLib )
 
 # Install files from the package:
-atlas_install_headers( EventInfoMgt )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/EventInfoMgt_jobOptions.py )
 atlas_install_scripts( share/dumpRunNumber.py )

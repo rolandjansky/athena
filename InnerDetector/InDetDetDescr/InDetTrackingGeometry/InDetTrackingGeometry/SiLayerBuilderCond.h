@@ -11,6 +11,8 @@
 
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk
@@ -19,8 +21,6 @@
 // STL
 #include <vector>
 #include <utility> //for std::pair
-
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 class PixelID;
 class SCT_ID;
@@ -64,7 +64,8 @@ namespace InDet {
 
      @author Andreas.Salzburger@cern.ch
     */
-  class SiLayerBuilderCond : public AthAlgTool, virtual public Trk::ILayerBuilderCond {
+  class ATLAS_NOT_THREAD_SAFE SiLayerBuilderCond : // static member variables are used.
+    public AthAlgTool, virtual public Trk::ILayerBuilderCond {
     
     public:
     

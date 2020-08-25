@@ -1,38 +1,17 @@
-################################################################################
-# Package: TrigT1MuctpiPhase1
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1MuctpiPhase1 )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          PRIVATE
-                          Control/AthenaKernel
-                          GaudiKernel
-                          PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
-                          Tools/PathResolver
-                          Control/CxxUtils
-                          Event/xAOD/xAODTrigger
-                          Trigger/TrigConfiguration/TrigConfInterfaces
-                          Trigger/TrigConfiguration/TrigConfL1Data
-                          Trigger/TrigConfiguration/TrigConfMuctpi
-                          Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1Result )
-
-# External dependencies:
-find_package( XercesC )
+# External pacakge dependencies:
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( TrigT1MuctpiPhase1
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${XERCESC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel AnalysisTriggerEvent PathResolver TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                     LINK_LIBRARIES AnalysisTriggerEvent AthenaBaseComps CxxUtils GaudiKernel PathResolver StoreGateLib TrigConfInterfaces TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger )
 
 # Install files from the package:
-atlas_install_headers( TrigT1MuctpiPhase1 )
-atlas_install_python_modules( python/*.py )
-atlas_install_xmls( data/*.xml )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

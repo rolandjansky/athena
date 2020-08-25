@@ -93,7 +93,7 @@ StatusCode DiPhotonFilter::filterEvent() {
         etamax = m_EtaRange_2nd;
       }
       if (MCTruthPhotonList[i]->momentum().perp() >= ptmin &&
-          fabs(MCTruthPhotonList[i]->momentum().pseudoRapidity()) <= etamax) {
+          std::abs(MCTruthPhotonList[i]->momentum().pseudoRapidity()) <= etamax) {
         MCTruthPhotonList2.push_back(MCTruthPhotonList[i]);
       }
     }

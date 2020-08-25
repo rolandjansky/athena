@@ -41,14 +41,14 @@ const std::vector<std::unique_ptr<Muon::MdtIntersectGeometry> > MuonStationInter
   std::vector<std::unique_ptr<Muon::MdtIntersectGeometry> > stations;
 
   // loop over bins, retrieve geometry
-  for( const auto chId : chambers){
+  for( const auto& chId : chambers){
     if(dbData){
       if(!dbData->isGoodStation(chId)){
 	ATH_MSG_VERBOSE ("chamber "<<m_idHelperSvc->toString(chId)<<" is dead");
 	continue;
       }
     }
-    stations.push_back(std::unique_ptr<Muon::MdtIntersectGeometry>(new Muon::MdtIntersectGeometry( chId, detMgr,dbData,&this->msgStream())));
+    stations.push_back(std::unique_ptr<Muon::MdtIntersectGeometry>(new Muon::MdtIntersectGeometry( chId, detMgr,dbData,&this->msgStream(),m_idHelperSvc.get())));
   }
   return stations;
 }

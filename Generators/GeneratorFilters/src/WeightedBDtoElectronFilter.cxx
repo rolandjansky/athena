@@ -103,6 +103,48 @@ HepMC::ConstGenParticlePtr WeightedBDtoElectronFilter::FindBParent( HepMC::Const
     return 0;
   }
 
+#ifdef HEPMC3
+  HepMC::ConstGenParticlePtr bParent = 0;
+  auto parentItr = part->production_vertex()->particles_in().begin();
+  if ( parentItr == part->production_vertex()->particles_in().end() ) {
+    ATH_MSG_DEBUG("Vertex has no incoming particle ");
+    return 0;
+  }
+
+  for ( ;; ) {
+    if (isBHadron((*parentItr)->pdg_id()) || isDHadron((*parentItr)->pdg_id()) ) {
+      ATH_MSG_INFO("Found B hadron (grand) parent ");
+      break;
+    }
+
+    // get parent
+    if ( !(*parentItr)->production_vertex() ) { // no production vertex
+      ATH_MSG_INFO("No production vertex found => interrupt ");
+      break;
+    }
+    if ( (*parentItr)->production_vertex()->particles_in().begin() == (*parentItr)->production_vertex()->particles_in().end() ) { // no parent particle
+      ATH_MSG_INFO("No parent particle found => interrupt ");
+      break;
+    }
+    if ( (*parentItr)->production_vertex()->particles_in().begin() == parentItr ) {
+      ATH_MSG_INFO("Particle is its own parent => interrupt ");
+      break;
+    }
+
+    ATH_MSG_INFO("Tracing back; id = " << (*parentItr)->pdg_id() <<
+                 ";  parent id = " << (*(*parentItr)->production_vertex()->particles_in().begin())->pdg_id());
+    parentItr = (*parentItr)->production_vertex()->particles_in().begin();
+  }
+
+
+  if ( isBHadron((*parentItr)->pdg_id()) || isDHadron((*parentItr)->pdg_id()) ) {
+    bParent = (*parentItr);
+    ATH_MSG_INFO("Found B hadron: " << (*parentItr)->pdg_id());
+  } else {
+    ATH_MSG_INFO("No B hadron found among ancestors; last found was: " << (*parentItr)->pdg_id());
+  }
+#else
+
   HepMC::GenVertex::particles_in_const_iterator parentItr = part->production_vertex()->particles_in_const_begin();
   if ( parentItr == part->production_vertex()->particles_in_const_end() ) {
     ATH_MSG_DEBUG("Vertex has no incoming particle ");
@@ -141,6 +183,7 @@ HepMC::ConstGenParticlePtr WeightedBDtoElectronFilter::FindBParent( HepMC::Const
   } else {
     ATH_MSG_INFO("No B hadron found among ancestors; last found was: " << (*parentItr)->pdg_id());
   }
+#endif
   return bParent;
 }
 

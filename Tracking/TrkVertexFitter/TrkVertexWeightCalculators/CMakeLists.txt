@@ -27,7 +27,8 @@ atlas_add_component( TrkVertexWeightCalculators
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking GaudiKernel TrkVertexFitterInterfaces GeneratorObjects TrkParameters VxVertex TrkNeuralNetworkUtilsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking GaudiKernel TrkVertexFitterInterfaces 
+                     GeneratorObjects TrkParameters VxVertex TrkNeuralNetworkUtilsLib)
 
 # Install files from the package:
 atlas_install_headers( TrkVertexWeightCalculators )

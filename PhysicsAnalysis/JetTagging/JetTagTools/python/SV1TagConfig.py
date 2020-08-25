@@ -28,7 +28,7 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
     options['name'] = name
     options['xAODBaseName'] = 'SV1'
     if useBTagFlagsDefaults:
-        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SV1NewLikelihoodTool', 'SV1'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SV1NewLikelihoodTool', 'SV1', scheme))
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : flags.BTagging.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
@@ -42,3 +42,4 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
     acc.setPrivateTools(Analysis__SVTag(**options))
 
     return acc
+

@@ -22,7 +22,7 @@
 
 
 
-#include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
+#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
 
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -66,12 +66,13 @@ class HLTBjetMonTool : public IHLTMonTool {
   std::map<std::string,std::string> m_Chain2Dir;
   std::vector<std::string> m_Shifter_jSplit, m_Expert_jSplit, m_Shifter_jUnSplit,  m_Expert_jUnSplit, m_Shifter_mujet, m_Expert_mujet;
 
-  Gaudi::Property<std::string> m_onlineBjetContainerKey {this,"OnlineBJetContainerKey","HLT_GSCJet",
+  Gaudi::Property<std::string> m_onlineBjetContainerKey {this,"OnlineBJetContainerKey","HLT_bJets",
       "The SG key of the online BJet container from the TriggerEDMRun3"};
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_offlineVertexContainerKey {this,"OfflineVertexContainerName","PrimaryVertices","Key of offline primary vertexes"};
-  SG::ReadHandleKey<xAOD::VertexContainer> m_onlineVertexContainerKey {this,"OnlineVertexContainerName","HLT_IDVertex_FS","Key of online bjet primary vertexes"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_onlineVertexContainerKey {this,"OnlineVertexContainerName","HLT_IDVertex_FS","Key of online bjet primary vertexes"}; // MS 290620
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_onlineTrackContainerKey {this,"OnlineTrackContainerName","HLT_IDTrack_Bjet_IDTrig","Key of online tracks of bjets"};
+  SG::ReadHandleKey<xAOD::BTaggingContainer> m_onlineBTaggingContainerKey {this,"OnlineBTaggingContainerName","HLT_BTagging","Key of online b-tagging object"};
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 

@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 Analysis__MultiSVTag=CompFactory.Analysis.MultiSVTag
 
-def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', useBTagFlagsDefaults = True, **options):
+def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a MultiSVTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -23,6 +23,9 @@ def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', 
     acc = ComponentAccumulator()
     options['name'] = name
     options['xAODBaseName'] = 'MSV'
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
+
     if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'taggerNameBase'                   : taggerNameBase,
@@ -32,3 +35,4 @@ def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', 
     acc.setPrivateTools(Analysis__MultiSVTag( **options))
 
     return acc
+

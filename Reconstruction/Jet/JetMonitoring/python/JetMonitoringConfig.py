@@ -376,6 +376,41 @@ class HistoSpec(ToolSpec):
         write(')')
 
 
+class EventHistoSpec(ToolSpec):
+    """A similar dictionary to HistoSpec above, but specialized to contain a
+    JetHistoEventLevelFiller specification.
+    Invocation is like : spec = EventHistoSpec( name, bins=(n,xlow,xhigh) )
+    """
+    def __init__(self, name, bins, **args):
+        ToolSpec.__init__(self, klass=None, name=name, **args) # we don't really need to pass a klass because we're specialized for JetHistoEventLevelFiller, see toTool()
+        self.bins = bins
+        self.hargs = ConfigDict( **args)
+
+
+    def toTool(self):
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+        # force the property "VarName" to simply be the name of the variable specification:
+        v = knownEventVar[self.name]
+        v.VarName = v.name
+        tool = CompFactory.JetHistoEventLevelFiller( self.name+"hfiller",
+                                                Var = v.toTool(),
+                                                Group = self.name,
+        )
+        return tool
+
+    def defineHisto(self, parentAlg, monhelper , path):
+        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+        hargs = dict(xbins = self.bins[0],xmin = self.bins[1], xmax=self.bins[2],
+                     type='TH1F', )
+        hargs.update( **self.hargs)
+        # we create one group for each histoFiller : self.name() are unique within a JetMonitoringAlg
+        bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
+        group = monhelper.addGroup(parentAlg, self.name, self.topLevelDir+bottomLevelDir)
+        group.defineHistogram(knownEventVar[self.name].VarName, path=path, **hargs)
+
+
+
 
 
 class SelectSpec(ToolSpec):
@@ -410,6 +445,7 @@ class SelectSpec(ToolSpec):
             args['Selector'] = selSpec
 
 
+
         self.name = selname
         self.path = path
         ConfigDict.__init__(self, **args)
@@ -425,7 +461,7 @@ class SelectSpec(ToolSpec):
         from AthenaConfiguration.ComponentFactory import CompFactory
         # conf = self.clone(self.name)
         # name = conf.pop('name')
-        selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1))
+        selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1), InverseJetSel=self.get('InverseJetSel',False))
         if hasattr(self,'Selector'):
             self.Selector.topLevelDir = self.topLevelDir
             self.Selector.bottomLevelDir = self.bottomLevelDir
@@ -544,15 +580,15 @@ def retrieveVarToolConf(alias):
 
 
 def retrieveEventVarToolConf(alias):
-    """Return a ToolSpec from alias : (now with EventInfo variables) 
+    """Return a ToolSpec from alias : (now with EventInfo or JetContainer variables) 
         * if alias is a string build a ToolSpec, assuming alias is an attribute of type float.
         * if alias is a ToolSpec, returns it directly
     """
     from JetMonitoring.JetStandardHistoSpecs import knownEventVar
-    if isinstance(alias, str):
-        conf = knownEventVar.get(alias,None)
-        if conf is None:
-          conf = ToolSpec('EventHistoVarTool', alias, Variable=alias)
+    if isinstance(alias, str): #check for existing event or jetcontainer specs
+        conf = knownEventVar.get(alias,None) 
+        if conf is None: #assume it's an eventInfo variable
+          conf = ToolSpec('EventHistoVarTool', alias, Attribute=alias) 
     else: # assume it's a config dict
         conf = alias
     return conf

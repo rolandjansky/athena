@@ -140,7 +140,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	    &&(part->pdg_id() != 12 ) && (part->pdg_id() != -12 ) 
 	    &&(part->pdg_id() != 14 ) && (part->pdg_id() != -14 ) 
 	    &&(part->pdg_id() != 16 ) && (part->pdg_id() != -16 ) 
-	    && (fabs(part->momentum().pseudoRapidity()) <= m_emaxeta) 
+	    && (std::abs(part->momentum().pseudoRapidity()) <= m_emaxeta) 
 	     ){	// no neutrinos or muons and particles must be in active range
 	  int ip,ie;
 	  ip=(int) ((m_twopi/2.+ part->momentum().phi())/m_edphi); //phi is in range -pi to pi
@@ -158,7 +158,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	  etgrid[ip][ie]=etgrid[ip][ie]+part->momentum().perp(); // fortran had pt here
 	  if (part->pdg_id() == 22 && 
 	      part->momentum().perp() > m_photonPt && 
-	      fabs(part->momentum().pseudoRapidity()) < m_photonEta) {
+	      std::abs(part->momentum().pseudoRapidity()) < m_photonEta) {
 	    MCTruthPhotonList.push_back(part);
 	  }
 #if 0
@@ -276,7 +276,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
       FoundJet.setPy(jetpy);  
       FoundJet.setPz(jetpz);  
       FoundJet.setE(jete); 
-      if(fabs(FoundJet.pseudoRapidity())< m_UserEta && 
+      if(std::abs(FoundJet.pseudoRapidity())< m_UserEta && 
 	 FoundJet.vect().perp() > m_UserThresh){
 	int foundPhotons = 0;
 	//std::cout << "# of photons = " << MCTruthPhotonList.size() << std::endl;
@@ -284,8 +284,8 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	if (m_photonSumPt >= 0. && MCTruthPhotonList.size() > 0) {
 	  double sumPt = 0.;
 	  for (unsigned int ig=0;ig<MCTruthPhotonList.size();++ig) {
-	    double deta = fabs(MCTruthPhotonList[ig]->momentum().pseudoRapidity()-FoundJet.pseudoRapidity());
-	    double dphi = fabs(MCTruthPhotonList[ig]->momentum().phi()-FoundJet.phi());
+	    double deta = std::abs(MCTruthPhotonList[ig]->momentum().pseudoRapidity()-FoundJet.pseudoRapidity());
+	    double dphi = std::abs(MCTruthPhotonList[ig]->momentum().phi()-FoundJet.phi());
 	    if (dphi > M_PI) dphi = 2.*M_PI - dphi;
 	    double dR = sqrt(deta*deta+dphi*dphi);
 	    if (dR < m_dRphotonjet) {

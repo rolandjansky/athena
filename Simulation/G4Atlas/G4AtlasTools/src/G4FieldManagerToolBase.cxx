@@ -55,31 +55,8 @@ static constexpr double perMillion  = CLHEP::perMillion;
 G4FieldManagerToolBase::G4FieldManagerToolBase(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent)
-  : base_class(type, name, parent),
-    m_fieldSvc("G4FieldSvc", name),
-    m_fieldOn(true),
-    m_integratorStepper("AtlasRK4"),
-    m_equationOfMotion("", this), //private toolhandle
-    m_minEps(-1.0),
-    m_maxEps(-1.0),
-    m_deltaChord(-1.0),
-    m_deltaOneStep(-1.0),
-    m_deltaIntersection(-1.0),
-    m_maxStep(-1.0), // (1.*CLHEP::m)
-    m_minStep(1e-2) // (1.*CLHEP::mm)
+  : base_class(type, name, parent)
 {
-  // Declare common configurable properties
-  declareProperty( "FieldSvc", m_fieldSvc, "Service providing a G4MagneticField");
-  declareProperty( "FieldOn", m_fieldOn, "Toggles field on/off");
-  declareProperty( "IntegratorStepper", m_integratorStepper, "Integrator stepper name" );
-  declareProperty( "EquationOfMotion", m_equationOfMotion, "");
-  declareProperty( "DeltaChord", m_deltaChord, "Missing distance for the chord finder" );
-  declareProperty( "DeltaOneStep", m_deltaOneStep, "Delta(one-step)" );
-  declareProperty( "DeltaIntersection", m_deltaIntersection, "Accuracy for boundary intersection" );
-  declareProperty( "MinimumEpsilonStep", m_minEps, "Minimum epsilon (see G4 documentation)" );
-  declareProperty( "MaximumEpsilonStep", m_maxEps, "Maximum epsilon (see G4 documentation)" );
-  declareProperty( "MaximumStep", m_maxStep, "Maximum step length in field (see G4 documentation)" );
-  declareProperty( "MinimumStep", m_minStep, "Minimum step length in field (see G4 documentation)" );
 }
 
 //=============================================================================

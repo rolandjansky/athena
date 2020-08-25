@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_ADDPHYSICSDECAYTOOL_H
@@ -38,9 +38,9 @@ public:
   virtual void ConstructParticle() override;
 
 protected:
-  std::string m_ParticleName;
-  double m_BR;
-  std::string m_Daughters;
+  Gaudi::Property<std::string> m_ParticleName{this, "ParticleName", "NoFile", "Particle name"};
+  Gaudi::Property<double> m_BR{this, "BR", 0, "Branching Ratio"};
+  Gaudi::Property<std::string> m_Daughters{this, "Daughters", "NoFile", "Daughters"};
   std::vector<std::string> m_Daughters_vec;
 
 };

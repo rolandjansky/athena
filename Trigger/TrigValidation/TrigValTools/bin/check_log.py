@@ -15,24 +15,24 @@ If no config file is provided, all errors will be shown.'
 
 # Error keywords
 errorRegex = [
-    '^ERROR ', ' ERROR ', ' FATAL ', 'CRITICAL ', 'ABORT_CHAIN',
-    '^Exception\:',
-    '^Caught signal',
-    '^Core dump',
-    'inconsistent use of tabs and spaces in indentation',
-    'glibc detected',
-    'tcmalloc\: allocation failed',
-    'athenaHLT.py\: error',
-    'HLTMPPU.*Child Issue',
-    'HLTMPPU.*Configuration Issue',
-    'There was a crash',
-    'illegal instruction',
-    'failure loading library',
-    'Cannot allocate memory',
-    'in state: CONTROLREADY$',
-    '^\s*missing data: ',
-    '^\s*can be produced by alg(s): ',
-    'pure virtual method called'
+    r'^ERROR ', ' ERROR ', ' FATAL ', 'CRITICAL ', 'ABORT_CHAIN',
+    r'^Exception\:',
+    r'^Caught signal',
+    r'^Core dump',
+    r'inconsistent use of tabs and spaces in indentation',
+    r'glibc detected',
+    r'tcmalloc\: allocation failed',
+    r'athenaHLT.py\: error',
+    r'HLTMPPU.*Child Issue',
+    r'HLTMPPU.*Configuration Issue',
+    r'There was a crash',
+    r'illegal instruction',
+    r'failure loading library',
+    r'Cannot allocate memory',
+    r'in state: CONTROLREADY$',
+    r'^\s*missing data: ',
+    r'^\s*can be produced by alg(s): ',
+    r'pure virtual method called'
 ]
 
 # Add list of all builtin Python errors
@@ -42,11 +42,11 @@ errorRegex.extend(builtinErrors)
 
 # Traceback keywords
 traceback = [
-    'Traceback',
-    'Shortened traceback',
-    'stack trace',
-    '^Algorithm stack',
-    '^#\d+\s*0x\w+ in '
+    r'Traceback',
+    r'Shortened traceback',
+    r'stack trace',
+    r'^Algorithm stack',
+    r'^#\d+\s*0x\w+ in '
 ]
 errorRegex.extend(traceback)
 
@@ -113,7 +113,7 @@ def parseConfig():
                       line = line[1:-1]
                   ignorePattern.append(line)
         noConfig = False
-    except:
+    except Exception:
       print('No config file, all warnings/errors will be printed')
       noConfig = True
 
@@ -124,9 +124,9 @@ def scanLogfile():
     tPattern = re.compile('|'.join(traceback))
     global msgLevels
     global logFileAddress
-    if args.warnings == True:
+    if args.warnings is True:
         pattern = warningRegex
-    if args.errors == True:
+    if args.errors is True:
         pattern = errorRegex
     msgLevels = re.compile('|'.join(pattern))
     igLevels = re.compile('|'.join(ignorePattern))
@@ -136,7 +136,7 @@ def scanLogfile():
         tracing = False
         for line in logFile:
             #Tracing only makes sense for errors
-            if args.errors == True and re.search(tPattern,line):
+            if args.errors is True and re.search(tPattern,line):
                 tracing = True
             elif line =='\n':
                 tracing = False

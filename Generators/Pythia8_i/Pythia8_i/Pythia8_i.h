@@ -10,7 +10,7 @@
 #include "Pythia8/Pythia.h"
 //#include "Pythia8/../Pythia8Plugins/HepMC2.h"
 #ifdef HEPMC3
-#include "AtlasHepMC/Pythia8ToHepMC3.h"
+#include "Pythia8ToHepMC3.h"
 namespace HepMC {
 typedef HepMC3::Pythia8ToHepMC3	Pythia8ToHepMC;	
 }
@@ -24,7 +24,6 @@ typedef HepMC3::Pythia8ToHepMC3	Pythia8ToHepMC;
 
 #include <stdexcept>
 
-using std::string;
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration

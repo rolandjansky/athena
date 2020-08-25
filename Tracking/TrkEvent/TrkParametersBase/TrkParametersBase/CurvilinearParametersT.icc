@@ -249,6 +249,15 @@ CurvilinearParametersT<DIM, T, S>::type() const
   return Trk::Curvilinear;
 }
 
+/** Return the Surface Type (check SurfaceType enums)*/
+template<int DIM, class T, class S>
+int
+CurvilinearParametersT<DIM, T, S>::surfaceType() const
+{
+  return S::staticType();
+}
+
+
 // Surface return (with on demand construction)
 template<int DIM, class T, class S>
 Amg::RotationMatrix3D

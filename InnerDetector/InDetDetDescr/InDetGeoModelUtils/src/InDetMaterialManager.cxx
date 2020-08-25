@@ -84,7 +84,7 @@ InDetMaterialManager::~InDetMaterialManager() {
 }
 
 const AbsMaterialManager*
-InDetMaterialManager::retrieveManager(StoreGateSvc* detStore) {
+InDetMaterialManager::retrieveManager(const StoreGateSvc* detStore) {
   const StoredMaterialManager* theGeoMaterialManager = nullptr;
 
   if (StatusCode::SUCCESS != detStore->retrieve(theGeoMaterialManager, "MATERIALS")) {

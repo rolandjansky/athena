@@ -9,14 +9,56 @@ import logging
 from PyUtils.MetaReader import read_metadata
 
 
+def summary(content):
+    """Create a summary string for an object"""
+    if isinstance(content, str):
+        return content
+
+    try:
+        try:
+            working_copy = content.items()
+        except AttributeError:
+            working_copy = content
+        result = ''
+        for key, value in working_copy:
+            result += "{}: {}, ".format(key, summary(value))
+        return result
+    except (TypeError, ValueError,):
+        pass
+
+    try:
+        if len(content) < 3:
+            return str(content)
+        return "[{}, {}, ..., {}]".format(
+            summary(content[0]), summary(content[1]), summary(content[-1])
+        )
+    except TypeError:
+        pass
+
+    return str(content)
+
+
+def truncateDict(value):
+    """Create truncted string replaceing dicts with {...}"""
+    return ', '.join(
+        [
+            '{}: {}'.format(
+                k,
+                '{...}' if isinstance(v, dict) else v
+            )
+            for k, v in sorted(value.items())
+        ]
+    )
+
+
 def print_diff(parent_key, obj1, obj2, diff_format):
     """build comparison string for two non-dictionary objects"""
     result = "\n"
 
     if diff_format == "simple":
-        if obj1 is None:
+        if not obj1:
             result += "{} has been inserted".format(parent_key)
-        elif obj2 is None:
+        elif not obj2:
             result += "{} has been deleted".format(parent_key)
         else:
             result += "{} has changed from '{}' to '{}'".format(
@@ -26,12 +68,19 @@ def print_diff(parent_key, obj1, obj2, diff_format):
     else:
         if parent_key is not None:
             result += "{}:\n".format(parent_key)
+        try:
+            overlap = set(obj1).intersection(set(obj2))
+            for item in overlap:
+                obj1.remove(item)
+                obj2.remove(item)
+        except (AttributeError, TypeError,):
+            pass
         result += """\
         > {}
         ----------
         < {}
         """.format(
-            obj1, obj2
+            summary(obj1), summary(obj2)
         )
 
     return result
@@ -50,7 +99,9 @@ def print_diff_type(parent_key, obj1, obj2, diff_format):
             result += (
                 "{} has changed changed type from {} (value: '{}') to "
                 "{} (value: '{}')"
-            ).format(parent_key, type(obj1), obj1, type(obj2), obj2)
+            ).format(parent_key,
+                     type(obj1), obj1,
+                     type(obj2), obj2)
         result += "\n"
     else:
         if parent_key is not None:
@@ -60,7 +111,7 @@ def print_diff_type(parent_key, obj1, obj2, diff_format):
         ----------
         < {} (type: {})
         """.format(
-            obj1, type(obj1), obj2, type(obj2)
+            summary(obj1), type(obj1), summary(obj2), type(obj2)
         )
 
     return result
@@ -69,27 +120,37 @@ def print_diff_type(parent_key, obj1, obj2, diff_format):
 def print_diff_dict_keys(parent_key, obj1, obj2, diff_format):
     """build diff style string for dictionary objects"""
     result = '\n'
+    if diff_format != 'simple':
+        shared_keys = set(obj1.keys()).intersection(obj2.keys())
+        for k in shared_keys:
+            if obj1[k] == obj2[k]:
+                try:
+                    obj1.pop(k, None)
+                    obj2.pop(k, None)
+                except TypeError:
+                    pass
 
-    value1 = ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v)
-                        for k, v in sorted(obj1.items())])
-    value2 = ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v)
-                        for k, v in sorted(obj2.items())])
-    
     if diff_format == 'simple':
         if obj1 is None:
             result += "{} has been inserted".format(parent_key)
         elif obj2 is None:
             result += "{} has been deleted".format(parent_key)
         else:
+            value1 = truncateDict(obj1)
+            value2 = truncateDict(obj2)
             result += "{} has changed from '{}' to '{}'".format(
                 parent_key, value1, value2
             )
     else:
         if parent_key is not None:
             result += "{}:\n".format(parent_key)
-        result += "> " + value1
-        result += "\n----------\n"
-        result += "< " + value2
+        result += """\
+        > {}
+        ----------
+        < {}
+        """.format(
+            summary(obj1), summary(obj2)
+        )
 
     result += "\n"
 
@@ -143,16 +204,48 @@ def compare(obj1, obj2, parent_key=None, ordered=False, diff_format="simple"):
     return result
 
 
+def compare_dicts(test, reference, ordered=False, diff_format="simple"):
+    """Show the differences between two dictionaries
+
+    Args:
+        test          (dict): first object in comparision
+        reference     (dict): second object in comparision
+        ordered       (bool): whether to check order of list content
+        diff_format (string): specify a format to display the difference in
+    """
+    result = list()
+
+    keys = set(test.keys()).union(reference.keys())
+    for key in keys:
+        try:
+            val1 = test[key]
+        except KeyError:
+            val1 = None
+        try:
+            val2 = reference[key]
+        except KeyError:
+            val2 = None
+
+        result += compare(
+            obj1=val1,
+            obj2=val2,
+            parent_key=key,
+            ordered=ordered,
+            diff_format=diff_format
+        )
+    return result
+
+
 def meta_diff(
-    files,
-    verbose=False,
-    ordered=False,
-    drop=None,
-    mode="lite",
-    meta_key_filter=None,
-    file_type=None,
-    promote=False,
-    diff_format="simple",
+        files,
+        verbose=False,
+        ordered=False,
+        drop=None,
+        mode="lite",
+        meta_key_filter=None,
+        file_type=None,
+        promote=False,
+        diff_format="simple",
 ):
     """
     Compare the in-file metadata in two given files. Uses PyUtils.MetaReader
@@ -181,6 +274,8 @@ def meta_diff(
     msg = logging.getLogger("MetaDiff")
     msg.setLevel(logging.DEBUG if verbose else logging.INFO)
 
+    msg.debug("Reading from %s and %s", files[0], files[1])
+
     metadata = read_metadata(
         files,
         file_type,
@@ -196,7 +291,7 @@ def meta_diff(
     except TypeError:
         pass
 
-    result = compare(
+    result = compare_dicts(
         metadata[files[0]],
         metadata[files[1]],
         ordered=ordered,

@@ -31,7 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrigRawDataProvider
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRawData AthenaKernel StoreGateLib SGtests IRegionSelector ByteStreamCnvSvcBaseLib InDetByteStreamErrors InDetIdentifier SCT_CablingLib TrigSteeringEvent PixelCablingLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRawData AthenaKernel StoreGateLib SGtests IRegionSelector ByteStreamCnvSvcBaseLib InDetByteStreamErrors InDetIdentifier SCT_CablingLib TrigSteeringEvent PixelCablingLib InDetTrigToolInterfacesLib SCT_RawDataByteStreamCnvLib PixelRawDataByteStreamCnvLib TRT_ConditionsServicesLib TRT_CablingLib TRT_RawDataByteStreamCnvLib )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigRawDataProvider )

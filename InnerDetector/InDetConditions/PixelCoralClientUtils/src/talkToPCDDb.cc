@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCoralClientUtils/PCDio.h"
 ////#include "PixelCoralClientUtils/PixelCalibData.hh"
 
@@ -11,7 +12,7 @@
 
 using namespace std;
 
-int main(int argc, char **argv)
+int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv) // Thread unsafe PCDio class is used.
 {
   if (argc<3 || argv[1][0]!='-') {
     cout << argv[0] << ": tool to talk to pixel coral database." << endl;

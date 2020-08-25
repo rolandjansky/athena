@@ -7,7 +7,7 @@
 #include "EventContainers/IDC_WriteHandleBase.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "EventContainers/IdentifiableCacheBase.h"
-
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;
@@ -43,7 +43,7 @@ InternalConstItr InternalOnline::indexFind( IdentifierHash hashId ) const{
 
 void InternalOnline::wait() const {
     //lockguard to protect m_waitlist from multiple wait calls
-    std::lock_guard lock (m_waitMutex);
+    std::scoped_lock lock (m_waitMutex);
     if(m_waitNeeded == false) return;
     using namespace EventContainers;
     const void* ABORTstate = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
@@ -137,13 +137,10 @@ const void* InternalOnline::findIndexPtr(IdentifierHash hashId) const noexcept {
 }
 
 StatusCode InternalOnline::addLock(IdentifierHash hashId, const void* ptr) {
-    if(ATH_UNLIKELY(hashId >= m_mask.size())) return StatusCode::FAILURE;
-    [[maybe_unused]] std::pair<bool, const void*> added = m_cacheLink->addLock(hashId, ptr);
-#ifndef NDEBUG
-    if(!added.first) {
-        std::cout << "IDC WARNING Deletion shouldn't occur in addLock paradigm" << std::endl;
+    std::pair<bool, const void*> added = m_cacheLink->addLock(hashId, ptr);
+    if(ATH_UNLIKELY(!added.first)) {
+      throw std::runtime_error("IDC WARNING Deletion shouldn't occur in addLock paradigm");
     }
-#endif
     m_mask[hashId] = true; //it wasn't added it is already present therefore mask could be true
     m_waitNeeded.store(true, std::memory_order_relaxed);
     return StatusCode::SUCCESS;

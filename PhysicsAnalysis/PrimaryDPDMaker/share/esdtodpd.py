@@ -82,8 +82,8 @@ rec.readRDO = False
 rec.DPDMakerScripts.append("PrimaryDPDMaker/PrimaryDPDMaker.py")
 
 ## Write the used options to the log file
-print AODFlags
-print rec
+print(AODFlags)
+print(rec)
 
 # The job starts here!
 include ("RecExCommon/RecExCommon_topOptions.py")

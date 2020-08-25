@@ -23,7 +23,7 @@ atlas_add_library( FastCaloSimHitLib
 
 atlas_add_component( FastCaloSimHit
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel LArSimEvent TileSimEvent CaloEvent CaloIdentifier PileUpToolsLib EventInfo TileConditionsLib TileEvent FastCaloSimHitLib )
+                     LINK_LIBRARIES FastCaloSimHitLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

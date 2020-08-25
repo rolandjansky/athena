@@ -5,34 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArMonTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Control/AthenaMonitoring
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/EventContainers
-                          GaudiKernel
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawEvent
-                          LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArCabling
-                          Tools/LWHists
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          PRIVATE
-                          Calorimeter/CaloConditions
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/xAOD/xAODEventInfo
-                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
-                          LArCalorimeter/LArCOOLConditions
-                          LArCalorimeter/LArRawConditions
-                          LArCalorimeter/LArRecEvent )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
@@ -43,7 +15,7 @@ atlas_add_component( LArMonTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib LWHists TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib LWHists TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent CaloInterfaceLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

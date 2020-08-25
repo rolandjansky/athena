@@ -169,7 +169,7 @@ tf.doTrt.set_Value_and_Lock(False)
 tf.configForStartup="HLTonline"
 tf.configForStartup.lock()
 
-include("TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py")
+include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
 
 #This tool is apparently instanciated by TrkDetElementSurface/ DetElementSurfaceCnv_p1.h
 from TrkEventCnvTools import TrkEventCnvToolsConf

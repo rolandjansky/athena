@@ -1,56 +1,21 @@
-################################################################################
-# Package: TrigGenericAlgs
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigGenericAlgs )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODTrigL1Calo
-                          Event/xAOD/xAODTrigMuon
-                          Event/xAOD/xAODTrigger
-                          Trigger/TrigAlgorithms/TrigL2MuonSA
-                          Trigger/TrigConfiguration/TrigConfInterfaces
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigTools/TrigMuonRoITools
-                          PRIVATE
-                          Control/AthenaKernel
-                          Control/AthenaMonitoring
-                          DetectorDescription/IRegionSelector
-                          Event/ByteStreamCnvSvcBase
-                          GaudiKernel
-                          Trigger/TrigConfiguration/TrigConfL1Data
-                          Trigger/TrigEvent/TrigNavigation
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigT1/TrigT1Result
-                          Trigger/TrigT1/L1Topo/L1TopoConfig
-                          Trigger/TrigT1/L1Topo/L1TopoRDO
-                          Trigger/TrigMonitoring/TrigMonitorBase
-                          Trigger/TrigSteer/DecisionHandling
-                          Trigger/TrigSteer/TrigSteering )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 find_package( CLHEP )
-find_package( tdaq-common COMPONENTS CTPfragment )
+find_package( tdaq-common COMPONENTS CTPfragment eformat )
 
 # Component(s) in the package:
 atlas_add_component( TrigGenericAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES}
-                     xAODTrigL1Calo xAODTrigMuon xAODTrigger TrigL2MuonSALib TrigCaloEvent TrigMuonEvent
-                     TrigInterfacesLib TrigT1Interfaces AthenaKernel IRegionSelector ByteStreamCnvSvcBaseLib
-                     GaudiKernel TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigT1Result L1TopoConfig
-                     L1TopoRDO TrigMonitorBaseLib TrigSteeringLib DecisionHandlingLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaKernel AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib CxxUtils DecisionHandlingLib EventInfo GaudiKernel IRegionSelector L1TopoConfig L1TopoRDO RoiDescriptor TrigConfHLTData TrigConfInterfaces TrigConfL1Data TrigInterfacesLib TrigL2MuonSALib TrigMuonToolInterfaces TrigNavigationLib TrigParticle TrigSteeringEvent TrigSteeringLib TrigT1Interfaces TrigT1Result xAODTrigL1Calo xAODTrigMuon xAODTrigger )
 
 # Install files from the package:
-atlas_install_headers( TrigGenericAlgs )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 atlas_install_joboptions( share/*.py )
 

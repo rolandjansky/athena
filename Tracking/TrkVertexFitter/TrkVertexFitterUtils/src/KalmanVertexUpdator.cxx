@@ -18,7 +18,7 @@ namespace Trk{
  }
 
  KalmanVertexUpdator::~KalmanVertexUpdator()
- {}
+ = default;
  
  StatusCode KalmanVertexUpdator::initialize()
  {
@@ -72,10 +72,10 @@ namespace Trk{
        return &vtx;
      }
      // addition - here this is expected behaviour 
-     else{
+     
        righttrack = tracksAtVertex.insert(tracksAtVertex.end(),trk); 
        ATH_MSG_VERBOSE ("Updating vertex with new track which is still not attached to vertex. Adding it before updating...");
-     }
+     
    }
 
    //all safe, call the position update
@@ -177,7 +177,7 @@ namespace Trk{
      AmgSymMatrix(3) Sm = B.transpose()*(trkParametersWeight*B);
 
      Sm = Sm.inverse().eval();
-     AmgVector(5) theResidual = trk->constantTerm();
+     const AmgVector(5)& theResidual = trk->constantTerm();
 
    //refitted track momentum
      Amg::Vector3D newTrackMomentum = Sm*B.transpose()*trkParametersWeight*(trkParameters - theResidual - A*new_position);

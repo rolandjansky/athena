@@ -127,31 +127,14 @@ TCS::InvariantMassDeltaPhiInclusive2::initialize() {
 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int n_bin = 100;
-       int MassEta_min = 0;
-       int EtaEta_min = -50;
-       int EtaEta_max = 50;
-       int mass_min = sqrt(p_InvMassMin[i]);
-       int mass_max = sqrt(p_InvMassMax[i]);
-       // if minimum mass requirement less than twice of bin length,
-       // adjust to range by changing maximum mass with the 10 time of bin length.
-       // This is necessary when range is too wide and minimum cut unvisible.
-       // Later will be changed with more automated way.
-       if ( 2*(mass_max-mass_min)/n_bin > mass_min && mass_min != 0.0 )
-	 { mass_max=10*(mass_max-mass_min)/n_bin; }
-       int delta_phi_max = p_DeltaPhiMax[i];
+       string hname_accept = "hInvariantMassDeltaPhiInclusive2_accept_bit"+to_string((int)i);
+       string hname_reject = "hInvariantMassDeltaPhiInclusive2_reject_bit"+to_string((int)i);
        // mass
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassDeltaPhiInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassDeltaPhiInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       registerHist(m_histAcceptM[i] = new TH2F(hname_accept, hname_accept, n_bin, MassEta_min, 2*mass_max, 2*delta_phi_max, MassEta_min, 2*delta_phi_max));
-       registerHist(m_histRejectM[i] = new TH2F(hname_reject, hname_reject, n_bin, MassEta_min, 2*mass_max, 2*delta_phi_max, MassEta_min, 2*delta_phi_max));
+       bookHist(m_histAcceptM, hname_accept, "INVM vs DPHI", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+       bookHist(m_histRejectM, hname_reject, "INVM vs DPHI", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
        // eta2 vs. eta1
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassDeltaPhiInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassDeltaPhiInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
-       registerHist(m_histAcceptEta1Eta2[i] = new TH2F(hname_accept, hname_accept, n_bin, EtaEta_min, EtaEta_max, n_bin, EtaEta_min, EtaEta_max));
-       registerHist(m_histRejectEta1Eta2[i] = new TH2F(hname_reject, hname_reject, n_bin, EtaEta_min, EtaEta_max, n_bin, EtaEta_min, EtaEta_max));
+       bookHist(m_histAcceptEta1Eta2, hname_accept, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
+       bookHist(m_histRejectEta1Eta2, hname_reject, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
    }
    return StatusCode::SUCCESS;
 }
@@ -198,11 +181,11 @@ TCS::InvariantMassDeltaPhiInclusive2::processBitCorrect( const std::vector<TCS::
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-		       fillHist2D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2),(float)deltaPhi);
-		       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		       fillHist2D(m_histAcceptM[i],sqrt((float)invmass2),(float)deltaPhi);
+		       fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
                    } else if(fillReject) {
-		       fillHist2D(m_histRejectM[i]->GetName(),sqrt((float)invmass2),(float)deltaPhi);
-		       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		       fillHist2D(m_histRejectM[i],sqrt((float)invmass2),(float)deltaPhi);
+		       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
@@ -255,11 +238,11 @@ TCS::InvariantMassDeltaPhiInclusive2::process( const std::vector<TCS::TOBArray c
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-		       fillHist2D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2),(float)deltaPhi);
-		       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		       fillHist2D(m_histAcceptM[i],sqrt((float)invmass2),(float)deltaPhi);
+		       fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
                    } else if(fillReject) {
-		       fillHist2D(m_histRejectM[i]->GetName(),sqrt((float)invmass2),(float)deltaPhi);
-		       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		       fillHist2D(m_histRejectM[i],sqrt((float)invmass2),(float)deltaPhi);
+		       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
                    }
                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept ?"pass":"fail") << " invmass2 = " << invmass2);
                }

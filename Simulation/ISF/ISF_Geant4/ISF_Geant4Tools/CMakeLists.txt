@@ -26,5 +26,5 @@ atlas_add_component( ISF_Geant4Tools
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GaudiKernel G4AtlasInterfaces AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects G4AtlasToolsLib G4AtlasAlgLib MCTruth SimHelpers ISF_Event ISF_InterfacesLib ISF_Geant4Event ISF_Geant4ToolsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

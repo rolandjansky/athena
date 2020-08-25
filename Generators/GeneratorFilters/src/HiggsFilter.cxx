@@ -58,49 +58,27 @@ StatusCode HiggsFilter::filterEvent() {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
 
-    HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();
-    for(; pitr!=genEvt->particles_end(); ++pitr ){
-
-      // Work only with tops
-      if( std::abs((*pitr)->pdg_id()) == 25 ){
-	
-	N_Higgs_all++;
-	
-	int n_daughters = 0;
-
-	HepMC::GenParticle * mcpart = (*pitr);
-	const HepMC::GenVertex * decayVtx = mcpart->end_vertex();
-
+    for(auto pitr: *genEvt){
+        if( std::abs(pitr->pdg_id()) != 25 ) continue;
+	N_Higgs_all++;	
+	auto decayVtx = pitr->end_vertex();
 	// verify if we got a valid pointer and retrieve the number of daughters
-	if ( decayVtx != 0 ) {
-	  n_daughters = decayVtx->particles_out_size();
-	}
-	
-	//  For this analysis we are not interested in t->t MC structures, only in decays
-	if( n_daughters >= 2 ){
-
-	  HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = decayVtx->particles_out_const_begin();
-	  HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = decayVtx->particles_out_const_end();
-	  
-	  for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
-	    
-	    HepMC::GenParticle * child_mcpart = (*child_mcpartItr);
-	    
-	    //  Implicitly, I assume that tops always decay to W X
-	    if ( std::abs(child_mcpart->pdg_id()) == 5 ){
-
-	      if ( (*pitr)->pdg_id() ==  25 ) {
+	if (!decayVtx ) continue;
+#ifdef HEPMC3
+	int n_daughters =  decayVtx->particles_out().size();
+#else
+        int n_daughters =  decayVtx->particles_out_size();
+#endif
+	if( n_daughters < 2 ) continue;
+	for ( auto child_mcpart: *decayVtx) {
+	      if ( std::abs(child_mcpart->pdg_id()) != 5 ) continue;
+	      if ( pitr->pdg_id() ==  25 ) {
 		N_Higgs++;
 	      }
-
-	      if( ((*pitr)->momentum().perp() >=m_Ptmin && (*pitr)->momentum().perp() <m_Ptmax ) ){
+	      if( (pitr->momentum().perp() >=m_Ptmin && pitr->momentum().perp() <m_Ptmax ) ){
 		N_pt_above_cut++;
 	      }
-
-	    }//b bbar decay
-	  }//child loop
-	}// only decaying Higgs
-      }//Higgs
+      }//child loop
     }
   }
   

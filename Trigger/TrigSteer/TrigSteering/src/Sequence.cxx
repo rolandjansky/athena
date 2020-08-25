@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -14,12 +14,12 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: Sequence.cxx,v 1.31 2009-02-26 12:52:52 tbold Exp $
  **********************************************************************************/
 
 #include "TrigSteering/Sequence.h"
 
 #include <algorithm>
+#include <utility>
 #include "TrigInterfaces/Algo.h"
 #include "TrigInterfaces/TECreateAlgo.h"
 #include "TrigInterfaces/AlgoConfig.h"
@@ -48,7 +48,7 @@ Sequence::Sequence(std::vector<unsigned int> inputTypes,
    m_execErrorCode(OK),
    m_firstAlgo(firstAlgo),
    m_nextAlgos(algos),
-   m_inputTeTypes(inputTypes),
+   m_inputTeTypes(std::move(inputTypes)),
    m_outputTeType(outputType),
    m_config(config),
    m_topoStartFrom(topoTypes),
@@ -91,13 +91,8 @@ Sequence::Sequence(std::vector<unsigned int> inputTypes,
    // Get TrigROBDataProvider_RTT for data pre-fetch test 
    if( m_robDataProvider.retrieve().isFailure() ) {
       m_config->getMsgStream() << MSG::ERROR << "can't get ROBDataProviderSvc" << endmsg;
-   } else{
-      m_trigROBDataProviderRTT = SmartIF<ITrigROBDataProviderSvc_RTT>( &*m_robDataProvider );
-      if (m_trigROBDataProviderRTT.isValid()) {
-         if (m_config && m_config->getMsgLvl() <= MSG::DEBUG)
-            m_config->getMsgStream() << MSG::DEBUG << "A ROBDataProviderSvc implementing the trig interface ITrigROBDataProviderSvc_RTT was found."<< endmsg;
-      }
    }
+
    return;
 }
 
@@ -356,9 +351,6 @@ HLT::ErrorCode Sequence::execute()
  */
 HLT::ErrorCode Sequence::prepareRobRequests()
 {
-  // this variable enables the monitor of the pre-fetching with the trigROBDataProviderSvc
-  bool do_prefetching_test = m_trigROBDataProviderRTT.isValid() && m_trigROBDataProviderRTT->isPrefetchingAtAlgoLevel();
-
   // in case this sequence was executed before
   if (m_prepRobReqAlreadyExecuted) {
     // print some debug info
@@ -461,11 +453,6 @@ HLT::ErrorCode Sequence::prepareRobRequests()
         m_config->getMsgStream() << MSG::DEBUG << "  calling processRobRequests of TECreateAlgo '" <<  te_create_alg->name() << "' with outputTE = " << teName << endmsg;
       }
 
-      //test of the pre-fetching: clear the pre-fetching list
-      if (do_prefetching_test){
-	m_config->robRequestInfo()->clearRequestScheduledRobIDs();
-      }
-
       ErrorCode ec =  te_create_alg->processRobRequests( m_inputTeTypes );
       m_prepRobReqErrorCode = std::max(m_prepRobReqErrorCode, ec);     
 
@@ -479,13 +466,6 @@ HLT::ErrorCode Sequence::prepareRobRequests()
         m_config->getMsgStream() << MSG::WARNING 
                                  << "Sequence got error back while executing algo->processRobRequests(..): "
                                  << te_create_alg->name() << " " << HLT::strErrorCode( m_prepRobReqErrorCode ) <<  endmsg;
-
-      //test of the pretching: fill the pre-fetching list 
-      if (do_prefetching_test && m_robDataProvider.isValid()){
-	std::string pref_name = alg->name() + "_pref";
-	if (m_config->getMsgLvl() <=MSG::INFO) m_config->getMsgStream() << MSG::INFO <<"Forcing trigROBDataProvider_RTT.addROBData: Algorithm "<< te_create_alg->name() <<" scheduled "<<m_config->robRequestInfo()->requestScheduledRobIDs().size() <<" ROBs"<<endmsg;
-	m_robDataProvider->addROBData(m_config->robRequestInfo()->requestScheduledRobIDs(),pref_name);
-      }
 
       // Check if event timeout was reached
       if ( Athena::Timeout::instance().reached() ) {

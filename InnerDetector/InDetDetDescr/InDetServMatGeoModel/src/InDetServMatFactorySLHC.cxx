@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactorySLHC.h"
@@ -35,6 +35,8 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
@@ -57,7 +59,7 @@ InDetServMatFactorySLHC::~InDetServMatFactorySLHC()
 
 
 //## Other Operations (implementation)
-void InDetServMatFactorySLHC::create(GeoPhysVol *world )
+void InDetServMatFactorySLHC::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world ) // Thread unsafe InDetMaterialManager constructor and fetchTables method are used.
 {
 
   // Get the material manager:  
@@ -131,7 +133,7 @@ const InDetDD::InDetServMatManager* InDetServMatFactorySLHC::getDetectorManager 
 }
 
 void
-InDetServMatFactorySLHC::fetchTables() 
+InDetServMatFactorySLHC::fetchTables ATLAS_NOT_THREAD_SAFE ()  // Thread unsafe rdbAccessSvc method is used.
 {
   DecodeVersionKey indetVersionKey(geoDbTagSvc(), "InnerDetector");
 

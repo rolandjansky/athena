@@ -177,7 +177,7 @@ class TestMVAUtilsBasic(unittest.TestCase):
             r = list(bdt.GetMultiResponse(my_input, 2))
             # numpy has a mehod to compare lists
             for a, b in zip(r, results):
-                self.assertAlmostEquals(a, b, places=5)
+                self.assertAlmostEqual(a, b, places=5)
 
         my_inputs = list2stdvector([0., 2., 3., 4.])
         do_test(my_inputs, normalization([-1, -0.98]))

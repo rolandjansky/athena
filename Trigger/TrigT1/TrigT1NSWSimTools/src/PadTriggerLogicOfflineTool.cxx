@@ -70,7 +70,7 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
 
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-    std::string algo_name = pnamed->name();
+    const std::string& algo_name = pnamed->name();
 
     if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         TTree *tree=nullptr;
@@ -116,7 +116,7 @@ void PadTriggerLogicOfflineTool::fillGeometricInformation(const std::shared_ptr<
 std::vector<std::shared_ptr<PadData>> filterByMultiplet(const std::vector<std::shared_ptr<PadData>> &pads_in, const int &multiplet) {
     std::vector<std::shared_ptr<PadData>> pads_out;
     pads_out.reserve(0.5*pads_in.size()); // educated guess (half inner multiplet, half outer multiplet)
-    for(auto p : pads_in)
+    for(const auto& p : pads_in)
         if(p->multipletId()==multiplet)
             pads_out.push_back(p);
     return pads_out;
@@ -125,7 +125,7 @@ std::vector<std::shared_ptr<PadData>> filterByMultiplet(const std::vector<std::s
 std::vector<std::shared_ptr<PadData>> filterByGasGap(const std::vector<std::shared_ptr<PadData>> &pads_in, const int &gasgap) {
     std::vector<std::shared_ptr<PadData>> pads_out;
     pads_out.reserve(0.25*pads_in.size()); // educated guess (4 gas gaps)
-    for(auto p : pads_in)
+    for(const auto& p : pads_in)
         if(p->gasGapId()==gasgap)
             pads_out.push_back(p);
     return pads_out;
@@ -134,22 +134,22 @@ std::vector<std::shared_ptr<PadData>> filterByGasGap(const std::vector<std::shar
 std::vector<std::unique_ptr<PadTrigger>> PadTriggerLogicOfflineTool::build4of4SingleWedgeTriggers(const std::vector<std::shared_ptr<PadData>> &pads) {
 
     std::vector<std::unique_ptr<PadTrigger>> triggers;
-    for(auto p0 : filterByGasGap(pads, 1)){
+    for(const auto& p0 : filterByGasGap(pads, 1)){
         int p0ieta = p0->padEtaId();
         int p0iphi = p0->padPhiId();
-        for(auto p1 : filterByGasGap(pads, 2)){
+        for(const auto& p1 : filterByGasGap(pads, 2)){
             int p1ieta = p1->padEtaId();
             int p1iphi = p1->padPhiId();
             bool p0_p1_match = ((p1ieta == p0ieta || p1ieta == p0ieta+1 ) &&
                                 (p1iphi == p0iphi || p1iphi == p0iphi+1 ) );
             if(not p0_p1_match) continue;
-            for(auto p2 :filterByGasGap(pads, 3) ){
+            for(const auto& p2 :filterByGasGap(pads, 3) ){
                 int p2ieta = p2->padEtaId();
                 int p2iphi = p2->padPhiId();
                 bool p1_p2_match = ((p2ieta == p1ieta || p2ieta == p1ieta+1 ) &&
                                     (p2iphi == p1iphi || p2iphi == p1iphi+1 ) );
                 if(not p1_p2_match) continue;
-                for(auto p3 : filterByGasGap(pads, 4)){
+                for(const auto& p3 : filterByGasGap(pads, 4)){
                     int p3ieta = p3->padEtaId();
                     int p3iphi = p3->padPhiId();
                     bool p2_p3_match = ((p3ieta == p2ieta || p3ieta == p2ieta+1 ) &&
@@ -175,7 +175,7 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<st
 {
     ATH_MSG_DEBUG(" <N> receiving "<<pads.size()<<" pad data");
     ATH_MSG_DEBUG("calling compute_pad_triggers() (pads.size() "<<pads.size()<<")");
-    for(const auto pad : pads){
+    for(const auto& pad : pads){
         ATH_MSG_DEBUG(" <N> building trig from pad "
                       <<" side "<<pad->sideId()<<""
                       <<", sector "<<pad->sectorId()
@@ -191,7 +191,7 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<st
             std::vector<std::shared_ptr<PadData>> sector_pads;
             copy_if(pads.begin(), pads.end(),
                     back_inserter(sector_pads),
-                    [&](std::shared_ptr<PadData> p) { return (p->sideId()==static_cast<int>(side) &&
+                    [&](const std::shared_ptr<PadData>& p) { return (p->sideId()==static_cast<int>(side) &&
                                                     (2*p->sectorId()-1-p->sectorType())==static_cast<int>(sector));});
 
             if(sector_pads.size()){

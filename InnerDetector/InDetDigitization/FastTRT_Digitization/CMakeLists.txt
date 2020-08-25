@@ -5,34 +5,6 @@
 # Declare the package name:
 atlas_subdir( FastTRT_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/PileUpTools
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/EventInfo
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          InnerDetector/InDetConditions/TRT_ConditionsServices
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          InnerDetector/InDetRecTools/TRT_DriftFunctionTool # FIXME this package only builds a component library!
-                          InnerDetector/InDetSimEvent
-                          Simulation/HitManagement
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTruthData
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Event/EventContainers
-                          PRIVATE
-                          DetectorDescription/GeoPrimitives
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetRawEvent/InDetSimData
-                          Tracking/TrkDetDescr/TrkDetElementBase )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

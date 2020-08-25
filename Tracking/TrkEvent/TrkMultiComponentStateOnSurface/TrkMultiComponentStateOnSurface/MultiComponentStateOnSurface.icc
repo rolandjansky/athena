@@ -1,0 +1,24 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+inline const Trk::MultiComponentState*
+Trk::MultiComponentStateOnSurface::components() const
+{
+  return m_multiComponentState;
+}
+
+inline double
+Trk::MultiComponentStateOnSurface::mixtureModeQoverP() const
+{
+  return m_mixtureModeQoverP;
+}
+
+inline Trk::TrackStateOnSurface::Variety
+Trk::MultiComponentStateOnSurface::variety() const 
+{
+  return Trk::TrackStateOnSurface::MultiComponent;
+}
+
+

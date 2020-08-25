@@ -94,10 +94,10 @@ namespace Muon {
     ~MooTrackBuilder() = default;
 
     /** @brief initialize method, method taken from bass-class AlgTool */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** @brief finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MooTrackBuilder; }
@@ -106,7 +106,7 @@ namespace Muon {
         @param track the track
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    Trk::Track* refit( const Trk::Track& track ) const;
+    virtual Trk::Track* refit( Trk::Track& track ) const override;
 
     /** @brief combine two MCTBCandidateEntries
         @param firstEntry  the first entry
@@ -132,8 +132,8 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the combined segment, will return zero if combination failed. Ownership passed to user.
     */
-    MuonSegment* combineToSegment( const MuonSegment& seg1, const MuonSegment& seg2,
-                                   const PrepVec* patternPhiHits = 0 ) const;
+    virtual MuonSegment* combineToSegment( const MuonSegment& seg1, const MuonSegment& seg2,
+                                   const PrepVec* patternPhiHits = 0 ) const override;
 
     /** @brief combine two segments to a track
         @param seg1 the first segment
@@ -141,8 +141,8 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    Trk::Track* combine( const MuonSegment& seg1, const MuonSegment& seg2,
-                         const PrepVec* patternPhiHits = 0 ) const;
+    virtual Trk::Track* combine( const MuonSegment& seg1, const MuonSegment& seg2,
+                         const PrepVec* patternPhiHits = 0 ) const override;
 
     /** @brief combine a track with a segment
         @param track a track
@@ -150,8 +150,8 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    Trk::Track* combine( const Trk::Track& track, const MuonSegment& seg,
-                         const PrepVec* patternPhiHits = 0 ) const;
+    virtual Trk::Track* combine( const Trk::Track& track, const MuonSegment& seg,
+                         const PrepVec* patternPhiHits = 0 ) const override;
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
         @param track a reference to a Track
@@ -180,7 +180,7 @@ namespace Muon {
     std::vector<Trk::Track*>* combineWithSegmentFinding( const MuPatTrack& candidate,
                                                          const Trk::TrackParameters& pars,
                                                          const std::set<Identifier>& chIds,
-                                                         const PrepVec* patternPhiHits = 0 ) const;
+                                                         const PrepVec* patternPhiHits = 0 ) const; 
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
         @param track a reference to a Track
@@ -199,7 +199,7 @@ namespace Muon {
         @param pos a reference to a GlobalPosition
         @return a pointer to TrackParameters, the ownership of the parameters is passed to the client calling the tool.
      */
-    Trk::TrackParameters* findClosestParameters( const Trk::Track& track, const Amg::Vector3D& pos ) const;
+    virtual Trk::TrackParameters* findClosestParameters( const Trk::Track& track, const Amg::Vector3D& pos ) const override;
 
 
     /** @brief find closest TrackParameters to the surface. The distance is calculated along the track
@@ -207,7 +207,7 @@ namespace Muon {
         @param pos a reference to a Surface
         @return a pointer to TrackParameters, the ownership of the parameters is passed to the client calling the tool.
      */
-    Trk::TrackParameters* getClosestParameters( const Trk::Track& track, const Trk::Surface& surf ) const;
+    virtual Trk::TrackParameters* getClosestParameters( const Trk::Track& track, const Trk::Surface& surf ) const override;
 
     /** @brief find closest TrackParameters to the surface. The distance is calculated along the track
         @param track a reference to a MuPatCandidateBase
@@ -218,7 +218,7 @@ namespace Muon {
 
 
     /** recalibrate hits on track */
-    Trk::Track* recalibrateHitsOnTrack( const Trk::Track& track, bool doMdts, bool doCompetingClusters  ) const;
+    virtual Trk::Track* recalibrateHitsOnTrack( const Trk::Track& track, bool doMdts, bool doCompetingClusters  ) const override;
 
     /** split given track if it crosses the calorimeter volume, code assumes that the track was already extrapolated to the
         muon entry record using the MuonTrackExtrapolationTool. It uses the double perigee to spot the tracks to be split.
@@ -238,13 +238,13 @@ namespace Muon {
                 The ownership of the tracks is passed to the client calling the tool.
 
     */
-    std::vector<MuPatTrack*>* find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const;
+    virtual std::vector<MuPatTrack*>* find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const override;
 
     /** @brief interface for tools which refine the hit content of a given track
         @param track input track
         @return new refined track. Pointer could be zero, ownership passed to caller
     */
-    MuPatTrack* refine( MuPatTrack& track ) const;
+    virtual MuPatTrack* refine( MuPatTrack& track ) const override;
 
   private:
 

@@ -198,11 +198,11 @@ ostream.ItemList += [n.replace("/", "#") for n in svcMgr.ByteStreamAddressProvid
 #-------------------------------------------------------------------------------
 # Print some post output post config
 #-------------------------------------------------------------------------------
-print svcMgr
+print(svcMgr)
 
-print topSequence
+print(topSequence)
 
-print DetFlags.Print()
+print(DetFlags.Print())
 
 svcMgr.MessageSvc.debugLimit = 500000000
 

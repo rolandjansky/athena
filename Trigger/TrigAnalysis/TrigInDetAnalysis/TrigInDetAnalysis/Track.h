@@ -89,6 +89,7 @@ public:
 
   bool hasTruth() const { return m_hasTruth; }  
 	
+  void rotate();
 
 public:
 

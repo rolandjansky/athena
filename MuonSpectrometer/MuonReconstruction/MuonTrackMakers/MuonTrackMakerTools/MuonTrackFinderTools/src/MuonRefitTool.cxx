@@ -2,14 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// STL includes
-#include <algorithm>
-#include <iostream>
+#include "MuonRefitTool.h"
 
-// FrameWork includes
-#include "AthenaKernel/errorcheck.h"
-
-//Collections 
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkParameters/TrackParameters.h"
@@ -19,47 +13,21 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
-//Actual Class 
-#include "MuonRefitTool.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonSegmentMakerInterfaces/IDCSLFitProvider.h"
-
-
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
-
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
-
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
 #include "MuonAlignErrorBase/AlignmentTranslationDeviation.h"
 #include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
-#include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
-
 
 namespace Muon {
 
-  MuonRefitTool::MuonRefitTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
+  MuonRefitTool::MuonRefitTool(const std::string& ty, const std::string& na, const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_alignErrorTool("MuonAlign::AlignmentErrorTool"),
-    m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
-    m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-    m_t0Fitter(""),
-    m_muonEntryTrackExtrapolator("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
     m_errorStrategyBEE(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyEE(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyBIS78(MuonDriftCircleErrorStrategyInput()),
@@ -70,67 +38,14 @@ namespace Muon {
     m_errorStrategyTwoStations(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategy(MuonDriftCircleErrorStrategyInput()),
     m_muonErrorStrategy(MuonDriftCircleErrorStrategyInput()),
-    m_finder(5.,3.,false),
-    m_finderCleaning(5.,3.,false),
     m_nrefits(0),
     m_ngoodRefits(0),
-    m_failedErrorUpdateOutlierRemoval(0),
     m_failedOutlierRemoval(0),
     m_failedErrorUpdate(0),
     m_failedRefit(0),
-    m_failedExtrapolationMuonEntry(0),
-    m_nbackExtrapolations(0),
-    m_ngoodBackExtrapolations(0),
-    m_failedExtrapolationIP(0),
-    m_nupdates(0),
-    m_ngoodUpdates(0),
-    m_failedUpdates(0),
-    m_alignmentDelta(0.),
-    m_alignmentAngle(0.),
-    m_alignmentDeltaError(0.1),
-    m_alignmentAngleError(0.001),
-    m_alignmentErrors(false),
-    m_simpleAEOTs(false),
-    m_addAll(false),
-    m_addInner(false),
-    m_addMiddle(true),
-    m_addTwo(false)
+    m_failedExtrapolationMuonEntry(0)
   {
     declareInterface<IMuonRefitTool>(this);
-    declareProperty("FinderDebugLevel",m_finderDebugLevel = -1 );
-    declareProperty("Fitter",m_trackFitter);
-    declareProperty("T0Fitter",m_t0Fitter);
-    declareProperty("MinMuonMom",m_minMuonMomentum = 4000.);
-    declareProperty("UsedFixedError",m_fixedError = 1. );
-    declareProperty("FlagT0FitRange",m_flagT0FitRange = 0.00005 );
-    declareProperty("Printer", m_printer );
-    declareProperty("AlignmentErrorTool", m_alignErrorTool);
-    declareProperty("Extrapolator", m_extrapolator );
-    declareProperty("MuonExtrapolator", m_muonExtrapolator );
-    declareProperty("MuonEntryExtrapolationTool", m_muonEntryTrackExtrapolator );
-    declareProperty("MdtRotCreator",m_mdtRotCreator);
-    declareProperty("DeweightBEE", m_deweightBEE = false );
-    declareProperty("DeweightEE",  m_deweightEE = false );
-    declareProperty("DeweightBIS78", m_deweightBIS78 = true );
-    declareProperty("DeweightBME", m_deweightBME = true );
-    declareProperty("DeweightBOE", m_deweightBOE = true );
-    declareProperty("DeweightEEL1C05", m_deweightEEL1C05 = false );
-    declareProperty("DeweightTwoStationTracks",  m_deweightTwoStationTracks = false );
-    declareProperty("AlignmentDelta", m_alignmentDelta = 0.);
-    declareProperty("AlignmentAngle", m_alignmentAngle = 0.);
-    declareProperty("AlignmentDeltaError", m_alignmentDeltaError = 0.1);
-    declareProperty("AlignmentAngleError", m_alignmentAngleError = 0.001);
-    declareProperty("AlignmentErrors", m_alignmentErrors = false);
-    declareProperty("SimpleAEOTs", m_simpleAEOTs = false);
-    declareProperty("AddAll", m_addAll = false);
-    declareProperty("AddInner", m_addInner = false);
-    declareProperty("AddMiddle", m_addMiddle = false);
-    declareProperty("AddTwo", m_addTwo = false);
-  }
-
-  MuonRefitTool::~MuonRefitTool()
-  {
-
   }
 
   StatusCode MuonRefitTool::initialize()
@@ -141,7 +56,12 @@ namespace Muon {
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_idHelperSvc.retrieve() );
-    if( !m_alignErrorTool.empty() ) ATH_CHECK(m_alignErrorTool.retrieve());
+    if (m_alignmentErrors) {
+      if( !m_alignErrorTool.empty() ) ATH_CHECK(m_alignErrorTool.retrieve());
+    }
+    else {
+      m_alignErrorTool.disable();
+    }
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_CHECK( m_muonExtrapolator.retrieve() );
     ATH_CHECK( m_trackFitter.retrieve() );
@@ -154,12 +74,7 @@ namespace Muon {
     if( !m_t0Fitter.empty() ){
       ATH_CHECK( m_t0Fitter.retrieve() );
       ATH_MSG_INFO("Retrieved " << m_t0Fitter );
-      m_finder.setFitter(m_t0Fitter->getFitter());
     }
-
-    m_finder.debugLevel(m_finderDebugLevel);
-    m_finder.setRecoverMDT(false);
-    m_finderCleaning.debugLevel(m_finderDebugLevel);
 
     ATH_CHECK( m_muonEntryTrackExtrapolator.retrieve() );
 
@@ -216,296 +131,271 @@ namespace Muon {
     m_muonErrorStrategy.setParameter(MuonDriftCircleErrorStrategy::ScaledError,true);
     m_muonErrorStrategy.setParameter(MuonDriftCircleErrorStrategy::BroadError,false);
 
-
-    msg(MSG::INFO) << MSG::INFO << " Options: ";
-    if( m_deweightBEE )                  msg(MSG::INFO) << MSG::INFO << " Deweight BEE";
-    if( m_deweightEE )                   msg(MSG::INFO) << MSG::INFO << " Deweight EE";
-    if( m_deweightBIS78 )                msg(MSG::INFO) << MSG::INFO << " Deweight BIS78";
-    if( m_deweightBME )                  msg(MSG::INFO) << MSG::INFO << " Deweight BME";
-    if( m_deweightBOE )                  msg(MSG::INFO) << MSG::INFO << " Deweight BOE";
-    if( m_deweightEEL1C05 )              msg(MSG::INFO) << MSG::INFO << " Deweight EEL1C05";
-    if( m_deweightTwoStationTracks )     msg(MSG::INFO) << MSG::INFO << " Deweight Two stations";
-    msg(MSG::INFO) << endmsg;
-
+    ATH_MSG_INFO("Options:");
+    if( m_deweightBEE )                  ATH_MSG_INFO(" Deweight BEE");
+    if( m_deweightEE )                   ATH_MSG_INFO(" Deweight EE");
+    if( m_deweightBIS78 )                ATH_MSG_INFO(" Deweight BIS78");
+    if( m_deweightBME )                  ATH_MSG_INFO(" Deweight BME");
+    if( m_deweightBOE )                  ATH_MSG_INFO(" Deweight BOE");
+    if( m_deweightEEL1C05 )              ATH_MSG_INFO(" Deweight EEL1C05");
+    if( m_deweightTwoStationTracks )     ATH_MSG_INFO(" Deweight Two stations");
     return StatusCode::SUCCESS;
   }
-
 
   StatusCode MuonRefitTool::finalize()
   {
     double scaleRefit = m_nrefits != 0 ? 1./(double)m_nrefits : 1.;
-    double scaleExtr = m_nbackExtrapolations != 0 ? 1./(double)m_nbackExtrapolations : 1.;
-    double scaleUp = m_nupdates != 0 ? 1./(double)m_nupdates : 1.;
-    ATH_MSG_INFO(   "Number of refits                        " << m_nrefits << endmsg 
-		    << "Good                                    " << scaleRefit*m_ngoodRefits << endmsg
-		    << "Failed Error update in outlier removal  " << scaleRefit*m_failedErrorUpdateOutlierRemoval << endmsg
-		    << "Failed Outlier removal                  " << scaleRefit*m_failedOutlierRemoval << endmsg
-		    << "Failed Error Update                     " << scaleRefit*m_failedErrorUpdate << endmsg
-		    << "Failed Refit                            " << scaleRefit*m_failedRefit << endmsg
+    ATH_MSG_INFO(
+           "Number of refits                        " << m_nrefits << std::endl
+		    << "Good                                    " << scaleRefit*m_ngoodRefits << std::endl
+		    << "Failed Outlier removal                  " << scaleRefit*m_failedOutlierRemoval << std::endl
+		    << "Failed Error Update                     " << scaleRefit*m_failedErrorUpdate << std::endl
+		    << "Failed Refit                            " << scaleRefit*m_failedRefit << std::endl
 		    << "Failed Extrapolation to Muon Entry      " << scaleRefit*m_failedExtrapolationMuonEntry);
-    ATH_MSG_INFO(   "Number of extrapolations to IP   " << m_nbackExtrapolations << endmsg 
-		    << "Good                             " << scaleExtr*m_ngoodBackExtrapolations << endmsg
-		    << "Failed Extrapolation to IP       "  << scaleExtr*m_failedExtrapolationIP);
-
-    ATH_MSG_INFO(   "Number of updated tracks   " << m_nupdates << endmsg 
-		    << "Good                       " << scaleUp*m_ngoodUpdates << endmsg
-		    << "Failed updates             "  << scaleUp*m_failedUpdates);
-  
     return StatusCode::SUCCESS;
   }
 
-
-
-
-  const Trk::Track* MuonRefitTool::refit( const Trk::Track& track, const IMuonRefitTool::Settings* set ) const {
+  std::unique_ptr<Trk::Track> MuonRefitTool::refit( Trk::Track* track, const IMuonRefitTool::Settings* set ) const {
 
     const IMuonRefitTool::Settings& settings = set ? *set : m_defaultSettings;
 
+    //to keep track of the latest track
+    std::unique_ptr<Trk::Track> newTrack;
     ++m_nrefits;
-    const Trk::Track* newTrack = &track;
     if( settings.removeOutliers ){
       
-      const Trk::Track* cleanedTrack = removeOutliers(*newTrack,settings);
+      std::unique_ptr<Trk::Track> cleanedTrack = removeOutliers(track,settings);
       if( !cleanedTrack ){
 	ATH_MSG_DEBUG("Track lost during outlier removal");
 	++m_failedOutlierRemoval;
-	return newTrack;
+	return std::make_unique<Trk::Track>(*track);
       }
-      if( cleanedTrack != newTrack ){
+      if( cleanedTrack->perigeeParameters() != track->perigeeParameters() ){
 	ATH_MSG_DEBUG("Outlier removal removed hits from track");
-	if( newTrack != &track ) delete newTrack;
-      }      
-      newTrack = cleanedTrack;
+      }
+      newTrack.swap(cleanedTrack);
     }
+    else newTrack=std::make_unique<Trk::Track>(*track);
   
     if( settings.updateErrors ){
-      Trk::Track* updateErrorTrack  = m_alignmentErrors ? updateAlignmentErrors(*newTrack,settings)  : updateErrors(*newTrack,settings);
+      std::unique_ptr<Trk::Track> updateErrorTrack  = m_alignmentErrors ? updateAlignmentErrors(newTrack.get(),settings)  : updateErrors(newTrack.get(),settings);
       if( !updateErrorTrack ) {
 	ATH_MSG_WARNING("Failed to update errors");
 	++m_failedErrorUpdate;
 	return newTrack;
       }
-      if( updateErrorTrack != newTrack && newTrack != &track ) delete newTrack;
-      newTrack = updateErrorTrack;
+      newTrack.swap(updateErrorTrack);
     }
   
     if( settings.refit ){
-      ATH_MSG_DEBUG("Original track" << m_printer->print(*&track) );
+      ATH_MSG_DEBUG("Original track" << m_printer->print(*track) );
 
-// do not put AEOTs on extremely bad chi2 tracks and do not refit them 
+      // do not put AEOTs on extremely bad chi2 tracks and do not refit them 
 
-      Trk::Track* refittedTrack = track.fitQuality()&&track.fitQuality()->chiSquared()<10000*track.fitQuality()->numberDoF() ? m_trackFitter->fit(*newTrack,false,Trk::muon) : 0 ;
+      std::unique_ptr<Trk::Track> refittedTrack; 
+      if(track->fitQuality() && track->fitQuality()->chiSquared()<10000*track->fitQuality()->numberDoF()) 
+	refittedTrack= std::unique_ptr<Trk::Track>(m_trackFitter->fit(*newTrack,false,Trk::muon));
       if( !refittedTrack ){
 	ATH_MSG_DEBUG("Failed to refit track");
 	++m_failedRefit;
-// BUG fix Peter 
-	delete newTrack;
-        newTrack = &track;
-	return newTrack;
+	// BUG fix Peter 
+	return std::make_unique<Trk::Track>(*track);
       }
       ATH_MSG_DEBUG("Refitted track" << m_printer->print(*refittedTrack) );
       ATH_MSG_DEBUG("Refitted track" << m_printer->printMeasurements(*refittedTrack) );
-      if( refittedTrack != newTrack && newTrack != &track ) delete newTrack;
-      newTrack = refittedTrack;
+      newTrack.swap(refittedTrack);
     }
     
     if( settings.extrapolateToMuonEntry ){
-      Trk::Track* extrapolatedTrack = m_muonEntryTrackExtrapolator->extrapolate(*newTrack);
+      std::unique_ptr<Trk::Track> extrapolatedTrack(m_muonEntryTrackExtrapolator->extrapolate(*newTrack));
       if( !extrapolatedTrack ){
 	ATH_MSG_WARNING("Failed to back-extrapolate track");
 	++m_failedExtrapolationMuonEntry;
 	return newTrack;
       }
       ATH_MSG_DEBUG("Entry track " << m_printer->print(*extrapolatedTrack) );
-      if( extrapolatedTrack != newTrack && newTrack != &track ) delete newTrack;
-      newTrack = extrapolatedTrack;
+      newTrack.swap(extrapolatedTrack);
     }
     ++m_ngoodRefits;
   
     return newTrack;
   }
 
-  std::vector<const Trk::Track*> MuonRefitTool::refit( const std::vector<const Trk::Track*>& tracks, const IMuonRefitTool::Settings* set ) const {
+  std::vector<std::unique_ptr<Trk::Track> > MuonRefitTool::refit( std::vector<Trk::Track*>& tracks, const IMuonRefitTool::Settings* set ) const {
 
 
-    std::vector<const Trk::Track*> refittedTracks;
+    std::vector<std::unique_ptr<Trk::Track> > refittedTracks;
     refittedTracks.reserve(tracks.size());
 
-    std::vector<const Trk::Track*>::const_iterator it = tracks.begin();
-    std::vector<const Trk::Track*>::const_iterator it_end = tracks.end();
+    std::vector<Trk::Track*>::const_iterator it = tracks.begin();
+    std::vector<Trk::Track*>::const_iterator it_end = tracks.end();
     for( ;it!=it_end;++it ){
-      const Trk::Track* refittedTrack = refit(**it,set);
-      if( refittedTrack == *it ) refittedTrack = new Trk::Track(**it);
-
-      if(refittedTrack) refittedTracks.push_back(refittedTrack);
+      refittedTracks.push_back(refit(*it,set));
     }
 
     return refittedTracks;
   }
 
-  Trk::Track* MuonRefitTool::updateAlignmentErrors( const Trk::Track& track, const IMuonRefitTool::Settings& settings ) const {
+  std::unique_ptr<Trk::Track> MuonRefitTool::updateAlignmentErrors( Trk::Track* track, const IMuonRefitTool::Settings& settings ) const {
 
+    // first scale the Mdt errors
 
-// first scale the Mdt errors 
+    std::unique_ptr<Trk::Track> updatedTrack = updateMdtErrors(track,settings);
+    
+    std::unique_ptr<Trk::Track> updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(updatedTrack.get()) : makeAEOTs(updatedTrack.get());
 
-   const Trk::Track* inputTrack = &track;
-   Trk::Track* updatedTrack = updateMdtErrors(*inputTrack,settings);
-
-   Trk::Track* updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(*updatedTrack) : makeAEOTs(*updatedTrack);
-   if( updatedAEOTsTrack != updatedTrack ) delete updatedTrack;
-
-   return updatedAEOTsTrack;
+    return updatedAEOTsTrack;
   }
 
-  Trk::Track* MuonRefitTool::makeAEOTs( const Trk::Track& track ) const {
+  std::unique_ptr<Trk::Track> MuonRefitTool::makeAEOTs( Trk::Track* track ) const {
 
-//   
-// use the new AlignmentEffectsOnTrack class and alignmentErrorTool
-//
+    //   
+    // use the new AlignmentEffectsOnTrack class and alignmentErrorTool
+    //
     if( m_alignErrorTool.empty() ) {
-      Trk::Track* newTrack =  new Trk::Track( track );
+      std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( *track );
       return newTrack;
     } 
-//
-// Use the alignmentErrorTool and store a list of hits with error on position and angle 
-//
+    //
+    // Use the alignmentErrorTool and store a list of hits with error on position and angle 
+    //
     std::map< std::vector<Identifier>, std::pair <double, double> > alignerrmap;
 
-      std::vector<Trk::AlignmentDeviation*> align_deviations;
-      m_alignErrorTool->makeAlignmentDeviations(track, align_deviations);
+    std::vector<Trk::AlignmentDeviation*> align_deviations;
+    m_alignErrorTool->makeAlignmentDeviations(*track, align_deviations);
 
-      int iok = 0;
-      bool isSmallChamber = false;
-      bool isLargeChamber = false;
-      bool isEndcap = false;
-      bool isBarrel = false;
-      std::vector <int> usedRotations;
+    int iok = 0;
+    bool isSmallChamber = false;
+    bool isLargeChamber = false;
+    bool isEndcap = false;
+    bool isBarrel = false;
+    std::vector <int> usedRotations;
+    
+    // loop on deviations
+    for(auto it : align_deviations){
+      double angleError  = 0.;
+      double translationError  = 0.;
+      bool differentChambers = false;
+      int jdifferent = -1;
+      isSmallChamber = false;
+      isLargeChamber = false;
+      isEndcap = false;
+      isBarrel = false;
 
-      // loop on deviations
-      for(auto it : align_deviations){
-         double angleError  = 0.;
-         double translationError  = 0.;
-         bool differentChambers = false;
-         int jdifferent = -1;
-         isSmallChamber = false;
-         isLargeChamber = false;
-         isEndcap = false;
-         isBarrel = false;
+      if( dynamic_cast<MuonAlign::AlignmentTranslationDeviation*>(it) ) {
+	translationError = std::sqrt(it->getCovariance(0,0));
+	// vector to store hit id
+	std::vector<Identifier> hitids;
+	std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
+	it->getListOfHits(vec_riowithdev);
+	// bool to decide if deviation should be skipped (if it's for more than 1 station)
+	for(auto riowithdev : vec_riowithdev){
+	  Identifier id_riowithdev = riowithdev->identify();
+	  if(m_idHelperSvc->isEndcap(id_riowithdev)) {
+	    isEndcap = true;
+	  } else {
+	    isBarrel = true;
+	  }
+	  if(m_idHelperSvc->isSmallChamber(id_riowithdev)) {
+	    isSmallChamber = true;
+	  } else {
+	    isLargeChamber = true;
+	  }
+	  hitids.push_back(id_riowithdev);
+	  if( hitids.size()>1 &&  m_idHelperSvc->chamberId(id_riowithdev) !=  m_idHelperSvc->chamberId(hitids[0]) ) {
+	    differentChambers = true;
+	    jdifferent = hitids.size()-1; 
+	  } 
+	}
+	bool matchFound = false;
+	if( hitids.size()>0) {
+	  int iRot = -1;
+	  for(auto itRot : align_deviations){
+	    iRot++;
+	    if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
+	      if( itRot->hasValidHashOfHits() && it->hasValidHashOfHits() ) {
+		if( itRot->getHashOfHits() == it->getHashOfHits() ){
+		  angleError = std::sqrt(itRot->getCovariance(0,0));
+		  matchFound = true;
+		  usedRotations.push_back(iRot);
+		}
+	      } else {
+		ATH_MSG_ERROR("One of the alignment deviations has an invalid hash created from the hits.");
+	      }
+	    }
+	    if(matchFound) break; 
+	  }
+	}
+	// if deviation is accepted (i.e. only on one station) store the hit IDs associated with the deviation and the error
 
-         if( dynamic_cast<MuonAlign::AlignmentTranslationDeviation*>(it) ) {
-           translationError = sqrt(it->getCovariance(0,0));
-           // vector to store hit id
-           std::vector<Identifier> hitids;
-           std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
-           it->getListOfHits(vec_riowithdev);
-           // bool to decide if deviation should be skipped (if it's for more than 1 station)
-           for(auto riowithdev : vec_riowithdev){
-              Identifier id_riowithdev = riowithdev->identify();
-              if(m_idHelperSvc->isEndcap(id_riowithdev)) {
-                 isEndcap = true;
-              } else {
-                 isBarrel = true;
-              }
-              if(m_idHelperSvc->isSmallChamber(id_riowithdev)) {
-                isSmallChamber = true;
-              } else {
-                isLargeChamber = true;
-              }
-              hitids.push_back(id_riowithdev);
-              if( hitids.size()>1 &&  m_idHelperSvc->chamberId(id_riowithdev) !=  m_idHelperSvc->chamberId(hitids[0]) ) {
-                differentChambers = true;
-                jdifferent = hitids.size()-1; 
-              } 
-           }
-           bool matchFound = false;
-           if( hitids.size()>0) {
-             int iRot = -1;
-             for(auto itRot : align_deviations){
-               iRot++;
-               if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
-                 if( itRot->hasValidHashOfHits() && it->hasValidHashOfHits() ) {
-                   if( itRot->getHashOfHits() == it->getHashOfHits() ){
-                     angleError = sqrt(itRot->getCovariance(0,0));
-                     matchFound = true;
-                     usedRotations.push_back(iRot);
-                   }
-                 } else {
-                   ATH_MSG_ERROR("One of the alignment deviations has an invalid hash created from the hits.");
-                 }
-               }
-               if(matchFound) break; 
-             }
-           }
-           // if deviation is accepted (i.e. only on one station) store the hit IDs associated with the deviation and the error
+	// store (all) translationError with or without a matched angleError 
+	iok++;  
+	alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
 
-// store (all) translationError with or without a matched angleError 
-           iok++;  
-           alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
-
-           if(matchFound) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
-           if(!matchFound) ATH_MSG_DEBUG(" AlignmentMap entry No angleError" <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
-           if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber "); 
-           if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber "); 
-           if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
-           if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
-           if(differentChambers) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " for different Chamber " <<  m_idHelperSvc->toString(hitids[jdifferent]) );
-        }
+	if(matchFound) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+	if(!matchFound) ATH_MSG_DEBUG(" AlignmentMap entry No angleError" <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+	if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber "); 
+	if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber "); 
+	if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
+	if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
+	if(differentChambers) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " for different Chamber " <<  m_idHelperSvc->toString(hitids[jdifferent]) );
       }
+    }
 
-// now add the angleErrors that were NOT matched to a translationError
+    // now add the angleErrors that were NOT matched to a translationError
 
-      int iRot = -1;
-      for(auto itRot : align_deviations){
-         iRot++;
-         isSmallChamber = false;
-         isLargeChamber = false;
-         isEndcap = false;
-         isBarrel = false;
-         if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
-           bool used = false;
-           for (unsigned int i = 0; i < usedRotations.size(); i++) {
-            if(iRot == usedRotations[i]) used = true;
-           }
-           if(used) continue;             
-           ATH_MSG_ERROR("This following code should not be reached anymore!");
-           std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
-           itRot->getListOfHits(vec_riowithdev);
+    int iRot = -1;
+    for(auto itRot : align_deviations){
+      iRot++;
+      isSmallChamber = false;
+      isLargeChamber = false;
+      isEndcap = false;
+      isBarrel = false;
+      if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
+	bool used = false;
+	for (unsigned int i = 0; i < usedRotations.size(); i++) {
+	  if(iRot == usedRotations[i]) used = true;
+	}
+	if(used) continue;             
+	ATH_MSG_ERROR("This following code should not be reached anymore!");
+	std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
+	itRot->getListOfHits(vec_riowithdev);
 
-           std::vector<Identifier> hitids;
-           // bool to decide if deviation should be skipped (if it's for more than 1 station)
-           for(auto riowithdev : vec_riowithdev){
-              Identifier id_riowithdev = riowithdev->identify();
-              if(m_idHelperSvc->isEndcap(id_riowithdev)) {
-                 isEndcap = true;
-              } else {
-                 isBarrel = true;
-              }
-              if(m_idHelperSvc->isSmallChamber(id_riowithdev)) {
-                isSmallChamber = true;
-              } else {
-                isLargeChamber = true;
-              }
-              hitids.push_back(id_riowithdev);
-           }
-
-           double translationError = 0.;
-           double angleError = sqrt(itRot->getCovariance(0,0));
-
-           iok++;  
-           alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
-           ATH_MSG_DEBUG(" AlignmentMap entry No Translation Error " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
-          if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber"); 
-          if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber"); 
-          if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
-          if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
-         }
+	std::vector<Identifier> hitids;
+	// bool to decide if deviation should be skipped (if it's for more than 1 station)
+	for(auto riowithdev : vec_riowithdev){
+	  Identifier id_riowithdev = riowithdev->identify();
+	  if(m_idHelperSvc->isEndcap(id_riowithdev)) {
+	    isEndcap = true;
+	  } else {
+	    isBarrel = true;
+	  }
+	  if(m_idHelperSvc->isSmallChamber(id_riowithdev)) {
+	    isSmallChamber = true;
+	  } else {
+	    isLargeChamber = true;
+	  }
+	  hitids.push_back(id_riowithdev);
+	}
+	
+	double translationError = 0.;
+	double angleError = std::sqrt(itRot->getCovariance(0,0));
+	
+	iok++;  
+	alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
+	ATH_MSG_DEBUG(" AlignmentMap entry No Translation Error " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+	if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber"); 
+	if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber"); 
+	if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
+	if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
       }
+    }
 
-      // clean-up of alignment deviations
-      for(auto it : align_deviations) delete it;
-      align_deviations.clear();
+    // clean-up of alignment deviations
+    for(auto it : align_deviations) delete it;
+    align_deviations.clear();
 
-    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_WARNING(" track without states, discarding track ");
       return 0;
@@ -541,7 +431,7 @@ namespace Muon {
 
         if( m_idHelperSvc->isMdt(id) ) stationIds.insert( m_idHelperSvc->chamberIndex(id) );
 
-// make Alignment Effect using the surface of the TSOS 
+	// make Alignment Effect using the surface of the TSOS 
 
         if(idMiddle==id) { 
           double deltaError = itAli.second.first;   
@@ -559,9 +449,9 @@ namespace Muon {
       if(!found) ATH_MSG_WARNING(" This should not happen Identifier from AlignmentErrorTool is not found");
     }
     
-//
-// clone the TSOSs and add the tsosAEOTs
-//
+    //
+    // clone the TSOSs and add the tsosAEOTs
+    //
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
     trackStateOnSurfaces->reserve(states->size()+indexAEOTs.size());
     tsit     = states->begin();
@@ -573,8 +463,6 @@ namespace Muon {
           trackStateOnSurfaces->push_back(tsosAEOTs[i]);
         }
       }
-// skip outliers
-//      if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
 
       // Skip AEOTs that are already present, as they will be added above already
       if((*tsit)->alignmentEffectsOnTrack()){
@@ -586,15 +474,7 @@ namespace Muon {
 
     if(indexAEOTs.size()==0 && stationIds.size() > 1) ATH_MSG_WARNING(" Track without AEOT ");
 
-    Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
-
-// dump it
-//    const DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfacesNew = newTrack->trackStateOnSurfaces();
-//    tsit     = trackStateOnSurfacesNew->begin();
-//    tsit_end = trackStateOnSurfacesNew->end();
-//    for( ; tsit!=tsit_end ; ++tsit ){
-//        if((*tsit)->alignmentEffectsOnTrack()) std::cout << " Peter alignmentEffectsOnTrack found with track pars " << (*tsit)->trackParameters() << std::endl;
-//    }
+    std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone():0 );
 
     ATH_MSG_DEBUG(m_printer->print(*newTrack));
     ATH_MSG_DEBUG(m_printer->printMeasurements(*newTrack));
@@ -603,22 +483,22 @@ namespace Muon {
 
   }
 
-  Trk::Track* MuonRefitTool::makeSimpleAEOTs( const Trk::Track& track ) const {
+  std::unique_ptr<Trk::Track> MuonRefitTool::makeSimpleAEOTs( Trk::Track* track ) const {
 
 
-// use the new AlignmentEffectsOnTrack class
+    // use the new AlignmentEffectsOnTrack class
    
-    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_WARNING(" track without states, discarding track ");
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-//
-// first clone the TSOSs
-//
+    //
+    // first clone the TSOSs
+    //
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
     trackStateOnSurfaces->reserve(states->size()+1);
     for( ;tsit!=tsit_end ; ++tsit ){
@@ -626,7 +506,7 @@ namespace Muon {
     }
 
 
-// loop over TSOSs and look for EM or BM chambers 
+    // loop over TSOSs and look for EM or BM chambers 
     tsit     = trackStateOnSurfaces->begin();
     tsit_end = trackStateOnSurfaces->end();
     std::vector<const Trk::TrackStateOnSurface*> indicesOfAffectedTSOS;
@@ -636,7 +516,6 @@ namespace Muon {
     int index = -1;
     int indexFirst = -1;
     int indexFirstInner = -1;
-//    const Trk::Surface *surf = 0;
     for( ; tsit!=tsit_end ; ++tsit ){
       index++;      
       if( !*tsit ) continue; //sanity check
@@ -660,30 +539,28 @@ namespace Muon {
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
       MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
-// skip phi measurements  
+      // skip phi measurements  
       if( (m_idHelperSvc->isTrigger(id)&&m_idHelperSvc->measuresPhi(id)) || (m_idHelperSvc->isCsc(id)&&m_idHelperSvc->measuresPhi(id) ) ) continue;
       if(m_addAll) {
-// skip RPC and TGC eta (to avoid code crashes) 
+	// skip RPC and TGC eta (to avoid code crashes) 
         if( m_idHelperSvc->isTrigger(id)) continue;
         if(indexFirst==-1) indexFirst = index;
         indicesOfAffectedTSOS.push_back(*tsit);  
         indicesOfAffectedIds.push_back(id);  
       } else {
-// skip trigger hits and CSC phi measurements  and select precision hits
+	// skip trigger hits and CSC phi measurements  and select precision hits
         if( m_idHelperSvc->isTrigger(id)) continue;
         if( stIndex == MuonStationIndex::BM || stIndex == MuonStationIndex::EM) {
           if(indexFirst==-1) indexFirst = index;
           indicesOfAffectedTSOS.push_back(*tsit);  
           indicesOfAffectedIds.push_back(id);  
-//  two alignment discontinuities   
+	  //  two alignment discontinuities   
           if(m_addTwo) {
             if(indexFirstInner==-1) indexFirstInner = index;
             indicesOfAffectedTSOSInner.push_back(*tsit);  
             indicesOfAffectedIdsInner.push_back(id);  
           }  
         }  
-//        if( stIndex == MuonStationIndex::BO || stIndex == MuonStationIndex::EO ||
-//            stIndex == MuonStationIndex::BI || stIndex == MuonStationIndex::EI) {
         if( stIndex == MuonStationIndex::BI || stIndex == MuonStationIndex::EI) {
           if(indexFirstInner==-1) indexFirstInner = index;
           indicesOfAffectedTSOSInner.push_back(*tsit);  
@@ -693,7 +570,7 @@ namespace Muon {
     }
 
     if(indicesOfAffectedTSOS.size()==0&&indicesOfAffectedTSOSInner.size()==0) {
-      Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
+      std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone():0 );
       return newTrack;
     }
 
@@ -713,7 +590,6 @@ namespace Muon {
     if(indicesOfAffectedTSOSInner.size()>0&&(m_addInner||m_addTwo)) {
       int middle = indicesOfAffectedTSOSInner.size()/2;
       const Trk::TrackStateOnSurface* tsosInner = indicesOfAffectedTSOSInner[middle];
-//      const Trk::Surface *surfInner = dynamic_cast <Trk::Surface*> ((tsosInner->measurementOnTrack()->associatedSurface()).clone());
       Trk::AlignmentEffectsOnTrack* aEOTInner = new Trk::AlignmentEffectsOnTrack(m_alignmentDelta,m_alignmentDeltaError,m_alignmentAngle,m_alignmentAngleError,indicesOfAffectedIdsInner,&(tsosInner->measurementOnTrack()->associatedSurface())); 
       tsosAEOTInner = new Trk::TrackStateOnSurface(0,tsosInner->trackParameters()->clone(),0,0,typePattern,aEOTInner); 
     }
@@ -741,19 +617,7 @@ namespace Muon {
     if(!m_addInner&&!m_addTwo&&tsosAEOTInner) delete tsosAEOTInner;
     if(!m_addMiddle&&!m_addAll&&tsosAEOT) delete tsosAEOT;
  
-//    trackStateOnSurfacesAEOT->push_back(tsosAEOT);
-//    if(m_addInner) trackStateOnSurfacesAEOT->push_back(tsosAEOTInner);
- 
-    Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfacesAEOT, track.fitQuality() ? track.fitQuality()->clone():0 );
-
-// dump it
-//    const DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfacesNew = newTrack->trackStateOnSurfaces();
-//    tsit     = trackStateOnSurfacesNew->begin();
-//    tsit_end = trackStateOnSurfacesNew->end();
-//    for( ; tsit!=tsit_end ; ++tsit ){
-//        if((*tsit)->alignmentEffectsOnTrack()) std::cout << " Peter alignmentEffectsOnTrack found with track pars " << (*tsit)->trackParameters() << std::endl;
-//    }
-
+    std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( track->info(), trackStateOnSurfacesAEOT, track->fitQuality() ? track->fitQuality()->clone():0 );
 
     if(aEOT) ATH_MSG_DEBUG(" AlignmentEffectsOnTrack on surface " << aEOT->associatedSurface()  << " nr of tsos affected " << indicesOfAffectedTSOS.size());
     ATH_MSG_DEBUG(m_printer->print(*newTrack));
@@ -762,13 +626,13 @@ namespace Muon {
     return newTrack;
   }
 
-  Trk::Track* MuonRefitTool::updateErrors( const Trk::Track& track, const IMuonRefitTool::Settings& settings ) const {
+  std::unique_ptr<Trk::Track> MuonRefitTool::updateErrors( Trk::Track* track, const IMuonRefitTool::Settings& settings ) const {
 
     // loop over track and calculate residuals
-    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_WARNING(" track without states, discarding track ");
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
 
     // vector to store states, the boolean indicated whether the state was create in this routine (true) or belongs to the track (false)
@@ -819,11 +683,11 @@ namespace Muon {
     }
   
     if( !startPars ){
-      if( !track.trackParameters() || track.trackParameters()->empty() ){
+      if( !track->trackParameters() || track->trackParameters()->empty() ){
 	ATH_MSG_WARNING("Track without parameters, cannot update errors");
-	return 0;
+	return std::unique_ptr<Trk::Track>();
       }
-      startPars = track.trackParameters()->front();
+      startPars = track->trackParameters()->front();
       ATH_MSG_VERBOSE("Did not find fit starting parameters, using first parameters " << m_printer->print(*startPars));
     }
 
@@ -834,10 +698,10 @@ namespace Muon {
     std::map<int,std::set<MuonStationIndex::StIndex> >::iterator stit_end = stationsPerSector.end();
     for( ;stit!=stit_end;++stit ){
       if( msgLvl(MSG::VERBOSE) ){
-	msg(MSG::VERBOSE) << " sector " << stit->first;
+	ATH_MSG_VERBOSE(" sector " << stit->first);
 	for( std::set<MuonStationIndex::StIndex>::iterator ssit = stit->second.begin();
 	     ssit != stit->second.end(); ++ssit ){
-	  msg(MSG::VERBOSE) << " " << MuonStationIndex::stName(*ssit);
+	  ATH_MSG_VERBOSE(" " << MuonStationIndex::stName(*ssit));
 	}
       }
       if( stit->second.size() > nmaxStations ) {
@@ -883,14 +747,13 @@ namespace Muon {
       barrelEndcap = true; 
     } 
     if( msgLvl(MSG::DEBUG) ){ 
-      msg() << MSG::DEBUG << " Selected sector " << selectedSector << " nstations " << nmaxStations 
-	    << " barrel " << nbarrel << " endcap " << nendcap; 
+      ATH_MSG_DEBUG(" Selected sector " << selectedSector << " nstations " << nmaxStations 
+	    << " barrel " << nbarrel << " endcap " << nendcap); 
       if( barrelEndcap ) {
-	msg() << " barrel/endcap overlap "  << endmsg; 
-	if(deweightEndcap) msg() << " deweight endcap "  << endmsg; 
-	if(deweightBarrel) msg() << " deweight barrel "  << endmsg; 
+	ATH_MSG_DEBUG(" barrel/endcap overlap "); 
+	if(deweightEndcap) ATH_MSG_DEBUG(" deweight endcap "); 
+	if(deweightBarrel) ATH_MSG_DEBUG(" deweight barrel "); 
       }
-      msg() << MSG::DEBUG << endmsg; 
     } 
 
     unsigned int deweightHits = 0;
@@ -977,12 +840,7 @@ namespace Muon {
 	  }
 
 	  bool hasT0Fit = false;
-	  MdtDriftCircleOnTrack* cmdt =  const_cast<MdtDriftCircleOnTrack*>(mdt);
-	  if( !cmdt ){
-	    ATH_MSG_WARNING(" Failed to const_cast MdtDriftCircleOnTrack ");
-	  }else{
-	    if( cmdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
-	  }
+    if( mdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
       
 	  const Trk::RIO_OnTrack* rot = 0;
 	  int sector = m_idHelperSvc->sector(id);
@@ -1066,14 +924,13 @@ namespace Muon {
 	    
 
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg() << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
+	    ATH_MSG_DEBUG(m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
 		  << " new err " << Amg::error(newMdt->localCovariance(),Trk::locR) 
-		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR);
-	    if( hasT0Fit ) msg() << " HasT0";
-	    else           msg() << " No T0";
-	    if( type == Trk::TrackStateOnSurface::Outlier ) msg() << " Outlier";
-	    if( fabs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) msg() << " Bad recalibration: old r " << mdt->driftRadius();
-	    msg() << endmsg;
+		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR));
+	    if( hasT0Fit ) ATH_MSG_DEBUG(" HasT0");
+	    else           ATH_MSG_DEBUG(" No T0");
+	    if( type == Trk::TrackStateOnSurface::Outlier ) ATH_MSG_DEBUG(" Outlier");
+	    if( std::abs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
 	  }
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
@@ -1144,20 +1001,20 @@ namespace Muon {
       // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
       trackStateOnSurfaces->push_back( nit->first ? nit->second : nit->second->clone() );
     }
-    Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
+    std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone():0 );
 
     return newTrack;
   }
 
-  Trk::Track* MuonRefitTool::updateMdtErrors( const Trk::Track& track, const IMuonRefitTool::Settings& settings ) const {
+  std::unique_ptr<Trk::Track> MuonRefitTool::updateMdtErrors( Trk::Track* track, const IMuonRefitTool::Settings& settings ) const {
 
-// uses the muonErrorStrategy
+    // uses the muonErrorStrategy
 
     // loop over track and calculate residuals
-    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_WARNING(" track without states, discarding track ");
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
 
     // vector to store states, the boolean indicated whether the state was create in this routine (true) or belongs to the track (false)
@@ -1204,11 +1061,11 @@ namespace Muon {
     }
   
     if( !startPars ){
-      if( !track.trackParameters() || track.trackParameters()->empty() ){
+      if( !track->trackParameters() || track->trackParameters()->empty() ){
 	ATH_MSG_WARNING("Track without parameters, cannot update errors");
-	return 0;
+	return std::unique_ptr<Trk::Track>();
       }
-      startPars = track.trackParameters()->front();
+      startPars = track->trackParameters()->front();
       ATH_MSG_VERBOSE("Did not find fit starting parameters, using first parameters " << m_printer->print(*startPars));
     }
 
@@ -1294,12 +1151,7 @@ namespace Muon {
 	  }
 
 	  bool hasT0Fit = false;
-	  MdtDriftCircleOnTrack* cmdt =  const_cast<MdtDriftCircleOnTrack*>(mdt);
-	  if( !cmdt ){
-	    ATH_MSG_WARNING(" Failed to const_cast MdtDriftCircleOnTrack ");
-	  }else{
-	    if( cmdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
-	  }
+	  if( mdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit))  hasT0Fit = true; 
       
 	  const Trk::RIO_OnTrack* rot = 0;
 	  Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? 
@@ -1307,7 +1159,7 @@ namespace Muon {
 	  
 	  stIndex = m_idHelperSvc->stationIndex(id);
 
-// use the muonErrorStrategy
+	  // use the muonErrorStrategy
 	  MuonDriftCircleErrorStrategy strat(m_muonErrorStrategy);
 	  if( hasT0Fit )       strat.setParameter(MuonDriftCircleErrorStrategy::T0Refit,true);
 	  if( settings.broad ) strat.setParameter(MuonDriftCircleErrorStrategy::BroadError,true);
@@ -1324,14 +1176,13 @@ namespace Muon {
 	    
 
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg() << " updateMdtErrors " << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
+	    ATH_MSG_DEBUG(" updateMdtErrors " << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
 		  << " new err " << Amg::error(newMdt->localCovariance(),Trk::locR) 
-		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR);
-	    if( hasT0Fit ) msg() << " HasT0";
-	    else           msg() << " No T0";
-	    if( type == Trk::TrackStateOnSurface::Outlier ) msg() << " Outlier";
-	    if( fabs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) msg() << " Bad recalibration: old r " << mdt->driftRadius();
-	    msg() << endmsg;
+		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR));
+	    if( hasT0Fit ) ATH_MSG_DEBUG(" HasT0");
+	    else           ATH_MSG_DEBUG(" No T0");
+	    if( type == Trk::TrackStateOnSurface::Outlier ) ATH_MSG_DEBUG(" Outlier");
+	    if( std::abs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
 	  }
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
@@ -1364,7 +1215,6 @@ namespace Muon {
 	      newStates.push_back( std::make_pair(false,*tsit) );	
 	      
 	    }
-
 
 	  }else{
 	    if( settings.updateTriggerErrors ){
@@ -1399,18 +1249,18 @@ namespace Muon {
       // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
       trackStateOnSurfaces->push_back( nit->first ? nit->second : nit->second->clone() );
     }
-    Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
+    std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone():0 );
 
     return newTrack;
   }
 
-  const Trk::Track* MuonRefitTool::removeOutliers( const Trk::Track& track, const IMuonRefitTool::Settings& settings ) const {
+  std::unique_ptr<Trk::Track> MuonRefitTool::removeOutliers( Trk::Track* track, const IMuonRefitTool::Settings& settings ) const {
 
     // loop over track and calculate residuals
-    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_WARNING(" track without states, discarding track ");
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
 
     Identifier currentMdtChId;
@@ -1465,7 +1315,7 @@ namespace Muon {
 	  if( chamberPars ){
 	    if( !removeMdtOutliers(*chamberPars,mdts,removedIdentifiers,settings) ){
 	      if( mdts.size() > 4 ) ATH_MSG_WARNING("Problem removing outliers in chamber " << m_idHelperSvc->toStringChamber(currentMdtChId) << " hits " << mdts.size());
-	      if( settings.discardNotCleanedTracks ) return 0;
+	      if( settings.discardNotCleanedTracks ) return std::unique_ptr<Trk::Track>();
 	    }
 	  }
 	  // update to new chamber
@@ -1482,13 +1332,13 @@ namespace Muon {
     if( chamberPars ){
       if( !removeMdtOutliers(*chamberPars,mdts,removedIdentifiers,settings) ){
 	if( mdts.size() > 4 ) ATH_MSG_WARNING("Problem removing outliers in chamber " << m_idHelperSvc->toStringChamber(currentMdtChId) << " hits " << mdts.size());
-	if( settings.discardNotCleanedTracks ) return 0;
+	if( settings.discardNotCleanedTracks ) return std::unique_ptr<Trk::Track>();
       }
     }
 
     if( removedIdentifiers.empty() ){
       ATH_MSG_DEBUG("No hits remove, returning original track");
-      return &track;
+      return std::make_unique<Trk::Track>(*track);
     }
 
     // states were added, create a new track
@@ -1519,8 +1369,7 @@ namespace Muon {
       trackStateOnSurfaces->push_back( (*tsit)->clone() );	
     }
 
-    Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
-
+    std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone():0 );
 
     return newTrack;
   }
@@ -1545,9 +1394,14 @@ namespace Muon {
     // set to get Identifiers of chambers with hits
     std::vector< std::pair<Identifier,bool> > indexIdMap;
     indexIdMap.reserve( hits.size() );
-
   
-
+    TrkDriftCircleMath::DCSLFitter dcslFitter;
+    TrkDriftCircleMath::SegmentFinder segFinder(5.,3.,false);
+    if( !m_t0Fitter.empty() ){
+      segFinder.setFitter(m_t0Fitter->getFitter());
+    }
+    segFinder.debugLevel(m_finderDebugLevel);
+    segFinder.setRecoverMDT(false);
 
     unsigned index = 0;
     std::vector<const MdtDriftCircleOnTrack*>::const_iterator it = hits.begin();
@@ -1573,7 +1427,7 @@ namespace Muon {
       Amg::Vector3D locPos = gToStation*mdt->prepRawData()->globalPosition();
       TrkDriftCircleMath::LocPos lpos(locPos.y(),locPos.z());
 
-      double r  = fabs(mdt->localParameters()[Trk::locR]);
+      double r  = std::abs(mdt->localParameters()[Trk::locR]);
       double dr = Amg::error(mdt->localCovariance(),Trk::locR);
       ATH_MSG_VERBOSE("New MDT " << m_idHelperSvc->toString(id) << "  r " << mdt->localParameters()[Trk::locR] 
 		      << " dr  " << dr << "  (original) " << Amg::error(mdt->localCovariance(),Trk::locR) );
@@ -1626,11 +1480,11 @@ namespace Muon {
 
 
     ATH_MSG_DEBUG("Seeding angles " << track_angleYZ << " from surf " << angleYZ << " ch angle " << chamber_angleYZ << " pos " << segPos);
-    m_finder.setPhiRoad(track_angleYZ,chamber_angleYZ,0.14);
+    segFinder.setPhiRoad(track_angleYZ,chamber_angleYZ,0.14);
 
     if( msgLvl(MSG::VERBOSE) ){
       TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
-      if(m_fitter.fit(segment, segPars, dcsOnTrack)){
+      if(dcslFitter.fit(segment, segPars, dcsOnTrack)){
 	segment.hitsOnTrack(dcsOnTrack.size());
 	ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
 		      << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
@@ -1639,7 +1493,7 @@ namespace Muon {
       }
     }
 
-    TrkDriftCircleMath::SegVec segments = m_finder.findSegments(dcs);
+    TrkDriftCircleMath::SegVec segments = segFinder.findSegments(dcs);
     if( !segments.empty() ){
       ATH_MSG_DEBUG("Found segments " << segments.size() );
     }
@@ -1654,7 +1508,7 @@ namespace Muon {
       TrkDriftCircleMath::SegIt sit_end = segments.end();
       for( ;sit!=sit_end;++sit,++index ) {
       
-	double dtheta = fabs(sit->line().phi() - track_angleYZ);
+	double dtheta = std::abs(sit->line().phi() - track_angleYZ);
 	if( dtheta < dthetaBest ){
 	  dthetaBest = dtheta;
 	  indexBest = index;
@@ -1679,24 +1533,6 @@ namespace Muon {
     if( settings.discardNotCleanedTracks && !segment.hasT0Shift() ) return false;
 
     if( segment.hasT0Shift() || segment.hitsOnTrack() > 5 ) {
-      //     it = hits.begin();
-      //     it_end = hits.end();
-      //     for(  ;it!=it_end;++it){
-      
-      //       const Trk::ErrorMatrix& localErrorMatrix = (*it)->localErrorMatrix();
-      //       double error = 1.99;
-      
-      //       double scaledError2 = error*error;
-      //       Trk::CovarianceMatrix* covPtr = const_cast<Trk::CovarianceMatrix*>(localErrorMatrix.covariancePointer());
-      //       Trk::WeightMatrix* weightPtr = const_cast<Trk::WeightMatrix*>(localErrorMatrix.weightPointer());      
-      //       if( covPtr ) {
-      // 	(*covPtr)[Trk::locR][Trk::locR] = scaledError2;
-      //       }
-      //       if( weightPtr ) {
-      // 	(*weightPtr)[Trk::locR][Trk::locR] = 1./scaledError2;
-      //       }
-      //     }
-    
       ATH_MSG_DEBUG("Segment with t0 shift " << segment.t0Shift() ); 
     }
 
@@ -1718,7 +1554,7 @@ namespace Muon {
     for( TrkDriftCircleMath::DCOnTrackCit dcit = matchedDCs.begin();dcit!=matchedDCs.end();++dcit ){
     
       if( dcit->state() == TrkDriftCircleMath::DCOnTrack::OnTrack ) {
-	if( fabs(dcit->r()) - fabs(dcit->rot()->driftRadius()) > 0.1 ){
+	if( std::abs(dcit->r()) - std::abs(dcit->rot()->driftRadius()) > 0.1 ){
 	  ATH_MSG_DEBUG("Large change in drift radius: r_old " 
 		       << dcit->rot()->driftRadius() << "  r_new " 
 		       << dcit->r() );

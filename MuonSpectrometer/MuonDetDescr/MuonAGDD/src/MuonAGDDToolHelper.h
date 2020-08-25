@@ -28,7 +28,6 @@ public:
 	std::string GetAGDD(const bool dumpIt, const std::string& tableName, const std::string& outFileName);
 	
 	bool BuildMScomponents() const;
-	bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
 
 	void setAGDDtoGeoSvcName(const std::string& name);
 

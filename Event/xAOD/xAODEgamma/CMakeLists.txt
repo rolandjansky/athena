@@ -27,3 +27,10 @@ atlas_add_dictionary( xAODEgammaDict
    ${_selectionFile}
    LINK_LIBRARIES xAODCore xAODEgamma
    EXTRA_FILES Root/dict/*.cxx )
+
+atlas_add_dictionary( xAODEgammaParametersDict
+   xAODEgamma/xAODEgammaParametersDict.h
+   xAODEgamma/selectionParameters.xml )
+
+# Install files from the package.
+atlas_install_python_modules( python/*.py )

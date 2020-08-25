@@ -5,7 +5,7 @@
 // OverlayRun2TriggerTowerMaker class Implementation
 // ================================================
 
-#include "TrigT1CaloSim/OverlayRun2TriggerTowerMaker.h"
+#include "OverlayRun2TriggerTowerMaker.h"
 
 // trigger include(s)
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"

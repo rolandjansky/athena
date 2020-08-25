@@ -257,6 +257,10 @@ class TestAlg (Alg):
         return
 
     def initialize (self):
+        # Work around issue with cling in root 6.20.06 getting confused
+        # by forward declarations.
+        ROOT.xAOD.TriggerTowerContainer_v2
+
         ROOT.ICaloCellMakerTool
         self.tool1 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArCellDeadOTXCorr/tool1')
         self.tool2 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArCellDeadOTXCorr/tool2')
@@ -264,7 +268,7 @@ class TestAlg (Alg):
         self.idmgr = self.detStore['CaloIdManager']
         self.onlineID = self.detStore['LArOnlineID']
         self.offlineID  = self.detStore['CaloCell_ID']
-        self.ccc = make_calo_cells (self.detStore)
+        self.ccc = None
         if not self.tool1.retrieve():
             return StatusCode.Failure
         if not self.tool2.retrieve():
@@ -277,6 +281,9 @@ class TestAlg (Alg):
         return StatusCode.Success
 
     def execute (self):
+        if not self.ccc:
+            self.ccc = make_calo_cells (self.detStore)
+
         ctx = self.getContext()
         iev = ctx.evt()
 

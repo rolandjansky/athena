@@ -52,14 +52,14 @@ namespace xAOD {
 
       if( ( ! sv0TPAcc1.isAvailable( *this ) ) &&
           ( ! sv0TPAcc2.isAvailable( *this ) ) ) {
-         return 0;
+         return nullptr;
       }
       const TPELVec_t& tpl = SV0_TrackParticleLinks();
       if( tpl.size() <= i ) {
-         return 0;
+         return nullptr;
       }
       if( ! tpl[ i ].isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *( tpl[ i ] );
    }
@@ -125,14 +125,14 @@ namespace xAOD {
 
       if( ( ! sv1TPAcc1.isAvailable( *this ) ) &&
           ( ! sv1TPAcc2.isAvailable( *this ) ) ) {
-         return 0;
+         return nullptr;
       }
       const TPELVec_t& tpl = SV1_TrackParticleLinks();
       if( tpl.size() <= i ) {
-         return 0;
+         return nullptr;
       }
       if( ! tpl[ i ].isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *( tpl[ i ] );
    }
@@ -199,14 +199,14 @@ namespace xAOD {
 
       if( ( ! ip2dTPAcc1.isAvailable( *this ) ) &&
           ( ! ip2dTPAcc2.isAvailable( *this ) ) ) {
-         return 0;
+         return nullptr;
       }
       const TPELVec_t& tpl = IP2D_TrackParticleLinks();
       if( tpl.size() <= i ) {
-         return 0;
+         return nullptr;
       }
       if( ! tpl[ i ].isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *( tpl[ i ] );
    }
@@ -273,14 +273,14 @@ namespace xAOD {
 
       if( ( ! ip3dTPAcc1.isAvailable( *this ) ) &&
           ( ! ip3dTPAcc2.isAvailable( *this ) ) ) {
-         return 0;
+         return nullptr;
       }
       const TPELVec_t& tpl = IP3D_TrackParticleLinks();
       if( tpl.size() <= i ) {
-         return 0;
+         return nullptr;
       }
       if( ! tpl[ i ].isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *( tpl[ i ] );
    }

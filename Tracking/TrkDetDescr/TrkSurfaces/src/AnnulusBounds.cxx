@@ -106,18 +106,18 @@ public:
           || ((x * h + y * w - w * h) * (x * h + y * w - w * h) <= r * r * (w * w + h * h) && x * w - y * h >= -h * h &&
               x * w - y * h <= w * w)) { // collision with (0, h)---(w, 0)
         return true;
-      } 
+      }
         if ((x - w) * (x - w) + (y - h) * (y - h) <= r * r || (x <= w && y - r <= h) || (y <= h && x - r <= w)) {
           return iterate(x, y, w, 0, 0, h, r * r); // collision within triangle (0, h) (w, h) (0, 0) is possible
         }
         return false;
-      
-    } 
+
+    }
       double R = -r;
       double localCos = x / R;
       double deltaR = std::sqrt(h * h + (w * w - h * h) * localCos * localCos);
       return deltaR >= R - std::sqrt(x * x + y * y);
-    
+
   }
   EllipseCollisionTest(int maxIterations) { this->m_maxIterations = maxIterations; }
 };
@@ -195,9 +195,6 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
   m_maxYin = std::min(m_solution_R_max[1], m_solution_L_max[1]);
   m_minYin = minR;
 }
-
-// destructor
-Trk::AnnulusBounds::~AnnulusBounds() = default;
 
 bool
 Trk::AnnulusBounds::operator==(const Trk::SurfaceBounds& sbo) const
@@ -357,7 +354,7 @@ Trk::AnnulusBounds::isAbove(const Amg::Vector2D& locpo,
     // the most tolerant approach for tol1 and tol2
     double sign = k > 0. ? -1. : +1.;
     return (locpo[Trk::locY] + tol2 > (k * (locpo[Trk::locX] + sign * tol1) + d));
-  } 
+  }
     return false;
 }
 
@@ -472,7 +469,7 @@ Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d) const
     x2 = (-2. * k * d + std::sqrt(delta)) / (2. * (1 + k * k));
     y1 = k * x1 + d;
     y2 = k * x2 + d;
-  
+
   if (y1 > y2) {
     solution.push_back(x1);
     solution.push_back(y1);

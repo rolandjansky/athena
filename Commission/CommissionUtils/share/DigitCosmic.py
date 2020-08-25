@@ -30,9 +30,9 @@ if not 'outputfile' in dir() :
 EventSelector.InputCollections=[inputfile]
 Stream1.OutputFile = outputfile 
 
-theApp.DLLs += ["GeneratorObjectsAthenaPoolPoolCnv"] 
-theApp.DLLs += ["G4SimAthenaPOOLPoolCnv"] 
-theApp.DLLs += ["CommissionAthenaPoolPoolCnv"] 
+theApp.Dlls += ["GeneratorObjectsAthenaPoolPoolCnv"] 
+theApp.Dlls += ["G4SimAthenaPOOLPoolCnv"] 
+theApp.Dlls += ["CommissionAthenaPoolPoolCnv"] 
 include ("CommissionEvent/CommissionEventDict_joboptions.py")
 
 digitmaker1.SkipNoHit=True
@@ -45,7 +45,7 @@ TileHitVecToCnt.UseTriggerTime  = True;
 TileHitVecToCnt.TriggerTimeToolName  = "CosmicTriggerTimeTool" 
 
 # insert ComTimeRec at the beginning of the TopAlgs.
-theApp.DLLs += ["CommissionRec"] 
+theApp.Dlls += ["CommissionRec"] 
 topAlgs = theApp.TopAlg ; 
 
 theApp.TopAlg = ["ComTimeRec"] 
@@ -70,7 +70,7 @@ theApp.EvtMax = 2000
 IOVDbSvc.ManageConnections = TRUE
 
 MessageSvc.infoLimit = 1000000 
-theApp.DLLs += ["CommissionUtils"]
+theApp.Dlls += ["CommissionUtils"]
 PileUpMergeSvc = Service("PileUpMergeSvc") 
 PileUpMergeSvc.TriggerTimeTool = "CosmicTriggerTimeTool" 
 

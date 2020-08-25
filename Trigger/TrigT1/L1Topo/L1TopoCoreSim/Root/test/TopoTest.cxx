@@ -1,22 +1,14 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//  main.cpp
-//  TestTopo
-//
-//  Created by Joerg Stelzer on 11/10/12.
-//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include <iostream>
 
-#include "L1TopoCoreSimulation/ClusterSortingAlg.h"
-#include "L1TopoCoreSimulation/DeltaPhiLeading.h"
-#include "L1TopoCoreSimulation/ClusterTOB.h"
-#include "L1TopoCoreSimulation/ClusterTOBArray.h"
-#include "L1TopoCoreSimulation/TOBArray.h"
-#include "L1TopoCoreSimulation/AlgFactory.h"
-#include "L1TopoCoreSimulation/TopoSteering.h"
+#include "L1TopoCoreSim/ClusterSortingAlg.h"
+#include "L1TopoCoreSim/DeltaPhiLeading.h"
+#include "L1TopoCoreSim/ClusterTOB.h"
+#include "L1TopoCoreSim/ClusterTOBArray.h"
+#include "L1TopoCoreSim/TOBArray.h"
+#include "L1TopoCoreSim/AlgFactory.h"
+#include "L1TopoCoreSim/TopoSteering.h"
 
 #include "TrigConfL1TopoData/L1TopoConfigReader.h"
 

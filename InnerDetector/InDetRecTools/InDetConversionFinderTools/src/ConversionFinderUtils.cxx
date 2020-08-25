@@ -22,7 +22,7 @@
 using HepGeom::Point3D;
 
 namespace InDet {
-  
+
   static const InterfaceID IID_IConversionFinderUtils("InDet::ConversionFinderUtils", 1, 0);
 
   ConversionFinderUtils::ConversionFinderUtils(const std::string& type,
@@ -30,26 +30,26 @@ namespace InDet {
                                                const IInterface* parent)
     : AthAlgTool(type, name, parent)
   {
-    declareInterface<ConversionFinderUtils>(this);        	
+    declareInterface<ConversionFinderUtils>(this);
   }
-  
+
   ConversionFinderUtils::~ConversionFinderUtils() = default;
-  
-  const InterfaceID& ConversionFinderUtils::interfaceID() 
+
+  const InterfaceID& ConversionFinderUtils::interfaceID()
   {
     return IID_IConversionFinderUtils;
   }
-  
+
   StatusCode ConversionFinderUtils::initialize() {
     return StatusCode::SUCCESS;
   }
-  
+
   StatusCode ConversionFinderUtils::finalize() {
     return StatusCode::SUCCESS;
   }
-  
-  /** 
-   * hits counter 
+
+  /**
+   * hits counter
    */
   void
   ConversionFinderUtils::countHits(
@@ -58,26 +58,34 @@ namespace InDet {
     int& nclus) const
   {
 
-    DataVector<const Trk::MeasurementBase>::const_iterator its, itse=mb->end();
-	  
-    for(its=mb->begin();its!=itse;++its) {
-      
-      const Trk::RIO_OnTrack* ri = dynamic_cast<const Trk::RIO_OnTrack*>(*its);	       
-      if(!ri) continue;					
-      
-      const Trk::PrepRawData*     rd = ri->prepRawData();				       
-      if(!rd) continue;								       
-      
-      const InDet::SiCluster*     si = dynamic_cast<const InDet::SiCluster*>(rd);	       
-      if(si) { ++nclus; continue;}							       
-      
-      const InDet::TRT_DriftCircle*  dc = dynamic_cast<const InDet::TRT_DriftCircle*>(rd); 
-      if(dc) { ++ntrt; continue;}							       
-      
-    }//end of loop over meas.bases
-  }  // end of count hits method
+    DataVector<const Trk::MeasurementBase>::const_iterator its,
+      itse = mb->end();
 
-  /** 
+    for (its = mb->begin(); its != itse; ++its) {
+
+      const Trk::RIO_OnTrack* ri = dynamic_cast<const Trk::RIO_OnTrack*>(*its);
+      if (!ri)
+        continue;
+
+      const Trk::PrepRawData* rd = ri->prepRawData();
+      if (!rd){
+        continue;
+      }
+
+      if (rd->type(Trk::PrepRawDataType::SiCluster)) {
+        ++nclus;
+        continue;
+      }
+
+      if (rd->type(Trk::PrepRawDataType::TRT_DriftCircle)) {
+        ++ntrt;
+        continue;
+      }
+
+    } // end of loop over meas.bases
+  }   // end of count hits method
+
+  /**
    * hl trt hits / trt hits ratio calculater
    */
   double
@@ -86,27 +94,27 @@ namespace InDet {
   {
 
     DataVector<const Trk::MeasurementBase>::const_iterator itp=mb->begin(), itpe=mb->end();
-    int ntrth = 0; 
+    int ntrth = 0;
     int nHL = 0;
     for(;itp!=itpe;++itp) {
       const Trk::RIO_OnTrack* ri = dynamic_cast<const Trk::RIO_OnTrack*>(*itp);
       if(!ri) continue;
       const Trk::PrepRawData* rd = ri->prepRawData();
-      
+
       if(!rd) continue;
       const InDet::TRT_DriftCircle* RawDataClus = dynamic_cast<const InDet::TRT_DriftCircle*>(rd);
       if(!RawDataClus) continue;
       ++ntrth;
-      
+
       if(RawDataClus->highLevel()) ++nHL;
     }//end of loop over measurement bases
-    
+
     if(ntrth>0) return double(nHL)/double(ntrth);
     return 1000.;
   } // end of trRatio method
 
-  /** 
-   * mom fraction 
+  /**
+   * mom fraction
    */
   double
   ConversionFinderUtils::momFraction(const Trk::TrackParameters* per1,
@@ -119,7 +127,7 @@ namespace InDet {
     return momFraction;
   }
 
-  /** 
+  /**
    * distance between two tracks
    */
   double
@@ -130,61 +138,61 @@ namespace InDet {
     //position of the first measurement on the positive track
     const Trk::MeasurementBase* first_pos_meas = trk_pos->measurementsOnTrack()->front();
     Amg::Vector3D trk_hit_pos = first_pos_meas->globalPosition();
-    
+
     //check if really the first measurement
     for (const Trk::MeasurementBase* m : *trk_pos->measurementsOnTrack())
-      if(trk_hit_pos.mag() > m->globalPosition().mag()) first_pos_meas = m;	
-    
+      if(trk_hit_pos.mag() > m->globalPosition().mag()) first_pos_meas = m;
+
     trk_hit_pos = first_pos_meas->globalPosition();
-    
+
     //position of the first hit--->track2
     const Trk::MeasurementBase* first_neg_meas = trk_neg->measurementsOnTrack()->front();
     Amg::Vector3D trk_hit_neg = first_neg_meas->globalPosition();
-    
+
     //check if really the first measurement
     for (const Trk::MeasurementBase* m : *trk_neg->measurementsOnTrack())
-      if(trk_hit_neg.mag() > m->globalPosition().mag()) first_neg_meas = m;	
-    
+      if(trk_hit_neg.mag() > m->globalPosition().mag()) first_neg_meas = m;
+
     trk_hit_neg = first_neg_meas->globalPosition();
     double distance = 1000.;
-    
+
     //check if measurements are on the same surface
-    if (first_pos_meas->associatedSurface() == first_neg_meas->associatedSurface()) distance = 
-      sqrt(pow(trk_hit_pos[0] - trk_hit_neg[0],2.) + pow(trk_hit_pos[1] - trk_hit_neg[1],2.) + 
+    if (first_pos_meas->associatedSurface() == first_neg_meas->associatedSurface()) distance =
+      sqrt(pow(trk_hit_pos[0] - trk_hit_neg[0],2.) + pow(trk_hit_pos[1] - trk_hit_neg[1],2.) +
 	   pow(trk_hit_pos[2] - trk_hit_neg[2],2.));
-    
-    
-    //if not choose the track with the fist measurement closest to 000 and calculate the distance 
+
+
+    //if not choose the track with the fist measurement closest to 000 and calculate the distance
     //of the closest approach of another track to this measurement
     else {
-      
+
       //define reference point and track parameter (--> perigees) of the second track
-      Amg::Vector3D ref_point;								       
-      const Trk::Perigee* perigee;							       
-      
+      Amg::Vector3D ref_point;
+      const Trk::Perigee* perigee;
+
       if (first_pos_meas->globalPosition().mag() < first_neg_meas->globalPosition().mag()) {
         ref_point = first_pos_meas->globalPosition();
-        perigee = trk_neg->perigeeParameters();					        
+        perigee = trk_neg->perigeeParameters();
       } else {
         ref_point = first_neg_meas->globalPosition();
-        perigee = trk_pos->perigeeParameters();					        
+        perigee = trk_pos->perigeeParameters();
       }
 
       // when the helix can be approximated as a straight line, when the
       // distance of closest approach can be calculated as distance^2 = [momentum
       // x (ref_point-position)]^2/momentum^2
-      Amg::Vector3D momentum = perigee->momentum();			  
-      Amg::Vector3D position = perigee->position();			  
-      double p = momentum.mag();					  
-      Amg::Vector3D delta = position - ref_point;			  
-      distance = sqrt(pow(delta.mag(),2.) - pow((delta.adjoint()*momentum)[0]/p,2.)); 
+      Amg::Vector3D momentum = perigee->momentum();
+      Amg::Vector3D position = perigee->position();
+      double p = momentum.mag();
+      Amg::Vector3D delta = position - ref_point;
+      distance = sqrt(pow(delta.mag(),2.) - pow((delta.adjoint()*momentum)[0]/p,2.));
     }
-    
+
     ATH_MSG_DEBUG("Distance between two tracks = "<<distance);
     return distance;
   } // end of distBetweenTracks method
 
-  /** 
+  /**
    * return first track parameters
    */
   const Trk::TrackParameters*
@@ -192,20 +200,20 @@ namespace InDet {
   {
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) return nullptr;
-    
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator itse = tsos->end(); 
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator itsb = tsos->begin(); 
-    
+
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator itse = tsos->end();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator itsb = tsos->begin();
+
     for(;itsb!=itse;++itsb) {
       if((*itsb)->measurementOnTrack()) {
         const Trk::TrackParameters* trkP = (*itsb)->trackParameters();
         if(trkP->associatedSurface().center().perp()>=10.) return trkP;
       }//end of meas on track check
     }//end of loop over all track states on surface
-    
-    return nullptr;   
+
+    return nullptr;
   }
-  
+
   /**
    * return first track particle parameters
    */
@@ -214,9 +222,9 @@ namespace InDet {
     const Trk::TrackParticleBase* track) const
   {
 
-    std::vector<const Trk::TrackParameters*>::const_iterator vpb = track->trackParameters().begin(); 	
-    std::vector<const Trk::TrackParameters*>::const_iterator vpe = track->trackParameters().end(); 	
-    for(;vpb != vpe; ++vpb) if((*vpb)->position().perp()>=10.) return (*vpb);	
+    std::vector<const Trk::TrackParameters*>::const_iterator vpb = track->trackParameters().begin();
+    std::vector<const Trk::TrackParameters*>::const_iterator vpe = track->trackParameters().end();
+    for(;vpb != vpe; ++vpb) if((*vpb)->position().perp()>=10.) return (*vpb);
     return nullptr;
   }
 
@@ -225,27 +233,27 @@ namespace InDet {
   ConversionFinderUtils::addNewPerigeeToTrack(const Trk::Track* track,
                                               const Trk::Perigee* mp) const
   {
-    
+
     // fitQuality from track
-    const Trk::FitQuality* fq = track->fitQuality()->clone(); 
+    const Trk::FitQuality* fq = track->fitQuality()->clone();
     if(!fq) return nullptr;
-    
+
     // output datavector of TSOS
     DataVector<const Trk::TrackStateOnSurface>*	    ntsos = new DataVector<const Trk::TrackStateOnSurface>;
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) {delete ntsos; return nullptr;}
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
     for(its=tsos->begin();its!=itse;++its) {
-      
+
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       const Trk::TrackStateOnSurface* per_tsos =
         ((*its)->type(Trk::TrackStateOnSurface::Perigee))
           ? new Trk::TrackStateOnSurface(nullptr, mp->clone(), nullptr, nullptr, typePattern)
           : (*its)->clone();
-      ntsos->push_back(per_tsos);	  
+      ntsos->push_back(per_tsos);
     }
-    
+
     //Construct the new track
     Trk::TrackInfo info;
     Trk::Track* newTrk = new Trk::Track(info, ntsos, fq);
@@ -259,28 +267,28 @@ namespace InDet {
     Amg::Vector3D correctVertex(initVxCandidate->position().x()+guessVertex.x(),
 			     initVxCandidate->position().y()+guessVertex.y(),
 			     initVxCandidate->position().z()+guessVertex.z());
-    
+
     Amg::Vector3D globalVertexPosition(correctVertex.x(),correctVertex.y(),correctVertex.z());
-    
+
     std::vector<Trk::VxTrackAtVertex> tmpVTAV;
-    
-    std::vector<Trk::VxTrackAtVertex> trkAtVtx = initVxCandidate->vxTrackAtVertex();  
+
+    std::vector<Trk::VxTrackAtVertex> trkAtVtx = initVxCandidate->vxTrackAtVertex();
     for (unsigned int i = 0; i < trkAtVtx.size() ; ++i) {
-      Trk::VxTrackAtVertex vtxTrack = trkAtVtx[i];			       						     
-      const Trk::TrackParameters*  vtxPer = vtxTrack.perigeeAtVertex();				     
+      Trk::VxTrackAtVertex vtxTrack = trkAtVtx[i];
+      const Trk::TrackParameters*  vtxPer = vtxTrack.perigeeAtVertex();
       const AmgVector(5)& iv = vtxPer->parameters();
       AmgSymMatrix(5) em(*(vtxPer->covariance()));
-      Trk::PerigeeSurface surface (globalVertexPosition); 
+      Trk::PerigeeSurface surface (globalVertexPosition);
 
       Trk::TrackParameters* tmpMeasPer = surface.createParameters<5,Trk::Charged>(0.,0.,iv[2],iv[3],iv[4],&em);
 
       Trk::VxTrackAtVertex trkV(vtxTrack.trackQuality().chiSquared(),
                                 tmpMeasPer);
       tmpVTAV.push_back(trkV);
-    }//end of loop over VxTracksAtVertex				    
-    
+    }//end of loop over VxTracksAtVertex
+
     if(tmpVTAV.size()!=2) return nullptr;
-    
+
     //Create the xAOD::Vertex and set the position and VxTrackAtVertex properly
     xAOD::Vertex *vx = new xAOD::Vertex(*initVxCandidate);
     vx->setPosition(correctVertex);
@@ -290,7 +298,7 @@ namespace InDet {
       vx->vxTrackAtVertex().push_back(vtxTrack);
     }
 
-    return vx;							       
+    return vx;
   }//end of correct vxCandidate method
-  
+
 } // end InDet

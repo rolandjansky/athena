@@ -18,7 +18,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBRecordset.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <string>

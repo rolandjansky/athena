@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryDC3.h"
@@ -25,6 +25,8 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #define NUMBEROFPANEL 2
 #define TRTELEMENTSINEL 9  // VK - now number of record is determined automatically
 
@@ -46,7 +48,7 @@ TRT_ServMatFactoryDC3::~TRT_ServMatFactoryDC3()
 
 
 //## Other Operations (implementation)
-void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
+void TRT_ServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc and materialManager methods are used.
 {
 
   msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
@@ -227,7 +229,8 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   return IDShape;
 }
 
-const GeoMaterial* TRT_ServMatFactoryDC3::createMaterial(const std::string & name,
+const GeoMaterial* TRT_ServMatFactoryDC3::createMaterial ATLAS_NOT_THREAD_SAFE // Thread unsafe materialManager method is used.
+                                                  (const std::string & name,
 						   int volType, 
 						   double fractionRL,
 						   double rmin1, 

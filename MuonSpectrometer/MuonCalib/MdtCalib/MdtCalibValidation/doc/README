@@ -1,6 +1,0 @@
-Validation of Mdt calibration constants in ORACLE Calibration DBs
-author T.Baroncelli 
-
-customization: to run Test.exe 
-you should specify your DB, the schema name and the password in 
-authentication.xml and in test.cxx

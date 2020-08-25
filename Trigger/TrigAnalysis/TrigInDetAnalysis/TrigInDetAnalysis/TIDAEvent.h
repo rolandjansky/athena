@@ -76,6 +76,8 @@ public:
   const std::vector<TIDA::Chain>& chains() const { return m_chains; };
   std::vector<TIDA::Chain>&       chains()       { return m_chains; };
   
+  const TIDA::Chain* chain( const std::string& s ) const;
+
   //void setTruthMap(TrigInDetTrackTruthMap truthmap) {
   //	m_truthmap = truthmap;
   //}

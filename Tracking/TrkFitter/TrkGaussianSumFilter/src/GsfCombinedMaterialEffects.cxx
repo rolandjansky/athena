@@ -72,7 +72,7 @@ Trk::GsfCombinedMaterialEffects::compute(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG("Computing combined material effects");
+  ATH_MSG_DEBUG("Computing combined material effects, P : " << componentParameters.first->momentum().norm() << " W " << componentParameters.second );
 
   // Reset everything before computation
   cache.reset();
@@ -163,7 +163,6 @@ Trk::GsfCombinedMaterialEffects::compute(
         (*multipleScatter_weightsIterator) * (*energyLoss_weightsIterator);
       double combinedDeltaP =
         (*multipleScatter_deltaPsIterator) + (*energyLoss_deltaPsIterator);
-
       cache.weights.push_back(combinedWeight);
       cache.deltaPs.push_back(combinedDeltaP);
 

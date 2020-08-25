@@ -19,7 +19,7 @@ containers = [
               ]
 if TriggerFlags.EDMDecodingVersion == 3 :
   # will add the MT version of TrigBphys containers once they are available in EDM
-  containers = [ "TrigBphysDimu", "TrigBphysEFDimu" ]
+  containers = [ "HLT_DimuEF" ]
   
 DetailedChains = {
                   "BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?',
@@ -33,6 +33,25 @@ DetailedL1TopoChains = {
                       "L1BPH-M-DR"        : "HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6",
                       #"L1BPH-M"           : "HLT_2mu6_bDimu_L1BPH-8M15-2MU6"
                        }
+DetailedIndividualChains = { 
+                  # filled not from primary_bphys but from monitored_bphys
+                  "HLT_2mu4_bJpsimumu" : "HLT_2mu4_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bUpsimumu" : "HLT_2mu4_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bDimu"     : "HLT_2mu4_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bJpsimumu" : "HLT_mu6_mu4_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bUpsimumu" : "HLT_mu6_mu4_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bDimu"     : "HLT_mu6_mu4_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_2mu6_bJpsimumu" : "HLT_2mu6_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu6_bUpsimumu" : "HLT_2mu6_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu6_bDimu"     : "HLT_2mu6_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bJpsimumu" : "HLT_mu11_mu6_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bUpsimumu" : "HLT_mu11_mu6_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bDimu"     : "HLT_mu11_mu6_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bBmumux_BsmumuPhi"     : "HLT_2mu4_bBmumux_BsmumuPhi(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bBmumux_BsmumuPhi"     : "HLT_mu6_mu4_bBmumux_BsmumuPhi(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bBmumux_BpmumuKp"     : "HLT_2mu4_bBmumux_BpmumuKp(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bBmumux_BpmumuKp"     : "HLT_mu6_mu4_bBmumux_BpmumuKp(_delayed)?(_L1(?!BPH).*)?$",
+                 }
 EfficiencyChains = {
                     "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?",
                     "BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23](_L1[0-9]?MU[0-9]+)?",
@@ -106,6 +125,7 @@ def TrigBphysMonitoringTool():
                                   ContainerList   =containers,
                                   DetailedChains_patterns = DetailedChains,
                                   DetailedL1TopoChains_patterns = DetailedL1TopoChains,
+                                  DetailedIndividualChains_patterns = DetailedIndividualChains,
                                   EfficiencyChains_patterns = EfficiencyChains,
                                   EffTrigDenom_noVtxOS_pattern = EffTrigDenom_noVtxOS,
                                   

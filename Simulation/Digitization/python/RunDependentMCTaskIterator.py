@@ -82,7 +82,7 @@ def getFragment(jobnumber,task,maxEvents):
     try: tIter = findPlaceInTask(jobnumber,task,maxEvents)
     except StopIteration:
         raise IndexError('There are only %i jobs in this task (not %i).' % (len([1 for i in taskIterator(task,maxEvents)]) + 1,jobnumber + 1))
-    try: tIter.next()
+    try: tIter.__next__()
     except StopIteration:
         pass
     return tIter.donejob
@@ -128,7 +128,7 @@ class taskIterator(object):
     def __repr__(self):
         return "offset=%i; row=%i,%i" % (self.offset,self.current.get('run',0),self.current.get('lb',0))
 
-    def next(self):
+    def __next__(self):
         self.donejob = []
         if (self.current is None):  self.current = next(self.taskit)
         to_do = self.step

@@ -9,7 +9,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
                        inputKey="McEventInfo",
-                       outputKey="EventInfo", **kwargs):
+                       outputKey="EventInfo",
+                       disableBeamSpot=False,
+                       **kwargs):
     """Return a ComponentAccumulator for EventInfoCnvAlg algorithm"""
 
     acc = ComponentAccumulator()
@@ -18,6 +20,10 @@ def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
     kwargs.setdefault("xAODKey", outputKey)
 
     # TODO: luminosity
+
+    if not disableBeamSpot and flags.Common.Project not in ["AthSimulation", "AthGeneration"]:
+        from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+        acc.merge(BeamSpotCondAlgCfg(flags))
 
     xAODMaker__EventInfoCnvAlg = CompFactory.xAODMaker.EventInfoCnvAlg
     alg = xAODMaker__EventInfoCnvAlg(name, **kwargs)
@@ -29,6 +35,10 @@ def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
 def EventInfoOverlayAlgCfg(flags, name="EventInfoOverlay", **kwargs):
     """Return a ComponentAccumulator for EventInfoOverlay algorithm"""
     acc = ComponentAccumulator()
+
+    # Add beam spot conditions
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(flags))
 
     kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "EventInfo")
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "EventInfo")

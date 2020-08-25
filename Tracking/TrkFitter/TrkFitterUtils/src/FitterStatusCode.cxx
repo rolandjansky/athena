@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -23,8 +23,7 @@ Trk::FitterStatusCode::FitterStatusCode( FitCode thecode )
         m_code( thecode ) {}
 
 bool Trk::FitterStatusCode::isFailure() const {
-    if (m_code>1) return true;
-    return false;
+    return m_code>1;
 }
 
 Trk::FitterStatusCode::operator unsigned long() const  {

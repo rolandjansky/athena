@@ -122,11 +122,11 @@ StatusCode MultiParticleGunPileup::callGenerator() {
 	// Make particle-creation vertex
 	// TODO: do something cleverer than one vertex per particle?
 	HepMC::FourVector pos(p.m_pos.X(), p.m_pos.Y(), p.m_pos.Z(), p.m_pos.T());
-	HepMC::GenVertex * gv = new HepMC::GenVertex(pos);
+	HepMC::GenVertexPtr   gv = new HepMC::GenVertex(pos);
 	evt->add_vertex(gv);
 	// Make particle with status == 1
 	HepMC::FourVector mom(p.m_mom.Px(), p.m_mom.Py(), p.m_mom.Pz(), p.m_mom.E());
-	HepMC::GenParticle * gp = new HepMC::GenParticle;
+	HepMC::GenParticlePtr   gp = new HepMC::GenParticle;
 	gp->set_status(1);
 	gp->set_pdg_id(p.m_pid);
 	gp->set_momentum(mom);

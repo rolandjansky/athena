@@ -68,7 +68,7 @@ TRT_DetectorTool::~TRT_DetectorTool()
 
 //////////////  Create the Detector Node corresponding to this tool //////////////
 //
-StatusCode TRT_DetectorTool::create()
+StatusCode TRT_DetectorTool::create ATLAS_NOT_THREAD_SAFE () // Thread unsafe TRTDetectorFactory_Full class is used.
 { 
 
   // Get the detector configuration.
@@ -222,7 +222,7 @@ StatusCode TRT_DetectorTool::create()
 
 
 StatusCode 
-TRT_DetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
+TRT_DetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE () // Thread unsafe StoreGateSvc::regFcn method and DataHandle template are used.
 {
   // This callback is kept because the folder never changes.
 

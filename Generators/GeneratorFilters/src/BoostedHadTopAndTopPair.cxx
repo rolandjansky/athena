@@ -78,8 +78,8 @@ StatusCode BoostedHadTopAndTopPair::filterEvent() {
     } // particle loop
   } // event loop
 
-  double pTPairList = sqrt( pow( topListMomentum.px() + topbListMomentum.px() , 2 ) + pow( topListMomentum.py() + topbListMomentum.py() , 2 )); 
-  double pTPairChildren = sqrt( pow( topChildrenMomentum.px() + topbChildrenMomentum.px() , 2 ) + pow( topChildrenMomentum.py() + topbChildrenMomentum.py() , 2 )); 
+  double pTPairList = std::sqrt( std::pow( topListMomentum.px() + topbListMomentum.px() , 2 ) + std::pow( topListMomentum.py() + topbListMomentum.py() , 2 )); 
+  double pTPairChildren = std::sqrt( std::pow( topChildrenMomentum.px() + topbChildrenMomentum.px() , 2 ) + std::pow( topChildrenMomentum.py() + topbChildrenMomentum.py() , 2 )); 
 
   if (m_cutPtOf == 0){ // cut on the pT of top on the truth list
     if (pTHadTopList   >= m_tHadPtMin    &&   pTHadTopList   < m_tHadPtMax  )  passTopHad  = true;
@@ -103,12 +103,16 @@ bool BoostedHadTopAndTopPair::isFromTop(HepMC::ConstGenParticlePtr part) const{
 
   if(!prod) return false;
 
+#ifdef HEPMC3
+   for (auto p: prod->particles_in()) if (std::abs(p->pdg_id()) == 6) return true;
+#else
   HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;firstParent!=endParent; ++firstParent){
     //if( part->barcode() < (*firstParent)->barcode() ) continue; /// protection for sherpa
-    if( abs( (*firstParent)->pdg_id() ) == 6 ) return true;
+    if( std::abs( (*firstParent)->pdg_id() ) == 6 ) return true;
   }
+#endif
   return false;
 }
 
@@ -119,12 +123,16 @@ HepMC::ConstGenParticlePtr  BoostedHadTopAndTopPair::findInitial(HepMC::ConstGen
 
   if(!prod) return part;
 
+#ifdef HEPMC3
+   for (auto p: prod->particles_in()) if (part->pdg_id() == p->pdg_id()) return findInitial(part);
+#else
   HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;firstParent!=endParent; ++firstParent){
     //if( part->barcode() < (*firstParent)->barcode() ) continue; /// protection for sherpa
     if( part->pdg_id() == (*firstParent)->pdg_id() )  return findInitial(*firstParent);
   }
+#endif  
   return part;
 }
 
@@ -132,12 +140,10 @@ HepMC::ConstGenParticlePtr  BoostedHadTopAndTopPair::findInitial(HepMC::ConstGen
 bool BoostedHadTopAndTopPair::isHadronic(HepMC::ConstGenParticlePtr part) const{
 
   auto end = part->end_vertex();
-
-  HepMC::GenVertex::particle_iterator firstChild = end->particles_begin(HepMC::children);
-  HepMC::GenVertex::particle_iterator endChild   = end->particles_end  (HepMC::children);
-  for(;firstChild!=endChild; ++firstChild){
-    //if( part->barcode() > (*firstChild)->barcode() ) continue; /// protection for sherpa
-    if( abs((*firstChild)->pdg_id()) <= 5 ) return true;
+  if (end) {
+  for(auto firstChild: *end){
+    if( std::abs(firstChild->pdg_id()) <= 5 ) return true;
+  }
   }
   return false;
 }
@@ -148,12 +154,8 @@ bool BoostedHadTopAndTopPair::isFinalParticle(HepMC::ConstGenParticlePtr part) c
   auto end = part->end_vertex();
   if(end){
     int type = part->pdg_id();
-    HepMC::GenVertex::particle_iterator firstChild = end->particles_begin(HepMC::children);
-    HepMC::GenVertex::particle_iterator endChild = end->particles_end(HepMC::children);
-    for(;firstChild!=endChild; ++firstChild){
-      //if( part->barcode() > (*firstChild)->barcode() ) continue; /// protection for sherpa
-      int childtype = (*firstChild)->pdg_id();
-      if( childtype == type ) return false;
+    for(auto  firstChild: *end){
+      if( firstChild->pdg_id() == type ) return false;
     }
   }
   return true;
@@ -166,14 +168,12 @@ HepMC::FourVector BoostedHadTopAndTopPair::momentumBofW(HepMC::ConstGenParticleP
   auto prod = initpart->production_vertex();
 
   HepMC::FourVector b(0,0,0,0);
-
-  HepMC::GenVertex::particle_iterator firstChild = prod->particles_begin(HepMC::children);
-  HepMC::GenVertex::particle_iterator endChild = prod->particles_end(HepMC::children);
-  for(;firstChild!=endChild; ++firstChild){
-    //if( part->barcode() > (*firstChild)->barcode() ) continue; /// protection for sherpa
-    if( abs( (*firstChild)->pdg_id() ) == 5 ){
-    b.set((*firstChild)->momentum().x(), (*firstChild)->momentum().y(), (*firstChild)->momentum().z(), (*firstChild)->momentum().t());
+if (prod) { 
+ for( auto firstChild: *prod){
+    if( std::abs( firstChild->pdg_id() ) == 5 ){
+    b.set(firstChild->momentum().x(), firstChild->momentum().y(), firstChild->momentum().z(), firstChild->momentum().t());
     }
   }
+}
   return b;
 }

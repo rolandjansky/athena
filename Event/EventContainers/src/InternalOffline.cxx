@@ -5,10 +5,17 @@
 #include "EventContainers/InternalOffline.h"
 #include <algorithm>
 #include "EventContainers/IDC_WriteHandleBase.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;
-InternalOffline::InternalOffline(size_t max) : m_maximumSize(max) {}
+InternalOffline::InternalOffline(size_t max) : m_maximumSize(max) {
+  //Check optimization assumptions
+  static_assert(std::is_trivially_copyable<hashPair>::value);
+  static_assert(std::is_trivially_destructible<hashPair>::value);
+  static_assert(std::is_trivially_copyable<IdentifierHash>::value);
+  static_assert(std::is_trivially_destructible<IdentifierHash>::value);
+}
 
 
 bool InternalOffline::tryAddFromCache(IdentifierHash hash, EventContainers::IDC_WriteHandleBase&) {
@@ -83,11 +90,8 @@ const void* InternalOffline::findIndexPtr(IdentifierHash hashId) const noexcept{
 
 StatusCode InternalOffline::addLock(IdentifierHash hashId, const void* ptr) {
     bool added = insert(hashId, ptr);
-    if(!added) {
-#ifndef NDEBUG
-        std::cout << "IDC WARNING Deletion shouldn't occur in addLock paradigm" << std::endl;
-#endif
-        return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(!added)) {
+      throw std::runtime_error("IDC WARNING Deletion shouldn't occur in addLock paradigm");
     }
     return StatusCode::SUCCESS;
 }

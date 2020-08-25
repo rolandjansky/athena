@@ -3,7 +3,7 @@
 */
 #include "StoreGate/WriteDecorHandle.h"
 
-#include "HIJetRec/HIJetMaxOverMeanTool.h"
+#include "HIJetMaxOverMeanTool.h"
 
 HIJetMaxOverMeanTool::HIJetMaxOverMeanTool(const std::string& t) : asg::AsgTool(t)
 {

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addAlgorithm
 ## Lorentz Vector Generators
@@ -14,4 +14,5 @@ addTool("BeamEffects.BeamEffectsConfig.getGenEventBeamEffectBooster",         "G
 addTool("BeamEffects.BeamEffectsConfig.getGenEventRotator",                   "GenEventRotator")
 ## Algorithms
 addAlgorithm("BeamEffects.BeamEffectsConfig.getBeamEffectsAlg",               "BeamEffectsAlg")
+addAlgorithm("BeamEffects.BeamEffectsConfig.getBeamSpotFixerAlg",             "BeamSpotFixerAlg")
 

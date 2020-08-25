@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Source code for the ConstituentSubtractorTool implementation class
@@ -45,7 +45,7 @@ StatusCode ConstituentSubtractorTool::initialize() {
 
 
 // Apply PU weighting and decorate the CaloCluster container appropriately:
-	
+
 StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* cont) const {
 
   contrib::ConstituentSubtractor subtractor;
@@ -53,7 +53,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   subtractor.set_alpha(m_alpha);  // free parameter for the distance measure (the exponent of particle pt). The larger the parameter alpha, the more are favoured the lower pt particles in the subtraction process
   subtractor.set_ghost_area(0.01); // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
 
-  // prepare PseudoJet input from 
+  // prepare PseudoJet input from
   std::vector<PseudoJet>  full_event; full_event.reserve( cont->size() );
   size_t i =0; // Corresponds to the index in the input container
   // We don't use part->index() because it might be a view container
@@ -113,18 +113,15 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   bge_rho.set_particles(full_event);
   subtractor.set_background_estimator(&bge_rho);
 
-  // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
-  subtractor.set_common_bge_for_rho_and_rhom(false); // for massless input particles it does not make any difference (rho_m is always zero)
-
   std::vector<PseudoJet> corrected_event=subtractor.subtract_event(full_event,m_maxEta);
-  
+
   // Define a vector holding the corrected four-momenta for all output constituents
   // This is defaulted to zero, because fastjet will only return non-zero pseudojets
   std::vector<xAOD::JetFourMom_t> corrected_p4s(cont->size(),xAOD::JetFourMom_t(0.,0.,0.,0.));
   // Set the corrected four-vectors
   for(PseudoJet & pj : corrected_event) {
     ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
-    corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());    
+    corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
   }
 
   // Set every constituent's four-vector
@@ -137,8 +134,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     ATH_MSG_VERBOSE("Initial phi: " << part->phi() << ", subtracted pt: " << corrected_p4s[i].Phi());
     ATH_CHECK( setP4(part,corrected_p4s[i], &weightAcc) );
     ++i;
-  }  
+  }
 
   return StatusCode::SUCCESS;
 }
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigDecisionCnvTool.cxx 688265 2015-08-08 16:31:45Z stelzer $
@@ -81,6 +81,11 @@ namespace xAODMaker {
       declareProperty ("TrigDecisionTool", m_tdt);
    }
 
+   
+   TrigDecisionCnvTool::~TrigDecisionCnvTool() {
+   }
+
+
    StatusCode TrigDecisionCnvTool::initialize() {
 
       // Greet the user:
@@ -105,7 +110,7 @@ namespace xAODMaker {
     *          something else if not
     */
    StatusCode TrigDecisionCnvTool::convert( const TrigDec::TrigDecision* aod,
-                                            xAOD::TrigDecision* xaod, const TriggerInfo * triggerInfo) {
+                                            xAOD::TrigDecision* xaod, const TriggerInfo * triggerInfo) const {
 
       ATH_MSG_DEBUG( "converting TrigDecision to xAOD::TrigDecision" );
 

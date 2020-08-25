@@ -569,7 +569,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
       int eta=0,phi=0,bec=0,layer=0,side=0;
       m_totalNumErrors += errorSet.size();
-      for(const auto idHash : errorSet) { 
+      for(const auto& idHash : errorSet) { 
         Identifier itId = m_sctid->wafer_id(idHash);
         layer = m_sctid->layer_disk(itId);
         side = m_sctid->side(itId);

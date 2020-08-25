@@ -523,7 +523,7 @@ StatusCode ByteStreamEmonInputSvc::start()
     return StatusCode::SUCCESS;
 }
 
-void ByteStreamEmonInputSvc::updateHandler(Property& /* p */)
+void ByteStreamEmonInputSvc::updateHandler(Gaudi::Details::PropertyBase& /* p */)
 {
     if(! m_connect) {
         m_connect = true;

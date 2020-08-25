@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-
-from TrigT1NSW.TrigT1NSWConf import *
+from TrigT1NSW.TrigT1NSWConf import NSWL1__NSWL1Simulation
 
 class DefaultNSWL1Simulation(NSWL1__NSWL1Simulation):
     __slots__ = []
@@ -9,10 +8,6 @@ class DefaultNSWL1Simulation(NSWL1__NSWL1Simulation):
     def __init__(self, name = "DefaultNSWL1Simulation"):
         super( DefaultNSWL1Simulation, self ).__init__( name )
 
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'NSWL1Simulation' )
- 
-        
         # set steering properties
         self.DoOffline      = True     # so far only offline simulation is available
 

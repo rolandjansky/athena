@@ -17,16 +17,18 @@
 #include "EventInfo/EventID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MmIdHelper.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "TVector3.h"
 #include <cmath>
+#include <stdexcept>
 
 using std::map;
 using std::vector;
 using std::string;
 
 MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par):
-      m_msg("MMLoadVariables"){
+   AthMessaging(Athena::getMessageSvc(), "MMLoadVariables") {
       m_par = par;
       m_evtStore = evtStore;
       m_detManager = detManager;
@@ -72,7 +74,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         HepMC::ConstGenEventParticleRange particle_range = subEvent->particle_range();
         for(const auto pit : particle_range) {
           const HepMC::GenParticle *particle = pit;
-          const HepMC::FourVector momentum = particle->momentum();
+          const HepMC::FourVector& momentum = particle->momentum();
           int k=trackRecordCollection->size(); //number of mu entries
           if(particle->barcode() == 10001 && std::abs(particle->pdg_id())==13){
             thePart.SetPtEtaPhiE(momentum.perp(),momentum.eta(),momentum.phi(),momentum.e());
@@ -92,7 +94,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
               for(const auto vit : vertex_range) {
                 if(l!=0){break;}//get first vertex of iteration, may want to change this
                 const HepMC::GenVertex *vertex1 = vit;
-                const HepMC::FourVector position = vertex1->position();
+                const HepMC::FourVector& position = vertex1->position();
                 vertex=TVector3(position.x(),position.y(),position.z());
                 l++;
               }//end vertex loop
@@ -162,7 +164,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
               HepMC::ConstGenEventParticleRange particle_range1 = subEvent1->particle_range();
               for(auto pit1 : particle_range1) {
                 const HepMC::GenParticle *particle1 = pit1;
-                const HepMC::FourVector momentum1 = particle1->momentum();
+                const HepMC::FourVector& momentum1 = particle1->momentum();
                 truthPart.SetPtEtaPhiE(momentum1.perp(),momentum1.eta(),momentum1.phi(),momentum1.e());
               }//end particle loop
             }//end truth container loop (1 iteration) for matching
@@ -230,18 +232,18 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
             MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
             MM_SimIdToOfflineId simToOffline(m_MmIdHelper);
-            for( auto it2 : *nswContainer ) { //get hit variables
-              const MMSimHit hit = it2;
+            for( const auto& it2 : *nswContainer ) { //get hit variables
+              const MMSimHit& hit = it2;
               fillVars.NSWMM_globalTime.push_back(hit.globalTime());
 
-              const Amg::Vector3D globalPosition = hit.globalPosition();
+              const Amg::Vector3D& globalPosition = hit.globalPosition();
               if(digit_count==0){
                 fillVars.NSWMM_hitGlobalPositionX.push_back(globalPosition.x());
                 fillVars.NSWMM_hitGlobalPositionY.push_back(globalPosition.y());
                 fillVars.NSWMM_hitGlobalPositionZ.push_back(globalPosition.z());
                 fillVars.NSWMM_hitGlobalPositionR.push_back(globalPosition.perp());
                 fillVars.NSWMM_hitGlobalPositionP.push_back(globalPosition.phi());
-                const Amg::Vector3D globalDirection = hit.globalDirection();
+                const Amg::Vector3D& globalDirection = hit.globalDirection();
                 fillVars.NSWMM_hitGlobalDirectionX.push_back(globalDirection.x());
                 fillVars.NSWMM_hitGlobalDirectionY.push_back(globalDirection.y());
                 fillVars.NSWMM_hitGlobalDirectionZ.push_back(globalDirection.z());
@@ -469,7 +471,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
       }
 
-  double MMLoadVariables::phi_shift(double athena_phi,std::string wedgeType, int stationPhi) const{
+  double MMLoadVariables::phi_shift(double athena_phi,const std::string& wedgeType, int stationPhi) const{
     float n = 2*(stationPhi-1);
     if(wedgeType=="Small") n+=1;
     float sectorPi = n*M_PI/8.;
@@ -517,7 +519,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
     int setl=setup.length();
     if(plane>=setl||plane<0){
       ATH_MSG_FATAL("Pick a plane in [0,"<<setup.length()<<"] not "<<plane); 
-      exit(1);
+      throw std::runtime_error("MMLoadVariables::Get_Strip_ID: invalid plane");
     }
     string xuv=setup.substr(plane,1);
     if(xuv=="u"){//||xuv=="v"){
@@ -530,7 +532,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
     }
     else if(xuv!="x"){
       ATH_MSG_FATAL("Invalid plane option " << xuv ); 
-      exit(2);
+      throw std::runtime_error("MMLoadVariables::Get_Strip_ID: invalid plane");
     }
     double strip_hit = ceil(y_hit*1./strip_width);
     return strip_hit;
@@ -571,7 +573,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         Identifier id = digit->identify();
 
           std::string stName   = m_MmIdHelper->stationNameString(m_MmIdHelper->stationName(id));
-          string sname(stName);
+          const string& sname(stName);
           if (sname.compare("MML")==0)isLargeWedge.push_back(true);
           else isLargeWedge.push_back(false);
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -8,9 +8,9 @@
 #include <ctype.h>
 #include <string>
 
-#include "TrigT1TGC/TGCConnectionASDToPP.hh"
-#include "TrigT1TGC/TGCConnectionPPToSB.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCConnectionASDToPP.h"
+#include "TrigT1TGC/TGCConnectionPPToSB.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -21,7 +21,7 @@ namespace LVL1TGCTrigger {
 const int TGCConnectionASDToPP::s_forwardLayer[] = {2, 1, 0, 4, 3, 6, 5, 8, 7};
 
 int TGCConnectionASDToPP::getConnection(const int /*sideId*/, const int layer, const int chamber,
-					const int line, int* pp, int* connector, int* channel)
+					const int line, int* pp, int* connector, int* channel) const
 {
   int i;
   for( i=0; i<m_totalNumberOfChannel; i+=1){

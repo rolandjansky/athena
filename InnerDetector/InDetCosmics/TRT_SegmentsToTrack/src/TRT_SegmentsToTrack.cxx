@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //======================================================
@@ -25,7 +25,6 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkSegment/TrackSegment.h"
 #include "TrkParameters/TrackParameters.h"
@@ -37,8 +36,6 @@
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
-
-#include "TrkExInterfaces/IExtrapolator.h"
 
 // Geometry Stuff
 #include "Identifier/Identifier.h"
@@ -57,8 +54,6 @@
 
 InDet::TRT_SegmentsToTrack::TRT_SegmentsToTrack(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_trackFitter("Trk::KalmanFitter/TrkKalmanFitter"),
-  m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
   m_idHelper(nullptr),
   m_trtid(nullptr),
   m_nTracksReal(0),
@@ -67,18 +62,11 @@ InDet::TRT_SegmentsToTrack::TRT_SegmentsToTrack(const std::string& name, ISvcLoc
   m_events(0),
   m_n_combined_fit(0)
 {
-  declareProperty("TrackFitter",             m_trackFitter);
-  declareProperty("ExtrapolationTool",       m_extrapolator);
   declareProperty("NoiseCut",                m_noiseCut                    = -1.);
   declareProperty("MinNHit",                 m_minTRTHits                  =  1);
   declareProperty("MaterialEffects",         m_materialEffects             = false);
   declareProperty("OutlierRemoval",          m_outlierRemoval              = false);
   declareProperty("CombineSegments",         m_combineSegments             = false);
-  //to be deleted
-  declareProperty("InputSCTCollection",m_dummy);
-  declareProperty("OutputCombiCollection",m_dummy);
-  declareProperty("CombineTracks",m_dummy_bool);
-
 }
 
 InDet::TRT_SegmentsToTrack::~TRT_SegmentsToTrack()
@@ -113,6 +101,10 @@ StatusCode InDet::TRT_SegmentsToTrack::initialize()
   CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
   CHECK(m_extrapolator.retrieve());
+  ATH_CHECK(m_trkSummaryTool.retrieve( DisableTool{ m_trkSummaryTool.empty() } ));
+  ATH_CHECK(m_assoTool.retrieve( DisableTool{ m_assoTool.empty() || (m_trkSummaryTool.empty() && m_assoMapName.key().empty()) } ));
+  ATH_CHECK(m_inputAssoMapName.initialize( !m_inputAssoMapName.key().empty() && m_assoTool.isEnabled()));
+  ATH_CHECK(m_assoMapName.initialize( !m_assoMapName.key().empty() && m_assoTool.isEnabled()));
   return StatusCode::SUCCESS;
 }
 
@@ -145,7 +137,7 @@ StatusCode InDet::TRT_SegmentsToTrack::finalize()
 StatusCode InDet::TRT_SegmentsToTrack::execute()
 {
   int segmentCounter=0;
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   m_events++;
 
   ATH_MSG_DEBUG(name() << " execute() start");
@@ -154,11 +146,11 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 
   //combine segments
   if( m_combineSegments)
-    combineSegments();
+    combineSegments(ctx);
 
   // input TrackSegment Collection
 
-  SG::ReadHandle<Trk::SegmentCollection> inputSegments(m_inputSegmentCollectionName);
+  SG::ReadHandle<Trk::SegmentCollection> inputSegments(m_inputSegmentCollectionName,ctx);
   if (!inputSegments.isValid()) {
     ATH_MSG_ERROR("Could not open: " <<m_inputSegmentCollectionName.key());
     sc =  StatusCode::FAILURE;
@@ -168,12 +160,13 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 
   //output collections for fitted tracks
   
-  SG::WriteHandle<TrackCollection> outputTrackCollection(m_outputTrackCollectionName);
-  ATH_CHECK(outputTrackCollection.record(std::make_unique<TrackCollection>()));
+  SG::WriteHandle<TrackCollection> final_outputTrackCollection(m_outputTrackCollectionName,ctx);
+  ATH_CHECK(final_outputTrackCollection.record(std::make_unique<TrackCollection>()));
 
+  std::vector<std::unique_ptr<Trk::Track> > output_track_collection;
   //try to get truth information
 
-  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName);
+  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName,ctx);
 
   if (!truthCollectionTRT.isValid()){
     ATH_MSG_INFO("Could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName.key());
@@ -233,22 +226,21 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         int nmeas=(*iseg)->numberOfMeasurementBases();
         Amg::Vector3D surfpos(.5*((*iseg)->measurement(nmeas/2)->globalPosition()+(*iseg)->measurement(nmeas/2+1)->globalPosition()));
         Trk::PerigeeSurface persurf(surfpos);
-        inputMatchPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*inputMatchLine,persurf));
+        inputMatchPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(ctx,*inputMatchLine,persurf));
       }
       ATH_MSG_DEBUG("Created inputMatchLine");
       
-      Trk::Track *fittedTrack=0;
+      std::unique_ptr<Trk::Track> fittedTrack;
       const Trk::TrackParameters *inputpar=0;
       if (inputMatchPerigee) inputpar=inputMatchPerigee;
       else if (inputMatchLine) inputpar=inputMatchLine;
 
       if (inputpar) {
-	
-	fittedTrack=m_trackFitter->fit(myset,
-                                         *inputpar,
-					 m_outlierRemoval,
-					 m_materialEffects ? Trk::muon : Trk::nonInteracting
-					 );
+         fittedTrack = m_trackFitter->fit(ctx,
+                                          myset,
+                                          *inputpar,
+                                          m_outlierRemoval,
+                                          m_materialEffects ? Trk::muon : Trk::nonInteracting);
       }
       if(fittedTrack){
         DataVector<const Trk::TrackStateOnSurface>::const_iterator itSet = fittedTrack->trackStateOnSurfaces()->begin();
@@ -263,12 +255,11 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         }
         const Trk::TrackParameters *myper{};
         if (measpar){
-          myper=m_extrapolator->extrapolate(*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting);
+          myper=m_extrapolator->extrapolate(ctx,*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting);
         }
         if (!myper){
           delete myper;
-          delete fittedTrack;
-          fittedTrack=0;
+          fittedTrack.reset();
         }
         else {
           DataVector<const Trk::TrackStateOnSurface>* trajectory = new DataVector<const Trk::TrackStateOnSurface>;
@@ -314,65 +305,54 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
             if (inprod>0) trajectory->insert(trajectory->begin(),pertsos);
             else trajectory->push_back(pertsos);
           }
-          Trk::Track *track=new Trk::Track(fittedTrack->info(),trajectory,fittedTrack->fitQuality()->clone());
-          delete fittedTrack;
-          fittedTrack=track;
+          std::unique_ptr<Trk::Track> track=std::make_unique<Trk::Track>(fittedTrack->info(),trajectory,fittedTrack->fitQuality()->clone());
+          fittedTrack = std::move(track);
         }
       }
       if(fittedTrack){
-	bool deltrack=true;
 
-	int nHT=nHTHits(fittedTrack);
+	int nHT=nHTHits(fittedTrack.get());
 	ATH_MSG_DEBUG("Number of HT hits: "<<nHT);
 	ATH_MSG_DEBUG(" Successful fit of track.");
 	if ((*iseg)->fitQuality()) ATH_MSG_DEBUG("Quality of Segment: chi^2 /ndof "<<(*iseg)->fitQuality()->chiSquared()<<" / "<<(*iseg)->fitQuality()->numberDoF());
 	ATH_MSG_DEBUG("Quality of Track:  chi^2 /ndof "<<fittedTrack->fitQuality()->chiSquared()<<" / "<<fittedTrack->fitQuality()->numberDoF());
-	ATH_MSG_DEBUG("Noise probability: "<<getNoiseProbability(fittedTrack));
+	ATH_MSG_DEBUG("Noise probability: "<<getNoiseProbability(fittedTrack.get()));
 	ATH_MSG_DEBUG((*fittedTrack));
 	
-	if( nTRTHits(fittedTrack)>=m_minTRTHits){
-	  deltrack=false;
-	  outputTrackCollection->push_back(fittedTrack);
-	}else{
-	  deltrack=true;
-	}
-        
-	if( nTRTHits(fittedTrack)<m_minTRTHits){
-	  ATH_MSG_DEBUG("This tracks has only "<<nTRTHits(fittedTrack)<<" Hits! Will reject it!");
-	}else{
-	  //check if this track is real or fake
-	  if(getNoiseProbability(fittedTrack)>m_noiseCut){
-	    double truefraction=getRealFractionTRT(fittedTrack);
-	    
+	if( nTRTHits(fittedTrack.get())>=m_minTRTHits){
+          if(getNoiseProbability(fittedTrack.get())>m_noiseCut){
+            double truefraction=getRealFractionTRT(fittedTrack.get(),ctx);
+
 	    int nhits=(*iseg)->numberOfMeasurementBases();
 	    ATH_MSG_DEBUG("Real/Noise : "<< truefraction << " chi2="<<fittedTrack->fitQuality()->chiSquared()/double(fittedTrack->fitQuality()->numberDoF()));
 	    if(truefraction>0.5){
 	      ATH_MSG_DEBUG("==> Real Track");
-	      
+
 	      if(m_MapReal.find(nhits)==m_MapReal.end()){
 		m_MapReal[nhits]=1;
 	      }else{
 		m_MapReal[nhits]++;
 	      }
-	      
+
 	      m_nTracksReal++;
 	      m_noiseratio+=(1-truefraction);
 	    }else{
 	      ATH_MSG_DEBUG(" ==> Fake Track");
-	      
+
 	      if(m_MapFake.find(nhits)==m_MapFake.end()){
 		m_MapFake[nhits]=1;
 	      }else{
 		m_MapFake[nhits]++;
 	      }
-	      
+
 	      m_nTracksFake++;
 	    }
 	  }
+	  output_track_collection.push_back(std::move(fittedTrack));
+	}else{
+          ATH_MSG_DEBUG("This tracks has only "<<nTRTHits(fittedTrack.get())<<" Hits! Will reject it!");
 	}
-	
-	if(deltrack)
-	  delete fittedTrack;
+        
       }else{
 	ATH_MSG_DEBUG("Fit did not converge!");
       } //end of if(fittedTrack)
@@ -383,7 +363,41 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
     } //end of if: (*iseg)->numberOfMeasurementBases()>0
   } //end of loop over segments
 
-  if (!outputTrackCollection.isValid()) {
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
+  if (m_assoTool.isEnabled()) {
+     // create internal PRD-to-track map
+     prd_to_track_map = m_assoTool->createPRDtoTrackMap();
+     if (!m_inputAssoMapName.key().empty()) {
+        SG::ReadHandle<Trk::PRDtoTrackMap> input_asso_map(m_inputAssoMapName,ctx);
+        if (!input_asso_map.isValid()) {
+           ATH_MSG_FATAL("No valid input PRT-to-track map with key " << m_inputAssoMapName.key());
+        }
+        *prd_to_track_map = *input_asso_map;
+        ATH_MSG_INFO("PRD to track map input " << m_inputAssoMapName.key()  );
+     }
+     for (const std::unique_ptr<Trk::Track> &track : output_track_collection) {
+        StatusCode sc = m_assoTool->addPRDs(*prd_to_track_map, *track);
+     }
+  }
+  // @TODO sort output track collection ? 
+  final_outputTrackCollection->reserve(output_track_collection.size());
+  if (m_trkSummaryTool.isEnabled()) {
+     for (std::unique_ptr<Trk::Track> &track : output_track_collection) {
+        m_trkSummaryTool->computeAndReplaceTrackSummary(*track,prd_to_track_map.get());
+        final_outputTrackCollection->push_back(std::move(track));
+     }
+  }
+  else {
+     for (std::unique_ptr<Trk::Track> &track : output_track_collection) {
+        final_outputTrackCollection->push_back(std::move(track));
+     }
+  }
+  if (!m_assoMapName.key().empty()) {
+     ATH_CHECK(SG::WriteHandle<Trk::PRDtoTrackMap>(m_assoMapName,ctx).record(std::move(prd_to_track_map)));
+  }
+
+  if (!final_outputTrackCollection.isValid()) {
+     // @TODO never reached (?)
     ATH_MSG_ERROR("Could not write track collection " << m_outputTrackCollectionName.key());
     return StatusCode::FAILURE;
     //return sc;
@@ -392,12 +406,12 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
   return sc;
 }
 
-int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* driftcircle)
+int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* driftcircle,const EventContext& ctx) const
 {
   int numBarcodes = 0;
   typedef PRD_MultiTruthCollection::const_iterator iter;
 
-  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName);
+  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName,ctx);
 
   if(!truthCollectionTRT.isValid()) return 0;
   std::pair<iter,iter> range = truthCollectionTRT->equal_range(driftcircle->identify());
@@ -407,38 +421,9 @@ int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* drif
   return numBarcodes;
 }
 
-double InDet::TRT_SegmentsToTrack::getRealFraction(const Trk::Segment *segment)
-{
-  double fraction=0.;
-  int nDriftReal=0;
-  int nDriftNoise=0;
 
 
-  for(unsigned int i=0;i<segment->numberOfMeasurementBases();++i){
-    const Trk::RIO_OnTrack* rot=dynamic_cast<const Trk::RIO_OnTrack*>(segment->measurement(i));
-    if(rot){
-      const Trk::PrepRawData* prd=rot->prepRawData();
-      if(prd!=0){
-        const InDet::TRT_DriftCircle *dc=dynamic_cast<const InDet::TRT_DriftCircle*>(prd);
-        if(dc!=0){
-          int nreal=getNumberReal(dc);
-          
-          if(nreal>0) nDriftReal++;
-          else nDriftNoise++;
-        }
-      }
-    }
-  }
-
-  if(nDriftReal>0)
-    fraction=double(nDriftReal)/double(nDriftNoise+nDriftReal);
-    
-
-  return fraction;
-}
-
-
-double InDet::TRT_SegmentsToTrack::getRealFractionTRT(const Trk::Track *track)
+double InDet::TRT_SegmentsToTrack::getRealFractionTRT(const Trk::Track *track,const EventContext& ctx) const
 {
   double fraction=0.;
   int nDriftReal=0;
@@ -459,7 +444,7 @@ double InDet::TRT_SegmentsToTrack::getRealFractionTRT(const Trk::Track *track)
 	  const InDet::TRT_DriftCircle *dc=dcot->prepRawData();
 
 	  if(dc){
-	    int nreal=getNumberReal(dc);
+            int nreal=getNumberReal(dc,ctx);
     
 	    if(nreal>0) nDriftReal++;
 	    else nDriftNoise++;
@@ -477,7 +462,7 @@ double InDet::TRT_SegmentsToTrack::getRealFractionTRT(const Trk::Track *track)
 }
 
 
-int InDet::TRT_SegmentsToTrack::nHTHits(const Trk::Track *track)
+int InDet::TRT_SegmentsToTrack::nHTHits(const Trk::Track *track) const
 {
 
   int nHT=0;
@@ -510,7 +495,7 @@ int InDet::TRT_SegmentsToTrack::nHTHits(const Trk::Track *track)
 
 
 
-int InDet::TRT_SegmentsToTrack::nTRTHits(const Trk::Track *track)
+int InDet::TRT_SegmentsToTrack::nTRTHits(const Trk::Track *track) const
 {
   int nhits=0;
 
@@ -532,7 +517,7 @@ int InDet::TRT_SegmentsToTrack::nTRTHits(const Trk::Track *track)
 }
 
 
-double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
+double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track) const
 {
   double fraction=0.;
   int nDriftReal=0;
@@ -571,19 +556,19 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 
 
 
- void InDet::TRT_SegmentsToTrack::combineSegments(void)
+void InDet::TRT_SegmentsToTrack::combineSegments(const EventContext& ctx) const
 {
   //Idea: 
   // - get from endcap segment z-phi dependence
   // - get from barrel segment r-phi dependence and z dependence from endcap segment fit
 
-
-  SG::ReadHandle<Trk::SegmentCollection> BarrelSegments(m_barrelSegments);
-  SG::ReadHandle<Trk::SegmentCollection> EndcapSegments(m_endcapSegments);
+  int n_combined_fit=0;
+  SG::ReadHandle<Trk::SegmentCollection> BarrelSegments(m_barrelSegments,ctx);
+  SG::ReadHandle<Trk::SegmentCollection> EndcapSegments(m_endcapSegments,ctx);
 
   StatusCode sc;
 
-  SG::WriteHandle<TrackCollection> outputCombiCollection(m_BECCollectionName);
+  SG::WriteHandle<TrackCollection> outputCombiCollection(m_BECCollectionName,ctx);
   sc = outputCombiCollection.record(std::make_unique<TrackCollection>());
   if (sc.isFailure()) return;
 
@@ -868,16 +853,18 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	}
 
 	Amg::Vector3D startMomentum( 0., 0., 1.);
-	Trk::Track *fittedTrack=0;
+        std::unique_ptr<Trk::Track> fittedTrack;
 	if(m_materialEffects){
 	  if(inputMatchLine){
-	    fittedTrack=m_trackFitter->fit(myset2,
+            fittedTrack=m_trackFitter->fit(ctx,
+                                           myset2,
 					   *inputMatchLine,
 					   false,
 					   Trk::muon
 					   );
 	  }else if (inputMatchPerigee){
-	    fittedTrack=m_trackFitter->fit(myset2,
+            fittedTrack=m_trackFitter->fit(ctx,
+                                           myset2,
 					   *inputMatchPerigee,
 					   false,
 					   Trk::muon
@@ -885,13 +872,15 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  }
 	}else{
 	  if(inputMatchLine){
-	    fittedTrack=m_trackFitter->fit(myset2,
+            fittedTrack=m_trackFitter->fit(ctx,
+                                           myset2,
 					   *inputMatchLine,
 					   false,
 					   Trk::nonInteracting
 					   );
 	  }else if (inputMatchPerigee){
-	    fittedTrack=m_trackFitter->fit(myset2,
+            fittedTrack=m_trackFitter->fit(ctx,
+                                           myset2,
 					   *inputMatchPerigee,
 					   false,
 					   Trk::muon
@@ -900,8 +889,8 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	}
 	
 	if(fittedTrack){
-	  m_n_combined_fit++;
-	  outputCombiCollection->push_back(fittedTrack);
+	  n_combined_fit++;
+	  outputCombiCollection->push_back(std::move(fittedTrack));
 	  ATH_MSG_DEBUG("Successful Barrel+Endcap fit of segment. ");
 	  ATH_MSG_DEBUG("Quality of Track:   "<<fittedTrack->fitQuality()->chiSquared()<<" / "<<fittedTrack->fitQuality()->numberDoF());
 	  ATH_MSG_VERBOSE(*fittedTrack);
@@ -916,6 +905,7 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
       }
     }
   }
+  m_n_combined_fit += n_combined_fit;
 
   if (!outputCombiCollection.isValid()) {
     ATH_MSG_ERROR("Could not write track Barrel+EC collection TRT_Barrel_EC");

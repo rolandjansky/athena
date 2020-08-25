@@ -13,7 +13,7 @@
 #include <map>
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Other stuff
 #include "TrigT1Interfaces/SlinkWord.h"
@@ -22,7 +22,7 @@
 #include "Identifier/Identifier.h"
 
 // EIFI-SL connection
-#include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
+#include "TrigT1TGC/TGCInnerTrackletSlotHolder.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
@@ -32,7 +32,7 @@
 
 #include "MuonDigitContainer/TgcDigit.h"
 
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCArguments.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 
 // Tile-Muon
@@ -157,9 +157,9 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_USENSW{this,"USENSW",false};     // flag for using NSW
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
     
-    
+    bool              m_firstTime{true};
     uint16_t          m_bctagInProcess;
-    
+
     TGCDatabaseManager *m_db;
     TGCTimingManager *m_TimingManager;
     TGCElectronicsSystem *m_system;

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2CaloCalibration/EgammaSshapeCalibration.h"
+#include "EgammaSshapeCalibration.h"
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"

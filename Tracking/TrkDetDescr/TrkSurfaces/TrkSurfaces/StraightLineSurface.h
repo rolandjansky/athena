@@ -69,7 +69,7 @@ public:
                       const Amg::Transform3D& transf);
 
   /**Destructor*/
-  virtual ~StraightLineSurface();
+  virtual ~StraightLineSurface() = default;
 
   /**Assignment operator*/
   StraightLineSurface& operator=(const StraightLineSurface& slsf);
@@ -145,6 +145,9 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
   /** Specified for StraightLineSurface: LocalToGlobal method without dynamic
    * memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
@@ -175,11 +178,16 @@ public:
                              Amg::Vector2D& loc) const override final;
 
   /** Special method for StraightLineSurface - providing a different z estimate
+   Performs memory allocation the caller owns the ptr
    */
-  const Amg::Vector3D* localToGlobal(
-    const Trk::LocalParameters& locpars,
-    const Amg::Vector3D& glomom,
-    double locZ) const;
+  Amg::Vector3D* localToGlobal(const Trk::LocalParameters& locpars,
+                               const Amg::Vector3D& glomom,
+                               double locZ) const;
+  /** Special method for StraightLineSurface - providing a different z estimate
+   */
+  Amg::Vector3D localToGlobalPos(const Trk::LocalParameters& locpars,
+                                 const Amg::Vector3D& glomom,
+                                 double locZ) const;
 
   /** Special method for StraightLineSurface - provides the Line direction from
    * cache: speedup */

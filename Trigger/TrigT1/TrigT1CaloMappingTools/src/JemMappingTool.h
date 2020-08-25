@@ -31,24 +31,22 @@ namespace LVL1 {
  *  @author Peter Faulkner
  */
 
-class JemMappingTool : virtual public IL1CaloMappingTool,
-                               public AthAlgTool {
+class JemMappingTool : public extends<AthAlgTool, IL1CaloMappingTool>
+{
 
  public:
 
-   JemMappingTool(const std::string& type, const std::string& name,
-                                           const IInterface* parent);
-   virtual ~JemMappingTool();
+   using base_class::base_class;
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// Return eta, phi and layer mapping for given crate/module/channel
    virtual bool mapping(int crate, int module, int channel,
-                        double& eta, double& phi, int& layer);
+                        double& eta, double& phi, int& layer) const override;
    /// Return crate, module and channel mapping for given eta/phi/layer
    virtual bool mapping(double eta, double phi, int layer,
-                        int& crate, int& module, int& channel);
+                        int& crate, int& module, int& channel) const override;
 
  private:
 

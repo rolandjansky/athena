@@ -36,6 +36,9 @@ class CscRawDataContainer;
 ////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Muon {
+
+  /// This class is only used in a single-thread mode as CscRdoToCscPrepDataToolMT has the 
+  /// equivalent functions defined for a thread-safe setup
   class CscRdoToCscPrepDataToolCore : public AthAlgTool, virtual public IMuonRdoToPrepDataTool {
 
   public:

@@ -1,27 +1,7 @@
-# $Id: CMakeLists.txt 781031 2016-10-28 15:10:31Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( TrigTauMatching )
-
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# The dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODTau
-   Event/xAOD/xAODTrigger
-   Trigger/TrigAnalysis/TrigDecisionTool
-   PRIVATE
-   Event/xAOD/xAODCore
-   Trigger/TrigConfiguration/TrigConfxAOD
-   ${extra_deps} )
 
 # External(s) the package uses:
 find_package( ROOT COMPONENTS Core Hist Tree RIO )

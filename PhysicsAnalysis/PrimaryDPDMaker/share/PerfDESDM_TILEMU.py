@@ -35,7 +35,7 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 ##======================================================================
 if rec.OutputLevel() <= DEBUG:
     muonDPDStream_msg.info('Values of all PerfDESDM_TileMu flags:')
-    print primDESDMTileMu
+    print(primDESDMTileMu)
     pass
 
 # ======================================================================
@@ -72,7 +72,7 @@ TileMuTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "Til
     TriggerListOR =  ["HLT_mu.*"] )
 
 ToolSvc += TileMuTriggerSkimmingTool
-print TileMuTriggerSkimmingTool
+print(TileMuTriggerSkimmingTool)
 
 # ----------------------------------------------------------------------
 # Muon selection
@@ -87,7 +87,7 @@ TileMuEventSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "Ti
     expression = muon_expression)
 
 ToolSvc += TileMuEventSkimmingTool
-print TileMuEventSkimmingTool
+print(TileMuEventSkimmingTool)
 
 # ----------------------------------------------------------------------
 # Final logical selection
@@ -96,7 +96,7 @@ TileMuEventFilterTool = DerivationFramework__FilterCombinationAND(name="TileMuEv
     FilterList=[TileMuTriggerSkimmingTool, TileMuEventSkimmingTool])
 
 ToolSvc += TileMuEventFilterTool
-print TileMuEventFilterTool
+print(TileMuEventFilterTool)
 
 
 ##======================================================================

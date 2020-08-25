@@ -76,11 +76,7 @@ namespace AthCUDA {
 
          // If a device is available, then free up the memory using CUDA.
          if( Info::instance().nDevices() != 0 ) {
-            taskArena().enqueue( ::DeviceDeleterTask( ptr )
-#if __TBB_TASK_PRIORITY
-                                 , tbb::priority_normal
-#endif // __TBB_TASK_PRIORITY
-                                );
+            taskArena().enqueue( ::DeviceDeleterTask( ptr ) );
             return;
          }
 
@@ -98,11 +94,7 @@ namespace AthCUDA {
 
          // If a device is available, then free up the memory using CUDA.
          if( Info::instance().nDevices() != 0 ) {
-            taskArena().enqueue( ::DeviceDeleterTask( ptr )
-#if __TBB_TASK_PRIORITY
-                                 , tbb::priority_normal
-#endif // __TBB_TASK_PRIORITY
-                                );
+            taskArena().enqueue( ::DeviceDeleterTask( ptr ) );
             return;
          }
 
@@ -120,11 +112,7 @@ namespace AthCUDA {
 
          // If a device is available, then free up the memory using CUDA.
          if( Info::instance().nDevices() != 0 ) {
-            taskArena().enqueue( ::HostDeleterTask( ptr )
-#if __TBB_TASK_PRIORITY
-                                , tbb::priority_normal
-#endif // __TBB_TASK_PRIORITY
-                                );
+            taskArena().enqueue( ::HostDeleterTask( ptr ) );
             return;
          }
 

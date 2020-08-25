@@ -12,6 +12,7 @@ TrigMuonMonitorAlgorithm ::  TrigMuonMonitorAlgorithm(const std::string& name, I
 
 StatusCode TrigMuonMonitorAlgorithm :: initialize(){
   StatusCode sc = AthMonitorAlgorithm::initialize();
+  ATH_CHECK( m_matchTool.retrieve() );
   ATH_CHECK( m_MuonContainerKey.initialize() );
   return sc;
 }

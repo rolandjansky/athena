@@ -10,6 +10,7 @@
 #include "../SCT_DCSConditionsTempCondAlg.h"
 #include "../SCT_DCSConditionsTestAlg.h"
 #include "../SCT_DetectorElementCondAlg.h"
+#include "../SCT_FlaggedConditionTestAlg.h"
 #include "../SCT_LinkMaskingCondAlg.h"
 #include "../SCT_LinkMaskingTestAlg.h"
 #include "../SCT_MajorityCondAlg.h"
@@ -47,6 +48,7 @@ DECLARE_COMPONENT( SCT_DCSConditionsStatCondAlg )
 DECLARE_COMPONENT( SCT_DCSConditionsTempCondAlg )
 DECLARE_COMPONENT( SCT_DCSConditionsTestAlg )
 DECLARE_COMPONENT( SCT_DetectorElementCondAlg )
+DECLARE_COMPONENT( SCT_FlaggedConditionTestAlg )
 DECLARE_COMPONENT( SCT_LinkMaskingCondAlg )
 DECLARE_COMPONENT( SCT_LinkMaskingTestAlg )
 DECLARE_COMPONENT( SCT_MajorityCondAlg )

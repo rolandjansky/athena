@@ -20,7 +20,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 // This algorithm includes
-#include "TrigT1CaloSim/ReprocessTriggerTowers.h"
+#include "ReprocessTriggerTowers.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 

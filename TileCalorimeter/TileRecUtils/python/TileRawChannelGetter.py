@@ -148,6 +148,8 @@ class TileRawChannelGetter ( Configured)  :
 
                 from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
                 theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
+                if not athenaCommonFlags.isOnline():
+                    theTileRawChannelNoiseFilter.TileCondToolNoiseSample.TileOnlineSampleNoise = ''
                 NoiseFilterTools += [theTileRawChannelNoiseFilter]
 
                 if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
@@ -278,6 +280,8 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilter.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderFitFilter.FrameLength = TileFrameLength
                 theTileRawChannelBuilderFitFilter.DSPContainer = TileRawChannelContainerDSP
+                if not athenaCommonFlags.isOnline():
+                    theTileRawChannelBuilderFitFilter.TileCondToolNoiseSample.TileOnlineSampleNoise = ''
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
                 mlog.info(" adding now TileRawChannelBuilderFitFilter to the algorithm: %s", theTileRawChannelMaker.name())

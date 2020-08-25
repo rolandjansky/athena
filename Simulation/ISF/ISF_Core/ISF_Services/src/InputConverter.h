@@ -96,13 +96,13 @@ namespace ISF {
     double getParticleMass(const HepMC::GenParticle& p) const;
 
     /** get all generator particles which pass filters */
-    std::vector<HepMC::GenParticle*> getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+    std::vector<HepMC::GenParticlePtr > getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
 
     /** check if the given particle passes all filters */
     bool passesFilters(const HepMC::GenParticle& p) const;
 
     /** convert GenParticle to ISFParticle */
-    ISF::ISFParticle* convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
+    ISF::ISFParticle* convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
 
     /** ParticlePropertyService and ParticleDataTable */
     ServiceHandle<IPartPropSvc>           m_particlePropSvc;          //!< particle properties svc to retrieve PDT

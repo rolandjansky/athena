@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -26,14 +26,14 @@ FitParameters::FitParameters (const Perigee& perigee)
     : m_cosPhi1				(0.),
       m_cosTheta1			(0.),
       m_d0         	       		(perigee.parameters()[Trk::d0]),
-      m_differences			(0),
+      m_differences			(nullptr),
       m_extremeMomentum 		(false),
-      m_finalCovariance 		(0),
+      m_finalCovariance 		(nullptr),
       m_firstAlignmentParameter 	(0),
       m_firstScatteringParameter	(0),
       m_fitEnergyDeposit		(false),
       m_fitMomentum			(true),
-      m_fullCovariance	       		(0),
+      m_fullCovariance	       		(nullptr),
       m_minEnergyDeposit		(0.),
       m_numberAlignments		(0),
       m_numberOscillations		(0),
@@ -74,21 +74,21 @@ FitParameters::FitParameters (double			d0,
       m_cosTheta1			(0.),
       m_cotTheta        		(cotTheta),
       m_d0         	       		(d0),
-      m_differences			(0),
+      m_differences			(nullptr),
       m_extremeMomentum 		(false),
-      m_finalCovariance 		(0),
+      m_finalCovariance 		(nullptr),
       m_firstAlignmentParameter 	(0),
       m_firstScatteringParameter	(0),
       m_fitEnergyDeposit		(false),
       m_fitMomentum			(true),
-      m_fullCovariance	       		(0),
+      m_fullCovariance	       		(nullptr),
       m_minEnergyDeposit		(0.),
       m_numberAlignments		(0),
       m_numberOscillations		(0),
       m_numberParameters       		(0),
       m_numberScatterers		(0),
       m_oldDifference			(0.),
-      m_perigee				(0),
+      m_perigee				(nullptr),
       m_phiInstability			(false),
       m_qOverP1        	       		(0.),
       m_sinPhi         	       		(sinPhi),
@@ -118,7 +118,7 @@ FitParameters::FitParameters (const FitParameters&	parameters)
       m_cosTheta1			(parameters.m_cosTheta1),
       m_cotTheta			(parameters.m_cotTheta),
       m_d0				(parameters.m_d0),
-      m_differences			(0),
+      m_differences			(nullptr),
       m_extremeMomentum 		(parameters.m_extremeMomentum),
       m_finalCovariance 		(parameters.m_finalCovariance),
       m_firstAlignmentParameter 	(parameters.m_firstAlignmentParameter),
@@ -179,7 +179,7 @@ FitParameters::addScatterer (double phi, double theta)
 const Surface*
 FitParameters::associatedSurface (void) const
 {
-    if (! m_perigee) return 0;
+    if (! m_perigee) return nullptr;
     return &m_perigee->associatedSurface();
 }
 
@@ -631,14 +631,14 @@ FitParameters::trackParameters (MsgStream&		log,
     if (! measurement.surface())
     {
 	log << MSG::WARNING << "FitParameters::trackParameters - measurement lacks Surface" << endmsg;
-	return 0;
+	return nullptr;
     }
 
     //   2) a SurfaceIntersection is required
     if (! measurement.hasIntersection(FittedTrajectory))
     {
 	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endmsg;
-	return 0;
+	return nullptr;
     }
 	
     //   3) the intersection position has to lie sufficiently close to the Surface
@@ -649,7 +649,7 @@ FitParameters::trackParameters (MsgStream&		log,
 					       localPos))
     {
 	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endmsg;
-	return 0;
+	return nullptr;
     }
 	
     // cache parameters at EnergyDeposit
@@ -663,7 +663,7 @@ FitParameters::trackParameters (MsgStream&		log,
     }
     
     // propagate full covariance to form localCovariance
-    AmgSymMatrix(5)* covMatrix	= 0;
+    AmgSymMatrix(5)* covMatrix	= nullptr;
     if (withCovariance
 	&& (measurement.isDrift() || measurement.isCluster() || measurement.isPerigee()))
     {
@@ -741,7 +741,7 @@ FitParameters::trackParameters (MsgStream&		log,
     }
 	
     // finally can create the appropriate 'concrete' TrackParameters
-    const TrackParameters* parameters	= 0;
+    const TrackParameters* parameters	= nullptr;
     const StraightLineSurface* line	= dynamic_cast<const StraightLineSurface*>(measurement.surface());
     if (line)
     {
@@ -809,7 +809,7 @@ FitParameters::trackParameters (MsgStream&		log,
     
     log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endmsg;
     delete covMatrix;
-    return 0;
+    return nullptr;
 }
 
 void

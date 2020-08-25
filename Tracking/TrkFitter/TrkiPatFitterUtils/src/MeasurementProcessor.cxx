@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -33,7 +33,7 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 					    const ToolHandle<IPropagator>&	stepPropagator,
                                             int useStepPropagator)
     :	m_asymmetricCaloEnergy		(asymmetricCaloEnergy),
-	m_caloEnergyMeasurement		(0),
+	m_caloEnergyMeasurement		(nullptr),
 	m_cosPhi0			(parameters->cosPhi()),
 	m_cosTheta0			(parameters->cosTheta()),
 	m_derivQOverP0			(0.),
@@ -57,7 +57,7 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 	m_sinPhi0			(parameters->sinPhi()),
 	m_sinTheta0			(parameters->sinTheta()),
         //m_toroidTurn			(0.1),
-	m_vertexIntersect		(0),
+	m_vertexIntersect		(nullptr),
 	m_x0				(parameters->position().x()),
 	m_y0				(parameters->position().y()),
 	m_z0				(parameters->position().z())
@@ -331,9 +331,7 @@ MeasurementProcessor::calculateFittedTrajectory(int /*iteration*/)
     }
 
     // extrapolate to all measurement surfaces and compute intersects
-    if (extrapolateToMeasurements(FittedTrajectory)) return true;
-
-    return false;
+    return extrapolateToMeasurements(FittedTrajectory);
 }
 
 void
@@ -1058,7 +1056,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
     int nScat  						= 0;
     double qOverP					= m_qOverP[type];
     const TrackSurfaceIntersection* intersection	= m_vertexIntersect;
-    const Surface* surface				= 0;
+    const Surface* surface				= nullptr;
     
     // careful: use RungeKutta for extrapolation to vertex measurement
     std::vector<FitMeasurement*>::iterator m = m_measurements.begin();

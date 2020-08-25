@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CondInputLoader.h 
@@ -9,10 +9,6 @@
 /////////////////////////////////////////////////////////////////// 
 #ifndef IOVSVC_CONDINPUTLOADER_H
 #define IOVSVC_CONDINPUTLOADER_H 1
-
-// STL includes
-#include <string>
-
 
 #include "GaudiKernel/DataObjID.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -31,57 +27,34 @@ class CondInputLoader
   : public ::AthAlgorithm
 { 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
+ public:
 
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
+  /// Constructor with parameters:
   CondInputLoader( const std::string& name, ISvcLocator* pSvcLocator );
 
-  /// Destructor: 
-  virtual ~CondInputLoader(); 
-
-  // Assignment operator: 
-  //CondInputLoader &operator=(const CondInputLoader &alg); 
-
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  start();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  start() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
-  /// Default constructor: 
-  //  CondInputLoader();
+ private:
 
   // need to override the ExtraInputs/Outputs property handler
   // from AthAlgorithm
-  void extraDeps_update_handler(Property&);
-
-  //  void loader(Property&);
+  void extraDeps_update_handler(Gaudi::Details::PropertyBase&);
 
   /// Containers
-  Gaudi::Property<DataObjIDColl> m_load{this,"Load",{},"List of objects to be loaded","OrderedSet<std::vector<std::string> >"};
+  Gaudi::Property<DataObjIDColl> m_load{this,"Load",{},
+                                        "List of objects to be loaded","OrderedSet<std::vector<std::string> >"};
   DataObjIDColl  m_handlesToCreate;
   std::vector< SG::VarHandleKey > m_vhk;
 
-  Gaudi::Property<bool> m_dumpEvt{ this, "DumpCondStore", false, 
+  Gaudi::Property<bool> m_dumpCondStore{ this, "DumpCondStore", false,
       "dump the ConditionStore at the end execute"};
+  Gaudi::Property<bool> m_dumpCondSvc{ this, "DumpCondSvc", false,
+      "dump the CondSvc at the end execute"};
   Gaudi::Property<bool> m_abort {this, "AbortIfInitFails", true, 
       "Abort execution if unable to create the CondCont<T> in first event"};
 
@@ -96,4 +69,4 @@ class CondInputLoader
 }; 
 
 
-#endif //> !SGCOMPS_SGINPUTLOADER_H
+#endif

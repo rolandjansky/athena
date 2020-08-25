@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexFitters/src/AdaptiveMultiVertexFitterTestAlg.cxx
@@ -54,7 +54,7 @@ std::unique_ptr<AmgSymMatrix(5)> cov5a()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Perigee> > PerigeeUVec_t;
+using PerigeeUVec_t = std::vector<std::unique_ptr<Trk::Perigee> >;
 PerigeeUVec_t makePerigees1()
 {
   Amg::Vector3D pos0 { 0, 0, 0 };
@@ -76,7 +76,7 @@ PerigeeUVec_t makePerigees1()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Perigee> > PerigeeUVec_t;
+using PerigeeUVec_t = std::vector<std::unique_ptr<Trk::Perigee> >;
 PerigeeUVec_t makePerigees2()
 {
   Amg::Vector3D pos1a { 10*mm,   0*mm, -5*mm };
@@ -96,7 +96,7 @@ PerigeeUVec_t makePerigees2()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Track> > TrackUVec_t;
+using TrackUVec_t = std::vector<std::unique_ptr<Trk::Track> >;
 TrackUVec_t makeTracks (const PerigeeUVec_t& perigees)
 {
   TrackUVec_t tracks;

@@ -290,6 +290,12 @@ class doR3LargeD0(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue   = False
 
+class storeSeparateLargeD0Container(InDetFlagsJobProperty):
+    """Separate the LargeD0 container from the main track container"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class useExistingTracksAsInput(InDetFlagsJobProperty):
     """Use already processed Track from a (D)ESD input file.
     This flag is related with ProcessedESDTracks InDetKey """
@@ -302,8 +308,8 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
-    StoredValue  = 18
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+    StoredValue  = 19
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -502,6 +508,12 @@ class doHolesOnTrack(InDetFlagsJobProperty):
 
 class useZvertexTool(InDetFlagsJobProperty):
     """ start with Zvertex finding """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class useActsPriVertexing(InDetFlagsJobProperty):
+    """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1181,6 +1193,11 @@ class doDigitalROTCreation(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class nnCutLargeD0Threshold(InDetFlagsJobProperty):
+  """ Threshold for NN cut in large D0 tracking for tracks in ambi"""
+  statusOn     = True
+  allowedTypes = ['float']
+  StoredValue  = -1.0
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2367,6 +2384,8 @@ class InDetJobProperties(JobPropertyContainer):
        print('* - primary vertexing cut setup   : ',self.primaryVertexCutSetup())
        if self.doPrimaryVertex3DFinding() :
           print('* - use 3D seed finding')
+       if self.useActsPriVertexing():
+          print('* - use Acts primary vertex finding')
        print('* - privtx cut level : ', self.priVtxCutLevel())
     if self.doParticleCreation() :
        print('* create TrackParticles')
@@ -2615,6 +2634,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowPtLargeD0,
                             doLargeD0,
                             doR3LargeD0,
+                            storeSeparateLargeD0Container,
                             useExistingTracksAsInput,
                             cutLevel,
                             priVtxCutLevel,
@@ -2651,6 +2671,7 @@ _list_InDetJobProperties = [Enabled,
                             trackFitterType,
                             doHolesOnTrack,
                             useZvertexTool,
+                            useActsPriVertexing,
                             doSiSPSeededTrackFinder,
 #                            doTRTExtension,
                             doTRTExtensionNew,
@@ -2761,6 +2782,7 @@ _list_InDetJobProperties = [Enabled,
                             doHIP300,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
+                            nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling
                            ]
 for j in _list_InDetJobProperties: 

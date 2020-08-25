@@ -1,3 +1,5 @@
 ApplicationMgr.OutputLevel = 5;
 ApplicationMgr.CreateSvc += { "InDet::InDetEtaDependentCutsSvc" };
+InDet::InDetEtaDependentCutsSvc.etaBins = {1.1, 2.1, 4.0};
+InDet::InDetEtaDependentCutsSvc.minPt = {100., 900., 300.};
 MessageSvc.OutputLevel = 5;

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCoralClientUtils/CoralClient.hh"
 
-int main(int argc, char **argv){
+int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv){ // Thread unsafe CoralClient class is used.
 //printf("COOL-create starting \n");
 
 

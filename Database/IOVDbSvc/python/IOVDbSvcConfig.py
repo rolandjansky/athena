@@ -1,15 +1,15 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
-from AthenaConfiguration.ComponentFactory import CompFactory
-CondInputLoader=CompFactory.CondInputLoader
 import os
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def IOVDbSvcCfg(configFlags):
 
     result=ComponentAccumulator()
 
     #Add the conditions loader, must be the first in the sequence
+    CondInputLoader=CompFactory.CondInputLoader
     result.addCondAlgo(CondInputLoader())
 
     IOVDbSvc=CompFactory.IOVDbSvc
@@ -223,6 +223,11 @@ _dblist={
     'FWD_OFL':'COOLOFL_FWD'
     }
 
+def addOverride(configFlags,folder,tag):
+  "Add a tag override for the specified folder"
+  result=IOVDbSvcCfg(configFlags)
+  iovDbSvc=result.getPrimary()
+  iovDbSvc.overrideTags+=['<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)]
 
 
 def _extractFolder(folderstr):

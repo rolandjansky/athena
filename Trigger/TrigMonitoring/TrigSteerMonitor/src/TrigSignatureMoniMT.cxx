@@ -3,8 +3,11 @@
 */
 #include <algorithm>
 #include <regex>
+
+#include<boost/algorithm/string.hpp>
+
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaInterprocess/Incidents.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
@@ -57,15 +60,28 @@ StatusCode TrigSignatureMoniMT::start() {
     }
 
     if( gotL1Menu && !chain.l1item().empty() ) {
+      bool isMultiItemSeeded = chain.l1item().find(',') != std::string::npos;
       try {
-	TrigConf::L1Item item = l1MenuHandle->item(chain.l1item());
-	for ( const std::string & group : item.bunchgroups() ) {
-	  if ( group != "BGRP0" ) {
-	    m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
-	  }
-	}
-      } catch(...) {
-	ATH_MSG_WARNING("The item " << chain.l1item() << " is not part of the L1 menu" );
+        std::vector<std::string> seedingItems{};
+        if( isMultiItemSeeded ) {
+          boost::split(seedingItems, chain.l1item(), boost::is_any_of(","));
+        } else {
+          seedingItems = { chain.l1item() };
+        }
+        for( const std::string & itemName : seedingItems ) {
+          TrigConf::L1Item item = l1MenuHandle->item(itemName);
+          for ( const std::string & group : item.bunchgroups() ) {
+            if ( group != "BGRP0" ) {
+              m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
+            }
+          }
+        }
+      } catch(std::exception & ex) {
+        if( isMultiItemSeeded ) {
+          ATH_MSG_INFO("The L1 seed to multi-item-seeded chain " << chain.name() << " could not be completely resolved. This is currently OK. Exception from menu access: " << ex.what());
+        } else {
+          ATH_MSG_WARNING("The L1 seed to chain " << chain.name() << " could not be resolved. Exception from menu access: " << ex.what());
+        }
       }
     }
   }

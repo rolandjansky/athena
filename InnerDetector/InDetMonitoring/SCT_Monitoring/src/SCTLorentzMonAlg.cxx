@@ -25,6 +25,12 @@ StatusCode SCTLorentzMonAlg::initialize() {
   ATH_CHECK(m_tracksName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
+  if (m_rejectSharedHits) {
+    ATH_CHECK(m_assoTool.retrieve());
+  } else {
+    m_assoTool.disable();
+  }
+
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -65,6 +71,12 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
+  // Prepare AssociationTool
+  Trk::IPRD_AssociationTool::Maps maps;
+  for (const Trk::Track* track : *tracks) {
+    ATH_CHECK(m_assoTool->addPRDs(maps, *track));
+  }
+
   for (const Trk::Track* track: *tracks) {
     if (track==nullptr) {
       ATH_MSG_ERROR("no pointer to track!!!");
@@ -93,6 +105,11 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
       if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
         const InDet::SiClusterOnTrack* clus{dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack())};
         if (clus) { // Is it a SiCluster? If yes...
+          // Reject shared hits if you want
+          if (m_rejectSharedHits and m_assoTool->isShared(maps, *(clus->prepRawData()))) {
+            continue;
+          }
+
           const InDet::SiCluster* RawDataClus{dynamic_cast<const InDet::SiCluster*>(clus->prepRawData())};
           if (RawDataClus==nullptr) {
             continue; // Continue if dynamic_cast returns null

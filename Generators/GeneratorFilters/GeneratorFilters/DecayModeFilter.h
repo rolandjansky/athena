@@ -59,9 +59,9 @@ private:
 
 private:
 
-  std::string printChain(HepMC::GenParticlePtr parent) const;
-  void analyzeChain(HepMC::GenParticlePtr parent, bool&, bool&, bool&, bool& );
-  void countChain(HepMC::GenParticlePtr parent, int& length, int& Nchi2, int& NW,int& NZ,int& NH, int& Nse, int& Nsmu, int& Nstau, int& nChargedLeptons, int& nSMParticles) const;
+  std::string printChain(HepMC::ConstGenParticlePtr parent) const;
+  void analyzeChain(HepMC::ConstGenParticlePtr parent, bool&, bool&, bool&, bool& );
+  void countChain(HepMC::ConstGenParticlePtr parent, int& length, int& Nchi2, int& NW,int& NZ,int& NH, int& Nse, int& Nsmu, int& Nstau, int& nChargedLeptons, int& nSMParticles) const;
   void countPIDs(int sparticle_PDG, int SM_PDG, int& Nchi2, int& NW, int& NZ, int& NH, int& Nse, int& Nsmu, int& Nstau, int& nChargedLeptons) const;
 
 };

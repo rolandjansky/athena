@@ -5,27 +5,6 @@
 # Declare the package name:
 atlas_subdir( TGC_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/PileUpTools
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          MuonSpectrometer/MuonSimEvent
-                          Simulation/HitManagement
-                          PRIVATE
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          Event/xAOD/xAODEventInfo
-                          Generators/GeneratorObjects
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonSimData
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

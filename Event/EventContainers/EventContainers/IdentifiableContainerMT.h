@@ -51,7 +51,7 @@ public:
         }
 
         [[nodiscard]] StatusCode addOrDelete(std::unique_ptr<T> ptr){
-           if(ATH_UNLIKELY(m_IDC_ptr==nullptr)) return StatusCode::FAILURE;
+           if(ATH_UNLIKELY(m_hashId >= m_IDC_ptr->m_link->fullSize())) return StatusCode::FAILURE;
            StatusCode sc = m_IDC_ptr->addLock(std::move(ptr), m_hashId);
            IDC_WriteHandleBase::ReleaseLock();
            return sc;
@@ -208,14 +208,17 @@ public:
         return m_link->fullSize();
     }    
 
+    void prepareItr() const { m_link->wait(); }
+
     /// return number of collections
     virtual size_t numberOfCollections() const override final{
         return IdentifiableContainerBase::numberOfCollections();
     }
 
-    const std::vector < std::pair<IdentifierHash::value_type, const T*> >& GetAllHashPtrPair() const{
+    const std::vector < EventContainers::hashPair<T> >& GetAllHashPtrPair() const{
         static_assert(sizeof(const T*) == sizeof(const void*) && std::is_pointer<const T*>::value);
-        return reinterpret_cast<const std::vector < std::pair<IdentifierHash::value_type, const T*> >&>
+        static_assert(sizeof(EventContainers::hashPair<T>) == sizeof(EventContainers::hashPair<void>));
+        return reinterpret_cast<const std::vector < EventContainers::hashPair<T> >&>
                 (m_link->getAllHashPtrPair());
     }
     

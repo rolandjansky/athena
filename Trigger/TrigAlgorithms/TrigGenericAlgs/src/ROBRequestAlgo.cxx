@@ -12,7 +12,7 @@
 #include "ROBRequestAlgo.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <math.h>
@@ -43,7 +43,7 @@ HLT::ErrorCode ROBRequestAlgo::hltInitialize()
   ServiceHandle<IJobOptionsSvc> jobOptSvc("JobOptionsSvc", name());
 
   // get the list of enabled ROBs
-  const Property* p = Gaudi::Utils::getProperty(jobOptSvc->getProperties("DataFlowConfig"),
+  const Gaudi::Details::PropertyBase* p = Gaudi::Utils::getProperty(jobOptSvc->getProperties("DataFlowConfig"),
                                                 "DF_Enabled_ROB_IDs");
   if (p) m_enabledROBs.assign(*p);
   else ATH_MSG_DEBUG("Could not find property DataFlowConfig.DF_Enabled_ROB_IDs");
@@ -70,7 +70,7 @@ HLT::ErrorCode ROBRequestAlgo::hltInitialize()
 }
 
 
-void ROBRequestAlgo::updateHandler(Property&)
+void ROBRequestAlgo::updateHandler(Gaudi::Details::PropertyBase&)
 {
   parseROBRequest();
 }

@@ -73,7 +73,7 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, const EventConte
       // Get strip on wafer to check
       int strip{m_id_sct->strip(elementId)};
       // Set value
-      status = (*condDataInfo)[waferHash.value()][strip];
+      status = (*condDataInfo)[waferHash][strip];
       break;
     }
   case InDetConditions::SCT_MODULE:
@@ -309,7 +309,7 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
       }  else if (noDefect) {
         wantedDefects = condDataNoise->findModule(moduleId);
       }
-      if (!wantedDefects.begDefects.empty()) {
+      if (not wantedDefects.begDefects.empty()) {
         for (unsigned int i{0}; i < wantedDefects.begDefects.size(); ++i) {
           if (wantedDefects.typeOfDefect[i] == defect) {
             // Create identifier for all strips inside begin to end

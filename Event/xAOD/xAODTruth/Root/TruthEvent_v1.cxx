@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthEvent_v1.cxx 761798 2016-07-14 08:15:01Z krasznaa $
@@ -196,7 +196,7 @@ namespace xAOD {
 
       // Check if the link variable is available:
       if( ! signalProcessVertexLinkAcc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Get the link:
@@ -204,7 +204,7 @@ namespace xAOD {
 
       // Check if it's valid:
       if( ! vertLink.isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       // Return the de-referenced link:
@@ -226,7 +226,7 @@ namespace xAOD {
    TruthEvent_v1::beamParticles() const {
 
       // Get the pointer to the first beam particle:
-      const TruthParticle* p1 = 0;
+      const TruthParticle* p1 = nullptr;
       if( beamParticle1LinkAcc.isAvailable( *this ) ) {
          const TruthParticleLink_t link = beamParticle1LinkAcc( *this );
          if( link.isValid() ) {
@@ -235,7 +235,7 @@ namespace xAOD {
       }
 
       // Get the pointer to the second beam particle:
-      const TruthParticle* p2 = 0;
+      const TruthParticle* p2 = nullptr;
       if( beamParticle2LinkAcc.isAvailable( *this ) ) {
          const TruthParticleLink_t link = beamParticle2LinkAcc( *this );
          if( link.isValid() ) {

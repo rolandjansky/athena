@@ -10,16 +10,13 @@
 #define MDTCALIBDBCOOLSTRTOOL_MDTCALIBDBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-//from MdtCalibDbCoolStrTool.h
-//removing obsolete ones
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibInterfaces/IMdtCalibDBTool.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
@@ -29,26 +26,19 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-//c - c++
-#include "zlib.h"
-#include "vector"
-
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MdtCalibData/RtResolutionLookUp.h"
+#include "MuonCalibMath/SamplePoint.h"
 
-class MdtCalibrationRegionSvc;
-class IIOVDbSvc;
+#include "zlib.h"
 
-namespace MuonGM{
-  class MuonDetectorManager;
-}
+#include <string>
+#include <vector>
 
 namespace coral	{
   class Blob;
 }
-
-#include "MdtCalibData/RtResolutionLookUp.h"
-#include "MuonCalibMath/SamplePoint.h"
 
 class MdtCalibDbAlg: public AthAlgorithm {
 
@@ -62,24 +52,20 @@ class MdtCalibDbAlg: public AthAlgorithm {
  private:
   
   ServiceHandle<ICondSvc> m_condSvc;
-
-  //like MdtCalibDbCoolStrTool
-  //removing obsolete ones
-
-  MuonCalib::MdtTubeCalibContainer* buildMdtTubeCalibContainer(const Identifier &id);
+  MuonCalib::MdtTubeCalibContainer* buildMdtTubeCalibContainer(const Identifier &id, const MuonGM::MuonDetectorManager* muDetMgr);
   
-  StatusCode loadRt();
+  StatusCode loadRt(const MuonGM::MuonDetectorManager* muDetMgr);
   StatusCode defaultRt(std::unique_ptr<MdtRtRelationCollection>& writeCdoRt);
-  StatusCode loadTube();
-  StatusCode defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube);
+  StatusCode loadTube(const MuonGM::MuonDetectorManager* muDetMgr);
+  StatusCode defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube, const MuonGM::MuonDetectorManager* muDetMgr);
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  const MuonGM::MuonDetectorManager *m_detMgr;
-  ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
-  ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
+  ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool {this, "IdToFixedIdTool", "MuonCalib::IdToFixedIdTool"};
+  ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc {this, "MdtCalibrationRegionSvc", "MdtCalibrationRegionSvc"};
 
-  std::string      m_rtFolder;
-  std::string      m_tubeFolder;
+  std::string m_rtFolder;
+  std::string m_tubeFolder;
 
   //like MdtCalibrationDbSvc
   //for corData in loadRt

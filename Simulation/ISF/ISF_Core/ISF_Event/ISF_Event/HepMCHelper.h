@@ -51,7 +51,7 @@ namespace ISF {
           at least one particle with one of the given PDG codes appears.
           returns pointer to first found particle that matches any of the
           given PDG codes in relativesPDG */
-      static inline const HepMC::GenParticle * findRealtiveWithPDG( const HepMC::GenParticle &genParticle,
+      static inline HepMC::ConstGenParticlePtr findRealtiveWithPDG( const HepMC::GenParticle &genParticle,
                                                                     const HepMC::IteratorRange &relation,
                                                                     const std::set<int> &relativesPDG     );
   };

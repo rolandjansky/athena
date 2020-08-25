@@ -35,7 +35,7 @@ atlas_add_component( InDetAlignNtupleTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel EventPrimitives xAODEventInfo GeneratorObjects InDetIdentifier TrkAlignEvent TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkVertexOnTrack TrkExInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel EventPrimitives xAODEventInfo GeneratorObjects InDetIdentifier TrkAlignEvent TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkVertexOnTrack TrkExInterfaces TrkToolInterfaces TrkAlignInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetAlignNtupleTools )

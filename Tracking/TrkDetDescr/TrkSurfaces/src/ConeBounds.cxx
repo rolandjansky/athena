@@ -50,27 +50,6 @@ Trk::ConeBounds::ConeBounds(double alpha, double zmin, double zmax, double halfp
   initCache();
 }
 
-Trk::ConeBounds::ConeBounds(const Trk::ConeBounds& conebo)
-  : m_boundValues(conebo.m_boundValues)
-  , m_tanAlpha(conebo.m_tanAlpha)
-  , m_sinAlpha(conebo.m_sinAlpha)
-  , m_cosAlpha(conebo.m_cosAlpha)
-{}
-
-Trk::ConeBounds::~ConeBounds() = default;
-
-Trk::ConeBounds&
-Trk::ConeBounds::operator=(const Trk::ConeBounds& conebo)
-{
-  if (this != &conebo) {
-    m_tanAlpha = conebo.m_tanAlpha;
-    m_sinAlpha = conebo.m_sinAlpha;
-    m_cosAlpha = conebo.m_cosAlpha;
-    m_boundValues = conebo.m_boundValues;
-  }
-  return *this;
-}
-
 bool
 Trk::ConeBounds::operator==(const SurfaceBounds& sbo) const
 {

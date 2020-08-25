@@ -8,7 +8,6 @@
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <sstream>
 #include <iomanip>
@@ -26,7 +25,6 @@ enum CscPlane { CSS_R, CSL_R, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
 SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent),
-    m_detMgr(nullptr),
     m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
 {
   declareInterface<ICscClusterFitter>(this);
@@ -59,6 +57,8 @@ StatusCode SimpleCscClusterFitter::initialize() {
   } else {
     ATH_MSG_DEBUG ( name() << ": retrieved " << m_alignmentTool );
   }
+  // retrieve MuonDetectorManager from the conditions store     
+  ATH_CHECK(m_DetectorManagerKey.initialize()); 
   return StatusCode::SUCCESS;
 }
 
@@ -93,7 +93,16 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
      return results;
   }
   Identifier idStrip0 = pstrip->identify();
-  const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
+
+  // retrieve MuonDetectorManager from the conditions store  
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+  if(MuonDetMgr==nullptr){       
+    ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+    return results;     
+  }
+  const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(idStrip0);
+
   bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   int maxstrip = pro->maxNumberOfStrips(measphi);

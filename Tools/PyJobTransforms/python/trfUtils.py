@@ -1,10 +1,7 @@
 from __future__ import print_function
 from future.utils import iteritems
 
-from past.builtins import basestring
 from builtins import object
-from future import standard_library
-standard_library.install_aliases()
 from builtins import map
 import six
 
@@ -326,7 +323,7 @@ def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
     f = open(filename, 'r', **encargs)
     for line in f:
         linecounter += 1
-        if substepName and isinstance(substepName, basestring):    # Remove substepName only if caller provides that string.
+        if substepName and isinstance(substepName, six.string_types):    # Remove substepName only if caller provides that string.
             line = line.lstrip(substepName)
         if removeTimestamp:
             line = line.lstrip('0123456789:-, ')            # Remove timestamps in both serial and MP mode.

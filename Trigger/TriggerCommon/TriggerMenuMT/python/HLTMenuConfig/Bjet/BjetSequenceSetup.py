@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 # menu components
@@ -47,7 +47,7 @@ def bJetStep2Sequence():
     InputMakerAlg.ViewFallThrough = True
     # BJet specific
     InputMakerAlg.PlaceJetInView = True
-    InputMakerAlg.InViewJets = recordable( "HLT_GSCJet" ) # Temporary name, To converge on this in the next future
+    InputMakerAlg.InViewJets = recordable( "HLT_bJets" )
 
 
     # Prepare data objects for view verifier
@@ -59,16 +59,29 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
     secondStageAlgs, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs, dataObjects=viewDataObjects )
 
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-    flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    
+    Configurable.configurableRun3Behavior=0
 
-    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + flavourTaggingAlgs )
+    #Conversion of flavour-tagging algorithms from new to old-style
+    from AthenaCommon.CFElements import findAllAlgorithms
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+    AllFlavourTaggingAlgs = []
+    for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
+        AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
+
+    acc_flavourTaggingAlgs.wasMerged() #Needed to remove error message; Next we add all algorithms to sequence so this is kind of an old-style merge
+    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
-
+    
     # Sequence
     BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
- 
+
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
     # keys
@@ -87,5 +100,9 @@ def bJetStep2Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetBtagHypoToolFromDict )
+                         HypoToolGen = TrigBjetBtagHypoToolFromDict)
 
+
+
+
+ 

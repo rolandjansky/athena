@@ -1,30 +1,18 @@
-################################################################################
-# Package: AthContainersRoot
-################################################################################
+#Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthContainersRoot )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          Control/AthContainersInterfaces
-                          Control/RootUtils
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthContainers
-                          Control/AthLinks
-                          Control/CxxUtils )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core )
+find_package( ROOT COMPONENTS Core Tree )
 
 # Component(s) in the package:
 atlas_add_library( AthContainersRoot
                    src/*.cxx
                    PUBLIC_HEADERS AthContainersRoot
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks RootUtils )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils RootUtils
+                   LINK_LIBRARIES AthenaKernel GaudiKernel AthContainersInterfaces )
 
 
 atlas_add_dictionary( AthContainersRootTestDict

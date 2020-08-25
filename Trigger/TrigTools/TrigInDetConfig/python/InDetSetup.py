@@ -56,12 +56,20 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
-                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
+                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                    ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    
     viewAlgs.append( ViewDataVerifier )
 
     # Load RDOs if we aren't loading bytestream
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
+
+    topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
+
+
+
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
@@ -253,6 +261,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = rois
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+  InDetSCT_Clusterization.FlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey
 
   from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
   InDetSCT_Clusterization.RegSelTool = makeRegSelTool_SCT()

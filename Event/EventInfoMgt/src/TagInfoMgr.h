@@ -28,17 +28,16 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IOVRange.h"
+#include "AthenaKernel/IIOVDbSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "EventInfo/TagInfo.h"
+#include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
 
 #include <map>
 
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class StoreGateSvc;
-class TagInfo;
-class IIOVDbSvc;
-class IIOVDbMetaDataTool;
 class CondAttrListCollection;
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -192,11 +191,11 @@ private:
 
     /// Flag to add override the tags from EventInfo from other
     /// sources 
-    Gaudi::Property<bool>   m_overrideEventInfoTags{this,"OverrideEventInfoTags",true,"Override tags yes/no"};
+    Gaudi::Property<bool>   m_overrideEventInfoTags { this, "OverrideEventInfoTags", true, "Override tags yes/no" };
 
     /// Extra tags/values pairs added in my jobOptions
     Gaudi::Property<std::map<std::string,std::string> >
-        m_extraTagValuePairs{this,"ExtraTagValuePairs",{},"key/value pairs to be added", "mapMergeNoReplace<T,T>"};
+        m_extraTagValuePairs { this, "ExtraTagValuePairs", {}, "key/value pairs to be added", "mapMergeNoReplace<T,T>" };
 
     /// Extra tags/values pairs added in via interface
     std::map<std::string,std::string> m_extraTagValuePairsViaInterface;
@@ -205,33 +204,33 @@ private:
     std::set<std::string>          m_tagsToBeRemoved;
 
     /// The StoreGate key for the TagInfo
-    Gaudi::Property<std::string>   m_tagInfoKey{this,"TagInfoKey","ProcessingTags","SG key for TagInfo"};
+    Gaudi::Property<std::string>   m_tagInfoKey{ this, "TagInfoKey", "ProcessingTags", "SG key for TagInfo" };
 
     std::string                    m_tagInfoKeyValue;
 
     /// The event store
-    ServiceHandle<StoreGateSvc>    m_storeGate;
+    ServiceHandle<StoreGateSvc>    m_storeGate { this, "StoreGateSvc", "StoreGateSvc" };
 
     /// The detector store
-    ServiceHandle<StoreGateSvc>    m_detStore;
+    ServiceHandle<StoreGateSvc>    m_detStore { this, "DetectorStore", "DetectorStore" };
 
     /// Access to IOVDbSvc interface - used to register callback
-    ServiceHandle<IIOVDbSvc>       m_iovDbSvc;
+    ServiceHandle<IIOVDbSvc>       m_iovDbSvc { this, "IOVDbSvc", "IOVDbSvc" };
 
     /// Access to iov meta data tool
-    ToolHandle<IIOVDbMetaDataTool> m_metaDataTool;
+    ToolHandle<IIOVDbMetaDataTool> m_metaDataTool { this, "IOVDbMetaDataTool", "IOVDbMetaDataTool" };
 
     /// Flag to identify the first BeginRun incident
-    bool                           m_isFirstBeginRun;
+    bool                           m_isFirstBeginRun { true };
 
     /// conditionsRun from the first BeginRun incident (HLT)
-    EventIDBase::number_type       m_conditionsRun;
+    EventIDBase::number_type       m_conditionsRun { EventIDBase::UNDEFNUM };
 
-    /// Flag to identify a new file incident
-    bool                           m_newFileIncidentSeen;
+    /// current run number from BeginRun incident
+    EventIDBase::number_type       m_currentRun { EventIDBase::UNDEFNUM };
 
     /// IOVRange of last TagInfo added to the file meta data
-    IOVRange                       m_lastIOVRange;
+    IOVRange                       m_lastIOVRange { IOVRange(IOVTime(), IOVTime()) };
 
     /// Last TagInfo added to the detector store
     TagInfo                        m_lastTagInfo;

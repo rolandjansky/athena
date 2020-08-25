@@ -42,28 +42,6 @@ Trk::RotatedDiamondBounds::RotatedDiamondBounds(double minhalex,
   initCache();
 }
 
-// copy constructor
-Trk::RotatedDiamondBounds::RotatedDiamondBounds(const RotatedDiamondBounds& diabo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(diabo.m_boundValues)
-  , m_alpha1(diabo.m_alpha1)
-  , m_alpha2(diabo.m_alpha2)
-{}
-
-// destructor
-Trk::RotatedDiamondBounds::~RotatedDiamondBounds() = default;
-
-Trk::RotatedDiamondBounds&
-Trk::RotatedDiamondBounds::operator=(const RotatedDiamondBounds& diabo)
-{
-  if (this != &diabo) {
-    m_boundValues = diabo.m_boundValues;
-    m_alpha1 = diabo.m_alpha1;
-    m_alpha2 = diabo.m_alpha2;
-  }
-  return *this;
-}
-
 bool
 Trk::RotatedDiamondBounds::operator==(const Trk::SurfaceBounds& sbo) const
 {
@@ -110,14 +88,14 @@ Trk::RotatedDiamondBounds::insideFull(const Amg::Vector2D& locpo, double tol1, d
             m_boundValues[RotatedDiamondBounds::bv_halfY1]
         : 0.;
     return (fabs(locpo[Trk::locY]) <= m_boundValues[RotatedDiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locX]));
-  } 
+  }
     double k =
       m_boundValues[RotatedDiamondBounds::bv_halfY2] > 0.
         ? (m_boundValues[RotatedDiamondBounds::bv_medHalfX] - m_boundValues[RotatedDiamondBounds::bv_maxHalfX]) / 2 /
             m_boundValues[RotatedDiamondBounds::bv_halfY2]
         : 0.;
     return (fabs(locpo[Trk::locY]) <= m_boundValues[RotatedDiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locX]));
-  
+
 }
 
 // opening angle in point A

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetClusterIndexAssociationTool.h"
+#include "HIJetClusterIndexAssociationTool.h"
 #include "HIEventUtils/HIEventDefs.h"
 #include <iomanip>
 

@@ -77,7 +77,8 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
                                        IVKalState& istate,
 	  			       const  double massConstraint) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_cascadeState = std::make_unique<CascadeState>();
     state.m_vkalFitControl.renewCascadeEvent(new CascadeEvent());
 
@@ -111,7 +112,8 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
                                       IVKalState& istate,
 	  		              const  double massConstraint) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
 //----
@@ -158,7 +160,8 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
                                       IVKalState& istate,
 	  		              const  double massConstraint) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
     VertexID vID=nextVertex( list, particleMass, istate, massConstraint);
@@ -284,7 +287,8 @@ inline int SymIndex(int it, int i, int j) {  return (3*it+3+i)*(3*it+3+i+1)/2 + 
 VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
                                              const Vertex* primVrt, bool FirstDecayAtPV ) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
     int iv,it,jt;
@@ -488,12 +492,18 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
        if(msgLvl(MSG::DEBUG)){
          msg(MSG::DEBUG)<<"Initial cascade momenta"<<endmsg;
          for(int kv=0; kv<(int)fittedParticles.size(); kv++){
-           for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)std::cout<<
-	         " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
+           for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)
+             std::cout<<
+	         " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";";
+           std::cout<<'\n';
+         }
          msg(MSG::DEBUG)<<"Squized cascade momenta"<<endmsg;
          for(int kv=0; kv<(int)t_fittedParticles.size(); kv++){
-           for(int kt=0; kt<(int)t_fittedParticles[kv].size(); kt++)std::cout<<
-	         " Px="<<t_fittedParticles[kv][kt].Px<<" Py="<<t_fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
+           for(int kt=0; kt<(int)t_fittedParticles[kv].size(); kt++)
+             std::cout<<
+	         " Px="<<t_fittedParticles[kv][kt].Px<<" Py="<<t_fittedParticles[kv][kt].Py<<";";
+           std::cout<<'\n';
+         }
        }
        for(iv=0; iv<(int)cstate.m_cascadeVList.size(); iv++){
          index=getSimpleVIndex( cstate.m_cascadeVList[iv].vID, cstate );               //index of vertex in simplified structure
@@ -544,8 +554,11 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
        if(msgLvl(MSG::DEBUG)){
          msg(MSG::DEBUG)<<"Refit cascade momenta"<<endmsg;
           for(int kv=0; kv<(int)fittedParticles.size(); kv++){
-            for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)std::cout<<
-	          " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
+            for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)
+              std::cout<<
+	          " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";";
+            std::cout<<'\n';
+          }
        }
 // Covariance matrix for nonmerged vertices is updated.
 //   For merged vertices (both IN and TO ) it's taken from old fit
@@ -734,7 +747,8 @@ StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
                                  IVKalState& istate,
 				 double massConstraint ) const
 {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     CascadeState& cstate = *state.m_cascadeState;
 
     int ivc, it, itc;

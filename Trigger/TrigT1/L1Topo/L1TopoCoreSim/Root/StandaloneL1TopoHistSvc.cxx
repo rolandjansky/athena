@@ -32,8 +32,6 @@ public:
 
    void registerHist(TH1 * h) {
       if(h != nullptr) {
-	//cout << "JOERG registering histogram " << h->GetName() << " at " << h << endl;
-         h->SetDirectory(0);
          TRG_MSG_DEBUG("Registering histogram " << h->GetName());
          const string key = h->GetName();
          if( m_hists1D.find(key)  == end(m_hists1D) ) {
@@ -47,8 +45,6 @@ public:
 
    void registerHist(TH2 * h) {
       if(h != nullptr) {
-	//cout << "JOERG registering histogram " << h->GetName() << " at " << h << endl;
-         h->SetDirectory(0);
          TRG_MSG_DEBUG("Registering histogram " << h->GetName());
          const string key = h->GetName();
          if( m_hists2D.find(key)  == end(m_hists2D) ) {
@@ -72,21 +68,17 @@ public:
    }
 
    void fillHist1D(const std::string & histName,double x) {
-     auto colPos = histName.find_first_of('/');
-     string realhistName = histName.substr(colPos+1);
-     auto h = m_hists1D.find(realhistName);
+     auto h = m_hists1D.find(histName);
      if( h == end(m_hists1D) ) {
-       TRG_MSG_WARNING("No histogram founded for " << histName);
+       TRG_MSG_WARNING("No histogram found for " << histName);
      } else 
        h->second->Fill(x);
    }
 
    void fillHist2D(const std::string & histName,double x,double y) {
-     auto colPos = histName.find_first_of('/');
-     string realhistName = histName.substr(colPos+1);
-     auto h = m_hists2D.find(realhistName);
+     auto h = m_hists2D.find(histName);
      if( h == end(m_hists2D) ) {
-       TRG_MSG_WARNING("No histogram founded for " << histName);
+       TRG_MSG_WARNING("No histogram found for " << histName);
      } else 
        h->second->Fill(x,y);
    }

@@ -5,10 +5,9 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from AthenaCommon.Logging import log
-from AthenaCommon.Constants import DEBUG, WARNING
+from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
@@ -25,6 +24,7 @@ from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
 from OverlayConfiguration.OverlayTestHelpers import JobOptsDumperCfg
+from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -59,6 +59,12 @@ acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(PoolWriteCfg(ConfigFlags))
 acc.merge(writeDigitizationMetadata(ConfigFlags))
+
+# Old EventInfo conversion
+if "EventInfo" not in ConfigFlags.Input.Collections:
+    acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                 inputKey="McEventInfo",
+                                 outputKey="EventInfo"))
 
 # Inner Detector
 acc.merge(BCM_DigitizationCfg(ConfigFlags))

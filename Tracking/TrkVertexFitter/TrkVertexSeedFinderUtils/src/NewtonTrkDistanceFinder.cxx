@@ -16,7 +16,7 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
-#include <math.h>
+#include <cmath>
 
 
 
@@ -38,7 +38,7 @@ namespace Trk
     declareInterface<NewtonTrkDistanceFinder>(this);
   }
 
-  NewtonTrkDistanceFinder::~NewtonTrkDistanceFinder() {}
+  NewtonTrkDistanceFinder::~NewtonTrkDistanceFinder() = default;
 
   StatusCode NewtonTrkDistanceFinder::initialize() 
   { 
@@ -53,7 +53,7 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-const TwoPoints
+TwoPoints
 NewtonTrkDistanceFinder::GetClosestPoints (const PointOnTrack & firsttrack,
                                            const PointOnTrack & secondtrack) const
 {

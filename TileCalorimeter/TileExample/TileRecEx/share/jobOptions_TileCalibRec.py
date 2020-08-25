@@ -725,7 +725,7 @@ else:
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-13'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-16'
             else:                        CondDbTag = 'CONDBR2-ES1PA-2018-05'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
@@ -736,7 +736,7 @@ else:
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
         if RUN2:
-            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+            DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
         else:
             DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 

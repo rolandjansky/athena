@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigMuisoHypoTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ bool TrigMuisoHypoTool::decideOnSingleObject( TrigMuisoHypoTool::MuisoInfo& inpu
   float etamu  = pMuonIso->eta();
   float ptmu   = fabs(pMuonIso->pt());
 
-  sumPtCone = ptsum / CLHEP::GeV;
+  sumPtCone = ptsum / Gaudi::Units::GeV;
 
   float isoID = 0.0;
   if (ptmu > 0) isoID = ptsum/ptmu;
@@ -102,7 +102,7 @@ bool TrigMuisoHypoTool::decideOnSingleObject( TrigMuisoHypoTool::MuisoInfo& inpu
   result = isIsolatedID;
 
   ATH_MSG_DEBUG( " REGTEST pt / eta / SumPtCone / isoID : "
-                 << " / " << ptmu / CLHEP::GeV
+                 << " / " << ptmu / Gaudi::Units::GeV
                  << " / " << etamu
                  << " / " << sumPtCone
                  << " / " << isoID

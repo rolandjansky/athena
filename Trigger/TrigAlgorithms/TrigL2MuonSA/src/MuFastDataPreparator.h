@@ -30,7 +30,7 @@
 #include "CscDataPreparator.h"
 #include "CscData.h"
 
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
+#include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 #include "PtEndcapLUTSvc.h"
 
 #include "RPC_CondCabling/RpcCablingCondData.h"

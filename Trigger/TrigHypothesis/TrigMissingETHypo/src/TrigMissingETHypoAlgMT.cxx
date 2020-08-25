@@ -3,7 +3,7 @@
 */
 #include "TrigMissingETHypoAlgMT.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 

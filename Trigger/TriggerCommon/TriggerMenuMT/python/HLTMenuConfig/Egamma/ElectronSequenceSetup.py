@@ -28,13 +28,6 @@ def fastElectronSequence(ConfigFlags):
     viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
 
-    from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-    topSequence = AlgSequence()
-    condSeq = AthSequencer( "AthCondSeq" )
-    if not hasattr( condSeq, 'SCT_DCSConditionsStatCondAlg' ):
-      viewVerify.DataObjects += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
-      topSequence.SGInputLoader.Load += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
-
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATUS"):
       viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
@@ -46,11 +39,11 @@ def fastElectronSequence(ConfigFlags):
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
       
-    from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
-    theElectronFex= L2ElectronFex_1()
+    from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import EgammaFastElectronFex_1
+    theElectronFex= EgammaFastElectronFex_1()
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
-    theElectronFex.ElectronsName=recordable("HLT_L2Electrons")
+    theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
@@ -78,16 +71,16 @@ def fastElectronMenuSequence():
     (electronAthSequence, l2ElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
 
     # make the Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
-    theElectronHypo = TrigL2ElectronHypoAlgMT()
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlgMT
+    theElectronHypo = TrigEgammaFastElectronHypoAlgMT()
     theElectronHypo.Electrons = sequenceOut
 
     theElectronHypo.RunInView=True
 
-    from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict
 
     return  MenuSequence( Maker       = l2ElectronViewsMaker,                                        
                           Sequence    = electronAthSequence,
                           Hypo        = theElectronHypo,
-                          HypoToolGen = TrigL2ElectronHypoToolFromDict )
+                          HypoToolGen = TrigEgammaFastElectronHypoToolFromDict )
 

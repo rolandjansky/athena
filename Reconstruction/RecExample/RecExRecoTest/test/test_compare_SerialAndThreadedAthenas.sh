@@ -26,7 +26,8 @@ if [[ $rc -eq 0 ]] && [[ $rc1 -eq  0 ]]
 then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../serial/ | tee diffSerialOneThread.log
- echo "art-result: $? Diff-Serial-OneThread"
+ rcDiff1=${PIPESTATUS[0]}
+ echo "art-result: $rcDiff1 Diff-Serial-OneThread"
 fi
 
 cd ../
@@ -43,7 +44,8 @@ if [[ $rc1 -eq 0 ]] && [[ $rc2 -eq  0 ]]
 then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadOne | tee diffTwoThreadsOneThread.log
- echo "art-result: $? Diff-OneThread-TwoThreads"
+ rcDiff2=${PIPESTATUS[0]}
+ echo "art-result: $rcDiff2 Diff-OneThread-TwoThreads"
 fi
 
 cd ../
@@ -60,5 +62,6 @@ if [[ $rc2 -eq 0 ]] && [[ $rc5 -eq  0 ]]
 then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadTwo | tee diffFiveThreadsTwoThreads.log
- echo "art-result: $? Diff-TwoThreads-FiveThreads"
+ rcDiff5=${PIPESTATUS[0]}
+ echo "art-result: $rcDiff5 Diff-TwoThreads-FiveThreads"
 fi

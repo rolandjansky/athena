@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file SCTLorentzMonAlg_jobOptions.py
@@ -19,6 +19,9 @@ myMonAlg.TriggerChain = ''
 # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
 myMonAlg.TrackSummaryTool = InDetTrackSummaryTool
 
+myMonAlg.AssociationTool = InDetPrdAssociationTool
+myMonAlg.RejectSharedHits = False
+
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.
 myMonGroup = helper.addGroup(
@@ -27,10 +30,10 @@ myMonGroup = helper.addGroup(
     "SCT/GENERAL/"
 )
 
-### STEP 5 ###
+
 # Configure histograms
 
-from ROOT import SCT_Monitoring as sctMon
+from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 
 nProfileBins = 360
 nSides = 2 # 0: Side 0, 1: Side 1

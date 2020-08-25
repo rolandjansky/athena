@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: CalibPeb test with forks=4, threads=6, concurrent_events=3
 # art-type: build
@@ -20,6 +21,11 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+
+# Make RootComp step required
+rc = test.get_step('RootComp')
+rc.required = True
+rc.args += ' --sortLabels'
 
 import sys
 sys.exit(test.run())

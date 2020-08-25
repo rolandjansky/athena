@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/VHtoVVDiLepFilter.h"
@@ -48,10 +48,42 @@ StatusCode VHtoVVDiLepFilter::filterEvent() {
   int nVParent = 0;
   for (McEventCollection::const_iterator ievt = events()->begin(); ievt != events()->end(); ++ievt) {
     // Loop over all particles in the event
+#ifdef HEPMC3
+    for (auto pitr: **ievt) {
+
+      // Loop over particles from the primary interaction that match the PDG Parent
+      if ( (std::abs(pitr->pdg_id()) == m_PDGParent ||std::abs(pitr->pdg_id()) == m_PDGAssoc) && std::abs(pitr->status()) == m_StatusCode) {
+        // Check if originated from the Higgs or is the associated vector boson
+        bool isGrandParentHiggs = false;
+        bool isGrandParentV = false;
+        for (auto thisMother: pitr->production_vertex()->particles_in()) { // loop over chain of grandparents
+          ATH_MSG_DEBUG(" Parent " << pitr->pdg_id() << " barcode = "   << HepMC::barcode(pitr) << " status = "  << pitr->status() );
+          ATH_MSG_DEBUG(" a Parent mother "  << thisMother->pdg_id()<< " barc = " << HepMC::barcode(thisMother) );
+          if ( thisMother->pdg_id() == m_PDGGrandParent ) isGrandParentHiggs = true;
+          else  isGrandParentV = true;
+        }
+        ATH_MSG_DEBUG(" Grand Parent is Higgs? " << isGrandParentHiggs );
+        ATH_MSG_DEBUG(" Grand Parent is V? " << isGrandParentV );
+
+        if (!isGrandParentHiggs && !isGrandParentV) continue;
+
+        if (isGrandParentHiggs) {
+          ++nHiggsParent;
+          if (!pitr->end_vertex()) continue;
+          findAncestor(pitr->end_vertex(), m_PDGParent, n_okPDGHVChildren);
+        } // end of higgs grandparent loop
+
+        if (isGrandParentV) {
+          ++nVParent;
+          findAncestor(pitr->end_vertex(), m_PDGAssoc, n_okPDGAssocVChild);
+        } // end of v grandparent loop
+      } // end good parent loop
+    }
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = (*ievt)->particles_begin(); pitr != (*ievt)->particles_end(); ++pitr) {
 
       // Loop over particles from the primary interaction that match the PDG Parent
-      if ( (abs((*pitr)->pdg_id()) == m_PDGParent ||abs((*pitr)->pdg_id()) == m_PDGAssoc) && abs((*pitr)->status()) == m_StatusCode) {
+      if ( (std::abs((*pitr)->pdg_id()) == m_PDGParent ||std::abs((*pitr)->pdg_id()) == m_PDGAssoc) && std::abs((*pitr)->status()) == m_StatusCode) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
         HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
         HepMC::GenVertex::particle_iterator thisMother = firstMother;
@@ -82,6 +114,7 @@ StatusCode VHtoVVDiLepFilter::filterEvent() {
 
       } // end good parent loop
     }
+#endif
   }
 
   ATH_MSG_DEBUG("Result " << nHiggsParent << " " << n_okPDGHVChildren );
@@ -99,24 +132,21 @@ StatusCode VHtoVVDiLepFilter::filterEvent() {
   return StatusCode::SUCCESS;
 }
 
-void VHtoVVDiLepFilter::findAncestor(const HepMC::GenVertexPtr searchvertex,
+void VHtoVVDiLepFilter::findAncestor(HepMC::ConstGenVertexPtr searchvertex,
                                      int targetPDGID, int& n_okPDGChild) {
   std::vector<int> foundCodes;
   if (!searchvertex) return;
-  const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
-  const HepMC::GenVertex::particles_out_const_iterator endAncestor = searchvertex->particles_out_const_end();
-  HepMC::GenVertex::particles_out_const_iterator thisAncestor = firstAncestor;
-  for (; thisAncestor != endAncestor; ++thisAncestor) {
-    if (abs((*thisAncestor)->pdg_id()) == targetPDGID) { // same particle as parent
-      findAncestor((*thisAncestor)->end_vertex(), targetPDGID, n_okPDGChild);
+  for (auto thisAncestor: *searchvertex) {
+    if (std::abs(thisAncestor->pdg_id()) == targetPDGID) { // same particle as parent
+      findAncestor(thisAncestor->end_vertex(), targetPDGID, n_okPDGChild);
     } else {
       for (size_t i = 0; i < m_PDGChildren.size(); ++i) {
-        int testPdgID = (*thisAncestor)->pdg_id();
-        if (abs(testPdgID) == m_PDGChildren[i]) {
+        int testPdgID = thisAncestor->pdg_id();
+        if (std::abs(testPdgID) == m_PDGChildren[i]) {
           const bool alreadyFound = (std::find(foundCodes.begin(), foundCodes.end(), testPdgID) != foundCodes.end());
           if (!alreadyFound) {
             n_okPDGChild++;
-            foundCodes.push_back((*thisAncestor)->pdg_id()); // add to list of found particles and check to avoid double counting
+            foundCodes.push_back(thisAncestor->pdg_id()); // add to list of found particles and check to avoid double counting
           }
           else break;
         }

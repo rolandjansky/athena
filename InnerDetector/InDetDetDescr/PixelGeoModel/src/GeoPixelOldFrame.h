@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELOLDFRAME_H
@@ -11,7 +11,7 @@ class GeoFullPhysVol;
 class GeoVPhysVol;
 class PixelLegacyManager;
 
-class GeoPixelOldFrame : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelOldFrame : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
  public:
   GeoPixelOldFrame();
   virtual GeoVPhysVol* Build();

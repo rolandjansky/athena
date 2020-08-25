@@ -69,7 +69,7 @@ void striptabs(std::string& str)
 }
 
 //helper method: like PERL split
-std::vector<std::string> split(std::string line, std::string del=" ")
+std::vector<std::string> split(const std::string& line, const std::string& del=" ")
 {
   std::vector<std::string> res;
   std::string::size_type old_pos = 0, pos = line.find(del,0);

@@ -5,7 +5,7 @@
 #include "LArTimeVetoAlg.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "LArRecEvent/LArEventBitInfo.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //Constructor

@@ -6,7 +6,7 @@
 #define MMLOADVARIABLES_H
 
 #include "MMT_struct.h" //for digitWrapper, hitData_key, hitData_entry, evInf_entry
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <map>
 #include <vector>
@@ -24,16 +24,15 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-  class MMLoadVariables {
+ class MMLoadVariables : public AthMessaging {
 
   public:
 
     MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par);
-   ~MMLoadVariables()=default;
 
     void getMMDigitsInfo(std::vector<digitWrapper>& entries, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time, std::map<int,evInf_entry>& Event_Info);
     //Import_Athena..._.m stuff
-    double phi_shift(double athena_phi,std::string wedgeType, int stationPhi) const;
+    double phi_shift(double athena_phi,const std::string& wedgeType, int stationPhi) const;
     int Get_VMM_chip(int strip) const;  //*** Not Finished... Rough
     int strip_number(int station,int plane,int spos)const;
     int Get_Strip_ID(double X,double Y,int plane) const;
@@ -125,24 +124,6 @@ namespace MuonGM {
         std::vector<int> NSWMM_off_channel;
     };
     histogramVariables histVars;
-    
-    protected:
-    /// Log a message using the Athena controlled logging system
-      MsgStream&
-      msg(MSG::Level lvl) const {
-        return m_msg.get() << lvl;
-      }
-   
-      /// Check whether the logging system is active at the provided verbosity level
-      bool
-      msgLvl(MSG::Level lvl) {
-        return m_msg.get().level() <= lvl;
-      }
-   
-      /// Private message stream member
-      mutable Athena::MsgStreamMember m_msg;
-
-
 
   private:
   

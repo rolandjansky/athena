@@ -4,33 +4,11 @@
 
 #include "MuonIdHelpersAlgs/TestMuonIdHelpers.h"
 
-#include "MuonDigitContainer/MdtDigitContainer.h"
-#include "MuonDigitContainer/MdtDigitCollection.h"
-#include "MuonDigitContainer/MdtDigit.h"
-
-#include "MuonDigitContainer/CscDigitContainer.h"
-#include "MuonDigitContainer/CscDigitCollection.h"
-#include "MuonDigitContainer/CscDigit.h"
-
-#include "MuonDigitContainer/RpcDigitContainer.h"
-#include "MuonDigitContainer/RpcDigitCollection.h"
-#include "MuonDigitContainer/RpcDigit.h"
-
-#include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonDigitContainer/TgcDigitCollection.h"
-#include "MuonDigitContainer/TgcDigit.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include <algorithm>
 #include <cmath>
 
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-
 TestMuonIdHelpers::TestMuonIdHelpers(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_activeStore("ActiveStoreSvc", name) {
+  AthAlgorithm(name, pSvcLocator) {
 
   m_testMDT = true;
   m_testCSC = true;
@@ -51,9 +29,12 @@ StatusCode TestMuonIdHelpers::initialize(){
 
   ATH_MSG_DEBUG(" in initialize()");
 
-  ATH_CHECK(m_activeStore.retrieve());
-
   ATH_CHECK(m_idHelperSvc.retrieve());
+
+  ATH_CHECK(m_mdtDigitContKey.initialize());
+  ATH_CHECK(m_rpcDigitContKey.initialize());
+  ATH_CHECK(m_cscDigitContKey.initialize());
+  ATH_CHECK(m_tgcDigitContKey.initialize());
 
   return StatusCode::SUCCESS;
 
@@ -104,10 +85,12 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() const {
   // retrieve data from StoreGate
   typedef MdtDigitContainer::const_iterator collection_iterator;
   typedef MdtDigitCollection::const_iterator digit_iterator;
-  
-  std::string key = "MDT_DIGITS";
-  const DataHandle <MdtDigitContainer> container;
-  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
+
+  SG::ReadHandle<MdtDigitContainer> container(m_mdtDigitContKey);
+  if (!container.isValid()) {
+    ATH_MSG_ERROR("Could not find MdtDigitContainer called " << container.name() << " in store " << container.store());
+    return StatusCode::FAILURE;
+  }
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
@@ -121,7 +104,8 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() const {
     ++nc1; 
     Identifier moduleId = mdtCollection->identify();
     if (!m_idHelperSvc->mdtIdHelper().validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid MDT module identifier " << m_idHelperSvc->mdtIdHelper().show_to_string(moduleId)  );
+      ATH_MSG_ERROR( "Invalid MDT module identifier " << m_idHelperSvc->mdtIdHelper().show_to_string(moduleId));
+      return StatusCode::FAILURE;
     }
     digit_iterator it1_digit = mdtCollection->begin();
     digit_iterator it2_digit = mdtCollection->end();
@@ -138,9 +122,11 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() const {
   }
   ATH_MSG_DEBUG("  Number of MDT Collections  Accessed " << nc1  );
 
-  if(error) ATH_MSG_ERROR( "Check of MDT ids FAILED "  );
-  else      ATH_MSG_INFO( "Check of MDT ids OK "  );
-  
+  if(error) {
+    ATH_MSG_ERROR( "Check of MDT ids FAILED "  );
+    return StatusCode::FAILURE;
+  }
+  else ATH_MSG_INFO( "Check of MDT ids OK "  );
  return StatusCode::SUCCESS;
 }
 
@@ -158,10 +144,12 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() const {
   // retrieve data from StoreGate
   typedef CscDigitContainer::const_iterator collection_iterator;
   typedef CscDigitCollection::const_iterator digit_iterator;
-  
-  std::string key = "CSC_DIGITS";
-  const DataHandle <CscDigitContainer> container;
-  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
+
+  SG::ReadHandle<CscDigitContainer> container(m_cscDigitContKey);
+  if (!container.isValid()) {
+    ATH_MSG_ERROR("Could not find CscDigitContainer called " << container.name() << " in store " << container.store());
+    return StatusCode::FAILURE;
+  }
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
@@ -175,7 +163,8 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() const {
     ++nc1; 
     Identifier moduleId = cscCollection->identify();
     if (!m_idHelperSvc->cscIdHelper().validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid CSC module identifier " << m_idHelperSvc->cscIdHelper().show_to_string(moduleId)  );
+      ATH_MSG_ERROR( "Invalid CSC module identifier " << m_idHelperSvc->cscIdHelper().show_to_string(moduleId));
+      return StatusCode::FAILURE;
     }
     digit_iterator it1_digit = cscCollection->begin();
     digit_iterator it2_digit = cscCollection->end();
@@ -192,9 +181,10 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() const {
   }
   ATH_MSG_DEBUG("Number of CSC Collections  Accessed " << nc1  );
 
-  if(error) ATH_MSG_ERROR( "Check of CSC ids FAILED "  );
-  else      ATH_MSG_INFO( "Check of CSC ids OK "  );
-  
+  if(error) {
+    ATH_MSG_ERROR( "Check of CSC ids FAILED "  );
+    return StatusCode::FAILURE;
+  } else ATH_MSG_INFO( "Check of CSC ids OK "  );
   return StatusCode::SUCCESS;
 }
 
@@ -211,10 +201,12 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() const {
   // retrieve data from StoreGate
   typedef RpcDigitContainer::const_iterator collection_iterator;
   typedef RpcDigitCollection::const_iterator digit_iterator;
-  
-  std::string key = "RPC_DIGITS";
-  const DataHandle <RpcDigitContainer> container;
-  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
+
+  SG::ReadHandle<RpcDigitContainer> container(m_rpcDigitContKey);
+  if (!container.isValid()) {
+    ATH_MSG_ERROR("Could not find RpcDigitContainer called " << container.name() << " in store " << container.store());
+    return StatusCode::FAILURE;
+  }
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
@@ -228,7 +220,8 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() const {
     ++nc1; 
     Identifier moduleId = rpcCollection->identify();
     if (!m_idHelperSvc->rpcIdHelper().validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid RPC module identifier " << m_idHelperSvc->rpcIdHelper().show_to_string(moduleId)  );
+      ATH_MSG_ERROR( "Invalid RPC module identifier " << m_idHelperSvc->rpcIdHelper().show_to_string(moduleId));
+      return StatusCode::FAILURE;
     }
     digit_iterator it1_digit = rpcCollection->begin();
     digit_iterator it2_digit = rpcCollection->end();
@@ -245,8 +238,11 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() const {
   }
   ATH_MSG_DEBUG("  Number of RPC Collections  Accessed " << nc1  );
 
-  if(error) ATH_MSG_ERROR( "Check of RPC ids FAILED "  );
-  else      ATH_MSG_INFO( "Check of RPC ids OK "  );
+  if(error) {
+    ATH_MSG_ERROR("Check of RPC ids FAILED");
+    return StatusCode::FAILURE;
+  }
+  else ATH_MSG_INFO( "Check of RPC ids OK "  );
   
   return StatusCode::SUCCESS;
 }
@@ -264,10 +260,12 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() const {
   // retrieve data from StoreGate
   typedef TgcDigitContainer::const_iterator collection_iterator;
   typedef TgcDigitCollection::const_iterator digit_iterator;
-  
-  std::string key = "TGC_DIGITS";
-  const DataHandle <TgcDigitContainer> container;
-  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
+
+  SG::ReadHandle<TgcDigitContainer> container(m_tgcDigitContKey);
+  if (!container.isValid()) {
+    ATH_MSG_ERROR("Could not find TgcDigitContainer called " << container.name() << " in store " << container.store());
+    return StatusCode::FAILURE;
+  }
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
@@ -281,7 +279,8 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() const {
     ++nc1; 
     Identifier moduleId = tgcCollection->identify();
     if (!m_idHelperSvc->tgcIdHelper().validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid TGC module identifier " << m_idHelperSvc->tgcIdHelper().show_to_string(moduleId)  );
+      ATH_MSG_ERROR( "Invalid TGC module identifier " << m_idHelperSvc->tgcIdHelper().show_to_string(moduleId));
+      return StatusCode::FAILURE;
     }
     digit_iterator it1_digit = tgcCollection->begin();
     digit_iterator it2_digit = tgcCollection->end();
@@ -298,8 +297,10 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() const {
   }
   ATH_MSG_DEBUG("Number of TGC Collections  Accessed " << nc1  );
 
-  if(error) ATH_MSG_ERROR( "Check of TGC ids FAILED "  );
-  else      ATH_MSG_INFO( "Check of TGC ids OK "  );
+  if(error) {
+    ATH_MSG_ERROR( "Check of TGC ids FAILED ");
+    return StatusCode::FAILURE;
+  } else ATH_MSG_INFO( "Check of TGC ids OK ");
   
   return StatusCode::SUCCESS;
 }

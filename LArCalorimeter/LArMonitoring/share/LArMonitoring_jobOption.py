@@ -5,9 +5,6 @@ include.block("LArMonitoring/LArMonitoring_jobOption.py")
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaCommon.GlobalFlags import globalflags
 
-#Add colltime algo to sequence
-print "LArMonitoring_jobOption ", DQMonFlags.monManEnvironment()
-
 from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
 BunchCrossingCondAlgDefault()
 
@@ -23,7 +20,7 @@ if 'ESD' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
     topSequence += LArNoisyROMonConfigOld(DQMonFlags)
 
-if globalflags.DataSource == 'data':
+if globalflags.DataSource == 'data' and 'online' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfigOld
     topSequence += LArHVCorrMonConfigOld(DQMonFlags)
 
@@ -40,6 +37,6 @@ if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource == 'da
     from LArMonitoring.LArCoverageAlg import LArCoverageConfigOld
     topSequence +=LArCoverageConfigOld(DQMonFlags)
 
-#print topSequence
-
+    from LArMonitoring.LArCosmicsMonAlg import LArCosmicsMonConfigOld
+    topSequence +=LArCosmicsMonConfigOld(DQMonFlags)
 

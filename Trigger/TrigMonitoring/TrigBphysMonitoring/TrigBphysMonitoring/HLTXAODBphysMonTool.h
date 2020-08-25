@@ -99,11 +99,13 @@ private:
     //typedef std::vector<std::pair<std::string, std::string> > Table_t;
     Table_t m_dedicated_chains;  //! menu-independent labels with matching menu-aware chain names for dedicated monitoring
     Table_t m_dedicatedL1Topo_chains;  //! menu-independent labels with matching menu-aware chain names for dedicated L1Topo monitoring
+    Table_t m_dedicatedIndividual_chains;  //! 
     Table_t m_efficiency_chains; //! menu-independent labels with matching menu-aware chain names for numerator efficiencies
     
     // patterns for the above, if generated on-the-fly from m_primary_chains list
     Table_t m_dedicated_chains_patterns;
     Table_t m_dedicatedL1Topo_chains_patterns;
+    Table_t m_dedicatedIndividual_chains_patterns;
     Table_t m_efficiency_chains_patterns;
 
     std::vector<std::string> m_containerList; //! Container list

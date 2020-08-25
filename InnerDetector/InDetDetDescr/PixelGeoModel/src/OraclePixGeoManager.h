@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OraclePixelGeoManager_H
@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 class IRDBRecord;
 class IRDBAccessSvc;
@@ -173,7 +174,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
  public:
 
-  OraclePixGeoManager(const PixelGeoModelAthenaComps * athenaComps);
+  OraclePixGeoManager(const PixelGeoModelAthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe init method is used.
   ~OraclePixGeoManager();
   
   void init();

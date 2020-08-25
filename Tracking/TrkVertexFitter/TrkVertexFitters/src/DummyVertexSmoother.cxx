@@ -75,7 +75,11 @@ namespace Trk
 
           if(initPar != nullptr)
           {
-            const Trk::TrackParameters * extrapolatedPerigee(m_extrapolator->extrapolate(*initPar,perigeeSurface));
+            //This does not play well with const correctness
+            //Either we should return non-const parameters from the extrapolator
+            //as the owner here has to delete them
+            //Or we need to clone  
+            const Trk::TrackParameters* extrapolatedPerigee(m_extrapolator->extrapolate(*initPar,perigeeSurface));
             if(extrapolatedPerigee != nullptr)
             {
               (*t_it).setPerigeeAtVertex(const_cast<Trk::TrackParameters*>(extrapolatedPerigee));
@@ -85,49 +89,6 @@ namespace Trk
           } else {
             msg(MSG::WARNING) << " The VxTrackAtVertex passed has no initial Parameters? This track will not be refitted" << endmsg;
           }//end of initial parameters protection check
-
-          /*     
-          LinearizedTrack * linState = (*t_it)->linState();     
-          
-          if(linState != 0)
-          {
-            //taking the last perigee parameters used in calculation and extrapolating them 
-            //toawrds the fitted vertex. This saves calculation time.
-            // MeasuredPerigee lastPerigee = linState->expectedPerigeeAtPCA(); 
-            TrackParameters * lastPerigee = linState->expectedParametersAtPCA();
- 	
-            //here the extrapolation extrapolation finally happens
-            // const MeasuredPerigee * extrapolatedPerigee(dynamic_cast<const Trk::MeasuredPerigee*>(m_extrapolator->extrapolateDirectly(lastPerigee,perigeeSurface)));
-            const TrackParameters * extrapolatedPerigee(m_extrapolator->extrapolateDirectly(*lastPerigee,perigeeSurface));
-  
-            if(extrapolatedPerigee != 0)
-	    {
-	      (*t_it)->setPerigeeAtVertex(const_cast<Trk::TrackParameters*>(extrapolatedPerigee));
-	    }else{
-	      MsgStream msg(msgSvc(), name());
-              msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endmsg;
-	    }//end of successfull extrapolation check	
-          }else{
-       
-            //there is no linearized state available; taking initial MeasuredPerigee
-            //and trying to work with it       
-            const Trk::MeasuredPerigee * inPerigee = (*t_it)->initialPerigee(); 
-	    if(inPerigee !=0 )
-	    {
-	      const MeasuredPerigee * extrapolatedPerigee(dynamic_cast<const Trk::MeasuredPerigee*>(m_extrapolator->extrapolateDirectly(*inPerigee,perigeeSurface)));
-	      if(extrapolatedPerigee != 0)
-              {
-	        (*t_it)->setPerigeeAtVertex(const_cast<Trk::MeasuredPerigee*>(extrapolatedPerigee));
-	      }else{
-	        MsgStream msg(msgSvc(), name());
-                msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endmsg;
-	      }//end of non-zero extrapolated perigee check
-	    }else{
-	      MsgStream msg(msgSvc(), name());
-              msg(MSG::ERROR)  << " The VxTrackAtVertex passed has no LinearizedTrack neither Initial perigee???" << endmsg;
-	    }//end of non-zero initial perigee check 
-          }//end of non zero linearized state check
-          */
 
         }//end of loop over all fitted tracks
       } else {

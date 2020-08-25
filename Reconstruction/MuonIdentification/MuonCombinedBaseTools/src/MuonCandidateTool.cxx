@@ -10,6 +10,7 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
+#include "TrkTrackSummary/MuonTrackSummary.h"
 #include "MuonCandidateTool.h"
 
 namespace MuonCombined {
@@ -17,18 +18,9 @@ namespace MuonCombined {
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCandidateTool::MuonCandidateTool (const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", this),
-      m_trackBuilder("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder", this),
-      m_trackExtrapolationTool("ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool", this),
-      m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor", this)
+    : AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCandidateTool>(this);
-    declareProperty("Printer",m_printer );
-    declareProperty("ExtrapolationStrategy", m_extrapolationStrategy = 0 );
-    declareProperty("TrackBuilder",m_trackBuilder );
-    declareProperty("TrackExtrapolationTool",m_trackExtrapolationTool );
-    declareProperty("AmbiguityProcessor",m_ambiguityProcessor );
   }
 
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -40,6 +32,8 @@ namespace MuonCombined {
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
+    ATH_CHECK(m_trackSummaryTool.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
   }
@@ -75,10 +69,26 @@ namespace MuonCombined {
       ATH_MSG_VERBOSE("Re-Fitting track " << std::endl << m_printer->print(msTrack) << std::endl << m_printer->printStations(msTrack));
       Trk::Track* standaloneTrack = 0;
       const Trk::Vertex* vertex = 0;
-      if( m_extrapolationStrategy == 0 ) {
+      if( m_extrapolationStrategy == 0u ) {
         standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
       } else {
          standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
+      }
+      if(standaloneTrack){
+	//Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track
+	if(standaloneTrack->fitQuality()->doubleNumberDoF()==0){
+	  delete standaloneTrack;
+	  standaloneTrack=0;
+	  ATH_MSG_DEBUG("extrapolated track has no DOF, don't use it");
+	}
+	double mschi2=2.5; //a default we should hopefully never have to use (taken from CombinedMuonTrackBuilder)
+	if(msTrack.fitQuality()->doubleNumberDoF()>0) mschi2=msTrack.fitQuality()->chiSquared()/msTrack.fitQuality()->doubleNumberDoF();
+	//choice of 1000 is slightly arbitrary, the point is that the fit should be really be terrible
+	if(standaloneTrack->fitQuality()->chiSquared()/standaloneTrack->fitQuality()->doubleNumberDoF()>1000*mschi2){
+	  delete standaloneTrack;
+	  standaloneTrack=0;
+	  ATH_MSG_DEBUG("extrapolated track has a degraded fit, don't use it");
+        }
       }
       if (standaloneTrack) {
 	standaloneTrack->info().setParticleHypothesis(Trk::muon);
@@ -89,11 +99,32 @@ namespace MuonCombined {
         else if( !standaloneTrack->perigeeParameters()->covariance() ) ATH_MSG_WARNING(" Track with perigee without covariance " << standaloneTrack);
 	trackLinks[ standaloneTrack ] = std::make_pair(trackLink,standaloneTrack);
       }else{
-	standaloneTrack=new Trk::Track(msTrack);
-	trackLinks[ standaloneTrack ] = std::make_pair(trackLink,nullptr);
-      }      
-      extrapTracks->push_back( standaloneTrack );
-      tracksToBeDeleted.insert( standaloneTrack ); // insert track for deletion
+	//We can create tracks from EM segments+TGC hits
+	//If these are not successfully extrapolated, they are too low quality to be useful
+	//So only make candidates from un-extrapolated tracks if they are not EM-only
+	bool skipTrack=true;
+	const Trk::MuonTrackSummary* msMuonTrackSummary=nullptr;
+	//If reading from an ESD, the track will not have a track summary yet
+	if(!msTrack.trackSummary()){
+	  std::unique_ptr<Trk::TrackSummary> msTrackSummary=m_trackSummaryTool->summary(msTrack, nullptr);
+	  msMuonTrackSummary=msTrackSummary->muonTrackSummary();
+	}
+	else msMuonTrackSummary=msTrack.trackSummary()->muonTrackSummary();
+	for(auto& chs : msMuonTrackSummary->chamberHitSummary()){
+	  if(chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId())!=Muon::MuonStationIndex::EM){
+	    skipTrack=false;
+	    break;
+	  }
+	}
+	if(!skipTrack){
+	  standaloneTrack=new Trk::Track(msTrack);
+	  trackLinks[ standaloneTrack ] = std::make_pair(trackLink,nullptr);
+	}
+      }
+      if(standaloneTrack){
+	extrapTracks->push_back( standaloneTrack );
+	tracksToBeDeleted.insert( standaloneTrack ); // insert track for deletion
+      }
     }
     ATH_MSG_DEBUG("Finished back-tracking, total number of successfull fits " << ntracks);
 

@@ -38,7 +38,10 @@ public:
     phires_NScale(1),
     d0res_NScale(1),
     a0res_NScale(1),
-    z0res_NScale(1)
+    z0res_NScale(1),
+    d0Max(30),
+    a0Max(15),
+    z0Max(300)
   {   } 
 
   virtual ~BinConfig() { } 
@@ -51,6 +54,9 @@ public:
     r.Set( n+"d0NScale",  d0_NScale );
     r.Set( n+"a0NScale",  a0_NScale );
     r.Set( n+"z0NScale",  z0_NScale );
+    r.Set( n+"d0Max",     d0Max );
+    r.Set( n+"a0Max",     a0Max );
+    r.Set( n+"z0Max",     z0Max );
   }
 
   void set( ReadCards& r ) { 
@@ -75,23 +81,30 @@ public:
   double a0res_NScale;
   double z0res_NScale;
 
+  double d0Max;
+  double a0Max;
+  double z0Max;
+
 };
 
-inline std::ostream& operator<<( std::ostream& s, const BinConfig& _b ) { 
-  return s << "\n\t[ config: " << _b._name << " Nbins scale factors : " 
-	   <<   "\t  pt: " << _b.pt_NScale
-	   <<    "  eta: " << _b.eta_NScale
-	   <<    "  phi: " << _b.phi_NScale
-	   <<    "  d0: "  << _b.d0_NScale
-	   <<    "  a0: "  << _b.a0_NScale
-	   <<    "  z0: "  << _b.z0_NScale 
+inline std::ostream& operator<<( std::ostream& s, const BinConfig& b ) { 
+  return s << "\n\t[ config: " << b._name << " Nbins scale factors : " 
+	   <<   "\t  pt: " << b.pt_NScale
+	   <<    "  eta: " << b.eta_NScale
+	   <<    "  phi: " << b.phi_NScale
+	   <<    "  d0: "  << b.d0_NScale
+	   <<    "  a0: "  << b.a0_NScale
+	   <<    "  z0: "  << b.z0_NScale 
 	   << "\n\t residuals bins:\n"
-	   <<   "\t  pt: "  << _b.ptres_NScale
-	   <<    "  eta: " << _b.etares_NScale
-	   <<    "  phi: " << _b.phires_NScale
-	   <<    "  d0: "  << _b.d0res_NScale
-	   <<    "  a0: "  << _b.a0res_NScale
-	   <<    "  z0: "  << _b.z0res_NScale 
+	   <<   "\t  pt: "  << b.ptres_NScale
+	   <<    "  eta: " << b.etares_NScale
+	   <<    "  phi: " << b.phires_NScale
+	   <<    "  d0: "  << b.d0res_NScale
+	   <<    "  a0: "  << b.a0res_NScale
+	   <<    "  z0: "  << b.z0res_NScale 
+	   << "\n\t ranges:\n"   
+	   <<    "  d0: "  << b.d0Max 
+	   <<    "  a0: "  << b.a0Max 
 	   << " ]"; 
 }
 

@@ -62,7 +62,7 @@ StatusCode MultiObjectsFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (auto part: *genEvt) {
-      if (part->status()==1 && part->momentum().perp() > m_PtCut && fabs(part->momentum().pseudoRapidity()) < m_EtaCut) {
+      if (part->status()==1 && part->momentum().perp() > m_PtCut && std::abs(part->momentum().pseudoRapidity()) < m_EtaCut) {
         //electrons
         if (m_useEle && abs(part->pdg_id()) == 11) {
           ATH_MSG_DEBUG("Found electron: PT,ETA,PHI " << part->momentum().perp()/Gaudi::Units::GeV << "GeV, " << part->momentum().pseudoRapidity() << " " << part->momentum().phi());
@@ -86,7 +86,7 @@ StatusCode MultiObjectsFilter::filterEvent() {
     ATH_MSG_DEBUG("xAOD::JetContainer Size = " << truthjetTES->size());
 
     for (xAOD::JetContainer::const_iterator jitr = truthjetTES->begin(); jitr != truthjetTES->end(); ++jitr) {
-      if ((*jitr)->pt() > m_jetPtCut && fabs((*jitr)->eta()) < m_jetEtaCut) {
+      if ((*jitr)->pt() > m_jetPtCut && std::abs((*jitr)->eta()) < m_jetEtaCut) {
         ATH_MSG_DEBUG("Found jet: pT, eta, phi = " << (*jitr)->pt()/Gaudi::Units::GeV << "GeV, " << (*jitr)->eta() << " " << (*jitr)->phi());
         pt.push_back((*jitr)->pt());
       }

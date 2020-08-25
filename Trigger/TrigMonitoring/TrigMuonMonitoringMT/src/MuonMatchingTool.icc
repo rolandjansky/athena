@@ -9,18 +9,40 @@ template<class T> std::tuple<bool,double,double> MuonMatchingTool :: trigPosForM
 
 
 template<class T, class OFFL>
-const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float &reqdR, bool &pass,
+const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float reqdR, bool &pass,
+                                   const std::string containerSGKey,
                                    std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::match<T>");
 
   using CONTAINER = DataVector<T>;
+  const T* ptr = nullptr;
+
+  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = matchLinkInfo<T>(offl, trig, reqdR, pass, containerSGKey, trigPosForMatchFunc);
+  if( featureLinkInfo.isValid() ){
+    const ElementLink<CONTAINER> link = featureLinkInfo.link;
+    ptr = *link;
+  }
   
+  return ptr;
+
+}
+
+
+template<class T, class OFFL>
+const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: matchLinkInfo(const OFFL* offl, std::string trig, float reqdR, bool &pass,
+                                                                                     const std::string containerSGKey,
+                                                                                     std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
+
+  ATH_MSG_DEBUG("MuonMonitoring::matchLinkInfo<T>");
+
+  using CONTAINER = DataVector<T>;
+
   double offlEta = offl->eta();
   double offlPhi = offl->phi();
 
-  std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = m_trigDec->features<CONTAINER>( trig, TrigDefs::includeFailedDecisions );
-  const T* ptr = nullptr;
+  std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = m_trigDec->features<CONTAINER>( trig, TrigDefs::includeFailedDecisions, containerSGKey );
+  TrigCompositeUtils::LinkInfo<CONTAINER> muonLinkInfo;
   for(const TrigCompositeUtils::LinkInfo<CONTAINER>& featureLinkInfo : featureCont){
     if ( !featureLinkInfo.isValid() ) continue;
     const ElementLink<CONTAINER> link = featureLinkInfo.link;
@@ -34,15 +56,47 @@ const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float &re
     ATH_MSG_VERBOSE("Trigger muon candidate eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR);
     if( dR<reqdR ){
       reqdR = dR;
+      muonLinkInfo = featureLinkInfo;
       pass = ( featureLinkInfo.state == TrigCompositeUtils::ActiveState::ACTIVE );
-      ptr = *link.cptr();
-      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " pt=" << ptr->pt() << " dR=" << dR <<  " isPassed=" << pass);
+      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR <<  " isPassed=" << pass);
     }
   }
 
-
-  return ptr;
+  return muonLinkInfo;
 
 }
 
 
+template<class T>
+const xAOD::Muon* MuonMatchingTool :: matchOff(const EventContext& ctx, const T* trig, float reqdR,
+                                               std::tuple<bool,double,double> (*offlinePosForMatchFunc)(const xAOD::Muon*), std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
+
+  ATH_MSG_DEBUG("MuonMonitoring::matchOff<T>");
+
+  const xAOD::Muon *muon = nullptr;
+
+  SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
+  if (! muons.isValid() ) {
+    ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
+    return muon;
+  }
+
+  const auto [trigstatus, trigEta, trigPhi] = trigPosForMatchFunc(trig);
+  if(!trigstatus) return muon;
+
+  for(const auto &mu : *muons){
+    const auto [offstatus, offEta, offPhi] = offlinePosForMatchFunc(mu);
+    if(!offstatus) continue;
+    float deta = offEta - trigEta;
+    float dphi = xAOD::P4Helpers::deltaPhi(offPhi, trigPhi);
+    double dR = sqrt(deta*deta + dphi*dphi);
+
+    if(dR < reqdR){
+      reqdR = dR;
+      muon = mu;
+      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " offEta=" << offEta << " offPhi=" << offPhi << " dR=" << dR);
+    }
+  }  
+
+  return muon;
+} 

@@ -49,8 +49,8 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
   try {
     const uint32_t nStatus = rawEvent->nstatus();
     const uint32_t* rawStatus = rawEvent->status(); // owned by rawEvent
-    for (uint32_t i=0; i<nStatus; ++i)
-      statusWords.push_back(rawStatus[i]);
+    //Copy range of data into vector using efficient memmove/memcopy
+    statusWords.assign(rawStatus, rawStatus+nStatus);
   }
   catch (const std::exception& ex) {
     ATH_MSG_ERROR("std::exception caught when reading status words: " << ex.what());
@@ -60,8 +60,8 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
     ATH_MSG_ERROR("Unknown exception caught when reading status words");
     return StatusCode::FAILURE;
   }
-  resultToFill.setStatus(statusWords);
   ATH_MSG_DEBUG("Successfully read " << statusWords.size() << " status words");
+  resultToFill.setStatus(std::move(statusWords)); //statusWords is moved so it now empty
 
   // ---------------------------------------------------------------------------
   // Read the stream tags
@@ -79,8 +79,9 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
     ATH_MSG_ERROR("Unknown exception caught when reading stream tags");
     return StatusCode::FAILURE;
   }
-  ATH_CHECK(resultToFill.setStreamTags(streamTags));
   ATH_MSG_DEBUG("Successfully read " << streamTags.size() << " stream tags");
+  ATH_CHECK(resultToFill.setStreamTags(streamTags));
+
 
   // ---------------------------------------------------------------------------
   // Read the HLT bits
@@ -90,8 +91,8 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
   try {
     const uint32_t nHltInfo = rawEvent->nhlt_info();
     const uint32_t* hltInfo = rawEvent->hlt_info(); // owned by rawEvent
-    for (uint32_t i=0; i<nHltInfo; ++i)
-      hltBitWords.push_back(hltInfo[i]);
+    //Copy range of data into vector using efficient memmove/memcopy
+    hltBitWords.assign(hltInfo, hltInfo+nHltInfo);
   }
   catch (const std::exception& ex) {
     ATH_MSG_ERROR("std::exception caught when reading HLT bits: " << ex.what());
@@ -128,8 +129,8 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodePayload(const std::vector<con
     try {
       const uint32_t nRodData = robf->rod_ndata();
       const uint32_t* rodData = robf->rod_data(); // owned by robf
-      for (uint32_t i=0; i<nRodData; ++i)
-        data.push_back(rodData[i]);
+      //Copy range of data into vector using efficient memmove
+      data.assign(rodData, rodData+nRodData);
     }
     catch (const std::exception& ex) {
       ATH_MSG_ERROR("std::exception caught when reading HLT result payload: " << ex.what());
@@ -139,8 +140,10 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodePayload(const std::vector<con
       ATH_MSG_ERROR("Unknown exception caught when reading HLT result payload");
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( resultToFill.addSerialisedDataWithCheck(sid.module_id(), data) );
-    ATH_MSG_DEBUG("Successfully read " << data.size() << " words of HLT result payload for module ID "
+    size_t datasize = data.size(); //I need to ask size before moving the vector
+    ATH_CHECK( resultToFill.addSerialisedDataWithCheck(sid.module_id(), std::move(data)) );
+    //Moved "data" so it is now empty vector
+    ATH_MSG_DEBUG("Successfully read " << datasize << " words of HLT result payload for module ID "
                   << sid.module_id());
   }
   return StatusCode::SUCCESS;

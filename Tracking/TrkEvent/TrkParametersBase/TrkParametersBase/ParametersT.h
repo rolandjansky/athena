@@ -9,12 +9,10 @@
 #ifndef TRKPARAMETERSBASE_PARAMETERS_T_H
 #define TRKPARAMETERSBASE_PARAMETERS_T_H
 
-// Trk includes
 #include "TrkParametersBase/ParametersBase.h"
-// Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkParametersBase/SurfaceUniquePtrT.h"
+#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 
 /*
  * Needed for persistency
@@ -118,6 +116,9 @@ public:
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
+
+  /** Return the Surface Type enum */
+  virtual int surfaceType() const override final;
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;

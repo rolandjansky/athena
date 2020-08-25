@@ -53,7 +53,7 @@ namespace Trk
     return GetClosestPoints(PointOnTrack(a),PointOnTrack(b));
   }
   
-  const TwoPoints GetClosestPoints(const PointOnTrack &, const PointOnTrack &) const;
+  TwoPoints GetClosestPoints(const PointOnTrack &, const PointOnTrack &) const;
 
   const TwoPoints GetClosestPoints(const TwoTracks & twotracks) const {
     return GetClosestPoints(twotracks.getFirstPerigee(),twotracks.getSecondPerigee());

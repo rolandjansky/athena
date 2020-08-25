@@ -12,7 +12,6 @@
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetMomentTools/JetLArHVTool.h"
-#include "JetMomentTools/JetMuonSegmentMomentsTool.h"
 #include "JetMomentTools/JetOriginCorrectionTool.h"
 #include "JetMomentTools/JetPtAssociationTool.h"
 #include "JetMomentTools/JetTrackMomentsTool.h"

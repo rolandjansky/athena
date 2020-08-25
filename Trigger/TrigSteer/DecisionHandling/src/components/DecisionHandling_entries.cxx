@@ -14,6 +14,17 @@
 #include "../ViewCreatorCentredOnIParticleROITool.h"
 #include "../ViewCreatorCentredOnClusterROITool.h"
 #include "../ViewCreatorCentredOnJetWithPVConstraintROITool.h"
+#include "../ITestHypoTool.h"
+#include "../TestHypoAlg.h"
+#include "../TestHypoTool.h"
+#include "../TestRecoAlg.h"
+#include "../TestInputMaker.h"
+
+
+DECLARE_COMPONENT( HLTTest::TestInputMaker )
+DECLARE_COMPONENT( HLTTest::TestHypoAlg )
+DECLARE_COMPONENT( HLTTest::TestHypoTool )
+DECLARE_COMPONENT( HLTTest::TestRecoAlg )
 
 DECLARE_COMPONENT( DumpDecisions )
 DECLARE_COMPONENT( RoRSeqFilter )

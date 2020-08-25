@@ -31,7 +31,7 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize()
   ATH_MSG_INFO( "initialize() and create listeners" );
 
   ATH_CHECK(m_eventInfoKey.initialize());
-  ATH_CHECK(m_rchk.initialize());
+  ATH_CHECK(m_rchk.initialize(!m_streamName.empty()));
 
   ATH_CHECK( m_metaStore.retrieve() );
 

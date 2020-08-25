@@ -7,29 +7,20 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "TrkToolInterfaces/ITruthToTrack.h"
+#include "MuidInterfaces/IMuonMatchQuality.h"
+
+#include <string>
 #include <vector>
 
-#include "CxxUtils/checker_macros.h"
-
-class ITHistSvc;
-class TH1D;
 class TTree;
 
-namespace Trk
-{
-  class ITruthToTrack;
-}
-
-namespace Rec
-{
-  class IMuonMatchQuality;
-}
-
 namespace MuonCombined {
-
-  class MuonInDetMatchCandidate;
 
   static const InterfaceID IID_MuonCombinedDebuggerTool("MuonCombined::MuonCombinedDebuggerTool", 1, 0);
 
@@ -38,12 +29,11 @@ namespace MuonCombined {
     
   public:
     MuonCombinedDebuggerTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCombinedDebuggerTool(void); // destructor
+    ~MuonCombinedDebuggerTool()=default;
 
     static const InterfaceID& interfaceID() {return IID_MuonCombinedDebuggerTool;}
   
     StatusCode initialize();
-    StatusCode finalize();
 
     void bookBranches();
 
@@ -59,8 +49,9 @@ namespace MuonCombined {
 
   private:
 
-    ToolHandle<Rec::IMuonMatchQuality> m_matchQuality;
-    ToolHandle<Trk::ITruthToTrack> m_truthToTrack;
+    ToolHandle<Rec::IMuonMatchQuality> m_matchQuality {this, "MuonMatchQuality", "Rec::MuonMatchQuality/MuonMatchQuality"};
+    ToolHandle<Trk::ITruthToTrack> m_truthToTrack {this, "TruthToTrack", "Trk::TruthToTrack/TruthToTrack"};
+
     ServiceHandle<ITHistSvc> m_histSvc;
 
     TTree* m_recoTree;

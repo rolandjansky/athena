@@ -21,9 +21,6 @@ muonRecFlags.setDefaults()
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 muonStandaloneFlags.setDefaults()
 
-from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
-mdtCalibFlags.setDefaults()
-
 from RecExConfig.RecFlags import rec
 
 
@@ -47,6 +44,9 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
         kwargs.setdefault("FixedErrorTgcEta", 15.)
 
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
+
+def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
+    return CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs)
 
 def getMuonRIO_OnTrackErrorScalingCondAlg() :
     error_scaling_def=["CSCRIO_OnTrackErrorScaling:/MUON/TrkErrorScalingCSC"]
@@ -77,9 +77,11 @@ def CscBroadClusterOnTrackCreator(name="CscBroadClusterOnTrackCreator",**kwargs)
 
 def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
+    from MuonRecExample import MuonAlignConfig
     from MuonCnvExample import MuonCalibConfig
     MuonCalibConfig.setupMdtCondDB()
-    
+    from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
+    mdtCalibFlags.setDefaults()
     kwargs.setdefault("DoMagneticFieldCorrection", mdtCalibFlags.correctMdtRtForBField())
     kwargs.setdefault("DoWireSag", muonRecFlags.useWireSagCorrections())
     kwargs.setdefault("DoSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
@@ -105,6 +107,9 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
         kwargs.setdefault("IsMC", False)
     else:
         kwargs.setdefault("IsMC", True)
+
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("doMDT", True)
                   
     return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
@@ -348,6 +353,7 @@ def MuonSegmentMomentum(name="MuonSegmentMomentum",**kwargs):
 
 def MdtSegmentT0Fitter(name="MdtSegmentT0Fitter",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
+    from MuonRecExample import MuonAlignConfig
     from MuonCnvExample import MuonCalibConfig
     MuonCalibConfig.setupMdtCondDB()
     return CfgMgr.TrkDriftCircleMath__MdtSegmentT0Fitter(name,**kwargs)
@@ -385,7 +391,10 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
+    else:
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):

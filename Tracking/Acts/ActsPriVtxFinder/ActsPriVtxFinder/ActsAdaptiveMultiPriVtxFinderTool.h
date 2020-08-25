@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "TrkTrackLink/ITrackLink.h"
@@ -17,8 +17,14 @@
 #include "TrkTrack/LinkToTrack.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 
+// Need to include this early; otherwise, we run into errors with
+// ReferenceWrapperAnyCompat in clang builds due the is_constructable
+// specialization defined there getting implicitly instantiated earlier.
+#include "Acts/Propagator/Propagator.hpp"
+
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
+#include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 
@@ -26,7 +32,6 @@
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/Navigator.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
@@ -42,10 +47,6 @@
 #include <boost/variant/static_visitor.hpp>
 
 #include <cmath>
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Acts {
 class Surface;
@@ -109,15 +110,16 @@ private:
   using Propagator = Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>;
   using TrackLinearizer = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter = Acts::AdaptiveMultiVertexFitter<TrackWrapper, TrackLinearizer>;
-  using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity>;
+  using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity<TrackWrapper>>;
   using VertexFinder = Acts::AdaptiveMultiVertexFinder<VertexFitter, VertexSeedFinder>;
 
   std::shared_ptr<VertexFinder> m_vertexFinder = nullptr;
 
-  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "", "ActsTrackingGeometryTool"};
+  ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "", "ActsExtrapolationTool"};
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{this, "TrackSelector", "", "InDetTrackSelectionTool"};
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+
 
   // Configuration variables
   // For details check ACTS documentation
@@ -144,7 +146,6 @@ private:
   BooleanProperty m_do3dSplitting{this, "do3dSplitting", false, "Do 3d-splitting"};
   DoubleProperty m_maximumVertexContamination{this, "maximumVertexContamination", 0.5, "Max. vertex contamination"};
   DoubleProperty m_looseConstrValue{this, "looseConstrValue", 1e+8, "Loose constraint value"};
-  BooleanProperty m_refitAfterBadVertex{this, "refitAfterBadVertex", false, "Run multivertex refit after bad vertex"};
   BooleanProperty m_useVertexCovForIPEstimation{this, "useVertexCovForIPEstimation", false, "Use seed vertex cov for IPEstimation"};
   BooleanProperty m_useSeedConstraint{this, "useSeedConstraint", true, "Use seed constraint in fit"};
   // Final vertex selection variables

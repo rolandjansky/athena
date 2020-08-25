@@ -37,7 +37,8 @@ public:
   AnalysisConfigMT_Ntuple( TIDARoiDescriptor* roiInfo, 
 			   const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
 			   double tauEtCutOffline=0.0, int TruthPdgId = 0, bool keepAllEvents_=false ) : 
-    AnalysisConfig_Ntuple( roiInfo, chainNames, outputFileName, tauEtCutOffline, TruthPdgId, keepAllEvents_ ) 
+    AnalysisConfig_Ntuple( roiInfo, chainNames, outputFileName, tauEtCutOffline, TruthPdgId, keepAllEvents_ ),
+    m_fiducial_radius(47)
   { }  
 
   virtual ~AnalysisConfigMT_Ntuple() { }
@@ -45,6 +46,10 @@ public:
 protected:
 
   virtual void loop();
+
+private: 
+  
+  double m_fiducial_radius; 
 
 };
 

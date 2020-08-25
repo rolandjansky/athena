@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,6 +16,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -29,7 +30,6 @@
 #include "CxxUtils/fpcompare.h"
 #include "CxxUtils/phihelper.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 
 class ISvcLocator;
@@ -41,7 +41,7 @@ class ISvcLocator;
 TrigL2HVJetHypoAllCuts::TrigL2HVJetHypoAllCuts(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator) {
 
-  declareProperty("Etcut_L2",            m_EtCut_L2 = 35*CLHEP::GeV, "cut value for L2 jet et"); 
+  declareProperty("Etcut_L2",            m_EtCut_L2 = 35*Gaudi::Units::GeV, "cut value for L2 jet et");
   declareProperty("LRaticout_L2",        m_LRatioCut_L2 = 1., "cut value for L2 jet log10 of had over em energy ratio"); 
   declareProperty("doMonitoring_L2",     m_doMonitoring = true, "switch on/off monitoring" );
   declareProperty("AcceptAll",           m_acceptAll=false);

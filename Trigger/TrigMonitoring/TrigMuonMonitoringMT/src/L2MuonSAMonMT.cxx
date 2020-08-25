@@ -12,13 +12,6 @@ L2MuonSAMonMT :: L2MuonSAMonMT(const std::string& name, ISvcLocator* pSvcLocator
 {}
 
 
-StatusCode L2MuonSAMonMT :: initialize(){
-  StatusCode sc = TrigMuonMonitorAlgorithm::initialize();
-  ATH_CHECK( m_matchTool.retrieve() );
-  return sc;
-}
-
-
 StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const {
 
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
@@ -35,12 +28,12 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
 
 
     // basic EDM variables
-    auto saPt = Monitored::Scalar<float>(m_group+"_Pt",-1.0);
-    auto saEta = Monitored::Scalar<float>(m_group+"_Eta",-1.0);
-    auto saPhi = Monitored::Scalar<float>(m_group+"_Phi",-1.0);
-    auto saddr = Monitored::Scalar<int>(m_group+"_saddr",-1.0);
-    auto roiEta = Monitored::Scalar<float>(m_group+"_roiEta",-1.0);
-    auto roiPhi = Monitored::Scalar<float>(m_group+"_roiPhi",-1.0);
+    auto saPt = Monitored::Scalar<float>(m_group+"_Pt",-999.);
+    auto saEta = Monitored::Scalar<float>(m_group+"_Eta",-999.);
+    auto saPhi = Monitored::Scalar<float>(m_group+"_Phi",-999.);
+    auto saddr = Monitored::Scalar<int>(m_group+"_saddr",-999.);
+    auto roiEta = Monitored::Scalar<float>(m_group+"_roiEta",-999.);
+    auto roiPhi = Monitored::Scalar<float>(m_group+"_roiPhi",-999.);
     auto mf_failure = Monitored::Scalar<bool>(m_group+"_mf_failure",false);
 
     saPt = (*muEL)->pt();
@@ -51,7 +44,7 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     roiPhi = (*muEL)->roiPhi();
 
     ATH_MSG_DEBUG("saPt = " << saPt << ", saEta =" << saEta << ", saPhi = " << saPhi << ", saddr = " << saddr);
-    if(fabs(saPt) < ZERO_LIMIT) mf_failure = true;
+    if(std::abs(saPt) < ZERO_LIMIT) mf_failure = true;
 
     fill(m_group, roiEta, roiPhi, mf_failure);
     if( mf_failure ) continue;
@@ -98,12 +91,12 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     if(isBarrel){
       if( nRPC > 0 ) isL1hitThere = true;
       float rpcFitMidSlope = (*muEL)->rpcFitMidSlope();
-      if( fabs(rpcFitMidSlope) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
+      if( std::abs(rpcFitMidSlope) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
     }
     else {
       if( nTGCMidRho > 0 && nTGCMidPhi > 0 ) isL1hitThere = true;
       float TGCMid1Z  = (*muEL)->tgcMid1Z();
-      if( fabs(TGCMid1Z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
+      if( std::abs(TGCMid1Z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
     }
 
 
@@ -134,15 +127,15 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     auto mon_sp_r= Monitored::Collection(m_group+"_MDTpoints_r", sp_r);
     auto mon_sp_z= Monitored::Collection(m_group+"_MDTpoints_z", sp_z);
 
-    if( fabs((*muEL)->superPointR(inner)) > ZERO_LIMIT ) {
+    if( std::abs((*muEL)->superPointR(inner)) > ZERO_LIMIT ) {
       sp_r.push_back( sign * (*muEL)->superPointR(inner) );
       sp_z.push_back( (*muEL)->superPointZ(inner) );
     }
-    if( fabs((*muEL)->superPointR(middle)) > ZERO_LIMIT ) {
+    if( std::abs((*muEL)->superPointR(middle)) > ZERO_LIMIT ) {
       sp_r.push_back( sign * (*muEL)->superPointR(middle) );
       sp_z.push_back( (*muEL)->superPointZ(middle) );
     }
-    if( fabs((*muEL)->superPointR(outer)) > ZERO_LIMIT ) {
+    if( std::abs((*muEL)->superPointR(outer)) > ZERO_LIMIT ) {
       sp_r.push_back( sign * (*muEL)->superPointR(outer) );
       sp_z.push_back( (*muEL)->superPointZ(outer) );
     }
@@ -217,8 +210,7 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
 
 
     // matching to offline
-    const float DR_cut = 0.4;
-    const xAOD::Muon* RecMuonCB = m_matchTool->matchOff(ctx, saEta, saPhi, DR_cut);
+    const xAOD::Muon* RecMuonCB = m_matchTool->matchL2SAtoOff(ctx, (*muEL));
     if(RecMuonCB == nullptr) continue;
 
     std::vector<float> res_inn_OffMatch = res_inn;
@@ -243,12 +235,11 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
 
   const float ZERO_LIMIT = 0.00001;
-  const float DR_MATCHED = 0.25;
 
 
   // offline muon variables
-  auto offEta = Monitored::Scalar<float>(m_group+"_offEta",0.);
-  auto offPt_signed = Monitored::Scalar<float>(m_group+"_offPt_signed",0.);
+  auto offEta = Monitored::Scalar<float>(m_group+"_offEta",-999.);
+  auto offPt_signed = Monitored::Scalar<float>(m_group+"_offPt_signed",-999.);
   offEta = mu->eta();
 
   float offPt = mu->pt()/1e3;
@@ -256,24 +247,29 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
   float offCharge = mu->charge();
   offPt_signed = offPt * offCharge;
 
+
+  // get L2SA muon link
+  const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> muLinkInfo = m_matchTool->searchL2SALinkInfo(mu, chain);
+  if ( !muLinkInfo.isValid() )  return StatusCode::SUCCESS;
+  const ElementLink<xAOD::L2StandAloneMuonContainer> muEL = muLinkInfo.link;
+
+
   // dR wrt offline
-  float match_dR = 1000.;
-  const xAOD::L2StandAloneMuon *samu = m_matchTool->matchSA(mu, chain, match_dR);
   auto dRmin = Monitored::Scalar<float>(m_group+"_dRmin",1000.);
-  if(samu != nullptr) dRmin = xAOD::P4Helpers::deltaR(mu, samu, false); 
+  dRmin = xAOD::P4Helpers::deltaR(mu, *muEL, false); 
 
   fill(m_group, dRmin);
-  if( dRmin > DR_MATCHED ) return StatusCode::SUCCESS; // not matched to L2MuonSA
+  if( ! m_matchTool->isMatchedL2SA( *muEL, mu) ) return StatusCode::SUCCESS; // not matched to L2MuonSA
 
   
   // L1 RoI wrt offline 
-  float saPt  = samu->pt();
-  float roiEta = samu->roiEta();
-  float roiPhi = samu->roiPhi();
+  float saPt = (*muEL)->pt();
+  float roiEta = (*muEL)->roiEta();
+  float roiPhi = (*muEL)->roiPhi();
 
-  auto roidEta = Monitored::Scalar<float>(m_group+"_initialRoI_dEta",0.);
-  auto roidPhi = Monitored::Scalar<float>(m_group+"_initialRoI_dPhi",0.);
-  auto roidR = Monitored::Scalar<float>(m_group+"_initialRoI_dR",0.);
+  auto roidEta = Monitored::Scalar<float>(m_group+"_initialRoI_dEta",-999.);
+  auto roidPhi = Monitored::Scalar<float>(m_group+"_initialRoI_dPhi",-999.);
+  auto roidR = Monitored::Scalar<float>(m_group+"_initialRoI_dR",-999.);
 
   roidEta = roiEta - offEta;
   roidPhi = xAOD::P4Helpers::deltaPhi(offPhi, roiPhi);
@@ -283,10 +279,10 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
 
 
   // pt resolution, inverse pt resolution
-  auto ptresol = Monitored::Scalar<float>(m_group+"_ptresol",0.);
-  auto invptresol = Monitored::Scalar<float>(m_group+"_invptresol",0.);
-  if ( fabs(offPt) > ZERO_LIMIT && fabs(saPt) > ZERO_LIMIT ) {
-    ptresol = fabs(saPt)/fabs(offPt) - 1.;
+  auto ptresol = Monitored::Scalar<float>(m_group+"_ptresol",-999.);
+  auto invptresol = Monitored::Scalar<float>(m_group+"_invptresol",-999.);
+  if ( std::abs(offPt) > ZERO_LIMIT && std::abs(saPt) > ZERO_LIMIT ) {
+    ptresol = std::abs(saPt)/std::abs(offPt) - 1.;
     invptresol = (1./(offPt * offCharge) - 1./saPt) / (1./(offPt * offCharge));
   }
 
@@ -331,7 +327,7 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
 
 
   // define region
-  if( fabs(offEta) < ETA_OF_BARREL ) {
+  if( std::abs(offEta) < ETA_OF_BARREL ) {
     if( offEta > 0. ) isBarrelA = true;
     else isBarrelC = true;
   }
@@ -341,31 +337,31 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
   }
 
 
-  if( fabs(offEta) < ETA_OF_BARREL ){
+  if( std::abs(offEta) < ETA_OF_BARREL ){
     isBarrel = true;
     if( offEta > 0. ) isBarrelA = true;
     else isBarrelC = true;
   }
-  else if ( fabs(offEta) < ETA_OF_ENDCAP1 ){
+  else if ( std::abs(offEta) < ETA_OF_ENDCAP1 ){
     isEndcap1 = true;
     if( offEta > 0. ) isEndcap1A = true;
     else isEndcap1C = true;
   }
-  else if ( fabs(offEta) < ETA_OF_ENDCAP2 ){
+  else if ( std::abs(offEta) < ETA_OF_ENDCAP2 ){
     isEndcap2 = true;
     if( offEta > 0. ) isEndcap2A = true;
     else isEndcap2C = true;
   }
-  else if ( fabs(offEta) < ETA_OF_ENDCAP3 ){
+  else if ( std::abs(offEta) < ETA_OF_ENDCAP3 ){
     isEndcap3 = true;
     if( offEta > 0. ) isEndcap3A = true;
     else isEndcap3C = true;
   }
 
 
-  if( fabs(offPt) > 4 ){
-    if( fabs(offPt) < 6 ) pt4to6 = true;
-    else if( fabs(offPt) < 8 ) pt6to8 = true;
+  if( std::abs(offPt) > 4 ){
+    if( std::abs(offPt) < 6 ) pt4to6 = true;
+    else if( std::abs(offPt) < 8 ) pt6to8 = true;
     else ptover8 = true;
   }
 

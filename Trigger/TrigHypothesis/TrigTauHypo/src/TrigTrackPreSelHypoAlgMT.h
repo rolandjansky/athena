@@ -27,7 +27,7 @@ class TrigTrackPreSelHypoAlgMT : public ::HypoBase {
   ToolHandleArray< ITrigTrackPreSelHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< TrackCollection > m_fastTracksKey { this, "trackcollection", "trackcollection", "fast tracks in view" };
-  
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roiForID2ReadKey{ this, "RoIForIDReadHandleKey", "UpdatedTrackRoI", "Updated narrow ROI produced in view" };
 
 }; 
 

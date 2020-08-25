@@ -51,7 +51,7 @@ ConstModConfigs = {
     "SK":     {}
 }
 
-def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssoc",vtxKey="PrimaryVertices"):
+def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssoc",vtxKey="PrimaryVertices",monTool=None):
     inputtype = constit.basetype
 
     # Need to extend to TCC
@@ -114,7 +114,8 @@ def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssoc",vtxKey="Primary
         InputType=inputtype,
         OutputContainer = outputcontainer,
         InputContainer= inputcontainer,
-        Modifiers = modlist
+        Modifiers = modlist,
+        MonTool = monTool
     )
 
     constitmodalg = CompFactory.JetAlgorithm("jetalg_{0}".format(modseq.getName()))

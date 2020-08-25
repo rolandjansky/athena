@@ -114,7 +114,7 @@ StatusCode DiBjetFilter::filterEvent() {
        lead_jet_pt = (*jitr)->pt();
     }
     if( (*jitr)->pt() < m_jetPtMin ) continue;
-    if( fabs( (*jitr)->eta() ) > m_jetEtaMax ) continue;
+    if( std::abs( (*jitr)->eta() ) > m_jetEtaMax ) continue;
     jets.push_back(jitr);
   }
 

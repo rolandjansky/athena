@@ -112,12 +112,6 @@ ServiceMgr.StoreGateSvc.ActivateHistory = False
 ServiceMgr.StoreGateSvc.Dump            = False
 
 # ------------------------------------------------------------
-# get stack dump
-# ------------------------------------------------------------
-
-ServiceMgr.CoreDumpSvc.FatalHandler = 438
-
-# ------------------------------------------------------------
 # Use auditors
 # ------------------------------------------------------------
 

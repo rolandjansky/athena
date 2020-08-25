@@ -30,6 +30,8 @@ def DL1TagCfg(flags, name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **o
     DL1CalibAlias = 'AntiKt4EMTopo'
     options['xAODBaseName'] = basename
     options['LocalNNConfigurationFile'] = DL1LocalNNConfig
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
  
     if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,

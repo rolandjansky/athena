@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloPprPhos4ShapeCollection.h"
@@ -231,7 +231,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId
    return itr->second->Fill(rodHeaderStep, adc);
 }
 
-StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
+StatusCode L1CaloPprPhos4ShapeCollection::Finalize ATLAS_NOT_REENTRANT(void) {
 
    // want to store the profiles and histograms for each cool id into
    // a TTree, which will be output to a file.

@@ -1,12 +1,8 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// GenEventRotator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_HEPMC_GENEVENTROTATOR_H
 #define ISF_HEPMC_GENEVENTROTATOR_H 1
@@ -48,7 +44,7 @@ namespace Simulation {
     /** calculate the transformations that we want to apply to the particles in the current GenEvent */
     StatusCode initializeGenEvent(CLHEP::HepLorentzRotation& transform) const;
     /** apply rotations to individual GenParticles */
-    void rotateParticle(HepMC::GenParticle* p, const CLHEP::HepLorentzRotation& transform) const;
+    void rotateParticle(HepMC::GenParticlePtr p, const CLHEP::HepLorentzRotation& transform) const;
 
     double m_xangle; /** rotation about x-axis (degrees) */
     double m_yangle; /** rotation about y-axis (degrees) */

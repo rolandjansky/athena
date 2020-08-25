@@ -8,7 +8,6 @@
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -100,8 +99,7 @@ double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane &plane, double &raw
 //*************************************************************************
 
 ParabolaCscClusterFitter::ParabolaCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
-    AthAlgTool(type, aname, parent),
-    m_detMgr(nullptr) {
+  AthAlgTool(type, aname, parent) {
   declareInterface<ICscClusterFitter>(this);
   m_max_width.push_back(5);  // CSS eta
   m_max_width.push_back(5);  // CSL eta
@@ -121,7 +119,6 @@ StatusCode ParabolaCscClusterFitter::initialize() {
   
   ATH_MSG_VERBOSE ( "Initalizing " << name() );
 
-  ATH_CHECK(detStore()->retrieve(m_detMgr,"Muon"));
   ATH_CHECK(m_idHelperSvc.retrieve());
 
   ATH_MSG_DEBUG ( "Properties for " << name() << ":" );
@@ -130,6 +127,8 @@ StatusCode ParabolaCscClusterFitter::initialize() {
   ATH_MSG_DEBUG ( "   CSS eta pos-slope slope: " << m_xtan_css_eta_slope );
   ATH_MSG_DEBUG ( "  CSL eta pos-slope offset: " << m_xtan_csl_eta_offset );
   ATH_MSG_DEBUG ( "   CSL eta pos-slope slope: " << m_xtan_csl_eta_slope );
+  // retrieve MuonDetectorManager from the conditions store     
+  ATH_CHECK(m_DetectorManagerKey.initialize()); 
 
   return StatusCode::SUCCESS;
 }
@@ -185,7 +184,16 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
   // Use the first strip to extract the layer parameters.
   const CscStripPrepData* pstrip = sfits[0].strip;
   Identifier idStrip0 = pstrip->identify();
-  const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
+
+  // retrieve MuonDetectorManager from the conditions store  
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+  if(MuonDetMgr==nullptr){       
+    ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+    return results;     
+  }
+  const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(idStrip0);
+
   //  const CscReadoutElement* pro = pstrip->detectorElement(); fixed by Woochun
   bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);

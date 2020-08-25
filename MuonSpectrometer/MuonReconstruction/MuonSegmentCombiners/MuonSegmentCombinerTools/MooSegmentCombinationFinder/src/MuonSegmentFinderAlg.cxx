@@ -31,6 +31,7 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder", this),
   m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this),
   m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
+  m_mmClusterCreator("Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator", this),
   m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool", this),
   m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool", this),
   m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker", this),
@@ -42,6 +43,7 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("MuonPatternSegmentMaker", m_patternSegmentMaker);
   declareProperty("SegmentMaker",m_segmentMaker);
   declareProperty("ClusterCreator",m_clusterCreator);
+  declareProperty("MMClusterCreator",m_mmClusterCreator);
   declareProperty("MuonClusterSegmentFinderTool",m_clusterSegMakerNSW);
   declareProperty("MuonTruthSummaryTool",m_truthSummaryTool);
   declareProperty("Csc2dSegmentMaker", m_csc2dSegmentFinder);
@@ -249,9 +251,15 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
       if( !cl ) continue;
       int sector = m_idHelperSvc->sector(id);
       std::vector<const Muon::MuonClusterOnTrack*>& clusters = clustersPerSector[sector];
-      const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
       
-      clusters.push_back(clust);
+      if(m_idHelperSvc->isMM((*pit)->identify())){
+        const Muon::MuonClusterOnTrack* clust = m_mmClusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
+        clusters.push_back(clust);
+      } else {  //  must be an sTGC prd
+        const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
+        clusters.push_back(clust);
+      }
+
     }
   }
   

@@ -79,8 +79,8 @@ StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shar
     );
 
     //use only active sectors selected by the pads / event
-    for(const size_t &side : activeSides){//0:C 1:A
-        for(const size_t &sector : activeSectors){//{1...16} odd:L even:S
+    for(const int &side : activeSides){//0:C 1:A
+        for(const int &sector : activeSectors){//{1...16} odd:L even:S
             ATH_CHECK( LookupSectorTriggers(pads,side,sector,triggers));
         }
     }
@@ -93,7 +93,7 @@ StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shar
 }
 
 
-StatusCode PadTriggerLookupTool::loadCoincidenceTable(std::string padCoincidenceFileName){
+StatusCode PadTriggerLookupTool::loadCoincidenceTable(const std::string& padCoincidenceFileName){
     
     std::string file = PathResolver::find_file (padCoincidenceFileName, "DATAPATH");
     ATH_MSG_INFO("Loading coincidence table from "<<file);
@@ -189,7 +189,7 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
                        pad->multipletId() == wedge;
         };
         //filter pads within this sector / wedge
-        std::copy_if(pads.begin(),pads.end(),std::back_inserter(padsInThisWedge),[=]( std::shared_ptr<PadData> pad){ return wedgeSelector(pad);} );
+        std::copy_if(pads.begin(),pads.end(),std::back_inserter(padsInThisWedge),[=]( const std::shared_ptr<PadData>& pad){ return wedgeSelector(pad);} );
         //too many pad hits might cause a performance issue . 100 pads ~ 100/4 ~ 25 pad hits per layer !!!!
         if(padsInThisWedge.size()>100){
              ATH_MSG_WARNING("Too many pad hits: ("<<padsInThisWedge.size()<<")pad hits on side= "<<side<<" sector="<<sector<<" wedge="<<wedge);

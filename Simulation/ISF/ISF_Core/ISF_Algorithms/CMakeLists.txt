@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 780090 2016-10-24 15:27:10Z krasznaa $
 ################################################################################
 # Package: ISF_Algorithms
 ################################################################################
@@ -61,4 +60,3 @@ set_target_properties( ISF_Algorithms_SimKernelMT_test PROPERTIES ENABLE_EXPORTS
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )

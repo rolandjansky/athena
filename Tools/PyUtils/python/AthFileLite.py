@@ -401,8 +401,8 @@ class AthInpFile(object):
                 # _get_guid() code from FilePeeker class by Sebastian Binet
                 pool = f.Get('##Params')
                 if pool:
-                    pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'\
-                                            r'[[]VALUE=(?P<value>.*?)[]]').match
+                    pool_token = re.compile(r'\[NAME=(?P<name>.*?)\]'\
+                                            r'\[VALUE=(?P<value>.*?)\]').match
                     params = []
                     for i in range(pool.GetEntries()):
                         if pool.GetEntry(i)>0:

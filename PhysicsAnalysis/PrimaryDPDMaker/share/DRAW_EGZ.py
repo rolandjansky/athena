@@ -57,7 +57,7 @@ DRAW_EGZ_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW
                                                                         expression = draw_egz)
 
 ToolSvc += DRAW_EGZ_SkimmingTool
-print DRAW_EGZ_SkimmingTool
+print(DRAW_EGZ_SkimmingTool)
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

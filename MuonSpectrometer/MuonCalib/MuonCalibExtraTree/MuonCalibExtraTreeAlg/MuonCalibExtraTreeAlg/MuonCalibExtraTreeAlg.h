@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_EXTRATREEALG_H
@@ -7,11 +7,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <string>
-#include <set>
+
+
 #include "MuonPattern/MuonPatternCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
-
+#include "MuonCalibExtraTreeAlg/IExtraTreeFillerTool.h"
+#include "MuonCalibExtraTreeAlg/ISegmentOnTrackSelector.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibPhiHit_EBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibPhiPattern_EBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibTrack_EBranch.h"
@@ -20,13 +21,13 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 
-class TFile;
+#include <string>
+#include <set>
+
 class TDirectory;
 class TTree;
 
 namespace MuonCalib {
-class IExtraTreeFillerTool;
-class  ISegmentOnTrackSelector;
   /**
      @class MuonCalibExtraTreeAlg
 
@@ -49,8 +50,8 @@ class  ISegmentOnTrackSelector;
   */
   class MuonCalibExtraTreeAlg : public AthAlgorithm {
   public:
-    MuonCalibExtraTreeAlg(const std::string &name, ISvcLocator *pSvcLocator); //!< Athena Algorithm constructor declaring the several properties ( doPhi/doTracks/doHoles adding extra branches to the CalibrationNtuple, and their locations in StoreGate)
-    ~MuonCalibExtraTreeAlg(); //!< Athena Algorithm destructor
+    MuonCalibExtraTreeAlg(const std::string &name, ISvcLocator *pSvcLocator);
+    ~MuonCalibExtraTreeAlg()=default;
     StatusCode initialize();  //!< Algorithm initialize: retrieve StoreGateSvc, MuonHolesOnTrackTool and IdentifierConverter. Retrieves the ntuple to write in.
     StatusCode execute();     //!< Algorithm execute, called once per event: resets branches, retrieves the PhiPattern and Track Collections. Finally, it writes the Tree.
     StatusCode finalize();    //!< Algorithm finalize: resets all Branches.
@@ -65,14 +66,9 @@ class  ISegmentOnTrackSelector;
 
     const MuonPatternCombinationCollection* m_patterns;    //!< Athena pattern Collection
 
-    bool        m_doPhi;                         //!< property flagging wether to store PhiHits on ExtraTree
-    std::string m_ntupleName;                    //!< Name of the Ntuple
-    std::string m_patternLocation;               //!< Location of the Phi or Eta-Phi Patterns within StoreGate
-
-    bool m_delayFinish;                          //!< property to fill the CalibrationNtuple later in MuonCalibExtraTreeTriggerAlg 
-    ToolHandleArray<IExtraTreeFillerTool> m_track_fillers;
-    ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
-    ToolHandle<ISegmentOnTrackSelector> m_segmentOnTrackSelector;
+    ToolHandleArray<IExtraTreeFillerTool> m_track_fillers{this,"TrackFillerTools",{}};
+    ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool{this,"IdToFixedIdTool","MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool"};
+    ToolHandle<ISegmentOnTrackSelector> m_segmentOnTrackSelector{this,"SegmentOnTrackSelector",""};
     TDirectory* m_dir;
     TTree*      m_tree; 
 
@@ -82,6 +78,11 @@ class  ISegmentOnTrackSelector;
     MuonCalibHit_EBranch        m_hitBranch;
     MuonCalibTrackSegmentBranch m_trackSegmentBranch;
     bool m_init;
+
+    Gaudi::Property<bool> m_doPhi {this, "doPhi", false, "flagging whether to store PhiHits on ExtraTree"};
+    Gaudi::Property<bool> m_delayFinish {this, "DelayFinish", false, "fill the CalibrationNtuple later in MuonCalibExtraTreeTriggerAlg"};
+    Gaudi::Property<std::string> m_ntupleName {this, "NtupleName", "PatternNtupleMaker", "Name of the Ntuple"};
+    Gaudi::Property<std::string> m_patternLocation {this, "PatternLocation", "", "Location of the Phi or Eta-Phi Patterns within StoreGate"};
   };
 
 }//namespace MuonCalib

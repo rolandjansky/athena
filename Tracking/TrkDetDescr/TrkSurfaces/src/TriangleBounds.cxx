@@ -59,23 +59,6 @@ Trk::TriangleBounds::TriangleBounds(const Amg::Vector2D& p1, const Amg::Vector2D
   m_boundValues[TriangleBounds::bv_y3] = p3.y();
 }
 
-// copy constructor
-Trk::TriangleBounds::TriangleBounds(const TriangleBounds& tribo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(tribo.m_boundValues)
-{}
-
-// destructor
-Trk::TriangleBounds::~TriangleBounds() = default;
-
-Trk::TriangleBounds&
-Trk::TriangleBounds::operator=(const TriangleBounds& tribo)
-{
-  if (this != &tribo)
-    m_boundValues = tribo.m_boundValues;
-  return *this;
-}
-
 bool
 Trk::TriangleBounds::operator==(const Trk::SurfaceBounds& sbo) const
 {

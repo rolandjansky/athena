@@ -29,6 +29,9 @@ atlas_add_dictionary( TrkParametersDict
 
 
 #Executables for tests
-atlas_add_executable( TrkParameters_testConstexprMethods
-                      test/testChargeDefinition.cxx 
+atlas_add_executable( TrkParameters_testConstExprMethods
+	              test/testConstExpr.cxx 
 		      LINK_LIBRARIES TrkParameters)
+#Executables for tests
+atlas_add_test( ut_TrkParameters_testConstExprMethods
+	        SCRIPT TrkParameters_testConstExprMethods)

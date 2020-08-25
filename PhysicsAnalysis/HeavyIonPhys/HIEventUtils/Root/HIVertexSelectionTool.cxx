@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -96,7 +96,7 @@ asg::AcceptData HI::HIVertexSelectionTool::accept( const xAOD::Vertex& vtx ) con
     bool countPt = m_minRmsPt >= 0.;
     int nPassed = 0; // cumulative total number of tracks passed
     double sumPtSq = 0.; // cumulative total of pt^2 of tracks passed
-    for ( const auto track : vtx.trackParticleLinks() ) {
+    for ( const auto& track : vtx.trackParticleLinks() ) {
       if ( !track.isValid() ) continue;
       if ( !m_trkSelTool->accept( **track, &vtx ) ) continue;
 

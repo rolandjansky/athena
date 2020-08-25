@@ -37,7 +37,6 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 7006 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
@@ -299,7 +298,7 @@ TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCond
 TileEMScaleCondAlg   INFO ProxyOflLasFib is set up and can be used
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCes) for folder: "/TILE/OFL02/CALIB/CES"
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflEms) for folder: "/TILE/OFL02/CALIB/EMS"
-TileEMScaleCondAlg   INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':Invalid
+TileEMScaleCondAlg   INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':'Invalid'
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCis) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlLas) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
 TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCes) for folder: "/TILE/OFL02/CALIB/CES"
@@ -688,7 +687,6 @@ ApplicationMgr                                      INFO Updating Gaudi::PluginS
 AthDictLoaderSvc                                    INFO in initialize...
 AthDictLoaderSvc                                    INFO acquired Dso-registry
 ClassIDSvc                                          INFO  getRegistryEntries: read 7378 CLIDRegistry entries for module ALL
-CoreDumpSvc                                         INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 MetaDataSvc                                         INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc                                    INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
@@ -953,7 +951,7 @@ TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyC
 TileEMScaleCondAlg                             0    INFO ProxyOflLasFib is set up and can be used
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCes) for folder: "/TILE/OFL02/CALIB/CES"
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflEms) for folder: "/TILE/OFL02/CALIB/EMS"
-TileEMScaleCondAlg                             0    INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':Invalid
+TileEMScaleCondAlg                             0    INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':'Invalid'
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCis) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlLas) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
 TileEMScaleCondAlg.TileCondProxyCool_...       0    INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCes) for folder: "/TILE/OFL02/CALIB/CES"

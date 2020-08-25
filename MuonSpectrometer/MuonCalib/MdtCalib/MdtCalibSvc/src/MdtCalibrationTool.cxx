@@ -6,7 +6,6 @@
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibData/MdtFullCalibData.h"
@@ -26,6 +25,10 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 #include "MuonCalibEvent/MdtCalibHit.h"
+
+namespace {
+  static constexpr double const twoBySqrt12 = 2/sqrt(12);
+}
 
 //
 // private helper functions
@@ -90,8 +93,7 @@ MdtCalibrationTool::Imp::Imp(std::string name) :
 
 
 MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent)
-  : base_class(type, name, parent),
-    m_dbTool("MdtCalibrationDbTool",this)
+  : base_class(type, name, parent)
 {
   m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
@@ -110,7 +112,6 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
   declareProperty("LowerBoundHitRadius", m_imp->m_unphysicalHitRadiusLowerBound = 0. );
   declareProperty("DoT0Shift", m_imp->m_doT0Shift = false );
   declareProperty("DoTMaxShift", m_imp->m_doTMaxShift = false );
-  declareProperty("CalibrationDbTool",m_dbTool);
 }
 
 MdtCalibrationTool::~MdtCalibrationTool() {
@@ -217,7 +218,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // on the other hand it should be rare that a tube does not have an RT
   if( !rtRelation ) {
     ATH_MSG_WARNING( "no rtRelation found, cannot calibrate tube" );
-    hit.setDriftRadius( 0., 2*14.6/std::sqrt(12) ); // treat the tube as a 'strip' measurement
+    hit.setDriftRadius(0., twoBySqrt12*geo->innerTubeRadius());
     return false;
   }
   double t0(0.);

@@ -29,12 +29,18 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
 
+atlas_add_library( SCT_RawDataByteStreamCnvLib
+                   SCT_RawDataByteStreamCnv/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS SCT_RawDataByteStreamCnv
+                   LINK_LIBRARIES GaudiKernel InDetRawData ByteStreamCnvSvcBaseLib ByteStreamData InDetByteStreamErrors )
+
 # Component(s) in the package:
 atlas_add_component( SCT_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData InDetByteStreamErrors AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry SCT_CablingLib TrigSteeringEvent SCT_ConditionsData SCT_ConditionsToolsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} SCT_RawDataByteStreamCnvLib ByteStreamData_test AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry SCT_CablingLib TrigSteeringEvent SCT_ConditionsData SCT_ConditionsToolsLib )
 
 # Run tests:
 atlas_add_test( TestSCTDecode
@@ -50,5 +56,4 @@ atlas_add_test( TestSCTEncode
                 ENVIRONMENT THREADS=1 )
 
 # Install files from the package:
-atlas_install_headers( SCT_RawDataByteStreamCnv )
 atlas_install_joboptions( share/*.py )

@@ -48,27 +48,7 @@ Trk::TrapezoidBounds::TrapezoidBounds(double minhalex, double haley, double alph
   m_boundValues[TrapezoidBounds::bv_halfY] = fabs(haley);
 }
 
-// copy constructor
-Trk::TrapezoidBounds::TrapezoidBounds(const TrapezoidBounds& trabo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(trabo.m_boundValues)
-  , m_alpha(trabo.m_alpha)
-  , m_beta(trabo.m_beta)
-{}
 
-// destructor
-Trk::TrapezoidBounds::~TrapezoidBounds() = default;
-
-Trk::TrapezoidBounds&
-Trk::TrapezoidBounds::operator=(const TrapezoidBounds& trabo)
-{
-  if (this != &trabo) {
-    m_boundValues = trabo.m_boundValues;
-    m_alpha = trabo.m_alpha;
-    m_beta = trabo.m_beta;
-  }
-  return *this;
-}
 
 bool
 Trk::TrapezoidBounds::operator==(const Trk::SurfaceBounds& sbo) const

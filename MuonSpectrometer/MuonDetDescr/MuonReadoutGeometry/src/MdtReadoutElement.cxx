@@ -233,7 +233,7 @@ double MdtReadoutElement::distanceFromRO(Amg::Vector3D x, Identifier id) const
   double scalprod = c_ro.x()*x_ro.x()+c_ro.y()*x_ro.y()+c_ro.z()*x_ro.z();
   double wlen = getWireLength(tubelayer, tube);
   if (wlen > 10.*CLHEP::mm) 
-    scalprod = fabs(2.*scalprod/getWireLength(tubelayer, tube));
+    scalprod = std::abs(2.*scalprod/getWireLength(tubelayer, tube));
   else {
     double xx = x.x();
     double xy = x.y();
@@ -1105,11 +1105,11 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
 #endif
 
   double s0mdt = s0; // always I think ! 
-  if (fabs(fixedPoint.x())>0.01) s0mdt = s0-fixedPoint.x();
+  if (std::abs(fixedPoint.x())>0.01) s0mdt = s0-fixedPoint.x();
   double z0mdt = z0; // unless in the D section of this station there's a dy diff. from 0 for the innermost MDT multilayer (sometimes in the barrel)
-  if (fabs(fixedPoint.y())>0.01) z0mdt = z0-fixedPoint.y();
+  if (std::abs(fixedPoint.y())>0.01) z0mdt = z0-fixedPoint.y();
   double t0mdt = t0; // unless in the D section of this station there's a dz diff. from 0 for the innermost MDT multilayer (often in barrel) 
-  if (fabs(fixedPoint.z())>0.01) t0mdt = t0-fixedPoint.z();
+  if (std::abs(fixedPoint.z())>0.01) t0mdt = t0-fixedPoint.z();
   if (z0mdt<0 || t0mdt<0) {
 #ifndef TESTBLINES
     MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");

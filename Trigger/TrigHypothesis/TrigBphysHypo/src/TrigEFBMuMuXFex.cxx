@@ -33,8 +33,6 @@
 
 
 #include <math.h>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -322,10 +320,6 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("BcD0VtxChi2Cut", m_bCD0VtxChi2Cut = 120.);           // default = 120.0
     declareProperty("MaxBcD0ToStore", m_maxBcD0ToStore = -1);
 
-    // FTK Flag
-    declareProperty("DoFTK",    m_FTK=false); // Are we using FTK??
-
-    
     // Monitoring variables
     //   General
     declareMonitoredStdContainer("Errors",     m_mon_Errors,     AutoClear);
@@ -512,7 +506,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltInitialize()
    
     ATH_MSG_DEBUG("Initialization completed successfully:" );
     ATH_MSG_DEBUG("AcceptAll          = "   << (m_acceptAll==true ? "True" : "False") );
-    ATH_MSG_DEBUG("DoFTK         = "        << (m_FTK==true ? "True" : "False") );
     ATH_MSG_DEBUG("MaxNcombinations            = " << m_maxNcombinations );
     ATH_MSG_DEBUG("Activated decays:" );
     ATH_MSG_DEBUG("    B+ -> mu mu K+ : " << (m_doB_KMuMuDecay==true ? "True" : "False") );
@@ -763,26 +756,16 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     ATH_MSG_VERBOSE("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));
     
     // Retrieve event info
-    int IdRun   = 0;
+//    int IdRun   = 0;
     int IdEvent = 0;
     
     // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
-        // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            ATH_MSG_DEBUG("Failed to get EventInfo " );
-            m_mon_Errors.push_back( ERROR_No_EventInfo );
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent << " using algo " << "m_muonAlgo");
-        }// found old event info
+        ATH_MSG_WARNING("Failed to get xAOD::EventInfo " );
     }else { // found the xAOD event info
         ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() << " using algo m_muonAlgo" );
-        IdRun   = evtInfo->runNumber();
+//        IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event info
     
@@ -790,28 +773,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     //Check that we got 2 input TEs
     int mu1_TE=-1;
     int mu2_TE=-1;
-    if (!m_FTK) {
-      if ( inputTE.size() != 2 ) {
-        ATH_MSG_DEBUG("Got different than 2 number of input TEs: " << inputTE.size() );
-          //m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
-          //if ( timerSvc() ) m_TotTimer->stop();
-          //return HLT::BAD_JOB_SETUP;
-        mu1_TE=0;
-        mu2_TE=0;
-      }else{
-        mu1_TE=0;
-        mu2_TE=1;
-      }
-    } else {
-      if ( inputTE.size() != 3 ) {
-        ATH_MSG_ERROR("FTK mode expect 3 input TEs, got : " << inputTE.size() );
-        m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
-        if ( timerSvc() ) m_TotTimer->stop();
-        return HLT::BAD_JOB_SETUP;
-      }
-      mu1_TE=1;
-      mu2_TE=2;
+    if ( inputTE.size() != 2 ) {
+      ATH_MSG_DEBUG("Got different than 2 number of input TEs: " << inputTE.size() );
+      mu1_TE=0;
+      mu2_TE=0;
+    }else{
+      mu1_TE=0;
+      mu2_TE=1;
     }
+    
 
 
     if(IdEvent!=m_lastEvent) {
@@ -836,7 +806,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     //Retrieve ROIs
     const TrigRoiDescriptor *roiDescriptor1(0);
     const TrigRoiDescriptor *roiDescriptor2(0);
-    const TrigRoiDescriptor *roiDescriptorTrk(0); // for FTK chain
     
     // get them from the navigation
 
@@ -862,22 +831,10 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
        return HLT::NAV_ERROR;
      }
 
-     if (m_FTK) {
-      if ( getFeature(inputTE[0], roiDescriptorTrk) != HLT::OK ) {
-        ATH_MSG_ERROR("Navigation error while getting RoI descriptor Trk" );
-        m_mon_Errors.push_back(ERROR_No_RoIs);
-        if ( timerSvc() ) m_TotTimer->stop();
-        return HLT::NAV_ERROR;
-      }
-     }
 
     ATH_MSG_DEBUG("Using inputTEs: "<< inputTE[mu1_TE] <<  " and "  << inputTE[mu2_TE] << " with Ids " << inputTE[mu1_TE]->getId()<< " AND "<< inputTE[mu2_TE]->getId()
         << "; RoI IDs = "   << roiDescriptor1->roiId()<< " AND   " <<roiDescriptor2->roiId() << ": Eta1 =    "   << roiDescriptor1->eta() << " Eta2= " <<roiDescriptor2->eta()
         << ", Phi1 =    "   << roiDescriptor1->phi() << " Phi2= " <<roiDescriptor2->phi() );
-	if (m_FTK) {
-	  ATH_MSG_DEBUG("Using inputTE for tracks: "<< inputTE[0] << " " << inputTE[0]->getId()
-        << "; RoI IDs = "   << roiDescriptorTrk->roiId() << ": EtaTrk =    "   << roiDescriptorTrk->eta() << ", PhiTrk =    "   << roiDescriptorTrk->phi());
-	}
     
     // Fill RoIs monitoring containers
     m_mon_RoI_RoI1Eta.push_back(roiDescriptor1->eta());
@@ -891,8 +848,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     m_mon_RoI_dPhiRoI.push_back( fabs(tmp_RoI_dPhiRoI) );
     
     // Retrieve muons
-    //std::vector<const Trk::Track*> muidIDtracks1;
-    //std::vector<const Trk::Track*> muidIDtracks2;
     //JW
     std::vector<ElementLink<xAOD::TrackParticleContainer> > muonTPELtracks1;
     std::vector<ElementLink<xAOD::TrackParticleContainer> > muonTPELtracks2;
@@ -915,7 +870,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     }
     ATH_MSG_DEBUG("Found MuonContainer, Got MuonEF (1) Feature, size = " << muonContainerEF1.size());
     
-    for ( const auto muel : muonContainerEF1 ) {
+    for ( const auto& muel : muonContainerEF1 ) {
       if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
         ATH_MSG_DEBUG("Muon from roi1 is neither Combined or SegmentTagged - reject" );
         continue;
@@ -929,12 +884,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
           ATH_MSG_DEBUG("No innerdetector muon1 TrackParticle found" );
           continue;
       }
-        //const Trk::Track* indetTrack = idtp->track();
-        //if ( !indetTrack ) {
-        //  ATH_MSG_DEBUG("No id muon1 id Trk::Track found" );
-        //  continue;
-        //}
-        //addUnique(muidIDtracks1, indetTrack);
         addUnique(muonTPELtracks1,idtpEl);
         addUnique(muonTPELtracksMerged,idtpEl);
         
@@ -956,7 +905,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     }
     ATH_MSG_DEBUG("Found MuonContainer, Got MuonEF (2) Feature, size = " << muonContainerEF2.size());
     
-    for ( const auto muel : muonContainerEF2 ) {
+    for ( const auto& muel : muonContainerEF2 ) {
       if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
         ATH_MSG_DEBUG("Muon from roi2 is neither Combined or SegmentTagged - reject" );
         continue;
@@ -970,12 +919,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
           ATH_MSG_DEBUG("No innerdetector muon2 TrackParticle found" );
           continue;
       }
-        //      const Trk::Track* indetTrack = idtp->track();
-        //      if ( !indetTrack ) {
-        //          ATH_MSG_DEBUG("No id muon2 id Trk::Track found" );
-        //          continue;
-        //      }
-        //addUnique(muidIDtracks2, indetTrack);
         addUnique(muonTPELtracks2,idtpEl);
         addUnique(muonTPELtracksMerged,idtpEl);
         ATH_MSG_DEBUG("Comb muon 1 pt/eta/phi " << idtp->pt() << " / " << idtp->eta() << " / " << idtp->phi());
@@ -985,7 +928,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     // build a map of the tracks and corresponding muons
     std::map<const xAOD::TrackParticle*, ElementLink<xAOD::MuonContainer> > mapTrkToMuons;
     //for (auto& muCont: muonContainerEF1) {
-        for (const auto mu : muonContainerEF1) {
+        for (const auto& mu : muonContainerEF1) {
             auto idtp  = (*mu)->inDetTrackParticleLink();
             if (!idtp.isValid()) continue;
             if (!*idtp) continue;
@@ -994,7 +937,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         } // muCont
     //} // muonContainerEF1
     //for (auto& muCont: muonContainerEF2) {
-        for (const auto mu : muonContainerEF2) {
+        for (const auto& mu : muonContainerEF2) {
             auto idtp  = (*mu)->inDetTrackParticleLink();
             if (!idtp.isValid()) continue;
             if (!*idtp) continue;
@@ -1007,22 +950,16 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         msg() << MSG::DEBUG << "muonContainerEF1.size()= " << muonContainerEF1.size()<< " muonContainerEF2.size()= " << muonContainerEF2.size() 
           << " uonTPELtracks1.size()= "  << muonTPELtracks1.size() << " muonTPELtracks2.size()= "  << muonTPELtracks2.size() << " muonTPELtracksMerged.size()= "  << muonTPELtracksMerged.size() <<endmsg;
         
-        for (auto muel: muonTPELtracks1) {
+        for (const auto& muel: muonTPELtracks1) {
             msg() << MSG::DEBUG << "muonTPELtracks1: " << *muel << " " << (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
-        for (auto muel: muonTPELtracks2) {
+        for (const auto& muel: muonTPELtracks2) {
             msg() << MSG::DEBUG << "muonTPELtracks2: " << *muel << " " << (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
-        for (auto muel: muonTPELtracksMerged) {
+        for (const auto& muel: muonTPELtracksMerged) {
             msg() << MSG::DEBUG << "muonTPELtracksMerged: " << *muel << " " << (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
     } // if debug
-    
-    
-    //   TrigEFBphys* trigPartBMuMuX (NULL);
-    // FIXME - remove these 'new's
-    //m_trigBphysColl_b = new TrigEFBphysContainer();
-    //m_trigBphysColl_X = new TrigEFBphysContainer();
     
     m_TrigBphysColl_b = new xAOD::TrigBphysContainer();
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl_b;
@@ -1050,17 +987,10 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     } else {
         
         // Loop over muons
-        //std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator pElItr=muonTPELtracks1.begin();
-        //std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator mElItr=muonTPELtracks2.begin();
-        std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator pElItr=muonTPELtracksMerged.begin();
-        std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator mElItr=muonTPELtracksMerged.begin();
-
-        //        for(pElItr=muonTPELtracks1.begin(); pElItr != muonTPELtracks1.end(); pElItr++) {
-        //            for(mElItr=muonTPELtracks2.begin(); mElItr != muonTPELtracks2.end(); mElItr++) {
         const Amg::Vector3D beamspot = m_bphysHelperTool->getBeamSpot(Gaudi::Hive::currentContext());
 
-        for(pElItr=muonTPELtracksMerged.begin(); pElItr != muonTPELtracksMerged.end(); ++pElItr) {
-            for(mElItr=pElItr+1; mElItr != muonTPELtracksMerged.end(); ++mElItr) {
+        for(auto pElItr=muonTPELtracksMerged.begin(); pElItr != muonTPELtracksMerged.end(); ++pElItr) {
+            for(auto mElItr=pElItr+1; mElItr != muonTPELtracksMerged.end(); ++mElItr) {
                 auto pTp = **pElItr;
                 auto mTp = **mElItr;
                 ATH_MSG_DEBUG("Try to build muon pair from mu1 " << *(*pElItr) << ", mu2 " << *(*mElItr) );
@@ -1205,7 +1135,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                 std::map<const xAOD::TrackParticle*, ElementLink<xAOD::TrackParticleContainer> > mapTrackToEL;
                 
                 int idCounter(0);
-                for (auto trk: tracksRoiI1) {
+                for (const auto& trk: tracksRoiI1) {
                     // merged_tracks.push_back(trk);
                     addUnique(merged_tracks,*trk);
                     ElIndex tmp;
@@ -1216,7 +1146,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     ++idCounter;
                 }
                 idCounter = 0;
-                for (auto trk: tracksRoiI2) {
+                for (const auto& trk: tracksRoiI2) {
                     // merged_tracks.push_back(trk);
                     addUnique(merged_tracks,*trk);
                     ElIndex tmp;
@@ -1296,7 +1226,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                 
                 for (int itrk1=0 ; trkIt1 != lastTrkIt; itrk1++, trkIt1++)
                 {
-                    //const Trk::Track* track1 = (*trkIt1)->track();
                     const xAOD::TrackParticle* track1 = (*trkIt1);
                     
 //                    ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? tracksRoiI1[0].dataID() : tracksRoiI2[0].dataID(), mapTrackToIndex[*trkIt1].index);
@@ -1393,7 +1322,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         }
                         
 			if(m_doBd_KstarMuMuDecay || m_doBs_Phi1020MuMuDecay || m_doLb_LambdaMuMuDecay || m_doBc_DsMuMuDecay || m_doBc_DplusMuMuDecay || m_doBc_DstarMuMuDecay || m_doBc_D0MuMuDecay) {
-                                //const Trk::Track* track2 = (*trkIt2)->track();
                                 const xAOD::TrackParticle* track2 = (*trkIt2);
 
                             // Sergey S.
@@ -1759,7 +1687,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                         for (int itrk3=0 ; trkIt3 != lastTrkIt; itrk3++, trkIt3++)
                                         {
-                                            //const Trk::Track* track3 = (*trkIt3)->track();
                                             const xAOD::TrackParticle* track3 = *trkIt3;
 
                                             // looping over all tracks, so expect to same tracks, but should skip those combinations
@@ -1900,7 +1827,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                             for (int itrk3=0 ; trkIt3 != lastTrkIt; itrk3++, trkIt3++)
                                             {
-                                                //const Trk::Track* track3 = (*trkIt3)->track();
                                                 const xAOD::TrackParticle* track3 = *trkIt3;
 
                                                 // looping over all tracks, so expect to same tracks, but should skip those combinations
@@ -2052,7 +1978,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                             for (int itrk3=0 ; trkIt3 != lastTrkIt; itrk3++, trkIt3++)
                                             {
-                                                //const Trk::Track* track3 = (*trkIt3)->track();
                                                 const xAOD::TrackParticle* track3 = *trkIt3;
 
                                                 // looping over all tracks, so expect to same tracks, but should skip those combinations
@@ -2298,7 +2223,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         ATH_MSG_WARNING( "Failed to getFeaturesLinks trigBphys_X Collection in outputTE" );
         } else {
             if(msgLvl() <= MSG::DEBUG){
-              for ( const auto eltp: ELvecTBPh) {
+              for ( const auto& eltp: ELvecTBPh) {
                 msg() << MSG::DEBUG << "  ===== TrigBphys Container ElementLinks : " 
                   << " index: "  << eltp.index()
                   << " sgkey: "  << eltp.dataID()
@@ -2316,7 +2241,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
               ElementLink<xAOD::TrigBphysContainer> secEL;
 //               secEL.resetWithKeyAndIndex(KEY,(*BPobj)->secondaryDecayLink().index());
               // match transient secondary decay ELs with those from persistified container
-              for(auto persistentSecEL : ELvecTBPh ) {
+              for(const auto& persistentSecEL : ELvecTBPh ) {
                 if(*persistentSecEL == *(*BPobj)->secondaryDecayLink())
                   secEL = persistentSecEL;
               }
@@ -2434,7 +2359,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const ElementLink<xAOD::Tr
     } // if m_doB_KMuMuVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracks) {
+      for(const auto& tpel : vec_tracks) {
         result->addTrackParticleLink(tpel);
       }
     }
@@ -2533,7 +2458,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
     } // m_doDs_Vertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracksX) {
+      for(const auto& tpel : vec_tracksX) {
         fitVtx_X->addTrackParticleLink(tpel);
       }
     }
@@ -2656,7 +2581,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
               m_mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
               
               // manually attach the track links to fitVtx
-              for(auto tpel : vec_tracks) {
+              for(const auto& tpel : vec_tracks) {
                 fitVtx->addTrackParticleLink(tpel);
               }
               
@@ -2699,7 +2624,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
     } //m_doBc_DsMuMuVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracks) {
+      for(const auto& tpel : vec_tracks) {
         fitVtx->addTrackParticleLink(tpel);
       }
     }
@@ -2798,7 +2723,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
     } // m_doDplus_Vertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracksX) {
+      for(const auto& tpel : vec_tracksX) {
         fitVtx_X->addTrackParticleLink(tpel);
       }
     }
@@ -2924,7 +2849,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
               m_mon_BcMuMuDplus_Chi2_Bc.push_back(chi2XMuMu);
               
               // manually attach the track links to fitVtx
-              for(auto tpel : vec_tracks) {
+              for(const auto& tpel : vec_tracks) {
                 fitVtx->addTrackParticleLink(tpel);
               }
               
@@ -2967,7 +2892,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
     } //m_doBc_DplusMuMuVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracks) {
+      for(const auto& tpel : vec_tracks) {
         fitVtx->addTrackParticleLink(tpel);
       }
     }
@@ -2994,7 +2919,6 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
     xAOD::TrigBphys * fitVtx(nullptr);
     
     std::vector<double> massHypoD0 = {KPLUSMASS,PIMASS};
-    std::vector<double> massHypoX = {KPLUSMASS,PIMASS,PIMASS};
     std::vector<double> massHypo  = {MUMASS,MUMASS,KPLUSMASS,PIMASS,PIMASS};
     float massX;
     float massXMuMu;
@@ -3037,12 +2961,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
                        xAOD::TrigBphys::BCDSTMUMU, massXMuMu, xAOD::TrigBphys::EF);
 
     std::vector<ElementLink<xAOD::TrackParticleContainer> > vec_tracksD0;
-    std::vector<ElementLink<xAOD::TrackParticleContainer> > vec_tracksX;
     std::vector<ElementLink<xAOD::TrackParticleContainer> > vec_tracks;
     
     if ( ((*eltrack1)->charge())*((*eltrack3)->charge()) < 0 ) {
       vec_tracksD0 = {eltrack1,eltrack2};
-      vec_tracksX = {eltrack1,eltrack2,eltrack3};
       vec_tracks  = {elmu1,elmu2,eltrack1,eltrack2,eltrack3};
     
       m_mon_BcMuMuDstar_Pt_K.push_back ((*eltrack1)->pt()*0.001);
@@ -3053,7 +2975,6 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
       m_mon_BcMuMuDstar_Phi_pi.push_back((*eltrack2)->phi());
     } else {
       vec_tracksD0 = {eltrack2,eltrack1};
-      vec_tracksX = {eltrack2,eltrack1,eltrack3};
       vec_tracks  = {elmu1,elmu2,eltrack2,eltrack1,eltrack3};
     
       m_mon_BcMuMuDstar_Pt_K.push_back ((*eltrack2)->pt()*0.001);
@@ -3099,7 +3020,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
     } // m_doDplus_Vertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracksD0) {
+      for(const auto& tpel : vec_tracksD0) {
         fitVtx_X->addTrackParticleLink(tpel);
       }
     }
@@ -3239,7 +3160,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
               m_mon_BcMuMuDstar_Chi2_Bc.push_back(chi2XMuMu);
               
               // manually attach the track links to fitVtx
-              for(auto tpel : vec_tracks) {
+              for(const auto& tpel : vec_tracks) {
                 fitVtx->addTrackParticleLink(tpel);
               }
               
@@ -3280,7 +3201,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
     } //m_doBc_DstarMuMuVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracks) {
+      for(const auto& tpel : vec_tracks) {
         fitVtx->addTrackParticleLink(tpel);
       }
     }
@@ -3397,7 +3318,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
     } // m_doDplus_Vertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracksX) {
+      for(const auto& tpel : vec_tracksX) {
         fitVtx_X->addTrackParticleLink(tpel);
       }
     }
@@ -3525,7 +3446,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
               m_mon_BcMuMuD0_Chi2_Bc.push_back(chi2XMuMu);
               
               // manually attach the track links to fitVtx
-              for(auto tpel : vec_tracks) {
+              for(const auto& tpel : vec_tracks) {
                 fitVtx->addTrackParticleLink(tpel);
               }
               
@@ -3566,7 +3487,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
     } //m_doBc_D0MuMuVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracks) {
+      for(const auto& tpel : vec_tracks) {
         fitVtx->addTrackParticleLink(tpel);
       }
     }
@@ -3663,7 +3584,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
     } // m_doDplus_Vertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracksX) {
+      for(const auto& tpel : vec_tracksX) {
         fitVtx_X->addTrackParticleLink(tpel);
       }
     }
@@ -3808,7 +3729,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
               m_mon_LbMuMuLambda_FinMass_Lb.push_back(massXMuMu/1000.);
               
               // manually attach the track links to fitVtx
-              for(auto tpel : vec_tracks) {
+              for(const auto& tpel : vec_tracks) {
                 fitVtx->addTrackParticleLink(tpel);
               }
               
@@ -3851,7 +3772,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
     } //m_doLb_LambdaMuMuVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracks) {
+      for(const auto& tpel : vec_tracks) {
         fitVtx->addTrackParticleLink(tpel);
       }
     }
@@ -4076,7 +3997,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
     } // do2XVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracksX) {
+      for(const auto& tpel : vec_tracksX) {
         fitVtx_X->addTrackParticleLink(tpel);
       }
     }
@@ -4102,7 +4023,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
     } // doBMuMu2XVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
-      for(auto tpel : vec_tracks) {
+      for(const auto& tpel : vec_tracks) {
         fitVtx->addTrackParticleLink(tpel);
       }
     }
@@ -4113,29 +4034,6 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
 } // checkBMuMu2X
 
 
-
-/*----------------------------------------------------------------------------*/
-void TrigEFBMuMuXFex::addUnique(std::vector<const Trk::Track*>& tracks, const Trk::Track* trkIn)
-{
-    //  std::cout<<" in addUnique : trkIn pT= "<<trkIn->perigeeParameters()->pT()<<std::endl;
-    std::vector<const Trk::Track*>::iterator tItr;
-    for( tItr = tracks.begin(); tItr != tracks.end(); tItr++)
-    {
-        double dPhi=fabs((*tItr)->perigeeParameters()->parameters()[Trk::phi] -
-                         trkIn->perigeeParameters()->parameters()[Trk::phi]);
-        if (dPhi > M_PI) dPhi = 2.*M_PI - dPhi;
-        
-        if( fabs(dPhi) < 0.02 &&
-           fabs((*tItr)->perigeeParameters()->eta() -
-                trkIn->perigeeParameters()->eta()) < 0.02 ) 
-        { //std::cout<<" TrigEFBMuMuFex addUnique: the SAME tracks! pT= "<<
-            //trkIn->perigeeParameters()->pT()<<" and "<<
-            //(*tItr)->perigeeParameters()->pT()<<std::endl;
-            return;
-        }
-    } 
-    tracks.push_back(trkIn);       
-}
 
 /*----------------------------------------------------------------------------*/
 void TrigEFBMuMuXFex::addUnique(std::vector<const xAOD::TrackParticle*>& tps, const xAOD::TrackParticle* tpIn)
@@ -4204,149 +4102,94 @@ bool TrigEFBMuMuXFex::isUnique(const  xAOD::TrackParticle* id1, const  xAOD::Tra
 
 double TrigEFBMuMuXFex::XMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, int decay) { /// checking the mass
     
-    std::vector<double> massHypo;
-    massHypo.clear();
+    std::array<double, 2> massHypo;
     if(decay == di_to_muons){
-        massHypo.push_back(MUMASS);
-        massHypo.push_back(MUMASS);
+        massHypo[0] = (MUMASS);
+        massHypo[1] = (MUMASS);
     }
-    if(decay == bD_to_Kstar){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(PIMASS);
+    else if(decay == bD_to_Kstar){
+        massHypo[0] = (KPLUSMASS);
+        massHypo[1] = (PIMASS);
     }
-    if(decay == bS_to_Phi){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(KPLUSMASS);
+    else if(decay == bS_to_Phi){
+        massHypo[0] = (KPLUSMASS);
+        massHypo[1] = (KPLUSMASS);
     }
-    if(decay == bC_to_PiPi){  
-        massHypo.push_back(PIMASS);
-        massHypo.push_back(PIMASS);    
+    else if(decay == bC_to_PiPi){  
+        massHypo[0] = (PIMASS);
+        massHypo[1] = (PIMASS);    
     }
-    if(decay == lB_to_L){
-        massHypo.push_back(PROTONMASS);
-        massHypo.push_back(PIMASS);
-    }
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
+    else if(decay == lB_to_L){
+        massHypo[0] = (PROTONMASS);
+        massHypo[1] = (PIMASS);
+    }else{
+		throw std::runtime_error("unknown decay TrigEFBMuMuXFex::XMass");
+	}
+    std::array<const xAOD::TrackParticle*, 2> bTracks{particle1, particle2};
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
     
 }
 
 double TrigEFBMuMuXFex::X3Mass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 ) {
-    
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(PIMASS);
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    bTracks.push_back(particle3);
+    static constexpr std::array<double, 3> massHypo{KPLUSMASS, KPLUSMASS, PIMASS};
+    const std::array<const xAOD::TrackParticle*, 3> bTracks{ particle1, particle2, particle3};
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
     
 }
 
 double TrigEFBMuMuXFex::XKPiPiMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 ) {
     
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(PIMASS);
-    massHypo.push_back(PIMASS);
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    bTracks.push_back(particle3);
+    static constexpr std::array<double, 3> massHypo{KPLUSMASS, PIMASS, PIMASS};
+	const std::array<const xAOD::TrackParticle*, 3> bTracks{particle1,particle2,particle3};
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
     
 }
 
 double TrigEFBMuMuXFex::KMuMuMass( const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* kaon) {
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(KPLUSMASS);  //K
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(kaon);
+    static constexpr std::array<double, 3> massHypo{MUMASS, MUMASS, KPLUSMASS};  //K
+    const std::array<const xAOD::TrackParticle*, 3> bTracks{mu1, mu2, kaon};
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
 }
 
 double TrigEFBMuMuXFex::XMuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
                                   const xAOD::TrackParticle* particle2, int decay){
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
+    std::array<double, 4> massHypo;
+    massHypo[0] = MUMASS;
+    massHypo[1] = MUMASS;
     if(decay == bD_to_Kstar){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(PIMASS);
+        massHypo[2] = KPLUSMASS;
+        massHypo[3] = PIMASS;
     }
-    if(decay == bS_to_Phi){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(KPLUSMASS);
+    else if(decay == bS_to_Phi){
+        massHypo[2] = KPLUSMASS;
+        massHypo[3] = KPLUSMASS;
     }
-    if(decay == bC_to_PiPi){  
-        massHypo.push_back(PIMASS);
-        massHypo.push_back(PIMASS);    
+    else if(decay == bC_to_PiPi){  
+        massHypo[2] = PIMASS;
+        massHypo[3] = PIMASS;    
     }
-    if(decay == lB_to_L){
-        massHypo.push_back(PROTONMASS);
-        massHypo.push_back(PIMASS);
-    }
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
+    else if(decay == lB_to_L){
+        massHypo[2] = PROTONMASS;
+        massHypo[3] = PIMASS;
+    }else{
+		throw std::runtime_error("unknown decay TrigEFBMuMuXFex::XMuMuMass");
+	}
+    const std::array<const xAOD::TrackParticle*, 4> bTracks{mu1,mu2,particle1,particle2};
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
 }
 
 double TrigEFBMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
                                    const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 ) {
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(PIMASS);
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    bTracks.push_back(particle3);
+    static constexpr std::array<double, 5> massHypo{MUMASS, MUMASS, KPLUSMASS, KPLUSMASS, PIMASS};
+    const std::array<const xAOD::TrackParticle*, 5> bTracks{mu1,mu2,particle1,particle2,particle3};
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
     
 }
 
 double TrigEFBMuMuXFex::XKPiPiMuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
                                    const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 ) {
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(PIMASS);
-    massHypo.push_back(PIMASS);
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    bTracks.push_back(particle3);
+    static constexpr std::array<double, 5> massHypo{MUMASS, MUMASS, KPLUSMASS, PIMASS, PIMASS};
+    const std::array<const xAOD::TrackParticle*, 5> bTracks{mu1,mu2,particle1,particle2,particle3};
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
     
 }

@@ -6,8 +6,6 @@ Elmar Ritsch, 04/02/2013
 
 from AthenaCommon import CfgMgr
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
 from ISF_SimulationSelectors import SimulationFlavor
 ### DefaultSimSelector configurations
 
@@ -350,7 +348,7 @@ def getJPsiLeptonsConeGeant4Selector(name="ISF_JPsiLeptonsConeGeant4Selector", *
     kwargs.setdefault('ConeCreatorMinPt'            , 0.          )
     kwargs.setdefault('ConeSize'                    , 0.4         )
     kwargs.setdefault('CheckConeCreatorAncestors'   , True        )
-    kwargs.setdefault('ConeCreatorAncestor'         , [ 443 ]     ) # W
+    kwargs.setdefault('ConeCreatorAncestor'         , [ 443 ]     ) # J/Psi
     # see HepMC manual for HepMC::GenVertex::particle iterator
     # 0=parents, 1=family, 2=ancestors, 3=relatives
     kwargs.setdefault('ConeCreatorAncestorRelation' , 0           )

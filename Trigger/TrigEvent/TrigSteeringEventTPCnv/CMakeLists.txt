@@ -25,7 +25,7 @@ function( _add_test test )
    atlas_add_test( ${test}
                    SOURCES
                    test/${test}.cxx
-                   LINK_LIBRARIES TestTools TrigSteeringEventTPCnv )
+                   LINK_LIBRARIES CxxUtils TestTools TrigSteeringEventTPCnv )
 endfunction()
 
 _add_test( HLTResultCnv_p1_test )

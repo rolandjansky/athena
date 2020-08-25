@@ -38,10 +38,7 @@ atlas_add_component( TrkExSolenoidalIntersector
                      src/components/*.cxx
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} TrkExSolenoidalIntersectorLib )
 
-# Install files from the package:
-atlas_install_headers( TrkExSolenoidalIntersector )
-
-
+# Tests in the package:
 atlas_add_test( SolenoidParametrization_test
                 SOURCES test/SolenoidParametrization_test.cxx
                 LINK_LIBRARIES TrkExUtils GaudiKernel TestTools PathResolver MagFieldElements MagFieldConditions

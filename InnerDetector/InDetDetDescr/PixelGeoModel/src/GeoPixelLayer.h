@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELGEOMODEL_GEOPIXELLAYER_H
@@ -10,7 +10,7 @@
 class GeoPhysVol;
 class GeoTransform;
 
-class GeoPixelLayer : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelLayer : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
 
  public:
   GeoPixelLayer();

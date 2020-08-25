@@ -182,7 +182,7 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
         ATH_MSG_DEBUG("Track failed preselection");
     } // end pt,d0.z0-cuts
 
-    // Make track pairs.
+    // Make track pairs. To be used for double leg conversions
     std::vector<const xAOD::TrackParticle*>::const_iterator iter_pos;
     std::vector<const xAOD::TrackParticle*>::const_iterator iter_neg;
     std::vector<Amg::Vector3D> positionList;
@@ -206,7 +206,6 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
         ineg++;
         int flag = 0;
 
-       
         std::map<std::string, float> intersectionDecors;
         if (!passPreSelection(cache,
                               *iter_pos,
@@ -229,40 +228,38 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
         trackParticleList.push_back(*iter_pos);
         trackParticleList.push_back(*iter_neg);
 
-        xAOD::Vertex* myVertex = nullptr;
-        myVertex = m_iVertexFitter->fit(ctx, trackParticleList, initPos);
+        std::unique_ptr<xAOD::Vertex> myVertex =
+          m_iVertexFitter->fit(ctx, trackParticleList, initPos);
         trackParticleList.clear();
+
+        // We have a new vertex
         if (myVertex) {
           ATH_MSG_DEBUG("VertexFit successful!");
           int type = -1;
           if ((m_isConversion && m_postSelector->selectConversionCandidate(
-                                   myVertex, flag, positionList)) ||
-              (!m_isConversion && m_postSelector->selectSecVtxCandidate(
-                                    myVertex, flag, positionList, type))) {
+                                   myVertex.get(), flag, positionList)) ||
+              (!m_isConversion &&
+               m_postSelector->selectSecVtxCandidate(
+                 myVertex.get(), flag, positionList, type))) {
 
             ATH_MSG_DEBUG(" Conversion passed postselection cuts");
-
-            // Really need to check that this correct.
             // Remove old element links
             myVertex->clearTracks();
 
-            if (m_isConversion) {
-              myVertex->setVertexType(xAOD::VxType::ConvVtx);
-              InDetConversionContainer->push_back(myVertex);
-            } else if (type == 101 || type == 110 || type == 11) { // V0
-              myVertex->setVertexType(xAOD::VxType::V0Vtx);
-              InDetConversionContainer->push_back(myVertex);
-            } else {
-              ATH_MSG_WARNING("Unknown type of vertex");
-              delete myVertex;
-              myVertex = nullptr;
+            // If we do not have a valid type just reset
+            if (!m_isConversion && !(type == 101) && !(type == 110) &&
+                !(type == 11)) {
+              myVertex.reset();
             }
 
+            // If we have the right type (not reset above) lets fill information
+            // and then push to the containers
             if (myVertex) {
               if (m_decorateVertices) {
                 ATH_MSG_DEBUG(
                   "Decorating vertex with values used in track pair selector");
-                for (const auto& kv : m_trackPairsSelector->getLastValues(cache)) {
+                for (const auto& kv :
+                     m_trackPairsSelector->getLastValues(cache)) {
                   myVertex->auxdata<float>(kv.first) = kv.second;
                 }
                 ATH_MSG_DEBUG("Decorating vertex with values used in vertex "
@@ -271,22 +268,33 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
                   myVertex->auxdata<float>(kv.first) = kv.second;
                 }
               }
+
               ElementLink<xAOD::TrackParticleContainer> newLinkPos(*iter_pos,
                                                                    *trk_coll);
               ElementLink<xAOD::TrackParticleContainer> newLinkNeg(*iter_neg,
                                                                    *trk_coll);
               myVertex->addTrackAtVertex(newLinkPos);
               myVertex->addTrackAtVertex(newLinkNeg);
-            }
+
+              // Now fill in the containers depending on the 2 possible
+              // cases
+              if (m_isConversion) {
+                myVertex->setVertexType(xAOD::VxType::ConvVtx);
+                InDetConversionContainer->push_back(std::move(myVertex));
+              }
+              else if (type == 101 || type == 110 || type == 11) { // V0
+                myVertex->setVertexType(xAOD::VxType::V0Vtx);
+                InDetConversionContainer->push_back(std::move(myVertex));
+              }
+
+           } // End if on right type
 
             negIndx[ineg] = 1;
             posIndx[ipos] = 1;
-            numConversions++;
-
+            ++numConversions;
           } else {
             ATH_MSG_DEBUG("VxCandidate failed the post selection cuts!");
-            delete myVertex;
-            myVertex = nullptr;
+            myVertex.reset();
           }
         } else {
           ATH_MSG_DEBUG("VertexFit was NOT successful!");
@@ -297,8 +305,8 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
     ATH_MSG_DEBUG("Number of conversions found passing post selection cuts: "
                   << numConversions);
 
+    // single track conversions
     if (m_isConversion) {
-      // single track conversions
       for (int ip = 0; ip < int(posIndx.size()); ++ip) {
         if (posIndx[ip] == 0)
           singleTrackConvList.push_back(posSelectedTracks[ip]);

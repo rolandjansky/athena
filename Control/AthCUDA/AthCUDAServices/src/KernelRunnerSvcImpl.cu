@@ -114,11 +114,7 @@ namespace AthCUDA {
       // kernel.
       taskArena().enqueue( ::KernelSchedulerTask( m_callback,
                                                   std::move( task ),
-                                                  *this )
-#if __TBB_TASK_PRIORITY
-                           , tbb::priority_normal
-#endif // __TBB_TASK_PRIORITY
-                           );
+                                                  *this ) );
 
       // Return gracefully.
       return;

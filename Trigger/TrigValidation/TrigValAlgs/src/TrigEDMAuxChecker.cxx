@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
@@ -20,7 +20,7 @@ TrigEDMAuxChecker::~TrigEDMAuxChecker() {}
 StatusCode TrigEDMAuxChecker::initialize() { 
     ATH_MSG_INFO("Initializing TrigEDMAuxChecker");
     std::vector<std::string> auxvar;
-    for(auto key:m_auxList){
+    for(const auto& key:m_auxList){
         ATH_MSG_INFO("REGTEST AuxStore " << key);
         m_auxmap.insert(std::make_pair(key,auxvar));
         m_dynauxmap.insert(std::make_pair(key,auxvar));
@@ -32,16 +32,16 @@ StatusCode TrigEDMAuxChecker::initialize() {
 StatusCode TrigEDMAuxChecker::finalize() { 
 
     std::vector<std::string> auxvar;
-    for(const auto key:m_auxList){
+    for(const auto& key:m_auxList){
         ATH_MSG_INFO("REGTEST : Aux vars for " << key << " ============================");
         auxvar=m_auxmap[key];
-        for(const auto var:auxvar){
+        for(const auto& var:auxvar){
             ATH_MSG_INFO("REGTEST : " << key << " " << var);
         }
         ATH_MSG_INFO(" ========================================================");
         ATH_MSG_INFO("REGTEST : Dynamic Aux vars for " << key);
         auxvar=m_dynauxmap[key];
-        for(const auto var:auxvar){
+        for(const auto& var:auxvar){
             ATH_MSG_INFO("REGTEST : " << key << " " << var);
         }
         ATH_MSG_INFO(" ========================================================");
@@ -50,12 +50,12 @@ StatusCode TrigEDMAuxChecker::finalize() {
     return StatusCode::SUCCESS; 
 }
 
-void TrigEDMAuxChecker::dumpDecorators(const xAOD::AuxContainerBase *x,const std::string key){
+void TrigEDMAuxChecker::dumpDecorators(const xAOD::AuxContainerBase *x,const std::string& key){
     ATH_MSG_DEBUG("REGTEST: DUMP DECORATORS");
     ATH_MSG_DEBUG("Container size " << x->size() );
     //Get list of auxids
-    const SG::auxid_set_t auxIds=x->getAuxIDs(); 
-    const SG::auxid_set_t dyn_auxids = x->getDynamicAuxIDs();
+    const SG::auxid_set_t& auxIds=x->getAuxIDs(); 
+    const SG::auxid_set_t& dyn_auxids = x->getDynamicAuxIDs();
     const std::type_info *type(0);
     //Get registry to determine variable type
     SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
@@ -94,7 +94,7 @@ void TrigEDMAuxChecker::dumpDecorators(const xAOD::AuxContainerBase *x,const std
 StatusCode TrigEDMAuxChecker::execute() {
   const xAOD::AuxContainerBase* aux=0;
   StatusCode sc = StatusCode::SUCCESS;
-  for(const auto key:m_auxList){
+  for(const auto& key:m_auxList){
       sc = evtStore()->retrieve(aux,key);
       if (sc.isFailure()) {
           ATH_MSG_WARNING("REGTEST Cannot retrieve " << key);

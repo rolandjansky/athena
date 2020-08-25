@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DBMModuleCage_h
@@ -17,7 +17,7 @@
  *
  */
 
-class DBM_ModuleCage : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE DBM_ModuleCage : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
   public:
     GeoVPhysVol* Build();
   private:

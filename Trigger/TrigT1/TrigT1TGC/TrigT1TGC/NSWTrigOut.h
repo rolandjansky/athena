@@ -10,8 +10,6 @@
 #ifndef NSW_TRIGOUT_H
 #define NSW_TRIGOUT_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-
 #include <vector>
 
 namespace LVL1TGCTrigger {
@@ -26,23 +24,17 @@ namespace LVL1TGCTrigger {
  
 class NSWTrigOut {
 protected:
-  int            m_sideID;     // 0:A-side 1:C-side
+  int                         m_sideID{-1};     // 0:A-side 1:C-side
   std::vector<int>            m_NSWTriggerProcessor;   // 0 ~ 15
   std::vector<int>            m_NSWeta_8bit;     //  0.005
   std::vector<int>            m_NSWphi_6bit;      // 10mrad
   std::vector<int>            m_NSWDtheta_5bit;    // 1mrad
 
 public:
-  NSWTrigOut();
-  NSWTrigOut(int side, std::vector<int> NSWTrigger, std::vector<int> NSWeta, std::vector<int> NSWphi, std::vector<int> NSWDtheta,TGCArguments* tgcargs=0); 
-  NSWTrigOut(int side, std::vector<int> NSWTrigger,TGCArguments* tgcargs=0); 
+  NSWTrigOut() = default;
+  NSWTrigOut(int side, std::vector<int> NSWTrigger, std::vector<int> NSWeta, std::vector<int> NSWphi, std::vector<int> NSWDtheta,TGCArguments* tgcargs=nullptr);
+  NSWTrigOut(int side, std::vector<int> NSWTrigger,TGCArguments* tgcargs=nullptr);
 
-  virtual ~NSWTrigOut() { }
- 
-  NSWTrigOut(const NSWTrigOut& right);
- 
-  const NSWTrigOut& operator=(const NSWTrigOut& right);
-  NSWTrigOut& operator+(const NSWTrigOut& right);
   NSWTrigOut& operator+=(const NSWTrigOut& right);
   bool operator==(const NSWTrigOut& right) const
   {
@@ -53,7 +45,6 @@ public:
   {
     return (this!=&right);
   }
-
 
 
   // set functons
@@ -72,24 +63,11 @@ public:
   const std::vector<int>& getNSWDtheta() const {return m_NSWDtheta_5bit; }
 
   // print methods 
-  const MSG::Level defaultMSGLvl = MSG::INFO;
-  bool msgLvl(const MSG::Level lvl) const;
-  MsgStream& msg(const MSG::Level lvl) const;
   void print() const;
 
-
  private:
-  TGCArguments* m_tgcArgs;
-  mutable Athena::MsgStreamMember m_msg;
-
-
+  TGCArguments* m_tgcArgs{nullptr};
 };
-
-inline bool NSWTrigOut::msgLvl(const MSG::Level lvl) const
-{
-  return (m_msg.get().level() <= lvl) ? true : false;
-}
-inline MsgStream& NSWTrigOut::msg(const MSG::Level lvl) const{ return m_msg << lvl; }
 
 } //end of namespace bracket
 

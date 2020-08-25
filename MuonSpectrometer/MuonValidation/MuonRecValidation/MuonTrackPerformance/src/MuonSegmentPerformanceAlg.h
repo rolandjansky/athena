@@ -17,18 +17,17 @@ class MuonSegmentPerformanceAlg : public AthAlgorithm {
   
   // Algorithm Constructor
   MuonSegmentPerformanceAlg (const std::string &name, ISvcLocator *pSvcLocator);
-  ~MuonSegmentPerformanceAlg(){};
+  ~MuonSegmentPerformanceAlg()=default;
   
   // Gaudi algorithm hooks
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
 
-  
  private:
   bool retrieve(const SG::ReadHandleKey<xAOD::MuonSegmentContainer>&, const xAOD::MuonSegmentContainer*& ptr) const;
-  void printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco, const std::vector<int> truth ) const;
-  void printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco ) const;
+  std::string printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco, const std::vector<int> truth ) const;
+  std::string printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco ) const;
 
 
   /** name of external file to write statistics */

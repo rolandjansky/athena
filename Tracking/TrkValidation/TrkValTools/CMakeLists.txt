@@ -59,13 +59,17 @@ find_package( Eigen )
 find_package( XercesC )
 find_package( Boost )
 
+atlas_add_library( TrkValToolsLib
+                   TrkValTools/*.h
+                   INTERFACE
+                   INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS}
+                   PUBLIC_HEADERS TrkValTools
+                   LINK_LIBRARIES GaudiKernel AthenaBaseComps TrkValInterfaces StoreGateLib xAODEventInfo TrkParameters TrkValEvent AtlasHepMCLib TrkEventPrimitives TrkTrack AthContainers )
+
 # Component(s) in the package:
 atlas_add_component( TrkValTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthContainers AthenaKernel xAODTracking GaudiKernel TrkEventPrimitives TrkParameters TrkTrack TrkToolInterfaces TrkValEvent TrkValInterfaces CommissionEvent AtlasDetDescr EventInfo EventPrimitives GeneratorObjects TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParticleBase TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkExInterfaces TrkFitterUtils xAODTruth xAODJet xAODPFlow xAODCaloEvent xAODCore xAODEventInfo AsgTools AthenaKernel AthenaMonitoringLib)
-
-# Install files from the package:
-atlas_install_headers( TrkValTools )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} TrkValToolsLib AthenaKernel xAODTracking TrkToolInterfaces CommissionEvent AtlasDetDescr EventInfo EventPrimitives GeneratorObjects TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParticleBase TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkExInterfaces TrkFitterUtils xAODTruth xAODJet xAODPFlow xAODCaloEvent xAODCore AsgTools AthenaKernel AthenaMonitoringLib)
 

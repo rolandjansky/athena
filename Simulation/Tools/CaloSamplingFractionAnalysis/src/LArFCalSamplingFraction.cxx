@@ -47,10 +47,10 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -746,18 +746,16 @@ void LArFCalSamplingFraction::FCalCalibAnalysis(const std::string name, const Ca
 
 void LArFCalSamplingFraction::TruthImpactPosition(McEventCollection::const_iterator e)
 {
-    for (HepMC::GenEvent::particle_const_iterator p = (**e).particles_begin();
-         p != (**e).particles_end(); p++)
+    for (auto theParticle: **e)
     {
-        const HepMC::GenParticle *theParticle = *p;
-
         // Note: old GenParticles used HepLorentzVectors, now they use HepMC::FourVectors
 
         // Get the kinematic variables
         HepMC::FourVector HMCmom = theParticle->momentum();
         CLHEP::HepLorentzVector momentum(CLHEP::Hep3Vector(HMCmom.px(), HMCmom.py(), HMCmom.pz()), HMCmom.e());
 
-        HepMC::FourVector HMC3vec = theParticle->production_vertex()->position();
+        HepMC::FourVector HMC3vec(0.0,0.0,0.0,0.0);
+        if (theParticle->production_vertex()) HMC3vec = theParticle->production_vertex()->position();
         HepGeom::Point3D<double> origin = HepGeom::Point3D<double>(HMC3vec.x(), HMC3vec.y(), HMC3vec.z());
 
         // Put VEta and VPhi into the Ntuple
@@ -900,11 +898,8 @@ StatusCode LArFCalSamplingFraction::doFCal()
                  mcEvent++)
             {
                 // There may be many particles per event
-                for (HepMC::GenEvent::particle_const_iterator p = (**mcEvent).particles_begin();
-                     p != (**mcEvent).particles_end();
-                     p++)
+                for (auto theParticle: **mcEvent)
                 {
-                    const HepMC::GenParticle *theParticle = *p;
                     m_pdg_id->push_back(theParticle->pdg_id());
                     numParticles++;
                 }

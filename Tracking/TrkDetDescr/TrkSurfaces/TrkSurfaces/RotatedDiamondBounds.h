@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,16 +60,16 @@ public:
   RotatedDiamondBounds(double minhalex, double medhalex, double maxhalex, double haley1, double haley2);
 
   /**Copy constructor*/
-  RotatedDiamondBounds(const RotatedDiamondBounds& diabo);
+  RotatedDiamondBounds(const RotatedDiamondBounds& diabo) = default;
 
   /**Destructor*/
-  virtual ~RotatedDiamondBounds();
+  virtual ~RotatedDiamondBounds() = default;
 
   /**Virtual constructor*/
   RotatedDiamondBounds* clone() const override;
 
   /**Assignment operator*/
-  RotatedDiamondBounds& operator=(const RotatedDiamondBounds& sbo);
+  RotatedDiamondBounds& operator=(const RotatedDiamondBounds& sbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& diabo) const override;

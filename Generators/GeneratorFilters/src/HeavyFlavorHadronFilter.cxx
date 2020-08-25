@@ -78,7 +78,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
     const xAOD::JetContainer* truthjetTES;
     CHECK(evtStore()->retrieve( truthjetTES, m_TruthJetContainerName));
     for (xAOD::JetContainer::const_iterator j = truthjetTES->begin(); j != truthjetTES->end() ; ++j) {
-      if ((*j)->pt() > m_jetPtMin && fabs((*j)->eta()) < m_jetEtaMax) {
+      if ((*j)->pt() > m_jetPtMin && std::abs((*j)->eta()) < m_jetEtaMax) {
         jets.push_back(j);
       }
     }
@@ -99,7 +99,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // of heavy flavor quarks!
       if (m_Request_bQuark && std::abs(part->pdg_id())==5 &&
           part->momentum().perp()>m_bPtMin &&
-          fabs(part->momentum().pseudoRapidity())<m_bEtaMax) {
+          std::abs(part->momentum().pseudoRapidity())<m_bEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
@@ -121,7 +121,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       if (m_Request_cQuark &&
           std::abs(part->pdg_id())==4 &&
           part->momentum().perp()>m_cPtMin &&
-          fabs(part->momentum().pseudoRapidity())<m_cEtaMax) {
+          std::abs(part->momentum().pseudoRapidity())<m_cEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
@@ -139,7 +139,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       if (m_RequestBottom &&
           isBwithWeakDK(part->pdg_id()) &&
           part->momentum().perp()>m_bottomPtMin &&
-          fabs(part->momentum().pseudoRapidity())<m_bottomEtaMax) {
+          std::abs(part->momentum().pseudoRapidity())<m_bottomEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
@@ -157,7 +157,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       if (m_RequestCharm &&
           isDwithWeakDK(part->pdg_id()) &&
           part->momentum().perp()>m_charmPtMin &&
-          fabs(part->momentum().pseudoRapidity())<m_charmEtaMax) {
+          std::abs(part->momentum().pseudoRapidity())<m_charmEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
@@ -176,7 +176,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
         (part->pdg_id() == m_PDGID ||
          (m_PDGAntiParticleToo && std::abs(part->pdg_id()) == m_PDGID));
       if (pdgok && part->momentum().perp() > m_PDGPtMin &&
-          fabs(part->momentum().pseudoRapidity()) < m_PDGEtaMax) {
+          std::abs(part->momentum().pseudoRapidity()) < m_PDGEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = part->momentum();
           TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
@@ -207,7 +207,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
 
 
 bool HeavyFlavorHadronFilter::isBwithWeakDK(const int pID) const {
-  int id = abs(pID);
+  int id = std::abs(pID);
   return ( id == 511   || // B+
            id == 521   || // B0
            id == 531   || // Bs
@@ -223,7 +223,7 @@ bool HeavyFlavorHadronFilter::isBwithWeakDK(const int pID) const {
 
 
 bool HeavyFlavorHadronFilter::isDwithWeakDK(const int pID) const {
-  int id = abs(pID);
+  int id = std::abs(pID);
   return ( id == 411   || // D+
            id == 421   || // D0
            id == 431   || // Ds

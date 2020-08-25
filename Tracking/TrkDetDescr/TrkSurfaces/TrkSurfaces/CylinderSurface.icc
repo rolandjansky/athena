@@ -11,6 +11,14 @@ CylinderSurface::type() const
   return Surface::Cylinder;
 }
 
+/** Return the surface type static constexpr */
+inline constexpr Surface::SurfaceType
+CylinderSurface::staticType()
+{
+  return Surface::Cylinder;
+}
+
+
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
 inline ParametersT<5, Charged, CylinderSurface>*

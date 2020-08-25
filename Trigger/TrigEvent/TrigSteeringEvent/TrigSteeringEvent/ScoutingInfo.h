@@ -25,12 +25,12 @@ public:
   /** @brief add a new element to m_clidName
    *
    **/
-  void add(CLID clid, std::string name);
+  void add(CLID clid, const std::string& name);
 
   /** @brief add a new element to m_clidName
    *
    **/
-  void add(std::pair<CLID, std::string> clid_Name);
+  void add(const std::pair<CLID, std::string>& clid_Name);
 
   /** @brief add elements in the vector passed into m_clidName
    *

@@ -77,10 +77,10 @@ algCardinality = nThreads
 if (algCardinality > 1):   
    for alg in topSequence:      
       name = alg.name()
-      if name in ["SGInputLoader"] :
+      if name in ["L1TopoSimulation"] :
          # suppress INFO message about Alg unclonability
          # set alg.Cardinality = 1 to disable cloning for specific Alg
-         alg.Cardinality = nThreads
+         alg.Cardinality = 1
       else:
          alg.Cardinality = algCardinality
 

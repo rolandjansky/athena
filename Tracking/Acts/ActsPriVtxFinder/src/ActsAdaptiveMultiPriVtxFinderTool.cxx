@@ -6,7 +6,6 @@
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -42,8 +41,7 @@ namespace
 
   ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : base_class(type, name, parent),
-  m_fieldServiceHandle("AtlasFieldSvc", name)
+  : base_class(type, name, parent)
   {}
 
 StatusCode
@@ -59,13 +57,12 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
     = m_trackingGeometryTool->trackingGeometry();
 
+    ATH_CHECK( m_extrapolationTool.retrieve() );
+
     Acts::Navigator navigator(trackingGeometry);
 
-  	// We need the field service
-    ATH_CHECK( m_fieldServiceHandle.retrieve() );
-    ATH_MSG_INFO("Using ATLAS magnetic field service");
     using BField_t = ATLASMagneticFieldWrapper;
-    BField_t bField(m_fieldServiceHandle.get());
+    BField_t bField;
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = std::make_shared<Propagator>(std::move(stepper), 
       std::move(navigator));
@@ -100,10 +97,10 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     TrackLinearizer linearizer(ltConfig);
 
     // Set up Gaussian track density
-    Acts::GaussianTrackDensity::Config trackDensityConfig;
+    Acts::GaussianTrackDensity<TrackWrapper>::Config trackDensityConfig;
     trackDensityConfig.d0MaxSignificance = m_gaussianMaxD0Significance;
     trackDensityConfig.z0MaxSignificance = m_gaussianMaxZ0Significance;
-    Acts::GaussianTrackDensity trackDensity(trackDensityConfig);
+    Acts::GaussianTrackDensity<TrackWrapper> trackDensity(trackDensityConfig);
 
     // Vertex seed finder
     VertexSeedFinder::Config seedFinderConfig;
@@ -126,7 +123,6 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     finderConfig.do3dSplitting = m_do3dSplitting;
     finderConfig.maximumVertexContamination = m_maximumVertexContamination;
     finderConfig.looseConstrValue = m_looseConstrValue;
-    finderConfig.refitAfterBadVertex = m_refitAfterBadVertex;
     finderConfig.useVertexCovForIPEstimation = m_useVertexCovForIPEstimation;
     finderConfig.useSeedConstraint = m_useSeedConstraint;
     m_vertexFinder = std::make_shared<VertexFinder>(finderConfig, extractParameters);
@@ -221,8 +217,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
     Acts::Surface::makeShared<Acts::PerigeeSurface>(beamSpotPos);
 
-    // TODO: Get the correct magnetic field context
-    Acts::MagneticFieldContext magFieldContext;
+    // Get the magnetic field context
+    Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
     const auto& geoContext
     = m_trackingGeometryTool->getGeometryContext(ctx).any();
@@ -301,12 +297,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
       xAODVtx->makePrivateStore();
       xAODVtx->setPosition(vtx.position());
       xAODVtx->setCovariancePosition(vtx.covariance());
-      // TODO: remove this 1.e9 subtraction once acts bug fix is in.
-      double tempChi2 = vtx.fitQuality().first;
-      if(tempChi2 >= 1.e9){
-        tempChi2 -= 1.e9;
-      }
-      xAODVtx->setFitQuality(tempChi2, vtx.fitQuality().second);
+      xAODVtx->setFitQuality(vtx.fitQuality().first, vtx.fitQuality().second);
 
       const auto& tracks = vtx.tracks();
       std::vector<Trk::VxTrackAtVertex>* trkAtVtxVec = &(xAODVtx->vxTrackAtVertex());

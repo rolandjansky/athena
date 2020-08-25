@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -14,7 +14,6 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: Sequence.h,v 1.20 2008-12-08 13:22:18 tbold Exp $
  **********************************************************************************/
 
 #ifndef TRIGSTEERING_SEQUENCE_H
@@ -25,7 +24,6 @@
 
 #include "GaudiKernel/SmartIF.h"
 #include "AthenaBaseComps/AthService.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc_RTT.h" //used for ROS data access test
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 class TrigTimer;
@@ -136,7 +134,6 @@ namespace HLT {
       TrigTimer *m_timer;
 
       ServiceHandle<IROBDataProviderSvc>      m_robDataProvider;        //!< ROB data provider (for ROB pre-fetching)
-      SmartIF <ITrigROBDataProviderSvc_RTT>   m_trigROBDataProviderRTT; //!< ROB data provider with extensions for RTT tests
    };
 }
 

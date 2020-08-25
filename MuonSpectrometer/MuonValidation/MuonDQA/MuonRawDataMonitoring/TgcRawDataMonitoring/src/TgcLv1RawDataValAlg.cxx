@@ -408,9 +408,9 @@ TgcLv1RawDataValAlg::procHistograms(){
           // Get Fractions and Errors
           fp=fc=fn=efp=efc=efn=0;
           if( tot != 0 ){
-            fp= p/tot; efp = sqrt( fp*(1.-fp)/tot );
-            fc= c/tot; efc = sqrt( fc*(1.-fc)/tot );
-            fn= n/tot; efn = sqrt( fn*(1.-fn)/tot );
+            fp= p/tot; efp = std::sqrt( fp*(1.-fp)/tot );
+            fc= c/tot; efc = std::sqrt( fc*(1.-fc)/tot );
+            fn= n/tot; efn = std::sqrt( fn*(1.-fn)/tot );
           }
           // Fill Fractions into map
           m_tgclv1slcurrentfractionmap[ac]->SetBinContent(etabinp +1,  phi48, fp);
@@ -431,9 +431,9 @@ TgcLv1RawDataValAlg::procHistograms(){
           // Get Fractions and Errors
           fp=fc=fn=efp=efc=efn=0;
           if( tot != 0 ){
-            fp= p/tot; efp = sqrt( fp*(1.-fp)/tot );
-            fc= c/tot; efc = sqrt( fc*(1.-fc)/tot );
-            fn= n/tot; efn = sqrt( fn*(1.-fn)/tot );
+            fp= p/tot; efp = std::sqrt( fp*(1.-fp)/tot );
+            fc= c/tot; efc = std::sqrt( fc*(1.-fc)/tot );
+            fn= n/tot; efn = std::sqrt( fn*(1.-fn)/tot );
           }
           // Fill Fractions into map
           m_tgclv1lptcurrentfractionmap[ac]->SetBinContent(etabinp +1,  phi48, fp);

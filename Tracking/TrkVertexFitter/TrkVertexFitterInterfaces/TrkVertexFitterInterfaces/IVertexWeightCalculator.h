@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,44 +11,48 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-//xAOD include
-#include "xAODTracking/VertexFwd.h"
-#include "xAODTracking/VertexAuxContainer.h"
+// xAOD include
 #include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/VertexAuxContainer.h"
+#include "xAODTracking/VertexFwd.h"
 
-namespace Trk
+namespace Trk {
+static const InterfaceID IID_IVertexWeightCalculator("IVertexWeightCalculator",
+                                                     1,
+                                                     0);
+
+/**
+ @class IVertexWeightCalculaculator
+ @brief Interface class for signal vertex selection.
+
+ For more detailed information, take a look at the header file of the actual
+ implementation files.
+
+ ---------------------------------------------------
+ Changes:
+
+ David Shope <david.richard.shope@cern.ch> (2016-06-01)
+   EDM Migration to xAOD - remove method using VxCandidate
+
+*/
+
+class IVertexWeightCalculator : virtual public IAlgTool
 {
-  static const InterfaceID IID_IVertexWeightCalculator("IVertexWeightCalculator", 1, 0);
 
-  /**
-   @class IVertexWeightCalculaculator
-   @brief Interface class for signal vertex selection.
+public:
+  /** Virtual destructor */
+  virtual ~IVertexWeightCalculator() = default;
 
-   For more detailed information, take a look at the header file of the actual
-   implementation files.
-
-   ---------------------------------------------------
-   Changes:
-
-   David Shope <david.richard.shope@cern.ch> (2016-06-01)
-
-     EDM Migration to xAOD - remove method using VxCandidate
-
-  */
-
-  class IVertexWeightCalculator : virtual public IAlgTool {
-
-     public:
-       /** Virtual destructor */
-       virtual ~IVertexWeightCalculator(){};
-
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IVertexWeightCalculator; };
-
-       /** Interface for @c xAOD::Vertex */
-       virtual double estimateSignalCompatibility(const xAOD::Vertex& vertex) = 0;
-
+  /** AlgTool interface methods */
+  static const InterfaceID& interfaceID()
+  {
+    return IID_IVertexWeightCalculator;
   };
+
+  /** Interface for @c xAOD::Vertex */
+  virtual double estimateSignalCompatibility(
+    const xAOD::Vertex& vertex) const = 0;
+};
 }
 
 #endif

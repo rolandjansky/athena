@@ -39,12 +39,12 @@ public:
   void registerHist(TH1 * h) {
      TRG_MSG_DEBUG("Registration of " << h->GetName() );
      if(m_histSvc) {
-       string fullName( m_baseDir + h->GetName() );
-       auto colPos = fullName.find_last_of('/');
-       auto colPos2 = fullName.find_last_of('/',colPos-1);
-       string histName = fullName.substr(colPos+1);
-       string key = fullName.substr(colPos2+1);
-       h->SetName(histName.c_str());
+       string histName = h->GetName();
+       auto colPos = histName.find_first_of('/');
+       //Key will use original name when all algorithms changed with bookHist()
+       const string key = histName.substr(colPos+1);
+       const string fullName( m_baseDir + histName );
+       h->SetName(key.c_str());
        std::unique_ptr<TH1> uhist(h);
        LockedHandle<TH1> lh;
        if( ! m_histSvc->regShared(fullName, std::move(uhist), lh).isSuccess() ) {
@@ -60,12 +60,12 @@ public:
    void registerHist(TH2 * h) {
       TRG_MSG_DEBUG("Registration of " << h->GetName() );
       if(m_histSvc) {
-        string fullName( m_baseDir + h->GetName() );
-        auto colPos = fullName.find_last_of('/');
-        auto colPos2 = fullName.find_last_of('/',colPos-1);
-        string histName = fullName.substr(colPos+1);
-        string key = fullName.substr(colPos2+1);
-        h->SetName(histName.c_str());
+        string histName = h->GetName();
+        auto colPos = histName.find_first_of('/');
+	//Key will use original name when all algorithms changed with bookHist()
+        const string key = histName.substr(colPos+1);
+        const string fullName( m_baseDir + histName );
+        h->SetName(key.c_str());
         std::unique_ptr<TH2> uhist(h);
         LockedHandle<TH2> lh;
         if( ! m_histSvc->regShared(fullName, std::move(uhist), lh).isSuccess() ) {
@@ -89,18 +89,24 @@ public:
    }
 
    void fillHist1D(const std::string & histName,double x) {
-      if(m_hist1D.find(histName) == m_hist1D.end()) {
-	TRG_MSG_ERROR("1D-hist with registration key " << histName << " does not exist");
+     //This will be removed when all algorithms changed with bookHist()
+      auto colPos = histName.find_first_of('/');
+      const string key = histName.substr(colPos+1);
+      if(m_hist1D.find(key) == m_hist1D.end()) {
+	TRG_MSG_ERROR("1D-hist with registration key " << key << " does not exist");
       }
-      else { m_hist1D[histName]->Fill(x); }
+      else { m_hist1D[key]->Fill(x); }
    }
 
    void fillHist2D(const std::string & histName,double x,double y) {
-      if(m_hist2D.find(histName) == m_hist2D.end()) {
-	TRG_MSG_ERROR("2D-hist with registration key " << histName << " does not exist");
+     //This will be removed when all algorithms changed with bookHist()
+      auto colPos = histName.find_first_of('/');
+      const string key = histName.substr(colPos+1);
+      if(m_hist2D.find(key) == m_hist2D.end()) {
+	TRG_MSG_ERROR("2D-hist with registration key " << key << " does not exist");
       }
       else
-	{ m_hist2D[histName]->Fill(x,y); }
+	{ m_hist2D[key]->Fill(x,y); }
    }
 
    void setBaseDir(const std::string & baseDir) {

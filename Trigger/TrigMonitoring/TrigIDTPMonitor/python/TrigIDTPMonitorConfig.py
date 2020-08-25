@@ -1,8 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigIDTPMonitor.TrigIDTPMonitorConf import TrigIDTPMonitor, TrigIDTPMonitorElectron
-
-from AthenaCommon.AppMgr import ToolSvc
 
 class IDTPMonitor (TrigIDTPMonitor):
     __slots__ = []

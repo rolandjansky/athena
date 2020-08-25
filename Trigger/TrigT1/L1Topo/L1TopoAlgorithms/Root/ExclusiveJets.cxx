@@ -157,7 +157,7 @@ TCS::ExclusiveJets::processBitCorrect( const vector<TCS::TOBArray const *> & inp
 		  fillHist2D(m_histRejectExclusiveJets[i]->GetName(),xi_1,xi_2);
 		  fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
 		}
-		TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
+		TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
 		
 	      }
 	    }
@@ -216,7 +216,7 @@ TCS::ExclusiveJets::process( const vector<TCS::TOBArray const *> & input,
 		  fillHist2D(m_histRejectExclusiveJets[i]->GetName(),xi_1,xi_2);
 		  fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
 		}
-		TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
+		TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
 		  
 	      }
 	    }

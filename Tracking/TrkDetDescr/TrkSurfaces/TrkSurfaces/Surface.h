@@ -16,10 +16,10 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
 #include "TrkParametersBase/ParametersBase.h"
-#include "TrkParametersBase/SurfaceUniquePtrT.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "TrkSurfaces/DistanceSolution.h"
 // Amg
@@ -152,7 +152,8 @@ public:
    * rotation) */
   virtual const Amg::Vector3D& normal() const;
 
-  /** Returns a normal vector at a specific local position */
+  /** Returns a normal vector at a specific local position
+   */
   virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const;
 
   /** Returns a global reference point on the surface,
@@ -177,7 +178,8 @@ public:
   virtual const Trk::Surface* baseSurface() const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged */
+   * charged. The caller assumes ownership of the returned ptr.
+   */
   virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
     double,
     double,
@@ -187,7 +189,8 @@ public:
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
-   * charged*/
+   * charged  The caller assumes ownership of the returned ptr
+   */
   virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
     const Amg::Vector3D&,
     const Amg::Vector3D&,
@@ -195,7 +198,8 @@ public:
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * neutral */
+   * neutral.  The caller assumes ownership of the returned ptr
+   */
   virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(
     double,
     double,
@@ -205,7 +209,8 @@ public:
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
-   * neutral */
+   * neutral. The caller assumes ownership of the returned ptr
+   */
   virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(
     const Amg::Vector3D&,
     const Amg::Vector3D&,
@@ -213,14 +218,18 @@ public:
     AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** positionOnSurface() returns a pointer to a LocalPosition on the
-    Surface,<br> If BoundaryCheck==false it just returns the value of
-    globalToLocal (including NULL pointer possibility), if BoundaryCheck==true
-    it checks whether the point is inside bounds or not (returns NULL pointer in
-    this case). */
-  const Amg::Vector2D* positionOnSurface(const Amg::Vector3D& glopo,
-                                         const BoundaryCheck& bchk = true,
-                                         double tol1 = 0.,
-                                         double tol2 = 0.) const;
+    Surface,<br>
+    If BoundaryCheck==false it just returns the value of
+    globalToLocal (including nullptr possibility),
+    if BoundaryCheck==true
+    it checks whether the point is inside bounds or not (returns nullptr
+    pointer in this case).
+    The caller assumes ownership of the returned ptr.
+    */
+  Amg::Vector2D* positionOnSurface(const Amg::Vector3D& glopo,
+                                   const BoundaryCheck& bchk = true,
+                                   double tol1 = 0.,
+                                   double tol2 = 0.) const;
 
   /** The templated Parameters OnSurface method - checks on surface pointer
    * first */
@@ -244,33 +253,73 @@ public:
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
                                  const BoundaryCheck& bchk) const = 0;
 
-  /** This method returns the GlobalPosition from a LocalPosition
-    The LocalPosition can be outside Surface bounds - only for planar, cylinder
-    surfaces fully defined */
-  const Amg::Vector3D* localToGlobal(const Amg::Vector2D& locpos) const;
-
-  /** This method returns the GlobalPosition from a LocalPosition
-    The LocalPosition can be outside Surface bounds - for generality with
-    momentum*/
-  const Amg::Vector3D* localToGlobal(const Amg::Vector2D& locpos,
-                                     const Amg::Vector3D& glomom) const;
-
-  /** This method returns the GlobalPosition from LocalParameters
-    The LocalParameters can be outside Surface bounds - only for planar,
-    cylinder surfaces fully defined */
-  const Amg::Vector3D* localToGlobal(const LocalParameters& locpars) const;
-
-  /** This method returns the GlobalPosition from LocalParameters
-    The LocalParameters can be outside Surface bounds - for generality with
-    momentum */
-  const Amg::Vector3D* localToGlobal(const LocalParameters& locpars,
-                                     const Amg::Vector3D& glomom) const;
-
   /** Specified by each surface type: LocalToGlobal method without dynamic
    * memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
                              const Amg::Vector3D& mom,
                              Amg::Vector3D& glob) const = 0;
+
+  /** This method returns the GlobalPosition from a LocalPosition
+   * uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * The caller is responsible for deleting the ptr.
+   */
+  Amg::Vector3D* localToGlobal(const Amg::Vector2D& locpos) const;
+
+  /** This method returns the GlobalPosition from a LocalPosition
+   * uses the per surface localToGlobal. Return by value
+   */
+  Amg::Vector3D localToGlobalPos(const Amg::Vector2D& locpos) const;
+
+  /** This method returns the GlobalPosition from a LocalPosition
+   * The LocalPosition can be outside Surface bounds - for generality with
+   * momentum
+   *
+   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * The caller is responsible for deleting the ptr.
+   */
+
+  Amg::Vector3D* localToGlobal(const Amg::Vector2D& locpos,
+                               const Amg::Vector3D& glomom) const;
+
+  /** This method returns the GlobalPosition from a LocalPosition
+   * The LocalPosition can be outside Surface bounds - for generality with
+   * momentum
+   * Return by value No memeory allocation
+   */
+  Amg::Vector3D localToGlobalPos(const Amg::Vector2D& locpos,
+                                 const Amg::Vector3D& glomom) const;
+
+  /** This method returns the GlobalPosition from LocalParameters
+   * The LocalParameters can be outside Surface bounds.
+   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * The caller is responsible for deleting the ptr.
+   */
+  Amg::Vector3D* localToGlobal(const LocalParameters& locpars) const;
+
+  /** This method returns the GlobalPosition from LocalParameters
+   * The LocalParameters can be outside Surface bounds.
+   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * Return by value no memory allocation
+   */
+  Amg::Vector3D localToGlobalPos(const LocalParameters& locpars) const;
+
+  /** This method returns the GlobalPosition from LocalParameters
+   * The LocalParameters can be outside Surface bounds - for generality with
+   * momentum
+   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * The caller is responsible for deleting the ptr.
+   */
+  Amg::Vector3D* localToGlobal(const LocalParameters& locpars,
+                               const Amg::Vector3D& glomom) const;
+
+  /** This method returns the GlobalPosition from LocalParameters
+   * The LocalParameters can be outside Surface bounds - for generality with
+   * momentum
+   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * Return by value no memory allocation
+   */
+  Amg::Vector3D localToGlobalPos(const LocalParameters& locpars,
+                                 const Amg::Vector3D& glomom) const;
 
   /** Specified by each surface type: GlobalToLocal method without dynamic
    * memory allocation - boolean checks if on surface */
@@ -283,16 +332,16 @@ public:
     This method does not check if the calculated LocalPosition is inside surface
     bounds. If this check is needed, use positionOnSurface - only for planar,
     cylinder surface fully defined*/
-  const Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
-                                     double tol = 0.) const;
+  Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
+                               double tol = 0.) const;
 
   /** This method returns the LocalPosition from a provided GlobalPosition.
       If the GlobalPosition is not on the Surface, it returns a NULL pointer.
       This method does not check if the calculated LocalPosition is inside
      surface bounds. If this check is needed, use positionOnSurface - for
      generality with momentum */
-  const Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
-                                     const Amg::Vector3D& glomom) const;
+  Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
+                               const Amg::Vector3D& glomom) const;
 
   /** Optionally specified by each surface type : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(

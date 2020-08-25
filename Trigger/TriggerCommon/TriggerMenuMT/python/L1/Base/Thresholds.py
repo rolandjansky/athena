@@ -65,7 +65,7 @@ class MenuThresholdsCollection( object ):
 
     def json(self):
         confObj = odict()
-        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO, ThrType.MUTOPO, ThrType.MULTTOPO ]):
+        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO, ThrType.MUTOPO ]):
             confObj[ttype.name] = odict()
             confObj[ttype.name]["type"] = ttype.name
             confObj[ttype.name]["thresholds"] = odict()
@@ -246,6 +246,7 @@ class LegacyThreshold( Threshold ):
                     ("etamax", thrV.etamax),
                     ("phimin", thrV.phimax),
                     ("phimax", thrV.phimin),
+                    ("window", thrV.window),
                     ("priority", thrV.priority)
                 ]) )
         elif self.ttype == ThrType.TE:
@@ -616,7 +617,7 @@ class ThresholdValue(object):
         for rv in listOfThrValues:
             if rv.priority != self.priority:
                 continue
-            if (self.etamax >= rv.etamin) and (self.etamin <= rv.etamax):
+            if (self.etamax > rv.etamin) and (self.etamin < rv.etamax):
                 # overlaps with existing range of the same priority
                 raise RuntimeError( "ThresholdValue %s: Range eta %i - %i (priority %i) overlaps with existing range of the same priority" % \
                                     (self.name, self.etamin, self.etamax, self.priority) )

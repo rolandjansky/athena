@@ -193,7 +193,7 @@ StatusCode Pythia8B_i::callGenerator(){
             if ( (isBQuark && m_selectBQuarks) || ((isCQuark && m_selectCQuarks)) ) {
                 bool passesPtCut(false); bool passesEtaCut(false);
                 std::string accString = " : REJECTED";
-                double qpt = event[i].pT(); double qeta = fabs(event[i].eta());
+                double qpt = event[i].pT(); double qeta = std::abs(event[i].eta());
                 if (qpt>m_qPtCut) passesPtCut=true;
                 if (qeta<m_qEtaCut) passesEtaCut=true;
                 if (passesPtCut && passesEtaCut) {
@@ -210,7 +210,7 @@ StatusCode Pythia8B_i::callGenerator(){
             if ( (isAntiBQuark && m_selectBQuarks) || ((isAntiCQuark && m_selectCQuarks)) ) {
                 bool passesPtCut(false); bool passesEtaCut(false);
                 std::string accString = " : REJECTED";
-                double aqpt = event[i].pT(); double aqeta = fabs(event[i].eta());
+                double aqpt = event[i].pT(); double aqeta = std::abs(event[i].eta());
                 if (aqpt>m_aqPtCut) passesPtCut=true;
                 if (aqeta<m_aqEtaCut) passesEtaCut=true;
                 if (passesPtCut && passesEtaCut) {
@@ -489,7 +489,7 @@ bool Pythia8B_i::leptonSelect(Pythia8::Event &theEvent, std::vector<double> ptCu
             double eta = theParticle.eta();
             ATH_MSG_DEBUG("Lepton of type " << id << " with pt/eta " << pt << "/" << eta);
             for (int cutCntr=0; cutCntr<nCuts; ++cutCntr) {
-                if ( (pt>ptCut[cutCntr]) && (fabs(eta)<etaCut) ) {
+                if ( (pt>ptCut[cutCntr]) && (std::abs(eta)<etaCut) ) {
                     countGood[cutCntr] += 1;
                     leptonIDs.push_back(i); // remember leptons
                 }
@@ -555,17 +555,17 @@ bool Pythia8B_i::pairProperties(Pythia8::Event &theEvent, std::vector<int> lepto
             double py1=theEvent[*iit].py();
             double pz1=theEvent[*iit].pz();
             double mass1=theEvent[*iit].mSel();
-            double e1=sqrt(px1*px1+py1*py1+pz1*pz1+mass1*mass1);
+            double e1=std::sqrt(px1*px1+py1*py1+pz1*pz1+mass1*mass1);
             double px2=theEvent[*iit2].px();
             double py2=theEvent[*iit2].py();
             double pz2=theEvent[*iit2].pz();
             double mass2=theEvent[*iit2].mSel();
-            double e2=sqrt(px2*px2+py2*py2+pz2*pz2+mass2*mass2);
+            double e2=std::sqrt(px2*px2+py2*py2+pz2*pz2+mass2*mass2);
             double eSum=e1+e2;
             double pxSum=px1+px2;
             double pySum=py1+py2;
             double pzSum=pz1+pz2;
-            double M=sqrt(eSum*eSum-pxSum*pxSum-pySum*pySum-pzSum*pzSum);
+            double M=std::sqrt(eSum*eSum-pxSum*pxSum-pySum*pySum-pzSum*pzSum);
             if (M>massCut) {
                 passesCuts=true;
                 ATH_MSG_DEBUG("Acceptable lepton pair with invariant mass : " << M);
@@ -635,7 +635,7 @@ bool Pythia8B_i::passesCuts(std::vector<Pythia8::Particle> theParticles, std::ve
     unsigned int i(0);
     for (pItr=theParticles.begin(); pItr!=theParticles.end(); ++pItr,++i) {
         if (cutType=="PT") {if ((*pItr).pT() < cuts[i]) pass = false;}
-        if (cutType=="ETA") {if (fabs((*pItr).eta()) > cuts[i]) pass = false;}
+        if (cutType=="ETA") {if (std::abs((*pItr).eta()) > cuts[i]) pass = false;}
         if (!pass) break;
     }
     

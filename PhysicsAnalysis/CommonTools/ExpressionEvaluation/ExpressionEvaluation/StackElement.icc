@@ -37,12 +37,12 @@ namespace ExpressionParsing {
         m_variableType(static_cast<IProxyLoader::VariableType>(a.m_variableType)),
         m_determinedVariableType(a.m_determinedVariableType ? true : false)
    {
-      if (a.m_moved) throw std::logic_error("Content already moved"); \
+      if (a.m_moved) throw std::logic_error("Content already moved");
    }
 
    inline StackElement &StackElement::operator=(StackElement &&a) {
       if (&a != this) {
-         if (a.m_moved) throw std::logic_error("Content already moved"); \
+         if (a.m_moved) throw std::logic_error("Content already moved");
          m_type                   = a.m_type;
          m_intVal                 = a.m_intVal;
          m_doubleVal              = a.m_doubleVal;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -63,7 +63,7 @@ StatusCode TrigExpressStreamAlg::execute()
 
     const std::vector< xAOD::EventInfo::StreamTag > streamTags =evtInfo->streamTags(); 
     bool found_express_stream = false;
-    for(const xAOD::EventInfo::StreamTag stag:streamTags){
+    for(const xAOD::EventInfo::StreamTag& stag:streamTags){
         if(stag.type() == "express" && stag.name() == "express") {
             found_express_stream = true;
             break;
@@ -81,7 +81,7 @@ StatusCode TrigExpressStreamAlg::execute()
     if(m_evtNr==1){
         std::vector<std::string> configuredHLTChains = m_trigDec->getListOfTriggers( "HLT_.*" );
         // Get list of triggers in the Express Stream
-        for(const auto chain:configuredHLTChains){
+        for(const auto& chain:configuredHLTChains){
             const HLT::Chain *aChain=em->getChainDetails(chain);
             const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain);
             const std::vector<TrigConf::HLTStreamTag*> chainStreams=trig_conf->streams();
@@ -106,7 +106,7 @@ StatusCode TrigExpressStreamAlg::execute()
     // Trigger bits only stored for event not per stream 
     // No way to determine whether a trigger was disabled due to
     // physics prescale or ES prescale
-    for(const auto chain:m_streamTriggers){
+    for(const auto& chain:m_streamTriggers){
         const unsigned int bits = m_trigDec->isPassedBits(chain);
         bool isPassed = m_trigDec->isPassed(chain);
 
@@ -162,7 +162,7 @@ StatusCode TrigExpressStreamAlg::execute()
 //---------------------------------------------------------------------------------------
 StatusCode TrigExpressStreamAlg::finalize()
 {
-   for(const std::string chain:m_streamTriggers){
+   for(const std::string& chain:m_streamTriggers){
        ATH_MSG_INFO( " Chain " << chain);
        ATH_MSG_INFO( "Number of events with a HLT passed probe muon: " << m_numHLTPassedEvents[chain] );
        ATH_MSG_INFO( "Number of events with a HLT passed probe muon: " << m_numL1PrescaledEvents[chain] );

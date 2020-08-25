@@ -8,7 +8,8 @@ from BTagging.BTagLightSecVertexingConfig import BTagLightSecVtxToolCfg
 # import the JetBTaggingAlg configurable
 Analysis__JetBTaggingAlg = CompFactory.Analysis.JetBTaggingAlg
 
-def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", SVandAssoc={""}, TimeStamp = "", **options):
+
+def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName="", TaggerList=[], SetupScheme="", SVandAssoc={""}, TimeStamp = "", **options):
 
     acc = ComponentAccumulator()
     jetcol = JetCollection
@@ -22,10 +23,10 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
     for assoc in BTagTrackToJetAssocNameList:
         TrackToJetAssociatorNameList.append(jetcol.replace('Track', 'PV0Track') + 'Jets.' + assoc)
 
-    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList)))
+    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName, SetupScheme)))
 
     # setup the secondary vertexing tool
-    options['BTagSecVertexing'] = acc.popToolsAndMerge(BTagLightSecVtxToolCfg(ConfigFlags, 'LightSecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, SVandAssoc =SVandAssoc, TimeStamp = ts, **options))
+    options['BTagSecVertexing'] = acc.popToolsAndMerge(BTagLightSecVtxToolCfg(ConfigFlags, 'LightSecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, PrimaryVertexCollectionName, SVandAssoc =SVandAssoc, TimeStamp = ts, **options))
 
     btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
     # Set remaining options
@@ -34,6 +35,7 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
     options['JetCalibrationName'] = jetcol.replace('Track', 'PV0Track')
     options['BTagSVCollectionName'] = btagname + 'SecVtx'
     options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
+
     options['BTaggingLinkName'] = options['JetCollectionName'] + '.btaggingLink'+ts
     if ts:
         btagname += '_'+ts

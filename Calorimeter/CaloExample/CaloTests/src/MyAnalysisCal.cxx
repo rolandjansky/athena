@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTests/AnalysisCal.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 
@@ -103,7 +103,7 @@ namespace MyAnalysisCal {
 
   double etot_cal=0;
   nhit_tot=0;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_calibHitContainerNames)
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_calibHitContainerNames)
   {
     SG::ReadHandle<CaloCalibrationHitContainer> calocalibrationhit_container (k, ctx);
     for (const CaloCalibrationHit* calibhit : *calocalibrationhit_container) {

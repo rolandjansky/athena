@@ -7,7 +7,7 @@
 #Important to keep lists updated
 primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e28_lhtight_nod0','HLT_e60_lhmedium_nod0_L1EM24VHI','HLT_e80_lhmedium_nod0_L1EM24VHI','HLT_e140_lhloose_nod0_L1EM24VHI']
 primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose',]
-monitoring_Zee = ['HLT_e26_lhtight_nod0_e15_etcut_L1EM7_Zee']
+monitoring_Zee = ['HLT_e26_lhtight_nod0_ivarloose', 'HLT_e26_lhtight_nod0_e15_etcut_L1EM7_Zee']
 monitoring_Jpsiee = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 primary_single_pho = ['HLT_g140_tight','HLT_g200_loose']
 
@@ -63,7 +63,9 @@ monitoring_L1Calo = []
 commission_electron = []
 
 monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM22VHI',
+                       'HLT_e60_lhmedium_nod0_L1EM24VHI',
                        'HLT_e140_lhloose_nod0_L1EM22VHI'
+                       'HLT_e140_lhloose_nod0_L1EM24VHI'
                        ]
 # monitoring_electron += commission_electron
 
@@ -74,7 +76,10 @@ commissionTP_electron = [
                          'HLT_e24_lhvloose_nod0_sc_gsf']
 
 monitoringTP_electron = [
+                         'HLT_e15_lhloose_nod0',
+                         'HLT_e24_lhmedium_nod0_L1EM20VH',
                          'HLT_e26_lhtight_nod0_ivarloose',                        
+                         'HLT_e28_lhtight_idperf',                        
                          'HLT_e28_lhtight_nod0_ivarloose',                        
                          'HLT_e24_lhvloose_nod0_L1EM20VH'
                          ]
@@ -83,9 +88,12 @@ monitoringTP_electron += commissionTP_electron
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
-                     'HLT_g25_medium_sc_L1EM20VH',
+                     'HLT_g25_loose_L1EM20VH',
+                     'HLT_g35_loose_L1EM20VH',
                      'HLT_g20_tight_icalovloose_L1EM15VHI',
-                     'HLT_g200_loose']
+                     'HLT_g120_loose'
+                     'HLT_g200_loose'
+                     ]
 
 #Add the Menu-Aware monitoring; maps a trigger to a category
 monitoring_mam = {'primary_single_ele_iso':'HLT_e26_lhtight_nod0_ivarloose',

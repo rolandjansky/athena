@@ -61,13 +61,72 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
   if(m_LepPtmin*m_LepPtmax <0 && m_LepPtmin < 0 ) m_LepPtmin = 0.;
   if(m_LepPtmin*m_LepPtmax <0 && m_LepPtmax < 0 ) m_LepPtmax = 14000000.; // 14 TeV
 
-  std::vector<HepMC::GenParticlePtr> tops;
-  std::vector<HepMC::GenParticlePtr> ws;   // W from top decay (from tops)
-  std::vector<HepMC::GenParticlePtr> leps; // e, mu, tau from W decay (from ws)
-  std::vector<HepMC::GenParticlePtr> nus;  // nutrino from W decay (from ws)
+  std::vector<HepMC::ConstGenParticlePtr> tops;
+  std::vector<HepMC::ConstGenParticlePtr> ws;   // W from top decay (from tops)
+  std::vector<HepMC::ConstGenParticlePtr> leps; // e, mu, tau from W decay (from ws)
+  std::vector<HepMC::ConstGenParticlePtr> nus;  // nutrino from W decay (from ws)
 
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto  pitr: *genEvt) {
+      if (std::abs(pitr->pdg_id()) != 6) continue;
+        if ( pitr->pdg_id() ==  6 ) N_quark_t_all++;
+        if ( pitr->pdg_id() == -6 ) N_quark_tbar_all++;
+        auto decayVtx = pitr->end_vertex();
+        // Verify if we got a valid pointer and retrieve the number of daughters
+        if (!decayVtx) continue;
+        // For this analysis we are not interested in t->t MC structures, only in decays
+          for (auto child_mcpart:  *decayVtx ) {
+            //  Implicitly assume that tops always decay to W X
+            if (std::abs(child_mcpart->pdg_id()) == 24) {
+              if ( pitr->pdg_id() ==  6 ){
+		N_quark_t++;
+		tops.push_back(pitr);			  
+		ws.push_back(child_mcpart);
+	      }
+              if ( pitr->pdg_id() == -6 ){
+		N_quark_tbar++;
+		tops.push_back(pitr);	
+		ws.push_back(child_mcpart);		  
+	      }
+              bool  useNextVertex = false;
+              auto  w_decayVtx = child_mcpart->end_vertex();
+
+              while (w_decayVtx) {
+                useNextVertex = false;
+                for (auto  grandchild_mcpart: *w_decayVtx) {
+			      int grandchild_pid = grandchild_mcpart->pdg_id();
+			      ATH_MSG_DEBUG("W (t/tbar) has " << w_decayVtx->particles_out().size() << " children and the pdg_id of the next is " << grandchild_pid);
+			      // Check if the W's child is W again. If yes, then move to its next decay vertex in a decay tree
+			      if (std::abs(grandchild_pid) == 24) {
+					w_decayVtx = grandchild_mcpart->end_vertex();
+
+					// If something wrong comes from truth...
+					if (!w_decayVtx) {
+                                        ATH_MSG_ERROR("A stable W is found... ");
+                                        break;
+					}
+					useNextVertex = true;
+					break;
+			      }
+			      if (std::abs(grandchild_pid) == 11 ||  std::abs(grandchild_pid) == 13 || std::abs(grandchild_pid) == 15) {
+				leps.push_back(grandchild_mcpart);
+					if (grandchild_mcpart->momentum().perp() >= m_Ptmin) N_pt_above_cut++;
+					// W decay lepton is found. Break loop over the decay product particles
+					// break;
+			      }
+			      if (abs(grandchild_pid) == 12 ||  abs(grandchild_pid) == 14 || abs(grandchild_pid) == 16) {
+				nus.push_back(grandchild_mcpart);
+			      }
+                }
+                // If investigation of W's next decay vertex is not required then finish looking for leptons
+                if (!useNextVertex) break;
+              }
+            }
+          }
+    }
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if (std::abs((*pitr)->pdg_id()) == 6) {
         if ( (*pitr)->pdg_id() ==  6 ) N_quark_t_all++;
@@ -154,6 +213,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
         }
       }
     }
+#endif
   }
 
   if(tops.size()==2){
@@ -231,29 +291,21 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
     for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
       event++;
       const HepMC::GenEvent* genEvt = (*itr);
-      HepMC::GenEvent::particle_const_iterator mcpartItr  = genEvt->particles_begin();
-      HepMC::GenEvent::particle_const_iterator mcpartItrE = genEvt->particles_end();
-      int part ( 0 );
-      for (; mcpartItr != mcpartItrE; ++mcpartItr) {
+      int part=0;
+      for (auto mcpart: *genEvt ) {
         part++;
-        HepMC::GenParticle * mcpart = (*mcpartItr);
         int pid = mcpart->pdg_id();
         ATH_MSG_ERROR("In event (from MC collection) " << event << " particle number " << part << " has pdg_id = " << pid);
 
         // retrieve decay vertex
-        const HepMC::GenVertex * decayVtx = mcpart->end_vertex();
-
+        auto decayVtx = mcpart->end_vertex();
         // verify if we got a valid pointer
-        if ( decayVtx != 0 ) {
-          HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = decayVtx->particles_out_const_begin();
-          HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = decayVtx->particles_out_const_end();
-          int part_child ( 0 );
-          for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
-            part_child++;
-            HepMC::GenParticle * child_mcpart = (*child_mcpartItr);
-            int child_pid = child_mcpart->pdg_id();
-            ATH_MSG_ERROR("          child " << part_child << " with pdg_id = " << child_pid);
-          }
+        if ( !decayVtx)  continue;
+        int part_child =0 ;
+        for ( auto  child_mcpart: *decayVtx) {
+        part_child++;
+        int child_pid = child_mcpart->pdg_id();
+        ATH_MSG_ERROR("          child " << part_child << " with pdg_id = " << child_pid);
         }
       }
     }

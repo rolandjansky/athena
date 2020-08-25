@@ -1,14 +1,7 @@
-################################################################################
-# Package: TestTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TestTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   GaudiKernel )
 
 # In standalone mode we just use the headers from the package. While in
 # offline mode we build a proper library.

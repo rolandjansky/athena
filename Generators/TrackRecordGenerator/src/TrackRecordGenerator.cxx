@@ -82,10 +82,10 @@ StatusCode TrackRecordGenerator::callGenerator() {
         particle4Position.setY( particle4Position.y() + CLHEP::RandFlat::shoot(&randomEngine(), -m_smearTR, m_smearTR) );
       } else {
         particle4Position.setZ( particle4Position.z() + CLHEP::RandFlat::shoot(&randomEngine(), -m_smearTR, m_smearTR) );
-        double R = sqrt( pow( particle4Position.x(),2 ) + pow(particle4Position.y(),2 ) );
-        double dPhi = atan2( m_smearTR, R );
+        double R = std::sqrt( std::pow( particle4Position.x(),2 ) + std::pow(particle4Position.y(),2 ) );
+        double dPhi = std::atan2( m_smearTR, R );
         dPhi = CLHEP::RandFlat::shoot( &randomEngine(), -dPhi, dPhi );
-        double theta = atan2( particle4Position.x() , particle4Position.y() );
+        double theta = std::atan2( particle4Position.x() , particle4Position.y() );
         particle4Position.setX( R*sin( theta + dPhi ) );
         particle4Position.setY( R*cos( theta + dPhi ) );
       }

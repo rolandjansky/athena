@@ -86,16 +86,12 @@ StatusCode EnhancedBiasWeighter::loadWeights()
   // Construct name
   std::stringstream fileNameDev, fileName;
   const uint32_t runNumber = m_runNumber; // This is because Gaudi::Properties have special behaviour with the << operator
-  fileName    << "TrigCostRootAnalysis/EnhancedBiasWeights_" << runNumber << ".xml";
-  fileNameDev << "dev/TrigCostRootAnalysis/EnhancedBiasWeights_" << runNumber << ".xml";
+  fileName  << "TrigCostRootAnalysis/EnhancedBiasWeights_" << runNumber << ".xml";
 
   std::string weightingFile = PathResolverFindCalibFile( fileName.str() );  // Check standard area
   if (weightingFile == "") {
-    weightingFile = PathResolverFindCalibFile( fileNameDev.str() ); // Else check DEV area
-    if (weightingFile == "") {
-      ATH_MSG_WARNING ("Could not retrieve " << fileName.str() << " or " << fileNameDev.str() << ", cannot perform enhanced bias weighting.");
-      return StatusCode::FAILURE;
-    }
+    msg() << (m_errorOnMissingEBWeights ? MSG::ERROR : MSG::WARNING)  << "Could not retrieve " << fileName.str() << ", cannot perform enhanced bias weighting." << endmsg;
+    return (m_errorOnMissingEBWeights ? StatusCode::FAILURE : StatusCode::SUCCESS);
   }
 
   std::unique_ptr<TXMLEngine> xml(new TXMLEngine() );
@@ -167,16 +163,11 @@ StatusCode EnhancedBiasWeighter::loadLumi()
   // Construct name
   std::stringstream fileNameDev, fileName;
   fileName    << "TrigCostRootAnalysis/enhanced_bias_run_" << runNumber << ".xml";
-  fileNameDev << "dev/TrigCostRootAnalysis/enhanced_bias_run_" << runNumber << ".xml";
 
   std::string runFile = PathResolverFindCalibFile( fileName.str() );  // Check standard area
   if (runFile == "") {
-    runFile = PathResolverFindCalibFile( fileNameDev.str() ); // Else check DEV area
-  }
-
-  if (runFile == "") {
-    ATH_MSG_FATAL ("Could not retrieve " << fileName.str() << ", cannot perform enhanced bias weighting.");
-    return StatusCode::FAILURE;
+    msg() << (m_errorOnMissingEBWeights ? MSG::ERROR : MSG::WARNING)  << "Could not retrieve " << fileName.str() << ", cannot perform enhanced bias weighting." << endmsg;
+    return (m_errorOnMissingEBWeights ? StatusCode::FAILURE : StatusCode::SUCCESS);
   }
 
   std::unique_ptr<TXMLEngine> xml(new TXMLEngine());
@@ -524,7 +515,9 @@ double EnhancedBiasWeighter::getEBLiveTime(const xAOD::EventInfo* eventInfo) con
         // Else calculate
         const auto mapIterator = m_eventsPerLB.find(lumiBlock);
         if (mapIterator == m_eventsPerLB.end() ) {
-          ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
+          if (m_errorOnMissingEBWeights) {
+            ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
+          }
           return 0;
         } 
         const int32_t eventsInThisLB = mapIterator->second;
@@ -568,8 +561,10 @@ double EnhancedBiasWeighter::getEBLiveTime(const EventContext& context) const
         // Else calculate
         const auto mapIterator = m_eventsPerLB.find(lumiBlock);
         if (mapIterator == m_eventsPerLB.end() ) {
-          ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
-          return 0;
+          if (m_errorOnMissingEBWeights) {
+            ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
+          }
+          return 0.;
         } 
         const int32_t eventsInThisLB = mapIterator->second;
         const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
@@ -587,6 +582,40 @@ double EnhancedBiasWeighter::getEBLiveTime(const EventContext& context) const
       ATH_MSG_ERROR( "Cannot use EventContext based getEBLiveTime unless calculating it. Needs full EventInfo.");
       return 0.;
 
+  }
+}
+
+double EnhancedBiasWeighter::getLBLength(const xAOD::EventInfo* eventInfo) const {
+  if (m_calculateWeightingData) {
+    if (m_isMC) {
+      ATH_MSG_ERROR( "getLBLength Does not work for MC.");
+      return 0.;
+    } else {
+      uint32_t lumiBlock = eventInfo->lumiBlock();
+      const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
+      return lbLength;
+    } // isData
+  } else {
+    ATH_MSG_ERROR( "getLBLength Requires CalculateWeightingData=True");
+    return 0.;
+  }
+}
+
+
+
+double EnhancedBiasWeighter::getLBLength(const EventContext& context) const {
+  if (m_calculateWeightingData) {
+    if (m_isMC) {
+      ATH_MSG_ERROR( "getLBLength Does not work for MC.");
+      return 0.;
+    } else {
+      uint32_t lumiBlock = context.eventID().lumi_block();
+      const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
+      return lbLength;
+    } // isData
+  } else {
+    ATH_MSG_ERROR( "getLBLength Requires CalculateWeightingData=True");
+    return 0.;
   }
 }
 

@@ -22,4 +22,4 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( InDetCaloClusterROIBuilder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloDetDescrLib AthenaBaseComps xAODCaloEvent xAODEgamma GaudiKernel InDetRecToolInterfaces TrkSurfaces TrkCaloClusterROI TrkEventPrimitives )
+                     LINK_LIBRARIES CaloDetDescrLib AthenaBaseComps xAODCaloEvent xAODEgamma GaudiKernel InDetRecToolInterfaces TrkSurfaces TrkCaloClusterROI TrkEventPrimitives CaloTrackingGeometryLib )

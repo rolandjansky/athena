@@ -24,6 +24,7 @@ def setupMenu():
     # be aware that it is necessary to leave at least one chain in the muon slice
     # otherwise athenaHLT will seg-fault 
     #---------------------------------------------------------------------
+
     log = logging.getLogger( __name__ )
     log.info('Executing menu....')
 
@@ -46,11 +47,11 @@ def setupMenu():
         ChainProp(name='HLT_TestChain6_muv1_TestChain10_ev1_L1MU6_EM5', stream=['Main'], groups=['RATE:Test','BW:Other'] ), #serial         
         ChainProp(name='HLT_TestChain6_muv2_TestChain8_ev2_L1MU6_EM5',  stream=['Main'], groups=['RATE:Test','BW:Other'] ),
         ChainProp(name='HLT_TestChain5_ev1_TestChain8_ev1_L12EM3',      stream=['Main'], groups=['RATE:Test','BW:Other']),
-        ChainProp(name='HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6', stream=['Main'], groups=['RATE:Test','BW:Other']   ),
+#        ChainProp(name='HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6', stream=['Main'], groups=['RATE:Test','BW:Other']   ),
         ChainProp(name='HLT_2TestChain6_muv1_L12MU6',                   stream=['Main'], groups=['RATE:Test','BW:Other']   ),
         ChainProp(name='HLT_TestChain6_muv1_TestChain10_muv1_L12MU6',   stream=['Main'], groups=['RATE:Test','BW:Other']  ),        
         ChainProp(name='HLT_2TestChain6_muEmpty1_L12MU6',               stream=['Main'], groups=['RATE:Test','BW:Other']), #may differ from manual
-        ChainProp(name='HLT_TestChain6_muv1_TestChain5_ev1dr_L12MU6',   stream=['Main'], groups=['RATE:Test','BW:Other'] ), 
+        ChainProp(name='HLT_TestChain6_muv1_TestChain5_ev1dr_L1MU6_EM5',   stream=['Main'], groups=['RATE:Test','BW:Other'] ), 
         ChainProp(name='HLT_2TestChain4_muv1dr_L12MU6', stream=['Main'], groups=['RATE:Test','BW:Other'] ),
 
         # FSNOSEED not implemented in emulation

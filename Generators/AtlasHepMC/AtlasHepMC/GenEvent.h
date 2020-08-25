@@ -1,6 +1,8 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-   Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/* Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de */
+
 #ifndef ATLASHEPMC_GENEVENT_H
 #define ATLASHEPMC_GENEVENT_H
 #ifdef HEPMC3
@@ -11,6 +13,7 @@
 #include "HepMC3/PrintStreams.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 namespace HepMC3
 {
 inline std::vector<HepMC3::GenParticlePtr>::const_iterator  begin(HepMC3::GenEvent& e){ return e.particles().begin(); }
@@ -44,7 +47,7 @@ auto barcode_attr=e->attribute<HepMC3::IntAttribute>("barcode");
 if (!barcode_attr) continue;
 if (barcode_attr->value()==id) return v;
 }
-if (-id>0&&-id<(int)vertices.size()) return vertices[-id];
+if (-id>0&&-id<=(int)vertices.size()) return vertices[-id-1];
 return  HepMC3::GenVertexPtr(); 
 }
 
@@ -56,7 +59,7 @@ auto barcode_attr=p->attribute<HepMC3::IntAttribute>("barcode");
 if (!barcode_attr) continue;
 if (barcode_attr->value()==id) return p;
 }
-if (id>0&&id<(int)particles.size()) return particles[id];
+if (id>0&&id<=(int)particles.size()) return particles[id-1];
 return  HepMC3::GenParticlePtr(); 
 }
 

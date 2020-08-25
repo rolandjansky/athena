@@ -54,25 +54,23 @@ Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 	m_summaryTypeScore[Trk::numberOfRpcEtaHits]	= 10;
 }
 
-Trk::TrackScoringTool::~TrackScoringTool()
-{
+Trk::TrackScoringTool::~TrackScoringTool(){
 }
 
-StatusCode Trk::TrackScoringTool::initialize()
-{
+StatusCode 
+Trk::TrackScoringTool::initialize(){
 	ATH_CHECK( AlgTool::initialize());
 	ATH_CHECK( m_trkSummaryTool.retrieve());
 	ATH_MSG_VERBOSE("Retrieved tool " << m_trkSummaryTool );
 	return StatusCode::SUCCESS;
 }
 
-StatusCode Trk::TrackScoringTool::finalize()
-{
+StatusCode Trk::TrackScoringTool::finalize(){
 	return AlgTool::finalize();
 }
 
-Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const
-{
+Trk::TrackScore 
+Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const{
 	const TrackSummary* summary = nullptr;
 	if (suppressHoleSearch)
 	  summary = m_trkSummaryTool->createSummaryNoHoleSearch(track);
@@ -84,8 +82,8 @@ Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool sup
 	return score;
 }
 
-Trk::TrackScore Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trackSummary ) const
-{
+Trk::TrackScore 
+Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trackSummary ) const{
 	// --- reject bad tracks
 	if (track.fitQuality() && track.fitQuality()->numberDoF() < 0) {
 	  ATH_MSG_VERBOSE("numberDoF < 0, reject it");
@@ -100,8 +98,7 @@ Trk::TrackScore Trk::TrackScoringTool::simpleScore( const Track& track, const Tr
 	}
 
 	// --- summary score analysis
-	for (int i=0; i<Trk::numberOfTrackSummaryTypes; ++i) 
-	{
+	for (int i=0; i<Trk::numberOfTrackSummaryTypes; ++i) {
 		int value = trackSummary.get(static_cast<Trk::SummaryType>(i));
 		//value is -1 if undefined.
 		if (value>0) { 

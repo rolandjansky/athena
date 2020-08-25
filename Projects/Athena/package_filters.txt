@@ -43,7 +43,6 @@
 - PhysicsAnalysis/TauID/DiTauMassTools
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
-- PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
@@ -64,13 +63,3 @@
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
 
-# some MDT calibration tools which might be removed from athena, disable compilation
-- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibDbAsciiTool
-- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibTools
-- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibValidation
-- MuonSpectrometer/MuonCalib/MuonCalibAlgs
-- MuonSpectrometer/MuonCalib/MuonCalibDbScripts
-- MuonSpectrometer/MuonCalib/MuonCalibJobTransforms
-- MuonSpectrometer/MuonCalib/MuonCalibStandAlone/CalibNtupleAnalysisAlg
-- MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneExtraTools
-- MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneTools

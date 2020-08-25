@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,10 +62,10 @@ public:
   TrapezoidBounds(double minhalex, double haley, double alpha, double beta);
 
   /**Copy constructor*/
-  TrapezoidBounds(const TrapezoidBounds& trabo);
+  TrapezoidBounds(const TrapezoidBounds& trabo) = default;
 
   /**Destructor*/
-  virtual ~TrapezoidBounds();
+  virtual ~TrapezoidBounds() = default;
 
   /**Virtual constructor*/
   virtual TrapezoidBounds* clone() const override;
@@ -74,7 +74,7 @@ public:
   virtual BoundsType type() const override { return SurfaceBounds::Trapezoid; }
 
   /**Assignment operator*/
-  TrapezoidBounds& operator=(const TrapezoidBounds& sbo);
+  TrapezoidBounds& operator=(const TrapezoidBounds& sbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& trabo) const override;

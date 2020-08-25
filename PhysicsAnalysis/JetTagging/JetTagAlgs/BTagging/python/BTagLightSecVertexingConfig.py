@@ -7,7 +7,8 @@ from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactor
 
 Analysis__BTagLightSecVertexing=CompFactory.Analysis.BTagLightSecVertexing
 
-def BTagLightSecVtxToolCfg(flags, Name, JetCollection, SVandAssoc = {""}, TimeStamp = "", **options):
+
+def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionName="", SVandAssoc = {""}, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -45,8 +46,7 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, SVandAssoc = {""}, TimeSt
     options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
     options['BTagVxSecVertexInfoNames'] = VxSecVertexInfoNameList
-    options.setdefault('PrimaryVertexName', flags.BTagging.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName', flags.BTagging.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', PrimaryVertexCollectionName)
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options['JetSecVtxLinkName'] = jetcol + '.' + OutputFilesSVname
     options['JetJFVtxLinkName'] = jetcol + '.' + OutputFilesJFVxname

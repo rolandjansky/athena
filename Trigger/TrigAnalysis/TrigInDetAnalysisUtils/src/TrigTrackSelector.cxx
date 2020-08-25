@@ -341,6 +341,9 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
 
   if ( track ) { 
         
+    // check it is a final state particle - documentation particles have status() == 3     
+    if ( track->status() != 1 ) return false;
+
     /// lazy just to avoid a find-replace of measPer to track
     const xAOD::TruthParticle* measPer = track;
 
@@ -395,13 +398,11 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
     ///     a high et track  
     const double inner_radius = m_radius; /// was hardcoded as 47 - now this can be set from the constructor
     const double outer_radius = m_radius;
+
     if ( (  track->hasProdVtx() && rp<=inner_radius ) && 
 	 ( !track->hasDecayVtx() || rd>outer_radius ) ) final_state = true; 
       
-    /// leave this in for the moment - we may need to uncomment this afterall
-    //    if ( track->status() == 3 ) final_state = false;         /// check its not a documentation particle
-      
-    if ( !final_state ) return 0; 
+    if ( !final_state ) return false; 
     
     double deta = 0;
     double dphi = 0;
@@ -431,7 +432,8 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
 
     unsigned bitmap = 0;
 
-    int trackAuthor = 0;
+    int trackAuthor = track->pdgId();
+    int barcode     = track->barcode();
 
 #if 0
     std::cout << "\t\t\tSUTT TP track" 
@@ -452,7 +454,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
 				      deta,  dphi, dz0, dd0, dpT,
 				      nBlayerHits, nPixelHits, nSctHits, nSiHits,
 				      nStrawHits,  nTrtHits,   bitmap, 0,
-				      trackAuthor,  false, -1, -1,  
+				      trackAuthor,  false, barcode, -1,  
 				      expectBL, id) ;  
 
     /// useful debug info - leave in
@@ -462,6 +464,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
       delete t;
       return false;
     }
+
     return true;
       
   }

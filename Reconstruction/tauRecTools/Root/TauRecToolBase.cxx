@@ -15,7 +15,7 @@
 #include <sstream>
 #include <cstdlib>
 
-//________________________________________
+
 std::string TauRecToolBase::find_file(const std::string& fname) const {
   std::string full_path;
   //offline calib files are in GroupData
@@ -24,16 +24,14 @@ std::string TauRecToolBase::find_file(const std::string& fname) const {
   if(full_path=="") full_path = PathResolverFindCalibFile(fname);
   return full_path;
 }
-
-//________________________________________
 StatusCode TauRecToolBase::readConfig() {
   // Sanity check to see if property ConfigPath is declared for a tool. Might be
   // removed once all tools are updated to have a config path declared.
-  // in athena getProperties returns std::vector<Property*>
+  // in athena getProperties returns std::vector<Gaudi::Details::PropertyBase*>
   // in rc     getProperties returns std::map<std::string,Property*>
 #ifndef XAOD_STANDALONE
   bool configPathDeclared = false;
-  for (Property* property : getProperties())
+  for (Gaudi::Details::PropertyBase* property : getProperties())
   {
     if (property->name() == "ConfigPath")
     {
@@ -124,21 +122,16 @@ StatusCode TauRecToolBase::readConfig() {
   return StatusCode::SUCCESS;
 }
 
-//________________________________________
 TauRecToolBase::TauRecToolBase(const std::string& name) :
   asg::AsgTool(name) {
   declareProperty("inTrigger", m_in_trigger=false);
-  //generally set via tauRec/tauRecFlags.py 
-  //specifically in tauRec/TauRecConfigured.py
   declareProperty("calibFolder", m_tauRecToolsTag="tauRecTools/00-02-00/"); 
 }
 
-//________________________________________
 StatusCode TauRecToolBase::initialize(){
   return StatusCode::SUCCESS;
 }
 
-//________________________________________
 StatusCode TauRecToolBase::eventInitialize(){
   return StatusCode::SUCCESS;
 }
@@ -148,6 +141,18 @@ StatusCode TauRecToolBase::execute(xAOD::TauJet&) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
+
+#ifdef XAOD_ANALYSIS
+StatusCode TauRecToolBase::executeDev(xAOD::TauJet&) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+#else
+StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+#endif
 
 StatusCode TauRecToolBase::executeVertexFinder(xAOD::TauJet&, const xAOD::VertexContainer*, const xAOD::TrackParticleContainer*) const {
   ATH_MSG_ERROR("function not implemented");
@@ -169,22 +174,15 @@ StatusCode TauRecToolBase::executeRNNTrackClassifier(xAOD::TauJet&, xAOD::TauTra
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloClusterContainer& /*shotClusterContainer*/, xAOD::PFOContainer& /*PFOContainer*/ ) {
+StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloClusterContainer& /*shotClusterContainer*/, xAOD::PFOContainer& /*PFOContainer*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
-
-#ifndef XAOD_ANALYSIS
-StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
-  ATH_MSG_ERROR("function not implemented");
-  return StatusCode::FAILURE;
-}
-#endif
 
 StatusCode TauRecToolBase::executePi0ClusterCreator(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, 
 					      xAOD::PFOContainer& /*hadronicPFOContainer*/, 
 					      xAOD::CaloClusterContainer& /*caloClusterContainer*/, 
-					      const xAOD::CaloClusterContainer& /*pCaloClusterContainer*/ ) {
+					      const xAOD::CaloClusterContainer& /*pCaloClusterContainer*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
@@ -194,12 +192,12 @@ StatusCode TauRecToolBase::executeVertexVariables(xAOD::TauJet& /*pTau*/, xAOD::
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executePi0ClusterScaler(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, xAOD::PFOContainer& /*chargedPFOContainer*/ ) {
+StatusCode TauRecToolBase::executePi0ClusterScaler(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, xAOD::PFOContainer& /*chargedPFOContainer*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 } 
 
-StatusCode TauRecToolBase::executePi0nPFO(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/) {
+StatusCode TauRecToolBase::executePi0nPFO(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
@@ -209,12 +207,10 @@ StatusCode TauRecToolBase::executePanTau(xAOD::TauJet& /*pTau*/, xAOD::ParticleC
   return StatusCode::FAILURE;
 }
 
-//________________________________________
-StatusCode TauRecToolBase::eventFinalize() const {
+StatusCode TauRecToolBase::eventFinalize() {
   return StatusCode::SUCCESS;
 }
 
-//________________________________________
 StatusCode TauRecToolBase::finalize(){
   return StatusCode::SUCCESS;
 }

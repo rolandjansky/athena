@@ -6,6 +6,7 @@ def createBTaggingConfigFlags():
     btagcf = AthConfigFlags()
 
     btagcf.addFlag("BTagging.run2TaggersList", ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10','MV2c10mu','MV2c10rnn','MV2c100','MV2cl100','RNNIP','DL1','DL1mu','DL1rnn'])
+    btagcf.addFlag("BTagging.TrigTaggersList", ['IP2D','IP3D','SV1','JetFitterNN','MV2c10','MV2c100'])
     # Disable JetVertexCharge ATLASRECTS-4506
     btagcf.addFlag("BTagging.RunModus", "analysis") # reference mode used in FlavourTagPerformanceFramework (RetagFragment.py)
     btagcf.addFlag("BTagging.ReferenceType", "ALL") # reference type for IP and SV taggers (B, UDSG, ALL)

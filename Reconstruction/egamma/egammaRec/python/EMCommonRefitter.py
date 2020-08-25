@@ -10,6 +10,7 @@ def getGSFTrackFitter():
     egRotCreator = TrackingCommon.getInDetRotCreator(
         name='egRotCreator',
         private=True)
+
     TrackingCommon.createAndAddCondAlg(
         TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
         'RIO_OnTrackErrorScalingCondAlg')
@@ -34,7 +35,9 @@ def getGSFTrackFitter():
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GsfMaterialMixtureConvolution)
 
-    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator',MaximumNumberOfComponents=12)
+    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(
+        name='GsfMaterialUpdator',
+        MaximumNumberOfComponents=12)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GsfExtrapolator)
@@ -48,24 +51,12 @@ def getGSFTrackFitter():
         GsfMaterialConvolution=GsfMaterialUpdator,
         SurfaceBasedMaterialEffects=False)
 
-    from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import (
-        Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator)
-
-    egTrkUpdator = ConfiguredKalmanUpdator('egTrkUpdator')
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
-        Trk__GsfMeasurementUpdator)
-
-    GsfMeasurementUpdator = Trk__GsfMeasurementUpdator(
-        name='GsfMeasurementUpdator',
-        Updator=egTrkUpdator)
-
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GaussianSumFitter)
+
     GSFTrackFitter = Trk__GaussianSumFitter(
         name='GSFTrackFitter',
         ToolForExtrapolation=GsfExtrapolator,
-        MeasurementUpdatorType=GsfMeasurementUpdator,
         ReintegrateOutliers=True,
         MakePerigee=True,
         RefitOnMeasurementBase=True,

@@ -329,7 +329,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::vector<float>* mu_pt, std::ve
       float deta = std::abs(mu_eta->at(itr) - eta);
       float dphi = std::abs(mu_phi->at(itr) - phi);
       if(dphi > M_PI) dphi = 2*M_PI - dphi;
-      if(sqrt(deta*deta + dphi*dphi) < 0.1){
+      if(std::sqrt(deta*deta + dphi*dphi) < 0.1){
 	if(pt > mu_pt->at(itr)){
 	  std::vector<float>::iterator ipt;
 	  ipt = mu_pt->begin();

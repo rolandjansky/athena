@@ -8,6 +8,7 @@
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "GaudiKernel/ObjectList.h"
+#include "AtlasHepMC/Relatives.h"
 
 WZtoLeptonFilter::WZtoLeptonFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter( name,pSvcLocator ),
@@ -203,8 +204,6 @@ StatusCode WZtoLeptonFilter::filterFinalize() {
 
 
 StatusCode WZtoLeptonFilter::filterEvent() {
-  HepMC::GenVertexPtr LePrdVrt;
-  HepMC::GenVertexPtr TauPrdVrt;
 
   // Momentum of the products of the tau decay
   CLHEP::HepLorentzVector mom_hadrons;
@@ -244,6 +243,103 @@ StatusCode WZtoLeptonFilter::filterEvent() {
     if (wgtsC.size() > 0) wght = wgtsC[0];
     m_tot_wghts += wght;
 
+#ifdef HEPMC3
+HepMC::ConstGenVertexPtr LePrdVrt;
+HepMC::ConstGenVertexPtr TauPrdVrt;
+    for ( auto pitr: *genEvt) {
+      LePrdVrt = 0;
+      TauPrdVrt = 0;
+      lepid =  pitr->pdg_id();
+      abslepid = std::abs( lepid );
+
+      if ((abslepid != 11 && abslepid != 13) || pitr->status() != 1) continue;
+        double leppt = pitr->momentum().perp();
+        double lepeta = std::abs( pitr->momentum().pseudoRapidity() );
+
+        LePrdVrt = pitr->production_vertex();
+        int anceWZ = 0;
+        int momWZ = 0;
+        int taufromWZ = 0;
+
+        if (LePrdVrt != NULL) {
+          int ancecnt = 0;
+          for (auto lepanc: HepMC::ancestor_particles(LePrdVrt) ) {
+            int ancepid = lepanc->pdg_id();
+            int ancestatus = lepanc->status();
+            if ( m_tesit == 1 ) {
+              ATH_MSG_DEBUG("lepton=" << lepid << "  " << ancecnt <<
+                            "'th  ancestors=" << ancepid << "          status =" << ancestatus);
+            }
+            if ( std::abs(ancepid) == 24 || std::abs(ancepid) == 23 )  anceWZ ++;
+            ancecnt ++;
+          }  // end of lepton ancestors( mother, grandmother ... ) test
+
+          
+          int momcnt = 0;
+          taufromWZ = 0;
+          for (auto  lepanc: LePrdVrt->particles_in() ) {
+            int mompid =  lepanc->pdg_id();
+            int momstatus =  lepanc->status();
+            if ( m_tesit == 1 ) {
+              ATH_MSG_DEBUG(momcnt << "'th mom with pid= " << mompid << "                mom status = " << momstatus);
+            }
+            if ( std::abs(mompid) ==15 ) {
+              TauPrdVrt = lepanc->production_vertex();
+              for (auto taumom: TauPrdVrt->particles_in() ) {
+                int wzpdg = taumom->pdg_id();
+                if (abs(wzpdg) == 24 || abs(wzpdg) == 23 || (wzpdg == mompid && anceWZ > 0)) taufromWZ++;
+                if ( m_tesit == 1 ) ATH_MSG_DEBUG("tau mother =" << wzpdg);
+              }
+            }
+
+            if (abs(mompid)==24 || abs(mompid)==23 || (anceWZ > 0 && mompid==lepid) || (abs(mompid) == 15 && taufromWZ > 0)) momWZ++;
+          }  // end of lepton mother test loop
+
+          if ( momWZ > 0 && anceWZ > 0 ) iWL++;
+          else iBL++;
+
+          if ( ( abslepid == 11 && leppt >= m_Pt_e && lepeta <= m_Eta_e ) ||( abslepid == 13 && leppt >= m_Pt_mu && lepeta <= m_Eta_mu ) ) {
+            if ( m_tesit == 1 ) ATH_MSG_DEBUG("Phase space OK");
+            if ( momWZ > 0 && anceWZ > 0 ) {
+              iwl++;
+              if (m_signal != 1) iwls++;
+              if ( taufromWZ > 0 ) taulep++;
+              else {
+                if ( abslepid == 11 ) etronCT++; else muonCT++;
+              }
+            } else {
+              ibl++;
+              if ( m_signal != 1 ) {
+                if ( abslepid == 11 ) etronCT ++;
+                else muonCT ++;
+              }
+            }
+            if ( lepid > 0 ) posilep ++;
+            else negalep ++;
+          }
+
+          if (m_tesit == 1) {
+            ATH_MSG_DEBUG("iWL=" << iWL << " iwl=" << iwl << " iBL=" << iBL << " ibl=" << ibl);
+            if ( iWL == 0 && iBL == 0 ) ATH_MSG_WARNING("Check !!! Unexpected filter LEAKAGE !");
+          }
+        } else {  // I've prayed for the upstream generators to give less chaos/duplications
+          nullvertex ++;
+          if ( m_tesit == 1 ) ATH_MSG_DEBUG(" NULL production vertex is met !");
+          if ( m_signal != 1 ) {
+            if ( ( abslepid == 11 && leppt >= m_Pt_e && lepeta <= m_Eta_e ) ||( abslepid == 13 && leppt >= m_Pt_mu && lepeta <= m_Eta_mu ) ) {
+              if ( m_tesit == 1 ) ATH_MSG_DEBUG("Phase space OK, NULL prod-vertex");
+              if ( abslepid == 11 ) etronCT ++;
+              else muonCT ++;
+
+              if ( lepid > 0 ) posilep ++;
+              else negalep ++;
+            }  //  anyway  need for kinematical requirements
+          }   //  only work for conservation for backgrounds
+        }  //  End if for muon/electron mom vertex test
+    }    //  end of all mc_particles
+#else
+   HepMC::GenVertex* LePrdVrt;
+   HepMC::GenVertex* TauPrdVrt;
     for ( HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       LePrdVrt = 0;
       TauPrdVrt = 0;
@@ -252,7 +348,7 @@ StatusCode WZtoLeptonFilter::filterEvent() {
 
       if ((abslepid == 11 || abslepid == 13) && (*pitr)->status() == 1) {
         double leppt = (*pitr)->momentum().perp();
-        double lepeta = fabs( (*pitr)->momentum().pseudoRapidity() );
+        double lepeta = std::abs( (*pitr)->momentum().pseudoRapidity() );
 
         LePrdVrt = (*pitr)->production_vertex();
         int anceWZ = 0;
@@ -346,6 +442,7 @@ StatusCode WZtoLeptonFilter::filterEvent() {
         }  //  End if for muon/electron mom vertex test
       }   //  end of leptonic pid
     }    //  end of all mc_particles
+#endif
 
     leps = (m_signal == 1) ? etronCT + muonCT : etronCT + muonCT + taulep;
 

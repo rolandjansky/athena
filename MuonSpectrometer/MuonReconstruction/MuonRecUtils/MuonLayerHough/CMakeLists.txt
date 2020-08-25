@@ -8,7 +8,9 @@ atlas_subdir( MuonLayerHough )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
+                          Control/AthenaKernel
                           MuonSpectrometer/MuonStationIndex
+                          GaudiKernel
                           PRIVATE
                           DetectorDescription/GeoPrimitives )
 
@@ -21,11 +23,11 @@ atlas_add_library( MuonLayerHough
                    src/*.cxx
                    PUBLIC_HEADERS MuonLayerHough
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES CxxUtils MuonStationIndexLib
+                   LINK_LIBRARIES CxxUtils MuonStationIndexLib GaudiKernel AthenaKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives )
 
 atlas_add_executable( MainLayerAnalysis
                       exe/MainLayerAnalysis.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CxxUtils MuonStationIndexLib GeoPrimitives MuonLayerHough )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CxxUtils GaudiKernel AthenaKernel MuonStationIndexLib GeoPrimitives MuonLayerHough )
 

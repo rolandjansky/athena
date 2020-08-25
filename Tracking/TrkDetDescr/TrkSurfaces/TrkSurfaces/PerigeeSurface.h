@@ -59,7 +59,7 @@ public:
   PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);
 
   /**Destructor*/
-  virtual ~PerigeeSurface();
+  virtual ~PerigeeSurface() = default;
 
   /**Virtual constructor*/
   virtual PerigeeSurface* clone() const override;
@@ -127,6 +127,10 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
+
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
 
   /**Return method for transfromation, overwrites the transform() form base
    * class*/

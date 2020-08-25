@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorPhotonAlgorithm.h"
@@ -24,7 +24,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::initialize()
   ATH_CHECK(m_offPhotonKey.initialize());
 
 
-  for(const auto trigName:m_trigInputList)
+  for(const auto& trigName:m_trigInputList)
   {
     if(getTrigInfoMap().count(trigName) != 0){
       ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -52,7 +52,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 
     ATH_MSG_DEBUG("Chains for Analysis " << m_trigList);
 
-    for(const auto trigger : m_trigList){
+    for(const auto& trigger : m_trigList){
         
         const TrigInfo info = getTrigInfo(trigger);
         
@@ -69,6 +69,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);

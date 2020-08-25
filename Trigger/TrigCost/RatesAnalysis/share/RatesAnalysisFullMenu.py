@@ -39,7 +39,6 @@ if __name__=='__main__':
 
   # Set the Athena configuration flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
   # Set the Athena configuration flags
   ConfigFlags.Input.Files = ["root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data16_13TeV/8d/de/AOD.10654269._000566.pool.root.1"]
@@ -74,7 +73,6 @@ if __name__=='__main__':
   cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
   cfg.addService(cfgsvc)
 
-  from TrigEDMConfig.TriggerEDM import EDMLibraries
   tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
   tdt.TrigConfigSvc = cfgsvc
   tdt.NavigationFormat = "TrigComposite"

@@ -76,9 +76,13 @@ namespace InDet{
                               const Amg::Vector3D& predictedTrackDirection, 
                               const Trk::DriftCircleStatus status);
 
+
+      /**
+       * Constructor used by the TP converters
+       */
       TRT_DriftCircleOnTrack( const ElementLinkToIDCTRT_DriftCircleContainer& RIO,
                               const Trk::LocalParameters& driftRadius,
-                              const Amg::MatrixX& errDriftRadius, 
+                              const Amg::MatrixX& errDriftRadius,
                               IdentifierHash idDE,
                               const Identifier& id,
                               double predictedLocZ,
@@ -86,7 +90,7 @@ namespace InDet{
                               const Trk::DriftCircleStatus status,
                               bool highLevel,
                               double timeOverThreshold);
-	
+
       /**Destructor */
       virtual ~TRT_DriftCircleOnTrack();
 		
@@ -154,17 +158,19 @@ namespace InDet{
       float localAngle() const;
       float positionAlongWire() const;
 
+
     private:
     /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
       virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
  
-    /** @brief Uses the passed loc3Dframe to calculate and set the global coord of this hit. 
-       The detector element surface is used*/
-      void setGlobalPosition(Amg::Vector3D& loc3Dframe) const;   
+      /** @calculate and set the global coord of this hit. 
+       The detector element surface is used. Can be used from the convertor
+       after setValues if the element is constructed without a detEl*/
+      void setGlobalPositionHelper();   
  
       /** global position to be cached */
-      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
+      Amg::Vector3D m_globalPosition;
       
       /**local angle to be written out */     
       float m_localAngle;
@@ -192,17 +198,22 @@ namespace InDet{
 
   };
 
-  inline TRT_DriftCircleOnTrack* TRT_DriftCircleOnTrack::clone() const 
+  inline TRT_DriftCircleOnTrack*
+  TRT_DriftCircleOnTrack::clone() const
   { 
     return new TRT_DriftCircleOnTrack(*this); 
   }
-  
-  inline const TRT_DriftCircle* TRT_DriftCircleOnTrack::prepRawData() const
+
+  inline const TRT_DriftCircle*
+  TRT_DriftCircleOnTrack::prepRawData() const
   { 
-    // somehow one has to ask first if it is valid ... otherwise it always returns 0 ...
-    if (m_rio.isValid()) return m_rio.cachedElement();
-    else return 0;
-  }
+    // ask first if it is valid ... 
+    // otherwise it always returns nullptr ...
+    if (m_rio.isValid()) {
+      return m_rio.cachedElement();
+    }
+    return nullptr;
+    }
 
   inline
   const ElementLinkToIDCTRT_DriftCircleContainer&
