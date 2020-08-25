@@ -60,7 +60,7 @@ flags.InDet.usePixelDCS=False
 flags.lock()
 
 
-from AthenaCommon.Constants import INFO,DEBUG,WARNING,VERBOSE
+from AthenaCommon.Constants import INFO,DEBUG,WARNING
 acc = MainServicesCfg( flags )
 acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 
@@ -93,13 +93,12 @@ logging.getLogger('forcomps').setLevel(DEBUG)
 acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
 acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = DEBUG # tools
 acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
-acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = DEBUG # hypo tools
-acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
+acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = INFO # hypo tools
+acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
-acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
+acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = WARNING # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
-acc.foreach_component("*HLTTop/*/Menu1Electron_step1/*").OutputLevel = VERBOSE 
 
 
 acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)

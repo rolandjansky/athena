@@ -120,7 +120,7 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
   acc.merge( SiDetElementsRoadMaker_xkCfg( flags, **kwargs ) )
   combTrackFinderTool = acc.popToolsAndMerge( SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ) )
 
-  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
   acc.merge(addFoldersSplitOnline( flags, "INDET", '/Indet/Onl/TrkErrorScaling', '/Indet/TrkErrorScaling', className="CondAttrListCollection") )
 
   acc.addCondAlgo( CompFactory.RIO_OnTrackErrorScalingCondAlg(ErrorScalingType = ["PixelRIO_OnTrackErrorScaling", "SCTRIO_OnTrackErrorScaling", "TRTRIO_OnTrackErrorScaling"],
@@ -181,22 +181,20 @@ def InDetTestPixelLayerToolCfg(flags, **kwargs):
 def InDetHoleSearchToolCfg(flags, **kwargs):
   acc = ComponentAccumulator()
 
-  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
+# a possible change in HoleSearchTool impl? - This two tools do not seem to be needed now, leaving them commented out  TODO - decide if can be removed ( also func above creting the config ) 
+#  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
+#  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
 
-  acc.merge( InDetTestPixelLayerToolCfg( flags, **kwargs ) )
+#  acc.merge( InDetTestPixelLayerToolCfg( flags, **kwargs ) )
 
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-  acc.merge( InDetExtrapolatorCfg( flags, name = "TrigInDetExtrapolator" ) )
-  #acc.addPublicTool(extrapolator)
+#  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+#  acc.merge( InDetExtrapolatorCfg( flags, name = "TrigInDetExtrapolator" ) )
 
   name = kwargs.pop("name", "InDetTrigHoleSearchTool")
   tool = CompFactory.InDet.InDetTrackHoleSearchTool(name,
                                                     Extrapolator =  acc.getPublicTool( "TrigInDetExtrapolator" ),
-                                                      #usePixel      = flags.Detector.RecoPixel, #DetFlags.haveRIO.pixel_on(),
-                                                      #useSCT        = flags.Detector.RecoSCT, #DetFlags.haveRIO.SCT_on(),
-                                                    #SctSummaryTool = sctCondSummaryTool,
-                                                    #PixelLayerTool = acc.getPublicTool( "InDetTrigTestPixelLayerTool" ),
+                                                    # SctSummaryTool = sctCondSummaryTool,
+                                                    # PixelLayerTool = acc.getPublicTool( "InDetTrigTestPixelLayerTool" ),
                                                     )
   acc.addPublicTool( tool )
   return acc
