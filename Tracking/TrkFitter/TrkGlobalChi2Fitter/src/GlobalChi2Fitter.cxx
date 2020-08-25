@@ -5242,7 +5242,7 @@ namespace Trk {
     }
 
     if (per != nullptr) {
-      trajectory.setReferenceParameters(per);
+      trajectory.setReferenceParameters(std::unique_ptr<const TrackParameters>(per));
     }
 
     int nfitpar = trajectory.numberOfFitParameters();
@@ -5411,11 +5411,13 @@ namespace Trk {
       }
 
       const AmgVector(5) & perpars = finaltrajectory->referenceParameters()->parameters();
-      const TrackParameters *measper = finaltrajectory->referenceParameters()->associatedSurface().createTrackParameters(
-        perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], errmat
+      std::unique_ptr<const TrackParameters> measper(
+        finaltrajectory->referenceParameters()->associatedSurface().createTrackParameters(
+          perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], errmat
+        )
       );
       
-      finaltrajectory->setReferenceParameters(measper);
+      finaltrajectory->setReferenceParameters(std::move(measper));
       if (m_fillderivmatrix) {
         cache.m_fullcovmat = a_inv;
       }
@@ -6321,11 +6323,13 @@ namespace Trk {
       delta_ps[i] += result[nperparams + 2 * nscat + i];
     }
 
-    const TrackParameters *newper = trajectory.referenceParameters()->associatedSurface().createTrackParameters(
-      d0, z0, phi, theta, qoverp, nullptr
+    std::unique_ptr<const TrackParameters> newper(
+      trajectory.referenceParameters()->associatedSurface().createTrackParameters(
+        d0, z0, phi, theta, qoverp, nullptr
+      )
     );
     
-    trajectory.setReferenceParameters(newper);
+    trajectory.setReferenceParameters(std::move(newper));
     trajectory.setScatteringAngles(scatangles);
     trajectory.setBrems(delta_ps);
     
@@ -7180,61 +7184,7 @@ namespace Trk {
         }
         
         if (layer->surfaceRepresentation().bounds().inside(layerpar->localPosition())) {
-          /*
-           * WARNING: Possible memory aliasing. As far as I can tell, the
-           * update method either returns its argument pointer (thereby not
-           * allocating new memory), or allocates new memory on the heap, or
-           * returns a nullptr.
-           *
-           * In other words, the user of this method cannot be sure whether the
-           * pointer returned is an alias of the argument pointer without
-           * additional checks. It also seems to free the memory pointed at in
-           * some cases.
-           *
-           * This sort of duplicity does not work well with C++ smart pointers,
-           * so it's up to the developer to ensure that the memory is handled
-           * safely.
-           *
-           * Stephen Nicholas Swatman <stephen.nicholas.swatman@cern.ch>
-           * August 11th, 2020
-           */
-          const TrackParameters * updatedpar = m_matupdator->update(layerpar.get(), *layer, oppositeMomentum, matEffects);
-
-          if (updatedpar != nullptr) {
-            if (updatedpar != layerpar.get()) {
-              /*
-               * Updating succeeded, and the result is the not the same pointer
-               * that we used as input for our method. This means that the
-               * update method freed the contents of our smart pointer. We need
-               * to replace the contents of our smart pointer _without_
-               * invoking the automatic freeing mechanism.
-               */
-              layerpar.release();
-              layerpar.reset(updatedpar);
-            }
-            /*
-             * If the returned pointer is the same as the input pointer, then
-             * our smart pointer and the returned raw pointer now alias each
-             * other. That's a less than ideal situation, but we can control
-             * the scope of the returned raw pointer. If we make sure we don't
-             * do anything with this raw pointer, for example create new smart
-             * pointers from it or free it, the aliasing raw pointer will
-             * eventually go out of scope and become harmless.
-             */
-          } else {
-            /*
-             * If the updated parameters are a nullptr, then the update failed.
-             * What this means exactly is hidden in the implementation of the
-             * update method, but god help us because it seems it also frees
-             * the memory pointed to by the argument pointer. Since the pointer
-             * argument comes from a smart pointer, we must release that
-             * pointer without freeing it, to prevent RAII mechanics from
-             * freeing it again. We also have to set it to nullptr, but
-             * luckily the std::unique_ptr::release method does both those
-             * things.
-             */
-            layerpar.release();
-          }
+          layerpar = m_matupdator->update(layerpar.get(), *layer, oppositeMomentum, matEffects);
         }
 
         prevpar = std::move(layerpar);
@@ -7251,10 +7201,12 @@ namespace Trk {
           startfactor = startlayer->layerMaterialProperties()->oppositePostFactor();
         }
         if (startfactor > 0.5) {
-          const TrackParameters *updatedpar = m_matupdator->update(firstmeasstate->trackParameters(), *startlayer, oppositeMomentum, matEffects);
+          std::unique_ptr<const TrackParameters> updatedpar = m_matupdator->update(
+            firstmeasstate->trackParameters(), *startlayer, oppositeMomentum, matEffects
+          );
 
-          if ((updatedpar != nullptr) && updatedpar != firstmeasstate->trackParameters()) {
-            firstmeasstate->setTrackParameters(std::unique_ptr<const TrackParameters>(updatedpar->clone()));
+          if (updatedpar != nullptr) {
+            firstmeasstate->setTrackParameters(std::move(updatedpar));
           }
         }
       }
@@ -7274,10 +7226,12 @@ namespace Trk {
         }
         
         if (endfactor > 0.5) {
-          const TrackParameters *updatedpar = m_matupdator->update(lastmeasstate->trackParameters(), *endlayer, alongMomentum, matEffects);
+          std::unique_ptr<const TrackParameters> updatedpar = m_matupdator->update(
+            lastmeasstate->trackParameters(), *endlayer, alongMomentum, matEffects
+          );
 
-          if ((updatedpar != nullptr) && updatedpar != lastmeasstate->trackParameters()) {
-            lastmeasstate->setTrackParameters(std::unique_ptr<const TrackParameters>(updatedpar->clone()));
+          if (updatedpar != nullptr) {
+            lastmeasstate->setTrackParameters(std::move(updatedpar));
           }
         }
       }
@@ -7313,10 +7267,10 @@ namespace Trk {
         )
       );
     } else {
-      per.reset(oldtrajectory.referenceParameters(true)->clone());
+      per.reset(oldtrajectory.referenceParameters()->clone());
     }
 
-    return std::move(per);
+    return per;
   }
 
   std::unique_ptr<const TrackStateOnSurface> GlobalChi2Fitter::makeTrackFindPerigee(

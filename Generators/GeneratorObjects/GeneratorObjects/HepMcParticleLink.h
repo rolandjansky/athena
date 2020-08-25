@@ -389,6 +389,13 @@ public:
                      EBC_EVCOLL evColl=EBC_MAINEVCOLL,
                      PositionFlag positionFlag = IS_INDEX,
                      IProxyDict* sg = SG::CurrentEventStore::store());
+#ifdef HEPMC3
+  HepMcParticleLink (HepMC::ConstGenParticlePtr p,
+                     uint32_t eventIndex = 0,
+                     EBC_EVCOLL evColl=EBC_MAINEVCOLL,
+                     PositionFlag positionFlag = IS_INDEX,
+                     IProxyDict* sg = SG::CurrentEventStore::store()): HepMcParticleLink(p.get(), eventIndex, evColl, positionFlag, sg) {};
+#endif
 
 
  /**
@@ -408,6 +415,13 @@ public:
                      const std::string& evCollName,
                      PositionFlag positionFlag = IS_INDEX,
                      IProxyDict* sg = SG::CurrentEventStore::store());
+#ifdef HEPMC3
+  HepMcParticleLink (HepMC::ConstGenParticlePtr part,
+                     uint32_t eventIndex,
+                     const std::string& evCollName,
+                     PositionFlag positionFlag = IS_INDEX,
+                     IProxyDict* sg = SG::CurrentEventStore::store()): HepMcParticleLink(part.get(), eventIndex, evCollName, positionFlag, sg) {};
+#endif
 
 
  /**
@@ -427,6 +441,13 @@ public:
                      EBC_EVCOLL evColl,
                      PositionFlag positionFlag,
                      const EventContext& ctx);
+#ifdef HEPMC3
+  HepMcParticleLink (HepMC::ConstGenParticlePtr part,
+                     uint32_t eventIndex,
+                     EBC_EVCOLL evColl,
+                     PositionFlag positionFlag,
+                     const EventContext& ctx): HepMcParticleLink(part.get(),eventIndex, evColl, positionFlag, ctx) {};
+#endif
 
 
   /**

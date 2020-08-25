@@ -47,7 +47,7 @@ auto barcode_attr=e->attribute<HepMC3::IntAttribute>("barcode");
 if (!barcode_attr) continue;
 if (barcode_attr->value()==id) return v;
 }
-if (-id>0&&-id<(int)vertices.size()) return vertices[-id];
+if (-id>0&&-id<=(int)vertices.size()) return vertices[-id-1];
 return  HepMC3::GenVertexPtr(); 
 }
 
@@ -59,7 +59,7 @@ auto barcode_attr=p->attribute<HepMC3::IntAttribute>("barcode");
 if (!barcode_attr) continue;
 if (barcode_attr->value()==id) return p;
 }
-if (id>0&&id<(int)particles.size()) return particles[id];
+if (id>0&&id<=(int)particles.size()) return particles[id-1];
 return  HepMC3::GenParticlePtr(); 
 }
 

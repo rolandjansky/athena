@@ -95,17 +95,6 @@ namespace InDet {
     Trk::TrkVKalVrtFitter*   m_fitSvc{};
 
     int m_initialised{};
-
-    float m_Sig3D{};
-    float m_prbP{};
-    float m_d0{};
-    float m_pTvsJet{};
-    float m_SigZ{};
-    float m_SigR{};
-    float m_ptjet{};
-    float m_etatrk{};
-    float m_ibl{};
-    float m_bl{};
  };
 
 

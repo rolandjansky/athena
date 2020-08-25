@@ -12,8 +12,7 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-TrigHIEventShapeJetIteration::TrigHIEventShapeJetIteration(std::string name) : AsgTool(name),
-								       m_isInit(false)
+TrigHIEventShapeJetIteration::TrigHIEventShapeJetIteration(std::string name) : AsgTool(name)
 {
 
   declareProperty("InputClustersKey",m_input_clusters_key="HIClusters");

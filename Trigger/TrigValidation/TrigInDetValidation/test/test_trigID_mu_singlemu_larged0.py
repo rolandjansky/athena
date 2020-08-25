@@ -7,6 +7,7 @@
 # art-input-nfiles: 10
 # art-athena-mt: 4
 # art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -54,7 +55,7 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon']
-rdo2aod.max_events = 5000 # TODO increase to 20k 
+rdo2aod.max_events = 20000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
@@ -91,12 +92,10 @@ comp2.flag = 'EFmuon'
 test.check_steps.append(comp2)
 
 # CPU cost steps
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
- 
+
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 
 import sys

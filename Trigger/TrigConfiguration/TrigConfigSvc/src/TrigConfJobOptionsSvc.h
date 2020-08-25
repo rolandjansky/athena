@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_JobOptionsSvc
@@ -42,38 +42,46 @@ namespace TrigConf {
 
     /// @name IOptionsSvc interface
     ///@{
-    virtual void set( const std::string& key, const std::string& value ) {
+    virtual void set( const std::string& key, const std::string& value ) override
+    {
       return m_optsvc->set(key,value);
     }
 
-    virtual std::string get( const std::string& key, const std::string& default_ = {} ) const {
+    virtual std::string get( const std::string& key, const std::string& default_ = {} ) const override
+    {
       return m_optsvc->get(key,default_);
     }
 
-    virtual std::string pop( const std::string& key, const std::string& default_ = {} ) {
+    virtual std::string pop( const std::string& key, const std::string& default_ = {} ) override
+    {
       return m_optsvc->pop(key,default_);
     }
     
-    virtual bool has( const std::string& key ) const {
+    virtual bool has( const std::string& key ) const override
+    {
       return m_optsvc->has(key);
     }
     
-    virtual bool isSet( const std::string& key ) const {
+    virtual bool isSet( const std::string& key ) const override
+    {
       return m_optsvc->isSet(key);
     }
 
-    virtual std::vector<std::tuple<std::string, std::string>> items() const {
+    virtual std::vector<std::tuple<std::string, std::string>> items() const override
+    {
       return m_optsvc->items();
     }
 
-    virtual void bind( const std::string& prefix, Gaudi::Details::PropertyBase* property ) {
+    virtual void bind( const std::string& prefix, Gaudi::Details::PropertyBase* property ) override
+    {
       return m_optsvc->bind(prefix,property);
     }
 
     //    using OnlyDefaults = Gaudi::tagged_bool<class OnlyDefaults_tag>;
     using OnlyDefaults = Gaudi::Interfaces::IOptionsSvc::OnlyDefaults;
     virtual void broadcast( const std::regex& filter, const std::string& value,
-                            OnlyDefaults defaults = OnlyDefaults{true} ) {
+                            OnlyDefaults defaults = OnlyDefaults{true} ) override
+    {
       return m_optsvc->broadcast(filter, value, defaults);
     }
     ///@}

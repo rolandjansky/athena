@@ -32,9 +32,9 @@ namespace Muon
 
     sTgcPrepData();
     sTgcPrepData(const sTgcPrepData &);
-    sTgcPrepData(sTgcPrepData &&);
+    sTgcPrepData(sTgcPrepData &&) noexcept = default;
     sTgcPrepData &operator=(const sTgcPrepData &);
-    sTgcPrepData &operator=(sTgcPrepData &&);
+    sTgcPrepData &operator=(sTgcPrepData &&) noexcept = default;
 
 
     /** @brief Constructor.

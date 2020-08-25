@@ -341,6 +341,9 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
 
   if ( track ) { 
         
+    // check it is a final state particle - documentation particles have status() == 3     
+    if ( track->status() != 1 ) return false;
+
     /// lazy just to avoid a find-replace of measPer to track
     const xAOD::TruthParticle* measPer = track;
 
@@ -399,10 +402,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
     if ( (  track->hasProdVtx() && rp<=inner_radius ) && 
 	 ( !track->hasDecayVtx() || rd>outer_radius ) ) final_state = true; 
       
-    /// leave this in for the moment - we may need to uncomment this afterall
-    //    if ( track->status() == 3 ) final_state = false;         /// check its not a documentation particle
-
-    if ( !final_state ) return 0; 
+    if ( !final_state ) return false; 
     
     double deta = 0;
     double dphi = 0;

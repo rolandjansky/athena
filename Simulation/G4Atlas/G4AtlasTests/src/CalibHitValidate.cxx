@@ -64,7 +64,7 @@ StatusCode CalibHitValidate::execute()
     return StatusCode::FAILURE;
   }
   HepMC::GenEvent::particle_const_iterator pit  = truthEvent->at(0)->particles_begin();
-  const HepMC::GenParticle * gen  = *pit;
+  const HepMC::GenParticlePtr   gen  = *pit;
 
 
   std::vector<std::string>::iterator containerNameIter;

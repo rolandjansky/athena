@@ -27,7 +27,6 @@
 #include "upcevent.h"
 #include "inputParameters.h"
 
-using std::string;
 typedef std::vector<std::string> CommandVector;
 
 class StoreGateSvc;

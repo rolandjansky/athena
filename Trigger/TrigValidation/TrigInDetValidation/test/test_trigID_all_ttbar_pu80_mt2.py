@@ -6,6 +6,7 @@
 # art-input-nfiles: 3
 # art-athena-mt: 4
 # art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -119,15 +120,17 @@ comp8.flag='EFele'
 comp8.test='ttbar'
 test.check_steps.append(comp8)
 
+comp9=TrigInDetCompStep('Comp_L2FS')
+comp9.flag='L2FS'
+comp9.test='ttbar'
+test.check_steps.append(comp9)
+
 # CPU cost steps
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
-
 
 import sys
 sys.exit(test.run())

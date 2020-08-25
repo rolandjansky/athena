@@ -21,11 +21,9 @@
 // CaloMuonScoreTool constructor
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonScoreTool::CaloMuonScoreTool(const std::string& type, const std::string& name, const IInterface* parent) : 
-  AthAlgTool(type,name,parent),
-  m_modelFileName("CaloMuonCNN_0.onnx")
+  AthAlgTool(type,name,parent)
 {
-  declareInterface<ICaloMuonScoreTool>(this);  
-  declareProperty("ModelFileName", m_modelFileName);
+  declareInterface<ICaloMuonScoreTool>(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,12 +136,13 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 
   double track_eta = trk->eta();
 
-  if(std::abs(track_eta) > m_caloMuonEtaCut){
-    ATH_MSG_INFO("Skip calculation of muon score for track particle due to failed eta cut of " << m_caloMuonEtaCut << " (eta="<<track_eta<<")");
+  // calculate muon score at all eta values
+  if(std::abs(track_eta) > m_CaloMuonEtaCut){
+    ATH_MSG_DEBUG("Skip calculation of muon score for track particle due to failed eta cut of " << m_CaloMuonEtaCut << " (eta="<<track_eta<<")");
     return -1;
   }
 
-  ATH_MSG_INFO("Calculating muon score for track particle with eta="<<track_eta);
+  ATH_MSG_DEBUG("Calculating muon score for track particle with eta="<<track_eta);
 
   // - associate calocells to trackparticle, cone size 0.2, use cache
   std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,0.2,nullptr);
@@ -163,7 +162,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 
   // run inference on input tensor
   float outputScore = runOnnxInference(inputTensor);
-  ATH_MSG_INFO("Computed CaloMuonScore: " << outputScore);
+  ATH_MSG_DEBUG("Computed CaloMuonScore: " << outputScore);
 
   return outputScore;
 }
@@ -173,7 +172,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 ///////////////////////////////////////////////////////////////////////////////
 float CaloMuonScoreTool::runOnnxInference( std::vector<float> &tensor ) const {  
   // create input tensor object from data values
-  ATH_MSG_INFO("in CaloMuonScoreTool::runOnnxInference()");
+  ATH_MSG_DEBUG("in CaloMuonScoreTool::runOnnxInference()");
   
   auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
   int input_tensor_size(m_etaBins * m_phiBins * m_nChannels);

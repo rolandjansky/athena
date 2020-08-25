@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
 
 Trk::ProtoTrajectoryUtility::ProtoTrajectoryUtility() :
-  m_idHelper(0)
+  m_idHelper(nullptr)
 {
 }
 
@@ -222,7 +222,7 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(Trk::Trajectory& T
   }
   if (oldFitQuality) {
     delete oldFitQuality;
-    oldFitQuality=0;
+    oldFitQuality=nullptr;
   }
 }
 
@@ -253,7 +253,7 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAndReference(Trk::Trajectory& T
   }
   if (oldFitQuality) {
     delete oldFitQuality;
-    oldFitQuality=0;
+    oldFitQuality=nullptr;
   }
 }
 
@@ -288,7 +288,7 @@ Trk::ProtoTrajectoryUtility::forwardFilterQuality(const Trk::Trajectory& T,
 
 void Trk::ProtoTrajectoryUtility::identifyMeasurement(Trk::ProtoTrackStateOnSurface& ps) const
 {
-  if (m_idHelper==NULL) return;
+  if (m_idHelper==nullptr) return;
   Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
   Trk::TrackState::MeasurementType measType = helper.defineType(ps.measurement());
   ps.setMeasurementType(measType, Trk::TrackState::CalibrationNotKnown);
@@ -296,7 +296,7 @@ void Trk::ProtoTrajectoryUtility::identifyMeasurement(Trk::ProtoTrackStateOnSurf
 
 void Trk::ProtoTrajectoryUtility::identifyMeasurements(Trk::Trajectory& T) const
 {
-  if (m_idHelper==NULL) return;
+  if (m_idHelper==nullptr) return;
   Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
   for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++) {
     Trk::TrackState::MeasurementType measType = helper.defineType(it->measurement());
@@ -304,7 +304,7 @@ void Trk::ProtoTrajectoryUtility::identifyMeasurements(Trk::Trajectory& T) const
   }
 }
 
-void Trk::ProtoTrajectoryUtility::dumpTrajectory(const Trk::Trajectory& T, const std::string name) const
+void Trk::ProtoTrajectoryUtility::dumpTrajectory(const Trk::Trajectory& T, const std::string& name) const
 {
   std::cout << name << "'s internal trajectory:" << std::endl;
   for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++) {
@@ -331,11 +331,11 @@ void Trk::ProtoTrajectoryUtility::dumpTrajectory(const Trk::Trajectory& T, const
     //                << (it->fitQuality()? it->fitQuality()->chiSquared() : 0.0 ) << "  ";
 
     // identify the type of measurement
-    if ( it->identify().is_valid() && m_idHelper!=0) {
+    if ( it->identify().is_valid() && m_idHelper!=nullptr) {
       std::string detIdString = m_idHelper->print_to_string(it->identify());
       int iCutStart = (detIdString.substr(0,10) == "InnerDetec" ) ? 14 : 17;
       std::cout /*<<it->identify()<<","*/ << detIdString.substr(iCutStart,85) << std::endl;
-    } else if (0 != dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(it->measurement())) {
+    } else if (nullptr != dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(it->measurement())) {
       const Trk::LocalParameters& P = it->measurement()->localParameters();
       std::cout << "PseudoMeasurement of dim " << P.dimension() << " containing ( ";
       if (P.contains(Trk::locX)) std::cout << "loc1 ";
@@ -344,7 +344,7 @@ void Trk::ProtoTrajectoryUtility::dumpTrajectory(const Trk::Trajectory& T, const
       if (P.contains(Trk::theta)) std::cout << "theta ";
       if (P.contains(Trk::qOverP)) std::cout << "qOvP";
       std::cout << ")" << std::endl;
-    } else if (0 != dynamic_cast<const Trk::Segment*>(it->measurement())) {
+    } else if (nullptr != dynamic_cast<const Trk::Segment*>(it->measurement())) {
       const Trk::Segment* S = dynamic_cast<const Trk::Segment*>(it->measurement());
       const Trk::LocalParameters& P = it->measurement()->localParameters();
       std::cout << "Track Segment with of rank " << P.dimension() << " containing "

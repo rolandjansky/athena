@@ -14,14 +14,13 @@
 
 namespace Pythia8_UserHooks{
  
-  using std::string;
   
   template <class T>
   class UserSetting{
     
     public:
     
-  UserSetting(string name, T defaultValue):
+  UserSetting(std::string name, T defaultValue):
     m_paramName(name),
     m_param(defaultValue),
     m_settingsPtr(0),
@@ -49,7 +48,7 @@ namespace Pythia8_UserHooks{
     
     protected:
     
-    string m_paramName;
+    std::string m_paramName;
     T m_param;
     Pythia8::Settings *m_settingsPtr;
     bool m_retrieved;
@@ -81,7 +80,7 @@ namespace Pythia8_UserHooks{
   }
   
   template<>
-  inline string UserSetting<string>::uncachedRetrieve(){
+  inline std::string UserSetting<std::string>::uncachedRetrieve(){
     if(m_settingsPtr->isWord(m_paramName)){
       return m_settingsPtr->word(m_paramName);
     }

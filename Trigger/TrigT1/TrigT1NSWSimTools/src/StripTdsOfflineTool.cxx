@@ -87,7 +87,7 @@ namespace NSWL1 {
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-      std::string algo_name = pnamed->name();
+      const std::string& algo_name = pnamed->name();
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
         ATH_CHECK(service("THistSvc", tHistSvc));
@@ -291,7 +291,7 @@ namespace NSWL1 {
 	          Amg::Vector2D  strip_lpos;
 	          Amg::Vector3D strip_gpos;
 	          rdoEl->stripPosition(Id,strip_lpos);
-            auto stripSurface=rdoEl->surface(Id); 
+            const auto& stripSurface=rdoEl->surface(Id); 
 	          stripSurface.localToGlobal(strip_lpos, strip_gpos, strip_gpos);
 
 	          std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));

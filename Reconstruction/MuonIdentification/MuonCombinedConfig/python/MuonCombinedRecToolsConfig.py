@@ -121,6 +121,7 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**k
     else:
         acc = MuonCombinedTrackSummaryToolCfg(flags)
         kwargs.setdefault("TrackSummaryTool", acc.getPrimary() ) 
+        result.merge (acc)
 
     acc = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("Extrapolator", acc.getPrimary() )

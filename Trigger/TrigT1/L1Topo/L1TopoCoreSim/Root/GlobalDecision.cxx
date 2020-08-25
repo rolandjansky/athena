@@ -1,9 +1,4 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  GlobalDecision.cxx
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/25/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include <iomanip>
 

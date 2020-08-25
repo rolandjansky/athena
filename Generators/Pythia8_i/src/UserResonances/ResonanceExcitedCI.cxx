@@ -98,7 +98,7 @@ namespace Pythia8{
           widNow = preFac * pow2(mHat) / pow2(m_lambda) / 96. / M_PI ;
           if( id3Abs < 10 ) widNow *= 3.; // quarks in final state. id1 is highest pdgId of f, f'
           if( id1Abs == id2Abs && id1Abs == id3Abs ){
-            if( abs(idRes)-4000000 < 10 ) widNow *= 4./3.;  
+            if( std::abs(idRes)-4000000 < 10 ) widNow *= 4./3.;  
             else                          widNow *= 2.;
           }
         }

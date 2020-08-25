@@ -33,7 +33,6 @@
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
-#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "OutputStreamSequencerSvc.h"
 #include "MetaDataSvc.h"
 #include "SelectionVetoes.h"
@@ -715,7 +714,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
    // CompressionList follows the same logic as the ItemList
    // We find the matching keys, read the string after "Aux.",
    // tokenize by "." and build an std::set of these to be
-   // communicated to IAuxStoreCompression down below
+   // communicated to ThinningInfo down below
    std::vector<unsigned int> comp_bits{ m_compressionBitsHigh, m_compressionBitsLow };
    std::vector<std::set<std::string>> comp_attr;
    comp_attr.resize(2);
@@ -917,22 +916,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                                              vetoes);
                   }
 
-                  // Here comes the compression logic using SG::IAuxStoreCompression
-                  // similar to that of SG::IAuxStoreIO above
-                  SG::IAuxStoreCompression* auxcomp( nullptr );
-                  try {
-                    SG::fromStorable( itemProxy->object(), auxcomp, true );
-                  } catch( const std::exception& ) {
-                    ATH_MSG_DEBUG( "Error in casting object with CLID "
-                                   << itemProxy->clID() << " to SG::IAuxStoreCompression*" );
-                    auxcomp = nullptr;
-                  }
-                  if ( auxcomp ) {
-                    auxcomp->setCompressedAuxIDs( comp_attr );
-                    auxcomp->setCompressionBits( comp_bits );
-                  }
-
-                  // New Compression Logic
+                  // Here comes the compression logic using ThinningInfo
                   SG::IAuxStore* auxstore( nullptr );
                   try {
                     SG::fromStorable( itemProxy->object(), auxstore, true );

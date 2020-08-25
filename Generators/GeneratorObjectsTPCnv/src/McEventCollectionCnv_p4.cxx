@@ -343,10 +343,6 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
                                             ParticlesMap_t& partToEndVtx,
                                             HepMC::DataPool* datapools ) const
 {
-  using std::abs;
-  using std::sqrt;
-  using std::pow;
-
   DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
   HepMC::GenParticlePtr p(0);
   if (m_isPileup)
@@ -380,7 +376,7 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
       p->m_momentum.setPx( persPart.m_px);
       p->m_momentum.setPy( persPart.m_py);
       p->m_momentum.setPz( persPart.m_pz);
-      double temp_e = sqrt( (long double)(persPart.m_px)*persPart.m_px +
+      double temp_e = std::sqrt( (long double)(persPart.m_px)*persPart.m_px +
                             (long double)(persPart.m_py)*persPart.m_py +
                             (long double)(persPart.m_pz)*persPart.m_pz +
                             (long double)(persPart.m_m) *persPart.m_m );
@@ -390,7 +386,7 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
     {
       const int signM2 = ( persPart.m_m >= 0. ? 1 : -1 );
       const double persPart_ene =
-        sqrt( abs((long double)(persPart.m_px)*persPart.m_px +
+        std::sqrt( std::abs((long double)(persPart.m_px)*persPart.m_px +
                   (long double)(persPart.m_py)*persPart.m_py +
                   (long double)(persPart.m_pz)*persPart.m_pz +
                   signM2* (long double)(persPart.m_m)* persPart.m_m));
@@ -460,7 +456,6 @@ void McEventCollectionCnv_p4::writeGenVertex( const HepMC::GenVertex& vtx,
 int McEventCollectionCnv_p4::writeGenParticle( const HepMC::GenParticle& p,
                                                McEventCollection_p4& persEvt ) const
 {
-  using std::abs;
   const HepMC::FourVector& mom = p.m_momentum;
   const double ene = mom.e();
   const double m2  = mom.m2();
@@ -468,7 +463,7 @@ int McEventCollectionCnv_p4::writeGenParticle( const HepMC::GenParticle& p,
   // Definitions of Bool isTimeLilike, isSpacelike and isLightlike according to HepLorentzVector definition
   const bool useP2M2 = !(m2 > 0) &&   // !isTimelike
     (m2 < 0) &&   //  isSpacelike
-    !(abs(m2) < 2.0*DBL_EPSILON*ene*ene); // !isLightlike
+    !(std::abs(m2) < 2.0*DBL_EPSILON*ene*ene); // !isLightlike
 
   //  const bool useP2M2 = !isTimelike () &&
   //                        mom.isSpacelike() &&

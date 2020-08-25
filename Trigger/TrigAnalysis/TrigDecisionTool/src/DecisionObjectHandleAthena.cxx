@@ -18,7 +18,7 @@ DecisionObjectHandleAthena::DecisionObjectHandleAthena( SG::ReadHandleKey<TrigDe
 TrigDec::TrigDecision const * DecisionObjectHandleAthena::getDecision() const {
   
   if ( !m_object && !m_oldDecKey->empty() ) {
-    const EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecKey, ctx);
     if( ! oldDecisionReadHandle.isValid() ) {
       static bool warningPrinted = false;

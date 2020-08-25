@@ -80,17 +80,6 @@ namespace Muon
     m_stripCharges(RIO.m_stripCharges)
   { }
 
-  //move constructor:
-  sTgcPrepData::sTgcPrepData(sTgcPrepData&& RIO):
-    MuonCluster(std::move(RIO)),
-    m_detEl( RIO.m_detEl ),
-    m_charge( RIO.m_charge ),
-    m_time(RIO.m_time),
-    m_bcBitMap( RIO.m_bcBitMap ),
-    m_stripNumbers(RIO.m_stripNumbers),
-    m_stripTimes(RIO.m_stripTimes),
-    m_stripCharges(RIO.m_stripCharges)
-  { }
 
   //assignment operator
   sTgcPrepData&
@@ -99,22 +88,6 @@ namespace Muon
     if (&RIO !=this)
       {
 	MuonCluster::operator=(RIO);
-	m_detEl =  RIO.m_detEl ;
-        m_charge = RIO.m_charge;
-        m_time = RIO.m_time;
-	m_bcBitMap = RIO.m_bcBitMap;
-      }
-    return *this;
-
-  }
-
-  //move operator
-  sTgcPrepData&
-  sTgcPrepData::operator=(sTgcPrepData&& RIO)
-  {
-    if (&RIO !=this)
-      {
-	MuonCluster::operator=(std::move(RIO));
 	m_detEl =  RIO.m_detEl ;
         m_charge = RIO.m_charge;
         m_time = RIO.m_time;

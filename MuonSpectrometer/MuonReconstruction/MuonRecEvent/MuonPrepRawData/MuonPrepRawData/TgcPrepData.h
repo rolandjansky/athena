@@ -41,9 +41,9 @@ namespace Muon
 
     TgcPrepData();
     TgcPrepData(const TgcPrepData &);
-    TgcPrepData(TgcPrepData &&);
+    TgcPrepData(TgcPrepData &&) noexcept = default;
     TgcPrepData &operator=(const TgcPrepData &);
-    TgcPrepData &operator=(TgcPrepData &&);
+    TgcPrepData &operator=(TgcPrepData &&) noexcept = default;
 
     /** @brief Full constructor.
     @param RDOId The identifier of the central strip of the cluster

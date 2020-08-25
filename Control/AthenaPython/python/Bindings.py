@@ -577,13 +577,6 @@ del %s""" % (n,n,n,n,n)
     del popitem
     ## ------------------------------
 
-    ## try to install ttree access enhancement
-    try:
-        from RootUtils.PyROOTFixes import enable_tree_speedups
-        enable_tree_speedups()
-    except ImportError:
-        pass
-
     ## FIXME: would be nice... but somehow interferes with _py_cache property
 ##     ## allow the use of the pythonized properties interface
 ##     def __getattr__( self, attr ):

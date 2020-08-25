@@ -268,8 +268,14 @@ if setModifiers:
     log.error('Unknown modifier(s): '+str(setModifiers))
 
 
+
+#--------------------------------------------------------------
+# Conditions setup.
+#--------------------------------------------------------------
 # never include this
 include.block("RecExCond/RecExCommon_flags.py")
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 #-------------------------------------------------------------
 # Setting DetFlags
@@ -316,11 +322,6 @@ rec.doTruth = False
 for mod in modifierList:
     mod.preSetup()
 
-#--------------------------------------------------------------
-# Conditions setup.
-#--------------------------------------------------------------
-from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
-conddb.setGlobalTag(globalflags.ConditionsTag())
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -529,7 +530,8 @@ if hasattr(svcMgr.THistSvc, "Output"):
 if len(opt.condOverride)>0:
     for folder,tag in opt.condOverride.iteritems():
         log.warning('Overriding folder %s with tag %s', folder, tag)
-        conddb.addOverride(folder,tag)
+        from IOVDbSvc.IOVDbSvcConfig import addOverride
+        addOverride(ConfigFlags,folder,tag)
 
 if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
@@ -562,10 +564,12 @@ CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq"
 
 
 # B-jet output
-if opt.doBjetSlice or opt.forceEnableAllChains:
+if opt.doBjetSlice:
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
     from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
     alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
-    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, NewChannel = alias)
+    condSeq+= JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, NewChannel = alias)
 
 #-------------------------------------------------------------
 # Output configuration

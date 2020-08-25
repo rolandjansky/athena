@@ -18,7 +18,6 @@
 #include "Hijing_i/HiStrng.h"
 #include "Hijing_i/HijCrdn.h"
 
-using std::string;
 typedef std::vector<std::string> CommandVector;
 
 // new to store hijing event parameters
@@ -58,9 +57,9 @@ protected:
 
     // inputs to HIJSET (Hijing initialization) ...
     float	m_efrm;
-    string 	m_frame;
-    string 	m_proj;
-    string 	m_targ;
+    std::string 	m_frame;
+    std::string 	m_proj;
+    std::string 	m_targ;
     int 	m_iap;
     int 	m_iat;
     int 	m_izp;

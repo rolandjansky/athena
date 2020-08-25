@@ -174,7 +174,7 @@ StatusCode BSignalFilter::filterEvent()
       //
       for(auto part: *genEvt)
         {
-	  if ( abs(part->pdg_id()) <= 6 && part->status() == 1 )
+	  if ( std::abs(part->pdg_id()) <= 6 && part->status() == 1 )
             {
 	      acceptEvent = false;
 	      const int pID = part->pdg_id();
@@ -371,7 +371,7 @@ bool BSignalFilter::LVL1_Mu_Trigger(HepMC::ConstGenParticlePtr child) const
   double myPT  = child->momentum().perp();
   double myEta = child->momentum().pseudoRapidity();
 
-  if ( (abs(pID) == 13) && m_localLVL1MuonCutOn )
+  if ( (std::abs(pID) == 13) && m_localLVL1MuonCutOn )
     accept = test_cuts( myPT, m_localLVL1MuonCutPT, myEta, m_localLVL1MuonCutEta );
 
   return accept;
@@ -386,9 +386,9 @@ bool BSignalFilter::LVL2_eMu_Trigger(HepMC::ConstGenParticlePtr child) const
   double myPT  = child->momentum().perp();
   double myEta = child->momentum().pseudoRapidity();
 
-  if ( (abs(pID) == 11) && m_localLVL2ElectronCutOn )
+  if ( (std::abs(pID) == 11) && m_localLVL2ElectronCutOn )
     accept = test_cuts( myPT, m_localLVL2ElectronCutPT, myEta, m_localLVL2ElectronCutEta );
-  if ( (abs(pID) == 13) && m_localLVL2MuonCutOn )
+  if ( (std::abs(pID) == 13) && m_localLVL2MuonCutOn )
     accept = test_cuts( myPT, m_localLVL2MuonCutPT, myEta, m_localLVL2MuonCutEta );
 
   return accept;
@@ -409,11 +409,11 @@ void BSignalFilter::FindAllChildren(HepMC::ConstGenParticlePtr mother,std::strin
 	{
 	  foundSignal=true;
 	  bool passedCut = FinalStatePassedCuts(mother);                // X = X && ... in case of multiple particles (e.g. KK)
-	  if ( m_cuts_f_e_on   && abs(pID)==11 )                                      passedAllCuts = passedAllCuts && passedCut;
-	  if ( m_cuts_f_mu_on  && abs(pID)==13 )                                      passedAllCuts = passedAllCuts && passedCut;
+	  if ( m_cuts_f_e_on   && std::abs(pID)==11 )                                      passedAllCuts = passedAllCuts && passedCut;
+	  if ( m_cuts_f_mu_on  && std::abs(pID)==13 )                                      passedAllCuts = passedAllCuts && passedCut;
 	  if ( m_cuts_f_had_on && MC::PID::isHadron(pID) && MC::PID::isCharged(pID) ) passedAllCuts = passedAllCuts && passedCut;
-	  if ( m_cuts_f_gam_on && abs(pID)==22 )                                      passedAllCuts = passedAllCuts && passedCut;
-	  if ( m_cuts_f_K0_on  && abs(pID)==311 )                                     passedAllCuts = passedAllCuts && passedCut;
+	  if ( m_cuts_f_gam_on && std::abs(pID)==22 )                                      passedAllCuts = passedAllCuts && passedCut;
+	  if ( m_cuts_f_K0_on  && std::abs(pID)==311 )                                     passedAllCuts = passedAllCuts && passedCut;
 	  //
 	  if ( m_InvMass_switch && m_InvMass_PartId1==pID )
 	    p1.SetPxPyPzE(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),mother->momentum().e());
@@ -487,7 +487,7 @@ bool BSignalFilter::FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const
 
   if ( m_cuts_f_e_on )
     {
-      if ( abs(pID) == 11 )
+      if ( std::abs(pID) == 11 )
 	{
 	  ATH_MSG_DEBUG("       ** ( pT , eta ) cuts applied on the electron --> ( " << m_cuts_f_e_pT
 	      << " , " <<  m_cuts_f_e_eta << " )");
@@ -509,7 +509,7 @@ bool BSignalFilter::FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const
     }
   if ( m_cuts_f_mu_on )
     {
-      if ( abs(pID) == 13 )
+      if ( std::abs(pID) == 13 )
 	{
 	  ATH_MSG_DEBUG("       ** ( pT , eta ) cuts applied on the muon --> ( " << m_cuts_f_mu_pT
 	      << " , " <<  m_cuts_f_mu_eta << " )");
@@ -553,7 +553,7 @@ bool BSignalFilter::FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const
     }
   if ( m_cuts_f_gam_on )
     {
-      if ( abs(pID) == 22 )
+      if ( std::abs(pID) == 22 )
 	{
 	  ATH_MSG_DEBUG("       ** ( pT , eta ) cuts applied on the gamma --> ( " << m_cuts_f_gam_pT
 	      << " , " <<  m_cuts_f_gam_eta << " )");
@@ -575,7 +575,7 @@ bool BSignalFilter::FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const
     }
   if ( m_cuts_f_K0_on )
     {
-      if ( abs(pID) == 311 )
+      if ( std::abs(pID) == 311 )
 	{
 	  ATH_MSG_DEBUG("       ** ( pT , eta ) cuts applied on the K0 --> ( " << m_cuts_f_K0_pT
 	      << " , " <<  m_cuts_f_K0_eta << " )");

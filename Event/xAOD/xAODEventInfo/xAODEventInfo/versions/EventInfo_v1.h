@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfo_v1.h 727083 2016-03-01 15:20:50Z krasznaa $
@@ -483,6 +483,13 @@ namespace xAOD {
       uint32_t beamStatus() const;
       /// Set the beam spot's status word
       void setBeamStatus( uint32_t value );
+
+      /// Weight for beam spot size reweighting
+      float beamSpotWeight() const;
+      /// Check if weight for beam spot size reweighting exists
+      bool hasBeamSpotWeight() const;
+      /// Set weight for beam spot size reweighting
+      void setBeamSpotWeight( float value );
 
       /// @}
 

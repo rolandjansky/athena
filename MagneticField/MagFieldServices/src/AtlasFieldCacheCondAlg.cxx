@@ -35,7 +35,6 @@ MagField::AtlasFieldCacheCondAlg::~AtlasFieldCacheCondAlg()= default;
 StatusCode
 MagField::AtlasFieldCacheCondAlg::initialize() {
 
-    ATH_MSG_INFO ("Initialize");
     // CondSvc
     ATH_CHECK( m_condSvc.retrieve() );
 
@@ -87,14 +86,13 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     //This will need to be filled before we construct the condition object 
     Cache cache{};
 
-    // set current scale factor from either conditions or from jobOption parameters
     if (m_useDCS) {
         ATH_CHECK( updateCurrentFromConditions(ctx, cache) );
     }
     else {
-        ATH_CHECK( updateCurrentFromParameters(cache) );
+        ATH_CHECK( updateCurrentFromParameters(ctx, cache) );
     }
-
+    
     // Must read map cond object to get previously created map
     SG::ReadCondHandle<AtlasFieldMapCondObj> mapReadHandle{m_mapCondObjInputKey, ctx};
     const AtlasFieldMapCondObj* mapCondObj{*mapReadHandle};
@@ -110,7 +108,6 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     if (!m_lockMapCurrents) {
         scaleField(cache, fieldMap);
     }
-    
 
     // save current scale factor in conditions object
     auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
@@ -129,7 +126,8 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     }
 
     ATH_MSG_INFO ( "execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor "
-                   << cache.m_solScaleFactor << "/" << cache.m_torScaleFactor );
+                   << cache.m_solScaleFactor << "/" << cache.m_torScaleFactor
+                   << ", EventRange " << cache.m_condObjOutputRange );
     if (fieldMap) {
         ATH_MSG_INFO ( "execute: solenoid zone id  " << fieldMap->solenoidZoneId());
     }
@@ -143,7 +141,6 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
 StatusCode
 MagField::AtlasFieldCacheCondAlg::updateCurrentFromConditions(const EventContext& ctx, Cache& cache) const
 {
-    ATH_MSG_INFO ( "UpdateCurrentFromConditions  " );
 
     // readin current value
     SG::ReadCondHandle<CondAttrListCollection> readHandle {m_currInputKey, ctx};
@@ -226,6 +223,7 @@ MagField::AtlasFieldCacheCondAlg::updateCurrentFromConditions(const EventContext
         torcur = 0.0;
         ATH_MSG_INFO( "UpdateCurrentFromConditions: Toroids are off" );
     }
+
     cache.m_solenoidCurrent = solcur;
     cache.m_toroidCurrent   = torcur;
 
@@ -234,10 +232,9 @@ MagField::AtlasFieldCacheCondAlg::updateCurrentFromConditions(const EventContext
 
 
 StatusCode
-MagField::AtlasFieldCacheCondAlg::updateCurrentFromParameters(Cache& cache) const
+MagField::AtlasFieldCacheCondAlg::updateCurrentFromParameters(const EventContext& ctx, Cache& cache) const
 {
 
-    ATH_MSG_INFO( "updateCurrentFromParameters" );
     // take the current values from JobOptions
     double solcur{m_useSoleCurrent};
     double torcur{m_useToroCurrent};
@@ -251,8 +248,17 @@ MagField::AtlasFieldCacheCondAlg::updateCurrentFromParameters(Cache& cache) cons
     }
     cache.m_solenoidCurrent = solcur;
     cache.m_toroidCurrent   = torcur;
-    ATH_MSG_INFO("updateCurrentFromParameters: Update from job options: Range of input/output is " <<  cache.m_condObjOutputRange);
-    ATH_MSG_INFO("updateCurrentFromParameters: Currents taken from jobOption parameters " );
+
+    // in case of reading from DB or from FILE, the EventID range is always the current run
+    EventIDBase start, stop;
+    start.set_run_number(ctx.eventID().run_number());
+    start.set_lumi_block(0);
+    stop.set_run_number(ctx.eventID().run_number()+1);
+    stop.set_lumi_block(0);
+    cache.m_condObjOutputRange = EventIDRange(start,stop);
+
+    ATH_MSG_INFO("updateCurrentFromParameters: Update from job options: Range of input/output is " << cache.m_condObjOutputRange);
+
     return StatusCode::SUCCESS;
 }
 
@@ -268,13 +274,13 @@ MagField::AtlasFieldCacheCondAlg::scaleField(Cache& cache, const MagField::Atlas
              std::abs( cache.m_solenoidCurrent/fieldMap->solenoidCurrent() - 1.0 ) > 0.001 ){
             cache.m_solScaleFactor = cache.m_solenoidCurrent/fieldMap->solenoidCurrent(); 
         }
-        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Solenoid and map currents: "
+        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
                       << cache.m_solenoidCurrent << "," << fieldMap->solenoidCurrent());
     }
     else {
         // No SF set, set it to 0 - current was set to zero either here or for the map, or the map was not read in
         cache.m_solScaleFactor = 0;
-        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Solenoid and map currents: "
+        ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
                       << cache.m_solenoidCurrent << "," << ((fieldMap) ? fieldMap->solenoidCurrent() : 0));
     }
     
@@ -285,22 +291,12 @@ MagField::AtlasFieldCacheCondAlg::scaleField(Cache& cache, const MagField::Atlas
             // scale the field in all zones except for the solenoid zone
             cache.m_torScaleFactor = cache.m_toroidCurrent/fieldMap->toroidCurrent();
         }
-        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Toroid and map currents: "
+        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Desired current and map current: "
                       << cache.m_toroidCurrent << "," << fieldMap->toroidCurrent());
     }
     else {
         cache.m_torScaleFactor = 0;
-        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Toroid and map currents: "
+        ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Desired current and map current: "
                       << cache.m_toroidCurrent << "," << ((fieldMap) ? fieldMap->toroidCurrent() : 0));
     }
-}
-
-
-
-    
-
-StatusCode
-MagField::AtlasFieldCacheCondAlg::finalize() {
-    ATH_MSG_INFO ( " in finalize " );
-    return StatusCode::SUCCESS; 
 }

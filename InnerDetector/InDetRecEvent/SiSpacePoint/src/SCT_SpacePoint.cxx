@@ -18,13 +18,14 @@ namespace InDet
   SCT_SpacePoint::SCT_SpacePoint()
     :
     Trk::SpacePoint()
-  {}
+  {
+  }
 
   //-------------------------------------------------------------
 
   SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
 				 const Amg::Vector3D& position,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
+				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*> &clusList) 
     :
     Trk::SpacePoint()
   {
@@ -37,15 +38,15 @@ namespace InDet
   
   void SCT_SpacePoint::setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
 			     const Amg::Vector3D& position,
-			     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList)
+			     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>& clusList)
   {
     m_clusList = clusList ;
     m_position = position ;
     m_elemIdList.first = elementIdList.first ;
     m_elemIdList.second = elementIdList.second ;
-    assert( (clusList->first!=0) && (clusList->second!=0) );
-    assert(clusList->first->detectorElement()) ;
-    std::unique_ptr<const Amg::Vector2D> locpos{clusList->first->detectorElement()->surface().globalToLocal(position)};
+    assert( (clusList.first!=0) && (clusList.second!=0) );
+    assert(clusList.first->detectorElement()) ;
+    std::unique_ptr<const Amg::Vector2D> locpos{clusList.first->detectorElement()->surface().globalToLocal(position)};
     assert(locpos);
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(*locpos ) ;
 

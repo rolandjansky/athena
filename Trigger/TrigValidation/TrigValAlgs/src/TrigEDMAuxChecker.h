@@ -29,7 +29,7 @@ class TrigEDMAuxChecker : public AthAlgorithm  {
  private:
 
 
-   void dumpDecorators(const xAOD::AuxContainerBase *,const std::string);
+   void dumpDecorators(const xAOD::AuxContainerBase *,const std::string&);
    std::vector<std::string> m_auxList;
    std::map< std::string,std::vector<std::string> > m_auxmap;
    std::map< std::string,std::vector<std::string> > m_dynauxmap;

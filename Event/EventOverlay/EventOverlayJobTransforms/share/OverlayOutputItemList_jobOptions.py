@@ -12,7 +12,7 @@ outStream = AthenaPoolOutputStream( "StreamRDO", athenaCommonFlags.PoolRDOOutput
 outStream.Store = ServiceMgr.StoreGateSvc
 
 # overlay output stream
-outStream.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+outStream.ItemList += [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux." ]
 outStream.ItemList += [ "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*" ]
 outStream.ItemList += [ "LumiBlockCollection#*" ]
 

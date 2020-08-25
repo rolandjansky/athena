@@ -66,7 +66,7 @@ namespace Pythia8{
       double pzCMS = 0.;
       double eCMS  = 0.;
       
-      vector<Particle> powhegLegs;
+      std::vector<Particle> powhegLegs;
       
       // Find the entries corresponding to outgoing legs from PoWHEG
       // start the loop at 1, since entry 0 represents the event as a whole
@@ -88,7 +88,7 @@ namespace Pythia8{
       
       // compare the pT of each leg to the powheg scale.
       // Set the scale to the lowest (or leave the scale unchanged if it is already lower)
-      for(vector<Particle>::const_iterator leg=powhegLegs.begin();
+      for(std::vector<Particle>::const_iterator leg=powhegLegs.begin();
           leg != powhegLegs.end(); ++leg){
         if(leg->pT() < m_powhegScale )m_powhegScale = leg->pT();
       }
@@ -99,19 +99,19 @@ namespace Pythia8{
       pzCMS *= norm;
       
       // boost all outgoing legs to the CMS frame
-      for(vector<Particle>::iterator leg=powhegLegs.begin();
+      for(std::vector<Particle>::iterator leg=powhegLegs.begin();
           leg != powhegLegs.end(); ++leg){
         leg->bst(pxCMS, pyCMS, pzCMS);
       }
       
-      for(vector<Particle>::const_iterator leg=powhegLegs.begin();
+      for(std::vector<Particle>::const_iterator leg=powhegLegs.begin();
           leg != powhegLegs.end(); ++leg){
         
         if(leg->pT() < m_powhegScale )m_powhegScale = leg->pT();
         
         // calculate the pT relative to each other leg 
         // if any such pT is lower than the current scale, reset the scale to that value
-        for(vector<Particle>::const_iterator otherLeg = powhegLegs.begin();
+        for(std::vector<Particle>::const_iterator otherLeg = powhegLegs.begin();
             otherLeg != powhegLegs.end(); ++otherLeg){
           if(otherLeg == leg) continue;
           

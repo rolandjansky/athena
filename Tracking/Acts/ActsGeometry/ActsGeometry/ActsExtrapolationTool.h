@@ -37,6 +37,7 @@
 namespace Acts {
 class Surface;
 class BoundaryCheck;
+class Logger;
 }
 
 
@@ -110,6 +111,7 @@ public:
 
 private:
   std::unique_ptr<ActsExtrapolationDetail::VariantPropagator> m_varProp;
+  std::unique_ptr<const Acts::Logger> m_logger{nullptr};
 
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 

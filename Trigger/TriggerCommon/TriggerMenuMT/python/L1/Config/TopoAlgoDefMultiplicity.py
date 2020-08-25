@@ -66,4 +66,3 @@ class TopoAlgoDefMultiplicity(object):
                                       nbits = 1)
             tm.registerTopoAlgo(alg)
 
-

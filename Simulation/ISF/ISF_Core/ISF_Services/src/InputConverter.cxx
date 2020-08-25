@@ -233,7 +233,7 @@ ISF::InputConverter::convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOL
   // rather than a constant '1' (e.g. could use GenEvent index for that?)
   const int bcid = (kindOfCollection==EBC_MAINEVCOLL) ? 0 : 1;
 
-  HepMC::GenVertex* pVertex = genPart.production_vertex();
+  HepMC::GenVertexPtr  pVertex = genPart.production_vertex();
   if (!pVertex) {
     ATH_MSG_ERROR("Unable to convert following generator particle due to missing "
                   << "production vertex: " << genPart);

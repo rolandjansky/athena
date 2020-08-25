@@ -13,7 +13,6 @@
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 #include "egammaRecEvent/egammaRecContainer.h"
-#include "egammaUtils/egammaDuplicateRemoval.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 // INCLUDE GAUDI HEADER FILES:

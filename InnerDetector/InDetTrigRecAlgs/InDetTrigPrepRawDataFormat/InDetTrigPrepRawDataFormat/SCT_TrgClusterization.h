@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,9 +43,9 @@
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
 
 //typedefs - cannot be declared forward
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"

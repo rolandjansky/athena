@@ -43,11 +43,10 @@ namespace MuonParameters {
      MuGirlLowBeta=15,
      CaloTag=16,
      CaloLikelihood=17,
-     CaloScore=18,
-     MuTagIMO=19,
-     MuonCombinedRefit=20,
-     ExtrapolateMuonToIP=21,
-     NumberOfMuonAuthors=22 // increase this guy when adding
+     MuTagIMO=18,
+     MuonCombinedRefit=19,
+     ExtrapolateMuonToIP=20,
+     NumberOfMuonAuthors=21 // increase this guy when adding
   };
 
      
@@ -86,10 +85,9 @@ namespace MuonParameters {
       author.push_back("MuGirlLowBeta");  // 15
       author.push_back("CaloTag");
       author.push_back("CaloLikelihood");
-      author.push_back("CaloScore");
       author.push_back("MuTagIMO");
-      author.push_back("MuonCombinedRefit");  // 20
-      author.push_back("ExtrapolateMuonToIP");
+      author.push_back("MuonCombinedRefit");
+      author.push_back("ExtrapolateMuonToIP");  // 20
     }
       
     /**The member*/ 

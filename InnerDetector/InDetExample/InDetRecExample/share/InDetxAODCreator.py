@@ -119,7 +119,6 @@ def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, t
         xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in)
         xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
         xAODTrackParticleCnvAlg.TrackTruthContainerName = passCollectionName(track_particle_truth_in,(is_mc and InDetFlags.doTruth()))
-        xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
         from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
         xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
         topSequence += xAODTrackParticleCnvAlg
@@ -139,7 +138,6 @@ def convertTrackParticles(aod_track_particles_in, track_particle_truth_in,track_
         xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in)
         xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
         xAODTrackParticleCnvAlg.TrackTruthContainerName = ""
-        xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
         from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
         xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
         topSequence += xAODTrackParticleCnvAlg 

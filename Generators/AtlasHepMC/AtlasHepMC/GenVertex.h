@@ -21,21 +21,24 @@ inline GenVertexPtr newGenVertexPtr(const HepMC3::FourVector &pos = HepMC3::Four
   v->set_status(i);
   return v;
 }
-inline int barcode(GenVertexPtr p){ 
+inline int barcode(GenVertexPtr p){
+	if (!p) return 0; 
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p->id();
 }
 inline int barcode(ConstGenVertexPtr p){ 
+	if (!p) return 0;
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p->id();
 }
 inline int barcode(HepMC3::GenVertex p){ 
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p.attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p.id();
 }
 
 inline void* raw_pointer(GenVertexPtr p){ return p.get();}
 inline const void* raw_pointer(ConstGenVertexPtr p){ return p.get();}
+using HepMC3::GenVertex;
 }
 #else
 #include "HepMC/GenVertex.h"

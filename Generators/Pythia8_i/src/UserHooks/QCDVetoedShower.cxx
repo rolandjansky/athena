@@ -122,7 +122,7 @@ namespace Pythia8{
       
       // determine pT relative to each outgoing PoWHEG leg and veto if above veto scale
             
-      for(vector<size_t>::const_iterator legIndex = m_powhegLegs.begin();
+      for(std::vector<size_t>::const_iterator legIndex = m_powhegLegs.begin();
           legIndex != m_powhegLegs.end(); ++legIndex){
         
         if(Pythia8_UserHooks::pTLeg(emission, *legIndex, evt) > m_powhegScale)return true;
@@ -132,7 +132,7 @@ namespace Pythia8{
     
     double m_powhegScale;
     // Indices of the PoWHEG legs in the event record
-    vector<size_t> m_powhegLegs;
+    std::vector<size_t> m_powhegLegs;
   };
 }
 

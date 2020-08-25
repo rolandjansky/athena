@@ -18,7 +18,7 @@
 //Athena
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-#include "SCT_ConditionsTools//ISCT_FlaggedConditionTool.h"
+#include "SCT_ConditionsTools/ISCT_FlaggedConditionTool.h"
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"

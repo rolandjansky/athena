@@ -14,8 +14,21 @@
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 - Reconstruction/Jet/JetMomentTools
-- Reconstruction/Jet/JetRec
-- Reconstruction/Jet/JetSubStructureMomentTools
+
+
+
+# these packages existed in 21.2, but no longer exist in master.
+# remove these lines if you are confident that these packages have
+# been retired.
+
+#+ External/AtlasPyFwdBwdPorts
+#+ ForwardDetectors/ZDC/ZdcNtuple
+#+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
+#+ PhysicsAnalysis/BPhys/BPhysTools
+#+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
+#+ Reconstruction/Jet/BoostedJetTaggers
+#+ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
+#+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 
 
 
@@ -48,9 +61,7 @@
 #+ Event/xAOD/xAODTruthCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
-#+ External/AtlasPyFwdBwdPorts
 + ForwardDetectors/ZDC/ZdcAnalysis
-#+ ForwardDetectors/ZDC/ZdcNtuple
 + Generators/TruthUtils
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
@@ -59,7 +70,6 @@
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 #+ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
-#+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
@@ -68,12 +78,10 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/PMGTools
-#+ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
++ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
-#+ PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
-#+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HeavyIonPhys/HIEventUtils
@@ -90,7 +98,6 @@
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
-#+ Reconstruction/Jet/BoostedJetTaggers
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
@@ -100,10 +107,10 @@
 - Reconstruction/Jet/JetValidation
 + Reconstruction/Jet/Jet.*
 + Reconstruction/MET/METInterface
-#+ Reconstruction/MET/METUtilities
++ Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils
 + Reconstruction/PFlow/PFlowUtils
-#+ Reconstruction/RecoTools/IsolationTool
++ Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/RecoToolInterfaces
 + Reconstruction/egamma/egammaLayerRecalibTool
 + Reconstruction/egamma/egammaMVACalib
@@ -116,7 +123,6 @@
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 #+ Trigger/TrigAnalysis/TrigDecisionTool
-#+ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 #+ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 #+ Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
@@ -131,6 +137,5 @@
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigSteer/TrigCompositeUtils
 #+ Trigger/TrigValidation/TrigAnalysisTest
-#+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 
 - .*
