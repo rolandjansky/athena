@@ -24,6 +24,10 @@ StatusCode EventInfoOverlay::initialize()
   ATH_MSG_INFO("Data overlay: " << m_dataOverlay.value());
 
   // Check and initialize keys
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+  ATH_CHECK(m_beamSpotKey.initialize());
+#endif
+
   ATH_CHECK( m_bkgInputKey.initialize(!m_bkgInputKey.key().empty()) );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgInputKey);
   ATH_CHECK( m_signalInputKey.initialize() );
@@ -89,6 +93,25 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
   outputEvent->setErrorState(xAOD::EventInfo::Core,
                              std::max(signalEvent->errorState(xAOD::EventInfo::Core),
                                       bkgEvent->errorState(xAOD::EventInfo::Core)));
+
+  // Ensure correct beam spot info
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+  if (!beamSpotHandle.isValid()) {
+    ATH_MSG_ERROR("Beam spot information not valid");
+    return StatusCode::FAILURE;
+  }
+  outputEvent->setBeamPos( beamSpotHandle->beamPos()[ Amg::x ],
+                           beamSpotHandle->beamPos()[ Amg::y ],
+                           beamSpotHandle->beamPos()[ Amg::z ] );
+  outputEvent->setBeamPosSigma( beamSpotHandle->beamSigma( 0 ),
+                                beamSpotHandle->beamSigma( 1 ),
+                                beamSpotHandle->beamSigma( 2 ) );
+  outputEvent->setBeamPosSigmaXY( beamSpotHandle->beamSigmaXY() );
+  outputEvent->setBeamTiltXZ( beamSpotHandle->beamTilt( 0 ) );
+  outputEvent->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
+  outputEvent->setBeamStatus( beamSpotHandle->beamStatus() );
+#endif
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;
