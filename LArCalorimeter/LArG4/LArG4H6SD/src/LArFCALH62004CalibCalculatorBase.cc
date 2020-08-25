@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFCALH62004CalibCalculatorBase.h"
@@ -9,6 +9,7 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "PathResolver/PathResolver.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -36,7 +37,7 @@
 // 03-Jan-2002 WGS: For 'copysign'.
 #include <cmath>
 #include <limits.h>
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #undef DEBUG_FCAL_IO
 // Forward declaractions:
 class G4Step;
@@ -83,10 +84,8 @@ LArFCALH62004CalibCalculatorBase::LArFCALH62004CalibCalculatorBase(const std::st
 
 StatusCode LArFCALH62004CalibCalculatorBase::initialize()
 {
-  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if (detStore->retrieve(m_ChannelMap)==StatusCode::FAILURE) {
-
-  }
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore" ,"LArFCALH62004CalibCalculatorBase");
+  ATH_CHECK(detStore->retrieve(m_ChannelMap));
 
   ISvcLocator  *svcLocator = Gaudi::svcLocator();
   IRDBAccessSvc* rdbAccess;
