@@ -40,7 +40,7 @@ namespace xAOD {
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown int TaggerInfo ("
                 << info << ") requested" << std::endl;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -61,7 +61,7 @@ namespace xAOD {
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown float TaggerInfo ("
                 << info << ") requested" << std::endl;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -73,7 +73,7 @@ namespace xAOD {
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown uint8_t TaggerInfo ("
                 << info << ") requested" << std::endl;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -85,7 +85,7 @@ namespace xAOD {
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown std::string TaggerInfo ("
                 << info << ") requested" << std::endl;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -97,7 +97,7 @@ namespace xAOD {
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown std::vector<int> TaggerInfo ("
                 << info << ") requested" << std::endl;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -119,7 +119,7 @@ namespace xAOD {
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown std::vector<float> TaggerInfo ("
                 << info << ") requested" << std::endl;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -131,7 +131,7 @@ namespace xAOD {
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown std::vector<bool> TaggerInfo ("
                 << info << ") requested" << std::endl;
-      return 0;
+      return nullptr;
     }
   }
 
