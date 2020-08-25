@@ -281,7 +281,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
     return StatusCode::FAILURE;
   }
 
-  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
   int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   while( m_thpcCSC->nextDetectorElement(i, e) ) {
  
@@ -345,15 +345,15 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
         continue;
       }
 
-      HepMcParticleLink trklink(phit->particleLink());
       if (m_needsMcEventCollHelper) {
-        if(phit.pileupType()!=lastPileupType)        {
+        if(phit.pileupType()!=lastPileupType) {
           MsgStream* amsg = &(msg());
           currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
           lastPileupType=phit.pileupType();
         }
-        trklink.setEventCollection(currentMcEventCollection);
       }
+      const bool isEventIndexIsPosition = (phit.eventId()==0);
+      HepMcParticleLink trklink(phit->trackNumber(), phit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
       for (; vecBeg != vecEnd; vecBeg++) {
         CscSimData::Deposit deposit(trklink, CscMcData(energy, ypos, zpos));
         myDeposits[(*vecBeg)].push_back(deposit); 

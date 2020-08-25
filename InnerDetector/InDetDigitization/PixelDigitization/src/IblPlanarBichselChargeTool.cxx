@@ -110,9 +110,9 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  const InDetDD::SiDetectorElement &Module)
 {
   ATH_MSG_DEBUG("Applying IBLPLANAR charge processor");
-  HepMcParticleLink McLink = HepMcParticleLink(phit->particleLink());
-  if (m_needsMcEventCollHelper)
-    McLink.setEventCollection( getMcEventCollectionHMPLEnumFromTimedHitPtr(phit) );
+  const EBC_EVCOLL evColl = (m_needsMcEventCollHelper) ? getMcEventCollectionHMPLEnumFromTimedHitPtr(phit) : EBC_MAINEVCOLL;
+  const bool isEventIndexIsPosition = (phit.eventId()==0);
+  HepMcParticleLink McLink(phit->trackNumber(), phit.eventId(), evColl, isEventIndexIsPosition);
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;

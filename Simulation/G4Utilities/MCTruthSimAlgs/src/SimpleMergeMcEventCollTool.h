@@ -53,9 +53,9 @@ public:
 
 private:
   //** Add the required information from the current GenEvent to the output McEventCollection
-  StatusCode processEvent(const McEventCollection *pMcEvtColl);
+  StatusCode processEvent(const McEventCollection *pMcEvtColl, const int currentBkgEventIndex);
   //** Special case of processEvent for the first (signal) GenEvent
-  StatusCode processFirstSubEvent(const McEventCollection *pMcEvtColl);
+  StatusCode processFirstSubEvent(const McEventCollection *pMcEvtColl, const int currentBkgEventIndex);
   //** Print out detailed debug info if required.
   void printDetailsOfMergedMcEventCollection() const;
   //** Handle for the PileUpMergeSvc (provides input McEventCollections)

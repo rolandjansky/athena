@@ -306,7 +306,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
   m_driftCircleMap.clear();
 
   TimedHitCollection< TRTUncompressedHit >::const_iterator itr1, itr2;
-  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
   int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   while ( m_thpctrt->nextDetectorElement( itr1, itr2 ) ) {
 
@@ -425,15 +425,15 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 
       m_driftCircleMap.insert( std::multimap< Identifier, InDet::TRT_DriftCircle * >::value_type( straw_id, trtDriftCircle ) );
 
-      HepMcParticleLink trklink(hit->particleLink());
       if (m_needsMcEventCollHelper) {
-        if(hit.pileupType()!=lastPileupType)        {
+        if(hit.pileupType()!=lastPileupType) {
           MsgStream* amsg = &(msg());
           currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg);
           lastPileupType=hit.pileupType();
         }
-        trklink.setEventCollection(currentMcEventCollection);
       }
+      const bool isEventIndexIsPosition = (hit.eventId()==0);
+      HepMcParticleLink trklink(hit->GetTrackID(), hit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
       if ( trklink.isValid() ) {
         const int barcode( trklink.barcode() );
         if ( barcode !=0 && barcode != m_vetoThisBarcode ) {

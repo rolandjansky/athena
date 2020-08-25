@@ -629,7 +629,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
   //iterate over hits and fill id-keyed drift time map
   TimedHitCollection< MMSimHit >::const_iterator i, e;
   
-  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
   int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   
   std::map<Identifier,int> hitsPerChannel;
@@ -702,15 +702,15 @@ StatusCode MM_DigitizationTool::doDigitization() {
       }
 
       
-      HepMcParticleLink trklink(hit.particleLink());
       if (m_needsMcEventCollHelper) {
-	if (phit.pileupType()!=lastPileupType) {
-      MsgStream* amsg = &(msg());
-      currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
-      lastPileupType=phit.pileupType();
-	}
-	trklink.setEventCollection(currentMcEventCollection);
+        if(phit.pileupType()!=lastPileupType) {
+          MsgStream* amsg = &(msg());
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
+          lastPileupType=phit.pileupType();
+        }
       }
+      const bool isEventIndexIsPosition = (phit.eventId()==0);
+      HepMcParticleLink trklink(phit->trackNumber(), phit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
       
       // Read the information about the Micro Megas hit
       ATH_MSG_DEBUG ( "> hitID  "

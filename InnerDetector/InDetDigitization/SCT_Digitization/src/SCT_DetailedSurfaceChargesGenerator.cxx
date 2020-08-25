@@ -385,7 +385,7 @@ void SCT_DetailedSurfaceChargesGenerator::process(const TimedHitPtr<SiHit> & phi
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from both AthAlgorithm and PileUpTool
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, int puType, unsigned short /*p_eventId*/) const {
+void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, int puType, unsigned short p_eventId) const {
 
   const InDetDD::SCT_ModuleSideDesign *p_design = dynamic_cast<const SCT_ModuleSideDesign *>(&(m_element->design() ) );
   if (!p_design) {
@@ -455,11 +455,13 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
 
   //check the status of truth information for this SiHit
   //some Truth information is cut for pile up events
-  HepMcParticleLink trklink(phit.particleLink());
+  EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   if (m_needsMcEventCollHelper) {
     MsgStream* amsg = &(msg());
-    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(puType, amsg) );
+    evColl = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(puType, amsg);
   }
+  const bool isEventIndexIsPosition = (p_eventId==0);
+  HepMcParticleLink trklink(phit.trackNumber(), p_eventId, evColl, isEventIndexIsPosition);
   SiCharge::Process hitproc = SiCharge::track;
   if(phit.trackNumber()!=0)
     {

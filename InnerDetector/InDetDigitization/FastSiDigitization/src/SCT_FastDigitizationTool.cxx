@@ -357,6 +357,9 @@ StatusCode SCT_FastDigitizationTool::digitize()
   TimedHitCollection<SiHit>::const_iterator i, e;
   if(!m_sctClusterMap) { m_sctClusterMap = new SCT_detElement_RIO_map; }
   else { m_sctClusterMap->clear(); }
+
+  EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   while (m_thpcsi->nextDetectorElement(i, e))
   {
     SCT_detElement_RIO_map SCT_DetElClusterMap;
@@ -983,11 +986,16 @@ StatusCode SCT_FastDigitizationTool::digitize()
       (void) SCT_DetElClusterMap.insert(SCT_detElement_RIO_map::value_type(waferID, potentialCluster));
       
       // Build Truth info for current cluster
-      HepMcParticleLink trklink(currentSiHit->particleLink());
+
       if (m_needsMcEventCollHelper) {
-        MsgStream* amsg = &(msg());
-        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(currentSiHit.pileupType(), amsg) );
+        if(currentSiHit.pileupType()!=lastPileupType) {
+          MsgStream* amsg = &(msg());
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(currentSiHit.pileupType(), amsg);
+          lastPileupType=currentSiHit.pileupType();
+        }
       }
+      const bool isEventIndexIsPosition = (currentSiHit.eventId()==0);
+      HepMcParticleLink trklink(currentSiHit->trackNumber(), currentSiHit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
       if (trklink.isValid())
       {
 	const int barcode( trklink.barcode());
