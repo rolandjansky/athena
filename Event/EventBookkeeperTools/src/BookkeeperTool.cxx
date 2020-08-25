@@ -116,10 +116,26 @@ StatusCode BookkeeperTool::metaDataStop()
       name.append(std::to_string(i));
     }
 
-    ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.cont[i]), name));
-    ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.aux[i]), name + "Aux."));
-    ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.cont[i]), "Incomplete" + name));
-    ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.aux[i]), "Incomplete" + name + "Aux."));
+    // In MP we might already have them written out
+    if (outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(name)) {
+      xAOD::CutBookkeeperContainer *complete{};
+      if (!outputMetaStore()->retrieve(complete, name).isSuccess()) {
+        ATH_MSG_ERROR("Could not get " << name << " CutBookkeepers from output MetaDataStore");
+        return StatusCode::FAILURE;
+      }
+      xAOD::CutBookkeeperContainer *incomplete{};
+      if (!outputMetaStore()->retrieve(incomplete, "Incomplete" + name).isSuccess()) {
+        ATH_MSG_ERROR("Could not get " << "Incomplete" + name << " CutBookkeepers from output MetaDataStore");
+        return StatusCode::FAILURE;
+      }
+      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(complete, m_completeContainers.at(i)));
+      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(incomplete, m_incompleteContainers.at(i)));
+    } else {
+      ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.cont[i]), name));
+      ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.aux[i]), name + "Aux."));
+      ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.cont[i]), "Incomplete" + name));
+      ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.aux[i]), "Incomplete" + name + "Aux."));
+    }
   }
 
   m_incompleteContainers.clear();
