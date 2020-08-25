@@ -108,6 +108,9 @@ namespace SG {
     }
 
 
+    using DataBucketBase::cast;
+
+
     /**
      * @brief Return the contents of the @c DataBucket,
      *        converted to type given by @a clid.  Note that only
