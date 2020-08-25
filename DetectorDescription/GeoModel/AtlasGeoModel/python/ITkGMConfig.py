@@ -1,33 +1,22 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def InDetServiceMaterialCfg (flags):
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc = GeoModelCfg( flags )
-    geoModelSvc=acc.getPrimary()
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    InDetServMatTool=CompFactory.InDetServMatTool
-    servMatTool = InDetServMatTool()
-    geoModelSvc.DetectorTools += [ servMatTool ]
-    acc.addService(geoModelSvc)
-    return acc
-
-
-def InDetGeometryCfg (flags):
+def ITkGeometryCfg (flags):
     acc = ComponentAccumulator()
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    acc.merge(PixelGeometryCfg( flags ))
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc.merge(SCT_GeometryCfg( flags ))
-    if not flags.GeoModel.Run=="RUN4":
-        from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-        acc.merge(TRT_GeometryCfg( flags ))
-    acc.merge(InDetServiceMaterialCfg( flags ))
+    GeometryDBSvc=CompFactory.GeometryDBSvc
+    acc.addService(GeometryDBSvc("InDetGeometryDBSvc")) #Beampipe builder expects "InDet" rather than "ITk" - can this be steered?
+    if flags.Detector.GeometryITkPixel:
+        #Need new module in PixelGeoModelXml to import here once it exists...
+        #from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+        #acc.merge(PixelGeometryCfg( flags ))
+        print("ITk Pixel not yet supported in this release...")
+    if flags.Detector.GeometryITkStrip:
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+        acc.merge(ITkStripGeometryCfg( flags ))
     return acc
 
 
@@ -45,9 +34,8 @@ if __name__ == "__main__":
   # Provide MC input
   ConfigFlags.Input.Files = defaultTestFiles.HITS
   ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-  ConfigFlags.Detector.SimulatePixel = True
-  ConfigFlags.Detector.SimulateSCT   = True
-  ConfigFlags.Detector.SimulateTRT   = True
+  ConfigFlags.Detector.SimulateITkPixel = True
+  ConfigFlags.Detector.SimulateITkStrip   = True
   ConfigFlags.GeoModel.Align.Dynamic    = False
   # Provide data input
   ##from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -58,11 +46,11 @@ if __name__ == "__main__":
   # Construct ComponentAccumulator
   acc = MainServicesCfg(ConfigFlags)
   acc.merge(PoolReadCfg(ConfigFlags))
-  acc.merge(InDetGeometryCfg(ConfigFlags)) # FIXME This sets up the whole ID geometry would be nicer just to set up min required
+  acc.merge(ITkGeometryCfg(ConfigFlags)) # FIXME This sets up the whole ID geometry would be nicer just to set up min required
   #acc.getService("StoreGateSvc").Dump=True
   acc.getService("ConditionStore").Dump=True
   acc.printConfig(withDetails=True)
-  f=open('InDetGMCfg2.pkl','wb')
+  f=open('ITkGMCfg2.pkl','wb')
   acc.store(f)
   f.close()
   ConfigFlags.dump()
