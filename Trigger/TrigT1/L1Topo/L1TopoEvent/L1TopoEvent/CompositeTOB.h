@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  CompositeTOB.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/18/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__CompositeTOB__
-#define __TopoCore__CompositeTOB__
+#ifndef L1TopoEvent_CompositeTOB
+#define L1TopoEvent_CompositeTOB
 
 // class to hold composite trigger objects, for example such that are created by
 // a topological algorithm
@@ -48,18 +43,13 @@ namespace TCS {
       
       virtual void print(std::ostream &o) const;
 
-      static unsigned int instances() { return fg_instances; }
-
       static const Heap<TCS::CompositeTOB>& heap() { return fg_heap; }
 
    private:
       data_t m_components;
 
-      static unsigned int fg_instances;
-
       static Heap<TCS::CompositeTOB> fg_heap;
    };
-   
-} // end of namespace TCS
+}
 
-#endif /* defined(__TopoCore__CompositeTOB__) */
+#endif

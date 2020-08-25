@@ -48,7 +48,6 @@ namespace TCS {
 
       const TopoCoreSimResult & simulationResult() const { return m_simulationResult; }
 
-
       // @brief: build the execution structure and parameterspace from
       // the configuration
       StatusCode setupFromConfiguration(const TXC::L1TopoMenu& menu);
@@ -58,7 +57,6 @@ namespace TCS {
       // @brief: call the initialize function of the algorithms
       // will be called after the parameters are set and before the event loop starts
       StatusCode initializeAlgorithms();
-
 
       // run the topo simulation
       StatusCode executeEvent();
@@ -143,7 +141,7 @@ namespace TCS {
       
       TopoSteeringStructure  m_structure;
 
-      unsigned int m_evtCounter = {1};
+      unsigned int m_evtCounter {1};
       
       TrigConf::MSGTC::Level m_AlgMsgLvl { TrigConf::MSGTC::WARNING };
 
@@ -151,9 +149,8 @@ namespace TCS {
 
       std::bitset<numberOfL1TopoBits> m_triggerHdwBits;
       std::bitset<numberOfL1TopoBits> m_ovrflowHdwBits;
-   };
 
-   
-} // end of namespace TCS
+   };
+}
 
 #endif

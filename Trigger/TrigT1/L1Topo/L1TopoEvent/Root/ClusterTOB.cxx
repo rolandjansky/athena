@@ -1,13 +1,7 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  ClusterTOB.cpp
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/ClusterTOB.h"
 
-unsigned int TCS::ClusterTOB::fg_instances = 0;
 TCS::Heap<TCS::ClusterTOB> TCS::ClusterTOB::fg_heap("Cluster");
 
 const unsigned int TCS::ClusterTOB::g_nBitsEt = 10;
@@ -18,9 +12,7 @@ const unsigned int TCS::ClusterTOB::g_nBitsPhi = 7;
 // default constructor
 TCS::ClusterTOB::ClusterTOB(uint32_t roiWord) :
    BaseTOB( roiWord )
-{
-   ++fg_instances;
-}
+{}
 
 // constructor with initial values
 TCS::ClusterTOB::ClusterTOB(unsigned int et, unsigned int isolation, int eta, int phi, inputTOBType_t tobType, uint32_t roiWord) :
@@ -30,9 +22,7 @@ TCS::ClusterTOB::ClusterTOB(unsigned int et, unsigned int isolation, int eta, in
    , m_eta( sizeCheck(eta, nBitsEta()) )
    , m_phi( sizeCheck(phi, nBitsPhi()) )
    , m_tobType( tobType )
-{
-   ++fg_instances;
-}
+{}
 
 // constructor with individual values
 TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) :
@@ -45,15 +35,11 @@ TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) :
    , m_etaDouble( cluster.m_etaDouble )
    , m_phiDouble( cluster.m_phiDouble )
    , m_tobType( cluster.m_tobType )
-{
-   ++fg_instances;
-}
+{}
 
 
 // destructor
-TCS::ClusterTOB::~ClusterTOB() {
-   --fg_instances;
-}
+TCS::ClusterTOB::~ClusterTOB() = default;
 
 
 TCS::ClusterTOB*

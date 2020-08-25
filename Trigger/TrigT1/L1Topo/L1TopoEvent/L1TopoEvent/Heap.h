@@ -1,107 +1,147 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  Heap.h
-//  L1TopoEvent
-//  Created by Joerg Stelzer on 11/23/12.
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __L1TopoEvent__Heap__
-#define __L1TopoEvent__Heap__
+#ifndef L1TOPOEVENT_HEAP
+#define L1TOPOEVENT_HEAP
 
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
 #include <vector>
+#include <exception>
+#include <mutex>
+#include <pthread.h>
+#include <unordered_map>
+
 
 namespace TCS {
 
    template<class T>
    class Heap {
    public:
-      Heap(const std::string & heapname, size_t capacity = 120) :
-         m_heapname(heapname)
-         , m_heap(0)
-         , m_pos(0)
-         , m_capacity(capacity)
-         , m_originalCapacity(capacity)
-      {
-         m_heap = malloc( m_capacity * sizeof(T) );
-         m_pos = (T*)m_heap;
-      }
+      Heap(const std::string & name, size_t capacity = 120) :
+         m_name(name),
+         m_originalCapacity(capacity)
+      {}
 
       ~Heap() {
-         destroy();
+         for( auto & x : m_threadHeapMap ) {
+            destroy(x.second);
+         }
+         m_threadHeapMap.clear();
       }
 
-      void
-      extend() {
-         m_heapCollection.push_back(m_heap); // park the old heap which has grown too small
-
-         m_heap = malloc( m_originalCapacity * sizeof(T) ); // create a new heap the same size as the original one
-
-         m_pos = (T*)m_heap; // make current position point to it
-
-         m_capacity += m_originalCapacity; // adjust the capacity
-      }
-
-
+      /* @brief provide a clean heap for the current thread
+       * either clears the existing heap or provides a new one
+       */
       void
       clear() {
-         // destroy objects on current heap
-         T * p = (T*)m_heap;
-         while(p != m_pos) {
+         pthread_t threadId = pthread_self();
+         typename std::unordered_map<pthread_t, HeapStructure>::iterator x;
+         {
+            auto lock = std::scoped_lock{m_map_lock};
+            x = m_threadHeapMap.find(threadId);
+         }
+         if(x != m_threadHeapMap.end()) {
+            clear(x->second);
+         } else {
+            initHeap(threadId);
+         }
+      }
+
+      /** @brief create an object on the heap for the current thread
+       */
+      T* create(const T & obj) {
+         auto & h = getHeap(pthread_self());
+         if(  (int)(h.pos - (T*)h.heap) == (int)m_originalCapacity ) {
+            extend(h);
+         }
+         T* newObject = new(h.pos++) T(obj);
+         return newObject;
+      }
+
+      size_t size() const {
+         const auto & h = getHeap(pthread_self());
+         return (h.pos - (T*)h.heap) + h.heapCollection.size() * m_originalCapacity;
+      }
+
+      size_t capacity() const {
+         const auto & h = getHeap(pthread_self());
+         return h.capacity;
+      }
+
+   private:
+
+      class HeapStructure {
+      public:
+         void *                heap {nullptr};
+         T *                   pos {nullptr};
+         std::vector<void*>    heapCollection;
+         std::vector<size_t>   heapSizes;
+         size_t                capacity{0};                // allocated space in byte
+      };
+
+      std::unordered_map<pthread_t, HeapStructure> m_threadHeapMap;
+      mutable std::mutex m_map_lock;
+      std::string m_name{};
+      size_t m_originalCapacity{0};
+
+      HeapStructure &
+      getHeap(pthread_t threadId) {
+         auto lock = std::scoped_lock{m_map_lock};
+         return m_threadHeapMap.at(threadId);
+      }
+
+      const HeapStructure &
+      getHeap(pthread_t threadId) const {
+         auto lock = std::scoped_lock{m_map_lock};
+         return m_threadHeapMap.at(threadId);
+      }
+
+      void
+      destroy(HeapStructure & h) {
+         clear(h);
+         free(h.heap);
+         h.heap = nullptr;
+         h.pos = nullptr;
+         h.capacity = 0;
+      }
+
+      void
+      extend(HeapStructure & h) {
+         h.heapCollection.push_back(h.heap); // park the old heap which has grown too small
+         h.heap = malloc( m_originalCapacity * sizeof(T) ); // create a new heap the same size as the original one
+         h.pos = (T*)h.heap; // make current position point to it
+         h.capacity += m_originalCapacity; // adjust the capacity
+      }
+
+
+      void
+      initHeap(pthread_t threadId)
+      {
+         HeapStructure h;
+         h.capacity = m_originalCapacity;
+         h.heap = malloc( h.capacity * sizeof(T) );
+         h.pos = (T*)h.heap;
+         auto lock = std::scoped_lock{m_map_lock};
+         m_threadHeapMap[threadId] = h;
+      }
+
+      void
+      clear(HeapStructure & h) {
+         // destroy objects on the heap structure
+         T * p = (T*)h.heap;
+         while(p != h.pos) {
             (p++)->~T();
          }
-         // destroy object on previous 
-         for(void * heap : m_heapCollection) {
+         // destroy object on previous
+         for(void * heap : h.heapCollection) {
             T * p = (T*)heap;
             for(unsigned int t=0; t<m_originalCapacity; ++t)
                (p++)->~T();
             free(heap); // destroy these
          }
-         m_heapCollection.clear();
-            
-         m_pos = (T*)m_heap;
-
-         m_capacity = m_originalCapacity;
+         h.heapCollection.clear();
+         h.pos = (T*)h.heap;
+         h.capacity = m_originalCapacity;
       }
-
-      void
-      destroy() {
-         clear();
-         free(m_heap);
-         m_heap = 0;
-         m_pos = (T*)0;
-         m_capacity = 0;
-      }
-
-      T* create(const T & obj) {
-         //std::cout << "about to create size = " << size() << "  capacity = " << capacity() << " of heap " << m_heapname << std::endl;
-        if(  (int)(m_pos - (T*)m_heap) == (int)m_originalCapacity ) {
-            extend();
-         }
-         //std::cout << "Creating TOB on " << m_heapname << ", heap size " << size() << ", heap capacity " << capacity() << std::endl;
-         T* newObject = new(m_pos++) T(obj);
-         //std::cout << "create " << newObject << std::endl;
-         return newObject;
-      }
-
-      size_t size() const { return (m_pos - (T*)m_heap) + m_heapCollection.size() * m_originalCapacity; }
-
-      size_t capacity() const { return m_capacity; }
-
-   private:
-
-      std::string m_heapname;
-      void * m_heap;
-      T * m_pos;
-      std::vector<void*> m_heapCollection;
-      std::vector<size_t> m_heapSizes;
-
-      size_t m_capacity; // allocated space in byte
-      size_t m_originalCapacity;
    };
+}
 
-} // end of namespace TCS
-
-#endif /* defined(__L1TopoEvent__Heap__) */
+#endif

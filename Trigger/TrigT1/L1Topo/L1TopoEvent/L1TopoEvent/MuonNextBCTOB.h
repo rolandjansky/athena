@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  MuonNextBCTOB.h
-//  TopoCore
-//  Baesd on MuonTOB.h Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__MuonNextBCTOB__
-#define __TopoCore__MuonNextBCTOB__
+#ifndef L1TopoEvent_MuonNextBCTOB
+#define L1TopoEvent_MuonNextBCTOB
 
 #include <iostream>
 
@@ -63,8 +58,6 @@ namespace TCS {
       static void clearHeap();
       static const Heap<TCS::MuonNextBCTOB>& heap() { return fg_heap; }
 
-      static unsigned int instances() { return fg_instances; }
-
       virtual void print(std::ostream &o) const;
 
    private:
@@ -82,11 +75,8 @@ namespace TCS {
       double m_etaDouble;
       double m_phiDouble;
 
-      static unsigned int fg_instances;
-
       static Heap<TCS::MuonNextBCTOB> fg_heap;
    };
-   
-} // end of namespace TCS
+}
 
-#endif /* defined(__TopoCore__MuonNextBCTOB__) */
+#endif

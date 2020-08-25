@@ -1,17 +1,12 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  ClusterTOB.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__ClusterTOB__
-#define __TopoCore__ClusterTOB__
+#ifndef L1TopoEvent_ClusterTOB
+#define L1TopoEvent_ClusterTOB
+
+#include "L1TopoEvent/Heap.h"
+#include "L1TopoEvent/BaseTOB.h"
 
 #include <iostream>
-
-#include "L1TopoEvent/BaseTOB.h"
-#include "L1TopoEvent/Heap.h"
 
 namespace TCS {
     
@@ -22,7 +17,6 @@ namespace TCS {
       static unsigned int nBitsIsolation() { return g_nBitsIsolation; }
       static unsigned int nBitsEta() { return g_nBitsEta; }
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
-
 
       // default constructor
       ClusterTOB(uint32_t roiWord = 0);
@@ -61,8 +55,6 @@ namespace TCS {
       static void clearHeap();
       static const Heap<TCS::ClusterTOB>& heap() { return fg_heap; }
 
-      static unsigned int instances() { return fg_instances; }
-
       virtual void print(std::ostream &o) const;
 
       void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
@@ -86,11 +78,8 @@ namespace TCS {
 
       inputTOBType_t  m_tobType { NONE };
 
-      static unsigned int fg_instances;
-
       static Heap<TCS::ClusterTOB> fg_heap;
    };
-   
-} // end of namespace TCS
+}
 
-#endif /* defined(__TopoCore__ClusterTOB__) */
+#endif

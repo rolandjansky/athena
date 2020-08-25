@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  MetTOB.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__MetTOB__
-#define __TopoCore__MetTOB__
+#ifndef L1TopoEvent_MetTOB
+#define L1TopoEvent_MetTOB
 
 #include <iostream>
 
@@ -60,8 +55,6 @@ namespace TCS {
       static void clearHeap();
       static const Heap<TCS::MetTOB>& heap() { return fg_heap; }
 
-      static unsigned int instances() { return fg_instances; }
-
       virtual void print(std::ostream &o) const;
 
    private:
@@ -69,19 +62,16 @@ namespace TCS {
       static const unsigned int g_nBitsEy;
       static const unsigned int g_nBitsEt;
       
-      int m_Ex = { 0 };
-      int m_Ey = { 0 };
-      unsigned int m_Et = { 0 };
+      int m_Ex {0};
+      int m_Ey {0};
+      unsigned int m_Et {0};
 
-      double m_ExDouble = { 0 };
-      double m_EyDouble = { 0 };
-      double m_EtDouble = { 0 };
-
-      static unsigned int fg_instances;
+      double m_ExDouble {0};
+      double m_EyDouble {0};
+      double m_EtDouble {0};
 
       static Heap<TCS::MetTOB> fg_heap;
    };
-   
-} // end of namespace TCS
+}
 
-#endif /* defined(__TopoCore__MetTOB__) */
+#endif

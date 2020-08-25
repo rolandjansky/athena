@@ -19,6 +19,7 @@ void
 TCS::AlgFactory::destroy_instance()
 {
    delete fg_instance;
+   fg_instance = nullptr;
 }
 
 
