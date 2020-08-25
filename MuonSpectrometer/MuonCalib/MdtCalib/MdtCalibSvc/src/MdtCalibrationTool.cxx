@@ -26,6 +26,10 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 #include "MuonCalibEvent/MdtCalibHit.h"
 
+namespace {
+  static constexpr double const twoBySqrt12 = 2/sqrt(12);
+}
+
 //
 // private helper functions
 //
@@ -214,7 +218,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // on the other hand it should be rare that a tube does not have an RT
   if( !rtRelation ) {
     ATH_MSG_WARNING( "no rtRelation found, cannot calibrate tube" );
-    hit.setDriftRadius( 0., 2*14.6/std::sqrt(12) ); // treat the tube as a 'strip' measurement
+    hit.setDriftRadius(0., twoBySqrt12*geo->innerTubeRadius());
     return false;
   }
   double t0(0.);

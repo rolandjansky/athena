@@ -32,6 +32,8 @@ namespace MuonCalib {
    @author Martin Woudstra, Niels van Eldik
 */
 
+const static InterfaceID s_iID("MdtCalibrationTool", 1, 0);
+
 class MdtCalibrationTool : public extends<AthAlgTool, IInterface> {
 public:
   /** constructor */
@@ -42,7 +44,6 @@ public:
 
   /** implements IInterface */
   static const InterfaceID &interfaceID() {
-    static InterfaceID s_iID("MdtCalibrationTool", 1, 0);
     return s_iID;
   }
 
