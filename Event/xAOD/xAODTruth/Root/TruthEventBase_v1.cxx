@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthEventBase_v1.cxx 622193 2014-10-16 16:08:34Z krasznaa $
@@ -51,13 +51,13 @@ namespace xAOD {
 
       // Check if the variable is available:
       if( ! truthParticleLinksAcc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Check if the link is valid:
       const TruthParticleLinks_t& links = truthParticleLinksAcc( *this );
       if( ! links[ index ].isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       // Return the de-referenced link:
@@ -113,13 +113,13 @@ namespace xAOD {
 
       // Check if the variable is available:
       if( ! truthVertexLinksAcc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Check if the link is valid:
       const TruthVertexLinks_t& links = truthVertexLinksAcc( *this );
       if( ! links[ index ].isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       // Return the de-referenced link:
