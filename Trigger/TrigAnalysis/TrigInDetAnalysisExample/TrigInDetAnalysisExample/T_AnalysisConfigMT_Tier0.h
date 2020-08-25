@@ -706,6 +706,9 @@ protected:
 
 	  const ElementLink<TrigRoiDescriptorCollection> roi_link = roi_info.link;
 
+	  /// check this is not a spurious TDT match
+	  if ( roi_key!="" && roi_link.dataID()!=roi_key ) continue;
+
 	  const TrigRoiDescriptor* const* roiptr = roi_link.cptr();
 
 	  if ( roiptr == 0 ) { 
