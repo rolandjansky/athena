@@ -39,7 +39,7 @@ int main() {
   return ( nfailures+nfailures2+nfailures3 != 0 ) ? -1 : 0;
 }
 
-bool check( bool result, std::string message, Iso::IsolationType type, unsigned int& nfailures ){
+bool check( bool result, const std::string& message, Iso::IsolationType type, unsigned int& nfailures ){
   if( !result ) {
     ++nfailures;
     std::cout << "WARNING " << message << " for type " << type << std::endl;

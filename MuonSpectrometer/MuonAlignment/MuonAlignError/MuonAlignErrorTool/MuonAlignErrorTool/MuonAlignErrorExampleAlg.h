@@ -5,15 +5,14 @@
 #ifndef MUONALIGNERRORTOOL_MUONALIGNERROREXAMPLEALG_H
 #define MUONALIGNERRORTOOL_MUONALIGNERROREXAMPLEALG_H
 
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 
-// For debugging
 #include "TFile.h"
 #include "TH1F.h"
 
@@ -31,14 +30,14 @@ namespace MuonAlign {
     private:
       void muonTrack(const Trk::Track* track) const;
 
-      ToolHandle<Trk::ITrkAlignmentDeviationTool> m_alignErrorTool;
+      ToolHandle<Trk::ITrkAlignmentDeviationTool> m_alignErrorTool{this,"alignErrorTool","MuonAlign::AlignmentErrorTool"};
 
       // FOR DEBUGGING
       TFile* m_debug;
       TH1F* m_cham_per_dev;
       TH1F* m_dev_per_track;
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-      ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool;
+      ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool{this,"idTool","MuonCalib::IdToFixedIdTool/IdToFixedIdTool"};
       std::string hardwareName(MuonCalib::MuonFixedId calibId) const;
       std::string side(MuonCalib::MuonFixedId calibId) const;
       std::string sectorString(MuonCalib::MuonFixedId calibId) const;

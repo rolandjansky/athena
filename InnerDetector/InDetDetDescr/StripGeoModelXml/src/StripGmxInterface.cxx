@@ -167,9 +167,8 @@ double length(25.0);
     m_detectorManager->addDesign(std::move(design));
 //
 //    Add to map for addSensor routine
-//
-//   ADA    m_geometryMap[typeName] = design;
-    m_geometryMap[typeName] = design.get();
+
+    m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
 }
 
 void StripGmxInterface::makeStereoAnnulus(string typeName, map<std::string, string> &par) { 
@@ -286,9 +285,8 @@ vector<double> endR;
     m_detectorManager->addDesign(std::move(design));
 //
 //    Add to map for addSensor routine
-//
-//   ADA    m_geometryMap[typeName] = design;
-    m_geometryMap[typeName] = design.get();
+
+    m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
 }
 
 string StripGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
@@ -330,7 +328,8 @@ void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int 
 //
 //    Create the detector element and add to the DetectorManager
 //
-    const InDetDD::SiDetectorDesign *design = m_geometryMap[typeName];
+    const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[typeName]);
+
     if (!design) {
         *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
           " not found.\n" << endmsg;

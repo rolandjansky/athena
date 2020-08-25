@@ -76,12 +76,10 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2mb')
-comp.flag = 'L2mb'
+comp=TrigInDetCompStep('Comp_L2mb','L2','mb')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmb')
-comp2.flag = 'EFmb'
+comp2=TrigInDetCompStep('Comp_EFmb','EF','mb')
 test.check_steps.append(comp2)
 
 # CPU cost steps

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -37,14 +37,14 @@ namespace xAOD {
 	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_tt("pfo_TauTrack");
 	return &acc_tt;	
       }//switch
-      return NULL;
+      return nullptr;
     }//getAccessor
   };
 
   PFO_v1::PFO_v1() : IParticle() {
   }
 
-  PFO_v1::PFO_v1(const PFO_v1& other) : IParticle(){
+  PFO_v1::PFO_v1(const PFO_v1& other) : IParticle(other){
     this->makePrivateStore(other);
   }
 
@@ -263,7 +263,7 @@ namespace xAOD {
     bool isValid = false;
     uint16_t internalAttribute;
     isValid = attribute<uint16_t>(AttributeType,internalAttribute);
-    if (false == isValid) return false;
+    if (!isValid) return false;
     else{
       anAttribute = static_cast<xAOD::PFODetails::PFOLeptonType>(internalAttribute);
       return true;
@@ -291,7 +291,7 @@ namespace xAOD {
     if (this->isJetETMissFloatForCompression(AttributeType)){
       int internalAttribute;
       isValid = attribute<int>(AttributeType,internalAttribute);
-      if (true == isValid && 0 != internalAttribute) anAttribute = static_cast<float>(internalAttribute)/s_floatCompressionFactor;
+      if (isValid && 0 != internalAttribute) anAttribute = static_cast<float>(internalAttribute)/s_floatCompressionFactor;
       else anAttribute = 0.0;
       return isValid;
     }
@@ -378,7 +378,7 @@ namespace xAOD {
 
     float internalAttribute;
     bool isValid = attribute<float>(AttributeType,internalAttribute);
-    if (true == isValid) anAttribute = static_cast<double>(internalAttribute);
+    if (isValid) anAttribute = static_cast<double>(internalAttribute);
     return isValid;
 
   }
@@ -394,7 +394,7 @@ namespace xAOD {
 
     float internalAttribute;
     bool isValid = attribute<float>(AttributeType,internalAttribute);
-    if (true == isValid) anAttribute = static_cast<float>(internalAttribute);
+    if (isValid) anAttribute = static_cast<float>(internalAttribute);
     return isValid;
 
   }
@@ -423,7 +423,7 @@ namespace xAOD {
   bool PFO_v1::getClusterMomentFromPFO(float& theMoment, xAOD::CaloCluster::MomentType momentType) const{
     xAOD::PFODetails::PFOAttributes myAttribute;
     bool haveGotAttributeInMap = this->getAttributeName_FromClusterMoment(myAttribute,momentType);
-    if (false == haveGotAttributeInMap) return false;
+    if (!haveGotAttributeInMap) return false;
     else {
       bool isRetrieved = this->attribute(myAttribute, theMoment);
       return isRetrieved;
@@ -618,7 +618,7 @@ namespace xAOD {
 	std::vector<ElementLink<IParticleContainer> >::const_iterator firstLink = theLinks.begin();
 	for (; firstLink != theLinks.end(); ++firstLink) {
 	  if ( (*firstLink).isValid()) theParticles.push_back(**firstLink);
-	  else theParticles.push_back(NULL);
+	  else theParticles.push_back(nullptr);
 	}
 	return true;
       }
@@ -650,7 +650,7 @@ namespace xAOD {
       std::vector<ElementLink<IParticleContainer> >::const_iterator firstLink = theLinks.begin();
       for (; firstLink != theLinks.end(); ++firstLink) {
 	if ( (*firstLink).isValid()) theParticles.push_back(**firstLink);
-	else theParticles.push_back(NULL);
+	else theParticles.push_back(nullptr);
 	}
       return true;
     }
@@ -677,13 +677,13 @@ namespace xAOD {
 	ElementLink<IParticleContainer> theLink = theLinks[index];
 	if (theLink.isValid()){
 	  const IParticle *theParticle = *theLink;
-	  if (NULL == theParticle) return NULL;
+	  if (nullptr == theParticle) return nullptr;
 	  else if (Type::CaloCluster == theParticle->type()) return static_cast<const CaloCluster*>(theParticle);
-	  else return NULL;
+	  else return nullptr;
 	}
-	else return NULL;
+	else return nullptr;
       }
-      else return NULL;
+      else return nullptr;
     }
 
   }
@@ -699,13 +699,13 @@ namespace xAOD {
 	ElementLink<IParticleContainer> theLink = theLinks[index];
 	if (theLink.isValid()){
 	  const IParticle *theParticle = *theLinks[index];
-	  if (NULL == theParticle) return NULL;
+	  if (nullptr == theParticle) return nullptr;
 	  else if (Type::TrackParticle == theParticle->type()) return static_cast<const TrackParticle*>(theParticle);
-	  else return NULL;
+	  else return nullptr;
 	}
-	else return NULL;
+	else return nullptr;
       }
-      else return NULL;
+      else return nullptr;
     }
   }
 

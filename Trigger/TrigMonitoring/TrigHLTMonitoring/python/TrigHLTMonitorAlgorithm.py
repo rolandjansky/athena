@@ -1,11 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigHLTMonitorAlgorithm.py
-@author E. Bergeaas Kuutmann
-@author T. Bold
 @date 2019-09-10
+@date 2020-08-24
 @brief TrigHLTMonitoring top-level files, general monitoring
 '''
 
@@ -28,7 +27,7 @@ def createHLTDQConfigFlags():
 
 
 def TrigHLTMonTopConfig(inputFlags):
-    '''Function to configure some algorithms in the monitoring system.'''
+    '''Configuring the HLT signatures top-level steering in the DQ monitoring system.'''
 
     ########
     #HLT top-level steering
@@ -84,7 +83,7 @@ def TrigHLTMonTopConfig(inputFlags):
 
 
 def TrigHLTMonConfig(inputFlags):
-    '''Function to configure some algorithms in the monitoring system.'''
+    '''Function to configure general HLT algorithms in the monitoring system.'''
 
     ################################
     # HLT general monitoring
@@ -101,8 +100,15 @@ def TrigHLTMonConfig(inputFlags):
     # The added algorithm must exist as a .h file 
 
     from AthenaConfiguration.ComponentFactory import CompFactory
+    #trigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'TrigHLTMonAlg')
+    cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
+    helper.resobj.addService(cfgsvc)
     trigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'TrigHLTMonAlg')
-    signatureTrigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'SignatureTrigHLTMonAlg')
+    trigHLTMonAlg.TrigConfigSvc = cfgsvc
+
+
+
+    #signatureTrigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'SignatureTrigHLTMonAlg')
 
 
     ### STEP 3 ###
@@ -111,27 +117,31 @@ def TrigHLTMonConfig(inputFlags):
 
     ### STEP 4 ###
     # Add a generic monitoring tool (a "group" in old language). 
-    myGroup = helper.addGroup(
+    hltGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTMonitor',
         'HLT/ResultMon/'
     )
 
     # Add a GMT for the other example monitor algorithm
-    signatureGroup = helper.addGroup(signatureTrigHLTMonAlg,'TrigHLTMonitor','HLT/ResultMon/')
+    #signatureGroup = helper.addGroup(signatureTrigHLTMonAlg,'TrigHLTMonitor','HLT/ResultMon/')
 
     ### STEP 5 ###
     # Configure histograms
     #NB! The histograms defined here must match the ones in the cxx file exactly
     
-    myGroup.defineHistogram('HLTResultHLT', title='HLT Result PLACEHOLDER;result;Events',
+    hltGroup.defineHistogram('HLTResultHLT', title='HLT Result PLACEHOLDER;result;Events',
                             path='',xbins=3,xmin=0,xmax=3)
-    #TODO Need to set alphanumeric bin labels. C code:
-    #std::string help[] = {"HLTResult","isAccepted","isPassThrough"};
-    #for(int i=1;i<=3;i++) hist(resultname)->GetXaxis()->SetBinLabel(i,help[i-1].c_str());
 
+    consistency_names=['SMK DB NULL','SMK BS NULL','SMK Inconsistent','HLT Prescale DB NULL','HLT Prescale BS NULL','HLT Prescale Inconsistent','No HLTResult']
+    hltGroup.defineHistogram('ConfigConsistency_HLT', title='ConfigConsistency_HLT;;Events',
+                             path='',xbins=7,xmin=1,xmax=8,xlabels=consistency_names)
 
-    signatureGroup.defineHistogram('placeholder',title='Placeholder;X;Y',
+    hltGroup.defineHistogram('placeholder_hlt',title='Placeholder;X;Y',
+                                  path='AllChains',xbins=1000000,xmin=-0.5,xmax=999999.5)
+
+    #Summary histograms for the signatures
+    hltGroup.defineHistogram('placeholder_ele',title='Placeholder;X;Y',
                                   path='Electrons',xbins=1000000,xmin=-0.5,xmax=999999.5)
 
     ### STEP 6 ###

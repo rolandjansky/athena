@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTruthHelpers.cxx 668406 2015-05-19 15:32:15Z krasznaa $
@@ -27,14 +27,14 @@ namespace xAOD {
       const xAOD::TruthParticle* getTruthParticle( const xAOD::IParticle& p ) {
 
          /// A convenience type declaration
-         typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
+         using Link_t = ElementLink<xAOD::TruthParticleContainer>;
 
          /// A static accessor for the information
          static const SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
 
          // Check if such a link exists on the object:
          if( ! acc.isAvailable( p ) ) {
-            return 0;
+            return nullptr;
          }
 
          // Get the link:
@@ -42,7 +42,7 @@ namespace xAOD {
 
          // Check if the link is valid:
          if( ! link.isValid() ) {
-            return 0;
+            return nullptr;
          }
 
          // Everything has passed, let's return the pointer:

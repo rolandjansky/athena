@@ -76,12 +76,10 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon')
-comp.flag = 'L2muon'
+comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmuon')
-comp2.flag = 'EFmuon'
+comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
 test.check_steps.append(comp2)
 
 # CPU cost steps
