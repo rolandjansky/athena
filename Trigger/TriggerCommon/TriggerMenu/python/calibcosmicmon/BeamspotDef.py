@@ -126,7 +126,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-        
+
      elif ('FTK' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
            from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTK

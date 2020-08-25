@@ -918,7 +918,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 }
 
 
-spacePointVec OnlineSpacePointProviderTool::getSpacePoints(bool getPixelSP, bool getSctSP)
+spacePointVec OnlineSpacePointProviderTool::getSpacePoints(bool getPixelSP, bool getSctSP, std::map<Identifier, std::vector<long int> > * /* clustermap */ )
 {
 
   spacePointVec spVec;

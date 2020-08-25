@@ -41,6 +41,8 @@ public:
     m_useTrigSeedML = 0;
     m_vLUT.clear();
     m_useSCT_middleSP = true;
+    m_requireSCT_middleSP = false;
+    m_LRTmode=false;
     m_maxEC_len = 1.5;
   }
 
@@ -69,6 +71,8 @@ public:
   std::vector<const TrigSeedML_LUT*> m_vLUT;
 
   bool m_useSCT_middleSP;
+  bool m_requireSCT_middleSP;
+  bool m_LRTmode;
   float m_maxEC_len;
   
 } TRIG_COMBINATORIAL_SETTINGS;

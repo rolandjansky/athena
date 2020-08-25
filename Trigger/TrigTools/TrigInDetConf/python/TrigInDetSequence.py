@@ -193,6 +193,8 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         self.__step__ = ["muonCore","muonIso","muon"]; 
       elif self.__signature__ == "bjet":  
         self.__step__ = ["bjetVtx","bjet","bjet"]; 
+      elif self.__signature__ == "fullScan":  
+        self.__step__ = ["fullScan","fullScanlrt","fullScan"]; 
       self.__step__.reverse()
 
     fullseq = list()
@@ -223,7 +225,12 @@ class TrigInDetSequence(TrigInDetSequenceBase):
           ftfname = "TrigFastTrackFinder_%s_IDTrig";  ftf2name = "TrigFastTrackFinder_%sIso_IDTrig"; 
           cnvname = "InDetTrigTrackingxAODCnv_%s_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
           roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
-    
+      elif self.__signature__=="fullScan":
+          ftfname = "TrigFastTrackFinder_%s_IDTrig";  ftf2name = "TrigFastTrackFinder_%slrt_IDTrig"; 
+          cnvname = "InDetTrigTrackingxAODCnv_%s_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%slrt_FTF";  
+          roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%slrt_IDTrig"
+
+
     if sequenceType=="IDTrig":
 
       algos = list()
@@ -232,32 +239,38 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         algos += [("IDTrigRoiUpdater", roiupdater)]
 
       algos += dataprep
+
       algos += [("TrigFastTrackFinder",ftfname),
                 ("InDetTrigTrackingxAODCnv",cnvname),
                 ]
-
+      
       if self.__signature__=="fullScan":
         algos += [("TrigVxPrimary","")]
         if vertexXAODCnvNeeded(): 
           algos += [("InDetTrigVertexxAODCnv","")]
 
+      
       if "2step" in self.__sequenceFlavour__ and self.__signature__=="bjet":
         algos += [("TrigVxPrimary","")]
         if vertexXAODCnvNeeded(): 
            algos += [("InDetTrigVertexxAODCnv","")]
 
+      
+
       fullseq.append(algos)
  
 
       if "2step" in self.__sequenceFlavour__:
-        algos = [("IDTrigRoiUpdater", roi2updater)]
-        algos += dataprep
+        algos=[]
+        if not (self.__signature__=="fullScan"):
+          algos = [("IDTrigRoiUpdater", roi2updater)]
+          algos += dataprep
         algos += [("TrigFastTrackFinder",ftf2name),
                   ("InDetTrigTrackingxAODCnv",cnv2name),
                   ]
         fullseq.append(algos)
 
-
+        
       if not ("FTF" in self.__sequenceFlavour__):
         algos = [("TrigAmbiguitySolver",""),
                  ("TRTDriftCircleMaker","TRTDriftCircleMaker_IDTrig"),
@@ -306,6 +319,9 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                 ]
       fullseq.append(algos)
 
+
+      
+        
     else:
       pass
 
