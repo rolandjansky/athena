@@ -71,6 +71,14 @@ theApp.EvtMax = 10
 #--------------------------------------------------------------
 # Algorithms
 #--------------------------------------------------------------
+# Beam spot conditions
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+from IOVDbSvc.CondDB import conddb
+conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+condSeq += BeamSpotCondAlg("BeamSpotCondAlg")
+
 # Make the signal xAOD::EventInfo
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 EventInfoCnvAlg = xAODMaker__EventInfoCnvAlg()
