@@ -25,12 +25,6 @@ elif ( DetFlags.detdescr.ID_on() ):
     if not hasattr(svcMgr,'InDetGeometryDBSvc'):
         from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
         svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
-        if InDetGeometryFlags.isSLHC():
-            #SLHC specific code
-            # General service builder tool for SLHC
-            from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
-            InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
-            ToolSvc+=InDetServMatBuilderToolSLHC
 
     if ( DetFlags.detdescr.pixel_on() ):
         from AthenaCommon import CfgGetter
