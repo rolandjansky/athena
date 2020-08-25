@@ -5,50 +5,6 @@
 # Declare the package name:
 atlas_subdir( InDetAlignmentMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   GaudiKernel
-   PRIVATE
-   Commission/CommissionEvent
-   Control/AthenaBaseComps
-   Control/AthenaMonitoring
-   Control/AthContainers
-   DetectorDescription/AtlasDetDescr
-   DetectorDescription/Identifier
-   Event/EventPrimitives
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODTracking
-   InnerDetector/InDetAlignTools/InDetAlignGenTools
-   InnerDetector/InDetConditions/BeamSpotConditionsData
-   InnerDetector/InDetConditions/TRT_ConditionsServices
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelReadoutGeometry
-   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-   InnerDetector/InDetRecEvent/InDetPrepRawData
-   InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
-   InnerDetector/InDetValidation/InDetTrackSplitterTool
-   Reconstruction/Particle
-   Tools/LWHists
-   Tracking/TrkDetDescr/TrkGeometry
-   Tracking/TrkDetDescr/TrkSurfaces
-   Tracking/TrkEvent/TrkEventPrimitives
-   Tracking/TrkEvent/TrkParameters
-   Tracking/TrkEvent/TrkParticleBase
-   Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-   Tracking/TrkEvent/TrkRIO_OnTrack
-   Tracking/TrkEvent/TrkTrack
-   Tracking/TrkEvent/TrkTrackSummary
-   Tracking/TrkEvent/TrkTruthData
-   Tracking/TrkEvent/VxVertex
-   Tracking/TrkExtrapolation/TrkExInterfaces
-   Tracking/TrkTools/TrkToolInterfaces
-   Tracking/TrkVertexFitter/TrkVertexFitterInterfaces 
-   Generators/AtlasHepMC
-   )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO MathMore Gpad Matrix )
@@ -64,7 +20,8 @@ atlas_add_component( InDetAlignmentMonitoring
    InDetPrepRawData InDetRIO_OnTrack Particle LWHists TrkGeometry TrkSurfaces
    TrkEventPrimitives TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack
    TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces
-   TrkToolInterfaces TrkVertexFitterInterfaces InDetTrackSelectionToolLib )
+   TrkToolInterfaces TrkVertexFitterInterfaces InDetTrackSelectionToolLib
+   BeamSpotConditionsData InDetAlignGenToolsLib InDetTrackSplitterToolLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
