@@ -19,7 +19,6 @@
 
 #include "CxxUtils/restrict.h"
 #include "MagFieldElements/BFieldVector.h"
-#include <cmath>
 
 class BFieldCache
 {
@@ -28,6 +27,7 @@ public:
   BFieldCache() = default;
   // make this cache invalid, so that inside() will fail
   void invalidate();
+
   // set the z, r, phi range that defines the bin
   void setRange(double zmin,
                 double zmax,
@@ -52,9 +52,6 @@ public:
             double phi,
             double* ATH_RESTRICT B,
             double* ATH_RESTRICT deriv = nullptr) const;
-
-  // set the field values at each corner (rescale for current scale factor)
-  void printField() const;
 
 private:
   // bin range in z
