@@ -842,6 +842,8 @@ def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
+applyJetCalibration_xAODColl("AntiKt4EMPFlow")
+updateJVT_xAODColl("AntiKt4EMPFlow")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
