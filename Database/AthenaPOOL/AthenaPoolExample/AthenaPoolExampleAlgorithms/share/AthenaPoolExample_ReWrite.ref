@@ -21,7 +21,6 @@ AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version Athe
 ClassIDSvc           INFO  getRegistryEntries: read 846 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 344 CLIDRegistry entries for module ALL
 ReadData            DEBUG Property update for OutputLevel : new value = 2
-ReadData             INFO in initialize()
 MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 MetaDataSvc         DEBUG Service base class initialized successfully
@@ -126,6 +125,11 @@ ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for m
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
+AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
+EventInfoCnvAlg...WARNING Beam conditions service not available
+EventInfoCnvAlg...WARNING Will not fill beam spot information into xAOD::EventInfo
+ReadData            DEBUG Property update for OutputLevel : new value = 2
+ReadData             INFO in initialize()
 ReadData            DEBUG input handles: 2
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
@@ -154,7 +158,6 @@ Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
-AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1.Thinnin...  DEBUG Property update for OutputLevel : new value = 2
@@ -274,7 +277,6 @@ WriteTag             INFO EventInfo event: 0  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 0  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
@@ -457,7 +459,6 @@ WriteTag             INFO EventInfo event: 1  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 1  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -533,7 +534,6 @@ WriteTag             INFO EventInfo event: 2  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 2  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -609,7 +609,6 @@ WriteTag             INFO EventInfo event: 3  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 3  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -685,7 +684,6 @@ WriteTag             INFO EventInfo event: 4  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 4  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -761,7 +759,6 @@ WriteTag             INFO EventInfo event: 5  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 5  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -837,7 +834,6 @@ WriteTag             INFO EventInfo event: 6  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 6  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -913,7 +909,6 @@ WriteTag             INFO EventInfo event: 7  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 7  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -989,7 +984,6 @@ WriteTag             INFO EventInfo event: 8  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 8  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1065,7 +1059,6 @@ WriteTag             INFO EventInfo event: 9  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 9  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1141,7 +1134,6 @@ WriteTag             INFO EventInfo event: 10  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 10  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1217,7 +1209,6 @@ WriteTag             INFO EventInfo event: 11  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 11  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1293,7 +1284,6 @@ WriteTag             INFO EventInfo event: 12  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 12  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1369,7 +1359,6 @@ WriteTag             INFO EventInfo event: 13  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 13  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1445,7 +1434,6 @@ WriteTag             INFO EventInfo event: 14  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 14  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1521,7 +1509,6 @@ WriteTag             INFO EventInfo event: 15  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 15  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1597,7 +1584,6 @@ WriteTag             INFO EventInfo event: 16  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 16  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1673,7 +1659,6 @@ WriteTag             INFO EventInfo event: 17  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 17  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1749,7 +1734,6 @@ WriteTag             INFO EventInfo event: 18  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 18  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1825,7 +1809,6 @@ WriteTag             INFO EventInfo event: 19  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 19  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
