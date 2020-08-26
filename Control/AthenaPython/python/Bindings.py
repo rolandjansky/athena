@@ -28,6 +28,7 @@ def _import_ROOT():
     import ROOT
     ROOT.gROOT.SetBatch(True)
     return ROOT
+
     
 ### data ----------------------------------------------------------------------
 
@@ -51,6 +52,14 @@ _clid_typename_aliases = {
     'AthenaHitsVector<TrackRecord>' : 'TrackRecordCollection',
     'Trk::SegmentCollection'        : 'DataVector<Trk::Segment>',
     }
+
+
+#Typed nullpointers:
+_import_ROOT()
+import cppyy
+svcNull=cppyy.bind_object(cppyy.nullptr,cppyy.gbl.IService)
+toolNull=cppyy.bind_object(cppyy.nullptr,cppyy.gbl.IAlgTool)
+algNull=cppyy.bind_object(cppyy.nullptr,cppyy.gbl.IAlgorithm)
 
 ### ---------------------------------------------------------------------------
 
@@ -135,9 +144,12 @@ def py_svc(svcName, createIf=True, iface=None):
     if svcName in PyComponents.instances:
         svc = PyComponents.instances[svcName]
 
-    if svc:
-        from AthenaPython import PyAthena
-        setattr(PyAthena.services, svcName, svc)
+    #Error handling: Convert c++ ptr to python-None
+    if svc == svcNull:
+        return None
+    
+    from AthenaPython import PyAthena
+    setattr(PyAthena.services, svcName, svc)
     return svc
 
 ### helper method to easily retrieve tools from ToolSvc by name ---------------
@@ -187,9 +199,12 @@ def py_tool(toolName, createIf=True, iface=None):
     if toolName in PyComponents.instances:
         tool = PyComponents.instances[toolName]
 
-    if tool:
-        from AthenaPython import PyAthena
-        setattr(PyAthena.services.ToolSvc, toolName, tool)
+    #Error handling: Convert c++ ptr to python-None
+    if tool == toolNull:
+        return None
+
+    from AthenaPython import PyAthena
+    setattr(PyAthena.services.ToolSvc, toolName, tool)
     return tool
 
 ### helper method to easily retrieve algorithms by name -----------------------
@@ -232,9 +247,12 @@ def py_alg(algName, iface='IAlgorithm'):
     if algName in PyComponents.instances:
         alg = PyComponents.instances[algName]
 
-    if alg:
-        from AthenaPython import PyAthena
-        setattr(PyAthena.algs, algName, alg)
+
+    if alg==algNull:
+        return None
+
+    from AthenaPython import PyAthena
+    setattr(PyAthena.algs, algName, alg)
     return alg
 
 ### pythonizations for StoreGateSvc
@@ -837,6 +855,7 @@ def _setup():
     _register('DataLink',          _py_init_DataLink)
     _register('ElementLink',       _py_init_ElementLink)
     _register('ElementLinkVector', _py_init_ElementLinkVector)
+    
     pass
 
 ## execute method at module import
