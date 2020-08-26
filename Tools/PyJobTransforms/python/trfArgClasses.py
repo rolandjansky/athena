@@ -2231,7 +2231,7 @@ class argSubstepSteering(argSubstep):
                       'no': {},
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
                       'doOverlay': {'HITtoRDO': [('in', '-', 'HITS'), ('out', '-', 'RDO'), ('out', '-', 'RDO_FILT')],
-                                    'OverlayPool': [('in', '+', ('HITS', 'RDO_BKG')), ('out', '+', 'RDO')]},
+                                    'Overlay': [('in', '+', ('HITS', 'RDO_BKG')), ('out', '+', 'RDO')]},
                       'afterburn': {'generate': [('out', '-', 'EVNT')]},
                       'doRAWtoALL': {'RAWtoALL': [('in', '+', 'BS'), ('in', '+', 'RDO'), ('in', '+', 'RDO_FTK'),
                                                   ('in', '+', 'DRAW_ZMUMU'), ('in', '+', 'DRAW_ZEE'), ('in', '+', 'DRAW_EMU'), ('in', '+', 'DRAW_RPVLL'), 

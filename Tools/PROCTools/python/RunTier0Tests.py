@@ -678,7 +678,7 @@ def main():
             }
         elif RunOverlay:
             qTestsToRun = {
-            'overlay-d1498':[ 'OverlayPool' ]
+            'overlay-d1498':[ 'Overlay' ]
             }
         elif RunPileUp:
             qTestsToRun = { 
