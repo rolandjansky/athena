@@ -23,10 +23,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 // PyROOT includes
 #include <TPython.h>
-#include "CPyCppyy/PyException.h"
-#ifndef ROOT_TPyException
-# define ROOT_TPyException 1 /* there was a typo in TPyException-v20882 */
-#endif
 
 // fixes 'dereferencing type-punned pointer will break strict-aliasing rules'
 #ifdef Py_True
@@ -331,7 +327,7 @@ recurse_pyinspect(PyObject *pyobj,
                 << mbr->GetTypeName() << "] !\n";
       Py_XDECREF(py_mbr);
       Py_XDECREF(py_mbr_name);
-      throw CPyCppyy::PyException();
+      throw RootUtils::PyException();
     }
 
     PyObject *this_name = ::new_pylist(pyobj_name, py_mbr_name);
@@ -481,7 +477,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
       std::cerr << "could not create py-object of type ["
                 << mbr->GetTypeName() << "] !\n";
       Py_DECREF(py_members);
-      throw CPyCppyy::PyException();
+      throw RootUtils::PyException();
     }
 
     PyObject *py_item = PyTuple_New(2);

@@ -25,9 +25,9 @@
 namespace Trk
 {
 
-  ZScanSeedFinder::ZScanSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
+  ZScanSeedFinder::ZScanSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) :
     base_class(t,n,p),
-    
+
     m_mode1dfinder("Trk::FsmwMode1dFinder", this),
     m_IPEstimator("Trk::TrackToVertexIPEstimator", this),
     m_disableAllWeights(false),
@@ -38,7 +38,7 @@ namespace Trk
     m_usePt(false),
     m_expPt(1.),
     m_cacheWeights(true)
-  {   
+  {
     declareProperty("Mode1dFinder",     m_mode1dfinder);
     declareProperty("IPEstimator", m_IPEstimator);
     declareProperty("disableAllWeights", m_disableAllWeights);
@@ -57,8 +57,8 @@ namespace Trk
   }
 
 
-  StatusCode ZScanSeedFinder::initialize() 
-  { 
+  StatusCode ZScanSeedFinder::initialize()
+  {
     ATH_CHECK( m_eventInfoKey.initialize() );
     if ( m_mode1dfinder.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_mode1dfinder);
@@ -79,7 +79,7 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-  StatusCode ZScanSeedFinder::finalize() 
+  StatusCode ZScanSeedFinder::finalize()
   {
     ATH_MSG_DEBUG("Finalize successful");
     return StatusCode::SUCCESS;
@@ -87,26 +87,26 @@ namespace Trk
 
 
   Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) const {
-    
+
     //create perigees from track list
     std::vector<const TrackParameters*> perigeeList;
-    
+
     std::vector<const Trk::Track*>::const_iterator begin=VectorTrk.begin();
     std::vector<const Trk::Track*>::const_iterator end=VectorTrk.end();
-    
+
     for (std::vector<const Trk::Track*>::const_iterator iter=begin;
-	 iter!=end;++iter) 
+	 iter!=end;++iter)
     {
-      if (isnan((*iter)->perigeeParameters()->parameters()[Trk::d0])) 
+      if (isnan((*iter)->perigeeParameters()->parameters()[Trk::d0]))
       {
 	continue;
-      }  
+      }
       perigeeList.push_back((*iter)->perigeeParameters());
     }
-   
+
     //create seed from perigee list
     return findSeed(perigeeList,constraint);
-    
+
   }
 
   Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) const {
@@ -121,7 +121,7 @@ namespace Trk
       ZPositions = getPositionsUncached (perigeeList, constraint);
     }
 
-    if ( !ZPositions.empty() ) 
+    if ( !ZPositions.empty() )
     {
 	ZResult=m_mode1dfinder->getMode(ZPositions);
         ATH_MSG_DEBUG("Resulting mean Z position found: " << ZResult);
@@ -136,7 +136,7 @@ namespace Trk
       return Amg::Vector3D(constraint->position().x(),constraint->position().y(),ZResult);
     }
     return Amg::Vector3D(0.,0.,ZResult);
-    
+
   }
 
 
@@ -175,7 +175,7 @@ namespace Trk
                                        const xAOD::Vertex * constraint) const
   {
     const EventContext& ctx = Gaudi::Hive::currentContext();
-    Cache& cache = *m_cache;
+    Cache& cache = *m_cache.get(ctx);
 
     Amg::Vector2D constraintkey;
     if (constraint) {
@@ -277,7 +277,7 @@ namespace Trk
 
 
   std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) const {
- 
+
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
     return std::vector<Amg::Vector3D>(0);
@@ -286,7 +286,7 @@ namespace Trk
 
 
   std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) const {
- 
+
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
     return std::vector<Amg::Vector3D>(0);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPGEOMODELXML_STRIPGMXINTERFACE_H
@@ -69,7 +69,7 @@ public:
     std::string getstr(const std::string typeName, const std::string name, const std::map<std::string, std::string> &par);
 
 private:
-    std::map<std::string, const InDetDD::SiDetectorDesign *> m_geometryMap;
+    std::map<std::string, int> m_geometryMap;
     InDetDD::SCT_DetectorManager *m_detectorManager;
     InDetDD::SiCommonItems *m_commonItems;
     WaferTree *m_waferTree;

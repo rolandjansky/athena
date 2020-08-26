@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/ViewVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -264,6 +261,7 @@ namespace SG {
 /// Specialize to declare that ViewVector<DV> derives from DV.
 template<class DV>
 struct Bases<ViewVector<DV> > {
+  using bases = BaseList<DV>;
   typedef DV Base1;               
   typedef NoBase Base2;          
   typedef NoBase Base3;      

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -107,14 +107,15 @@ PyObject* CPPInstanceExpand( PyObject*, PyObject* args )
 /**
  * @brief Install the pickling of CPPInstance's functionality.
  * @param libpyroot_pymodule The libPyROOT python module
- * @param objectproxy_pytype The CPPInstance python type
+ * @param CPPInstance_pytype The CPPInstance python type
  */
-void PyROOTPickle::Initialize( PyObject* libpyroot_pymodule, PyObject* objectproxy_pytype )
+void PyROOTPickle::Initialize( PyObject* libpyroot_pymodule, PyObject* cppinstance_pytype )
 {
   Py_INCREF( libpyroot_pymodule );
-  PyTypeObject* pytype = (PyTypeObject*)objectproxy_pytype;
+  PyTypeObject* pytype = (PyTypeObject*)cppinstance_pytype;
 
-  static PyMethodDef s_pdefExp = { (char*)"_CPPInstance__expand__",
+  // Don't change this name to CPPInstance since it's saved in pickles.
+  static PyMethodDef s_pdefExp = { (char*)"_ObjectProxy__expand__",
             (PyCFunction)CPPInstanceExpand, METH_VARARGS, (char*)"internal function" };
 
   PyObject* pymname = PyROOT_PyUnicode_FromString( PyModule_GetName( libpyroot_pymodule ) );

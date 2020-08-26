@@ -123,7 +123,7 @@ class TruthEtIsolations
    * Return true if this @c TruthEtIsolations container holds Et isolations
    * for that @c HepMC::GenParticle.
    */
-  bool hasEtIsol( const HepMC::GenParticle* genParticle ) const;
+  bool hasEtIsol( HepMC::ConstGenParticlePtr genParticle ) const;
 
   /** 
    * Return true if this @c TruthEtIsolations container holds Et isolations
@@ -134,7 +134,7 @@ class TruthEtIsolations
   /** Return the transverse energies for all cone sizes of isolation, for
    *  a given @c HepMC::GenParticle's barcode
    */
-  const EtIsol_t* etIsolations( const HepMC::GenParticle* genParticle ) const;
+  const EtIsol_t* etIsolations( HepMC::ConstGenParticlePtr genParticle ) const;
 
   /** Return the transverse energies for all cone sizes of isolation, for
    *  a given @c HepMC::GenParticle's barcode
@@ -147,7 +147,7 @@ class TruthEtIsolations
    *  (see TruthEtIsolationsParamDefs.h file) and that the index is checked for
    *  out of bounds.
    */
-  double etIsol( const HepMC::GenParticle* genParticle,
+  double etIsol( HepMC::ConstGenParticlePtr genParticle,
 		 const TruthParticleParameters::ConeSize coneIdx ) const;
 
   /** Return the transverse energy in a given cone size of isolation, for
@@ -178,18 +178,18 @@ class TruthEtIsolations
   /** Set the transverse energy isolation of a @c HepMC::GenParticle
    *  for a given Cone size
    */
-  void setEtIsol( const HepMC::GenParticle* genParticle,
+  void setEtIsol( HepMC::ConstGenParticlePtr genParticle,
 		  const TruthParticleParameters::ConeSize coneIdx,
                   const double etIsol );
 
   /** Set the transverse energy isolations for all the Cone sizes
    */
-  void setEtIsol( const HepMC::GenParticle* genParticle,
+  void setEtIsol( HepMC::ConstGenParticlePtr genParticle,
 		  const std::vector<double>& etIsols );
   
   /** Set the transverse energy isolations for all the Cone sizes
    */
-  void setEtIsol( const HepMC::GenParticle* genParticle,
+  void setEtIsol( HepMC::ConstGenParticlePtr genParticle,
 		  const EtIsol_t& etIsols );
   
   /////////////////////////////////////////////////////////////////// 

@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCABLEASDTOPP_HH
 #define MUONTGC_CABLING_TGCCABLEASDTOPP_HH
- 
+
+#include "MuonTGC_Cabling/TGCCable.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonCondInterface/ITGCCablingDbTool.h"
+#include "MuonTGC_Cabling/TGCId.h"
 
 #include <string>
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonTGC_Cabling/TGCCable.h"
-#include "MuonTGC_Cabling/TGCId.h"
+#include <vector>
 
 class StatusCode;
 
@@ -23,7 +25,7 @@ class TGCCableASDToPP : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableASDToPP (std::string filename);
+  TGCCableASDToPP (const std::string& filename);
   
   virtual ~TGCCableASDToPP (void);
 
@@ -35,7 +37,7 @@ public:
 private:
   TGCCableASDToPP (void) {}
  
-  void initialize(std::string&  filename);
+  void initialize(const std::string& filename);
  
   virtual TGCChannelId* getChannelIn (const TGCChannelId* ppin, 
 				      bool orChannel=false) const;
@@ -73,8 +75,8 @@ private:
 
   static const int s_stripForward[];
 
-  ToolHandle<ITGCCablingDbTool> m_tgcCablingDbTool;
-  std::vector<std::string> *m_ASD2PP_DIFF_12;
+  ToolHandle<ITGCCablingDbTool> m_tgcCablingDbTool; // cannot declare inline, since TGCCableASDToPP is no athena component
+  std::vector<std::string>* m_ASD2PP_DIFF_12;
 
   /** Pointers of common databases are recorded in this array */
   TGCDatabase* m_commonDb[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];

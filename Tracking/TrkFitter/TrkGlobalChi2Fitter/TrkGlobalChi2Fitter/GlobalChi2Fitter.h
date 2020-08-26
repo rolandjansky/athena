@@ -58,6 +58,12 @@ namespace Trk {
   class Volume;
 
   class GlobalChi2Fitter: public extends<AthAlgTool, IGlobalTrackFitter> {
+    struct PropagationResult {
+      std::unique_ptr<const TrackParameters> m_parameters;
+      std::unique_ptr<TransportJacobian> m_jacobian;
+      std::optional<std::vector<std::unique_ptr<const TrackParameters>>> m_preholes;
+    };
+
     struct Cache {
       /*
        * Currently the information about what type of fit is being passed by the
@@ -521,10 +527,87 @@ namespace Trk {
       bool, bool, int
     ) const;
 
+    /**
+     * @brief Helper method that encapsulates calls to the propagator tool in
+     * the calculateTrackParameters() method.
+     *
+     * This method encapsulates some of the logic relating to passing or not
+     * passing a Jacobian matrix to make the calculateTrackParameters() a lot
+     * more readable.
+     *
+     * For information about parameters see the
+     * IPropagator::propagateParameters() method, which this method almost
+     * directly wraps.
+     */
+    PropagationResult calculateTrackParametersPropagateHelper(
+      const EventContext &,
+      const TrackParameters &,
+      const GXFTrackState &,
+      PropDirection,
+      MagneticFieldProperties,
+      bool
+    ) const;
+
+    /**
+     * @brief Propagate onto a track state, collecting new track parameters, and
+     * optionally the Jacobian and possible holes.
+     *
+     * This is a helper function for the calculateTrackParameters() method. Its
+     * purpose is to propagate from a set of track parameters onto a surface,
+     * finding the new track parameters at that surface and optionally the
+     * Jacobian and a list of possible holes.
+     *
+     * This method uses another helper function, aptly called
+     * calculateTrackParametersPropagateHelper(), which wraps the actual
+     * propagator calls. What calculateTrackParametersPropagate() is call this
+     * method once and check the result. If the result is invalid, that is to
+     * say we didn't manage to extract a correct set of track parameters, we
+     * try again but with the propagation direction flipped.
+     *
+     * If the calcderiv argument is set, this method will attempt to calculate
+     * the Jacobian as well as the new set of track parameters. This involves
+     * non-trivial logic which is abstracted away in the underlying helper
+     * function.
+     *
+     * @param[in] ctx An event context.
+     * @param[in] prev The origin track parameters to start the propagation.
+     * @param[in] ts The destination track state (in GX2F internal form).
+     * @param[in] propdir The propagation direction.
+     * @param[in] bf The magnetic field properties.
+     * @param[in] calcderiv If set, calculate the derivative.
+     *
+     * @return An instance of PropagationResult, which is a struct with three
+     * members. Firstly, it contains a unique pointer to a set of track
+     * parameters, which are the track parameters at the destination track
+     * state following propagation. If these parameters are a nullpointer, that
+     * indicates a failure state. Secondly, if requested, the Jacobian is stored
+     * in this struct. This may be a nullptr if it was not requested or if the
+     * calculation of the Jacobian failed. Thirdly, it contains a vector of
+     * possible holes found between the start and end of the propagation. Since
+     * these hole states are not always necessary, they are wrapped in a
+     * std::optional type.
+     */
+    PropagationResult calculateTrackParametersPropagate(
+      const EventContext &,
+      const TrackParameters &,
+      const GXFTrackState &,
+      PropDirection,
+      MagneticFieldProperties,
+      bool
+    ) const;
+
     FitterStatusCode calculateTrackParameters(
       const EventContext& ctx,
       GXFTrajectory&,
       bool) const;
+
+    std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> updateEnergyLoss(
+      const Surface &,
+      const GXFMaterialEffects &,
+      const TrackParameters &,
+      double,
+      int
+    ) const;
 
     void calculateDerivatives(GXFTrajectory &) const;
 

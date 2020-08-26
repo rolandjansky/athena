@@ -531,7 +531,7 @@ void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPar
 // The parameter doCrossChecks is used to prevent double-counting for cross-checks
 // if isToBeDecayed is called more than once for the same particle.
 //
-bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticlePtr p, bool doCrossChecks) {
+bool EvtInclusiveDecay::isToBeDecayed(HepMC::ConstGenParticlePtr p, bool doCrossChecks) {
   int id = p->pdg_id();
   int stat = p->status();
   int nDaughters = 0;
@@ -665,7 +665,7 @@ bool EvtInclusiveDecay::passesUserSelection(HepMC::GenEvent* hepMC) {
   return passed;
 }
 
-double EvtInclusiveDecay::invMass(const HepMC::GenParticlePtr p1, const HepMC::GenParticlePtr p2) {
+double EvtInclusiveDecay::invMass(HepMC::ConstGenParticlePtr p1, HepMC::ConstGenParticlePtr p2) {
   double p1Px = p1->momentum().px();
   double p1Py = p1->momentum().py();
   double p1Pz = p1->momentum().pz();
@@ -815,7 +815,7 @@ unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
 #endif
 
 #ifdef HEPMC3
-std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticlePtr p, bool statusHighlighting, std::set<HepMC::GenParticlePtr>* barcodeList) {
+std::string EvtInclusiveDecay::pdgName(HepMC::ConstGenParticlePtr p, bool statusHighlighting, std::set<HepMC::GenParticlePtr>* barcodeList) {
   std::ostringstream buf;
   if (statusHighlighting) {
     if ( ((barcodeList!=0) && (barcodeList->find(p) != barcodeList->end())) ||
@@ -836,7 +836,7 @@ std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticlePtr p, bool statu
   return buf.str();
 }
 #else
-std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticlePtr p, bool statusHighlighting, std::set<int>* barcodeList) {
+std::string EvtInclusiveDecay::pdgName(HepMC::ConstGenParticlePtr p, bool statusHighlighting, std::set<int>* barcodeList) {
   std::ostringstream buf;
   if (statusHighlighting) {
     if ( ((barcodeList!=0) && (barcodeList->find(HepMC::barcode(p)) != barcodeList->end())) ||

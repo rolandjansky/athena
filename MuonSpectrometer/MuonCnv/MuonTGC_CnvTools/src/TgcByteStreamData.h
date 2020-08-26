@@ -190,9 +190,8 @@ struct TGC_BYTESTREAM_NSL_ROI
   unsigned roi:       8;
   unsigned pt:        4;
   unsigned charge:    1;
-  unsigned nswcoin:   3;
-  unsigned flags:     4;
-  unsigned fill1:     2;
+  unsigned coinflag:  3;
+  unsigned fill1:     6;
   unsigned bcBitmap:  2;
   unsigned sector:    4;
   unsigned fwd:       1;
@@ -203,13 +202,9 @@ struct TGC_BYTESTREAM_NSL_ROI
 
 struct TGC_BYTESTREAM_NSW_POS
 {
-  unsigned monitor:   1;
   unsigned eta:       8;
   unsigned phi:       6;
-  unsigned fill1:     2;
-  unsigned input:     3;
-  unsigned cand:      2;
-  unsigned fill2:     2;
+  unsigned fill1:    10;
   unsigned sector:    4;
   unsigned fwd:       1;
   unsigned type:      3;
@@ -239,9 +234,7 @@ struct TGC_BYTESTREAM_RPCBIS78_POS
 {
   unsigned eta:       6;
   unsigned phi:       6;
-  unsigned fill1:     8;
-  unsigned cand:      2;
-  unsigned fill2:     2;
+  unsigned fill1:    12;
   unsigned sector:    4;
   unsigned fwd:       1;
   unsigned type:      3;

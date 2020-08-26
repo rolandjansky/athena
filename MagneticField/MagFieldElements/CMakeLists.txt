@@ -17,5 +17,4 @@ atlas_add_library( MagFieldElements
 		 
 atlas_add_test( BFieldExample_test
                 SOURCES  test/BFieldExample_test.cxx
-                INCLUDE_DIRS 
                 LINK_LIBRARIES MagFieldElements)		

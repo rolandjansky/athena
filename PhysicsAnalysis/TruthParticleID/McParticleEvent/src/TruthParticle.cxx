@@ -53,7 +53,7 @@ TruthParticle::TruthParticle( const TruthParticle& rhs ) :
   m_nGenEventIdx   ( rhs.m_nGenEventIdx )
 {}
 
-TruthParticle::TruthParticle( const HepMC::GenParticle * particle, 
+TruthParticle::TruthParticle( HepMC::ConstGenParticlePtr particle, 
                               const TruthParticleContainer * container ) :
   INavigable          ( ),
   I4Momentum          ( ),
@@ -107,7 +107,7 @@ const TruthParticle * TruthParticle::child(const std::size_t i) const
 }
 
 
-const HepMC::GenParticle* TruthParticle::genMother(const std::size_t i) const
+HepMC::ConstGenParticlePtr TruthParticle::genMother(const std::size_t i) const
 {
   if ( i < m_mothers.size() ) {
     auto mother = this->mother(i);
@@ -118,7 +118,7 @@ const HepMC::GenParticle* TruthParticle::genMother(const std::size_t i) const
   }
 }
 
-const HepMC::GenParticle* TruthParticle::genChild(const std::size_t i) const
+HepMC::ConstGenParticlePtr TruthParticle::genChild(const std::size_t i) const
 {
   if ( i < m_children.size() ) {
     auto child = this->child(i);
@@ -248,7 +248,7 @@ PDG::pidType TruthParticle::pdgDecay( const std::size_t i ) const
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
-void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
+void TruthParticle::setGenParticle( HepMC::ConstGenParticlePtr particle )
 {
   this->particleBase().setGenParticle( particle );
 
@@ -257,6 +257,25 @@ void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
 
     // children
     auto dcyVtx = particle->end_vertex();
+#ifdef HEPMC3
+    m_children.reserve( dcyVtx ? dcyVtx->particles_out().size() : 0 );
+
+    if ( dcyVtx ) {
+      for ( auto  itr: dcyVtx->particles_out()) {
+        m_children.push_back( HepMC::barcode(itr) );
+      }//> end loop over outgoing particles
+    }//> decay vertex exists
+
+    // parents
+    auto prodVtx = particle->production_vertex();
+    m_mothers.reserve( prodVtx ? prodVtx->particles_in().size() : 0 );
+    if ( prodVtx ) {
+      for ( auto itr:  prodVtx->particles_in()) {
+        m_mothers.push_back( HepMC::barcode(itr) );
+      }//> end loop over ingoing particles
+    }//> production vertex exists
+#else
+
     m_children.reserve( dcyVtx ? dcyVtx->particles_out_size() : 0 );
 
     if ( dcyVtx ) {
@@ -280,6 +299,7 @@ void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
       }//> end loop over ingoing particles
     }//> production vertex exists
 
+#endif
   } else {
     m_mothers.resize( 0 );
     m_children.resize( 0 );

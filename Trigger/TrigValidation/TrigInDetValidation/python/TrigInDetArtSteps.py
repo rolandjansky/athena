@@ -8,11 +8,13 @@ The main common check steps are defined in the TrigValSteering.CheckSteps module
 '''
 
 import os
+import json
 
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
 from TrigAnalysisTest.TrigAnalysisSteps import AthenaCheckerStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
+from AthenaCommon.Utils.unixtools import FindFile
 
 ##################################################
 # Exec (athena) steps for Reco_tf
@@ -52,6 +54,7 @@ class TrigInDetReco(ExecStep):
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
+        self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 
 
@@ -88,7 +91,7 @@ class TrigInDetReco(ExecStep):
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
         if (self.postexec_trig != ' '):
-            self.args += ' --postExec "RDOtoRDOTrigger:{:s};" '.format(self.postexec_trig)
+            self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
         super(TrigInDetReco, self).configure(test)
 
 
@@ -139,10 +142,13 @@ class TrigInDetCompStep(RefComparisonStep):
     '''
     Execute TIDAcomparitor for data.root files.
     '''
-    def __init__(self, name='TrigInDetComp'):
+    def __init__(self, name='TrigInDetComp', level='L2', slice='muon', lowpt=False):
         super(TrigInDetCompStep, self).__init__(name)
         self.input_file = 'data-hists.root'
         self.output_dir = 'HLT-plots'
+        self.level= level
+        self.slice = slice
+        self.lowpt = lowpt
         self.chains = ' '
         self.args = ''
         self.test = ' '
@@ -152,63 +158,32 @@ class TrigInDetCompStep(RefComparisonStep):
         self.executable = 'TIDAcomparitor'
     
     def configure(self, test):
-        if (self.flag == 'L2muon'):
-            self.chains = 'HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-muon'
-        elif (self.flag == 'EFmuon'):
-            self.chains='HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-muon'
-        elif (self.flag == 'L2bjet'):
-            self.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-bjet'
-        elif (self.flag == 'EFbjet'):
-            self.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-bjet'
-        elif (self.flag == 'L2tau'):
-            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-tau'
-        elif (self.flag == 'EFtau'):
-            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_TAURoI'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-tau'
-        elif (self.flag == 'L2ele'):
-            self.chains = 'HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-electron'
-        elif (self.flag == 'EFele'):
-            self.chains = 'HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-electron'
-        elif (self.flag == 'L2FS'):
-            self.chains = 'HLT_IDTrack_FS_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-FS'
-        elif (self.flag == 'L2mb'):
-            self.chains = 'HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_FTF'
-            self.output_dir = 'HLTL2-plots'
-        elif (self.flag == 'EFmb'):
-            self.chains = 'HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-        else:
-            print('Unknown flag for comparitor step ', self.flag) 
+        json_file = 'TrigInDetValidation/comparitor.json'
+        json_fullpath = FindFile(json_file, os.environ['DATAPATH'].split(os.pathsep), os.R_OK)
+        if not json_fullpath:
+            print('Failed to determine full path for input JSON %s', json_file)
+            return None
+
+        with open(json_fullpath) as f:
+            data = json.load(f)
+
+        self.output_dir = 'HLT'+self.level+'-plots'
+
+        flag = self.level+self.slice
+        if (self.lowpt):
+            self.output_dir = self.output_dir+'-lowpt'    
+            flag = flag+'Lowpt'
+            
+        data_object = data[flag]
+
+        self.chains = data_object['chains']
+        if (self.test=='ttbar'):
+            self.output_dir = self.output_dir+"-"+self.slice
 
         if (self.type == 'offl'):
             self.output_dir = self.output_dir+'-offl'    
             self.input_file = 'data-hists-offline.root'
+
         if (self.reference == None):
             # if no referenc found, use input file as reference
             self.args += self.input_file+' '+self.input_file+' '+self.chains+' -d '+self.output_dir

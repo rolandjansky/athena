@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,7 +28,30 @@ template <class T>
 T* DataBucketBase::cast (SG::IRegisterTransient* irt /*= 0*/,
                          bool isConst /*= true*/)
 {
-  return reinterpret_cast<T*>
-    (cast (typeid (typename std::remove_const<T>::type), irt, isConst));
+  using T_nc = std::remove_const_t<T>;
+  const CLID clid = ClassID_traits<T_nc>::ID();
+  return reinterpret_cast<T*> (cast (clid, typeid(T_nc), irt, isConst));
+}
+
+
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a clid.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The class ID to which to convert.
+ * @param tinfo The @a std::type_info of the type to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ *
+ * This allows the callee to choose whether to use clid or tinfo.
+ * By default, this uses type_info,.
+ */
+inline
+void* DataBucketBase::cast (CLID /*clid*/,
+                            const std::type_info& tinfo,
+                            SG::IRegisterTransient* irt /*= 0*/,
+                            bool isConst /*= true*/)
+{
+  return cast (tinfo, irt, isConst);
 }
 

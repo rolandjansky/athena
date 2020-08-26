@@ -64,17 +64,16 @@ def makeGenEventVertexPositioner(ConfigFlags,name="GenEventVertexPositioner", **
 ## LorentzVectorGenerators
 def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **kwargs):
     """Return a conditional (? todo) vertex positioner tool"""
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    BeamSpotCondAlg = CompFactory.BeamSpotCondAlg
     from RngComps.RandomServices import RNG
 
     acc = ComponentAccumulator()
     
     acc.merge(RNG(engine=ConfigFlags.Random.Engine, name="AthRNGSvc"))
     kwargs.setdefault('RandomSvc', acc.getService("AthRNGSvc"))
-        
-    acc.merge(addFoldersSplitOnline(ConfigFlags,"INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList'))
-    acc.addCondAlgo(BeamSpotCondAlg("BeamSpotCondAlg"))
+
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
+
     acc.setPrivateTools(Simulation__VertexBeamCondPositioner(name, **kwargs))
     return acc
 

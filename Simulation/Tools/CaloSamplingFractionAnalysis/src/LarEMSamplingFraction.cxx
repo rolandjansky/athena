@@ -158,7 +158,7 @@ StatusCode LarEMSamplingFraction::execute()
 		return StatusCode::FAILURE;
 	}
 	HepMC::GenEvent::particle_const_iterator pit  = truthEvent->at(0)->particles_begin();
-	const HepMC::GenParticlePtr   gen  = *pit;
+	HepMC::ConstGenParticlePtr   gen  = *pit;
 	m_mc_pdg = gen->pdg_id();
 	m_mc_eta = gen->momentum().pseudoRapidity();
 	m_mc_phi = gen->momentum().phi();

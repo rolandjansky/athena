@@ -146,7 +146,7 @@ SG::DataBucket<T>::cast (CLID clid,
  * @brief Return the contents of the @c DataBucket,
  *        converted to type given by @a std::type_info.  Note that only
  *        derived->base conversions are allowed here.
- * @param clid The @a std::type_info of the type to which to convert.
+ * @param tinfo The @a std::type_info of the type to which to convert.
  * @param irt To be called if we make a new instance.
  * @param isConst True if the object being converted is regarded as const.
  */
@@ -182,7 +182,32 @@ void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
   return 0;
 }
 
-// The DataBucket descructor is put into an explicit namespace scope to get rid
+
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a clid.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The class ID to which to convert.
+ * @param tinfo The @a std::type_info of the type to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ *
+ * This allows the callee to choose whether to use clid or tinfo.
+ * Here we use clid.
+ */
+template <typename T> 
+inline
+void* SG::DataBucket<T>::cast (CLID clid,
+                               const std::type_info& /*tinfo*/,
+                               SG::IRegisterTransient* irt /*= 0*/,
+                               bool isConst /*= true*/) 
+{
+  // Don't use virtual dispatch for this call.
+  return DataBucket::cast (clid, irt, isConst);
+}
+
+
+// The DataBucket destructor is put into an explicit namespace scope to get rid
 // of a pesky warning from DPC++. Unfortunately Clang has an issue with the
 // class name having a scope declaration on the destructor for some reason.
 namespace SG {

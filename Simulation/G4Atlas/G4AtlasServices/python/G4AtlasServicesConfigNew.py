@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc=CompFactory.getComps("DetectorGeometrySvc","G4AtlasSvc","G4GeometryNotifierSvc","PhysicsListSvc",)
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg
 
 #the geometry tools
@@ -17,7 +17,6 @@ from AthenaCommon import Logging
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
 
-    isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
@@ -28,10 +27,22 @@ def getATLAS_RegionCreatorList(ConfigFlags):
             regionCreatorList += [PixelPhysicsRegionToolCfg(ConfigFlags)]
         if ConfigFlags.Detector.SimulateSCT:
             regionCreatorList += [SCTPhysicsRegionToolCfg(ConfigFlags)]
-        if ConfigFlags.Detector.SimulateTRT and not isUpgrade:
+        if ConfigFlags.Detector.SimulateTRT:
             regionCreatorList += [TRTPhysicsRegionToolCfg(ConfigFlags)]
             if isRUN2:
                 regionCreatorList += [TRT_ArPhysicsRegionToolCfg(ConfigFlags)] #'TRT_KrPhysicsRegionTool'
+        # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
+        if ConfigFlags.Detector.SimulateBpipe:
+            if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
+                regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
+            #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
+            if False:
+                regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.SimulateITk:
+        if ConfigFlags.Detector.SimulateITkPixel:
+            regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)] #TODO: add dedicated config
+        if ConfigFlags.Detector.SimulateITkStrip:
+            regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)] #TODO: And here...
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
         if ConfigFlags.Detector.SimulateBpipe:
             if ConfigFlags.Sim.BeamPipeSimMode != "Normal":

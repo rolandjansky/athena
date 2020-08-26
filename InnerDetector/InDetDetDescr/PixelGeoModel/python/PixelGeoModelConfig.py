@@ -17,11 +17,6 @@ def PixelGeometryCfg( flags ):
   InDetDD__BLM_Builder=CompFactory.InDetDD.BLM_Builder
   blmTool = InDetDD__BLM_Builder()
   pixelDetectorTool.BLM_Tool = blmTool
-  if flags.GeoModel.Run=="RUN4":
-      InDetServMatBuilderToolSLHC=CompFactory.InDetServMatBuilderToolSLHC
-      InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
-      acc.addPublicTool( InDetServMatBuilderToolSLHC )
-      pixelDetectorTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
   pixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
   geoModelSvc.DetectorTools += [ pixelDetectorTool ]
   acc.addService(geoModelSvc)

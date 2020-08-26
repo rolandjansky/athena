@@ -10,16 +10,11 @@
 
 using namespace MuonAlign;
 
-MuonAlignErrorExampleAlg::MuonAlignErrorExampleAlg (const std::string& name, ISvcLocator* pSvcLocator)
-: AthAlgorithm(name, pSvcLocator),
-  m_alignErrorTool("MuonAlign::AlignmentErrorTool"),
-  m_debug(0),
-  m_cham_per_dev(0),
-  m_dev_per_track(0),
-  m_idTool("MuonCalib::IdToFixedIdTool/IdToFixedIdTool")
-{
-  declareProperty("alignErrorTool", m_alignErrorTool);
-  declareProperty("idTool", m_idTool);
+MuonAlignErrorExampleAlg::MuonAlignErrorExampleAlg (const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator),
+  m_debug(nullptr),
+  m_cham_per_dev(nullptr),
+  m_dev_per_track(nullptr) {
 }
 
 StatusCode MuonAlignErrorExampleAlg::initialize () {

@@ -1,25 +1,25 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCCableASDToPP.h"
-#include <fstream>
-#include <sstream>
-#include "GaudiKernel/StatusCode.h"
 
+#include "GaudiKernel/StatusCode.h"
 #include "MuonTGC_Cabling/TGCDatabaseASDToPP.h" 
 #include "MuonTGC_Cabling/TGCChannelASDOut.h"
 #include "MuonTGC_Cabling/TGCChannelPPIn.h"
 
+#include <fstream>
+#include <sstream>
+
 namespace MuonTGC_Cabling {
 
 // Constructor & Destructor
-TGCCableASDToPP::TGCCableASDToPP(std::string filename)
-  : TGCCable(TGCCable::ASDToPP),  
-    m_tgcCablingDbTool("TGCCablingDbTool"), 
-    m_ASD2PP_DIFF_12(0)
-{
-  initialize(filename);
+TGCCableASDToPP::TGCCableASDToPP(const std::string& filename) :
+  TGCCable(TGCCable::ASDToPP),
+  m_tgcCablingDbTool("TGCCablingDbTool"),
+  m_ASD2PP_DIFF_12(nullptr) {
+    initialize(filename);
 }
 
 TGCCableASDToPP::~TGCCableASDToPP(void)
@@ -59,7 +59,7 @@ TGCCableASDToPP::~TGCCableASDToPP(void)
 }
 
 
-void TGCCableASDToPP::initialize(std::string& filename)
+void TGCCableASDToPP::initialize(const std::string& filename)
 {
   // Common database pointers are initialized 
   for(int region=0; region<TGCIdBase::MaxRegionType; region++) { 
