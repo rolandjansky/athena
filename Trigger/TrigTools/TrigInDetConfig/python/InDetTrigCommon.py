@@ -311,10 +311,10 @@ def ambiguitySolverAlg_builder(name, config):
       def getTrackOutput():
          #If we are also applying TRT then this collection is just intermediate
          if config.doTRT():
-            return  config.trkTracksPT()
+            return  config.trkTracksAS() #"%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', get_name_suffix( config.name() ))
          #Otherwise use final collection name
          else:
-            return  config.trkTracksAS() #"%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', get_name_suffix( config.name() ))
+            return  config.trkTracksPT()
 
 
       #-----------------------

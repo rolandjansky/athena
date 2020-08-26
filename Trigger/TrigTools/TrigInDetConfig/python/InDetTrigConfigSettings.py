@@ -44,6 +44,58 @@ def makeRecordable(getName):
             
 
 
+#Remap which eventually will be dropped once naming is aligned with signature settings
+remap  = {
+    "Muon"     : "muon",
+    "MuonFS"   : "muon",
+    "MuonLate" : "muon",
+    "MuonCore" : "muonCore",
+    "MuonIso"  : "muonIso",
+    "eGamma"   : "electron",
+    "Electron" : "electron",
+    "Tau"      : "tau",
+    "TauCore"  : "tauCore",
+    "TauIso"   : "tauIso",
+    "Jet"      : "bjet",
+    "JetFS"    : "fullScan",
+    "FS"       : "fullScan",
+    "bjetVtx"  : "bjetVtx",
+    "FullScan" : "fullScan",
+    "BeamSpot" : "beamSpot",
+    "Bphysics" : "bphysics",
+    "Cosmic"   : "cosmics",
+    "MinBias"  : "minBias400",
+    "minBias"  : "minBias400"
+}
+
+
+# Start using already decided naming conventions
+# NB: this is only needed at the moment since the signature menu code is 
+#     inconcistent in what flags they pass the ID Trigger configuration 
+#     for the FTF And precision tracking. Once that is tidied up, this
+#     should be removed
+
+#def remapSuffix( signature ):
+#   suffix_map = {
+#      'electron':  'Electron',
+#      'muon':      'Muon',
+#      'muonFS':    'MuonFS',
+#      'muonLate':  'MuonLate',
+#      'muonIso':   'MuonIso',
+#      'bjet':      'Bjet',
+#      'tau':       'Tau',
+#      'tauId':     'Tau',
+#      'tauEF':     'Tau',
+#      'tauTrk':    'Tau',
+#      'tauTrkTwo': 'Tau'
+#   }
+#
+#   if signature in suffix_map :
+#      return suffix_map[ signature ]
+#  
+#   return signature
+
+
 def getInDetTrigConfig( name, doRemap = True ) :
    
     #Use remapping if needed, eventually we should get rid of this by aligning nomenclature between signatures and ID
@@ -96,9 +148,13 @@ class _Settings :
         self._doFullScan          = False
         self._monPS               = 1
         self._monPtMin            = 1*GeV
-        self._roiName             = ""
-        self._trackCollection     = ""
-        self._trkTracks           = "TrigFastTrackFinder_Tracks" # Base Name of the track collection being produced by FTF, full name is appended by signature suffix, this is just temporary name and will be replaced by HLT_IDTrkTrack_Signature
+
+        self._roiBaseName         = "HLT_Roi"
+        self._tracksBaseName      = "HLT_IDTrack" # TrackParticles
+        self._trkTracksBaseName   = "HLT_IDTrkTrack" # TrkTrack collection, This will eventually replace FTFBaseName
+        self._suffix              = "" #Signature name suffix (e.g Electron,Muon,...) not necessarily the same as name! 
+        self._trkTracksFTFBaseName= "TrigFastTrackFinder_Tracks" # Base Name of the track collection being produced by FTF, full name is appended by signature suffix, this is just temporary name and will be replaced by HLT_IDTrkTrack_Signature
+
 
         self._doTRT               = False
         self._isRecordable        = True
@@ -108,7 +164,7 @@ class _Settings :
 
   #If signature name provided separate by underscore to be used for nomenclature
   def suffix(self):
-      return '' if not self._name else '_' + self._name 
+      return '' if not self._name else '_' + self._suffix 
 
   def isSignature(self, signature):
       return (self._name == signature)
@@ -159,33 +215,54 @@ class _Settings :
    return self._monPtMin
 
   def roiName(self) :
-   return self._roiName
+   #Expected: HLT_Roi_Electron
+   return "{}{}".format( self._roiBaseName, self.suffix() )
 
   def trackCollection(self) :
+   #Expected: HLT_Tracks_Electron
    return self._trackCollection
 
-  #Name of tracks from ambiguity solving stage  
-  @makeRecordable
-  def trkTracksAmbiSol(self, doRecord = False):
-   return '{}{}'.format( self._trkTracks, self.suffix() )
 
+  #------------------------
+  #TrkTracks getters
+
+  #AS might not be very descriptive, should we switch to AmbiSol at least?
   @makeRecordable
-  def tracksPT(self, doRecord = True ) :
-   return self._trackCollection + '_IDTrig'
+  def trkTracksAS(self, doRecord = False):
+   return '{}{}_AS'.format( self._trkTracksBaseName, self.suffix() )
+
+  #TE might not be very descriptive, should we switch to TRTExt at least?
+  @makeRecordable
+  def trkTracksTE(self, doRecord = False):
+   return '{}{}_TE'.format( self._trkTracksBaseName, self.suffix() )
+
+  #IDTrig might not be very descriptive but it is used convention probably since Run1...
+  @makeRecordable
+  def trkTracksPT(self, doRecord = False):
+   return '{}{}_IDTrig'.format( self._trkTracksBaseName, self.suffix() )
 
   @makeRecordable
   def trkTracksFTF(self, doRecord = False):
-   return '{}{}'.format( self._trkTracks, self.suffix() )
+   return '{}{}'.format( self._trkTracksFTFBaseName, self.suffix() )
+
+  #------------------------
+  #Track Particle getters
+
+  #IDTrig might not be very descriptive but it is used convention probably since Run1...
+  @makeRecordable
+  def tracksPT(self, doRecord = True ) :
+   return '{}{}_IDTrig'.format( self._tracksBaseName, self.suffix() )
 
   @makeRecordable
   def tracksFTF(self, doRecord = True) :
-   return self._trackCollection + '_FTF'
+   return '{}{}_FTF'.format( self._tracksBaseName, self.suffix() )
 
   def doTRT(self) :
    return self._doTRT
 
   def isRecordable(self) :
    return self._isRecordable
+
 
 
   def printout(self): 
@@ -219,11 +296,10 @@ class _Settings :
 class _Settings_electron( _Settings ) : 
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "electron"
+        self._name                = "electron"
+        self._suffix              = "Electron"
         self._doCloneRemoval      = False
         self._checkRedundantSeeds = True
-        self._roiName             = "HLT_Roi_Electron"
-        self._trackCollection     = "HLT_IDTrack_Electron"
 
         self._doTRT               = True
 
@@ -233,66 +309,63 @@ class _Settings_electron( _Settings ) :
 class _Settings_muon( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "muon"
+        self._name                = "muon"
+        self._suffix              = "Muon"
         self._d0SeedMax           = 10.0
         self._doResMon            = True
         self._doSpPhiFiltering    = False
         self._checkRedundantSeeds = True
         self._monPtMin            = 12*GeV
-        self._roiName             = "HLT_Roi_Muon"
-        self._trackCollection     = "HLT_IDTrack_Muon"
 
         self._doTRT               = False
 
 class _Settings_muonCore( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "muonCore"
+        self._name                = "muonCore"
+        self._suffix              = "MuonCore"
         self._d0SeedMax           = 10.0
         self._doSpPhiFiltering    = False
         self._checkRedundantSeeds = True
-        self._roiName             = "HLT_Roi_MuonCore"
-        self._trackCollection     = "HLT_IDTrack_MuonCore"
 
         self._doTRT               = False
+        self._isRecordable        = False # Do we need core? doesn't seem to be in EDM rn
 
 
 class _Settings_muonIso( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "muonIso"
-        self._etaHalfWidth = 0.35
-        self._phiHalfWidth = 0.35
-        self._roiName         = "HLT_Roi_MuonIso"
-        self._trackCollection = "HLT_IDTrack_MuonIso"
+        self._name                = "muonIso"
+        self._suffix              = "MuonIso"
+        self._etaHalfWidth        = 0.35
+        self._phiHalfWidth        = 0.35
 
         self._doTRT               = False
 
 class _Settings_muonFS( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "muonFS"
+        self._name                = "muonFS"
+        self._suffix              = "MuonFS"
+
         self._d0SeedMax           = 10.0
         self._doResMon            = True
         self._doSpPhiFiltering    = False
         self._checkRedundantSeeds = True
         self._monPtMin            = 12*GeV
-        self._roiName             = "HLT_Roi_MuonFS" #Is this correct?!
-        self._trackCollection     = "HLT_IDTrack_MuonFS" #Is this correct?!
 
         self._doTRT               = False
 
 class _Settings_muonLate( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "muonLate"
+        self._name                = "muonLate"
+        self._suffix              = "MuonLate"
         self._d0SeedMax           = 10.0
         self._doResMon            = True
         self._doSpPhiFiltering    = False
         self._checkRedundantSeeds = True
         self._monPtMin            = 12*GeV
-        self._roiName             = "HLT_Roi_MuonLate" #@TODO Is this correct?!
-        self._trackCollection     = "HLT_IDTrack_MuonLate" #Is this correct?!
 
         self._doTRT               = False
 
@@ -302,23 +375,21 @@ class _Settings_muonLate( _Settings ) :
 class _Settings_bjet( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "bjet"
+        self._name            = "bjet"
+        self._suffix          = "Bjet"
         self._etaHalfWidth    = 0.4
         self._phiHalfWidth    = 0.4
-        self._roiName         = "HLT_Roi_Bjet"
-        self._trackCollection = "HLT_IDTrack_Bjet"
 
         self._doTRT               = False
 
 class _Settings_bjetVtx( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "bjetVtx"
+        self._name            = "bjetVtx"
+        self._suffi           = "BjetVtx"
         self._pTmin           = 5.*GeV
         self._etaHalfWidth    = 0.1
         self._phiHalfWidth    = 0.1
-        self._roiName         = "HLT_Roi_BjetVtx"
-        self._trackCollection = "HLT_IDTrack_BjetVtx"
 
         self._doTRT               = False
 
@@ -327,12 +398,11 @@ class _Settings_bjetVtx( _Settings ) :
 class _Settings_fullScan( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "fullScan"
+        self._name            = "fullScan"
+        self._suffix          = "FS"
         self._doFullScan      = True
         self._etaHalfWidth    = 3
         self._phiHalfWidth    = 3.14159
-        self._roiName         = "HLT_Roi_FS"
-        self._trackCollection = "HLT_IDTrack_FS"
 
         self._doTRT               = False
 
@@ -341,15 +411,14 @@ class _Settings_fullScan( _Settings ) :
 class _Settings_beamSpot( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "beamSpot"
+        self._name            = "beamSpot"
+        self._suffix          = "BeamSpot"
         self._doFullScan      = True
         self._doZFinder       = True
         self._dRdoubletMax    = 200 
         self._seedRadBinWidth = 10
         self._etaHalfWidth    = 3
         self._phiHalfWidth    = 3.14159
-        self._roiName         = "HLT_Roi_Beamspot"
-        self._trackCollection = "HLT_IDTrack_Beamspot"
 
         self._doTRT           = False
         self._isRecordable    = False
@@ -360,13 +429,12 @@ class _Settings_beamSpot( _Settings ) :
 class _Settings_minBias( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "minBias"
+        self._name            = "minBias"
+        self._suffix          = "MinBias"
         self._doFullScan      = True
         self._pTmin           = 0.2*GeV # TODO: double check
         self._etaHalfWidth    = 3
         self._phiHalfWidth    = 3.14159
-        self._roiName         = "HLT_Roi_MinBias"
-        self._trackCollection = "HLT_IDTrack_MinBias"
 
         self._doTRT               = False
 
@@ -376,14 +444,13 @@ class _Settings_minBias( _Settings ) :
 class _Settings_cosmic( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "cosmic"
+        self._name            = "cosmic"
+        self._suffix          = "Cosmic"
         self._doFullScan      = True
         self._d0SeedMax       = 1000.0
         self._d0SeedPPSMax    = 1000.0
         self._etaHalfWidth    = 3
         self._phiHalfWidth    = 3.14159
-        self._roiName         = "HLT_Roi_Cosmic"
-        self._trackCollection = "HLT_IDTrack_cosmic"
 
         self._doTRT           = False
 
@@ -392,15 +459,13 @@ class _Settings_cosmic( _Settings ) :
 class _Settings_bphysics( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "bphysics"
-        self._d0SeedMax        = 10. 
-        self._doSpPhiFiltering = False
-        self._etaHalfWidth     = 0.75
-        self._phiHalfWidth     = 0.75
+        self._name                = "bphysics"
+        self._suffix              = "Bphys"
+        self._d0SeedMax           = 10. 
+        self._doSpPhiFiltering    = False
+        self._etaHalfWidth        = 0.75
+        self._phiHalfWidth        = 0.75
         self._checkRedundantSeeds = True
-        self._roiName           = "HLT_Roi_Bphys"
-        self._trackCollection   = "HLT_IDTrack_Bphys"
-
 
         self._doTRT               = False
 
@@ -409,32 +474,29 @@ class _Settings_bphysics( _Settings ) :
 class _Settings_tauCore( _Settings ) : 
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "tauCore"
-        self._roiName         = "HLT_Roi_TauCore"
-        self._trackCollection = "HLT_IDTrack_TauCore"
+        self._name            = "tauCore"
+        self._suffix          = "TauCore"
 
         self._doTRT               = True
 
 class _Settings_tauIso( _Settings ) : 
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "tauIso"
+        self._name            = "tauIso"
+        self._suffix          = "TauIso"
         self._etaHalfWidth    = 0.4
         self._phiHalfWidth    = 0.4
-        self._roiName         = "HLT_Roi_TauIso"
-        self._trackCollection = "HLT_IDTrack_TauIso"
 
         self._doTRT               = True
 
 class _Settings_tau( _Settings ) : 
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name = "tau"
+        self._name            = "tau"
+        self._suffix          = "Tau"
         self._pTmin           = 0.8*GeV 
         self._etaHalfWidth    = 0.4
         self._phiHalfWidth    = 0.4
-        self._roiName         = "HLT_Roi_Tau"
-        self._trackCollection = "HLT_IDTrack_Tau"
 
         self._doTRT               = True
 
@@ -454,6 +516,8 @@ _ConfigSettings = {
     "tau"       : _Settings_tau(),
     "tauCore"   : _Settings_tauCore(),
     "tauIso"    : _Settings_tauIso(),
+    #FIXME
+    #Need to be careful here, collections below are probably unnecessary, need to make sure if that is the case and we (tau group)need to remove them 
     "tauId"     : _Settings_tau(), #Does this need separate setting?
     "tauTrk"    : _Settings_tau(), #Does this need separate setting?
     "tauTrkTwo" : _Settings_tau(), #Does this need separate setting?
@@ -461,8 +525,11 @@ _ConfigSettings = {
 
     "bjet"      : _Settings_bjet(),
     "bjetVtx"   : _Settings_bjetVtx(),
+
+
+    "beamSpot"  : _Settings_beamSpot(),
     
     "cosmics"   : _Settings_cosmic(),
     "fullScan"  : _Settings_fullScan(),
-    "minBias"   : _Settings_minBias(),
+    "minBias400": _Settings_minBias(),
     "bphysics"  : _Settings_bphysics() }

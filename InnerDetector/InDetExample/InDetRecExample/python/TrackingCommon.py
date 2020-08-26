@@ -75,6 +75,8 @@ def makePublicTool(tool_creator) :
         from AthenaCommon.AppMgr import ToolSvc
         name=kwargs.pop('name',None)
         private=kwargs.pop("private",False)
+
+        print(kwargs)
         if len(args) == 1 :
             if name is not None :
                 raise Exception('Name given as positional and keyword argument')
