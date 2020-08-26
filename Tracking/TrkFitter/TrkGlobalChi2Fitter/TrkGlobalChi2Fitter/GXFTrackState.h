@@ -48,7 +48,7 @@ namespace Trk {
     const TrackParameters *takeTrackParameters(void);
     
     GXFMaterialEffects *materialEffects();
-    const Surface *surface();
+    const Surface *surface() const;
     void setJacobian(TransportJacobian &);
     Eigen::Matrix<double, 5, 5> & jacobian();
     Amg::MatrixX & derivatives();
@@ -101,6 +101,7 @@ namespace Trk {
     bool m_recalib;             //!< Has this measurement already been recalibrated?
     bool m_measphi;
     Amg::Vector3D m_globpos;
+    std::optional<std::vector<const TrackParameters *>> m_preholes;
 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

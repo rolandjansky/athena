@@ -56,8 +56,8 @@ namespace xAOD {
 
       // Unfortunately the dynamic variables can not be copied this easily...
       if( parent.m_store ) {
-         // cppcheck-suppress copyCtorPointerCopying
          m_ownsStore = false;
+         // cppcheck-suppress copyCtorPointerCopying
          m_store = parent.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
          m_auxids.insert( m_store->getAuxIDs().begin(),

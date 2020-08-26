@@ -138,7 +138,7 @@ namespace Trk {
     m_sigmascattheta = scatsigmatheta;
   }
 
-  double GXFMaterialEffects::x0() {
+  double GXFMaterialEffects::x0() const {
     return m_x0;
   }
 
@@ -146,27 +146,27 @@ namespace Trk {
     m_x0 = x0;
   }
 
-  double GXFMaterialEffects::deltaPhi() {
+  double GXFMaterialEffects::deltaPhi() const {
     return m_scatphi;
   }
 
-  double GXFMaterialEffects::measuredDeltaPhi() {
+  double GXFMaterialEffects::measuredDeltaPhi() const {
     return m_measscatphi;
   }
 
-  double GXFMaterialEffects::deltaTheta() {
+  double GXFMaterialEffects::deltaTheta() const {
     return m_scattheta;
   }
 
-  double GXFMaterialEffects::sigmaDeltaPhi() {
+  double GXFMaterialEffects::sigmaDeltaPhi() const {
     return m_sigmascatphi;
   }
 
-  double GXFMaterialEffects::sigmaDeltaTheta() {
+  double GXFMaterialEffects::sigmaDeltaTheta() const {
     return m_sigmascattheta;
   }
 
-  double GXFMaterialEffects::deltaE() {
+  double GXFMaterialEffects::deltaE() const {
     return m_deltae;
   }
 
@@ -178,19 +178,19 @@ namespace Trk {
     m_owneloss = true;
   }
 
-  double GXFMaterialEffects::sigmaDeltaE() {
+  double GXFMaterialEffects::sigmaDeltaE() const {
     return m_sigmadeltae;
   }
 
-  double GXFMaterialEffects::sigmaDeltaEPos() {
+  double GXFMaterialEffects::sigmaDeltaEPos() const {
     return m_sigmadeltaepos;
   }
 
-  double GXFMaterialEffects::sigmaDeltaENeg() {
+  double GXFMaterialEffects::sigmaDeltaENeg() const {
     return m_sigmadeltaeneg;
   }
 
-  double GXFMaterialEffects::sigmaDeltaEAve() {
+  double GXFMaterialEffects::sigmaDeltaEAve() const {
     if (m_eloss != nullptr) {
       return m_eloss->sigmaDeltaE();
     }
@@ -217,7 +217,7 @@ namespace Trk {
     m_measscatphi = measdf;
   }
 
-  double GXFMaterialEffects::delta_p() {
+  double GXFMaterialEffects::delta_p() const {
     return m_deltap;
   }
 
@@ -229,7 +229,7 @@ namespace Trk {
     m_iskink = iskink;
   }
 
-  bool GXFMaterialEffects::isKink() {
+  bool GXFMaterialEffects::isKink() const {
     return m_iskink;
   }
 
@@ -237,11 +237,11 @@ namespace Trk {
     m_ismeasuredeloss = ismeasuredeloss;
   }
 
-  bool GXFMaterialEffects::isMeasuredEloss() {
+  bool GXFMaterialEffects::isMeasuredEloss() const {
     return m_ismeasuredeloss;
   }
 
-  const Surface *GXFMaterialEffects::surface() {
+  const Surface *GXFMaterialEffects::surface() const {
     return m_surf;
   }
 
@@ -278,7 +278,7 @@ namespace Trk {
     return meot;
   }
 
-  const Trk::MaterialProperties * GXFMaterialEffects::materialProperties() {
+  const Trk::MaterialProperties * GXFMaterialEffects::materialProperties() const {
     return m_matprop;
   }
 
