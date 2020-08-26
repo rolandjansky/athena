@@ -329,6 +329,7 @@ def setupMenu():
         ['xe110_trkmht_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_trkmht_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_trkmht', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_trkmht_LRT', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_trkmht_muonor_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_trkmht_muonor', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         # ATR-19554
@@ -982,6 +983,7 @@ ps_rerun_list = [
       'xe0noL1_l2fsperf_trktc_lcw',
       'xe0noL1_l2fsperf_pufittrack_lcw_nojcalib',
       'xe0noL1_l2fsperf_trkmht',
+      'xe0noL1_l2fsperf_trkmht_LRT',
       ]
 
 if TriggerFlags.doFTK():
