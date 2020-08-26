@@ -9,7 +9,7 @@ It works in Athena and AthDerivation
 ## Usage
 
 Entry:
-unique_ptr<const xAOD::Vertex> matchTrkToPV(const xAOD::TrackParticle *trk, const xAOD::Vertex * PV, const xAOD::EventInfo *)
+unique_ptr<xAOD::Vertex> matchTrkToPV(const xAOD::TrackParticle *trk, const xAOD::Vertex * PV, const xAOD::EventInfo *)
 returns vertex obtained by merging an input track and already known PV. This fit has NDF=2, its Chi2 can be used to check the track-PV compatibility. No beamspot constraint is used, because it's assumed that the provided PV already has it.
 
 Entry:

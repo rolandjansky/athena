@@ -85,9 +85,9 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      TPC.reserve( 1 );
      TPC.push_back(new xAOD::TrackParticle(*trk));
      if(!TPC[0])return std::unique_ptr<xAOD::Vertex>(nullptr);
-     float mvx=0.; if(eventINFO)mvx=eventINFO->beamPosX();
-     float mvy=0.; if(eventINFO)mvy=eventINFO->beamPosY();
-     float mvz=0.; if(trk->isAvailable<float>("vz"))mvz=trk->vz();
+     const float mvx= (eventINFO) ? eventINFO->beamPosX() : 0.;
+     const float mvy= (eventINFO) ? eventINFO->beamPosY() : 0.;
+     const float mvz= (trk->isAvailable<float>("vz")) ? trk->vz() : 0.;
      TPC[0]->setParametersOrigin( mvx, mvy, mvz);
      wrkTrkC[0]=TPC[0];
      return std::unique_ptr<xAOD::Vertex>(m_fitterSvc->fit(wrkTrkC,(*PV)));
@@ -153,9 +153,9 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      for(int i=0; i<NPRT; i++){
 	TPC.push_back(new xAOD::TrackParticle(*particles[i]));
 	if(!TPC[i])return std::unique_ptr<xAOD::Vertex>(nullptr);
-	float mvx=0.; if(eventINFO)mvx=eventINFO->beamPosX();
-	float mvy=0.; if(eventINFO)mvy=eventINFO->beamPosY();
-	float mvz=0.; if(particles[i]->isAvailable<float>("vz"))mvz=particles[i]->vz();
+	const float mvx= (eventINFO) ? eventINFO->beamPosX() : 0.;
+	const float mvy= (eventINFO) ? eventINFO->beamPosY() : 0.;
+	const float mvz= (particles[i]->isAvailable<float>("vz")) ? particles[i]->vz() : 0.;
 	TPC[i]->setParametersOrigin( mvx, mvy, mvz);
 	wrkTrkC[i]=TPC[i];
      }
