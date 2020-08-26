@@ -61,7 +61,7 @@ private:
   { this, "COOLFolderKey", "", "Name of COOL folder" };
 
   StringProperty m_detStoreKey
-  { this, "DetStoreKey", "", "Key in DetetorStore of ToolConstants object." };
+  { this, "DetStoreKey", "", "Key in DetectorStore of ToolConstants object." };
 
   SG::WriteCondHandleKey<CaloRec::ToolConstants> m_toolConstantsKey
   { this, "ToolConstantsKey", "", "SG key of output ToolConstants object" };
