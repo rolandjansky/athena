@@ -70,7 +70,7 @@ namespace TCS {
       double m_EyDouble {0};
       double m_EtDouble {0};
 
-      static Heap<TCS::MetTOB> fg_heap;
+      static thread_local Heap<TCS::MetTOB> fg_heap;
    };
 }
 

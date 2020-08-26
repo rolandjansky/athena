@@ -94,10 +94,8 @@ namespace TCS {
       
       inputTOBType_t   m_tobType { NONE };
 
-      static Heap<TCS::GenericTOB> fg_heap;
-   };
-   
-} // end of namespace TCS
+      static thread_local  Heap<TCS::GenericTOB> fg_heap;
+   };  
+}
 
-
-#endif /* defined(__TopoCore__GeneralTOP__) */
+#endif

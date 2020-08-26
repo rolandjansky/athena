@@ -2,7 +2,7 @@
 
 #include "L1TopoEvent/MetTOB.h"
 
-TCS::Heap<TCS::MetTOB> TCS::MetTOB::fg_heap("Met");
+thread_local TCS::Heap<TCS::MetTOB> TCS::MetTOB::fg_heap("Met");
 
 const unsigned int TCS::MetTOB::g_nBitsEx = 15;
 const unsigned int TCS::MetTOB::g_nBitsEy = 15;

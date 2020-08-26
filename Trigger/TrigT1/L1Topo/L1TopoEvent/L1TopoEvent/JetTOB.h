@@ -89,7 +89,7 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
-      static Heap<TCS::JetTOB> fg_heap;
+      static thread_local Heap<TCS::JetTOB> fg_heap;
    };
    
 }

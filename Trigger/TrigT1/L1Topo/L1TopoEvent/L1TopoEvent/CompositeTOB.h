@@ -48,7 +48,7 @@ namespace TCS {
    private:
       data_t m_components;
 
-      static Heap<TCS::CompositeTOB> fg_heap;
+      static thread_local Heap<TCS::CompositeTOB> fg_heap;
    };
 }
 

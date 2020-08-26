@@ -2,7 +2,7 @@
 
 #include "L1TopoEvent/CompositeTOB.h"
 
-TCS::Heap<TCS::CompositeTOB> TCS::CompositeTOB::fg_heap("Composite");
+thread_local TCS::Heap<TCS::CompositeTOB> TCS::CompositeTOB::fg_heap("Composite");
 
 using namespace std;
 

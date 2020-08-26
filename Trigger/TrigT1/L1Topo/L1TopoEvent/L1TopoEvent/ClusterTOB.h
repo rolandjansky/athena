@@ -78,7 +78,7 @@ namespace TCS {
 
       inputTOBType_t  m_tobType { NONE };
 
-      static Heap<TCS::ClusterTOB> fg_heap;
+      static thread_local Heap<TCS::ClusterTOB> fg_heap;
    };
 }
 

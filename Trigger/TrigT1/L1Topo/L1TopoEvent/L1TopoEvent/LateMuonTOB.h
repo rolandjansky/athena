@@ -75,7 +75,7 @@ namespace TCS {
       double m_etaDouble {0};
       double m_phiDouble {0};
 
-      static Heap<TCS::LateMuonTOB> fg_heap;
+      static thread_local Heap<TCS::LateMuonTOB> fg_heap;
    };
 }
 

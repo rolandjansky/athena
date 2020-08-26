@@ -66,16 +66,16 @@ namespace TCS {
       static const unsigned int g_nBitsEta;
       static const unsigned int g_nBitsPhi;
       
-      unsigned int m_Et;
-      unsigned int m_isolation;
-      int m_eta;
-      int m_phi;
+      unsigned int m_Et{0};
+      unsigned int m_isolation{0};
+      int m_eta{0};
+      int m_phi{0};
 
-      double m_EtDouble;
-      double m_etaDouble;
-      double m_phiDouble;
+      double m_EtDouble{0};
+      double m_etaDouble{0};
+      double m_phiDouble{0};
 
-      static Heap<TCS::MuonNextBCTOB> fg_heap;
+      static thread_local Heap<TCS::MuonNextBCTOB> fg_heap;
    };
 }
 

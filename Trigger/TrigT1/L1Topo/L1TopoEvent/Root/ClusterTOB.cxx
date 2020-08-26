@@ -2,7 +2,7 @@
 
 #include "L1TopoEvent/ClusterTOB.h"
 
-TCS::Heap<TCS::ClusterTOB> TCS::ClusterTOB::fg_heap("Cluster");
+thread_local TCS::Heap<TCS::ClusterTOB> TCS::ClusterTOB::fg_heap("Cluster");
 
 const unsigned int TCS::ClusterTOB::g_nBitsEt = 10;
 const unsigned int TCS::ClusterTOB::g_nBitsIsolation = 5;
@@ -24,19 +24,8 @@ TCS::ClusterTOB::ClusterTOB(unsigned int et, unsigned int isolation, int eta, in
    , m_tobType( tobType )
 {}
 
-// constructor with individual values
-TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) :
-   BaseTOB( cluster.roiWord() )
-   , m_Et( cluster.m_Et )
-   , m_isolation( cluster.m_isolation )
-   , m_eta( cluster.m_eta )
-   , m_phi( cluster.m_phi )
-   , m_EtDouble( cluster.m_EtDouble )
-   , m_etaDouble( cluster.m_etaDouble )
-   , m_phiDouble( cluster.m_phiDouble )
-   , m_tobType( cluster.m_tobType )
-{}
-
+// copy constructor
+TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) = default;
 
 // destructor
 TCS::ClusterTOB::~ClusterTOB() = default;

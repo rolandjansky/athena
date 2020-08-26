@@ -2,20 +2,15 @@
 
 #include "L1TopoEvent/MuonTOB.h"
 
-TCS::Heap<TCS::MuonTOB> TCS::MuonTOB::fg_heap("Muon");
+thread_local TCS::Heap<TCS::MuonTOB> TCS::MuonTOB::fg_heap("Muon");
 
 const unsigned int TCS::MuonTOB::g_nBitsEt = 8;
 const unsigned int TCS::MuonTOB::g_nBitsIsolation = 5;
 const unsigned int TCS::MuonTOB::g_nBitsEta = 6;
 const unsigned int TCS::MuonTOB::g_nBitsPhi = 6;
 
-// default constructor
 TCS::MuonTOB::MuonTOB(uint32_t roiWord) :
    BaseTOB( roiWord )
-   , m_Et(0)
-   , m_isolation(0)
-   , m_eta(0)
-   , m_phi(0)
 {}
 
 // constructor with initial values
@@ -28,17 +23,7 @@ TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi,
 {}
 
 // copy constructor
-TCS::MuonTOB::MuonTOB(const TCS::MuonTOB & muon) : 
-   BaseTOB( muon.roiWord() )
-   , m_Et( muon.m_Et )
-   , m_isolation( muon.m_isolation )
-   , m_eta( muon.m_eta )
-   , m_phi( muon.m_phi )
-   , m_EtDouble( muon.m_Et )
-   , m_etaDouble( muon.m_eta )
-   , m_phiDouble( muon.m_phi )
-{}
-
+TCS::MuonTOB::MuonTOB(const TCS::MuonTOB & muon) = default;
 
 // destructor
 TCS::MuonTOB::~MuonTOB() = default;

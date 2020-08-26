@@ -4,11 +4,8 @@
 #define L1TOPOEVENT_HEAP
 
 #include <vector>
-#include <exception>
-#include <mutex>
-#include <pthread.h>
-#include <unordered_map>
-
+#include <cstdlib>
+#include <string>
 
 namespace TCS {
 
@@ -18,128 +15,72 @@ namespace TCS {
       Heap(const std::string & name, size_t capacity = 120) :
          m_name(name),
          m_originalCapacity(capacity)
-      {}
+      {
+         m_heap.heap = malloc( m_originalCapacity * sizeof(T) );
+         m_heap.pos = (T*)m_heap.heap;
+      }
 
       ~Heap() {
-         for( auto & x : m_threadHeapMap ) {
-            destroy(x.second);
-         }
-         m_threadHeapMap.clear();
+         clear();
+         free(m_heap.heap);
+         m_heap.heap = nullptr;
+         m_heap.pos = nullptr;
       }
 
-      /* @brief provide a clean heap for the current thread
-       * either clears the existing heap or provides a new one
-       */
+      /* @brief provide a clean heap of original size*/
       void
       clear() {
-         pthread_t threadId = pthread_self();
-         typename std::unordered_map<pthread_t, HeapStructure>::iterator x;
-         {
-            auto lock = std::scoped_lock{m_map_lock};
-            x = m_threadHeapMap.find(threadId);
+         // destruct objects on the currently active memory block
+         T * p = (T*)m_heap.heap;
+         while(p != m_heap.pos) {
+            (p++)->~T();
          }
-         if(x != m_threadHeapMap.end()) {
-            clear(x->second);
-         } else {
-            initHeap(threadId);
+         m_heap.pos = (T*)m_heap.heap; // reset the position to the beginning of the active memory block
+         // destroy objects on all other memory blocks
+         for(void * heap : m_heap.heapCollection) {
+            T * p = (T*)heap;
+            for(unsigned int t=0; t<m_originalCapacity; ++t)
+               (p++)->~T();
+            free(heap); // destroy other blocks
          }
+         m_heap.heapCollection.clear(); // clear the collection of memory blocks
       }
 
-      /** @brief create an object on the heap for the current thread
-       */
+      /** @brief create an object on the heap */
       T* create(const T & obj) {
-         auto & h = getHeap(pthread_self());
-         if(  (int)(h.pos - (T*)h.heap) == (int)m_originalCapacity ) {
-            extend(h);
+         if(  (int)(m_heap.pos - (T*)m_heap.heap) == (int)m_originalCapacity ) {
+            extend();
          }
-         T* newObject = new(h.pos++) T(obj);
+         T* newObject = new(m_heap.pos++) T(obj);
          return newObject;
       }
 
       size_t size() const {
-         const auto & h = getHeap(pthread_self());
-         return (h.pos - (T*)h.heap) + h.heapCollection.size() * m_originalCapacity;
+         return (m_heap.pos - (T*)m_heap.heap) + m_heap.heapCollection.size() * m_originalCapacity;
       }
 
       size_t capacity() const {
-         const auto & h = getHeap(pthread_self());
-         return h.capacity;
+         return (m_heap.heapCollection.size() + 1) * m_originalCapacity;
       }
 
    private:
 
       class HeapStructure {
       public:
-         void *                heap {nullptr};
-         T *                   pos {nullptr};
-         std::vector<void*>    heapCollection;
-         std::vector<size_t>   heapSizes;
-         size_t                capacity{0};                // allocated space in byte
+         void *                heap {nullptr};             // starting point of the currently active memory block
+         T *                   pos {nullptr};              // position in the currently active memory block
+         std::vector<void*>    heapCollection;             // vector of pointers to already allocated memory block
       };
 
-      std::unordered_map<pthread_t, HeapStructure> m_threadHeapMap;
-      mutable std::mutex m_map_lock;
+      HeapStructure m_heap;
       std::string m_name{};
       size_t m_originalCapacity{0};
 
-      HeapStructure &
-      getHeap(pthread_t threadId) {
-         auto lock = std::scoped_lock{m_map_lock};
-         return m_threadHeapMap.at(threadId);
-      }
-
-      const HeapStructure &
-      getHeap(pthread_t threadId) const {
-         auto lock = std::scoped_lock{m_map_lock};
-         return m_threadHeapMap.at(threadId);
-      }
-
       void
-      destroy(HeapStructure & h) {
-         clear(h);
-         free(h.heap);
-         h.heap = nullptr;
-         h.pos = nullptr;
-         h.capacity = 0;
-      }
-
-      void
-      extend(HeapStructure & h) {
-         h.heapCollection.push_back(h.heap); // park the old heap which has grown too small
-         h.heap = malloc( m_originalCapacity * sizeof(T) ); // create a new heap the same size as the original one
-         h.pos = (T*)h.heap; // make current position point to it
-         h.capacity += m_originalCapacity; // adjust the capacity
-      }
-
-
-      void
-      initHeap(pthread_t threadId)
-      {
-         HeapStructure h;
-         h.capacity = m_originalCapacity;
-         h.heap = malloc( h.capacity * sizeof(T) );
-         h.pos = (T*)h.heap;
-         auto lock = std::scoped_lock{m_map_lock};
-         m_threadHeapMap[threadId] = h;
-      }
-
-      void
-      clear(HeapStructure & h) {
-         // destroy objects on the heap structure
-         T * p = (T*)h.heap;
-         while(p != h.pos) {
-            (p++)->~T();
-         }
-         // destroy object on previous
-         for(void * heap : h.heapCollection) {
-            T * p = (T*)heap;
-            for(unsigned int t=0; t<m_originalCapacity; ++t)
-               (p++)->~T();
-            free(heap); // destroy these
-         }
-         h.heapCollection.clear();
-         h.pos = (T*)h.heap;
-         h.capacity = m_originalCapacity;
+      extend() {
+         m_heap.heapCollection.push_back(m_heap.heap); // park the old heap which has grown too small
+         m_heap.heap = malloc( m_originalCapacity * sizeof(T) ); // create a new heap the same size as the original one
+         m_heap.pos = (T*)m_heap.heap; // make current position point to it
       }
    };
 }

@@ -1,13 +1,8 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  LateMuonTOB.cpp
-//  TopoCore
-//  Based on MuonTOB created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/LateMuonTOB.h"
 
-TCS::Heap<TCS::LateMuonTOB> TCS::LateMuonTOB::fg_heap("LateMuon");
+thread_local TCS::Heap<TCS::LateMuonTOB> TCS::LateMuonTOB::fg_heap("LateMuon");
 
 const unsigned int TCS::LateMuonTOB::g_nBitsEt = 8;
 const unsigned int TCS::LateMuonTOB::g_nBitsIsolation = 5;
@@ -29,16 +24,7 @@ TCS::LateMuonTOB::LateMuonTOB(unsigned int et, unsigned int isolation, int eta, 
 {}
 
 // copy constructor
-TCS::LateMuonTOB::LateMuonTOB(const TCS::LateMuonTOB & muon) :
-   BaseTOB( muon.roiWord() )
-   , m_Et( muon.m_Et )
-   , m_isolation( muon.m_isolation )
-   , m_eta( muon.m_eta )
-   , m_phi( muon.m_phi )
-   , m_EtDouble( muon.m_Et )
-   , m_etaDouble( muon.m_eta )
-   , m_phiDouble( muon.m_phi )
-{}
+TCS::LateMuonTOB::LateMuonTOB(const TCS::LateMuonTOB & muon) = default;
 
 TCS::LateMuonTOB::~LateMuonTOB() = default;
 

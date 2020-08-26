@@ -2,7 +2,7 @@
 
 #include "L1TopoEvent/GenericTOB.h"
 
-TCS::Heap<TCS::GenericTOB> TCS::GenericTOB::fg_heap("Generic",100);
+thread_local TCS::Heap<TCS::GenericTOB> TCS::GenericTOB::fg_heap("Generic",100);
 
 // default constructor
 TCS::GenericTOB::GenericTOB(uint32_t roiWord) :
@@ -22,21 +22,8 @@ TCS::GenericTOB::GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord)
    , m_phiDouble(((double)phi)/10.)
 {}
 
-// constructor from generic data
-TCS::GenericTOB::GenericTOB(const GenericTOB & other) :
-   BaseTOB(other)
-   , m_Et(other.m_Et)
-   , m_EtNarrow(other.EtNarrow())
-   , m_EtWide(other.EtWide())
-   , m_Ex(other.m_Ex)
-   , m_Ey(other.m_Ey)
-   , m_eta(other.m_eta)
-   , m_phi(other.m_phi)
-   , m_EtDouble(other.m_EtDouble)
-   , m_etaDouble(other.m_etaDouble)
-   , m_phiDouble(other.m_phiDouble)
-   , m_tobType(other.m_tobType)
-{}
+// copy constructor
+TCS::GenericTOB::GenericTOB(const GenericTOB & other) = default;
 
 // constructor from jet
 TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
