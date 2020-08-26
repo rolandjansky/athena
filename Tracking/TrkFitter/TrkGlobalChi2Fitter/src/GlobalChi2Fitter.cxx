@@ -110,6 +110,16 @@ namespace {
   
     return std::make_pair(firstidpar, lastidpar);
   }
+
+  Trk::PropDirection invertPropdir(Trk::PropDirection i) {
+    if (i == Trk::alongMomentum) {
+      return Trk::oppositeMomentum;
+    } else if (i == Trk::oppositeMomentum) {
+      return Trk::alongMomentum;
+    } else {
+      return Trk::anyDirection;
+    }
+  }
 }
 
 namespace Trk {
@@ -7360,6 +7370,67 @@ namespace Trk {
   GlobalChi2Fitter::~GlobalChi2Fitter() {
   }
 
+  GlobalChi2Fitter::PropagationResult GlobalChi2Fitter::calculateTrackParametersPropagateHelper(
+    const EventContext & ctx,
+    const TrackParameters & prev,
+    const GXFTrackState & ts,
+    PropDirection propdir,
+    MagneticFieldProperties bf,
+    bool calcderiv
+  ) const {
+    std::unique_ptr<const TrackParameters> rv;
+    TransportJacobian * jac = nullptr;
+
+    if (calcderiv && !m_numderiv) {
+      rv.reset(
+        m_propagator->propagateParameters(
+          ctx, prev, *ts.surface(), propdir, false, bf, jac, Trk::nonInteracting, false
+        )
+      );
+    } else {
+      rv.reset(
+        m_propagator->propagateParameters(
+          ctx, prev, *ts.surface(), propdir, false, bf, Trk::nonInteracting, false
+        )
+      );
+
+      if (rv != nullptr && calcderiv) {
+        jac = numericalDerivatives(ctx, &prev, ts.surface(), propdir, bf).release();
+      }
+    }
+
+    return PropagationResult {
+      std::move(rv),
+      std::unique_ptr<TransportJacobian>(jac),
+      {}
+    };
+  }
+
+  GlobalChi2Fitter::PropagationResult GlobalChi2Fitter::calculateTrackParametersPropagate(
+    const EventContext & ctx,
+    const TrackParameters & prev,
+    const GXFTrackState & ts,
+    PropDirection propdir,
+    MagneticFieldProperties bf,
+    bool calcderiv
+  ) const {
+    PropagationResult rv;
+
+    rv = calculateTrackParametersPropagateHelper(
+      ctx, prev, ts, propdir, bf, calcderiv
+    );
+
+    if (rv.m_parameters == nullptr) {
+      propdir = invertPropdir(propdir);
+
+      rv = calculateTrackParametersPropagateHelper(
+        ctx, prev, ts, propdir, bf, calcderiv
+      );
+    }
+
+    return rv;
+  }
+
   FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(
     const EventContext& ctx,
     GXFTrajectory & trajectory,
@@ -7370,15 +7441,11 @@ namespace Trk {
 
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
     int nstatesupstream = trajectory.numberOfUpstreamStates();
-    int bremno = trajectory.numberOfUpstreamBrems() - 1;
-    GXFTrackState *prevstate = nullptr;
     const TrackParameters *prevtrackpar = trajectory.referenceParameters();
+    std::unique_ptr<const TrackParameters> tmptrackpar;
     
     for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
-      TrackState::TrackStateType prevtstype = prevstate != nullptr ? prevstate->trackStateType() : TrackState::AnyState;
-      std::unique_ptr<TransportJacobian> jac;
       const Surface *surf = states[hitno]->surface();
-      const TrackParameters *currenttrackpar = nullptr;
       Trk::PropDirection propdir = Trk::oppositeMomentum;
 
       DistanceSolution distsol = surf->straightLineDistanceEstimate(
@@ -7395,176 +7462,77 @@ namespace Trk {
         propdir = Trk::alongMomentum;
       }
 
-      bool curvpar = false;
-      if (calcderiv && !m_numderiv) {
-        TransportJacobian * tmp_jac = jac.get();
-        currenttrackpar = m_propagator->propagateParameters(
-          ctx,
-          *prevtrackpar, 
-          *surf, 
-          propdir,
-          false, 
-          trajectory.m_fieldprop,
-          tmp_jac,
-          Trk::nonInteracting,
-          curvpar
-        );
-        if (jac.get() != tmp_jac) jac.reset(tmp_jac);
-      } else {
-        currenttrackpar = m_propagator->propagateParameters(
-          ctx,
-          *prevtrackpar, 
-          *surf, 
-          propdir,
-          false, 
-          trajectory.m_fieldprop,
-          Trk::nonInteracting, 
-          curvpar
-        );
-      }
-
-      if (currenttrackpar == nullptr) {
-        jac.reset(nullptr);
-
-        propdir = (
-          propdir == Trk::oppositeMomentum ? 
-          Trk::alongMomentum : 
-          Trk::oppositeMomentum
-        );
-        
-        if (calcderiv && !m_numderiv) {
-          TransportJacobian * tmp_jac = jac.get();
-          currenttrackpar = m_propagator->propagateParameters(
-            ctx,
-            *prevtrackpar, 
-            *surf, 
-            propdir,
-            false, 
-            trajectory.m_fieldprop,
-            tmp_jac,
-            Trk::nonInteracting,
-            curvpar
-          );
-          if (jac.get() != tmp_jac) jac.reset(tmp_jac);
-        } else {
-          currenttrackpar = m_propagator->propagateParameters(
-            ctx,
-            *prevtrackpar, 
-            *surf, 
-            propdir,
-            false, 
-            trajectory.m_fieldprop,
-            Trk::nonInteracting, 
-            curvpar
-          );
-        }
-      }
-
-      if ((currenttrackpar != nullptr) && m_numderiv && calcderiv) {
-        jac = numericalDerivatives(ctx, prevtrackpar, surf, propdir, trajectory.m_fieldprop);
-      }
+      GlobalChi2Fitter::PropagationResult rv = calculateTrackParametersPropagate(
+        ctx,
+        *prevtrackpar,
+        *states[hitno],
+        propdir,
+        trajectory.m_fieldprop,
+        calcderiv
+      );
 
       if (
         propdir == Trk::alongMomentum && 
-        (currenttrackpar != nullptr) && 
-        (prevtrackpar->position() - currenttrackpar->position()).mag() > 5 * mm
+        (rv.m_parameters != nullptr) && 
+        (prevtrackpar->position() - rv.m_parameters->position()).mag() > 5 * mm
       ) {
         ATH_MSG_DEBUG("Propagation in wrong direction");
         
-        ATH_MSG_VERBOSE("upstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar);
+        ATH_MSG_VERBOSE("upstream prevtrackpar: " << *prevtrackpar << " current par: " << *rv.m_parameters);
       }
       
-      if (currenttrackpar == nullptr) {
+      if (rv.m_parameters == nullptr) {
         ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
           " pos: " << prevtrackpar->position() << " destination surface: " << *surf);
-        if (
-          hitno != nstatesupstream - 1 && 
-          (prevtstype == TrackState::Scatterer || prevtstype == TrackState::Brem)
-        ) {
-          delete prevtrackpar;
-        }
-        
         return FitterStatusCode::ExtrapolationFailure;
       }
-      
-      if (
-        hitno != nstatesupstream - 1 && 
-        (prevtstype == TrackState::Scatterer || prevtstype == TrackState::Brem)
-      ) {
-        delete prevtrackpar;
-      }
-      
-      states[hitno]->setTrackParameters(std::unique_ptr<const TrackParameters>(currenttrackpar));
+
+      states[hitno]->setTrackParameters(std::move(rv.m_parameters));
+      const TrackParameters *currenttrackpar = states[hitno]->trackParameters();
       surf = states[hitno]->surface();
 
-      if (calcderiv && (jac == nullptr)) {
+      if (rv.m_jacobian != nullptr) {
+        if (
+          states[hitno]->materialEffects() != nullptr &&
+          states[hitno]->materialEffects()->deltaE() != 0 &&
+          states[hitno]->materialEffects()->sigmaDeltaE() <= 0 &&
+          !trajectory.m_straightline
+        ) {
+          double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
+          double de = std::abs(states[hitno]->materialEffects()->deltaE());
+          double mass = trajectory.mass();
+          double newp = sqrt(p * p + 2 * de * sqrt(mass * mass + p * p) + de * de);
+          (*rv.m_jacobian) (4, 4) = ((p + p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
+        }
+
+        states[hitno]->setJacobian(*rv.m_jacobian);
+      } else if (calcderiv) {
         ATH_MSG_WARNING("Jacobian is null");
         return FitterStatusCode::ExtrapolationFailure;
-      }
-
-      if (jac != nullptr) {
-        if ((states[hitno]->materialEffects() != nullptr) && states[hitno]->materialEffects()->deltaE() != 0) {
-          if (states[hitno]->materialEffects()->sigmaDeltaE() <= 0 && !trajectory.m_straightline) {
-            double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
-            double de = std::abs(states[hitno]->materialEffects()->deltaE());
-            double mass = trajectory.mass();
-            double newp = sqrt(p * p + 2 * de * sqrt(mass * mass + p * p) + de * de);
-            (*jac) (4, 4) = ((p + p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
-          }
-        }
-        
-        states[hitno]->setJacobian(*jac);
       }
       
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
 
-      if ((meff != nullptr) && hitno != 0) {
-        double newphi = currenttrackpar->parameters()[Trk::phi0] - meff->deltaPhi();
-        double newtheta = currenttrackpar->parameters()[Trk::theta] - meff->deltaTheta();
-        bool ok = correctAngles(newphi, newtheta);
-        
-        if (!ok) {
-          ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
-          return FitterStatusCode::InvalidAngles;
-        }
-        
-        double newqoverp;
-        double sign = (currenttrackpar->parameters()[Trk::qOverP] < 0) ? -1. : 1.;
-        
-        if (meff->sigmaDeltaE() <= 0) {
-          if (std::abs(currenttrackpar->parameters()[Trk::qOverP]) < 1.e-12) {
-            newqoverp = 0.;
-          } else {
-            double mass = trajectory.mass();
-            double oldp = std::abs(1 / currenttrackpar->parameters()[Trk::qOverP]);
-            newqoverp = sign / sqrt(oldp * oldp + 2 * std::abs(meff->deltaE()) * sqrt(mass * mass + oldp * oldp) + meff->deltaE() * meff->deltaE());
-          }
-        } else {
-          newqoverp = currenttrackpar->parameters()[Trk::qOverP] - .001 * meff->delta_p();
-          bremno--;
-        }
-        
-        currenttrackpar = surf->createTrackParameters(
-          currenttrackpar->parameters()[0],
-          currenttrackpar->parameters()[1],
-          newphi, 
-          newtheta, 
-          newqoverp, 
-          nullptr
+      if (meff != nullptr && hitno != 0) {
+        std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> r = updateEnergyLoss(
+          *surf, *meff, *states[hitno]->trackParameters(), trajectory.mass(), -1
         );
+
+        if (std::holds_alternative<FitterStatusCode>(r)) {
+          return std::get<FitterStatusCode>(r);
+        }
+
+        tmptrackpar = std::move(std::get<std::unique_ptr<const TrackParameters>>(r));
+        prevtrackpar = tmptrackpar.get();
+      } else {
+        prevtrackpar = currenttrackpar;
       }
-      
-      prevtrackpar = currenttrackpar;
-      prevstate = states[hitno];
     }
 
     prevtrackpar = trajectory.referenceParameters();
-    bremno = trajectory.numberOfUpstreamBrems();
     
     for (int hitno = nstatesupstream; hitno < (int) states.size(); hitno++) {
-      std::unique_ptr<TransportJacobian> jac;
       const Surface *surf = states[hitno]->surface();
-      const TrackParameters *currenttrackpar = nullptr;
       Trk::PropDirection propdir = Trk::alongMomentum;
       DistanceSolution distsol = surf->straightLineDistanceEstimate(prevtrackpar->position(),  prevtrackpar->momentum().unit());
       
@@ -7574,177 +7542,122 @@ namespace Trk {
         propdir = Trk::oppositeMomentum;
       }
 
-      bool curvpar = false;
-
-      if (calcderiv && !m_numderiv) {
-        TransportJacobian * tmp_jac = jac.get();
-        currenttrackpar = m_propagator->propagateParameters(
-          ctx,
-          *prevtrackpar, 
-          *surf, 
-          propdir,
-          false, 
-          trajectory.m_fieldprop,
-          tmp_jac,
-          Trk::nonInteracting,
-          curvpar
-        );
-        if (jac.get() != tmp_jac) jac.reset(tmp_jac);
-      } else {
-        currenttrackpar = m_propagator->propagateParameters(
-          ctx,
-          *prevtrackpar, 
-          *surf, 
-          propdir,
-          false, 
-          trajectory.m_fieldprop,
-          Trk::nonInteracting,
-          curvpar
-        );
-      }
-
-      if (currenttrackpar == nullptr) {
-        propdir = (
-          propdir == Trk::oppositeMomentum ? 
-          Trk::alongMomentum : 
-          Trk::oppositeMomentum
-        );
-
-        jac.reset(nullptr);
-        
-        if (calcderiv && !m_numderiv) {
-          TransportJacobian * tmp_jac = jac.get();
-          currenttrackpar = m_propagator->propagateParameters(
-            ctx,
-            *prevtrackpar, 
-            *surf, 
-            propdir,
-            false, 
-            trajectory.m_fieldprop,
-            tmp_jac,
-            Trk::nonInteracting,
-            curvpar
-          );
-          if (jac.get() != tmp_jac) jac.reset(tmp_jac);
-        } else {
-          currenttrackpar = m_propagator->propagateParameters(
-            ctx,
-            *prevtrackpar, 
-            *surf, 
-            propdir,
-            false, 
-            trajectory.m_fieldprop,
-            Trk::nonInteracting, 
-            curvpar
-          );
-        }
-      }
-      
-      if ((currenttrackpar != nullptr) && m_numderiv && calcderiv) {
-        jac = numericalDerivatives(ctx, prevtrackpar, surf, propdir, trajectory.m_fieldprop);
-      }
+      GlobalChi2Fitter::PropagationResult rv = calculateTrackParametersPropagate(
+        ctx,
+        *prevtrackpar,
+        *states[hitno],
+        propdir,
+        trajectory.m_fieldprop,
+        calcderiv
+      );
 
       if (
-        (currenttrackpar != nullptr) && 
+        (rv.m_parameters != nullptr) && 
         propdir == Trk::oppositeMomentum && 
-        (prevtrackpar->position() - currenttrackpar->position()).mag() > 5 * mm
+        (prevtrackpar->position() - rv.m_parameters->position()).mag() > 5 * mm
       ) {
         ATH_MSG_DEBUG("Propagation in wrong direction");
         
         ATH_MSG_VERBOSE("downstream prevtrackpar: " << *prevtrackpar <<
           " surf: " << prevtrackpar->associatedSurface() << " current par: " << 
-          *currenttrackpar << " surf: " << currenttrackpar->associatedSurface());
+          *rv.m_parameters << " surf: " << rv.m_parameters->associatedSurface());
       }
       
-      if (currenttrackpar == nullptr) {
+      if (rv.m_parameters == nullptr) {
         ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
           " pos: " << prevtrackpar->
           position() << " destination surface: " << *surf);
         return FitterStatusCode::ExtrapolationFailure;
       }
 
-      if (jac != nullptr) {
-        if ((states[hitno]->materialEffects() != nullptr) && states[hitno]->materialEffects()->deltaE() != 0) {
-          if (states[hitno]->materialEffects()->sigmaDeltaE() <= 0 && !trajectory.m_straightline) {
-            double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
-            double de = std::abs(states[hitno]->materialEffects()->deltaE());
-            double mass = trajectory.mass();
-            double newp = p * p - 2 * de * sqrt(mass * mass + p * p) + de * de;
-            
-            if (newp > 0) {
-              newp = sqrt(newp);
-            }
-            
-            (*jac) (4, 4) = ((p - p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
+      if (rv.m_jacobian != nullptr) {
+        if (
+          states[hitno]->materialEffects() != nullptr &&
+          states[hitno]->materialEffects()->deltaE() != 0 &&
+          states[hitno]->materialEffects()->sigmaDeltaE() <= 0 &&
+          !trajectory.m_straightline
+        ) {
+          double p = 1 / std::abs(rv.m_parameters->parameters()[Trk::qOverP]);
+          double de = std::abs(states[hitno]->materialEffects()->deltaE());
+          double mass = trajectory.mass();
+          double newp = p * p - 2 * de * sqrt(mass * mass + p * p) + de * de;
+          
+          if (newp > 0) {
+            newp = sqrt(newp);
           }
+          
+          (*rv.m_jacobian) (4, 4) = ((p - p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
         }
         
-        states[hitno]->setJacobian(*jac);
-      }
-
-      if (calcderiv && (jac == nullptr)) {
+        states[hitno]->setJacobian(*rv.m_jacobian);
+      } else if (calcderiv) {
         ATH_MSG_WARNING("Jacobian is null");
-        delete currenttrackpar;
         return FitterStatusCode::ExtrapolationFailure;
       }
       
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
 
       if (meff != nullptr) {
-        AmgVector(5) newpars = currenttrackpar->parameters();
-
-        double newphi = currenttrackpar->parameters()[Trk::phi0] + meff->deltaPhi();
-        double newtheta = currenttrackpar->parameters()[Trk::theta] + meff->deltaTheta();
-        
-        bool ok = correctAngles(newphi, newtheta);
-        if (!ok) {
-          ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
-          
-          delete currenttrackpar;
-          return FitterStatusCode::InvalidAngles;
-        }
-        
-        double newqoverp;
-        double sign = (currenttrackpar->parameters()[Trk::qOverP] < 0) ? -1. : 1.;
-        
-        if (meff->sigmaDeltaE() <= 0) {
-          if (std::abs(currenttrackpar->parameters()[Trk::qOverP]) < 1.e-12) {
-            newqoverp = 0.;
-          } else {
-            double mass = trajectory.mass();
-            double oldp = std::abs(1 / currenttrackpar->parameters()[Trk::qOverP]);
-            double newp2 = oldp * oldp - 2 * std::abs(meff->deltaE()) * sqrt(mass * mass + oldp * oldp) + meff->deltaE() * meff->deltaE();
-            
-            if (newp2 < 0) {
-              ATH_MSG_DEBUG("Track killed by energy loss update");
-              delete currenttrackpar;
-              return FitterStatusCode::ExtrapolationFailureDueToSmallMomentum;
-            }
-            
-            newqoverp = sign / sqrt(newp2);
-          }
-        } else {
-          newqoverp = currenttrackpar->parameters()[Trk::qOverP] + .001 * meff->delta_p();
-          bremno++;
-        }
-
-        newpars[Trk::phi] = newphi;
-        newpars[Trk::theta] = newtheta;
-        newpars[Trk::qOverP] = newqoverp;
-        const TrackParameters *oldpar = currenttrackpar;
-        
-        currenttrackpar = surf->createTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+        std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> r = updateEnergyLoss(
+          *surf, *meff, *rv.m_parameters, trajectory.mass(), +1
         );
 
-        delete oldpar;
+        if (std::holds_alternative<FitterStatusCode>(r)) {
+          return std::get<FitterStatusCode>(r);
+        }
+
+        rv.m_parameters = std::move(std::get<std::unique_ptr<const TrackParameters>>(r));
       }
-      
-      states[hitno]->setTrackParameters(std::unique_ptr<const TrackParameters>(currenttrackpar));
-      prevtrackpar = currenttrackpar;
+
+      states[hitno]->setTrackParameters(std::move(rv.m_parameters));
+      prevtrackpar = states[hitno]->trackParameters();
     }
     
     return FitterStatusCode::Success;
+  }
+
+  std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> GlobalChi2Fitter::updateEnergyLoss(
+    const Surface & surf,
+    const GXFMaterialEffects & meff,
+    const TrackParameters & param,
+    double mass,
+    int sign
+  ) const {
+    const AmgVector(5) & old = param.parameters();
+
+    double newphi = old[Trk::phi0] + sign * meff.deltaPhi();
+    double newtheta = old[Trk::theta] + sign * meff.deltaTheta();
+
+    if (!correctAngles(newphi, newtheta)) {
+      ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
+      return FitterStatusCode::InvalidAngles;
+    }
+
+    double newqoverp;
+
+    if (meff.sigmaDeltaE() <= 0) {
+      if (std::abs(old[Trk::qOverP]) < 1.e-12) {
+        newqoverp = 0.;
+      } else {
+        double oldp = std::abs(1 / old[Trk::qOverP]);
+        double newp2 = oldp * oldp - sign * 2 * std::abs(meff.deltaE()) * sqrt(mass * mass + oldp * oldp) + meff.deltaE() * meff.deltaE();
+
+        if (newp2 < 0) {
+          ATH_MSG_DEBUG("Track killed by energy loss update");
+          return FitterStatusCode::ExtrapolationFailureDueToSmallMomentum;
+        }
+
+        newqoverp = std::copysign(1 / sqrt(newp2), old[Trk::qOverP]);
+      }
+    } else {
+      newqoverp = old[Trk::qOverP] + sign * .001 * meff.delta_p();
+    }
+
+    return std::unique_ptr<const TrackParameters>(
+      surf.createTrackParameters(
+        old[0], old[1], newphi, newtheta, newqoverp, nullptr
+      )
+    );
   }
 
   void GlobalChi2Fitter::calculateJac(
