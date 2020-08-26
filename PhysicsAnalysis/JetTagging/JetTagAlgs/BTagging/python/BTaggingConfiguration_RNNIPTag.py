@@ -20,7 +20,6 @@ elif conddb.isMC:
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
     if(commonGeoFlags.Run()=="RUN4"):
        btagItk=True
-       BTaggingFlags.CalibrationTag="BTagCalibITk-50_50-02-00"
 
 def buildRNNIP(basename, is_flipped=False, calibration=None):
     cal_dir = calibration or basename

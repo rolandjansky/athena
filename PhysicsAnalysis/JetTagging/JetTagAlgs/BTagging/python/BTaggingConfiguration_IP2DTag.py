@@ -15,7 +15,6 @@ elif conddb.isMC:
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
     if(commonGeoFlags.Run()=="RUN4"):
         btagItk=True
-        BTaggingFlags.CalibrationTag="BTagCalibITk-50_50-02-00"
 
 metaIP2DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP2D',
