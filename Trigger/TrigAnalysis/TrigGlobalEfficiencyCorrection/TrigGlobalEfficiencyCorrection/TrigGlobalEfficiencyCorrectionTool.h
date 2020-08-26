@@ -55,6 +55,7 @@ public:
 
 	virtual CP::CorrectionCode checkTriggerMatching(bool& matched, const std::vector<const xAOD::IParticle*>& particles) override;
 	virtual CP::CorrectionCode getRelevantTriggers(std::vector<std::string>& triggers) override;
+	virtual CP::CorrectionCode countTriggerLegs(const std::string& trigger, std::size_t& numberOfLegs) override;
 	
 	static CP::CorrectionCode suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination,
 		const std::string& version, std::map<std::string,std::string>& legsPerKey);
