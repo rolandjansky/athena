@@ -124,7 +124,7 @@ for xmlfile in $FILES; do
       echo "# art-include: 21.3/Athena" >>  $outfile
       echo "# art-include: 21.9/Athena" >>  $outfile
       echo "# art-include: master/Athena" >>  $outfile
-      echo "# art-html: https://atlas-art-data.web.cern.ch/atlas-art-data/scripts/TrigInDetValidation/TIDAart/?jobdir=" >>  $outfile
+      echo "# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=" >>  $outfile
     fi
     echo "# art-type: grid"       >>  $outfile 
     echo "# art-input:  $(basename $(dirname $DATASET))" >>  $outfile 
