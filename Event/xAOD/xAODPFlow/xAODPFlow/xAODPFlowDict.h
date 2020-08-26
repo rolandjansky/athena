@@ -45,12 +45,10 @@ namespace {
      // xAOD::PFO objects. :-(
      std::pair< ElementLink< xAOD::CaloClusterContainer >, double > dummy1;
      std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > dummy2;
-     std::vector< std::vector<ElementLink<xAOD::FlowElementContainer_v1>, double >> dummy3;
+     std::vector< std::vector<ElementLink<xAOD::FlowElementContainer_v1>, double >> dummy3; // fixes issues in eflowRec
      std::vector< std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > >  > dummy4;
      std::vector< xAOD::PFODetails::PFOLeptonType > dummy5;
 
-     // fixes some issues in eflowRec
-     std::vector<std::vector<ElementLink<DataVector<xAOD::FlowElement_v1> > > > dummy6;
 
    };
 }
