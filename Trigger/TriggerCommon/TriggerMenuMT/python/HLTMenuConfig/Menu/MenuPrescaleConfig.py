@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-#from TriggerMenu.menu.MenuUtil import resetAllPrescales
 from six import iteritems
 
 from AthenaCommon.Logging import logging
@@ -192,12 +191,4 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale, signaturesOverwritten):
         if n > 0:
             hltchain['prescale'] = str(prescales[0])
         log.info('Applied HLTPS to the item '+item+': PS'+ hltchain['prescale'])
-        #
-        #passthrough and rerun still in the HLTPrescale object but not needed currently
-        #
-        #if n > 1:
-        #    hltchain['pass_through'] = str(prescales[1])
-        #if n > 2:
-        #    hltchain['rerun_prescale'] = str(prescales[2])
-        #
-        #log.info('Applied HLTPS to the item '+item+': PS'+ hltchain.prescale+" PT"+hltchain.pass_through+" RerunPS"+hltchain.rerun_prescale)
+       
